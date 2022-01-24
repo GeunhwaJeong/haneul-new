@@ -32,3 +32,4 @@ typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = 
 
 [dev-dependencies]
 fdlimit = "0.2.1"
+naughty-strings = "0.2.4"
