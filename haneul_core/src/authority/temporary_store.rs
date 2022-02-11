@@ -1,4 +1,4 @@
-use fastx_types::event::Event;
+use haneul_types::event::Event;
 
 use super::*;
 

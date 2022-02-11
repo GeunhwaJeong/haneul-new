@@ -2,9 +2,9 @@
 members = [
         "haneul_core",
         "haneul",
-        "fastx_programmability/adapter",
-        "fastx_programmability/framework",
-	"fastx_types",
+        "haneul_programmability/adapter",
+        "haneul_programmability/framework",
+	"haneul_types",
 ]
 
 [profile.release]

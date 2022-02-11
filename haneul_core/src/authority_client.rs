@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
-use fastx_network::network::NetworkClient;
-use fastx_types::{error::HaneulError, messages::*, serialize::*};
+use haneul_network::network::NetworkClient;
+use haneul_types::{error::HaneulError, messages::*, serialize::*};
 
 #[async_trait]
 pub trait AuthorityAPI {

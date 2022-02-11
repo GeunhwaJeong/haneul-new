@@ -75,7 +75,7 @@ async fn main() -> Result<(), anyhow::Error> {
         println!();
 
         let mut shell = Shell {
-            prompt: "fastx>-$ ",
+            prompt: "haneul>-$ ",
             state: context,
             handler: ClientCommandHandler,
             description: String::new(),

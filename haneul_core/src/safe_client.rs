@@ -3,9 +3,9 @@
 
 use crate::authority_client::AuthorityAPI;
 use async_trait::async_trait;
-use fastx_types::{base_types::*, committee::*, fp_ensure};
+use haneul_types::{base_types::*, committee::*, fp_ensure};
 
-use fastx_types::{
+use haneul_types::{
     error::{HaneulError, HaneulResult},
     messages::*,
 };

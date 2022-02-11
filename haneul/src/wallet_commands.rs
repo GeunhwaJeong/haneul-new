@@ -1,18 +1,17 @@
 // Copyright (c) Haneul Labs
 // SPDX-License-Identifier: Apache-2.0
 use crate::config::{AccountInfo, AuthorityInfo, WalletConfig};
-use fastx_network::network::NetworkClient;
-use fastx_types::base_types::{
+use haneul_core::authority_client::AuthorityClient;
+use haneul_core::client::{Client, ClientState};
+use haneul_network::network::NetworkClient;
+use haneul_types::base_types::{
     decode_address_hex, encode_address_hex, get_key_pair, AuthorityName, ObjectID, PublicKeyBytes,
     HaneulAddress,
 };
-use fastx_types::committee::Committee;
-use fastx_types::messages::{ExecutionStatus, OrderEffects};
-use haneul_core::authority_client::AuthorityClient;
-use haneul_core::client::{Client, ClientState};
+use haneul_types::committee::Committee;
+use haneul_types::messages::{ExecutionStatus, OrderEffects};
 
 use crate::utils::Config;
-use fastx_types::error::HaneulError;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
 use move_core_types::parser::{parse_transaction_argument, parse_type_tag};
@@ -22,6 +21,7 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
+use haneul_types::error::HaneulError;
 use tracing::*;
 
 #[derive(StructOpt)]
