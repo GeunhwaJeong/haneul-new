@@ -1,5 +1,5 @@
 [package]
-name = "fastpay_core"
+name = "haneul_core"
 version = "0.1.0"
 authors = ["Libra <oncall+libra@xmail.facebook.com>"]
 license = "Apache-2.0"

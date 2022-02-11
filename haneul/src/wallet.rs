@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 use async_trait::async_trait;
 use colored::Colorize;
-use fastpay::config::WalletConfig;
-use fastpay::shell::{AsyncHandler, CommandStructure, Shell};
-use fastpay::utils::Config;
-use fastpay::wallet_commands::*;
 use std::io;
 use structopt::clap::{App, AppSettings};
 use structopt::StructOpt;
+use haneul::config::WalletConfig;
+use haneul::shell::{AsyncHandler, CommandStructure, Shell};
+use haneul::utils::Config;
+use haneul::wallet_commands::*;
 use tracing::subscriber::set_global_default;
 use tracing_subscriber::EnvFilter;
 
