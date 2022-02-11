@@ -16,7 +16,7 @@ pub enum SerializedMessage {
     Order(Box<Order>),
     Vote(Box<SignedOrder>),
     Cert(Box<CertifiedOrder>),
-    Error(Box<FastPayError>),
+    Error(Box<HaneulError>),
     AccountInfoReq(Box<AccountInfoRequest>),
     AccountInfoResp(Box<AccountInfoResponse>),
     ObjectInfoReq(Box<ObjectInfoRequest>),
@@ -34,7 +34,7 @@ enum ShallowSerializedMessage<'a> {
     Order(&'a Order),
     Vote(&'a SignedOrder),
     Cert(&'a CertifiedOrder),
-    Error(&'a FastPayError),
+    Error(&'a HaneulError),
     AccountInfoReq(&'a AccountInfoRequest),
     AccountInfoResp(&'a AccountInfoResponse),
     ObjectInfoReq(&'a ObjectInfoRequest),
@@ -76,7 +76,7 @@ where
     serialize_into(writer, &ShallowSerializedMessage::Order(value))
 }
 
-pub fn serialize_error(value: &FastPayError) -> Vec<u8> {
+pub fn serialize_error(value: &HaneulError) -> Vec<u8> {
     serialize(&ShallowSerializedMessage::Error(value))
 }
 
@@ -143,32 +143,28 @@ where
     bincode::deserialize_from(reader).map_err(|err| format_err!("{}", err))
 }
 
-pub fn deserialize_object_info(
-    message: SerializedMessage,
-) -> Result<ObjectInfoResponse, FastPayError> {
+pub fn deserialize_object_info(message: SerializedMessage) -> Result<ObjectInfoResponse, HaneulError> {
     match message {
         SerializedMessage::ObjectInfoResp(resp) => Ok(*resp),
         SerializedMessage::Error(error) => Err(*error),
-        _ => Err(FastPayError::UnexpectedMessage),
+        _ => Err(HaneulError::UnexpectedMessage),
     }
 }
 
 pub fn deserialize_account_info(
     message: SerializedMessage,
-) -> Result<AccountInfoResponse, FastPayError> {
+) -> Result<AccountInfoResponse, HaneulError> {
     match message {
         SerializedMessage::AccountInfoResp(resp) => Ok(*resp),
         SerializedMessage::Error(error) => Err(*error),
-        _ => Err(FastPayError::UnexpectedMessage),
+        _ => Err(HaneulError::UnexpectedMessage),
     }
 }
 
-pub fn deserialize_order_info(
-    message: SerializedMessage,
-) -> Result<OrderInfoResponse, FastPayError> {
+pub fn deserialize_order_info(message: SerializedMessage) -> Result<OrderInfoResponse, HaneulError> {
     match message {
         SerializedMessage::OrderResp(resp) => Ok(*resp),
         SerializedMessage::Error(error) => Err(*error),
-        _ => Err(FastPayError::UnexpectedMessage),
+        _ => Err(HaneulError::UnexpectedMessage),
     }
 }

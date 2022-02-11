@@ -8,17 +8,17 @@
 //! an ID field.
 
 use crate::verification_failure;
-use fastx_types::error::FastPayResult;
+use fastx_types::error::HaneulResult;
 use move_binary_format::{
     binary_views::BinaryIndexedView,
     file_format::{Bytecode, CompiledModule, FieldHandleIndex},
 };
 
-pub fn verify_module(module: &CompiledModule) -> FastPayResult {
+pub fn verify_module(module: &CompiledModule) -> HaneulResult {
     verify_id_immutable(module)
 }
 
-fn verify_id_immutable(module: &CompiledModule) -> FastPayResult {
+fn verify_id_immutable(module: &CompiledModule) -> HaneulResult {
     let view = BinaryIndexedView::Module(module);
     for func_def in &module.function_defs {
         if func_def.code.is_none() {

@@ -5,7 +5,7 @@ use fastx_adapter::{adapter, genesis};
 use fastx_types::{
     base_types::*,
     committee::Committee,
-    error::{FastPayError, FastPayResult},
+    error::{HaneulError, HaneulResult},
     fp_bail, fp_ensure, gas,
     messages::*,
     object::{Data, Object},
@@ -45,7 +45,7 @@ pub struct AuthorityState {
     // Fixed size, static, identity of the authority
     /// The name of this authority.
     pub name: AuthorityName,
-    /// Committee of this FastPay instance.
+    /// Committee of this Haneul instance.
     pub committee: Committee,
     /// The signature key of the authority.
     pub secret: StableSyncSigner,
@@ -73,12 +73,12 @@ impl AuthorityState {
         object_kind: InputObjectKind,
         object: &Object,
         mutable_object_ids: &HashSet<ObjectID>,
-    ) -> FastPayResult {
+    ) -> HaneulResult {
         match object_kind {
             InputObjectKind::MovePackage(package_id) => {
                 fp_ensure!(
                     object.data.try_as_package().is_some(),
-                    FastPayError::MoveObjectAsPackage {
+                    HaneulError::MoveObjectAsPackage {
                         object_id: package_id
                     }
                 );
@@ -86,13 +86,13 @@ impl AuthorityState {
             InputObjectKind::MoveObject((object_id, sequence_number, object_digest)) => {
                 fp_ensure!(
                     sequence_number <= SequenceNumber::max(),
-                    FastPayError::InvalidSequenceNumber
+                    HaneulError::InvalidSequenceNumber
                 );
 
                 // Check that the seq number is the same
                 fp_ensure!(
                     object.version() == sequence_number,
-                    FastPayError::UnexpectedSequenceNumber {
+                    HaneulError::UnexpectedSequenceNumber {
                         object_id,
                         expected_sequence: object.version(),
                     }
@@ -101,7 +101,7 @@ impl AuthorityState {
                 // Check the digest matches
                 fp_ensure!(
                     object.digest() == object_digest,
-                    FastPayError::InvalidObjectDigest {
+                    HaneulError::InvalidObjectDigest {
                         object_id,
                         expected_digest: object_digest
                     }
@@ -111,7 +111,7 @@ impl AuthorityState {
                     // Gas object must not be immutable.
                     fp_ensure!(
                         &object_id != order.gas_payment_object_id(),
-                        FastPayError::InsufficientGas {
+                        HaneulError::InsufficientGas {
                             error: "Gas object should not be immutable".to_string()
                         }
                     );
@@ -126,13 +126,10 @@ impl AuthorityState {
                 match &object.owner {
                     // TODO: More detailed error message for IncorrectSigner.
                     Authenticator::Address(addr) => {
-                        fp_ensure!(order.sender() == addr, FastPayError::IncorrectSigner);
+                        fp_ensure!(order.sender() == addr, HaneulError::IncorrectSigner);
                     }
                     Authenticator::Object(id) => {
-                        fp_ensure!(
-                            mutable_object_ids.contains(id),
-                            FastPayError::IncorrectSigner
-                        );
+                        fp_ensure!(mutable_object_ids.contains(id), HaneulError::IncorrectSigner);
                     }
                 };
 
@@ -146,22 +143,19 @@ impl AuthorityState {
 
     /// Check all the objects used in the order against the database, and ensure
     /// that they are all the correct version and number.
-    async fn check_locks(
-        &self,
-        order: &Order,
-    ) -> Result<Vec<(InputObjectKind, Object)>, FastPayError> {
+    async fn check_locks(&self, order: &Order) -> Result<Vec<(InputObjectKind, Object)>, HaneulError> {
         let input_objects = order.input_objects();
         let mut all_objects = Vec::with_capacity(input_objects.len());
 
         // There is at least one input
         fp_ensure!(
             !input_objects.is_empty(),
-            FastPayError::ObjectInputArityViolation
+            HaneulError::ObjectInputArityViolation
         );
         // Ensure that there are no duplicate inputs
         let mut used = HashSet::new();
         if !input_objects.iter().all(|o| used.insert(o.object_id())) {
-            return Err(FastPayError::DuplicateObjectRefInput);
+            return Err(HaneulError::DuplicateObjectRefInput);
         }
 
         let ids: Vec<_> = input_objects.iter().map(|kind| kind.object_id()).collect();
@@ -195,19 +189,16 @@ impl AuthorityState {
         // If any errors with the locks were detected, we return all errors to give the client
         // a chance to update the authority if possible.
         if !errors.is_empty() {
-            return Err(FastPayError::LockErrors { errors });
+            return Err(HaneulError::LockErrors { errors });
         }
 
-        fp_ensure!(
-            !all_objects.is_empty(),
-            FastPayError::ObjectInputArityViolation
-        );
+        fp_ensure!(!all_objects.is_empty(), HaneulError::ObjectInputArityViolation);
 
         Ok(all_objects)
     }
 
     /// Initiate a new order.
-    pub async fn handle_order(&self, order: Order) -> Result<OrderInfoResponse, FastPayError> {
+    pub async fn handle_order(&self, order: Order) -> Result<OrderInfoResponse, HaneulError> {
         // Check the sender's signature.
         order.check_signature()?;
         let transaction_digest = order.digest();
@@ -244,7 +235,7 @@ impl AuthorityState {
     pub async fn handle_confirmation_order(
         &self,
         confirmation_order: ConfirmationOrder,
-    ) -> Result<OrderInfoResponse, FastPayError> {
+    ) -> Result<OrderInfoResponse, HaneulError> {
         let certificate = confirmation_order.certificate;
         let order = certificate.order.clone();
         let transaction_digest = order.digest();
@@ -299,7 +290,7 @@ impl AuthorityState {
         order: Order,
         mut inputs: Vec<Object>,
         tx_ctx: &mut TxContext,
-    ) -> FastPayResult<(AuthorityTemporaryStore, ExecutionStatus)> {
+    ) -> HaneulResult<(AuthorityTemporaryStore, ExecutionStatus)> {
         let mut temporary_store = AuthorityTemporaryStore::new(self, &inputs, tx_ctx.digest());
         // unwraps here are safe because we built `inputs`
         let mut gas_object = inputs.pop().unwrap();
@@ -353,13 +344,13 @@ impl AuthorityState {
     fn transfer(
         temporary_store: &mut AuthorityTemporaryStore,
         mut inputs: Vec<Object>,
-        recipient: FastPayAddress,
+        recipient: HaneulAddress,
         mut gas_object: Object,
-    ) -> FastPayResult<ExecutionStatus> {
+    ) -> HaneulResult<ExecutionStatus> {
         if !inputs.len() == 1 {
             return Ok(ExecutionStatus::Failure {
                 gas_used: gas::MIN_OBJ_TRANSFER_GAS,
-                error: Box::new(FastPayError::ObjectInputArityViolation),
+                error: Box::new(HaneulError::ObjectInputArityViolation),
             });
         }
 
@@ -378,7 +369,7 @@ impl AuthorityState {
         if output_object.is_read_only() {
             return Ok(ExecutionStatus::Failure {
                 gas_used: gas::MIN_OBJ_TRANSFER_GAS,
-                error: Box::new(FastPayError::CannotTransferReadOnlyObject),
+                error: Box::new(HaneulError::CannotTransferReadOnlyObject),
             });
         }
 
@@ -390,21 +381,21 @@ impl AuthorityState {
     pub async fn handle_order_info_request(
         &self,
         request: OrderInfoRequest,
-    ) -> Result<OrderInfoResponse, FastPayError> {
+    ) -> Result<OrderInfoResponse, HaneulError> {
         self.make_order_info(&request.transaction_digest).await
     }
 
     pub async fn handle_account_info_request(
         &self,
         request: AccountInfoRequest,
-    ) -> Result<AccountInfoResponse, FastPayError> {
+    ) -> Result<AccountInfoResponse, HaneulError> {
         self.make_account_info(request.account)
     }
 
     pub async fn handle_object_info_request(
         &self,
         request: ObjectInfoRequest,
-    ) -> Result<ObjectInfoResponse, FastPayError> {
+    ) -> Result<ObjectInfoResponse, HaneulError> {
         // Only add a certificate if it is requested
         let ref_and_digest = if let Some(seq) = request.request_sequence_number {
             // Get the Transaction Digest that created the object
@@ -428,7 +419,7 @@ impl AuthorityState {
                 } else {
                     // Get the cert from the transaction digest
                     Some(self.read_certificate(&transaction_digest).await?.ok_or(
-                        FastPayError::CertificateNotfound {
+                        HaneulError::CertificateNotfound {
                             certificate_digest: transaction_digest,
                         },
                     )?)
@@ -509,7 +500,7 @@ impl AuthorityState {
         }
     }
 
-    async fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, FastPayError> {
+    async fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
         self._database.get_object(object_id)
     }
 
@@ -523,14 +514,11 @@ impl AuthorityState {
     async fn make_order_info(
         &self,
         transaction_digest: &TransactionDigest,
-    ) -> Result<OrderInfoResponse, FastPayError> {
+    ) -> Result<OrderInfoResponse, HaneulError> {
         self._database.get_order_info(transaction_digest)
     }
 
-    fn make_account_info(
-        &self,
-        account: FastPayAddress,
-    ) -> Result<AccountInfoResponse, FastPayError> {
+    fn make_account_info(&self, account: HaneulAddress) -> Result<AccountInfoResponse, HaneulError> {
         self._database
             .get_account_objects(account)
             .map(|object_ids| AccountInfoResponse {
@@ -553,7 +541,7 @@ impl AuthorityState {
         &self,
         mutable_input_objects: &[ObjectRef],
         signed_order: SignedOrder,
-    ) -> Result<(), FastPayError> {
+    ) -> Result<(), HaneulError> {
         self._database
             .set_order_lock(mutable_input_objects, signed_order)
     }
@@ -563,7 +551,7 @@ impl AuthorityState {
         temporary_store: AuthorityTemporaryStore,
         certificate: CertifiedOrder,
         signed_effects: SignedOrderEffects,
-    ) -> Result<OrderInfoResponse, FastPayError> {
+    ) -> Result<OrderInfoResponse, HaneulError> {
         self._database
             .update_state(temporary_store, certificate, signed_effects)
     }
@@ -572,7 +560,7 @@ impl AuthorityState {
     pub async fn get_order_lock(
         &self,
         object_ref: &ObjectRef,
-    ) -> Result<Option<SignedOrder>, FastPayError> {
+    ) -> Result<Option<SignedOrder>, HaneulError> {
         self._database.get_order_lock(object_ref)
     }
 
@@ -582,7 +570,7 @@ impl AuthorityState {
     pub async fn read_certificate(
         &self,
         digest: &TransactionDigest,
-    ) -> Result<Option<CertifiedOrder>, FastPayError> {
+    ) -> Result<Option<CertifiedOrder>, HaneulError> {
         self._database.read_certificate(digest)
     }
 
@@ -595,7 +583,7 @@ impl AuthorityState {
     pub async fn get_objects(
         &self,
         _objects: &[ObjectID],
-    ) -> Result<Vec<Option<Object>>, FastPayError> {
+    ) -> Result<Vec<Option<Object>>, HaneulError> {
         self._database.get_objects(_objects)
     }
 
@@ -605,7 +593,7 @@ impl AuthorityState {
         &self,
         object_id: ObjectID,
         seq: Option<SequenceNumber>,
-    ) -> Result<Vec<(ObjectRef, TransactionDigest)>, FastPayError> {
+    ) -> Result<Vec<(ObjectRef, TransactionDigest)>, HaneulError> {
         {
             self._database.get_parent_iterator(object_id, seq)
         }
@@ -614,7 +602,7 @@ impl AuthorityState {
     pub async fn get_latest_parent_entry(
         &self,
         object_id: ObjectID,
-    ) -> Result<Option<(ObjectRef, TransactionDigest)>, FastPayError> {
+    ) -> Result<Option<(ObjectRef, TransactionDigest)>, HaneulError> {
         self._database.get_latest_parent_entry(object_id)
     }
 
@@ -623,7 +611,7 @@ impl AuthorityState {
     fn get_unwrapped_object_ids(
         &self,
         written: &BTreeMap<ObjectID, Object>,
-    ) -> Result<Vec<ObjectID>, FastPayError> {
+    ) -> Result<Vec<ObjectID>, HaneulError> {
         // For each mutated object, we first find out whether there was a transaction
         // that deleted this object in the past.
         let parents = self._database.multi_get_parents(

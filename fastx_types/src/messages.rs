@@ -19,15 +19,15 @@ use std::{
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct Transfer {
-    pub sender: FastPayAddress,
-    pub recipient: FastPayAddress,
+    pub sender: HaneulAddress,
+    pub recipient: HaneulAddress,
     pub object_ref: ObjectRef,
     pub gas_payment: ObjectRef,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct MoveCall {
-    pub sender: FastPayAddress,
+    pub sender: HaneulAddress,
     // TODO: For package object, we only need object id, as it's always read-only.
     pub package: ObjectRef,
     pub module: Identifier,
@@ -41,7 +41,7 @@ pub struct MoveCall {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct MoveModulePublish {
-    pub sender: FastPayAddress,
+    pub sender: HaneulAddress,
     pub gas_payment: ObjectRef,
     pub modules: Vec<Vec<u8>>,
     pub gas_budget: u64,
@@ -107,11 +107,11 @@ pub struct ConfirmationOrder {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct AccountInfoRequest {
-    pub account: FastPayAddress,
+    pub account: HaneulAddress,
 }
 
-impl From<FastPayAddress> for AccountInfoRequest {
-    fn from(account: FastPayAddress) -> Self {
+impl From<HaneulAddress> for AccountInfoRequest {
+    fn from(account: HaneulAddress) -> Self {
         AccountInfoRequest { account }
     }
 }
@@ -147,7 +147,7 @@ impl From<ObjectID> for ObjectInfoRequest {
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct AccountInfoResponse {
     pub object_ids: Vec<ObjectRef>,
-    pub owner: FastPayAddress,
+    pub owner: HaneulAddress,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -210,14 +210,9 @@ pub struct OrderInfoResponse {
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize)]
 pub enum ExecutionStatus {
     // Gas used in the success case.
-    Success {
-        gas_used: u64,
-    },
+    Success { gas_used: u64 },
     // Gas used in the failed case, and the error.
-    Failure {
-        gas_used: u64,
-        error: Box<FastPayError>,
-    },
+    Failure { gas_used: u64, error: Box<HaneulError> },
 }
 
 impl ExecutionStatus {
@@ -230,7 +225,7 @@ impl ExecutionStatus {
         }
     }
 
-    pub fn unwrap_err(self) -> (u64, FastPayError) {
+    pub fn unwrap_err(self) -> (u64, HaneulError) {
         match self {
             ExecutionStatus::Success { .. } => {
                 panic!("Unable to unwrap() on {:?}", self);
@@ -330,10 +325,10 @@ impl InputObjectKind {
         }
     }
 
-    pub fn object_not_found_error(&self) -> FastPayError {
+    pub fn object_not_found_error(&self) -> HaneulError {
         match *self {
-            Self::MovePackage(package_id) => FastPayError::DependentPackageNotFound { package_id },
-            Self::MoveObject((object_id, _, _)) => FastPayError::ObjectNotFound { object_id },
+            Self::MovePackage(package_id) => HaneulError::DependentPackageNotFound { package_id },
+            Self::MoveObject((object_id, _, _)) => HaneulError::ObjectNotFound { object_id },
         }
     }
 }
@@ -346,7 +341,7 @@ impl Order {
 
     #[allow(clippy::too_many_arguments)]
     pub fn new_move_call(
-        sender: FastPayAddress,
+        sender: HaneulAddress,
         package: ObjectRef,
         module: Identifier,
         function: Identifier,
@@ -372,7 +367,7 @@ impl Order {
     }
 
     pub fn new_module(
-        sender: FastPayAddress,
+        sender: HaneulAddress,
         gas_payment: ObjectRef,
         modules: Vec<Vec<u8>>,
         gas_budget: u64,
@@ -394,7 +389,7 @@ impl Order {
         Self::new(OrderKind::Transfer(transfer), secret)
     }
 
-    pub fn check_signature(&self) -> Result<(), FastPayError> {
+    pub fn check_signature(&self) -> Result<(), HaneulError> {
         self.signature.check(&self.kind, *self.sender())
     }
 
@@ -485,7 +480,7 @@ impl Order {
     }
 
     // TODO: make sender a field of Order
-    pub fn sender(&self) -> &FastPayAddress {
+    pub fn sender(&self) -> &HaneulAddress {
         use OrderKind::*;
         match &self.kind {
             Transfer(t) => &t.sender,
@@ -516,10 +511,10 @@ impl SignedOrder {
     }
 
     /// Verify the signature and return the non-zero voting right of the authority.
-    pub fn check(&self, committee: &Committee) -> Result<usize, FastPayError> {
+    pub fn check(&self, committee: &Committee) -> Result<usize, HaneulError> {
         self.order.check_signature()?;
         let weight = committee.weight(&self.authority);
-        fp_ensure!(weight > 0, FastPayError::UnknownSigner);
+        fp_ensure!(weight > 0, HaneulError::UnknownSigner);
         self.signature.check(&self.order.kind, self.authority)?;
         Ok(weight)
     }
@@ -534,7 +529,7 @@ pub struct SignatureAggregator<'a> {
 
 impl<'a> SignatureAggregator<'a> {
     /// Start aggregating signatures for the given value into a certificate.
-    pub fn try_new(order: Order, committee: &'a Committee) -> Result<Self, FastPayError> {
+    pub fn try_new(order: Order, committee: &'a Committee) -> Result<Self, HaneulError> {
         order.check_signature()?;
         Ok(Self::new_unsafe(order, committee))
     }
@@ -559,17 +554,17 @@ impl<'a> SignatureAggregator<'a> {
         &mut self,
         authority: AuthorityName,
         signature: Signature,
-    ) -> Result<Option<CertifiedOrder>, FastPayError> {
+    ) -> Result<Option<CertifiedOrder>, HaneulError> {
         signature.check(&self.partial.order.kind, authority)?;
         // Check that each authority only appears once.
         fp_ensure!(
             !self.used_authorities.contains(&authority),
-            FastPayError::CertificateAuthorityReuse
+            HaneulError::CertificateAuthorityReuse
         );
         self.used_authorities.insert(authority);
         // Update weight.
         let voting_rights = self.committee.weight(&authority);
-        fp_ensure!(voting_rights > 0, FastPayError::UnknownSigner);
+        fp_ensure!(voting_rights > 0, HaneulError::UnknownSigner);
         self.weight += voting_rights;
         // Update certificate.
         self.partial.signatures.push((authority, signature));
@@ -584,7 +579,7 @@ impl<'a> SignatureAggregator<'a> {
 
 impl CertifiedOrder {
     /// Verify the certificate.
-    pub fn check(&self, committee: &Committee) -> Result<(), FastPayError> {
+    pub fn check(&self, committee: &Committee) -> Result<(), HaneulError> {
         // Check the quorum.
         let mut weight = 0;
         let mut used_authorities = HashSet::new();
@@ -592,17 +587,17 @@ impl CertifiedOrder {
             // Check that each authority only appears once.
             fp_ensure!(
                 !used_authorities.contains(authority),
-                FastPayError::CertificateAuthorityReuse
+                HaneulError::CertificateAuthorityReuse
             );
             used_authorities.insert(*authority);
             // Update weight.
             let voting_rights = committee.weight(authority);
-            fp_ensure!(voting_rights > 0, FastPayError::UnknownSigner);
+            fp_ensure!(voting_rights > 0, HaneulError::UnknownSigner);
             weight += voting_rights;
         }
         fp_ensure!(
             weight >= committee.quorum_threshold(),
-            FastPayError::CertificateRequiresQuorum
+            HaneulError::CertificateRequiresQuorum
         );
         // All that is left is checking signatures!
         let inner_sig = (*self.order.sender(), self.order.signature);

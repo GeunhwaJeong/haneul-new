@@ -8,8 +8,8 @@ pub mod id_immutable_verifier;
 pub mod id_leak_verifier;
 pub mod struct_with_key_verifier;
 
-use fastx_types::error::FastPayError;
+use fastx_types::error::HaneulError;
 
-fn verification_failure(error: String) -> FastPayError {
-    FastPayError::ModuleVerificationFailure { error }
+fn verification_failure(error: String) -> HaneulError {
+    HaneulError::ModuleVerificationFailure { error }
 }

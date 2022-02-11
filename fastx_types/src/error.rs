@@ -27,13 +27,13 @@ macro_rules! fp_ensure {
 pub(crate) use fp_ensure;
 
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, Error, Hash)]
-/// Custom error type for FastPay.
+/// Custom error type for Haneul.
 
 #[allow(clippy::large_enum_variant)]
-pub enum FastPayError {
+pub enum HaneulError {
     // Object misuse issues
     #[error("Error acquiring lock for object(s): {:?}", errors)]
-    LockErrors { errors: Vec<FastPayError> },
+    LockErrors { errors: Vec<HaneulError> },
     #[error("Attempt to transfer read-only object.")]
     CannotTransferReadOnlyObject,
     #[error("A move package is expected, instead a move object is passed: {object_id}")]
@@ -200,7 +200,7 @@ pub enum FastPayError {
     "Failed to achieve quorum between authorities, cause by : {:#?}",
     errors.iter().map(| e | e.to_string()).collect::<Vec<String>>()
     )]
-    QuorumNotReached { errors: Vec<FastPayError> },
+    QuorumNotReached { errors: Vec<HaneulError> },
 
     // Errors returned by authority and client read API's
     #[error("Failure serializing object in the requested format")]
@@ -218,11 +218,11 @@ pub enum FastPayError {
     AccountNotFound,
 }
 
-pub type FastPayResult<T = ()> = Result<T, FastPayError>;
+pub type HaneulResult<T = ()> = Result<T, HaneulError>;
 
-impl std::convert::From<PartialVMError> for FastPayError {
+impl std::convert::From<PartialVMError> for HaneulError {
     fn from(error: PartialVMError) -> Self {
-        FastPayError::ModuleVerificationFailure {
+        HaneulError::ModuleVerificationFailure {
             error: error.to_string(),
         }
     }
