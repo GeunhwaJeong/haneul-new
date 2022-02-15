@@ -3,5 +3,6 @@
 
 pub mod config;
 pub mod shell;
+pub mod haneul_commands;
 pub mod utils;
 pub mod wallet_commands;
