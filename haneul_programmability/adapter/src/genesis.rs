@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use haneul_framework::{self};
 use haneul_types::{
-    base_types::{Authenticator, HaneulAddress, TransactionDigest},
+    base_types::{HaneulAddress, TransactionDigest},
     object::Object,
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
@@ -31,16 +31,8 @@ fn create_genesis_module_objects() -> Genesis {
         haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
     let owner = HaneulAddress::default();
     let objects = vec![
-        Object::new_package(
-            haneul_modules,
-            Authenticator::Address(owner),
-            TransactionDigest::genesis(),
-        ),
-        Object::new_package(
-            std_modules,
-            Authenticator::Address(owner),
-            TransactionDigest::genesis(),
-        ),
+        Object::new_package(haneul_modules, owner, TransactionDigest::genesis()),
+        Object::new_package(std_modules, owner, TransactionDigest::genesis()),
     ];
     Genesis {
         objects,
