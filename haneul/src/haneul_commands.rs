@@ -10,8 +10,9 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use haneul_core::authority::{AuthorityState, AuthorityStore};
 use haneul_core::authority_server::AuthorityServer;
-use haneul_types::base_types::{encode_bytes_hex, get_key_pair, ObjectID, SequenceNumber};
+use haneul_types::base_types::{encode_bytes_hex, ObjectID, SequenceNumber};
 use haneul_types::committee::Committee;
+use haneul_types::crypto::get_key_pair;
 use haneul_types::object::Object;
 use tracing::{error, info};
 

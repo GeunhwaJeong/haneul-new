@@ -5,9 +5,10 @@ use haneul_core::authority_client::AuthorityClient;
 use haneul_core::client::{Client, ClientAddressManager, ClientState};
 use haneul_network::network::NetworkClient;
 use haneul_types::base_types::{
-    decode_bytes_hex, encode_bytes_hex, get_key_pair, AuthorityName, ObjectID, HaneulAddress,
+    decode_bytes_hex, encode_bytes_hex, AuthorityName, ObjectID, HaneulAddress,
 };
 use haneul_types::committee::Committee;
+use haneul_types::crypto::get_key_pair;
 use haneul_types::messages::ExecutionStatus;
 
 use crate::utils::Config;

@@ -3,7 +3,8 @@ use std::fs::read_dir;
 use std::time::Duration;
 use haneul::config::{AccountInfo, NetworkConfig, WalletConfig};
 use haneul::wallet_commands::{WalletCommands, WalletContext};
-use haneul_types::base_types::{encode_bytes_hex, get_key_pair};
+use haneul_types::base_types::encode_bytes_hex;
+use haneul_types::crypto::get_key_pair;
 use tokio::task;
 use tracing_test::traced_test;
 

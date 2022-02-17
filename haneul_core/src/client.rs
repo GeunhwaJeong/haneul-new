@@ -8,6 +8,7 @@ use itertools::Itertools;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
 use haneul_framework::build_move_package_to_bytes;
+use haneul_types::crypto::PublicKeyBytes;
 use haneul_types::{
     base_types::*, committee::Committee, error::HaneulError, fp_ensure, messages::*,
     object::ObjectRead,

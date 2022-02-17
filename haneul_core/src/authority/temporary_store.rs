@@ -1,4 +1,4 @@
-use haneul_types::event::Event;
+use haneul_types::{event::Event, crypto::Signature};
 
 use super::*;
 

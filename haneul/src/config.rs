@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_types::base_types::*;
+use haneul_types::crypto::KeyPair;
 
 use crate::utils::Config;
 use serde::{Deserialize, Serialize};

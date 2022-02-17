@@ -3,6 +3,7 @@
 
 use crate::authority_client::AuthorityAPI;
 use async_trait::async_trait;
+use haneul_types::crypto::PublicKeyBytes;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 
 use haneul_types::{
