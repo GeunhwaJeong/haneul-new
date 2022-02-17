@@ -63,8 +63,10 @@ impl From<ObjectID> for HaneulAddress {
 
 impl From<PublicKeyBytes> for HaneulAddress {
     fn from(key: PublicKeyBytes) -> HaneulAddress {
-        // TODO: Properly hash public key bytes to address.
-        Self(key.to_vec().try_into().expect("lengths will match"))
+        let mut sha3 = Sha3_256::new();
+        sha3.update(key.as_ref());
+        let g_arr = sha3.finalize();
+        Self(*(g_arr.as_ref()))
     }
 }
 
