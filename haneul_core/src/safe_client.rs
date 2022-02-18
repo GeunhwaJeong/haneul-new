@@ -14,11 +14,11 @@ use haneul_types::{
 pub struct SafeClient<C> {
     authority_client: C,
     committee: Committee,
-    address: HaneulAddress,
+    address: PublicKeyBytes,
 }
 
 impl<C> SafeClient<C> {
-    pub fn new(authority_client: C, committee: Committee, address: HaneulAddress) -> Self {
+    pub fn new(authority_client: C, committee: Committee, address: PublicKeyBytes) -> Self {
         Self {
             authority_client,
             committee,

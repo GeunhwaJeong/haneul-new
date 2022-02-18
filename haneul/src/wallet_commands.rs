@@ -5,8 +5,7 @@ use haneul_core::authority_client::AuthorityClient;
 use haneul_core::client::{Client, ClientAddressManager, ClientState};
 use haneul_network::network::NetworkClient;
 use haneul_types::base_types::{
-    decode_bytes_hex, encode_bytes_hex, get_key_pair, AuthorityName, ObjectID, PublicKeyBytes,
-    HaneulAddress,
+    decode_bytes_hex, encode_bytes_hex, get_key_pair, AuthorityName, ObjectID, HaneulAddress,
 };
 use haneul_types::committee::Committee;
 use haneul_types::messages::ExecutionStatus;
@@ -37,7 +36,7 @@ pub enum WalletCommands {
     Object {
         /// Owner address
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        owner: PublicKeyBytes,
+        owner: HaneulAddress,
 
         /// Object ID of the object to fetch
         #[structopt(long)]
@@ -53,7 +52,7 @@ pub enum WalletCommands {
     Publish {
         /// Sender address
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        sender: PublicKeyBytes,
+        sender: HaneulAddress,
 
         /// Path to directory containing a Move package
         #[structopt(long)]
@@ -73,7 +72,7 @@ pub enum WalletCommands {
     Call {
         /// Sender address
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        sender: PublicKeyBytes,
+        sender: HaneulAddress,
         /// Object ID of the package, which contains the module
         #[structopt(long)]
         package: ObjectID,
@@ -108,11 +107,11 @@ pub enum WalletCommands {
     Transfer {
         /// Sender address
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        from: PublicKeyBytes,
+        from: HaneulAddress,
 
         /// Recipient address
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        to: PublicKeyBytes,
+        to: HaneulAddress,
 
         /// Object to transfer, in 20 bytes Hex string
         #[structopt(long)]
@@ -126,7 +125,7 @@ pub enum WalletCommands {
     #[structopt(name = "sync")]
     SyncClientState {
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        address: PublicKeyBytes,
+        address: HaneulAddress,
     },
 
     /// Obtain the Account Addresses managed by the wallet.
@@ -142,7 +141,7 @@ pub enum WalletCommands {
     Objects {
         /// Address of the account
         #[structopt(long, parse(try_from_str = decode_bytes_hex))]
-        address: PublicKeyBytes,
+        address: HaneulAddress,
     },
 }
 
@@ -271,7 +270,8 @@ impl WalletCommands {
                 client_state.sync_client_state().await?;
             }
             WalletCommands::NewAddress => {
-                let (address, key) = get_key_pair();
+                let (pub_key, key) = get_key_pair();
+                let address = pub_key.into();
                 context.config.accounts.push(AccountInfo {
                     address,
                     key_pair: key,
@@ -322,12 +322,12 @@ impl WalletContext {
             .config
             .authorities
             .iter()
-            .map(|authority| (authority.address, 1))
+            .map(|authority| (authority.name, 1))
             .collect();
         let committee = Committee::new(voting_rights);
         let authority_clients = self.make_authority_clients();
         self.address_manager
-            .get_or_create_state_mut(*owner, kp, committee, authority_clients)
+            .get_or_create_state_mut(kp.public(), kp, committee, authority_clients)
     }
 
     fn make_authority_clients(&self) -> BTreeMap<AuthorityName, AuthorityClient> {
@@ -340,7 +340,7 @@ impl WalletContext {
                 self.config.send_timeout,
                 self.config.recv_timeout,
             ));
-            authority_clients.insert(authority.address, client);
+            authority_clients.insert(authority.name, client);
         }
         authority_clients
     }
