@@ -3,7 +3,7 @@ use std::fs::read_dir;
 use std::time::Duration;
 use haneul::config::{AccountInfo, NetworkConfig, WalletConfig};
 use haneul::wallet_commands::{WalletCommands, WalletContext};
-use haneul_types::base_types::{encode_address_hex, get_key_pair};
+use haneul_types::base_types::{encode_bytes_hex, get_key_pair};
 use tokio::task;
 use tracing_test::traced_test;
 
@@ -73,7 +73,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
 
     // Check log output contains all addresses
     for address in context.config.accounts.iter().map(|info| info.address) {
-        assert!(logs_contain(&*encode_address_hex(&address)));
+        assert!(logs_contain(&*encode_bytes_hex(&address)));
     }
 
     Ok(())
