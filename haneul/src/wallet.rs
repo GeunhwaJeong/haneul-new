@@ -1,4 +1,4 @@
-// Copyright (c) Haneul Labs
+// Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use async_trait::async_trait;
 use colored::Colorize;

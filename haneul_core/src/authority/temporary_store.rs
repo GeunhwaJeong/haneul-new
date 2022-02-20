@@ -1,3 +1,5 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
 use move_core_types::account_address::AccountAddress;
 use haneul_types::event::Event;
 

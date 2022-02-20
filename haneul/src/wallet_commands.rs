@@ -1,4 +1,4 @@
-// Copyright (c) Haneul Labs
+// Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::config::{AccountInfo, WalletConfig};
 use haneul_core::authority_client::AuthorityClient;

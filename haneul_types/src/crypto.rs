@@ -1,6 +1,6 @@
-use std::borrow::Borrow;
-// Copyright (c) Haneul Labs
+// Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+use std::borrow::Borrow;
 use std::collections::HashMap;
 
 use ed25519_dalek as dalek;
