@@ -1,7 +1,8 @@
 # Haneul Developer Portal
 
 Welcome to Haneul, a next generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move! Here are some suggested starting points:
-* To jump right into building smart contract applications on top of Haneul, go to [Dev Quick Start](TODO)
+
+* To jump right into building smart contract applications on top of Haneul, go to [Dev Quick Start](move.md)
 * To experiment with a toy Haneul wallet, check out [Wallet Quick Start](TODO)
 * To understand what's possible by browsing examples of full-fledged applications and games built on top of Haneul, have a look at [Demos](TODO)
 * To go deep on how Haneul works, start at [Key Concepts](TODO)
