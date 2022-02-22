@@ -1,12 +1,12 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_types::messages::CertifiedOrder;
+use haneul_types::messages::CertifiedTransaction;
 use haneul_types::object::Object;
 
 pub struct SplitCoinResponse {
-    /// Certificate of the order
-    pub certificate: CertifiedOrder,
+    /// Certificate of the transaction
+    pub certificate: CertifiedTransaction,
     /// The updated original coin object after split
     pub updated_coin: Object,
     /// All the newly created coin objects generated from the split
@@ -16,8 +16,8 @@ pub struct SplitCoinResponse {
 }
 
 pub struct MergeCoinResponse {
-    /// Certificate of the order
-    pub certificate: CertifiedOrder,
+    /// Certificate of the transaction
+    pub certificate: CertifiedTransaction,
     /// The updated original coin object after merge
     pub updated_coin: Object,
     /// The updated gas payment object after deducting payment
