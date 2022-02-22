@@ -477,7 +477,6 @@ impl AuthorityState {
     ) -> Self {
         let native_functions =
             haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
-        //        let (genesis_modules, native_functions) = genesis::clone_genesis_data();
         let state = AuthorityState {
             committee,
             name,
