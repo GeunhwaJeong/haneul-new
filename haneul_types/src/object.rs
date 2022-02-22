@@ -464,6 +464,16 @@ impl ObjectRead {
         }
     }
 
+    /// Returns the object value if there is any, otherwise an Err if
+    /// the object does not exist or is deleted.
+    pub fn into_object(self) -> Result<Object, HaneulError> {
+        match self {
+            Self::Deleted(oref) => Err(HaneulError::ObjectDeleted { object_ref: oref }),
+            Self::NotExists(id) => Err(HaneulError::ObjectNotFound { object_id: id }),
+            Self::Exists(_, o, _) => Ok(o),
+        }
+    }
+
     /// Returns the layout of the object if it was requested in the read, None if it was not requested or does not have a layout
     /// Returns an Err if the object does not exist or is deleted.
     pub fn layout(&self) -> Result<&Option<MoveStructLayout>, HaneulError> {
