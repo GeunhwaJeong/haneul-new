@@ -4,9 +4,8 @@ extern crate core;
 
 use std::path::PathBuf;
 use structopt::StructOpt;
-use haneul::config::NetworkConfig;
+use haneul::config::{Config, NetworkConfig};
 use haneul::haneul_commands::HaneulCommand;
-use haneul::utils::Config;
 
 #[cfg(test)]
 #[path = "unit_tests/cli_tests.rs"]

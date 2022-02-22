@@ -6,9 +6,8 @@ use std::io;
 use std::path::PathBuf;
 use structopt::clap::{App, AppSettings};
 use structopt::StructOpt;
-use haneul::config::WalletConfig;
+use haneul::config::{Config, WalletConfig};
 use haneul::shell::{AsyncHandler, CommandStructure, Shell};
-use haneul::utils::Config;
 use haneul::wallet_commands::*;
 
 const FAST_X: &str = "   _____       _    _       __      ____     __
