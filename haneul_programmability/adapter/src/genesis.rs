@@ -31,8 +31,8 @@ fn create_genesis_module_objects(lib_dir: &Path) -> HaneulResult<Genesis> {
         haneul_framework::get_move_stdlib_modules(&lib_dir.join("deps").join("move-stdlib"))?;
     let owner = HaneulAddress::default();
     let objects = vec![
-        Object::new_package(haneul_modules, owner, TransactionDigest::genesis()),
-        Object::new_package(std_modules, owner, TransactionDigest::genesis()),
+        Object::new_package(haneul_modules, owner, TransactionDigest::genesis())?,
+        Object::new_package(std_modules, owner, TransactionDigest::genesis())?,
     ];
     Ok(Genesis { objects })
 }
