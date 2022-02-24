@@ -1,10 +1,12 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use move_binary_format::CompiledModule;
 use once_cell::sync::Lazy;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use haneul_framework::{self, DEFAULT_FRAMEWORK_PATH};
+use haneul_types::base_types::{HaneulAddress, TxContext};
 use haneul_types::error::HaneulResult;
 use haneul_types::{base_types::TransactionDigest, object::Object};
 
@@ -14,11 +16,21 @@ static GENESIS: Lazy<Mutex<Genesis>> = Lazy::new(|| {
 
 struct Genesis {
     pub objects: Vec<Object>,
+    pub modules: Vec<Vec<CompiledModule>>,
 }
 
-pub fn clone_genesis_modules() -> Vec<Object> {
+pub fn clone_genesis_modules() -> Vec<Vec<CompiledModule>> {
+    let genesis = GENESIS.lock().unwrap();
+    genesis.modules.clone()
+}
+
+pub fn clone_genesis_objects() -> Vec<Object> {
     let genesis = GENESIS.lock().unwrap();
     genesis.objects.clone()
+}
+
+pub fn create_genesis_context() -> TxContext {
+    TxContext::new(&HaneulAddress::default(), TransactionDigest::genesis())
 }
 
 /// Create and return objects wrapping the genesis modules for haneul
@@ -27,8 +39,9 @@ fn create_genesis_module_objects(lib_dir: &Path) -> HaneulResult<Genesis> {
     let std_modules =
         haneul_framework::get_move_stdlib_modules(&lib_dir.join("deps").join("move-stdlib"))?;
     let objects = vec![
-        Object::new_package(haneul_modules, TransactionDigest::genesis()),
-        Object::new_package(std_modules, TransactionDigest::genesis()),
+        Object::new_package(std_modules.clone(), TransactionDigest::genesis()),
+        Object::new_package(haneul_modules.clone(), TransactionDigest::genesis()),
     ];
-    Ok(Genesis { objects })
+    let modules = vec![std_modules, haneul_modules];
+    Ok(Genesis { objects, modules })
 }
