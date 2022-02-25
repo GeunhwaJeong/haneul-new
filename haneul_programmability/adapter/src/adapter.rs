@@ -12,7 +12,7 @@ use haneul_types::{
     event::Event,
     gas,
     messages::ExecutionStatus,
-    move_call::*,
+    move_package::*,
     object::{MoveObject, Object, Owner},
     storage::Storage,
 };

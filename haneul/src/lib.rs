@@ -5,4 +5,5 @@
 pub mod config;
 pub mod shell;
 pub mod haneul_commands;
+pub mod haneul_json;
 pub mod wallet_commands;
