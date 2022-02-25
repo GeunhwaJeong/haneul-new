@@ -21,7 +21,7 @@ pub fn clone_genesis_modules() -> Vec<Object> {
     genesis.objects.clone()
 }
 
-/// Create and return objects wrapping the genesis modules for fastX
+/// Create and return objects wrapping the genesis modules for haneul
 fn create_genesis_module_objects(lib_dir: &Path) -> HaneulResult<Genesis> {
     let haneul_modules = haneul_framework::get_haneul_framework_modules(lib_dir)?;
     let std_modules =

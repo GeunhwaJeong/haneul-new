@@ -1,8 +1,8 @@
 #[test_only]
-module FastX::CollectionTests {
-    use FastX::Collection;
-    use FastX::ID::{Self, VersionedID};
-    use FastX::TxContext;
+module Haneul::CollectionTests {
+    use Haneul::Collection;
+    use Haneul::ID::{Self, VersionedID};
+    use Haneul::TxContext;
 
     const ECOLLECTION_SIZE_MISMATCH: u64 = 0;
     const EOBJECT_NOT_FOUND: u64 = 1;
@@ -36,7 +36,7 @@ module FastX::CollectionTests {
     #[expected_failure(abort_code = 520)] 
     fun test_init_with_invalid_max_capacity() {
         let ctx = TxContext::dummy();
-        // FastX::Collection::DEFAULT_MAX_CAPACITY is not readable outside the module
+        // Haneul::Collection::DEFAULT_MAX_CAPACITY is not readable outside the module
         let max_capacity = 65536;
         let collection = Collection::new_with_max_capacity(&mut ctx, max_capacity + 1);
         Collection::transfer(collection, TxContext::get_signer_address(&ctx));

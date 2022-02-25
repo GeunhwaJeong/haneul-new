@@ -7,10 +7,10 @@
 /// anyone is free to create a mod like this.
 module Examples::HeroMod {
     use Examples::Hero::{Self, Hero};
-    use FastX::ID::{Self, VersionedID};
-    use FastX::Coin::{Self, Coin, TreasuryCap };
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+    use Haneul::ID::{Self, VersionedID};
+    use Haneul::Coin::{Self, Coin, TreasuryCap };
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
 
     /// A new kind of monster for the hero to fight
     struct SeaMonster has key, store {

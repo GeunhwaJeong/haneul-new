@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module FastX::TestScenarioTests {
-    use FastX::ID;
-    use FastX::TestScenario;
-    use FastX::Transfer;
+module Haneul::TestScenarioTests {
+    use Haneul::ID;
+    use Haneul::TestScenario;
+    use Haneul::Transfer;
 
     const ID_BYTES_MISMATCH: u64 = 0;
     const VALUE_MISMATCH: u64 = 1;

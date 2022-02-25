@@ -1,7 +1,7 @@
-module FastX::Coin {
-    use FastX::ID::{Self, VersionedID};
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+module Haneul::Coin {
+    use Haneul::ID::{Self, VersionedID};
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
     use Std::Errors;
     use Std::Vector;
 

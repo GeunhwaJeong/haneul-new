@@ -1,8 +1,8 @@
-module FastX::Transfer {
-    use FastX::ID;
+module Haneul::Transfer {
+    use Haneul::ID;
 
     /// Transfers are implemented by emitting a
-    /// special `TransferEvent` that the fastX adapter
+    /// special `TransferEvent` that the haneul adapter
     /// interprets differently than user events.
     struct TransferEvent<T: key> {
         /// The object to be transferred

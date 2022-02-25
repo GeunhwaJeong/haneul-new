@@ -1,8 +1,8 @@
-/// Coin<Gas> is the token used to pay for gas in FastX
-module FastX::GAS {
-    use FastX::Coin;
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+/// Coin<Gas> is the token used to pay for gas in Haneul
+module Haneul::GAS {
+    use Haneul::Coin;
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
 
     /// Name of the coin
     struct GAS has drop {}

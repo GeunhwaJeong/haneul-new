@@ -1,8 +1,8 @@
 module Test::M1 {
-    use FastX::ID::VersionedID;
-    use FastX::TxContext::{Self, TxContext};
-    use FastX::Transfer;
-    use FastX::Coin::Coin;
+    use Haneul::ID::VersionedID;
+    use Haneul::TxContext::{Self, TxContext};
+    use Haneul::Transfer;
+    use Haneul::Coin::Coin;
 
     struct Object has key, store {
         id: VersionedID,

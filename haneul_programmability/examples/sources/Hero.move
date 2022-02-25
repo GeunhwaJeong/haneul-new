@@ -2,12 +2,12 @@
 /// associated logic.
 module Examples::Hero {
     use Examples::TrustedCoin::EXAMPLE;
-    use FastX::Coin::{Self, Coin};
-    use FastX::Event;
-    use FastX::ID::{Self, VersionedID, IDBytes};
-    use FastX::Math;
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+    use Haneul::Coin::{Self, Coin};
+    use Haneul::Event;
+    use Haneul::ID::{Self, VersionedID, IDBytes};
+    use Haneul::Math;
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
     use Std::Option::{Self, Option};
 
     /// Our hero!
@@ -294,8 +294,8 @@ module Examples::Hero {
     #[test]
     public fun slay_boar_test() {
         use Examples::TrustedCoin::{Self, EXAMPLE};
-        use FastX::Coin::{Self, TreasuryCap};
-        use FastX::TestScenario;
+        use Haneul::Coin::{Self, TreasuryCap};
+        use Haneul::TestScenario;
 
         let admin = ADMIN;
         let player = @0x0;

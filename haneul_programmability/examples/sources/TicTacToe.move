@@ -2,10 +2,10 @@ module Examples::TicTacToe {
     use Std::Option::{Self, Option};
     use Std::Vector;
 
-    use FastX::ID::{Self, VersionedID, IDBytes};
-    use FastX::Event;
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+    use Haneul::ID::{Self, VersionedID, IDBytes};
+    use Haneul::Event;
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
 
     // Game status
     const IN_PROGRESS: u8 = 0;

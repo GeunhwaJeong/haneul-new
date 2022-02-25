@@ -1,4 +1,4 @@
-module FastX::Event {
+module Haneul::Event {
 
     /// Add `t` to the event log of this transaction
     // TODO(https://github.com/GeunhwaJeong/fastnft/issues/19): 

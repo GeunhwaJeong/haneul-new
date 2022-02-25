@@ -1,7 +1,7 @@
-module FastX::Geniteam {
-    use FastX::ID::{Self, VersionedID, IDBytes};
-    use FastX::TxContext::{Self, TxContext};
-    use FastX::Transfer;
+module Haneul::Geniteam {
+    use Haneul::ID::{Self, VersionedID, IDBytes};
+    use Haneul::TxContext::{Self, TxContext};
+    use Haneul::Transfer;
     use Std::ASCII::{Self, String};
     use Std::Option::{Self, Option};
     use Std::Vector::Self;

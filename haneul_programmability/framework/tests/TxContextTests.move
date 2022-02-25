@@ -1,7 +1,7 @@
 #[test_only]
-module FastX::TxContextTests {
-    use FastX::ID;
-    use FastX::TxContext;
+module Haneul::TxContextTests {
+    use Haneul::ID;
+    use Haneul::TxContext;
 
     #[test]
     fun test_id_generation() {

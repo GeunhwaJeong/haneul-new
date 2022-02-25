@@ -2,7 +2,7 @@
 name = "haneul-adapter"
 version = "0.1.0"
 authors = ["Haneul Labs <eng@haneul-labs.com>"]
-description = "Adapter and accompanying CLI for local fastX development"
+description = "Adapter and accompanying CLI for local haneul development"
 license = "Apache-2.0"
 publish = false
 edition = "2021"

@@ -1,10 +1,10 @@
-module FastX::Collection {
+module Haneul::Collection {
     use Std::Errors;
     use Std::Option::{Self, Option};
     use Std::Vector::Self;
-    use FastX::ID::{Self, VersionedID, IDBytes};
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+    use Haneul::ID::{Self, VersionedID, IDBytes};
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
 
     // Error codes
     const EOBJECT_NOT_FOUND: u64 = 0;

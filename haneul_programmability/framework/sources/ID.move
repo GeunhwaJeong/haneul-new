@@ -1,8 +1,8 @@
-/// FastX object identifiers
-module FastX::ID {
+/// Haneul object identifiers
+module Haneul::ID {
     use Std::BCS;
     // TODO(): bring this back
-    //friend FastX::TxContext;
+    //friend Haneul::TxContext;
 
     /// Version of a ID created by the current transaction.
     const INITIAL_VERSION: u64 = 0;
@@ -71,7 +71,7 @@ module FastX::ID {
         BCS::to_bytes(get_bytes(i))
     }
 
-    /// Get the VersionedID for `obj`. Safe because fastX has an extra
+    /// Get the VersionedID for `obj`. Safe because haneul has an extra
     /// bytecode verifier pass that forces every struct with
     /// the `key` ability to have a distinguished `VersionedID` field.
     public native fun get_id<T: key>(obj: &T): &VersionedID;

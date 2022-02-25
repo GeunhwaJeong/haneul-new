@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module FastX::TestScenario {
-    use FastX::ID::{Self, VersionedID, IDBytes};
-    use FastX::Transfer;
-    use FastX::TxContext::{Self, TxContext};
+module Haneul::TestScenario {
+    use Haneul::ID::{Self, VersionedID, IDBytes};
+    use Haneul::Transfer;
+    use Haneul::TxContext::{Self, TxContext};
     use Std::Vector;
 
     /// Attempted an operation that required a concluded transaction, but there are none
