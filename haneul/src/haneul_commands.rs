@@ -163,8 +163,7 @@ pub async fn genesis(
         genesis_conf.haneul_framework_lib_path
     );
     let haneul_lib = haneul_framework::get_haneul_framework_modules(&genesis_conf.haneul_framework_lib_path)?;
-    let lib_object =
-        Object::new_package(haneul_lib, HaneulAddress::default(), TransactionDigest::genesis());
+    let lib_object = Object::new_package(haneul_lib, TransactionDigest::genesis());
     preload_modules.push(lib_object);
 
     info!(
@@ -172,11 +171,7 @@ pub async fn genesis(
         genesis_conf.move_framework_lib_path
     );
     let move_lib = haneul_framework::get_move_stdlib_modules(&genesis_conf.move_framework_lib_path)?;
-    let lib_object = Object::new_package(
-        move_lib,
-        HaneulAddress::default(),
-        TransactionDigest::genesis(),
-    );
+    let lib_object = Object::new_package(move_lib, TransactionDigest::genesis());
     preload_modules.push(lib_object);
 
     // Build custom move packages
@@ -195,8 +190,7 @@ pub async fn genesis(
                 &mut TxContext::new(&HaneulAddress::default(), TransactionDigest::genesis()),
             )?;
 
-            let object =
-                Object::new_package(modules, HaneulAddress::default(), TransactionDigest::genesis());
+            let object = Object::new_package(modules, TransactionDigest::genesis());
             info!("Loaded package [{}] from {:?}.", object.id(), path);
             // Writing package id to network.conf for user to retrieve later.
             config.loaded_move_packages.push((path, object.id()));
