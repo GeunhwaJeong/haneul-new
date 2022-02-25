@@ -18,6 +18,7 @@ use haneul_core::client::Client;
 use haneul_network::network::PortAllocator;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::crypto::get_key_pair;
+use haneul_types::messages::TransactionEffects;
 use haneul_types::object::GAS_VALUE_FOR_TESTING;
 use tokio::task;
 use tokio::task::JoinHandle;
@@ -564,19 +565,25 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     assert!(logs_contain("Created Objects:"));
 
     // Get the created object
-    let created_obj: ObjectID;
-    if let WalletCommandResult::Call(_, e) = resp {
-        created_obj = e.created.get(0).unwrap().0 .0;
+    let created_obj: ObjectID = if let WalletCommandResult::Call(
+        _,
+        TransactionEffects {
+            created: new_objs, ..
+        },
+    ) = resp
+    {
+        let ((obj_id, _seq_num, _obj_digest), _owner) = new_objs.first().unwrap();
+        *obj_id
     } else {
-        panic!();
-    }
+        panic!()
+    };
 
     // Try a bad argument: decimal
     let args_json = json!([0.3f32, addr1_str]);
     assert!(HaneulJsonValue::new(args_json.as_array().unwrap().get(0).unwrap().clone()).is_err());
 
     // Try a bad argument: too few args
-    let args_json = json!([300]);
+    let args_json = json!([300usize]);
     let mut args = vec![];
     for a in args_json.as_array().unwrap() {
         args.push(HaneulJsonValue::new(a.clone()).unwrap());
