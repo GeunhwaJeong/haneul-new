@@ -174,7 +174,7 @@ pub async fn genesis(
     let haneul_lib = haneul_framework::get_haneul_framework_modules(&genesis_conf.haneul_framework_lib_path)?;
     preload_modules.push(haneul_lib);
 
-    let mut genesis_ctx = genesis::create_genesis_context();
+    let mut genesis_ctx = genesis::get_genesis_context();
     // Build custom move packages
     if !genesis_conf.move_packages.is_empty() {
         info!(
@@ -231,7 +231,7 @@ pub async fn make_server(
     preload_objects: &[Object],
     buffer_size: usize,
 ) -> HaneulResult<AuthorityServer> {
-    let mut genesis_ctx = genesis::create_genesis_context();
+    let mut genesis_ctx = genesis::get_genesis_context();
     make_server_with_genesis_ctx(
         authority,
         committee,
