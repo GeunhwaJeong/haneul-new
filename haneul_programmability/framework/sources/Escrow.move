@@ -2,7 +2,7 @@
 /// trusts a third party for liveness, but not
 /// safety.
 module Haneul::Escrow {
-    use Haneul::ID::{Self, IDBytes, VersionedID};
+    use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
 
@@ -17,7 +17,7 @@ module Haneul::Escrow {
         // TODO: this is probably a bad idea if the object is mutable.
         // that can be fixed by asking for an additional approval
         // from `sender`, but let's keep it simple for now.
-        exchange_for: IDBytes,
+        exchange_for: ID,
         /// the escrowed object
         escrowed: T,
     }
@@ -31,7 +31,7 @@ module Haneul::Escrow {
     public fun create<T: key + store, ExchangeForT: key + store>(
         recipient: address,
         third_party: address,
-        exchange_for: IDBytes,
+        exchange_for: ID,
         escrowed: T,
         ctx: &mut TxContext
     ) {
@@ -70,8 +70,8 @@ module Haneul::Escrow {
         assert!(&sender1 == &recipient2, ETODO);
         assert!(&sender2 == &recipient1, ETODO);
         // check object ID compatibility
-        assert!(ID::get_id_bytes(&escrowed1) == &exchange_for2, ETODO);
-        assert!(ID::get_id_bytes(&escrowed2) == &exchange_for1, ETODO);
+        assert!(ID::id(&escrowed1) == &exchange_for2, ETODO);
+        assert!(ID::id(&escrowed2) == &exchange_for1, ETODO);
         // everything matches. do the swap!
         Transfer::transfer(escrowed1, sender2);
         Transfer::transfer(escrowed2, sender1)
