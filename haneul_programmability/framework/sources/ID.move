@@ -52,7 +52,7 @@ module Haneul::ID {
         version: u64
     }
 
-    // --- constructors ---
+    // === constructors ===
 
     /// Create an `ID` from an address
     public fun new(a: address): ID {
@@ -74,7 +74,7 @@ module Haneul::ID {
         VersionedID { id: UniqueID { id: ID { bytes } }, version: INITIAL_VERSION }
     }
 
-    // --- reads ---
+    // === reads ===
 
     /// Get the underyling `ID` of `obj`
     public fun id<T: key>(obj: &T): &ID {
@@ -131,7 +131,7 @@ module Haneul::ID {
     // Private for now, but may expose in the future.
     native fun get_versioned_id<T: key>(obj: &T): &VersionedID;
 
-    // --- destructors --- 
+    // === destructors ===
 
     /// Delete `id`. This is the only way to eliminate a `VersionedID`.
     // This exists to inform Haneul of object deletions. When an object
@@ -145,7 +145,7 @@ module Haneul::ID {
 
     native fun delete_id(id: UniqueID);
 
-    // --- internal functions --- 
+    // === internal functions ===
 
     /// Convert raw bytes into an address
     native fun bytes_to_address(bytes: vector<u8>): address;   
