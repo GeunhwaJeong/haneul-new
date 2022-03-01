@@ -281,7 +281,8 @@ current_directory
 ```
 
 For convenience, please also make sure the path to Haneul binaries
-(haneul/target/release) is part of your system path.
+(haneul/target/release), including the haneul-move command used throughout
+this tutorial, is part of your system path.
 
 We can now proceed to creating a package directory structure and an
 empty manifest file following the Move code organization described
@@ -526,3 +527,179 @@ Running Move unit tests
 Test result: OK. Total tests: 1; passed: 1; failed: 0
 ```
 
+The testing example we have seen so far is largely "pure" Move and has
+little to do with Haneul beyond using some Haneul packages, such as
+`Haneul::TxContext` and `Haneul::Transfer`. While this style of testing is
+already very useful for developers writing Move code for Haneul, they may
+also want to test additional Haneul-specific features. In particular, a
+Move call in Haneul is encapsulated in a Haneul
+[transaction](https://github.com/GeunhwaJeong/fastnft/blob/main/doc/transactions.md),
+and a developer may wish to test interactions between different
+transactions within a single test (e.g. one transaction creating an
+object and the other one transferring it).
+
+### Haneul-specific testing
+
+Haneul-specific testing is supported via the `TestScenario`
+[module](../haneul_programmability/framework/sources/TestScenario.move)
+that provides Haneul-related testing functionality otherwise unavailable
+in "pure" Move and its testing
+[framework](https://github.com/diem/move/blob/main/language/documentation/book/src/unit-testing.md).
+
+The main concept in the `TestScenario` is a scenario which emulates a
+series of Haneul transactions, each executed by a (potentially) different
+user. At a high level, a developer writing a test starts the first
+transaction using the `TestScenario::begin` function which takes an
+address of the user executing this transaction as the first an only
+argument, and return an instance of the `Scenario` struct representing
+a scenario. An instance of the `Scenario` struct contains a
+per-address object pool emulating Haneul's object storage, with helper
+functions provided to manipulate objects in the pool. Once the first
+transaction is finished, subsequent transactions can be started using
+the `TestScenario::next_tx` function that takes an instance of the
+`Scenario` struct representing the current scenario and an address of
+a (new) user as arguments.
+
+Let us extend our running example with a multi-transaction test that
+uses the `TestScenario` to test sword creation and transfer from the
+point of view of Haneul developer. First, let us create entry
+[functions](#entry-functions) callable from Haneul that implement sword
+creation and transfer and put the into the M1.move file:
+
+``` rust
+    public fun sword_create(magic: u64, strength: u64, recipient: address, ctx: &mut TxContext) {
+        use Haneul::Transfer;
+        use Haneul::TxContext;
+        // create a sword
+        let sword = Sword {
+            id: TxContext::new_id(ctx),
+            magic: magic,
+            strength: strength,
+        };
+        // transfer the sword
+        Transfer::transfer(sword, recipient);
+    }
+
+    public fun sword_transfer(sword: Sword, recipient: address, _ctx: &mut TxContext) {
+        use Haneul::Transfer;
+        // transfer the sword
+        Transfer::transfer(sword, recipient);
+    }
+```
+
+The code of the new functions is self-explanatory and uses struct
+creation and Haneul-internal modules (`TxContext` and `Transfer`) in a
+way similar to what we have seen in the previous sections. The
+important part is for the entry functions to have correct signatures
+as described [earlier](#entry-functions). In order for this code to
+build, we need to add an additional import line at the module level
+(as the first line in the module's main code block right before the
+existing module-wide `ID` module import) to make `TxContext` struct
+available for function definitions:
+
+``` rust
+    use Haneul::TxContext::TxContext;
+```
+
+We can now build the module extended with the new functions, but still
+have only one test defined. Let use change that by adding another test
+function:
+
+``` rust
+    #[test]
+    public fun test_sword_transactions() {
+        use Haneul::TestScenario;
+
+        let admin = @0xBABE;
+        let initial_owner = @0xCAFE;
+        let final_owner = @0xFACE;
+
+        // first transaction executed by admin
+        let scenario = &mut TestScenario::begin(&admin);
+        {
+            // create the sword and transfer it to the initial owner
+            sword_create(42, 7, initial_owner, TestScenario::ctx(scenario));
+        };
+        // second transaction executed by the initial sword owner
+        TestScenario::next_tx(scenario, &initial_owner);
+        {
+            // extract the sword owned by the initial owner
+            let sword = TestScenario::remove_object<Sword>(scenario);
+            // transfer the sword to the final owner
+            sword_transfer(sword, final_owner, TestScenario::ctx(scenario));
+        };
+        // third transaction executed by the final sword owner
+        TestScenario::next_tx(scenario, &final_owner);
+        {
+            // extract the sword owned by the final owner
+            let sword = TestScenario::remove_object<Sword>(scenario);
+            // verify that the sword has expected properties
+            assert!(magic(&sword) == 42 && strength(&sword) == 7, 1);
+            // return the sword to the object pool (it cannot be simply "dropped")
+            TestScenario::return_object(scenario, sword)
+        }
+    }
+```
+
+Let us now dive into some details of the new testing function. The
+first thing we do is to create some addresses that represent users
+participating in the testing scenario (we assume that we have one game
+admin user and two regular users representing players). We then create
+a scenario by starting the first transaction on behalf of the admin
+address that creates a sword and transfers its ownership to the
+initial owner.
+
+The second transaction is executed by the initial owner (passed as
+argument to the `TestScenario::next_tx` function ) who then transfers
+the sword it now owns the its final owner. Please note that in "pure"
+Move we do not have the notion of Haneul storage and, consequently, no
+easy way for the emulated Haneul transaction to retrieve it from
+storage. This is where the `TestScenario` module comes to help - its
+`remove_object` function makes an object of a given type (in this case
+of type `Sword`) owned by an address executing the current transaction
+available for manipulation by the Move code (for now we assume that
+there is only one such object). In this case, the object retrieved
+from storage is transferred to another address.
+
+The final transaction is executed by the final owner - it retrieves
+the sword object from storage and checks if it has the expected
+properties. Please remember that, as described
+[earlier](#testing-a-package) in the "pure" Move testing scenario,
+once an object is available in Move code (e.g., after its created or,
+in this case, retrieved from emulated storage), it cannot simply
+disappear. In the "pure" Move testing function we handled this problem
+by transferring the sword object to the fake address but the
+`TestScenario` package gives us a more elegant solution which is
+closer to what happens when Move code is actually executed in the
+context of Haneul - we can simply return the sword to the object pool
+using `TestScenario::return_object` function.
+
+We can now run the test command again and see that we now have two
+successful tests for our module:
+
+``` shell
+BUILDING MoveStdlib
+BUILDING Haneul
+BUILDING MyMovePackage
+Running Move unit tests
+[ PASS    ] 0x0::M1::test_sword_create
+[ PASS    ] 0x0::M1::test_sword_transactions
+Test result: OK. Total tests: 2; passed: 2; failed: 0
+```
+
+## Publishing a package
+
+For functions in a Move package to actually be callable from Haneul
+(rather than for Haneul execution scenario to be emulated), the package
+has to be _published_ to Haneul's [distributed
+ledger](SUMMARY.md#architecture)
+where it is represented as a Haneul object. At this point, however, the
+haneul-move command does not support package publishing. In fact it is
+not clear if it even makes sense to accommodate package publishing,
+which happens once per package creation, in the context of a unit
+testing framework. Instead, one can use a sample Haneul wallet to
+[publish](wallet.md#package-publishing) Move code and to
+[call](wallet.md#calling-move-code). Please see the wallet
+[documentation](wallet.md#package-publishing) for a description on how
+to publish the package we have [written](#writing-a-package) as as
+part of this tutorial.
