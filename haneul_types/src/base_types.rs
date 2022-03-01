@@ -87,6 +87,16 @@ impl From<ObjectID> for HaneulAddress {
     }
 }
 
+impl TryFrom<Vec<u8>> for HaneulAddress {
+    type Error = HaneulError;
+
+    fn try_from(bytes: Vec<u8>) -> Result<Self, HaneulError> {
+        let arr: [u8; HANEUL_ADDRESS_LENGTH] =
+            bytes.try_into().map_err(|_| HaneulError::InvalidAddress)?;
+        Ok(Self(arr))
+    }
+}
+
 impl From<&PublicKeyBytes> for HaneulAddress {
     fn from(key: &PublicKeyBytes) -> HaneulAddress {
         use sha2::Digest;
