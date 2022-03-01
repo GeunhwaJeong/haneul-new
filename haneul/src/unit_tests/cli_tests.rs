@@ -14,7 +14,6 @@ use haneul::config::{
 };
 use haneul::haneul_json::HaneulJsonValue;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
-use haneul_core::client::Client;
 use haneul_network::network::PortAllocator;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::get_key_pair;
