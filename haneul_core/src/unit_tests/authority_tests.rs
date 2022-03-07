@@ -301,7 +301,7 @@ async fn test_transfer_immutable() {
     assert_eq!(
         result.unwrap_err(),
         HaneulError::LockErrors {
-            errors: vec![HaneulError::TransferImmutableError]
+            errors: vec![HaneulError::TransferSharedError]
         }
     );
 }
