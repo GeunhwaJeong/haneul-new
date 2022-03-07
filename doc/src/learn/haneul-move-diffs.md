@@ -1,0 +1,70 @@
+
+---
+title: Why Haneul?
+---
+
+This document describes the Haneul programming model and highlights the differences between the core (previously Diem) Move language and the Move we use in Haneul. First remember, Move is a language and Haneul a platform.
+
+In general, Move code written for other systems will work in Haneul with these exceptions:
+
+* Global Storage operators
+* Key Abilities
+
+Here is a summary of key differences:
+
+1. Haneul uses its own object-centric global storage
+2. Addresses represent Object IDs
+3. Haneul objects have globally unique IDs
+4. Haneul has module initializers (init)
+5. Haneul entry points take object references as input
+
+Find a detailed description of each difference below.
+
+TODO: Explain *why* each of these differences exist.
+
+
+## Object-centric global storage
+
+In core Move, global storage is part of the programming model and can be accessed through special operations, such as _move_to_, _move_from and_ many more[ global storage operators](https://diem.github.io/move/global-storage-operators.html). Both resources and modules are stored in the core Move global storage. When you publish a module, it’s stored into a newly generated module address inside Move. When a new object (a.k.a. resource) is created, it's usually stored into some account’s address, as well.
+
+However, there is no global storage in Haneul Move. None of the global storage-related operations are allowed in Haneul Move. (We have a bytecode verifier for this to detect violations.) Instead, storage happens exclusively within Haneul. When we publish a module, the newly published module is stored in Haneul storage, instead of Move storage. Similarly, newly created objects are stored in Haneul storage. _This also means that when we need to read an object in Move, we cannot rely on global storage operations but instead Haneul must explicitly pass all objects that need to be accessed into Move._
+
+
+## Addresses represent Object IDs
+
+In Move, there is a special _address_ type. This type is used to represent account addresses in core Move. Core Move needs to know the address of an account when dealing with the global storage. The _address_ type is 16 bytes, which is sufficient for the core Move security model.
+
+In Haneul, since we don’t support global storage in Move, we don’t need the _address_ type to represent user accounts. Instead, we use the _address_ type to represent the Object ID. Refer to the [ID.move](https://github.com/GeunhwaJeong/fastnft/blob/main/haneul_programmability/framework/sources/ID.move) file in Haneul framework for an understanding of address use.
+
+
+## Object with key ability, globally unique IDs
+
+We need a way to distinguish between objects that are internal to Move and objects that can be passed across the Move-Haneul boundary (i.e. objects that can be stored in Haneul storage). This is important because we need to be able to serialize/deserialize objects in the Move-Haneul boundary, and this process makes assumptions on the shape of the objects.
+
+We take advantage of the _key_ ability in Move to annotate a Haneul object. In core Move, the [key ability](https://github.com/diem/move/blob/main/language/documentation/book/src/abilities.md#key) is used to tell that the type can be used as a key for global storage. Since we don’t touch global storage in Haneul Move, we are able to repurpose this ability. We require that any struct with key ability must start with an _id_ field with the _ID_ type. The ID type contains both the ObjectID and the sequence number (a.k.a. version). We have bytecode verifiers in place to make sure that the ID field is immutable and cannot be transferred to other objects (as each object must have a unique ID).
+
+
+## Module initializers
+
+As described in [Object-centric global storage](#bookmark=id.dq5ivuwmx1i8), Move modules are published into Haneul storage. A special initializer function optionally defined in a module is executed (once) at the time of module publication by the Haneul runtime for the purpose of pre-initializing module-specific data (e.g., creating singleton objects). The initializer function must have the following properties in order to be executed at publication:
+
+
+
+* Name `init`
+* Single parameter of `&mut TxContext` type
+* No return values
+
+
+## Entry points take object references as input
+
+Haneul offers entry functions that can be called directly from Haneul, in addition to functions callable from other functions. See [Entry functions](https://github.com/GeunhwaJeong/fastnft/blob/main/doc/move.md#entry-functions).
+
+
+## Conclusion
+
+In summary, Haneul takes advantage of Move’s security and flexibility and enhances it with the features described above to vastly improve throughput, reduce delays in finality, and make Move programming easier.
+
+ \
+TODO: Team to review Clay’s little summary here. Pulled from Marketing presentation FastNFT Comparison:
+
+https://docs.google.com/presentation/d/1D-bLcMo_YCZbTysZIzc67zjKyutwL7INi5VZx7LhTZs/edit#slide=id.gcb6f301ce0_2_21
