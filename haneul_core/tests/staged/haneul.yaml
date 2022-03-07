@@ -213,12 +213,16 @@ ObjectResponse:
 Owner:
   ENUM:
     0:
-      SingleOwner:
+      AddressOwner:
         NEWTYPE:
           TYPENAME: HaneulAddress
     1:
-      SharedMutable: UNIT
+      ObjectOwner:
+        NEWTYPE:
+          TYPENAME: HaneulAddress
     2:
+      SharedMutable: UNIT
+    3:
       SharedImmutable: UNIT
 PublicKeyBytes:
   NEWTYPESTRUCT: BYTES
