@@ -3,6 +3,7 @@
 use crate::config::{
     AuthorityInfo, AuthorityPrivateInfo, Config, GenesisConfig, NetworkConfig, WalletConfig,
 };
+use crate::keystore::KeystoreType;
 use anyhow::anyhow;
 use futures::future::join_all;
 use move_binary_format::CompiledModule;
@@ -11,13 +12,11 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use structopt::StructOpt;
+use haneul_adapter::adapter::generate_package_id;
 use haneul_adapter::genesis;
 use haneul_core::authority::{AuthorityState, AuthorityStore};
 use haneul_core::authority_server::AuthorityServer;
 use haneul_types::base_types::{SequenceNumber, TxContext};
-
-use crate::keystore::KeystoreType;
-use haneul_adapter::adapter::generate_package_id;
 use haneul_types::committee::Committee;
 use haneul_types::error::HaneulResult;
 use haneul_types::object::Object;
@@ -80,6 +79,7 @@ async fn start_network(config: &NetworkConfig) -> Result<(), anyhow::Error> {
 
     for authority in &config.authorities {
         let server = make_server(authority, &committee, vec![], &[], config.buffer_size).await?;
+
         handles.push(async move {
             let spawned_server = match server.spawn().await {
                 Ok(server) => server,
@@ -93,6 +93,7 @@ async fn start_network(config: &NetworkConfig) -> Result<(), anyhow::Error> {
             }
         });
     }
+
     info!("Started {} authorities", handles.len());
     join_all(handles).await;
     info!("All server stopped.");

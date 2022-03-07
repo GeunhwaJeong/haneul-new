@@ -1,0 +1,21 @@
+[package]
+name = "test_utils"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+version = "0.1.0"
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.16.1", features = ["sync", "rt"] }
+rand = "0.7.3"
+rocksdb = "0.17.0"
+fdlimit = "0.2.1"
+portpicker = "0.1.1"
+bytes = "1.1.0"
+futures = "0.3.21"
+
+haneul-types = { path = "../haneul_types" }
+haneul_core = { path = "../haneul_core" }
+haneul-adapter = { path = "../haneul_programmability/adapter" }
+haneul = { path = "../haneul" }
