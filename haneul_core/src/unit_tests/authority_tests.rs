@@ -1812,7 +1812,7 @@ pub async fn init_state_with_objects<I: IntoIterator<Item = Object>>(objects: I)
 }
 
 #[cfg(test)]
-async fn init_state_with_object_id(address: HaneulAddress, object: ObjectID) -> AuthorityState {
+pub async fn init_state_with_object_id(address: HaneulAddress, object: ObjectID) -> AuthorityState {
     init_state_with_ids(std::iter::once((address, object))).await
 }
 
