@@ -1,6 +1,6 @@
 
 ---
-title: Why Haneul?
+title: Haneul Deltas from Move
 ---
 
 This document describes the Haneul programming model and highlights the differences between the core (previously Diem) Move language and the Move we use in Haneul. First remember, Move is a language and Haneul a platform.
