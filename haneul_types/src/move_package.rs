@@ -54,7 +54,7 @@ impl MovePackage {
 
     pub fn id(&self) -> ObjectID {
         // TODO: simplify this
-        // https://github.com/GeunhwaJeong/fastnft/issues/249
+        // https://github.com/GeunhwaJeong/haneul/issues/249
         // All modules in the same package must have the same address. Pick any
         ObjectID::from(
             *CompiledModule::deserialize(self.module_map.values().next().unwrap())
@@ -87,7 +87,7 @@ impl MovePackage {
                     module_name: module.to_string(),
                 })?;
         let m = CompiledModule::deserialize(bytes)
-            .expect("Unwrap safe because FastX serializes/verifies modules before publishing them");
+            .expect("Unwrap safe because Haneul serializes/verifies modules before publishing them");
 
         Function::new_from_name(&m, function).ok_or(HaneulError::FunctionNotFound {
             error: format!(

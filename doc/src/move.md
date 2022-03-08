@@ -380,7 +380,7 @@ name = "MyMovePackage"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../fastnft/haneul_programmability/framework/" }
+Haneul = { local = "../haneul/haneul_programmability/framework/" }
 
 [addresses]
 MyMovePackage = "0x0"
@@ -554,7 +554,7 @@ little to do with Haneul beyond using some Haneul packages, such as
 already very useful for developers writing Move code for Haneul, they may
 also want to test additional Haneul-specific features. In particular, a
 Move call in Haneul is encapsulated in a Haneul
-[transaction](https://github.com/GeunhwaJeong/fastnft/blob/main/doc/transactions.md),
+[transaction](https://github.com/GeunhwaJeong/haneul/blob/main/doc/transactions.md),
 and a developer may wish to test interactions between different
 transactions within a single test (e.g. one transaction creating an
 object and the other one transferring it).
