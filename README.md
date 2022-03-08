@@ -4,10 +4,10 @@ Welcome to Haneul, a next generation smart contract platform with high throughpu
 
 * To jump right into building smart contract applications on top of Haneul, go to [Move Quick Start](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/src/move.md).
 * To experiment with a sample Haneul wallet, check out [Wallet Quick Start](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/src/wallet.md).
+* To go deep on how Haneul works, read the Haneul [white paper](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/paper/haneul.pdf) and check out [Key Concepts](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/src/key-concepts.md).
 <!---* To understand what's possible by browsing examples of full-fledged applications and games built on top of Haneul, review the [Demos](TODO).--->
 * To understand what's possible by browsing Move code built on top of Haneul, review the [examples](https://github.com/GeunhwaJeong/fastnft/tree/main/haneul_programmability/examples/sources)
-* To start coding against Haneul's REST API's, start [here](https://app.swaggerhub.com/apis/arun-koshy/haneul-api)
-* To go deep on how Haneul works, understand [Key Concepts](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/src/key-concepts.md).
+* To start coding against Haneul's REST API's, start [here](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1)
 * To learn what distinguishes Haneul from other blockchain systems, see [What Makes Haneul Different?](https://github.com/GeunhwaJeong/fastnft/tree/main/doc/src/what-makes-haneul-different.md).
 <!---* To experience Haneul's speed and scalability for yourself, try [Benchmarking](TODO).--->
 <!---* To see the current status of the Haneul software/network and preview what's coming next, read through our [Roadmap](TODO).--->
