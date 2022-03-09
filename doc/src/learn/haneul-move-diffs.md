@@ -57,4 +57,4 @@ Haneul offers entry functions that can be called directly from Haneul, in additi
 
 ## Conclusion
 
-In summary, Haneul takes advantage of Move’s security and flexibility and enhances it with the features described above to vastly improve throughput, reduce delays in finality, and make Move programming easier. Now see [how Haneul works](how-haneul-works.md). For full details, see the [Haneul Smart Contracts Platform](../..paper/haneul.pdf) white paper.
+In summary, Haneul takes advantage of Move’s security and flexibility and enhances it with the features described above to vastly improve throughput, reduce delays in finality, and make Move programming easier. Now see [how Haneul works](how-haneul-works.md). For full details, see the [Haneul Smart Contracts Platform](../../paper/haneul.pdf) white paper.
