@@ -1,5 +1,5 @@
 /// An example of a custom object with comments explaining the relevant bits
-module Examples::CustomObjectTemplate {
+module Basics::Object {
     use Haneul::ID::VersionedID;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};

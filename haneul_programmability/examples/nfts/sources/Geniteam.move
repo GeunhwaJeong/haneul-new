@@ -1,4 +1,4 @@
-module Haneul::Geniteam {
+module NFTs::Geniteam {
     use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::TxContext::{Self, TxContext};
     use Haneul::Transfer;

@@ -1,7 +1,5 @@
-/// An escrow for atomic swap of objects that
-/// trusts a third party for liveness, but not
-/// safety.
-module Haneul::Escrow {
+/// An escrow for atomic swap of objects that trusts a third party for liveness, but not safety.
+module DeFi::Escrow {
     use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
