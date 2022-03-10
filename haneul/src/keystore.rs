@@ -82,6 +82,12 @@ impl HaneulKeystore {
         let store = serde_json::to_string_pretty(&self.keys.values().collect::<Vec<_>>()).unwrap();
         Ok(fs::write(&self.path, store)?)
     }
+
+    pub fn add_key(&mut self, address: HaneulAddress, keypair: KeyPair) -> Result<(), anyhow::Error> {
+        self.keys.insert(address, keypair);
+        self.save()?;
+        Ok(())
+    }
 }
 
 pub struct HaneulKeystoreSigner {
