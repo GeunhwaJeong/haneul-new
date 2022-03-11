@@ -1,4 +1,6 @@
-# Wallet Quick Start
+---
+title: Wallet Quick Start
+---
 
 Welcome to the Haneul tutorial on the sample Haneul wallet developed
 to facilitate local experimentation with Haneul features using a
@@ -596,11 +598,10 @@ Type: 0x2::Coin::Coin<0x2::GAS::GAS>
 ## Publish packages
 
 In order for user-written code to be available in Haneul, it must be
-_published_ to Haneul's [distributed
-ledger](../../README.md#architecture). Please see the [Move developer
-documentation](move.md) for a
-[description](move.md#writing-a-package) on how to write a simple Move
-code package, which we can publish using Haneul wallet's `publish` command.
+_published_ to Haneul's [distributed ledger](../learn/how-haneul-works.md#architecture).
+Please see the [Move developer documentation](move.md) for a
+description on how to [write a simple Move code package](move.md#writing-a-package),
+which we can publish using Haneul wallet's `publish` command.
 
 The publish command
 requires us to specify a directory where the user-defined package lives.
