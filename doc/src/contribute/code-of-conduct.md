@@ -1,5 +1,6 @@
-
-# Contributor Covenant Code of Conduct
+---
+title: Haneul Contributor Covenant Code of Conduct
+---
 
 Haneul as an open source project encourages free discussion rooted in respect.
 We endeavor to always be mindful of others' perspectives and ask all
