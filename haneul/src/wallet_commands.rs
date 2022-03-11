@@ -1,21 +1,12 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::config::{Config, WalletConfig};
-use crate::haneul_json::{resolve_move_function_args, HaneulJsonValue};
-use core::fmt;
-use std::fmt::{Debug, Display, Formatter};
-use std::path::Path;
-use haneul_core::client::{AsyncTransactionSigner, GatewayClient};
-use haneul_framework::build_move_package_to_bytes;
-use haneul_types::base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::{
-    CertifiedTransaction, ExecutionStatus, TransactionData, TransactionEffects,
-};
-use haneul_types::move_package::resolve_and_type_check;
-use haneul_types::object::ObjectRead::Exists;
 
-use crate::keystore::Keystore;
+use core::fmt;
+use std::fmt::{Debug, Display, Formatter, Write};
+use std::path::Path;
+use std::sync::{Arc, RwLock};
+use std::time::Instant;
+
 use anyhow::anyhow;
 use async_trait::async_trait;
 use colored::Colorize;
@@ -25,15 +16,26 @@ use move_core_types::language_storage::TypeTag;
 use move_core_types::parser::parse_type_tag;
 use serde::ser::Error;
 use serde::Serialize;
-use std::fmt::Write;
-use std::sync::{Arc, RwLock};
-use std::time::Instant;
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
-use haneul_core::client::client_responses::{MergeCoinResponse, SplitCoinResponse};
-use haneul_types::crypto::{Signable, Signature};
-use haneul_types::object::ObjectRead;
 use tracing::info;
+
+use haneul_core::client::client_responses::{MergeCoinResponse, SplitCoinResponse};
+use haneul_core::client::{AsyncTransactionSigner, GatewayClient};
+use haneul_framework::build_move_package_to_bytes;
+use haneul_types::base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::crypto::{Signable, Signature};
+use haneul_types::gas_coin::GasCoin;
+use haneul_types::messages::{
+    CertifiedTransaction, ExecutionStatus, TransactionData, TransactionEffects,
+};
+use haneul_types::move_package::resolve_and_type_check;
+use haneul_types::object::ObjectRead;
+use haneul_types::object::ObjectRead::Exists;
+
+use crate::config::{Config, WalletConfig};
+use crate::keystore::Keystore;
+use crate::haneul_json::{resolve_move_function_args, HaneulJsonValue};
 
 #[derive(StructOpt)]
 #[structopt(name = "", rename_all = "kebab-case")]
@@ -183,6 +185,7 @@ pub enum WalletCommands {
 pub struct SimpleTransactionSigner {
     pub keystore: Arc<RwLock<Box<dyn Keystore>>>,
 }
+
 // A simple signer callback implementation, which signs the content without validation.
 #[async_trait]
 impl AsyncTransactionSigner for SimpleTransactionSigner {
