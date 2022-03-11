@@ -3,6 +3,8 @@
 
 use anyhow::anyhow;
 use move_core_types::identifier::Identifier;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use haneul_types::{
     base_types::{decode_bytes_hex, ObjectID, HaneulAddress},
@@ -21,7 +23,7 @@ const HEX_PREFIX: &str = "0x";
 #[path = "unit_tests/haneul_json.rs"]
 mod base_types_tests;
 
-#[derive(Eq, PartialEq, Debug, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct HaneulJsonValue(JsonValue);
 impl HaneulJsonValue {
     pub fn new(json_value: JsonValue) -> Result<HaneulJsonValue, anyhow::Error> {
