@@ -5,16 +5,16 @@ title: Haneul Developer Guides
 Welcome to the documentation for the Haneul platform. Since Haneul is built upon the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language,
 you should familiarize yourself with it and use this content to apply the differences. For a summary of these differences, see [Why Haneul?](learn/haneul-move-diffs.md)
 
-For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](paper/haneul.pdf) white paper.
+For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](../paper/haneul.pdf) white paper.
 
 ## Kickstart development
 
 ### Move quick start
-See the [Move Quick Start](move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
+See the [Move Quick Start](build/move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
 <!--- Then deeper: Haneul standard library, design patterns, examples. --->
 
 ### Wallet quick start
-See the [Wallet Quick Start](wallet.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
+See the [Wallet Quick Start](build/wallet.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
 <!--- Then deeper: wallet CLI vs client service vs forwarder architecture, how to integrate your code (wallet, indexer, ...) with the client service or forwarder components. --->
 
 ## Navigate this site
