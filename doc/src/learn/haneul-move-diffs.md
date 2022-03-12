@@ -1,4 +1,3 @@
-
 ---
 title: How Haneul Move differs from Core Move
 ---
@@ -53,7 +52,7 @@ As described in [Object-centric global storage](#object-centric-global-storage),
 
 ## Entry points take object references as input
 
-Haneul offers entry functions that can be called directly from Haneul, in addition to functions callable from other functions. See [Entry functions](https://github.com/GeunhwaJeong/fastnft/blob/main/doc/move.md#entry-functions).
+Haneul offers entry functions that can be called directly from Haneul, in addition to functions callable from other functions. See [Entry functions](../build/move.md#entry-functions).
 
 ## Conclusion
 
