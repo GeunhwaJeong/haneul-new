@@ -11,7 +11,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use haneul_core::authority_client::AuthorityClient;
-use haneul_core::client::{ClientAddressManager, GatewayClient};
+use haneul_core::gateway_state::{GatewayClient, GatewayState};
 use haneul_network::network::NetworkClient;
 use haneul_network::transport;
 use haneul_types::base_types::AuthorityName;
@@ -64,11 +64,7 @@ impl GatewayType {
                 let path = config.db_folder_path.clone();
                 let committee = config.make_committee();
                 let authority_clients = config.make_authority_clients();
-                Box::new(ClientAddressManager::new(
-                    path,
-                    committee,
-                    authority_clients,
-                ))
+                Box::new(GatewayState::new(path, committee, authority_clients))
             }
             _ => {
                 panic!("Unsupported gateway type")

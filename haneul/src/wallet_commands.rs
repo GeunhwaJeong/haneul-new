@@ -20,8 +20,8 @@ use structopt::clap::AppSettings;
 use structopt::StructOpt;
 use tracing::info;
 
-use haneul_core::client::client_responses::{MergeCoinResponse, SplitCoinResponse};
-use haneul_core::client::{AsyncTransactionSigner, GatewayClient};
+use haneul_core::gateway_state::gateway_responses::{MergeCoinResponse, SplitCoinResponse};
+use haneul_core::gateway_state::{AsyncTransactionSigner, GatewayClient};
 use haneul_framework::build_move_package_to_bytes;
 use haneul_types::base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{Signable, Signature};
@@ -358,7 +358,7 @@ impl WalletCommands {
             }
 
             WalletCommands::SyncClientState { address } => {
-                context.gateway.sync_client_state(*address).await?;
+                context.gateway.sync_account_state(*address).await?;
                 WalletCommandResult::SyncClientState
             }
             WalletCommands::NewAddress => {
@@ -368,7 +368,7 @@ impl WalletCommands {
                 WalletCommandResult::NewAddress(address)
             }
             WalletCommands::Gas { address } => {
-                context.gateway.sync_client_state(*address).await?;
+                context.gateway.sync_account_state(*address).await?;
                 let object_refs = context.gateway.get_owned_objects(*address);
 
                 // TODO: We should ideally fetch the objects from local cache
