@@ -2,7 +2,7 @@ module Haneul::Transfer {
     use Haneul::ID::{Self, ID, VersionedID};
 
     // To allow access to transfer_to_object_unsafe.
-    friend Haneul::Collection;
+    friend Haneul::Bag;
 
     // When transferring a child object, this error is thrown if the child object
     // doesn't match the ChildRef that represents the onwershp.
