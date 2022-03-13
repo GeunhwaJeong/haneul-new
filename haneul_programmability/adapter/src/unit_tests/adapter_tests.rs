@@ -15,7 +15,7 @@ use haneul_types::{
     error::HaneulResult,
     gas_coin::GAS,
     object::{Data, Owner},
-    storage::Storage,
+    storage::{BackingPackageStore, Storage},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 
@@ -39,6 +39,12 @@ struct ScratchPad {
 struct InMemoryStorage {
     persistent: BTreeMap<ObjectID, Object>,
     temporary: ScratchPad,
+}
+
+impl BackingPackageStore for InMemoryStorage {
+    fn get_package(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
+        Ok(self.persistent.get(package_id).cloned())
+    }
 }
 
 impl InMemoryStorage {
