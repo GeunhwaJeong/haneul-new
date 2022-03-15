@@ -4,7 +4,6 @@
 #[test_only]
 module Haneul::TestScenario {
     use Haneul::ID::{Self, ID, VersionedID};
-    use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
     use Std::Vector;
 
@@ -170,12 +169,11 @@ module Haneul::TestScenario {
         assert!(is_mem, ECANT_RETURN_OBJECT);
         Vector::remove(removed, idx);
 
-        // Model object return as a self transfer. Because the events are the source of truth for all object values
-        // in the inventory, we must put any state change future txes want to see in an event. It would not be safe
+        // Update the object content in the inventory.
+        // Because the events are the source of truth for all object values in the inventory,
+        // we must put any state change future txes want to see in an event. It would not be safe
         // to do (e.g.) `delete_object_for_testing(t)` instead.
-        // TODO: do this with a special test-only event to enable writing tests that look directly at system events
-        // like transfers. the current scheme will perturb the count of transfer events.
-        Transfer::transfer(t, sender(scenario))
+        update_object(t)
     }
 
     /// Return `true` if a call to `remove_object<T>(scenario)` will succeed
@@ -278,4 +276,7 @@ module Haneul::TestScenario {
 
     /// Emit a special, test-only event recording that `object_id` was wrapped
     native fun emit_wrapped_object_event(object_id: vector<u8>);
+
+    /// Update the content of an object in the inventory.
+    native fun update_object<T: key>(obj: T);
 }
