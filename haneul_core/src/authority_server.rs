@@ -149,7 +149,7 @@ impl AuthorityServer {
                 Err(RecvError::Lagged(number_skipped)) => {
                     // We tell the client they are too slow to consume, and
                     // stop.
-                    return Err(HaneulError::SubscriptionItemsDropedError(number_skipped));
+                    return Err(HaneulError::SubscriptionItemsDroppedError(number_skipped));
                 }
             }
         }
