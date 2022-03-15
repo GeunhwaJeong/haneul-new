@@ -3,17 +3,16 @@
     "title": "MAIN CONCEPTS",
     "items": [
       {
-        "label": "Selections",
-        "link": "build/transactions"
+        "label": "Tutorial",
+        "link": "explore/tutorials"
       },
       {
-        "label": "Dynamic properties",
-        "link": "learn/haneul-compared"
+        "label": "Examples",
+        "link": "explore/examples"
       },
       {
-        "label": "Events",
-        "link": "https://www.google.com/",
-        "external": true
+        "label": "Prototypes",
+        "link": "explore/prototypes"
       }
     ]
   },
@@ -21,54 +20,46 @@
     "learn": [
       {
         "label": "About Haneul",
-        "fileName": "learn/how-haneul-works"
+        "fileName": "learn/about-haneul"
       },
       {
-        "label": "Terminology",
-        "fileName": "learn/how-haneul-works"
-      },
-      {
-        "label": "Why Move?",
+        "label": "How Haneul Move differs from Core Move"
         "fileName": "learn/haneul-move-diffs"
       },
       {
-        "label": "What Makes Haneul Different?",
+        "label": "How Haneul Works",
+        "fileName": "learn/how-haneul-works"
+      },
+      {
+        "label": "Haneul Compared to Other Blockchains"
         "fileName": "learn/haneul-compared"
       },
       {
-        "title": "How Haneul works",
-        "items": [
-          {
-            "label": "Security",
-            "fileName": "learn/haneul-compared"
-          },
-          {
-            "label": "Storage",
-            "fileName": "learn/haneul-compared"
-          },
-          {
-            "label": "Limitations",
-            "fileName": "learn/haneul-compared"
-          }
-        ]
+        "label": "Understand Haneul Security"
+        "fileName": "learn/haneul-security"
       },
       {
         "label": "Haneul White Paper",
-        "fileName": "learn/how-haneul-works"
+        "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf"
+        "external": true
       }
     ],
     "build": [
       {
-        "label": "Install",
-        "fileName": "build/authorities"
-      },
-      {
-        "label": "Smart Contracts with Move",
+        "label": "Smart Contracts with Move"
         "fileName": "build/move"
       },
       {
         "label": "Wallet",
         "fileName": "build/wallet"
+      },
+      {
+        "label": "Authorities",
+        "fileName": "build/authorities"
+      },
+      {
+        "label": "HaneulJSON",
+        "fileName": "build/haneul-json"
       },
       {
         "label": "Objects",
@@ -81,49 +72,35 @@
     ],
     "explore": [
       {
-        "title": "Examples",
-        "items": [
-          {
-            "label": "Mint NFT with Additional Mutable Fields",
-            "fileName": "build/move"
-          },
-          {
-            "label": "Transfer, Bundle, and Wrap NFTs",
-            "fileName": "explore/observability"
-          },
-          {
-            "label": "Use Ethereum NFTs in Haneul?",
-            "fileName": "haneul-json"
-          }
-        ]
+        "label": "Tutorial",
+        "fileName": "explore/tutorials"
+      },
+      {
+        "label": "Prototypes",
+        "fileName": "explore/prototypes"
+      },
+      {
+        "label": "Examples",
+        "fileName": "explore/examples"
       }
     ],
-
     "contribute": [
-
-      {
-        "label": "Community",
-        "link": "https://www.google.com/",
-        "external": true
-      },
       {
         "label": "Logging",
-        "link": "https://www.google.com/",
-        "external": true
+        "fileName": "contribute/observability"
       },
       {
-        "label": "About Haneul Labs",
-        "link": "https://www.google.com/",
-        "external": true
-      },
-      {
-        "label": "Contributing to Haneul",
-        "link": "https://www.google.com/",
-        "external": true
+        "label": "Research Papers",
+        "fileName": "contribute/research-papers"
       },
       {
         "label": "Code of Conduct",
         "fileName": "contribute/code-of-conduct"
+      },
+      {
+        "label": "About Haneul Labs",
+        "link": "https://haneul-labs.com/"
+        "external": true
       }
     ]
   }
