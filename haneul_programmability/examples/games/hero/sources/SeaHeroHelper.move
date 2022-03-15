@@ -4,9 +4,9 @@
 /// the monster for them in exchange for some of the reward.
 /// Anyone can create a mod like this--the permission of the `SeaHero` game
 /// is not required.
-module Games::SeaHeroHelper {
-    use Games::SeaHero::{Self, SeaMonster, RUM};
-    use Games::Hero::Hero;
+module HeroGame::SeaHeroHelper {
+    use HeroGame::SeaHero::{Self, SeaMonster, RUM};
+    use HeroGame::Hero::Hero;
     use Haneul::Coin::{Self, Coin};
     use Haneul::ID::{Self, VersionedID};
     use Haneul::Transfer;

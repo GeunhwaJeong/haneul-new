@@ -1,6 +1,6 @@
 /// Example of a game character with basic attributes, inventory, and
 /// associated logic.
-module Games::Hero {
+module HeroGame::Hero {
     use Haneul::Coin::{Self, Coin};
     use Haneul::Event;
     use Haneul::ID::{Self, ID, VersionedID};

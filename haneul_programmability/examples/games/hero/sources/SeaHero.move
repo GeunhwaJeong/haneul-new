@@ -5,8 +5,8 @@
 /// earns RUM tokens for hero's owner.
 /// Note that this mod does not require special permissions from `Hero` module;
 /// anyone is free to create a mod like this.
-module Games::SeaHero {
-    use Games::Hero::{Self, Hero};
+module HeroGame::SeaHero {
+    use HeroGame::Hero::{Self, Hero};
     use Haneul::ID::{Self, VersionedID};
     use Haneul::Coin::{Self, Coin, TreasuryCap };
     use Haneul::Transfer;
