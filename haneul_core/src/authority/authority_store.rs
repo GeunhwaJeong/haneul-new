@@ -16,9 +16,9 @@ use typed_store::rocks::{open_cf, DBBatch, DBMap};
 use std::sync::atomic::Ordering;
 use typed_store::{reopen, traits::Map};
 
-pub type AuthorityStore = HaneulDataStore<true>;
+pub type AuthorityStore = HaneulDataStore<false>;
 #[allow(dead_code)]
-pub type ReplicaStore = HaneulDataStore<false>;
+pub type ReplicaStore = HaneulDataStore<true>;
 
 /// ALL_OBJ_VER determines whether we want to store all past
 /// versions of every object in the store. Authority doesn't store
