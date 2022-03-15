@@ -1,0 +1,198 @@
+{
+  "title": "Haneul Developer Portal",
+  "tagline": "Welcome to Haneul, a next generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
+  "URL": "https://devportal-30dd0.web.app/",
+  "baseUrl": "/",
+  "favIcon": "/favicon2.png",
+  "organizationName": "Haneul Labs",
+  "projectName": "Dev Portal",
+
+  "footerData": {
+    "copyRight": "©2022 Copyright Haneul. All rights reserved.",
+    "privacyPolicy": {
+      "label": "Privacy Policy",
+      "link": "#"
+    },
+    "terms": {
+      "label": "Terms of Service",
+     "link": "#"
+    },
+    "menu": [{
+        "title": "Docs",
+        "listItems": [{
+            "title": "Getting Started",
+            "link": "/learn/haneul-move-diffs/"
+          },
+          {
+            "title": "SDK Reference",
+            "link": "/learn/haneul-move-diffs/"
+          },
+          {
+            "title": "Prototypes",
+            "link": "/learn/haneul-move-diffs/"
+          }
+        ]
+      },
+      {
+        "title": "Community",
+        "listItems": [{
+            "title": "Discord",
+            "link": "https://discord.com/invite/Tcfn7UdmAc",
+            "external": true
+          },
+          {
+            "title": "Twiter",
+            "link": "https://twitter.com/haneul_labs/",
+            "external": true
+          },
+          {
+            "title": "Forum",
+            "link": "https://medium.com/haneullabs-labs/",
+            "external": true
+          }
+        ]
+      },
+      {
+        "title": "More",
+        "listItems": [{
+            "title": "GitHub",
+            "link": "https://github.com/GeunhwaJeong",
+            "external": true
+          },
+          {
+            "title": "Haneul.io",
+            "link": "https://haneul.io/",
+            "external": true
+          },
+          {
+            "title": "White Paper",
+            "link": "#",
+            "external": true
+          }
+        ]
+      }
+    ]
+  },
+  "headerData": {
+    "menu": [{
+        "title": "Learn",
+        "link": "/learn/how-haneul-works"
+      },
+      {
+        "title": "Build",
+        "link": "/build/"
+      },
+      {
+        "title": "Explore",
+        "link": "/explore/observability"
+      },
+      {
+        "title": "Contribute",
+        "link": "/contribute/code-of-conduct"
+      },
+      {
+        "title": "Discord",
+        "link": "https://discord.com/invite/Tcfn7UdmAc/",
+        "external": true
+      },
+      {
+        "title": "Github",
+        "link": "https://github.com/GeunhwaJeong",
+        "external": true
+      }
+    ]
+  },
+  "HomePage": {
+    "title": "Haneul Developer Hub",
+    "subTitle": "Welcome to Haneul, a next generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
+    "partner": {
+      "title": "Partner Highlight",
+      "copy" : "See how Celo uses this copy to change this copy because this copy needs to be changed but that should be an easy fix.",
+      "cta" : {
+        "label": "Get Started",
+        "link": "/learn/how-haneul-works",
+        "external": false
+      }
+    },
+    "cta": [{
+        "name": "Getting Started",
+        "sublist": [{
+            "name": "What makes Haneul different? ->",
+            "url": "/learn/haneul-move-diffs/"
+          },
+          {
+            "name": "Wallet Quick Start ->",
+            "url": "/build/wallet/"
+          }
+        ]
+      },
+      {
+        "name": "Learn About Haneul",
+        "sublist": [{
+            "name": "What makes Haneul different? ->",
+            "url": "/learn/haneul-move-diffs/"
+          },
+          {
+            "name": "Wallet Quick Start ->",
+            "url": "/build/wallet/"
+          }
+        ]
+      },
+      {
+        "name": "Demos",
+        "sublist": [{
+            "name": "What makes Haneul different? ->",
+            "url": "/learn/haneul-move-diffs/"
+          },
+          {
+            "name": "Create a Wallet ->",
+            "url": "/build/wallet/"
+          }
+        ]
+      },
+      {
+        "name": "Explore Prototypes",
+        "sublist": [{
+          "name": "Explore ->",
+          "url": "/"
+        } ]
+      },
+      {
+        "name": "Build with Examples",
+        "sublist": [{
+            "name": "Mint a Mutable NFT ->",
+            "url": "/learn/haneul-move-diffs/"
+          },
+          {
+            "name": "Gaming-related Example ->",
+            "url": "/build/wallet/"
+          }
+        ]
+      },
+      {
+        "name": "Join the Community",
+        "sublist": [{
+            "name": "Github",
+            "url": "/learn/haneul-move-diffs/",
+            "external": true
+          },
+          {
+            "name": "Discord",
+            "url": "/build/wallet/",
+            "external": true
+          },
+          {
+            "name": "Twitter",
+            "url": "/build/wallet/",
+            "external": true
+          },
+          {
+            "name": "Medium",
+            "url": "/build/wallet/",
+            "external": true
+          }
+        ]
+      }
+    ]
+  }
+}
