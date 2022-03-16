@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 extern crate core;
 
-use std::path::PathBuf;
 use structopt::StructOpt;
-use haneul::config::{Config, NetworkConfig};
 use haneul::haneul_commands::HaneulCommand;
 
 use tracing::info;
@@ -25,8 +23,6 @@ mod cli_tests;
 struct HaneulOpt {
     #[structopt(subcommand)]
     command: HaneulCommand,
-    #[structopt(long, default_value = "./network.conf")]
-    config: PathBuf,
 }
 
 #[tokio::main]
@@ -61,8 +57,5 @@ async fn main() -> Result<(), anyhow::Error> {
     }
 
     let options: HaneulOpt = HaneulOpt::from_args();
-    let network_conf_path = options.config;
-    let mut config = NetworkConfig::read_or_create(&network_conf_path)?;
-
-    options.command.execute(&mut config).await
+    options.command.execute().await
 }
