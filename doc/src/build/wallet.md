@@ -11,30 +11,13 @@ interface, *Wallet CLI*.
 
 ## Setup
 
-### Installing the binaries
-
-Haneul is written in Rust, and we are using Cargo to build and manage the dependencies.
-As a prerequisite, you will need to [install cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) 
-in order to build and install Haneul on your machine.
-
-Check out the [Haneul GitHub](https://github.com/GeunhwaJeong/haneul) repository.
-
-To install the `haneul` and `wallet` binaries, use the following commands.
-```shell
-cargo install --git ssh://git@github.com/GeunhwaJeong/haneul.git
-```
-or 
-```shell
-cargo install --path <Path to Haneul project>/haneul
-```
-
-This will install `haneul` and `wallet` binaries in `~/.cargo/bin`directory that can be executed directly.
+Follow the instructions to [install Haneul binaries](install.md).
 
 ## Genesis
 ```shell
 haneul genesis
 ```
-NOTE: For logs, set `RUST_LOG=debug` before invoking `./haneul genesis`.
+NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul genesis`.
 
 The `genesis` command creates four authorities and five user accounts
 each with five gas objects. These are Haneul [objects](objects.md) used
@@ -134,7 +117,7 @@ or
 ```shell
 haneul start --config [config file path]
 ```
-NOTE: For logs, set `RUST_LOG=debug` before invoking `./haneul start`.
+NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul start`.
 
 The network config file path defaults to `./network.conf` if not
 specified.

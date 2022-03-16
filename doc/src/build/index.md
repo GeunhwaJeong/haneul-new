@@ -2,7 +2,7 @@
 title: Building Haneul
 ---
 
-Now that you've [learned about Haneul](../learn/index.md), it's time to build it yourself. Start by becoming familiar with these key concepts:
+Now that you've [learned about Haneul](../learn/index.md), it's time to [install](install.md) all the required tools and start building. Begin by becoming familiar with these key concepts:
 
 * [Smart Contracts with Move](move.md) - Move is an open source language for writing safe smart contracts. In Haneul, Move is used to define,
   create and manage programmable Haneul objects representing user-level assets.
