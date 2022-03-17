@@ -11,7 +11,7 @@ If you'd like to install only Haneul binaries (`haneul`, `wallet`, and
 `haneul-move`), use the following command:
 
 ```shell
-cargo install --git ssh://git@github.com/GeunhwaJeong/haneul.git
+cargo install --git https://git@github.com/GeunhwaJeong/haneul.git
 ```
 
 Alternatively, clone the [Haneul
@@ -20,7 +20,7 @@ install` with the repository clone:
 
 ```shell
 git clone https://github.com/GeunhwaJeong/haneul.git
-cargo install --path haneul
+cargo install --path haneul/haneul
 ```
 
 In both cases, this will install `haneul`, `wallet`, and `haneul-move`
