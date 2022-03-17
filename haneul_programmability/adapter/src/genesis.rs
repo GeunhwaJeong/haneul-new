@@ -30,7 +30,11 @@ pub fn clone_genesis_packages() -> Vec<Object> {
 }
 
 pub fn get_genesis_context() -> TxContext {
-    TxContext::new(&HaneulAddress::default(), TransactionDigest::genesis())
+    get_genesis_context_with_custom_address(&HaneulAddress::default())
+}
+
+pub fn get_genesis_context_with_custom_address(address: &HaneulAddress) -> TxContext {
+    TxContext::new(address, TransactionDigest::genesis())
 }
 
 /// Create and return objects wrapping the genesis modules for haneul
