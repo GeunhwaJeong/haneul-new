@@ -1,6 +1,6 @@
 {
   "sideMenu": {
-    "title": "MAIN CONCEPTS",
+    "title": "QUICK LINKS",
     "items": [
       {
         "label": "Tutorial",
@@ -21,6 +21,10 @@
       {
         "label": "About Haneul",
         "fileName": "learn/about-haneul"
+      },
+      {
+        "label": "Why Move?",
+        "fileName": "learn/why-move"
       },
       {
         "label": "How Haneul Move differs from Core Move"
