@@ -6,7 +6,7 @@ Find sample Haneul smart contract implementations in the [haneul_programmability
 
 ## Basics
 
-Use the [Basics](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/basics) example to explore object creation, update, and exchange.
+In the [Basics](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/basics) example, explore object creation, update, and exchange.
 
 ## DeFi
 
@@ -19,8 +19,7 @@ how (e.g.) a fiat-backed stablecoin would work.
 
 ## Games
 
-The [Games](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games) example lets you try out and modify toy games built on top of Haneul! These include classic Tic Tac Toe
-, rock paper scissors, and various versions of an adventure game (Hero).
+In the [Games](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games) example, try out and modify toy games built on top of Haneul! These include classic Tic Tac Toe, rock paper scissors, and various versions of an adventure game (Hero).
 
 ## NFTs
 
