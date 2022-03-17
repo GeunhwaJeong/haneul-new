@@ -26,6 +26,6 @@ To submit your pull request:
 
 * Learn [about Haneul Labs](https://haneul-labs.com/) the company on our public site.
 * Read the [Haneul Smart Contract Platform](../../paper/haneul.pdf) white paper.
-* * Implementing [logging](observability.md) in Haneul to observe the behavior of your development.
+* Implementing [logging](observability.md) in Haneul to observe the behavior of your development.
 * Find related [research papers](research-papers.md).
 * See and adhere to our [code of conduct](code-of-conduct.md).
