@@ -2,7 +2,7 @@
 title: Haneul Prototypes
 ---
 
-Here are two short gaming prototypes that demonstrate the speed, scalability, and rich interactions made possible with mutable, expressive NFTs: [Haneul Monstar and Haneul Battler](https://haneul.io/haneul_monstar).
+Here are two short gaming prototypes that demonstrate the speed, scalability, and rich interactions made possible with mutable, expressive NFTs: [Haneul Monstar and Haneul Battler](https://haneul.io/monstar).
 
 
 ## Haneul and gaming
@@ -210,7 +210,7 @@ That’s not all! As your Monstar become stronger, you can use them to help you 
 
 ## Prototype 2 Haneul Battler
 
-Welcome to [Haneul Battler](https://haneul.io/haneul_monstar), where your cute monstars transform into warriors!
+Welcome to [Haneul Battler](https://haneul.io/monstar), where your cute monstars transform into warriors!
 
 Gameplay:
 
@@ -232,8 +232,6 @@ Gameplay:
 
 ## Further reading
 
-* See the entire Unity project here [link to github].
+* See the entire [Unity project](https://github.com/GeunhwaJeong/haneul-monstars)
 * Check out Haneul [APIs](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1).
 * Learn about Haneul [objects](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/objects.md).
-
-TODO: Fix Unity link above.
