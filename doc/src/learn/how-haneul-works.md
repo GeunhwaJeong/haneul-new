@@ -96,8 +96,8 @@ While those steps demand more of the sender, performing them efficiently can sti
 
 Because Haneul focuses on managing specific objects rather than a single aggregate of state, it also reports on them in a unique way:
 
-- Every object in Haneul has a unique version number.
+* Every object in Haneul has a unique version number.
 
-- Every new version is created from a transaction that may involve several dependencies, themselves versioned objects. 
+* Every new version is created from a transaction that may involve several dependencies, themselves versioned objects. 
 
 As a consequence, a Haneul authority -- or any other authority with a copy of the state -- can exhibit a causal history of an object, showing its history since genesis. Haneul explicitly makes the bet that in most cases, the ordering of that causal history with the causal history of another object is irrelevant; and in the few cases where this information is relevant, Haneul makes this relationship explicit in the data. 
