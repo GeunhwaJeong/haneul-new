@@ -6,11 +6,11 @@ This is a high-level overview of the differences in approach between Haneul and 
 
 Here are Haneul's key features:
 
-- Causal order vs total order (enables massively parallel execution)
+* Causal order vs total order (enables massively parallel execution)
 
-- [Haneul's variant of Move](../build/move.md) and its object-centric data model (enables composable objects/NFTs)
+* [Haneul's variant of Move](../build/move.md) and its object-centric data model (enables composable objects/NFTs)
 
-- Easier developer experience with the blockchain-oriented [Move programming language](https://github.com/GeunhwaJeong/awesome-move)
+* Easier developer experience with the blockchain-oriented [Move programming language](https://github.com/GeunhwaJeong/awesome-move)
 
 
 ## Authorities vs validators/miners
