@@ -29,15 +29,14 @@
 ///   - otherwise the funds accumulated in the auction go to the
 ///   original owner and the item goes to the bidder that won the
 ///   auction
-
-module DeFi::Auction {
+module NFTs::Auction {
     use Haneul::Coin::Coin;
     use Haneul::GAS::GAS;
     use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::Transfer;
     use Haneul::TxContext::{Self,TxContext};
 
-    use DeFi::AuctionLib::{Self, Auction};
+    use NFTs::AuctionLib::{Self, Auction};
 
 
     // Error codes.

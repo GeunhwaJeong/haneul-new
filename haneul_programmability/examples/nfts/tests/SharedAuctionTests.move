@@ -1,5 +1,5 @@
 #[test_only]
-module DeFi::SharedAuctionTests {
+module NFTs::SharedAuctionTests {
     use Std::Vector;
 
     use Haneul::Coin::{Self, Coin};
@@ -8,8 +8,8 @@ module DeFi::SharedAuctionTests {
     use Haneul::TestScenario::Self;
     use Haneul::TxContext::{Self, TxContext};
 
-    use DeFi::SharedAuction;
-    use DeFi::AuctionLib::Auction;
+    use NFTs::SharedAuction;
+    use NFTs::AuctionLib::Auction;
 
 
     const COIN_VALUE: u64 = 100;

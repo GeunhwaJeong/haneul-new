@@ -1,5 +1,5 @@
 #[test_only]
-module DeFi::AuctionTests {
+module NFTs::AuctionTests {
     use Std::Vector;
 
     use Haneul::Coin::{Self, Coin};
@@ -8,8 +8,8 @@ module DeFi::AuctionTests {
     use Haneul::TestScenario::Self;
     use Haneul::TxContext::{Self, TxContext};
 
-    use DeFi::Auction::{Self, Bid};
-    use DeFi::AuctionLib::Auction;
+    use NFTs::Auction::{Self, Bid};
+    use NFTs::AuctionLib::Auction;
 
     // Error codes.
     const EWRONG_ITEM_VALUE: u64 = 1;

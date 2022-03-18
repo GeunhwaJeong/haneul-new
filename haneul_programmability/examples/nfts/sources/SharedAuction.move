@@ -22,13 +22,13 @@
 ///   - otherwise the funds accumulated in the auction go to the owner
 ///   and the item goes to the bidder that won the auction
 
-module DeFi::SharedAuction {
+module NFTs::SharedAuction {
     use Haneul::Coin::Coin;
     use Haneul::GAS::GAS;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self,TxContext};
 
-    use DeFi::AuctionLib::{Self, Auction};
+    use NFTs::AuctionLib::{Self, Auction};
 
     // Error codes.
 
