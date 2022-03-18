@@ -20,7 +20,7 @@ See the [Wallet Quick Start](../build/wallet.md) for installation, querying the 
 
 Navigate and search this site however you see fit. Here is the order we recommend if you are new to Haneul:
 
-1. Learn [about Haneul]((../learn/about-haneul.md), how [Haneul differs from Move](../learn/why-move.md), and [how Haneul works](how-haneul-works.md) starting in this very section.
+1. Learn [about Haneul](../learn/about-haneul.md), how [Haneul differs from Move](../learn/why-move.md), and [how Haneul works](how-haneul-works.md) starting in this very section.
 1. [Build](../build/index.md) smart contracts, wallets, authorities, transactions, and more.
 1. [Explore](../explore/index.md) NFTs, make transfers, and see the Haneul API.
 1. [Contribute](../contribute/index.md) to Haneul by joining the community, making enhancements, and learning about Haneul Labs.
@@ -42,4 +42,6 @@ Take note of these related repositories of information to make best use of the k
 Send us documentation fixes or requests for improvement at:
 doc@haneul-labs.com
 
-You may also suggest changes to the docs directly in GitHub right here. Simply edit the file in question and generated a pull request. We will get back to you shortly.
+You may also suggest changes to the docs directly in GitHub right here using the **Source Code** link below.
+
+Simply edit the file in question and generated a pull request. We will get back to you shortly.
