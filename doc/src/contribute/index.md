@@ -2,7 +2,7 @@
 title: Contributing to Haneul
 ---
 
-To contribute, ensure you have the latest version of the codebase. To clone the repository, run the following:
+Now that you understand Haneul, consider helping the project. To contribute to Haneul, ensure you have the latest version of the codebase. To clone the repository, run the following:
 ```bash
 git clone https://github.com/GeunhwaJeong/haneul.git
 cd haneul
@@ -26,6 +26,6 @@ To submit your pull request:
 
 * Learn [about Haneul Labs](https://haneul-labs.com/) the company on our public site.
 * Read the [Haneul Smart Contract Platform](../../paper/haneul.pdf) white paper.
-* Implementing [logging](observability.md) in Haneul to observe the behavior of your development.
-* Find related [research papers](research-papers.md).
-* See and adhere to our [code of conduct](code-of-conduct.md).
+* Implementing [logging](../contribute/observability.md) in Haneul to observe the behavior of your development.
+* Find related [research papers](../contribute/research-papers.md).
+* See and adhere to our [code of conduct](../contribute/code-of-conduct.md).
