@@ -6,7 +6,12 @@ In this tutorial, we demonstrate an end-to-end process of starting a Haneul netw
 
 ## Setup
 
-Follow the instructions to [install Haneul binaries](../build/install.md).
+Follow the instructions to [install Haneul
+binaries](../build/install.md) and clone the repository as
+described in the installation instructions as this tutorial assumes
+that you have a clone of Haneul's repository.
+
+
 Then follow the instructions to [create
 Haneul genesis](../build/wallet.md#genesis) by running the `haneul genesis`
 command.
@@ -16,17 +21,19 @@ by running the `haneul start` command. After completing
 these steps, you will have a running local Haneul instance and the
 `wallet` command used in the remainder of this tutorial in your path.
 
-Please make sure that you run the `wallet` command in the directory
-where wallet configuration is located or by passing wallet's
-configuration file as a parameter, as described in the `wallet`
-[command description](../build/wallet.md#using-the-wallet).
+We will follow the same convention as the one described in the [Haneul
+setup instructions](../build/wallet.md#setup) and assume that Haneul
+configuration files generated durind Haneul genesis state creation are
+stored in the `"$HANEUL_ROOT"/haneul_instance` directory, and **for the
+remainder of this tutorial we will assume that you are executing the
+`wallet` command in this directory**.
 
 
 ## Gather Accounts and Gas Objects
-Now switch to a new terminal window (keep the above running).
+
 First take a look at the account addresses we own in our wallet:
 ```
-$ ./wallet --no-shell addresses
+$ wallet --no-shell addresses
 Showing 5 results.
 ECF53CE22D1B2FB588573924057E9ADDAD1D8385
 7B61DA6AACED7F28C1187D998955F10464BEAE55
@@ -77,9 +84,9 @@ export O_GAS=2110ADFB7BAF889A05EA6F5889AF7724299F9BED
 ```
 
 ## Publish the TicTacToe game on Haneul
-We implemented a TicTacToe game in [TicTacToe.move](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games/sources/TicTacToe.move). To publish the game, we run the publish command and specify the path to the game package:
+We implemented a TicTacToe game in [TicTacToe.move](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games/sources/TicTacToe.move). To publish the game, we run the publish command and specify the path to the game package. As described in the earlier [setup section](#setup), we assume that Haneul repository was cloned locally - let us further assume that it was cloned into `"$HANEUL_ROOT"/haneul` directory.
 ```
-$ wallet --no-shell publish --path ../../haneul_programmability/examples/games --gas $ADMIN_GAS --gas-budget 30000
+$ wallet --no-shell publish --path "$HANEUL_ROOT"/haneul/haneul_programmability/examples/games --gas $ADMIN_GAS --gas-budget 30000
 ----- Certificate ----
 Signed Authorities : ...
 Transaction Kind : Publish

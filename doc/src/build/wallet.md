@@ -11,10 +11,21 @@ interface, *Wallet CLI*.
 
 ## Setup
 
-Follow the instructions to [install Haneul binaries](install.md).
+Follow the instructions to [install Haneul binaries](install.md). Then
+create a directory where your Haneul configuration files will live - let
+us name this directory `haneul_instance` and let us assume that it lives
+in another directory designated by the `$HANEUL_ROOT` environment
+variable:
+
+```shell
+cd "$HANEUL_ROOT"
+mkdir haneul_instance
+```
 
 ## Genesis
+
 ```shell
+cd "$HANEUL_ROOT"/haneul_instance
 haneul genesis
 ```
 NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul genesis`.
@@ -109,14 +120,21 @@ implement more secure key management and support hardware signing in a future re
 Run the following command to start the local Haneul network:
 
 ```shell
+cd "$HANEUL_ROOT"/haneul_instance
 haneul start
 ```
 
-or
+You can also run this command in any directory if you provide a path
+to the directory where Haneul configuration files are stored:
 
 ```shell
-haneul start --config [config file path]
+haneul start --config "$HANEUL_ROOT"/haneul_instance
 ```
+
+Executing any of these two commands in a terminal window will result
+in no output but the terminal will be "blocked" by the running Haneul
+instance (it will not return the command prompt).
+
 NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul start`.
 
 The network config file path defaults to `./network.conf` if not
@@ -143,16 +161,18 @@ The wallet can be started in two modes: interactive shell or command line interf
 
 ### Interactive shell
 
-To start the interactive shell:
+To start the interactive shell, execute the following (in a different terminal window than one used to execute `haneul start`):
 
 ```shell
+cd "$HANEUL_ROOT"/haneul_instance
 wallet
 ```
 
-or
+You can also run this command in any directory if you provide a path
+to the directory where Haneul configuration files are stored:
 
 ```shell
-wallet --config [config file path]
+wallet --config "$HANEUL_ROOT"/haneul_instance
 ```
 
 The wallet config file path defaults to `./wallet.conf` if not
@@ -175,6 +195,10 @@ The Haneul interactive wallet supports the following shell functionality:
 The wallet can also be used without the interactive shell, which can be useful if 
 you want to pipe the output of the wallet to another application or invoke wallet 
 commands using scripts.
+
+**For the remainder of this tutorial we will assume that you are
+executing the `wallet` command in a directory where the Haneul
+configuration files are stored (`"$HANEUL_ROOT"/haneul_instance`).**
 
 ```shell
 USAGE:
