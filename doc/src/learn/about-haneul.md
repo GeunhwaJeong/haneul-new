@@ -10,7 +10,7 @@ Haneul scales horizontally with no upper bound to meet application demand while 
 
 Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul authorities commit such transactions using Byzantine Consistent Broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
 
-This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on most objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine fault tolerant consensus and executed in parallel.
+This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on most objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine Fault Tolerant consensus and executed in parallel.
 
 ### Highlights
 
