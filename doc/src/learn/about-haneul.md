@@ -8,7 +8,7 @@ Haneul is the first permissionless Layer 1 blockchain designed from the ground u
 
 Haneul scales horizontally with no upper bound to meet application demand while maintaining extremely low operating costs per transaction. Its system design breakthrough eliminates a critical bottleneck in existing blockchains: the need to achieve global consensus on a total-ordered list of transactions. This computation is wasteful given most transactions are not contending for the same resource against other transactions.
 
-Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul authorities commit such transactions using Byzantine consistent broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
+Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul authorities commit such transactions using Byzantine Consistent Broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
 
 This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on most objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine fault tolerant consensus and executed in parallel.
 
