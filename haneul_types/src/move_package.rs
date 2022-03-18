@@ -60,12 +60,12 @@ impl MovePackage {
     }
 
     pub fn module_id(&self, module: &Identifier) -> Result<ModuleId, HaneulError> {
-        let ser =
-            self.serialized_module_map()
-                .get(module.as_str())
-                .ok_or(HaneulError::ModuleNotFound {
-                    module_name: module.to_string(),
-                })?;
+        let ser = self
+            .serialized_module_map()
+            .get(module.as_str())
+            .ok_or_else(|| HaneulError::ModuleNotFound {
+                module_name: module.to_string(),
+            })?;
         Ok(CompiledModule::deserialize(ser)?.self_id())
     }
 
@@ -75,16 +75,16 @@ impl MovePackage {
         module: &Identifier,
         function: &Identifier,
     ) -> Result<Function, HaneulError> {
-        let bytes =
-            self.serialized_module_map()
-                .get(module.as_str())
-                .ok_or(HaneulError::ModuleNotFound {
-                    module_name: module.to_string(),
-                })?;
+        let bytes = self
+            .serialized_module_map()
+            .get(module.as_str())
+            .ok_or_else(|| HaneulError::ModuleNotFound {
+                module_name: module.to_string(),
+            })?;
         let m = CompiledModule::deserialize(bytes)
             .expect("Unwrap safe because Haneul serializes/verifies modules before publishing them");
 
-        Function::new_from_name(&m, function).ok_or(HaneulError::FunctionNotFound {
+        Function::new_from_name(&m, function).ok_or_else(|| HaneulError::FunctionNotFound {
             error: format!(
                 "Could not resolve function '{}' in module {}::{}",
                 function,
