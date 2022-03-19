@@ -2,18 +2,52 @@
 title: How Haneul Differs from Other Blockchains
 ---
 
-This is a high-level overview of the differences in approach between Haneul and other blockchain systems. This document is intended for potential adopters of Haneul so they may decide whether it fits your use cases. See How Haneul Works for a summary of Haneul’s processes and approaches.
-
-Here are Haneul's key features:
+This page summarizes how Haneul compares with existing blockchains and is intended for potential adopters of Haneul to decide whether it fits their use cases. Here are Haneul's key features:
 
 * Causal order vs total order (enables massively parallel execution)
-
 * [Haneul's variant of Move](../build/move.md) and its object-centric data model (enables composable objects/NFTs)
-
 * Easier developer experience with the blockchain-oriented [Move programming language](https://github.com/GeunhwaJeong/awesome-move)
 
+## Traditional blockchains
 
-## Authorities vs validators/miners
+Traditional blockchain validators collectively build a shared accumulator: a representation of the state of the blockchain, a chain to which they add increments over time, called blocks. In blockchains that offer deterministic finality, every time validators want to make an incremental addition to the blockchain, i.e., a block proposal, they sequence the proposal. This protocol lets them form an agreement over the current state of the chain, whether the proposed increment is valid, and what the state of the chain will be after the new addition. 
+
+This method of maintaining common state over time has known practical success over the last 14 years or so, using a wealth of theory from the last 50 years of research in the field of Byzantine Fault Tolerant distributed systems. 
+
+Yet it is inherently sequential: increments to the chain are added one at a time, like pearls on a string. In practice, this approach pauses the influx of transactions (often stored in a "mempool"), while the current block is under consideration.
+
+## Haneul's approach to validating new transactions
+
+A lot of transactions do not have complex interdependencies with other, arbitrary parts of the state of the blockchain. Often financial users just want to send an asset to a recipient, and the only data required to gauge whether this simple transaction is admissible is a fresh view of the sender's account. Hence Haneul takes the approach of only taking a lock - or "stopping the world" - for the relevant piece of data rather than the whole chain -- in this case, the account of the sender, which can only send one transaction at a time.
+
+Haneul further expands this approach to more involved transactions that may explicitly depend on multiple elements under their sender's control, using an [object model][Objects] and leveraging [Move][Move]'s strong ownership model. By requiring that dependencies be explicit, Haneul applies a "multi-lane" approach to transaction validation, making sure those independent transaction flows can progress without impediment from the others.
+
+This doesn't mean that Haneul as a platform never orders transactions with respect to each other, or that it we allows owners to only affect their owned microcosm of objects. Haneul will also process transactions that have an effect on some shared state, in a rigorous, consensus-ordered manner. They're just not the default use case.
+
+## A collaborative approach to transaction submission
+
+Haneul validates transactions individually, rather than batching them in the traditional blocks. The key advantage of this approach low latency; each successful transaction quickly obtains a certificate of finality that proves to anyone that the transaction will be processed by the Haneul network.
+
+But the process of submitting a transaction is a bit more involved. That little more work occurs on the network. (With bandwidth getting cheaper, this is less of a concern.) Whereas a usual blockchain can accept a bunch of transactions from the same author in a fire-and-forget mode, Haneul transaction submission follows these steps:
+
+1. Sender broadcasts a transaction to all Haneul authorities.
+1. Haneul authorities send individual votes on this transaction to the sender.
+1. Each vote has a certain weight since each authority has weight based upon the rules of [Proof of Stake](https://en.wikipedia.org/wiki/Proof_of_work).
+1. Sender collects a Byzantine-resistant-majority of these votes into a *certificate* and broadcasts it to all Haneul authorities, thereby ensuring *finality*, or assurance the transaction will not be dropped (revoked).
+1. Optionally, the sender collects a certificate detailing the effects of the transaction.
+
+While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party.
+
+## A different approach to state
+
+Because Haneul focuses on managing specific objects rather than a single aggregate of state, it also reports on them in a unique way:
+
+* Every object in Haneul has a unique version number.
+* Every new version is created from a transaction that may involve several dependencies, themselves versioned objects. 
+
+As a consequence, a Haneul authority -- or any other authority with a copy of the state -- can exhibit a causal history of an object, showing its history since genesis. Haneul explicitly makes the bet that in most cases, the ordering of that causal history with the causal history of another object is irrelevant; and in the few cases where this information is relevant, Haneul makes this relationship explicit in the data.
+
+## Authorities vs. validators/miners
 
 An authority plays a role similar to "validators" or "miners" in other blockchain systems. The key distinction between these roles (and the reason we insist on using a separate term) is that validators/miners are *active*, whereas authorities are *passive* for the main type of Haneul transaction involving single-writer objects. Broadly speaking, to deal with a transfer:
 
@@ -25,56 +59,71 @@ An authority plays a role similar to "validators" or "miners" in other blockchai
 
 Unlike most existing blockchain systems (and as the reader may have guessed from the description of write requests above), Haneul does not always impose a total order on the transactions submitted by clients, with shared objects being the exception. Instead, most transactions are *causally* ordered--if a transaction `T1` produces output objects `O1` that are used as input objects in a transaction `T2`, an authority must execute `T1` before it executes `T2`. Note that `T2` need not use these objects directly for a causal relationship to exist--e.g., `T1` might produce output objects which are then used by `T3`, and `T2` might use `T3`'s output objects. However, transactions with no causal relationship can be processed by Haneul authorities in any order.
 
-## Writes
+## Where Haneul excels
 
-In a traditional blockchain, the problem is that there is a single increment for the entire blockchain's world. This design mutualizes the ceremony of reaching consensus across required parties, which is effective yet slow. Haneul - a [proof-of-stake (PoS)](https://en.wikipedia.org/wiki/Proof_of_stake) blockchain - reduces this cost and latency by optimizing for the typical transaction sending assets to another account.
+This section summarizes the main advantages of Haneul with respect to traditional blockchains.
 
-Haneul recognizes the only view needed to judge whether single-writer transactions are suitable is of that sender’s account. Haneul does not need information from the rest of the world. Further, Haneul supports more complex transactions with its object-centric focus and Move’s strong ownership model; these complex transitions can determine what part of the blockchain world must be seen to confirm transaction haneultability and validity.
+### High performance
 
-In this manner, Haneul enables multi-lane processing and eliminates [head-of-line blocking](https://en.wikipedia.org/wiki/Head-of-line_blocking). No longer must all other transactions in the world wait for the completion of the first transaction’s increment in a single lane. Haneul provides a lane of the appropriate breadth for each transaction: simple sends require viewing only the sender account; more complex transactions may need to see more of the world’s state - but not all of it, and they will need to declare the required views explicitly.
+Haneul’s main selling point is its unprecedented performance. The following bullet points summarize the main performance benefits of Haneul with respect to traditional blockchains:
 
-Haneul’s architecture minimizes the impact of checking the validity of a transaction: each sender can send only one, non-equivocating transaction at a time. And that transaction blocks no one else on the network from sending transactions. Haneul assumes complex, interdependent transactions are the exception rather than the rule; most transactions are independent from one another, merely making payments online. Haneul and Move represent all of these transactions faithfully.
+* Haneul forgoes consensus for most transactions while other blockchains always totally order them. Causally ordering transactions allows Haneul to massively parallelize the execution of most transactions; this reduces latency and allows authorities to take advantage of all their CPU cores.
+* Haneul pushes the complexity at the edges: the client is involved in a number of protocol steps. This minimizes the interactions between authorities and keeps their code simpler and more efficient. Haneul always gives the possibility to offload most of the client’s workload to a Haneul Gateway service for better user experience. In contrast, traditional blockchains follow a fire-and-forget model where clients monitor the blockchain state to assess the success of their transaction submission.
+* Haneul operates at network speed without waiting for system timeouts between protocol steps. This significantly reduces latency when the network is good and not under attack. In contrast, the security of a number of traditional blockchains (including most proof-of-work based blockchains) need to wait for predefined timeouts before committing transactions.
+* Haneul can take advantage of more machines per authority to increase its performance. Traditional blockchains are often designed to run on a single machine per validator (or even on a single CPU).
 
-Because Haneul limits the sender to one transaction at a time, it is imperative the transactions finalize quickly. Haneul offers these optimizations to speed transaction completion:
+### Performance under faults
 
-* For transactions dependent on a single writer, Haneul uses a lighter communication algorithm based on
-  [Byzantine Consistent Broadcast](https://link.springer.com/book/10.1007/978-3-642-15260-3).
-* Transaction sessions are interactive to ensure at-once processing and vote gathering. Instead of a fire-and-forget model where transactions may take minutes or even hours, Haneul transactions can finish in under a second.
+Haneul runs a leaderless protocol to process common transactions (i.e. containing only owned objects). As a result, faulty authorities do not impact performance in any significant way. For transactions involving shared objects, Haneul employs a state-of-the-art consensus protocol requiring no [view-change sub-protocol](https://pmg.csail.mit.edu/papers/osdi99.pdf) and thus experiences only slight performance degradations. In contrast, most leader-based blockchains experiencing even a single validator’s crash see their throughput fall and their latency increase (often by more than one order of magnitude).
 
-A traditional blockchain client operates via a single send request and awaits approval of the transaction, polling the validators for an answer sometime later. Either end users or the gateway must do a little more work and then get: low latency and better security. Simple broadcast transactions are completed immediately. Remember, no private keys are ever revealed.
+### Security assumptions
 
-## Reads
+Contrary to many traditional blockchains, Haneul does not make strong synchrony assumptions on the network. This means that Haneul maintains its security properties under bad network conditions (even excessively bad), network splits/partitions, or even powerful DoS attacks targeted on the authorities. Sustained network attacks on synchronous blockchains (i.e., most proof-of-work based blockchains) can lead to double-spend of resources and deadlocks.
 
-Now that you know how Haneul handles writes, you should remarks its management of reads follows the same object model.
+### Efficient local read operations
 
-If you are interested in a specific set of objects and their history, Haneul reads are authenticated at a high granularity and served with a low average latency. If you instead need a * totality* property to, for example, conduct continuous whole-chain audits, Haneul offers periodic checkpoints that support this use case.
+The reading process of Haneul enormously differs from other blockchains. Users interested in only a handful of objects and their history perform authenticated reads  at a low granularity and low latency. Haneul creates a narrow family tree of objects starting from the [genesis](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/wallet.md#genesis) allowing it to read only objects tied to the sender of the transaction. Users requiring a global view of the system (e.g., to audit the system) can take advantage of checkpoints to improve performance.
 
-Haneul uses *causal order*, not total order. Every object in Haneul has a version, and every valid transaction results in new versions for the objects it touches. For example, an addition to an NFT would result in a new object. The transaction may have several objects as dependents. Objects come with its *family history*, a generational set of new versioned objects.
+In traditional blockchains, families are ordered with respect to each other to totally order transactions. This then requires querying a massive blob for the precise information needed. Disk I/O thus becomes a performance bottleneck, and some blockchains [now require SSD drives](https://www.usenix.org/system/files/conference/hotstorage18/hotstorage18-paper-raju.pdf) on their validators as a result.
 
-Since changes create new objects with a new version, Haneul creates a narrow family tree starting from genesis. In Haneul, as in life, you are most interested in your specific family, not the entire world’s genetic history. Haneul relies upon no view of other family trees, only the one tied to the account making the transaction.
+### Easier developer experience
 
-By contrast, in a traditional blockchain, all families are ordered against one another to calculate a *total order*. This then requires querying a massive blob for the precise information needed, and disk I/O becomes a blocker. Some blockchains now require SSDs on their validators as a result.
+Haneul provides these benefits to developers:
 
-## Haneul's limitations
+* Move and object-centric data model (enables composable objects/NFTs)
+* Asset-centric programming model
+* Easier developer experience
 
-### Totality is harder to achieve using just Haneul's default mode
+## Drawbacks of Haneul
 
-Haneul's default model can make reads of the whole blockchains a bit harder to serve. Such exhaustive reads, though rare, are perfectly legitimate. They may include:
+This section presents the main limitations and disadvantages of Haneul with respect to traditional blockchains.
 
-* wanting to join a network as a new authority
-* wanting to audit the whole chain
-* exposing the whole chain to downstream customers
+### Design complexity
 
-Haneul solves this with the state checkpoints resulting in state commitments. Haneul will produce those checkpoints on every epoch change, and at regular intervals as long as they do not impede the ingestion of transactions.
+One of the main drawbacks of the Haneul design is its complexity. While traditional blockchains only require to implement a single consensus protocol, Haneul requires two protocols: (i) a protocol based on Byzantine Consistent Broadcast to handle common transactions, and (ii) a consensus protocol to handle transactions with shared objects. This means the Haneul team needs to maintain a much larger codebase.
 
-The checkpoints carry cryptographic signatures that guarantee they form a consensual snapshot of the state of the Haneul blockchain. We discuss how it is produced in the next section.
+Transactions involving shared objects require a little overhead (two extra round trips) before submitting it to the consensus protocol. This overhead is required to security compose the two protocols described above. Other blockchains can instead directly submit the transaction to the consensus protocol.
 
-### Defining transactions that depend on shared state requires ordering
+Building an efficient synchronizer is harder in Haneul than in traditional blockchains. The synchronizer sub-protocol allows authorities to update each other by sharing data, and it allows slow authorities to catch up. Building an efficient synchronizer for traditional blockchains is no easy task, but still simpler than in Haneul.
 
-Move’s strong ownership model ensures only the owner may change (mutate) the state of their objects (assets). They may transfer those objects to another user who may then modify those objects. By default, in Haneul everything is owned by someone. You cannot touch someone else’s state. Only you can change state, such as transferring ownership of objects.
+### Sequential writes in the common case
 
-Where this can become problematic is in transactions where objects are mutable by two writers. This may include the following use cases:
-* a time-bound auction, where several bidders must enter their bid before a deadline
-* an open-order, where several traders may fulfill the same proposed trade
+Traditional blockchains totally order all client transactions with respect to each other. This design requires reaching consensus across validators, which is effective but slow. 
 
-In this case, ordering transactions with respect to each other is vital to lead to a valid resolution, but no actor's action depends on the other. The way Haneul resolves this is to resort to a consensus mechanism. While Haneul's chosen consensus mechanism will be efficient and high-throughput (as in, e.g. [Narwhal & Tusk](https://arxiv.org/abs/2105.11827)), it still obeys the asymptotics and limitations of any consensus algorithm : polynomial worst-case complexity, requiring active inter-authority messages, etc.
+As mentioned in previous sections, Haneul forgoes consensus for most transactions to reduce their latency. In this manner, Haneul enables multi-lane processing and eliminates head-of-line blocking. All other transactions no longer need to wait for the completion of the first transaction’s increment in a single lane. Haneul provides a lane of the appropriate breadth for each transaction. Simple transactions require viewing only the sender account, which greatly improves the system’s capacity.
+
+The downside of allowing head-of-line blocking on the sender for these simple transactions is that the sender can send only one transaction at a time. As a result, it is imperative the transactions finalize quickly. 
+
+### Complex total queries
+
+Haneul can make total queries more difficult than in traditional blockchains since it does not always impose total order of transactions. Total queries are fairly rare with respect to local reads (see above) but useful in some scenarios. For example, a new authority joins the network and needs to download the total state to disk, or an auditor wishes to audit the entire blockchain.
+
+Haneul mitigates this with checkpoints. A checkpoint is established every time an increment is added to a blockchain resulting from a certified transaction. Blocks work much like a [write ahead log](https://en.wikipedia.org/wiki/Write-ahead_logging) that stores state prior to full execution of a program. The calls in that program represent a smart contract in a blockchain. A block contains not only the transactions but also commitments to the state of the blockchain before and after the transactions.
+
+Haneul uses the state commitment that arrives upon epoch change. Haneul requires a single answer from the multiple authorities and leverages an accessory protocol to derive the hash representing the state of the blockchain. This protocol consumes little bandwidth and does not impede the ingestion of transactions. Authorities produce checkpoints at every epoch change. Haneul requires the authorities to also produce checkpoints even more frequently. So users may use these checkpoints to audit the blockchain with some effort.
+
+## Conclusion
+
+In summary, Haneul offers many performance and usability gains at the cost of some complexity in less common use cases. Direct sender transactions excel in Haneul.
+
+TODO: Ask team to review this conclusion I felt was needed. Expand as desired.
