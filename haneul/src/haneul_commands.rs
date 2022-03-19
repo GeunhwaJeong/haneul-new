@@ -76,7 +76,6 @@ impl HaneulCommand {
                 } else {
                     GenesisConfig::default_genesis(working_dir)?
                 };
-
                 let (network_config, accounts, keystore) = genesis(genesis_conf).await?;
                 info!("Network genesis completed.");
                 let network_config = network_config.persisted(&network_path);
