@@ -13,7 +13,7 @@ Here is a summary of key differences:
 
 1. Haneul uses its own [object-centric global storage](#object-centric-global-storage)
 2. Addresses [represent Object IDs](#addresses-represent-object-ids)
-3. Haneul objects have [globally unique IDs](#Object-with-key-ability,-globally-unique-IDs)
+3. Haneul objects have [globally unique IDs](#object-with-key-ability-globally-unique-ids)
 4. Haneul has [module initializers (init)](#module-initializers)
 5. Haneul [entry points take object references as input](#entry-points-take-object-references-as-input)
 
