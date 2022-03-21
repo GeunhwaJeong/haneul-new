@@ -1663,12 +1663,17 @@ async fn test_map_reducer() {
             0usize,
             |_name, _client| Box::pin(async move { Ok(()) }),
             |_accumulated_state, _authority_name, _authority_weight, _result| {
-                Box::pin(async move { Err(HaneulError::TooManyIncorrectAuthorities) })
+                Box::pin(
+                    async move { Err(HaneulError::TooManyIncorrectAuthorities { errors: vec![] }) },
+                )
             },
             Duration::from_millis(1000),
         )
         .await;
-    assert!(Err(HaneulError::TooManyIncorrectAuthorities) == res);
+    assert!(matches!(
+        res,
+        Err(HaneulError::TooManyIncorrectAuthorities { .. })
+    ));
 
     // Test: mapper errors do not get propagated up, reducer works
     let res = client
@@ -1677,13 +1682,17 @@ async fn test_map_reducer() {
             0usize,
             |_name, _client| {
                 Box::pin(async move {
-                    let res: Result<usize, HaneulError> = Err(HaneulError::TooManyIncorrectAuthorities);
+                    let res: Result<usize, HaneulError> =
+                        Err(HaneulError::TooManyIncorrectAuthorities { errors: vec![] });
                     res
                 })
             },
             |mut accumulated_state, _authority_name, _authority_weight, result| {
                 Box::pin(async move {
-                    assert!(Err(HaneulError::TooManyIncorrectAuthorities) == result);
+                    assert!(matches!(
+                        result,
+                        Err(HaneulError::TooManyIncorrectAuthorities { .. })
+                    ));
                     accumulated_state += 1;
                     Ok(ReduceOutput::Continue(accumulated_state))
                 })
@@ -1727,7 +1736,9 @@ async fn test_map_reducer() {
                 })
             },
             |_accumulated_state, _authority_name, _authority_weight, _result| {
-                Box::pin(async move { Err(HaneulError::TooManyIncorrectAuthorities) })
+                Box::pin(
+                    async move { Err(HaneulError::TooManyIncorrectAuthorities { errors: vec![] }) },
+                )
             },
             Duration::from_millis(10),
         )
