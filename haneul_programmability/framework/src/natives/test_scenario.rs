@@ -164,7 +164,9 @@ fn get_inventory_for(
             // TODO: We should also be able to include objects indirectly owned by the
             // requested address through owning other objects.
             // https://github.com/GeunhwaJeong/haneul/issues/673
-            if (obj.owner == Owner::AddressOwner(haneul_addr) || obj.owner.is_shared())
+            if (obj.owner == Owner::AddressOwner(haneul_addr)
+                || obj.owner == Owner::ObjectOwner(haneul_addr)
+                || obj.owner.is_shared())
                 && &obj.type_ == type_
             {
                 Some(obj.value)
