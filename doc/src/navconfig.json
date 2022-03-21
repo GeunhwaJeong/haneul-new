@@ -67,12 +67,12 @@
         "fileName": "build/rest-api"
       },
       {
-        "label": "Authorities",
-        "fileName": "build/authorities"
-      },
-      {
         "label": "HaneulJSON",
         "fileName": "build/haneul-json"
+      },
+      {
+        "label": "Authorities",
+        "fileName": "build/authorities"
       },
       {
         "label": "Objects",
