@@ -2,7 +2,7 @@
 name = "config"
 version = "0.1.0"
 license = "Apache-2.0"
-authors = ["Alberto Sonnino <asonnino@fb.com>"]
+authors = ["Haneul Labs <build@haneul-labs.com>"]
 edition = "2021"
 
 
