@@ -2,13 +2,17 @@
 title: Contributing to Haneul
 ---
 
-Now that you understand Haneul, consider helping the project. To contribute to Haneul, ensure you have the latest version of the codebase. To clone the repository, run the following:
+Now that you understand Haneul, consider helping the project. To contribute to Haneul, ensure you have the latest version of the codebase.
+
+To clone the repository, run the following:
 ```bash
 git clone https://github.com/GeunhwaJeong/haneul.git
 cd haneul
 cargo build --all --all-targets
 cargo test
 ```
+
+See [Install Haneul](../build/install.md) for installation instructions and our [end-to-end tutorial](../explore/tutorials.md) to work with Haneul immediately.
 
 ## Pull requests
 
