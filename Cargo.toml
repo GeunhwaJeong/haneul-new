@@ -5,6 +5,7 @@ members = [
         "haneul_programmability/adapter",
         "haneul_programmability/framework",
 	"haneul_types",
+        "test_utils"
 ]
 
 [profile.release]
