@@ -11,16 +11,17 @@ interface, *Wallet CLI*.
 
 ## Setup
 
-Follow the instructions to [install Haneul binaries](install.md). Then
-create a directory where your Haneul configuration files will live - let
-us name this directory `haneul_instance` and let us assume that it lives
-in another directory designated by the `$HANEUL_ROOT` environment
-variable:
-
-```shell
-cd "$HANEUL_ROOT"
-mkdir haneul_instance
-```
+1. Follow the instructions to [install Haneul binaries](install.md).
+1. Create a directory where all of your Haneul-related work will reside.
+1. Create a $HANEUL_ROOT` environment variable pointing to that new directory:
+   ```
+   export HANEUL_ROOT=/path/to/directory
+   ```
+1. Create a `haneul_instance` subdirectory in `$HANEUL_ROOT`:
+   ```shell
+   cd "$HANEUL_ROOT"
+   mkdir haneul_instance
+   ```
 
 ## Genesis
 
