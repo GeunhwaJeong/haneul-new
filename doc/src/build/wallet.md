@@ -140,6 +140,13 @@ NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul start`.
 The network config file path defaults to `./network.conf` if not
 specified.
 
+If you see errors when trying to start Haneul network, particularly if
+you did not start with a fresh `"$HANEUL_ROOT"/haneul_instance` (e.g, did
+[custom wallet configuration](#wallet-configuration) or
+started/restarted Haneul instance multiple time), you should remove
+`"$HANEUL_ROOT"/haneul_instance` directory containing configuration files
+and recreate [Haneul genesis state](#genesis).
+
 ## Using the wallet
 The following commands are supported by the wallet:
 
