@@ -125,5 +125,3 @@ Haneul uses the state commitment that arrives upon epoch change. Haneul requires
 ## Conclusion
 
 In summary, Haneul offers many performance and usability gains at the cost of some complexity in less common use cases. Direct sender transactions excel in Haneul.
-
-TODO: Ask team to review this conclusion I felt was needed. Expand as desired.
