@@ -15,7 +15,7 @@
     },
     "terms": {
       "label": "Terms of Service",
-     "link": "#"
+      "link": "#"
     },
     "menu": [{
         "title": "Docs",
@@ -25,7 +25,7 @@
           },
           {
             "title": "SDK Reference",
-            "link": "https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/"
+            "link": "https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/",
             "external": true
           },
           {
@@ -63,7 +63,8 @@
           {
             "title": "Haneul.io",
             "link": "https://haneul.io/",
-            "external": true
+            "external": true,
+            "arrow": true
           },
           {
             "title": "White Paper",
@@ -77,19 +78,19 @@
   "headerData": {
     "menu": [{
         "title": "Learn",
-        "link": "/learn/"
+        "link": "/learn"
       },
       {
         "title": "Build",
-        "link": "/build/"
+        "link": "/build"
       },
       {
         "title": "Explore",
-        "link": "/explore/"
+        "link": "/explore"
       },
       {
         "title": "Contribute",
-        "link": "/contribute/"
+        "link": "/contribute"
       },
       {
         "title": "Discord",
@@ -107,22 +108,22 @@
     "title": "Haneul Developer Hub",
     "subTitle": "Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
     "partner": {
-      "title": "Partner Highlight",
-      "copy" : "See how Celo uses this copy to change this copy because this copy needs to be changed but that should be an easy fix.",
-      "cta" : {
-        "label": "Learn More",
-        "link": "/learn/how-haneul-works",
+      "title": "Partnerships Highlight",
+      "copy": "Explore examples and 3rd party projects built on Haneul.",
+      "cta": {
+        "label": "Go",
+        "link": "/explore",
         "external": false
       }
     },
     "cta": [{
         "name": "Get Started",
         "sublist": [{
-            "name": "Move Quick Start ->",
+            "name": "Move Quick Start",
             "url": "/build/move"
           },
           {
-            "name": "Wallet Quick Start ->",
+            "name": "Wallet Quick Start",
             "url": "/build/wallet"
           }
         ]
@@ -130,11 +131,11 @@
       {
         "name": "Learn About Haneul",
         "sublist": [{
-            "name": "How Haneul Works ->",
+            "name": "How Haneul Works",
             "url": "/learn/how-haneul-works"
           },
           {
-            "name": "Haneul Compared to other Blockchains ->",
+            "name": "Haneul Compared to other Blockchains",
             "url": "/learn/haneul-compared"
           }
         ]
@@ -142,33 +143,32 @@
       {
         "name": "Take Tutorial",
         "sublist": [{
-            "name": "End-to-end guide for playing TicTacToe on Haneul ->",
-            "url": "/explore/tutorials"
-          }
-        ]
+          "name": "End-to-end guide for playing TicTacToe on Haneul",
+          "url": "/explore/tutorials"
+        }]
       },
       {
         "name": "Explore Prototypes",
         "sublist": [{
           "name": "Two games with mutable, expressive NFTs",
           "url": "/explore/prototypes"
-        } ]
+        }]
       },
       {
         "name": "Build with Examples",
         "sublist": [{
-            "name": "Hold an auction ->",
-            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/Auction.move"
-            "external": true
-          },
-        "sublist": [{
-            "name": "Try A flash loan ->",
-            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/FlashLender.move"
+            "name": "Hold an auction",
+            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/Auction.move",
             "external": true
           },
           {
-            "name": "See all examples ->",
-            "url": "/explore/examples/"
+            "name": "Try A flash loan",
+            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/FlashLender.move",
+            "external": true
+          },
+          {
+            "name": "See all examples",
+            "url": "/explore/examples"
           }
         ]
       },
@@ -193,6 +193,7 @@
             "name": "Medium",
             "url": "https://medium.com/haneullabs-labs/",
             "external": true
+
           }
         ]
       }

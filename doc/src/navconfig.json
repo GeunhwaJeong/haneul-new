@@ -1,8 +1,7 @@
 {
   "sideMenu": {
     "title": "QUICK LINKS",
-    "items": [
-      {
+    "items": [{
         "label": "Tutorial",
         "link": "explore/tutorials"
       },
@@ -17,8 +16,7 @@
     ]
   },
   "docs": {
-    "learn": [
-      {
+    "learn": [{
         "label": "About Haneul",
         "fileName": "learn/about-haneul"
       },
@@ -31,7 +29,7 @@
         "fileName": "learn/why-move"
       },
       {
-        "label": "How Haneul Move differs from Core Move"
+        "label": "How Haneul Move differs from Core Move",
         "fileName": "learn/haneul-move-diffs"
       },
       {
@@ -39,26 +37,25 @@
         "fileName": "learn/how-haneul-works"
       },
       {
-        "label": "Haneul Compared to Other Blockchains"
+        "label": "Haneul Compared to Other Blockchains",
         "fileName": "learn/haneul-compared"
       },
       {
-        "label": "Understand Haneul Security"
+        "label": "Understand Haneul Security",
         "fileName": "learn/haneul-security"
       },
       {
         "label": "Haneul White Paper",
-        "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf"
+        "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf",
         "external": true
       }
     ],
-    "build": [
-      {
-        "label": "Install"
+    "build": [{
+        "label": "Install",
         "fileName": "build/install"
       },
       {
-        "label": "Smart Contracts with Move"
+        "label": "Smart Contracts with Move",
         "fileName": "build/move"
       },
       {
@@ -82,8 +79,7 @@
         "fileName": "build/transactions"
       }
     ],
-    "explore": [
-      {
+    "explore": [{
         "label": "Tutorial",
         "fileName": "explore/tutorials"
       },
@@ -94,14 +90,13 @@
       {
         "label": "Examples",
         "fileName": "explore/examples"
-      }
+      },
       {
         "label": "SoWork x Haneul",
         "fileName": "explore/sowork"
       }
     ],
-    "contribute": [
-      {
+    "contribute": [{
         "label": "Logging",
         "fileName": "contribute/observability"
       },
@@ -115,7 +110,7 @@
       },
       {
         "label": "About Haneul Labs",
-        "link": "https://haneul-labs.com/"
+        "link": "https://haneul-labs.com/",
         "external": true
       }
     ]
