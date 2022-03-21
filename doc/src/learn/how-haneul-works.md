@@ -54,9 +54,12 @@ Because Haneul focuses on managing specific objects rather than a single aggrega
 
 As a consequence, a Haneul authority – or any other entity with a copy of the state – can exhibit a causal history of an object, showing its history since genesis. Haneul explicitly makes the bet that in most cases, the ordering of that causal history with the causal history of another object is irrelevant; and in the few cases where this information is relevant, Haneul makes this relationship explicit in the data.
 
-Haneul votes result in *[eventual consistency](https://hal.inria.fr/inria-00609399/document)* in the classical sense. Eventual consistency is achieved when two authorities who have seen the exact same set of transactions reach the same state.
+Haneul guarantees transaction processing obeys *[eventual consistency](https://en.wikipedia.org/wiki/Eventual_consistency)* in the [classical sense](https://hal.inria.fr/inria-00609399/document). This breaks down in two parts:
 
-Eventual consistency is the union of Eventual delivery (if one honest replica applies an update, all honest replica eventually do) and Convergence (all honest replicas that apply the same updates reach the same state).  In our context, an *update* is  transaction.
+* Eventual delivery - if one honest authority processes a transactions, all other honest authorities will eventually do the same.
+* Convergence - two authorities that have seen the same set of transactions share the same view of the system (reach the same state).
+
+But contrary to a blockchain, Haneul does not stop the flow of transactions in order to witness the convergence.
 
 ## Common transactions
 
@@ -89,7 +92,7 @@ Transactions involving shared objects also contain at least one owned object to 
 
 ## Scalability
 
-As mentioned, Haneul does not impose a total order on the transactions containing only owned objects. Instead, transactions are [causally ordered](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/learn/haneul-compared.md#causal-order-vs-total-order). If a transaction `T1` produces an output object `O1` used as input objects in a transaction `T2`, an authority must execute `T1` before it executes `T2`. Note that `T2` does not need to use these objects directly for a causal relationship to exist, e.g., `T1` might produce output objects which are then used by `T3`, and `T2` might use `T3`'s output objects. However, transactions with no causal relationship can be processed by Haneul authorities in any order. This insight allows Haneul to massively parallelize execution, and shard it across multiple machines.
+As mentioned, Haneul does not impose a total order on the transactions containing only owned objects. Instead, transactions are [causally ordered](haneul-compared.md#causal-order-vs-total-order). If a transaction `T1` produces an output object `O1` used as input objects in a transaction `T2`, an authority must execute `T1` before it executes `T2`. Note that `T2` does not need to use these objects directly for a causal relationship to exist, e.g., `T1` might produce output objects which are then used by `T3`, and `T2` might use `T3`'s output objects. However, transactions with no causal relationship can be processed by Haneul authorities in any order. This insight allows Haneul to massively parallelize execution, and shard it across multiple machines.
 
 Haneul employs the [state-of-the-art Narwhal consensus protocol](https://arxiv.org/abs/2105.11827) to totally order transactions involving shared objects. The consensus sub-system also scales in the sense that it can sequence more transactions by adding more machines per authority.
 
@@ -110,5 +113,5 @@ Haneul smart contracts are written in the [Move language](https://github.com/Geu
 Find a more thorough explanation of Move’s features in:
 
 * the [Move Programming Language book](https://github.com/diem/move/blob/main/language/documentation/book/src/introduction.md)
-* Haneul-specific [Move instructions](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/move.md) and [differences](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/learn/haneul-move-diffs.md) on this site
+* Haneul-specific [Move instructions](../build/move.md) and [differences](haneul-move-diffs.md) on this site
 * the [Haneul whitepaper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) and its formal description of Move in the context of Haneul
