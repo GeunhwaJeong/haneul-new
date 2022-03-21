@@ -21,6 +21,7 @@ In this system, awards are tied to each employee’s avatar, or identities. As a
 <section class="haneul-dev-video">
    <iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/lwPMhpiyfmE?autoplay=0"  frameborder="0"></iframe>
 </section>
+
 ![Minted NFT Award in Profile](/static/6%20-%20Award%20in%20profile.png "Minted NFT Award in Profile")
 
 **Minting NFTs via Mapmaker:**
