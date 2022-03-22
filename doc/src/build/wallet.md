@@ -9,15 +9,12 @@ Haneul wallet and execute wallet commands through its command line
 interface, *Wallet CLI*.
 
 
-## Setup
+## Set up
 
 1. Follow the instructions to [install Haneul binaries](install.md).
-1. Create a directory where all of your Haneul-related work will reside.
-1. Create a $HANEUL_ROOT` environment variable pointing to that new directory:
-   ```
-   export HANEUL_ROOT=/path/to/directory
-   ```
-1. Create a `haneul_instance` subdirectory in `$HANEUL_ROOT`:
+
+1. Create a `haneul_instance` subdirectory in your desired Haneul-specific
+directory. Assuming you followed recommended setup, run:
    ```shell
    cd "$HANEUL_ROOT"
    mkdir haneul_instance
@@ -25,11 +22,15 @@ interface, *Wallet CLI*.
 
 ## Genesis
 
-```shell
-cd "$HANEUL_ROOT"/haneul_instance
-haneul genesis
-```
-NOTE: For logs, set `RUST_LOG=debug` before invoking `haneul genesis`.
+1. Navigate to that new directory:
+   ```shell
+   cd "$HANEUL_ROOT"/haneul_instance
+   ```
+1. Optionally, set `RUST_LOG=debug` for verbose logging.
+1. Initiate `genesis`:
+   ```shell
+   haneul genesis
+   ```
 
 The `genesis` command creates four authorities and five user accounts
 each with five gas objects. These are Haneul [objects](objects.md) used
