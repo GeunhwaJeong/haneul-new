@@ -13,6 +13,7 @@ use haneul_adapter::genesis;
 use haneul_types::{
     crypto::{get_key_pair, Signature},
     messages::Transaction,
+    object::Owner,
 };
 
 #[tokio::test]
