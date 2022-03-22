@@ -124,4 +124,4 @@ they are willing to operate, Haneul users also have a meaningful say on the futu
 ## Further reading
 
 If you are looking for an in-depth technical explanation of the computer science behind Haneul security, you 
-may have a look at our white paper on [The Haneul Smart Contracts Platform](../../paper/haneul.pdf).
+may have a look at our white paper on the [Haneul Smart Contracts Platform](../../paper/haneul.pdf).
