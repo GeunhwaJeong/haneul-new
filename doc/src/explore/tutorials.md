@@ -2,24 +2,24 @@
 title: An end-to-end tutorial of playing TicTacToe on Haneul
 ---
 
-In this tutorial, we demonstrate an end-to-end process of starting a Haneul network locally, connecting to it through our demo wallet app, publishing a TicTacToe game on Haneul, and playing it to the end.
+In this tutorial, we demonstrate an end-to-end process of starting a
+Haneul network locally, connecting to it through our demo wallet app,
+publishing a TicTacToe game on Haneul, and playing it to the end.
 
 ## Setup
 
-Follow the instructions to [install Haneul
-binaries](../build/install.md) and clone the repository as
-described in the installation instructions as this tutorial assumes
-that you have a clone of Haneul's repository.
+1. [Install Haneul binaries](../build/install.md) and clone the repository
+   as described in the installation instructions as this tutorial assumes
+   that you have a clone of Haneul's repository.
+1. [Create Haneul genesis](../build/wallet.md#genesis) by running the
+   `haneul genesis` command.
+1. [Start the Haneul network](../build/wallet.md#starting-the-network) by
+   running the `haneul start` command.
 
-
-Then follow the instructions to [create
-Haneul genesis](../build/wallet.md#genesis) by running the `haneul genesis`
-command.
-
-Finally, [start the Haneul network](../build/wallet.md#starting-the-network)
-by running the `haneul start` command. After completing
-these steps, you will have a running local Haneul instance and the
-`wallet` command used in the remainder of this tutorial in your path.
+After completing these steps, you will have a running local Haneul instance and
+the `wallet` command used in the remainder of this tutorial in your path.
+Simply leave the terminal with Haneul running and start a new terminal for the
+remainder of this tutorial.
 
 We will follow the same convention as the one described in the [Haneul
 setup instructions](../build/wallet.md#setup) and assume that Haneul
@@ -31,7 +31,15 @@ remainder of this tutorial we will assume that you are executing the
 
 ## Gather Accounts and Gas Objects
 
-First take a look at the account addresses we own in our wallet:
+After completing the [Setup section](#setup) you should have a Haneul instance running in a terminal window. Now switch to a new terminal window and keep the first terminal running.
+Make sure that you run the `wallet` command in the directory
+where wallet configuration is located or by passing wallet's
+configuration file as a parameter, as described in the `wallet`
+[command description](../build/wallet.md#using-the-wallet).
+This will be the same directory where you ran `haneul genesis`,
+so return to $HANEUL_ROOT/haneul_instance.
+
+There take a look at the account addresses we own in our wallet:
 ```
 $ wallet --no-shell addresses
 Showing 5 results.
@@ -41,7 +49,7 @@ ECF53CE22D1B2FB588573924057E9ADDAD1D8385
 DB4C7667636471AFF396B900EB7B63FACAF629B6
 A6BBB1930E01495EE93CE912EA01C29695E07890
 ```
-Note that since these addresses are random generated, they will be different from what you see. We are going to need 3 addresses to play TicTacToe. Let's pick the first 3 addresses. Let's call them ADMIN, PLAYER_X and PLAYER_O.
+Note that since these addresses are random generated, they will be different from what you see. We are going to need three addresses to play TicTacToe. Let's pick the first three addresses. Let's call them ADMIN, PLAYER_X and PLAYER_O.
 Since we will be using these addresses and gas objects repeatedly in the rest of this tutorial, let's make them environment variables so that we don't have to retype them every time:
 ```
 export ADMIN=ECF53CE22D1B2FB588573924057E9ADDAD1D8385
@@ -84,7 +92,7 @@ export O_GAS=2110ADFB7BAF889A05EA6F5889AF7724299F9BED
 ```
 
 ## Publish the TicTacToe game on Haneul
-We implemented a TicTacToe game in [TicTacToe.move](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games/sources/TicTacToe.move). To publish the game, we run the publish command and specify the path to the game package. As described in the earlier [setup section](#setup), we assume that Haneul repository was cloned locally - let us further assume that it was cloned into `"$HANEUL_ROOT"/haneul` directory.
+We implemented a TicTacToe game in [TicTacToe.move](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games/sources/TicTacToe.move). To publish the game, we run the publish command and specify the path to the game package. As described in the earlier [setup section](#setup), we assume that Haneul repository was cloned locally - *let us further assume that it was cloned into `"$HANEUL_ROOT"/haneul` directory* **Adjust the `--path` to match your own environment if you used different paths**.
 ```
 $ wallet --no-shell publish --path "$HANEUL_ROOT"/haneul/haneul_programmability/examples/games --gas $ADMIN_GAS --gas-budget 30000
 ----- Certificate ----
@@ -134,7 +142,7 @@ F1B8161BD97D3CD6627E739AD675089C5ACFB452 SequenceNumber(1) o#1c92bdf7646cad2a653
 Mutated Objects:
 38B89FE9F4A4823F1406938E87A8767CBD7F0B93 SequenceNumber(2) o#26dbaf7ec2032a6270a45498ad46ac0b1ddbc361fcff20cadafaf5d39b8181b1
 ```
-The above call created 3 objects. For each object, it printed out a tuple of 3 values (object_id, version, object_digest). Object ID is what we care about here. Since we don't have a real application here to display things for us, we need a bit of object printing magic to figure out which object is which. Let's print out the metadata of each created object (replace the object ID with what you see on your screen):
+The above call created three objects. For each object, it printed out a tuple of three values (object_id, version, object_digest). Object ID is what we care about here. Since we don't have a real application here to display things for us, we need a bit of object printing magic to figure out which object is which. Let's print out the metadata of each created object (replace the object ID with what you see on your screen):
 ```
 $ wallet --no-shell object --id 5851B7EA07B93E68696BC0CF811D2E266DFB880D
 Owner: AddressOwner(k#251cf224b6ba3a019d04b6041357c20490f7a322)
@@ -157,11 +165,12 @@ ID: F1B8161BD97D3CD6627E739AD675089C5ACFB452
 Readonly: false
 Type: 0xa613a7ff8cb03e0dfc0d157e232bba50c5f19d17::TicTacToe::TicTacToe
 ```
-There are two MarkMintCap objects (for capability of minting a mark for each player) and a TicTacToe object (the game object). Take a look at each of their `Owner` field you will see that:
+There are two MarkMintCap objects (for capability of minting a mark for each player) and a TicTacToe object (the game object). Take a look at each of the `Owner` fields, and you will see that:
 1. MarkMintCap Object `5851B7EA07B93E68696BC0CF811D2E266DFB880D` is owned by PLAYER_O.
 2. MarkMintCap Object `A6D3B507D4533822E690291166891D42694A2721` is owned by PLAYER_X.
 3. TicTacToe Object `F1B8161BD97D3CD6627E739AD675089C5ACFB452` is owned by ADMIN.
-We add the above 3 object ids to the environment variables:
+
+We add the above three object IDs to these environment variables:
 ```
 export XCAP=A6D3B507D4533822E690291166891D42694A2721
 export OCAP=5851B7EA07B93E68696BC0CF811D2E266DFB880D
