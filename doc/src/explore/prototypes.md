@@ -236,4 +236,4 @@ Gameplay:
 ## Further reading
 
 * Check out Haneul [APIs](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1).
-* Learn about Haneul [objects](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/objects.md).
+* Learn about Haneul [objects](../build/objects.md).
