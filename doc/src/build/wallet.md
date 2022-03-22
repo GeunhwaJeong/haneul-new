@@ -48,7 +48,7 @@ newly created accounts.
 ## Wallet configuration
 The genesis process creates a configuration file `wallet.conf`, and a keystore file `wallet.key` for the
 Haneul wallet.  The config file contains information of the accounts and
-the Haneul network gateway. The keystore file contains all the public-private key pair of the created accounts.
+the Haneul Network Gateway. The keystore file contains all the public-private key pair of the created accounts.
 Haneul wallet uses the network information in `wallet.conf` to communicate
 with the Haneul network authorities  and create transactions using the key
 pairs residing in the keystore file.
@@ -102,8 +102,9 @@ database. This database stores all the transaction data, certificates
 and object data belonging to the account.
 
 ### Haneul Network Gateway
-The Haneul network gateway is an abstraction layer that acts as the entry point to the Haneul network.
-Different gateway implementation can be use by the application layer base on their use cases.
+The Haneul Network Gateway (or simply, Haneul Gateway) is an abstraction layer that acts as the entry
+point to the Haneul network. Different gateway implementations can be used by the application layer
+based on their use cases.
 
 #### Embedded Gateway
 As the name suggests, embedded gateway embeds the gateway logic into the application;
@@ -259,7 +260,7 @@ The output shows a confirmation after the account has been created:
 Created new keypair for address : F456EBEF195E4A231488DF56B762AC90695BE2DD
 ```
 
-### Add existing accounts to `wallet.conf` manually.
+### Add existing accounts to `wallet.conf` manually
 
 If you have an existing key pair from an old wallet config, you can copy the account
 address manually to the new `wallet.conf`'s accounts section, and add the key pair to the keystore file;
