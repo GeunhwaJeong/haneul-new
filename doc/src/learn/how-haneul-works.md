@@ -79,7 +79,7 @@ The process of submitting a Haneul transaction is thus a bit more involved than 
 While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide Haneul Gateway Services.
 
 
-## Support for Complex Contracts
+## Support for complex contracts
 
 Complex smart contracts may benefit from shared objects where more than one user can mutate those objects (following smart contract specific rules). In this case, Haneul totally orders all transactions involving shared objects using a consensus protocol. Haneul uses a novel peer-reviewed consensus protocol based on [Narwhal](https://arxiv.org/abs/2105.11827). This is state-of-the-art in terms of both performance and robustness.
 
