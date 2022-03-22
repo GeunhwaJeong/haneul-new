@@ -1,12 +1,12 @@
 ---
-title: An end-to-end tutorial of playing TicTacToe on Haneul
+title: End-to-End Tutorial: Set Up and Play TicTacToe on Haneul
 ---
 
-In this tutorial, we demonstrate an end-to-end process of starting a
-Haneul network locally, connecting to it through our demo wallet app,
-publishing a TicTacToe game on Haneul, and playing it to the end.
+In this tutorial, we demonstrate the end-to-end process for starting a
+Haneul network locally, connecting to it through our [wallet](../build/wallet.md)
+app, publishing a TicTacToe game on Haneul, and playing it to the end.
 
-## Setup
+## Set up
 
 1. [Install Haneul binaries](../build/install.md) and clone the repository
    as described in the installation instructions as this tutorial assumes
@@ -23,13 +23,14 @@ remainder of this tutorial.
 
 We will follow the same convention as the one described in the [Haneul
 setup instructions](../build/wallet.md#setup) and assume that Haneul
-configuration files generated durind Haneul genesis state creation are
-stored in the `"$HANEUL_ROOT"/haneul_instance` directory, and **for the
-remainder of this tutorial we will assume that you are executing the
-`wallet` command in this directory**.
+configuration files generated during Haneul genesis state creation are
+stored in the `"$HANEUL_ROOT"/haneul_instance` directory.
 
+*IMPORTANT*: For the remainder of this tutorial, we will assume that you are
+executing the `wallet` command in the `"$HANEUL_ROOT"/haneul_instance` directory as well.
+Adjust your paths accordingly.
 
-## Gather Accounts and Gas Objects
+## Gather accounts and gas objects
 
 After completing the [Setup section](#setup) you should have a Haneul instance running in a terminal window. Now switch to a new terminal window and keep the first terminal running.
 Make sure that you run the `wallet` command in the directory
