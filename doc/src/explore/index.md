@@ -19,11 +19,17 @@ View projects built by third parties demonstrating the power of Haneul.
 <iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/sAMT5x8W3B8?autoplay=0"  frameborder="0"></iframe>
 </section>
 
+<br/>
+<br/>
+
 [Panzerdogs x Haneul](../explore/panzerdogs.md) - an example of how the Haneul infrastructure delivers a more integrated feedback loop between gameplay and NFT ownership.
 <section class="haneul-dev-video">
  
 <iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/Nx7hTb8dOb4?autoplay=0" frameborder="0"></iframe>
 </section>
+
+<br/>
+<br/>
 
 [SoWork x Haneul](../explore/sowork.md) - building features on Haneul to power creative employee rewards and custom NFT mints via SoWork's mapmaker.
 <section class="haneul-dev-video">
