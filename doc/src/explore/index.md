@@ -30,3 +30,7 @@ View projects built by third parties demonstrating the power of Haneul.
 
  <iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/lwPMhpiyfmE?autoplay=0"  frameborder="0"></iframe>
 </section>
+
+## Haneul Explorer
+
+Navigate the [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/explorer-rest/explorer) and [Haneul Explorer Client](https://github.com/GeunhwaJeong/haneul/blob/explorer-rest/explorer/client) to see the latest blocks, transactions, and cluster statistics.
