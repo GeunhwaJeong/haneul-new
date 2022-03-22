@@ -1,5 +1,7 @@
 # Haneul README
 
+![Haneul icon](doc/static/Haneul_Icon_Brand.png)
+
 Welcome to Haneul, a next generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by the [Move](https://github.com/GeunhwaJeong/awesome-move) programming language! Find everything you need within the [Haneul Developer Guides](doc/src/learn/index.md) and supporting materials.
 
 ## Quick links
