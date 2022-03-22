@@ -36,12 +36,3 @@ Take note of these related repositories of information to make best use of the k
   * [Examples](https://github.com/diem/move/tree/main/language/documentation/examples/experimental) - A set of samples, such as for [defining a coin](https://github.com/diem/move/tree/main/language/documentation/examples/experimental/basic-coin) and [swapping it](https://github.com/diem/move/tree/main/language/documentation/examples/experimental/coin-swap).
 * [Awesome Move](https://github.com/GeunhwaJeong/awesome-move/blob/main/README.md) - A summary of resources related to Move, from blockchains through code samples.
 * [Haneul API Reference](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1 ) - The reference files for the Haneul Rest API.
-
-## Provide feedback/make fixes
-
-Send us documentation fixes or requests for improvement at:
-doc@haneul-labs.com
-
-You may also suggest changes to the docs directly in GitHub right here using the **Source Code** link below.
-
-Simply edit the file in question and generated a pull request. We will get back to you shortly.
