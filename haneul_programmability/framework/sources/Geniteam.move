@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 module Haneul::Geniteam {
     use Haneul::Bag::{Self, Bag};
     use Haneul::Collection::{Self, Collection};

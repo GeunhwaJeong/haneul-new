@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 /// URL: standard Uniform Resource Locator string
 /// Url: Haneul type which wraps a URL
 /// UrlCommitment: Haneul type which wraps a Url but also includes an immutable commitment

@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 /// Example of a game character with basic attributes, inventory, and
 /// associated logic.
 module HeroGame::Hero {

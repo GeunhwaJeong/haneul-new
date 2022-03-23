@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 /// Coin<Gas> is the token used to pay for gas in Haneul
 module Haneul::GAS {
     use Haneul::Coin;

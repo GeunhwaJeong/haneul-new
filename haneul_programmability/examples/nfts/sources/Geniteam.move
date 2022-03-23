@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 module NFTs::Geniteam {
     use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::TxContext::{Self, TxContext};
