@@ -984,6 +984,12 @@ impl<const ALL_OBJ_VER: bool> HaneulDataStore<ALL_OBJ_VER> {
             .map(|x| x.unwrap_or_default())
             .map_err(HaneulError::from)
     }
+
+    #[cfg(test)]
+    /// Provide read access to the `schedule` table (useful for testing).
+    pub fn get_schedule(&self, object_id: &ObjectID) -> HaneulResult<Option<SequenceNumber>> {
+        self.schedule.get(object_id).map_err(HaneulError::from)
+    }
 }
 
 impl<const ALL_OBJ_VER: bool> BackingPackageStore for HaneulDataStore<ALL_OBJ_VER> {
