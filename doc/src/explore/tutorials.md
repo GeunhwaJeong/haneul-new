@@ -1,5 +1,5 @@
 ---
-title: End-to-End Tutorial: Set Up and Play TicTacToe on Haneul
+title: End-to-End Tutorial to Set Up and Play TicTacToe on Haneul
 ---
 
 In this tutorial, we demonstrate the end-to-end process for starting a
