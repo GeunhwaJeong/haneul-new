@@ -32,12 +32,11 @@ use haneul::gateway::{EmbeddedGatewayConfig, GatewayType};
 use haneul::keystore::Keystore;
 use haneul::haneul_commands;
 use haneul::haneul_json::{resolve_move_function_args, HaneulJsonValue};
-use haneul::wallet_commands::SimpleTransactionSigner;
 use haneul_core::gateway_state::GatewayClient;
 use haneul_types::base_types::*;
 use haneul_types::committee::Committee;
 use haneul_types::event::Event;
-use haneul_types::messages::{ExecutionStatus, TransactionEffects};
+use haneul_types::messages::{ExecutionStatus, Transaction, TransactionEffects};
 use haneul_types::move_package::resolve_and_type_check;
 use haneul_types::object::Object as HaneulObject;
 use haneul_types::object::ObjectRead;
@@ -751,15 +750,25 @@ async fn transfer_object(
         )
     })?;
 
-    let tx_signer = Box::pin(SimpleTransactionSigner {
-        keystore: state.keystore.clone(),
-    });
+    let response: Result<_, anyhow::Error> = async {
+        let data = state
+            .gateway
+            .transfer_coin(owner, object_id, gas_object_id, to_address)
+            .await?;
+        let signature = state
+            .keystore
+            .read()
+            .unwrap()
+            .sign(&owner, &data.to_bytes())?;
+        Ok(state
+            .gateway
+            .execute_transaction(Transaction::new(data, signature))
+            .await?
+            .to_effect_response()?)
+    }
+    .await;
 
-    let (cert, effects, gas_used) = match state
-        .gateway
-        .transfer_coin(owner, object_id, gas_object_id, to_address, tx_signer)
-        .await
-    {
+    let (cert, effects, gas_used) = match response {
         Ok((cert, effects)) => {
             let gas_used = match effects.status {
                 // TODO: handle the actual return value stored in
@@ -1143,28 +1152,37 @@ async fn handle_move_call(
         object_args_refs.push(object_ref);
     }
 
-    let tx_signer = Box::pin(SimpleTransactionSigner {
-        keystore: state.keystore.clone(),
-    });
+    let response: Result<_, anyhow::Error> = async {
+        let data = state
+            .gateway
+            .move_call(
+                sender,
+                package_object_ref,
+                module.to_owned(),
+                function.to_owned(),
+                type_args.clone(),
+                gas_obj_ref,
+                object_args_refs,
+                // TODO: Populate shared object args. haneul/issue#719
+                vec![],
+                pure_args,
+                gas_budget,
+            )
+            .await?;
+        let signature = state
+            .keystore
+            .read()
+            .unwrap()
+            .sign(&sender, &data.to_bytes())?;
+        Ok(state
+            .gateway
+            .execute_transaction(Transaction::new(data, signature))
+            .await?
+            .to_effect_response()?)
+    }
+    .await;
 
-    let (cert, effects, gas_used) = match state
-        .gateway
-        .move_call(
-            sender,
-            package_object_ref,
-            module.to_owned(),
-            function.to_owned(),
-            type_args.clone(),
-            gas_obj_ref,
-            object_args_refs,
-            // TODO: Populate shared object args. haneul/issue#719
-            vec![],
-            pure_args,
-            gas_budget,
-            tx_signer,
-        )
-        .await
-    {
+    let (cert, effects, gas_used) = match response {
         Ok((cert, effects)) => {
             let gas_used = match effects.status {
                 // TODO: handle the actual return value stored in
