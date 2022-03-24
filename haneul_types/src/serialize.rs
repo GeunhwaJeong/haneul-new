@@ -198,3 +198,16 @@ pub fn deserialize_transaction_info(
         _ => Err(HaneulError::UnexpectedMessage),
     }
 }
+
+pub fn deserialize_batch_info(
+    message: Result<SerializedMessage, HaneulError>,
+) -> Result<BatchInfoResponseItem, HaneulError> {
+    match message {
+        Ok(message) => match message {
+            SerializedMessage::BatchInfoResp(resp) => Ok(*resp),
+            SerializedMessage::Error(error) => Err(*error),
+            _ => Err(HaneulError::UnexpectedMessage),
+        },
+        Err(e) => Err(e),
+    }
+}
