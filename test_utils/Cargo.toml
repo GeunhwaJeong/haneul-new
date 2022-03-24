@@ -15,5 +15,7 @@ log = "0.4.14"
 rand = "0.7.3"
 rocksdb = "0.18.0"
 
+typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev ="e44bca4513a6ff6c97399cd79e82e4bc00571ac3"}
+
 haneul-types = { path = "../haneul_types" }
 haneul-network = { path = "../network_utils" }
