@@ -1,7 +1,7 @@
 {
   "title": "Haneul Developer Portal",
   "tagline": "Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
-  "URL": "https://devportal-30dd0.web.app/",
+  "URL": "https://docs.haneul.io/",
   "baseUrl": "/",
   "favIcon": "/favicon2.png",
   "organizationName": "Haneul Labs",
@@ -129,7 +129,7 @@
         ]
       },
       {
-        "name": "Learn About Haneul",
+        "name": "Learn about Haneul",
         "sublist": [{
             "name": "How Haneul Works",
             "url": "/learn/how-haneul-works"
@@ -158,7 +158,7 @@
         "name": "Build with Examples",
         "sublist": [{
             "name": "Create an escrow",
-            "url": "hhttps://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/Escrow.move",
+            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/Escrow.move",
             "external": true
           },
           {
