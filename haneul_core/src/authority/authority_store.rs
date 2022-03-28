@@ -982,7 +982,7 @@ impl<const ALL_OBJ_VER: bool> BackingPackageStore for HaneulDataStore<ALL_OBJ_VE
             fp_ensure!(
                 obj.is_package(),
                 HaneulError::BadObjectType {
-                    error: format!("Package expected, Move object found: {}", package_id),
+                    error: format!("Package expected, Move object found: {package_id}"),
                 }
             );
         }
