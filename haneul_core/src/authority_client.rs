@@ -11,7 +11,7 @@ use haneul_types::batch::UpdateItem;
 use haneul_types::{error::HaneulError, messages::*, serialize::*};
 
 static MAX_ERRORS: i32 = 10;
-static BUFFER_SIZE: usize = 100;
+pub(crate) static BUFFER_SIZE: usize = 100;
 
 #[async_trait]
 pub trait AuthorityAPI {

@@ -2,13 +2,15 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority_client::AuthorityAPI;
+use crate::authority_client::{AuthorityAPI, BUFFER_SIZE};
 use async_trait::async_trait;
-use futures::channel::mpsc::Receiver;
+use futures::channel::mpsc::{channel, Receiver};
 use std::io;
+use futures::{SinkExt, StreamExt};
 use haneul_types::crypto::PublicKeyBytes;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 
+use haneul_types::batch::UpdateItem;
 use haneul_types::{
     error::{HaneulError, HaneulResult},
     messages::*,
@@ -264,8 +266,52 @@ where
     /// Handle Batch information requests for this authority.
     async fn handle_batch_streaming(
         &self,
-        _request: BatchInfoRequest,
+        request: BatchInfoRequest,
     ) -> Result<Receiver<Result<BatchInfoResponseItem, HaneulError>>, io::Error> {
-        todo!()
+        let (mut tx_output, tr_output) = channel(BUFFER_SIZE);
+
+        let mut batch_info_items = self
+            .authority_client
+            .handle_batch_streaming(request)
+            .await?;
+
+        for next_data in batch_info_items.next().await {
+            match next_data {
+                Ok(batch_info_response_item) => {
+                    // do security checks
+                    match batch_info_response_item.clone() {
+                        BatchInfoResponseItem(UpdateItem::Batch(signed_batch)) => {
+                            // check signature of batch
+                            let result = signed_batch.signature.check(&signed_batch.signature, signed_batch.authority);
+                            match result {
+                                Ok(_) => {
+                                    let _ = tx_output.send(Ok(batch_info_response_item)).await;
+                                },
+                                Err(e) => {
+                                    let _ = tx_output.send(Err(e)).await;
+                                },
+                            }
+                        }
+                        BatchInfoResponseItem(UpdateItem::Transaction((_seq, digest))) => {
+                            // make transaction info request which checks transaction certificate
+                            let transaction_info_request = TransactionInfoRequest{ transaction_digest: digest };
+                            let transaction_info_response = self.handle_transaction_info_request(transaction_info_request).await;
+                            match transaction_info_response {
+                                Ok(_) => {
+                                    let _ = tx_output.send(Ok(batch_info_response_item)).await;
+                                },
+                                Err(e) => {
+                                    let _ = tx_output.send(Err(e)).await;
+                                },
+                            }
+                        }
+                    }
+                }
+                Err(_) => {
+                    continue;
+                }
+            }
+        }
+        Ok(tr_output)
     }
 }
