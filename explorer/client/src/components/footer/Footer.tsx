@@ -1,9 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// Copyright (c) 2022, Haneul Labs, Inc.
-// SPDX-License-Identifier: Apache-2.0
-
 import { Link } from 'react-router-dom';
 
 import ExternalLink from '../external-link/ExternalLink';

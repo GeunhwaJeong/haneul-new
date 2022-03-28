@@ -1,6 +1,6 @@
-# Haneul Explorer Client
+# HaneulExplorer Client
 
-## Development
+# Set Up
 
 **Requirements**: Node 14.0.0 or later version
 
@@ -9,6 +9,26 @@ In the project directory, run:
 ### `npm i`
 
 Before running any of the following scripts `npm i` must run in order to install the necessary dependencies.
+
+# How to Switch Environment
+
+The purpose of the HaneulExplorer Client is to present data extracted from a real or theoretical Haneul Network.
+
+What the 'Haneul Network' is varies according to the environment variable `REACT_APP_DATA`.
+
+When running most of the below npm commands, the HaneulExplorer Client will extract and present data from the Haneul Network connected to the URL https://demo-rpc.haneul.io.
+
+If the environment variable `REACT_APP_DATA` is set to `static`, then the HaneulExplorer will instead pull data from a local, static JSON dataset that can be found at `./src/utils/static/mock_data.json`.
+
+For example, suppose we wish to locally run the website using the static JSON dataset and not the API, then we would run the following:
+
+```bash
+REACT_APP_DATA=static npm start
+```
+
+Note that the command `npm run test` is the exception. Here the HaneulExplorer will instead use the static JSON dataset. The tests have been written to specifically check the UI and not the API connection.
+
+## NPM Commands and what they do
 
 ### `npm start`
 
