@@ -2,16 +2,21 @@
 title: Learning Haneul
 ---
 
-Welcome to the documentation for the Haneul platform. Since Haneul is built upon the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language,
-you should familiarize yourself with it and use this content to apply the differences. For a summary of these differences, see
+*Haneul: pronounced "sweet" without the "T" - with Transactions (loads of them), things are SWEET indeed. :-)*
+
+Welcome to the documentation for the Haneul platform. Since Haneul is built upon the core [Move](https://github.com/GeunhwaJeong/awesome-move)
+programming language, you should familiarize yourself with it and use this content to apply the differences. For a summary of these differences, see
 [Haneul compared to other blockchains](../learn/haneul-move-diffs.md).
 
 For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](../../../paper/haneul.pdf) white paper.
 
 ## Kickstart development
 
+### End-to-end tutorial
+Start with the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
+
 ### Move quick start
-See the [Move Quick Start](../build/move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
+Go to the [Move Quick Start](../build/move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
 
 ### Wallet quick start
 See the [Wallet Quick Start](../build/wallet.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
