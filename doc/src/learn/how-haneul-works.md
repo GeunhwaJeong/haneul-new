@@ -4,7 +4,7 @@ title: How Haneul Works
 
 This document has two main goals: It first provides a high-level overview of Haneul, presenting its main functionalities and design choices. It then compares Haneul with existing blockchains allowing potential adopters to decide whether Haneul fits their use cases.
 
-This document is written for engineers, developers, and technical readers knowledgeable about the crypto space. It does not assume deep programming language or distributed systems expertise. See the [Haneul white paper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) for a much deeper explanation.
+This document is written for engineers, developers, and technical readers knowledgeable about the crypto space. It does not assume deep programming language or distributed systems expertise. See the [Haneul white paper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) for a much deeper explanation of how Haneul works. See [How Haneul Differs from Other Blockchains](haneul-compared.md) for a high-level overview of the differences in approach between Haneul and other blockchain systems.
 
 ## tl;dr
 
@@ -76,7 +76,7 @@ The process of submitting a Haneul transaction is thus a bit more involved than 
 3. The sender collects a Byzantine-resistant-majority of these votes into a _certificate_ and broadcasts that back to all Haneul authorities. This settles the transaction, ensuring _finality_ that the transaction will not be dropped (revoked).
 4. Optionally, the sender collects a certificate detailing the effects of the transaction.
 
-While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide Haneul Gateway Services.
+While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide [Haneul Gateway services](#haneul-gateway-services).
 
 
 ## Support for complex contracts
