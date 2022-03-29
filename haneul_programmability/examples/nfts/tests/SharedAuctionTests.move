@@ -6,7 +6,7 @@ module NFTs::SharedAuctionTests {
     use Std::Vector;
 
     use Haneul::Coin::{Self, Coin};
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::ID::VersionedID;
     use Haneul::TestScenario::Self;
     use Haneul::TxContext::{Self, TxContext};
@@ -34,7 +34,7 @@ module NFTs::SharedAuctionTests {
         while (!Vector::is_empty(&bidders)) {
             let bidder = Vector::pop_back(&mut bidders);
             let coin = Coin::mint_for_testing(COIN_VALUE, ctx);
-            Coin::transfer<GAS>(coin, bidder);
+            Coin::transfer<HANEUL>(coin, bidder);
         };
     }
 
@@ -68,7 +68,7 @@ module NFTs::SharedAuctionTests {
         // a transaction by the first bidder to put a bid
         TestScenario::next_tx(scenario, &bidder1);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
             let auction = TestScenario::remove_object<Auction<SomeItemToSell>>(scenario);
 
             SharedAuction::bid(coin, &mut auction, TestScenario::ctx(scenario));
@@ -81,7 +81,7 @@ module NFTs::SharedAuctionTests {
         // bidder's)
         TestScenario::next_tx(scenario, &bidder2);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
             let auction = TestScenario::remove_object<Auction<SomeItemToSell>>(scenario);
 
             SharedAuction::bid(coin, &mut auction, TestScenario::ctx(scenario));
@@ -93,7 +93,7 @@ module NFTs::SharedAuctionTests {
         // have been returned (as a result of the failed bid).
         TestScenario::next_tx(scenario, &bidder2);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
 
             assert!(Coin::value(&coin) == COIN_VALUE, EWRONG_COIN_VALUE);
 

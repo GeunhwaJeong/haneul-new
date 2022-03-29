@@ -34,7 +34,7 @@
 ///   auction
 module NFTs::Auction {
     use Haneul::Coin::Coin;
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::ID::{Self, ID, VersionedID};
     use Haneul::Transfer;
     use Haneul::TxContext::{Self,TxContext};
@@ -55,7 +55,7 @@ module NFTs::Auction {
         /// ID of the Auction object this bid is intended for
         auction_id: ID,
         /// Coin used for bidding.
-        coin: Coin<GAS>
+        coin: Coin<HANEUL>
     }
 
     // Entry functions.
@@ -72,7 +72,7 @@ module NFTs::Auction {
 
     /// Creates a bid a and send it to the auctioneer along with the
     /// ID of the auction. This is executed by a bidder.
-    public fun bid(coin: Coin<GAS>, auction_id: ID, auctioneer: address, ctx: &mut TxContext) {
+    public fun bid(coin: Coin<HANEUL>, auction_id: ID, auctioneer: address, ctx: &mut TxContext) {
         let bid = Bid {
             id: TxContext::new_id(ctx),
             bidder: TxContext::sender(ctx),

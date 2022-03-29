@@ -160,7 +160,7 @@ module NFTs::MarketplaceTests {
     use Haneul::Transfer;
     use Haneul::NFT::{Self, NFT};
     use Haneul::Coin::{Self, Coin};
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::TestScenario::{Self, Scenario};
     use NFTs::Marketplace::{Self, Marketplace, Listing};
 
@@ -179,10 +179,10 @@ module NFTs::MarketplaceTests {
         Marketplace::create(TestScenario::ctx(scenario));
     }
 
-    /// Mint GAS and send it to BUYER.
+    /// Mint HANEUL and send it to BUYER.
     fun mint_some_coin(scenario: &mut Scenario) {
         TestScenario::next_tx(scenario, &ADMIN);
-        let coin = Coin::mint_for_testing<GAS>(1000, TestScenario::ctx(scenario));
+        let coin = Coin::mint_for_testing<HANEUL>(1000, TestScenario::ctx(scenario));
         Transfer::transfer(coin, BUYER);
     }
 
@@ -193,13 +193,13 @@ module NFTs::MarketplaceTests {
         NFT::transfer(nft, SELLER);
     }
 
-    // SELLER lists KITTY at the Marketplace for 100 GAS.
+    // SELLER lists KITTY at the Marketplace for 100 HANEUL.
     fun list_kitty(scenario: &mut Scenario) {
         TestScenario::next_tx(scenario, &SELLER);
         let mkp = TestScenario::remove_object<Marketplace>(scenario);
         let nft = TestScenario::remove_object<NFT<KITTY>>(scenario);
-
-        Marketplace::list<NFT<KITTY>, GAS>(&mut mkp, nft, 100, TestScenario::ctx(scenario));
+            
+        Marketplace::list<NFT<KITTY>, HANEUL>(&mut mkp, nft, 100, TestScenario::ctx(scenario));
         TestScenario::return_object(scenario, mkp);
     }
 
@@ -214,10 +214,10 @@ module NFTs::MarketplaceTests {
         TestScenario::next_tx(scenario, &SELLER);
         {
             let mkp = TestScenario::remove_object<Marketplace>(scenario);
-            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, GAS>>(scenario, &mkp);
+            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, HANEUL>>(scenario, &mkp);
 
             // Do the delist operation on a Marketplace.
-            let nft = Marketplace::delist<NFT<KITTY>, GAS>(&mut mkp, listing, TestScenario::ctx(scenario));
+            let nft = Marketplace::delist<NFT<KITTY>, HANEUL>(&mut mkp, listing, TestScenario::ctx(scenario));
             let kitten = NFT::burn<KITTY>(nft);
 
             assert!(kitten.id == 1, 0);
@@ -240,10 +240,10 @@ module NFTs::MarketplaceTests {
         TestScenario::next_tx(scenario, &BUYER);
         {
             let mkp = TestScenario::remove_object<Marketplace>(scenario);
-            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, GAS>>(scenario, &mkp);
-
+            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, HANEUL>>(scenario, &mkp);
+            
             // Do the delist operation on a Marketplace.
-            let nft = Marketplace::delist<NFT<KITTY>, GAS>(&mut mkp, listing, TestScenario::ctx(scenario));
+            let nft = Marketplace::delist<NFT<KITTY>, HANEUL>(&mut mkp, listing, TestScenario::ctx(scenario));
             let _ = NFT::burn<KITTY>(nft);
 
             TestScenario::return_object(scenario, mkp);
@@ -259,16 +259,16 @@ module NFTs::MarketplaceTests {
         mint_kitty(scenario);
         list_kitty(scenario);
 
-        // BUYER takes 100 GAS from his wallet and purchases KITTY.
+        // BUYER takes 100 HANEUL from his wallet and purchases KITTY.
         TestScenario::next_tx(scenario, &BUYER);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
             let mkp = TestScenario::remove_object<Marketplace>(scenario);
-            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, GAS>>(scenario, &mkp);
+            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, HANEUL>>(scenario, &mkp);
             let payment = Coin::withdraw(&mut coin, 100, TestScenario::ctx(scenario));
 
             // Do the buy call and expect successful purchase.
-            let nft = Marketplace::buy<NFT<KITTY>, GAS>(&mut mkp, listing, payment);
+            let nft = Marketplace::buy<NFT<KITTY>, HANEUL>(&mut mkp, listing, payment);
             let kitten = NFT::burn<KITTY>(nft);
 
             assert!(kitten.id == 1, 0);
@@ -288,18 +288,18 @@ module NFTs::MarketplaceTests {
         mint_kitty(scenario);
         list_kitty(scenario);
 
-        // BUYER takes 100 GAS from his wallet and purchases KITTY.
+        // BUYER takes 100 HANEUL from his wallet and purchases KITTY.
         TestScenario::next_tx(scenario, &BUYER);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
             let mkp = TestScenario::remove_object<Marketplace>(scenario);
-            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, GAS>>(scenario, &mkp);
+            let listing = TestScenario::remove_nested_object<Marketplace, Listing<NFT<KITTY>, HANEUL>>(scenario, &mkp);
 
             // AMOUNT here is 10 while expected is 100.
             let payment = Coin::withdraw(&mut coin, 10, TestScenario::ctx(scenario));
 
             // Attempt to buy and expect failure purchase.
-            let nft = Marketplace::buy<NFT<KITTY>, GAS>(&mut mkp, listing, payment);
+            let nft = Marketplace::buy<NFT<KITTY>, HANEUL>(&mut mkp, listing, payment);
             let _ = NFT::burn<KITTY>(nft);
 
             TestScenario::return_object(scenario, mkp);

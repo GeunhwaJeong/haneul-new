@@ -6,7 +6,7 @@
 module Basics::Sandwich {
     use Haneul::Coin::{Self, Coin};
     use Haneul::ID::{Self, VersionedID};
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
 
@@ -33,14 +33,14 @@ module Basics::Sandwich {
     const EINSUFFICIENT_FUNDS: u64 = 0;
 
     /// Exchange `c` for some ham
-    public fun buy_ham(c: Coin<GAS>, ctx: &mut TxContext): Ham {
+    public fun buy_ham(c: Coin<HANEUL>, ctx: &mut TxContext): Ham {
         assert!(Coin::value(&c) == HAM_PRICE, EINSUFFICIENT_FUNDS);
         Transfer::transfer(c, GROCERY);
         Ham { id: TxContext::new_id(ctx) }
     }
 
     /// Exchange `c` for some bread
-    public fun buy_bread(c: Coin<GAS>, ctx: &mut TxContext): Bread {
+    public fun buy_bread(c: Coin<HANEUL>, ctx: &mut TxContext): Bread {
         assert!(Coin::value(&c) == BREAD_PRICE, EINSUFFICIENT_FUNDS);
         Transfer::transfer(c, GROCERY);
         Bread { id: TxContext::new_id(ctx) }

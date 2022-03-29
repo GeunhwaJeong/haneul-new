@@ -27,7 +27,7 @@
 
 module NFTs::SharedAuction {
     use Haneul::Coin::Coin;
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self,TxContext};
 
@@ -51,7 +51,7 @@ module NFTs::SharedAuction {
     /// change of the auction state (if bid was high enough) or return
     /// of the funds (if the bid was too low). This is executed by a
     /// bidder.
-    public fun bid<T: key + store>(coin: Coin<GAS>, auction: &mut Auction<T>, ctx: &mut TxContext) {
+    public fun bid<T: key + store>(coin: Coin<HANEUL>, auction: &mut Auction<T>, ctx: &mut TxContext) {
         let bidder = TxContext::sender(ctx);
         AuctionLib::update_auction(auction, bidder, coin);
     }

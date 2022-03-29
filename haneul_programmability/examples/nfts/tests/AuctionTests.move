@@ -6,7 +6,7 @@ module NFTs::AuctionTests {
     use Std::Vector;
 
     use Haneul::Coin::{Self, Coin};
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::ID::{Self, VersionedID};
     use Haneul::TestScenario::Self;
     use Haneul::TxContext::{Self, TxContext};
@@ -30,7 +30,7 @@ module NFTs::AuctionTests {
         while (!Vector::is_empty(&bidders)) {
             let bidder = Vector::pop_back(&mut bidders);
             let coin = Coin::mint_for_testing(100, ctx);
-            Coin::transfer<GAS>(coin, bidder);
+            Coin::transfer<HANEUL>(coin, bidder);
         };
     }
 
@@ -71,7 +71,7 @@ module NFTs::AuctionTests {
         // a transaction by the first bidder to create and put a bid
         TestScenario::next_tx(scenario, &bidder1);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
 
             Auction::bid(coin, auction_id, auctioneer, TestScenario::ctx(scenario));
         };
@@ -91,7 +91,7 @@ module NFTs::AuctionTests {
         // bidder's)
         TestScenario::next_tx(scenario, &bidder2);
         {
-            let coin = TestScenario::remove_object<Coin<GAS>>(scenario);
+            let coin = TestScenario::remove_object<Coin<HANEUL>>(scenario);
 
             Auction::bid(coin, auction_id, auctioneer, TestScenario::ctx(scenario));
         };

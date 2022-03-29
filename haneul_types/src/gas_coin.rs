@@ -20,7 +20,7 @@ use crate::{
     HANEUL_FRAMEWORK_ADDRESS,
 };
 
-pub const GAS_MODULE_NAME: &IdentStr = ident_str!("GAS");
+pub const GAS_MODULE_NAME: &IdentStr = ident_str!("HANEUL");
 pub const GAS_STRUCT_NAME: &IdentStr = GAS_MODULE_NAME;
 
 pub struct GAS {}
@@ -39,7 +39,7 @@ impl GAS {
     }
 }
 
-/// Rust version of the Move Haneul::Coin::Coin<Haneul::GAS::GAS> type
+/// Rust version of the Move Haneul::Coin::Coin<Haneul::HANEUL::HANEUL> type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GasCoin(Coin);
 

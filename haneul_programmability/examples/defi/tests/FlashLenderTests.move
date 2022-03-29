@@ -5,7 +5,7 @@
 module DeFi::FlashLenderTests {
     use DeFi::FlashLender::{Self, AdminCap, FlashLender};
     use Haneul::Coin;
-    use Haneul::GAS::GAS;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::TestScenario;
 
     #[test]
@@ -17,19 +17,19 @@ module DeFi::FlashLenderTests {
         let scenario = &mut TestScenario::begin(&admin);
         {
             let ctx = TestScenario::ctx(scenario);
-            let coin = Coin::mint_for_testing<GAS>(100, ctx);
+            let coin = Coin::mint_for_testing<HANEUL>(100, ctx);
             FlashLender::create(coin, 1, ctx);
         };
         // borrower requests and repays a loan of 10 coins + the fee
         TestScenario::next_tx(scenario, &borrower);
         {
-            let lender = TestScenario::remove_object<FlashLender<GAS>>(scenario);
+            let lender = TestScenario::remove_object<FlashLender<HANEUL>>(scenario);
             let ctx = TestScenario::ctx(scenario);
 
             let (loan, receipt) = FlashLender::loan(&mut lender, 10, ctx);
             // in practice, borrower does something (e.g., arbitrage) to make a profit from the loan.
             // simulate this by min ting the borrower 5 coins.
-            let profit = Coin::mint_for_testing<GAS>(5, ctx);
+            let profit = Coin::mint_for_testing<HANEUL>(5, ctx);
             Coin::join(&mut profit, loan);
             let to_keep = Coin::withdraw(&mut profit, 4, ctx);
             Coin::keep(to_keep, ctx);
@@ -40,7 +40,7 @@ module DeFi::FlashLenderTests {
         // admin withdraws the 1 coin profit from lending
         TestScenario::next_tx(scenario, &admin);
         {
-            let lender = TestScenario::remove_object<FlashLender<GAS>>(scenario);
+            let lender = TestScenario::remove_object<FlashLender<HANEUL>>(scenario);
             let admin_cap = TestScenario::remove_object<AdminCap>(scenario);
             let ctx = TestScenario::ctx(scenario);
 
