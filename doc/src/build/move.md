@@ -182,13 +182,13 @@ and also about the optional
 at your leisure.
 
 In particular, one type of custom coin already defined in Haneul is
-`Coin<GAS>`, which represents a token used to pay for gas used in Haneul
-computations - in this case, the concrete type used to parameterize the
-`Coin` struct is the `GAS` struct in the
+`Coin<HANEUL>`, which represents a token used to pay for Haneul
+computations (more generally known as _gas_) - in this case, the concrete type used to parameterize the
+`Coin` struct is the `HANEUL` struct in the
 [Coin module](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/framework/sources/Coin.move):
 
 ``` rust
-struct GAS has drop {}
+struct HANEUL has drop {}
 ```
 
 We will show how to define and instantiate custom structs in the
@@ -241,12 +241,12 @@ must satisfy a certain set of properties.
 One of the basic operations in Haneul is transfer of gas objects between
 [addresses](https://github.com/diem/move/blob/main/language/documentation/book/src/address.md)
 representing individual users. And one of the
-simplest entry functions is defined in the GAS
-[module](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/framework/sources/GAS.move) to
+simplest entry functions is defined in the HANEUL
+[module](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/framework/sources/HANEUL.move) to
 implement gas object transfer:
 
 ```rust
-public fun transfer(c: Coin::Coin<GAS>, recipient: address, _ctx: &mut TxContext) {
+public fun transfer(c: Coin::Coin<HANEUL>, recipient: address, _ctx: &mut TxContext) {
     ...
 }
 ```
