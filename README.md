@@ -14,7 +14,7 @@
 * To learn what distinguishes Haneul from other blockchain systems, see [How Haneul Differs?](doc/src/learn/haneul-compared.md).
 * To go deep on how Haneul works, read the [Haneul Smart Contract Platform](doc/paper/haneul.pdf) white paper.
 * To help Haneul grow, follow [Contributing to Haneul](doc/src/contribute/index.md).
-* To connect with the Haneul community, join our [Discord](https://discord.gg/Gkh9xaWm).
+* To connect with the Haneul community, join our [Discord](https://discord.gg/haneullabs).
 
 ### Highlights
 
