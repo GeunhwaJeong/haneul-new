@@ -2,6 +2,8 @@
 title: Contributing to Haneul
 ---
 
+This page describes how to add to Haneul. If you merely need to get the Haneul binaries, follow [Install Haneul](../build/install.md).
+
 ## File issues
 
 Report bugs and make feature requests in the [Haneul GitHub](https://github.com/GeunhwaJeong/haneul/issues) repository
@@ -15,6 +17,23 @@ doc@haneul-labs.com
 You may also suggest changes to the docs directly in GitHub right here using the **Source Code** link below.
 
 Simply edit the file in question and generate a pull request. We will get back to you shortly.
+
+## Download and learn Haneul
+
+In order to obtain the Haneul source code, clone the Haneul repository:
+
+```shell
+git clone https://github.com/GeunhwaJeong/haneul.git
+```
+
+You can start exploring Haneul's source code by looking into the following primary directories:
+
+* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/haneul) - the Haneul binaries (`wallet`, `haneul-move`, and more)
+* [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
+* [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_core) - authority server and Haneul Gateway
+* [haneul_types](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_types) - coins, gas, and other object types
+* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
+* [network_utils](https://github.com/GeunhwaJeong/haneul/tree/main/network_utils) - networking utilities and related unit tests
 
 ## Send pull requests
 
