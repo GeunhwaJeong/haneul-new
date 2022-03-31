@@ -4,6 +4,15 @@ title: Contributing to Haneul
 
 This page describes how to add to Haneul. If you merely need to get the Haneul binaries, follow [Install Haneul](../build/install.md).
 
+## See our roadmap
+
+Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) for the
+overall status of Haneul, including timelines for launching devnet, testnet, and mainnet.
+
+## Join the community
+
+To connect with the Haneul community, join our [Discord](https://discord.gg/haneullabs).
+
 ## File issues
 
 Report bugs and make feature requests in the [Haneul GitHub](https://github.com/GeunhwaJeong/haneul/issues) repository
