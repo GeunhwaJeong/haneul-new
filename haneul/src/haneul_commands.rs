@@ -158,7 +158,7 @@ impl HaneulCommand {
 }
 
 pub struct HaneulNetwork {
-    pub spawned_authorities: Vec<SpawnedServer>,
+    pub spawned_authorities: Vec<SpawnedServer<AuthorityServer>>,
 }
 
 impl HaneulNetwork {
