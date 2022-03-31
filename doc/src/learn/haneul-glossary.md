@@ -67,7 +67,7 @@ stage is considered closure for an exchange or other blockchain transaction.
 
 ### Gas
 
-As with other blockchains, [gas](https://www.investopedia.com/terms/g/gas-ethereum.asp) in Haneul is the currency for the cost of conducting a transaction.
+[Gas](https://ethereum.org/en/developers/docs/gas/) refers to the computational effort required for executing operations on the Haneul network. In Haneul, gas is paid with the network's native currency HANEUL. The cost of executing a transaction in HANEUL units is referred to as the transaction fee.
 
 
 ### Genesis
@@ -103,6 +103,10 @@ A [smart contract](https://en.wikipedia.org/wiki/Smart_contract) is an agreement
 
 Single-writer objects are owned by one account. In Haneul, transactions affecting only single-writer objects owned by the same account may proceed with only a check of the sender’s account, greatly speeding transaction times.
 
+### Haneul/HANEUL
+
+Haneul refers to the Haneul blockchain, the HANEUL currency, and the [Haneul open source project](https://github.com/GeunhwaJeong/haneul/) as a whole.
+
 
 ### Total order
 
@@ -118,4 +122,3 @@ A transfer is switching the owner address of a token to a new one via command in
 available in the wallet.
 
 For more information, see [Transferring objects](../build/wallet.md#transferring-objects).
-
