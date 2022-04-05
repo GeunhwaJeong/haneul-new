@@ -14,8 +14,8 @@ use structopt::StructOpt;
 use haneul::shell::{
     install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
 };
-use haneul::haneul_commands;
 use haneul::wallet_commands::*;
+use haneul::{haneul_config_dir, HANEUL_WALLET_CONFIG};
 
 const HANEUL: &str = "   _____       _    _       __      ____     __
   / ___/__  __(_)  | |     / /___ _/ / /__  / /_
@@ -62,7 +62,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let wallet_conf_path = options
         .config
         .clone()
-        .unwrap_or(haneul_commands::haneul_config_dir()?.join(haneul_commands::HANEUL_WALLET_CONFIG));
+        .unwrap_or(haneul_config_dir()?.join(HANEUL_WALLET_CONFIG));
 
     let mut context = WalletContext::new(&wallet_conf_path)?;
 
@@ -114,7 +114,7 @@ impl AsyncHandler<WalletContext> for ClientCommandHandler {
         completion_cache: CompletionCache,
     ) -> bool {
         if let Err(e) = handle_command(get_command(args), context, completion_cache).await {
-            let _err = writeln!(stderr(), "{}", e);
+            let _err = writeln!(stderr(), "{}", e.to_string().red());
         }
         false
     }

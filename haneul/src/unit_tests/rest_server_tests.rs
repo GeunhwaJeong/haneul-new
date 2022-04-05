@@ -5,12 +5,16 @@ use dropshot::test_util::{LogContext, TestContext};
 use dropshot::{ConfigDropshot, ConfigLogging, ConfigLoggingLevel};
 use futures::future::try_join_all;
 use http::{Method, StatusCode};
+use haneul::HANEUL_WALLET_CONFIG;
 
+use haneul::wallet_commands::WalletContext;
+
+use crate::rest_server_tests::haneul_network::start_test_network;
 use crate::{create_api, ServerContext};
 
-// TODO: Dropshot hardcodes header checks in their test_utils. Disabling test until
-// this issue is resolved. https://github.com/oxidecomputer/dropshot/issues/299
-#[allow(dead_code)]
+mod haneul_network;
+
+#[tokio::test]
 async fn test_concurrency() -> Result<(), anyhow::Error> {
     let api = create_api();
 
@@ -24,27 +28,21 @@ async fn test_concurrency() -> Result<(), anyhow::Error> {
         .to_logger("rest_server")
         .map_err(|error| anyhow!("failed to create logger: {error}"))?;
 
+    // Start haneul network
+    let working_dir = tempfile::tempdir()?;
+    let network = start_test_network(working_dir.path(), None).await?;
+    let wallet = WalletContext::new(&working_dir.path().join(HANEUL_WALLET_CONFIG))?;
+    let address = wallet.config.accounts.first().unwrap();
     let documentation = api.openapi("Haneul API", "0.1").json()?;
 
-    let api_context = ServerContext::new(documentation);
+    let api_context = ServerContext::new(documentation, wallet.gateway);
     let testctx = TestContext::new(api, api_context, &config_dropshot, Some(logctx), log);
-
-    testctx
-        .client_testctx
-        .make_request_no_body(Method::POST, "/haneul/genesis", StatusCode::OK)
-        .await
-        .expect("expected success");
-
-    testctx
-        .client_testctx
-        .make_request_no_body(Method::POST, "/haneul/start", StatusCode::OK)
-        .await
-        .expect("expected success");
+    let url = format!("/api/objects?address={}", address);
 
     let task = (0..10).map(|_| {
         testctx
             .client_testctx
-            .make_request_no_body(Method::GET, "/addresses", StatusCode::OK)
+            .make_request_no_body(Method::GET, &url, StatusCode::OK)
     });
 
     let task = task
@@ -52,16 +50,8 @@ async fn test_concurrency() -> Result<(), anyhow::Error> {
         .map(|request| async { request.await })
         .collect::<Vec<_>>();
 
-    let result = try_join_all(task).await.map_err(|e| anyhow!(e.message));
+    try_join_all(task).await.map_err(|e| anyhow!(e.message))?;
 
-    // Clean up
-    testctx
-        .client_testctx
-        .make_request_no_body(Method::POST, "/haneul/stop", StatusCode::NO_CONTENT)
-        .await
-        .expect("expected success");
-
-    result?;
-
+    network.kill().await?;
     Ok(())
 }
