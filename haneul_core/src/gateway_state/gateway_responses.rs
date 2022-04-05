@@ -9,7 +9,7 @@ use serde::ser::Error;
 use serde::Serialize;
 
 use serde::Deserialize;
-use haneul_types::base_types::ObjectRef;
+use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::error::HaneulError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{CertifiedTransaction, TransactionEffects};
@@ -149,6 +149,20 @@ impl Display for PublishResponse {
         }
         let gas_coin = GasCoin::try_from(&self.updated_gas).map_err(fmt::Error::custom)?;
         writeln!(writer, "Updated Gas : {}", gas_coin)?;
+        write!(f, "{}", writer)
+    }
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct SwitchResponse {
+    /// Active address
+    pub address: HaneulAddress,
+}
+
+impl Display for SwitchResponse {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut writer = String::new();
+        writeln!(writer, "Active address switched to {}", self.address)?;
         write!(f, "{}", writer)
     }
 }
