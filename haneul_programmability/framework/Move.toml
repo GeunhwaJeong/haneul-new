@@ -10,6 +10,3 @@ MoveStdlib = { local = "deps/move-stdlib" }
 
 [addresses]
 Haneul = "0x2"
-
-[dev-addresses]
-Haneul = "0x2"

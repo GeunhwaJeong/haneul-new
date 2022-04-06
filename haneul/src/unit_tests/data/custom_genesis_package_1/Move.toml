@@ -7,6 +7,3 @@ Haneul = { local = "../../../../../haneul_programmability/framework" }
 
 [addresses]
 Examples = "0x0"
-
-[dev-addresses]
-Examples = "0x0"

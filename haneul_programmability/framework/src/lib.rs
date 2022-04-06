@@ -6,10 +6,11 @@ use move_core_types::{account_address::AccountAddress, ident_str, language_stora
 use move_package::BuildConfig;
 use move_unit_test::UnitTestingConfig;
 use num_enum::TryFromPrimitive;
-use std::collections::HashSet;
-use std::path::Path;
-use haneul_types::base_types::encode_bytes_hex;
-use haneul_types::error::{HaneulError, HaneulResult};
+use std::{collections::HashSet, path::Path};
+use haneul_types::{
+    base_types::encode_bytes_hex,
+    error::{HaneulError, HaneulResult},
+};
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
 #[cfg(test)]
@@ -214,7 +215,7 @@ pub fn run_move_unit_tests(path: &Path, config: Option<UnitTestingConfig>) -> Ha
         /* compute_coverage */ false,
     )
     .map_err(|err| HaneulError::MoveUnitTestFailure {
-        error: err.to_string(),
+        error: format!("{:?}", err),
     })?;
     if result == UnitTestResult::Failure {
         Err(HaneulError::MoveUnitTestFailure {
