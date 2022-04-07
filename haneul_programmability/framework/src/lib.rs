@@ -7,10 +7,7 @@ use move_package::BuildConfig;
 use move_unit_test::UnitTestingConfig;
 use num_enum::TryFromPrimitive;
 use std::{collections::HashSet, path::Path};
-use haneul_types::{
-    base_types::encode_bytes_hex,
-    error::{HaneulError, HaneulResult},
-};
+use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
 #[cfg(test)]
@@ -67,13 +64,16 @@ pub fn get_move_stdlib_modules(lib_dir: &Path) -> HaneulResult<Vec<CompiledModul
     Ok(modules)
 }
 
-/// Given a `path` and a `build_config`, build the package in that path and return the compiled modules as Hex.
+/// Given a `path` and a `build_config`, build the package in that path and return the compiled modules as base64.
 /// This is useful for when publishing via JSON
 /// If we are building the Haneul framework, `is_framework` will be true;
 /// Otherwise `is_framework` should be false (e.g. calling from client).
-pub fn build_move_package_to_hex(path: &Path, is_framework: bool) -> Result<Vec<String>, HaneulError> {
+pub fn build_move_package_to_base64(
+    path: &Path,
+    is_framework: bool,
+) -> Result<Vec<String>, HaneulError> {
     build_move_package_to_bytes(path, is_framework)
-        .map(|mods| mods.iter().map(encode_bytes_hex).collect::<Vec<_>>())
+        .map(|mods| mods.iter().map(base64::encode).collect::<Vec<_>>())
 }
 
 /// Given a `path` and a `build_config`, build the package in that path and return the compiled modules as Vec<Vec<u8>>.
