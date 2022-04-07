@@ -24,7 +24,7 @@ Use these online resources:
 
 ### What does Haneul offer over other blockchains?
 
-Haneul offers ease of development, a developer interface, fast transaction speeds, a sane object model, and better security. Haneul calls the consensus protocol only for transactions affecting objects owned by multiple accounts. This means simple sends can happen almost immediately.
+Haneul offers ease of development, a developer interface, fast transaction speeds, a sane object model, and better security. Haneul calls the consensus protocol only for transactions affecting objects owned by multiple accounts. This means simple transactions complete almost immediately.
 
 See these resources on the [Haneul Developer Portal](https://docs.haneul.io/) for the complete story on why we built Haneul:
 
@@ -53,9 +53,13 @@ There is no relationship between Haneul/Haneullabs and Aptos. The similarity is 
 ## Roadmap
 
 
-### Can I buy the Haneul token? Is Haneullabs labs' token name HANEUL?
+### Can I buy the Haneul token?
 
-There is currently no timeline for a public Haneul token sale. We will have a public token by the time mainnet launches, but it is not available right now and there is no timeline as of yet. Anyone who claims otherwise (offering tokens, whitelists, pre-sale, etc.) is running a scam." 
+We will have a public token for the Haneul mainnet. But it is not available right now and there is no timeline as of yet. Anyone who claims otherwise (offering tokens, whitelists, pre-sale, etc.) is running a scam.
+
+### Will the token name be HANEUL?
+
+Yes, the token name will be HANEUL.
 
 
 ### When is the Haneul devnet/testnet/mainnet launching?
@@ -69,17 +73,24 @@ A testnet is coming in a few months. See our roadmap: \
 No. More information is forthcoming.
 
 
-## Getting involved {#getting-involved}
+## Getting involved
 
 
 ### How can I join the Haneul network? How do I participate in the Haneul project?
 
-Here are the current participation methods:
+Join our [Discord](https://discord.gg/haneullabs) and follow our [Twitter](https://twitter.com/Haneul_Labs) for the latest updates and announcements.
 
-1. Download the [Haneul SDK](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/) and start building.
+For developers:
+
+1. [Install Haneul](https://docs.haneul.io/build/install).
+1. Download the [Haneul SDK](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/).
+1. Spin up a [local node](../build/wallet.md).
 1. Join the [Move](https://discord.gg/8prNjUqyFj) and [Haneul](https://discord.gg/CVcnUzKYCB) developer channels in Discord.
-1. Use the SDK for [testing packages](https://docs.haneul.io/build/move#testing-a-package).
+1. [Start building](https://docs.haneul.io/build)!
 
+### Are there things we can already try if we are not a developer?
+
+We have a number of examples and demos available for viewing at: [https://docs.haneul.io/explore](../explore) 
 
 ### Are you looking for partners?
 
@@ -87,7 +98,7 @@ We are seeking partners that can contribute to the ecosystem primarily in develo
 
 
 ### With whom can I talk about a partnership or strategic investment? How can I discuss Haneul in person?
-Start in [Discord](https://discord.gg/haneullabs). 
+Start in [Discord](https://discord.gg/haneullabs).
 
 
 ### Where can I see the investors of the project?
@@ -100,18 +111,12 @@ See the [haneul-labs.com](https://haneul-labs.com/) website for company details.
 Wait until the community managers are on board. The managers will plan for growing and engaging the community. Stay tuned in Discord.
 
 
-### I'm looking for someone from the Haneullabs Crew to speak at a student club web3 event - is there someone I can DM/email?
+### I'm looking for someone from the Haneullabs Crew to speak at an event - is there someone I can DM/email?
 
 Ask in Discord.
 
 
 ## Development
-
-
-### Are there things we can already test if we are not a developer?
-
-We have a number of examples and demos available for viewing at: [https://docs.haneul.io/explore](../explore) 
-
 
 ### Once a Move package is published to the Haneul network, is there any way for devs to update the code?
 
@@ -120,19 +125,16 @@ Not currently. Packages are immutable objects, and this property is relied upon 
 
 ### Is there any information on node architecture and running validators on Haneul?
 
-Section four in the[ Haneul Smart Contract Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper is the best reference for node architecture.
+Section four in the [Haneul Smart Contract Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper is the best reference for node architecture.
 
 
 ### Can I run a Haneul validator node?
 
-We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes. You can run a Haneul node or Haneul network locally. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation and then speak to it either using the [Wallet CLI](../build/wallet#command-line-mode) or [REST API](../build/rest-api).
+We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [REST API](../build/rest-api).
 
-You can run the [SDK](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/) for a local, non-networked node for development. We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap).
+### What does a local node do and what are the hardware requirements to run it? How is it different from a testnet node?
 
-
-### What does a local node do and what hardware requirements will I be needing to run it? How is it different from the coming testnet node?
-
-A local node allows you to build software using Move for Haneul. On a single core m1, it should run 30k TPS. Testnet will be running on a network of validators. So, with enough nodes or validators running on mainnet..Haneul will do 30k tps blazing speeds. An 8-core machine runs 120k TPS unoptimized for simple transactions.
+A local node allows you to start building software using Move for Haneul, and can be run on commodity hardware. A testnet node will be part of a live network of validators.
 
 
 ## Technology
@@ -147,22 +149,6 @@ To be blunt: even if we preferred the EVM/Solidity to Move, we could not use the
 See [Why move?](../learn/why-move) for more details on this. In addition, see the [Move Problem Statement](https://github.com/GeunhwaJeong/awesome-move/blob/main/docs/problem_statement.md) for why we think that - despite being the most popular smart contract language of today - EVM is holding back the crypto space.
 
 Finally, the EVM developer community is very small--approximately 4,000 programmers according to [this study](https://medium.com/electric-capital/electric-capital-developer-report-2021-f37874efea6d). Compare this to (e.g.) the [>20M registered iOS developers](https://techcrunch.com/2018/06/04/app-store-hits-20m-registered-developers-at-100b-in-revenues-500m-visitors-per-week/#:~:text=Today%20at%20WWDC%2C%20Apple's%20CEO,500%20million%20visitors%20per%20week.). Thus, the practical path to scaling the smart contract dev community is to bring folks in from the broader population, not to pull them from the tiny pool of existing Solidity developers. We think Move is much safer and much more approachable for mainstream programmers than the EVM.
-
-
-### Is there a difference in principle between Solana Sealevel and Haneul execution?
-
-Q: For transactions involving shared objects, the broad strokes look similar. Obviously, every Solana transaction would go through the consensus mechanism in Solana
-
-A: As far as parallelism goes:
-
-Solana does optimistic concurrency control, which is to launch a bunch of TX executions in parallel, and retry in some sequence those for which that didn't work. One difference is they're discovering the causal dependencies between TXes: by the time a TX with dependencies is run successfully, that may be its second (or more) execution. 
-
-For Haneul, the causality is declared up front and the TX is run after its dependents. (You might call this "pessimistic" by contrast.)
-
-Naturally, as you point out, there are many, many other differences the moment you zoom out of the precise question of concurrent execution (degree of consensus involvement, flow of the TX to an authority, leaderless architecture, etc.).
-
-Solana declares a weaker form of concurrency, that is state registers the TX will access in either mode, and that's a useful heuristic for sure. We declare object versions the execution engine must have before executing.
-
 
 ### Is Haneul an L2, or are there plans to support L2s?
 
