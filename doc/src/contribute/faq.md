@@ -83,7 +83,6 @@ Join our [Discord](https://discord.gg/haneullabs) and follow our [Twitter](https
 For developers:
 
 1. [Install Haneul](https://docs.haneul.io/build/install).
-1. Download the [Haneul SDK](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/).
 1. Spin up a [local node](../build/wallet.md).
 1. Join the [Move](https://discord.gg/8prNjUqyFj) and [Haneul](https://discord.gg/CVcnUzKYCB) developer channels in Discord.
 1. [Start building](https://docs.haneul.io/build)!
