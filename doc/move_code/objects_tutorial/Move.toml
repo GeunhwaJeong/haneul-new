@@ -1,0 +1,11 @@
+[package]
+name = "Tutorial"
+version = "0.0.1"
+
+[dependencies]
+MoveStdlib = { local = "../../../haneul_programmability/framework/deps/move-stdlib/" }
+Haneul = { local = "../../../haneul_programmability/framework/" }
+
+[addresses]
+Tutorial = "0x0"
+
