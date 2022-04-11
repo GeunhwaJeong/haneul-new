@@ -13,8 +13,8 @@ use serde::Serialize;
 use serde_json::json;
 
 use haneul_core::gateway_state::gateway_responses::TransactionResponse;
-use haneul_core::gateway_state::GatewayAPI;
-use haneul_types::base_types::{encode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
+use haneul_core::gateway_state::{GatewayAPI, GatewayTxSeqNumber};
+use haneul_types::base_types::{encode_bytes_hex, ObjectID, ObjectRef, HaneulAddress, TransactionDigest};
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::object::ObjectRead;
 
@@ -212,6 +212,23 @@ impl GatewayAPI for RestGatewayClient {
     fn get_total_transaction_number(&self) -> Result<u64, anyhow::Error> {
         // TODO: Implement this.
         Ok(0)
+    }
+
+    fn get_transactions_in_range(
+        &self,
+        start: GatewayTxSeqNumber,
+        end: GatewayTxSeqNumber,
+    ) -> Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>, anyhow::Error> {
+        // TODO: Implement this.
+        Ok(vec![])
+    }
+
+    fn get_recent_transactions(
+        &self,
+        count: u64,
+    ) -> Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>, anyhow::Error> {
+        // TODO: Implement this.
+        Ok(vec![])
     }
 }
 
