@@ -4,6 +4,8 @@ title: Exploring Haneul
 
 Now that you've [learned](../learn/index.md) about Haneul and started [building](../build/index.md) it, use the contents of this section to delve into Haneul more deeply.
 
+Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
+
 ## Tutorial
 Taking an end-to-end [tutorial](../explore/tutorials.md) from starting a Haneul network locally to publishing a TicTacToe game on Haneul and playing it.
 
