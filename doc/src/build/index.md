@@ -11,3 +11,5 @@ Now that you've [learned about Haneul](../learn/index.md), it's time to [install
 * [Authorities](../build/authorities.md) - The Haneul network is operated by a set of independent authorities, each running its own instance of the Haneul software on a separate machine (or a sharded cluster of machines operated by the same entity).
 * [Objects](../build/objects.md) - Haneul has programmable objects created and managed by Move packages (a.k.a. smart contracts). Move packages themselves are also objects. Thus, Haneul objects can be partitioned into two categories mutable data values and immutable packages.
 * [Transactions](../build/transactions.md) - All updates to the Haneul ledger happen via a transaction. This section describes the transaction types supported by Haneul and explains how their execution changes the ledger.
+
+Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
