@@ -1,6 +1,7 @@
 // Copyright (c) 2021, Facebook, Inc. and its affiliates
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+use clap::*;
 use move_core_types::{
     language_storage::TypeTag,
     value::{MoveStructLayout, MoveTypeLayout},
@@ -9,7 +10,6 @@ use pretty_assertions::assert_str_eq;
 use serde_reflection::{Registry, Result, Samples, Tracer, TracerConfig};
 use signature::Signer;
 use std::{fs::File, io::Write};
-use structopt::{clap::arg_enum, StructOpt};
 use haneul_types::{
     base_types::{self, ObjectDigest, ObjectID, TransactionDigest},
     batch::UpdateItem,
@@ -76,29 +76,27 @@ fn get_registry() -> Result<Registry> {
     tracer.registry()
 }
 
-arg_enum! {
-#[derive(Debug, StructOpt, Clone, Copy)]
+#[derive(Debug, Parser, Clone, Copy, ArgEnum)]
 enum Action {
     Print,
     Test,
     Record,
 }
-}
 
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     name = "Haneul format generator",
     about = "Trace serde (de)serialization to generate format descriptions for Haneul types"
 )]
 struct Options {
-    #[structopt(possible_values = &Action::variants(), default_value = "Print", case_insensitive = true)]
+    #[clap(arg_enum, default_value = "Print", ignore_case = true)]
     action: Action,
 }
 
 const FILE_PATH: &str = "haneul_core/tests/staged/haneul.yaml";
 
 fn main() {
-    let options = Options::from_args();
+    let options = Options::parse();
     let registry = get_registry().unwrap();
     match options.action {
         Action::Print => {

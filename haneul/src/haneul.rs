@@ -2,21 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 extern crate core;
 
-use structopt::StructOpt;
+use clap::*;
 use haneul::haneul_commands::HaneulCommand;
 
 #[cfg(test)]
 #[path = "unit_tests/cli_tests.rs"]
 mod cli_tests;
 
-#[derive(StructOpt)]
-#[structopt(
+#[derive(Parser)]
+#[clap(
     name = "Haneul Local",
     about = "A Byzantine fault tolerant chain with low-latency finality and high throughput",
     rename_all = "kebab-case"
 )]
 struct HaneulOpt {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: HaneulCommand,
 }
 
@@ -31,6 +31,6 @@ async fn main() -> Result<(), anyhow::Error> {
     #[allow(unused)]
     let guard = telemetry_subscribers::init(config);
 
-    let options: HaneulOpt = HaneulOpt::from_args();
+    let options: HaneulOpt = HaneulOpt::parse();
     options.command.execute().await
 }

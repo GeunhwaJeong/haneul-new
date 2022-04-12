@@ -7,10 +7,10 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use anyhow::{anyhow, bail};
+use clap::*;
 use futures::future::join_all;
 use move_binary_format::CompiledModule;
 use move_package::BuildConfig;
-use structopt::StructOpt;
 use tracing::{error, info};
 
 use haneul_adapter::adapter::generate_package_id;
@@ -32,29 +32,29 @@ use crate::gateway::{GatewayConfig, GatewayType};
 use crate::keystore::{Keystore, KeystoreType, HaneulKeystore};
 use crate::{haneul_config_dir, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 
-#[derive(StructOpt)]
-#[structopt(rename_all = "kebab-case")]
+#[derive(Parser)]
+#[clap(rename_all = "kebab-case")]
 pub enum HaneulCommand {
     /// Start haneul network.
-    #[structopt(name = "start")]
+    #[clap(name = "start")]
     Start {
-        #[structopt(long)]
+        #[clap(long)]
         config: Option<PathBuf>,
     },
-    #[structopt(name = "genesis")]
+    #[clap(name = "genesis")]
     Genesis {
-        #[structopt(long)]
+        #[clap(long)]
         working_dir: Option<PathBuf>,
-        #[structopt(short, long, help = "Forces overwriting existing configuration")]
+        #[clap(short, long, help = "Forces overwriting existing configuration")]
         force: bool,
     },
-    #[structopt(name = "signtool")]
+    #[clap(name = "signtool")]
     SignTool {
-        #[structopt(long)]
+        #[clap(long)]
         keystore_path: Option<PathBuf>,
-        #[structopt(long, parse(try_from_str = decode_bytes_hex))]
+        #[clap(long, parse(try_from_str = decode_bytes_hex))]
         address: HaneulAddress,
-        #[structopt(long)]
+        #[clap(long)]
         data: String,
     },
 }
