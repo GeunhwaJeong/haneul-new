@@ -7,7 +7,7 @@ use thiserror::Error;
 use typed_store::rocks::TypedStoreError;
 
 use crate::base_types::*;
-use move_binary_format::errors::PartialVMError;
+use move_binary_format::errors::{PartialVMError, VMError};
 use serde::{Deserialize, Serialize};
 
 #[macro_export]
@@ -282,8 +282,17 @@ pub enum HaneulError {
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
 
+// TODO these are both horribly wrong, categorization needs to be considered
 impl std::convert::From<PartialVMError> for HaneulError {
     fn from(error: PartialVMError) -> Self {
+        HaneulError::ModuleVerificationFailure {
+            error: error.to_string(),
+        }
+    }
+}
+
+impl std::convert::From<VMError> for HaneulError {
+    fn from(error: VMError) -> Self {
         HaneulError::ModuleVerificationFailure {
             error: error.to_string(),
         }

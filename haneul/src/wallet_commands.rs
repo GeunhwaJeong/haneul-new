@@ -16,6 +16,7 @@ use move_core_types::parser::parse_type_tag;
 use serde::Serialize;
 use tracing::info;
 
+use haneul_adapter::adapter::resolve_and_type_check;
 use haneul_core::gateway_state::gateway_responses::{
     MergeCoinResponse, PublishResponse, SplitCoinResponse, SwitchResponse,
 };
@@ -24,7 +25,6 @@ use haneul_framework::build_move_package_to_bytes;
 use haneul_types::base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{CertifiedTransaction, ExecutionStatus, Transaction, TransactionEffects};
-use haneul_types::move_package::resolve_and_type_check;
 use haneul_types::object::ObjectRead::Exists;
 use haneul_types::object::{Object, ObjectRead};
 
@@ -287,10 +287,13 @@ impl WalletCommands {
                 let sender = gas_object.owner.get_owner_address()?;
 
                 // Pass in the objects for a deeper check
-                // We can technically move this to impl MovePackage
+                let compiled_module = package_obj
+                    .data
+                    .try_as_package()
+                    .ok_or_else(|| anyhow!("Cannot get package from object"))?
+                    .deserialize_module(module)?;
                 resolve_and_type_check(
-                    package_obj,
-                    module,
+                    &compiled_module,
                     function,
                     type_args,
                     input_objs,
