@@ -6,12 +6,19 @@ Haneul is a blockchain centered on [objects](../../build/objects.md). Once you s
 
 In this tutorial series, we will walk through all the powerful ways to interact with objects in [Haneul Move](../../learn/haneul-move-diffs.md). At the end, we will also explore the designs of a few (close-to-)real-world examples to demonstrate the tradeoffs of using different object types and ownership relationships.
 
-Prerequisite Readings:
+## Prerequisites
+
+Understand:
 - [Learn about Haneul](../../learn/about-haneul.md)
 - [Smart Contracts with Move](../../build/move.md)
 - [Haneul Objects](../../build/objects.md)
 
-Index:
+Install:
+- [Haneul binaries](../install.md#binaries)
+- [Haneul source code](../install.md#source-code)
+
+## Chapters
+
 - [Chapter 1: Object Basics](../../build/programming-with-objects/ch1-object-basics.md)
   - Defining Move object types, creating objects, transferring objects.
 - [Chapter 2: Using Objects](../../build/programming-with-objects/ch2-using-objects.md)
