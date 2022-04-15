@@ -29,22 +29,10 @@ You may also suggest changes to the docs directly in GitHub right here using the
 
 Simply edit the file in question and generate a pull request. We will get back to you shortly.
 
-## Download and learn Haneul
+## Download Haneul
 
-In order to obtain the Haneul source code, clone the Haneul repository:
-
-```shell
-git clone https://github.com/GeunhwaJeong/haneul.git
-```
-
-You can start exploring Haneul's source code by looking into the following primary directories:
-
-* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/haneul) - the Haneul binaries (`wallet`, `haneul-move`, and more)
-* [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
-* [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_core) - authority server and Haneul Gateway
-* [haneul_types](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_types) - coins, gas, and other object types
-* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
-* [network_utils](https://github.com/GeunhwaJeong/haneul/tree/main/network_utils) - networking utilities and related unit tests
+In order to obtain the Haneul source code, follow the steps to download (`git clone`) the `haneul` repository
+at [Install Haneul](../build/install.md#source-code).
 
 ## Send pull requests
 
