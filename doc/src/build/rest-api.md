@@ -53,7 +53,7 @@ curl --location --request GET $HANEUL_GATEWAY_HOST/docs | json_pp
 
 ### POST /api/sync_account_state
 
-Synchronize client state with authorities:
+Synchronize client state with validators:
 
 ```shell
 curl --location --request POST $HANEUL_GATEWAY_HOST/api/sync_account_state \

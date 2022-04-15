@@ -36,7 +36,7 @@ Finish with the [Haneul Tutorial](../explore/tutorials.md) for a summary view of
 Navigate and search this site however you see fit. Here is the order we recommend if you are new to Haneul:
 
 1. Learn [about Haneul](../learn/about-haneul.md), how [Haneul differs from Move](../learn/why-move.md), and [how Haneul works](../learn/how-haneul-works.md) starting in this very section.
-1. [Build](../build/index.md) smart contracts, wallets, authorities, transactions, and more.
+1. [Build](../build/index.md) smart contracts, wallets, validators, transactions, and more.
 1. [Explore](../explore/index.md) NFTs, make transfers, and see the Haneul API.
 1. [Contribute](../contribute/index.md) to Haneul by joining the community, making enhancements, and learning about Haneul Labs.
 

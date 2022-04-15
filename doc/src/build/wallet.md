@@ -14,7 +14,7 @@ Follow the instructions to [install Haneul binaries](install.md).
 
 ## Genesis
 
-The `genesis` command creates four authorities and five user accounts
+The `genesis` command creates four validators and five user accounts
 each with five gas objects. These are Haneul [objects](objects.md) used
 to pay for Haneul [transactions](transactions.md#transaction-metadata),
 such other object transfers or smart contract (Move) calls. These
@@ -68,7 +68,7 @@ The genesis process creates a configuration file `wallet.conf`, and a keystore f
 Haneul wallet.  The config file contains information of the accounts and
 the Haneul Network Gateway. The keystore file contains all the public-private key pairs of the created accounts.
 Haneul wallet uses the network information in `wallet.conf` to communicate
-with the Haneul network authorities  and create transactions using the key
+with the Haneul network validators  and create transactions using the key
 pairs residing in the keystore file.
 
 Here is an example of `wallet.conf` showing the accounts and key pairs
@@ -113,7 +113,7 @@ The `accounts` variable contains the account's address that the wallet manages. 
 be connecting to. Currently, only the `embedded` gateway type is supported.
 
 The `authorities` variable is part of the embedded gateway configuration. It contains
-the Haneul network authority's name, host and port information. It is used to establish connections
+the Haneul network validator's name, host and port information. It is used to establish connections
 to the Haneul network.
 
 Note `send_timeout`, `recv_timeout` and `buffer_size` are the network
@@ -131,7 +131,7 @@ based on their use cases.
 
 As the name suggests, embedded gateway embeds the gateway logic into the application;
 all data will be stored locally and the application will make direct
-connection to the authorities.
+connection to the validators.
 
 #### Rest Gateway
 You can also connect the wallet to the Haneul network via a [Rest Gateway](rest-api.md#start-local-rest-server);
@@ -212,7 +212,7 @@ The following commands are supported by the wallet:
     publish           Publish Move modules
     split-coin        Split a coin object into multiple coins
     switch            Switch active address
-    sync              Synchronize client state with authorities
+    sync              Synchronize client state with validators
     transfer          Transfer an object
 Use `help <command>` to see more information on each command.
 
@@ -956,7 +956,7 @@ Example `genesis.conf`:
 All attributes in `genesis.conf` are optional, and default values
 will be used if the attributes are not provided.
 For example, the
-config shown below will create a network of four authorities, and
+config shown below will create a network of four validators, and
 pre-populate two gas objects for four newly generated accounts:
 
 ```json

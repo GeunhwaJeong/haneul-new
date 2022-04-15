@@ -6,13 +6,13 @@ Haneul is the first permissionless Layer 1 blockchain designed from the ground u
 
 ## What Haneul is
 
-Haneul is a smart contract platform maintained by a permissionless set of authorities that play a role similar to validators or miners in other blockchain systems.
+Haneul is a smart contract platform maintained by a permissionless set of validators that play a role similar to validators or miners in other blockchain systems.
 
 Haneul offers scalability and unprecedented low-latency for common use cases. Haneul makes the vast majority of transactions processable in parallel, which makes better use of processing resources, and offers the option to increase throughput with more resources. Haneul forgoes consensus to instead use simpler and lower-latency primitives for common use cases, such as payment transactions and assets transfer. This is unprecedented in the blockchain world and enables a number of new latency-sensitive distributed applications, ranging from gaming to retail payment at physical points of sale.
 
 Haneul is written in [Rust](https://www.rust-lang.org) and supports smart contracts written in the [Move programming language](https://golden.com/wiki/Move_(programming_language)-MNA4DZ6) to define assets that may have an owner. Move programs define operations on these assets including custom rules for their creation, the transfer of these assets to new owners, and operations that mutate assets.
 
-Haneul has a native token called HANEUL, with a fixed supply. The HANEUL token is used to pay for gas, and is also used as [delegated stake on authorities](https://learn.bybit.com/blockchain/delegated-proof-of-stake-dpos/) within an epoch. The voting power of authorities within this epoch is a function of this delegated stake. Authorities are periodically reconfigured according to the stake delegated to them. In any epoch the set of authorities is [Byzantine fault tolerant](https://pmg.csail.mit.edu/papers/osdi99.pdf). At the end of the epoch, fees collected through all transactions processed are distributed to authorities according to their contribution to the operation of the system. Authorities can in turn share some of the fees as rewards to users that delegated stake to them.
+Haneul has a native token called HANEUL, with a fixed supply. The HANEUL token is used to pay for gas, and is also used as [delegated stake on validators](https://learn.bybit.com/blockchain/delegated-proof-of-stake-dpos/) within an epoch. The voting power of validators within this epoch is a function of this delegated stake. Validators are periodically reconfigured according to the stake delegated to them. In any epoch the set of validators is [Byzantine fault tolerant](https://pmg.csail.mit.edu/papers/osdi99.pdf). At the end of the epoch, fees collected through all transactions processed are distributed to validators according to their contribution to the operation of the system. Validators can in turn share some of the fees as rewards to users that delegated stake to them.
 
 Haneul is backed by a number of state-of-the-art [peer-reviewed works](../contribute/research-papers.md) and years of open source development.
 
@@ -20,7 +20,7 @@ Haneul is backed by a number of state-of-the-art [peer-reviewed works](../contri
 
 Haneul scales horizontally with no upper bound to meet application demand while maintaining extremely low operating costs per transaction. Its system design breakthrough eliminates a critical bottleneck in existing blockchains: the need to achieve global consensus on a total-ordered list of transactions. This computation is wasteful given most transactions are not contending for the same resource against other transactions.
 
-Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul authorities commit such transactions using Byzantine Consistent Broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
+Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul validators commit such transactions using Byzantine Consistent Broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
 
 This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on most objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine Fault Tolerant consensus and executed in parallel.
 
@@ -42,13 +42,13 @@ Today, users of existing blockchains pay a considerable tax as network usage inc
 * High-volume, low-value, per-transaction mass-market services like micropayments and coupons are priced out of the network
 * Artificially high floor prices on assets due to high gas prices
 
-Haneul scales horizontally to meet the demands of applications. Network capacity grows in proportion to the increase in Haneul authorities' processing power by adding workers, resulting in low gas fees even during high network traffic. This scalability characteristic is in sharp contrast to other blockchains with rigid bottlenecks.
+Haneul scales horizontally to meet the demands of applications. Network capacity grows in proportion to the increase in Haneul validators' processing power by adding workers, resulting in low gas fees even during high network traffic. This scalability characteristic is in sharp contrast to other blockchains with rigid bottlenecks.
 
-By design, Haneul authorities (nodes) can effectively scale the network throughput infinitely to meet the demand of builders and creators. We believe Haneul can do for web3 what broadband internet did for web2.
+By design, Haneul validators (nodes) can effectively scale the network throughput infinitely to meet the demand of builders and creators. We believe Haneul can do for web3 what broadband internet did for web2.
 
-> **Note:** As of Mar. 19, 2022, an unoptimized single-worker Haneul authority running on an 8-core M1 Macbook Pro can execute and commit 120,000 token transfer transactions per second (TPS). Throughput scales linearly with the number of cores–the same machine processes 25,000 TPS in a single core configuration.
+> **Note:** As of Mar. 19, 2022, an unoptimized single-worker Haneul validator running on an 8-core M1 Macbook Pro can execute and commit 120,000 token transfer transactions per second (TPS). Throughput scales linearly with the number of cores–the same machine processes 25,000 TPS in a single core configuration.
 
-This experiment uses a configuration where each client submits a batch of 100 transactions (i.e., transfers to 100 distinct recipients) with a single signature. This configuration captures the anticipated usage pattern of a highly scalable blockchain--e.g., a custodial wallet or game server operating at scale will likely need to submit hundreds or thousands of on-chain transactions per second. With a batch size of 1, an authority running on the same machine can process 20,000 TPS with 8 cores, and exhibits the same linear growth in throughput as more cores are added.
+This experiment uses a configuration where each client submits a batch of 100 transactions (i.e., transfers to 100 distinct recipients) with a single signature. This configuration captures the anticipated usage pattern of a highly scalable blockchain--e.g., a custodial wallet or game server operating at scale will likely need to submit hundreds or thousands of on-chain transactions per second. With a batch size of 1, a validator running on the same machine can process 20,000 TPS with 8 cores, and exhibits the same linear growth in throughput as more cores are added.
 
 We will publish a full performance report for optimized Haneul networks in a variety of configurations when our testnet is released.
 
