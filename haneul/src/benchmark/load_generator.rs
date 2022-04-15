@@ -20,7 +20,7 @@ use haneul_network::transport;
 use haneul_types::{messages::*, serialize::*};
 use tokio::sync::Notify;
 use tokio::time;
-use tracing::*;
+use tracing::{error, info};
 
 pub fn check_transaction_response(reply_message: Result<SerializedMessage, Error>) {
     match reply_message {

@@ -14,7 +14,7 @@ use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::{base_types::*, committee::*, messages::*, object::Object, serialize::*};
 use tokio::runtime::Runtime;
 
-use tracing::*;
+use tracing::info;
 
 use rocksdb::Options;
 use std::env;

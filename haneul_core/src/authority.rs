@@ -33,7 +33,8 @@ use haneul_types::{
     storage::{BackingPackageStore, DeleteKind, Storage},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
-use tracing::*;
+use tracing::log;
+use tracing::{debug, instrument};
 
 #[cfg(test)]
 #[path = "unit_tests/authority_tests.rs"]

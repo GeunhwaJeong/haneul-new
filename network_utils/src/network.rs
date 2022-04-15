@@ -9,7 +9,7 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 use haneul_types::{error::*, serialize::*};
-use tracing::*;
+use tracing::debug;
 
 use std::io;
 

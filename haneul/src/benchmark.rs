@@ -13,7 +13,7 @@ use haneul_types::batch::UpdateItem;
 use haneul_types::messages::{BatchInfoRequest, BatchInfoResponseItem};
 use haneul_types::serialize::*;
 use tokio::runtime::{Builder, Runtime};
-use tracing::*;
+use tracing::{error, info};
 
 pub mod bench_types;
 pub mod load_generator;
