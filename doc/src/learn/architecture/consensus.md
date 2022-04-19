@@ -1,4 +1,4 @@
- ---
+---
 title: Learn about Narwhal and Tusk, Haneul's Consensus Engine
 ---
 
