@@ -53,6 +53,7 @@ impl Display for KeystoreType {
 #[derive(Serialize, Deserialize, Default)]
 pub struct HaneulKeystore {
     keys: BTreeMap<HaneulAddress, KeyPair>,
+    path: Option<PathBuf>,
 }
 
 impl Keystore for HaneulKeystore {
@@ -69,6 +70,7 @@ impl Keystore for HaneulKeystore {
     fn add_random_key(&mut self) -> Result<HaneulAddress, anyhow::Error> {
         let (address, keypair) = get_key_pair();
         self.keys.insert(address, keypair);
+        self.save()?;
         Ok(address)
     }
 }
@@ -87,12 +89,23 @@ impl HaneulKeystore {
             .map(|key| (HaneulAddress::from(key.public_key_bytes()), key))
             .collect();
 
-        Ok(Self { keys })
+        Ok(Self {
+            keys,
+            path: Some(path.to_path_buf()),
+        })
     }
 
-    pub fn save(&self, path: &Path) -> Result<(), anyhow::Error> {
-        let store = serde_json::to_string_pretty(&self.keys.values().collect::<Vec<_>>()).unwrap();
-        Ok(fs::write(path, store)?)
+    pub fn set_path(&mut self, path: &Path) {
+        self.path = Some(path.to_path_buf());
+    }
+
+    pub fn save(&self) -> Result<(), anyhow::Error> {
+        if let Some(path) = &self.path {
+            let store =
+                serde_json::to_string_pretty(&self.keys.values().collect::<Vec<_>>()).unwrap();
+            fs::write(path, store)?
+        }
+        Ok(())
     }
 
     pub fn add_key(&mut self, address: HaneulAddress, keypair: KeyPair) -> Result<(), anyhow::Error> {
