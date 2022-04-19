@@ -41,6 +41,10 @@
         "fileName": "learn/haneul-compared"
       },
       {
+        "label": "Haneul Consensus Engine",
+        "fileName": "learn/architecture/consensus"
+      },
+      {
         "label": "Understand Haneul Security",
         "fileName": "learn/haneul-security"
       },
