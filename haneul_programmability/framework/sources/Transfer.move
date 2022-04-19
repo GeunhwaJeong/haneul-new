@@ -146,7 +146,7 @@ module Haneul::Transfer {
     /// https://github.com/GeunhwaJeong/haneul/issues/633
     /// https://github.com/GeunhwaJeong/haneul/issues/681
     /// This API is exposed to demonstrate how we may be able to use it to program
-    /// Move contracts that use shared mutable objects.
+    /// Move contracts that use shared objects.
     public native fun share_object<T: key>(obj: T);
 
     native fun transfer_internal<T: key>(obj: T, recipient: address, to_object: bool);
