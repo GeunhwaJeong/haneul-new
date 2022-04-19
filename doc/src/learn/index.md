@@ -14,9 +14,9 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* [Narwhal and Tusk for consensus](../learn/architecture/consensus.md) - Learn about Narwhal and Tusk, Haneul's high-throughput mempool and consensus engine.
 * [REST API publishing](../build/rest-api.md#post-apipublish) - Instructions exist for publishing Move modules via the Publish endpoint.
 * [Wallet improvements](../build/wallet.md#active-address)- Active (default) addresses and [using gas objects for transactions](../build/wallet.md#paying-for-transactions-with-gas-objects) are supported.
-* [HANEUL FAQ](../contribute/faq.md) - Frequently asked questions posted in [Discord](https://discord.gg/haneullabs) and elsewhere can be found online.
 
 See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
