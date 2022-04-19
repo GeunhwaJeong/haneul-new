@@ -7,7 +7,7 @@ use haneul::config::{AuthorityPrivateInfo, Config, GenesisConfig, WalletConfig};
 use haneul::gateway::{GatewayConfig, GatewayType};
 use haneul::keystore::KeystoreType;
 use haneul::haneul_commands::{genesis, HaneulNetwork};
-use haneul::{HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
+use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 
 pub async fn start_test_network(
     working_dir: &Path,
@@ -50,8 +50,17 @@ pub async fn start_test_network(
             info.base_port = server.get_port();
             info
         })
-        .collect();
+        .collect::<Vec<_>>();
     let active_address = accounts.get(0).copied();
+
+    GatewayConfig {
+        db_folder_path: db_folder_path.clone(),
+        authorities: authorities.clone(),
+        ..Default::default()
+    }
+    .persisted(&working_dir.join(HANEUL_GATEWAY_CONFIG))
+    .save()?;
+
     // Create wallet config with stated authorities port
     WalletConfig {
         accounts,

@@ -13,6 +13,8 @@ pub mod config;
 pub mod gateway;
 pub mod keystore;
 pub mod rest_gateway;
+pub mod rpc_gateway;
+pub mod rpc_gateway_client;
 pub mod shell;
 pub mod haneul_commands;
 pub mod haneul_json;
