@@ -1,5 +1,5 @@
 ---
-title: Learn about Narwhal and Tusk, Haneul's Consensus Engine
+title: Narwhal and Tusk, Haneul's Consensus Engine
 ---
 
 This is a brief introduction to Narwhal and Tusk, the high-throughput mempool and consensus offered by Haneul Labs. Haneul runs consensus as needed to periodically checkpoint its state. And for those transactions that require a total ordering, Narwhal/Tusk is the consensus engine of Haneul.
