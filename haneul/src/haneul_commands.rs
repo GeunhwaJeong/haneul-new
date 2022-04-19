@@ -43,6 +43,8 @@ pub enum HaneulCommand {
     },
     #[clap(name = "genesis")]
     Genesis {
+        #[clap(long, help = "Start genesis with a given config file")]
+        from_config: Option<PathBuf>,
         #[clap(long)]
         working_dir: Option<PathBuf>,
         #[clap(short, long, help = "Forces overwriting existing configuration")]
@@ -77,7 +79,11 @@ impl HaneulCommand {
                     .wait_for_completion()
                     .await
             }
-            HaneulCommand::Genesis { working_dir, force } => {
+            HaneulCommand::Genesis {
+                working_dir,
+                force,
+                from_config,
+            } => {
                 let haneul_config_dir = &match working_dir {
                     // if a directory is specified, it must exist (it
                     // will not be created)
@@ -129,7 +135,11 @@ impl HaneulCommand {
                 let db_folder_path = haneul_config_dir.join("client_db");
                 let gateway_db_folder_path = haneul_config_dir.join("gateway_client_db");
 
-                let genesis_conf = GenesisConfig::default_genesis(haneul_config_dir)?;
+                let genesis_conf = match from_config {
+                    Some(q) => PersistedConfig::read(q)?,
+                    None => GenesisConfig::default_genesis(haneul_config_dir)?,
+                };
+
                 let (network_config, accounts, keystore) = genesis(genesis_conf).await?;
                 info!("Network genesis completed.");
                 let network_config = network_config.persisted(&network_path);
