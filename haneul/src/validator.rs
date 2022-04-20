@@ -3,12 +3,17 @@
 
 use anyhow::anyhow;
 use clap::*;
+use narwhal_config::Parameters as ConsensusParameters;
 use std::path::PathBuf;
+use haneul::config::make_default_narwhal_committee;
+use haneul::config::CONSENSUS_DB_NAME;
+use haneul::haneul_config_dir;
 use haneul::{
     config::{GenesisConfig, NetworkConfig, PersistedConfig},
     haneul_commands::{genesis, make_server},
     haneul_config_dir, HANEUL_NETWORK_CONFIG,
 };
+use haneul_types::base_types::encode_bytes_hex;
 use haneul_types::base_types::{decode_bytes_hex, HaneulAddress};
 use haneul_types::committee::Committee;
 use tracing::{error, info};
@@ -97,10 +102,19 @@ async fn main() -> Result<(), anyhow::Error> {
         net_cfg.port
     );
 
+    let consensus_committee = make_default_narwhal_committee(&network_config.authorities)?;
+    let consensus_parameters = ConsensusParameters::default();
+    let consensus_store_path = haneul_config_dir()?
+        .join(CONSENSUS_DB_NAME)
+        .join(encode_bytes_hex(net_cfg.key_pair.public_key_bytes()));
+
     if let Err(e) = make_server(
         net_cfg,
         &Committee::from(&network_config),
         network_config.buffer_size,
+        &consensus_committee,
+        &consensus_store_path,
+        &consensus_parameters,
     )
     .await
     .unwrap()

@@ -2,13 +2,14 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::base_types::*;
+use move_binary_format::errors::{PartialVMError, VMError};
+use narwhal_executor::ExecutionStateError;
+use narwhal_executor::SubscriberError;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use thiserror::Error;
 use typed_store::rocks::TypedStoreError;
-
-use crate::base_types::*;
-use move_binary_format::errors::{PartialVMError, VMError};
-use serde::{Deserialize, Serialize};
 
 #[macro_export]
 macro_rules! fp_bail {
@@ -255,7 +256,7 @@ pub enum HaneulError {
 
     #[error(
     "Failed to achieve quorum between authorities, cause by : {:#?}",
-    errors.iter().map(| e | e.to_string()).collect::<Vec<String>>()
+    errors.iter().map(| e | ToString::to_string(&e)).collect::<Vec<String>>()
     )]
     QuorumNotReached { errors: Vec<HaneulError> },
 
@@ -283,6 +284,9 @@ pub enum HaneulError {
 
     #[error("Failed to connect with consensus node: {0}")]
     ConsensusConnectionBroken(String),
+
+    #[error("Failed to lock shared objects: {0}")]
+    SharedObjectLockingFailure(String),
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
@@ -301,5 +305,27 @@ impl std::convert::From<VMError> for HaneulError {
         HaneulError::ModuleVerificationFailure {
             error: error.to_string(),
         }
+    }
+}
+
+impl std::convert::From<SubscriberError> for HaneulError {
+    fn from(error: SubscriberError) -> Self {
+        HaneulError::SharedObjectLockingFailure(error.to_string())
+    }
+}
+
+impl ExecutionStateError for HaneulError {
+    fn node_error(&self) -> bool {
+        matches!(
+            self,
+            Self::ObjectFetchFailed { .. }
+                | Self::ByzantineAuthoritySuspicion { .. }
+                | Self::StorageError(..)
+                | Self::GenericAuthorityError { .. }
+        )
+    }
+
+    fn to_string(&self) -> String {
+        ToString::to_string(&self)
     }
 }
