@@ -1,23 +1,21 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeMap;
-use std::fs;
-use std::path::PathBuf;
-use std::sync::Arc;
-
 use anyhow::{anyhow, bail};
 use base64ct::{Base64, Encoding};
 use clap::*;
 use futures::future::join_all;
 use move_binary_format::CompiledModule;
 use move_package::BuildConfig;
-use tracing::{error, info};
-
+use std::collections::BTreeMap;
+use std::fs;
+use std::path::PathBuf;
+use std::sync::Arc;
 use haneul_adapter::adapter::generate_package_id;
 use haneul_adapter::genesis;
 use haneul_core::authority::{AuthorityState, AuthorityStore};
 use haneul_core::authority_server::AuthorityServer;
+use haneul_core::consensus_adapter::ConsensusListener;
 use haneul_network::transport::SpawnedServer;
 use haneul_network::transport::DEFAULT_MAX_DATAGRAM_SIZE;
 use haneul_types::base_types::decode_bytes_hex;
@@ -25,6 +23,8 @@ use haneul_types::base_types::{SequenceNumber, HaneulAddress, TxContext};
 use haneul_types::committee::Committee;
 use haneul_types::error::HaneulResult;
 use haneul_types::object::Object;
+use tokio::sync::mpsc::channel;
+use tracing::{error, info};
 
 use crate::config::{
     AuthorityPrivateInfo, Config, GenesisConfig, NetworkConfig, PersistedConfig, WalletConfig,
@@ -430,12 +430,8 @@ pub async fn make_server(
         store,
     )
     .await;
-    Ok(AuthorityServer::new(
-        authority.host.clone(),
-        authority.port,
-        buffer_size,
-        state,
-    ))
+
+    make_authority(authority, buffer_size, state).await
 }
 
 async fn make_server_with_genesis_ctx(
@@ -463,10 +459,33 @@ async fn make_server_with_genesis_ctx(
         state.insert_genesis_object(object.clone()).await;
     }
 
+    make_authority(authority, buffer_size, state).await
+}
+
+/// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
+/// and a consensus listener bridging the consensus node and the haneul authority.
+async fn make_authority(
+    authority: &AuthorityPrivateInfo,
+    buffer_size: usize,
+    state: AuthorityState,
+) -> HaneulResult<AuthorityServer> {
+    let (tx_consensus_to_haneul, rx_consensus_to_haneul) = channel(1_000);
+    let (tx_haneul_to_consensus, rx_haneul_to_consensus) = channel(1_000);
+
+    // TODO [issue #633]: Spawn the consensus node of this authority.
+    let _tx_consensus_to_haneul = tx_consensus_to_haneul;
+
+    // Spawn a consensus listener. It listen for consensus outputs and notifies the
+    // authority server when a sequenced transaction is ready for execution.
+    ConsensusListener::spawn(rx_haneul_to_consensus, rx_consensus_to_haneul);
+
+    // Return new authority server. It listen to users transactions and send back replies.
     Ok(AuthorityServer::new(
         authority.host.clone(),
         authority.port,
         buffer_size,
         state,
+        authority.consensus_address,
+        /* tx_consensus_listener */ tx_haneul_to_consensus,
     ))
 }
