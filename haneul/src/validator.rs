@@ -6,10 +6,8 @@ use clap::*;
 use narwhal_config::Parameters as ConsensusParameters;
 use std::path::PathBuf;
 use haneul::config::make_default_narwhal_committee;
-use haneul::config::CONSENSUS_DB_NAME;
-use haneul::haneul_config_dir;
 use haneul::{
-    config::{GenesisConfig, NetworkConfig, PersistedConfig},
+    config::{GenesisConfig, NetworkConfig, PersistedConfig, CONSENSUS_DB_NAME},
     haneul_commands::{genesis, make_server},
     haneul_config_dir, HANEUL_NETWORK_CONFIG,
 };
