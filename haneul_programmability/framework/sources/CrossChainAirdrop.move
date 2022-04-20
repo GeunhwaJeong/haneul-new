@@ -9,7 +9,6 @@ module Haneul::CrossChainAirdrop {
     use Std::Vector;
     use Haneul::ERC721Metadata::{Self, ERC721Metadata, TokenID};
     use Haneul::ID::{VersionedID};
-    use Haneul::NFT;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
 
@@ -39,7 +38,8 @@ module Haneul::CrossChainAirdrop {
     }
 
     /// The Haneul representation of the original ERC721 NFT on Eth
-    struct ERC721 has store {
+    struct ERC721 has key, store {
+        id: VersionedID,
         /// The address of the source contract, e.g, the Ethereum contract address
         source_contract_address: SourceContractAddress,
         /// The metadata associated with this NFT
@@ -76,13 +76,11 @@ module Haneul::CrossChainAirdrop {
         let token_id = ERC721Metadata::new_token_id(source_token_id);
         // NOTE: this is where the globally uniqueness check happens
         assert!(!is_token_claimed(contract, &token_id), ETOKEN_ID_CLAIMED);
-        let nft = NFT::mint(
-            ERC721 {
-                source_contract_address: SourceContractAddress { address: source_contract_address },
-                metadata: ERC721Metadata::new(token_id, name, token_uri),
-            },
-            ctx
-        );
+        let nft = ERC721 {
+            id: TxContext::new_id(ctx),
+            source_contract_address: SourceContractAddress { address: source_contract_address },
+            metadata: ERC721Metadata::new(token_id, name, token_uri),
+        };
         Vector::push_back(&mut contract.claimed_source_token_ids, token_id);
         Transfer::transfer(nft, recipient)
     }

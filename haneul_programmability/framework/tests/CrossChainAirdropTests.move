@@ -4,7 +4,6 @@
 #[test_only]
 module Haneul::CrossChainAirdropTests {
     use Haneul::CrossChainAirdrop::{Self, CrossChainAirdropOracle, ERC721};
-    use Haneul::NFT::NFT;
     use Haneul::ID::{VersionedID};
     use Haneul::TestScenario::{Self, Scenario};
 
@@ -78,6 +77,6 @@ module Haneul::CrossChainAirdropTests {
     public(script) fun owns_object(scenario: &mut Scenario, owner: &address): bool{
         // Verify the token has been transfer to the recipient
         TestScenario::next_tx(scenario, owner);
-        TestScenario::can_take_object<NFT<ERC721>>(scenario)
+        TestScenario::can_take_object<ERC721>(scenario)
     }
 }
