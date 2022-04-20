@@ -27,8 +27,11 @@ pub const HANEUL_WALLET_CONFIG: &str = "wallet.conf";
 pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.conf";
 
 pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {
-    match dirs::home_dir() {
-        Some(v) => Ok(v.join(HANEUL_DIR).join(HANEUL_CONFIG_DIR)),
-        None => bail!("Cannot obtain home directory path"),
+    match std::env::var_os("HANEUL_CONFIG_DIR") {
+        Some(config_env) => Ok(config_env.into()),
+        None => match dirs::home_dir() {
+            Some(v) => Ok(v.join(HANEUL_DIR).join(HANEUL_CONFIG_DIR)),
+            None => bail!("Cannot obtain home directory path"),
+        },
     }
 }
