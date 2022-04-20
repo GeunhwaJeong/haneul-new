@@ -56,6 +56,8 @@ You can start exploring Haneul's source code by looking into the following prima
 * [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
 * [network_utils](https://github.com/GeunhwaJeong/haneul/tree/main/network_utils) - networking utilities and related unit tests
 
+To contribute updates to Haneul code, [send pull requests](../contribute/index.md#send-pull-requests) our way.
+
 ## Next steps
 
 Continue your journey through:
