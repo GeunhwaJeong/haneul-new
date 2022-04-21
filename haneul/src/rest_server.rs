@@ -24,7 +24,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use haneul::config::PersistedConfig;
-use haneul::gateway::GatewayConfig;
+use haneul::gateway_config::GatewayConfig;
 use haneul::rest_gateway::requests::{
     CallRequest, GetObjectInfoRequest, GetObjectSchemaRequest, GetObjectsRequest,
     GetTransactionDetailsRequest, MergeCoinRequest, PublishRequest, SignedTransaction,

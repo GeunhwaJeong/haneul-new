@@ -16,7 +16,7 @@ use haneul::config::{
     AccountConfig, Config, GenesisConfig, NetworkConfig, ObjectConfig, PersistedConfig,
     WalletConfig, AUTHORITIES_DB_NAME,
 };
-use haneul::gateway::{GatewayConfig, GatewayType};
+use haneul::gateway_config::{GatewayConfig, GatewayType};
 use haneul::keystore::KeystoreType;
 use haneul::haneul_commands::HaneulCommand;
 use haneul::haneul_json::HaneulJsonValue;

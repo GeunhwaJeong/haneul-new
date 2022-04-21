@@ -26,7 +26,7 @@ use haneul_types::messages::{CertifiedTransaction, Transaction, TransactionData}
 use haneul_types::object::ObjectRead;
 
 use crate::config::PersistedConfig;
-use crate::gateway::GatewayConfig;
+use crate::gateway_config::GatewayConfig;
 use crate::rest_gateway::responses::GetObjectInfoResponse;
 use crate::rest_gateway::responses::{NamedObjectRef, ObjectResponse};
 

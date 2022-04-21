@@ -4,7 +4,7 @@
 use std::path::Path;
 
 use haneul::config::{AuthorityPrivateInfo, Config, GenesisConfig, WalletConfig};
-use haneul::gateway::{GatewayConfig, GatewayType};
+use haneul::gateway_config::{GatewayConfig, GatewayType};
 use haneul::keystore::KeystoreType;
 use haneul::haneul_commands::{genesis, HaneulNetwork};
 use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
