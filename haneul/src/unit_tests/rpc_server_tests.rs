@@ -12,12 +12,12 @@ use move_core_types::identifier::Identifier;
 use haneul::config::{PersistedConfig, WalletConfig};
 use haneul::keystore::{Keystore, HaneulKeystore};
 use haneul::rest_gateway::responses::ObjectResponse;
-use haneul::rpc_gateway::RpcGatewayServer;
 use haneul::rpc_gateway::TransactionBytes;
 use haneul::rpc_gateway::{Base64EncodedBytes, RpcGatewayClient};
+use haneul::rpc_gateway::{RpcCallArg, RpcGatewayServer};
 use haneul::rpc_gateway::{RpcGatewayImpl, SignedTransaction};
 use haneul::haneul_commands::HaneulNetwork;
-use haneul::haneul_json::{resolve_move_function_args, HaneulJsonValue};
+use haneul::haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_core::gateway_state::gateway_responses::TransactionResponse;
 use haneul_framework::build_move_package_to_bytes;
@@ -143,7 +143,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     let module = Identifier::new("ObjectBasics")?;
     let function = Identifier::new("create")?;
 
-    let (object_ids, pure_args) = resolve_move_function_args(
+    let json_args = resolve_move_function_args(
         &package,
         module.clone(),
         function.clone(),
@@ -152,11 +152,16 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
             HaneulJsonValue::from_str(&format!("\"0x{}\"", address))?,
         ],
     )?;
-
-    let pure_args = pure_args
-        .into_iter()
-        .map(Base64EncodedBytes)
-        .collect::<Vec<_>>();
+    let mut args = Vec::with_capacity(json_args.len());
+    for json_arg in json_args {
+        args.push(match json_arg {
+            HaneulJsonCallArg::Pure(bytes) => RpcCallArg::Pure(Base64EncodedBytes(bytes)),
+            HaneulJsonCallArg::Object(id) => match http_client.get_object_info(id).await? {
+                ObjectRead::Exists(_, obj, _) if obj.is_shared() => RpcCallArg::SharedObject(id),
+                _ => RpcCallArg::ImmOrOwnedObject(id),
+            },
+        })
+    }
 
     let tx_data: TransactionBytes = http_client
         .move_call(
@@ -165,11 +170,9 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
             module,
             function,
             Vec::new(),
-            pure_args,
+            args,
             gas.0,
             1000,
-            object_ids,
-            Vec::new(),
         )
         .await?;
 

@@ -12,7 +12,7 @@ use haneul_types::base_types::{ObjectID, TransactionDigest};
 use haneul_types::crypto::Signature;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CertifiedTransaction, SignatureAggregator, Transaction, TransactionData,
+    CallArg, CertifiedTransaction, SignatureAggregator, Transaction, TransactionData,
 };
 use haneul_types::object::{MoveObject, Object, Owner};
 use haneul_types::serialize::{deserialize_message, SerializedMessage};
@@ -64,12 +64,11 @@ pub async fn test_certificates(authority: &AuthorityState) -> Vec<CertifiedTrans
             ident_str!(function).to_owned(),
             /* type_args */ vec![],
             gas_object.compute_object_reference(),
-            /* object_args */ vec![],
-            vec![shared_object_id],
-            /* pure_args */
+            /* args */
             vec![
-                16u64.to_le_bytes().to_vec(),
-                bcs::to_bytes(&AccountAddress::from(sender)).unwrap(),
+                CallArg::SharedObject(shared_object_id),
+                CallArg::Pure(16u64.to_le_bytes().to_vec()),
+                CallArg::Pure(bcs::to_bytes(&AccountAddress::from(sender)).unwrap()),
             ],
             /* max_gas */ 10_000,
         );
