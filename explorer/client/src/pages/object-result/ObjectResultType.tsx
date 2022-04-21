@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type AddressOwner } from '../../utils/internetapi/HaneulRpcClient';
+import { type AddressOwner } from '../../utils/api/HaneulRpcClient';
 
 export type DataType = {
     id: string;
