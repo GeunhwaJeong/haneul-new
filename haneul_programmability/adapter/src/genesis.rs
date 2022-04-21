@@ -6,8 +6,9 @@ use once_cell::sync::Lazy;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use haneul_framework::{self, DEFAULT_FRAMEWORK_PATH};
-use haneul_types::base_types::{HaneulAddress, TxContext};
+use haneul_types::base_types::{ObjectRef, HaneulAddress, TxContext};
 use haneul_types::error::HaneulResult;
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::{base_types::TransactionDigest, object::Object};
 
 static GENESIS: Lazy<Mutex<Genesis>> = Lazy::new(|| {
@@ -27,6 +28,16 @@ pub fn clone_genesis_compiled_modules() -> Vec<Vec<CompiledModule>> {
 pub fn clone_genesis_packages() -> Vec<Object> {
     let genesis = GENESIS.lock().unwrap();
     genesis.objects.clone()
+}
+
+pub fn get_framework_object_ref() -> ObjectRef {
+    let genesis = GENESIS.lock().unwrap();
+    genesis
+        .objects
+        .iter()
+        .find(|o| o.id() == HANEUL_FRAMEWORK_ADDRESS.into())
+        .unwrap()
+        .compute_object_reference()
 }
 
 pub fn get_genesis_context() -> TxContext {
