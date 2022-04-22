@@ -127,9 +127,6 @@ file:
 ```
 [addresses]
 Haneul = "0x2"
-
-[dev-addresses]
-Haneul = "0x2"
 ```
 
 ### Move structs
