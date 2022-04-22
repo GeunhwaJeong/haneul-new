@@ -407,9 +407,6 @@ Haneul = { local = "../haneul/haneul_programmability/framework/" }
 
 [addresses]
 MyFirstPackage = "0x0"
-
-[dev-addresses]
-MyFirstPackage = "0x0"
 ```
 
 Ensure you are in the `my_move_package` directory containing your package and build it:
