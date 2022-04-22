@@ -1,9 +1,11 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use rand::{prelude::StdRng, SeedableRng};
 use haneul_adapter::genesis;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::get_key_pair;
+use haneul_types::crypto::get_key_pair_from_rng;
 use haneul_types::crypto::KeyPair;
 
 use super::*;
@@ -26,8 +28,11 @@ use haneul_types::messages::{
 };
 use haneul_types::object::Object;
 
-fn init_state_parameters() -> (Committee, HaneulAddress, KeyPair) {
-    let (authority_address, authority_key) = get_key_pair();
+fn init_state_parameters_from_rng<R>(rng: &mut R) -> (Committee, HaneulAddress, KeyPair)
+where
+    R: rand::CryptoRng + rand::RngCore,
+{
+    let (authority_address, authority_key) = get_key_pair_from_rng(rng);
     let mut authorities = BTreeMap::new();
     authorities.insert(
         /* address */ *authority_key.public_key_bytes(),
@@ -63,8 +68,10 @@ async fn test_open_manager() {
     let path = dir.join(format!("DB_{:?}", ObjectID::random()));
     fs::create_dir(&path).unwrap();
 
-    let (committee_source, _, authority_key_source) = init_state_parameters();
-    let (committee, authority_key) = (committee_source.clone(), authority_key_source.copy());
+    let seed = [1u8; 32];
+
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     {
         // Create an authority
         let mut opts = rocksdb::Options::default();
@@ -88,7 +95,8 @@ async fn test_open_manager() {
             .expect("no error on write");
     }
     // drop all
-    let (committee, authority_key) = (committee_source.clone(), authority_key_source.copy());
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     {
         // Create an authority
         let mut opts = rocksdb::Options::default();
@@ -109,7 +117,8 @@ async fn test_open_manager() {
             .expect("no error on write");
     }
     // drop all
-    let (committee, authority_key) = (committee_source.clone(), authority_key_source.copy());
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     {
         // Create an authority
         let mut opts = rocksdb::Options::default();
@@ -138,7 +147,9 @@ async fn test_batch_manager_happy_path() {
     let store = Arc::new(AuthorityStore::open(&path, Some(opts)));
 
     // Make a test key pair
-    let (committee, _, authority_key) = init_state_parameters();
+    let seed = [1u8; 32];
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     let authority_state = Arc::new(init_state(committee, authority_key, store.clone()).await);
 
     let inner_state = authority_state.clone();
@@ -197,7 +208,9 @@ async fn test_batch_manager_out_of_order() {
     let store = Arc::new(AuthorityStore::open(&path, Some(opts)));
 
     // Make a test key pair
-    let (committee, _, authority_key) = init_state_parameters();
+    let seed = [1u8; 32];
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     let authority_state = Arc::new(init_state(committee, authority_key, store.clone()).await);
 
     let inner_state = authority_state.clone();
@@ -303,7 +316,9 @@ async fn test_batch_store_retrieval() {
     let store = Arc::new(AuthorityStore::open(&path, Some(opts)));
 
     // Make a test key pair
-    let (committee, _, authority_key) = init_state_parameters();
+    let seed = [1u8; 32];
+    let (committee, _, authority_key) =
+        init_state_parameters_from_rng(&mut StdRng::from_seed(seed));
     let authority_state = Arc::new(init_state(committee, authority_key, store.clone()).await);
 
     let inner_state = authority_state.clone();
