@@ -1,53 +1,57 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::net::{Ipv4Addr, SocketAddr};
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::Arc;
-
 use anyhow::anyhow;
 use base64ct::{Base64, Encoding};
 use clap::*;
-use dropshot::{endpoint, Query, TypedBody};
 use dropshot::{
-    ApiDescription, ConfigDropshot, ConfigLogging, ConfigLoggingLevel, HttpError,
-    HttpResponseUpdatedNoContent, HttpServerStarter, RequestContext,
+    endpoint, ApiDescription, ConfigDropshot, ConfigLogging, ConfigLoggingLevel, HttpError,
+    HttpResponseUpdatedNoContent, HttpServerStarter, Query, RequestContext, TypedBody,
 };
 use ed25519_dalek::ed25519::signature::Signature;
 use futures::lock::Mutex;
 use hyper::StatusCode;
-use move_core_types::identifier::Identifier;
-use move_core_types::parser::parse_type_tag;
-use move_core_types::value::MoveStructLayout;
+use move_core_types::{identifier::Identifier, parser::parse_type_tag, value::MoveStructLayout};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-
-use haneul::config::PersistedConfig;
-use haneul::gateway_config::GatewayConfig;
-use haneul::rest_gateway::requests::{
-    CallRequest, CallRequestArg, GetObjectInfoRequest, GetObjectSchemaRequest, GetObjectsRequest,
-    GetTransactionDetailsRequest, MergeCoinRequest, PublishRequest, SignedTransaction,
-    SplitCoinRequest, SyncRequest, TransferTransactionRequest,
+use std::{
+    net::{Ipv4Addr, SocketAddr},
+    path::PathBuf,
+    str::FromStr,
+    sync::Arc,
 };
-use haneul::rest_gateway::responses::{
-    custom_http_error, HttpResponseOk, JsonResponse, NamedObjectRef, ObjectResponse,
-    ObjectSchemaResponse, TransactionBytes,
+use haneul::{
+    config::PersistedConfig,
+    gateway_config::GatewayConfig,
+    rest_gateway::{
+        requests::{
+            CallRequest, CallRequestArg, GetObjectInfoRequest, GetObjectSchemaRequest,
+            GetObjectsRequest, GetTransactionDetailsRequest, MergeCoinRequest, PublishRequest,
+            SignedTransaction, SplitCoinRequest, SyncRequest, TransferTransactionRequest,
+        },
+        responses::{
+            custom_http_error, HttpResponseOk, JsonResponse, NamedObjectRef, ObjectResponse,
+            ObjectSchemaResponse, TransactionBytes,
+        },
+    },
+    haneul_config_dir, HANEUL_GATEWAY_CONFIG,
 };
-use haneul::{haneul_config_dir, HANEUL_GATEWAY_CONFIG};
-use haneul_core::gateway_state::gateway_responses::TransactionResponse;
-use haneul_core::gateway_state::{GatewayClient, GatewayState};
-use haneul_types::base_types::*;
-use haneul_types::crypto::SignableBytes;
-use haneul_types::crypto::{self};
-use haneul_types::messages::{CallArg, CertifiedTransaction, Transaction, TransactionData};
-use haneul_types::object::Object as HaneulObject;
-use haneul_types::object::ObjectRead;
+use haneul_core::gateway_state::{
+    gateway_responses::TransactionResponse, GatewayClient, GatewayState,
+};
+use haneul_types::{
+    base_types::*,
+    crypto::{
+        SignableBytes, {self},
+    },
+    messages::{CallArg, CertifiedTransaction, Transaction, TransactionData},
+    object::{Object as HaneulObject, ObjectRead},
+};
 
 const DEFAULT_REST_SERVER_PORT: &str = "5001";
 const DEFAULT_REST_SERVER_ADDR_IPV4: &str = "127.0.0.1";
 
-#[path = "unit_tests/rest_server_tests.rs"]
+#[path = "../unit_tests/rest_server_tests.rs"]
 #[cfg(test)]
 mod rest_server_tests;
 
