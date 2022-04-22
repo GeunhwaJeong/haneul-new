@@ -237,7 +237,6 @@ pub struct AccountConfig {
     pub address: Option<HaneulAddress>,
     pub gas_objects: Vec<ObjectConfig>,
 }
-
 #[derive(Serialize, Deserialize)]
 pub struct ObjectConfig {
     #[serde(default = "ObjectID::random")]
