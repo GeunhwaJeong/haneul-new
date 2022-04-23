@@ -9,6 +9,7 @@ use haneul::keystore::KeystoreType;
 use haneul::haneul_commands::{genesis, HaneulNetwork};
 use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 
+#[cfg(test)]
 pub async fn start_test_network(
     working_dir: &Path,
     genesis_config: Option<GenesisConfig>,
