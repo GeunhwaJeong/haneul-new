@@ -505,7 +505,7 @@ async fn make_server_with_genesis_ctx(
 
 /// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
 /// and a consensus listener bridging the consensus node and the haneul authority.
-async fn make_authority(
+pub async fn make_authority(
     authority: &AuthorityPrivateInfo,
     buffer_size: usize,
     state: AuthorityState,
