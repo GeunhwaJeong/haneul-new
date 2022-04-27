@@ -8,7 +8,7 @@ use move_core_types::language_storage::ModuleId;
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
 use haneul_adapter::adapter;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress, TransactionDigest, TxContext},
+    base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     error::HaneulResult,
     gas::{self, HaneulGasStatus},
     messages::{
@@ -22,6 +22,7 @@ use tracing::{debug, instrument};
 
 #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
 pub fn execute_transaction_to_effects<S: BackingPackageStore>(
+    shared_object_refs: Vec<ObjectRef>,
     temporary_store: &mut AuthorityTemporaryStore<S>,
     transaction: Transaction,
     transaction_digest: TransactionDigest,
@@ -55,6 +56,7 @@ pub fn execute_transaction_to_effects<S: BackingPackageStore>(
     transaction_dependencies.remove(&TransactionDigest::genesis());
 
     let effects = temporary_store.to_effects(
+        shared_object_refs,
         &transaction_digest,
         transaction_dependencies.into_iter().collect(),
         status,
