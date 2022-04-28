@@ -12,13 +12,14 @@ version 1.60.0 or higher in order to build and install Haneul on your machine.
 To develop in Haneul, you will need the Haneul binaries. After installing `cargo`, run:
 
 ```shell
-$ cargo install --git https://github.com/GeunhwaJeong/haneul.git
+$ cargo install --git https://github.com/GeunhwaJeong/haneul.git haneul
 ```
 
-This will put three binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
+This will put these binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
 * [`haneul-move`](move.md): Build and test Move packages.
 * [`wallet`](wallet.md): Run a local Haneul network and gateway service accessible via the wallet CLI. The wallet CLI manage keypairs to sign/send transactions.
 * [`rest_server`](rest-api.md): Run a local Haneul network and gateway service accessible via a REST interface.
+* [`rpc-server`](json-rpc.md): Run a local Haneul network and gateway service accessible via an RPC interface.
 
 Confirm the install with:
 
