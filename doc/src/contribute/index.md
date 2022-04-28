@@ -38,7 +38,7 @@ at [Install Haneul](../build/install.md#source-code).
 
 Start by creating your own fork of the repo:
 ```bash
-gh repo fork https://github.com/GeunhwaJeong/haneul.git # or alternatively, clone your fork
+$ gh repo fork https://github.com/GeunhwaJeong/haneul.git # or alternatively, clone your fork
 cargo install --path haneul/haneul # put Haneul CLI's in your PATH
 cd haneul
 cargo build --all --all-targets # check that build works
