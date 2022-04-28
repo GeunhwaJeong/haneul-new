@@ -12,8 +12,8 @@ use move_core_types::identifier::Identifier;
 use haneul::config::{PersistedConfig, WalletConfig};
 use haneul::keystore::{Keystore, HaneulKeystore};
 use haneul::rest_gateway::responses::ObjectResponse;
+use haneul::rpc_gateway::RpcGatewayClient;
 use haneul::rpc_gateway::TransactionBytes;
-use haneul::rpc_gateway::{Base64EncodedBytes, RpcGatewayClient};
 use haneul::rpc_gateway::{RpcCallArg, RpcGatewayServer};
 use haneul::rpc_gateway::{RpcGatewayImpl, SignedTransaction};
 use haneul::haneul_commands::HaneulNetwork;
@@ -22,6 +22,7 @@ use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_core::gateway_state::gateway_responses::TransactionResponse;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::json_schema::Base64;
 use haneul_types::object::ObjectRead;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
@@ -103,7 +104,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
         false,
     )?
     .into_iter()
-    .map(Base64EncodedBytes)
+    .map(Base64)
     .collect::<Vec<_>>();
 
     let tx_data: TransactionBytes = http_client
@@ -155,7 +156,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     let mut args = Vec::with_capacity(json_args.len());
     for json_arg in json_args {
         args.push(match json_arg {
-            HaneulJsonCallArg::Pure(bytes) => RpcCallArg::Pure(Base64EncodedBytes(bytes)),
+            HaneulJsonCallArg::Pure(bytes) => RpcCallArg::Pure(Base64(bytes)),
             HaneulJsonCallArg::Object(id) => match http_client.get_object_info(id).await? {
                 ObjectRead::Exists(_, obj, _) if obj.is_shared() => RpcCallArg::SharedObject(id),
                 _ => RpcCallArg::ImmOrOwnedObject(id),
@@ -165,14 +166,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
 
     let tx_data: TransactionBytes = http_client
         .move_call(
-            *address,
-            package_id,
-            module,
-            function,
-            Vec::new(),
-            args,
-            gas.0,
-            1000,
+            *address, package_id, module, function, None, args, gas.0, 1000,
         )
         .await?;
 
