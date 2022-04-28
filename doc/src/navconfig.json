@@ -67,8 +67,8 @@
         "fileName": "build/wallet"
       },
       {
-        "label": "Use Haneul REST Server",
-        "fileName": "build/rest-api"
+        "label": "Use Haneul RPC Server",
+        "fileName": "build/json-rpc"
       },
       {
         "label": "Employ HaneulJSON Format",
