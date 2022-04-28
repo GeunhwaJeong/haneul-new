@@ -31,9 +31,9 @@ module Haneul::ValidatorTests {
         // Check that after destroy, the original stake still exists.
         TestScenario::next_tx(scenario, &sender);
         {
-            let stake_coin = TestScenario::take_object<Coin<HANEUL>>(scenario);
+            let stake_coin = TestScenario::take_owned<Coin<HANEUL>>(scenario);
             assert!(Coin::value(&stake_coin) == 10, 0);
-            TestScenario::return_object(scenario, stake_coin);
+            TestScenario::return_owned(scenario, stake_coin);
         };
     }
 
@@ -70,9 +70,9 @@ module Haneul::ValidatorTests {
 
         TestScenario::next_tx(scenario, &sender);
         {
-            let withdraw = TestScenario::take_object<Coin<HANEUL>>(scenario);
+            let withdraw = TestScenario::take_owned<Coin<HANEUL>>(scenario);
             assert!(Coin::value(&withdraw) == 5, 0);
-            TestScenario::return_object(scenario, withdraw);
+            TestScenario::return_owned(scenario, withdraw);
         };
 
         Validator::destroy(validator)
