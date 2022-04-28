@@ -1,5 +1,5 @@
 ---
-title: Smart Contracts with Move
+title: Quickstart Smart Contracts with Move
 ---
 
 Welcome to the Haneul tutorial for building smart contracts with
@@ -313,7 +313,7 @@ described earlier.
 So from the same directory containing the `haneul` repository, run:
 
 ``` shell
-mkdir -p my_move_package/sources
+$ mkdir -p my_move_package/sources
 touch my_move_package/sources/M1.move
 touch my_move_package/Move.toml
 ```
@@ -409,7 +409,7 @@ MyFirstPackage = "0x0"
 Ensure you are in the `my_move_package` directory containing your package and build it:
 
 ``` shell
-haneul-move build
+$ haneul-move build
 ```
 
 A successful build yields results resembling:
@@ -438,7 +438,7 @@ upon executing the following command (in the `my_move_package`
 directory as per our running example):
 
 ``` shell
-haneul-move test
+$ haneul-move test
 ```
 
 If you execute this command for the package created in the
@@ -489,7 +489,7 @@ read-only reference argument.
 Now that we have written a test, let's try to run the tests again:
 
 ``` shell
-haneul-move test
+$ haneul-move test
 ```
 
 After running the test command, however, instead of a test result we
@@ -568,15 +568,15 @@ Test result: OK. Total tests: 1; passed: 1; failed: 0
 ```
 
 ---
-**TIPS**
-If you only want to run a subset of the unit tests, you can filter by test name using the `--filter` option. Example:
+**Tip:**
+If you want to run only a subset of the unit tests, you can filter by test name using the `--filter` option. Example:
 ```
-haneul-move test --filter sword
+$ haneul-move test --filter sword
 ```
 The above command will run all tests whose name contains "sword".
 You can discover more testing options through:
 ```
-haneul-move test -h
+$ haneul-move test -h
 ```
 
 ---
