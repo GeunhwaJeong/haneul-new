@@ -1,23 +1,21 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-/// Coin<Gas> is the token used to pay for gas in Haneul
+/// Coin<HANEUL> is the token used to pay for gas in Haneul
 module Haneul::HANEUL {
     use Haneul::Coin;
-    use Haneul::Transfer;
-    use Haneul::TxContext::{Self, TxContext};
+    use Haneul::Coin::TreasuryCap;
+    use Haneul::TxContext::TxContext;
+
+    friend Haneul::Genesis;
 
     /// Name of the coin
     struct HANEUL has drop {}
 
-    /// Register the token to acquire its `TreasuryCap`. Because
-    /// this is a module initializer, it ensures the currency only gets
-    /// registered once.
-    // TODO(https://github.com/GeunhwaJeong/haneul/issues/90): implement module initializers
-    fun init(ctx: &mut TxContext) {
-        // Get a treasury cap for the coin and give it to the transaction sender
-        let treasury_cap = Coin::create_currency(HANEUL{}, ctx);
-        Transfer::transfer(treasury_cap, TxContext::sender(ctx))
+    /// Register the token to acquire its `TreasuryCap`.
+    /// This should be called only once during genesis creation.
+    public(friend) fun new(ctx: &mut TxContext): TreasuryCap<HANEUL> {
+        Coin::create_currency(HANEUL{}, ctx)
     }
 
     /// Transfer to a recipient
