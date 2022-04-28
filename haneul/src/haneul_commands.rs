@@ -1,6 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::config::{make_default_narwhal_committee, CONSENSUS_DB_NAME};
+use crate::config::{make_default_narwhal_committee, AuthorityInfo, CONSENSUS_DB_NAME};
 use crate::config::{
     AuthorityPrivateInfo, Config, GenesisConfig, NetworkConfig, PersistedConfig, WalletConfig,
 };
@@ -20,11 +20,15 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 use haneul_adapter::adapter::generate_package_id;
 use haneul_adapter::genesis;
 use haneul_core::authority::{AuthorityState, AuthorityStore};
+use haneul_core::authority_active::ActiveAuthority;
+use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::authority_server::AuthorityServer;
 use haneul_core::consensus_adapter::ConsensusListener;
+use haneul_network::network::NetworkClient;
 use haneul_network::transport::SpawnedServer;
 use haneul_network::transport::DEFAULT_MAX_DATAGRAM_SIZE;
 use haneul_types::base_types::decode_bytes_hex;
@@ -287,6 +291,9 @@ impl HaneulNetwork {
         let consensus_committee = make_default_narwhal_committee(&config.authorities)?;
         let consensus_parameters = ConsensusParameters::default();
 
+        // Pass in the newtwork parameters of all authorities
+        let net = config.get_authority_infos();
+
         let mut spawned_authorities = Vec::new();
         for authority in &config.authorities {
             let consensus_store_path = haneul_config_dir()?
@@ -300,6 +307,7 @@ impl HaneulNetwork {
                 &consensus_committee,
                 &consensus_store_path,
                 &consensus_parameters,
+                Some(net.clone()),
             )
             .await?;
             spawned_authorities.push(server.spawn().await?);
@@ -445,6 +453,7 @@ pub async fn make_server(
     consensus_committee: &ConsensusCommittee<Ed25519PublicKey>,
     consensus_store_path: &Path,
     consensus_parameters: &ConsensusParameters,
+    net_parameters: Option<Vec<AuthorityInfo>>,
 ) -> HaneulResult<AuthorityServer> {
     let store = Arc::new(AuthorityStore::open(&authority.db_path, None));
     let name = *authority.key_pair.public_key_bytes();
@@ -463,6 +472,7 @@ pub async fn make_server(
         consensus_committee,
         consensus_store_path,
         consensus_parameters,
+        net_parameters,
     )
     .await
 }
@@ -512,6 +522,7 @@ pub async fn make_authority(
     consensus_committee: &ConsensusCommittee<Ed25519PublicKey>,
     consensus_store_path: &Path,
     consensus_parameters: &ConsensusParameters,
+    net_parameters: Option<Vec<AuthorityInfo>>,
 ) -> HaneulResult<AuthorityServer> {
     let (tx_consensus_to_haneul, rx_consensus_to_haneul) = channel(1_000);
     let (tx_haneul_to_consensus, rx_haneul_to_consensus) = channel(1_000);
@@ -543,6 +554,29 @@ pub async fn make_authority(
     // Spawn a consensus listener. It listen for consensus outputs and notifies the
     // authority server when a sequenced transaction is ready for execution.
     ConsensusListener::spawn(rx_haneul_to_consensus, rx_consensus_to_haneul);
+
+    // If we have network information make authority clients
+    // to all authorities in the system.
+    let _active_authority = if let Some(network) = net_parameters {
+        let mut authority_clients = BTreeMap::new();
+        for info in &network {
+            let client = NetworkAuthorityClient::new(NetworkClient::new(
+                info.host.clone(),
+                info.base_port,
+                buffer_size,
+                Duration::from_secs(5),
+                Duration::from_secs(5),
+            ));
+            authority_clients.insert(info.name, client);
+        }
+
+        let active_authority = ActiveAuthority::new(authority_state.clone(), authority_clients)?;
+
+        let join_handle = active_authority.spawn_all_active_processes().await;
+        Some(join_handle)
+    } else {
+        None
+    };
 
     // Return new authority server. It listen to users transactions and send back replies.
     Ok(AuthorityServer::new(
