@@ -14,6 +14,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* [JSON-RPC API](../build/json-rpc.md) - Set up your own local Haneul RPC Server and use the Haneul JSON-RPC API to interact with a local Haneul network.
 * [Narwhal and Tusk for consensus](../learn/architecture/consensus.md) - Learn about Narwhal and Tusk, Haneul's high-throughput mempool and consensus engine.
 * [REST API publishing](../build/rest-api.md#post-apipublish) - Instructions exist for publishing Move modules via the Publish endpoint.
 * [Wallet improvements](../build/wallet.md#active-address)- Active (default) addresses and [using gas objects for transactions](../build/wallet.md#paying-for-transactions-with-gas-objects) are supported.
@@ -50,4 +51,4 @@ Take note of these related repositories of information to make best use of the k
   * [Book](https://github.com/diem/move/blob/main/language/documentation/book/src/introduction.md) - A summary with pages on [various topics](https://github.com/diem/move/tree/main/language/documentation/book/src).
   * [Examples](https://github.com/diem/move/tree/main/language/documentation/examples/experimental) - A set of samples, such as for [defining a coin](https://github.com/diem/move/tree/main/language/documentation/examples/experimental/basic-coin) and [swapping it](https://github.com/diem/move/tree/main/language/documentation/examples/experimental/coin-swap).
 * [Awesome Move](https://github.com/GeunhwaJeong/awesome-move/blob/main/README.md) - A summary of resources related to Move, from blockchains through code samples.
-* [Haneul API Reference](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/) - The reference files for the Haneul REST API.
+* [Haneul API Reference](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/) - The reference files for the Haneul RPC API.
