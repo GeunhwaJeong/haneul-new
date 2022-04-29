@@ -27,5 +27,5 @@ narwhal-config = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "72efe
 
 haneul-types = { path = "../haneul_types" }
 haneul_core = { path = "../haneul_core" }
-haneul-network = { path = "../network_utils" }
+haneul-network = { path = "../crates/haneul-network" }
 haneul = { path = "../haneul" }

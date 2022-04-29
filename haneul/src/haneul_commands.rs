@@ -1,12 +1,14 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::config::{make_default_narwhal_committee, AuthorityInfo, CONSENSUS_DB_NAME};
-use crate::config::{
-    AuthorityPrivateInfo, Config, GenesisConfig, NetworkConfig, PersistedConfig, WalletConfig,
+use crate::{
+    config::{
+        make_default_narwhal_committee, AuthorityInfo, AuthorityPrivateInfo, Config, GenesisConfig,
+        NetworkConfig, PersistedConfig, WalletConfig, CONSENSUS_DB_NAME,
+    },
+    gateway_config::{GatewayConfig, GatewayType},
+    keystore::{Keystore, KeystoreType, HaneulKeystore},
+    haneul_config_dir, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
-use crate::gateway_config::{GatewayConfig, GatewayType};
-use crate::keystore::{Keystore, KeystoreType, HaneulKeystore};
-use crate::{haneul_config_dir, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 use anyhow::{anyhow, bail};
 use base64ct::{Base64, Encoding};
 use clap::*;
@@ -15,30 +17,29 @@ use move_binary_format::CompiledModule;
 use move_package::BuildConfig;
 use narwhal_config::{Committee as ConsensusCommittee, Parameters as ConsensusParameters};
 use narwhal_crypto::ed25519::Ed25519PublicKey;
-use std::collections::BTreeMap;
-use std::collections::HashMap;
-use std::fs;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::time::Duration;
-use haneul_adapter::adapter::generate_package_id;
-use haneul_adapter::genesis;
-use haneul_core::authority::{AuthorityState, AuthorityStore};
-use haneul_core::authority_active::ActiveAuthority;
-use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_core::authority_server::AuthorityServer;
-use haneul_core::consensus_adapter::ConsensusListener;
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
+use haneul_adapter::{adapter::generate_package_id, genesis};
+use haneul_core::{
+    authority::{AuthorityState, AuthorityStore},
+    authority_active::ActiveAuthority,
+    authority_client::NetworkAuthorityClient,
+    authority_server::{AuthorityServer, AuthorityServerHandle},
+    consensus_adapter::ConsensusListener,
+};
 use haneul_network::network::NetworkClient;
-use haneul_network::transport::SpawnedServer;
-use haneul_network::transport::DEFAULT_MAX_DATAGRAM_SIZE;
-use haneul_types::base_types::decode_bytes_hex;
-use haneul_types::base_types::encode_bytes_hex;
-use haneul_types::base_types::{SequenceNumber, HaneulAddress, TxContext};
-use haneul_types::committee::Committee;
-use haneul_types::crypto::{random_key_pairs, KeyPair};
-use haneul_types::error::HaneulResult;
-use haneul_types::object::Object;
+use haneul_types::{
+    base_types::{decode_bytes_hex, encode_bytes_hex, SequenceNumber, HaneulAddress, TxContext},
+    committee::Committee,
+    crypto::{random_key_pairs, KeyPair},
+    error::HaneulResult,
+    object::Object,
+};
 use tokio::sync::mpsc::channel;
 use tracing::{error, info};
 
@@ -279,7 +280,7 @@ impl HaneulCommand {
 }
 
 pub struct HaneulNetwork {
-    pub spawned_authorities: Vec<SpawnedServer<AuthorityServer>>,
+    pub spawned_authorities: Vec<AuthorityServerHandle>,
 }
 
 impl HaneulNetwork {
@@ -389,7 +390,7 @@ pub async fn genesis(
     let mut network_config = NetworkConfig {
         epoch: 0,
         authorities: vec![],
-        buffer_size: DEFAULT_MAX_DATAGRAM_SIZE,
+        buffer_size: 650000,
         loaded_move_packages: vec![],
         key_pair: genesis_conf.key_pair,
     };

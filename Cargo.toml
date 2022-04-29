@@ -8,7 +8,8 @@ members = [
         "haneul_programmability/adapter/transactional-tests",
 	"haneul_types",
         "faucet",
-        "test_utils"
+        "test_utils",
+        "crates/haneul-network",
 ]
 
 [profile.release]

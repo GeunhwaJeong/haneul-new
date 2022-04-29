@@ -38,7 +38,7 @@ bcs = "0.1.3"
 haneul_core = { path = "../haneul_core" }
 haneul-adapter = { path = "../haneul_programmability/adapter" }
 haneul-framework = { path = "../haneul_programmability/framework" }
-haneul-network = { path = "../network_utils" }
+haneul-network = { path = "../crates/haneul-network" }
 haneul-types = { path = "../haneul_types" }
 haneul-verifier = { path = "../haneul_programmability/verifier" }
 haneul-open-rpc = { path = "open_rpc" }
@@ -72,7 +72,6 @@ pretty_assertions = "1.2.0"
 tokio-util = { version = "0.7.1", features = ["codec"] }
 
 test_utils = { path = "../test_utils" }
-haneul-network = { path = "../network_utils" }
 
 [features]
 benchmark = ["narwhal-node/benchmark"]

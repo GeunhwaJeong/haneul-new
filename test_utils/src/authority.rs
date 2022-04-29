@@ -1,19 +1,18 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::test_committee;
-use crate::test_keys;
+use crate::{test_committee, test_keys};
 use narwhal_config::Parameters as ConsensusParameters;
-use std::path::PathBuf;
-use std::sync::Arc;
-use haneul::config::{make_default_narwhal_committee, AuthorityPrivateInfo, PORT_ALLOCATOR};
-use haneul::haneul_commands::make_authority;
+use std::{path::PathBuf, sync::Arc};
+use haneul::{
+    config::{make_default_narwhal_committee, AuthorityPrivateInfo, PORT_ALLOCATOR},
+    haneul_commands::make_authority,
+};
 use haneul_adapter::genesis;
-use haneul_core::authority::AuthorityState;
-use haneul_core::authority::AuthorityStore;
-use haneul_core::authority_server::AuthorityServer;
-use haneul_network::transport::SpawnedServer;
-use haneul_types::crypto::KeyPair;
-use haneul_types::object::Object;
+use haneul_core::{
+    authority::{AuthorityState, AuthorityStore},
+    authority_server::AuthorityServerHandle,
+};
+use haneul_types::{crypto::KeyPair, object::Object};
 
 /// The default network buffer size of a test authority.
 pub const NETWORK_BUFFER_SIZE: usize = 65_000;
@@ -83,7 +82,7 @@ pub async fn spawn_test_authorities<I>(
     objects: I,
     authorities: &[AuthorityPrivateInfo],
     key_pairs: &[KeyPair],
-) -> Vec<SpawnedServer<AuthorityServer>>
+) -> Vec<AuthorityServerHandle>
 where
     I: IntoIterator<Item = Object> + Clone,
 {

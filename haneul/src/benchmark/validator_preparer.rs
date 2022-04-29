@@ -2,29 +2,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #![allow(clippy::large_enum_variant)]
-use crate::benchmark::bench_types::RunningMode;
-use crate::benchmark::load_generator::spawn_authority_server;
-use crate::config::{AccountConfig, Config, GenesisConfig, ObjectConfig};
+
+use crate::{
+    benchmark::{bench_types::RunningMode, load_generator::spawn_authority_server},
+    config::{AccountConfig, Config, GenesisConfig, ObjectConfig},
+};
 use rocksdb::Options;
-use std::env;
-use std::fs;
-use std::panic;
-use std::path::{Path, PathBuf};
-use std::process::Child;
-use std::process::Command;
-use std::sync::Arc;
-use std::thread;
-use std::{thread::sleep, time::Duration};
+use std::{
+    env, fs, panic,
+    path::{Path, PathBuf},
+    process::{Child, Command},
+    sync::Arc,
+    thread,
+    thread::sleep,
+    time::Duration,
+};
 use haneul_adapter::genesis;
 use haneul_core::authority::*;
 use haneul_network::network::NetworkServer;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{random_key_pairs, KeyPair, PublicKeyBytes};
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::object::Object;
-use haneul_types::{base_types::*, committee::*};
+use haneul_types::{
+    base_types::{HaneulAddress, *},
+    committee::*,
+    crypto::{random_key_pairs, KeyPair, PublicKeyBytes},
+    gas_coin::GasCoin,
+    object::Object,
+};
 use tokio::runtime::{Builder, Runtime};
 use tracing::{error, info};
+
 const GENESIS_CONFIG_NAME: &str = "genesis_config.json";
 
 pub const VALIDATOR_BINARY_NAME: &str = "validator";
