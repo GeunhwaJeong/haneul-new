@@ -129,7 +129,7 @@ Section four in the [Haneul Smart Contract Platform](https://github.com/GeunhwaJ
 
 ### Can I run a Haneul validator node?
 
-We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [REST API](../build/rest-api).
+We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [RPC API](../build/json-rpc).
 
 ### What does a local node do and what are the hardware requirements to run it? How is it different from a testnet node?
 
