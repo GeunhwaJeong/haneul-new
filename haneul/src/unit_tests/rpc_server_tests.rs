@@ -11,7 +11,7 @@ use move_core_types::identifier::Identifier;
 
 use haneul::config::{PersistedConfig, WalletConfig};
 use haneul::keystore::{Keystore, HaneulKeystore};
-use haneul::rest_gateway::responses::ObjectResponse;
+use haneul::rpc_gateway::responses::ObjectResponse;
 use haneul::rpc_gateway::RpcGatewayClient;
 use haneul::rpc_gateway::TransactionBytes;
 use haneul::rpc_gateway::{RpcCallArg, RpcGatewayServer};
