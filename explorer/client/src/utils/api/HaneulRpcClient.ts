@@ -1,6 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+// TODO: Remove this file after we finish the migration to use haneul.js SDK
 import { tryGetRpcSetting } from './rpcSetting';
 
 export class HaneulRpcClient {
