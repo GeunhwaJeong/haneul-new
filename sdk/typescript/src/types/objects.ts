@@ -1,30 +1,46 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { TransactionDigest } from "./transactions";
+import { HaneulAddress } from './common';
+import { TransactionDigest } from './common';
 
 export type ObjectRef = {
-  digest: TransactionDigest,
-  objectId: string,
-  version: number,
+  digest: TransactionDigest;
+  objectId: string;
+  version: number;
+};
+
+export type ObjectContent = {
+  fields: Record<string, ObjectContent | string | boolean | number>;
+  type: string;
+};
+export type ObjectOwner =
+  | { AddressOwner: HaneulAddress }
+  | { ObjectOwner: HaneulAddress }
+  | 'Shared'
+  | 'Immutable';
+
+export type HaneulObject = {
+  contents: ObjectContent;
+  owner: ObjectOwner;
+  tx_digest: TransactionDigest;
 };
 
 export type ObjectExistsInfo = {
-  objectRef: ObjectRef,
-  objectType: ObjectType,
-  object: any,
+  objectRef: ObjectRef;
+  objectType: ObjectType;
+  object: HaneulObject;
 };
 
 export type ObjectNotExistsInfo = {
-  objectId: any,
+  objectId: any;
 };
 
 export type ObjectStatus = 'Exists' | 'NotExists' | 'Deleted';
 export type ObjectType = 'moveObject' | 'movePackage';
 
-
 export type GetOwnedObjectRefsResponse = {
-  objects: ObjectRef[]
+  objects: ObjectRef[];
 };
 
 export type GetObjectInfoResponse = {
@@ -37,8 +53,4 @@ export type ObjectId = string;
 export type SequenceNumber = number;
 
 // TODO: get rid of this by implementing some conversion logic from ObjectRef
-export type RawObjectRef = [
-  ObjectId,
-  SequenceNumber,
-  ObjectDigest,
-];
+export type RawObjectRef = [ObjectId, SequenceNumber, ObjectDigest];
