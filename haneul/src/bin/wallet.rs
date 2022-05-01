@@ -17,6 +17,7 @@ use haneul::{
     wallet_commands::*,
     HANEUL_WALLET_CONFIG,
 };
+use haneul_types::exit_main;
 use tracing::debug;
 
 const HANEUL: &str = "   _____       _    _       __      ____     __
@@ -46,8 +47,7 @@ struct ClientOpt {
     json: bool,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), anyhow::Error> {
+async fn try_main() -> Result<(), anyhow::Error> {
     let config = telemetry_subscribers::TelemetryConfig {
         service_name: "wallet".into(),
         enable_tracing: std::env::var("HANEUL_TRACING_ENABLE").is_ok(),
@@ -113,6 +113,11 @@ async fn main() -> Result<(), anyhow::Error> {
         ClientOpt::command().print_long_help()?
     }
     Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    exit_main!(try_main().await)
 }
 
 struct ClientCommandHandler;
