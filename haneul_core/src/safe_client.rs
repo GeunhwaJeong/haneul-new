@@ -54,7 +54,7 @@ impl<C> SafeClient<C> {
             );
             // Check it's the right transaction
             fp_ensure!(
-                signed_transaction.digest() == digest,
+                signed_transaction.digest() == &digest,
                 HaneulError::ByzantineAuthoritySuspicion {
                     authority: self.address
                 }
@@ -66,7 +66,7 @@ impl<C> SafeClient<C> {
             certificate.check(&self.committee)?;
             // Check it's the right transaction
             fp_ensure!(
-                certificate.transaction.digest() == digest,
+                certificate.digest() == &digest,
                 HaneulError::ByzantineAuthoritySuspicion {
                     authority: self.address
                 }
@@ -277,7 +277,7 @@ where
         &self,
         transaction: Transaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let digest = transaction.digest();
+        let digest = *transaction.digest();
         let transaction_info = self
             .authority_client
             .handle_transaction(transaction)
@@ -294,7 +294,7 @@ where
         &self,
         transaction: ConfirmationTransaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let digest = transaction.certificate.transaction.digest();
+        let digest = *transaction.certificate.digest();
         let transaction_info = self
             .authority_client
             .handle_confirmation_transaction(transaction)
