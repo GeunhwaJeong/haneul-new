@@ -19,7 +19,7 @@ function Footer() {
                     label="Haneul Labs"
                 />
                 <ExternalLink
-                    href="https://devportal-30dd0.web.app/"
+                    href="https://docs.haneul.io/"
                     label="Developer Hub"
                 />
             </nav>

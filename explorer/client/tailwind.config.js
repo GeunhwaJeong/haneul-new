@@ -16,6 +16,8 @@ module.exports = {
             haneul: '#6fbcf0',
             haneuldark: '#1670b8',
             offwhite: '#fefefe',
+            haneullight: '#e6effe',
+            haneuldarktwo: '#34526e',
             offblack: '#111111',
             ...defaultColors,
         },
