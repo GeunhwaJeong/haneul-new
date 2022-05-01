@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress } from './common';
+import { ObjectOwner } from './common';
 import { TransactionDigest } from './common';
 
 export type ObjectRef = {
@@ -23,11 +23,6 @@ export type ObjectContent = {
   fields: ObjectContentFields;
   type: string;
 };
-export type ObjectOwner =
-  | { AddressOwner: HaneulAddress }
-  | { ObjectOwner: HaneulAddress }
-  | 'Shared'
-  | 'Immutable';
 
 export type HaneulObject = {
   contents: ObjectContent;

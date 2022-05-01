@@ -3,3 +3,8 @@
 
 export type TransactionDigest = string;
 export type HaneulAddress = string;
+export type ObjectOwner =
+  | { AddressOwner: HaneulAddress }
+  | { ObjectOwner: HaneulAddress }
+  | 'Shared'
+  | 'Immutable';
