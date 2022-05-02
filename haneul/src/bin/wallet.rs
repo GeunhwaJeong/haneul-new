@@ -23,7 +23,7 @@ use haneul::{
     },
     haneul_config_dir,
     wallet_commands::*,
-    HANEUL_WALLET_CONFIG,
+    HANEUL_DEV_NET_URL, HANEUL_WALLET_CONFIG,
 };
 use haneul_types::exit_main;
 
@@ -84,11 +84,16 @@ async fn try_main() -> Result<(), anyhow::Error> {
             wallet_conf_path
         );
         if matches!(read_line(), Ok(line) if line.to_lowercase() == "y") {
-            print!("Haneul Gateway Url : ");
+            print!("Haneul Gateway Url (Default to Haneul DevNet if not specified) : ");
             let url = read_line()?;
+            let url = if url.trim().is_empty() {
+                HANEUL_DEV_NET_URL
+            } else {
+                &url
+            };
 
             // Check url is valid
-            HttpClientBuilder::default().build(&url)?;
+            HttpClientBuilder::default().build(url)?;
             let keystore_path = wallet_conf_path
                 .parent()
                 .unwrap_or(&haneul_config_dir()?)
@@ -98,7 +103,7 @@ async fn try_main() -> Result<(), anyhow::Error> {
             WalletConfig {
                 accounts: vec![new_address],
                 keystore,
-                gateway: GatewayType::RPC(url),
+                gateway: GatewayType::RPC(url.to_string()),
                 active_address: None,
             }
             .persisted(&wallet_conf_path)
