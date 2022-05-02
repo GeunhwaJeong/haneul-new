@@ -23,7 +23,7 @@ With Haneul, we believe game developers should not be limited by the platform pe
 
 ## How we did it
 
-Created by game development studio GenITeam, these prototypes use both the Unity SDK and Haneul [APIs](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1).
+Created by game development studio GenITeam, these prototypes use both the Unity SDK and Haneul [APIs](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false).
 
 GenITeam’s developers who worked on this collaboration are neither smart contract nor Move developers. Based on their input, we created a data model and shared simple APIs. With these APIs, Geniteam was able to mint fully on-chain NFTs that are mutable, own other on-chain assets, and freely transfer to other applications.
 
@@ -235,5 +235,5 @@ Gameplay:
 
 ## Further reading
 
-* Check out Haneul [APIs](https://app.swaggerhub.com/apis/HaneulLabs/haneul-api/0.1).
+* Check out Haneul [APIs](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false).
 * Learn about Haneul [objects](../build/objects.md).
