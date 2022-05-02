@@ -115,6 +115,10 @@ impl HaneulKeystore {
     pub fn addresses(&self) -> Vec<HaneulAddress> {
         self.keys.keys().cloned().collect()
     }
+
+    pub fn key_pairs(&self) -> Vec<&KeyPair> {
+        self.keys.values().collect()
+    }
 }
 
 pub struct HaneulKeystoreSigner {

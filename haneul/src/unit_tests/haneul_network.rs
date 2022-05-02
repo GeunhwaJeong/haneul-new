@@ -3,16 +3,21 @@
 
 use std::path::Path;
 
+use anyhow::anyhow;
 use haneul::config::{AuthorityPrivateInfo, Config, GenesisConfig, WalletConfig};
 use haneul::gateway_config::{GatewayConfig, GatewayType};
 use haneul::keystore::KeystoreType;
 use haneul::haneul_commands::{genesis, HaneulNetwork};
 use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
+use haneul_types::crypto::{random_key_pairs, KeyPair};
+
+const NUM_VALIDAOTR: usize = 4;
 
 #[cfg(test)]
 pub async fn start_test_network(
     working_dir: &Path,
     genesis_config: Option<GenesisConfig>,
+    key_pairs: Option<Vec<KeyPair>>,
 ) -> Result<HaneulNetwork, anyhow::Error> {
     let working_dir = working_dir.to_path_buf();
     let network_path = working_dir.join(HANEUL_NETWORK_CONFIG);
@@ -20,8 +25,34 @@ pub async fn start_test_network(
     let keystore_path = working_dir.join("wallet.key");
     let db_folder_path = working_dir.join("client_db");
 
-    let mut genesis_config =
-        genesis_config.unwrap_or(GenesisConfig::default_genesis(&working_dir)?);
+    if genesis_config.is_none() ^ key_pairs.is_none() {
+        return Err(anyhow!(
+            "genesis_config and key_pairs should be absent/present in tandem."
+        ));
+    }
+
+    let key_pairs = key_pairs.unwrap_or_else(|| random_key_pairs(NUM_VALIDAOTR));
+
+    let mut genesis_config = match genesis_config {
+        Some(genesis_config) => genesis_config,
+        None => GenesisConfig::default_genesis(
+            &working_dir,
+            Some((
+                key_pairs
+                    .iter()
+                    .map(|kp| *kp.public_key_bytes())
+                    .collect::<Vec<_>>(),
+                key_pairs[0].copy(),
+            )),
+        )?,
+    };
+
+    if genesis_config.authorities.len() != key_pairs.len() {
+        return Err(anyhow!(
+            "genesis_config's authority num should match key_pairs's length."
+        ));
+    }
+
     genesis_config.authorities = genesis_config
         .authorities
         .into_iter()
@@ -29,7 +60,8 @@ pub async fn start_test_network(
         .collect();
 
     let (network_config, accounts, mut keystore) = genesis(genesis_config).await?;
-    let network = HaneulNetwork::start(&network_config).await?;
+    let key_pair_refs = key_pairs.iter().collect::<Vec<_>>();
+    let network = HaneulNetwork::start(&network_config, key_pair_refs).await?;
 
     let network_config = network_config.persisted(&network_path);
     network_config.save()?;

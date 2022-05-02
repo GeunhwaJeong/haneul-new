@@ -19,13 +19,13 @@ use haneul::config::{
 };
 use haneul::gateway_config::{GatewayConfig, GatewayType};
 use haneul::keystore::KeystoreType;
-use haneul::haneul_commands::{HaneulCommand, HaneulNetwork};
+use haneul::haneul_commands::{HaneulCommand, HaneulNetwork, HANEUL_AUTHORITY_KEYS};
 use haneul::haneul_json::HaneulJsonValue;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_core::gateway_state::gateway_responses::SwitchResponse;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
-use haneul_types::crypto::get_key_pair;
+use haneul_types::crypto::{get_key_pair, random_key_pairs};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::TransactionEffects;
 use haneul_types::object::{Object, ObjectRead, GAS_VALUE_FOR_TESTING};
@@ -82,12 +82,13 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
         .flat_map(|r| r.map(|file| file.file_name().to_str().unwrap().to_owned()))
         .collect::<Vec<_>>();
 
-    assert_eq!(5, files.len());
+    assert_eq!(6, files.len());
     assert!(files.contains(&HANEUL_WALLET_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GATEWAY_CONFIG.to_string()));
     assert!(files.contains(&AUTHORITIES_DB_NAME.to_string()));
     assert!(files.contains(&HANEUL_NETWORK_CONFIG.to_string()));
     assert!(files.contains(&"wallet.key".to_string()));
+    assert!(files.contains(&HANEUL_AUTHORITY_KEYS.to_string()));
 
     // Check network config
     let network_conf =
@@ -170,7 +171,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
 async fn test_cross_chain_airdrop() -> Result<(), anyhow::Error> {
     let working_dir = tempfile::tempdir()?;
 
-    let network = start_test_network(working_dir.path(), None).await?;
+    let network = start_test_network(working_dir.path(), None, None).await?;
 
     // Create Wallet context with the oracle account
     let wallet_conf_path = working_dir.path().join(HANEUL_WALLET_CONFIG);
@@ -336,7 +337,18 @@ async fn test_custom_genesis() -> Result<(), anyhow::Error> {
     let working_dir = tempfile::tempdir()?;
     // Create and save genesis config file
     // Create 4 authorities, 1 account with 1 gas object with custom id
-    let mut config = GenesisConfig::default_genesis(working_dir.path())?;
+    let key_pairs = random_key_pairs(4);
+
+    let mut config = GenesisConfig::default_genesis(
+        working_dir.path(),
+        Some((
+            key_pairs
+                .iter()
+                .map(|kp| *kp.public_key_bytes())
+                .collect::<Vec<_>>(),
+            key_pairs[0].copy(),
+        )),
+    )?;
     config.accounts.clear();
     let object_id = ObjectID::random();
     config.accounts.push(AccountConfig {
@@ -347,7 +359,7 @@ async fn test_custom_genesis() -> Result<(), anyhow::Error> {
         }],
     });
 
-    let network = start_test_network(working_dir.path(), Some(config)).await?;
+    let network = start_test_network(working_dir.path(), Some(config), Some(key_pairs)).await?;
 
     // Wallet config
     let mut context = WalletContext::new(&working_dir.path().join(HANEUL_WALLET_CONFIG))?;
@@ -388,7 +400,20 @@ async fn test_custom_genesis_with_custom_move_package() -> Result<(), anyhow::Er
     // Create and save genesis config file
     // Create 4 authorities and 1 account
     let num_authorities = 4;
-    let mut config = GenesisConfig::custom_genesis(working_dir, num_authorities, 1, 1)?;
+    let key_pairs = random_key_pairs(num_authorities);
+    let mut config = GenesisConfig::custom_genesis(
+        working_dir,
+        num_authorities,
+        1,
+        1,
+        Some((
+            key_pairs
+                .iter()
+                .map(|kp| *kp.public_key_bytes())
+                .collect::<Vec<_>>(),
+            key_pairs[0].copy(),
+        )),
+    )?;
     config
         .move_packages
         .push(PathBuf::from(TEST_DATA_DIR).join("custom_genesis_package_1"));
@@ -397,7 +422,7 @@ async fn test_custom_genesis_with_custom_move_package() -> Result<(), anyhow::Er
         .push(PathBuf::from(TEST_DATA_DIR).join("custom_genesis_package_2"));
 
     // Start network
-    let network = start_test_network(working_dir, Some(config)).await?;
+    let network = start_test_network(working_dir, Some(config), Some(key_pairs)).await?;
 
     assert!(logs_contain("Loading 2 Move packages"));
     // Checks network config contains package ids
@@ -1023,7 +1048,7 @@ fn test_bug_1078() {
 #[tokio::test]
 async fn test_switch_command() -> Result<(), anyhow::Error> {
     let working_dir = tempfile::tempdir()?;
-    let network = start_test_network(working_dir.path(), None).await?;
+    let network = start_test_network(working_dir.path(), None, None).await?;
 
     // Create Wallet context.
     let wallet_conf = working_dir.path().join(HANEUL_WALLET_CONFIG);
@@ -1118,7 +1143,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
 #[tokio::test]
 async fn test_active_address_command() -> Result<(), anyhow::Error> {
     let working_dir = tempfile::tempdir()?;
-    let network = start_test_network(working_dir.path(), None).await?;
+    let network = start_test_network(working_dir.path(), None, None).await?;
 
     // Create Wallet context.
     let wallet_conf = working_dir.path().join(HANEUL_WALLET_CONFIG);
@@ -1339,7 +1364,7 @@ async fn setup_network_and_wallet() -> Result<(HaneulNetwork, WalletContext, Han
 {
     let working_dir = tempfile::tempdir()?;
 
-    let network = start_test_network(working_dir.path(), None).await?;
+    let network = start_test_network(working_dir.path(), None, None).await?;
 
     // Create Wallet context.
     let wallet_conf = working_dir.path().join(HANEUL_WALLET_CONFIG);
