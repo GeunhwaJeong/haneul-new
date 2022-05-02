@@ -176,12 +176,18 @@ Also notice `elapsed_milliseconds` which logs the duration of each span.
 
 To see nested spans visualized with [Jaeger](https://www.jaegertracing.io), do the following:
 
-1. Run this to get a local Jaeger container: `docker run -d -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest`.
-1. Run Haneul like this (trace enables the most detailed spans): `HANEUL_TRACING_ENABLE=1 RUST_LOG="info,haneul_core=trace" ./haneul start`.
+1. Run this to get a local Jaeger container:
+   ```shell
+   $ docker run -d -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest
+   ```
+1. Run Haneul like this (trace enables the most detailed spans):
+   ```shell
+   $ HANEUL_TRACING_ENABLE=1 RUST_LOG="info,haneul_core=trace" ./haneul start
+   ```
 1. Run some transfers with wallet, or run the benchmarking tool.
-1. Browse to `http://localhost:16686/` and select Haneul as the Service.
+4. Browse to `http://localhost:16686/` and select Haneul as the service.
 
-NOTE: separate spans (which are not nested) are not connected as a single trace for now.
+> **Note:** Separate spans (which are not nested) are not connected as a single trace for now.
 
 ### Live async inspection / Tokio Console
 
@@ -191,4 +197,4 @@ NOTE: separate spans (which are not nested) are not connected as a single trace 
 2. Start Haneul with `HANEUL_TOKIO_CONSOLE` set to 1.
 3. Clone the console repo and `cargo run` to launch the console.
 
-NOTE: Adding Tokio-console support may significantly slow down Haneul validators/gateways.
+> **Note:** Adding Tokio-console support may significantly slow down Haneul validators/gateways.
