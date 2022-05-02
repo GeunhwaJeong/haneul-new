@@ -1,5 +1,10 @@
+//# init --addresses Test=0x0
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
+//# publish
+
+// initializer not valid due to return value
 
 module Test::M1 {
     use Haneul::ID::VersionedID;
@@ -12,8 +17,10 @@ module Test::M1 {
     }
 
     // initializer that should be executed upon publishing this module
-    fun init(ctx: &mut TxContext, value: u64) {
+    fun init(ctx: &mut TxContext): u64 {
+        let value = 42;
         let singleton = Object { id: TxContext::new_id(ctx), value };
-        Transfer::transfer(singleton, TxContext::sender(ctx))
+        Transfer::transfer(singleton, TxContext::sender(ctx));
+        value
     }
 }

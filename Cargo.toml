@@ -4,6 +4,8 @@ members = [
         "haneul",
         "haneul_programmability/adapter",
         "haneul_programmability/framework",
+        "haneul_programmability/transactional-test-runner",
+        "haneul_programmability/adapter/transactional-tests",
 	"haneul_types",
         "faucet",
         "test_utils"

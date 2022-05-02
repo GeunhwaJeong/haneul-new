@@ -1,0 +1,16 @@
+[package]
+name = "haneul-adapter-transactional-tests"
+version = "0.1.0"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "Adapter and accompanying CLI for local haneul development"
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dev-dependencies]
+datatest-stable = "0.1.1"
+haneul-transactional-test-runner = { path = "../../transactional-test-runner" }
+
+[[test]]
+name = "tests"
+harness = false
