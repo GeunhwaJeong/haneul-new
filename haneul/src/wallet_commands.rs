@@ -1,41 +1,39 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use core::fmt;
-use std::collections::{BTreeMap, BTreeSet};
-use std::fmt::{Debug, Display, Formatter, Write};
-use std::path::Path;
-use std::sync::{Arc, RwLock};
-use std::time::Instant;
 
+use crate::{
+    config::{Config, GatewayType, PersistedConfig, WalletConfig},
+    keystore::Keystore,
+    haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue},
+};
 use anyhow::anyhow;
 use clap::*;
 use colored::Colorize;
-use move_core_types::identifier::Identifier;
-use move_core_types::language_storage::TypeTag;
-use move_core_types::parser::parse_type_tag;
+use core::fmt;
+use move_core_types::{identifier::Identifier, language_storage::TypeTag, parser::parse_type_tag};
 use serde::Serialize;
 use serde_json::json;
-use tracing::info;
-
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::{Debug, Display, Formatter, Write},
+    path::Path,
+    sync::{Arc, RwLock},
+    time::Instant,
+};
 use haneul_adapter::adapter::resolve_and_type_check;
-use haneul_core::gateway_state::gateway_responses::{
-    MergeCoinResponse, PublishResponse, SplitCoinResponse, SwitchResponse,
+use haneul_core::gateway_state::{
+    gateway_responses::{MergeCoinResponse, PublishResponse, SplitCoinResponse, SwitchResponse},
+    GatewayClient,
 };
-use haneul_core::gateway_state::GatewayClient;
 use haneul_framework::build_move_package_to_bytes;
-use haneul_types::base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::{
-    CallArg, CertifiedTransaction, ExecutionStatus, Transaction, TransactionEffects,
+use haneul_types::{
+    base_types::{decode_bytes_hex, ObjectID, ObjectRef, HaneulAddress},
+    gas_coin::GasCoin,
+    messages::{CallArg, CertifiedTransaction, ExecutionStatus, Transaction, TransactionEffects},
+    object::{Object, ObjectRead, ObjectRead::Exists},
+    HANEUL_FRAMEWORK_ADDRESS,
 };
-use haneul_types::object::ObjectRead::Exists;
-use haneul_types::object::{Object, ObjectRead};
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-
-use crate::config::{Config, PersistedConfig, WalletConfig};
-use crate::gateway_config::GatewayType;
-use crate::keystore::Keystore;
-use crate::haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
+use tracing::info;
 
 const EXAMPLE_NFT_NAME: &str = "Example NFT";
 const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the wallet Command Line Tool";

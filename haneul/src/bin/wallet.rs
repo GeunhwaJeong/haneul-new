@@ -1,23 +1,19 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use async_trait::async_trait;
+use clap::*;
+use colored::Colorize;
+use jsonrpsee::http_client::HttpClientBuilder;
 use std::{
     io,
     io::{stderr, stdout, Write},
     ops::Deref,
     path::PathBuf,
 };
-
-use async_trait::async_trait;
-use clap::*;
-use colored::Colorize;
-use jsonrpsee::http_client::HttpClientBuilder;
-use tracing::debug;
-
-use haneul::config::{Config, WalletConfig};
-use haneul::gateway_config::GatewayType;
-use haneul::keystore::KeystoreType;
 use haneul::{
+    config::{Config, GatewayType, WalletConfig},
+    keystore::KeystoreType,
     shell::{
         install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
     },
@@ -26,6 +22,7 @@ use haneul::{
     HANEUL_DEV_NET_URL, HANEUL_WALLET_CONFIG,
 };
 use haneul_types::exit_main;
+use tracing::debug;
 
 const HANEUL: &str = "   _____       _    _       __      ____     __
   / ___/__  __(_)  | |     / /___ _/ / /__  / /_

@@ -1,14 +1,16 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::Path;
-
 use anyhow::anyhow;
-use haneul::config::{AuthorityPrivateInfo, Config, GenesisConfig, WalletConfig};
-use haneul::gateway_config::{GatewayConfig, GatewayType};
-use haneul::keystore::KeystoreType;
-use haneul::haneul_commands::{genesis, HaneulNetwork};
-use haneul::{HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
+use std::path::Path;
+use haneul::{
+    config::{
+        AuthorityPrivateInfo, Config, GatewayConfig, GatewayType, GenesisConfig, WalletConfig,
+    },
+    keystore::KeystoreType,
+    haneul_commands::{genesis, HaneulNetwork},
+    HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
+};
 use haneul_types::crypto::{random_key_pairs, KeyPair};
 
 const NUM_VALIDAOTR: usize = 4;
