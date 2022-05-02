@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::{
     config::{
-        make_default_narwhal_committee, AuthorityInfo, AuthorityPrivateInfo, Config, GatewayConfig,
-        GatewayType, GenesisConfig, NetworkConfig, PersistedConfig, WalletConfig,
-        CONSENSUS_DB_NAME,
+        make_default_narwhal_committee, haneul_config_dir, AuthorityInfo, AuthorityPrivateInfo,
+        Config, GatewayConfig, GatewayType, GenesisConfig, NetworkConfig, PersistedConfig,
+        WalletConfig, CONSENSUS_DB_NAME, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
     },
     keystore::{Keystore, KeystoreType, HaneulKeystore},
-    haneul_config_dir, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
 use anyhow::{anyhow, bail};
 use base64ct::{Base64, Encoding};

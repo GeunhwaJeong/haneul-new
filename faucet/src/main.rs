@@ -16,9 +16,8 @@ use std::{
     time::Duration,
 };
 use haneul::{
-    haneul_config_dir,
+    config::{haneul_config_dir, HANEUL_WALLET_CONFIG},
     wallet_commands::{WalletCommands, WalletContext},
-    HANEUL_WALLET_CONFIG,
 };
 use haneul_faucet::{Faucet, FaucetRequest, FaucetResponse, SimpleFaucet};
 use tower::ServiceBuilder;

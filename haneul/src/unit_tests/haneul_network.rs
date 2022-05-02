@@ -6,10 +6,10 @@ use std::path::Path;
 use haneul::{
     config::{
         AuthorityPrivateInfo, Config, GatewayConfig, GatewayType, GenesisConfig, WalletConfig,
+        HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
     },
     keystore::KeystoreType,
     haneul_commands::{genesis, HaneulNetwork},
-    HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
 use haneul_types::crypto::{random_key_pairs, KeyPair};
 

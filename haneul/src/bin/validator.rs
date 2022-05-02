@@ -6,13 +6,16 @@ use clap::*;
 use narwhal_config::Parameters as ConsensusParameters;
 use std::path::PathBuf;
 use haneul::{
-    config::{GenesisConfig, NetworkConfig, PersistedConfig, CONSENSUS_DB_NAME},
+    config::{
+        haneul_config_dir, GenesisConfig, NetworkConfig, PersistedConfig, CONSENSUS_DB_NAME,
+        HANEUL_NETWORK_CONFIG,
+    },
     haneul_commands::{genesis, make_server},
-    haneul_config_dir, HANEUL_NETWORK_CONFIG,
 };
-use haneul_types::base_types::encode_bytes_hex;
-use haneul_types::base_types::{decode_bytes_hex, HaneulAddress};
-use haneul_types::committee::Committee;
+use haneul_types::{
+    base_types::{decode_bytes_hex, encode_bytes_hex, HaneulAddress},
+    committee::Committee,
+};
 use tracing::{error, info};
 
 #[derive(Parser)]

@@ -1,24 +1,21 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{
-    env,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    path::PathBuf,
-};
-
 use clap::Parser;
 use jsonrpsee::{
     http_server::{AccessControlBuilder, HttpServerBuilder},
     RpcModule,
 };
-use tracing::info;
-
-use haneul::rpc_gateway::RpcGatewayOpenRpc;
-use haneul::{
-    rpc_gateway::{RpcGatewayImpl, RpcGatewayServer},
-    haneul_config_dir,
+use std::{
+    env,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    path::PathBuf,
 };
+use haneul::{
+    config::haneul_config_dir,
+    rpc_gateway::{RpcGatewayImpl, RpcGatewayOpenRpc, RpcGatewayServer},
+};
+use tracing::info;
 
 const DEFAULT_RPC_SERVER_PORT: &str = "5001";
 const DEFAULT_RPC_SERVER_ADDR_IPV4: &str = "127.0.0.1";

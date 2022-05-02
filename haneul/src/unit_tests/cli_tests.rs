@@ -11,13 +11,13 @@ use std::{
 use haneul::{
     config::{
         AccountConfig, Config, GatewayConfig, GatewayType, GenesisConfig, NetworkConfig,
-        ObjectConfig, PersistedConfig, WalletConfig, AUTHORITIES_DB_NAME,
+        ObjectConfig, PersistedConfig, WalletConfig, AUTHORITIES_DB_NAME, HANEUL_GATEWAY_CONFIG,
+        HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
     },
     keystore::KeystoreType,
     haneul_commands::{HaneulCommand, HaneulNetwork, HANEUL_AUTHORITY_KEYS},
     haneul_json::HaneulJsonValue,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
-    HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
 use haneul_core::gateway_state::gateway_responses::SwitchResponse;
 use haneul_types::{
