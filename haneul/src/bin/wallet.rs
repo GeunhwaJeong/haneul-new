@@ -1,14 +1,22 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_trait::async_trait;
-use clap::*;
-use colored::Colorize;
 use std::{
+    io,
     io::{stderr, stdout, Write},
     ops::Deref,
     path::PathBuf,
 };
+
+use async_trait::async_trait;
+use clap::*;
+use colored::Colorize;
+use jsonrpsee::http_client::HttpClientBuilder;
+use tracing::debug;
+
+use haneul::config::{Config, WalletConfig};
+use haneul::gateway_config::GatewayType;
+use haneul::keystore::KeystoreType;
 use haneul::{
     shell::{
         install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
@@ -18,7 +26,6 @@ use haneul::{
     HANEUL_WALLET_CONFIG,
 };
 use haneul_types::exit_main;
-use tracing::debug;
 
 const HANEUL: &str = "   _____       _    _       __      ____     __
   / ___/__  __(_)  | |     / /___ _/ / /__  / /_
@@ -64,10 +71,40 @@ async fn try_main() -> Result<(), anyhow::Error> {
     let mut app: Command = ClientOpt::command();
     app = app.no_binary_name(false);
     let options: ClientOpt = ClientOpt::from_arg_matches(&app.get_matches())?;
+
     let wallet_conf_path = options
         .config
         .clone()
         .unwrap_or(haneul_config_dir()?.join(HANEUL_WALLET_CONFIG));
+
+    // Prompt user for connect to gateway if config not exists.
+    if !wallet_conf_path.exists() {
+        print!(
+            "Config file [{:?}] doesn't exist, do you want to connect to a Haneul Gateway [yn]?",
+            wallet_conf_path
+        );
+        if matches!(read_line(), Ok(line) if line.to_lowercase() == "y") {
+            print!("Haneul Gateway Url : ");
+            let url = read_line()?;
+
+            // Check url is valid
+            HttpClientBuilder::default().build(&url)?;
+            let keystore_path = wallet_conf_path
+                .parent()
+                .unwrap_or(&haneul_config_dir()?)
+                .join("wallet.key");
+            let keystore = KeystoreType::File(keystore_path);
+            let new_address = keystore.init()?.add_random_key()?;
+            WalletConfig {
+                accounts: vec![new_address],
+                keystore,
+                gateway: GatewayType::RPC(url),
+                active_address: None,
+            }
+            .persisted(&wallet_conf_path)
+            .save()?;
+        }
+    }
 
     let mut context = WalletContext::new(&wallet_conf_path)?;
 
@@ -113,6 +150,13 @@ async fn try_main() -> Result<(), anyhow::Error> {
         ClientOpt::command().print_long_help()?
     }
     Ok(())
+}
+
+fn read_line() -> Result<String, anyhow::Error> {
+    let mut s = String::new();
+    let _ = stdout().flush();
+    io::stdin().read_line(&mut s)?;
+    Ok(s.trim_end().to_string())
 }
 
 #[tokio::main]
