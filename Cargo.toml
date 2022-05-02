@@ -1,15 +1,17 @@
 [workspace]
 members = [
-        "haneul_core",
-        "haneul",
-        "haneul_programmability/adapter",
-        "haneul_programmability/framework",
-        "haneul_programmability/transactional-test-runner",
-        "haneul_programmability/adapter/transactional-tests",
-	"haneul_types",
-        "faucet",
-        "test_utils",
-        "crates/haneul-network",
+    "crates/haneul-network",
+    "crates/x",
+    "faucet",
+    "haneul",
+    "haneul/open_rpc",
+    "haneul/open_rpc/macros",
+    "haneul_core",
+    "haneul_programmability/adapter",
+    "haneul_programmability/framework",
+    "haneul_programmability/verifier",
+    "haneul_types",
+    "test_utils",
 ]
 
 [profile.release]
