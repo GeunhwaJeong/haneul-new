@@ -4,11 +4,11 @@
 use crate::authority_server::AuthorityServer;
 use bytes::Bytes;
 use std::sync::Arc;
-use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::ConfirmationTransaction;
-use haneul_types::serialize::{deserialize_message, SerializedMessage};
-use tokio::sync::broadcast::Receiver;
-use tokio::task::JoinHandle;
+use haneul_types::{
+    error::{HaneulError, HaneulResult},
+    messages::ConfirmationTransaction,
+};
+use tokio::{sync::broadcast::Receiver, task::JoinHandle};
 
 /// The `ConsensusHandler` receives certificates sequenced by the consensus and updates
 /// the authority's database
@@ -41,14 +41,8 @@ impl ConsensusHandler {
             // The consensus simply orders bytes, so we first need to deserialize the
             // certificate. If the deserialization fail it is safe to ignore the
             // certificate since all correct authorities will do the same.
-            let confirmation = match deserialize_message(&*bytes) {
-                Ok(SerializedMessage::Cert(certificate)) => ConfirmationTransaction {
-                    certificate: *certificate,
-                },
-                Ok(_) => {
-                    log::debug!("{}", HaneulError::UnexpectedMessage);
-                    continue;
-                }
+            let confirmation = match bincode::deserialize::<CertifiedTransaction>(bytes) {
+                Ok(certificate) => ConfirmationTransaction { certificate },
                 Err(e) => {
                     log::debug!("Failed to deserialize certificate {e}");
                     continue;

@@ -16,15 +16,15 @@ use move_core_types::{
 };
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
 use narwhal_executor::{ExecutionIndices, ExecutionState};
-use std::sync::atomic::AtomicUsize;
-use std::sync::atomic::Ordering;
 use std::{
     collections::{BTreeMap, HashMap, HashSet, VecDeque},
     pin::Pin,
-    sync::Arc,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
 };
 use haneul_adapter::adapter;
-use haneul_types::serialize::serialize_transaction_info;
 use haneul_types::{
     base_types::*,
     batch::{TxSequenceNumber, UpdateItem},
@@ -38,8 +38,7 @@ use haneul_types::{
     storage::{BackingPackageStore, DeleteKind, Storage},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
-use tracing::log;
-use tracing::{debug, instrument};
+use tracing::{debug, instrument, log};
 
 #[cfg(test)]
 #[path = "unit_tests/authority_tests.rs"]
@@ -871,7 +870,7 @@ impl ExecutionState for AuthorityState {
         if self._database.effects_exists(digest)? {
             let info = self.make_transaction_info(digest).await?;
             debug!("Shared-object transaction {digest:?} already executed");
-            return Ok(serialize_transaction_info(&info));
+            return Ok(bincode::serialize(&info).unwrap());
         }
 
         // Assign locks to shared objects.
@@ -890,7 +889,7 @@ impl ExecutionState for AuthorityState {
         debug!("Executed transaction {digest:?}");
 
         // Return a serialized transaction info response. This will be sent back to the client.
-        Ok(serialize_transaction_info(&info))
+        Ok(bincode::serialize(&info).unwrap())
     }
 
     fn ask_consensus_write_lock(&self) -> bool {

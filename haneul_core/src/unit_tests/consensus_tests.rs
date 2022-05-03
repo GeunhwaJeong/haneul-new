@@ -1,25 +1,24 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use super::*;
-use crate::authority::authority_tests::get_genesis_package_by_module;
-use crate::authority::authority_tests::init_state_with_objects;
-use crate::authority::AuthorityState;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::ident_str;
+use crate::authority::{
+    authority_tests::{get_genesis_package_by_module, init_state_with_objects},
+    AuthorityState,
+};
+use move_core_types::{account_address::AccountAddress, ident_str};
 use narwhal_executor::ExecutionIndices;
 use haneul_adapter::genesis;
-use haneul_types::base_types::{ObjectID, TransactionDigest};
-use haneul_types::crypto::Signature;
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::ConfirmationTransaction;
-use haneul_types::messages::{
-    CallArg, CertifiedTransaction, SignatureAggregator, Transaction, TransactionData,
+use haneul_types::{
+    base_types::{ObjectID, TransactionDigest},
+    crypto::Signature,
+    gas_coin::GasCoin,
+    messages::{
+        CallArg, CertifiedTransaction, ConfirmationTransaction, SignatureAggregator, Transaction,
+        TransactionData,
+    },
+    object::{MoveObject, Object, Owner, OBJECT_START_VERSION},
 };
-use haneul_types::object::OBJECT_START_VERSION;
-use haneul_types::object::{MoveObject, Object, Owner};
-use haneul_types::serialize::serialize_transaction_info;
-use test_utils::network::test_listener;
-use test_utils::test_keys;
+use test_utils::{network::test_listener, test_keys};
 use tokio::sync::mpsc::channel;
 
 /// Default network buffer size.
@@ -182,7 +181,7 @@ async fn submit_transaction_to_consensus() {
         let result = state
             .handle_confirmation_transaction(confirmation_transaction)
             .await
-            .map(|info| serialize_transaction_info(&info));
+            .map(|info| bincode::serialize(&info).unwrap());
 
         // Reply to the submitter.
         replier.send(result).unwrap();
