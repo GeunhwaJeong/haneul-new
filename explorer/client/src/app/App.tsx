@@ -14,7 +14,7 @@ function App() {
         <div className={styles.app}>
             <div className={styles.search}>
                 <h2 className={styles.haneultitle}>
-                    <Link to="/">HaneulExplorer</Link>
+                    <Link to="/">Haneul Explorer</Link>
                 </h2>
                 <Search />
             </div>
