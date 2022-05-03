@@ -13,7 +13,7 @@ overall status of Haneul, including timelines for launching devnet, testnet, and
 
 ## Join the community
 
-To connect with the Haneul community, join our [Discord](https://discord.gg/haneullabs).
+To connect with the Haneul community, join our [Discord](https://discord.gg/haneul).
 
 ## File issues
 

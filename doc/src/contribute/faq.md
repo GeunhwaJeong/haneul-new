@@ -3,7 +3,7 @@ title: Haneul Frequently Asked Questions
 ---
 
 This page contains answers to frequently asked questions (FAQs) about Haneul and Haneul Labs. 
-Ask more in [Discord](https://discord.gg/haneullabs), see where we are headed in our
+Ask more in [Discord](https://discord.gg/haneul), see where we are headed in our
 [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap), and
 find full details in our
 [white paper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf).
@@ -78,7 +78,7 @@ No. More information is forthcoming.
 
 ### How can I join the Haneul network? How do I participate in the Haneul project?
 
-Join our [Discord](https://discord.gg/haneullabs) and follow our [Twitter](https://twitter.com/Haneul_Labs) for the latest updates and announcements.
+Join our [Discord](https://discord.gg/haneul) and follow our [Twitter](https://twitter.com/Haneul_Labs) for the latest updates and announcements.
 
 For developers:
 
@@ -97,7 +97,7 @@ We are seeking partners that can contribute to the ecosystem primarily in develo
 
 
 ### With whom can I talk about a partnership or strategic investment? How can I discuss Haneul in person?
-Start in [Discord](https://discord.gg/haneullabs).
+Start in [Discord](https://discord.gg/haneul).
 
 
 ### Where can I see the investors of the project?
