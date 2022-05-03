@@ -2,11 +2,9 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::base_types::*;
-use crate::committee::EpochId;
+use crate::{base_types::*, committee::EpochId};
 use move_binary_format::errors::{PartialVMError, VMError};
-use narwhal_executor::ExecutionStateError;
-use narwhal_executor::SubscriberError;
+use narwhal_executor::{ExecutionStateError, SubscriberError};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -316,6 +314,11 @@ pub enum HaneulError {
     HkdfError(String),
     #[error("Signature key generation error: {0}")]
     SignatureKeyGenError(String),
+
+    // These are errors that occur when an RPC fails and is simply the utf8 message sent in a
+    // Tonic::Status
+    #[error("{0}")]
+    RpcError(String),
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
@@ -340,6 +343,12 @@ impl std::convert::From<VMError> for HaneulError {
 impl std::convert::From<SubscriberError> for HaneulError {
     fn from(error: SubscriberError) -> Self {
         HaneulError::SharedObjectLockingFailure(error.to_string())
+    }
+}
+
+impl From<tonic::Status> for HaneulError {
+    fn from(status: tonic::Status) -> Self {
+        Self::RpcError(status.message().to_owned())
     }
 }
 
