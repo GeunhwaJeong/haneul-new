@@ -177,39 +177,11 @@ where
     bincode::deserialize_from(reader).map_err(|err| format_err!("{err}"))
 }
 
-pub fn deserialize_object_info(message: SerializedMessage) -> Result<ObjectInfoResponse, HaneulError> {
-    match message {
-        SerializedMessage::ObjectInfoResp(resp) => Ok(*resp),
-        SerializedMessage::Error(error) => Err(*error),
-        _ => Err(HaneulError::UnexpectedMessage),
-    }
-}
-
-pub fn deserialize_account_info(
-    message: SerializedMessage,
-) -> Result<AccountInfoResponse, HaneulError> {
-    match message {
-        SerializedMessage::AccountInfoResp(resp) => Ok(*resp),
-        SerializedMessage::Error(error) => Err(*error),
-        _ => Err(HaneulError::UnexpectedMessage),
-    }
-}
-
 pub fn deserialize_transaction_info(
     message: SerializedMessage,
 ) -> Result<TransactionInfoResponse, HaneulError> {
     match message {
         SerializedMessage::TransactionResp(resp) => Ok(*resp),
-        SerializedMessage::Error(error) => Err(*error),
-        _ => Err(HaneulError::UnexpectedMessage),
-    }
-}
-
-pub fn deserialize_batch_info(
-    message: SerializedMessage,
-) -> Result<BatchInfoResponseItem, HaneulError> {
-    match message {
-        SerializedMessage::BatchInfoResp(resp) => Ok(*resp),
         SerializedMessage::Error(error) => Err(*error),
         _ => Err(HaneulError::UnexpectedMessage),
     }
