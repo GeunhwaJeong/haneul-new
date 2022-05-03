@@ -6,6 +6,18 @@ h2.haneultitle {
     @apply m-0 p-0 ml-[5vw] py-[1vh] text-lg;
 }
 
+h2.haneultitle > a {
+    @apply text-offwhite;
+
+    text-decoration: none;
+}
+
+h2.haneultitle > a:hover {
+    @apply text-offwhite;
+
+    text-decoration: underline;
+}
+
 .search {
     @apply bg-offblack text-offwhite pb-4 w-[100vw];
 }
