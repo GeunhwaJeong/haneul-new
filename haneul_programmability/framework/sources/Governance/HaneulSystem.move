@@ -3,6 +3,7 @@
 
 module Haneul::HaneulSystem {
     use Haneul::Coin::{Self, Coin, TreasuryCap};
+    use Haneul::Balance::Balance;
     use Haneul::ID::VersionedID;
     use Haneul::HANEUL::HANEUL;
     use Haneul::Transfer;
@@ -36,7 +37,7 @@ module Haneul::HaneulSystem {
         /// The HANEUL treasury capability needed to mint HANEUL.
         treasury_cap: TreasuryCap<HANEUL>,
         /// The storage fund.
-        storage_fund: Coin<HANEUL>,
+        storage_fund: Balance<HANEUL>,
         /// A list of system config parameters.
         parameters: SystemParameters,
     }
@@ -48,7 +49,7 @@ module Haneul::HaneulSystem {
     public(friend) fun create(
         validators: vector<Validator>,
         treasury_cap: TreasuryCap<HANEUL>,
-        storage_fund: Coin<HANEUL>,
+        storage_fund: Balance<HANEUL>,
         max_validator_candidate_count: u64,
         min_validator_stake: u64,
         max_validator_stake: u64,
@@ -94,7 +95,13 @@ module Haneul::HaneulSystem {
                 && stake_amount <= self.parameters.max_validator_stake,
             0
         );
-        let validator = Validator::new(TxContext::sender(ctx), name, net_address, stake);
+        let validator = Validator::new(
+            TxContext::sender(ctx),
+            name,
+            net_address,
+            Coin::into_balance(stake)
+        );
+
         ValidatorSet::request_add_validator(&mut self.validators, validator);
     }
 
@@ -121,7 +128,7 @@ module Haneul::HaneulSystem {
     ) {
         ValidatorSet::request_add_stake(
             &mut self.validators,
-            new_stake,
+            Coin::into_balance(new_stake),
             self.parameters.max_validator_stake,
             ctx,
         )

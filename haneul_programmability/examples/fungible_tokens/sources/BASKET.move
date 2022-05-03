@@ -9,6 +9,7 @@
 module FungibleTokens::BASKET {
     use FungibleTokens::MANAGED::MANAGED;
     use Haneul::Coin::{Self, Coin, TreasuryCap};
+    use Haneul::Balance::{Self, Balance};
     use Haneul::ID::VersionedID;
     use Haneul::HANEUL::HANEUL;
     use Haneul::Transfer;
@@ -24,9 +25,9 @@ module FungibleTokens::BASKET {
         /// capability allowing the reserve to mint and burn BASKET
         treasury_cap: TreasuryCap<BASKET>,
         /// HANEUL coins held in the reserve
-        haneul: Coin<HANEUL>,
+        haneul: Balance<HANEUL>,
         /// MANAGED coins held in the reserve
-        managed: Coin<MANAGED>,
+        managed: Balance<MANAGED>,
     }
 
     /// Needed to deposit a 1:1 ratio of HANEUL and MANAGED for minting, but deposited a different ratio
@@ -38,8 +39,8 @@ module FungibleTokens::BASKET {
         Transfer::share_object(Reserve {
             id: TxContext::new_id(ctx),
             treasury_cap,
-            haneul: Coin::zero<HANEUL>(ctx),
-            managed: Coin::zero<MANAGED>(ctx),
+            haneul: Balance::zero<HANEUL>(),
+            managed: Balance::zero<MANAGED>(),
         })
     }
 
@@ -52,8 +53,8 @@ module FungibleTokens::BASKET {
         let num_haneul = Coin::value(&haneul);
         assert!(num_haneul == Coin::value(&managed), EBadDepositRatio);
 
-        Coin::join(&mut reserve.haneul, haneul);
-        Coin::join(&mut reserve.managed, managed);
+        Coin::deposit(&mut reserve.haneul, haneul);
+        Coin::deposit(&mut reserve.managed, managed);
         Coin::mint(num_haneul, &mut reserve.treasury_cap, ctx)
     }
 
@@ -77,12 +78,12 @@ module FungibleTokens::BASKET {
 
     /// Return the number of HANEUL in the reserve
     public fun haneul_supply(reserve: &Reserve): u64 {
-        Coin::value(&reserve.haneul)
+        Balance::value(&reserve.haneul)
     }
 
     /// Return the number of MANAGED in the reserve
     public fun managed_supply(reserve: &Reserve): u64 {
-        Coin::value(&reserve.managed)
+        Balance::value(&reserve.managed)
     }
 
     #[test_only]
