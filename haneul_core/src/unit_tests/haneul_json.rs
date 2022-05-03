@@ -7,12 +7,9 @@ use move_core_types::{
     account_address::AccountAddress, identifier::Identifier, value::MoveTypeLayout,
 };
 use serde_json::{json, Value};
-use haneul_adapter::{self, genesis::clone_genesis_packages};
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress, TransactionDigest},
-    object::Object,
-    HANEUL_FRAMEWORK_ADDRESS,
-};
+use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::object::Object;
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use crate::haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 
@@ -394,7 +391,7 @@ fn test_basic_args_linter_top_level() {
     assert!(resolve_move_function_args(&example_package, module, function, args).is_err());
 
     // Test with vecu8 as address
-    let genesis_objs = clone_genesis_packages();
+    let genesis_objs = haneul_adapter::genesis::clone_genesis_packages();
     let framework_pkg = genesis_objs
         .iter()
         .find(|q| q.id() == ObjectID::from(HANEUL_FRAMEWORK_ADDRESS))

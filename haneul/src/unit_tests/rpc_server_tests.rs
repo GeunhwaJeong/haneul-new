@@ -16,18 +16,17 @@ use haneul::{
     config::{PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG},
     keystore::{Keystore, HaneulKeystore},
     rpc_gateway::{
-        responses::ObjectResponse, RpcCallArg, RpcGatewayClient, RpcGatewayImpl, RpcGatewayServer,
+        responses::ObjectResponse, RpcGatewayClient, RpcGatewayImpl, RpcGatewayServer,
         SignedTransaction, TransactionBytes,
     },
     haneul_commands::HaneulNetwork,
-    haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue},
 };
 use haneul_core::gateway_state::gateway_responses::TransactionResponse;
+use haneul_core::haneul_json::HaneulJsonValue;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     json_schema::Base64,
-    object::ObjectRead,
     HANEUL_FRAMEWORK_ADDRESS,
 };
 
@@ -142,34 +141,24 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     let gas = objects.first().unwrap();
 
     let package_id = ObjectID::new(HANEUL_FRAMEWORK_ADDRESS.into_bytes());
-    let package: ObjectRead = http_client.get_object_info(package_id).await?;
-    let package = package.into_object()?;
     let module = Identifier::new("ObjectBasics")?;
     let function = Identifier::new("create")?;
 
-    let json_args = resolve_move_function_args(
-        &package,
-        module.clone(),
-        function.clone(),
-        vec![
-            HaneulJsonValue::from_str("10000")?,
-            HaneulJsonValue::from_str(&format!("\"0x{}\"", address))?,
-        ],
-    )?;
-    let mut args = Vec::with_capacity(json_args.len());
-    for json_arg in json_args {
-        args.push(match json_arg {
-            HaneulJsonCallArg::Pure(bytes) => RpcCallArg::Pure(Base64(bytes)),
-            HaneulJsonCallArg::Object(id) => match http_client.get_object_info(id).await? {
-                ObjectRead::Exists(_, obj, _) if obj.is_shared() => RpcCallArg::SharedObject(id),
-                _ => RpcCallArg::ImmOrOwnedObject(id),
-            },
-        })
-    }
+    let json_args = vec![
+        HaneulJsonValue::from_str("10000")?,
+        HaneulJsonValue::from_str(&format!("\"0x{}\"", address))?,
+    ];
 
     let tx_data: TransactionBytes = http_client
         .move_call(
-            *address, package_id, module, function, None, args, gas.0, 1000,
+            *address,
+            package_id,
+            module,
+            function,
+            vec![],
+            json_args,
+            gas.0,
+            1000,
         )
         .await?;
 

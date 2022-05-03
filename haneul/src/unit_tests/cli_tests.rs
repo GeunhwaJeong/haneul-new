@@ -1,13 +1,15 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::cli_tests::haneul_network::start_test_network;
-use anyhow::anyhow;
-use move_core_types::identifier::Identifier;
-use serde_json::{json, Value};
 use std::{
     collections::BTreeSet, fmt::Write, fs::read_dir, ops::Add, path::PathBuf, str, time::Duration,
 };
+
+use anyhow::anyhow;
+use move_core_types::identifier::Identifier;
+use serde_json::{json, Value};
+use tracing_test::traced_test;
+
 use haneul::{
     config::{
         AccountConfig, Config, GatewayConfig, GatewayType, GenesisConfig, NetworkConfig,
@@ -16,10 +18,10 @@ use haneul::{
     },
     keystore::KeystoreType,
     haneul_commands::{HaneulCommand, HaneulNetwork, HANEUL_AUTHORITY_KEYS},
-    haneul_json::HaneulJsonValue,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
 use haneul_core::gateway_state::gateway_responses::SwitchResponse;
+use haneul_core::haneul_json::HaneulJsonValue;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     crypto::{get_key_pair, random_key_pairs},
@@ -27,7 +29,8 @@ use haneul_types::{
     messages::TransactionEffects,
     object::{Object, ObjectRead, GAS_VALUE_FOR_TESTING},
 };
-use tracing_test::traced_test;
+
+use crate::cli_tests::haneul_network::start_test_network;
 
 const TEST_DATA_DIR: &str = "src/unit_tests/data/";
 const AIRDROP_SOURCE_CONTRACT_ADDRESS: &str = "bc4ca0eda7647a8ab7c2061c2e118a18a936f13d";
