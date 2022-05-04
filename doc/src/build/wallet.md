@@ -12,6 +12,33 @@ interface, *Wallet CLI*.
 
 Follow the instructions to [install Haneul binaries](install.md#binaries).
 
+## Connect to DevNet
+We are hosting a public DevNet for the community to experiment with our 
+tech and help to shape the future of Haneul network. To connect the wallet 
+client to the DevNet, run the following command:
+```shell
+$ wallet
+```
+The wallet will print the following line if the wallet is starting up the 
+first time. (if you have used the wallet before with a local network, 
+follow [here](#manually-changing-the-gateway-url) to change the config for DevNet.)
+```shell
+Config file ["/Users/dir/.haneul/haneul_config/wallet.conf"] doesn't exist, do you want to connect to a Haneul Gateway [yn]?
+```
+Type 'y' and then press 'Enter'. You should see the following output.
+```shell
+Haneul Gateway Url (Default to Haneul DevNet if not specified) : 
+```
+The wallet will prompt for the Gateway URL, press 'Enter' and it will default to the DevNet, 
+or enter the URL if you want to connect to a Gateway hosted elsewhere.
+
+### Manually changing the Gateway URL
+If you have use the wallet before, you will have an existing `wallet.conf`.
+You can change the configured Gateway URL to DevNet by using:
+```shell
+$ wallet switch --gateway http://gateway.devnet.haneul.io:9000
+```
+
 ## Genesis
 
 The `genesis` command creates four validators and five user accounts
