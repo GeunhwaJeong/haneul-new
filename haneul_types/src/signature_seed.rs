@@ -197,7 +197,7 @@ impl SignatureSeed {
     ///     let haneul_address = seed
     ///         .new_deterministic_address(&id, Some(&domain))
     ///         .unwrap();
-    ///     let verification = signature.check(&msg, haneul_address);
+    ///     let verification = signature.verify(&msg, haneul_address);
     ///     assert!(verification.is_ok());
     /// # }
     /// ```

@@ -284,7 +284,7 @@ impl Signature {
 
     /// This performs signature verification on the passed-in signature, additionally checking
     /// that the signature was performed with a PublicKey belonging to an expected author, indicated by its Haneul Address
-    pub fn check<T>(&self, value: &T, author: HaneulAddress) -> Result<(), HaneulError>
+    pub fn verify<T>(&self, value: &T, author: HaneulAddress) -> Result<(), HaneulError>
     where
         T: Signable<Vec<u8>>,
     {
@@ -402,7 +402,7 @@ impl AuthoritySignature {
     }
 
     /// Signature verification for a single signature
-    pub fn check<T>(&self, value: &T, author: PublicKeyBytes) -> Result<(), HaneulError>
+    pub fn verify<T>(&self, value: &T, author: PublicKeyBytes) -> Result<(), HaneulError>
     where
         T: Signable<Vec<u8>>,
     {
