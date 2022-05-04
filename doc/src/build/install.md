@@ -12,7 +12,7 @@ version 1.60.0 or higher in order to build and install Haneul on your machine.
 To develop in Haneul, you will need the Haneul binaries. After installing `cargo`, run:
 
 ```shell
-$ cargo install --git https://github.com/GeunhwaJeong/haneul.git haneul
+$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "devnet" haneul
 ```
 
 This will put these binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
