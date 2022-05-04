@@ -77,10 +77,10 @@ async fn try_main() -> Result<(), anyhow::Error> {
     // Prompt user for connect to gateway if config not exists.
     if !wallet_conf_path.exists() {
         print!(
-            "Config file [{:?}] doesn't exist, do you want to connect to a Haneul Gateway [yn]?",
+            "Config file [{:?}] doesn't exist, do you want to connect to a Haneul Gateway [yN]?",
             wallet_conf_path
         );
-        if matches!(read_line(), Ok(line) if line.to_lowercase() == "y") {
+        if matches!(read_line(), Ok(line) if line.trim().to_lowercase() == "y") {
             print!("Haneul Gateway Url (Default to Haneul DevNet if not specified) : ");
             let url = read_line()?;
             let url = if url.trim().is_empty() {
