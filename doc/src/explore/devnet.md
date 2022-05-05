@@ -115,7 +115,7 @@ See the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/mai
 
 Publish a sample Move package containing code developed in the [Haneul Move tutorial](../build/move.md#writing-a-package) as follows (assuming you installed the source code in `~haneul` as advised in set up):
 ```shell
-$ wallet publish --path ~haneul/haneul_programmability/tutorial --gas-budget 30000
+$ wallet publish --path <your-haneul-repo>/haneul_programmability/tutorial --gas-budget 30000
 ```
 
 You will see this output:
