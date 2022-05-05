@@ -4,7 +4,7 @@ title: Experiment with Haneul DevNet
 
 Welcome to the beginnings of the Haneul DevNet. It exists now to gain operational experience with the Haneul software in a public setting. The Haneul DevNet currently consists of:
 
-* A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: http://gateway.devnet.haneul.io/
+* A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: https://gateway.devnet.haneul.io:9000/
 * A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing the TestNet transaction history: http://explorer.devnet.haneul.io
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
