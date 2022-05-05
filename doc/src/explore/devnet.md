@@ -4,8 +4,8 @@ title: Experiment with Haneul DevNet
 
 Welcome to the beginnings of the Haneul DevNet. It exists now to gain operational experience with the Haneul software in a public setting. The Haneul DevNet currently consists of:
 
-* A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: https://gateway.devnet.haneul.io:9000/
-* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing the TestNet transaction history: http://explorer.devnet.haneul.io
+* A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: https://gateway.devnet.haneul.io:9000/ using [JSON-RPC](../build/json-rpc.md)
+* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing the TestNet transaction history: https://explorer.devnet.haneul.io
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
 Many improvements to the Haneul DevNet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul DevNet blog post](https://medium.com/haneullabs-labs) announcement for full details on upcoming features. All DevNet usage is subject to our [terms of service](https://haneul.io/terms/).
@@ -82,7 +82,7 @@ Type: 0x2::DevNetNFT::DevNetNFT
 
 The above command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Note you may use `wallet` to [view objects owned by the account](https://docs.haneul.io/build/wallet#view-objects-owned-by-the-account).
 
-Now you can view the created object in the [Haneul Explorer](http://explorer.devnet.haneul.io) at:
+Now you can view the created object in the [Haneul Explorer](https://explorer.devnet.haneul.io) at:
 https://explorer.devnet.haneul.io/objects/ED883F6812AF447B9B0CE220DA5EA9E0F58012FE
 
 Replace the object ID in the link above with the object ID of the Example NFT you observed in your own command output to see it in Haneul Explorer:
@@ -109,7 +109,7 @@ https://explorer.devnet.haneul.io/objects/EC97467A40A1305FFDEF7019C3045FBC7AA31E
 
 ![Custom NFT](../../static/custom-nft.png "Custom NFT")
 
-See all transactions on the [home page](http://explorer.devnet.haneul.io) and find the transaction hash under *Latest Transactions*:
+See all transactions on the [home page](https://explorer.devnet.haneul.io) and find the transaction hash under *Latest Transactions*:
 
 ![Explorer home](../../static/explorer-home.png "Explorer home")
 
