@@ -1,9 +1,10 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getMovePackageContent, getObjectContent, getObjectType } from 'haneul.js';
+import { getMovePackageContent, getObjectContent } from 'haneul.js';
 
 import { type AddressOwner } from '../../utils/api/DefaultRpcClient';
+import { parseObjectType } from '../../utils/objectUtils';
 
 import type {
     GetObjectInfoResponse,
@@ -55,7 +56,7 @@ export function translate(o: GetObjectInfoResponse): DataType {
             return {
                 id: objectId,
                 version: version.toString(),
-                objType: getObjectType(o)!,
+                objType: parseObjectType(details as ObjectExistsInfo)!,
                 owner: parseOwner(owner),
                 data: {
                     contents:
