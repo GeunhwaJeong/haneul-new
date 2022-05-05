@@ -64,7 +64,9 @@ Yes, the token name will be HANEUL.
 
 ### When is the Haneul devnet/testnet/mainnet launching?
 
-A testnet is coming in a few months. See our roadmap: \
+We have launched our [Haneul DevNet](../explore/devnet.md) in May 2022. A testnet is coming in a few months. 
+
+See our roadmap: \
 [https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap) 
 
 
@@ -93,7 +95,7 @@ We have a number of examples and demos available for viewing at: [https://docs.h
 
 ### Are you looking for partners?
 
-We are seeking partners that can contribute to the ecosystem primarily in development by building apps with the SDK now so they can be ready to launch when the network goes live.
+We are seeking partners that can contribute to the ecosystem primarily in development by building apps with the SDK now so they can be ready to launch when the network goes live. If interested, please apply using the [Haneul Partnerships Form](https://bit.ly/haneulform).
 
 
 ### With whom can I talk about a partnership or strategic investment? How can I discuss Haneul in person?
@@ -129,7 +131,7 @@ Section four in the [Haneul Smart Contract Platform](https://github.com/GeunhwaJ
 
 ### Can I run a Haneul validator node?
 
-We do not yet have a public devnet or testnet that will allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [RPC API](../build/json-rpc).
+We now have a public [Haneul DevNet](../explore/devnet.md) with nodes operated by Haneul Labs. Soon we will have a TestNet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [RPC API](../build/json-rpc).
 
 ### What does a local node do and what are the hardware requirements to run it? How is it different from a testnet node?
 
