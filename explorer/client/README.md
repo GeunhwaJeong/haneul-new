@@ -1,12 +1,12 @@
 # Haneul Explorer Frontend
 
-Haneul Explorer is a network explorer for the Haneul network, similar in functionality to [Etherscan](https://etherscan.io/) or [Solana Explorer](https://explorer.solana.com/). Use Haneul Explorer to see the latest transactions and objects.
+[Haneul Explorer](https://explorer.devnet.haneul.io/) is a network explorer for the Haneul network, similar in functionality to [Etherscan](https://etherscan.io/) or [Solana Explorer](https://explorer.solana.com/). Use Haneul Explorer to see the latest transactions and objects.
 
 # Set Up
 
-**Requirements**: Node 14.0.0 or later version
+**Requirements**: Node 14.0.0 or later.
 
-Currently the Explorer depends on an unreleased version of `haneul.js`, the TypeScript SDK for HANEUL. Therefore, you need to build the SDK first:
+Currently the Explorer depends on an unreleased version of `haneul.js`, the TypeScript SDK for Haneul. Therefore, you need to build the SDK first:
 
 ```bash
 $ cd <Your Haneul Repository>/sdk/typescript
@@ -19,7 +19,7 @@ Then, in the project directory, run:
 $ yarn
 ```
 
-NOTE: If you are updating the SDK and Explorer at the same time, you need to run the following command to make sure the explorer depends on the updated SDK
+> **Note:** If you are updating the SDK and Explorer at the same time, you need to run the following commands to make sure the Explorer depends on the updated SDK.
 
 ```bash
 $ cd <Your Haneul Repository>/sdk/typescript
@@ -35,16 +35,16 @@ Before running any of the following scripts `yarn` must run in order to install 
 
 ## Connecting to Remote Gateway server(e.g., DevNet)
 
-The Haneul Explorer frontend will use the DevNet Gateway server by default: https://https://explorer.devnet.haneul.io.
+The Haneul Explorer frontend will use the DevNet Gateway server by default: https://explorer.devnet.haneul.io
 
 ```bash
 yarn start
 
 ```
 
-## Connecting to local RPC Server
+## Connecting to local RPC server
 
-Please refer to [this guide](../../doc/src/build/json-rpc.md) on setting up a local RPC Server
+Refer to [Local RPC Server & JSON-RPC API Quick Start](../../doc/src/build/json-rpc.md) on setting up a local RPC Server
 
 ```bash
 yarn start:local
@@ -61,7 +61,7 @@ For example, suppose we wish to locally run the website using the static JSON da
 yarn start:static
 ```
 
-# Other Yarn Commands
+# Other Yarn commands
 
 ### `yarn test`
 
@@ -90,3 +90,5 @@ Currently the Explorer supports
 -   Object details page
 -   Address page with owned objects
 -   Search for transactions, addresses, and Objects by ID
+
+See [Experiment with Haneul DevNet](https://docs.haneul.io/explore/devnet) for use.
