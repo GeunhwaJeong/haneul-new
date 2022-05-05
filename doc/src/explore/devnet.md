@@ -8,7 +8,7 @@ Welcome to the beginnings of the Haneul DevNet. It exists now to gain operationa
 * A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing the TestNet transaction history: http://explorer.devnet.haneul.io
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
-Many improvements to the Haneul DevNet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul DevNet blog post](https://medium.com/haneullabs-labs) announcement for full details on upcoming features.
+Many improvements to the Haneul DevNet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul DevNet blog post](https://medium.com/haneullabs-labs) announcement for full details on upcoming features. All DevNet usage is subject to our [terms of service](https://haneul.io/terms/).
 
 ## Tools
 
