@@ -105,7 +105,7 @@ Type: 0x2::DevNetNFT::DevNetNFT
 That you can similarly view at:
 https://explorer.devnet.haneul.io/objects/EC97467A40A1305FFDEF7019C3045FBC7AA31E29
 
-To get to the *Transaction Details* view in Haneul Explorer after minting an NFT, go to the [home page](http://explorer.devnet.haneul.io) and find the transaction hash under *Latest Transactions*.
+To get to the *Transaction Details* view in Haneul Explorer after minting an NFT, click on the *Last Transaction ID* field in the *Object View*.
 
 See the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for instructions on its use.
 
