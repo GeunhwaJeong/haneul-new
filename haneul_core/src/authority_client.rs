@@ -6,11 +6,7 @@ use crate::authority::AuthorityState;
 use async_trait::async_trait;
 use futures::{stream::BoxStream, TryStreamExt};
 use std::sync::Arc;
-use haneul_network::{
-    api::{BincodeEncodedPayload, ValidatorClient},
-    network::NetworkClient,
-    tonic,
-};
+use haneul_network::{api::ValidatorClient, network::NetworkClient, tonic};
 use haneul_types::{error::HaneulError, messages::*};
 
 #[cfg(test)]
@@ -112,12 +108,11 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         transaction: Transaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&transaction).unwrap();
-        let response = self.client().transaction(request).await?.into_inner();
-
-        response
-            .deserialize()
-            .map_err(|_| HaneulError::UnexpectedMessage)
+        self.client()
+            .transaction(transaction)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     /// Confirm a transfer to a Haneul or Primary account.
@@ -125,58 +120,44 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         transaction: ConfirmationTransaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&transaction).unwrap();
-        let response = self
-            .client()
-            .confirmation_transaction(request)
-            .await?
-            .into_inner();
-
-        response
-            .deserialize()
-            .map_err(|_| HaneulError::UnexpectedMessage)
+        self.client()
+            .confirmation_transaction(transaction.certificate)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     async fn handle_consensus_transaction(
         &self,
         transaction: ConsensusTransaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&transaction).unwrap();
-        let response = self
-            .client()
-            .consensus_transaction(request)
-            .await?
-            .into_inner();
-
-        response
-            .deserialize()
-            .map_err(|e| HaneulError::GenericAuthorityError {
-                error: e.to_string(),
-            })
+        self.client()
+            .consensus_transaction(transaction)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     async fn handle_account_info_request(
         &self,
         request: AccountInfoRequest,
     ) -> Result<AccountInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&request).unwrap();
-        let response = self.client().account_info(request).await?.into_inner();
-
-        response
-            .deserialize()
-            .map_err(|_| HaneulError::UnexpectedMessage)
+        self.client()
+            .account_info(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     async fn handle_object_info_request(
         &self,
         request: ObjectInfoRequest,
     ) -> Result<ObjectInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&request).unwrap();
-        let response = self.client().object_info(request).await?.into_inner();
-
-        response
-            .deserialize()
-            .map_err(|_| HaneulError::UnexpectedMessage)
+        self.client()
+            .object_info(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     /// Handle Object information requests for this account.
@@ -184,12 +165,11 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: TransactionInfoRequest,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&request).unwrap();
-        let response = self.client().transaction_info(request).await?.into_inner();
-
-        response
-            .deserialize()
-            .map_err(|_| HaneulError::UnexpectedMessage)
+        self.client()
+            .transaction_info(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
     }
 
     /// Handle Batch information requests for this authority.
@@ -197,17 +177,12 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: BatchInfoRequest,
     ) -> Result<BatchInfoResponseItemStream, HaneulError> {
-        let request = BincodeEncodedPayload::try_from(&request).unwrap();
-        let response_stream = self.client().batch_info(request).await?.into_inner();
-
-        let stream = response_stream
-            .map_err(|_| HaneulError::UnexpectedMessage)
-            .and_then(|item| {
-                let response_item = item
-                    .deserialize::<BatchInfoResponseItem>()
-                    .map_err(|_| HaneulError::UnexpectedMessage);
-                futures::future::ready(response_item)
-            });
+        let stream = self
+            .client()
+            .batch_info(request)
+            .await
+            .map(tonic::Response::into_inner)?
+            .map_err(Into::into);
 
         Ok(Box::pin(stream))
     }
