@@ -48,7 +48,7 @@ In addition, to conduct advanced work such as publishing a Move module or making
 
 ### Set up wallet, connect to gateway
 
-Now [set up your wallet and connect to DevNet](../build/wallet.md#connect-to-devnet) in a single step. Note you can [manually change the Gateway URL](../build/wallet.md#manually-changing-the-gateway-url) if you have already configured a Haneul wallet.
+Now [set up your wallet and connect to DevNet](../build/wallet.md#connect-to-devnet) in a single step. Note you can [manually change the Gateway URL](../build/wallet.md#manually-change-the-gateway-url) if you have already configured a Haneul wallet.
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
 
