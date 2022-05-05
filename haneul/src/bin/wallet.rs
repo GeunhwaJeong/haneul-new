@@ -1,16 +1,19 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_trait::async_trait;
-use clap::*;
-use colored::Colorize;
-use jsonrpsee::http_client::HttpClientBuilder;
 use std::{
     io,
     io::{stderr, stdout, Write},
     ops::Deref,
     path::PathBuf,
 };
+
+use async_trait::async_trait;
+use clap::*;
+use jsonrpsee::http_client::HttpClientBuilder;
+use tracing::debug;
+
+use colored::Colorize;
 use haneul::{
     config::{
         haneul_config_dir, Config, GatewayType, WalletConfig, HANEUL_DEV_NET_URL, HANEUL_WALLET_CONFIG,
@@ -21,8 +24,8 @@ use haneul::{
     },
     wallet_commands::*,
 };
+use haneul_core::gateway_state::gateway_responses::SwitchResponse;
 use haneul_types::exit_main;
-use tracing::debug;
 
 const HANEUL: &str = "   _____       _    _       __      ____     __
   / ___/__  __(_)  | |     / /___ _/ / /__  / /_
@@ -185,10 +188,13 @@ impl AsyncHandler<WalletContext> for ClientCommandHandler {
         context: &mut WalletContext,
         completion_cache: CompletionCache,
     ) -> bool {
-        if let Err(e) = handle_command(get_command(args), context, completion_cache).await {
-            let _err = writeln!(stderr(), "{}", e.to_string().red());
+        match handle_command(get_command(args), context, completion_cache).await {
+            Err(e) => {
+                let _err = writeln!(stderr(), "{}", e.to_string().red());
+                false
+            }
+            Ok(return_value) => return_value,
         }
-        false
     }
 }
 
@@ -203,7 +209,7 @@ async fn handle_command(
     wallet_opts: Result<WalletOpts, anyhow::Error>,
     context: &mut WalletContext,
     completion_cache: CompletionCache,
-) -> Result<(), anyhow::Error> {
+) -> Result<bool, anyhow::Error> {
     let mut wallet_opts = wallet_opts?;
     let result = wallet_opts.command.execute(context).await?;
 
@@ -232,5 +238,17 @@ async fn handle_command(
         }
     }
     result.print(!wallet_opts.json);
-    Ok(())
+
+    // Quit shell after gateway switch
+    if matches!(
+        result,
+        WalletCommandResult::Switch(SwitchResponse {
+            gateway: Some(_),
+            ..
+        })
+    ) {
+        println!("Gateway switch completed, please restart wallet.");
+        return Ok(true);
+    }
+    Ok(false)
 }
