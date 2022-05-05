@@ -14,10 +14,11 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* [Haneul DevNet](../explore/devnet.md) - Experiment with Haneul DevNet: request gas tokens, mint/customize example NFTs, publish a Move module, and make a Move call.
 * [JSON-RPC API](../build/json-rpc.md) - Set up your own local Haneul RPC Server and use the Haneul JSON-RPC API to interact with a local Haneul network.
 * [Narwhal and Tusk for consensus](../learn/architecture/consensus.md) - Learn about Narwhal and Tusk, Haneul's high-throughput mempool and consensus engine.
-* [RPC API publishing](../build/json-rpc.md#haneul_publish) - Instructions exist for publishing Move modules via the Publish endpoint.
-* [Wallet improvements](../build/wallet.md#active-address)- Active (default) addresses and [using gas objects for transactions](../build/wallet.md#paying-for-transactions-with-gas-objects) are supported.
+* [RPC API publishing](../build/json-rpc.md#haneul_publish) - Follow instructions for publishing Move modules via the Publish endpoint.
+* [Wallet improvements](../build/wallet.md#active-address)- Employ an active (default) addresses and [use gas objects for transactions](../build/wallet.md#paying-for-transactions-with-gas-objects).
 
 See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
