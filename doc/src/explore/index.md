@@ -41,4 +41,5 @@ View projects built by third parties demonstrating the power of Haneul.
 
 ## Haneul Explorer
 
-Navigate the [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/explorer-rest/explorer) and [Haneul Explorer Client](https://github.com/GeunhwaJeong/haneul/blob/explorer-rest/explorer/client) to see the latest blocks, transactions, and cluster statistics.
+Navigate the [Haneul Explorer](https://explorer.devnet.haneul.io/) to see the latest transactions and objects. Read the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for instructions on how to run the Explorer locally.
+https://explorer.devnet.haneul.io/
