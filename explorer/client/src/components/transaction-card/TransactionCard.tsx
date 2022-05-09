@@ -1,14 +1,14 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Buffer } from 'buffer';
-import cl from 'classnames';
 import {
     getMoveCallTransaction,
     getPublishTransaction,
     getTransactionKind,
     getTransferTransaction,
-} from 'haneul.js';
+} from '@haneullabs/haneul.js';
+import { Buffer } from 'buffer';
+import cl from 'classnames';
 
 import Longtext from '../../components/longtext/Longtext';
 
@@ -18,7 +18,7 @@ import type {
     TransactionKindName,
     ExecutionStatusType,
     RawObjectRef,
-} from 'haneul.js';
+} from '@haneullabs/haneul.js';
 
 import styles from './TransactionCard.module.css';
 

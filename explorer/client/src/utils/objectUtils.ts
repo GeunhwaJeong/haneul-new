@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ObjectExistsInfo } from 'haneul.js';
+import type { ObjectExistsInfo } from '@haneullabs/haneul.js';
 
 export function parseImageURL(data: any): string {
     return (

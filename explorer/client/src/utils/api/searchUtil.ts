@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isObjectNotExistsInfo, isObjectRef } from 'haneul.js';
+import { isObjectNotExistsInfo, isObjectRef } from '@haneullabs/haneul.js';
 
 import { DefaultRpcClient as rpc } from './DefaultRpcClient';
 

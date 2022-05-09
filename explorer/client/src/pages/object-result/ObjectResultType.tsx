@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getMovePackageContent, getObjectContent } from 'haneul.js';
+import { getMovePackageContent, getObjectContent } from '@haneullabs/haneul.js';
 
 import { type AddressOwner } from '../../utils/api/DefaultRpcClient';
 import { parseObjectType } from '../../utils/objectUtils';
@@ -12,7 +12,7 @@ import type {
     ObjectNotExistsInfo,
     ObjectOwner,
     ObjectRef,
-} from 'haneul.js';
+} from '@haneullabs/haneul.js';
 
 export type DataType = {
     id: string;
