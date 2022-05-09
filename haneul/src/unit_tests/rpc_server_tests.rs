@@ -151,7 +151,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
 
     let json_args = vec![
         HaneulJsonValue::from_str("10000")?,
-        HaneulJsonValue::from_str(&format!("\"0x{}\"", address))?,
+        HaneulJsonValue::from_str(&format!("{:#x}", address))?,
     ];
 
     let tx_data: TransactionBytes = http_client

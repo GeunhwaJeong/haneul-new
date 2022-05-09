@@ -128,7 +128,7 @@ impl HaneulJsonValue {
                 if !s.starts_with(HEX_PREFIX) {
                     return Err(anyhow!("Address hex string must start with 0x.",));
                 }
-                let r: HaneulAddress = decode_bytes_hex(s.trim_start_matches(HEX_PREFIX))?;
+                let r: HaneulAddress = decode_bytes_hex(&s)?;
                 MoveValue::Address(r.into())
             }
             _ => return Err(anyhow!("Unexpected arg {val} for expected type {ty}")),
@@ -139,7 +139,13 @@ impl HaneulJsonValue {
 impl std::str::FromStr for HaneulJsonValue {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, anyhow::Error> {
-        HaneulJsonValue::new(serde_json::from_str(s)?)
+        // Add quotes for hex value start with 0x if it's missing
+        let s = if s.starts_with(HEX_PREFIX) {
+            serde_json::from_str(&format!("\"{}\"", s))
+        } else {
+            serde_json::from_str(s)
+        }?;
+        HaneulJsonValue::new(s)
     }
 }
 
