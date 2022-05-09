@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Base64DataBuffer } from '../../serialization/base64';
+import { ObjectId, HaneulAddress } from '../../types';
 
 ///////////////////////////////
 // Exported Types
-export interface TransferTransaction {
-  fromAddress: string;
-  objectId: string;
-  toAddress: string;
-  gasObjectId: string;
-  gas_budget: number;
+export interface TransferCoinTransaction {
+  signer: HaneulAddress;
+  objectId: ObjectId;
+  gasPayment: ObjectId;
+  gasBudget: number;
+  recipient: HaneulAddress;
 }
 
 ///////////////////////////////
@@ -19,7 +20,7 @@ export interface TransferTransaction {
  * Serializes a transaction to a string that can be signed by a `Signer`.
  */
 export interface TxnDataSerializer {
-  new_transfer(transaction: TransferTransaction): Promise<Base64DataBuffer>;
+  newTransferCoin(txn: TransferCoinTransaction): Promise<Base64DataBuffer>;
 
   // TODO: add more interface methods
 }
