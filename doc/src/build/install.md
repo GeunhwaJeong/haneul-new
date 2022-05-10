@@ -16,9 +16,9 @@ $ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --bran
 ```
 
 This will put these binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
-* [`haneul-move`](move.md): Build and test Move packages.
-* [`wallet`](wallet.md): Run a local Haneul network and gateway service accessible via the wallet CLI. The wallet CLI manage keypairs to sign/send transactions.
-* [`rpc-server`](json-rpc.md): Run a local Haneul network and gateway service accessible via an RPC interface.
+* [`haneul-move`](move.md) - build and test Move packages
+* [`wallet`](wallet.md) - run a local Haneul network and gateway service accessible via the wallet CLI. The wallet CLI manage keypairs to sign/send transactions
+* [`rpc-server`](json-rpc.md) - run a local Haneul network and gateway service accessible via an RPC interface
 
 Confirm the install with:
 
@@ -48,13 +48,17 @@ $ git clone https://github.com/GeunhwaJeong/haneul.git
 ```
 
 You can start exploring Haneul's source code by looking into the following primary directories:
-
 * [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/haneul) - the Haneul binaries (`wallet`, `haneul-move`, and more)
 * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
 * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_core) - authority server and Haneul Gateway
 * [haneul_types](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_types) - coins, gas, and other object types
 * [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
 * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
+
+And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
+* https://haneullabs.github.io/haneul/ - the Haneul blockchain
+* https://haneullabs.github.io/narwhal/ - the Narwhal and Tusk consensus engine
+* https://haneullabs.github.io/haneullabs-infra/ - Haneul Labs infrastructure
 
 To contribute updates to Haneul code, [send pull requests](../contribute/index.md#send-pull-requests) our way.
 
