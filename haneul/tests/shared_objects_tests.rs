@@ -1,6 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use haneul::config::AuthorityPrivateInfo;
+use haneul::config::AuthorityInfo;
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use haneul_network::network::NetworkClient;
 use haneul_types::{
@@ -24,7 +24,7 @@ use test_utils::{
 /// Submit a certificate containing only owned-objects to all authorities.
 async fn submit_single_owner_transaction(
     transaction: Transaction,
-    configs: &[AuthorityPrivateInfo],
+    configs: &[AuthorityInfo],
 ) -> Vec<TransactionInfoResponse> {
     let certificate = make_certificates(vec![transaction]).pop().unwrap();
     let txn = ConfirmationTransaction { certificate };
@@ -41,7 +41,7 @@ async fn submit_single_owner_transaction(
     responses
 }
 
-fn get_client(config: &AuthorityPrivateInfo) -> NetworkAuthorityClient {
+fn get_client(config: &AuthorityInfo) -> NetworkAuthorityClient {
     let network_config = NetworkClient::new(
         config.host.clone(),
         config.port,
@@ -58,7 +58,7 @@ fn get_client(config: &AuthorityPrivateInfo) -> NetworkAuthorityClient {
 /// may drop transactions. The certificate is submitted to every Haneul authority.
 async fn submit_shared_object_transaction(
     transaction: Transaction,
-    configs: &[AuthorityPrivateInfo],
+    configs: &[AuthorityInfo],
 ) -> Vec<HaneulResult<TransactionInfoResponse>> {
     let certificate = make_certificates(vec![transaction]).pop().unwrap();
     let message = ConsensusTransaction::UserTransaction(certificate);
@@ -85,10 +85,7 @@ async fn submit_shared_object_transaction(
 }
 
 /// Helper function to publish the move package of a simple shared counter.
-async fn publish_counter_package(
-    gas_object: Object,
-    configs: &[AuthorityPrivateInfo],
-) -> ObjectRef {
+async fn publish_counter_package(gas_object: Object, configs: &[AuthorityInfo]) -> ObjectRef {
     let transaction = publish_move_package_transaction(gas_object);
     let replies = submit_single_owner_transaction(transaction, configs).await;
     let mut package_refs = Vec::new();

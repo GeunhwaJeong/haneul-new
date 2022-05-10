@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use std::path::Path;
 use haneul::{
     config::{
-        AuthorityPrivateInfo, Config, GatewayConfig, GatewayType, GenesisConfig, WalletConfig,
+        AuthorityInfo, Config, GatewayConfig, GatewayType, GenesisConfig, WalletConfig,
         HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
     },
     keystore::KeystoreType,
@@ -58,7 +58,7 @@ pub async fn start_test_network(
     genesis_config.authorities = genesis_config
         .authorities
         .into_iter()
-        .map(|info| AuthorityPrivateInfo { port: 0, ..info })
+        .map(|info| AuthorityInfo { port: 0, ..info })
         .collect();
 
     let (network_config, accounts, mut keystore) = genesis(genesis_config, None).await?;
@@ -75,7 +75,7 @@ pub async fn start_test_network(
         .into_iter()
         .zip(&network.spawned_authorities)
         .map(|(mut info, server)| {
-            info.base_port = server.get_port();
+            info.port = server.get_port();
             info
         })
         .collect::<Vec<_>>();
