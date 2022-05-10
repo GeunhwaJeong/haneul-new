@@ -34,6 +34,11 @@ Simply edit the file in question and generate a pull request. We will get back t
 In order to obtain the Haneul source code, follow the steps to download (`git clone`) the `haneul` repository
 at [Install Haneul](../build/install.md#source-code).
 
+And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
+* https://haneullabs.github.io/haneul/ - the Haneul blockchain
+* https://haneullabs.github.io/narwhal/ - the Narwhal and Tusk consensus engine
+* https://haneullabs.github.io/haneullabs-infra/ - Haneul Labs infrastructure
+
 ## Send pull requests
 
 Start by creating your own fork of the repo:
