@@ -33,6 +33,8 @@ serde-name = "0.2.0"
 dirs = "4.0.0"
 clap = { version = "3.1.17", features = ["derive"] }
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "3b7daedf91fd8937dde26e905b8114cac459b866" }
+multiaddr = "0.14.0"
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "3b7daedf91fd8937dde26e905b8114cac459b866" }
 
 bcs = "0.1.3"
 haneul_core = { path = "../haneul_core" }

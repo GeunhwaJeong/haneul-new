@@ -31,6 +31,8 @@ clap = { version = "3.1.17", features = ["derive"] }
 bincode = "1.3.3"
 fdlimit = "0.2.1"
 schemars = "0.8.8"
+multiaddr = "0.14.0"
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "3b7daedf91fd8937dde26e905b8114cac459b866" }
 
 haneul-adapter = { path = "../haneul_programmability/adapter" }
 haneul-framework = { path = "../haneul_programmability/framework" }
