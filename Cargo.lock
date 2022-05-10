@@ -5311,6 +5311,7 @@ dependencies = [
  "async-trait",
  "bincode",
  "bytes",
+ "haneullabs-network",
  "prost",
  "serde 1.0.137",
  "haneul-types",
