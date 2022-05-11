@@ -7,6 +7,7 @@
 /// that needs to hold coins.
 module Haneul::Balance {
     friend Haneul::Coin;
+    friend Haneul::HaneulSystem;
 
     /// For when trying to destroy a non-zero balance.
     const ENonZero: u64 = 0;

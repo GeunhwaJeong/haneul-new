@@ -3,9 +3,9 @@
 
 #[test_only]
 module Haneul::ValidatorSetTests {
+    use Haneul::Balance;
     use Haneul::Coin;
-    //use Haneul::ID;
-    //use Haneul::HANEUL::HANEUL;
+    use Haneul::HANEUL::HANEUL;
     use Haneul::TxContext::{Self, TxContext};
     use Haneul::Validator::{Self, Validator};
     use Haneul::ValidatorSet;
@@ -20,8 +20,8 @@ module Haneul::ValidatorSetTests {
 
         // Create a validator set with only the first validator in it.
         let validator_set = ValidatorSet::new(vector[validator1]);
-        assert!(ValidatorSet::get_total_validator_candidate_count(&validator_set) == 1, 0);
-        assert!(ValidatorSet::total_stake(&validator_set) == 100, 0);
+        assert!(ValidatorSet::total_validator_candidate_count(&validator_set) == 1, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 100, 0);
 
         // Add the other 3 validators one by one.
         ValidatorSet::request_add_validator(
@@ -29,8 +29,8 @@ module Haneul::ValidatorSetTests {
             validator2,
         );
         // Adding validator during the epoch should not affect stake and quorum threshold.
-        assert!(ValidatorSet::get_total_validator_candidate_count(&validator_set) == 2, 0);
-        assert!(ValidatorSet::total_stake(&validator_set) == 100, 0);
+        assert!(ValidatorSet::total_validator_candidate_count(&validator_set) == 2, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 100, 0);
 
         ValidatorSet::request_add_validator(
             &mut validator_set,
@@ -44,7 +44,7 @@ module Haneul::ValidatorSetTests {
         );
         // Adding stake to existing active validator during the epoch
         // should not change total stake.
-        assert!(ValidatorSet::total_stake(&validator_set) == 100, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 100, 0);
 
         ValidatorSet::request_withdraw_stake(
             &mut validator_set,
@@ -52,30 +52,32 @@ module Haneul::ValidatorSetTests {
             100 /* min_validator_stake */,
             &ctx1,
         );
-        assert!(ValidatorSet::total_stake(&validator_set) == 100, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 100, 0);
 
         ValidatorSet::request_add_validator(
             &mut validator_set,
             validator4,
         );
 
-        ValidatorSet::advance_epoch(&mut validator_set, &mut ctx1);
-        // The total stake should reflect 4 validators.
-        assert!(ValidatorSet::get_total_validator_candidate_count(&validator_set) == 4, 0);
-        assert!(ValidatorSet::total_stake(&validator_set) == 1000, 0);
+        let reward = Balance::zero<HANEUL>();
+        ValidatorSet::advance_epoch(&mut validator_set, &mut reward, &mut ctx1);
+        // The total stake and quorum should reflect 4 validators.
+        assert!(ValidatorSet::total_validator_candidate_count(&validator_set) == 4, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 1000, 0);
 
         ValidatorSet::request_remove_validator(
             &mut validator_set,
             &ctx1,
         );
         // Total validator candidate count changes, but total stake remains during epoch.
-        assert!(ValidatorSet::get_total_validator_candidate_count(&validator_set) == 3, 0);
-        assert!(ValidatorSet::total_stake(&validator_set) == 1000, 0);
-        ValidatorSet::advance_epoch(&mut validator_set, &mut ctx1);
+        assert!(ValidatorSet::total_validator_candidate_count(&validator_set) == 3, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 1000, 0);
+        ValidatorSet::advance_epoch(&mut validator_set, &mut reward, &mut ctx1);
         // Validator1 is gone.
-        assert!(ValidatorSet::total_stake(&validator_set) == 900, 0);
+        assert!(ValidatorSet::validator_stake(&validator_set) == 900, 0);
 
         ValidatorSet::destroy_for_testing(validator_set, &mut ctx1);
+        Balance::destroy_zero(reward);
     }
 
     fun create_validator(addr: address, hint: u8): (TxContext, Validator) {
