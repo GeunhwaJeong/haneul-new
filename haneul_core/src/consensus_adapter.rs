@@ -123,7 +123,7 @@ impl ConsensusAdapter {
                 .clone()
                 .submit_transaction(TransactionProto { transaction: bytes })
                 .await
-                .map_err(|e| HaneulError::ConsensusConnectionBroken(e.to_string()))?;
+                .map_err(|e| HaneulError::ConsensusConnectionBroken(format!("{:?}", e)))?;
         }
 
         // Wait for the consensus to sequence the certificate and assign locks to shared objects.
