@@ -16,8 +16,8 @@ use haneul_types::json_schema::Base64;
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::object::ObjectRead;
 
+use crate::api::{RpcGatewayClient as RpcGateway, SignedTransaction, TransactionBytes};
 use crate::rpc_gateway::responses::ObjectResponse;
-use crate::rpc_gateway::{RpcGatewayClient as RpcGateway, SignedTransaction, TransactionBytes};
 
 pub struct RpcGatewayClient {
     client: HttpClient,

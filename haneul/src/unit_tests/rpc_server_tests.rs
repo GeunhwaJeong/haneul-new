@@ -14,12 +14,10 @@ use jsonrpsee::{
 use move_core_types::identifier::Identifier;
 
 use haneul::{
+    api::{RpcGatewayClient, RpcGatewayServer, SignedTransaction, TransactionBytes},
     config::{PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG},
     keystore::{Keystore, HaneulKeystore},
-    rpc_gateway::{
-        responses::ObjectResponse, RpcGatewayClient, RpcGatewayImpl, RpcGatewayServer,
-        SignedTransaction, TransactionBytes,
-    },
+    rpc_gateway::{responses::ObjectResponse, RpcGatewayImpl},
     haneul_commands::HaneulNetwork,
 };
 use haneul_core::gateway_state::gateway_responses::{TransactionEffectsResponse, TransactionResponse};
