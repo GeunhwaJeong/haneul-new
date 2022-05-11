@@ -1,0 +1,18 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+import type {
+    CertifiedTransaction,
+    ExecutionStatusType,
+    RawObjectRef,
+} from '@haneullabs/haneul.js';
+
+export type DataType = CertifiedTransaction & {
+    loadState: string;
+    txId: string;
+    status: ExecutionStatusType;
+    gasFee: number;
+    txError: string;
+    mutated: RawObjectRef[];
+    created: RawObjectRef[];
+};
