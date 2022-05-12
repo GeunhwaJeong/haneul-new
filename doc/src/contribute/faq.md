@@ -31,9 +31,9 @@ See these resources on the [Haneul Developer Portal](https://docs.haneul.io/) fo
 
 
 * [Why Move?](../learn/why-move)
-* [How Haneul Move differs from Core Move](../learn/haneul-move-diffs)
-* [How Haneul Works](../learn/how-haneul-works)
-* [Haneul Compared to Other Blockchains](../learn/haneul-compared)
+* [How Haneul Move differs from Core Move](../learn/haneul-move-diffs.md)
+* [How Haneul Works](../learn/how-haneul-works.md)
+* [Haneul Compared to Other Blockchains](../learn/haneul-compared.md)
 
 
 ### Is Haneul based on Diem?
@@ -91,7 +91,8 @@ For developers:
 
 ### Are there things we can already try if we are not a developer?
 
-We have a number of examples and demos available for viewing at: [https://docs.haneul.io/explore](../explore) 
+We have a number of examples and demos available for viewing at:
+https://docs.haneul.io/explore
 
 ### Are you looking for partners?
 
@@ -131,7 +132,7 @@ Section four in the [Haneul Smart Contract Platform](https://github.com/GeunhwaJ
 
 ### Can I run a Haneul validator node?
 
-We now have a public [Haneul DevNet](../explore/devnet.md) with nodes operated by Haneul Labs. Soon we will have a TestNet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](https://docs.haneul.io/build/wallet) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet#command-line-mode) or [RPC API](../build/json-rpc).
+We now have a public [Haneul DevNet](../explore/devnet.md) with nodes operated by Haneul Labs. Soon we will have a TestNet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, you can run a local, non-networked Haneul node for development. Check out our [Wallet](../build/wallet.md) documentation to get started. You can interact with the local node via either the [Wallet CLI](../build/wallet.md#command-line-mode) or [RPC API](../build/json-rpc.md).
 
 ### What does a local node do and what are the hardware requirements to run it? How is it different from a testnet node?
 
@@ -147,7 +148,7 @@ No. Haneul heavily leverages the Move's asset-centric data model for its novel p
 
 To be blunt: even if we preferred the EVM/Solidity to Move, we could not use them in Haneul without sacrificing the performance breakthroughs that make Haneul unique. And of course, we think there are many reasons why Move is a safer and more developer-friendly language than the EVM.
 
-See [Why move?](../learn/why-move) for more details on this. In addition, see the [Move Problem Statement](https://github.com/GeunhwaJeong/awesome-move/blob/main/docs/problem_statement.md) for why we think that - despite being the most popular smart contract language of today - EVM is holding back the crypto space.
+See [Why move?](../learn/why-move.md) for more details on this. In addition, see the [Move Problem Statement](https://github.com/GeunhwaJeong/awesome-move/blob/main/docs/problem_statement.md) for why we think that - despite being the most popular smart contract language of today - EVM is holding back the crypto space.
 
 Finally, the EVM developer community is very small--approximately 4,000 programmers according to [this study](https://medium.com/electric-capital/electric-capital-developer-report-2021-f37874efea6d). Compare this to (e.g.) the [>20M registered iOS developers](https://techcrunch.com/2018/06/04/app-store-hits-20m-registered-developers-at-100b-in-revenues-500m-visitors-per-week/#:~:text=Today%20at%20WWDC%2C%20Apple's%20CEO,500%20million%20visitors%20per%20week.). Thus, the practical path to scaling the smart contract dev community is to bring folks in from the broader population, not to pull them from the tiny pool of existing Solidity developers. We think Move is much safer and much more approachable for mainstream programmers than the EVM.
 
