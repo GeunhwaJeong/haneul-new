@@ -8,7 +8,7 @@ Welcome to the documentation for the Haneul platform. Since Haneul is built upon
 programming language, you should familiarize yourself with it and use this content to apply the differences. For a summary of these differences, see
 [Haneul compared to other blockchains](../learn/haneul-compared.md).
 
-For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](../../../paper/haneul.pdf) white paper. Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
+For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper. Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
 
 ## See what's new
 
