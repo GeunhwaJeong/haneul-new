@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/haneul-config",
     "crates/haneul-network",
     "crates/x",
     "faucet",

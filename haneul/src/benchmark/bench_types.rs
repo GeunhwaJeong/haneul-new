@@ -1,7 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::config::{Config, NetworkConfig};
+use crate::config::Config;
+use haneul_config::NetworkConfig;
 
 use super::load_generator::calculate_throughput;
 use clap::*;

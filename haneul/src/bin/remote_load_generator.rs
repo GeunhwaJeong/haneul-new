@@ -10,7 +10,8 @@ use std::panic;
 use std::path::PathBuf;
 use haneul::benchmark::transaction_creator::TransactionCreator;
 use haneul::benchmark::validator_preparer::ValidatorPreparer;
-use haneul::config::{NetworkConfig, PersistedConfig};
+use haneul::config::PersistedConfig;
+use haneul_config::NetworkConfig;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::KeyPair;
 use tokio::runtime::Builder;
@@ -61,8 +62,11 @@ pub fn main() {
 
     let network_config: NetworkConfig = remote_config.network_config;
 
-    let validator_preparer =
-        ValidatorPreparer::new_for_remote(&network_config, &remote_config.validator_keypairs);
+    let validator_preparer = ValidatorPreparer::new_for_remote(network_config);
+    let remote_config: RemoteLoadGenConfig =
+        PersistedConfig::read(&benchmark.remote_config).unwrap();
+
+    let network_config: NetworkConfig = remote_config.network_config;
     let connections = if benchmark.tcp_connections > 0 {
         benchmark.tcp_connections
     } else {
