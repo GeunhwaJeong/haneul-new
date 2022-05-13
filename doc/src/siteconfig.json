@@ -125,16 +125,16 @@
         "name": "See what's New",
         "sublist": [
           {
+            "name": "View Haneul 0.2.0 updates",
+            "url": "/learn/index"
+          },
+          {
             "name": "Explore Haneul DevNet!",
             "url": "/explore/devnet"
           },
           {
             "name": "Interact with local network",
             "url": "/build/json-rpc"
-          },
-          {
-            "name": "Learn Haneul consensus",
-            "url": "/learn/architecture/consensus"
           }
         ]
       },
