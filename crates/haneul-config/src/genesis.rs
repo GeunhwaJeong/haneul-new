@@ -7,24 +7,33 @@ use base64ct::Encoding;
 use move_binary_format::CompiledModule;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::{serde_as, DeserializeAs, SerializeAs};
-use haneul_types::{base_types::TransactionDigest, crypto::PublicKeyBytes, object::Object};
+use haneul_types::{
+    base_types::{TransactionDigest, TxContext},
+    crypto::PublicKeyBytes,
+    object::Object,
+};
 use tracing::info;
 
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Genesis {
-    #[serde_as(as = "Vec<SerdeCompiledModule>")]
-    modules: Vec<CompiledModule>,
+    #[serde_as(as = "Vec<Vec<SerdeCompiledModule>>")]
+    modules: Vec<Vec<CompiledModule>>,
     objects: Vec<Object>,
+    genesis_ctx: TxContext,
 }
 
 impl Genesis {
-    pub fn modules(&self) -> &[CompiledModule] {
+    pub fn modules(&self) -> &[Vec<CompiledModule>] {
         &self.modules
     }
 
     pub fn objects(&self) -> &[Object] {
         &self.objects
+    }
+
+    pub fn genesis_ctx(&self) -> &TxContext {
+        &self.genesis_ctx
     }
 }
 
@@ -74,7 +83,9 @@ impl<'de> DeserializeAs<'de, CompiledModule> for SerdeCompiledModule {
 pub struct Builder {
     haneul_framework: Option<PathBuf>,
     move_framework: Option<PathBuf>,
-    move_modules: Vec<PathBuf>,
+    move_modules: Vec<Vec<CompiledModule>>,
+    objects: Vec<Object>,
+    genesis_ctx: Option<TxContext>,
     validators: Vec<(PublicKeyBytes, usize)>,
 }
 
@@ -93,8 +104,23 @@ impl Builder {
         self
     }
 
-    pub fn add_move_module(mut self, path: PathBuf) -> Self {
-        self.move_modules.push(path);
+    pub fn add_move_modules(mut self, modules: Vec<Vec<CompiledModule>>) -> Self {
+        self.move_modules = modules;
+        self
+    }
+
+    pub fn add_object(mut self, object: Object) -> Self {
+        self.objects.push(object);
+        self
+    }
+
+    pub fn add_objects(mut self, objects: Vec<Object>) -> Self {
+        self.objects.extend(objects);
+        self
+    }
+
+    pub fn genesis_ctx(mut self, genesis_ctx: TxContext) -> Self {
+        self.genesis_ctx = Some(genesis_ctx);
         self
     }
 
@@ -110,19 +136,7 @@ impl Builder {
 
     pub fn build(self) -> Genesis {
         let mut modules = Vec::new();
-        let mut objects = Vec::new();
-
-        // Load Haneul Framework
-        let haneul_framework_lib_path = self.haneul_framework.unwrap();
-        info!(
-            "Loading Haneul framework lib from {:?}",
-            haneul_framework_lib_path
-        );
-        let haneul_modules =
-            haneul_framework::get_haneul_framework_modules(&haneul_framework_lib_path).unwrap();
-        // let haneul_framework = Object::new_package(haneul_modules.clone(), TransactionDigest::genesis());
-        modules.extend(haneul_modules);
-        // objects.push(haneul_framework);
+        let objects = self.objects;
 
         // Load Move Framework
         let move_framework_lib_path = self.move_framework.unwrap();
@@ -134,10 +148,32 @@ impl Builder {
             haneul_framework::get_move_stdlib_modules(&move_framework_lib_path).unwrap();
         // let move_framework =
         //     Object::new_package(move_modules.clone(), TransactionDigest::genesis());
-        modules.extend(move_modules);
+        modules.push(move_modules);
         // objects.push(move_framework);
 
-        Genesis { modules, objects }
+        // Load Haneul Framework
+        let haneul_framework_lib_path = self.haneul_framework.unwrap();
+        info!(
+            "Loading Haneul framework lib from {:?}",
+            haneul_framework_lib_path
+        );
+        let haneul_modules =
+            haneul_framework::get_haneul_framework_modules(&haneul_framework_lib_path).unwrap();
+        // let haneul_framework = Object::new_package(haneul_modules.clone(), TransactionDigest::genesis());
+        modules.push(haneul_modules);
+        // objects.push(haneul_framework);
+
+        // add custom modules
+        modules.extend(self.move_modules);
+
+        let genesis_ctx = self
+            .genesis_ctx
+            .unwrap_or_else(haneul_adapter::genesis::get_genesis_context);
+        Genesis {
+            modules,
+            objects,
+            genesis_ctx,
+        }
     }
 }
 
@@ -153,8 +189,9 @@ mod test {
             haneul_framework::get_haneul_framework_modules(DEFAULT_FRAMEWORK_PATH.as_ref()).unwrap();
 
         let genesis = Genesis {
-            modules: haneul_lib,
+            modules: vec![haneul_lib],
             objects: vec![],
+            genesis_ctx: haneul_adapter::genesis::get_genesis_context(),
         };
 
         let s = serde_json::to_string_pretty(&genesis).unwrap();

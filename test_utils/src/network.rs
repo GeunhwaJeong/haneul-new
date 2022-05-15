@@ -1,16 +1,17 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::Path;
+use std::{num::NonZeroUsize, path::Path};
 use haneul::{
     config::{
         Config, GatewayConfig, GatewayType, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
         HANEUL_WALLET_CONFIG,
     },
-    keystore::KeystoreType,
+    keystore::{Keystore, KeystoreType, HaneulKeystore},
     haneul_commands::{genesis, HaneulNetwork},
 };
-use haneul_config::GenesisConfig;
+use haneul_config::{builder::ConfigBuilder, GenesisConfig, NetworkConfig};
+use haneul_types::base_types::HaneulAddress;
 
 const NUM_VALIDAOTR: usize = 4;
 
@@ -25,19 +26,27 @@ pub async fn start_test_network(
     let keystore_path = working_dir.join("wallet.key");
     let db_folder_path = working_dir.join("client_db");
 
-    let genesis_config = match genesis_config {
-        Some(genesis_config) => genesis_config,
-        None => {
-            let mut config = GenesisConfig::for_local_testing()?;
-            config.committee_size = NUM_VALIDAOTR;
-            config
-        }
-    };
-    let (network_config, accounts, mut keystore) = genesis(genesis_config).await?;
+    let mut builder =
+        ConfigBuilder::new(&working_dir).committee_size(NonZeroUsize::new(NUM_VALIDAOTR).unwrap());
+
+    if let Some(genesis_config) = genesis_config {
+        builder = builder.initial_accounts_config(genesis_config);
+    }
+
+    let network_config = builder.build();
+    let accounts = network_config
+        .account_keys
+        .iter()
+        .map(|key| HaneulAddress::from(key.public_key_bytes()))
+        .collect::<Vec<_>>();
     let network = HaneulNetwork::start(&network_config).await?;
 
     let network_config = network_config.persisted(&network_path);
     network_config.save()?;
+    let mut keystore = HaneulKeystore::default();
+    for key in &network_config.account_keys {
+        keystore.add_key(HaneulAddress::from(key.public_key_bytes()), key.copy())?;
+    }
     keystore.set_path(&keystore_path);
     keystore.save()?;
 
