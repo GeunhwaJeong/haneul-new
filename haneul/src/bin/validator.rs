@@ -3,12 +3,12 @@
 
 use clap::*;
 use multiaddr::Multiaddr;
-use std::path::PathBuf;
+use std::{num::NonZeroUsize, path::PathBuf};
 use haneul::{
     config::{haneul_config_dir, HANEUL_NETWORK_CONFIG},
-    haneul_commands::{genesis, make_server_with_genesis},
+    haneul_commands::make_server_with_genesis,
 };
-use haneul_config::PersistedConfig;
+use haneul_config::{builder::ConfigBuilder, PersistedConfig};
 use haneul_config::{GenesisConfig, ValidatorConfig};
 use tracing::{error, info};
 
@@ -55,9 +55,11 @@ async fn main() -> Result<(), anyhow::Error> {
 
         // If network.conf is missing, or if --force-genesis is true, we run genesis.
         _ => {
-            let mut genesis_conf: GenesisConfig = PersistedConfig::read(&cfg.genesis_config_path)?;
-            genesis_conf.committee_size = 1;
-            let (network_config, _, _) = genesis(genesis_conf).await?;
+            let genesis_conf: GenesisConfig = PersistedConfig::read(&cfg.genesis_config_path)?;
+            let network_config = ConfigBuilder::new(haneul_config_dir()?)
+                .committee_size(NonZeroUsize::new(1).unwrap())
+                .initial_accounts_config(genesis_conf)
+                .build();
             network_config.into_validator_configs().remove(0)
         }
     };

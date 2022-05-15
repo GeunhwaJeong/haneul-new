@@ -7,10 +7,10 @@ use haneul::{
         Config, GatewayConfig, GatewayType, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
         HANEUL_WALLET_CONFIG,
     },
-    keystore::{Keystore, KeystoreType, HaneulKeystore},
-    haneul_commands::{genesis, HaneulNetwork},
+    keystore::{KeystoreType, HaneulKeystore},
+    haneul_commands::HaneulNetwork,
 };
-use haneul_config::{builder::ConfigBuilder, GenesisConfig, NetworkConfig};
+use haneul_config::{builder::ConfigBuilder, GenesisConfig};
 use haneul_types::base_types::HaneulAddress;
 
 const NUM_VALIDAOTR: usize = 4;

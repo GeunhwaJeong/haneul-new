@@ -28,7 +28,7 @@ use std::{
         Arc,
     },
 };
-use haneul_adapter::{adapter, genesis::get_genesis_context};
+use haneul_adapter::adapter;
 use haneul_config::genesis::Genesis;
 use haneul_types::{
     base_types::*,
