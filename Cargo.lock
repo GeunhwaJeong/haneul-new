@@ -5718,6 +5718,7 @@ dependencies = [
  "serde_yaml",
  "signature",
  "haneul-adapter",
+ "haneul-config",
  "haneul-framework",
  "haneul-network",
  "haneul-types",
