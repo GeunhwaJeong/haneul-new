@@ -35,7 +35,7 @@ move-vm-types = { git = "https://github.com/move-language/move", rev = "1b2d3b42
 
 
 haneul-framework = { path = "../framework" }
-haneul-verifier = { path = "../verifier" }
+haneul-verifier = { path = "../../crates/haneul-verifier" }
 haneul-types = { path = "../../crates/haneul-types" }
 haneul-adapter = { path = "../adapter" }
 haneul_core = { path = "../../haneul_core" }

@@ -3,6 +3,7 @@ members = [
     "crates/haneul-config",
     "crates/haneul-network",
     "crates/haneul-types",
+    "crates/haneul-verifier",
     "crates/x",
     "faucet",
     "haneul",
@@ -13,7 +14,6 @@ members = [
     "haneul_programmability/adapter/transactional-tests",
     "haneul_programmability/framework",
     "haneul_programmability/transactional-test-runner",
-    "haneul_programmability/verifier",
     "test_utils",
 ]
 
