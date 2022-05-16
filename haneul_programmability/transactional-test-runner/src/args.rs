@@ -18,6 +18,8 @@ pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 pub struct HaneulRunArgs {
     #[clap(long = "sender")]
     pub sender: Option<String>,
+    #[clap(long = "view-events")]
+    pub view_events: bool,
 }
 
 #[derive(Debug, clap::Parser)]
