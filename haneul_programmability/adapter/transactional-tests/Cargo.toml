@@ -9,7 +9,7 @@ edition = "2021"
 
 [dev-dependencies]
 datatest-stable = "0.1.1"
-haneul-transactional-test-runner = { path = "../../transactional-test-runner" }
+haneul-transactional-test-runner = { path = "../../../crates/haneul-transactional-test-runner" }
 
 [[test]]
 name = "tests"
