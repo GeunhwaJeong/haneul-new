@@ -22,6 +22,7 @@ tower = { version = "0.4.12", features = ["util", "timeout", "load-shed", "limit
 
 haneul = { path = "../haneul" }
 haneul-types = { path = "../haneul_types" }
+haneul_core = { path = "../haneul_core" }
 
 [dev-dependencies]
 tempfile = "3.3.0"

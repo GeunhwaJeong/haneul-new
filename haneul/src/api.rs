@@ -3,31 +3,24 @@
 
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
-use move_core_types::identifier::Identifier;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_with::{base64, serde_as};
-use haneul_core::gateway_state::{
-    gateway_responses::{TransactionEffectsResponse, TransactionResponse},
-    GatewayTxSeqNumber,
-};
+use serde_with::serde_as;
+
+use haneul_core::gateway_state::GatewayTxSeqNumber;
+use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulInputObjectKind, HaneulObjectRef};
+use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
 use haneul_core::haneul_json::HaneulJsonValue;
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::ObjectRef;
-use haneul_types::messages::InputObjectKind;
-
+use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
-    crypto,
     crypto::SignableBytes,
-    json_schema,
-    json_schema::Base64,
     messages::TransactionData,
-    object::ObjectRead,
 };
 
+use crate::rpc_gateway::responses::ObjectResponse;
 use crate::rpc_gateway::responses::HaneulTypeTag;
-use crate::rpc_gateway::responses::{GetObjectInfoResponse, ObjectResponse};
 
 #[open_rpc(
     name = "Haneul JSON-RPC",
@@ -41,10 +34,6 @@ use crate::rpc_gateway::responses::{GetObjectInfoResponse, ObjectResponse};
 )]
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcGateway {
-    /// Return the object information for a specified object
-    #[method(name = "getObjectTypedInfo")]
-    async fn get_object_typed_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse>;
-
     /// Create a transaction to transfer a Haneul coin from one address to another.
     #[method(name = "transferCoin")]
     async fn transfer_coin(
@@ -62,8 +51,8 @@ pub trait RpcGateway {
         &self,
         signer: HaneulAddress,
         package_object_id: ObjectID,
-        #[schemars(with = "json_schema::Identifier")] module: Identifier,
-        #[schemars(with = "json_schema::Identifier")] function: Identifier,
+        module: String,
+        function: String,
         type_arguments: Vec<HaneulTypeTag>,
         arguments: Vec<HaneulJsonValue>,
         gas: Option<ObjectID>,
@@ -104,7 +93,9 @@ pub trait RpcGateway {
     #[method(name = "executeTransaction")]
     async fn execute_transaction(
         &self,
-        signed_transaction: SignedTransaction,
+        tx_bytes: Base64,
+        signature: Base64,
+        pub_key: Base64,
     ) -> RpcResult<TransactionResponse>;
 
     /// Synchronize client state with validators.
@@ -137,56 +128,34 @@ pub trait RpcGateway {
         digest: TransactionDigest,
     ) -> RpcResult<TransactionEffectsResponse>;
 
-    /// Low level API to get object info. Client Applications should prefer to use
-    /// `get_object_typed_info` instead.
-    #[method(name = "getObjectInfoRaw")]
-    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<ObjectRead>;
+    /// Return the object information for a specified object
+    #[method(name = "getObjectInfo")]
+    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse>;
 }
 
 #[serde_as]
 #[derive(Serialize, Deserialize, JsonSchema)]
-pub struct SignedTransaction {
-    #[schemars(with = "json_schema::Base64")]
-    #[serde_as(as = "base64::Base64")]
-    pub tx_bytes: Vec<u8>,
-    #[schemars(with = "json_schema::Base64")]
-    #[serde_as(as = "base64::Base64")]
-    pub signature: Vec<u8>,
-    #[schemars(with = "json_schema::Base64")]
-    #[serde_as(as = "base64::Base64")]
-    pub pub_key: Vec<u8>,
-}
-
-impl SignedTransaction {
-    pub fn new(tx_bytes: Vec<u8>, signature: crypto::Signature) -> Self {
-        Self {
-            tx_bytes,
-            signature: signature.signature_bytes().to_vec(),
-            pub_key: signature.public_key_bytes().to_vec(),
-        }
-    }
-}
-
-#[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct TransactionBytes {
-    #[schemars(with = "json_schema::Base64")]
-    #[serde_as(as = "base64::Base64")]
-    pub tx_bytes: Vec<u8>,
-    pub gas: ObjectRef,
-    pub input_objects: Vec<InputObjectKind>,
+    pub tx_bytes: Base64,
+    pub gas: HaneulObjectRef,
+    pub input_objects: Vec<HaneulInputObjectKind>,
 }
 
 impl TransactionBytes {
     pub fn from_data(data: TransactionData) -> Result<Self, anyhow::Error> {
         Ok(Self {
-            tx_bytes: data.to_bytes(),
-            gas: data.gas(),
-            input_objects: data.input_objects()?,
+            tx_bytes: Base64::from_bytes(&data.to_bytes()),
+            gas: data.gas().into(),
+            input_objects: data
+                .input_objects()?
+                .into_iter()
+                .map(HaneulInputObjectKind::from)
+                .collect(),
         })
     }
 
     pub fn to_data(self) -> Result<TransactionData, anyhow::Error> {
-        TransactionData::from_signable_bytes(&self.tx_bytes)
+        TransactionData::from_signable_bytes(&self.tx_bytes.to_vec()?)
     }
 }

@@ -4,24 +4,19 @@
 use std::path::Path;
 
 use crate::{
-    api::{RpcGatewayServer, SignedTransaction, TransactionBytes},
-    rpc_gateway::responses::{GetObjectInfoResponse, ObjectResponse, HaneulTypeTag},
+    api::{RpcGatewayServer, TransactionBytes},
+    rpc_gateway::responses::{ObjectResponse, HaneulTypeTag},
 };
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
-use move_core_types::identifier::Identifier;
+use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
 
-use haneul_core::gateway_state::{
-    gateway_responses::{TransactionEffectsResponse, TransactionResponse},
-    GatewayTxSeqNumber,
-};
+use haneul_core::gateway_state::GatewayTxSeqNumber;
+use haneul_core::gateway_types::GetObjectInfoResponse;
 use haneul_core::haneul_json::HaneulJsonValue;
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress, TransactionDigest},
-    json_schema::Base64,
-    object::ObjectRead,
-};
+use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::haneul_serde::Base64;
 
 pub struct HaneulNode {}
 
@@ -80,20 +75,15 @@ impl RpcGatewayServer for HaneulNode {
         todo!()
     }
 
-    async fn get_object_info(&self, _object_id: ObjectID) -> RpcResult<ObjectRead> {
-        todo!()
-    }
-
-    async fn get_object_typed_info(
-        &self,
-        _object_id: ObjectID,
-    ) -> RpcResult<GetObjectInfoResponse> {
+    async fn get_object_info(&self, _object_id: ObjectID) -> RpcResult<GetObjectInfoResponse> {
         todo!()
     }
 
     async fn execute_transaction(
         &self,
-        _signed_tx: SignedTransaction,
+        _tx_bytes: Base64,
+        _signature: Base64,
+        _pub_key: Base64,
     ) -> RpcResult<TransactionResponse> {
         Err(anyhow!("Haneul Node only supports read-only methods").into())
     }
@@ -102,8 +92,8 @@ impl RpcGatewayServer for HaneulNode {
         &self,
         _signer: HaneulAddress,
         _package_object_id: ObjectID,
-        _module: Identifier,
-        _function: Identifier,
+        _module: String,
+        _function: String,
         _type_arguments: Vec<HaneulTypeTag>,
         _rpc_arguments: Vec<HaneulJsonValue>,
         _gas: Option<ObjectID>,
