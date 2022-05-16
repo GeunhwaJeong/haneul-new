@@ -37,7 +37,7 @@ haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra",
 prometheus_exporter = "0.8.4"
 once_cell = "1.10.0"
 
-haneul-adapter = { path = "../haneul_programmability/adapter" }
+haneul-adapter = { path = "../crates/haneul-adapter" }
 haneul-framework = { path = "../haneul_programmability/framework" }
 haneul-network = { path = "../crates/haneul-network" }
 haneul-types = { path = "../crates/haneul-types" }
