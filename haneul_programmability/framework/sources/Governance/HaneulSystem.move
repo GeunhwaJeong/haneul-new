@@ -256,4 +256,15 @@ module Haneul::HaneulSystem {
         // remaining balance in `computation_reward`. All of these go to the storage fund.
         Balance::join(&mut self.storage_fund, computation_reward)
     }
+
+    /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,
+    /// since epochs are ever-increasing and epoch changes are intended to happen every 24 hours.
+    public fun epoch(self: &HaneulSystemState): u64 {
+        self.epoch
+    }
+
+    #[test_only]
+    public fun set_epoch_for_testing(self: &mut HaneulSystemState, epoch_num: u64) {
+        self.epoch = epoch_num
+    }
 }
