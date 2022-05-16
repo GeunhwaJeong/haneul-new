@@ -10,25 +10,16 @@ use crate::{
 use anyhow::{anyhow, bail};
 use base64ct::{Base64, Encoding};
 use clap::*;
-use futures::future::join_all;
 use std::fs;
+use std::num::NonZeroUsize;
 use std::path::PathBuf;
-use std::sync::Arc;
-use std::time::Duration;
-use std::{collections::BTreeMap, num::NonZeroUsize};
+use haneul_config::GenesisConfig;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig};
-use haneul_config::{GenesisConfig, ValidatorConfig};
-use haneul_core::authority::{AuthorityState, AuthorityStore};
-use haneul_core::authority_active::ActiveAuthority;
-use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_core::authority_server::AuthorityServer;
-use haneul_core::authority_server::AuthorityServerHandle;
-use haneul_core::consensus_adapter::ConsensusListener;
 use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::error::HaneulResult;
-use tokio::sync::mpsc::channel;
-use tracing::{error, info};
+use tracing::info;
+
+pub use haneul_core::make::{make_authority, make_server, make_server_with_genesis, HaneulNetwork};
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -272,171 +263,4 @@ impl HaneulCommand {
             }
         }
     }
-}
-
-pub struct HaneulNetwork {
-    pub spawned_authorities: Vec<AuthorityServerHandle>,
-}
-
-impl HaneulNetwork {
-    pub async fn start(config: &NetworkConfig) -> Result<Self, anyhow::Error> {
-        if config.validator_configs().is_empty() {
-            return Err(anyhow!(
-                "No authority configured for the network, please run genesis."
-            ));
-        }
-
-        info!(
-            "Starting network with {} authorities",
-            config.validator_configs().len()
-        );
-
-        let mut spawned_authorities = Vec::new();
-        for validator in config.validator_configs() {
-            let server = make_server_with_genesis(validator).await?;
-            spawned_authorities.push(server.spawn().await?);
-        }
-        info!("Started {} authorities", spawned_authorities.len());
-
-        Ok(Self {
-            spawned_authorities,
-        })
-    }
-
-    pub async fn kill(self) -> Result<(), anyhow::Error> {
-        for spawned_server in self.spawned_authorities {
-            spawned_server.kill().await?;
-        }
-        Ok(())
-    }
-
-    pub async fn wait_for_completion(self) -> Result<(), anyhow::Error> {
-        let mut handles = Vec::new();
-        for spawned_server in self.spawned_authorities {
-            handles.push(async move {
-                if let Err(err) = spawned_server.join().await {
-                    error!("Server ended with an error: {err}");
-                }
-            });
-        }
-        join_all(handles).await;
-        info!("All servers stopped.");
-        Ok(())
-    }
-}
-
-pub async fn make_server(validator_config: &ValidatorConfig) -> HaneulResult<AuthorityServer> {
-    let store = Arc::new(AuthorityStore::open(validator_config.db_path(), None));
-    let name = validator_config.public_key();
-    let state = AuthorityState::new_without_genesis(
-        validator_config.committee_config().committee(),
-        name,
-        Arc::pin(validator_config.key_pair().copy()),
-        store,
-    )
-    .await;
-
-    make_authority(validator_config, state).await
-}
-
-pub async fn make_server_with_genesis(
-    validator_config: &ValidatorConfig,
-) -> HaneulResult<AuthorityServer> {
-    let store = Arc::new(AuthorityStore::open(validator_config.db_path(), None));
-    let name = validator_config.public_key();
-    let state = AuthorityState::new_with_genesis(
-        validator_config.committee_config().committee(),
-        name,
-        Arc::pin(validator_config.key_pair().copy()),
-        store,
-        validator_config.genesis(),
-    )
-    .await;
-
-    make_authority(validator_config, state).await
-}
-
-/// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
-/// and a consensus listener bridging the consensus node and the haneul authority.
-pub async fn make_authority(
-    validator_config: &ValidatorConfig,
-    state: AuthorityState,
-) -> HaneulResult<AuthorityServer> {
-    let (tx_consensus_to_haneul, rx_consensus_to_haneul) = channel(1_000);
-    let (tx_haneul_to_consensus, rx_haneul_to_consensus) = channel(1_000);
-
-    let authority_state = Arc::new(state);
-
-    // Spawn the consensus node of this authority.
-    let consensus_keypair = validator_config.key_pair().make_narwhal_keypair();
-    let consensus_name = consensus_keypair.name.clone();
-    let consensus_store =
-        narwhal_node::NodeStorage::reopen(validator_config.consensus_config().db_path());
-    narwhal_node::Node::spawn_primary(
-        consensus_keypair,
-        validator_config
-            .committee_config()
-            .narwhal_committee()
-            .to_owned(),
-        &consensus_store,
-        validator_config
-            .consensus_config()
-            .narwhal_config()
-            .to_owned(),
-        /* consensus */ true, // Indicate that we want to run consensus.
-        /* execution_state */ authority_state.clone(),
-        /* tx_confirmation */ tx_consensus_to_haneul,
-    )
-    .await?;
-    narwhal_node::Node::spawn_workers(
-        consensus_name,
-        /* ids */ vec![0], // We run a single worker with id '0'.
-        validator_config
-            .committee_config()
-            .narwhal_committee()
-            .to_owned(),
-        &consensus_store,
-        validator_config
-            .consensus_config()
-            .narwhal_config()
-            .to_owned(),
-    );
-
-    // Spawn a consensus listener. It listen for consensus outputs and notifies the
-    // authority server when a sequenced transaction is ready for execution.
-    ConsensusListener::spawn(
-        rx_haneul_to_consensus,
-        rx_consensus_to_haneul,
-        /* max_pending_transactions */ 1_000_000,
-    );
-
-    // If we have network information make authority clients
-    // to all authorities in the system.
-    let _active_authority: Option<()> = {
-        let mut authority_clients = BTreeMap::new();
-        let mut config = haneullabs_network::config::Config::new();
-        config.connect_timeout = Some(Duration::from_secs(5));
-        config.request_timeout = Some(Duration::from_secs(5));
-        for validator in validator_config.committee_config().validator_set() {
-            let channel = config.connect_lazy(validator.network_address()).unwrap();
-            let client = NetworkAuthorityClient::new(channel);
-            authority_clients.insert(validator.public_key(), client);
-        }
-
-        let _active_authority = ActiveAuthority::new(authority_state.clone(), authority_clients)?;
-
-        // TODO: turn on to start the active part of validators
-        //
-        // let join_handle = active_authority.spawn_all_active_processes().await;
-        // Some(join_handle)
-        None
-    };
-
-    // Return new authority server. It listen to users transactions and send back replies.
-    Ok(AuthorityServer::new(
-        validator_config.network_address().to_owned(),
-        authority_state,
-        validator_config.consensus_config().address().to_owned(),
-        /* tx_consensus_listener */ tx_haneul_to_consensus,
-    ))
 }
