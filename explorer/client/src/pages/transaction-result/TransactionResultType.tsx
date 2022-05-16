@@ -4,7 +4,7 @@
 import type {
     CertifiedTransaction,
     ExecutionStatusType,
-    RawObjectRef,
+    HaneulObjectRef,
 } from '@haneullabs/haneul.js';
 
 export type DataType = CertifiedTransaction & {
@@ -13,6 +13,6 @@ export type DataType = CertifiedTransaction & {
     status: ExecutionStatusType;
     gasFee: number;
     txError: string;
-    mutated: RawObjectRef[];
-    created: RawObjectRef[];
+    mutated: HaneulObjectRef[];
+    created: HaneulObjectRef[];
 };

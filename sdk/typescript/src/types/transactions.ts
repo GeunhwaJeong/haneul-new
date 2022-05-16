@@ -2,27 +2,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
-import { ObjectId, RawObjectRef } from './objects';
+import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
 
 export type TransferCoin = {
-  recipient: string;
-  object_ref: RawObjectRef;
+  recipient: HaneulAddress;
+  objectRef: HaneulObjectRef;
 };
 export type RawAuthoritySignInfo = [AuthorityName, AuthoritySignature];
 
 export type TransactionKindName = 'TransferCoin' | 'Publish' | 'Call';
-export type SingleTransactionKind =
+export type HaneulTransactionKind =
   | { TransferCoin: TransferCoin }
-  | { Publish: MoveModulePublish }
+  | { Publish: HaneulMovePackage }
   | { Call: MoveCall };
-export type TransactionKind =
-  | { Single: SingleTransactionKind }
-  | { Batch: SingleTransactionKind[] };
 export type TransactionData = {
-  kind: TransactionKind;
-  sender: string;
-  gas_payment: RawObjectRef;
-  gas_budget: number;
+  transactions: HaneulTransactionKind[];
+  sender: HaneulAddress;
+  gasPayment: HaneulObjectRef;
+  gasBudget: number;
 };
 
 // TODO: support u64
@@ -34,39 +31,61 @@ export type AuthorityQuorumSignInfo = {
 };
 
 export type CertifiedTransaction = {
+  transactionDigest: TransactionDigest;
   data: TransactionData;
-  tx_signature: string;
-  auth_sign_info: AuthorityQuorumSignInfo;
+  txSignature: string;
+  authSignInfo: AuthorityQuorumSignInfo;
 };
 
 export type GasCostSummary = {
-  computation_cost: number;
-  storage_cost: number;
-  storage_rebate: number;
+  computationCost: number;
+  storageCost: number;
+  storageRebate: number;
 };
 
-export type ExecutionStatusType = 'Success' | 'Failure';
-export type ExecutionStatus =
-  | { Success: ExecutionStatusDetail }
-  | { Failure: ExecutionStatusDetail };
-
-export type ExecutionStatusDetail = { gas_cost: GasCostSummary; error?: any };
+export type ExecutionStatusType = 'success' | 'failure';
+export type ExecutionStatus = {
+  status: ExecutionStatusType;
+  gas_cost: GasCostSummary;
+  error?: string;
+};
 
 // TODO: change the tuple to struct from the server end
-export type OwnedObjectRef = [RawObjectRef, ObjectOwner];
+export type OwnedObjectRef = {
+  owner: ObjectOwner;
+  reference: HaneulObjectRef;
+};
 
 export type TransactionEffects = {
+  /** The status of the execution */
   status: ExecutionStatus;
-  shared_objects: RawObjectRef[];
-  transaction_digest: TransactionDigest;
-  created: OwnedObjectRef[];
-  mutated: OwnedObjectRef[];
-  unwrapped: OwnedObjectRef[];
-  deleted: RawObjectRef[];
-  wrapped: RawObjectRef[];
-  gas_object: OwnedObjectRef;
-  events: Event[];
-  dependencies: TransactionDigest[];
+  /** The object references of the shared objects used in this transaction. Empty if no shared objects were used. */
+  sharedObjects?: HaneulObjectRef[];
+  /** The transaction digest */
+  transactionDigest: TransactionDigest;
+  /** ObjectRef and owner of new objects created */
+  created?: OwnedObjectRef[];
+  /** ObjectRef and owner of mutated objects, including gas object */
+  mutated?: OwnedObjectRef[];
+  /**
+   * ObjectRef and owner of objects that are unwrapped in this transaction.
+   * Unwrapped objects are objects that were wrapped into other objects in the past,
+   * and just got extracted out.
+   */
+  unwrapped?: OwnedObjectRef[];
+  /** Object Refs of objects now deleted (the old refs) */
+  deleted?: HaneulObjectRef[];
+  /** Object refs of objects now wrapped in other objects */
+  wrapped?: HaneulObjectRef[];
+  /**
+   * The updated gas object reference. Have a dedicated field for convenient access.
+   * It's also included in mutated.
+   */
+  gasObject: OwnedObjectRef;
+  /** The events emitted during execution. Note that only successful transactions emit events */
+  events?: Event[];
+  /** The set of transaction digests this transaction depends on */
+  dependencies?: TransactionDigest[];
 };
 
 export type TransactionEffectsResponse = {
@@ -78,133 +97,153 @@ export type GatewayTxSeqNumber = number;
 
 export type GetTxnDigestsResponse = [GatewayTxSeqNumber, TransactionDigest][];
 
-export type MoveModulePublish = {
-  modules: any;
-};
-
 export type Event = {
-  type_: StructTag;
-  contents: string;
+  type_: string;
+  contents: any;
 };
-
-export type StructTag = {
-  address: HaneulAddress;
-  module: string;
-  name: string;
-  type_args: MoveTypeTag[];
-};
-export type MoveTypeTag =
-  | 'bool'
-  | 'u8'
-  | 'u64'
-  | 'u128'
-  | 'address'
-  | 'signer'
-  | { vector: MoveTypeTag[] }
-  | { struct: StructTag };
 
 export type MoveCall = {
-  package: RawObjectRef;
+  package: HaneulObjectRef;
   module: string;
   function: string;
-  type_arguments: MoveTypeTag[];
-  arguments: MoveCallArg[];
+  typeArguments?: string[];
+  arguments?: HaneulJsonValue[];
 };
 
-export type MoveCallArg =
-  // TODO: convert to Uint8Array
-  | { Pure: number[] }
-  | { ImmOrOwnedObject: RawObjectRef }
-  | { SharedObject: ObjectId };
+export type HaneulJsonValue =
+  | boolean
+  | number
+  | string
+  | Array<boolean | number | string>;
 
 export type EmptySignInfo = object;
 export type AuthorityName = string;
 export type AuthoritySignature = string;
 
 export type TransactionBytes = {
-  tx_bytes: string;
+  txBytes: string;
+  gas: HaneulObjectRef;
+  // TODO: Add input_objects field
 };
 
-export type TransactionResponse = {
-  EffectResponse: TransactionEffectsResponse;
-  // TODO: Add Publish, MergeCoin, SplitCoin Response
+export type SplitCoinResponse = {
+  certificate: CertifiedTransaction;
+  updatedCoin: HaneulObject;
+  newCoins: HaneulObject[];
+  updatedGas: HaneulObject;
 };
 
-export type SignedTransaction = {
-  tx_bytes: string;
-  signature: string;
-  pub_key: string;
-};
+export type TransactionResponse =
+  | {
+      EffectResponse: TransactionEffectsResponse;
+      // TODO: Add Publish, MergeCoin Response
+    }
+  | {
+      SplitCoinResponse: SplitCoinResponse;
+    };
 
-/* ---------------------------- Helper functions ---------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                              Helper functions                              */
+/* -------------------------------------------------------------------------- */
 
-export function getSingleTransactionKind(
-  data: TransactionData
-): SingleTransactionKind | undefined {
-  return 'Single' in data.kind ? data.kind.Single : undefined;
+/* ---------------------------------- CertifiedTransaction --------------------------------- */
+export function getTransactionDigest(
+  tx: CertifiedTransaction
+): TransactionDigest {
+  return tx.transactionDigest;
 }
 
-export function getTransferTransaction(
-  data: TransactionData
+export function getTransactionSignature(tx: CertifiedTransaction): string {
+  return tx.txSignature;
+}
+
+export function getTransactionAuthorityQuorumSignInfo(
+  tx: CertifiedTransaction
+): AuthorityQuorumSignInfo {
+  return tx.authSignInfo;
+}
+
+export function getTransactionData(tx: CertifiedTransaction): TransactionData {
+  return tx.data;
+}
+
+/* ----------------------------- TransactionData ---------------------------- */
+
+export function getTransactionSender(tx: CertifiedTransaction): HaneulAddress {
+  return tx.data.sender;
+}
+
+export function getTransactionGasObject(
+  tx: CertifiedTransaction
+): HaneulObjectRef {
+  return tx.data.gasPayment;
+}
+
+export function getTransactionGasBudget(tx: CertifiedTransaction): number {
+  return tx.data.gasBudget;
+}
+
+export function getTransferCoinTransaction(
+  data: HaneulTransactionKind
 ): TransferCoin | undefined {
-  const tx = getSingleTransactionKind(data);
-  return tx && 'TransferCoin' in tx ? tx.TransferCoin : undefined;
+  return 'TransferCoin' in data ? data.TransferCoin : undefined;
 }
 
 export function getPublishTransaction(
-  data: TransactionData
-): MoveModulePublish | undefined {
-  const tx = getSingleTransactionKind(data);
-  return tx && 'Publish' in tx ? tx.Publish : undefined;
+  data: HaneulTransactionKind
+): HaneulMovePackage | undefined {
+  return 'Publish' in data ? data.Publish : undefined;
 }
 
 export function getMoveCallTransaction(
-  data: TransactionData
+  data: HaneulTransactionKind
 ): MoveCall | undefined {
-  const tx = getSingleTransactionKind(data);
-  return tx && 'Call' in tx ? tx.Call : undefined;
+  return 'Call' in data ? data.Call : undefined;
 }
 
-export function getTransactionKind(
-  data: TransactionData
-): TransactionKindName | undefined {
-  const tx = getSingleTransactionKind(data);
-  return tx && (Object.keys(tx)[0] as TransactionKindName);
+export function getTransactions(
+  data: CertifiedTransaction
+): HaneulTransactionKind[] {
+  return data.data.transactions;
 }
+
+export function getTransactionKindName(
+  data: HaneulTransactionKind
+): TransactionKindName {
+  return Object.keys(data)[0] as TransactionKindName;
+}
+
+/* ----------------------------- ExecutionStatus ---------------------------- */
 
 export function getExecutionStatusType(
-  data: ExecutionStatus
+  data: TransactionEffectsResponse
 ): ExecutionStatusType {
-  return Object.keys(data)[0] as ExecutionStatusType;
+  return getExecutionStatus(data).status;
 }
 
-export function getGasSummary(
-  data: ExecutionStatus
-): GasCostSummary | undefined {
-  const details = getExecutionDetails(data);
-  return details.gas_cost;
+export function getExecutionStatus(
+  data: TransactionEffectsResponse
+): ExecutionStatus {
+  return data.effects.status;
 }
 
-export function getTotalGasUsed(data: ExecutionStatus): number {
-  const gasSummary = getGasSummary(data);
-  if (gasSummary) {
-    return (
-      gasSummary.computation_cost +
-      gasSummary.storage_cost -
-      gasSummary.storage_rebate
-    );
-  }
-  return 0;
+export function getExecutionStatusError(
+  data: TransactionEffectsResponse
+): string | undefined {
+  return getExecutionStatus(data).error;
 }
 
-export function getExecutionDetails(
-  data: ExecutionStatus
-): ExecutionStatusDetail {
-  if ('Success' in data) {
-    return data.Success;
-  } else if ('Failure' in data) {
-    return data.Failure;
-  }
-  console.error('Unrecognized ExecutionStatus:', data);
-  return data[Object.keys(data)[0]];
+export function getExecutionStatusGasSummary(
+  data: TransactionEffectsResponse
+): GasCostSummary {
+  return getExecutionStatus(data).gas_cost;
+}
+
+export function getTotalGasUsed(data: TransactionEffectsResponse): number {
+  const gasSummary = getExecutionStatusGasSummary(data);
+  return (
+    gasSummary.computationCost +
+    gasSummary.storageCost -
+    gasSummary.storageRebate
+  );
 }
