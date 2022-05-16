@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/haneul-adapter-transactional-tests",
     "crates/haneul-config",
     "crates/haneul-network",
     "crates/haneul-transactional-test-runner",
@@ -12,7 +13,6 @@ members = [
     "haneul/open_rpc/macros",
     "haneul_core",
     "haneul_programmability/adapter",
-    "haneul_programmability/adapter/transactional-tests",
     "haneul_programmability/framework",
     "test_utils",
 ]
