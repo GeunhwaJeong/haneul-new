@@ -27,6 +27,8 @@ const HANEUL_CONFIG_DIR: &str = "haneul_config";
 pub const HANEUL_NETWORK_CONFIG: &str = "network.conf";
 pub const HANEUL_WALLET_CONFIG: &str = "wallet.conf";
 pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.conf";
+pub const FULL_NODE_DB_PATH: &str = "full_node_db";
+
 pub const HANEUL_DEV_NET_URL: &str = "https://gateway.devnet.haneul.io:9000";
 
 pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {

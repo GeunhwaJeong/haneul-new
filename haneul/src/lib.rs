@@ -10,5 +10,5 @@ pub mod rpc_gateway;
 pub mod rpc_gateway_client;
 pub mod shell;
 pub mod haneul_commands;
-pub mod haneul_node;
+pub mod haneul_full_node;
 pub mod wallet_commands;

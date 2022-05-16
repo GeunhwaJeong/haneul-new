@@ -84,6 +84,7 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
     assert!(files.contains(&HANEUL_WALLET_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GATEWAY_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_NETWORK_CONFIG.to_string()));
+
     assert!(files.contains(&"wallet.key".to_string()));
 
     // Check network config

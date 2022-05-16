@@ -13,8 +13,8 @@ use std::{
 };
 use haneul::{
     api::{RpcGatewayOpenRpc, RpcGatewayServer},
-    config::haneul_config_dir,
-    haneul_node::HaneulNode,
+    config::{haneul_config_dir, FULL_NODE_DB_PATH},
+    haneul_full_node::HaneulFullNode,
 };
 use tracing::info;
 
@@ -22,12 +22,11 @@ const DEFAULT_NODE_SERVER_PORT: &str = "5002";
 const DEFAULT_NODE_SERVER_ADDR_IPV4: &str = "127.0.0.1";
 
 #[derive(Parser)]
-#[clap(
-    name = "Haneul Node",
-    about = "A Byzantine fault tolerant chain with low-latency finality and high throughput",
-    rename_all = "kebab-case"
-)]
+#[clap(name = "Haneul Full Node", about = "TODO", rename_all = "kebab-case")]
 struct HaneulNodeOpt {
+    #[clap(long)]
+    db_path: Option<String>,
+
     #[clap(long)]
     config: Option<PathBuf>,
 
@@ -50,9 +49,14 @@ async fn main() -> anyhow::Result<()> {
     let guard = telemetry_subscribers::init(config);
 
     let options: HaneulNodeOpt = HaneulNodeOpt::parse();
+    let db_path = options
+        .db_path
+        .map(PathBuf::from)
+        .unwrap_or(haneul_config_dir()?.join(FULL_NODE_DB_PATH));
+
     let config_path = options
         .config
-        .unwrap_or(haneul_config_dir()?.join("node.conf"));
+        .unwrap_or(haneul_config_dir()?.join("network.conf"));
     info!("Node config file path: {:?}", config_path);
 
     let server_builder = HttpServerBuilder::default();
@@ -75,7 +79,11 @@ async fn main() -> anyhow::Result<()> {
     let mut module = RpcModule::new(());
     let open_rpc = RpcGatewayOpenRpc::open_rpc();
     module.register_method("rpc.discover", move |_, _| Ok(open_rpc.clone()))?;
-    module.merge(HaneulNode::new(&config_path)?.into_rpc())?;
+    module.merge(
+        HaneulFullNode::start_with_genesis(&config_path, &db_path)
+            .await?
+            .into_rpc(),
+    )?;
 
     info!(
         "Available JSON-RPC methods : {:?}",
