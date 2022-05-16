@@ -27,7 +27,7 @@ typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev ="
 narwhal-config = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "23745f48103656eae4a4205d0b3edd53ad8894de", package = "config" }
 
 haneul-config = { path = "../crates/haneul-config" }
-haneul-types = { path = "../haneul_types" }
+haneul-types = { path = "../crates/haneul-types" }
 haneul_core = { path = "../haneul_core" }
 haneul-network = { path = "../crates/haneul-network" }
 haneul = { path = "../haneul" }

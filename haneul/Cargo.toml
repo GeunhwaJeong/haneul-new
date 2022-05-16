@@ -43,7 +43,7 @@ haneul-adapter = { path = "../haneul_programmability/adapter" }
 haneul-framework = { path = "../haneul_programmability/framework" }
 haneul-network = { path = "../crates/haneul-network" }
 haneul-config = { path = "../crates/haneul-config" }
-haneul-types = { path = "../haneul_types" }
+haneul-types = { path = "../crates/haneul-types" }
 haneul-verifier = { path = "../haneul_programmability/verifier" }
 haneul-open-rpc = { path = "open_rpc" }
 haneul-open-rpc-macros = { path = "open_rpc/macros" }

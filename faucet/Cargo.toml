@@ -21,7 +21,7 @@ serde_json = "1.0.80"
 tower = { version = "0.4.12", features = ["util", "timeout", "load-shed", "limit"] }
 
 haneul = { path = "../haneul" }
-haneul-types = { path = "../haneul_types" }
+haneul-types = { path = "../crates/haneul-types" }
 haneul_core = { path = "../haneul_core" }
 
 [dev-dependencies]

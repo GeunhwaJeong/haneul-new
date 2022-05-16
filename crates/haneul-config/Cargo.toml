@@ -25,4 +25,4 @@ move-package = { git = "https://github.com/move-language/move", rev = "1b2d3b427
 
 haneul-framework = { path = "../../haneul_programmability/framework" }
 haneul-adapter = { path = "../../haneul_programmability/adapter" }
-haneul-types = { path = "../../haneul_types" }
+haneul-types = { path = "../haneul-types" }
