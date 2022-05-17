@@ -11,7 +11,7 @@ module Haneul::Transfer {
     friend Haneul::Collection;
 
     // When transferring a child object, this error is thrown if the child object
-    // doesn't match the ChildRef that represents the onwershp.
+    // doesn't match the ChildRef that represents the onwership.
     const EChildIDMismatch: u64 = 0;
 
     /// Represents a reference to a child object, whose type is T.
