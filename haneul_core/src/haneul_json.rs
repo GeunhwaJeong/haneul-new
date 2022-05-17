@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::VecDeque;
+use std::fmt::{Debug, Formatter};
 
 use anyhow::{anyhow, bail};
 // Alias the type names for clarity
@@ -16,7 +17,7 @@ use move_core_types::{
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::{Number, Value as JsonValue};
+use serde_json::{json, Number, Value as JsonValue};
 
 use haneul_types::base_types::{decode_bytes_hex, ObjectID, HaneulAddress};
 use haneul_types::move_package::MovePackage;
@@ -35,7 +36,7 @@ pub enum HaneulJsonCallArg {
     Pure(Vec<u8>),
 }
 
-#[derive(Eq, PartialEq, Debug, Clone, Deserialize, Serialize, JsonSchema)]
+#[derive(Eq, PartialEq, Clone, Deserialize, Serialize, JsonSchema)]
 pub struct HaneulJsonValue(JsonValue);
 impl HaneulJsonValue {
     pub fn new(json_value: JsonValue) -> Result<HaneulJsonValue, anyhow::Error> {
@@ -141,6 +142,12 @@ impl HaneulJsonValue {
     }
 }
 
+impl Debug for HaneulJsonValue {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 fn try_from_bcs_bytes(bytes: &[u8]) -> Result<JsonValue, anyhow::Error> {
     // Try to deserialize data
     if let Ok(v) = bcs::from_bytes::<String>(bytes) {
@@ -175,13 +182,7 @@ fn try_from_bcs_bytes(bytes: &[u8]) -> Result<JsonValue, anyhow::Error> {
 impl std::str::FromStr for HaneulJsonValue {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, anyhow::Error> {
-        // Add quotes for hex value start with 0x if it's missing
-        let s = if s.starts_with(HEX_PREFIX) {
-            serde_json::from_str(&format!("\"{}\"", s))
-        } else {
-            serde_json::from_str(s)
-        }?;
-        HaneulJsonValue::new(s)
+        HaneulJsonValue::new(serde_json::from_value(json!(s))?)
     }
 }
 
