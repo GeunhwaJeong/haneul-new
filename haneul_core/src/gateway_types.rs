@@ -9,6 +9,8 @@ use std::fmt;
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 
+use colored::Colorize;
+use itertools::Itertools;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
 use move_core_types::value::{MoveStruct, MoveStructLayout, MoveValue};
@@ -18,7 +20,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
-use colored::Colorize;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
@@ -193,19 +194,44 @@ impl From<ObjectRef> for HaneulObjectRef {
 
 impl Display for HaneulObject {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let type_string = self
-            .data
-            .type_()
-            .map_or("Move Package".to_owned(), |type_| type_.to_string());
-
-        write!(
-            f,
-            "ID: {:?}\nVersion: {:?}\nOwner: {}\nType: {}",
-            self.id(),
-            self.version().value(),
-            self.owner,
-            type_string
-        )
+        let type_ = if self.data.type_().is_some() {
+            "Move Object"
+        } else {
+            "Move Package"
+        };
+        let mut writer = String::new();
+        writeln!(
+            writer,
+            "{}",
+            format!(
+                "----- {type_} ({}[{}]) -----",
+                self.id(),
+                self.version().value()
+            )
+            .bold()
+        )?;
+        writeln!(writer, "{}: {}", "Owner".bold().bright_black(), self.owner)?;
+        writeln!(
+            writer,
+            "{}: {}",
+            "Version".bold().bright_black(),
+            self.version().value()
+        )?;
+        writeln!(
+            writer,
+            "{}: {}",
+            "Storage Rebate".bold().bright_black(),
+            self.storage_rebate
+        )?;
+        writeln!(
+            writer,
+            "{}: {:?}",
+            "Previous Transaction".bold().bright_black(),
+            self.previous_transaction
+        )?;
+        writeln!(writer, "{}", "----- Data -----".bold())?;
+        write!(writer, "{}", &self.data)?;
+        write!(f, "{}", writer)
     }
 }
 
@@ -258,6 +284,34 @@ impl HaneulObject {
 pub enum HaneulData {
     MoveObject(HaneulMoveObject),
     Package(HaneulMovePackage),
+}
+
+impl Display for HaneulData {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut writer = String::new();
+        match self {
+            HaneulData::MoveObject(o) => {
+                writeln!(writer, "{}: {}", "type".bold().bright_black(), o.type_)?;
+                write!(writer, "{}", &o.fields)?;
+            }
+            HaneulData::Package(p) => {
+                write!(
+                    writer,
+                    "{}: {:?}",
+                    "Modules".bold().bright_black(),
+                    p.disassembled.keys()
+                )?;
+            }
+        }
+        write!(f, "{}", writer)
+    }
+}
+
+fn indent<T: Display>(d: &T, indent: usize) -> String {
+    d.to_string()
+        .lines()
+        .map(|line| format!("{:indent$}{}", "", line))
+        .join("\n")
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
@@ -339,9 +393,9 @@ pub struct PublishResponse {
 impl Display for PublishResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
-        writeln!(writer, "----- Certificate ----")?;
+        writeln!(writer, "{}", "----- Certificate ----".bold())?;
         write!(writer, "{}", self.certificate)?;
-        writeln!(writer, "----- Publish Results ----")?;
+        writeln!(writer, "{}", "----- Publish Results ----".bold())?;
         writeln!(
             writer,
             "The newly published package object ID: {:?}",
@@ -417,10 +471,56 @@ pub enum HaneulMoveValue {
     Bool(bool),
     Address(HaneulAddress),
     Vector(Vec<HaneulMoveValue>),
+    Bytearray(Base64),
     String(String),
     VersionedID { id: ObjectID, version: u64 },
     Struct(HaneulMoveStruct),
     Option(Box<Option<HaneulMoveValue>>),
+}
+
+impl Display for HaneulMoveValue {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut writer = String::new();
+        match self {
+            HaneulMoveValue::Number(value) => {
+                write!(writer, "{}", value)?;
+            }
+            HaneulMoveValue::Bool(value) => {
+                write!(writer, "{}", value)?;
+            }
+            HaneulMoveValue::Address(value) => {
+                write!(writer, "{}", value)?;
+            }
+            HaneulMoveValue::Vector(vec) => {
+                write!(
+                    writer,
+                    "{}",
+                    vec.iter().map(|value| format!("{value}")).join(",\n")
+                )?;
+            }
+            HaneulMoveValue::String(value) => {
+                write!(writer, "{}", value)?;
+            }
+            HaneulMoveValue::VersionedID { id, version } => {
+                write!(writer, "{id}[{version}]")?;
+            }
+            HaneulMoveValue::Struct(value) => {
+                write!(writer, "{}", value)?;
+            }
+            HaneulMoveValue::Option(value) => {
+                write!(writer, "{:?}", value)?;
+            }
+            HaneulMoveValue::Bytearray(value) => {
+                write!(
+                    writer,
+                    "{:?}",
+                    value.clone().to_vec().map_err(fmt::Error::custom)?
+                )?;
+            }
+        }
+
+        write!(f, "{}", writer.trim_end_matches('\n'))
+    }
 }
 
 impl From<MoveValue> for HaneulMoveValue {
@@ -443,7 +543,7 @@ impl From<MoveValue> for HaneulMoveValue {
                             }
                         })
                         .collect::<Vec<_>>();
-                    return HaneulMoveValue::String(Base64::encode(&bytearray));
+                    return HaneulMoveValue::Bytearray(Base64::from_bytes(&bytearray));
                 }
                 HaneulMoveValue::Vector(value.into_iter().map(|value| value.into()).collect())
             }
@@ -467,12 +567,40 @@ impl From<MoveValue> for HaneulMoveValue {
 #[serde(untagged, rename = "MoveStruct")]
 pub enum HaneulMoveStruct {
     Runtime(Vec<HaneulMoveValue>),
-    WithFields(BTreeMap<String, HaneulMoveValue>),
     WithTypes {
         #[serde(rename = "type")]
         type_: String,
         fields: BTreeMap<String, HaneulMoveValue>,
     },
+    WithFields(BTreeMap<String, HaneulMoveValue>),
+}
+
+impl Display for HaneulMoveStruct {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut writer = String::new();
+        match self {
+            HaneulMoveStruct::Runtime(_) => {}
+            HaneulMoveStruct::WithFields(fields) => {
+                for (name, value) in fields {
+                    writeln!(writer, "{}: {value}", name.bold().bright_black())?;
+                }
+            }
+            HaneulMoveStruct::WithTypes { type_, fields } => {
+                writeln!(writer)?;
+                writeln!(writer, "  {}: {type_}", "type".bold().bright_black())?;
+                for (name, value) in fields {
+                    let value = format!("{}", value);
+                    let value = if value.starts_with('\n') {
+                        indent(&value, 2)
+                    } else {
+                        value
+                    };
+                    writeln!(writer, "  {}: {value}", name.bold().bright_black())?;
+                }
+            }
+        }
+        write!(f, "{}", writer.trim_end_matches('\n'))
+    }
 }
 
 fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Option<HaneulMoveValue> {
@@ -488,8 +616,8 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
         .collect::<BTreeMap<_, HaneulMoveValue>>();
     match struct_name.as_str() {
         "0x2::UTF8::String" | "0x1::ASCII::String" => {
-            if let HaneulMoveValue::String(bytes_string) = fields["bytes"].clone() {
-                if let Ok(bytes) = Base64::decode(bytes_string) {
+            if let HaneulMoveValue::Bytearray(bytes) = fields["bytes"].clone() {
+                if let Ok(bytes) = bytes.to_vec() {
                     if let Ok(s) = String::from_utf8(bytes) {
                         return Some(HaneulMoveValue::String(s));
                     }

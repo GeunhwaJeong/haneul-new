@@ -11,7 +11,6 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::MoveObject;
 use haneul_types::haneul_serde::Base64;
-use haneul_types::haneul_serde::Encoding;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use crate::gateway_types::{HaneulMoveStruct, HaneulMoveValue};
@@ -26,8 +25,8 @@ fn test_move_value_to_haneul_bytearray() {
         MoveValue::U8(4),
     ]);
     let haneul_value = HaneulMoveValue::from(move_value);
-    let bytes_base64 = Base64::encode(&[0, 1, 2, 3, 4]);
-    assert!(matches!(haneul_value, HaneulMoveValue::String(bytes) if bytes == bytes_base64))
+    let bytes_base64 = Base64::from_bytes(&[0, 1, 2, 3, 4]);
+    assert!(matches!(haneul_value, HaneulMoveValue::Bytearray(bytes) if bytes == bytes_base64))
 }
 
 #[test]
@@ -117,6 +116,7 @@ fn test_serde() {
         HaneulMoveValue::Address(HaneulAddress::random_for_testing_only()),
         HaneulMoveValue::Bool(true),
         HaneulMoveValue::Option(Box::new(None)),
+        HaneulMoveValue::Bytearray(Base64::from_bytes(&[10u8; 20])),
     ];
 
     for value in test_values {
