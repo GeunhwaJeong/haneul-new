@@ -182,7 +182,8 @@ fn try_from_bcs_bytes(bytes: &[u8]) -> Result<JsonValue, anyhow::Error> {
 impl std::str::FromStr for HaneulJsonValue {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, anyhow::Error> {
-        HaneulJsonValue::new(serde_json::from_value(json!(s))?)
+        // Wrap input with json! if serde_json fails, the failure usually cause by missing quote escapes.
+        HaneulJsonValue::new(serde_json::from_str(s).or_else(|_| serde_json::from_value(json!(s)))?)
     }
 }
 
