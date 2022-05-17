@@ -51,7 +51,7 @@ You can start exploring Haneul's source code by looking into the following prima
 * [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/haneul) - the Haneul binaries (`wallet`, `haneul-move`, and more)
 * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
 * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_core) - authority server and Haneul Gateway
-* [haneul_types](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_types) - coins, gas, and other object types
+* [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - coins, gas, and other object types
 * [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
 * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
 
