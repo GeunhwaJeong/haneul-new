@@ -5,5 +5,10 @@ import { combineReducers } from '@reduxjs/toolkit';
 
 import account from './slices/account';
 import app from './slices/app';
+import haneulObjects from './slices/haneul-objects';
 
-export default combineReducers({ account, app });
+const rootReducer = combineReducers({ account, app, haneulObjects });
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+export default rootReducer;

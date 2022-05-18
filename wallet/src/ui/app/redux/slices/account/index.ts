@@ -1,18 +1,26 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { isHaneulMoveObject } from '@haneullabs/haneul.js';
+import {
+    createAsyncThunk,
+    createSelector,
+    createSlice,
+} from '@reduxjs/toolkit';
 import Browser from 'webextension-polyfill';
 
+import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
 import { generateMnemonic } from '_shared/cryptography/mnemonics';
 
+import type { HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '_redux/RootReducer';
 
 export const loadAccountFromStorage = createAsyncThunk(
     'account/loadAccount',
-    async (): Promise<string> => {
+    async (): Promise<string | null> => {
         const { mnemonic } = await Browser.storage.local.get('mnemonic');
-        return mnemonic;
+        return mnemonic || null;
     }
 );
 
@@ -30,6 +38,7 @@ type AccountState = {
     mnemonic: string | null;
     creating: boolean;
     createdMnemonic: string | null;
+    address: HaneulAddress | null;
 };
 
 const initialState: AccountState = {
@@ -37,6 +46,7 @@ const initialState: AccountState = {
     mnemonic: null,
     creating: false,
     createdMnemonic: null,
+    address: null,
 };
 
 const accountSlice = createSlice({
@@ -45,6 +55,9 @@ const accountSlice = createSlice({
     reducers: {
         setMnemonic: (state, action: PayloadAction<string>) => {
             state.mnemonic = action.payload;
+        },
+        setAddress: (state, action: PayloadAction<string | null>) => {
+            state.address = action.payload;
         },
     },
     extraReducers: (builder) =>
@@ -66,6 +79,38 @@ const accountSlice = createSlice({
             }),
 });
 
-export const { setMnemonic } = accountSlice.actions;
+export const { setMnemonic, setAddress } = accountSlice.actions;
 
 export default accountSlice.reducer;
+
+export const accountCoinsSelector = createSelector(
+    (state: RootState) =>
+        haneulObjectsAdapterSelectors.selectAll(state.haneulObjects),
+    (allHaneulObjects) => {
+        return allHaneulObjects
+            .filter(
+                (anObj) =>
+                    isHaneulMoveObject(anObj.data) &&
+                    anObj.data.type.startsWith('0x2::Coin::Coin')
+            )
+            .map((aCoin) => aCoin.data as HaneulMoveObject);
+    }
+);
+
+const coinRegex = /^0x2::Coin::Coin<(.+)>$/;
+export const accountBalancesSelector = createSelector(
+    accountCoinsSelector,
+    (coins) => {
+        return coins.reduce((acc, aCoin) => {
+            const res = aCoin.type.match(coinRegex);
+            if (res) {
+                const coinType = res[1];
+                if (typeof acc[coinType] === 'undefined') {
+                    acc[coinType] = 0;
+                }
+                acc[coinType] += aCoin.fields.balance;
+            }
+            return acc;
+        }, {} as Record<string, number>);
+    }
+);
