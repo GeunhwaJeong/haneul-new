@@ -14,6 +14,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* New [`haneul-setup.sh`](https://github.com/GeunhwaJeong/haneul/blob/main/doc/utils/haneul-setup.sh) script enables full environment setup in a [single set of commands](../build/install.md).
 * Haneul version 0.2.0 released to DevNet!
 * DevNet data will be wiped along with this release. If you have requested test HANEUL tokens via faucet, please do so again via the [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel on Discord.
 * Added rustdoc output for [haneul](https://haneullabs.github.io/haneul/), [narwhal](https://haneullabs.github.io/narwhal/), and [haneullabs-infra](https://haneullabs.github.io/haneullabs-infra/) projects available from both [Install Haneul](../build/install.md#source-code) and [Contribute to Haneul](../contribute/index.md#download-haneul).
