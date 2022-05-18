@@ -7,8 +7,11 @@ use async_trait::async_trait;
 use futures::{stream::BoxStream, TryStreamExt};
 use multiaddr::Multiaddr;
 use std::sync::Arc;
+
 use haneul_network::{api::ValidatorClient, tonic};
 use haneul_types::{error::HaneulError, messages::*};
+
+use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 
 #[cfg(test)]
 use haneul_types::{
@@ -60,6 +63,11 @@ pub trait AuthorityAPI {
         &self,
         request: BatchInfoRequest,
     ) -> Result<BatchInfoResponseItemStream, HaneulError>;
+
+    async fn handle_checkpoint(
+        &self,
+        request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError>;
 }
 
 pub type BatchInfoResponseItemStream = BoxStream<'static, Result<BatchInfoResponseItem, HaneulError>>;
@@ -176,6 +184,18 @@ impl AuthorityAPI for NetworkAuthorityClient {
 
         Ok(Box::pin(stream))
     }
+
+    /// Handle Object information requests for this account.
+    async fn handle_checkpoint(
+        &self,
+        request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError> {
+        self.client()
+            .checkpoint(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
+    }
 }
 
 #[derive(Clone, Copy, Default)]
@@ -205,9 +225,7 @@ impl AuthorityAPI for LocalAuthorityClient {
         transaction: Transaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
         if self.fault_config.fail_before_handle_transaction {
-            return Err(HaneulError::GenericAuthorityError {
-                error: "Mock error before handle_transaction".to_owned(),
-            });
+            return Err(HaneulError::from("Mock error before handle_transaction"));
         }
         let state = self.state.clone();
         let result = state.handle_transaction(transaction).await;
@@ -284,12 +302,29 @@ impl AuthorityAPI for LocalAuthorityClient {
         let update_items = state.handle_batch_streaming(request).await?;
         Ok(Box::pin(update_items))
     }
+
+    async fn handle_checkpoint(
+        &self,
+        request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError> {
+        let state = self.state.clone();
+
+        let result = state
+            ._checkpoints
+            .as_ref()
+            .unwrap()
+            .lock()
+            .handle_checkpoint_request(&request);
+        result
+    }
 }
 
 impl LocalAuthorityClient {
     #[cfg(test)]
     pub async fn new(committee: Committee, address: PublicKeyBytes, secret: KeyPair) -> Self {
         use crate::authority::AuthorityStore;
+        use crate::checkpoints::CheckpointStore;
+        use parking_lot::Mutex;
         use std::{env, fs};
         use haneul_adapter::genesis;
 
@@ -298,12 +333,28 @@ impl LocalAuthorityClient {
         let path = dir.join(format!("DB_{:?}", ObjectID::random()));
         fs::create_dir(&path).unwrap();
 
-        let store = Arc::new(AuthorityStore::open(path, None));
+        let secret = Arc::pin(secret);
+
+        let mut store_path = path.clone();
+        store_path.push("store");
+        let store = Arc::new(AuthorityStore::open(&store_path, None));
+        let mut checkpoints_path = path.clone();
+        checkpoints_path.push("checkpoints");
+        let checkpoints = CheckpointStore::open(
+            &checkpoints_path,
+            None,
+            address,
+            committee.clone(),
+            secret.clone(),
+        )
+        .expect("Should not fail to open local checkpoint DB");
+
         let state = AuthorityState::new(
             committee.clone(),
             address,
-            Arc::pin(secret),
+            secret.clone(),
             store,
+            Some(Arc::new(Mutex::new(checkpoints))),
             genesis::clone_genesis_compiled_modules(),
             &mut genesis::get_genesis_context(),
         )
@@ -328,5 +379,13 @@ impl LocalAuthorityClient {
         }
 
         client
+    }
+
+    #[cfg(test)]
+    pub fn new_from_authority(state: Arc<AuthorityState>) -> Self {
+        Self {
+            state,
+            fault_config: LocalAuthorityClientFaultConfig::default(),
+        }
     }
 }
