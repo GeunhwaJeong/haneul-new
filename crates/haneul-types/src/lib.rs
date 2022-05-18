@@ -7,6 +7,7 @@
     rust_2021_compatibility
 )]
 
+use base_types::ObjectID;
 use move_core_types::account_address::AccountAddress;
 
 #[macro_use]
@@ -29,6 +30,7 @@ pub mod object;
 pub mod signature_seed;
 pub mod storage;
 pub mod haneul_serde;
+pub mod haneul_system_state;
 pub mod waypoint;
 
 #[path = "./unit_tests/utils.rs"]
@@ -41,6 +43,9 @@ pub const MOVE_STDLIB_ADDRESS: AccountAddress = AccountAddress::ONE;
 /// 0x2-- account address where haneul framework modules are stored
 /// Same as the ObjectID
 pub const HANEUL_FRAMEWORK_ADDRESS: AccountAddress = get_hex_address_two();
+
+/// 0x5: hardcoded object ID for the singleton haneul system state object.
+pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
 
 const fn get_hex_address_two() -> AccountAddress {
     let mut addr = [0u8; AccountAddress::LENGTH];

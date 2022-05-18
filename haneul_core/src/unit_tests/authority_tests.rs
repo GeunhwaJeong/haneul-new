@@ -18,6 +18,8 @@ use haneul_types::{
     crypto::{get_key_pair, Signature},
     messages::Transaction,
     object::{Owner, OBJECT_START_VERSION},
+    haneul_system_state::HaneulSystemState,
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
 use std::fs;
@@ -1225,6 +1227,21 @@ async fn test_idempotent_reversed_confirmation() {
         result1.unwrap().signed_effects.unwrap().effects,
         result2.unwrap().signed_effects.unwrap().effects
     );
+}
+
+#[tokio::test]
+async fn test_genesis_haneul_sysmtem_state_object() {
+    // This test verifies that we can read the genesis HaneulSystemState object.
+    // And its Move layout matches the definition in Rust (so that we can deserialize it).
+    let authority_state = init_state().await;
+    let haneul_system_object = authority_state
+        .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)
+        .await
+        .unwrap()
+        .unwrap();
+    let move_object = haneul_system_object.data.try_as_move().unwrap();
+    let _haneul_system_state = bcs::from_bytes::<HaneulSystemState>(move_object.contents()).unwrap();
+    assert_eq!(move_object.type_, HaneulSystemState::type_());
 }
 
 // helpers

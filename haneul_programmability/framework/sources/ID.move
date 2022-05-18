@@ -6,6 +6,7 @@ module Haneul::ID {
     use Std::BCS;
     use Std::Vector;
 
+    friend Haneul::HaneulSystem;
     friend Haneul::Transfer;
     friend Haneul::TxContext;
 
@@ -14,6 +15,9 @@ module Haneul::ID {
 
     /// Version of an object ID created by the current transaction.
     const INITIAL_VERSION: u64 = 0;
+
+    /// The hardcoded ID for the singleton Haneul System State Object.
+    const HANEUL_SYSTEM_STATE_OBJECT_ID: address = @0x5;
 
     /// Number of bytes in an object ID
     const ID_SIZE: u64 = 20;
@@ -75,6 +79,12 @@ module Haneul::ID {
     /// This is the only way to create either a `VersionedID` or a `UniqueID`.
     public(friend) fun new_versioned_id(bytes: address): VersionedID {
         VersionedID { id: UniqueID { id: ID { bytes } }, version: INITIAL_VERSION }
+    }
+
+    /// Create the `VersionedID` for the singleton HaneulSystemState object.
+    /// This should only be called once from HaneulSsytem.
+    public(friend) fun get_haneul_system_state_object_id(): VersionedID {
+        new_versioned_id(HANEUL_SYSTEM_STATE_OBJECT_ID)
     }
 
     // === reads ===
