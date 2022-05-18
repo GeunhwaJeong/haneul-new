@@ -6,6 +6,19 @@ Haneul is written in Rust, and we are using Cargo to build and manage the
 dependencies.  As a prerequisite, you will need to [install
 Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 version 1.60.0 or higher in order to build and install Haneul on your machine.
+Also ensure you have `cmake` installed:
+```shell
+$ which cmake
+```
+
+> **Tip:** Assuming you have Rust Cargo, the `git` command, and a GitHub account,
+> you can download the `haneul-setup.sh` script and run it to conduct all of the setup
+> below, from a terminal like so:
+> ```shell
+> $ curl https://raw.githubusercontent.com/HaneulLabs/haneul/main/doc/utils/haneul-setup.sh -o haneul-setup.sh
+> chmod 755 haneul-setup.sh
+> ./haneul-setup.sh
+> ```
 
 ## Binaries
 
