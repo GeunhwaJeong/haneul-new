@@ -14,7 +14,7 @@ use haneul::{
         HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
     },
     keystore::KeystoreType,
-    haneul_commands::{HaneulCommand, HaneulNetwork},
+    haneul_commands::HaneulCommand,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
 use haneul_config::{AccountConfig, GenesisConfig, NetworkConfig, ObjectConfig};
@@ -27,7 +27,7 @@ use haneul_types::{
     object::GAS_VALUE_FOR_TESTING,
 };
 
-use test_utils::network::start_test_network;
+use test_utils::network::{setup_network_and_wallet, start_test_network};
 
 const TEST_DATA_DIR: &str = "src/unit_tests/data/";
 
@@ -1214,24 +1214,4 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     assert!((get_gas_value(&g.new_coins[1]) == 1000) || (get_gas_value(&g.new_coins[1]) == 10));
     network.kill().await?;
     Ok(())
-}
-
-async fn setup_network_and_wallet() -> Result<(HaneulNetwork, WalletContext, HaneulAddress), anyhow::Error>
-{
-    let working_dir = tempfile::tempdir()?;
-
-    let network = start_test_network(working_dir.path(), None).await?;
-
-    // Create Wallet context.
-    let wallet_conf = working_dir.path().join(HANEUL_WALLET_CONFIG);
-    let mut context = WalletContext::new(&wallet_conf)?;
-    let address = context.config.accounts.first().cloned().unwrap();
-
-    // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
-        address: Some(address),
-    }
-    .execute(&mut context)
-    .await?;
-    Ok((network, context, address))
 }

@@ -5454,6 +5454,7 @@ dependencies = [
  "haneul-types",
  "haneul-verifier",
  "haneul_core",
+ "haneul_storage",
  "telemetry-subscribers",
  "tempfile",
  "test_utils",

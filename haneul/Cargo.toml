@@ -39,6 +39,7 @@ haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra",
 
 bcs = "0.1.3"
 haneul_core = { path = "../haneul_core" }
+haneul_storage = { path = "../haneul_storage" }
 haneul-adapter = { path = "../crates/haneul-adapter" }
 haneul-framework = { path = "../haneul_programmability/framework" }
 haneul-network = { path = "../crates/haneul-network" }
