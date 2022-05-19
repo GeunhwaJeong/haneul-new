@@ -6,6 +6,7 @@ use move_binary_format::CompiledModule;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::{serde_as, DeserializeAs, SerializeAs};
 use std::path::PathBuf;
+use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::{base_types::TxContext, crypto::PublicKeyBytes, object::Object};
 use tracing::info;
 
@@ -29,6 +30,10 @@ impl Genesis {
 
     pub fn genesis_ctx(&self) -> &TxContext {
         &self.genesis_ctx
+    }
+
+    pub fn get_default_genesis() -> Self {
+        Builder::new(haneul_adapter::genesis::get_genesis_context()).build()
     }
 }
 
@@ -74,28 +79,36 @@ impl<'de> DeserializeAs<'de, CompiledModule> for SerdeCompiledModule {
     }
 }
 
-#[derive(Default)]
 pub struct Builder {
-    haneul_framework: Option<PathBuf>,
-    move_framework: Option<PathBuf>,
+    haneul_framework: PathBuf,
+    move_framework: PathBuf,
     move_modules: Vec<Vec<CompiledModule>>,
     objects: Vec<Object>,
-    genesis_ctx: Option<TxContext>,
+    genesis_ctx: TxContext,
     validators: Vec<(PublicKeyBytes, usize)>,
 }
 
 impl Builder {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(genesis_ctx: TxContext) -> Self {
+        Self {
+            haneul_framework: PathBuf::from(DEFAULT_FRAMEWORK_PATH),
+            move_framework: PathBuf::from(DEFAULT_FRAMEWORK_PATH)
+                .join("deps")
+                .join("move-stdlib"),
+            move_modules: vec![],
+            objects: vec![],
+            genesis_ctx,
+            validators: vec![],
+        }
     }
 
     pub fn haneul_framework(mut self, path: PathBuf) -> Self {
-        self.haneul_framework = Some(path);
+        self.haneul_framework = path;
         self
     }
 
     pub fn move_framework(mut self, path: PathBuf) -> Self {
-        self.move_framework = Some(path);
+        self.move_framework = path;
         self
     }
 
@@ -111,11 +124,6 @@ impl Builder {
 
     pub fn add_objects(mut self, objects: Vec<Object>) -> Self {
         self.objects.extend(objects);
-        self
-    }
-
-    pub fn genesis_ctx(mut self, genesis_ctx: TxContext) -> Self {
-        self.genesis_ctx = Some(genesis_ctx);
         self
     }
 
@@ -135,26 +143,16 @@ impl Builder {
         let objects = self.objects;
 
         // Load Move Framework
-        let move_framework_lib_path = self.move_framework.unwrap();
-        info!(
-            "Loading Move framework lib from {:?}",
-            move_framework_lib_path
-        );
-        let move_modules =
-            haneul_framework::get_move_stdlib_modules(&move_framework_lib_path).unwrap();
+        info!("Loading Move framework lib from {:?}", self.move_framework);
+        let move_modules = haneul_framework::get_move_stdlib_modules(&self.move_framework).unwrap();
         // let move_framework =
         //     Object::new_package(move_modules.clone(), TransactionDigest::genesis());
         modules.push(move_modules);
         // objects.push(move_framework);
 
         // Load Haneul Framework
-        let haneul_framework_lib_path = self.haneul_framework.unwrap();
-        info!(
-            "Loading Haneul framework lib from {:?}",
-            haneul_framework_lib_path
-        );
-        let haneul_modules =
-            haneul_framework::get_haneul_framework_modules(&haneul_framework_lib_path).unwrap();
+        info!("Loading Haneul framework lib from {:?}", self.haneul_framework);
+        let haneul_modules = haneul_framework::get_haneul_framework_modules(&self.haneul_framework).unwrap();
         // let haneul_framework = Object::new_package(haneul_modules.clone(), TransactionDigest::genesis());
         modules.push(haneul_modules);
         // objects.push(haneul_framework);
@@ -162,13 +160,10 @@ impl Builder {
         // add custom modules
         modules.extend(self.move_modules);
 
-        let genesis_ctx = self
-            .genesis_ctx
-            .unwrap_or_else(haneul_adapter::genesis::get_genesis_context);
         Genesis {
             modules,
             objects,
-            genesis_ctx,
+            genesis_ctx: self.genesis_ctx,
         }
     }
 }

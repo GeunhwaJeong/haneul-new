@@ -18,7 +18,6 @@ use std::{
     thread::sleep,
     time::Duration,
 };
-use haneul_adapter::genesis;
 use haneul_core::authority::*;
 use haneul_types::{
     base_types::{HaneulAddress, *},
@@ -288,8 +287,7 @@ fn make_authority_state(
                 Arc::pin(secx),
                 store.clone(),
                 None,
-                genesis::clone_genesis_compiled_modules(),
-                &mut genesis::get_genesis_context(),
+                &haneul_config::genesis::Genesis::get_default_genesis(),
             )
             .await
         }),

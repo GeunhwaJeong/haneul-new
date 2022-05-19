@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module Haneul::CrossChainAirdropTests {
-    use Haneul::CrossChainAirdrop::{Self, CrossChainAirdropOracle, ERC721};
+module NFTs::CrossChainAirdropTests {
+    use NFTs::CrossChainAirdrop::{Self, CrossChainAirdropOracle, ERC721};
     use Haneul::ID::{VersionedID};
     use Haneul::TestScenario::{Self, Scenario};
 

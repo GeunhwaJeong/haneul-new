@@ -6,7 +6,6 @@ use rand::{prelude::StdRng, SeedableRng};
 use std::time::Duration;
 use std::{collections::BTreeMap, sync::Arc};
 use haneul::haneul_commands::make_authority;
-use haneul_adapter::genesis;
 use haneul_config::{NetworkConfig, ValidatorInfo};
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
@@ -59,8 +58,7 @@ where
             Arc::pin(validator.key_pair().copy()),
             Arc::new(test_authority_store()),
             None,
-            genesis::clone_genesis_compiled_modules(),
-            &mut genesis::get_genesis_context(),
+            &haneul_config::genesis::Genesis::get_default_genesis(),
         )
         .await;
 
