@@ -593,7 +593,7 @@ HaneulError:
     100:
       ListenerCapacityExceeded: UNIT
     101:
-      ConsensusNarwhalSerializationError:
+      ConsensusHaneulSerializationError:
         NEWTYPE: STR
     102:
       NotASharedObjectTransaction: UNIT
