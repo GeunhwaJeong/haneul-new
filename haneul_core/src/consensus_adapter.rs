@@ -145,7 +145,7 @@ impl ConsensusAdapter {
                     .send(message)
                     .await
                     .expect("Cleanup channel with consensus listener dropped");
-                Err(HaneulError::ConsensusConnectionBroken(e.to_string()))
+                Err(HaneulError::FailedToHearBackFromConsensus(e.to_string()))
             }
         }?;
 
