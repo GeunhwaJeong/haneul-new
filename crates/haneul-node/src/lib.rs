@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Result;
-use haneul_config::ValidatorConfig;
+use haneul_config::NodeConfig;
 use haneul_core::authority_server::AuthorityServerHandle;
 use tracing::info;
 
@@ -11,7 +11,7 @@ pub struct HaneulNode {
 }
 
 impl HaneulNode {
-    pub async fn start(config: &ValidatorConfig) -> Result<()> {
+    pub async fn start(config: &NodeConfig) -> Result<()> {
         let server = haneul_core::make::make_server(config).await?.spawn().await?;
 
         info!(node =? config.public_key(),

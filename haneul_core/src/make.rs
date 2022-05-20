@@ -16,7 +16,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::NetworkConfig;
-use haneul_config::ValidatorConfig;
+use haneul_config::NodeConfig;
 use tokio::sync::mpsc::channel;
 use tracing::{error, info};
 
@@ -71,7 +71,7 @@ impl HaneulNetwork {
     }
 }
 
-pub async fn make_server(validator_config: &ValidatorConfig) -> Result<AuthorityServer> {
+pub async fn make_server(validator_config: &NodeConfig) -> Result<AuthorityServer> {
     let mut store_path = PathBuf::from(validator_config.db_path());
     store_path.push("store");
     let store = Arc::new(AuthorityStore::open(store_path, None));
@@ -105,7 +105,7 @@ pub async fn make_server(validator_config: &ValidatorConfig) -> Result<Authority
 /// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
 /// and a consensus listener bridging the consensus node and the haneul authority.
 pub async fn make_authority(
-    validator_config: &ValidatorConfig,
+    validator_config: &NodeConfig,
     state: AuthorityState,
 ) -> Result<AuthorityServer> {
     let (tx_consensus_to_haneul, rx_consensus_to_haneul) = channel(1_000);
