@@ -49,7 +49,11 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let cfg = ValidatorOpt::parse();
 
-    let config_path = haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG);
+    let config_path = if let Some(config_path) = cfg.config_path {
+        config_path
+    } else {
+        haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG)
+    };
 
     let validator_config = match (config_path.exists(), cfg.force_genesis) {
         (true, false) => PersistedConfig::<ValidatorConfig>::read(&config_path)?,
