@@ -1,8 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-extern crate core;
-
 use std::fs::File;
 use std::io::Write;
 
@@ -19,6 +17,7 @@ use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE
 use haneul_core::gateway_types::{
     GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
 };
+use haneul_gateway::api::RpcGatewayOpenRpc;
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -41,9 +40,9 @@ struct Options {
     action: Action,
 }
 
-const FILE_PATH: &str = "haneul/open_rpc/spec/openrpc.json";
-const OBJECT_SAMPLE_FILE_PATH: &str = "haneul/open_rpc/samples/objects.json";
-const TRANSACTION_SAMPLE_FILE_PATH: &str = "haneul/open_rpc/samples/transactions.json";
+const FILE_PATH: &str = "crates/haneul-open-rpc/spec/openrpc.json";
+const OBJECT_SAMPLE_FILE_PATH: &str = "crates/haneul-open-rpc/samples/objects.json";
+const TRANSACTION_SAMPLE_FILE_PATH: &str = "crates/haneul-open-rpc/samples/transactions.json";
 
 #[tokio::main]
 async fn main() {
