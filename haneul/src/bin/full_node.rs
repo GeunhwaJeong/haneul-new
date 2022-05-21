@@ -12,10 +12,10 @@ use std::{
     path::PathBuf,
 };
 use haneul::{
-    api::{RpcGatewayOpenRpc, RpcGatewayServer},
     config::{haneul_config_dir, FULL_NODE_DB_PATH},
     haneul_full_node::HaneulFullNode,
 };
+use haneul_gateway::api::{RpcGatewayOpenRpc, RpcGatewayServer};
 use tracing::info;
 
 const DEFAULT_NODE_SERVER_PORT: &str = "5002";

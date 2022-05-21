@@ -5,10 +5,6 @@ use std::{collections::BTreeMap, path::Path, sync::Arc, time::Duration};
 use haneul_storage::IndexStore;
 use haneul_types::{crypto::get_key_pair, haneul_serde::Base64};
 
-use crate::{
-    api::{RpcGatewayServer, TransactionBytes},
-    rpc_gateway::responses::{ObjectResponse, HaneulTypeTag},
-};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
@@ -21,6 +17,10 @@ use haneul_core::{
     },
 };
 use haneul_core::{authority_client::NetworkAuthorityClient, gateway_state::GatewayTxSeqNumber};
+use haneul_gateway::{
+    api::{RpcGatewayServer, TransactionBytes},
+    rpc_gateway::responses::{ObjectResponse, HaneulTypeTag},
+};
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use tracing::info;

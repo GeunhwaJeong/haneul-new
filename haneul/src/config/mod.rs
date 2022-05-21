@@ -16,11 +16,9 @@ use haneul_types::base_types::*;
 pub use haneul_config::Config;
 pub use haneul_config::PersistedConfig;
 
-pub mod gateway;
-
 pub use haneul_config::utils;
 
-pub use gateway::{GatewayConfig, GatewayType};
+pub use haneul_gateway::config::{GatewayConfig, GatewayType};
 
 const HANEUL_DIR: &str = ".haneul";
 const HANEUL_CONFIG_DIR: &str = "haneul_config";

@@ -49,6 +49,7 @@ haneul-verifier = { path = "../crates/haneul-verifier" }
 haneul-open-rpc = { path = "../crates/haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "../crates/haneul-open-rpc-macros" }
 haneul-json = { path = "../crates/haneul-json" }
+haneul-gateway = { path = "../crates/haneul-gateway" }
 
 rustyline = "9.1.2"
 rustyline-derive = "0.6.0"

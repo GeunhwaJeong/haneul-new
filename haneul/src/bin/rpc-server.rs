@@ -16,9 +16,9 @@ use std::{
     path::PathBuf,
     time::Instant,
 };
-use haneul::{
+use haneul_config::haneul_config_dir;
+use haneul_gateway::{
     api::{RpcGatewayOpenRpc, RpcGatewayServer},
-    config::haneul_config_dir,
     rpc_gateway::RpcGatewayImpl,
 };
 use tracing::info;

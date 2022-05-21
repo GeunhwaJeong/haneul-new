@@ -1,16 +1,13 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::fs::File;
-use std::io::Write;
-
 use clap::ArgEnum;
 use clap::Parser;
 use pretty_assertions::assert_str_eq;
 use serde::Serialize;
 use serde_json::json;
-
-use haneul::api::RpcGatewayOpenRpc;
+use std::fs::File;
+use std::io::Write;
 use haneul::config::HANEUL_WALLET_CONFIG;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};

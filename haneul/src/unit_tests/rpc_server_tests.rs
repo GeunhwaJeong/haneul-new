@@ -13,10 +13,8 @@ use jsonrpsee::{
 };
 
 use haneul::{
-    api::{RpcGatewayClient, RpcGatewayServer, TransactionBytes},
     config::{PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG},
     keystore::{Keystore, HaneulKeystore},
-    rpc_gateway::{responses::ObjectResponse, RpcGatewayImpl},
     haneul_commands::HaneulNetwork,
 };
 use haneul_core::gateway_state::GatewayTxSeqNumber;
@@ -24,6 +22,10 @@ use haneul_core::gateway_types::{
     GetObjectInfoResponse, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_framework::build_move_package_to_bytes;
+use haneul_gateway::{
+    api::{RpcGatewayClient, RpcGatewayServer, TransactionBytes},
+    rpc_gateway::{responses::ObjectResponse, RpcGatewayImpl},
+};
 use haneul_json::HaneulJsonValue;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
