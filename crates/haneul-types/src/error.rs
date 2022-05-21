@@ -334,6 +334,9 @@ pub enum HaneulError {
     // Tonic::Status
     #[error("{0}")]
     RpcError(String),
+
+    #[error("Use of disabled feature: {:?}", error)]
+    UnsupportedFeatureError { error: String },
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
