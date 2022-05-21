@@ -23,8 +23,8 @@ use haneul_core::gateway_types::{
     GetObjectInfoResponse, HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulObject, HaneulObjectRef,
     HaneulTransactionEffects,
 };
-use haneul_core::haneul_json::HaneulJsonValue;
 use haneul_framework::build_move_package_to_bytes;
+use haneul_json::HaneulJsonValue;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,

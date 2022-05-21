@@ -19,7 +19,7 @@ use haneul::{
 };
 use haneul_config::{AccountConfig, GenesisConfig, NetworkConfig, ObjectConfig};
 use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulObject, HaneulTransactionEffects};
-use haneul_core::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     crypto::get_key_pair,

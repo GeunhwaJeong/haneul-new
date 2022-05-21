@@ -14,9 +14,8 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::object::Object;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
-use crate::haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
-
 use super::{is_homogeneous, HEX_PREFIX};
+use super::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 
 #[test]
 fn test_json_is_homogeneous() {
@@ -290,7 +289,8 @@ fn test_basic_args_linter_pure_args() {
 
 #[test]
 fn test_basic_args_linter_top_level() {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../haneul_programmability/examples/nfts");
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../haneul_programmability/examples/nfts");
     let compiled_modules = haneul_framework::build_and_verify_user_package(&path).unwrap();
     let example_package = Object::new_package(compiled_modules, TransactionDigest::genesis());
     let example_package = example_package.data.try_as_package().unwrap();

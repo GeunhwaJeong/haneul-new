@@ -23,8 +23,8 @@ use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{
     GetObjectInfoResponse, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_core::haneul_json::HaneulJsonValue;
 use haneul_framework::build_move_package_to_bytes;
+use haneul_json::HaneulJsonValue;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},

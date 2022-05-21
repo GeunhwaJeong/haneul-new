@@ -19,7 +19,7 @@ use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE
 use haneul_core::gateway_types::{
     GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_core::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::network::start_test_network;

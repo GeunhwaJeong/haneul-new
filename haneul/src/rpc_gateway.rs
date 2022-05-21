@@ -12,7 +12,7 @@ use tracing::debug;
 
 use haneul_core::gateway_state::{GatewayClient, GatewayState, GatewayTxSeqNumber};
 use haneul_core::gateway_types::GetObjectInfoResponse;
-use haneul_core::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},

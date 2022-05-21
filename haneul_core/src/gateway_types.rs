@@ -35,7 +35,7 @@ use haneul_types::move_package::disassemble_modules;
 use haneul_types::object::{Data, Object, ObjectRead, Owner};
 use haneul_types::haneul_serde::{Base64, Encoding};
 
-use crate::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 
 #[cfg(test)]
 #[path = "unit_tests/gateway_types_tests.rs"]

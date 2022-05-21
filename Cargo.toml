@@ -4,6 +4,7 @@ members = [
     "crates/haneul-adapter-transactional-tests",
     "crates/haneul-config",
     "crates/haneul-faucet",
+    "crates/haneul-json",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-transactional-test-runner",

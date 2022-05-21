@@ -10,7 +10,7 @@ use serde_with::serde_as;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulInputObjectKind, HaneulObjectRef};
 use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
-use haneul_core::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{

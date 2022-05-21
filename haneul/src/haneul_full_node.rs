@@ -19,9 +19,9 @@ use haneul_core::{
     gateway_types::{
         GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
     },
-    haneul_json::HaneulJsonValue,
 };
 use haneul_core::{authority_client::NetworkAuthorityClient, gateway_state::GatewayTxSeqNumber};
+use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use tracing::info;
 

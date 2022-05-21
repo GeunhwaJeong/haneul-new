@@ -5472,6 +5472,7 @@ dependencies = [
  "haneul-adapter",
  "haneul-config",
  "haneul-framework",
+ "haneul-json",
  "haneul-network",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
@@ -5586,6 +5587,24 @@ dependencies = [
  "smallvec",
  "haneul-types",
  "haneul-verifier",
+]
+
+[[package]]
+name = "haneul-json"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "hex",
+ "move-binary-format",
+ "move-core-types",
+ "schemars",
+ "serde 1.0.137",
+ "serde_json",
+ "haneul-adapter",
+ "haneul-framework",
+ "haneul-types",
+ "test-fuzz",
 ]
 
 [[package]]
@@ -5782,6 +5801,7 @@ dependencies = [
  "haneul-adapter",
  "haneul-config",
  "haneul-framework",
+ "haneul-json",
  "haneul-network",
  "haneul-types",
  "haneul_storage",

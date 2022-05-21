@@ -11,7 +11,7 @@ use haneul_core::gateway_state::{GatewayAPI, GatewayTxSeqNumber};
 use haneul_core::gateway_types::{
     GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_core::haneul_json::HaneulJsonValue;
+use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;

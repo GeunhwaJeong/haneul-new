@@ -1,11 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::VecDeque;
-use std::fmt::{Debug, Formatter};
-
 use anyhow::{anyhow, bail};
-// Alias the type names for clarity
 use move_binary_format::{
     access::ModuleAccess,
     file_format::{SignatureToken, Visibility},
@@ -18,15 +14,15 @@ use move_core_types::{
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Number, Value as JsonValue};
-
+use std::collections::VecDeque;
+use std::fmt::{Debug, Formatter};
 use haneul_types::base_types::{decode_bytes_hex, ObjectID, HaneulAddress};
 use haneul_types::move_package::MovePackage;
 
 const HEX_PREFIX: &str = "0x";
 
 #[cfg(test)]
-#[path = "unit_tests/haneul_json.rs"]
-mod base_types_tests;
+mod tests;
 
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub enum HaneulJsonCallArg {
