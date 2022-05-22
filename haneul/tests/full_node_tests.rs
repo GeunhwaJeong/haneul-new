@@ -5,15 +5,15 @@ use futures::StreamExt;
 use std::sync::Arc;
 use haneul::{
     config::HANEUL_NETWORK_CONFIG,
-    haneul_full_node::HaneulFullNode,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
-
+use haneul_config::{NetworkConfig, PersistedConfig};
 use haneul_core::authority::AuthorityState;
-
+use haneul_node::FullNode;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     batch::UpdateItem,
+    crypto::get_key_pair,
     messages::{BatchInfoRequest, BatchInfoResponseItem},
 };
 use test_utils::network::setup_network_and_wallet_in_working_dir;
@@ -21,7 +21,7 @@ use tokio::time::{sleep, Duration};
 use tracing::info;
 
 async fn transfer_coin(
-    node: &HaneulFullNode,
+    node: &FullNode,
     context: &mut WalletContext,
 ) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
     let sender = context.config.accounts.get(0).cloned().unwrap();
@@ -115,11 +115,15 @@ async fn test_full_node_follows_txes() -> Result<(), anyhow::Error> {
 
     let (_network, mut context, _) = setup_network_and_wallet_in_working_dir(&working_dir).await?;
 
-    let node = HaneulFullNode::start_with_genesis(
-        &working_dir.path().join(HANEUL_NETWORK_CONFIG),
-        working_dir.path(),
-    )
-    .await?;
+    let network_config_path = working_dir.path().join(HANEUL_NETWORK_CONFIG);
+    let config: NetworkConfig = PersistedConfig::read(&network_config_path)?;
+    let (_addr, key_pair) = get_key_pair();
+    let mut config = config.into_validator_configs().remove(0);
+    config.key_pair = key_pair;
+    config.db_path = working_dir.path().join("fullnode");
+    config.consensus_config = None;
+
+    let node = FullNode::start(&config).await?;
 
     let (transfered_object, _, receiver, digest) = transfer_coin(&node, &mut context).await?;
     wait_for_tx(digest, node.state.clone()).await;
@@ -145,11 +149,15 @@ async fn test_full_node_indexes() -> Result<(), anyhow::Error> {
 
     let (_network, mut context, _) = setup_network_and_wallet_in_working_dir(&working_dir).await?;
 
-    let node = HaneulFullNode::start_with_genesis(
-        &working_dir.path().join(HANEUL_NETWORK_CONFIG),
-        working_dir.path(),
-    )
-    .await?;
+    let network_config_path = working_dir.path().join(HANEUL_NETWORK_CONFIG);
+    let config: NetworkConfig = PersistedConfig::read(&network_config_path)?;
+    let (_addr, key_pair) = get_key_pair();
+    let mut config = config.into_validator_configs().remove(0);
+    config.key_pair = key_pair;
+    config.db_path = working_dir.path().join("fullnode");
+    config.consensus_config = None;
+
+    let node = FullNode::start(&config).await?;
 
     let (transfered_object, sender, receiver, digest) = transfer_coin(&node, &mut context).await?;
 
