@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/haneul",
     "crates/haneul-adapter",
     "crates/haneul-adapter-transactional-tests",
     "crates/haneul-config",
@@ -20,7 +21,6 @@ members = [
     "crates/haneul-verifier-transactional-tests",
     "crates/test-utils",
     "crates/x",
-    "haneul",
 ]
 
 [profile.release]

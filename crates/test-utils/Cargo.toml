@@ -30,4 +30,4 @@ haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-network = { path = "../haneul-network" }
-haneul = { path = "../../haneul" }
+haneul = { path = "../haneul" }

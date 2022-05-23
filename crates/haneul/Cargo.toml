@@ -38,18 +38,18 @@ multiaddr = "0.14.0"
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe" }
 
 bcs = "0.1.3"
-haneul-core = { path = "../crates/haneul-core" }
-haneul-storage = { path = "../crates/haneul-storage" }
-haneul-adapter = { path = "../crates/haneul-adapter" }
-haneul-framework = { path = "../crates/haneul-framework" }
-haneul-network = { path = "../crates/haneul-network" }
-haneul-config = { path = "../crates/haneul-config" }
-haneul-types = { path = "../crates/haneul-types" }
-haneul-verifier = { path = "../crates/haneul-verifier" }
-haneul-open-rpc = { path = "../crates/haneul-open-rpc" }
-haneul-open-rpc-macros = { path = "../crates/haneul-open-rpc-macros" }
-haneul-json = { path = "../crates/haneul-json" }
-haneul-gateway = { path = "../crates/haneul-gateway" }
+haneul-core = { path = "../haneul-core" }
+haneul-storage = { path = "../haneul-storage" }
+haneul-adapter = { path = "../haneul-adapter" }
+haneul-framework = { path = "../haneul-framework" }
+haneul-network = { path = "../haneul-network" }
+haneul-config = { path = "../haneul-config" }
+haneul-types = { path = "../haneul-types" }
+haneul-verifier = { path = "../haneul-verifier" }
+haneul-open-rpc = { path = "../haneul-open-rpc" }
+haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
+haneul-json = { path = "../haneul-json" }
+haneul-gateway = { path = "../haneul-gateway" }
 
 rustyline = "9.1.2"
 rustyline-derive = "0.6.0"
@@ -77,9 +77,9 @@ shell-words = "1.1.0"
 tracing-test = "0.2.1"
 pretty_assertions = "1.2.0"
 tokio-util = { version = "0.7.2", features = ["codec"] }
-haneul-node = { path = "../crates/haneul-node" }
+haneul-node = { path = "../haneul-node" }
 
-test-utils = { path = "../crates/test-utils" }
+test-utils = { path = "../test-utils" }
 
 [features]
 benchmark = ["narwhal-node/benchmark"]
