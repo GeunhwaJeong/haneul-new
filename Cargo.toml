@@ -12,6 +12,7 @@ members = [
     "crates/haneul-node",
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
+    "crates/haneul-storage",
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
     "crates/haneul-verifier",
@@ -20,7 +21,6 @@ members = [
     "crates/x",
     "haneul",
     "haneul_core",
-    "haneul_storage",
 ]
 
 [profile.release]

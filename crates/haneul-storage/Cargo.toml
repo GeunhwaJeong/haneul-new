@@ -1,5 +1,5 @@
 [package]
-name = "haneul_storage"
+name = "haneul-storage"
 version = "0.1.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
@@ -15,7 +15,7 @@ tokio = { version = "1.17.0", features = ["full", "tracing"] }
 rocksdb = "0.18.0"
 tracing = { version = "0.1.31", features = ["log"] }
 
-haneul-types = { path = "../crates/haneul-types" }
+haneul-types = { path = "../haneul-types" }
 
 typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe"}
 

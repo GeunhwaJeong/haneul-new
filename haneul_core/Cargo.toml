@@ -46,7 +46,7 @@ haneul-adapter = { path = "../crates/haneul-adapter" }
 haneul-framework = { path = "../crates/haneul-framework" }
 haneul-network = { path = "../crates/haneul-network" }
 haneul-types = { path = "../crates/haneul-types" }
-haneul_storage = { path = "../haneul_storage" }
+haneul-storage = { path = "../crates/haneul-storage" }
 haneul-config = { path = "../crates/haneul-config" }
 haneul-json = { path = "../crates/haneul-json" }
 

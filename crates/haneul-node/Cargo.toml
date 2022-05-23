@@ -16,7 +16,7 @@ tracing = "0.1.34"
 
 haneul-config = { path = "../haneul-config" }
 haneul_core = { path = "../../haneul_core" }
-haneul_storage = { path = "../../haneul_storage" }
+haneul-storage = { path = "../haneul-storage" }
 haneul-gateway = { path = "../haneul-gateway" }
 
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe" }

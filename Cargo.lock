@@ -5478,10 +5478,10 @@ dependencies = [
  "haneul-node",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
+ "haneul-storage",
  "haneul-types",
  "haneul-verifier",
  "haneul_core",
- "haneul_storage",
  "telemetry-subscribers",
  "tempfile",
  "test-utils",
@@ -5679,8 +5679,8 @@ dependencies = [
  "prometheus_exporter",
  "haneul-config",
  "haneul-gateway",
+ "haneul-storage",
  "haneul_core",
- "haneul_storage",
  "telemetry-subscribers",
  "tokio",
  "tracing",
@@ -5703,6 +5703,23 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "haneul-storage"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "futures",
+ "pretty_assertions",
+ "rocksdb",
+ "serde 1.0.137",
+ "serde_json",
+ "haneul-types",
+ "tokio",
+ "tracing",
+ "tracing-subscriber 0.3.11",
+ "typed-store",
 ]
 
 [[package]]
@@ -5850,8 +5867,8 @@ dependencies = [
  "haneul-framework",
  "haneul-json",
  "haneul-network",
+ "haneul-storage",
  "haneul-types",
- "haneul_storage",
  "temp_testdir",
  "tempfile",
  "test-fuzz",
@@ -5865,23 +5882,6 @@ dependencies = [
  "tracing-test",
  "typed-store",
  "types",
-]
-
-[[package]]
-name = "haneul_storage"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "futures",
- "pretty_assertions",
- "rocksdb",
- "serde 1.0.137",
- "serde_json",
- "haneul-types",
- "tokio",
- "tracing",
- "tracing-subscriber 0.3.11",
- "typed-store",
 ]
 
 [[package]]
