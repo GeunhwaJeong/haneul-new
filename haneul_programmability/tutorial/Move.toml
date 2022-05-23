@@ -3,7 +3,7 @@ name = "MyFirstPackage"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../framework" }
+Haneul = { local = "../../crates/haneul-framework" }
 
 [addresses]
 MyFirstPackage = "0x0"

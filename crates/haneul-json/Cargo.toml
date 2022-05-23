@@ -23,4 +23,4 @@ move-core-types = { git = "https://github.com/move-language/move", rev = "1b2d3b
 test-fuzz = "3.0.2"
 
 haneul-adapter = { path = "../haneul-adapter" }
-haneul-framework = { path = "../../haneul_programmability/framework" }
+haneul-framework = { path = "../haneul-framework" }

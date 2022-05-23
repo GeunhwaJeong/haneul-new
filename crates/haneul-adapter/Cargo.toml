@@ -21,9 +21,9 @@ move-cli = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345
 move-vm-runtime = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }
 move-vm-types = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }
 
-haneul-framework = { path = "../../haneul_programmability/framework" }
-haneul-verifier = { path = "../../crates/haneul-verifier" }
-haneul-types = { path = "../../crates/haneul-types" }
+haneul-framework = { path = "../haneul-framework" }
+haneul-verifier = { path = "../haneul-verifier" }
+haneul-types = { path = "../haneul-types" }
 
 [dev-dependencies]
 move-package = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }

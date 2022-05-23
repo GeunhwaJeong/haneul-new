@@ -3,7 +3,7 @@ name = "FungibleTokens"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../framework" }
+Haneul = { local = "../../../crates/haneul-framework" }
 
 [addresses]
 FungibleTokens = "0x0"

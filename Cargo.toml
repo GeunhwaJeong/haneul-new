@@ -4,6 +4,7 @@ members = [
     "crates/haneul-adapter-transactional-tests",
     "crates/haneul-config",
     "crates/haneul-faucet",
+    "crates/haneul-framework",
     "crates/haneul-gateway",
     "crates/haneul-json",
     "crates/haneul-network",
@@ -17,7 +18,6 @@ members = [
     "crates/x",
     "haneul",
     "haneul_core",
-    "haneul_programmability/framework",
     "haneul_storage",
     "test_utils",
 ]

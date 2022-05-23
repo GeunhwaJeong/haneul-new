@@ -43,7 +43,7 @@ arc-swap = "1.5.0"
 
 
 haneul-adapter = { path = "../crates/haneul-adapter" }
-haneul-framework = { path = "../haneul_programmability/framework" }
+haneul-framework = { path = "../crates/haneul-framework" }
 haneul-network = { path = "../crates/haneul-network" }
 haneul-types = { path = "../crates/haneul-types" }
 haneul_storage = { path = "../haneul_storage" }
