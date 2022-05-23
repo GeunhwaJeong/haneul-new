@@ -643,7 +643,7 @@ $ wallet objects --address 0xc72cf3adcc4d11c03079cef2c8992aea5268677a
 
 ## Creating example NFTs
 
-You may create an [NFT-like object](https://github.com/GeunhwaJeong/haneul/blob/27dff728a4c9cb65cd5d92a574105df20cb51887/haneul_programmability/framework/sources/DevNetNFT.move#L16) on Haneul using the following command:
+You may create an [NFT-like object](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/DevNetNFT.move#L16) on Haneul using the following command:
 
 ```shell
 $ wallet create-example-nft
