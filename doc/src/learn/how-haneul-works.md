@@ -112,6 +112,6 @@ Haneul smart contracts are written in the [Move language](https://github.com/Geu
 
 Find a more thorough explanation of Move’s features in:
 
-* the [Move Programming Language book](https://github.com/diem/move/blob/main/language/documentation/book/src/introduction.md)
+* the [Move Programming Language book](https://github.com/move-language/move/blob/main/language/documentation/book/src/introduction.md)
 * Haneul-specific [Move instructions](../build/move.md) and [differences](haneul-move-diffs.md) on this site
 * the [Haneul whitepaper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) and its formal description of Move in the context of Haneul

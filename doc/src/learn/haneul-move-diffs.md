@@ -6,8 +6,8 @@ This document describes the Haneul programming model and highlights the differen
 
 In general, Move code written for other systems will work in Haneul with these exceptions:
 
-* [Global Storage operators](https://diem.github.io/move/global-storage-operators.html)
-* [Key Abilities](https://github.com/diem/move/blob/main/language/documentation/book/src/abilities.md#key)
+* [Global Storage operators](https://move-language.github.io/move/global-storage-operators.html)
+* [Key Abilities](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#key)
 
 Here is a summary of key differences:
 
@@ -21,7 +21,7 @@ Find a detailed description of each change below.
 
 ## Object-centric global storage
 
-In core Move, global storage is part of the programming model and can be accessed through special operations, such as _move_to_, _move_from and_ many more[ global storage operators](https://diem.github.io/move/global-storage-operators.html). Both resources and modules are stored in the core Move global storage. When you publish a module, it’s stored into a newly generated module address inside Move. When a new object (a.k.a. resource) is created, it's usually stored into some account’s address, as well.
+In core Move, global storage is part of the programming model and can be accessed through special operations, such as _move_to_, _move_from and_ many more[ global storage operators](https://move-language.github.io/move/global-storage-operators.html). Both resources and modules are stored in the core Move global storage. When you publish a module, it’s stored into a newly generated module address inside Move. When a new object (a.k.a. resource) is created, it's usually stored into some account’s address, as well.
 
 But on-chain storage is expensive and limited (not optimized for storage and indexing). Current blockchains cannot scale to handle storage-heavy applications such as marketplaces and social apps.
 
@@ -37,7 +37,7 @@ In Haneul, since we don’t support global storage in Move, we don’t need the 
 
 We need a way to distinguish between objects that are internal to Move and objects that can be passed across the Move-Haneul boundary (i.e. objects that can be stored in Haneul storage). This is important because we need to be able to serialize/deserialize objects in the Move-Haneul boundary, and this process makes assumptions on the shape of the objects.
 
-We take advantage of the _key_ ability in Move to annotate a Haneul object. In core Move, the [key ability](https://github.com/diem/move/blob/main/language/documentation/book/src/abilities.md#key) is used to tell that the type can be used as a key for global storage. Since we don’t touch global storage in Haneul Move, we are able to repurpose this ability. We require that any struct with key ability must start with an _id_ field with the _ID_ type. The ID type contains both the ObjectID and the sequence number (a.k.a. version). We have bytecode verifiers in place to make sure that the ID field is immutable and cannot be transferred to other objects (as each object must have a unique ID).
+We take advantage of the _key_ ability in Move to annotate a Haneul object. In core Move, the [key ability](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#key) is used to tell that the type can be used as a key for global storage. Since we don’t touch global storage in Haneul Move, we are able to repurpose this ability. We require that any struct with key ability must start with an _id_ field with the _ID_ type. The ID type contains both the ObjectID and the sequence number (a.k.a. version). We have bytecode verifiers in place to make sure that the ID field is immutable and cannot be transferred to other objects (as each object must have a unique ID).
 
 ## Module initializers
 
