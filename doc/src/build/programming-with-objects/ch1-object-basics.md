@@ -10,7 +10,7 @@ struct Color {
 }
 ```
 The above `struct` defines a data structure that can represent RGB color. `struct`s like this can be used to organize data with complicated semantics. However, instances of `struct`s like `Color` are not Haneul objects yet.
-To define a struct that represents a Haneul object type, we must add a `key` capability to the definition, and the first field of the struct must be the `id` of the object with type `VersionedID` from the [ID library](https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/framework/sources/ID.move):
+To define a struct that represents a Haneul object type, we must add a `key` capability to the definition, and the first field of the struct must be the `id` of the object with type `VersionedID` from the [ID library](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/ID.move):
 ```rust
 use Haneul::ID::VersionedID;
 
