@@ -5,6 +5,7 @@ members = [
     "crates/haneul-config",
     "crates/haneul-faucet",
     "crates/haneul-framework",
+    "crates/haneul-framework-build",
     "crates/haneul-gateway",
     "crates/haneul-json",
     "crates/haneul-network",
