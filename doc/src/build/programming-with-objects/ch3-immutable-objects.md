@@ -5,7 +5,7 @@ Objects in Haneul can have different types of [ownership](../objects.md#object-o
 
 ### Create immutable object
 
-Regardless of whether an object was just created or already owned by an account, to turn this object into an immutable object, we need to call the following API in the [Transfer Library](https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/framework/sources/Transfer.move):
+Regardless of whether an object was just created or already owned by an account, to turn this object into an immutable object, we need to call the following API in the [Transfer Library](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/Transfer.move):
 ```rust
 public native fun freeze_object<T: key>(obj: T);
 ```
