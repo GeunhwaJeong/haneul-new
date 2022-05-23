@@ -5,8 +5,6 @@ use base64ct::Encoding;
 use move_binary_format::CompiledModule;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::{serde_as, DeserializeAs, SerializeAs};
-use std::path::PathBuf;
-use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::{base_types::TxContext, crypto::PublicKeyBytes, object::Object};
 use tracing::info;
 
@@ -80,8 +78,8 @@ impl<'de> DeserializeAs<'de, CompiledModule> for SerdeCompiledModule {
 }
 
 pub struct Builder {
-    haneul_framework: PathBuf,
-    move_framework: PathBuf,
+    haneul_framework: Option<Vec<CompiledModule>>,
+    move_framework: Option<Vec<CompiledModule>>,
     move_modules: Vec<Vec<CompiledModule>>,
     objects: Vec<Object>,
     genesis_ctx: TxContext,
@@ -91,10 +89,8 @@ pub struct Builder {
 impl Builder {
     pub fn new(genesis_ctx: TxContext) -> Self {
         Self {
-            haneul_framework: PathBuf::from(DEFAULT_FRAMEWORK_PATH),
-            move_framework: PathBuf::from(DEFAULT_FRAMEWORK_PATH)
-                .join("deps")
-                .join("move-stdlib"),
+            haneul_framework: None,
+            move_framework: None,
             move_modules: vec![],
             objects: vec![],
             genesis_ctx,
@@ -102,13 +98,13 @@ impl Builder {
         }
     }
 
-    pub fn haneul_framework(mut self, path: PathBuf) -> Self {
-        self.haneul_framework = path;
+    pub fn haneul_framework(mut self, haneul_framework: Vec<CompiledModule>) -> Self {
+        self.haneul_framework = Some(haneul_framework);
         self
     }
 
-    pub fn move_framework(mut self, path: PathBuf) -> Self {
-        self.move_framework = path;
+    pub fn move_framework(mut self, move_framework: Vec<CompiledModule>) -> Self {
+        self.move_framework = Some(move_framework);
         self
     }
 
@@ -144,7 +140,9 @@ impl Builder {
 
         // Load Move Framework
         info!("Loading Move framework lib from {:?}", self.move_framework);
-        let move_modules = haneul_framework::get_move_stdlib_modules(&self.move_framework).unwrap();
+        let move_modules = self
+            .move_framework
+            .unwrap_or_else(haneul_framework::get_move_stdlib);
         // let move_framework =
         //     Object::new_package(move_modules.clone(), TransactionDigest::genesis());
         modules.push(move_modules);
@@ -152,7 +150,9 @@ impl Builder {
 
         // Load Haneul Framework
         info!("Loading Haneul framework lib from {:?}", self.haneul_framework);
-        let haneul_modules = haneul_framework::get_haneul_framework_modules(&self.haneul_framework).unwrap();
+        let haneul_modules = self
+            .haneul_framework
+            .unwrap_or_else(haneul_framework::get_haneul_framework);
         // let haneul_framework = Object::new_package(haneul_modules.clone(), TransactionDigest::genesis());
         modules.push(haneul_modules);
         // objects.push(haneul_framework);
@@ -170,14 +170,11 @@ impl Builder {
 
 #[cfg(test)]
 mod test {
-    use haneul_framework::DEFAULT_FRAMEWORK_PATH;
-
     use super::Genesis;
 
     #[test]
     fn roundtrip() {
-        let haneul_lib =
-            haneul_framework::get_haneul_framework_modules(DEFAULT_FRAMEWORK_PATH.as_ref()).unwrap();
+        let haneul_lib = haneul_framework::get_haneul_framework();
 
         let genesis = Genesis {
             modules: vec![haneul_lib],

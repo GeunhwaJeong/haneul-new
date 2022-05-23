@@ -16,7 +16,6 @@ use std::fs;
 use std::net::SocketAddr;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
-use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TxContext};
 use haneul_types::committee::{Committee, EpochId};
 use haneul_types::crypto::{get_key_pair_from_rng, KeyPair, PublicKeyBytes};
@@ -257,8 +256,8 @@ pub struct GenesisConfig {
     pub committee_size: usize,
     pub accounts: Vec<AccountConfig>,
     pub move_packages: Vec<PathBuf>,
-    pub haneul_framework_lib_path: PathBuf,
-    pub move_framework_lib_path: PathBuf,
+    pub haneul_framework_lib_path: Option<PathBuf>,
+    pub move_framework_lib_path: Option<PathBuf>,
 }
 
 impl Config for GenesisConfig {}
@@ -455,10 +454,8 @@ impl Default for GenesisConfig {
             committee_size: DEFAULT_NUMBER_OF_AUTHORITIES,
             accounts: vec![],
             move_packages: vec![],
-            haneul_framework_lib_path: PathBuf::from(DEFAULT_FRAMEWORK_PATH),
-            move_framework_lib_path: PathBuf::from(DEFAULT_FRAMEWORK_PATH)
-                .join("deps")
-                .join("move-stdlib"),
+            haneul_framework_lib_path: None,
+            move_framework_lib_path: None,
         }
     }
 }
