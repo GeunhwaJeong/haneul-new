@@ -14,20 +14,19 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* [Haneul tokenomics](../learn/tokenomics/index.md) are now fully explained and cover:
+  * [Haneul token](../learn/tokenomics/haneul-token.md).
+  * [Gas-pricing mechanism](../learn/tokenomics/gas-pricing.md).
+  * [Haneul storage fund](../learn/tokenomics/storage-fund.md).
+  * [Delegated proof-of-stake system](../learn/tokenomics/proof-of-stake.md).
 * New [`haneul-setup.sh`](https://github.com/GeunhwaJeong/haneul/blob/main/doc/utils/haneul-setup.sh) script enables full environment setup in a [single set of commands](../build/install.md).
-* Haneul version 0.2.0 released to DevNet!
-* DevNet data will be wiped along with this release. If you have requested test HANEUL tokens via faucet, please do so again via the [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel on Discord.
-* Added rustdoc output for [haneul](https://haneullabs.github.io/haneul/), [narwhal](https://haneullabs.github.io/narwhal/), and [haneullabs-infra](https://haneullabs.github.io/haneullabs-infra/) projects available from both [Install Haneul](../build/install.md#source-code) and [Contribute to Haneul](../contribute/index.md#download-haneul).
-* Added persistent storage across releases. This will greatly reduce the frequency to wipe data during upgrades. 
-* Internal network interfaces are now described using the MultiAddr format.
-* Internal gRPC network interfaces now use a bincode codec instead of protobuf.
-* Narwhal updates relevant to Haneul:
-    * Updated the Narwhal release to a188b87.
-    * Narwhal interfaces now use gRPC.
-    * Narwhal configuration uses the MultiAddr format to refer to endpoints.
-    * Bugfix: shared-objects: correct an off-by-one error in numbering in the output of consensus.
-    * Bugfix: avoid sending empty sync requests to upstream peers.
-    * Feature: output the full transaction data out of consensus, rather than Digests.
+* Haneul version 0.2.0 released to DevNet:
+  * DevNet data will be wiped along with this release. If you have requested test HANEUL tokens via faucet, please do so again via the [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel on Discord.
+  * Added rustdoc output for [haneul](https://haneullabs.github.io/haneul/), [narwhal](https://haneullabs.github.io/narwhal/), and [haneullabs-infra](https://haneullabs.github.io/haneullabs-infra/) projects available from both [Install Haneul](../build/install.md#source-code) and [Contribute to Haneul](../contribute/index.md#download-haneul).
+  * Added persistent storage across releases. This will greatly reduce the frequency to wipe data during upgrades. 
+  * Internal network interfaces are now described using the MultiAddr format.
+  * Internal gRPC network interfaces now use a bincode codec instead of protobuf.
+  * And many Narwhal updates relevant to Haneul.
 
 For a complete view of all changes in Haneul 0.2.0, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
