@@ -3,6 +3,7 @@ members = [
     "crates/haneul-adapter",
     "crates/haneul-adapter-transactional-tests",
     "crates/haneul-config",
+    "crates/haneul-core",
     "crates/haneul-faucet",
     "crates/haneul-framework",
     "crates/haneul-framework-build",
@@ -20,7 +21,6 @@ members = [
     "crates/test-utils",
     "crates/x",
     "haneul",
-    "haneul_core",
 ]
 
 [profile.release]

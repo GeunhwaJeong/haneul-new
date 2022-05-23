@@ -3,7 +3,7 @@ name = "ObjectOwner"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../../../crates/haneul-framework" }
+Haneul = { local = "../../../../../haneul-framework" }
 
 [addresses]
 ObjectOwner = "0x0"

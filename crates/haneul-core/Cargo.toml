@@ -1,5 +1,5 @@
 [package]
-name = "haneul_core"
+name = "haneul-core"
 version = "0.1.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
@@ -42,13 +42,13 @@ thiserror = "1.0.30"
 arc-swap = "1.5.0"
 
 
-haneul-adapter = { path = "../crates/haneul-adapter" }
-haneul-framework = { path = "../crates/haneul-framework" }
-haneul-network = { path = "../crates/haneul-network" }
-haneul-types = { path = "../crates/haneul-types" }
-haneul-storage = { path = "../crates/haneul-storage" }
-haneul-config = { path = "../crates/haneul-config" }
-haneul-json = { path = "../crates/haneul-json" }
+haneul-adapter = { path = "../haneul-adapter" }
+haneul-framework = { path = "../haneul-framework" }
+haneul-network = { path = "../haneul-network" }
+haneul-types = { path = "../haneul-types" }
+haneul-storage = { path = "../haneul-storage" }
+haneul-config = { path = "../haneul-config" }
+haneul-json = { path = "../haneul-json" }
 
 move-binary-format = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }
 move-bytecode-utils = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }
@@ -74,7 +74,7 @@ tracing-test = "0.2.1"
 tracing-subscriber = "^0.3"
 
 test-fuzz = "3.0.2"
-test-utils = { path = "../crates/test-utils" }
+test-utils = { path = "../test-utils" }
 
 [[example]]
 name = "generate-format"

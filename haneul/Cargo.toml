@@ -38,7 +38,7 @@ multiaddr = "0.14.0"
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe" }
 
 bcs = "0.1.3"
-haneul_core = { path = "../haneul_core" }
+haneul-core = { path = "../crates/haneul-core" }
 haneul-storage = { path = "../crates/haneul-storage" }
 haneul-adapter = { path = "../crates/haneul-adapter" }
 haneul-framework = { path = "../crates/haneul-framework" }

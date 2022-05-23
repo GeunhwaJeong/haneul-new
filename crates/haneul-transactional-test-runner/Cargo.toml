@@ -38,4 +38,4 @@ haneul-framework = { path = "../haneul-framework" }
 haneul-verifier = { path = "../haneul-verifier" }
 haneul-types = { path = "../haneul-types" }
 haneul-adapter = { path = "../haneul-adapter" }
-haneul_core = { path = "../../haneul_core" }
+haneul-core = { path = "../haneul-core" }

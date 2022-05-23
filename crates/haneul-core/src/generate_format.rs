@@ -90,7 +90,7 @@ struct Options {
     action: Action,
 }
 
-const FILE_PATH: &str = "haneul_core/tests/staged/haneul.yaml";
+const FILE_PATH: &str = "haneul-core/tests/staged/haneul.yaml";
 
 fn main() {
     let options = Options::parse();

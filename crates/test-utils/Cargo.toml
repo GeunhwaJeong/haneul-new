@@ -28,6 +28,6 @@ narwhal-config = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "2c5e8
 
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
-haneul_core = { path = "../../haneul_core" }
+haneul-core = { path = "../haneul-core" }
 haneul-network = { path = "../haneul-network" }
 haneul = { path = "../../haneul" }
