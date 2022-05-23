@@ -45,6 +45,27 @@
         "fileName": "learn/architecture/consensus"
       },
       {
+        "label": "Haneul Tokenomics",
+        "fileName": "learn/tokenomics/index"
+      },
+      {
+        "label": "Haneul Token",
+        "fileName": "learn/tokenomics/haneul-token"
+      },
+      {
+        "label": "Haneul Gas Pricing",
+        "fileName": "learn/tokenomics/gas-pricing"
+      },
+      {
+         "label": "Haneul Storage Fund",
+         "fileName": "learn/tokenomics/storage-fund"
+      },
+      {
+         "label": "Proof-of-Stake",
+         "fileName": "learn/tokenomics/proof-of-stake"
+      },
+     
+      {
         "label": "Understand Haneul Security",
         "fileName": "learn/haneul-security"
       },
