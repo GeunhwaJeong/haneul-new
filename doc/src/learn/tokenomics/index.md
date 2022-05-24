@@ -4,7 +4,7 @@ title: Learning Haneul Tokenomics
 
 Haneul’s tokenomics are designed at the frontier of economic blockchain research, aiming to deliver an economic ecosystem and financial plumbing at par with Haneul’s leading engineering design. 
 
-This page includes a high-level overview of Haneul’s economic model. For further details, refer to the tokenomics white paper: [The Haneul Smart Contracts Platform: Economics and Incentives](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/tokenomics.pdf).
+This page includes a high-level overview of Haneul’s economic model.
 
 
 ## The Haneul economy
