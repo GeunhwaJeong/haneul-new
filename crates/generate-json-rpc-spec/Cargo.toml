@@ -1,0 +1,23 @@
+[package]
+name = "generate-json-rpc-spec"
+version = "0.0.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+anyhow = { version = "1.0.57", features = ["backtrace"] }
+clap = { version = "3.1.17", features = ["derive"] }
+pretty_assertions = "1.2.0"
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.80"
+tempfile = "3.3.0"
+tokio = { version = "1.18.2", features = ["full"] }
+
+haneul = { path = "../haneul" }
+haneul-core = { path = "../haneul-core" }
+haneul-gateway = { path = "../haneul-gateway" }
+haneul-json = { path = "../haneul-json" }
+haneul-types = { path = "../haneul-types" }
+test-utils = { path = "../test-utils" }
