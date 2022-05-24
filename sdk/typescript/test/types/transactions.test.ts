@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import mockTransactionData from '../../../../haneul/open_rpc/samples/transactions.json';
+import mockTransactionData from '../../../../crates/haneul-open-rpc/samples/transactions.json';
 
 import { isTransactionResponse } from '../../src/index.guard';
 

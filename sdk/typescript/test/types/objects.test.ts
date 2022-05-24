@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import mockObjectData from '../../../../haneul/open_rpc/samples/objects.json';
+import mockObjectData from '../../../../crates/haneul-open-rpc/samples/objects.json';
 
 import { isGetObjectInfoResponse } from '../../src/index.guard';
 
