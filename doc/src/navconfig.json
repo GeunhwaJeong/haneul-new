@@ -64,6 +64,11 @@
           {
              "label": "Proof-of-Stake",
              "fileName": "learn/tokenomics/proof-of-stake"
+          },
+          {
+            "label": "Tokenomics White Paper",
+            "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/tokenomics.pdf",
+            "external": true
           }
         ]
       },
