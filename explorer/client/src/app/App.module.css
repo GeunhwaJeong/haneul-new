@@ -2,20 +2,12 @@
     @apply font-sans w-screen;
 }
 
-h2.haneultitle {
-    @apply m-0 p-0 ml-[5vw] py-[1vh] text-lg;
+div.header {
+    @apply lg:flex lg:justify-between py-[1vh] ml-[5vw] mr-[5vw];
 }
 
-h2.haneultitle > a {
-    @apply text-offwhite;
-
-    text-decoration: none;
-}
-
-h2.haneultitle > a:hover {
-    @apply text-offwhite;
-
-    text-decoration: underline;
+a.haneultitle {
+    @apply text-lg text-offwhite font-bold no-underline hover:underline;
 }
 
 .search {
