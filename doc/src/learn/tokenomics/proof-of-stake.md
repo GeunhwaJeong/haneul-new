@@ -10,13 +10,13 @@ Within each epoch, operations are processed by a fixed set of validators, each w
 
 ## Economic model
 
-We now discuss how the different components of the Haneul economy interact with each other in order to introduce Haneul’s delegated proof-of-stake system. As a complementary reference, see the staking and tokenomics diagram in the [Haneul Tokenomics](index.md) overview.
+We now discuss how the different components of the Haneul economy interact with each other in order to introduce Haneul’s delegated proof-of-stake system. As a complementary reference, see the staking and tokenomics diagram in the [Haneul Tokenomics](../tokenomics/index.md) overview.
 
 The Haneul economic model works as follows:
 
 1. At the beginning of each epoch: Three important things happen:
-   1. HANEUL holders delegate (some) of their tokens to validators and a new [committee](../architecture/validators#committees ) is formed. 
-   1. The reference gas prices are set as described in Haneul’s [gas price mechanism](gas-pricing.md)
+   1. HANEUL holders delegate (some) of their tokens to validators and a new [committee](../architecture/validators.md#quorums) is formed. 
+   1. The reference gas prices are set as described in Haneul’s [gas price mechanism](gas-pricing.md).
    1. The [storage fund’s](storage-fund.md) size is adjusted using the previous epoch’s net inflow.
 
     Following these actions, the protocol computes the total amount of stake as the sum of delegated stake plus the storage fund. Call the share of delegated stake $\alpha$.
