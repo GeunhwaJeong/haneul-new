@@ -27,3 +27,4 @@ haneul-framework = { path = "../haneul-framework" }
 
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-types = { path = "../haneul-types" }
+workspace-hack = { path = "../workspace-hack"}

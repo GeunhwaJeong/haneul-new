@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
     "crates/generate-json-rpc-spec",
     "crates/haneul",
@@ -21,6 +22,7 @@ members = [
     "crates/haneul-verifier",
     "crates/haneul-verifier-transactional-tests",
     "crates/test-utils",
+    "crates/workspace-hack",
     "crates/x",
 ]
 

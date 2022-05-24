@@ -39,3 +39,4 @@ haneul-verifier = { path = "../haneul-verifier" }
 haneul-types = { path = "../haneul-types" }
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
+workspace-hack = { path = "../workspace-hack"}

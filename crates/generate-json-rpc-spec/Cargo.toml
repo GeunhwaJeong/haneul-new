@@ -21,3 +21,4 @@ haneul-gateway = { path = "../haneul-gateway" }
 haneul-json = { path = "../haneul-json" }
 haneul-types = { path = "../haneul-types" }
 test-utils = { path = "../test-utils" }
+workspace-hack = { path = "../workspace-hack"}

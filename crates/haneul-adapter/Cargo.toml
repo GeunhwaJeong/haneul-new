@@ -24,6 +24,7 @@ move-vm-types = { git = "https://github.com/move-language/move", rev = "1b2d3b42
 haneul-framework = { path = "../haneul-framework" }
 haneul-verifier = { path = "../haneul-verifier" }
 haneul-types = { path = "../haneul-types" }
+workspace-hack = { path = "../workspace-hack"}
 
 [dev-dependencies]
 move-package = { git = "https://github.com/move-language/move", rev = "1b2d3b4274345f5b4b6a1a1bde5aee452003ab5b" }

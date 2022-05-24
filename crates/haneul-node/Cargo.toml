@@ -21,3 +21,4 @@ haneul-gateway = { path = "../haneul-gateway" }
 
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe" }
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7c247967e5a5abd59ecaa75bc62b05bcdf4503fe" }
+workspace-hack = { path = "../workspace-hack"}
