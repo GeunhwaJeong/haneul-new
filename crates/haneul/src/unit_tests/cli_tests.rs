@@ -17,7 +17,7 @@ use haneul::{
     haneul_commands::HaneulCommand,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
-use haneul_config::{AccountConfig, GenesisConfig, NetworkConfig, ObjectConfig};
+use haneul_config::{AccountConfig, GenesisConfig, NetworkConfig, ObjectConfig, HANEUL_FULLNODE_CONFIG};
 use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulObject, HaneulTransactionEffects};
 use haneul_json::HaneulJsonValue;
 use haneul_types::{
@@ -74,10 +74,11 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
         .flat_map(|r| r.map(|file| file.file_name().to_str().unwrap().to_owned()))
         .collect::<Vec<_>>();
 
-    assert_eq!(8, files.len());
+    assert_eq!(9, files.len());
     assert!(files.contains(&HANEUL_WALLET_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GATEWAY_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_NETWORK_CONFIG.to_string()));
+    assert!(files.contains(&HANEUL_FULLNODE_CONFIG.to_string()));
 
     assert!(files.contains(&"wallet.key".to_string()));
 

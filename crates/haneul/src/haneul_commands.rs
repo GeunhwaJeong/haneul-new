@@ -14,8 +14,8 @@ use clap::*;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::PathBuf;
-use haneul_config::GenesisConfig;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig};
+use haneul_config::{GenesisConfig, HANEUL_FULLNODE_CONFIG};
 use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;
@@ -241,6 +241,11 @@ impl HaneulCommand {
                 let wallet_config = wallet_config.persisted(&wallet_path);
                 wallet_config.save()?;
                 info!("Wallet config file is stored in {:?}.", wallet_path);
+
+                let fullnode_config = network_config
+                    .generate_fullnode_config()
+                    .persisted(&haneul_config_dir.join(HANEUL_FULLNODE_CONFIG));
+                fullnode_config.save()?;
 
                 for (i, validator) in network_config
                     .into_inner()
