@@ -8,13 +8,17 @@ use serde::Serialize;
 use serde_json::json;
 use std::fs::File;
 use std::io::Write;
+
 use haneul::config::HANEUL_WALLET_CONFIG;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
 use haneul_core::gateway_types::{
     GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_gateway::api::RpcGatewayOpenRpc;
+use haneul_gateway::api::HaneulRpcModule;
+use haneul_gateway::json_rpc::haneul_rpc_doc;
+use haneul_gateway::read_api::{FullNodeApi, ReadApi};
+use haneul_gateway::rpc_gateway::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -55,7 +59,14 @@ const TRANSACTION_SAMPLE_FILE_PATH: &str = concat!(
 #[tokio::main]
 async fn main() {
     let options = Options::parse();
-    let open_rpc = RpcGatewayOpenRpc::open_rpc();
+
+    let mut open_rpc = haneul_rpc_doc();
+    open_rpc.add_module(TransactionBuilderImpl::rpc_doc_module());
+    open_rpc.add_module(RpcGatewayImpl::rpc_doc_module());
+    open_rpc.add_module(GatewayReadApiImpl::rpc_doc_module());
+    open_rpc.add_module(ReadApi::rpc_doc_module());
+    open_rpc.add_module(FullNodeApi::rpc_doc_module());
+
     match options.action {
         Action::Print => {
             let content = serde_json::to_string_pretty(&open_rpc).unwrap();

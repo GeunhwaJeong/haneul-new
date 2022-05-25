@@ -16,7 +16,9 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;
 
-use crate::api::{RpcGatewayClient as RpcGateway, TransactionBytes};
+use crate::api::RpcReadApiClient;
+use crate::api::RpcTransactionBuilderClient;
+use crate::api::{RpcGatewayApiClient, TransactionBytes};
 use crate::rpc_gateway::responses::ObjectResponse;
 
 pub struct RpcGatewayClient {

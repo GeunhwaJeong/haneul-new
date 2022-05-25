@@ -1,24 +1,19 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    api::{RpcGatewayServer, TransactionBytes},
-    rpc_gateway::responses::{ObjectResponse, HaneulTypeTag},
-};
+use crate::api::RpcReadApiServer;
+use crate::api::{RpcFullNodeReadApiServer, HaneulRpcModule};
+use crate::rpc_gateway::responses::ObjectResponse;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
+use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::sync::Arc;
+use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_core::{
-    authority::AuthorityState,
-    gateway_types::{
-        GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
-    },
-};
-use haneul_json::HaneulJsonValue;
+use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse};
+use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::haneul_serde::Base64;
 
 // An implementation of the read portion of the Gateway JSON-RPC interface intended for use in
 // Fullnodes.
@@ -26,82 +21,24 @@ pub struct ReadApi {
     pub state: Arc<AuthorityState>,
 }
 
+pub struct FullNodeApi {
+    pub state: Arc<AuthorityState>,
+}
+
+impl FullNodeApi {
+    pub fn new(state: Arc<AuthorityState>) -> Self {
+        Self { state }
+    }
+}
+
+impl ReadApi {
+    pub fn new(state: Arc<AuthorityState>) -> Self {
+        Self { state }
+    }
+}
+
 #[async_trait]
-impl RpcGatewayServer for ReadApi {
-    async fn transfer_coin(
-        &self,
-        _signer: HaneulAddress,
-        _object_id: ObjectID,
-        _gas: Option<ObjectID>,
-        _gas_budget: u64,
-        _recipient: HaneulAddress,
-    ) -> RpcResult<TransactionBytes> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn publish(
-        &self,
-        _sender: HaneulAddress,
-        _compiled_modules: Vec<Base64>,
-        _gas: Option<ObjectID>,
-        _gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn split_coin(
-        &self,
-        _signer: HaneulAddress,
-        _coin_object_id: ObjectID,
-        _split_amounts: Vec<u64>,
-        _gas: Option<ObjectID>,
-        _gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn merge_coin(
-        &self,
-        _signer: HaneulAddress,
-        _primary_coin: ObjectID,
-        _coin_to_merge: ObjectID,
-        _gas: Option<ObjectID>,
-        _gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn execute_transaction(
-        &self,
-        _tx_bytes: Base64,
-        _signature: Base64,
-        _pub_key: Base64,
-    ) -> RpcResult<TransactionResponse> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn move_call(
-        &self,
-        _signer: HaneulAddress,
-        _package_object_id: ObjectID,
-        _module: String,
-        _function: String,
-        _type_arguments: Vec<HaneulTypeTag>,
-        _rpc_arguments: Vec<HaneulJsonValue>,
-        _gas: Option<ObjectID>,
-        _gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
-        Err(anyhow!("Haneul Node only supports read-only methods").into())
-    }
-
-    async fn sync_account_state(&self, _address: HaneulAddress) -> RpcResult<()> {
-        todo!()
-    }
-
-    //
-    // Read APIs
-    //
-
+impl RpcReadApiServer for ReadApi {
     async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse> {
         let resp = ObjectResponse {
             objects: self
@@ -151,7 +88,20 @@ impl RpcGatewayServer for ReadApi {
     ) -> RpcResult<TransactionEffectsResponse> {
         Ok(self.state.get_transaction(digest).await?)
     }
+}
 
+impl HaneulRpcModule for ReadApi {
+    fn rpc(self) -> RpcModule<Self> {
+        self.into_rpc()
+    }
+
+    fn rpc_doc_module() -> Module {
+        crate::api::RpcReadApiOpenRpc::module_doc()
+    }
+}
+
+#[async_trait]
+impl RpcFullNodeReadApiServer for FullNodeApi {
     async fn get_transactions_by_input_object(
         &self,
         object: ObjectID,
@@ -181,5 +131,15 @@ impl RpcGatewayServer for ReadApi {
         addr: HaneulAddress,
     ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(self.state.get_transactions_to_addr(addr).await?)
+    }
+}
+
+impl HaneulRpcModule for FullNodeApi {
+    fn rpc(self) -> RpcModule<Self> {
+        self.into_rpc()
+    }
+
+    fn rpc_doc_module() -> Module {
+        crate::api::RpcFullNodeReadApiOpenRpc::module_doc()
     }
 }

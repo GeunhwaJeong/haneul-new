@@ -1,22 +1,39 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::{env, net::SocketAddr, time::Instant};
+
 use anyhow::Result;
 use jsonrpsee::{
     http_server::{AccessControlBuilder, HttpServerBuilder, HttpServerHandle},
     RpcModule,
 };
-use jsonrpsee_core::{middleware::Middleware, server::rpc_module::Methods};
+use jsonrpsee_core::middleware::Middleware;
 use prometheus_exporter::prometheus::{
     register_histogram_vec, register_int_counter_vec, HistogramVec, IntCounterVec,
 };
-use serde::Serialize;
-use std::{env, net::SocketAddr, time::Instant};
 use tracing::info;
+
+use haneul_open_rpc::Project;
+
+use crate::api::HaneulRpcModule;
 
 pub struct JsonRpcServerBuilder {
     module: RpcModule<()>,
     server_builder: HttpServerBuilder<JsonRpcMetrics>,
+    rpc_doc: Project,
+}
+
+pub fn haneul_rpc_doc() -> Project {
+    Project::new(
+        "Haneul JSON-RPC",
+        "Haneul JSON-RPC API for interaction with the Haneul network gateway.",
+        "Haneul Labs",
+        "https://haneul-labs.com",
+        "build@haneul-labs.com",
+        "Apache-2.0",
+        "https://raw.githubusercontent.com/HaneulLabs/haneul/main/LICENSE",
+    )
 }
 
 impl JsonRpcServerBuilder {
@@ -41,23 +58,19 @@ impl JsonRpcServerBuilder {
         Ok(Self {
             module,
             server_builder,
+            rpc_doc: haneul_rpc_doc(),
         })
     }
 
-    pub fn register_methods(&mut self, methods: impl Into<Methods>) -> Result<()> {
-        self.module.merge(methods).map_err(Into::into)
+    pub fn register_module<T: HaneulRpcModule>(&mut self, module: T) -> Result<()> {
+        self.rpc_doc.add_module(T::rpc_doc_module());
+        self.module.merge(module.rpc()).map_err(Into::into)
     }
 
-    pub fn register_open_rpc<T>(&mut self, spec: T) -> Result<()>
-    where
-        T: Clone + Serialize + Send + Sync + 'static,
-    {
+    pub async fn start(mut self, listen_address: SocketAddr) -> Result<HttpServerHandle> {
         self.module
-            .register_method("rpc.discover", move |_, _| Ok(spec.clone()))?;
-        Ok(())
-    }
+            .register_method("rpc.discover", move |_, _| Ok(self.rpc_doc.clone()))?;
 
-    pub async fn start(self, listen_address: SocketAddr) -> Result<HttpServerHandle> {
         let server = self.server_builder.build(listen_address).await?;
 
         let addr = server.local_addr()?;

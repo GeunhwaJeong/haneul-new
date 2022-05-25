@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use jsonrpsee::core::RpcResult;
+use jsonrpsee_core::server::rpc_module::RpcModule;
 use jsonrpsee_proc_macros::rpc;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -11,6 +12,7 @@ use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulInputObjectKind, HaneulObjectRef};
 use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
 use haneul_json::HaneulJsonValue;
+use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
@@ -22,18 +24,88 @@ use haneul_types::{
 use crate::rpc_gateway::responses::ObjectResponse;
 use crate::rpc_gateway::responses::HaneulTypeTag;
 
-#[open_rpc(
-    name = "Haneul JSON-RPC",
-    namespace = "haneul",
-    contact_name = "Haneul Labs",
-    contact_url = "https://haneul-labs.com",
-    contact_email = "build@haneul-labs.com",
-    license = "Apache-2.0",
-    license_url = "https://raw.githubusercontent.com/HaneulLabs/haneul/main/LICENSE",
-    description = "Haneul JSON-RPC API for interaction with the Haneul network gateway."
-)]
+#[open_rpc(namespace = "haneul", tag = "Gateway API")]
 #[rpc(server, client, namespace = "haneul")]
-pub trait RpcGateway {
+pub trait RpcGatewayApi {
+    /// Execute the transaction using the transaction data, signature and public key.
+    #[method(name = "executeTransaction")]
+    async fn execute_transaction(
+        &self,
+        tx_bytes: Base64,
+        signature: Base64,
+        pub_key: Base64,
+    ) -> RpcResult<TransactionResponse>;
+
+    /// Synchronize client state with validators.
+    #[method(name = "syncAccountState")]
+    async fn sync_account_state(&self, address: HaneulAddress) -> RpcResult<()>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Read API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait RpcReadApi {
+    /// Return the list of objects owned by an address.
+    #[method(name = "getOwnedObjects")]
+    async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse>;
+
+    #[method(name = "getTotalTransactionNumber")]
+    async fn get_total_transaction_number(&self) -> RpcResult<u64>;
+
+    #[method(name = "getTransactionsInRange")]
+    async fn get_transactions_in_range(
+        &self,
+        start: GatewayTxSeqNumber,
+        end: GatewayTxSeqNumber,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    #[method(name = "getRecentTransactions")]
+    async fn get_recent_transactions(
+        &self,
+        count: u64,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    #[method(name = "getTransaction")]
+    async fn get_transaction(
+        &self,
+        digest: TransactionDigest,
+    ) -> RpcResult<TransactionEffectsResponse>;
+
+    /// Return the object information for a specified object
+    #[method(name = "getObjectInfo")]
+    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Full Node API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait RpcFullNodeReadApi {
+    #[method(name = "getTransactionsByInputObject")]
+    async fn get_transactions_by_input_object(
+        &self,
+        object: ObjectID,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    #[method(name = "getTransactionsByMutatedObject")]
+    async fn get_transactions_by_mutated_object(
+        &self,
+        object: ObjectID,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    #[method(name = "getTransactionsFromAddress")]
+    async fn get_transactions_from_addr(
+        &self,
+        addr: HaneulAddress,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    #[method(name = "getTransactionsToAddress")]
+    async fn get_transactions_to_addr(
+        &self,
+        addr: HaneulAddress,
+    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait RpcTransactionBuilder {
     /// Create a transaction to transfer a Haneul coin from one address to another.
     #[method(name = "transferCoin")]
     async fn transfer_coin(
@@ -88,73 +160,6 @@ pub trait RpcGateway {
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;
-
-    /// Execute the transaction using the transaction data, signature and public key.
-    #[method(name = "executeTransaction")]
-    async fn execute_transaction(
-        &self,
-        tx_bytes: Base64,
-        signature: Base64,
-        pub_key: Base64,
-    ) -> RpcResult<TransactionResponse>;
-
-    /// Synchronize client state with validators.
-    #[method(name = "syncAccountState")]
-    async fn sync_account_state(&self, address: HaneulAddress) -> RpcResult<()>;
-
-    /// Return the list of objects owned by an address.
-    #[method(name = "getOwnedObjects")]
-    async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse>;
-
-    #[method(name = "getTotalTransactionNumber")]
-    async fn get_total_transaction_number(&self) -> RpcResult<u64>;
-
-    #[method(name = "getTransactionsInRange")]
-    async fn get_transactions_in_range(
-        &self,
-        start: GatewayTxSeqNumber,
-        end: GatewayTxSeqNumber,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    #[method(name = "getRecentTransactions")]
-    async fn get_recent_transactions(
-        &self,
-        count: u64,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    #[method(name = "getTransaction")]
-    async fn get_transaction(
-        &self,
-        digest: TransactionDigest,
-    ) -> RpcResult<TransactionEffectsResponse>;
-
-    #[method(name = "getTransactionsByInputObject")]
-    async fn get_transactions_by_input_object(
-        &self,
-        object: ObjectID,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    #[method(name = "getTransactionsByMutatedObject")]
-    async fn get_transactions_by_mutated_object(
-        &self,
-        object: ObjectID,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    #[method(name = "getTransactionsFromAddress")]
-    async fn get_transactions_from_addr(
-        &self,
-        addr: HaneulAddress,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    #[method(name = "getTransactionsToAddress")]
-    async fn get_transactions_to_addr(
-        &self,
-        addr: HaneulAddress,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return the object information for a specified object
-    #[method(name = "getObjectInfo")]
-    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse>;
 }
 
 #[serde_as]
@@ -182,4 +187,12 @@ impl TransactionBytes {
     pub fn to_data(self) -> Result<TransactionData, anyhow::Error> {
         TransactionData::from_signable_bytes(&self.tx_bytes.to_vec()?)
     }
+}
+
+pub trait HaneulRpcModule
+where
+    Self: Sized,
+{
+    fn rpc(self) -> RpcModule<Self>;
+    fn rpc_doc_module() -> Module;
 }

@@ -1,17 +1,16 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use jsonrpsee::{
+    http_client::{HttpClient, HttpClientBuilder},
+    http_server::{HttpServerBuilder, HttpServerHandle},
+};
+use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::{
     net::SocketAddr,
     path::{Path, PathBuf},
     str::FromStr,
 };
-
-use jsonrpsee::{
-    http_client::{HttpClient, HttpClientBuilder},
-    http_server::{HttpServerBuilder, HttpServerHandle},
-};
-
 use haneul::{
     config::{PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG},
     keystore::{Keystore, HaneulKeystore},
@@ -22,8 +21,12 @@ use haneul_core::gateway_types::{
     GetObjectInfoResponse, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_framework::build_move_package_to_bytes;
+use haneul_gateway::rpc_gateway::{create_client, GatewayReadApiImpl, TransactionBuilderImpl};
 use haneul_gateway::{
-    api::{RpcGatewayClient, RpcGatewayServer, TransactionBytes},
+    api::{
+        RpcGatewayApiClient, RpcGatewayApiServer, RpcReadApiClient, RpcReadApiServer,
+        RpcTransactionBuilderClient, RpcTransactionBuilderServer, TransactionBytes,
+    },
     rpc_gateway::{responses::ObjectResponse, RpcGatewayImpl},
 };
 use haneul_json::HaneulJsonValue;
@@ -289,6 +292,12 @@ async fn start_rpc_gateway(
 ) -> Result<(SocketAddr, HttpServerHandle), anyhow::Error> {
     let server = HttpServerBuilder::default().build("127.0.0.1:0").await?;
     let addr = server.local_addr()?;
-    let handle = server.start(RpcGatewayImpl::new(config_path)?.into_rpc())?;
+    let client = create_client(config_path)?;
+    let mut module = RpcModule::new(());
+    module.merge(RpcGatewayImpl::new(client.clone()).into_rpc())?;
+    module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
+    module.merge(TransactionBuilderImpl::new(client.clone()).into_rpc())?;
+
+    let handle = server.start(module)?;
     Ok((addr, handle))
 }
