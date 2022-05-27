@@ -6232,6 +6232,7 @@ dependencies = [
  "haneul-core",
  "haneul-framework",
  "haneul-network",
+ "haneul-node",
  "haneul-types",
  "tempfile",
  "tokio",
