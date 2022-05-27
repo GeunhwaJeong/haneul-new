@@ -45,7 +45,8 @@ async fn main() -> Result<()> {
         config.network_address = listen_address;
     }
 
-    haneul_node::HaneulNode::start(&config).await?;
+    let node = haneul_node::HaneulNode::start(&config).await?;
+    node.wait().await?;
 
     Ok(())
 }
