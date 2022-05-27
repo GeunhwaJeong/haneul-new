@@ -7,6 +7,7 @@ use crate::authority::AuthorityTemporaryStore;
 use move_core_types::language_storage::ModuleId;
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
 use haneul_adapter::adapter;
+use haneul_types::committee::EpochId;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     error::HaneulResult,
@@ -30,8 +31,9 @@ pub fn execute_transaction_to_effects<S: BackingPackageStore>(
     move_vm: &Arc<MoveVM>,
     native_functions: &NativeFunctionTable,
     gas_status: HaneulGasStatus,
+    epoch: EpochId,
 ) -> HaneulResult<TransactionEffects> {
-    let mut tx_ctx = TxContext::new(&transaction_data.signer(), &transaction_digest);
+    let mut tx_ctx = TxContext::new(&transaction_data.signer(), &transaction_digest, epoch);
 
     let gas_object_id = transaction_data.gas_payment_object_ref().0;
     let status = execute_transaction(
