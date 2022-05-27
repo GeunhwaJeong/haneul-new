@@ -1,7 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createSelector,
@@ -10,11 +9,11 @@ import {
 import Browser from 'webextension-polyfill';
 
 import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
+import { Coin } from '_redux/slices/haneul-objects/Coin';
 import { generateMnemonic } from '_shared/cryptography/mnemonics';
 
 import type { HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '_redux/RootReducer';
 
 export const loadAccountFromStorage = createAsyncThunk(
     'account/loadAccount',
@@ -84,27 +83,20 @@ export const { setMnemonic, setAddress } = accountSlice.actions;
 export default accountSlice.reducer;
 
 export const accountCoinsSelector = createSelector(
-    (state: RootState) =>
-        haneulObjectsAdapterSelectors.selectAll(state.haneulObjects),
+    haneulObjectsAdapterSelectors.selectAll,
     (allHaneulObjects) => {
         return allHaneulObjects
-            .filter(
-                (anObj) =>
-                    isHaneulMoveObject(anObj.data) &&
-                    anObj.data.type.startsWith('0x2::Coin::Coin')
-            )
+            .filter(Coin.isCoin)
             .map((aCoin) => aCoin.data as HaneulMoveObject);
     }
 );
 
-const coinRegex = /^0x2::Coin::Coin<(.+)>$/;
 export const accountBalancesSelector = createSelector(
     accountCoinsSelector,
     (coins) => {
         return coins.reduce((acc, aCoin) => {
-            const res = aCoin.type.match(coinRegex);
-            if (res) {
-                const coinType = res[1];
+            const coinType = Coin.getCoinTypeArg(aCoin);
+            if (coinType) {
                 if (typeof acc[coinType] === 'undefined') {
                     acc[coinType] = 0;
                 }
