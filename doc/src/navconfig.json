@@ -100,15 +100,6 @@
             "external": true
           }
         ]
-      },
-      {
-        "label": "Understand Haneul Security",
-        "fileName": "learn/haneul-security"
-      },
-      {
-        "label": "Haneul White Paper",
-        "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf",
-        "external": true
       }
     ],
     "build": [
