@@ -125,12 +125,12 @@
         "name": "See what's New",
         "sublist": [
           {
-            "name": "Learn Haneul Tokenomics",
-            "url": "/learn/tokenomics/index"
+            "name": "Program Haneul Objects",
+            "url": "/build/programming-with-objects/index"
           },
           {
-            "name": "View Haneul 0.3.0 updates",
-            "url": "/learn/index"
+            "name": "Learn Haneul Tokenomics",
+            "url": "/learn/tokenomics/index"
           },
           {
             "name": "Explore Haneul DevNet!",
