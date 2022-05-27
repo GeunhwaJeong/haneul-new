@@ -2,23 +2,53 @@
 title: Install Haneul
 ---
 
-Haneul is written in Rust, and we are using Cargo to build and manage the
-dependencies.  As a prerequisite, you will need to [install
-Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
-version 1.60.0 or higher in order to build and install Haneul on your machine.
-Also ensure you have `cmake` installed:
-```shell
-$ which cmake
-```
+Welcome to the Haneul development environment! Get started immediately:
 
-> **Tip:** Assuming you have Rust Cargo, the `git` command, and a GitHub account,
-> you can download the `haneul-setup.sh` script and run it to conduct all of the setup
-> below, from a terminal like so:
+1. Meet the [prerequisites](#prerequisites).
+2. Install the [binaries](#binaries).
+3. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
+4. Optionally, download the [source code](#source-code) to have local
+   access to examples and modify Haneul itself.
+
+> **Tip:** Assuming you have Rust Cargo, the `git` command, and a GitHub account
+> (see prerequisites(#prerequisites)), you can download the `haneul-setup.sh` script
+> and run it to conduct all of the setup below, **including removal of any existing
+> haneul assets**. To use it, run these commands in a terminal:
 > ```shell
 > $ curl https://raw.githubusercontent.com/HaneulLabs/haneul/main/doc/utils/haneul-setup.sh -o haneul-setup.sh
 > chmod 755 haneul-setup.sh
 > ./haneul-setup.sh
 > ```
+
+## Prerequisites
+
+At a minimum, you should have a machine capable of installing command line tools.
+These prerequisites are broken down into the [essential](#essential) tools
+you need to work in Haneul and the [advanced](#advanced) items needed for Haneul source
+code development.
+
+### Essential
+
+Haneul is written in Rust, and we are using Cargo to build and manage the
+dependencies. You will need Cargo to build and install Haneul on your machine.
+
+To run Haneul, you will need to install:
+1. A command line interface, as virtually everything done here is done by CLI.
+1. The `curl` command to download other tools, which you can confirm with:
+   ```shell
+   $ which curl
+1. The [Rust and Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) toolchain version 1.60.0 or higher; update it with:
+   ```shell
+   $ rustup update stable
+   ```
+1. The `cmake` command.
+1. The Haneul [binaries](#binaries).
+
+### Advanced
+
+In addition, to conduct advanced work such as altering Haneul itself, also obtain:
+1. The [`git` command line interface](https://git-scm.com/download/).
+1. The [Haneul source code](#source-code); for simplicity, we recommend installing in `~/haneul` or using an environment variable
 
 ## Binaries
 
