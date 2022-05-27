@@ -20,7 +20,7 @@ use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;
 
-pub use haneul_core::make::{make_authority, make_server, HaneulNetwork};
+pub use crate::make::{make_authority, make_server, HaneulNetwork};
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]

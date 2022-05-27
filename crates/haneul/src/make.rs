@@ -1,13 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::{AuthorityState, AuthorityStore};
-use crate::authority_active::ActiveAuthority;
-use crate::authority_client::NetworkAuthorityClient;
-use crate::authority_server::AuthorityServer;
-use crate::authority_server::AuthorityServerHandle;
-use crate::checkpoints::CheckpointStore;
-use crate::consensus_adapter::ConsensusListener;
 use anyhow::{anyhow, Result};
 use futures::future::join_all;
 use parking_lot::Mutex;
@@ -17,11 +10,18 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::NetworkConfig;
 use haneul_config::NodeConfig;
+use haneul_core::authority::{AuthorityState, AuthorityStore};
+use haneul_core::authority_active::ActiveAuthority;
+use haneul_core::authority_client::NetworkAuthorityClient;
+use haneul_core::authority_server::AuthorityServer;
+use haneul_core::checkpoints::CheckpointStore;
+use haneul_core::consensus_adapter::ConsensusListener;
+use haneul_node::HaneulNode;
 use tokio::sync::mpsc::channel;
 use tracing::{error, info};
 
 pub struct HaneulNetwork {
-    pub spawned_authorities: Vec<AuthorityServerHandle>,
+    pub spawned_authorities: Vec<HaneulNode>,
 }
 
 impl HaneulNetwork {
@@ -39,8 +39,8 @@ impl HaneulNetwork {
 
         let mut spawned_authorities = Vec::new();
         for validator in config.validator_configs() {
-            let server = make_server(validator).await?;
-            spawned_authorities.push(server.spawn().await?);
+            let server = HaneulNode::start(validator).await?;
+            spawned_authorities.push(server);
         }
         info!("Started {} authorities", spawned_authorities.len());
 
@@ -49,18 +49,11 @@ impl HaneulNetwork {
         })
     }
 
-    pub async fn kill(self) -> Result<(), anyhow::Error> {
-        for spawned_server in self.spawned_authorities {
-            spawned_server.kill().await?;
-        }
-        Ok(())
-    }
-
     pub async fn wait_for_completion(self) -> Result<(), anyhow::Error> {
         let mut handles = Vec::new();
         for spawned_server in self.spawned_authorities {
             handles.push(async move {
-                if let Err(err) = spawned_server.join().await {
+                if let Err(err) = spawned_server.wait().await {
                     error!("Server ended with an error: {err}");
                 }
             });
