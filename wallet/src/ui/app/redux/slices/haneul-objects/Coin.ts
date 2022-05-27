@@ -22,4 +22,8 @@ export class Coin {
     public static getCoinSymbol(coinTypeArg: string) {
         return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
     }
+
+    public static getBalance(obj: HaneulMoveObject) {
+        return BigInt(obj.fields.balance);
+    }
 }
