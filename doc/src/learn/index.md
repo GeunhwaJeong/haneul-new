@@ -16,13 +16,13 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* [Programming with objects](../build/programming-with-objects/index.md) tutorial series offers detailed guidance on manipulating Haneul objects, from creation and storage through wrapping and using child objects.
 * Haneul [version 0.3.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.3.0-rc) released to DevNet. See [RELEASES](https://github.com/GeunhwaJeong/haneul/blob/main/RELEASES.md) for details on other releases.
 * [Haneul tokenomics](../learn/tokenomics/index.md) are now fully explained and cover:
   * [Haneul token](../learn/tokenomics/haneul-token.md).
   * [Gas-pricing mechanism](../learn/tokenomics/gas-pricing.md).
   * [Haneul storage fund](../learn/tokenomics/storage-fund.md).
   * [Delegated proof-of-stake system](../learn/tokenomics/proof-of-stake.md).
-* New [`haneul-setup.sh`](https://github.com/GeunhwaJeong/haneul/blob/main/doc/utils/haneul-setup.sh) script enables full environment setup in a [single set of commands](../build/install.md).
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
