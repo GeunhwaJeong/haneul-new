@@ -25,6 +25,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::crypto::{AuthorityQuorumSignInfo, Signature};
 use haneul_types::error::HaneulError;
+use haneul_types::event::Event;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
@@ -997,9 +998,13 @@ impl From<TransactionEffects> for HaneulTransactionEffects {
             events: effect
                 .events
                 .iter()
-                .map(|event| HaneulEvent {
-                    type_: event.type_.to_string(),
-                    contents: event.contents.clone(),
+                // TODO: figure out how to map the non-Move events
+                .filter_map(|event| match event {
+                    Event::MoveEvent { type_, contents } => Some(HaneulEvent {
+                        type_: type_.to_string(),
+                        contents: contents.clone(),
+                    }),
+                    _ => None,
                 })
                 .collect(),
             dependencies: effect.dependencies,
@@ -1085,6 +1090,7 @@ pub struct OwnedObjectRef {
 
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "Event")]
+// TODO: we need to reconstitute this for non Move events
 pub struct HaneulEvent {
     pub type_: String,
     pub contents: Vec<u8>,

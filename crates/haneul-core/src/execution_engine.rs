@@ -11,6 +11,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     error::HaneulResult,
+    event::{Event, TransferType},
     gas::{self, HaneulGasStatus},
     messages::{
         ExecutionStatus, MoveCall, MoveModulePublish, SingleTransactionKind, TransactionData,
@@ -202,6 +203,12 @@ fn transfer<S>(
     recipient: HaneulAddress,
 ) -> HaneulResult {
     object.transfer(recipient)?;
+    temporary_store.log_event(Event::TransferObject {
+        object_id: object.id(),
+        version: object.version(),
+        destination_addr: recipient,
+        type_: TransferType::Coin,
+    });
     temporary_store.write_object(object);
     Ok(())
 }
