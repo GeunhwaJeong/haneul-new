@@ -3,18 +3,15 @@
 
 use anyhow::{anyhow, Result};
 use futures::future::join_all;
-use parking_lot::Mutex;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::NetworkConfig;
 use haneul_config::NodeConfig;
-use haneul_core::authority::{AuthorityState, AuthorityStore};
+use haneul_core::authority::AuthorityState;
 use haneul_core::authority_active::ActiveAuthority;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::authority_server::AuthorityServer;
-use haneul_core::checkpoints::CheckpointStore;
 use haneul_core::consensus_adapter::ConsensusListener;
 use haneul_node::HaneulNode;
 use tokio::sync::mpsc::channel;
@@ -62,37 +59,6 @@ impl HaneulNetwork {
         info!("All servers stopped.");
         Ok(())
     }
-}
-
-pub async fn make_server(validator_config: &NodeConfig) -> Result<AuthorityServer> {
-    let mut store_path = PathBuf::from(validator_config.db_path());
-    store_path.push("store");
-    let store = Arc::new(AuthorityStore::open(store_path, None));
-    let name = validator_config.public_key();
-    let mut checkpoints_path = PathBuf::from(validator_config.db_path());
-    checkpoints_path.push("checkpoints");
-
-    let secret = Arc::pin(validator_config.key_pair().copy());
-    let checkpoints = CheckpointStore::open(
-        &checkpoints_path,
-        None,
-        name,
-        validator_config.committee_config().committee(),
-        secret.clone(),
-    )?;
-
-    let state = AuthorityState::new(
-        validator_config.committee_config().committee(),
-        name,
-        secret.clone(),
-        store,
-        None,
-        Some(Arc::new(Mutex::new(checkpoints))),
-        validator_config.genesis(),
-    )
-    .await;
-
-    make_authority(validator_config, state).await
 }
 
 /// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
