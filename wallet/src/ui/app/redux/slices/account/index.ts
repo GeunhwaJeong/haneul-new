@@ -106,3 +106,10 @@ export const accountBalancesSelector = createSelector(
         }, {} as Record<string, number>);
     }
 );
+
+export const accountNftsSelector = createSelector(
+    haneulObjectsAdapterSelectors.selectAll,
+    (allHaneulObjects) => {
+        return allHaneulObjects.filter((anObj) => !Coin.isCoin(anObj));
+    }
+);
