@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul::{
-    config::HANEUL_WALLET_CONFIG,
     haneul_commands::HaneulNetwork,
     wallet_commands::{WalletCommands, WalletContext},
 };
+use haneul_config::HANEUL_WALLET_CONFIG;
 use haneul_types::base_types::HaneulAddress;
 use test_utils::network::start_test_network;
 

@@ -9,15 +9,16 @@ use tracing_test::traced_test;
 
 use haneul::wallet_commands::SwitchResponse;
 use haneul::{
-    config::{
-        Config, GatewayConfig, GatewayType, PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG,
-        HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
-    },
+    config::{GatewayConfig, GatewayType, WalletConfig},
     keystore::KeystoreType,
     haneul_commands::HaneulCommand,
     wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
-use haneul_config::{AccountConfig, GenesisConfig, NetworkConfig, ObjectConfig, HANEUL_FULLNODE_CONFIG};
+use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ObjectConfig};
+use haneul_config::{
+    Config, NetworkConfig, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
+    HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
+};
 use haneul_core::gateway_types::{GetObjectDataResponse, HaneulObject, HaneulTransactionEffects};
 use haneul_json::HaneulJsonValue;
 use haneul_types::{

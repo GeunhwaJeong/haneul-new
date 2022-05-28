@@ -3,15 +3,13 @@
 
 use std::{num::NonZeroUsize, path::Path};
 use haneul::{
-    config::{
-        Config, GatewayConfig, GatewayType, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
-        HANEUL_WALLET_CONFIG,
-    },
+    config::{GatewayConfig, GatewayType, WalletConfig},
     keystore::{KeystoreType, HaneulKeystore},
     haneul_commands::HaneulNetwork,
     wallet_commands::{WalletCommands, WalletContext},
 };
-use haneul_config::{builder::ConfigBuilder, GenesisConfig};
+use haneul_config::{builder::ConfigBuilder, genesis_config::GenesisConfig};
+use haneul_config::{Config, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_types::base_types::HaneulAddress;
 use tempfile::TempDir;
 

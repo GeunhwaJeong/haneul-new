@@ -9,9 +9,9 @@ use serde_json::json;
 use std::fs::File;
 use std::io::Write;
 
-use haneul::config::HANEUL_WALLET_CONFIG;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
+use haneul_config::HANEUL_WALLET_CONFIG;
 use haneul_core::gateway_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };

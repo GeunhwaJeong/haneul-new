@@ -15,10 +15,8 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use haneul::{
-    config::{haneul_config_dir, HANEUL_WALLET_CONFIG},
-    wallet_commands::{WalletCommands, WalletContext},
-};
+use haneul::wallet_commands::{WalletCommands, WalletContext};
+use haneul_config::{haneul_config_dir, HANEUL_WALLET_CONFIG};
 use haneul_faucet::{Faucet, FaucetRequest, FaucetResponse, SimpleFaucet};
 use tower::ServiceBuilder;
 use tracing::info;

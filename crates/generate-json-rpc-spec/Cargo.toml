@@ -17,6 +17,7 @@ tokio = { version = "1.18.2", features = ["full"] }
 
 haneul = { path = "../haneul" }
 haneul-core = { path = "../haneul-core" }
+haneul-config = { path = "../haneul-config" }
 haneul-gateway = { path = "../haneul-gateway" }
 haneul-json = { path = "../haneul-json" }
 haneul-types = { path = "../haneul-types" }

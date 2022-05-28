@@ -12,10 +12,11 @@ use std::{
     str::FromStr,
 };
 use haneul::{
-    config::{PersistedConfig, WalletConfig, HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG},
+    config::{PersistedConfig, WalletConfig},
     keystore::{Keystore, HaneulKeystore},
     haneul_commands::HaneulNetwork,
 };
+use haneul_config::{HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{
     GetObjectDataResponse, TransactionEffectsResponse, TransactionResponse,

@@ -3,11 +3,8 @@
 
 use futures::StreamExt;
 use std::sync::Arc;
-use haneul::{
-    config::HANEUL_NETWORK_CONFIG,
-    wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
-};
-use haneul_config::{NetworkConfig, PersistedConfig};
+use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
+use haneul_config::{NetworkConfig, PersistedConfig, HANEUL_NETWORK_CONFIG};
 use haneul_core::authority::AuthorityState;
 use haneul_node::HaneulNode;
 

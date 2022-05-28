@@ -1,21 +1,21 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::{
-    config::{
-        haneul_config_dir, Config, GatewayConfig, GatewayType, PersistedConfig, WalletConfig,
-        HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
-    },
+    config::{GatewayConfig, GatewayType, WalletConfig},
     keystore::{Keystore, KeystoreType, HaneulKeystore},
 };
 use anyhow::{anyhow, bail};
 use base64ct::{Base64, Encoding};
 use clap::*;
-
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::PathBuf;
+use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig};
-use haneul_config::{GenesisConfig, HANEUL_FULLNODE_CONFIG};
+use haneul_config::{
+    haneul_config_dir, Config, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
+    HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
+};
 use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;

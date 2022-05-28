@@ -6,8 +6,8 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
 };
-use haneul::config::HANEUL_GATEWAY_CONFIG;
 use haneul_config::haneul_config_dir;
+use haneul_config::HANEUL_GATEWAY_CONFIG;
 use haneul_gateway::rpc_gateway::{create_client, GatewayReadApiImpl, TransactionBuilderImpl};
 use haneul_gateway::{json_rpc::JsonRpcServerBuilder, rpc_gateway::RpcGatewayImpl};
 use tracing::info;

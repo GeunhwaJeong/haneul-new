@@ -3,8 +3,8 @@
 
 use clap::*;
 use std::path::Path;
-use haneul::config::Config;
-use haneul_config::{AccountConfig, GenesisConfig, ObjectConfigRange};
+use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ObjectConfigRange};
+use haneul_config::Config;
 
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair};
 
