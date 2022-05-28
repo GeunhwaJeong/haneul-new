@@ -64,7 +64,7 @@ impl HaneulNode {
                 store,
                 index_store,
                 checkpoint_store,
-                config.genesis(),
+                config.genesis()?,
             )
             .await,
         );
