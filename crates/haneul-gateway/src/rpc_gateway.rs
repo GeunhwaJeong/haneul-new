@@ -4,9 +4,6 @@
 use std::path::Path;
 use std::sync::Arc;
 
-use crate::api::{RpcGatewayApiServer, HaneulRpcModule};
-use crate::rpc_gateway::responses::HaneulTypeTag;
-use crate::{api::TransactionBytes, config::GatewayConfig, rpc_gateway::responses::ObjectResponse};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use ed25519_dalek::ed25519::signature::Signature;
@@ -16,8 +13,9 @@ use tracing::debug;
 
 use haneul_config::PersistedConfig;
 use haneul_core::gateway_state::{GatewayClient, GatewayState, GatewayTxSeqNumber};
-use haneul_core::gateway_types::GetObjectInfoResponse;
-use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
+use haneul_core::gateway_types::{
+    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
+};
 use haneul_json::HaneulJsonValue;
 use haneul_open_rpc::Module;
 use haneul_types::haneul_serde::Base64;
@@ -28,8 +26,14 @@ use haneul_types::{
     messages::{Transaction, TransactionData},
 };
 
-use crate::api::RpcReadApiServer;
-use crate::api::RpcTransactionBuilderServer;
+use crate::rpc_gateway::responses::HaneulTypeTag;
+use crate::{
+    api::{
+        RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, HaneulRpcModule,
+        TransactionBytes,
+    },
+    config::GatewayConfig,
+};
 
 pub mod responses;
 
@@ -116,14 +120,24 @@ impl HaneulRpcModule for RpcGatewayImpl {
 
 #[async_trait]
 impl RpcReadApiServer for GatewayReadApiImpl {
-    async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse> {
-        debug!("get_objects : {}", owner);
-        let objects = self.client.get_owned_objects(owner).await?;
-        Ok(ObjectResponse { objects })
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> RpcResult<Vec<HaneulObjectInfo>> {
+        debug!("get_objects_own_by_address : {}", address);
+        Ok(self.client.get_objects_owned_by_address(address).await?)
     }
 
-    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse> {
-        Ok(self.client.get_object_info(object_id).await?)
+    async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> RpcResult<Vec<HaneulObjectInfo>> {
+        debug!("get_objects_own_by_object : {}", object_id);
+        Ok(self.client.get_objects_owned_by_object(object_id).await?)
+    }
+
+    async fn get_object(&self, object_id: ObjectID) -> RpcResult<GetObjectDataResponse> {
+        Ok(self.client.get_object(object_id).await?)
     }
 
     async fn get_recent_transactions(

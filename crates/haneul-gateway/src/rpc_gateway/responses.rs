@@ -6,17 +6,10 @@ use move_core_types::parser::parse_type_tag;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
-use serde_with::serde_as;
 use haneul_core::gateway_types::{HaneulData, HaneulObjectRef};
 
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::object::Owner;
-
-#[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema)]
-pub struct ObjectResponse {
-    pub objects: Vec<HaneulObjectRef>,
-}
 
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]

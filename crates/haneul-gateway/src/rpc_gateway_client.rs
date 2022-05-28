@@ -9,7 +9,7 @@ use tokio::runtime::Handle;
 
 use haneul_core::gateway_state::{GatewayAPI, GatewayTxSeqNumber};
 use haneul_core::gateway_types::{
-    GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
+    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -19,7 +19,6 @@ use haneul_types::haneul_serde::Base64;
 use crate::api::RpcReadApiClient;
 use crate::api::RpcTransactionBuilderClient;
 use crate::api::{RpcGatewayApiClient, TransactionBytes};
-use crate::rpc_gateway::responses::ObjectResponse;
 
 pub struct RpcGatewayClient {
     client: HttpClient,
@@ -144,16 +143,22 @@ impl GatewayAPI for RpcGatewayClient {
         bytes.to_data()
     }
 
-    async fn get_object_info(&self, object_id: ObjectID) -> Result<GetObjectInfoResponse, Error> {
-        Ok(self.client.get_object_info(object_id).await?)
+    async fn get_object(&self, object_id: ObjectID) -> Result<GetObjectDataResponse, Error> {
+        Ok(self.client.get_object(object_id).await?)
     }
 
-    async fn get_owned_objects(
+    async fn get_objects_owned_by_address(
         &self,
-        account_addr: HaneulAddress,
-    ) -> Result<Vec<HaneulObjectRef>, Error> {
-        let object_response: ObjectResponse = self.client.get_owned_objects(account_addr).await?;
-        Ok(object_response.objects)
+        address: HaneulAddress,
+    ) -> Result<Vec<HaneulObjectInfo>, Error> {
+        Ok(self.client.get_objects_owned_by_address(address).await?)
+    }
+
+    async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<Vec<HaneulObjectInfo>, Error> {
+        Ok(self.client.get_objects_owned_by_object(object_id).await?)
     }
 
     fn get_total_transaction_number(&self) -> Result<u64, Error> {

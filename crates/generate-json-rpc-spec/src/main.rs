@@ -13,7 +13,7 @@ use haneul::config::HANEUL_WALLET_CONFIG;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
 use haneul_core::gateway_types::{
-    GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
+    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_gateway::api::HaneulRpcModule;
 use haneul_gateway::json_rpc::haneul_rpc_doc;
@@ -108,17 +108,20 @@ async fn create_response_sample(
     context.gateway.sync_account_state(address).await?;
 
     // Create coin response
-    let coins = context.gateway.get_owned_objects(address).await?;
+    let coins = context
+        .gateway
+        .get_objects_owned_by_address(address)
+        .await?;
     let coin = context
         .gateway
-        .get_object_info(coins.first().unwrap().object_id)
+        .get_object(coins.first().unwrap().object_id)
         .await?;
 
     let (example_nft_tx, example_nft) = get_nft_response(&mut context).await?;
     let move_package = create_package_object_response(&mut context).await?;
     let hero = create_hero_response(&mut context, &coins).await?;
     let transfer = create_transfer_response(&mut context, address, &coins).await?;
-    let coin_split = create_coin_split_response(&mut context, coins).await?;
+    let coin_split = create_coin_split_response(&mut context, &coins).await?;
 
     let objects = ObjectResponseSample {
         example_nft,
@@ -138,7 +141,7 @@ async fn create_response_sample(
 
 async fn create_package_object_response(
     context: &mut WalletContext,
-) -> Result<GetObjectInfoResponse, anyhow::Error> {
+) -> Result<GetObjectDataResponse, anyhow::Error> {
     let result = WalletCommands::Publish {
         path: "haneul_programmability/tutorial".to_string(),
         gas: None,
@@ -149,7 +152,7 @@ async fn create_package_object_response(
     if let WalletCommandResult::Publish(response) = result {
         Ok(context
             .gateway
-            .get_object_info(response.package.object_id)
+            .get_object(response.package.object_id)
             .await?)
     } else {
         panic!()
@@ -159,7 +162,7 @@ async fn create_package_object_response(
 async fn create_transfer_response(
     context: &mut WalletContext,
     address: HaneulAddress,
-    coins: &[HaneulObjectRef],
+    coins: &[HaneulObjectInfo],
 ) -> Result<TransactionResponse, anyhow::Error> {
     let response = WalletCommands::Transfer {
         to: address,
@@ -183,8 +186,8 @@ async fn create_transfer_response(
 
 async fn create_hero_response(
     context: &mut WalletContext,
-    coins: &[HaneulObjectRef],
-) -> Result<GetObjectInfoResponse, anyhow::Error> {
+    coins: &[HaneulObjectInfo],
+) -> Result<GetObjectDataResponse, anyhow::Error> {
     // Create hero response
     let result = WalletCommands::Publish {
         path: "haneul_programmability/examples/games".to_string(),
@@ -217,10 +220,7 @@ async fn create_hero_response(
 
         if let WalletCommandResult::Call(_, effect) = result {
             let hero = effect.created.first().unwrap();
-            Ok(context
-                .gateway
-                .get_object_info(hero.reference.object_id)
-                .await?)
+            Ok(context.gateway.get_object(hero.reference.object_id).await?)
         } else {
             panic!()
         }
@@ -231,7 +231,7 @@ async fn create_hero_response(
 
 async fn create_coin_split_response(
     context: &mut WalletContext,
-    coins: Vec<HaneulObjectRef>,
+    coins: &[HaneulObjectInfo],
 ) -> Result<TransactionResponse, anyhow::Error> {
     // create coin_split response
     let result = WalletCommands::SplitCoin {
@@ -252,7 +252,7 @@ async fn create_coin_split_response(
 
 async fn get_nft_response(
     context: &mut WalletContext,
-) -> Result<(TransactionResponse, GetObjectInfoResponse), anyhow::Error> {
+) -> Result<(TransactionResponse, GetObjectDataResponse), anyhow::Error> {
     // Create example-nft response
     let args_json = json!([EXAMPLE_NFT_NAME, EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_URL]);
     let args = args_json
@@ -278,7 +278,7 @@ async fn get_nft_response(
     if let WalletCommandResult::Call(certificate, effects) = result {
         let object = context
             .gateway
-            .get_object_info(effects.created.first().unwrap().reference.object_id)
+            .get_object(effects.created.first().unwrap().reference.object_id)
             .await?;
         let tx = TransactionResponse::EffectResponse(TransactionEffectsResponse {
             certificate,
@@ -292,10 +292,10 @@ async fn get_nft_response(
 
 #[derive(Serialize)]
 struct ObjectResponseSample {
-    pub example_nft: GetObjectInfoResponse,
-    pub coin: GetObjectInfoResponse,
-    pub move_package: GetObjectInfoResponse,
-    pub hero: GetObjectInfoResponse,
+    pub example_nft: GetObjectDataResponse,
+    pub coin: GetObjectDataResponse,
+    pub move_package: GetObjectDataResponse,
+    pub hero: GetObjectDataResponse,
 }
 
 #[derive(Serialize)]

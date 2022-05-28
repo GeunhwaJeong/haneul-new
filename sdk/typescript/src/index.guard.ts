@@ -5,7 +5,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, TransferCoinTransaction, TxnDataSerializer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectRefsResponse, GetObjectInfoResponse, ObjectDigest, ObjectId, SequenceNumber, TransferCoin, RawAuthoritySignInfo, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, TransactionEffectsResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, Event, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, SplitCoinResponse, TransactionResponse } from "./index";
+import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, TransferCoinTransaction, TxnDataSerializer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferCoin, RawAuthoritySignInfo, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, TransactionEffectsResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, Event, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, SplitCoinResponse, TransactionResponse } from "./index";
 import { BN } from "bn.js";
 
 export function isEd25519KeypairData(obj: any, _argumentName?: string): obj is Ed25519KeypairData {
@@ -111,6 +111,18 @@ export function isHaneulObjectRef(obj: any, _argumentName?: string): obj is Hane
     )
 }
 
+export function isHaneulObjectInfo(obj: any, _argumentName?: string): obj is HaneulObjectInfo {
+    return (
+        isHaneulObjectRef(obj) as boolean &&
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isTransactionDigest(obj.type) as boolean &&
+        isObjectOwner(obj.owner) as boolean &&
+        isTransactionDigest(obj.previousTransaction) as boolean
+    )
+}
+
 export function isObjectContentFields(obj: any, _argumentName?: string): obj is ObjectContentFields {
     return (
         (obj !== null &&
@@ -194,19 +206,16 @@ export function isObjectType(obj: any, _argumentName?: string): obj is ObjectTyp
     )
 }
 
-export function isGetOwnedObjectRefsResponse(obj: any, _argumentName?: string): obj is GetOwnedObjectRefsResponse {
+export function isGetOwnedObjectsResponse(obj: any, _argumentName?: string): obj is GetOwnedObjectsResponse {
     return (
-        (obj !== null &&
-            typeof obj === "object" ||
-            typeof obj === "function") &&
-        Array.isArray(obj.objects) &&
-        obj.objects.every((e: any) =>
-            isHaneulObjectRef(e) as boolean
+        Array.isArray(obj) &&
+        obj.every((e: any) =>
+            isHaneulObjectInfo(e) as boolean
         )
     )
 }
 
-export function isGetObjectInfoResponse(obj: any, _argumentName?: string): obj is GetObjectInfoResponse {
+export function isGetObjectDataResponse(obj: any, _argumentName?: string): obj is GetObjectDataResponse {
     return (
         (obj !== null &&
             typeof obj === "object" ||

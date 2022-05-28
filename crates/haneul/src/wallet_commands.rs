@@ -15,16 +15,20 @@ use colored::Colorize;
 use move_core_types::{language_storage::TypeTag, parser::parse_type_tag};
 use serde::Serialize;
 use serde_json::json;
-use haneul_core::gateway_types::{MergeCoinResponse, PublishResponse, SplitCoinResponse};
+use haneul_core::gateway_types::{
+    MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
+};
 use tracing::info;
 
 use haneul_core::gateway_state::GatewayClient;
 use haneul_core::gateway_types::{
-    GetObjectInfoResponse, HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulObject, HaneulObjectRef,
+    GetObjectDataResponse, HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulObject,
     HaneulTransactionEffects,
 };
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
+use haneul_types::object::Owner;
+use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -273,7 +277,7 @@ impl WalletCommands {
 
             WalletCommands::Object { id } => {
                 // Fetch the object ref
-                let object_read = context.gateway.get_object_info(id).await?;
+                let object_read = context.gateway.get_object(id).await?;
                 WalletCommandResult::Object(object_read)
             }
             WalletCommands::Call {
@@ -327,7 +331,17 @@ impl WalletCommands {
 
             WalletCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
-                WalletCommandResult::Objects(context.gateway.get_owned_objects(address).await?)
+                let mut address_object = context
+                    .gateway
+                    .get_objects_owned_by_address(address)
+                    .await?;
+                let object_objects = context
+                    .gateway
+                    .get_objects_owned_by_object(address.into())
+                    .await?;
+                address_object.extend(object_objects);
+
+                WalletCommandResult::Objects(address_object)
             }
 
             WalletCommands::SyncClientState { address } => {
@@ -450,7 +464,7 @@ impl WalletCommands {
                     .ok_or_else(|| anyhow!("Failed to create NFT"))?
                     .reference
                     .object_id;
-                let object_read = context.gateway.get_object_info(nft_id).await?;
+                let object_read = context.gateway.get_object(nft_id).await?;
                 WalletCommandResult::CreateExampleNFT(object_read)
             }
         });
@@ -505,13 +519,13 @@ impl WalletContext {
         &self,
         address: HaneulAddress,
     ) -> Result<Vec<(u64, HaneulObject)>, anyhow::Error> {
-        let object_refs = self.gateway.get_owned_objects(address).await?;
+        let object_refs = self.gateway.get_objects_owned_by_address(address).await?;
 
         // TODO: We should ideally fetch the objects from local cache
         let mut values_objects = Vec::new();
         for oref in object_refs {
-            match self.gateway.get_object_info(oref.object_id).await? {
-                GetObjectInfoResponse::Exists(o) => {
+            match self.gateway.get_object(oref.object_id).await? {
+                GetObjectDataResponse::Exists(o) => {
                     if matches!( o.data.type_(), Some(v)  if *v == GasCoin::type_().to_string()) {
                         // Okay to unwrap() since we already checked type
                         let gas_coin = GasCoin::try_from(&o)?;
@@ -526,7 +540,7 @@ impl WalletContext {
     }
 
     pub async fn get_object_owner(&self, id: &ObjectID) -> Result<HaneulAddress, anyhow::Error> {
-        let object = self.gateway.get_object_info(*id).await?.into_object()?;
+        let object = self.gateway.get_object(*id).await?.into_object()?;
         Ok(object.owner.get_owner_address()?)
     }
 
@@ -587,17 +601,25 @@ impl Display for WalletCommandResult {
             WalletCommandResult::Objects(object_refs) => {
                 writeln!(
                     writer,
-                    " {0: ^42} | {1: ^10} | {2: ^68}",
-                    "Object ID", "Version", "Digest"
+                    " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
+                    "Object ID", "Version", "Digest", "Owner Type", "Object Type"
                 )?;
-                writeln!(writer, "{}", ["-"; 126].join(""))?;
+                writeln!(writer, "{}", ["-"; 165].join(""))?;
                 for oref in object_refs {
+                    let owner_type = match oref.owner {
+                        Owner::AddressOwner(_) => "AddressOwner",
+                        Owner::ObjectOwner(_) => "ObjectOwner",
+                        Owner::Shared => "Shared",
+                        Owner::Immutable => "Immutable",
+                    };
                     writeln!(
                         writer,
-                        " {0: ^42} | {1: ^10} | {2: ^34?}",
+                        " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
                         oref.object_id,
                         oref.version.value(),
-                        oref.digest
+                        Base64::encode(oref.digest),
+                        owner_type,
+                        oref.type_
                     )?
                 }
                 writeln!(writer, "Showing {} results.", object_refs.len())?;
@@ -756,7 +778,7 @@ impl WalletCommandResult {
 #[serde(untagged)]
 pub enum WalletCommandResult {
     Publish(PublishResponse),
-    Object(GetObjectInfoResponse),
+    Object(GetObjectDataResponse),
     Call(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Transfer(
         // Skipping serialisation for elapsed time.
@@ -765,7 +787,7 @@ pub enum WalletCommandResult {
         HaneulTransactionEffects,
     ),
     Addresses(Vec<HaneulAddress>),
-    Objects(Vec<HaneulObjectRef>),
+    Objects(Vec<HaneulObjectInfo>),
     SyncClientState,
     NewAddress(HaneulAddress),
     Gas(Vec<GasCoin>),
@@ -773,7 +795,7 @@ pub enum WalletCommandResult {
     MergeCoin(MergeCoinResponse),
     Switch(SwitchResponse),
     ActiveAddress(Option<HaneulAddress>),
-    CreateExampleNFT(GetObjectInfoResponse),
+    CreateExampleNFT(GetObjectDataResponse),
 }
 
 #[derive(Serialize, Clone, Debug)]

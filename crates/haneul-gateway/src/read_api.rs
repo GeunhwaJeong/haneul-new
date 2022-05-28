@@ -3,17 +3,20 @@
 
 use crate::api::RpcReadApiServer;
 use crate::api::{RpcFullNodeReadApiServer, HaneulRpcModule};
-use crate::rpc_gateway::responses::ObjectResponse;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::sync::Arc;
-use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulObjectRef, TransactionEffectsResponse};
+use haneul_core::gateway_types::HaneulObjectInfo;
+use haneul_core::{
+    authority::AuthorityState,
+    gateway_types::{GetObjectDataResponse, TransactionEffectsResponse},
+};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::object::Owner;
 
 // An implementation of the read portion of the Gateway JSON-RPC interface intended for use in
 // Fullnodes.
@@ -39,28 +42,39 @@ impl ReadApi {
 
 #[async_trait]
 impl RpcReadApiServer for ReadApi {
-    async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse> {
-        let resp = ObjectResponse {
-            objects: self
-                .state
-                .get_owned_objects(owner)
-                .await
-                .map_err(|e| anyhow!("{}", e))?
-                .iter()
-                .map(|w| HaneulObjectRef::from(*w))
-                .collect(),
-        };
-        Ok(resp)
-    }
-
-    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse> {
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> RpcResult<Vec<HaneulObjectInfo>> {
         Ok(self
             .state
-            .get_object_info(&object_id)
+            .get_owner_objects(Owner::AddressOwner(address))
+            .map_err(|e| anyhow!("{e}"))?
+            .into_iter()
+            .map(HaneulObjectInfo::from)
+            .collect())
+    }
+
+    async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> RpcResult<Vec<HaneulObjectInfo>> {
+        Ok(self
+            .state
+            .get_owner_objects(Owner::ObjectOwner(object_id.into()))
+            .map_err(|e| anyhow!("{e}"))?
+            .into_iter()
+            .map(HaneulObjectInfo::from)
+            .collect())
+    }
+
+    async fn get_object(&self, object_id: ObjectID) -> RpcResult<GetObjectDataResponse> {
+        Ok(self
+            .state
+            .get_object_read(&object_id)
             .await
-            .map_err(|e| anyhow!("{}", e))?
-            .try_into()
-            .map_err(|e| anyhow!("{}", e))?)
+            .map_err(|e| anyhow!("{e}"))?
+            .try_into()?)
     }
 
     async fn get_total_transaction_number(&self) -> RpcResult<u64> {

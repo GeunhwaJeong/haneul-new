@@ -23,11 +23,11 @@ export const fetchAllOwnedObjects = createAsyncThunk<
     const address = getState().account.address;
     const allHaneulObjects: HaneulObject[] = [];
     if (address) {
-        const allObjectRefs = await api.instance.getOwnedObjectRefs(
+        const allObjectRefs = await api.instance.getObjectsOwnedByAddress(
             `${address}`
         );
         const objectIDs = allObjectRefs.map((anObj) => anObj.objectId);
-        const allObjRes = await api.instance.getObjectInfoBatch(objectIDs);
+        const allObjRes = await api.instance.getObjectBatch(objectIDs);
         for (const objRes of allObjRes) {
             const haneulObj = getObjectExistsResponse(objRes);
             if (haneulObj) {

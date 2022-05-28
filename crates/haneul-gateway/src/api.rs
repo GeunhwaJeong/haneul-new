@@ -9,7 +9,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_core::gateway_types::{GetObjectInfoResponse, HaneulInputObjectKind, HaneulObjectRef};
+use haneul_core::gateway_types::{
+    GetObjectDataResponse, HaneulInputObjectKind, HaneulObjectInfo, HaneulObjectRef,
+};
 use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
 use haneul_json::HaneulJsonValue;
 use haneul_open_rpc::Module;
@@ -21,7 +23,6 @@ use haneul_types::{
     messages::TransactionData,
 };
 
-use crate::rpc_gateway::responses::ObjectResponse;
 use crate::rpc_gateway::responses::HaneulTypeTag;
 
 #[open_rpc(namespace = "haneul", tag = "Gateway API")]
@@ -45,8 +46,17 @@ pub trait RpcGatewayApi {
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcReadApi {
     /// Return the list of objects owned by an address.
-    #[method(name = "getOwnedObjects")]
-    async fn get_owned_objects(&self, owner: HaneulAddress) -> RpcResult<ObjectResponse>;
+    #[method(name = "getObjectsOwnedByAddress")]
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> RpcResult<Vec<HaneulObjectInfo>>;
+
+    #[method(name = "getObjectsOwnedByObject")]
+    async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> RpcResult<Vec<HaneulObjectInfo>>;
 
     #[method(name = "getTotalTransactionNumber")]
     async fn get_total_transaction_number(&self) -> RpcResult<u64>;
@@ -71,8 +81,8 @@ pub trait RpcReadApi {
     ) -> RpcResult<TransactionEffectsResponse>;
 
     /// Return the object information for a specified object
-    #[method(name = "getObjectInfo")]
-    async fn get_object_info(&self, object_id: ObjectID) -> RpcResult<GetObjectInfoResponse>;
+    #[method(name = "getObject")]
+    async fn get_object(&self, object_id: ObjectID) -> RpcResult<GetObjectDataResponse>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Full Node API")]

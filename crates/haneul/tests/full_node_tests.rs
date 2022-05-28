@@ -10,6 +10,8 @@ use haneul::{
 use haneul_config::{NetworkConfig, PersistedConfig};
 use haneul_core::authority::AuthorityState;
 use haneul_node::HaneulNode;
+
+use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     batch::UpdateItem,
@@ -26,9 +28,11 @@ async fn transfer_coin(
     let sender = context.config.accounts.get(0).cloned().unwrap();
     let receiver = context.config.accounts.get(1).cloned().unwrap();
 
-    let object_refs = node.state().get_owned_objects(sender).await?;
-    let gas_object = object_refs.get(0).unwrap().0;
-    let object_to_send = object_refs.get(1).unwrap().0;
+    let object_refs = node
+        .state()
+        .get_owner_objects(Owner::AddressOwner(sender))?;
+    let gas_object = object_refs.get(0).unwrap().object_id;
+    let object_to_send = object_refs.get(1).unwrap().object_id;
 
     // Send an object
     info!(
@@ -124,8 +128,8 @@ async fn test_full_node_follows_txes() -> Result<(), anyhow::Error> {
     wait_for_tx(digest, node.state().clone()).await;
 
     // verify that the node has seen the transfer
-    let object_info = node.state().get_object_info(&transfered_object).await?;
-    let object = object_info.into_object()?;
+    let object_read = node.state().get_object_read(&transfered_object).await?;
+    let object = object_read.into_object()?;
 
     assert_eq!(object.owner.get_owner_address().unwrap(), receiver);
 
