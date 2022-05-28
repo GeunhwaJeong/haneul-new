@@ -251,10 +251,10 @@ fn new_network_address() -> Multiaddr {
 
 const HANEUL_DIR: &str = ".haneul";
 const HANEUL_CONFIG_DIR: &str = "haneul_config";
-pub const HANEUL_NETWORK_CONFIG: &str = "network.conf";
-pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.conf";
-pub const HANEUL_WALLET_CONFIG: &str = "wallet.conf";
-pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.conf";
+pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
+pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
+pub const HANEUL_WALLET_CONFIG: &str = "wallet.yaml";
+pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.yaml";
 pub const HANEUL_DEV_NET_URL: &str = "https://gateway.devnet.haneul.io:443";
 
 pub const AUTHORITIES_DB_NAME: &str = "authorities_db";
@@ -511,12 +511,12 @@ where
     pub fn read(path: &Path) -> Result<C, anyhow::Error> {
         trace!("Reading config from '{:?}'", path);
         let reader = fs::File::open(path)?;
-        Ok(serde_json::from_reader(reader)?)
+        Ok(serde_yaml::from_reader(reader)?)
     }
 
     pub fn save(&self) -> Result<(), anyhow::Error> {
         trace!("Writing config to '{:?}'", &self.path);
-        let config = serde_json::to_string_pretty(&self.inner)?;
+        let config = serde_yaml::to_string(&self.inner)?;
         fs::write(&self.path, config)?;
         Ok(())
     }

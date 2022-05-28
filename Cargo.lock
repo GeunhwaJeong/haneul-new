@@ -5676,7 +5676,7 @@ dependencies = [
  "multiaddr",
  "rand 0.7.3",
  "serde 1.0.137",
- "serde_json",
+ "serde_yaml",
  "haneul-adapter",
  "haneul-framework",
  "haneul-types",

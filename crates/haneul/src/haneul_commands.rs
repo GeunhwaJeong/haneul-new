@@ -254,7 +254,7 @@ impl HaneulCommand {
                     .enumerate()
                 {
                     let validator_config = validator
-                        .persisted(&haneul_config_dir.join(format!("validator-config-{}.conf", i)));
+                        .persisted(&haneul_config_dir.join(format!("validator-config-{}.yaml", i)));
                     validator_config.save()?;
                 }
 
