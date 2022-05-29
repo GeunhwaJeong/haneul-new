@@ -16,7 +16,7 @@ pub mod node;
 mod swarm;
 pub mod utils;
 
-pub use node::{CommitteeConfig, ConsensusConfig, NodeConfig, ValidatorInfo};
+pub use node::{ConsensusConfig, NodeConfig, ValidatorInfo};
 pub use swarm::NetworkConfig;
 
 const HANEUL_DIR: &str = ".haneul";
