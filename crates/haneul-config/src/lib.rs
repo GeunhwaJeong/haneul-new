@@ -25,6 +25,7 @@ pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_WALLET_CONFIG: &str = "wallet.yaml";
 pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.yaml";
+pub const HANEUL_GENESIS_FILENAME: &str = "genesis.blob";
 pub const HANEUL_DEV_NET_URL: &str = "https://gateway.devnet.haneul.io:443";
 
 pub const AUTHORITIES_DB_NAME: &str = "authorities_db";

@@ -10,8 +10,8 @@ use clap::*;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::PathBuf;
-use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig};
+use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
 use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
     HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
@@ -162,6 +162,7 @@ impl HaneulCommand {
                 }
 
                 let network_path = haneul_config_dir.join(HANEUL_NETWORK_CONFIG);
+                let genesis_path = haneul_config_dir.join(HANEUL_GENESIS_FILENAME);
                 let wallet_path = haneul_config_dir.join(HANEUL_WALLET_CONFIG);
                 let gateway_path = haneul_config_dir.join(HANEUL_GATEWAY_CONFIG);
                 let keystore_path = haneul_config_dir.join("wallet.key");
@@ -180,7 +181,7 @@ impl HaneulCommand {
                 }
 
                 let validator_info = genesis_conf.validator_genesis_info.take();
-                let network_config = if let Some(validators) = validator_info {
+                let mut network_config = if let Some(validators) = validator_info {
                     ConfigBuilder::new(haneul_config_dir)
                         .initial_accounts_config(genesis_conf)
                         .build_with_validators(validators)
@@ -200,9 +201,13 @@ impl HaneulCommand {
                     keystore.add_key(address, key.copy())?;
                 }
 
+                network_config.genesis.save(&genesis_path)?;
+                for validator in &mut network_config.validator_configs {
+                    validator.genesis = haneul_config::node::Genesis::new_from_file(&genesis_path);
+                }
+
                 info!("Network genesis completed.");
-                let network_config = network_config.persisted(&network_path);
-                network_config.save()?;
+                network_config.save(&network_path)?;
                 info!("Network config file is stored in {:?}.", network_path);
 
                 keystore.set_path(&keystore_path);
@@ -212,17 +217,14 @@ impl HaneulCommand {
                 // Use the first address if any
                 let active_address = accounts.get(0).copied();
 
-                let validator_set = network_config.validator_configs()[0]
-                    .committee_config()
-                    .validator_set();
+                let validator_set = network_config.validator_set();
 
                 GatewayConfig {
                     db_folder_path: gateway_db_folder_path,
                     validator_set: validator_set.to_owned(),
                     ..Default::default()
                 }
-                .persisted(&gateway_path)
-                .save()?;
+                .save(&gateway_path)?;
                 info!("Gateway config file is stored in {:?}.", gateway_path);
 
                 let wallet_gateway_config = GatewayConfig {
@@ -238,8 +240,7 @@ impl HaneulCommand {
                     active_address,
                 };
 
-                let wallet_config = wallet_config.persisted(&wallet_path);
-                wallet_config.save()?;
+                wallet_config.save(&wallet_path)?;
                 info!("Wallet config file is stored in {:?}.", wallet_path);
 
                 let fullnode_config = network_config
@@ -248,14 +249,12 @@ impl HaneulCommand {
                 fullnode_config.save()?;
 
                 for (i, validator) in network_config
-                    .into_inner()
                     .into_validator_configs()
                     .into_iter()
                     .enumerate()
                 {
-                    let validator_config = validator
-                        .persisted(&haneul_config_dir.join(format!("validator-config-{}.yaml", i)));
-                    validator_config.save()?;
+                    let path = haneul_config_dir.join(format!("validator-config-{}.yaml", i));
+                    validator.save(path)?;
                 }
 
                 Ok(())
