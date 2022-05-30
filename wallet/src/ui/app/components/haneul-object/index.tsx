@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulMoveObject, isHaneulMovePackage } from '@haneullabs/haneul.js';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import Field from './field';
+import BsIcon from '_components/bs-icon';
 import CopyToClipboard from '_components/copy-to-clipboard';
 import { useMiddleEllipsis, useMediaUrl, useHaneulObjectFields } from '_hooks';
+import { Explorer } from '_redux/slices/haneul-objects/Explorer';
 
 import type { HaneulObject as HaneulObjectType } from '@haneullabs/haneul.js';
 
@@ -17,7 +19,8 @@ export type HaneulObjectProps = {
 };
 
 function HaneulObject({ obj }: HaneulObjectProps) {
-    const shortId = useMiddleEllipsis(obj.reference.objectId);
+    const { objectId } = obj.reference;
+    const shortId = useMiddleEllipsis(objectId);
     const objType =
         (isHaneulMoveObject(obj.data) && obj.data.type) || 'Move Package';
     const imgUrl = useMediaUrl(obj.data);
@@ -25,12 +28,14 @@ function HaneulObject({ obj }: HaneulObjectProps) {
     const haneulMoveObjectFields = isHaneulMoveObject(obj.data)
         ? obj.data.fields
         : null;
+    const explorerUrl = useMemo(
+        () => Explorer.getObjectUrl(objectId),
+        [objectId]
+    );
     return (
         <div className={st.container}>
-            <span className={st.id} title={obj.reference.objectId}>
-                <CopyToClipboard txt={obj.reference.objectId}>
-                    {shortId}
-                </CopyToClipboard>
+            <span className={st.id} title={objectId}>
+                <CopyToClipboard txt={objectId}>{shortId}</CopyToClipboard>
             </span>
             <span className={st.type}>{objType}</span>
             <div className={st.content}>
@@ -60,6 +65,17 @@ function HaneulObject({ obj }: HaneulObjectProps) {
                     ) : null}
                 </div>
             </div>
+            <a
+                href={explorerUrl}
+                target="_blank"
+                className={st['explorer-link']}
+                rel="noreferrer"
+            >
+                <BsIcon
+                    title="View on Haneul Explorer"
+                    icon="box-arrow-up-right"
+                />
+            </a>
         </div>
     );
 }
