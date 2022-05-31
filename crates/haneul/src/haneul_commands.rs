@@ -16,11 +16,10 @@ use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
     HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
+use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;
-
-pub use crate::make::HaneulNetwork;
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -79,11 +78,18 @@ impl HaneulCommand {
                         ))
                     })?;
 
-                // Start a haneul validator (including its consensus node).
-                HaneulNetwork::start(&network_config)
-                    .await?
-                    .wait_for_completion()
-                    .await
+                let mut swarm =
+                    Swarm::builder().from_network_config(haneul_config_dir()?, network_config);
+                swarm.launch().await?;
+
+                let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
+                loop {
+                    for node in swarm.validators_mut() {
+                        node.health_check().await?;
+                    }
+
+                    interval.tick().await;
+                }
             }
             HaneulCommand::Network {
                 config,

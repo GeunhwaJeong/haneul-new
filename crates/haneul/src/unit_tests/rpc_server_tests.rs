@@ -14,7 +14,6 @@ use std::{
 use haneul::{
     config::{PersistedConfig, WalletConfig},
     keystore::{Keystore, HaneulKeystore},
-    haneul_commands::HaneulNetwork,
 };
 use haneul_config::{HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG};
 use haneul_core::gateway_state::GatewayTxSeqNumber;
@@ -31,6 +30,7 @@ use haneul_gateway::{
     rpc_gateway::RpcGatewayImpl,
 };
 use haneul_json::HaneulJsonValue;
+use haneul_swarm::memory::Swarm;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
@@ -256,14 +256,14 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
 }
 
 async fn setup_test_network() -> Result<TestNetwork, anyhow::Error> {
-    let working_dir = tempfile::tempdir()?.path().to_path_buf();
-    let _network = start_test_network(&working_dir, None).await?;
+    let network = start_test_network(None).await?;
     let (server_addr, rpc_server_handle) =
-        start_rpc_gateway(&working_dir.join(HANEUL_GATEWAY_CONFIG)).await?;
-    let wallet_conf: WalletConfig = PersistedConfig::read(&working_dir.join(HANEUL_WALLET_CONFIG))?;
+        start_rpc_gateway(&network.dir().join(HANEUL_GATEWAY_CONFIG)).await?;
+    let wallet_conf: WalletConfig = PersistedConfig::read(&network.dir().join(HANEUL_WALLET_CONFIG))?;
     let http_client = HttpClientBuilder::default().build(format!("http://{}", server_addr))?;
+    let working_dir = network.dir().into();
     Ok(TestNetwork {
-        _network,
+        _network: network,
         _rpc_server: rpc_server_handle,
         accounts: wallet_conf.accounts,
         http_client,
@@ -272,7 +272,7 @@ async fn setup_test_network() -> Result<TestNetwork, anyhow::Error> {
 }
 
 struct TestNetwork {
-    _network: HaneulNetwork,
+    _network: Swarm,
     _rpc_server: HttpServerHandle,
     accounts: Vec<HaneulAddress>,
     http_client: HttpClient,

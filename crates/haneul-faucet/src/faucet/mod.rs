@@ -53,7 +53,7 @@ impl From<&HaneulObject> for CoinInfo {
 
 #[cfg(test)]
 mod tests {
-    use crate::setup_network_and_wallet;
+    use test_utils::network::setup_network_and_wallet;
 
     use super::*;
 
