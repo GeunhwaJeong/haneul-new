@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::{balance::Balance, coin::TreasuryCap, id::VersionedID, HANEUL_FRAMEWORK_ADDRESS};
 
 const HANEUL_SYSTEM_STATE_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
-const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("HaneulSystem");
+pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("HaneulSystem");
+pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 
 /// Rust version of the Move Haneul::HaneulSystem::SystemParameters type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
