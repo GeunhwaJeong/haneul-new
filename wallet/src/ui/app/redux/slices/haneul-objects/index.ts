@@ -41,19 +41,16 @@ export const fetchAllOwnedObjects = createAsyncThunk<
     return allHaneulObjects;
 });
 
-const objectsAdapterInitialState = objectsAdapter.getInitialState();
-type HaneulObjectsAdapterType = typeof objectsAdapterInitialState;
-interface HaneulObjectsState extends HaneulObjectsAdapterType {
+interface HaneulObjectsManualState {
     loading: boolean;
     error: false | { code?: string; message?: string; name?: string };
     lastSync: number | null;
 }
-const initialState: HaneulObjectsState = {
-    ...objectsAdapterInitialState,
+const initialState = objectsAdapter.getInitialState<HaneulObjectsManualState>({
     loading: true,
     error: false,
     lastSync: null,
-};
+});
 
 const slice = createSlice({
     name: 'haneul-objects',
