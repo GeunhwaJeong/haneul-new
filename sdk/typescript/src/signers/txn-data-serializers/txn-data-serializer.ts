@@ -13,6 +13,20 @@ export interface TransferCoinTransaction {
   recipient: HaneulAddress;
 }
 
+export interface MergeCoinTransaction {
+  primaryCoin: ObjectId;
+  coinToMerge: ObjectId;
+  gasPayment?: ObjectId;
+  gasBudget: number;
+}
+
+export interface SplitCoinTransaction {
+  coinObjectId: ObjectId;
+  splitAmounts: number[];
+  gasPayment?: ObjectId;
+  gasBudget: number;
+}
+
 export interface MoveCallTransaction {
   packageObjectId: ObjectId;
   module: string;
@@ -39,5 +53,13 @@ export interface TxnDataSerializer {
     txn: MoveCallTransaction
   ): Promise<Base64DataBuffer>;
 
-  // TODO: add `newSplitCoin` and `newMergeCoin`
+  newMergeCoin(
+    signerAddress: HaneulAddress,
+    txn: MergeCoinTransaction
+  ): Promise<Base64DataBuffer>;
+
+  newSplitCoin(
+    signerAddress: HaneulAddress,
+    txn: SplitCoinTransaction
+  ): Promise<Base64DataBuffer>;
 }

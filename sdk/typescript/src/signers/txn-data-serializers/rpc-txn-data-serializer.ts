@@ -7,6 +7,8 @@ import { Base64DataBuffer } from '../../serialization/base64';
 import { HaneulAddress } from '../../types';
 import {
   MoveCallTransaction,
+  MergeCoinTransaction,
+  SplitCoinTransaction,
   TransferCoinTransaction,
   TxnDataSerializer,
 } from './txn-data-serializer';
@@ -71,5 +73,47 @@ export class RpcTxnDataSerializer implements TxnDataSerializer {
     }
   }
 
-  // TODO: add more interface methods
+  async newMergeCoin(
+    signerAddress: HaneulAddress,
+    t: MergeCoinTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_mergeCoins',
+        [
+          signerAddress,
+          t.primaryCoin,
+          t.coinToMerge,
+          t.gasPayment,
+          t.gasBudget,
+        ],
+        isTransactionBytes
+      );
+      return new Base64DataBuffer(resp.txBytes);
+    } catch (err) {
+      throw new Error(`Error merging coin: ${err}`);
+    }
+  }
+
+  async newSplitCoin(
+    signerAddress: HaneulAddress,
+    t: SplitCoinTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_splitCoin',
+        [
+          signerAddress,
+          t.coinObjectId,
+          t.splitAmounts,
+          t.gasPayment,
+          t.gasBudget,
+        ],
+        isTransactionBytes
+      );
+      return new Base64DataBuffer(resp.txBytes);
+    } catch (err) {
+      throw new Error(`Error splitting coin: ${err}`);
+    }
+  }
 }

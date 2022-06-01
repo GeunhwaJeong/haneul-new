@@ -126,6 +126,12 @@ export type TransactionBytes = {
   // TODO: Add input_objects field
 };
 
+export type MergeCoinResponse = {
+  certificate: CertifiedTransaction;
+  updatedCoin: HaneulObject;
+  updatedGas: HaneulObject;
+};
+
 export type SplitCoinResponse = {
   certificate: CertifiedTransaction;
   updatedCoin: HaneulObject;
@@ -140,6 +146,9 @@ export type TransactionResponse =
     }
   | {
       SplitCoinResponse: SplitCoinResponse;
+    }
+  | {
+      MergeCoinResponse: MergeCoinResponse;
     };
 
 /* -------------------------------------------------------------------------- */
