@@ -24,7 +24,7 @@ import type { AppThunkConfig } from '_store/thunk-extras';
 
 type SendTokensTXArgs = {
     tokenTypeArg: string;
-    amount: BigInt;
+    amount: bigint;
     recipientAddress: HaneulAddress;
 };
 type TransactionResult = { EffectResponse: TransactionEffectsResponse };

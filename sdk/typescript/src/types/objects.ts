@@ -157,9 +157,9 @@ export function getObjectFields(
 }
 
 export function getMoveObject(
-  resp: GetObjectDataResponse
+  data: GetObjectDataResponse | HaneulObject
 ): HaneulMoveObject | undefined {
-  const haneulObject = getObjectExistsResponse(resp);
+  const haneulObject = 'data' in data ? data : getObjectExistsResponse(data);
   if (haneulObject?.data.dataType !== 'moveObject') {
     return undefined;
   }
