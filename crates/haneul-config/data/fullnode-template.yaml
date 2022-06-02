@@ -1,0 +1,10 @@
+# Update this value to the location you want Haneul to store its database
+db-path: "haneuldb"
+
+network-address: "/dns/localhost/tcp/8080/http"
+metrics-address: "127.0.0.1:9184"
+json-rpc-address: "127.0.0.1:9000"
+
+genesis:
+  # Update this to the location of where the genesis file is stored
+  genesis-file-location: "genesis.blob"
