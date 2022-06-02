@@ -365,6 +365,12 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
 }
 
 impl HaneulData {
+    pub fn try_as_move(&self) -> Option<&HaneulMoveObject> {
+        match self {
+            HaneulData::MoveObject(o) => Some(o),
+            HaneulData::Package(_) => None,
+        }
+    }
     pub fn try_as_package(&self) -> Option<&HaneulMovePackage> {
         match self {
             HaneulData::MoveObject(_) => None,
