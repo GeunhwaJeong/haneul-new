@@ -78,7 +78,7 @@ TestScenario::next_tx(scenario, &owner);
 ### Pass objects by value
 Objects can also be passed by value into an entry function. By doing so, the object is moved out of Haneul storage (a.k.a. deleted). It is then up to the Move code to decide where this object should go.
 
-> :books: Since every [Haneul object struct type](./ch1-object-basics.md#define-haneul-object) must include `VersionedID` as a field, and the [VersionedID struct](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/ID.move) does not have the `drop` ability, the Haneul object struct type [must not](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#drop) have `drop` ability either. Hence, any Haneul object cannot be arbitrarily dropped and must be either consumed or unpacked.
+> :books: Since every [Haneul object struct type](./ch1-object-basics.md#define-haneul-object) must include `VersionedID` as a field, and the [VersionedID struct](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/ID.move) does not have the `drop` ability, the Haneul object struct type [must not](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#drop) have `drop` ability either. Hence, any Haneul object cannot be arbitrarily dropped and must be either consumed (e.g., transferred to another owner) or deleted by [unpacking](https://move-book.com/advanced-topics/struct.html#destructing-structures), as described below.
 
 There are two ways we can deal with a pass-by-value Haneul object in Move:
 
