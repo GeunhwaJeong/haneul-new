@@ -55,9 +55,7 @@ const initialState = objectsAdapter.getInitialState<HaneulObjectsManualState>({
 const slice = createSlice({
     name: 'haneul-objects',
     initialState: initialState,
-    reducers: {
-        setOwnedObjects: objectsAdapter.setAll,
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchAllOwnedObjects.fulfilled, (state, action) => {
