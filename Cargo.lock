@@ -6032,6 +6032,7 @@ dependencies = [
  "haneul-adapter",
  "haneul-framework",
  "haneul-types",
+ "haneul-verifier",
  "test-fuzz",
  "workspace-hack",
 ]

@@ -19,7 +19,7 @@ module Haneul::HANEUL {
     }
 
     /// Transfer to a recipient
-    public(script) fun transfer(c: Coin::Coin<HANEUL>, recipient: address, _ctx: &mut TxContext) {
+    public(script) fun transfer(c: Coin::Coin<HANEUL>, recipient: address) {
         Coin::transfer(c, recipient)
     }
 
