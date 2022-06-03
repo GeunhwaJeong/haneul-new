@@ -5,7 +5,7 @@
 #[test]
 fn test_format() {
     // If this test breaks and you intended a format change, you need to run to get the fresh format:
-    // # cargo -q run --example generate-format -- print > haneul_core/tests/staged/haneul.yaml
+    // # cargo -q run --example generate-format -- print > crates/haneul-core/tests/staged/haneul.yaml
 
     let status = std::process::Command::new("cargo")
         .current_dir("..")
@@ -17,7 +17,7 @@ fn test_format() {
         status.success(),
         "\n\
 If this test breaks and you intended a format change, you need to run to get the fresh format:\n\
-cargo -q run --example generate-format -- print > haneul_core/tests/staged/haneul.yaml\n\
+cargo -q run --example generate-format -- print > crates/haneul-core/tests/staged/haneul.yaml\n\
         "
     );
 }
