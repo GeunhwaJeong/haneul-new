@@ -42,7 +42,6 @@ impl HaneulNode {
                 config.db_path().join("checkpoints"),
                 None,
                 config.public_key(),
-                genesis.committee(),
                 secret.clone(),
             )?)))
         } else {
