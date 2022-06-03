@@ -10,7 +10,7 @@ module T3::O3 {
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
 
-    struct O3 has key {
+    struct O3 has key, store {
         id: VersionedID,
     }
 
@@ -28,7 +28,7 @@ module T2::O2 {
     use Haneul::TxContext::{Self, TxContext};
     use T3::O3::O3;
 
-    struct O2 has key {
+    struct O2 has key, store {
         id: VersionedID,
         child: ChildRef<O3>,
     }

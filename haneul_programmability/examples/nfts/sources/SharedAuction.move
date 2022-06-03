@@ -28,7 +28,6 @@
 module NFTs::SharedAuction {
     use Haneul::Coin::{Self, Coin};
     use Haneul::HANEUL::HANEUL;
-    use Haneul::Transfer;
     use Haneul::TxContext::{Self,TxContext};
 
     use NFTs::AuctionLib::{Self, Auction};
@@ -44,7 +43,7 @@ module NFTs::SharedAuction {
     /// to be auctioned.
     public(script) fun create_auction<T: key + store >(to_sell: T, ctx: &mut TxContext) {
         let auction = AuctionLib::create_auction(TxContext::new_id(ctx), to_sell, ctx);
-        Transfer::share_object(auction);
+        AuctionLib::share_object(auction);
     }
 
     /// Sends a bid to the auction. The result is either successful
