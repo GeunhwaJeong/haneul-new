@@ -11,6 +11,14 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use tracing::debug;
 
+use crate::rpc_gateway::responses::HaneulTypeTag;
+use crate::{
+    api::{
+        RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, HaneulRpcModule,
+        TransactionBytes,
+    },
+    config::GatewayConfig,
+};
 use haneul_config::PersistedConfig;
 use haneul_core::gateway_state::{GatewayClient, GatewayState, GatewayTxSeqNumber};
 use haneul_core::gateway_types::{
@@ -24,15 +32,6 @@ use haneul_types::{
     crypto,
     crypto::SignableBytes,
     messages::{Transaction, TransactionData},
-};
-
-use crate::rpc_gateway::responses::HaneulTypeTag;
-use crate::{
-    api::{
-        RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, HaneulRpcModule,
-        TransactionBytes,
-    },
-    config::GatewayConfig,
 };
 
 pub mod responses;

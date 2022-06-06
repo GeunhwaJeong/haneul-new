@@ -10,7 +10,8 @@ use serde_with::serde_as;
 
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{
-    GetObjectDataResponse, HaneulInputObjectKind, HaneulObjectInfo, HaneulObjectRef,
+    GetObjectDataResponse, GetRawObjectDataResponse, HaneulInputObjectKind, HaneulObjectInfo,
+    HaneulObjectRef,
 };
 use haneul_core::gateway_types::{TransactionEffectsResponse, TransactionResponse};
 use haneul_json::HaneulJsonValue;
@@ -170,6 +171,14 @@ pub trait RpcTransactionBuilder {
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "BCS API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait RpcBcsApi {
+    /// Return the raw BCS serialised move object bytes for a specified object
+    #[method(name = "getRawObject")]
+    async fn get_raw_object(&self, object_id: ObjectID) -> RpcResult<GetRawObjectDataResponse>;
 }
 
 #[serde_as]

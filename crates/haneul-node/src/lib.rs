@@ -13,6 +13,7 @@ use haneul_core::{
     authority_client::NetworkAuthorityClient,
     checkpoints::CheckpointStore,
 };
+use haneul_gateway::bcs_api::BcsApiImpl;
 use haneul_gateway::json_rpc::JsonRpcServerBuilder;
 use haneul_gateway::read_api::{FullNodeApi, ReadApi};
 use haneul_network::api::ValidatorServer;
@@ -138,6 +139,7 @@ impl HaneulNode {
             let mut server = JsonRpcServerBuilder::new()?;
             server.register_module(ReadApi::new(state.clone()))?;
             server.register_module(FullNodeApi::new(state.clone()))?;
+            server.register_module(BcsApiImpl::new(state.clone()))?;
 
             let server_handle = server.start(config.json_rpc_address).await?;
             Some(server_handle)

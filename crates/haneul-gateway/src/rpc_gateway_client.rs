@@ -9,13 +9,15 @@ use tokio::runtime::Handle;
 
 use haneul_core::gateway_state::{GatewayAPI, GatewayTxSeqNumber};
 use haneul_core::gateway_types::{
-    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
+    GetObjectDataResponse, GetRawObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse,
+    TransactionResponse,
 };
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;
 
+use crate::api::RpcBcsApiClient;
 use crate::api::RpcReadApiClient;
 use crate::api::RpcTransactionBuilderClient;
 use crate::api::{RpcGatewayApiClient, TransactionBytes};
@@ -145,6 +147,10 @@ impl GatewayAPI for RpcGatewayClient {
 
     async fn get_object(&self, object_id: ObjectID) -> Result<GetObjectDataResponse, Error> {
         Ok(self.client.get_object(object_id).await?)
+    }
+
+    async fn get_raw_object(&self, object_id: ObjectID) -> Result<GetRawObjectDataResponse, Error> {
+        Ok(self.client.get_raw_object(object_id).await?)
     }
 
     async fn get_objects_owned_by_address(

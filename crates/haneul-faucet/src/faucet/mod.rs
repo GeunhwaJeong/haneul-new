@@ -3,7 +3,7 @@
 use crate::FaucetError;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use haneul_core::gateway_types::HaneulObject;
+use haneul_core::gateway_types::HaneulParsedObject;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -33,16 +33,16 @@ pub trait Faucet {
     ) -> Result<FaucetReceipt, FaucetError>;
 }
 
-impl<'a> FromIterator<&'a HaneulObject> for FaucetReceipt {
-    fn from_iter<T: IntoIterator<Item = &'a HaneulObject>>(iter: T) -> Self {
+impl<'a> FromIterator<&'a HaneulParsedObject> for FaucetReceipt {
+    fn from_iter<T: IntoIterator<Item = &'a HaneulParsedObject>>(iter: T) -> Self {
         FaucetReceipt {
             sent: iter.into_iter().map(|o| o.into()).collect(),
         }
     }
 }
 
-impl From<&HaneulObject> for CoinInfo {
-    fn from(v: &HaneulObject) -> Self {
+impl From<&HaneulParsedObject> for CoinInfo {
+    fn from(v: &HaneulParsedObject) -> Self {
         let gas_coin = GasCoin::try_from(v).unwrap();
         Self {
             amount: gas_coin.value(),

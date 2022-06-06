@@ -16,6 +16,7 @@ use haneul_core::gateway_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_gateway::api::HaneulRpcModule;
+use haneul_gateway::bcs_api::BcsApiImpl;
 use haneul_gateway::json_rpc::haneul_rpc_doc;
 use haneul_gateway::read_api::{FullNodeApi, ReadApi};
 use haneul_gateway::rpc_gateway::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
@@ -66,6 +67,7 @@ async fn main() {
     open_rpc.add_module(GatewayReadApiImpl::rpc_doc_module());
     open_rpc.add_module(ReadApi::rpc_doc_module());
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
+    open_rpc.add_module(BcsApiImpl::rpc_doc_module());
 
     match options.action {
         Action::Print => {

@@ -16,15 +16,13 @@ use move_core_types::{language_storage::TypeTag, parser::parse_type_tag};
 use serde::Serialize;
 use serde_json::json;
 use haneul_core::gateway_types::{
-    MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
+    GetObjectDataResponse, MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
+    HaneulParsedObject,
 };
 use tracing::info;
 
 use haneul_core::gateway_state::GatewayClient;
-use haneul_core::gateway_types::{
-    GetObjectDataResponse, HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulObject,
-    HaneulTransactionEffects,
-};
+use haneul_core::gateway_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
 use haneul_types::object::Owner;
@@ -518,7 +516,7 @@ impl WalletContext {
     pub async fn gas_objects(
         &self,
         address: HaneulAddress,
-    ) -> Result<Vec<(u64, HaneulObject)>, anyhow::Error> {
+    ) -> Result<Vec<(u64, HaneulParsedObject)>, anyhow::Error> {
         let object_refs = self.gateway.get_objects_owned_by_address(address).await?;
 
         // TODO: We should ideally fetch the objects from local cache
@@ -561,7 +559,7 @@ impl WalletContext {
         address: HaneulAddress,
         budget: u64,
         forbidden_gas_objects: BTreeSet<ObjectID>,
-    ) -> Result<(u64, HaneulObject), anyhow::Error> {
+    ) -> Result<(u64, HaneulParsedObject), anyhow::Error> {
         for o in self.gas_objects(address).await.unwrap() {
             if o.0 >= budget && !forbidden_gas_objects.contains(&o.1.id()) {
                 return Ok(o);

@@ -18,7 +18,7 @@ use haneul_config::{
     Config, NetworkConfig, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
     HANEUL_GENESIS_FILENAME, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
-use haneul_core::gateway_types::{GetObjectDataResponse, HaneulObject, HaneulTransactionEffects};
+use haneul_core::gateway_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_json::HaneulJsonValue;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -889,11 +889,11 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn get_gas_value(o: &HaneulObject) -> u64 {
+fn get_gas_value(o: &HaneulParsedObject) -> u64 {
     GasCoin::try_from(o).unwrap().value()
 }
 
-async fn get_object(id: ObjectID, context: &mut WalletContext) -> Option<HaneulObject> {
+async fn get_object(id: ObjectID, context: &mut WalletContext) -> Option<HaneulParsedObject> {
     if let GetObjectDataResponse::Exists(o) = context.gateway.get_object(id).await.unwrap() {
         Some(o)
     } else {

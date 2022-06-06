@@ -4,7 +4,7 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
 use haneul::wallet_commands::WalletContext;
-use haneul_core::gateway_types::{HaneulExecutionStatus, HaneulObject};
+use haneul_core::gateway_types::{HaneulExecutionStatus, HaneulParsedObject};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -66,7 +66,7 @@ impl SimpleFaucet {
         })
     }
 
-    async fn get_coins(&self, amounts: &[u64]) -> Result<Vec<HaneulObject>, FaucetError> {
+    async fn get_coins(&self, amounts: &[u64]) -> Result<Vec<HaneulParsedObject>, FaucetError> {
         let result = self
             .split_coins(
                 amounts,
@@ -107,7 +107,7 @@ impl SimpleFaucet {
         gas_object_id: ObjectID,
         signer: HaneulAddress,
         budget: u64,
-    ) -> Result<Vec<HaneulObject>, anyhow::Error> {
+    ) -> Result<Vec<HaneulParsedObject>, anyhow::Error> {
         // TODO: move this function to impl WalletContext{} and reuse in wallet_commands
         let context = &self.wallet;
         let data = context

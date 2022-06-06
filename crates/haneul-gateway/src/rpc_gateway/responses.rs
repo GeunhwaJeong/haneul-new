@@ -6,7 +6,7 @@ use move_core_types::parser::parse_type_tag;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
-use haneul_core::gateway_types::{HaneulData, HaneulObjectRef};
+use haneul_core::gateway_types::{HaneulData, HaneulObjectRef, HaneulParsedMoveObject};
 
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::object::Owner;
@@ -17,7 +17,7 @@ pub struct ObjectExistsResponse {
     object_ref: HaneulObjectRef,
     owner: Owner,
     previous_transaction: TransactionDigest,
-    data: HaneulData,
+    data: HaneulData<HaneulParsedMoveObject>,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema)]

@@ -10,6 +10,7 @@ use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 
 use colored::Colorize;
+use either::Either;
 use itertools::Itertools;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
@@ -20,6 +21,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
+use serde_with::serde_as;
+use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
@@ -34,10 +37,8 @@ use haneul_types::messages::{
     SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
 };
 use haneul_types::move_package::disassemble_modules;
-use haneul_types::object::{Data, Object, ObjectRead, Owner};
+use haneul_types::object::{Data, MoveObject, Object, ObjectRead, Owner};
 use haneul_types::haneul_serde::{Base64, Encoding};
-
-use haneul_json::HaneulJsonValue;
 
 #[cfg(test)]
 #[path = "unit_tests/gateway_types_tests.rs"]
@@ -93,11 +94,11 @@ pub struct SplitCoinResponse {
     /// Certificate of the transaction
     pub certificate: HaneulCertifiedTransaction,
     /// The updated original coin object after split
-    pub updated_coin: HaneulObject,
+    pub updated_coin: HaneulParsedObject,
     /// All the newly created coin objects generated from the split
-    pub new_coins: Vec<HaneulObject>,
+    pub new_coins: Vec<HaneulParsedObject>,
     /// The updated gas payment object after deducting payment
-    pub updated_gas: HaneulObject,
+    pub updated_gas: HaneulParsedObject,
 }
 
 impl Display for SplitCoinResponse {
@@ -131,9 +132,9 @@ pub struct MergeCoinResponse {
     /// Certificate of the transaction
     pub certificate: HaneulCertifiedTransaction,
     /// The updated original coin object after merge
-    pub updated_coin: HaneulObject,
+    pub updated_coin: HaneulParsedObject,
     /// The updated gas payment object after deducting payment
-    pub updated_gas: HaneulObject,
+    pub updated_gas: HaneulParsedObject,
 }
 
 impl Display for MergeCoinResponse {
@@ -151,11 +152,14 @@ impl Display for MergeCoinResponse {
     }
 }
 
+pub type HaneulRawObject = HaneulObject<HaneulRawMoveObject>;
+pub type HaneulParsedObject = HaneulObject<HaneulParsedMoveObject>;
+
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "Object")]
-pub struct HaneulObject {
+pub struct HaneulObject<T: HaneulMoveObject> {
     /// The meat of the object
-    pub data: HaneulData,
+    pub data: HaneulData<T>,
     /// The owner that unlocks this object
     pub owner: Owner,
     /// The digest of the transaction that created or last mutated this object
@@ -194,7 +198,7 @@ impl From<ObjectRef> for HaneulObjectRef {
     }
 }
 
-impl Display for HaneulObject {
+impl Display for HaneulParsedObject {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let type_ = if self.data.type_().is_some() {
             "Move Object"
@@ -237,7 +241,7 @@ impl Display for HaneulObject {
     }
 }
 
-impl HaneulObject {
+impl<T: HaneulMoveObject> HaneulObject<T> {
     pub fn id(&self) -> ObjectID {
         self.reference.object_id
     }
@@ -248,25 +252,7 @@ impl HaneulObject {
     pub fn try_from(o: Object, layout: Option<MoveStructLayout>) -> Result<Self, anyhow::Error> {
         let oref = o.compute_object_reference();
         let data = match o.data {
-            Data::Move(m) => {
-                let move_struct = m
-                    .to_move_struct(&layout.ok_or(HaneulError::ObjectSerializationError {
-                        error: "Layout is required to convert Move object to json".to_owned(),
-                    })?)?
-                    .into();
-
-                if let HaneulMoveStruct::WithTypes { type_, fields } = move_struct {
-                    HaneulData::MoveObject(HaneulMoveObject {
-                        type_,
-                        fields: HaneulMoveStruct::WithFields(fields),
-                    })
-                } else {
-                    HaneulData::MoveObject(HaneulMoveObject {
-                        type_: m.type_.to_string(),
-                        fields: move_struct,
-                    })
-                }
-            }
+            Data::Move(m) => HaneulData::MoveObject(T::try_from(m, layout)?),
             Data::Package(p) => HaneulData::Package(HaneulMovePackage {
                 disassembled: p.disassemble()?,
             }),
@@ -283,12 +269,13 @@ impl HaneulObject {
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(tag = "dataType", rename_all = "camelCase", rename = "Data")]
-pub enum HaneulData {
-    MoveObject(HaneulMoveObject),
+pub enum HaneulData<T: HaneulMoveObject> {
+    // Manually handle generic schema generation
+    MoveObject(#[schemars(with = "Either<HaneulParsedMoveObject,HaneulRawMoveObject>")] T),
     Package(HaneulMovePackage),
 }
 
-impl Display for HaneulData {
+impl Display for HaneulData<HaneulParsedMoveObject> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         match self {
@@ -316,17 +303,84 @@ fn indent<T: Display>(d: &T, indent: usize) -> String {
         .join("\n")
 }
 
+pub trait HaneulMoveObject: Sized {
+    fn try_from(
+        object: MoveObject,
+        layout: Option<MoveStructLayout>,
+    ) -> Result<Self, anyhow::Error>;
+
+    fn type_(&self) -> &str;
+}
+
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "MoveObject")]
-pub struct HaneulMoveObject {
+pub struct HaneulParsedMoveObject {
     #[serde(rename = "type")]
     pub type_: String,
     pub fields: HaneulMoveStruct,
 }
 
-impl TryFrom<&HaneulObject> for GasCoin {
+impl HaneulMoveObject for HaneulParsedMoveObject {
+    fn try_from(
+        object: MoveObject,
+        layout: Option<MoveStructLayout>,
+    ) -> Result<Self, anyhow::Error> {
+        let move_struct = object
+            .to_move_struct(&layout.ok_or(HaneulError::ObjectSerializationError {
+                error: "Layout is required to convert Move object to json".to_owned(),
+            })?)?
+            .into();
+
+        Ok(
+            if let HaneulMoveStruct::WithTypes { type_, fields } = move_struct {
+                HaneulParsedMoveObject {
+                    type_,
+                    fields: HaneulMoveStruct::WithFields(fields),
+                }
+            } else {
+                HaneulParsedMoveObject {
+                    type_: object.type_.to_string(),
+                    fields: move_struct,
+                }
+            },
+        )
+    }
+
+    fn type_(&self) -> &str {
+        &self.type_
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[serde(rename = "RawMoveObject")]
+pub struct HaneulRawMoveObject {
+    #[serde(rename = "type")]
+    pub type_: String,
+    #[serde_as(as = "Base64")]
+    #[schemars(with = "Base64")]
+    pub bcs_bytes: Vec<u8>,
+}
+
+impl HaneulMoveObject for HaneulRawMoveObject {
+    fn try_from(
+        object: MoveObject,
+        _layout: Option<MoveStructLayout>,
+    ) -> Result<Self, anyhow::Error> {
+        Ok(Self {
+            type_: object.type_.to_string(),
+            bcs_bytes: object.into_contents(),
+        })
+    }
+
+    fn type_(&self) -> &str {
+        &self.type_
+    }
+}
+
+impl TryFrom<&HaneulParsedObject> for GasCoin {
     type Error = HaneulError;
-    fn try_from(object: &HaneulObject) -> Result<Self, Self::Error> {
+    fn try_from(object: &HaneulParsedObject) -> Result<Self, Self::Error> {
         match &object.data {
             HaneulData::MoveObject(o) => {
                 if GasCoin::type_().to_string() == o.type_ {
@@ -364,8 +418,8 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     }
 }
 
-impl HaneulData {
-    pub fn try_as_move(&self) -> Option<&HaneulMoveObject> {
+impl<T: HaneulMoveObject> HaneulData<T> {
+    pub fn try_as_move(&self) -> Option<&T> {
         match self {
             HaneulData::MoveObject(o) => Some(o),
             HaneulData::Package(_) => None,
@@ -379,7 +433,7 @@ impl HaneulData {
     }
     pub fn type_(&self) -> Option<&str> {
         match self {
-            HaneulData::MoveObject(m) => Some(&m.type_),
+            HaneulData::MoveObject(m) => Some(m.type_()),
             HaneulData::Package(_) => None,
         }
     }
@@ -393,9 +447,9 @@ pub struct PublishResponse {
     /// The newly published package object reference.
     pub package: HaneulObjectRef,
     /// List of Move objects created as part of running the module initializers in the package
-    pub created_objects: Vec<HaneulObject>,
+    pub created_objects: Vec<HaneulParsedObject>,
     /// The updated gas payment object after deducting payment
-    pub updated_gas: HaneulObject,
+    pub updated_gas: HaneulParsedObject,
 }
 
 impl Display for PublishResponse {
@@ -424,18 +478,21 @@ impl Display for PublishResponse {
     }
 }
 
+pub type GetObjectDataResponse = HaneulObjectRead<HaneulParsedMoveObject>;
+pub type GetRawObjectDataResponse = HaneulObjectRead<HaneulRawMoveObject>;
+
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "status", content = "details", rename = "ObjectRead")]
-pub enum GetObjectDataResponse {
-    Exists(HaneulObject),
+pub enum HaneulObjectRead<T: HaneulMoveObject> {
+    Exists(HaneulObject<T>),
     NotExists(ObjectID),
     Deleted(HaneulObjectRef),
 }
 
-impl GetObjectDataResponse {
+impl<T: HaneulMoveObject> HaneulObjectRead<T> {
     /// Returns a reference to the object if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn object(&self) -> Result<&HaneulObject, HaneulError> {
+    pub fn object(&self) -> Result<&HaneulObject<T>, HaneulError> {
         match &self {
             Self::Deleted(oref) => Err(HaneulError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
@@ -447,7 +504,7 @@ impl GetObjectDataResponse {
 
     /// Returns the object value if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn into_object(self) -> Result<HaneulObject, HaneulError> {
+    pub fn into_object(self) -> Result<HaneulObject<T>, HaneulError> {
         match self {
             Self::Deleted(oref) => Err(HaneulError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
@@ -458,16 +515,16 @@ impl GetObjectDataResponse {
     }
 }
 
-impl TryFrom<ObjectRead> for GetObjectDataResponse {
+impl<T: HaneulMoveObject> TryFrom<ObjectRead> for HaneulObjectRead<T> {
     type Error = anyhow::Error;
 
     fn try_from(value: ObjectRead) -> Result<Self, Self::Error> {
         match value {
-            ObjectRead::NotExists(id) => Ok(GetObjectDataResponse::NotExists(id)),
-            ObjectRead::Exists(_, o, layout) => Ok(GetObjectDataResponse::Exists(
-                HaneulObject::try_from(o, layout)?,
-            )),
-            ObjectRead::Deleted(oref) => Ok(GetObjectDataResponse::Deleted(oref.into())),
+            ObjectRead::NotExists(id) => Ok(HaneulObjectRead::NotExists(id)),
+            ObjectRead::Exists(_, o, layout) => {
+                Ok(HaneulObjectRead::Exists(HaneulObject::try_from(o, layout)?))
+            }
+            ObjectRead::Deleted(oref) => Ok(HaneulObjectRead::Deleted(oref.into())),
         }
     }
 }

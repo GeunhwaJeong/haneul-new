@@ -306,6 +306,12 @@ pub trait GatewayAPI {
     async fn get_object(&self, object_id: ObjectID)
         -> Result<GetObjectDataResponse, anyhow::Error>;
 
+    /// Get the object data
+    async fn get_raw_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error>;
+
     /// Get refs of all objects we own from local cache.
     async fn get_objects_owned_by_address(
         &self,
@@ -366,15 +372,21 @@ where
         })
     }
 
-    async fn get_haneul_object(&self, object_id: &ObjectID) -> Result<HaneulObject, anyhow::Error> {
+    async fn get_haneul_object<T: HaneulMoveObject>(
+        &self,
+        object_id: &ObjectID,
+    ) -> Result<HaneulObject<T>, anyhow::Error> {
         let object = self.get_object_internal(object_id).await?;
         self.to_haneul_object(object)
     }
 
-    fn to_haneul_object(&self, object: Object) -> Result<HaneulObject, anyhow::Error> {
+    fn to_haneul_object<T: HaneulMoveObject>(
+        &self,
+        object: Object,
+    ) -> Result<HaneulObject<T>, anyhow::Error> {
         let cache = ModuleCache::new(&*self.store);
         let layout = object.get_layout(ObjectFormatOptions::default(), &cache)?;
-        HaneulObject::try_from(object, layout)
+        HaneulObject::<T>::try_from(object, layout)
     }
 
     async fn get_object_ref(&self, object_id: &ObjectID) -> HaneulResult<ObjectRef> {
@@ -1107,6 +1119,14 @@ where
         &self,
         object_id: ObjectID,
     ) -> Result<GetObjectDataResponse, anyhow::Error> {
+        let result = self.download_object_from_authorities(object_id).await?;
+        Ok(result.try_into()?)
+    }
+
+    async fn get_raw_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
         let result = self.download_object_from_authorities(object_id).await?;
         Ok(result.try_into()?)
     }
