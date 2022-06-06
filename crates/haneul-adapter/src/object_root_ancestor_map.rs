@@ -3,8 +3,7 @@
 
 use std::collections::BTreeMap;
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::fp_ensure;
+use haneul_types::error::{ExecutionError, ExecutionErrorKind};
 use haneul_types::object::Owner;
 
 /// A structure that maps from object ID to its root ancestor object.
@@ -19,7 +18,7 @@ pub struct ObjectRootAncestorMap {
 }
 
 impl ObjectRootAncestorMap {
-    pub fn new(direct_owner_map: &BTreeMap<ObjectID, Owner>) -> HaneulResult<Self> {
+    pub fn new(direct_owner_map: &BTreeMap<ObjectID, Owner>) -> Result<Self, ExecutionError> {
         let mut root_ancestor_map = BTreeMap::new();
         for (id, owner) in direct_owner_map {
             // All the objects we will visit while walking up the ancestor chain.
@@ -35,14 +34,16 @@ impl ObjectRootAncestorMap {
                 stack.push(cur_id);
                 match cur_owner {
                     Owner::ObjectOwner(parent_id) => {
-                        cur_owner = *direct_owner_map.get(&parent_id.into()).ok_or(
-                            HaneulError::MissingObjectOwner {
-                                child_id: cur_id,
-                                parent_id: parent_id.into(),
-                            },
-                        )?;
+                        cur_owner = *direct_owner_map.get(&parent_id.into()).ok_or_else(|| {
+                            ExecutionError::new_with_source(
+                                ExecutionErrorKind::MissingObjectOwner,
+                                format!("child_id: {}, parent_id: {}", cur_id, parent_id),
+                            )
+                        })?;
                         cur_id = parent_id.into();
-                        fp_ensure!(cur_id != stack[0], HaneulError::CircularObjectOwnership);
+                        if cur_id == stack[0] {
+                            return Err(ExecutionErrorKind::CircularObjectOwnership.into());
+                        }
                     }
                     Owner::AddressOwner(_) | Owner::Immutable | Owner::Shared => {
                         break (cur_id, cur_owner);
@@ -56,12 +57,15 @@ impl ObjectRootAncestorMap {
         Ok(Self { root_ancestor_map })
     }
 
-    pub fn get_root_ancestor(&self, object_id: &ObjectID) -> HaneulResult<(ObjectID, Owner)> {
-        Ok(*self
-            .root_ancestor_map
-            .get(object_id)
-            .ok_or(HaneulError::ObjectNotFound {
-                object_id: *object_id,
-            })?)
+    pub fn get_root_ancestor(
+        &self,
+        object_id: &ObjectID,
+    ) -> Result<(ObjectID, Owner), ExecutionError> {
+        Ok(*self.root_ancestor_map.get(object_id).ok_or_else(|| {
+            ExecutionError::new_with_source(
+                ExecutionErrorKind::ObjectNotFound,
+                format!("could not find object {}", object_id),
+            )
+        })?)
     }
 }

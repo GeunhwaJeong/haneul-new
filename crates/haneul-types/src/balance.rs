@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::error::HaneulError;
+use crate::error::{ExecutionError, ExecutionErrorKind};
 use crate::HANEUL_FRAMEWORK_ADDRESS;
 use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
@@ -32,13 +32,13 @@ impl Balance {
         }
     }
 
-    pub fn withdraw(&mut self, amount: u64) -> Result<(), HaneulError> {
+    pub fn withdraw(&mut self, amount: u64) -> Result<(), ExecutionError> {
         fp_ensure!(
             self.value >= amount,
-            HaneulError::TransferInsufficientBalance {
-                balance: self.value,
-                required: amount,
-            }
+            ExecutionError::new_with_source(
+                ExecutionErrorKind::TransferInsufficientBalance,
+                format!("balance: {} required: {}", self.value, amount)
+            )
         );
         self.value -= amount;
         Ok(())

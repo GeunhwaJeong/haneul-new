@@ -27,6 +27,8 @@ use sha3::Sha3_256;
 
 use crate::committee::EpochId;
 use crate::crypto::PublicKeyBytes;
+use crate::error::ExecutionError;
+use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
 use crate::object::{Object, Owner};
 use crate::haneul_serde::Base64;
@@ -345,12 +347,12 @@ impl TxContext {
     /// when mutable context is passed over some boundary via
     /// serialize/deserialize and this is the reason why this method
     /// consumes the other context..
-    pub fn update_state(&mut self, other: TxContext) -> Result<(), HaneulError> {
+    pub fn update_state(&mut self, other: TxContext) -> Result<(), ExecutionError> {
         if self.sender != other.sender
             || self.digest != other.digest
             || other.ids_created < self.ids_created
         {
-            return Err(HaneulError::InvalidTxUpdate);
+            return Err(ExecutionErrorKind::InvalidTransactionUpdate.into());
         }
         self.ids_created = other.ids_created;
         Ok(())

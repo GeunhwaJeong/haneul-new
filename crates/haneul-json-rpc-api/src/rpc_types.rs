@@ -1123,14 +1123,9 @@ impl Display for HaneulTransactionEffects {
 #[serde(rename = "ExecutionStatus", rename_all = "camelCase", tag = "status")]
 pub enum HaneulExecutionStatus {
     // Gas used in the success case.
-    Success {
-        gas_cost: HaneulGasCostSummary,
-    },
+    Success,
     // Gas used in the failed case, and the error.
-    Failure {
-        gas_cost: HaneulGasCostSummary,
-        error: String,
-    },
+    Failure { error: String },
 }
 
 impl HaneulExecutionStatus {
@@ -1145,12 +1140,9 @@ impl HaneulExecutionStatus {
 impl From<ExecutionStatus> for HaneulExecutionStatus {
     fn from(status: ExecutionStatus) -> Self {
         match status {
-            ExecutionStatus::Success { gas_cost } => Self::Success {
-                gas_cost: gas_cost.into(),
-            },
-            ExecutionStatus::Failure { gas_cost, error } => Self::Failure {
-                gas_cost: gas_cost.into(),
-                error: error.to_string(),
+            ExecutionStatus::Success => Self::Success,
+            ExecutionStatus::Failure { error } => Self::Failure {
+                error: format!("{:?}", error),
             },
         }
     }

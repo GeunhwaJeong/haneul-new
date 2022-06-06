@@ -12,13 +12,13 @@ use move_binary_format::{
     binary_views::BinaryIndexedView,
     file_format::{Bytecode, CompiledModule, FieldHandleIndex},
 };
-use haneul_types::error::HaneulResult;
+use haneul_types::error::ExecutionError;
 
-pub fn verify_module(module: &CompiledModule) -> HaneulResult {
+pub fn verify_module(module: &CompiledModule) -> Result<(), ExecutionError> {
     verify_id_immutable(module)
 }
 
-fn verify_id_immutable(module: &CompiledModule) -> HaneulResult {
+fn verify_id_immutable(module: &CompiledModule) -> Result<(), ExecutionError> {
     let view = BinaryIndexedView::Module(module);
     for func_def in &module.function_defs {
         if func_def.code.is_none() {

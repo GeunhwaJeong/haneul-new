@@ -6,15 +6,15 @@ use move_binary_format::{
     binary_views::BinaryIndexedView,
     file_format::{Bytecode, CompiledModule},
 };
-use haneul_types::error::HaneulResult;
+use haneul_types::error::ExecutionError;
 
-pub fn verify_module(module: &CompiledModule) -> HaneulResult {
+pub fn verify_module(module: &CompiledModule) -> Result<(), ExecutionError> {
     verify_global_storage_access(module)
 }
 
 /// Global storage in haneul is handled by haneul instead of within Move.
 /// Hence we want to forbid any global storage access in Move.
-fn verify_global_storage_access(module: &CompiledModule) -> HaneulResult {
+fn verify_global_storage_access(module: &CompiledModule) -> Result<(), ExecutionError> {
     let view = BinaryIndexedView::Module(module);
     for func_def in &module.function_defs {
         if func_def.code.is_none() {

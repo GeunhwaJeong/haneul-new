@@ -505,7 +505,7 @@ impl<'a> HaneulTestAdapter<'a> {
                 deleted: deleted_ids,
                 events,
             }),
-            ExecutionStatus::Failure { error, .. } => Err(self.render_haneul_error(*error)),
+            ExecutionStatus::Failure { error, .. } => Err(self.render_haneul_error(error.into())),
         }
     }
 
