@@ -17,7 +17,7 @@ use haneul_gateway::bcs_api::BcsApiImpl;
 use haneul_gateway::json_rpc::JsonRpcServerBuilder;
 use haneul_gateway::read_api::{FullNodeApi, ReadApi};
 use haneul_network::api::ValidatorServer;
-use haneul_storage::IndexStore;
+use haneul_storage::{follower_store::FollowerStore, IndexStore};
 use tracing::info;
 
 pub struct HaneulNode {
@@ -58,6 +58,8 @@ impl HaneulNode {
             )))
         };
 
+        let follower_store = Arc::new(FollowerStore::open(config.db_path().join("follower_db"))?);
+
         let state = Arc::new(
             AuthorityState::new(
                 genesis.committee(),
@@ -87,7 +89,8 @@ impl HaneulNode {
                 authority_clients.insert(validator.public_key(), client);
             }
 
-            let active_authority = ActiveAuthority::new(state.clone(), authority_clients)?;
+            let active_authority =
+                ActiveAuthority::new(state.clone(), follower_store, authority_clients)?;
 
             // Start following validators
             Some(tokio::task::spawn(async move {
