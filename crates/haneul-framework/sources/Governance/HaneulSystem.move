@@ -7,6 +7,7 @@ module Haneul::HaneulSystem {
     use Haneul::Delegation::{Self, Delegation};
     use Haneul::EpochRewardRecord::{Self, EpochRewardRecord};
     use Haneul::ID::{Self, VersionedID};
+    use Haneul::LockedCoin::{Self, LockedCoin};
     use Haneul::HANEUL::HANEUL;
     use Haneul::Transfer;
     use Haneul::TxContext::{Self, TxContext};
@@ -167,6 +168,20 @@ module Haneul::HaneulSystem {
         // Delegation starts from the next epoch.
         let starting_epoch = self.epoch + 1;
         Delegation::create(starting_epoch, validator_address, delegate_stake, ctx);
+    }
+
+    public entry fun request_add_delegation_with_locked_coin(
+        self: &mut HaneulSystemState,
+        delegate_stake: LockedCoin<HANEUL>,
+        validator_address: address,
+        ctx: &mut TxContext,
+    ) {
+        let amount = LockedCoin::value(&delegate_stake);
+        ValidatorSet::request_add_delegation(&mut self.validators, validator_address, amount);
+
+        // Delegation starts from the next epoch.
+        let starting_epoch = self.epoch + 1;
+        Delegation::create_from_locked_coin(starting_epoch, validator_address, delegate_stake, ctx);
     }
 
     public entry fun request_remove_delegation(
