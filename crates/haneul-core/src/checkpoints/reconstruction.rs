@@ -3,9 +3,10 @@
 
 use std::collections::{BTreeMap, HashMap, VecDeque};
 
+use haneul_types::base_types::ExecutionDigests;
 use haneul_types::committee::StakeUnit;
 use haneul_types::{
-    base_types::{AuthorityName, TransactionDigest},
+    base_types::AuthorityName,
     committee::Committee,
     error::HaneulError,
     messages::CertifiedTransaction,
@@ -15,8 +16,8 @@ use haneul_types::{
 
 pub struct FragmentReconstruction {
     pub committee: Committee,
-    pub global: GlobalCheckpoint<AuthorityName, TransactionDigest>,
-    pub extra_transactions: BTreeMap<TransactionDigest, CertifiedTransaction>,
+    pub global: GlobalCheckpoint<AuthorityName, ExecutionDigests>,
+    pub extra_transactions: BTreeMap<ExecutionDigests, CertifiedTransaction>,
 }
 
 impl FragmentReconstruction {
