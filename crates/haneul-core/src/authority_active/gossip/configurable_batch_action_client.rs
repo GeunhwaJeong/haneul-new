@@ -76,6 +76,7 @@ impl ConfigurableBatchActionClient {
             None,
             None,
             &haneul_config::genesis::Genesis::get_default_genesis(),
+            false,
         )
         .await;
 
