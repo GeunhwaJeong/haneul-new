@@ -1,17 +1,27 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use jsonrpsee_http_client::{HttpClient, HttpClientBuilder};
+use jsonrpsee_http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
+use std::net::SocketAddr;
 use std::num::NonZeroUsize;
+use std::path::Path;
 use haneul::{
     config::{GatewayConfig, GatewayType, WalletConfig},
     keystore::{KeystoreType, HaneulKeystore},
     wallet_commands::{WalletCommands, WalletContext},
 };
 use haneul_config::genesis_config::GenesisConfig;
+use haneul_config::PersistedConfig;
 use haneul_config::{Config, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
+use haneul_gateway::api::RpcGatewayApiServer;
+use haneul_gateway::api::RpcReadApiServer;
+use haneul_gateway::api::RpcTransactionBuilderServer;
+use haneul_gateway::rpc_gateway::{
+    create_client, GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
+};
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
-
 const NUM_VALIDAOTR: usize = 4;
 
 pub async fn start_test_network(
@@ -91,4 +101,53 @@ pub async fn setup_network_and_wallet() -> Result<(Swarm, WalletContext, HaneulA
     .execute(&mut context)
     .await?;
     Ok((swarm, context, address))
+}
+
+async fn start_rpc_gateway(
+    config_path: &Path,
+) -> Result<(SocketAddr, HttpServerHandle), anyhow::Error> {
+    let server = HttpServerBuilder::default().build("127.0.0.1:0").await?;
+    let addr = server.local_addr()?;
+    let client = create_client(config_path)?;
+    let mut module = RpcModule::new(());
+    module.merge(RpcGatewayImpl::new(client.clone()).into_rpc())?;
+    module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
+    module.merge(TransactionBuilderImpl::new(client.clone()).into_rpc())?;
+
+    let handle = server.start(module)?;
+    Ok((addr, handle))
+}
+
+pub async fn start_rpc_test_network(
+    genesis_config: Option<GenesisConfig>,
+) -> Result<TestNetwork, anyhow::Error> {
+    let network = start_test_network(genesis_config).await?;
+    let working_dir = network.dir();
+    let (server_addr, rpc_server_handle) =
+        start_rpc_gateway(&working_dir.join(HANEUL_GATEWAY_CONFIG)).await?;
+    let mut wallet_conf: WalletConfig =
+        PersistedConfig::read(&working_dir.join(HANEUL_WALLET_CONFIG))?;
+    let rpc_url = format!("http://{}", server_addr);
+    let accounts = wallet_conf.accounts.clone();
+    wallet_conf.gateway = GatewayType::RPC(rpc_url.clone());
+    wallet_conf
+        .persisted(&working_dir.join(HANEUL_WALLET_CONFIG))
+        .save()?;
+
+    let http_client = HttpClientBuilder::default().build(rpc_url.clone())?;
+    Ok(TestNetwork {
+        network,
+        _rpc_server: rpc_server_handle,
+        accounts,
+        http_client,
+        rpc_url,
+    })
+}
+
+pub struct TestNetwork {
+    pub network: Swarm,
+    _rpc_server: HttpServerHandle,
+    pub accounts: Vec<HaneulAddress>,
+    pub http_client: HttpClient,
+    pub rpc_url: String,
 }

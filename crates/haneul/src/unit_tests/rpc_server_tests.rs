@@ -1,47 +1,28 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::{
-    http_client::{HttpClient, HttpClientBuilder},
-    http_server::{HttpServerBuilder, HttpServerHandle},
-};
-use jsonrpsee_core::server::rpc_module::RpcModule;
-use std::{
-    net::SocketAddr,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
-use haneul::{
-    config::{PersistedConfig, WalletConfig},
-    keystore::{Keystore, HaneulKeystore},
-};
-use haneul_config::{HANEUL_GATEWAY_CONFIG, HANEUL_WALLET_CONFIG};
+use std::{path::Path, str::FromStr};
+use haneul::keystore::{Keystore, HaneulKeystore};
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_core::gateway_types::{
     GetObjectDataResponse, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_framework::build_move_package_to_bytes;
-use haneul_gateway::rpc_gateway::{create_client, GatewayReadApiImpl, TransactionBuilderImpl};
-use haneul_gateway::{
-    api::{
-        RpcGatewayApiClient, RpcGatewayApiServer, RpcReadApiClient, RpcReadApiServer,
-        RpcTransactionBuilderClient, RpcTransactionBuilderServer, TransactionBytes,
-    },
-    rpc_gateway::RpcGatewayImpl,
+use haneul_gateway::api::{
+    RpcGatewayApiClient, RpcReadApiClient, RpcTransactionBuilderClient, TransactionBytes,
 };
 use haneul_json::HaneulJsonValue;
-use haneul_swarm::memory::Swarm;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress, TransactionDigest},
+    base_types::{ObjectID, TransactionDigest},
     HANEUL_FRAMEWORK_ADDRESS,
 };
 
-use test_utils::network::start_test_network;
+use test_utils::network::start_rpc_test_network;
 
 #[tokio::test]
 async fn test_get_objects() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
 
@@ -53,7 +34,7 @@ async fn test_get_objects() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_transfer_coin() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
     http_client.sync_account_state(*address).await?;
@@ -69,7 +50,7 @@ async fn test_transfer_coin() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.working_dir.join("wallet.key"))?;
+    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -89,7 +70,7 @@ async fn test_transfer_coin() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_publish() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
     http_client.sync_account_state(*address).await?;
@@ -108,7 +89,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
         .publish(*address, compiled_modules, Some(gas.object_id), 10000)
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.working_dir.join("wallet.key"))?;
+    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -127,7 +108,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_move_call() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
     http_client.sync_account_state(*address).await?;
@@ -156,7 +137,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.working_dir.join("wallet.key"))?;
+    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -175,7 +156,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_get_object_info() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
     http_client.sync_account_state(*address).await?;
@@ -192,7 +173,7 @@ async fn test_get_object_info() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_get_transaction() -> Result<(), anyhow::Error> {
-    let test_network = setup_test_network().await?;
+    let test_network = start_rpc_test_network(None).await?;
     let http_client = test_network.http_client;
     let address = test_network.accounts.first().unwrap();
 
@@ -208,7 +189,7 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
             .transfer_coin(*address, oref.object_id, Some(gas_id), 1000, *address)
             .await?;
 
-        let keystore = HaneulKeystore::load_or_create(&test_network.working_dir.join("wallet.key"))?;
+        let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
         let tx_bytes = tx_data.tx_bytes.to_vec()?;
         let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -253,43 +234,4 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
     }
 
     Ok(())
-}
-
-async fn setup_test_network() -> Result<TestNetwork, anyhow::Error> {
-    let network = start_test_network(None).await?;
-    let (server_addr, rpc_server_handle) =
-        start_rpc_gateway(&network.dir().join(HANEUL_GATEWAY_CONFIG)).await?;
-    let wallet_conf: WalletConfig = PersistedConfig::read(&network.dir().join(HANEUL_WALLET_CONFIG))?;
-    let http_client = HttpClientBuilder::default().build(format!("http://{}", server_addr))?;
-    let working_dir = network.dir().into();
-    Ok(TestNetwork {
-        _network: network,
-        _rpc_server: rpc_server_handle,
-        accounts: wallet_conf.accounts,
-        http_client,
-        working_dir,
-    })
-}
-
-struct TestNetwork {
-    _network: Swarm,
-    _rpc_server: HttpServerHandle,
-    accounts: Vec<HaneulAddress>,
-    http_client: HttpClient,
-    working_dir: PathBuf,
-}
-
-async fn start_rpc_gateway(
-    config_path: &Path,
-) -> Result<(SocketAddr, HttpServerHandle), anyhow::Error> {
-    let server = HttpServerBuilder::default().build("127.0.0.1:0").await?;
-    let addr = server.local_addr()?;
-    let client = create_client(config_path)?;
-    let mut module = RpcModule::new(());
-    module.merge(RpcGatewayImpl::new(client.clone()).into_rpc())?;
-    module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
-    module.merge(TransactionBuilderImpl::new(client.clone()).into_rpc())?;
-
-    let handle = server.start(module)?;
-    Ok((addr, handle))
 }
