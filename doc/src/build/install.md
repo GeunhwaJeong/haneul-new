@@ -92,7 +92,7 @@ See more [IDE options](https://github.com/GeunhwaJeong/awesome-move#ides) in the
 If you need to download and understand the Haneul source code, clone the Haneul repository:
 
 ```shell
-$ git clone https://github.com/GeunhwaJeong/haneul.git
+$ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
 ```
 
 You can start exploring Haneul's source code by looking into the following primary directories:
@@ -110,6 +110,7 @@ And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html)
 
 To contribute updates to Haneul code, [send pull requests](../contribute/index.md#send-pull-requests) our way.
 
+> NOTE: the above `git clone` command syncs with the `devnet` branch, which makes sure the source code is compatible with our devnet. If you want to run network locally using the latest version and don't need to interact with our devnet, you could switch to `main` branch.
 ## Next steps
 
 Continue your journey through:
