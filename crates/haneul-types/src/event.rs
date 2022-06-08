@@ -20,7 +20,7 @@ use crate::{
 };
 
 /// A universal Haneul event type encapsulating different types of events
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EventEnvelope {
     /// UTC timestamp in milliseconds since epoch (1/1/1970)
     timestamp: u64,
