@@ -1,6 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::error::HaneulError;
 use crate::HANEUL_FRAMEWORK_ADDRESS;
 use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
@@ -29,6 +30,18 @@ impl Balance {
             module: BALANCE_MODULE_NAME.to_owned(),
             type_params: vec![TypeTag::Struct(type_param)],
         }
+    }
+
+    pub fn withdraw(&mut self, amount: u64) -> Result<(), HaneulError> {
+        fp_ensure!(
+            self.value >= amount,
+            HaneulError::TransferInsufficientBalance {
+                balance: self.value,
+                required: amount,
+            }
+        );
+        self.value -= amount;
+        Ok(())
     }
 
     pub fn value(&self) -> u64 {

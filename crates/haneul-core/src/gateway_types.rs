@@ -820,6 +820,8 @@ pub enum HaneulTransactionKind {
     Publish(HaneulMovePackage),
     /// Call a function in a published Move module
     Call(HaneulMoveCall),
+    /// Initiate a HANEUL coin transfer between addresses
+    TransferHaneul(HaneulTransferHaneul),
     /// A system transaction that will update epoch information on-chain.
     ChangeEpoch(HaneulChangeEpoch),
     // .. more transaction types go here
@@ -830,7 +832,7 @@ impl Display for HaneulTransactionKind {
         let mut writer = String::new();
         match &self {
             Self::TransferCoin(t) => {
-                writeln!(writer, "Transaction Kind : Transfer")?;
+                writeln!(writer, "Transaction Kind : Transfer Coin")?;
                 writeln!(writer, "Recipient : {}", t.recipient)?;
                 writeln!(writer, "Object ID : {}", t.object_ref.object_id)?;
                 writeln!(writer, "Version : {:?}", t.object_ref.version)?;
@@ -839,6 +841,15 @@ impl Display for HaneulTransactionKind {
                     "Object Digest : {}",
                     Base64::encode(t.object_ref.digest)
                 )?;
+            }
+            Self::TransferHaneul(t) => {
+                writeln!(writer, "Transaction Kind : Transfer HANEUL")?;
+                writeln!(writer, "Recipient : {}", t.recipient)?;
+                if let Some(amount) = t.amount {
+                    writeln!(writer, "Amount: {}", amount)?;
+                } else {
+                    writeln!(writer, "Amount: Full Balance")?;
+                }
             }
             Self::Publish(_p) => {
                 write!(writer, "Transaction Kind : Publish")?;
@@ -874,6 +885,10 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
             SingleTransactionKind::TransferCoin(t) => Self::TransferCoin(HaneulTransferCoin {
                 recipient: t.recipient,
                 object_ref: t.object_ref.into(),
+            }),
+            SingleTransactionKind::TransferHaneul(t) => Self::TransferHaneul(HaneulTransferHaneul {
+                recipient: t.recipient,
+                amount: t.amount,
             }),
             SingleTransactionKind::Publish(p) => Self::Publish(p.try_into()?),
             SingleTransactionKind::Call(c) => Self::Call(HaneulMoveCall {
@@ -1185,6 +1200,13 @@ pub struct HaneulEvent {
 pub struct HaneulTransferCoin {
     pub recipient: HaneulAddress,
     pub object_ref: HaneulObjectRef,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "TransferHaneul", rename_all = "camelCase")]
+pub struct HaneulTransferHaneul {
+    pub recipient: HaneulAddress,
+    pub amount: Option<u64>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
