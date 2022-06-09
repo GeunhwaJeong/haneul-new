@@ -1,9 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::objects::test_shared_object;
-use crate::objects::{test_gas_objects, test_gas_objects_with_owners};
-use crate::test_committee;
-use crate::test_keys;
+
+use crate::objects::{test_gas_objects, test_gas_objects_with_owners, test_shared_object};
+use crate::{test_committee, test_keys};
 use move_core_types::account_address::AccountAddress;
 use move_core_types::ident_str;
 use move_package::BuildConfig;
@@ -13,12 +12,9 @@ use haneul_types::base_types::ObjectRef;
 use haneul_types::messages::{
     CertifiedTransaction, SignatureAggregator, SignedTransaction, Transaction, TransactionData,
 };
-use haneul_types::object::{Object, Owner};
+use haneul_types::object::Object;
 use haneul_types::{base_types::HaneulAddress, crypto::Signature};
-use haneul_types::{
-    crypto::KeyPair,
-    messages::{CallArg, TransactionEffects},
-};
+use haneul_types::{crypto::KeyPair, messages::CallArg};
 
 /// The maximum gas per transaction.
 pub const MAX_GAS: u64 = 10_000;
@@ -117,10 +113,8 @@ pub fn test_shared_object_transactions() -> Vec<Transaction> {
 }
 
 /// Make a transaction to publish a test move contracts package.
-pub fn publish_move_package_transaction(gas_object: Object) -> Transaction {
+pub fn create_publish_move_package_transaction(gas_object: Object, path: PathBuf) -> Transaction {
     let build_config = BuildConfig::default();
-    let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    path.push("../../haneul_programmability/examples/basics");
     let modules = haneul_framework::build_move_package(&path, build_config, false).unwrap();
 
     let all_module_bytes = modules
@@ -188,14 +182,4 @@ pub fn make_certificates(transactions: Vec<Transaction>) -> Vec<CertifiedTransac
         }
     }
     certificates
-}
-
-/// Extract the package reference from a transaction effect. This is useful to deduce the
-/// authority-created package reference after attempting to publish a new Move package.
-pub fn parse_package_ref(effects: &TransactionEffects) -> Option<ObjectRef> {
-    effects
-        .created
-        .iter()
-        .find(|(_, owner)| matches!(owner, Owner::Immutable))
-        .map(|(reference, _)| *reference)
 }
