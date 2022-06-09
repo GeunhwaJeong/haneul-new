@@ -981,6 +981,62 @@
           "$ref": "#/components/schemas/TransactionBytes"
         }
       }
+    },
+    {
+      "name": "haneul_transferHaneul",
+      "tags": [
+        {
+          "name": "Transaction Builder API"
+        }
+      ],
+      "description": "Send HANEUL coin object to a Haneul address. The HANEUL object is also used as the gas object.",
+      "params": [
+        {
+          "name": "signer",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          }
+        },
+        {
+          "name": "haneul_object_id",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/ObjectID"
+          }
+        },
+        {
+          "name": "gas_budget",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        },
+        {
+          "name": "recipient",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          }
+        },
+        {
+          "name": "amount",
+          "schema": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      ],
+      "result": {
+        "name": "TransactionBytes",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/TransactionBytes"
+        }
+      }
     }
   ],
   "components": {

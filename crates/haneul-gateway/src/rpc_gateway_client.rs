@@ -62,6 +62,21 @@ impl GatewayAPI for RpcGatewayClient {
         bytes.to_data()
     }
 
+    async fn transfer_haneul(
+        &self,
+        signer: HaneulAddress,
+        haneul_object_id: ObjectID,
+        gas_budget: u64,
+        recipient: HaneulAddress,
+        amount: Option<u64>,
+    ) -> Result<TransactionData, Error> {
+        let bytes: TransactionBytes = self
+            .client
+            .transfer_haneul(signer, haneul_object_id, gas_budget, recipient, amount)
+            .await?;
+        bytes.to_data()
+    }
+
     async fn sync_account_state(&self, account_addr: HaneulAddress) -> Result<(), Error> {
         self.client.sync_account_state(account_addr).await?;
         Ok(())

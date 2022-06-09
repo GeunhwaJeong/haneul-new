@@ -193,6 +193,21 @@ impl RpcTransactionBuilderServer for TransactionBuilderImpl {
         Ok(TransactionBytes::from_data(data)?)
     }
 
+    async fn transfer_haneul(
+        &self,
+        signer: HaneulAddress,
+        haneul_object_id: ObjectID,
+        gas_budget: u64,
+        recipient: HaneulAddress,
+        amount: Option<u64>,
+    ) -> RpcResult<TransactionBytes> {
+        let data = self
+            .client
+            .transfer_haneul(signer, haneul_object_id, gas_budget, recipient, amount)
+            .await?;
+        Ok(TransactionBytes::from_data(data)?)
+    }
+
     async fn publish(
         &self,
         sender: HaneulAddress,

@@ -128,6 +128,17 @@ pub trait RpcTransactionBuilder {
         recipient: HaneulAddress,
     ) -> RpcResult<TransactionBytes>;
 
+    /// Send HANEUL coin object to a Haneul address. The HANEUL object is also used as the gas object.
+    #[method(name = "transferHaneul")]
+    async fn transfer_haneul(
+        &self,
+        signer: HaneulAddress,
+        haneul_object_id: ObjectID,
+        gas_budget: u64,
+        recipient: HaneulAddress,
+        amount: Option<u64>,
+    ) -> RpcResult<TransactionBytes>;
+
     /// Execute a Move call transaction by calling the specified function in the module of a given package.
     #[method(name = "moveCall")]
     async fn move_call(
