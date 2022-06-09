@@ -222,7 +222,7 @@ fn check_one_lock(
                 HaneulError::MovePackageAsObject { object_id }
             );
             fp_ensure!(
-                sequence_number <= SequenceNumber::MAX,
+                sequence_number < SequenceNumber::MAX,
                 HaneulError::InvalidSequenceNumber
             );
 
@@ -278,6 +278,10 @@ fn check_one_lock(
             };
         }
         InputObjectKind::SharedMoveObject(..) => {
+            fp_ensure!(
+                object.version() < SequenceNumber::MAX,
+                HaneulError::InvalidSequenceNumber
+            );
             // When someone locks an object as shared it must be shared already.
             fp_ensure!(object.is_shared(), HaneulError::NotSharedObjectError);
         }
