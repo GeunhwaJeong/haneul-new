@@ -14,6 +14,7 @@ import { generateMnemonic } from '_shared/cryptography/mnemonics';
 
 import type { HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '_redux/RootReducer';
 
 export const loadAccountFromStorage = createAsyncThunk(
     'account/loadAccount',
@@ -139,3 +140,6 @@ export const accountNftsSelector = createSelector(
         return allHaneulObjects.filter((anObj) => !Coin.isCoin(anObj));
     }
 );
+
+export const activeAccountSelector = ({ account }: RootState) =>
+    account.address;

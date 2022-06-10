@@ -8,3 +8,4 @@ export { default as useFullscreenGuard } from './useFullscreenGuard';
 export { default as useMiddleEllipsis } from './useMiddleEllipsis';
 export { default as useMediaUrl } from './useMediaUrl';
 export { default as useHaneulObjectFields } from './useHaneulObjectFields';
+export { default as useNumberDelimiters } from './useNumberDelimiters';
