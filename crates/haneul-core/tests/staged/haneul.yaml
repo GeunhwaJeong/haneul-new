@@ -336,7 +336,11 @@ HaneulError:
         STRUCT:
           - err: STR
     22:
-      ErrorWhileRequestingCertificate: UNIT
+      QuorumFailedToExecuteCertificate:
+        STRUCT:
+          - errors:
+              SEQ:
+                TYPENAME: HaneulError
     23:
       ErrorWhileProcessingPublish:
         STRUCT:
