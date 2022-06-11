@@ -685,7 +685,7 @@ impl<'a> GetModule for &'a HaneulTestAdapter<'_> {
 
 static NAMED_ADDRESSES: Lazy<BTreeMap<String, NumericalAddress>> = Lazy::new(|| {
     let mut map = move_stdlib::move_stdlib_named_addresses();
-    assert!(map.get("Std").unwrap().into_inner() == MOVE_STDLIB_ADDRESS);
+    assert!(map.get("std").unwrap().into_inner() == MOVE_STDLIB_ADDRESS);
     // TODO fix Haneul framework constants
     map.insert(
         "Haneul".to_string(),

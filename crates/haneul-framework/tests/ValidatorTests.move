@@ -9,7 +9,7 @@ module Haneul::ValidatorTests {
     use Haneul::Validator;
 
     #[test]
-    public(script) fun test_validator_owner_flow() {
+    public entry fun test_validator_owner_flow() {
         let sender = @0x1;
         let scenario = &mut TestScenario::begin(&sender);
         {
@@ -39,7 +39,7 @@ module Haneul::ValidatorTests {
     }
 
     #[test]
-    public(script) fun test_pending_validator_flow() {
+    public entry fun test_pending_validator_flow() {
         let sender = @0x1;
         let scenario = &mut TestScenario::begin(&sender);
         let ctx = TestScenario::ctx(scenario);

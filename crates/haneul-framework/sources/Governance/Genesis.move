@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module Haneul::Genesis {
-    use Std::Vector;
+    use std::vector;
 
     use Haneul::Coin;
     use Haneul::HANEUL;
@@ -33,23 +33,23 @@ module Haneul::Genesis {
     ) {
         let treasury_cap = HANEUL::new(ctx);
         let storage_fund = Coin::mint_balance(INIT_STORAGE_FUND, &mut treasury_cap);
-        let validators = Vector::empty();
-        let count = Vector::length(&validator_pubkeys);
+        let validators = vector::empty();
+        let count = vector::length(&validator_pubkeys);
         assert!(
-            Vector::length(&validator_haneul_addresses) == count
-                && Vector::length(&validator_stakes) == count
-                && Vector::length(&validator_names) == count
-                && Vector::length(&validator_net_addresses) == count,
+            vector::length(&validator_haneul_addresses) == count
+                && vector::length(&validator_stakes) == count
+                && vector::length(&validator_names) == count
+                && vector::length(&validator_net_addresses) == count,
             1
         );
         let i = 0;
         while (i < count) {
-            let haneul_address = *Vector::borrow(&validator_haneul_addresses, i);
-            let pubkey = *Vector::borrow(&validator_pubkeys, i);
-            let name = *Vector::borrow(&validator_names, i);
-            let net_address = *Vector::borrow(&validator_net_addresses, i);
-            let stake = *Vector::borrow(&validator_stakes, i);
-            Vector::push_back(&mut validators, Validator::new(
+            let haneul_address = *vector::borrow(&validator_haneul_addresses, i);
+            let pubkey = *vector::borrow(&validator_pubkeys, i);
+            let name = *vector::borrow(&validator_names, i);
+            let net_address = *vector::borrow(&validator_net_addresses, i);
+            let stake = *vector::borrow(&validator_stakes, i);
+            vector::push_back(&mut validators, Validator::new(
                 haneul_address,
                 pubkey,
                 name,

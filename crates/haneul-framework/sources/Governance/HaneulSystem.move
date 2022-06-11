@@ -81,7 +81,7 @@ module Haneul::HaneulSystem {
     /// The amount of stake in the `validator` object must meet the requirements.
     // TODO: Does this need to go through a voting process? Any other criteria for
     // someone to become a validator?
-    public(script) fun request_add_validator(
+    public entry fun request_add_validator(
         self: &mut HaneulSystemState,
         pubkey_bytes: vector<u8>,
         name: vector<u8>,
@@ -114,7 +114,7 @@ module Haneul::HaneulSystem {
     /// (i.e. sender must match the haneul_address in the validator).
     /// At the end of the epoch, the `validator` object will be returned to the haneul_address
     /// of the validator.
-    public(script) fun request_remove_validator(
+    public entry fun request_remove_validator(
         self: &mut HaneulSystemState,
         ctx: &mut TxContext,
     ) {
@@ -125,7 +125,7 @@ module Haneul::HaneulSystem {
     }
 
     /// A validator can request adding more stake. This will be processed at the end of epoch.
-    public(script) fun request_add_stake(
+    public entry fun request_add_stake(
         self: &mut HaneulSystemState,
         new_stake: Coin<HANEUL>,
         ctx: &mut TxContext,
@@ -142,7 +142,7 @@ module Haneul::HaneulSystem {
     /// in the current epoch and hence is not active yet), the stake will be withdrawn immediately
     /// and a coin with the withdraw amount will be sent to the validator's address.
     /// If the sender represents an active validator, the request will be processed at the end of epoch.
-    public(script) fun request_withdraw_stake(
+    public entry fun request_withdraw_stake(
         self: &mut HaneulSystemState,
         withdraw_amount: u64,
         ctx: &mut TxContext,
@@ -155,7 +155,7 @@ module Haneul::HaneulSystem {
         )
     }
 
-    public(script) fun request_add_delegation(
+    public entry fun request_add_delegation(
         self: &mut HaneulSystemState,
         delegate_stake: Coin<HANEUL>,
         validator_address: address,
@@ -169,7 +169,7 @@ module Haneul::HaneulSystem {
         Delegation::create(starting_epoch, validator_address, delegate_stake, ctx);
     }
 
-    public(script) fun request_remove_delegation(
+    public entry fun request_remove_delegation(
         self: &mut HaneulSystemState,
         delegation: &mut Delegation,
         ctx: &mut TxContext,
@@ -185,7 +185,7 @@ module Haneul::HaneulSystem {
     // TODO: Once we support passing vector of object references as arguments,
     // we should support passing a vector of &mut EpochRewardRecord,
     // which will allow delegators to claim all their reward in one transaction.
-    public(script) fun claim_delegation_reward(
+    public entry fun claim_delegation_reward(
         self: &mut HaneulSystemState,
         delegation: &mut Delegation,
         epoch_reward_record: &mut EpochRewardRecord,
@@ -208,7 +208,7 @@ module Haneul::HaneulSystem {
     /// 2. Distribute computation charge to validator stake and delegation stake.
     /// 3. Create reward information records for each validator in this epoch.
     /// 4. Update all validators.
-    public(script) fun advance_epoch(
+    public entry fun advance_epoch(
         self: &mut HaneulSystemState,
         new_epoch: u64,
         storage_charge: u64,

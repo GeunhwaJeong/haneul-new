@@ -41,7 +41,7 @@ module MyFirstPackage::M1 {
         self.strength
     }
 
-    public(script) fun sword_create(forge: &mut Forge, magic: u64, strength: u64, recipient: address, ctx: &mut TxContext) {
+    public entry fun sword_create(forge: &mut Forge, magic: u64, strength: u64, recipient: address, ctx: &mut TxContext) {
         use Haneul::Transfer;
         use Haneul::TxContext;
         // create a sword
@@ -55,7 +55,7 @@ module MyFirstPackage::M1 {
         forge.swords_created = forge.swords_created + 1;
     }
 
-    public(script) fun sword_transfer(sword: Sword, recipient: address) {
+    public entry fun sword_transfer(sword: Sword, recipient: address) {
         use Haneul::Transfer;
         // transfer the sword
         Transfer::transfer(sword, recipient);
@@ -87,7 +87,7 @@ module MyFirstPackage::M1 {
     }
 
     #[test]
-    public(script) fun test_sword_transactions() {
+    public entry fun test_sword_transactions() {
         use Haneul::TestScenario;
 
         // create test addresses representing users
