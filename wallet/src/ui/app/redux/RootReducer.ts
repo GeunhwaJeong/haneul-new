@@ -7,8 +7,15 @@ import account from './slices/account';
 import app from './slices/app';
 import haneulObjects from './slices/haneul-objects';
 import transactions from './slices/transactions';
+import txresults from './slices/txresults';
 
-const rootReducer = combineReducers({ account, app, haneulObjects, transactions });
+const rootReducer = combineReducers({
+    account,
+    app,
+    haneulObjects,
+    transactions,
+    txresults,
+});
 
 export type RootState = ReturnType<typeof rootReducer>;
 
