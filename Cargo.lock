@@ -5845,6 +5845,7 @@ dependencies = [
  "haneul-node",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
+ "haneul-quorum-driver",
  "haneul-storage",
  "haneul-swarm",
  "haneul-types",
@@ -6154,6 +6155,7 @@ dependencies = [
  "haneul-core",
  "haneul-gateway",
  "haneul-network",
+ "haneul-quorum-driver",
  "haneul-storage",
  "telemetry-subscribers",
  "tokio",
@@ -6179,6 +6181,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-quorum-driver"
+version = "0.1.0"
+dependencies = [
+ "arc-swap",
+ "haneul-core",
+ "haneul-types",
+ "tokio",
+ "tracing",
  "workspace-hack",
 ]
 

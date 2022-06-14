@@ -17,6 +17,7 @@ members = [
     "crates/haneul-node",
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
+    "crates/haneul-quorum-driver",
     "crates/haneul-storage",
     "crates/haneul-swarm",
     "crates/haneul-transactional-test-runner",

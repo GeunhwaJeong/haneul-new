@@ -22,6 +22,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-gateway = { path = "../haneul-gateway" }
 haneul-network = { path = "../haneul-network" }
+haneul-quorum-driver = { path = "../haneul-quorum-driver" }
 
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "ff5c1d69057fe93be658377462ca2875a57a0223" }
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "ff5c1d69057fe93be658377462ca2875a57a0223" }

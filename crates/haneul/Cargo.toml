@@ -52,6 +52,7 @@ haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-json = { path = "../haneul-json" }
 haneul-gateway = { path = "../haneul-gateway" }
 haneul-node = { path = "../haneul-node" }
+haneul-quorum-driver = { path = "../haneul-quorum-driver" }
 haneul-swarm = { path = "../haneul-swarm" }
 
 rustyline = "9.1.2"
