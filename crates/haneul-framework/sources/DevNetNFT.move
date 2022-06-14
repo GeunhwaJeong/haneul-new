@@ -101,7 +101,7 @@ module Haneul::DevNetNFTTests {
     use Haneul::UTF8;
 
     #[test]
-    public entry fun mint_transfer_update() {
+    fun mint_transfer_update() {
         let addr1 = @0xA;
         let addr2 = @0xB;
         // create the NFT

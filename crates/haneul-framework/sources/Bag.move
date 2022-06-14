@@ -124,12 +124,7 @@ module Haneul::Bag {
     }
 
     /// Transfer the entire Bag to `recipient`.
-    public entry fun transfer_(c: Bag, recipient: address) {
-        Transfer::transfer(c, recipient)
-    }
-
-    /// Transfer the entire Bag to `recipient`.
-    public fun transfer(c: Bag, recipient: address) {
+    public entry fun transfer(c: Bag, recipient: address) {
         Transfer::transfer(c, recipient)
     }
 
