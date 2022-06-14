@@ -11,9 +11,9 @@ use haneul::{
         call_move, WalletContext, EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL,
     },
 };
-use haneul_core::gateway_types::{GetObjectDataResponse, HaneulExecutionStatus, TransactionResponse};
 use haneul_faucet::FaucetResponse;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulExecutionStatus, TransactionResponse};
 use haneul_types::{
     base_types::{encode_bytes_hex, ObjectID, HaneulAddress},
     crypto::get_key_pair,

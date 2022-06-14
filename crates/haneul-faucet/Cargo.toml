@@ -21,6 +21,7 @@ serde_json = "1.0.80"
 tower = { version = "0.4.12", features = ["util", "timeout", "load-shed", "limit"] }
 
 haneul = { path = "../haneul" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }

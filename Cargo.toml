@@ -13,6 +13,8 @@ members = [
     "crates/haneul-framework-build",
     "crates/haneul-gateway",
     "crates/haneul-json",
+    "crates/haneul-json-rpc",
+    "crates/haneul-json-rpc-api",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-open-rpc",

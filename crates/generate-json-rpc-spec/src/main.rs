@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::Write;
 
 use clap::ArgEnum;
 use clap::Parser;
@@ -11,24 +13,23 @@ use pretty_assertions::assert_str_eq;
 use serde::Serialize;
 use serde_json::{json, Map, Value};
 
-use std::fs::File;
-use std::io::Write;
 use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
 use haneul::wallet_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::HANEUL_WALLET_CONFIG;
-use haneul_core::gateway_types::{
+use haneul_json::HaneulJsonValue;
+use haneul_json_rpc::bcs_api::BcsApiImpl;
+use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
+use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
+use haneul_json_rpc::haneul_rpc_doc;
+use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_gateway::api::RpcGatewayApiClient;
-use haneul_gateway::api::RpcReadApiClient;
-use haneul_gateway::api::RpcTransactionBuilderClient;
-use haneul_gateway::api::{HaneulRpcModule, TransactionBytes};
-use haneul_gateway::bcs_api::BcsApiImpl;
-use haneul_gateway::json_rpc::haneul_rpc_doc;
-use haneul_gateway::read_api::{FullNodeApi, ReadApi};
-use haneul_gateway::rpc_gateway::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
-use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::QuorumDriverApiClient;
+use haneul_json_rpc_api::RpcReadApiClient;
+use haneul_json_rpc_api::RpcTransactionBuilderClient;
+use haneul_json_rpc_api::TransactionBytes;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;

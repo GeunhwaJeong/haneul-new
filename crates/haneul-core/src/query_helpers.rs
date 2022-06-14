@@ -1,9 +1,10 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{authority::HaneulDataStore, gateway_types::TransactionEffectsResponse};
+use crate::authority::HaneulDataStore;
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
+use haneul_types::messages::{CertifiedTransaction, TransactionEffects};
 use haneul_types::{base_types::*, batch::TxSequenceNumber, error::HaneulError, fp_ensure};
 use tracing::debug;
 
@@ -79,14 +80,10 @@ impl<const ALL_OBJ_VER: bool, S: Eq + Serialize + for<'de> Deserialize<'de>>
     pub fn get_transaction(
         database: &HaneulDataStore<ALL_OBJ_VER, S>,
         digest: TransactionDigest,
-    ) -> Result<TransactionEffectsResponse, anyhow::Error> {
+    ) -> Result<(CertifiedTransaction, TransactionEffects), anyhow::Error> {
         let opt = database.get_certified_transaction(&digest)?;
         match opt {
-            Some(certificate) => Ok(TransactionEffectsResponse {
-                certificate: certificate.try_into()?,
-                effects: database.get_effects(&digest)?.into(),
-                timestamp_ms: None,
-            }),
+            Some(certificate) => Ok((certificate, database.get_effects(&digest)?)),
             None => Err(anyhow!(HaneulError::TransactionNotFound { digest })),
         }
     }

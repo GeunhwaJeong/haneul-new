@@ -4,14 +4,14 @@
 use std::{path::Path, str::FromStr};
 use haneul::keystore::{Keystore, HaneulKeystore};
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_core::gateway_types::{
+use haneul_framework::build_move_package_to_bytes;
+use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_framework::build_move_package_to_bytes;
-use haneul_gateway::api::{
-    RpcGatewayApiClient, RpcReadApiClient, RpcTransactionBuilderClient, TransactionBytes,
+use haneul_json_rpc_api::{
+    QuorumDriverApiClient, RpcReadApiClient, RpcTransactionBuilderClient, TransactionBytes,
 };
-use haneul_json::HaneulJsonValue;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     base_types::{ObjectID, TransactionDigest},

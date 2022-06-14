@@ -1,9 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::Path;
-use std::sync::Arc;
-
 use anyhow::anyhow;
 use async_trait::async_trait;
 use ed25519_dalek::ed25519::signature::Signature;
@@ -11,20 +8,16 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use tracing::debug;
 
-use crate::rpc_gateway::responses::HaneulTypeTag;
-use crate::{
-    api::{
-        RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, HaneulRpcModule,
-        TransactionBytes,
-    },
-    config::GatewayConfig,
-};
-use haneul_config::PersistedConfig;
-use haneul_core::gateway_state::{GatewayClient, GatewayState, GatewayTxSeqNumber};
-use haneul_core::gateway_types::{
+use crate::HaneulRpcModule;
+use haneul_core::gateway_state::{GatewayClient, GatewayTxSeqNumber};
+use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::HaneulTypeTag;
+use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::{
+    QuorumDriverApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
+};
 use haneul_open_rpc::Module;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
@@ -33,8 +26,6 @@ use haneul_types::{
     crypto::SignableBytes,
     messages::{Transaction, TransactionData},
 };
-
-pub mod responses;
 
 pub struct RpcGatewayImpl {
     client: GatewayClient,
@@ -64,25 +55,8 @@ impl TransactionBuilderImpl {
     }
 }
 
-pub fn create_client(config_path: &Path) -> Result<GatewayClient, anyhow::Error> {
-    let config: GatewayConfig = PersistedConfig::read(config_path).map_err(|e| {
-        anyhow!(
-            "Failed to read config file at {:?}: {}. Have you run `haneul genesis` first?",
-            config_path,
-            e
-        )
-    })?;
-    let committee = config.make_committee();
-    let authority_clients = config.make_authority_clients();
-    Ok(Arc::new(GatewayState::new(
-        config.db_folder_path,
-        committee,
-        authority_clients,
-    )?))
-}
-
 #[async_trait]
-impl RpcGatewayApiServer for RpcGatewayImpl {
+impl QuorumDriverApiServer for RpcGatewayImpl {
     async fn execute_transaction(
         &self,
         tx_bytes: Base64,
@@ -113,7 +87,7 @@ impl HaneulRpcModule for RpcGatewayImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::RpcGatewayApiOpenRpc::module_doc()
+        haneul_json_rpc_api::QuorumDriverApiOpenRpc::module_doc()
     }
 }
 
@@ -172,7 +146,7 @@ impl HaneulRpcModule for GatewayReadApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::RpcReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::RpcReadApiOpenRpc::module_doc()
     }
 }
 
@@ -296,6 +270,6 @@ impl HaneulRpcModule for TransactionBuilderImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::RpcTransactionBuilderOpenRpc::module_doc()
+        haneul_json_rpc_api::RpcTransactionBuilderOpenRpc::module_doc()
     }
 }

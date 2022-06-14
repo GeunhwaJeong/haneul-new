@@ -16,6 +16,8 @@ tempfile = "3.3.0"
 tokio = { version = "1.18.2", features = ["full"] }
 
 haneul = { path = "../haneul" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-core = { path = "../haneul-core" }
 haneul-gateway = { path = "../haneul-gateway" }
 haneul-json = { path = "../haneul-json" }

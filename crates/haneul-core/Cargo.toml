@@ -49,6 +49,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-config = { path = "../haneul-config" }
 haneul-json = { path = "../haneul-json" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 
 move-binary-format = { git = "https://github.com/move-language/move", rev = "4e15a34ecf155b7e2d9729d3b07f83c146149f02" }
 move-bytecode-utils = { git = "https://github.com/move-language/move", rev = "4e15a34ecf155b7e2d9729d3b07f83c146149f02" }

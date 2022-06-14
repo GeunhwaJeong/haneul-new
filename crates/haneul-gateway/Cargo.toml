@@ -27,8 +27,8 @@ haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
-haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 
 move-core-types = { git = "https://github.com/move-language/move", rev = "4e15a34ecf155b7e2d9729d3b07f83c146149f02", features = ["address20"] }
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "ff5c1d69057fe93be658377462ca2875a57a0223" }

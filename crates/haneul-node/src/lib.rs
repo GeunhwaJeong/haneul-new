@@ -13,12 +13,14 @@ use haneul_core::{
     authority_client::NetworkAuthorityClient,
     checkpoints::CheckpointStore,
 };
-use haneul_gateway::bcs_api::BcsApiImpl;
-use haneul_gateway::json_rpc::JsonRpcServerBuilder;
-use haneul_gateway::read_api::{FullNodeApi, ReadApi};
+use haneul_json_rpc::bcs_api::BcsApiImpl;
+use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_network::api::ValidatorServer;
 use haneul_storage::{follower_store::FollowerStore, IndexStore};
 use tracing::info;
+
+use haneul_json_rpc::read_api::FullNodeApi;
+use haneul_json_rpc::read_api::ReadApi;
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,

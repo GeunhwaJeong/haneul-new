@@ -8,9 +8,11 @@ use std::{
 };
 use haneul_config::haneul_config_dir;
 use haneul_config::HANEUL_GATEWAY_CONFIG;
-use haneul_gateway::bcs_api::BcsApiImpl;
-use haneul_gateway::rpc_gateway::{create_client, GatewayReadApiImpl, TransactionBuilderImpl};
-use haneul_gateway::{json_rpc::JsonRpcServerBuilder, rpc_gateway::RpcGatewayImpl};
+use haneul_gateway::create_client;
+use haneul_json_rpc::bcs_api::BcsApiImpl;
+use haneul_json_rpc::gateway_api::RpcGatewayImpl;
+use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, TransactionBuilderImpl};
+use haneul_json_rpc::JsonRpcServerBuilder;
 use tracing::info;
 
 const DEFAULT_RPC_SERVER_PORT: &str = "5001";

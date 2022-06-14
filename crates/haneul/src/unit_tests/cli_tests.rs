@@ -18,8 +18,8 @@ use haneul_config::{
     Config, NetworkConfig, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
     HANEUL_GENESIS_FILENAME, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
-use haneul_core::gateway_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     crypto::get_key_pair,

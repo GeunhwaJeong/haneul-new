@@ -6,14 +6,13 @@ use move_core_types::ident_str;
 use move_core_types::language_storage::StructTag;
 use move_core_types::value::{MoveStruct, MoveValue};
 
+use crate::rpc_types::{HaneulMoveStruct, HaneulMoveValue};
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::MoveObject;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-
-use crate::gateway_types::{HaneulMoveStruct, HaneulMoveValue};
 
 #[test]
 fn test_move_value_to_haneul_bytearray() {

@@ -1,19 +1,19 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::RpcReadApiServer;
-use crate::api::{RpcFullNodeReadApiServer, HaneulRpcModule};
+use crate::HaneulRpcModule;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::sync::Arc;
+use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_core::gateway_types::HaneulObjectInfo;
-use haneul_core::{
-    authority::AuthorityState,
-    gateway_types::{GetObjectDataResponse, TransactionEffectsResponse},
+use haneul_json_rpc_api::rpc_types::{
+    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse,
 };
+use haneul_json_rpc_api::RpcFullNodeReadApiServer;
+use haneul_json_rpc_api::RpcReadApiServer;
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::object::Owner;
@@ -100,9 +100,11 @@ impl RpcReadApiServer for ReadApi {
         &self,
         digest: TransactionDigest,
     ) -> RpcResult<TransactionEffectsResponse> {
+        let (cert, effects) = self.state.get_transaction(digest).await?;
         Ok(TransactionEffectsResponse {
+            certificate: cert.try_into()?,
+            effects: effects.into(),
             timestamp_ms: self.state.get_timestamp_ms(&digest).await?,
-            ..self.state.get_transaction(digest).await?
         })
     }
 }
@@ -113,7 +115,7 @@ impl HaneulRpcModule for ReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::RpcReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::RpcReadApiOpenRpc::module_doc()
     }
 }
 
@@ -157,6 +159,6 @@ impl HaneulRpcModule for FullNodeApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::RpcFullNodeReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::RpcFullNodeReadApiOpenRpc::module_doc()
     }
 }

@@ -20,6 +20,7 @@ telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infr
 
 haneul-faucet = { path = "../haneul-faucet" }
 haneul = { path = "../haneul" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-core = { path = "../haneul-core" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }

@@ -15,16 +15,18 @@ use colored::Colorize;
 use move_core_types::{language_storage::TypeTag, parser::parse_type_tag};
 use serde::Serialize;
 use serde_json::json;
-use haneul_core::gateway_types::{
+use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
     HaneulParsedObject,
 };
 use tracing::info;
 
 use haneul_core::gateway_state::GatewayClient;
-use haneul_core::gateway_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::{
+    HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects,
+};
 use haneul_types::object::Owner;
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{

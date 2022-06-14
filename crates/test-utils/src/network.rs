@@ -14,12 +14,11 @@ use haneul::{
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::PersistedConfig;
 use haneul_config::{Config, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
-use haneul_gateway::api::RpcGatewayApiServer;
-use haneul_gateway::api::RpcReadApiServer;
-use haneul_gateway::api::RpcTransactionBuilderServer;
-use haneul_gateway::rpc_gateway::{
-    create_client, GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
-};
+use haneul_gateway::create_client;
+use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
+use haneul_json_rpc_api::QuorumDriverApiServer;
+use haneul_json_rpc_api::RpcReadApiServer;
+use haneul_json_rpc_api::RpcTransactionBuilderServer;
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
 const NUM_VALIDAOTR: usize = 4;
