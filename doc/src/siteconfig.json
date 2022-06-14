@@ -125,16 +125,16 @@
         "name": "See what's New",
         "sublist": [
           {
+            "name": "Run Full Node",
+            "url": "/build/fullnode"
+          },
+          {
             "name": "Program Haneul Objects",
             "url": "/build/programming-with-objects/index"
           },
           {
             "name": "Learn Haneul Tokenomics",
             "url": "/learn/tokenomics/index"
-          },
-          {
-            "name": "Explore Haneul DevNet!",
-            "url": "/explore/devnet"
           }
         ]
       },
