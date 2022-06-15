@@ -99,7 +99,7 @@ you will fork the Haneul repository here rather than clone it as described in
 
 If you are using Linux, install these extra dependencies. For example, in Ubuntu, run:
 ```shell
-    apt-get update \
+    $ apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y --no-install-recommends \
     tzdata \
     git \
@@ -122,12 +122,12 @@ in how a fullnode is run.
 
 1. Set up your fork of the Haneul repository:
     1. Go to the [Haneul repository](https://github.com/GeunhwaJeong/haneul) on GitHub
-      and click the *Fork* button in the top right-hand corner of the screen.
+       and click the *Fork* button in the top right-hand corner of the screen.
     1. Clone your personal fork of the Haneul repository to your local machine
-      (ensure that you insert your GitHub username into the URL):
-    ```shell
-    $ git clone https://github.com/<YOUR-GITHUB-USERNAME>/haneul.git
-    ```
+       (ensure that you insert your GitHub username into the URL):
+       ```shell
+       $ git clone https://github.com/<YOUR-GITHUB-USERNAME>/haneul.git
+       ```
 1. `cd` into your `haneul` repository:
     ```shell
     $ cd haneul
@@ -157,18 +157,18 @@ in how a fullnode is run.
     ```
 1. Optionally, edit your `fullnode.yaml` file to reflect any custom paths you employ:
     1. Update the `db-path` field with the path to where the fullnode's database
-      will be located. By default this will create the database in a directory
-      `./haneuldb` relative to your current directory:
-    ```yaml
-    db-path: "/path/to/haneuldb"
-    ```
+       will be located. By default this will create the database in a directory
+       `./haneuldb` relative to your current directory:
+       ```yaml
+       db-path: "/path/to/haneuldb"
+       ```
     1. Update the `genesis-file-location` with the path to the `genesis` file.
-      By default, the config looks for the file `genesis.blob` in your
-      current directory:
-    ```yaml
-    genesis:
-      genesis-file-location: "/path/to/genesis.blob"
-    ```
+       By default, the config looks for the file `genesis.blob` in your
+       current directory:
+       ```yaml
+       genesis:
+       genesis-file-location: "/path/to/genesis.blob"
+       ```
 1. Start your Haneul fullnode:
     ```shell
     $ cargo run --release --bin haneul-node -- --config-path fullnode.yaml
