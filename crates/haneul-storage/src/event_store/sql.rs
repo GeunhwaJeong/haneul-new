@@ -361,6 +361,7 @@ mod tests {
     use serde_json::json;
     use std::collections::BTreeMap;
 
+    use haneul_types::object::MoveObject;
     use haneul_types::{
         base_types::HaneulAddress,
         event::{Event, EventEnvelope, TransferType},
@@ -430,10 +431,7 @@ mod tests {
         };
         let event_bytes = bcs::to_bytes(&move_event).unwrap();
         (
-            Event::MoveEvent {
-                type_: TestEvent::struct_tag(),
-                contents: event_bytes,
-            },
+            Event::MoveEvent(MoveObject::new(TestEvent::struct_tag(), event_bytes)),
             move_event.move_struct(),
         )
     }

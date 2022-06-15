@@ -10,7 +10,7 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_json_rpc_api::rpc_types::{
-    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse,
+    GetObjectDataResponse, HaneulObjectInfo, HaneulTransactionEffects, TransactionEffectsResponse,
 };
 use haneul_json_rpc_api::RpcFullNodeReadApiServer;
 use haneul_json_rpc_api::RpcReadApiServer;
@@ -103,7 +103,7 @@ impl RpcReadApiServer for ReadApi {
         let (cert, effects) = self.state.get_transaction(digest).await?;
         Ok(TransactionEffectsResponse {
             certificate: cert.try_into()?,
-            effects: effects.into(),
+            effects: HaneulTransactionEffects::try_from(effects, &self.state.module_cache)?,
             timestamp_ms: self.state.get_timestamp_ms(&digest).await?,
         })
     }
