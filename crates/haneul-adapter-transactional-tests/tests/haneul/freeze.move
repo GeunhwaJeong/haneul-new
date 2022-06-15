@@ -5,10 +5,10 @@
 
 //# init --accounts A
 
-//# run Haneul::ObjectBasics::create --args 10 @A
+//# run haneul::object_basics::create --args 10 @A
 
-//# run Haneul::ObjectBasics::freeze_object --args object(104)
+//# run haneul::object_basics::freeze_object --args object(104)
 
-//# run Haneul::ObjectBasics::transfer --args object(104) @A
+//# run haneul::object_basics::transfer --args object(104) @A
 
-//# run Haneul::ObjectBasics::set_value --args object(104) 1
+//# run haneul::object_basics::set_value --args object(104) 1

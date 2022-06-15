@@ -1,0 +1,93 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+/// A synthetic fungible token backed by a basket of other tokens.
+/// Here, we use a basket that is 1:1 HANEUL and MANAGED,
+/// but this approach would work for a basket with arbitrary assets/ratios.
+/// E.g., [SDR](https://www.imf.org/en/About/Factsheets/Sheets/2016/08/01/14/51/Special-Drawing-Right-SDR)
+/// could be implemented this way.
+module fungible_tokens::basket {
+    use fungible_tokens::managed::MANAGED;
+    use haneul::coin::{Self, Coin, TreasuryCap};
+    use haneul::balance::{Self, Balance};
+    use haneul::id::VersionedID;
+    use haneul::haneul::HANEUL;
+    use haneul::transfer;
+    use haneul::tx_context::{Self, TxContext};
+
+    /// Name of the coin. By convention, this type has the same name as its parent module
+    /// and has no fields. The full type of the coin defined by this module will be `COIN<BASKET>`.
+    struct BASKET has drop { }
+
+    /// Singleton shared object holding the reserve assets and the capability.
+    struct Reserve has key {
+        id: VersionedID,
+        /// capability allowing the reserve to mint and burn BASKET
+        treasury_cap: TreasuryCap<BASKET>,
+        /// HANEUL coins held in the reserve
+        haneul: Balance<HANEUL>,
+        /// MANAGED coins held in the reserve
+        managed: Balance<MANAGED>,
+    }
+
+    /// Needed to deposit a 1:1 ratio of HANEUL and MANAGED for minting, but deposited a different ratio
+    const EBadDepositRatio: u64 = 0;
+
+    fun init(ctx: &mut TxContext) {
+        // Get a treasury cap for the coin put it in the reserve
+        let treasury_cap = coin::create_currency<BASKET>(BASKET{}, ctx);
+        transfer::share_object(Reserve {
+            id: tx_context::new_id(ctx),
+            treasury_cap,
+            haneul: balance::zero<HANEUL>(),
+            managed: balance::zero<MANAGED>(),
+        })
+    }
+
+    /// === Writes ===
+
+    /// Mint BASKET coins by accepting an equal number of HANEUL and MANAGED coins
+    public fun mint(
+        reserve: &mut Reserve, haneul: Coin<HANEUL>, managed: Coin<MANAGED>, ctx: &mut TxContext
+    ): Coin<BASKET> {
+        let num_haneul = coin::value(&haneul);
+        assert!(num_haneul == coin::value(&managed), EBadDepositRatio);
+
+        coin::deposit(&mut reserve.haneul, haneul);
+        coin::deposit(&mut reserve.managed, managed);
+        coin::mint(num_haneul, &mut reserve.treasury_cap, ctx)
+    }
+
+    /// Burn BASKET coins and return the underlying reserve assets
+    public fun burn(
+        reserve: &mut Reserve, basket: Coin<BASKET>, ctx: &mut TxContext
+    ): (Coin<HANEUL>, Coin<MANAGED>) {
+        let num_basket = coin::value(&basket);
+        coin::burn(basket, &mut reserve.treasury_cap);
+        let haneul = coin::withdraw(&mut reserve.haneul, num_basket, ctx);
+        let managed = coin::withdraw(&mut reserve.managed, num_basket, ctx);
+        (haneul, managed)
+    }
+
+    // === Reads ===
+
+    /// Return the number of `MANAGED` coins in circulation
+    public fun total_supply(reserve: &Reserve): u64 {
+        coin::total_supply(&reserve.treasury_cap)
+    }
+
+    /// Return the number of HANEUL in the reserve
+    public fun haneul_supply(reserve: &Reserve): u64 {
+        balance::value(&reserve.haneul)
+    }
+
+    /// Return the number of MANAGED in the reserve
+    public fun managed_supply(reserve: &Reserve): u64 {
+        balance::value(&reserve.managed)
+    }
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        init(ctx)
+    }
+}

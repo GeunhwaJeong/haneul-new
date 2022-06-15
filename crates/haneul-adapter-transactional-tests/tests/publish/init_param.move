@@ -7,9 +7,9 @@
 // initializer not valid due extra non-ctx param
 
 module Test::M1 {
-    use Haneul::ID::VersionedID;
-    use Haneul::TxContext::{Self, TxContext};
-    use Haneul::Transfer;
+    use haneul::id::VersionedID;
+    use haneul::tx_context::{Self, TxContext};
+    use haneul::transfer;
 
     struct Object has key, store {
         id: VersionedID,
@@ -18,7 +18,7 @@ module Test::M1 {
 
     // value param invalid
     fun init(ctx: &mut TxContext, value: u64) {
-        let singleton = Object { id: TxContext::new_id(ctx), value };
-        Transfer::transfer(singleton, TxContext::sender(ctx))
+        let singleton = Object { id: tx_context::new_id(ctx), value };
+        transfer::transfer(singleton, tx_context::sender(ctx))
     }
 }

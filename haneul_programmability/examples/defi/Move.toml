@@ -6,4 +6,4 @@ version = "0.0.1"
 Haneul = { local = "../../../crates/haneul-framework" }
 
 [addresses]
-DeFi = "0x0"
+defi = "0x0"

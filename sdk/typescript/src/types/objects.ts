@@ -29,7 +29,7 @@ export type HaneulData = { dataType: ObjectType } & (
 );
 
 export type HaneulMoveObject = {
-  /** Move type (e.g., "0x2::Coin::Coin<0x2::HANEUL::HANEUL>") */
+  /** Move type (e.g., "0x2::coin::Coin<0x2::haneul::HANEUL>") */
   type: string;
   /** Fields and values stored inside the Move object */
   fields: ObjectContentFields;

@@ -6,4 +6,4 @@ version = "0.0.1"
 Haneul = { local = "../../../crates/haneul-framework" }
 
 [addresses]
-Games = "0x0"
+games = "0x0"

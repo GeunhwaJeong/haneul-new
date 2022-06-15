@@ -25,7 +25,7 @@ With Haneul, we believe game developers should not be limited by the platform pe
 
 Created by game development studio GenITeam, these prototypes use both the Unity SDK and Haneul [APIs](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false).
 
-GenITeam’s developers who worked on this collaboration are neither smart contract nor Move developers. Based on their input, we created a data model and shared simple APIs. With these APIs, Geniteam was able to mint fully on-chain NFTs that are mutable, own other on-chain assets, and freely transfer to other applications.
+GenITeam’s developers who worked on this collaboration are neither smart contract nor Move developers. Based on their input, we created a data model and shared simple APIs. With these APIs, geniteam was able to mint fully on-chain NFTs that are mutable, own other on-chain assets, and freely transfer to other applications.
 
 This proof of concept build is meant to demonstrate the capabilities for game developers unlocked through Haneul. We look forward to seeing what the creative minds in the gaming community come up with as we unveil additional capabilities in the upcoming months. With each bug fixed we learned insights on what game developers look for in a SDK. Haneul is committed to building SDKs that are accessible for all levels of developers with varying degrees of smart contracts expertise.
 
@@ -40,7 +40,7 @@ POST `/call` with body:
     {
        "sender": "{{owner}}",
        "packageObjectId": "0x2",
-       "module": "Geniteam",
+       "module": "geniteam",
        "function": "create_monster",
        "args": [
            "0x{{player_id}}",
@@ -65,7 +65,7 @@ POST `/call` with body:
     {
        "sender": "{{owner}}",
        "packageObjectId": "0x2",
-       "module": "Geniteam",
+       "module": "geniteam",
        "function": "update_monster_stats",
        "args": [
            "0x{{player_id}}",
@@ -113,7 +113,7 @@ GET /object_info?objectId={{monster_id}}
     // Create a Monster and add it to the Farm's collection of Monsters
     public entry fun create_monster(_player: &mut Player,
                               farm: &mut Farm,
-                              pet_monsters_c: &mut Collection::Collection,
+                              pet_monsters_c: &mut collection::Collection,
                               monster_name: vector<u8>,
                               monster_img_index: u64,
                               breed: u8,
@@ -136,7 +136,7 @@ GET /object_info?objectId={{monster_id}}
 
 
         // Add it to the collection
-        Collection::add(pet_monsters_c, monster);
+        collection::add(pet_monsters_c, monster);
     }
 
     // Creates a basic Monster object
@@ -150,7 +150,7 @@ GET /object_info?objectId={{monster_id}}
     ): Monster {
 
         Monster {
-            id: TxContext::new_id(ctx),
+            id: tx_context::new_id(ctx),
             monster_name: ASCII::string(monster_name),
             monster_img_index,
             breed,
@@ -174,7 +174,7 @@ GET /object_info?objectId={{monster_id}}
     public entry fun update_monster_stats(
         _player: &mut Player,
         _farm: &mut Farm,
-        _pet_monsters: &mut Collection::Collection,
+        _pet_monsters: &mut collection::Collection,
         self: &mut Monster,
         monster_level: u64,
         hunger_level: u64,

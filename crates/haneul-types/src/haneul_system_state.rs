@@ -9,10 +9,10 @@ use serde::{Deserialize, Serialize};
 use crate::{balance::Balance, coin::TreasuryCap, id::VersionedID, HANEUL_FRAMEWORK_ADDRESS};
 
 const HANEUL_SYSTEM_STATE_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
-pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("HaneulSystem");
+pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 
-/// Rust version of the Move Haneul::HaneulSystem::SystemParameters type
+/// Rust version of the Move haneul::haneul_system::SystemParameters type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct SystemParameters {
     pub min_validator_stake: u64,
@@ -35,7 +35,7 @@ pub struct ValidatorMetadata {
     pub next_epoch_stake: u64,
 }
 
-/// Rust version of the Move Haneul::Validator::Validator type
+/// Rust version of the Move haneul::validator::Validator type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct Validator {
     pub metadata: ValidatorMetadata,
@@ -50,7 +50,7 @@ pub struct Validator {
     pub pending_delegator_withdraw_count: u64,
 }
 
-/// Rust version of the Move Haneul::ValidatorSet::ValidatorSet type
+/// Rust version of the Move haneul::validator_set::ValidatorSet type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct ValidatorSet {
     pub validator_stake: u64,
@@ -62,7 +62,7 @@ pub struct ValidatorSet {
     pub next_epoch_validators: Vec<ValidatorMetadata>,
 }
 
-/// Rust version of the Move Haneul::HaneulSystem::HaneulSystemState type
+/// Rust version of the Move haneul::haneul_system::HaneulSystemState type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct HaneulSystemState {
     pub id: VersionedID,

@@ -7,5 +7,4 @@ MoveStdlib = { local = "../../../crates/haneul-framework/deps/move-stdlib/" }
 Haneul = { local = "../../../crates/haneul-framework/" }
 
 [addresses]
-Tutorial = "0x0"
-
+tutorial = "0x0"

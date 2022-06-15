@@ -693,7 +693,7 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
         .map(|(id, value)| (id.to_string(), value.clone().into()))
         .collect::<BTreeMap<_, HaneulMoveValue>>();
     match struct_name.as_str() {
-        "0x2::UTF8::String" | "0x1::ascii::String" => {
+        "0x2::utf8::String" | "0x1::ascii::String" => {
             if let HaneulMoveValue::Bytearray(bytes) = fields["bytes"].clone() {
                 if let Ok(bytes) = bytes.to_vec() {
                     if let Ok(s) = String::from_utf8(bytes) {
@@ -702,18 +702,18 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
                 }
             }
         }
-        "0x2::Url::Url" => return Some(fields["url"].clone()),
-        "0x2::ID::ID" => {
+        "0x2::url::Url" => return Some(fields["url"].clone()),
+        "0x2::id::ID" => {
             if let HaneulMoveValue::Address(id) = fields["bytes"] {
                 return Some(HaneulMoveValue::Address(id));
             }
         }
-        "0x2::ID::UniqueID" => {
+        "0x2::id::UniqueID" => {
             if let HaneulMoveValue::Address(id) = fields["id"].clone() {
                 return Some(HaneulMoveValue::Address(id));
             }
         }
-        "0x2::ID::VersionedID" => {
+        "0x2::id::VersionedID" => {
             if let HaneulMoveValue::Address(address) = fields["id"].clone() {
                 if let HaneulMoveValue::Number(version) = fields["version"].clone() {
                     return Some(HaneulMoveValue::VersionedID {
@@ -723,12 +723,12 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
                 }
             }
         }
-        "0x2::Balance::Balance" => {
+        "0x2::balance::Balance" => {
             if let HaneulMoveValue::Number(value) = fields["value"].clone() {
                 return Some(HaneulMoveValue::Number(value));
             }
         }
-        "0x1::Option::Option" => {
+        "0x1::option::Option" => {
             if let HaneulMoveValue::Vector(values) = fields["vec"].clone() {
                 return Some(HaneulMoveValue::Option(Box::new(values.first().cloned())));
             }

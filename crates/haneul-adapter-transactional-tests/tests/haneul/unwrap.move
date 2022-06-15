@@ -6,12 +6,12 @@
 
 //# init --accounts A
 
-//# run Haneul::ObjectBasics::create --args 10 @A
+//# run haneul::object_basics::create --args 10 @A
 
 //# view-object 104
 
-//# run Haneul::ObjectBasics::wrap --args object(104) --sender A
+//# run haneul::object_basics::wrap --args object(104) --sender A
 
-//# run Haneul::ObjectBasics::unwrap --args object(106) --sender A
+//# run haneul::object_basics::unwrap --args object(106) --sender A
 
 //# view-object 104

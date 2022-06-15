@@ -5,16 +5,16 @@
 
 //# init --accounts A B
 
-//# run Haneul::ObjectBasics::create --sender A --args 10 @A
+//# run haneul::object_basics::create --sender A --args 10 @A
 
 //# view-object 105
 
-//# run Haneul::ObjectBasics::transfer --sender A --args object(105) @B
+//# run haneul::object_basics::transfer --sender A --args object(105) @B
 
 //# view-object 105
 
-//# run Haneul::ObjectBasics::create --sender B --args 20 @B
+//# run haneul::object_basics::create --sender B --args 20 @B
 
-//# run Haneul::ObjectBasics::update --sender B --args object(105) object(108) --view-events
+//# run haneul::object_basics::update --sender B --args object(105) object(108) --view-events
 
-//# run Haneul::ObjectBasics::delete --sender B --args object(105)
+//# run haneul::object_basics::delete --sender B --args object(105)

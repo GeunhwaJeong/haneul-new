@@ -5,10 +5,10 @@
 
 //# publish
 module Test::M1 {
-    use Haneul::ID::VersionedID;
-    use Haneul::TxContext::{Self, TxContext};
-    use Haneul::Transfer;
-    use Haneul::Coin::Coin;
+    use haneul::id::VersionedID;
+    use haneul::tx_context::{Self, TxContext};
+    use haneul::transfer;
+    use haneul::coin::Coin;
 
     struct Object has key, store {
         id: VersionedID,
@@ -20,8 +20,8 @@ module Test::M1 {
     }
 
     public entry fun create(value: u64, recipient: address, ctx: &mut TxContext) {
-        Transfer::transfer(
-            Object { id: TxContext::new_id(ctx), value },
+        transfer::transfer(
+            Object { id: tx_context::new_id(ctx), value },
             recipient
         )
     }

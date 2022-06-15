@@ -32,7 +32,7 @@ fn make_transfer_transaction(
 
         SingleTransactionKind::Call(MoveCall {
             package: framework_obj_ref,
-            module: ident_str!("HANEUL").to_owned(),
+            module: ident_str!("haneul").to_owned(),
             function: ident_str!("transfer").to_owned(),
             type_arguments: Vec::new(),
             arguments: vec![

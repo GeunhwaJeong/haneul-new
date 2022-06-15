@@ -5,16 +5,16 @@
 
 //# publish
 module Test::M {
-    use Haneul::TxContext::{Self, TxContext};
+    use haneul::tx_context::{Self, TxContext};
     struct Obj has key {
-        id: Haneul::ID::VersionedID,
+        id: haneul::id::VersionedID,
         value: u64
     }
 
     public entry fun mint(ctx: &mut TxContext) {
-        Haneul::Transfer::transfer(
-            Obj { id: TxContext::new_id(ctx), value: 0 },
-            TxContext::sender(ctx),
+        haneul::transfer::transfer(
+            Obj { id: tx_context::new_id(ctx), value: 0 },
+            tx_context::sender(ctx),
         )
     }
 

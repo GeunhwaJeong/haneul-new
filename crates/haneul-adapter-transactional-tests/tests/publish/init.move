@@ -5,9 +5,9 @@
 
 //# publish
 module Test::M1 {
-    use Haneul::ID::VersionedID;
-    use Haneul::TxContext::{Self, TxContext};
-    use Haneul::Transfer;
+    use haneul::id::VersionedID;
+    use haneul::tx_context::{Self, TxContext};
+    use haneul::transfer;
 
     struct Object has key, store {
         id: VersionedID,
@@ -17,8 +17,8 @@ module Test::M1 {
     // initializer that should be executed upon publishing this module
     fun init(ctx: &mut TxContext) {
         let value = 42;
-        let singleton = Object { id: TxContext::new_id(ctx), value };
-        Transfer::transfer(singleton, TxContext::sender(ctx))
+        let singleton = Object { id: tx_context::new_id(ctx), value };
+        transfer::transfer(singleton, tx_context::sender(ctx))
     }
 }
 

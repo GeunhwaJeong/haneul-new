@@ -259,7 +259,7 @@ impl ClusterTest {
         }
         let (_, effects) = call_move(
             ObjectID::from(HANEUL_FRAMEWORK_ADDRESS),
-            "DevNetNFT",
+            "devnet_nft",
             "mint",
             vec![],
             Some(gas_obj_id),

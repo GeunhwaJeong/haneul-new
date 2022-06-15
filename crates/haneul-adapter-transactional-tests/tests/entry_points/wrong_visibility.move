@@ -7,7 +7,7 @@
 
 //# publish
 module Test::M {
-    use Haneul::TxContext::TxContext;
+    use haneul::tx_context::TxContext;
 
     public fun t1(_: &mut TxContext) {
         abort 0
