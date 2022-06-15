@@ -5,6 +5,10 @@ use anyhow::Result;
 use futures::TryFutureExt;
 use parking_lot::Mutex;
 use std::{collections::BTreeMap, sync::Arc, time::Duration};
+
+use jsonrpsee::ws_server::WsServerBuilder;
+use tracing::info;
+
 use haneul_config::NodeConfig;
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::{
@@ -17,14 +21,16 @@ use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_network::api::ValidatorServer;
 use haneul_storage::{follower_store::FollowerStore, IndexStore};
-use tracing::info;
 
+use haneul_json_rpc::event_api::EventApiImpl;
 use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
+use haneul_json_rpc_api::EventApiServer;
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
     _json_rpc_service: Option<jsonrpsee::http_server::HttpServerHandle>,
+    _ws_subscription_service: Option<jsonrpsee::ws_server::WsServerHandle>,
     _batch_subsystem_handle: tokio::task::JoinHandle<Result<()>>,
     _post_processing_subsystem_handle: Option<tokio::task::JoinHandle<Result<()>>>,
     _gossip_handle: Option<tokio::task::JoinHandle<()>>,
@@ -152,8 +158,8 @@ impl HaneulNode {
             tokio::spawn(server.serve().map_err(Into::into))
         };
 
-        let json_rpc_service = if config.consensus_config().is_some() {
-            None
+        let (json_rpc_service, ws_subscription_service) = if config.consensus_config().is_some() {
+            (None, None)
         } else {
             let mut server = JsonRpcServerBuilder::new()?;
             server.register_module(ReadApi::new(state.clone()))?;
@@ -161,12 +167,25 @@ impl HaneulNode {
             server.register_module(BcsApiImpl::new(state.clone()))?;
 
             let server_handle = server.start(config.json_rpc_address).await?;
-            Some(server_handle)
+
+            let ws_handle = if let Some(event_handler) = state.event_handler.clone() {
+                let ws_server = WsServerBuilder::default().build("127.0.0.1:0").await?;
+                let server_addr = ws_server.local_addr()?;
+                let ws_handle =
+                    ws_server.start(EventApiImpl::new(state.clone(), event_handler).into_rpc())?;
+
+                info!("Starting WS endpoint at ws://{}", server_addr);
+                Some(ws_handle)
+            } else {
+                None
+            };
+            (Some(server_handle), ws_handle)
         };
 
         let node = Self {
             grpc_server,
             _json_rpc_service: json_rpc_service,
+            _ws_subscription_service: ws_subscription_service,
             _gossip_handle: gossip_handle,
             _batch_subsystem_handle: batch_subsystem_handle,
             _post_processing_subsystem_handle: post_processing_subsystem_handle,

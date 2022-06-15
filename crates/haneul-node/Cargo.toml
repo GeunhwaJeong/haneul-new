@@ -24,6 +24,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-types = { path = "../haneul-types" }
 
