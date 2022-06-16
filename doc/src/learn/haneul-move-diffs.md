@@ -31,7 +31,7 @@ So there is no global storage in Haneul Move. None of the global storage-related
 
 In Move, there is a special _address_ type. This type is used to represent account addresses in core Move. Core Move needs to know the address of an account when dealing with the global storage. The _address_ type is 16 bytes, which is sufficient for the core Move security model.
 
-In Haneul, since we don’t support global storage in Move, we don’t need the _address_ type to represent user accounts. Instead, we use the _address_ type to represent the Object ID. Refer to the [ID.move](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/ID.move) file in Haneul framework for an understanding of address use.
+In Haneul, since we don’t support global storage in Move, we don’t need the _address_ type to represent user accounts. Instead, we use the _address_ type to represent the Object ID. Refer to the [id.move](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/id.move) file in Haneul framework for an understanding of address use.
 
 ## Object with key ability, globally unique IDs
 
@@ -54,4 +54,4 @@ Haneul offers entry functions that can be called directly from Haneul, in additi
 
 ## Conclusion
 
-In summary, Haneul takes advantage of Move’s security and flexibility and enhances it with the features described above to vastly improve throughput, reduce delays in finality, and make Move programming easier. Now see [how Haneul works](how-haneul-works.md). For full details, see the [Haneul Smart Contracts Platform](../../paper/haneul.pdf) white paper.
+In summary, Haneul takes advantage of Move’s security and flexibility and enhances it with the features described above to vastly improve throughput, reduce delays in finality, and make Move programming easier. Now see [how Haneul works](how-haneul-works.md). For full details, see the [Haneul Smart Contracts Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper.
