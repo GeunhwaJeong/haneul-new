@@ -8,7 +8,7 @@ import {
   isGetOwnedObjectsResponse,
   isGetTxnDigestsResponse,
   isTransactionEffectsResponse,
-  isTransactionResponse
+  isTransactionResponse,
 } from '../index.guard';
 import {
   GatewayTxSeqNumber,
@@ -17,7 +17,7 @@ import {
   HaneulObjectInfo,
   TransactionDigest,
   TransactionEffectsResponse,
-  TransactionResponse
+  TransactionResponse,
 } from '../types';
 
 const isNumber = (val: any): val is number => typeof val === 'number';
@@ -91,31 +91,62 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  //Addresses
-  async getTransactionsForAddress(addressID: string): Promise<GetTxnDigestsResponse> {
+  // Transactions
+
+  async getTransactionsForObject(
+    objectID: string
+  ): Promise<GetTxnDigestsResponse> {
     const requests = [
       {
-        method: 'haneul_getTransactionsToAddress',
-        args: [addressID]
+        method: 'haneul_getTransactionsByInputObject',
+        args: [objectID],
       },
       {
-        method: 'haneul_getTransactionsFromAddress',
-        args: [addressID]
-      }
-    ]
+        method: 'haneul_getTransactionsByMutatedObject',
+        args: [objectID],
+      },
+    ];
 
     try {
       const results = await this.client.batchRequestWithType(
         requests,
         isGetTxnDigestsResponse
-      )
+      );
       return [...results[0], ...results[1]];
     } catch (err) {
-      throw new Error(`Error getting transactions for address: ${err} for id ${addressID}`)
+      throw new Error(
+        `Error getting transactions for object: ${err} for id ${objectID}`
+      );
     }
   }
 
-  // Transactions
+  async getTransactionsForAddress(
+    addressID: string
+  ): Promise<GetTxnDigestsResponse> {
+    const requests = [
+      {
+        method: 'haneul_getTransactionsToAddress',
+        args: [addressID],
+      },
+      {
+        method: 'haneul_getTransactionsFromAddress',
+        args: [addressID],
+      },
+    ];
+
+    try {
+      const results = await this.client.batchRequestWithType(
+        requests,
+        isGetTxnDigestsResponse
+      );
+      return [...results[0], ...results[1]];
+    } catch (err) {
+      throw new Error(
+        `Error getting transactions for address: ${err} for id ${addressID}`
+      );
+    }
+  }
+
   async getTransactionWithEffects(
     digest: TransactionDigest
   ): Promise<TransactionEffectsResponse> {
