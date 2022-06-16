@@ -9,11 +9,10 @@ use serde_json::Value;
 use serde_with::serde_as;
 use std::collections::BTreeMap;
 
-use crate::rpc_types::HaneulEvent;
-use crate::rpc_types::HaneulTypeTag;
 use crate::rpc_types::{
-    GetObjectDataResponse, GetRawObjectDataResponse, HaneulInputObjectKind, HaneulObjectInfo,
-    HaneulObjectRef, TransactionEffectsResponse, TransactionResponse,
+    GetObjectDataResponse, GetRawObjectDataResponse, RPCTransactionRequestParams, HaneulEvent,
+    HaneulInputObjectKind, HaneulObjectInfo, HaneulObjectRef, HaneulTypeTag, TransactionEffectsResponse,
+    TransactionResponse,
 };
 use haneul_json::HaneulJsonValue;
 use haneul_open_rpc::Module;
@@ -183,6 +182,15 @@ pub trait RpcTransactionBuilder {
         signer: HaneulAddress,
         primary_coin: ObjectID,
         coin_to_merge: ObjectID,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes>;
+
+    #[method(name = "batchTransaction")]
+    async fn batch_transaction(
+        &self,
+        signer: HaneulAddress,
+        single_transaction_params: Vec<RPCTransactionRequestParams>,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;

@@ -11,10 +11,10 @@ use tracing::debug;
 use crate::HaneulRpcModule;
 use haneul_core::gateway_state::{GatewayClient, GatewayTxSeqNumber};
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::rpc_types::HaneulTypeTag;
 use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
+use haneul_json_rpc_api::rpc_types::{RPCTransactionRequestParams, HaneulTypeTag};
 use haneul_json_rpc_api::{
     QuorumDriverApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
 };
@@ -249,14 +249,27 @@ impl RpcTransactionBuilderServer for TransactionBuilderImpl {
                     package_object_id,
                     module,
                     function,
-                    type_arguments
-                        .into_iter()
-                        .map(|tag| tag.try_into())
-                        .collect::<Result<Vec<_>, _>>()?,
+                    type_arguments,
                     rpc_arguments,
                     gas,
                     gas_budget,
                 )
+                .await
+        }
+        .await?;
+        Ok(TransactionBytes::from_data(data)?)
+    }
+
+    async fn batch_transaction(
+        &self,
+        signer: HaneulAddress,
+        params: Vec<RPCTransactionRequestParams>,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        let data = async {
+            self.client
+                .batch_transaction(signer, params, gas, gas_budget)
                 .await
         }
         .await?;

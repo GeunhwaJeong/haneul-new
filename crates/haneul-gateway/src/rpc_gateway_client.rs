@@ -3,15 +3,14 @@
 
 use anyhow::Error;
 use async_trait::async_trait;
-use move_core_types::language_storage::TypeTag;
 use tokio::runtime::Handle;
 
 use haneul_core::gateway_state::{GatewayAPI, GatewayTxSeqNumber};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_api::client::HaneulRpcClient;
 use haneul_json_rpc_api::rpc_types::{
-    GetObjectDataResponse, GetRawObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse,
-    TransactionResponse,
+    GetObjectDataResponse, GetRawObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo,
+    HaneulTypeTag, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_json_rpc_api::QuorumDriverApiClient;
 use haneul_json_rpc_api::RpcBcsApiClient;
@@ -93,7 +92,7 @@ impl GatewayAPI for RpcGatewayClient {
         package_object_id: ObjectID,
         module: String,
         function: String,
-        type_arguments: Vec<TypeTag>,
+        type_arguments: Vec<HaneulTypeTag>,
         arguments: Vec<HaneulJsonValue>,
         gas: Option<ObjectID>,
         gas_budget: u64,
@@ -106,10 +105,7 @@ impl GatewayAPI for RpcGatewayClient {
                 package_object_id,
                 module,
                 function,
-                type_arguments
-                    .into_iter()
-                    .map(|tag| tag.try_into())
-                    .collect::<Result<Vec<_>, _>>()?,
+                type_arguments,
                 arguments,
                 gas,
                 gas_budget,
@@ -165,6 +161,21 @@ impl GatewayAPI for RpcGatewayClient {
             .client
             .transaction_builder()
             .merge_coin(signer, primary_coin, coin_to_merge, gas, gas_budget)
+            .await?;
+        bytes.to_data()
+    }
+
+    async fn batch_transaction(
+        &self,
+        signer: HaneulAddress,
+        single_transaction_params: Vec<RPCTransactionRequestParams>,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> Result<TransactionData, Error> {
+        let bytes: TransactionBytes = self
+            .client
+            .transaction_builder()
+            .batch_transaction(signer, single_transaction_params, gas, gas_budget)
             .await?;
         bytes.to_data()
     }
