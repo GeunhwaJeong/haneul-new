@@ -11,6 +11,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::error::ExecutionError;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::messages::ObjectArg;
 use haneul_types::object::{MoveObject, Owner, OBJECT_START_VERSION};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
@@ -175,7 +176,7 @@ fn execute_transaction<S: BackingPackageStore>(
                         &function,
                         vec![],
                         vec![
-                            CallArg::SharedObject(HANEUL_SYSTEM_STATE_OBJECT_ID),
+                            CallArg::Object(ObjectArg::SharedObject(HANEUL_SYSTEM_STATE_OBJECT_ID)),
                             CallArg::Pure(bcs::to_bytes(&epoch).unwrap()),
                             CallArg::Pure(bcs::to_bytes(&storage_charge).unwrap()),
                             CallArg::Pure(bcs::to_bytes(&computation_charge).unwrap()),

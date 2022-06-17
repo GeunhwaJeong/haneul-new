@@ -35,7 +35,7 @@ use haneul_types::event::{Event, TransferType};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CallArg, CertifiedTransaction, ExecutionStatus, InputObjectKind, MoveModulePublish,
+    CallArg, CertifiedTransaction, ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg,
     SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
 };
 use haneul_types::move_package::disassemble_modules;
@@ -914,10 +914,10 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                     .into_iter()
                     .map(|arg| match arg {
                         CallArg::Pure(p) => HaneulJsonValue::from_bcs_bytes(&p),
-                        CallArg::ImmOrOwnedObject((id, _, _)) => {
+                        CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _))) => {
                             HaneulJsonValue::new(Value::String(id.to_hex_literal()))
                         }
-                        CallArg::SharedObject(id) => {
+                        CallArg::Object(ObjectArg::SharedObject(id)) => {
                             HaneulJsonValue::new(Value::String(id.to_hex_literal()))
                         }
                     })
