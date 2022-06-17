@@ -20,7 +20,7 @@ use haneul_core::{
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_network::api::ValidatorServer;
-use haneul_storage::{follower_store::FollowerStore, IndexStore};
+use haneul_storage::{follower_store::FollowerStore, node_sync_store::NodeSyncStore, IndexStore};
 
 use haneul_json_rpc::event_api::EventApiImpl;
 use haneul_json_rpc::read_api::FullNodeApi;
@@ -83,7 +83,13 @@ impl HaneulNode {
             .await,
         );
 
-        let gossip_handle = if config.enable_gossip {
+        // TODO: maybe have a config enum that takes care of this for us.
+        let is_validator = config.consensus_config().is_some();
+        let is_node = !is_validator;
+
+        let should_start_follower = is_node || config.enable_gossip;
+
+        let gossip_handle = if should_start_follower {
             let mut net_config = haneullabs_network::config::Config::new();
             net_config.connect_timeout = Some(Duration::from_secs(5));
             net_config.request_timeout = Some(Duration::from_secs(5));
@@ -101,15 +107,18 @@ impl HaneulNode {
             let active_authority =
                 ActiveAuthority::new(state.clone(), follower_store, authority_clients)?;
 
-            let degree = active_authority.state.committee.load().voting_rights.len();
-            // Start following validators
-            let handle = active_authority
-                .spawn_gossip_process(
-                    // listen to all authorities (note that gossip_process caps this to total minus 1.)
-                    degree,
-                )
-                .await;
-            Some(handle)
+            Some(if is_validator {
+                // TODO: get degree from config file.
+                let degree = 4;
+                active_authority.spawn_gossip_process(degree).await
+            } else {
+                let pending_store =
+                    Arc::new(NodeSyncStore::open(config.db_path().join("node_sync_db"))?);
+
+                active_authority
+                    .spawn_node_sync_process(pending_store)
+                    .await
+            })
         } else {
             None
         };
