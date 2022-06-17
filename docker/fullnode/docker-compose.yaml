@@ -1,0 +1,18 @@
+---
+version: "3.9"
+services:
+  fullnode:
+    image: haneullabs/haneul-node:devnet-0.4.0
+    ports:
+    - "9000:9000"
+    - "9184:9184"
+    expose:
+    - "9000"
+    - "9184"
+    volumes:
+    - ./fullnode-template.yaml:/haneul/fullnode.yaml:ro
+    - ./genesis.blob:/haneul/genesis.blob:ro
+    - haneuldb:/haneul/haneuldb:rw
+    command: ["/usr/local/bin/haneul-node", "--config-path", "fullnode.yaml"]
+volumes:
+  haneuldb:
