@@ -42,7 +42,10 @@ Go to the [Move Quick Start](../build/move.md) for installation, defining custom
 See the [Wallet Quick Start](../build/wallet.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
 
 ### End-to-end tutorial
-Finish with the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
+Proceed to the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
+
+### Programming with Objects series
+Finish with the detailed [Programming with objects](../build/programming-with-objects/index.md) tutorial series offering detailed guidance on manipulating Haneul objects, from creation and storage through wrapping and using child objects.
 
 ## Navigate this site
 
@@ -52,16 +55,5 @@ Navigate and search this site however you see fit. Here is the order we recommen
 1. [Build](../build/index.md) smart contracts, wallets, validators, transactions, and more.
 1. [Explore](../explore/index.md) prototypes and examples.
 1. [Contribute](../contribute/index.md) to Haneul by joining the community, making enhancements, and learning about Haneul Labs.
-
-## Use supporting sites
-
-Take note of these related repositories of information to make best use of the knowledge here:
-
-* [Move & Haneul podcast](https://zeroknowledge.fm/228-2/) on Zero Knowledge where programmable objects are described in detail.
-* Original [Move Book](https://move-book.com/index.html) written by a member of the Haneul team.
-* [Core Move](https://github.com/move-language/move/tree/main/language/documentation) documentation, including:
-  * [Tutorial](https://github.com/move-language/move/blob/main/language/documentation/tutorial/README.md) - A step-by-step guide through writing a Move module.
-  * [Book](https://github.com/move-language/move/blob/main/language/documentation/book/src/introduction.md) - A summary with pages on [various topics](https://github.com/move-language/move/tree/main/language/documentation/book/src).
-  * [Examples](https://github.com/move-language/move/tree/main/language/documentation/examples/experimental) - A set of samples, such as for [defining a coin](https://github.com/move-language/move/tree/main/language/documentation/examples/experimental/basic-coin) and [swapping it](https://github.com/move-language/move/tree/main/language/documentation/examples/experimental/coin-swap).
-* [Awesome Move](https://github.com/GeunhwaJeong/awesome-move/blob/main/README.md) - A summary of resources related to Move, from blockchains through code samples.
-* [Haneul API Reference](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false) - The reference files for the [Haneul JSON-RPC API](../build/json-rpc.md).
+1. Employ the [Haneul API Reference](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false) reference files for the [Haneul JSON-RPC API](../build/json-rpc.md).
+1. View the [Haneul Labs](https://www.youtube.com/channel/UCI7pCUVxSLcndVhPpZOwZgg) YouTube channel for introductory videos on technology and partners.
