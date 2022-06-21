@@ -1002,6 +1002,7 @@ impl TryFrom<CertifiedTransaction> for HaneulCertifiedTransaction {
 pub struct HaneulTransactionEffects {
     // The status of the execution
     pub status: HaneulExecutionStatus,
+    pub gas_used: HaneulGasCostSummary,
     // The object references of the shared objects used in this transaction. Empty if no shared objects were used.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub shared_objects: Vec<HaneulObjectRef>,
@@ -1047,6 +1048,7 @@ impl HaneulTransactionEffects {
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
             status: effect.status.into(),
+            gas_used: effect.gas_used.into(),
             shared_objects: to_haneul_object_ref(effect.shared_objects),
             transaction_digest: effect.transaction_digest,
             created: to_owned_ref(effect.created),
