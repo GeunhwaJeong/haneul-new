@@ -1,7 +1,11 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getObjectType, getMoveObjectType } from '@haneullabs/haneul.js';
+import {
+    getObjectType,
+    getMoveObjectType,
+    type ObjectOwner,
+} from '@haneullabs/haneul.js';
 
 import type { GetObjectDataResponse } from '@haneullabs/haneul.js';
 
@@ -25,4 +29,13 @@ export function parseObjectType(data: GetObjectDataResponse): string {
         return getMoveObjectType(data)!;
     }
     return 'unknown';
+}
+
+export function getOwnerStr(owner: ObjectOwner | string): string {
+    if (typeof owner === 'object') {
+        if ('AddressOwner' in owner) return owner.AddressOwner;
+        if ('ObjectOwner' in owner) return owner.ObjectOwner;
+        if ('SingleOwner' in owner) return owner.SingleOwner;
+    }
+    return owner;
 }

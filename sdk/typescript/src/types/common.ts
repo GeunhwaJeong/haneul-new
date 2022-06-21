@@ -9,6 +9,7 @@ export type HaneulAddress = string;
 export type ObjectOwner =
   | { AddressOwner: HaneulAddress }
   | { ObjectOwner: HaneulAddress }
+  | { SingleOwner: HaneulAddress }
   | 'Shared'
   | 'Immutable';
 
