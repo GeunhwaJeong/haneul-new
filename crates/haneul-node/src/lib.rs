@@ -27,6 +27,8 @@ use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc_api::EventApiServer;
 
+mod metrics;
+
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
     _json_rpc_service: Option<jsonrpsee::http_server::HttpServerHandle>,
@@ -39,6 +41,15 @@ pub struct HaneulNode {
 
 impl HaneulNode {
     pub async fn start(config: &NodeConfig) -> Result<HaneulNode> {
+        //
+        // Start metrics server
+        //
+        info!(
+            "Starting Prometheus HTTP endpoint at {}",
+            config.metrics_address
+        );
+        let prometheus_registry = metrics::start_prometheus_server(config.metrics_address);
+
         info!(node =? config.public_key(),
             "Initializing haneul-node listening on {}", config.network_address
         );
@@ -79,6 +90,7 @@ impl HaneulNode {
                 checkpoint_store,
                 genesis,
                 config.enable_event_processing,
+                &prometheus_registry,
             )
             .await,
         );
