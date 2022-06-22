@@ -27,7 +27,7 @@ use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc_api::EventApiServer;
 
-mod metrics;
+pub mod metrics;
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
@@ -116,10 +116,13 @@ impl HaneulNode {
                 authority_clients.insert(validator.public_key(), client);
             }
 
+            let gateway_metrics =
+                haneul_core::gateway_state::GatewayMetrics::new(&prometheus_registry);
             let active_authority = Arc::new(ActiveAuthority::new(
                 state.clone(),
                 follower_store,
                 authority_clients,
+                gateway_metrics,
             )?);
 
             Some(if is_validator {

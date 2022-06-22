@@ -14,6 +14,7 @@ use haneul::{
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::PersistedConfig;
 use haneul_config::{Config, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG};
+use haneul_core::gateway_state::GatewayMetrics;
 use haneul_gateway::create_client;
 use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
 use haneul_json_rpc_api::QuorumDriverApiServer;
@@ -107,7 +108,8 @@ async fn start_rpc_gateway(
 ) -> Result<(SocketAddr, HttpServerHandle), anyhow::Error> {
     let server = HttpServerBuilder::default().build("127.0.0.1:0").await?;
     let addr = server.local_addr()?;
-    let client = create_client(config_path)?;
+    let metrics = GatewayMetrics::new(&prometheus::Registry::new());
+    let client = create_client(config_path, metrics)?;
     let mut module = RpcModule::new(());
     module.merge(RpcGatewayImpl::new(client.clone()).into_rpc())?;
     module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
