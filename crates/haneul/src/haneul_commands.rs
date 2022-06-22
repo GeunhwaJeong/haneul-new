@@ -251,6 +251,7 @@ impl HaneulCommand {
 
                 let mut fullnode_config = network_config.generate_fullnode_config();
                 fullnode_config.json_rpc_address = haneul_config::node::default_json_rpc_address();
+                fullnode_config.websocket_address = haneul_config::node::default_websocket_address();
                 fullnode_config.save(haneul_config_dir.join(HANEUL_FULLNODE_CONFIG))?;
 
                 for (i, validator) in network_config
