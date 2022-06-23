@@ -28,4 +28,4 @@ Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::id::VersionedI
 
 task 7 'view-object'. lines 20-20:
 Owner: Account Address ( B )
-Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::id::VersionedID {id: haneul::id::UniqueID {id: haneul::id::ID {bytes: fake(107)}}, version: 1u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 99593u64}}
+Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::id::VersionedID {id: haneul::id::UniqueID {id: haneul::id::ID {bytes: fake(107)}}, version: 1u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 99592u64}}
