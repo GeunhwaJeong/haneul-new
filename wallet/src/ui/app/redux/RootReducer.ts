@@ -5,6 +5,7 @@ import { combineReducers } from '@reduxjs/toolkit';
 
 import account from './slices/account';
 import app from './slices/app';
+import permissions from './slices/permissions';
 import haneulObjects from './slices/haneul-objects';
 import transactions from './slices/transactions';
 import txresults from './slices/txresults';
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
     haneulObjects,
     transactions,
     txresults,
+    permissions,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
