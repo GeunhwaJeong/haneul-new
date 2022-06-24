@@ -29,7 +29,7 @@ use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{AuthorityQuorumSignInfo, Signature};
+use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
 use haneul_types::error::HaneulError;
 use haneul_types::event::{Event, TransferType};
 use haneul_types::gas::GasCostSummary;
@@ -961,7 +961,7 @@ pub struct HaneulCertifiedTransaction {
     /// tx_signature is signed by the transaction sender, applied on `data`.
     pub tx_signature: Signature,
     /// authority signature information, if available, is signed by an authority, applied on `data`.
-    pub auth_sign_info: AuthorityQuorumSignInfo,
+    pub auth_sign_info: AuthorityStrongQuorumSignInfo,
 }
 
 impl Display for HaneulCertifiedTransaction {
