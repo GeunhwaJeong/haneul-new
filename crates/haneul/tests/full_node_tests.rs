@@ -1,26 +1,32 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use futures::{future, StreamExt};
-use serde_json::json;
 use std::collections::HashSet;
+use std::net::SocketAddr;
 use std::path::PathBuf;
-use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
-use haneul_core::authority::AuthorityState;
-use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::rpc_types::{SplitCoinResponse, TransactionResponse};
-use haneul_node::HaneulNode;
+use std::{collections::BTreeMap, sync::Arc};
 
+use futures::{future, StreamExt};
 use jsonrpsee::core::client::{Client, Subscription, SubscriptionClientT};
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::WsClientBuilder;
 use move_package::BuildConfig;
-use serde_json::Value;
-use std::net::SocketAddr;
-use std::{collections::BTreeMap, sync::Arc};
+use serde_json::json;
+use tokio::sync::Mutex;
+use tokio::time::timeout;
+use tokio::time::{sleep, Duration};
+use tracing::info;
+
+use haneul::wallet_commands::{WalletCommandResult, WalletCommands, WalletContext};
+use haneul_core::authority::AuthorityState;
+use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::rpc_types::{
+    SplitCoinResponse, HaneulEventEnvelope, HaneulEventFilter, TransactionResponse,
+};
 use haneul_json_rpc_api::rpc_types::{
     HaneulEvent, HaneulMoveStruct, HaneulMoveValue, HaneulObjectInfo, HaneulObjectRead,
 };
+use haneul_node::HaneulNode;
 use haneul_swarm::memory::Swarm;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest},
@@ -28,10 +34,6 @@ use haneul_types::{
     messages::{BatchInfoRequest, BatchInfoResponseItem, Transaction, TransactionInfoRequest},
 };
 use test_utils::network::setup_network_and_wallet;
-use tokio::sync::Mutex;
-use tokio::time::timeout;
-use tokio::time::{sleep, Duration};
-use tracing::info;
 
 async fn transfer_coin(
     context: &mut WalletContext,
@@ -539,12 +541,13 @@ async fn test_full_node_sub_to_move_event_ok() -> Result<(), anyhow::Error> {
     // Pass in an unique port for each test case otherwise they may interfere with one another.
     let (node, ws_client) = set_up_subscription(6666, &swarm).await?;
 
-    let params = BTreeMap::<String, Value>::new();
-    let mut sub: Subscription<HaneulEvent> = ws_client
+    let mut sub: Subscription<HaneulEventEnvelope> = ws_client
         .subscribe(
-            "haneul_subscribeMoveEventsByType",
-            rpc_params!["0x2::devnet_nft::MintNFTEvent", params],
-            "haneul_unsubscribeMoveEventsByType",
+            "haneul_subscribeEvent",
+            rpc_params![HaneulEventFilter::MoveEventType(
+                "0x2::devnet_nft::MintNFTEvent".to_string()
+            )],
+            "haneul_unsubscribeEvent",
         )
         .await
         .unwrap();
@@ -553,10 +556,9 @@ async fn test_full_node_sub_to_move_event_ok() -> Result<(), anyhow::Error> {
     wait_for_tx(digest, node.state().clone()).await;
 
     match timeout(Duration::from_secs(5), sub.next()).await {
-        Ok(Some(Ok(HaneulEvent::MoveEvent {
-            type_,
-            fields,
-            bcs: _,
+        Ok(Some(Ok(HaneulEventEnvelope {
+            event: HaneulEvent::MoveEvent { type_, fields, .. },
+            ..
         }))) => {
             assert_eq!(type_, "0x2::devnet_nft::MintNFTEvent");
             assert_eq!(

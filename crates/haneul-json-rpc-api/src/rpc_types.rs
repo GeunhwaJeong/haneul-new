@@ -15,15 +15,15 @@ use itertools::Itertools;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
+use move_core_types::parser::{parse_struct_tag, parse_type_tag};
 use move_core_types::value::{MoveStruct, MoveStructLayout, MoveValue};
 use schemars::JsonSchema;
 use serde::ser::Error;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-
-use move_core_types::parser::parse_type_tag;
 use serde_with::serde_as;
+
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -31,18 +31,19 @@ use haneul_types::base_types::{
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
 use haneul_types::error::HaneulError;
+use haneul_types::event::EventType;
 use haneul_types::event::{Event, TransferType};
+use haneul_types::event_filter::EventFilter;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     CallArg, CertifiedTransaction, ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg,
     SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
 };
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::disassemble_modules;
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
 use haneul_types::haneul_serde::{Base64, Encoding};
-
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 #[cfg(test)]
 #[path = "unit_tests/gateway_types_tests.rs"]
@@ -1191,11 +1192,26 @@ pub struct OwnedObjectRef {
 
 #[serde_as]
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "EventEnvelope", rename_all = "camelCase")]
+pub struct HaneulEventEnvelope {
+    /// UTC timestamp in milliseconds since epoch (1/1/1970)
+    pub timestamp: u64,
+    /// Transaction digest of associated transaction, if any
+    pub tx_digest: Option<TransactionDigest>,
+    /// Specific event type
+    pub event: HaneulEvent,
+}
+
+#[serde_as]
+#[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "Event", rename_all = "camelCase")]
 pub enum HaneulEvent {
     /// Move-specific event
+    #[serde(rename_all = "camelCase")]
     MoveEvent {
-        #[serde(rename = "type")]
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
         type_: String,
         fields: HaneulMoveStruct,
         #[serde_as(as = "Base64")]
@@ -1204,20 +1220,39 @@ pub enum HaneulEvent {
     },
     /// Module published
     #[serde(rename_all = "camelCase")]
-    Publish { package_id: ObjectID },
+    Publish {
+        sender: HaneulAddress,
+        package_id: ObjectID,
+    },
     /// Transfer objects to new address / wrap in another object / coin
     #[serde(rename_all = "camelCase")]
     TransferObject {
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
+        recipient: Owner,
         object_id: ObjectID,
         version: SequenceNumber,
-        destination_addr: HaneulAddress,
         type_: TransferType,
     },
     /// Delete object
-    DeleteObject(ObjectID),
+    #[serde(rename_all = "camelCase")]
+    DeleteObject {
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
+        object_id: ObjectID,
+    },
     /// New object creation
-    NewObject(ObjectID),
-    /// Epooch change
+    #[serde(rename_all = "camelCase")]
+    NewObject {
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
+        recipient: Owner,
+        object_id: ObjectID,
+    },
+    /// Epoch change
     EpochChange(EpochId),
     /// New checkpoint
     Checkpoint(CheckpointSequenceNumber),
@@ -1226,29 +1261,67 @@ pub enum HaneulEvent {
 impl HaneulEvent {
     pub fn try_from(event: Event, resolver: &impl GetModule) -> Result<Self, anyhow::Error> {
         Ok(match event {
-            Event::MoveEvent(event) => {
-                let bcs = event.contents().to_vec();
-                let move_obj: HaneulParsedMoveObject = HaneulMoveObject::try_from(event, resolver)?;
+            Event::MoveEvent {
+                package_id,
+                transaction_module,
+                sender,
+                type_,
+                contents,
+            } => {
+                let bcs = contents.to_vec();
+                let move_obj: HaneulParsedMoveObject =
+                    HaneulMoveObject::try_from(MoveObject::new(type_, contents), resolver)?;
                 HaneulEvent::MoveEvent {
+                    package_id,
+                    transaction_module: transaction_module.to_string(),
+                    sender,
                     type_: move_obj.type_,
                     fields: move_obj.fields,
                     bcs,
                 }
             }
-            Event::Publish { package_id } => HaneulEvent::Publish { package_id },
+            Event::Publish { sender, package_id } => HaneulEvent::Publish { sender, package_id },
             Event::TransferObject {
+                package_id,
+                transaction_module,
+                sender,
+                recipient,
                 object_id,
                 version,
-                destination_addr,
                 type_,
             } => HaneulEvent::TransferObject {
+                package_id,
+                transaction_module: transaction_module.to_string(),
+                sender,
+                recipient,
                 object_id,
                 version,
-                destination_addr,
                 type_,
             },
-            Event::DeleteObject(id) => HaneulEvent::DeleteObject(id),
-            Event::NewObject(id) => HaneulEvent::NewObject(id),
+            Event::DeleteObject {
+                package_id,
+                transaction_module,
+                sender,
+                object_id,
+            } => HaneulEvent::DeleteObject {
+                package_id,
+                transaction_module: transaction_module.to_string(),
+                sender,
+                object_id,
+            },
+            Event::NewObject {
+                package_id,
+                transaction_module,
+                sender,
+                recipient,
+                object_id,
+            } => HaneulEvent::NewObject {
+                package_id,
+                transaction_module: transaction_module.to_string(),
+                sender,
+                recipient,
+                object_id,
+            },
             Event::EpochChange(id) => HaneulEvent::EpochChange(id),
             Event::Checkpoint(seq) => HaneulEvent::Checkpoint(seq),
         })
@@ -1370,4 +1443,58 @@ pub struct MoveCallParams {
     #[serde(default)]
     pub type_arguments: Vec<HaneulTypeTag>,
     pub arguments: Vec<HaneulJsonValue>,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, Debug)]
+#[serde(rename = "EventFilter")]
+pub enum HaneulEventFilter {
+    Package(ObjectID),
+    Module(String),
+    /// Move StructTag string value of the event type e.g. `0x2::devnet_nft::MintNFTEvent`
+    MoveEventType(String),
+    MoveEventField {
+        path: String,
+        value: Value,
+    },
+    SenderAddress(HaneulAddress),
+    EventType(EventType),
+    ObjectId(ObjectID),
+    All(Vec<HaneulEventFilter>),
+    Any(Vec<HaneulEventFilter>),
+    And(Box<HaneulEventFilter>, Box<HaneulEventFilter>),
+    Or(Box<HaneulEventFilter>, Box<HaneulEventFilter>),
+}
+
+impl TryInto<EventFilter> for HaneulEventFilter {
+    type Error = anyhow::Error;
+
+    fn try_into(self) -> Result<EventFilter, anyhow::Error> {
+        use HaneulEventFilter::*;
+        Ok(match self {
+            Package(id) => EventFilter::Package(id),
+            Module(module) => EventFilter::Module(Identifier::new(module)?),
+            MoveEventType(event_type) => {
+                // parse_struct_tag converts StructTag string e.g. `0x2::devnet_nft::MintNFTEvent` to StructTag object
+                EventFilter::MoveEventType(parse_struct_tag(&event_type)?)
+            }
+            MoveEventField { path, value } => EventFilter::MoveEventField { path, value },
+            SenderAddress(address) => EventFilter::SenderAddress(address),
+            ObjectId(id) => EventFilter::ObjectId(id),
+            All(filters) => EventFilter::MatchAll(
+                filters
+                    .into_iter()
+                    .map(HaneulEventFilter::try_into)
+                    .collect::<Result<_, _>>()?,
+            ),
+            Any(filters) => EventFilter::MatchAny(
+                filters
+                    .into_iter()
+                    .map(HaneulEventFilter::try_into)
+                    .collect::<Result<_, _>>()?,
+            ),
+            And(filter_a, filter_b) => All(vec![*filter_a, *filter_b]).try_into()?,
+            Or(filter_a, filter_b) => Any(vec![*filter_a, *filter_b]).try_into()?,
+            EventType(type_) => EventFilter::EventType(type_),
+        })
+    }
 }

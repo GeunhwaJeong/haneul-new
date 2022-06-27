@@ -1,19 +1,18 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::rpc_types::HaneulEventEnvelope;
+use crate::rpc_types::HaneulEventFilter;
+use crate::rpc_types::{
+    GetObjectDataResponse, GetRawObjectDataResponse, RPCTransactionRequestParams,
+    HaneulInputObjectKind, HaneulObjectInfo, HaneulObjectRef, HaneulTypeTag, TransactionEffectsResponse,
+    TransactionResponse,
+};
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use serde_with::serde_as;
-use std::collections::BTreeMap;
-
-use crate::rpc_types::{
-    GetObjectDataResponse, GetRawObjectDataResponse, RPCTransactionRequestParams, HaneulEvent,
-    HaneulInputObjectKind, HaneulObjectInfo, HaneulObjectRef, HaneulTypeTag, TransactionEffectsResponse,
-    TransactionResponse,
-};
 use haneul_json::HaneulJsonValue;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
@@ -231,8 +230,9 @@ impl TransactionBytes {
     }
 }
 
+#[open_rpc(namespace = "haneul", tag = "Event Subscription")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait EventApi {
-    #[subscription(name = "subscribeMoveEventsByType", item = HaneulEvent)]
-    fn subscribe_move_event_by_type(&self, event: String, field_filter: BTreeMap<String, Value>);
+    #[subscription(name = "subscribeEvent", item = HaneulEventEnvelope)]
+    fn subscribe_event(&self, filter: HaneulEventFilter);
 }
