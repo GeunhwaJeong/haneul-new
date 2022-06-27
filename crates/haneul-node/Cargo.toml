@@ -1,6 +1,6 @@
 [package]
 name = "haneul-node"
-version = "0.0.0"
+version = "0.5.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 publish = false
