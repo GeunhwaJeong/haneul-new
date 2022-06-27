@@ -17,6 +17,7 @@ use haneul_json_rpc_api::rpc_types::{
 use haneul_json_rpc_api::rpc_types::{RPCTransactionRequestParams, HaneulTypeTag};
 use haneul_json_rpc_api::{
     QuorumDriverApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
+    WalletSyncApiServer,
 };
 use haneul_open_rpc::Module;
 use haneul_types::haneul_serde::Base64;
@@ -28,6 +29,10 @@ use haneul_types::{
 };
 
 pub struct RpcGatewayImpl {
+    client: GatewayClient,
+}
+
+pub struct GatewayWalletSyncApiImpl {
     client: GatewayClient,
 }
 
@@ -44,6 +49,13 @@ impl RpcGatewayImpl {
         Self { client }
     }
 }
+
+impl GatewayWalletSyncApiImpl {
+    pub fn new(client: GatewayClient) -> Self {
+        Self { client }
+    }
+}
+
 impl GatewayReadApiImpl {
     pub fn new(client: GatewayClient) -> Self {
         Self { client }
@@ -73,12 +85,6 @@ impl QuorumDriverApiServer for RpcGatewayImpl {
             .await;
         Ok(result?)
     }
-
-    async fn sync_account_state(&self, address: HaneulAddress) -> RpcResult<()> {
-        debug!("sync_account_state : {}", address);
-        self.client.sync_account_state(address).await?;
-        Ok(())
-    }
 }
 
 impl HaneulRpcModule for RpcGatewayImpl {
@@ -88,6 +94,25 @@ impl HaneulRpcModule for RpcGatewayImpl {
 
     fn rpc_doc_module() -> Module {
         haneul_json_rpc_api::QuorumDriverApiOpenRpc::module_doc()
+    }
+}
+
+#[async_trait]
+impl WalletSyncApiServer for GatewayWalletSyncApiImpl {
+    async fn sync_account_state(&self, address: HaneulAddress) -> RpcResult<()> {
+        debug!("sync_account_state : {}", address);
+        self.client.sync_account_state(address).await?;
+        Ok(())
+    }
+}
+
+impl HaneulRpcModule for GatewayWalletSyncApiImpl {
+    fn rpc(self) -> RpcModule<Self> {
+        self.into_rpc()
+    }
+
+    fn rpc_doc_module() -> Module {
+        haneul_json_rpc_api::WalletSyncApiOpenRpc::module_doc()
     }
 }
 

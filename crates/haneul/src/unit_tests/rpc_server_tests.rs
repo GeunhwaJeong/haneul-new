@@ -11,6 +11,7 @@ use haneul_json_rpc_api::rpc_types::{
 };
 use haneul_json_rpc_api::{
     QuorumDriverApiClient, RpcReadApiClient, RpcTransactionBuilderClient, TransactionBytes,
+    WalletSyncApiClient,
 };
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{

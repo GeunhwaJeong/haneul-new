@@ -19,7 +19,7 @@ use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::HANEUL_WALLET_CONFIG;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
-use haneul_json_rpc::gateway_api::{RpcGatewayImpl, TransactionBuilderImpl};
+use haneul_json_rpc::gateway_api::{GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl};
 use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
 use haneul_json_rpc::haneul_rpc_doc;
 use haneul_json_rpc::HaneulRpcModule;
@@ -27,10 +27,10 @@ use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_json_rpc_api::EventApiOpenRpc;
-use haneul_json_rpc_api::QuorumDriverApiClient;
 use haneul_json_rpc_api::RpcReadApiClient;
 use haneul_json_rpc_api::RpcTransactionBuilderClient;
 use haneul_json_rpc_api::TransactionBytes;
+use haneul_json_rpc_api::WalletSyncApiClient;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -84,6 +84,7 @@ async fn main() {
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
     open_rpc.add_module(BcsApiImpl::rpc_doc_module());
     open_rpc.add_module(EventApiOpenRpc::module_doc());
+    open_rpc.add_module(GatewayWalletSyncApiImpl::rpc_doc_module());
 
     match options.action {
         Action::Print => {

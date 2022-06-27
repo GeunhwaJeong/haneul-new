@@ -16,6 +16,7 @@ use haneul_json_rpc_api::QuorumDriverApiClient;
 use haneul_json_rpc_api::RpcBcsApiClient;
 use haneul_json_rpc_api::RpcTransactionBuilderClient;
 use haneul_json_rpc_api::TransactionBytes;
+use haneul_json_rpc_api::WalletSyncApiClient;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;
@@ -80,7 +81,7 @@ impl GatewayAPI for RpcGatewayClient {
 
     async fn sync_account_state(&self, account_addr: HaneulAddress) -> Result<(), Error> {
         self.client
-            .quorum_driver()
+            .wallet_sync_api()
             .sync_account_state(account_addr)
             .await?;
         Ok(())
