@@ -6,5 +6,5 @@ import { DAppInterface } from './DAppInterface';
 Object.defineProperty(window, 'haneulWallet', {
     enumerable: false,
     configurable: false,
-    value: new DAppInterface(window),
+    value: new DAppInterface(),
 });
