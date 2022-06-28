@@ -102,11 +102,11 @@ read more about
 [modules](https://github.com/move-language/move/blob/main/language/documentation/book/src/modules-and-scripts.md#modules)
 in the Move book later.)
 
-> **Important:** In Haneul Move, package names are always in CamelCase, which
+> **Important:** In Haneul Move, package names are always in CamelCase, while
 > the address alias is lowercase, for examples `haneul = 0x2` and `std = 0x1`.
-> So: Haneul = name of the imported package (Haneul = haneul framework), haneul = address
-> alias of 0x2, haneul::haneul = module haneul under the address 0x2, and
-> haneul::haneul::HANEUL = type in the module above.
+> So: `Haneul` = name of the imported package (Haneul = haneul framework), `haneul` = address
+> alias of 0x2, `haneul::haneul` = module haneul under the address 0x2, and
+> `haneul::haneul::HANEUL` = type in the module above.
 
 As we can see, when defining a module we specify the module name
 (`Coin`), preceded by the name of the package where this module resides
