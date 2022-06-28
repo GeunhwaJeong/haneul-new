@@ -16,5 +16,3 @@
 //# run haneul::coin::transfer --type-args haneul::haneul::HANEUL --args object(100) @C --sender B
 
 //# view-object 100
-
-//# view-object 107
