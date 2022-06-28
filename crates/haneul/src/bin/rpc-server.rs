@@ -11,8 +11,8 @@ use haneul_config::HANEUL_GATEWAY_CONFIG;
 use haneul_core::gateway_state::GatewayMetrics;
 use haneul_gateway::create_client;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
-use haneul_json_rpc::gateway_api::RpcGatewayImpl;
 use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, TransactionBuilderImpl};
+use haneul_json_rpc::gateway_api::{GatewayWalletSyncApiImpl, RpcGatewayImpl};
 use haneul_json_rpc::JsonRpcServerBuilder;
 use tracing::info;
 
@@ -65,7 +65,8 @@ async fn main() -> anyhow::Result<()> {
     server.register_module(RpcGatewayImpl::new(client.clone()))?;
     server.register_module(GatewayReadApiImpl::new(client.clone()))?;
     server.register_module(TransactionBuilderImpl::new(client.clone()))?;
-    server.register_module(BcsApiImpl::new_with_gateway(client))?;
+    server.register_module(BcsApiImpl::new_with_gateway(client.clone()))?;
+    server.register_module(GatewayWalletSyncApiImpl::new(client))?;
 
     let server_handle = server.start(address).await?;
 
