@@ -37,7 +37,7 @@ module haneul::delegation {
         /// is the next epoch that the delegator can claim epoch. Whenever the delegator
         /// claims reward for an epoch, this value increments by one.
         next_reward_unclaimed_epoch: u64,
-        /// The epoch until which the delegated coin is locked until. If the delegated stake
+        /// The epoch until which the delegated coin is locked. If the delegated stake
         /// comes from a Coin<HANEUL>, this field is None. If it comes from a LockedCoin<HANEUL>, this
         /// field is not None, and after undelegation the stake will be returned to a LockedCoin<HANEUL>
         /// with locked_until_epoch set to this epoch.

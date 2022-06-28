@@ -10,6 +10,7 @@ module haneul::locked_coin {
     use haneul::epoch_time_lock::{Self, EpochTimeLock};
 
     friend haneul::delegation;
+    friend haneul::haneul_system;
 
     /// A coin of type `T` locked until `locked_until_epoch`.
     struct LockedCoin<phantom T> has key, store {

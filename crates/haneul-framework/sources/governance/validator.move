@@ -3,14 +3,15 @@
 
 module haneul::validator {
     use std::ascii;
-    use std::option::{Self, Option};
     use std::vector;
 
     use haneul::balance::{Self, Balance};
-    use haneul::coin;
     use haneul::haneul::HANEUL;
-    use haneul::transfer;
     use haneul::tx_context::TxContext;
+    use haneul::stake;
+    use haneul::stake::Stake;
+    use haneul::epoch_time_lock::EpochTimeLock;
+    use std::option::Option;
 
     friend haneul::genesis;
     friend haneul::haneul_system;
@@ -41,13 +42,13 @@ module haneul::validator {
     struct Validator has store {
         /// Summary of the validator.
         metadata: ValidatorMetadata,
-        /// The current active stake. This will not change during an epoch. It can only
+        /// The current active stake amount. This will not change during an epoch. It can only
         /// be updated at the end of epoch.
-        stake: Balance<HANEUL>,
+        stake_amount: u64,
         /// Amount of delegated stake from token holders.
         delegation: u64,
-        /// Pending stake deposits. It will be put into `stake` at the end of epoch.
-        pending_stake: Option<Balance<HANEUL>>,
+        /// Pending stake deposit amount, processed at end of epoch.
+        pending_stake: u64,
         /// Pending withdraw amount, processed at end of epoch.
         pending_withdraw: u64,
         /// Pending delegation deposits.
@@ -70,6 +71,8 @@ module haneul::validator {
         name: vector<u8>,
         net_address: vector<u8>,
         stake: Balance<HANEUL>,
+        coin_locked_until_epoch: Option<EpochTimeLock>,
+        ctx: &mut TxContext
     ): Validator {
         assert!(
             // TODO: These constants are arbitrary, will adjust once we know more.
@@ -78,17 +81,19 @@ module haneul::validator {
         );
         // Check that the name is human-readable.
         ascii::string(copy name);
+        let stake_amount = balance::value(&stake);
+        stake::create(stake, haneul_address, coin_locked_until_epoch, ctx);
         Validator {
             metadata: ValidatorMetadata {
                 haneul_address,
                 pubkey_bytes,
                 name,
                 net_address,
-                next_epoch_stake: balance::value(&stake),
+                next_epoch_stake: stake_amount,
             },
-            stake,
+            stake_amount,
             delegation: 0,
-            pending_stake: option::none(),
+            pending_stake: 0,
             pending_withdraw: 0,
             pending_delegation: 0,
             pending_delegation_withdraw: 0,
@@ -98,28 +103,19 @@ module haneul::validator {
         }
     }
 
-    public(friend) fun destroy(self: Validator, ctx: &mut TxContext) {
+    public(friend) fun destroy(self: Validator) {
         let Validator {
-            metadata,
-            stake,
+            metadata: _,
+            stake_amount: _,
             delegation: _,
-            pending_stake,
-            pending_withdraw,
+            pending_stake: _,
+            pending_withdraw: _,
             pending_delegation: _,
             pending_delegation_withdraw: _,
             delegator_count: _,
             pending_delegator_count: _,
             pending_delegator_withdraw_count: _,
         } = self;
-
-        assert!(pending_withdraw == 0, 0);
-        if (option::is_some(&pending_stake)) {
-            // pending_stake can be non-empty as it can contain the gas reward from the last epoch.
-            let pending_stake_balance = option::extract(&mut pending_stake);
-            balance::join(&mut stake, pending_stake_balance);
-        };
-        option::destroy_none(pending_stake);
-        transfer::transfer(coin::from_balance(stake, ctx), metadata.haneul_address);
     }
 
     /// Add stake to an active validator. The new stake is added to the pending_stake field,
@@ -127,17 +123,13 @@ module haneul::validator {
     public(friend) fun request_add_stake(
         self: &mut Validator,
         new_stake: Balance<HANEUL>,
+        coin_locked_until_epoch: Option<EpochTimeLock>,
+        ctx: &mut TxContext,
     ) {
         let new_stake_value = balance::value(&new_stake);
-        let pending_stake = if (option::is_some(&self.pending_stake)) {
-            let pending_stake = option::extract(&mut self.pending_stake);
-            balance::join(&mut pending_stake, new_stake);
-            pending_stake
-        } else {
-            new_stake
-        };
-        option::fill(&mut self.pending_stake, pending_stake);
+        self.pending_stake = self.pending_stake + new_stake_value;
         self.metadata.next_epoch_stake = self.metadata.next_epoch_stake + new_stake_value;
+        stake::create(new_stake, self.metadata.haneul_address, coin_locked_until_epoch, ctx);
     }
 
     /// Withdraw stake from an active validator. Since it's active, we need
@@ -146,26 +138,23 @@ module haneul::validator {
     /// stake still satisfy the minimum requirement.
     public(friend) fun request_withdraw_stake(
         self: &mut Validator,
+        stake: &mut Stake,
         withdraw_amount: u64,
         min_validator_stake: u64,
+        ctx: &mut TxContext,
     ) {
         assert!(self.metadata.next_epoch_stake >= withdraw_amount + min_validator_stake, 0);
         self.pending_withdraw = self.pending_withdraw + withdraw_amount;
         self.metadata.next_epoch_stake = self.metadata.next_epoch_stake - withdraw_amount;
+        stake::withdraw_stake(stake, withdraw_amount, ctx);
     }
 
     /// Process pending stake and pending withdraws.
-    public(friend) fun adjust_stake(self: &mut Validator, ctx: &mut TxContext) {
-        if (option::is_some(&self.pending_stake)) {
-            let pending_stake = option::extract(&mut self.pending_stake);
-            balance::join(&mut self.stake, pending_stake);
-        };
-        if (self.pending_withdraw > 0) {
-            let coin = coin::take(&mut self.stake, self.pending_withdraw, ctx);
-            coin::transfer(coin, self.metadata.haneul_address);
-            self.pending_withdraw = 0;
-        };
-        assert!(balance::value(&self.stake) == self.metadata.next_epoch_stake, 0);
+    public(friend) fun adjust_stake(self: &mut Validator) {
+        self.stake_amount = self.stake_amount + self.pending_stake - self.pending_withdraw;
+        self.pending_stake = 0;
+        self.pending_withdraw = 0;
+        assert!(self.stake_amount == self.metadata.next_epoch_stake, 0);
 
         self.delegation = self.delegation + self.pending_delegation - self.pending_delegation_withdraw;
         self.pending_delegation = 0;
@@ -196,7 +185,7 @@ module haneul::validator {
     }
 
     public fun stake_amount(self: &Validator): u64 {
-        balance::value(&self.stake)
+        self.stake_amount
     }
 
     public fun delegate_amount(self: &Validator): u64 {
@@ -208,11 +197,7 @@ module haneul::validator {
     }
 
     public fun pending_stake_amount(self: &Validator): u64 {
-        if (option::is_some(&self.pending_stake)) {
-            balance::value(option::borrow(&self.pending_stake))
-        } else {
-            0
-        }
+        self.pending_stake
     }
 
     public fun pending_withdraw(self: &Validator): u64 {

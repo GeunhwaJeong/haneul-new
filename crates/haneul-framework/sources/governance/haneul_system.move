@@ -13,6 +13,8 @@ module haneul::haneul_system {
     use haneul::tx_context::{Self, TxContext};
     use haneul::validator::{Self, Validator};
     use haneul::validator_set::{Self, ValidatorSet};
+    use haneul::stake::Stake;
+    use std::option;
 
     friend haneul::genesis;
 
@@ -108,7 +110,9 @@ module haneul::haneul_system {
             pubkey_bytes,
             name,
             net_address,
-            coin::into_balance(stake)
+            coin::into_balance(stake),
+            option::none(),
+            ctx
         );
 
         validator_set::request_add_validator(&mut self.validators, validator);
@@ -138,6 +142,22 @@ module haneul::haneul_system {
         validator_set::request_add_stake(
             &mut self.validators,
             coin::into_balance(new_stake),
+            option::none(),
+            ctx,
+        )
+    }
+
+    /// A validator can request adding more stake using a locked coin. This will be processed at the end of epoch.
+    public entry fun request_add_stake_with_locked_coin(
+        self: &mut HaneulSystemState,
+        new_stake: LockedCoin<HANEUL>,
+        ctx: &mut TxContext,
+    ) {
+        let (balance, epoch_time_lock) = locked_coin::into_balance(new_stake);
+        validator_set::request_add_stake(
+            &mut self.validators,
+            balance,
+            option::some(epoch_time_lock),
             ctx,
         )
     }
@@ -149,11 +169,13 @@ module haneul::haneul_system {
     /// If the sender represents an active validator, the request will be processed at the end of epoch.
     public entry fun request_withdraw_stake(
         self: &mut HaneulSystemState,
+        stake: &mut Stake,
         withdraw_amount: u64,
         ctx: &mut TxContext,
     ) {
         validator_set::request_withdraw_stake(
             &mut self.validators,
+            stake,
             withdraw_amount,
             self.parameters.min_validator_stake,
             ctx,

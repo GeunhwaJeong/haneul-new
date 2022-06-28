@@ -9,6 +9,7 @@ module haneul::genesis {
     use haneul::haneul_system;
     use haneul::tx_context::TxContext;
     use haneul::validator;
+    use std::option;
 
     /// The initial amount of HANEUL locked in the storage fund.
     /// 10^14, an arbitrary number.
@@ -32,7 +33,7 @@ module haneul::genesis {
         validator_names: vector<vector<u8>>,
         validator_net_addresses: vector<vector<u8>>,
         validator_stakes: vector<u64>,
-        _ctx: &mut TxContext,
+        ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new();
         let storage_fund = balance::increase_supply(&mut haneul_supply, INIT_STORAGE_FUND);
@@ -58,6 +59,8 @@ module haneul::genesis {
                 name,
                 net_address,
                 balance::increase_supply(&mut haneul_supply, stake),
+                option::none(),
+                ctx
             ));
             i = i + 1;
         };
