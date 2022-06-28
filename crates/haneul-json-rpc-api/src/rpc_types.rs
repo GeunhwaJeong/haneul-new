@@ -848,7 +848,7 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
 #[serde(rename = "TransactionKind")]
 pub enum HaneulTransactionKind {
     /// Initiate an object transfer between addresses
-    PublicTransferObject(HaneulPublicTransferObject),
+    TransferObject(HaneulTransferObject),
     /// Publish a new Move module
     Publish(HaneulMovePackage),
     /// Call a function in a published Move module
@@ -864,8 +864,8 @@ impl Display for HaneulTransactionKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         match &self {
-            Self::PublicTransferObject(t) => {
-                writeln!(writer, "Transaction Kind : Public Transfer Object")?;
+            Self::TransferObject(t) => {
+                writeln!(writer, "Transaction Kind : Transfer Object")?;
                 writeln!(writer, "Recipient : {}", t.recipient)?;
                 writeln!(writer, "Object ID : {}", t.object_ref.object_id)?;
                 writeln!(writer, "Version : {:?}", t.object_ref.version)?;
@@ -915,12 +915,10 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
 
     fn try_from(tx: SingleTransactionKind) -> Result<Self, Self::Error> {
         Ok(match tx {
-            SingleTransactionKind::PublicTransferObject(t) => {
-                Self::PublicTransferObject(HaneulPublicTransferObject {
-                    recipient: t.recipient,
-                    object_ref: t.object_ref.into(),
-                })
-            }
+            SingleTransactionKind::TransferObject(t) => Self::TransferObject(HaneulTransferObject {
+                recipient: t.recipient,
+                object_ref: t.object_ref.into(),
+            }),
             SingleTransactionKind::TransferHaneul(t) => Self::TransferHaneul(HaneulTransferHaneul {
                 recipient: t.recipient,
                 amount: t.amount,
@@ -1351,8 +1349,8 @@ impl HaneulEvent {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "PublicTransferObject", rename_all = "camelCase")]
-pub struct HaneulPublicTransferObject {
+#[serde(rename = "TransferObject", rename_all = "camelCase")]
+pub struct HaneulTransferObject {
     pub recipient: HaneulAddress,
     pub object_ref: HaneulObjectRef,
 }
@@ -1445,13 +1443,13 @@ impl From<TypeTag> for HaneulTypeTag {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum RPCTransactionRequestParams {
-    PublicTransferObjectRequestParams(PublicTransferObjectParams),
+    TransferObjectRequestParams(TransferObjectParams),
     MoveCallRequestParams(MoveCallParams),
 }
 
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct PublicTransferObjectParams {
+pub struct TransferObjectParams {
     pub recipient: HaneulAddress,
     pub object_id: ObjectID,
 }

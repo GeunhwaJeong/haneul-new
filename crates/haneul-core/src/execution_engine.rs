@@ -20,8 +20,8 @@ use haneul_types::{
     event::{Event, TransferType},
     gas::{self, HaneulGasStatus},
     messages::{
-        CallArg, ChangeEpoch, ExecutionStatus, MoveCall, MoveModulePublish, PublicTransferObject,
-        SingleTransactionKind, TransactionData, TransactionEffects, TransferHaneul,
+        CallArg, ChangeEpoch, ExecutionStatus, MoveCall, MoveModulePublish, SingleTransactionKind,
+        TransactionData, TransactionEffects, TransferObject, TransferHaneul,
     },
     object::Object,
     storage::{BackingPackageStore, Storage},
@@ -117,7 +117,7 @@ fn execute_transaction<S: BackingPackageStore>(
         // once across single tx, we should be able to run them in parallel.
         for single_tx in transaction_data.kind.into_single_transactions() {
             result = match single_tx {
-                SingleTransactionKind::PublicTransferObject(PublicTransferObject {
+                SingleTransactionKind::TransferObject(TransferObject {
                     recipient,
                     object_ref,
                 }) => {
