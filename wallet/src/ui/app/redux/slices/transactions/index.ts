@@ -48,7 +48,7 @@ export const sendTokens = createAsyncThunk<
                     isHaneulMoveObject(anObj.data) && anObj.data.type === coinType
             )
             .map(({ data }) => data as HaneulMoveObject);
-        const response = await Coin.transferCoin(
+        const response = await Coin.publicTransferObject(
             api.getSignerInstance(keypairVault.getKeyPair()),
             coins,
             amount,

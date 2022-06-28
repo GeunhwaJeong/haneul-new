@@ -4,15 +4,15 @@
 import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
 import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
 
-export type TransferCoin = {
+export type PublicTransferObject = {
   recipient: HaneulAddress;
   objectRef: HaneulObjectRef;
 };
 export type RawAuthoritySignInfo = [AuthorityName, AuthoritySignature];
 
-export type TransactionKindName = 'TransferCoin' | 'Publish' | 'Call';
+export type TransactionKindName = 'PublicTransferObject' | 'Publish' | 'Call';
 export type HaneulTransactionKind =
-  | { TransferCoin: TransferCoin }
+  | { PublicTransferObject: PublicTransferObject }
   | { Publish: HaneulMovePackage }
   | { Call: MoveCall };
 export type TransactionData = {
@@ -188,10 +188,10 @@ export function getTransactionGasBudget(tx: CertifiedTransaction): number {
   return tx.data.gasBudget;
 }
 
-export function getTransferCoinTransaction(
+export function getPublicTransferObjectTransaction(
   data: HaneulTransactionKind
-): TransferCoin | undefined {
-  return 'TransferCoin' in data ? data.TransferCoin : undefined;
+): PublicTransferObject | undefined {
+  return 'PublicTransferObject' in data ? data.PublicTransferObject : undefined;
 }
 
 export function getPublishTransaction(

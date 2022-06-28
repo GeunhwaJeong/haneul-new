@@ -123,9 +123,10 @@ pub trait RpcFullNodeReadApi {
 #[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcTransactionBuilder {
-    /// Create a transaction to transfer a Haneul coin from one address to another.
-    #[method(name = "transferCoin")]
-    async fn transfer_coin(
+    /// Create a transaction to transfer an object from one address to another. The object's type
+    /// must allow public transfers
+    #[method(name = "publicTransferObject")]
+    async fn public_transfer_object(
         &self,
         signer: HaneulAddress,
         object_id: ObjectID,

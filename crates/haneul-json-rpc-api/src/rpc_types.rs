@@ -331,6 +331,7 @@ pub trait HaneulMoveObject: Sized {
 pub struct HaneulParsedMoveObject {
     #[serde(rename = "type")]
     pub type_: String,
+    pub has_public_transfer: bool,
     pub fields: HaneulMoveStruct,
 }
 
@@ -345,11 +346,13 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
             if let HaneulMoveStruct::WithTypes { type_, fields } = move_struct {
                 HaneulParsedMoveObject {
                     type_,
+                    has_public_transfer: object.has_public_transfer(),
                     fields: HaneulMoveStruct::WithFields(fields),
                 }
             } else {
                 HaneulParsedMoveObject {
                     type_: object.type_.to_string(),
+                    has_public_transfer: object.has_public_transfer(),
                     fields: move_struct,
                 }
             },
@@ -361,12 +364,27 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
     }
 }
 
+impl HaneulParsedMoveObject {
+    fn try_type_and_fields_from_move_struct(
+        type_: &StructTag,
+        move_struct: MoveStruct,
+    ) -> Result<(String, HaneulMoveStruct), anyhow::Error> {
+        Ok(match move_struct.into() {
+            HaneulMoveStruct::WithTypes { type_, fields } => {
+                (type_, HaneulMoveStruct::WithFields(fields))
+            }
+            fields => (type_.to_string(), fields),
+        })
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "RawMoveObject")]
 pub struct HaneulRawMoveObject {
     #[serde(rename = "type")]
     pub type_: String,
+    pub has_public_transfer: bool,
     #[serde_as(as = "Base64")]
     #[schemars(with = "Base64")]
     pub bcs_bytes: Vec<u8>,
@@ -379,6 +397,7 @@ impl HaneulMoveObject for HaneulRawMoveObject {
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
             type_: object.type_.to_string(),
+            has_public_transfer: object.has_public_transfer(),
             bcs_bytes: object.into_contents(),
         })
     }
@@ -828,8 +847,8 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "TransactionKind")]
 pub enum HaneulTransactionKind {
-    /// Initiate a coin transfer between addresses
-    TransferCoin(HaneulTransferCoin),
+    /// Initiate an object transfer between addresses
+    PublicTransferObject(HaneulPublicTransferObject),
     /// Publish a new Move module
     Publish(HaneulMovePackage),
     /// Call a function in a published Move module
@@ -845,8 +864,8 @@ impl Display for HaneulTransactionKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         match &self {
-            Self::TransferCoin(t) => {
-                writeln!(writer, "Transaction Kind : Transfer Coin")?;
+            Self::PublicTransferObject(t) => {
+                writeln!(writer, "Transaction Kind : Public Transfer Object")?;
                 writeln!(writer, "Recipient : {}", t.recipient)?;
                 writeln!(writer, "Object ID : {}", t.object_ref.object_id)?;
                 writeln!(writer, "Version : {:?}", t.object_ref.version)?;
@@ -896,10 +915,12 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
 
     fn try_from(tx: SingleTransactionKind) -> Result<Self, Self::Error> {
         Ok(match tx {
-            SingleTransactionKind::TransferCoin(t) => Self::TransferCoin(HaneulTransferCoin {
-                recipient: t.recipient,
-                object_ref: t.object_ref.into(),
-            }),
+            SingleTransactionKind::PublicTransferObject(t) => {
+                Self::PublicTransferObject(HaneulPublicTransferObject {
+                    recipient: t.recipient,
+                    object_ref: t.object_ref.into(),
+                })
+            }
             SingleTransactionKind::TransferHaneul(t) => Self::TransferHaneul(HaneulTransferHaneul {
                 recipient: t.recipient,
                 amount: t.amount,
@@ -1269,14 +1290,15 @@ impl HaneulEvent {
                 contents,
             } => {
                 let bcs = contents.to_vec();
-                let move_obj: HaneulParsedMoveObject =
-                    HaneulMoveObject::try_from(MoveObject::new(type_, contents), resolver)?;
+                let move_struct = Event::move_event_to_move_struct(&type_, &contents, resolver)?;
+                let (type_, fields) =
+                    HaneulParsedMoveObject::try_type_and_fields_from_move_struct(&type_, move_struct)?;
                 HaneulEvent::MoveEvent {
                     package_id,
                     transaction_module: transaction_module.to_string(),
                     sender,
-                    type_: move_obj.type_,
-                    fields: move_obj.fields,
+                    type_,
+                    fields,
                     bcs,
                 }
             }
@@ -1329,8 +1351,8 @@ impl HaneulEvent {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "TransferCoin", rename_all = "camelCase")]
-pub struct HaneulTransferCoin {
+#[serde(rename = "PublicTransferObject", rename_all = "camelCase")]
+pub struct HaneulPublicTransferObject {
     pub recipient: HaneulAddress,
     pub object_ref: HaneulObjectRef,
 }
@@ -1423,13 +1445,13 @@ impl From<TypeTag> for HaneulTypeTag {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum RPCTransactionRequestParams {
-    TransferCoinRequestParams(TransferCoinParams),
+    PublicTransferObjectRequestParams(PublicTransferObjectParams),
     MoveCallRequestParams(MoveCallParams),
 }
 
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct TransferCoinParams {
+pub struct PublicTransferObjectParams {
     pub recipient: HaneulAddress,
     pub object_id: ObjectID,
 }

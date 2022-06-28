@@ -11,7 +11,6 @@ use tokio_stream::Stream;
 use tracing::{debug, error};
 
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::object::{MoveObject, ObjectFormatOptions};
 use haneul_types::{
     error::{HaneulError, HaneulResult},
     event::{Event, EventEnvelope},
@@ -65,13 +64,11 @@ impl EventHandler {
                 type_, contents, ..
             } => {
                 debug!(event =? event, "Process MoveEvent.");
-                // Piggyback on MoveObject's conversion logic.
-                let move_object = MoveObject::new(type_.clone(), contents.clone());
-                let layout =
-                    move_object.get_layout(ObjectFormatOptions::default(), &self.module_cache)?;
+                let move_struct =
+                    Event::move_event_to_move_struct(type_, contents, &self.module_cache)?;
                 // Convert into `HaneulMoveStruct` which is a mirror of MoveStruct but with additional type supports, (e.g. ascii::String).
-                let move_struct = move_object.to_move_struct(&layout)?.into();
-                Some(to_json_value(move_struct).map_err(|e| {
+                let haneul_move_struct = move_struct.into();
+                Some(to_json_value(haneul_move_struct).map_err(|e| {
                     HaneulError::ObjectSerializationError {
                         error: e.to_string(),
                     }

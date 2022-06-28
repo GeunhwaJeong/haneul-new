@@ -64,14 +64,14 @@ export class Coin {
      * @param amount The amount to be transfer
      * @param recipient The haneul address of the recipient
      */
-    public static async transferCoin(
+    public static async publicTransferObject(
         signer: RawSigner,
         coins: HaneulMoveObject[],
         amount: bigint,
         recipient: HaneulAddress
     ): Promise<TransactionResponse> {
         const coin = await Coin.selectCoin(signer, coins, amount);
-        return await signer.transferCoin({
+        return await signer.publicTransferObject({
             objectId: coin,
             gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER,
             recipient: recipient,
