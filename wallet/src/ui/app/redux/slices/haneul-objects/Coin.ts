@@ -64,7 +64,7 @@ export class Coin {
      * @param amount The amount to be transfer
      * @param recipient The haneul address of the recipient
      */
-    public static async publicTransferObject(
+    public static async transferCoin(
         signer: RawSigner,
         coins: HaneulMoveObject[],
         amount: bigint,
