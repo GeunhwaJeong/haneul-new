@@ -1592,8 +1592,8 @@ pub async fn init_state() -> AuthorityState {
         store,
         None,
         None,
+        None,
         &haneul_config::genesis::Genesis::get_default_genesis(),
-        false,
         &prometheus::Registry::new(),
     )
     .await

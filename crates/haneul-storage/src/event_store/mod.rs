@@ -12,13 +12,18 @@
 //!
 
 use async_trait::async_trait;
+use enum_dispatch::enum_dispatch;
+use futures::prelude::stream::BoxStream;
 use move_core_types::language_storage::ModuleId;
 use move_core_types::value::MoveValue;
 use serde_json::Value;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
+use haneul_types::error::HaneulError;
 use haneul_types::event::{EventEnvelope, EventType};
+use tokio_stream::StreamExt;
 
 pub mod sql;
+pub use sql::SqlEventStore;
 
 use flexstr::SharedStr;
 
@@ -72,23 +77,24 @@ pub enum EventValue {
 /// Thus, all different kinds of events fit on a timeline, and one should be able to query for
 /// different types of events that happen over that timeline.
 #[async_trait]
-trait EventStore {
-    type EventIt: IntoIterator<Item = StoredEvent>;
-
+#[enum_dispatch]
+pub trait EventStore {
     /// Adds events to the EventStore.
-    /// Semantics: events are appended, no deduplication is done.
+    /// Semantics: events are appended.  The sequence number must be nondecreasing - EventEnvelopes
+    /// which have sequence numbers below the current one will be skipped.  This feature
+    /// is intended for deduplication.
     async fn add_events(
         &self,
         events: &[EventEnvelope],
         checkpoint_num: u64,
-    ) -> Result<(), EventStoreError>;
+    ) -> Result<(), HaneulError>;
 
     /// Queries for events emitted by a given transaction, returned in order emitted
     /// NOTE: Not all events come from transactions
     async fn events_for_transaction(
         &self,
         digest: TransactionDigest,
-    ) -> Result<Self::EventIt, EventStoreError>;
+    ) -> Result<Vec<StoredEvent>, HaneulError>;
 
     /// Queries for all events of a certain EventType within a given time window.
     /// Will return at most limit of the most recent events within the window, sorted in descending time.
@@ -98,7 +104,7 @@ trait EventStore {
         end_time: u64,
         event_type: EventType,
         limit: usize,
-    ) -> Result<Self::EventIt, EventStoreError>;
+    ) -> Result<Vec<StoredEvent>, HaneulError>;
 
     /// Generic event iteration bounded by time.  Return in ingestion order.
     /// start_time is inclusive and end_time is exclusive.
@@ -107,16 +113,15 @@ trait EventStore {
         start_time: u64,
         end_time: u64,
         limit: usize,
-    ) -> Result<Self::EventIt, EventStoreError>;
+    ) -> Result<Vec<StoredEvent>, HaneulError>;
 
     /// Generic event iteration bounded by checkpoint number.  Return in ingestion order.
     /// Checkpoint numbers are inclusive on both ends.
-    async fn events_by_checkpoint(
+    fn events_by_checkpoint(
         &self,
         start_checkpoint: u64,
         end_checkpoint: u64,
-        limit: usize,
-    ) -> Result<Self::EventIt, EventStoreError>;
+    ) -> Result<StreamedResult, HaneulError>;
 
     /// Queries all Move events belonging to a certain Module ID within a given time window.
     /// Will return at most limit of the most recent events within the window, sorted in descending time.
@@ -126,18 +131,38 @@ trait EventStore {
         end_time: u64,
         module: ModuleId,
         limit: usize,
-    ) -> Result<Self::EventIt, EventStoreError>;
+    ) -> Result<Vec<StoredEvent>, HaneulError>;
 }
 
-#[derive(Debug)]
-pub enum EventStoreError {
-    GenericError(Box<dyn std::error::Error>),
-    SqlError(sqlx::Error),
-    LimitTooHigh(usize),
+/// EventStoreType contains different implementations of EventStores, but implements the EventStore trait.
+/// It allows fast inlineable static calls without needing generics.
+#[enum_dispatch(EventStore)]
+pub enum EventStoreType {
+    SqlEventStore,
 }
 
-impl From<sqlx::Error> for EventStoreError {
-    fn from(err: sqlx::Error) -> Self {
-        EventStoreError::SqlError(err)
+/// A wrapper around streaming results which makes them easier to deal with
+// TODO: make it generic for non events
+pub struct StreamedResult<'s> {
+    inner: BoxStream<'s, Result<StoredEvent, HaneulError>>,
+}
+
+impl<'s> StreamedResult<'s> {
+    pub fn new(stream: BoxStream<'s, Result<StoredEvent, HaneulError>>) -> Self {
+        Self { inner: stream }
+    }
+
+    /// Pulls out a chunk of up to max_items items
+    /// NOTE: if there are no more items in the stream, then empty chunk is returned
+    pub async fn next_chunk(&mut self, max_items: usize) -> Result<Vec<StoredEvent>, HaneulError> {
+        let mut items = Vec::new();
+        while let Some(res) = self.inner.next().await {
+            match res {
+                Err(e) => return Err(e),
+                Ok(event) if items.len() < max_items => items.push(event),
+                _ => break,
+            }
+        }
+        Ok(items)
     }
 }

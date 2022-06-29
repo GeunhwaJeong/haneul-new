@@ -290,6 +290,8 @@ pub enum HaneulError {
     },
     #[error("Storage error")]
     StorageError(#[from] TypedStoreError),
+    #[error("Non-RocksDB Storage error: {0}")]
+    GenericStorageError(String),
     #[error("Batch error: cannot send transaction to batch.")]
     BatchErrorSender,
     #[error("Authority Error: {error:?}")]
@@ -307,6 +309,8 @@ pub enum HaneulError {
     // Errors returned by authority and client read API's
     #[error("Failure serializing object in the requested format: {:?}", error)]
     ObjectSerializationError { error: String },
+    #[error("Event store component is not active on this node")]
+    NoEventStore,
 
     // Client side error
     #[error("Client state has a different pending transaction.")]

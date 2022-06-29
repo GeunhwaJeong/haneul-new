@@ -23,6 +23,7 @@ tokio = { version = "1.18.2", features = ["full"] }
 tokio-stream = "0.1.8"
 
 haneul-core = { path = "../haneul-core" }
+haneul-storage = { path = "../haneul-storage" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
