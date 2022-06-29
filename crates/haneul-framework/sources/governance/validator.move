@@ -34,6 +34,7 @@ module haneul::validator {
         net_address: vector<u8>,
         /// Total amount of validator stake that would be active in the next epoch.
         /// This only includes validator stake, and does not include delegation.
+        /// TODO: stake should include delegated stake: https://github.com/GeunhwaJeong/haneul/issues/2834
         next_epoch_stake: u64,
     }
 
