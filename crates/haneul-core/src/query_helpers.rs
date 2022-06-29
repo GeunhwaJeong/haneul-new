@@ -10,7 +10,7 @@ use tracing::debug;
 
 const MAX_TX_RANGE_SIZE: u64 = 4096;
 
-pub struct QueryHelpers<const ALL_OBJ_VER: bool, S> {
+pub struct QueryHelpers<S> {
     _s: std::marker::PhantomData<S>,
 }
 
@@ -18,17 +18,13 @@ pub struct QueryHelpers<const ALL_OBJ_VER: bool, S> {
 // be duplicated between AuthorityState and GatewayState. The gateway read API will be removed
 // soon, since nodes will be handling that. At that point we should delete this struct and move the
 // code back to AuthorityState.
-impl<const ALL_OBJ_VER: bool, S: Eq + Serialize + for<'de> Deserialize<'de>>
-    QueryHelpers<ALL_OBJ_VER, S>
-{
-    pub fn get_total_transaction_number(
-        database: &HaneulDataStore<ALL_OBJ_VER, S>,
-    ) -> Result<u64, anyhow::Error> {
+impl<S: Eq + Serialize + for<'de> Deserialize<'de>> QueryHelpers<S> {
+    pub fn get_total_transaction_number(database: &HaneulDataStore<S>) -> Result<u64, anyhow::Error> {
         Ok(database.next_sequence_number()?)
     }
 
     pub fn get_transactions_in_range(
-        database: &HaneulDataStore<ALL_OBJ_VER, S>,
+        database: &HaneulDataStore<S>,
         start: TxSequenceNumber,
         end: TxSequenceNumber,
     ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
@@ -59,7 +55,7 @@ impl<const ALL_OBJ_VER: bool, S: Eq + Serialize + for<'de> Deserialize<'de>>
     }
 
     pub fn get_recent_transactions(
-        database: &HaneulDataStore<ALL_OBJ_VER, S>,
+        database: &HaneulDataStore<S>,
         count: u64,
     ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
         fp_ensure!(
@@ -78,7 +74,7 @@ impl<const ALL_OBJ_VER: bool, S: Eq + Serialize + for<'de> Deserialize<'de>>
     }
 
     pub fn get_transaction(
-        database: &HaneulDataStore<ALL_OBJ_VER, S>,
+        database: &HaneulDataStore<S>,
         digest: TransactionDigest,
     ) -> Result<(CertifiedTransaction, TransactionEffects), anyhow::Error> {
         let opt = database.get_certified_transaction(&digest)?;
