@@ -245,7 +245,63 @@ impl TransactionBytes {
 
 #[open_rpc(namespace = "haneul", tag = "Event Subscription")]
 #[rpc(server, client, namespace = "haneul")]
-pub trait EventApi {
+pub trait EventStreamingApi {
     #[subscription(name = "subscribeEvent", item = HaneulEventEnvelope)]
     fn subscribe_event(&self, filter: HaneulEventFilter);
+}
+
+#[open_rpc(namespace = "haneul", tag = "Event Read API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait EventReadApi {
+    #[method(name = "getEventsByTransaction")]
+    async fn get_events_by_transaction(
+        &self,
+        digest: TransactionDigest,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+
+    #[method(name = "getEventsByModule")]
+    async fn get_events_by_module(
+        &self,
+        package: ObjectID,
+        module: String,
+        count: u64,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+
+    #[method(name = "getEventsByEventType")]
+    async fn get_events_by_event_type(
+        &self,
+        event_type: String,
+        count: u64,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+
+    #[method(name = "getEventsBySender")]
+    async fn get_events_by_sender(
+        &self,
+        sender: HaneulAddress,
+        count: u64,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+
+    #[method(name = "getEventsByObject")]
+    async fn get_events_by_object(
+        &self,
+        object: ObjectID,
+        count: u64,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+
+    #[method(name = "getEventsByOwner")]
+    async fn get_events_by_owner(
+        &self,
+        owner: HaneulAddress,
+        count: u64,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>>;
 }
