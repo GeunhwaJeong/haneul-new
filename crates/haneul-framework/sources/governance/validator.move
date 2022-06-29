@@ -161,7 +161,7 @@ module haneul::validator {
             balance::join(&mut self.stake, pending_stake);
         };
         if (self.pending_withdraw > 0) {
-            let coin = coin::withdraw(&mut self.stake, self.pending_withdraw, ctx);
+            let coin = coin::take(&mut self.stake, self.pending_withdraw, ctx);
             coin::transfer(coin, self.metadata.haneul_address);
             self.pending_withdraw = 0;
         };

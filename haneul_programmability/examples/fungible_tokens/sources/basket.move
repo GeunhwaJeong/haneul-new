@@ -8,8 +8,8 @@
 /// could be implemented this way.
 module fungible_tokens::basket {
     use fungible_tokens::managed::MANAGED;
-    use haneul::coin::{Self, Coin, TreasuryCap};
-    use haneul::balance::{Self, Balance};
+    use haneul::coin::{Self, Coin};
+    use haneul::balance::{Self, Balance, Supply};
     use haneul::id::VersionedID;
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -23,7 +23,7 @@ module fungible_tokens::basket {
     struct Reserve has key {
         id: VersionedID,
         /// capability allowing the reserve to mint and burn BASKET
-        treasury_cap: TreasuryCap<BASKET>,
+        total_supply: Supply<BASKET>,
         /// HANEUL coins held in the reserve
         haneul: Balance<HANEUL>,
         /// MANAGED coins held in the reserve
@@ -35,10 +35,11 @@ module fungible_tokens::basket {
 
     fun init(ctx: &mut TxContext) {
         // Get a treasury cap for the coin put it in the reserve
-        let treasury_cap = coin::create_currency<BASKET>(BASKET{}, ctx);
+        let total_supply = balance::create_supply<BASKET>(BASKET {});
+
         transfer::share_object(Reserve {
             id: tx_context::new_id(ctx),
-            treasury_cap,
+            total_supply,
             haneul: balance::zero<HANEUL>(),
             managed: balance::zero<MANAGED>(),
         })
@@ -53,19 +54,22 @@ module fungible_tokens::basket {
         let num_haneul = coin::value(&haneul);
         assert!(num_haneul == coin::value(&managed), EBadDepositRatio);
 
-        coin::deposit(&mut reserve.haneul, haneul);
-        coin::deposit(&mut reserve.managed, managed);
-        coin::mint(&mut reserve.treasury_cap, num_haneul, ctx)
+        coin::put(&mut reserve.haneul, haneul);
+        coin::put(&mut reserve.managed, managed);
+
+        let minted_balance = balance::increase_supply(&mut reserve.total_supply, num_haneul);
+
+        coin::from_balance(minted_balance, ctx)
     }
 
     /// Burn BASKET coins and return the underlying reserve assets
     public fun burn(
         reserve: &mut Reserve, basket: Coin<BASKET>, ctx: &mut TxContext
     ): (Coin<HANEUL>, Coin<MANAGED>) {
-        let num_basket = coin::value(&basket);
-        coin::burn(&mut reserve.treasury_cap, basket);
-        let haneul = coin::withdraw(&mut reserve.haneul, num_basket, ctx);
-        let managed = coin::withdraw(&mut reserve.managed, num_basket, ctx);
+        let num_basket = balance::decrease_supply(&mut reserve.total_supply, coin::into_balance(basket));
+        let haneul = coin::take(&mut reserve.haneul, num_basket, ctx);
+        let managed = coin::take(&mut reserve.managed, num_basket, ctx);
+
         (haneul, managed)
     }
 
@@ -73,7 +77,7 @@ module fungible_tokens::basket {
 
     /// Return the number of `MANAGED` coins in circulation
     public fun total_supply(reserve: &Reserve): u64 {
-        coin::total_supply(&reserve.treasury_cap)
+        balance::supply_value(&reserve.total_supply)
     }
 
     /// Return the number of HANEUL in the reserve

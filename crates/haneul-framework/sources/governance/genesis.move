@@ -4,7 +4,7 @@
 module haneul::genesis {
     use std::vector;
 
-    use haneul::coin;
+    use haneul::balance;
     use haneul::haneul;
     use haneul::haneul_system;
     use haneul::tx_context::TxContext;
@@ -32,10 +32,10 @@ module haneul::genesis {
         validator_names: vector<vector<u8>>,
         validator_net_addresses: vector<vector<u8>>,
         validator_stakes: vector<u64>,
-        ctx: &mut TxContext,
+        _ctx: &mut TxContext,
     ) {
-        let treasury_cap = haneul::new(ctx);
-        let storage_fund = coin::mint_balance(&mut treasury_cap, INIT_STORAGE_FUND);
+        let haneul_supply = haneul::new();
+        let storage_fund = balance::increase_supply(&mut haneul_supply, INIT_STORAGE_FUND);
         let validators = vector::empty();
         let count = vector::length(&validator_pubkeys);
         assert!(
@@ -57,13 +57,13 @@ module haneul::genesis {
                 pubkey,
                 name,
                 net_address,
-                coin::mint_balance(&mut treasury_cap, stake),
+                balance::increase_supply(&mut haneul_supply, stake),
             ));
             i = i + 1;
         };
         haneul_system::create(
             validators,
-            treasury_cap,
+            haneul_supply,
             storage_fund,
             INIT_MAX_VALIDATOR_COUNT,
             INIT_MIN_VALIDATOR_STAKE,

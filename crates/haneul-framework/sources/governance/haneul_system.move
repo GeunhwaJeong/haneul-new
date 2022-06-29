@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul::haneul_system {
-    use haneul::balance::{Self, Balance};
-    use haneul::coin::{Self, Coin, TreasuryCap};
+    use haneul::balance::{Self, Balance, Supply};
+    use haneul::coin::{Self, Coin};
     use haneul::delegation::{Self, Delegation};
     use haneul::epoch_reward_record::{Self, EpochRewardRecord};
     use haneul::id::{Self, VersionedID};
@@ -40,7 +40,7 @@ module haneul::haneul_system {
         /// Contains all information about the validators.
         validators: ValidatorSet,
         /// The HANEUL treasury capability needed to mint HANEUL.
-        treasury_cap: TreasuryCap<HANEUL>,
+        haneul_supply: Supply<HANEUL>,
         /// The storage fund.
         storage_fund: Balance<HANEUL>,
         /// A list of system config parameters.
@@ -56,7 +56,7 @@ module haneul::haneul_system {
     /// This function will be called only once in Genesis.
     public(friend) fun create(
         validators: vector<Validator>,
-        treasury_cap: TreasuryCap<HANEUL>,
+        haneul_supply: Supply<HANEUL>,
         storage_fund: Balance<HANEUL>,
         max_validator_candidate_count: u64,
         min_validator_stake: u64,
@@ -67,7 +67,7 @@ module haneul::haneul_system {
             id: id::get_haneul_system_state_object_id(),
             epoch: 0,
             validators: validator_set::new(validators),
-            treasury_cap,
+            haneul_supply,
             storage_fund,
             parameters: SystemParameters {
                 min_validator_stake,
@@ -237,8 +237,8 @@ module haneul::haneul_system {
         // Validator will make a special system call with sender set as 0x0.
         assert!(tx_context::sender(ctx) == @0x0, 0);
 
-        let storage_reward = balance::create_with_value(storage_charge);
-        let computation_reward = balance::create_with_value(computation_charge);
+        let storage_reward = balance::increase_supply(&mut self.haneul_supply, storage_charge);
+        let computation_reward = balance::increase_supply(&mut self.haneul_supply, computation_charge);
 
         let delegation_stake = validator_set::delegation_stake(&self.validators);
         let validator_stake = validator_set::validator_stake(&self.validators);
@@ -268,7 +268,7 @@ module haneul::haneul_system {
         );
         // Because of precision issues with integer divisions, we expect that there will be some
         // remaining balance in `computation_reward`. All of these go to the storage fund.
-        balance::join(&mut self.storage_fund, computation_reward)
+        balance::join(&mut self.storage_fund, computation_reward);
     }
 
     /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,

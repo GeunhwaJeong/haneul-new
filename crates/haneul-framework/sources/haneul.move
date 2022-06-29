@@ -4,8 +4,7 @@
 /// Coin<HANEUL> is the token used to pay for gas in Haneul
 module haneul::haneul {
     use haneul::coin;
-    use haneul::coin::TreasuryCap;
-    use haneul::tx_context::TxContext;
+    use haneul::balance::{Self, Supply};
 
     friend haneul::genesis;
 
@@ -14,13 +13,12 @@ module haneul::haneul {
 
     /// Register the token to acquire its `TreasuryCap`.
     /// This should be called only once during genesis creation.
-    public(friend) fun new(ctx: &mut TxContext): TreasuryCap<HANEUL> {
-        coin::create_currency(HANEUL{}, ctx)
+    public(friend) fun new(): Supply<HANEUL> {
+        balance::create_supply(HANEUL {})
     }
 
     /// Transfer to a recipient
     public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address) {
         coin::transfer(c, recipient)
     }
-
 }
