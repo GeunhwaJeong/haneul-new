@@ -10,6 +10,7 @@ use std::{fs, path::Path};
 use haneul_types::{
     base_types::TxContext,
     committee::{Committee, EpochId},
+    error::HaneulResult,
     object::Object,
 };
 use tracing::{info, trace};
@@ -43,7 +44,7 @@ impl Genesis {
         &self.validator_set
     }
 
-    pub fn committee(&self) -> Committee {
+    pub fn committee(&self) -> HaneulResult<Committee> {
         let voting_rights = self
             .validator_set()
             .iter()

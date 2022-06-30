@@ -369,6 +369,9 @@ pub enum HaneulError {
 
     #[error("Error executing {0}")]
     ExecutionError(String),
+
+    #[error("Invalid committee composition")]
+    InvalidCommittee(String),
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;

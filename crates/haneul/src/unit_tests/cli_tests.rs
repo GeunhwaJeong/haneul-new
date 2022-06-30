@@ -15,7 +15,7 @@ use haneul::{
 };
 use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ObjectConfig};
 use haneul_config::{
-    Config, NetworkConfig, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
+    Config, NetworkConfig, PersistedConfig, ValidatorInfo, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
     HANEUL_GENESIS_FILENAME, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
@@ -101,7 +101,7 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
 
 #[tokio::test]
 async fn test_addresses_command() -> Result<(), anyhow::Error> {
-    let temp_dir = tempfile::tempdir()?;
+    let temp_dir = tempfile::tempdir().unwrap();
     let working_dir = temp_dir.path();
 
     let wallet_config = WalletConfig {
@@ -109,6 +109,11 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
         keystore: KeystoreType::File(working_dir.join("wallet.key")),
         gateway: GatewayType::Embedded(GatewayConfig {
             db_folder_path: working_dir.join("client_db"),
+            validator_set: vec![ValidatorInfo {
+                public_key: *get_key_pair().1.public_key_bytes(),
+                stake: 1,
+                network_address: "/dns/localhost/tcp/8080/http".parse().unwrap(),
+            }],
             ..Default::default()
         }),
         active_address: None,
@@ -123,14 +128,15 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
             address
         });
     }
-    wallet_config.save()?;
+    wallet_config.save().unwrap();
 
-    let mut context = WalletContext::new(&wallet_conf_path)?;
+    let mut context = WalletContext::new(&wallet_conf_path).unwrap();
 
     // Print all addresses
     WalletCommands::Addresses
         .execute(&mut context)
-        .await?
+        .await
+        .unwrap()
         .print(true);
 
     Ok(())
