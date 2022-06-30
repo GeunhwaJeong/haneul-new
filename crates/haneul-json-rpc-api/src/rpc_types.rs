@@ -419,12 +419,12 @@ impl TryFrom<&HaneulParsedObject> for GasCoin {
             HaneulData::Package(_) => {}
         }
 
-        return Err(HaneulError::TypeError {
+        Err(HaneulError::TypeError {
             error: format!(
                 "Gas object type is not a gas coin: {:?}",
                 object.data.type_()
             ),
-        });
+        })
     }
 }
 
@@ -441,9 +441,9 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
             }
             _ => {}
         }
-        return Err(HaneulError::TypeError {
+        Err(HaneulError::TypeError {
             error: format!("Struct is not a gas coin: {move_struct:?}"),
-        });
+        })
     }
 }
 
