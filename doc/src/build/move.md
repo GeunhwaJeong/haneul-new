@@ -1,5 +1,5 @@
 ---
-title: Quickstart Smart Contracts with Move
+title: Write Smart Contracts with Haneul Move
 ---
 
 Welcome to the Haneul tutorial for building smart contracts with
@@ -7,6 +7,11 @@ the [Move](https://github.com/GeunhwaJeong/awesome-move) language.
 This tutorial provides a brief explanation of the Move language and
 includes concrete examples to demonstrate how Move can be used in Haneul.
 
+## Quick links
+
+* [Why Move?](../../learn/why-move.md) - Quick links to external Move resources and a comparison with Solidity
+* [How Haneul Move differs from Core Move](../../learn/haneul-move-diffs.md) - Highlights the differences between the core Move language and the Move we use in Haneul
+* [Programming Objects Tutorial Series](../../build/programming-with-objects/index.md) - Tutorial series that walks through all the powerful ways to interact with objects in Haneul Move.
 
 ## Move
 
