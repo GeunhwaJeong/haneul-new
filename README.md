@@ -10,7 +10,7 @@
 * To jump right into building smart contract applications on top of Haneul, start at the [Move Smart Contract Quick Start](doc/src/build/move.md).
 * To experiment with the Haneul CLI client, check out [Haneul CLI client Quick Start](doc/src/build/cli-client.md).
 * To understand what's possible by browsing Move code built on top of Haneul, review the [examples](doc/src/explore/examples.md).
-* To start coding against Haneul's REST APIs, start at the [API reference](https://app.swaggerhub.com/apis/arun-koshy/haneul-api).
+* To start coding against Haneul's JSON-RPC APIs, start at [JSON-RPC API Quick Start](doc/src/build/json-rpc.md).
 * To learn what distinguishes Haneul from other blockchain systems, see [How Haneul Differs?](doc/src/learn/haneul-compared.md).
 * To go deep on how Haneul works, read the [Haneul Smart Contract Platform](doc/paper/haneul.pdf) white paper.
 * To help Haneul grow, follow [Contributing to Haneul](doc/src/contribute/index.md).
