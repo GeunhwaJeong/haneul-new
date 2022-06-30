@@ -24,6 +24,7 @@ use tracing::info;
 use haneul_core::gateway_state::GatewayClient;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::keystore::Keystore;
 use haneul_json_rpc_api::rpc_types::{
     HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects,
 };
@@ -36,29 +37,16 @@ use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS,
 };
 
-use crate::{
-    config::{Config, GatewayType, PersistedConfig, WalletConfig},
-    keystore::Keystore,
-};
+use crate::config::{Config, GatewayType, PersistedConfig, HaneulClientConfig};
 
 pub const EXAMPLE_NFT_NAME: &str = "Example NFT";
-pub const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the wallet Command Line Tool";
+pub const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the Haneul Command Line Tool";
 pub const EXAMPLE_NFT_URL: &str =
     "ipfs://bafkreibngqhl3gaa7daob4i2vccziay2jjlp435cf66vhono7nrvww53ty";
 
 #[derive(Parser)]
-#[clap(name = "", rename_all = "kebab-case", no_binary_name = true)]
-pub struct WalletOpts {
-    #[clap(subcommand)]
-    pub command: WalletCommands,
-    /// Returns command outputs in JSON format.
-    #[clap(long, global = true)]
-    pub json: bool,
-}
-
-#[derive(StructOpt, Debug)]
-#[clap(rename_all = "kebab-case", no_binary_name = true)]
-pub enum WalletCommands {
+#[clap(rename_all = "kebab-case")]
+pub enum HaneulClientCommands {
     /// Switch active address and network(e.g., devnet, local rpc server)
     #[clap(name = "switch")]
     Switch {
@@ -74,9 +62,9 @@ pub enum WalletCommands {
 
     /// Default address used for commands when none specified
     #[clap(name = "active-address")]
-    ActiveAddress {},
+    ActiveAddress,
 
-    /// Get obj info
+    /// Get object info
     #[clap(name = "object")]
     Object {
         /// Object ID of the object to fetch
@@ -183,7 +171,7 @@ pub enum WalletCommands {
         address: Option<HaneulAddress>,
     },
 
-    /// Obtain the Addresses managed by the wallet.
+    /// Obtain the Addresses managed by the client.
     #[clap(name = "addresses")]
     Addresses,
 
@@ -272,13 +260,13 @@ pub enum WalletCommands {
     },
 }
 
-impl WalletCommands {
+impl HaneulClientCommands {
     pub async fn execute(
         self,
         context: &mut WalletContext,
-    ) -> Result<WalletCommandResult, anyhow::Error> {
+    ) -> Result<HaneulClientCommandResult, anyhow::Error> {
         let ret = Ok(match self {
-            WalletCommands::Publish {
+            HaneulClientCommands::Publish {
                 path,
                 gas,
                 gas_budget,
@@ -298,15 +286,15 @@ impl WalletCommands {
                     .await?
                     .to_publish_response()?;
 
-                WalletCommandResult::Publish(response)
+                HaneulClientCommandResult::Publish(response)
             }
 
-            WalletCommands::Object { id } => {
+            HaneulClientCommands::Object { id } => {
                 // Fetch the object ref
                 let object_read = context.gateway.get_object(id).await?;
-                WalletCommandResult::Object(object_read)
+                HaneulClientCommandResult::Object(object_read)
             }
-            WalletCommands::Call {
+            HaneulClientCommands::Call {
                 package,
                 module,
                 function,
@@ -319,10 +307,10 @@ impl WalletCommands {
                     package, &module, &function, type_args, gas, gas_budget, args, context,
                 )
                 .await?;
-                WalletCommandResult::Call(cert, effects)
+                HaneulClientCommandResult::Call(cert, effects)
             }
 
-            WalletCommands::Transfer {
+            HaneulClientCommands::Transfer {
                 to,
                 coin_object_id: object_id,
                 gas,
@@ -348,10 +336,10 @@ impl WalletCommands {
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring object: {:#?}", effects.status));
                 }
-                WalletCommandResult::Transfer(time_total, cert, effects)
+                HaneulClientCommandResult::Transfer(time_total, cert, effects)
             }
 
-            WalletCommands::TransferHaneul {
+            HaneulClientCommands::TransferHaneul {
                 to,
                 haneul_coin_object_id: object_id,
                 gas_budget,
@@ -375,14 +363,14 @@ impl WalletCommands {
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status));
                 }
-                WalletCommandResult::TransferHaneul(cert, effects)
+                HaneulClientCommandResult::TransferHaneul(cert, effects)
             }
 
-            WalletCommands::Addresses => {
-                WalletCommandResult::Addresses(context.config.accounts.clone())
+            HaneulClientCommands::Addresses => {
+                HaneulClientCommandResult::Addresses(context.config.accounts.clone())
             }
 
-            WalletCommands::Objects { address } => {
+            HaneulClientCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 let mut address_object = context
                     .gateway
@@ -394,21 +382,21 @@ impl WalletCommands {
                     .await?;
                 address_object.extend(object_objects);
 
-                WalletCommandResult::Objects(address_object)
+                HaneulClientCommandResult::Objects(address_object)
             }
 
-            WalletCommands::SyncClientState { address } => {
+            HaneulClientCommands::SyncClientState { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 context.gateway.sync_account_state(address).await?;
-                WalletCommandResult::SyncClientState
+                HaneulClientCommandResult::SyncClientState
             }
-            WalletCommands::NewAddress => {
+            HaneulClientCommands::NewAddress => {
                 let address = context.keystore.add_random_key()?;
                 context.config.accounts.push(address);
                 context.config.save()?;
-                WalletCommandResult::NewAddress(address)
+                HaneulClientCommandResult::NewAddress(address)
             }
-            WalletCommands::Gas { address } => {
+            HaneulClientCommands::Gas { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 let coins = context
                     .gas_objects(address)
@@ -417,9 +405,9 @@ impl WalletCommands {
                     // Ok to unwrap() since `get_gas_objects` guarantees gas
                     .map(|(_, object)| GasCoin::try_from(object).unwrap())
                     .collect();
-                WalletCommandResult::Gas(coins)
+                HaneulClientCommandResult::Gas(coins)
             }
-            WalletCommands::SplitCoin {
+            HaneulClientCommands::SplitCoin {
                 coin_id,
                 amounts,
                 gas,
@@ -436,9 +424,9 @@ impl WalletCommands {
                     .execute_transaction(Transaction::new(data, signature))
                     .await?
                     .to_split_coin_response()?;
-                WalletCommandResult::SplitCoin(response)
+                HaneulClientCommandResult::SplitCoin(response)
             }
-            WalletCommands::MergeCoin {
+            HaneulClientCommands::MergeCoin {
                 primary_coin,
                 coin_to_merge,
                 gas,
@@ -456,9 +444,9 @@ impl WalletCommands {
                     .await?
                     .to_merge_coin_response()?;
 
-                WalletCommandResult::MergeCoin(response)
+                HaneulClientCommandResult::MergeCoin(response)
             }
-            WalletCommands::Switch { address, gateway } => {
+            HaneulClientCommands::Switch { address, gateway } => {
                 if let Some(addr) = address {
                     if !context.config.accounts.contains(&addr) {
                         return Err(anyhow!("Address {} not managed by wallet", addr));
@@ -479,12 +467,12 @@ impl WalletCommands {
                     ));
                 }
 
-                WalletCommandResult::Switch(SwitchResponse { address, gateway })
+                HaneulClientCommandResult::Switch(SwitchResponse { address, gateway })
             }
-            WalletCommands::ActiveAddress {} => {
-                WalletCommandResult::ActiveAddress(context.active_address().ok())
+            HaneulClientCommands::ActiveAddress => {
+                HaneulClientCommandResult::ActiveAddress(context.active_address().ok())
             }
-            WalletCommands::CreateExampleNFT {
+            HaneulClientCommands::CreateExampleNFT {
                 name,
                 description,
                 url,
@@ -518,7 +506,7 @@ impl WalletCommands {
                     .reference
                     .object_id;
                 let object_read = context.gateway.get_object(nft_id).await?;
-                WalletCommandResult::CreateExampleNFT(object_read)
+                HaneulClientCommandResult::CreateExampleNFT(object_read)
             }
         });
         ret
@@ -526,14 +514,14 @@ impl WalletCommands {
 }
 
 pub struct WalletContext {
-    pub config: PersistedConfig<WalletConfig>,
+    pub config: PersistedConfig<HaneulClientConfig>,
     pub keystore: Box<dyn Keystore>,
     pub gateway: GatewayClient,
 }
 
 impl WalletContext {
     pub fn new(config_path: &Path) -> Result<Self, anyhow::Error> {
-        let config: WalletConfig = PersistedConfig::read(config_path).map_err(|err| {
+        let config: HaneulClientConfig = PersistedConfig::read(config_path).map_err(|err| {
             err.context(format!(
                 "Cannot open wallet config file at {:?}",
                 config_path
@@ -626,34 +614,34 @@ impl WalletContext {
     }
 }
 
-impl Display for WalletCommandResult {
+impl Display for HaneulClientCommandResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         match self {
-            WalletCommandResult::Publish(response) => {
+            HaneulClientCommandResult::Publish(response) => {
                 write!(writer, "{}", response)?;
             }
-            WalletCommandResult::Object(object_read) => {
+            HaneulClientCommandResult::Object(object_read) => {
                 let object = unwrap_err_to_string(|| Ok(object_read.object()?));
                 writeln!(writer, "{}", object)?;
             }
-            WalletCommandResult::Call(cert, effects) => {
+            HaneulClientCommandResult::Call(cert, effects) => {
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
             }
-            WalletCommandResult::Transfer(time_elapsed, cert, effects) => {
+            HaneulClientCommandResult::Transfer(time_elapsed, cert, effects) => {
                 writeln!(writer, "Transfer confirmed after {} us", time_elapsed)?;
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
             }
-            WalletCommandResult::TransferHaneul(cert, effects) => {
+            HaneulClientCommandResult::TransferHaneul(cert, effects) => {
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
             }
-            WalletCommandResult::Addresses(addresses) => {
+            HaneulClientCommandResult::Addresses(addresses) => {
                 writeln!(writer, "Showing {} results.", addresses.len())?;
                 for address in addresses {
                     writeln!(writer, "{}", address)?;
                 }
             }
-            WalletCommandResult::Objects(object_refs) => {
+            HaneulClientCommandResult::Objects(object_refs) => {
                 writeln!(
                     writer,
                     " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
@@ -679,13 +667,13 @@ impl Display for WalletCommandResult {
                 }
                 writeln!(writer, "Showing {} results.", object_refs.len())?;
             }
-            WalletCommandResult::SyncClientState => {
+            HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
             }
-            WalletCommandResult::NewAddress(address) => {
+            HaneulClientCommandResult::NewAddress(address) => {
                 writeln!(writer, "Created new keypair for address : {}", &address)?;
             }
-            WalletCommandResult::Gas(gases) => {
+            HaneulClientCommandResult::Gas(gases) => {
                 // TODO: generalize formatting of CLI
                 writeln!(
                     writer,
@@ -706,22 +694,22 @@ impl Display for WalletCommandResult {
                     )?;
                 }
             }
-            WalletCommandResult::SplitCoin(response) => {
+            HaneulClientCommandResult::SplitCoin(response) => {
                 write!(writer, "{}", response)?;
             }
-            WalletCommandResult::MergeCoin(response) => {
+            HaneulClientCommandResult::MergeCoin(response) => {
                 write!(writer, "{}", response)?;
             }
-            WalletCommandResult::Switch(response) => {
+            HaneulClientCommandResult::Switch(response) => {
                 write!(writer, "{}", response)?;
             }
-            WalletCommandResult::ActiveAddress(response) => {
+            HaneulClientCommandResult::ActiveAddress(response) => {
                 match response {
                     Some(r) => write!(writer, "{}", r)?,
                     None => write!(writer, "None")?,
                 };
             }
-            WalletCommandResult::CreateExampleNFT(object_read) => {
+            HaneulClientCommandResult::CreateExampleNFT(object_read) => {
                 // TODO: display the content of the object
                 let object = unwrap_err_to_string(|| Ok(object_read.object()?));
                 writeln!(writer, "{}\n", "Successfully created an ExampleNFT:".bold())?;
@@ -796,10 +784,10 @@ fn write_cert_and_effects(
     Ok(writer)
 }
 
-impl Debug for WalletCommandResult {
+impl Debug for HaneulClientCommandResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let s = unwrap_err_to_string(|| match self {
-            WalletCommandResult::Object(object_read) => {
+            HaneulClientCommandResult::Object(object_read) => {
                 let object = object_read.object()?;
                 Ok(serde_json::to_string_pretty(&object)?)
             }
@@ -816,7 +804,7 @@ fn unwrap_err_to_string<T: Display, F: FnOnce() -> Result<T, anyhow::Error>>(fun
     }
 }
 
-impl WalletCommandResult {
+impl HaneulClientCommandResult {
     pub fn print(&self, pretty: bool) {
         let line = if pretty {
             format!("{self}")
@@ -834,7 +822,7 @@ impl WalletCommandResult {
 
 #[derive(Serialize)]
 #[serde(untagged)]
-pub enum WalletCommandResult {
+pub enum HaneulClientCommandResult {
     Publish(PublishResponse),
     Object(GetObjectDataResponse),
     Call(HaneulCertifiedTransaction, HaneulTransactionEffects),

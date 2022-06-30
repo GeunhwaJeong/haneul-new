@@ -24,6 +24,7 @@ use haneul_types::{
 };
 
 pub mod client;
+pub mod keystore;
 pub mod rpc_types;
 
 type GatewayTxSeqNumber = u64;

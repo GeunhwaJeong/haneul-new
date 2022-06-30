@@ -60,20 +60,14 @@ In addition, to conduct advanced work such as altering Haneul itself, also obtai
 To develop in Haneul, you will need the Haneul binaries. After installing `cargo`, run:
 
 ```shell
-$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "devnet" haneul
+$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "devnet" haneul haneul-json-rpc
 ```
 
 This will put the following binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
-* bench - local test and benchmark of the Haneul authorities.
-* bench_configure - creates the config files for distributed benchmarking.
-* key_tool - utility for generating keys and addresses encoded as Base64 bytes.
-* remote_load_generator - enables distributed benchmark of the Haneul authorities on remote machines.
-* [`rpc-server`](json-rpc.md) - run a local Haneul network and gateway service accessible via an RPC interface.
-* haneul - enables `genesis` of validators and accounts, as well as starting the Haneul network.
-* [`haneul-move`](move.md) - build and test Move packages.
-* [`wallet`](wallet.md) - run a local Haneul network and gateway service accessible via the wallet CLI. The wallet CLI manage keypairs to sign/send transactions
+* haneul - The Haneul CLI tool contains subcommands for enabling `genesis` of validators and accounts, starting the Haneul network, and [building and testing Move packages](move.md), as well as a [client](cli-client.md) for interacting with the Haneul network.
+* [`rpc-server`](json-rpc.md) - run a local Haneul gateway service accessible via an RPC interface.
 
-Confirm the install with:
+Confirm the installation with:
 
 ```
 $ echo $PATH
@@ -101,7 +95,7 @@ $ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
 ```
 
 You can start exploring Haneul's source code by looking into the following primary directories:
-* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - the Haneul binaries (`wallet`, `haneul-move`, and more)
+* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - the Haneul CLI binary
 * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
 * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - authority server and Haneul Gateway
 * [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - coins, gas, and other object types
@@ -121,6 +115,6 @@ To contribute updates to Haneul code, [send pull requests](../contribute/index.m
 Continue your journey through:
 
 * [Smart Contracts with Move](move.md)
-* [Wallet Quick Start](wallet.md)
+* [Haneul client Quick Start](cli-client.md)
 * [RPC Server API](json-rpc.md)
 * [End-to-End tutorial](../explore/tutorials.md)

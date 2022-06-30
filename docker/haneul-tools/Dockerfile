@@ -1,5 +1,7 @@
 FROM rust:1.60.0 AS chef
 WORKDIR haneul
+ARG GIT_REVISION
+ENV GIT_REVISION=$GIT_REVISION
 RUN apt-get update && apt-get install -y cmake clang
 
 # Plan out the 3rd-party dependencies that need to be built.
@@ -37,18 +39,15 @@ COPY crates crates
 RUN cargo build --release \
     --bin haneul-node \
     --bin haneul \
-    --bin wallet \
-    --bin haneul-move
+    --bin rpc-server
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
-COPY --from=builder /haneul/target/release/wallet /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-move /usr/local/bin
+COPY --from=builder /haneul/target/release/rpc-server /usr/local/bin
 
 ARG BUILD_DATE
-ARG GIT_REVISION
 LABEL build-date=$BUILD_DATE
 LABEL git-revision=$GIT_REVISION

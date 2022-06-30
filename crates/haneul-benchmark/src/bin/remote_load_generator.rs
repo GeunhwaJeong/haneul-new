@@ -3,15 +3,14 @@
 
 use clap::*;
 use futures::join;
-use haneul::benchmark::bench_types::{MicroBenchmarkResult, RemoteLoadGenConfig};
-use haneul::benchmark::load_generator::MultiFixedRateLoadGenerator;
+use haneul_benchmark::benchmark::bench_types::{MicroBenchmarkResult, RemoteLoadGenConfig};
+use haneul_benchmark::benchmark::load_generator::MultiFixedRateLoadGenerator;
 
 use std::panic;
 use std::path::PathBuf;
-use haneul::benchmark::transaction_creator::TransactionCreator;
-use haneul::benchmark::validator_preparer::ValidatorPreparer;
-use haneul::config::PersistedConfig;
-use haneul_config::NetworkConfig;
+use haneul_benchmark::benchmark::transaction_creator::TransactionCreator;
+use haneul_benchmark::benchmark::validator_preparer::ValidatorPreparer;
+use haneul_config::{NetworkConfig, PersistedConfig};
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::KeyPair;
 use tokio::runtime::Builder;

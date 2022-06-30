@@ -24,4 +24,5 @@ haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
 haneul-core = { path = "../haneul-core" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
+haneul-config = { path = "../haneul-config" }
 workspace-hack = { path = "../workspace-hack"}

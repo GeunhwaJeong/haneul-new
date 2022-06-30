@@ -4,15 +4,14 @@
 use clap::*;
 use serde_json::json;
 use std::collections::HashMap;
-use haneul::config::{Config, GatewayType, WalletConfig};
-use haneul::{
-    keystore::KeystoreType,
-    wallet_commands::{
-        call_move, WalletContext, EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL,
-    },
+use haneul::client_commands::{
+    call_move, WalletContext, EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL,
 };
+use haneul::config::{Config, GatewayType, HaneulClientConfig};
+use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_faucet::FaucetResponse;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::keystore::KeystoreType;
 use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulExecutionStatus, TransactionResponse};
 use haneul_types::{
     base_types::{encode_bytes_hex, ObjectID, HaneulAddress},
@@ -368,11 +367,11 @@ impl ClusterTest {
         };
 
         info!("Use gateway: {}", &gateway_addr);
-        info!("Use facuet: {}", &faucet_addr);
-        let keystore_path = temp_dir.path().join("wallet.key");
+        info!("Use facet: {}", &faucet_addr);
+        let keystore_path = temp_dir.path().join(HANEUL_KEYSTORE_FILENAME);
         let keystore = KeystoreType::File(keystore_path);
         let new_address = keystore.init().unwrap().add_random_key().unwrap();
-        WalletConfig {
+        HaneulClientConfig {
             accounts: vec![new_address],
             keystore,
             gateway: GatewayType::RPC(gateway_addr),

@@ -6,19 +6,19 @@ use std::{fmt::Write, fs::read_dir, path::PathBuf, str, time::Duration};
 use anyhow::anyhow;
 use serde_json::{json, Value};
 
-use haneul::wallet_commands::SwitchResponse;
+use haneul::client_commands::SwitchResponse;
 use haneul::{
-    config::{GatewayConfig, GatewayType, WalletConfig},
-    keystore::KeystoreType,
+    client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext},
+    config::{GatewayConfig, GatewayType, HaneulClientConfig},
     haneul_commands::HaneulCommand,
-    wallet_commands::{WalletCommandResult, WalletCommands, WalletContext},
 };
 use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ObjectConfig};
 use haneul_config::{
-    Config, NetworkConfig, PersistedConfig, ValidatorInfo, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
-    HANEUL_GENESIS_FILENAME, HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
+    Config, NetworkConfig, PersistedConfig, ValidatorInfo, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
+    HANEUL_GATEWAY_CONFIG, HANEUL_GENESIS_FILENAME, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::keystore::KeystoreType;
 use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -59,13 +59,13 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
         .collect::<Vec<_>>();
 
     assert_eq!(10, files.len());
-    assert!(files.contains(&HANEUL_WALLET_CONFIG.to_string()));
+    assert!(files.contains(&HANEUL_CLIENT_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GATEWAY_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_NETWORK_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_FULLNODE_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GENESIS_FILENAME.to_string()));
 
-    assert!(files.contains(&"wallet.key".to_string()));
+    assert!(files.contains(&HANEUL_KEYSTORE_FILENAME.to_string()));
 
     // Check network config
     let network_conf =
@@ -73,7 +73,8 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
     assert_eq!(4, network_conf.validator_configs().len());
 
     // Check wallet config
-    let wallet_conf = PersistedConfig::<WalletConfig>::read(&working_dir.join(HANEUL_WALLET_CONFIG))?;
+    let wallet_conf =
+        PersistedConfig::<HaneulClientConfig>::read(&working_dir.join(HANEUL_CLIENT_CONFIG))?;
 
     if let GatewayType::Embedded(config) = &wallet_conf.gateway {
         assert_eq!(4, config.validator_set.len());
@@ -104,9 +105,9 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
     let temp_dir = tempfile::tempdir().unwrap();
     let working_dir = temp_dir.path();
 
-    let wallet_config = WalletConfig {
+    let wallet_config = HaneulClientConfig {
         accounts: vec![],
-        keystore: KeystoreType::File(working_dir.join("wallet.key")),
+        keystore: KeystoreType::File(working_dir.join(HANEUL_KEYSTORE_FILENAME)),
         gateway: GatewayType::Embedded(GatewayConfig {
             db_folder_path: working_dir.join("client_db"),
             validator_set: vec![ValidatorInfo {
@@ -118,7 +119,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
         }),
         active_address: None,
     };
-    let wallet_conf_path = working_dir.join(HANEUL_WALLET_CONFIG);
+    let wallet_conf_path = working_dir.join(HANEUL_CLIENT_CONFIG);
     let mut wallet_config = wallet_config.persisted(&wallet_conf_path);
 
     // Add 3 accounts
@@ -133,7 +134,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
     let mut context = WalletContext::new(&wallet_conf_path).unwrap();
 
     // Print all addresses
-    WalletCommands::Addresses
+    HaneulClientCommands::Addresses
         .execute(&mut context)
         .await
         .unwrap()
@@ -147,7 +148,7 @@ async fn test_objects_command() -> Result<(), anyhow::Error> {
     let (_network, mut context, address) = setup_network_and_wallet().await?;
 
     // Print objects owned by `address`
-    WalletCommands::Objects {
+    HaneulClientCommands::Objects {
         address: Some(address),
     }
     .execute(&mut context)
@@ -166,7 +167,7 @@ async fn test_objects_command() -> Result<(), anyhow::Error> {
 async fn test_create_example_nft_command() -> Result<(), anyhow::Error> {
     let (_network, mut context, address) = setup_network_and_wallet().await?;
 
-    let result = WalletCommands::CreateExampleNFT {
+    let result = HaneulClientCommands::CreateExampleNFT {
         name: None,
         description: None,
         url: None,
@@ -177,7 +178,7 @@ async fn test_create_example_nft_command() -> Result<(), anyhow::Error> {
     .await?;
 
     match result {
-        WalletCommandResult::CreateExampleNFT(GetObjectDataResponse::Exists(obj)) => {
+        HaneulClientCommandResult::CreateExampleNFT(GetObjectDataResponse::Exists(obj)) => {
             assert_eq!(obj.owner, address);
             assert_eq!(obj.data.type_().unwrap(), "0x2::devnet_nft::DevNetNFT");
             Ok(obj)
@@ -210,12 +211,12 @@ async fn test_custom_genesis() -> Result<(), anyhow::Error> {
     let network = start_test_network(Some(config)).await?;
 
     // Wallet config
-    let mut context = WalletContext::new(&network.dir().join(HANEUL_WALLET_CONFIG))?;
+    let mut context = WalletContext::new(&network.dir().join(HANEUL_CLIENT_CONFIG))?;
     assert_eq!(1, context.config.accounts.len());
     let address = context.config.accounts.first().cloned().unwrap();
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(&mut context)
@@ -223,7 +224,7 @@ async fn test_custom_genesis() -> Result<(), anyhow::Error> {
     .print(true);
 
     // Print objects owned by `address`
-    WalletCommands::Objects {
+    HaneulClientCommands::Objects {
         address: Some(address),
     }
     .execute(&mut context)
@@ -254,7 +255,7 @@ async fn test_custom_genesis_with_custom_move_package() -> Result<(), anyhow::Er
         PersistedConfig::<NetworkConfig>::read(&network.dir().join(HANEUL_NETWORK_CONFIG))?;
 
     // Create Wallet context.
-    let wallet_conf_path = network.dir().join(HANEUL_WALLET_CONFIG);
+    let wallet_conf_path = network.dir().join(HANEUL_CLIENT_CONFIG);
     let mut context = WalletContext::new(&wallet_conf_path)?;
 
     // Make sure init() is executed correctly for custom_genesis_package_2::M1
@@ -276,7 +277,7 @@ async fn test_object_info_get_command() -> Result<(), anyhow::Error> {
     // Check log output contains all object ids.
     let object_id = object_refs.first().unwrap().object_id;
 
-    WalletCommands::Object { id: object_id }
+    HaneulClientCommands::Object { id: object_id }
         .execute(&mut context)
         .await?
         .print(true);
@@ -297,7 +298,7 @@ async fn test_gas_command() -> Result<(), anyhow::Error> {
     let object_id = object_refs.first().unwrap().object_id;
     let object_to_send = object_refs.get(1).unwrap().object_id;
 
-    WalletCommands::Gas {
+    HaneulClientCommands::Gas {
         address: Some(address),
     }
     .execute(&mut context)
@@ -307,7 +308,7 @@ async fn test_gas_command() -> Result<(), anyhow::Error> {
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     // Send an object
-    WalletCommands::Transfer {
+    HaneulClientCommands::Transfer {
         to: recipient,
         coin_object_id: object_to_send,
         gas: Some(object_id),
@@ -317,7 +318,7 @@ async fn test_gas_command() -> Result<(), anyhow::Error> {
     .await?;
 
     // Fetch gas again
-    WalletCommands::Gas {
+    HaneulClientCommands::Gas {
         address: Some(address),
     }
     .execute(&mut context)
@@ -344,7 +345,7 @@ async fn get_move_objects(
     address: HaneulAddress,
 ) -> Result<Vec<(ObjectID, Value)>, anyhow::Error> {
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(context)
@@ -352,14 +353,14 @@ async fn get_move_objects(
     .print(true);
 
     // Fetch objects owned by `address`
-    let objects_result = WalletCommands::Objects {
+    let objects_result = HaneulClientCommands::Objects {
         address: Some(address),
     }
     .execute(context)
     .await?;
 
     match objects_result {
-        WalletCommandResult::Objects(object_refs) => {
+        HaneulClientCommandResult::Objects(object_refs) => {
             let mut objs = vec![];
             for oref in object_refs {
                 objs.push((
@@ -380,10 +381,10 @@ async fn get_move_object(
     context: &mut WalletContext,
     id: ObjectID,
 ) -> Result<Value, anyhow::Error> {
-    let obj = WalletCommands::Object { id }.execute(context).await?;
+    let obj = HaneulClientCommands::Object { id }.execute(context).await?;
 
     match obj {
-        WalletCommandResult::Object(obj) => match obj {
+        HaneulClientCommandResult::Object(obj) => match obj {
             GetObjectDataResponse::Exists(obj) => Ok(serde_json::to_value(obj)?),
             _ => panic!("WalletCommands::Object returns wrong type"),
         },
@@ -398,7 +399,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     let address2 = context.config.accounts.get(1).cloned().unwrap();
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address2),
     }
     .execute(&mut context)
@@ -406,7 +407,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     .print(true);
 
     // Print objects owned by `address1`
-    WalletCommands::Objects {
+    HaneulClientCommands::Objects {
         address: Some(address1),
     }
     .execute(&mut context)
@@ -436,7 +437,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     }
 
     // Test case with no gas specified
-    let resp = WalletCommands::Call {
+    let resp = HaneulClientCommands::Call {
         package: ObjectID::from_hex_literal("0x2").unwrap(),
         module: "object_basics".to_string(),
         function: "create".to_string(),
@@ -450,7 +451,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     resp.print(true);
 
     // Get the created object
-    let created_obj: ObjectID = if let WalletCommandResult::Call(
+    let created_obj: ObjectID = if let HaneulClientCommandResult::Call(
         _,
         HaneulTransactionEffects {
             created: new_objs, ..
@@ -476,7 +477,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
         args.push(HaneulJsonValue::new(a.clone()).unwrap());
     }
 
-    let resp = WalletCommands::Call {
+    let resp = HaneulClientCommands::Call {
         package: ObjectID::from_hex_literal("0x2").unwrap(),
         module: "object_basics".to_string(),
         function: "create".to_string(),
@@ -504,7 +505,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
         args.push(HaneulJsonValue::new(a.clone()).unwrap());
     }
 
-    let resp = WalletCommands::Call {
+    let resp = HaneulClientCommands::Call {
         package: ObjectID::from_hex_literal("0x2").unwrap(),
         module: "object_basics".to_string(),
         function: "transfer".to_string(),
@@ -531,7 +532,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
         args.push(HaneulJsonValue::new(a.clone()).unwrap());
     }
 
-    WalletCommands::Call {
+    HaneulClientCommands::Call {
         package: ObjectID::from_hex_literal("0x2").unwrap(),
         module: "object_basics".to_string(),
         function: "transfer".to_string(),
@@ -563,7 +564,7 @@ async fn test_package_publish_command() -> Result<(), anyhow::Error> {
     let mut path = TEST_DATA_DIR.to_owned();
     path.push_str("dummy_modules_publish");
 
-    let resp = WalletCommands::Publish {
+    let resp = HaneulClientCommands::Publish {
         path,
         gas: Some(gas_obj_id),
         gas_budget: 1000,
@@ -574,7 +575,7 @@ async fn test_package_publish_command() -> Result<(), anyhow::Error> {
     // Print it out to CLI/logs
     resp.print(true);
 
-    let (package, created_obj) = if let WalletCommandResult::Publish(response) = resp {
+    let (package, created_obj) = if let HaneulClientCommandResult::Publish(response) = resp {
         (
             response.package,
             response.created_objects[0].reference.clone(),
@@ -584,24 +585,24 @@ async fn test_package_publish_command() -> Result<(), anyhow::Error> {
     };
 
     // Check the objects
-    let resp = WalletCommands::Object {
+    let resp = HaneulClientCommands::Object {
         id: package.object_id,
     }
     .execute(&mut context)
     .await?;
     assert!(matches!(
         resp,
-        WalletCommandResult::Object(GetObjectDataResponse::Exists(..))
+        HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(..))
     ));
 
-    let resp = WalletCommands::Object {
+    let resp = HaneulClientCommands::Object {
         id: created_obj.object_id,
     }
     .execute(&mut context)
     .await?;
     assert!(matches!(
         resp,
-        WalletCommandResult::Object(GetObjectDataResponse::Exists(..))
+        HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(..))
     ));
 
     Ok(())
@@ -622,7 +623,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     let gas_obj_id = object_refs.first().unwrap().object_id;
     let obj_id = object_refs.get(1).unwrap().object_id;
 
-    let resp = WalletCommands::Transfer {
+    let resp = HaneulClientCommands::Transfer {
         gas: Some(gas_obj_id),
         to: recipient,
         coin_object_id: obj_id,
@@ -636,7 +637,8 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
 
     // Get the mutated objects
     let (mut_obj1, mut_obj2) =
-        if let WalletCommandResult::Transfer(_, _, HaneulTransactionEffects { mutated, .. }) = resp {
+        if let HaneulClientCommandResult::Transfer(_, _, HaneulTransactionEffects { mutated, .. }) = resp
+        {
             (
                 mutated.get(0).unwrap().reference.object_id,
                 mutated.get(1).unwrap().reference.object_id,
@@ -647,13 +649,13 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
         };
 
     // Sync both to fetch objects
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(&mut context)
     .await?
     .print(true);
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(recipient),
     }
     .execute(&mut context)
@@ -661,29 +663,29 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     .print(true);
 
     // Check the objects
-    let resp = WalletCommands::Object { id: mut_obj1 }
+    let resp = HaneulClientCommands::Object { id: mut_obj1 }
         .execute(&mut context)
         .await?;
-    let mut_obj1 = if let WalletCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp
-    {
-        object
-    } else {
-        // Fail this way because Panic! causes test issues
-        assert!(false);
-        panic!()
-    };
+    let mut_obj1 =
+        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
+            object
+        } else {
+            // Fail this way because Panic! causes test issues
+            assert!(false);
+            panic!()
+        };
 
-    let resp = WalletCommands::Object { id: mut_obj2 }
+    let resp = HaneulClientCommands::Object { id: mut_obj2 }
         .execute(&mut context)
         .await?;
-    let mut_obj2 = if let WalletCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp
-    {
-        object
-    } else {
-        // Fail this way because Panic! causes test issues
-        assert!(false);
-        panic!()
-    };
+    let mut_obj2 =
+        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
+            object
+        } else {
+            // Fail this way because Panic! causes test issues
+            assert!(false);
+            panic!()
+        };
 
     let (gas, obj) = if mut_obj1.owner.get_owner_address().unwrap() == address {
         (mut_obj1, mut_obj2)
@@ -695,7 +697,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     assert_eq!(obj.owner.get_owner_address().unwrap(), recipient);
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(&mut context)
@@ -710,7 +712,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     // Check log output contains all object ids.
     let obj_id = object_refs.get(1).unwrap().object_id;
 
-    let resp = WalletCommands::Transfer {
+    let resp = HaneulClientCommands::Transfer {
         gas: None,
         to: recipient,
         coin_object_id: obj_id,
@@ -724,7 +726,8 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
 
     // Get the mutated objects
     let (_mut_obj1, _mut_obj2) =
-        if let WalletCommandResult::Transfer(_, _, HaneulTransactionEffects { mutated, .. }) = resp {
+        if let HaneulClientCommandResult::Transfer(_, _, HaneulTransactionEffects { mutated, .. }) = resp
+        {
             (
                 mutated.get(0).unwrap().reference.object_id,
                 mutated.get(1).unwrap().reference.object_id,
@@ -740,7 +743,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
 #[test]
 // Test for issue https://github.com/GeunhwaJeong/haneul/issues/1078
 fn test_bug_1078() {
-    let read = WalletCommandResult::Object(GetObjectDataResponse::NotExists(ObjectID::random()));
+    let read = HaneulClientCommandResult::Object(GetObjectDataResponse::NotExists(ObjectID::random()));
     let mut writer = String::new();
     // fmt ObjectRead should not fail.
     write!(writer, "{}", read).unwrap();
@@ -753,7 +756,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     let network = start_test_network(None).await?;
 
     // Create Wallet context.
-    let wallet_conf = network.dir().join(HANEUL_WALLET_CONFIG);
+    let wallet_conf = network.dir().join(HANEUL_CLIENT_CONFIG);
 
     let mut context = WalletContext::new(&wallet_conf)?;
 
@@ -761,18 +764,18 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     let addr1 = context.active_address()?;
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(addr1),
     }
     .execute(&mut context)
     .await?;
 
     // Run a command with address omitted
-    let os = WalletCommands::Objects { address: None }
+    let os = HaneulClientCommands::Objects { address: None }
         .execute(&mut context)
         .await?;
 
-    let mut cmd_objs = if let WalletCommandResult::Objects(v) = os {
+    let mut cmd_objs = if let HaneulClientCommandResult::Objects(v) = os {
         v
     } else {
         panic!("Command failed")
@@ -790,7 +793,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
 
     // Switch the address
     let addr2 = context.config.accounts.get(1).cloned().unwrap();
-    let resp = WalletCommands::Switch {
+    let resp = HaneulClientCommands::Switch {
         address: Some(addr2),
         gateway: None,
     }
@@ -802,7 +805,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
         format!("{resp}"),
         format!(
             "{}",
-            WalletCommandResult::Switch(SwitchResponse {
+            HaneulClientCommandResult::Switch(SwitchResponse {
                 address: Some(addr2),
                 gateway: None
             })
@@ -814,8 +817,10 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     context.config.active_address = None;
 
     // Create a new address
-    let os = WalletCommands::NewAddress {}.execute(&mut context).await?;
-    let new_addr = if let WalletCommandResult::NewAddress(a) = os {
+    let os = HaneulClientCommands::NewAddress {}
+        .execute(&mut context)
+        .await?;
+    let new_addr = if let HaneulClientCommandResult::NewAddress(a) = os {
         a
     } else {
         panic!("Command failed")
@@ -823,7 +828,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
 
     // Check that we can switch to this address
     // Switch the address
-    let resp = WalletCommands::Switch {
+    let resp = HaneulClientCommands::Switch {
         address: Some(new_addr),
         gateway: None,
     }
@@ -834,7 +839,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
         format!("{resp}"),
         format!(
             "{}",
-            WalletCommandResult::Switch(SwitchResponse {
+            HaneulClientCommandResult::Switch(SwitchResponse {
                 address: Some(new_addr),
                 gateway: None
             })
@@ -849,7 +854,7 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     let network = start_test_network(None).await?;
 
     // Create Wallet context.
-    let wallet_conf = network.dir().join(HANEUL_WALLET_CONFIG);
+    let wallet_conf = network.dir().join(HANEUL_CLIENT_CONFIG);
 
     let mut context = WalletContext::new(&wallet_conf)?;
 
@@ -857,18 +862,18 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     let addr1 = context.active_address()?;
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(addr1),
     }
     .execute(&mut context)
     .await?;
 
     // Run a command with address omitted
-    let os = WalletCommands::ActiveAddress {}
+    let os = HaneulClientCommands::ActiveAddress {}
         .execute(&mut context)
         .await?;
 
-    let a = if let WalletCommandResult::ActiveAddress(Some(v)) = os {
+    let a = if let HaneulClientCommandResult::ActiveAddress(Some(v)) = os {
         v
     } else {
         panic!("Command failed")
@@ -876,7 +881,7 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     assert_eq!(a, addr1);
 
     let addr2 = context.config.accounts.get(1).cloned().unwrap();
-    let resp = WalletCommands::Switch {
+    let resp = HaneulClientCommands::Switch {
         address: Some(addr2),
         gateway: None,
     }
@@ -886,7 +891,7 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
         format!("{resp}"),
         format!(
             "{}",
-            WalletCommandResult::Switch(SwitchResponse {
+            HaneulClientCommandResult::Switch(SwitchResponse {
                 address: Some(addr2),
                 gateway: None
             })
@@ -926,7 +931,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
         + get_gas_value(&get_object(coin_to_merge, &mut context).await.unwrap());
 
     // Test with gas specified
-    let resp = WalletCommands::MergeCoin {
+    let resp = HaneulClientCommands::MergeCoin {
         primary_coin,
         coin_to_merge,
         gas: Some(gas),
@@ -935,7 +940,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
     .execute(&mut context)
     .await?;
 
-    let g = if let WalletCommandResult::MergeCoin(r) = resp {
+    let g = if let HaneulClientCommandResult::MergeCoin(r) = resp {
         r
     } else {
         panic!("Command failed")
@@ -948,7 +953,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
     assert_eq!(get_object(coin_to_merge, &mut context).await, None);
 
     // Sync client to retrieve objects from the network.
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(&mut context)
@@ -965,7 +970,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
         + get_gas_value(&get_object(coin_to_merge, &mut context).await.unwrap());
 
     // Test with no gas specified
-    let resp = WalletCommands::MergeCoin {
+    let resp = HaneulClientCommands::MergeCoin {
         primary_coin,
         coin_to_merge,
         gas: None,
@@ -974,7 +979,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
     .execute(&mut context)
     .await?;
 
-    let g = if let WalletCommandResult::MergeCoin(r) = resp {
+    let g = if let HaneulClientCommandResult::MergeCoin(r) = resp {
         r
     } else {
         panic!("Command failed")
@@ -1005,7 +1010,7 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     let orig_value = get_gas_value(&get_object(coin, &mut context).await.unwrap());
 
     // Test with gas specified
-    let resp = WalletCommands::SplitCoin {
+    let resp = HaneulClientCommands::SplitCoin {
         gas: Some(gas),
         gas_budget: 1000,
         coin_id: coin,
@@ -1014,7 +1019,7 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     .execute(&mut context)
     .await?;
 
-    let g = if let WalletCommandResult::SplitCoin(r) = resp {
+    let g = if let HaneulClientCommandResult::SplitCoin(r) = resp {
         r
     } else {
         panic!("Command failed")
@@ -1025,7 +1030,7 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     assert!((get_gas_value(&g.new_coins[0]) == 1000) || (get_gas_value(&g.new_coins[0]) == 10));
     assert!((get_gas_value(&g.new_coins[1]) == 1000) || (get_gas_value(&g.new_coins[1]) == 10));
 
-    WalletCommands::SyncClientState {
+    HaneulClientCommands::SyncClientState {
         address: Some(address),
     }
     .execute(&mut context)
@@ -1046,7 +1051,7 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     let orig_value = get_gas_value(&get_object(coin, &mut context).await.unwrap());
 
     // Test with no gas specified
-    let resp = WalletCommands::SplitCoin {
+    let resp = HaneulClientCommands::SplitCoin {
         gas: None,
         gas_budget: 1000,
         coin_id: coin,
@@ -1055,7 +1060,7 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
     .execute(&mut context)
     .await?;
 
-    let g = if let WalletCommandResult::SplitCoin(r) = resp {
+    let g = if let HaneulClientCommandResult::SplitCoin(r) = resp {
         r
     } else {
         panic!("Command failed")

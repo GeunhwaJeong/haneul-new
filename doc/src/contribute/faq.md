@@ -86,7 +86,7 @@ For developers:
 
 1. [Install Haneul](https://docs.haneul.io/build/install).
 2. Spin up a [Haneul Fullnode](../build/fullnode.md).
-3. Experiment with the [Haneul Wallet](../build/wallet.md).
+3. Experiment with the [Haneul CLI client](../build/cli-client.md).
 4. Join the [Move](https://discord.gg/8prNjUqyFj) and [Haneul](https://discord.gg/CVcnUzKYCB) developer channels in Discord.
 5. [Start building](https://docs.haneul.io/build)!
 
@@ -137,7 +137,7 @@ See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
 
 We have a public [Haneul DevNet](../explore/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
 
-You may also run a local, non-networked Haneul node for development using the [Haneul Wallet](../build/wallet.md). You can interact with the nodes with either the [Haneul Wallet CLI](../build/wallet.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
+You may also run a local, non-networked Haneul node for development using the [Haneul CLI client](../build/cli-client.md). You can interact with the nodes with either the [Haneul Wallet CLI](../build/cli-client.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
 
 Soon we will have a TestNet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, 
 

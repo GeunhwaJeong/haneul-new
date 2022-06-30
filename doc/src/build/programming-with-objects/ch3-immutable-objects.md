@@ -102,40 +102,40 @@ To summarize, we introduced three new API functions to interact with immutable o
 ### On-chain interactions
 First of all, take a look at the current list of objects you own:
 ```
-$ export ADDR=`wallet active-address`
-$ wallet objects --address=$ADDR
+$ export ADDR=`haneul client active-address`
+$ haneul client objects --address=$ADDR
 ```
 
-Let's publish the `ColorObject` code on-chain using the wallet:
+Let's publish the `ColorObject` code on-chain using the Haneul CLI client:
 ```
-$ wallet publish --path $ROOT/haneul_programmability/examples/objects_tutorial --gas-budget 10000
+$ haneul client publish --path $ROOT/haneul_programmability/examples/objects_tutorial --gas-budget 10000
 ```
 Set the package object ID to the `$PACKAGE` environment variable as we did in previous chapters.
 
 Then create a new `ColorObject`:
 ```
-$ wallet call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "create" --args 0 255 0
+$ haneul client call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "create" --args 0 255 0
 ```
-Set the newly created object ID to `$OBJECT`. If we look at the list of objects in the current active account address's wallet:
+Set the newly created object ID to `$OBJECT`. If we look at the list of objects in the current active account address:
 ```
-$ wallet objects --address=$ADDR
+$ haneul client objects --address=$ADDR
 ```
 There should be one more, with ID `$OBJECT`. Let's turn it into an immutable object:
 ```
-$ wallet call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "freeze_object" --args \"0x$OBJECT\"
+$ haneul client call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "freeze_object" --args \"0x$OBJECT\"
 ```
 Now let's look at the list of objects we own again:
 ```
-$ wallet objects --address=$ADDR
+$ haneul client objects --address=$ADDR
 ```
 `$OBJECT` is no longer there. It's no longer owned by anyone. You can see that it's now immutable by querying the object information:
 ```
-$ wallet object --id $OBJECT
+$ haneul client object --id $OBJECT
 Owner: Immutable
 ...
 ```
 If we try to mutate it:
 ```
-$ wallet call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "update" --args \"0x$OBJECT\" 0 0 0
+$ haneul client call --gas-budget 1000 --package $PACKAGE --module "color_object" --function "update" --args \"0x$OBJECT\" 0 0 0
 ```
 It will complain that an immutable object cannot be passed to a mutable argument.

@@ -5,6 +5,7 @@ members = [
     "crates/haneul",
     "crates/haneul-adapter",
     "crates/haneul-adapter-transactional-tests",
+    "crates/haneul-benchmark",
     "crates/haneul-cluster-test",
     "crates/haneul-config",
     "crates/haneul-core",

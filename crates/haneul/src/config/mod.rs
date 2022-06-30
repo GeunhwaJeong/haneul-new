@@ -2,10 +2,10 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::keystore::KeystoreType;
 use serde::{Deserialize, Serialize};
 use serde_with::{hex::Hex, serde_as};
 use std::fmt::{Display, Formatter, Write};
+use haneul_json_rpc_api::keystore::KeystoreType;
 use haneul_types::base_types::*;
 
 pub use haneul_config::Config;
@@ -17,7 +17,7 @@ pub use haneul_gateway::config::{GatewayConfig, GatewayType};
 
 #[serde_as]
 #[derive(Serialize, Deserialize)]
-pub struct WalletConfig {
+pub struct HaneulClientConfig {
     #[serde_as(as = "Vec<Hex>")]
     pub accounts: Vec<HaneulAddress>,
     pub keystore: KeystoreType,
@@ -25,9 +25,9 @@ pub struct WalletConfig {
     pub active_address: Option<HaneulAddress>,
 }
 
-impl Config for WalletConfig {}
+impl Config for HaneulClientConfig {}
 
-impl Display for WalletConfig {
+impl Display for HaneulClientConfig {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
 

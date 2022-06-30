@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::{path::Path, str::FromStr};
-use haneul::keystore::{Keystore, HaneulKeystore};
+use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::keystore::{Keystore, HaneulKeystore};
 use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, TransactionEffectsResponse, TransactionResponse,
 };
@@ -51,7 +52,8 @@ async fn test_public_transfer_object() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
+    let keystore =
+        HaneulKeystore::load_or_create(&test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -90,7 +92,8 @@ async fn test_publish() -> Result<(), anyhow::Error> {
         .publish(*address, compiled_modules, Some(gas.object_id), 10000)
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
+    let keystore =
+        HaneulKeystore::load_or_create(&test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -138,7 +141,8 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
+    let keystore =
+        HaneulKeystore::load_or_create(&test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME))?;
     let tx_bytes = tx_data.tx_bytes.to_vec()?;
     let signature = keystore.sign(address, &tx_bytes)?;
 
@@ -190,7 +194,8 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
             .public_transfer_object(*address, oref.object_id, Some(gas_id), 1000, *address)
             .await?;
 
-        let keystore = HaneulKeystore::load_or_create(&test_network.network.dir().join("wallet.key"))?;
+        let keystore =
+            HaneulKeystore::load_or_create(&test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME))?;
         let tx_bytes = tx_data.tx_bytes.to_vec()?;
         let signature = keystore.sign(address, &tx_bytes)?;
 

@@ -65,7 +65,7 @@ stage is considered closure for an exchange or other blockchain transaction.
 
 Genesis is the initial act of creating accounts and gas objects. Haneul provides a `genesis` command that allows users to create and inspect the genesis object setting up the network for operation.
 
-For more information, see [Genesis](../build/wallet.md#genesis).
+For more information, see [Genesis](../build/cli-client.md#genesis).
 
 
 ### Gateway service
@@ -124,10 +124,10 @@ For more information, see [Causal order vs total order](haneul-compared#causal-o
 ### Transfer
 
 A transfer is switching the owner address of a token to a new one via command in Haneul. This is accomplished via the
-[Haneul Wallet](../build/wallet.md) command line interface. It is one of the more common of many commands
-available in the wallet.
+[Haneul CLI client](../build/cli-client.md) command line interface. It is one of the more common of many commands
+available in the CLI client.
 
-For more information, see [Transferring objects](../build/wallet.md#transferring-objects).
+For more information, see [Transferring objects](../build/cli-client.md#transferring-objects).
 
 
 ### Validator

@@ -193,7 +193,7 @@ To see nested spans visualized with [Jaeger](https://www.jaegertracing.io), do t
    ```shell
    $ HANEUL_TRACING_ENABLE=1 RUST_LOG="info,haneul_core=trace" ./haneul start
    ```
-1. Run some transfers with wallet, or run the benchmarking tool.
+1. Run some transfers with Haneul CLI client, or run the benchmarking tool.
 4. Browse to `http://localhost:16686/` and select Haneul as the service.
 
 > **Note:** Separate spans (which are not nested) are not connected as a single trace for now.

@@ -1,42 +1,52 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::{
-    config::{GatewayConfig, GatewayType, WalletConfig},
-    keystore::{Keystore, KeystoreType, HaneulKeystore},
-};
+
+use crate::client_commands::{HaneulClientCommands, WalletContext};
+use crate::config::{GatewayConfig, GatewayType, HaneulClientConfig};
+use crate::console::start_console;
+use crate::keytool::KeyToolCommand;
+use crate::haneul_move::MoveCommands;
 use anyhow::{anyhow, bail};
-use base64ct::{Base64, Encoding};
 use clap::*;
-use std::fs;
+use std::io::{stderr, stdout, Write};
 use std::num::NonZeroUsize;
-use std::path::PathBuf;
-use haneul_config::{builder::ConfigBuilder, NetworkConfig};
+use std::path::{Path, PathBuf};
+use std::{fs, io};
+use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_DEV_NET_URL, HANEUL_KEYSTORE_FILENAME};
 use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
 use haneul_config::{
-    haneul_config_dir, Config, PersistedConfig, HANEUL_FULLNODE_CONFIG, HANEUL_GATEWAY_CONFIG,
-    HANEUL_NETWORK_CONFIG, HANEUL_WALLET_CONFIG,
+    haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
+    HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
+use haneul_json_rpc_api::client::HaneulRpcClient;
+use haneul_json_rpc_api::keystore::{KeystoreType, HaneulKeystore};
 use haneul_swarm::memory::Swarm;
-use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;
 
 #[derive(Parser)]
-#[clap(rename_all = "kebab-case")]
+#[clap(
+    name = "haneul",
+    about = "A Byzantine fault tolerant chain with low-latency finality and high throughput",
+    rename_all = "kebab-case",
+    author,
+    version
+)]
 pub enum HaneulCommand {
     /// Start haneul network.
     #[clap(name = "start")]
     Start {
-        #[clap(long)]
+        #[clap(long = "network.config")]
         config: Option<PathBuf>,
     },
     #[clap(name = "network")]
     Network {
-        #[clap(long)]
+        #[clap(long = "network.config")]
         config: Option<PathBuf>,
         #[clap(short, long, help = "Dump the public keys of all authorities")]
         dump_addresses: bool,
     },
+    /// Bootstrap and initialize a new haneul network
     #[clap(name = "genesis")]
     Genesis {
         #[clap(long, help = "Start genesis with a given config file")]
@@ -51,19 +61,52 @@ pub enum HaneulCommand {
         #[clap(short, long, help = "Forces overwriting existing configuration")]
         force: bool,
     },
-    #[clap(name = "signtool")]
-    SignTool {
+    /// Haneul keystore tool.
+    #[clap(name = "keytool")]
+    KeyTool {
         #[clap(long)]
         keystore_path: Option<PathBuf>,
-        #[clap(long, parse(try_from_str = decode_bytes_hex))]
-        address: HaneulAddress,
+        /// Subcommands.
+        #[clap(subcommand)]
+        cmd: KeyToolCommand,
+    },
+    /// Start Haneul interactive console.
+    #[clap(name = "console")]
+    Console {
+        /// Sets the file storing the state of our user accounts (an empty one will be created if missing)
+        #[clap(long = "client.config")]
+        config: Option<PathBuf>,
+    },
+    /// Client for interacting with the Haneul network.
+    #[clap(name = "client")]
+    Client {
+        /// Sets the file storing the state of our user accounts (an empty one will be created if missing)
+        #[clap(long = "client.config")]
+        config: Option<PathBuf>,
+        #[clap(subcommand)]
+        cmd: Option<HaneulClientCommands>,
+        /// Return command outputs in json format.
+        #[clap(long, global = true)]
+        json: bool,
+    },
+
+    /// Tool to build and test Move applications.
+    #[clap(name = "move")]
+    Move {
+        /// Path to the Move project root.
+        #[clap(long, default_value = "./")]
+        path: String,
+        /// Whether we are building/testing the std/framework code.
         #[clap(long)]
-        data: String,
+        std: bool,
+        /// Subcommands.
+        #[clap(subcommand)]
+        cmd: MoveCommands,
     },
 }
 
 impl HaneulCommand {
-    pub async fn execute(&self) -> Result<(), anyhow::Error> {
+    pub async fn execute(self) -> Result<(), anyhow::Error> {
         match self {
             HaneulCommand::Start { config } => {
                 // Load the config of the Haneul authority.
@@ -95,9 +138,7 @@ impl HaneulCommand {
                 config,
                 dump_addresses,
             } => {
-                let config_path = config
-                    .clone()
-                    .unwrap_or(haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG));
+                let config_path = config.unwrap_or(haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG));
                 let config: NetworkConfig = PersistedConfig::read(&config_path).map_err(|err| {
                     err.context(format!(
                         "Cannot open Haneul network config file at {:?}",
@@ -105,7 +146,7 @@ impl HaneulCommand {
                     ))
                 })?;
 
-                if *dump_addresses {
+                if dump_addresses {
                     for validator in config.validator_configs() {
                         println!(
                             "{} - {}",
@@ -125,7 +166,7 @@ impl HaneulCommand {
                 let haneul_config_dir = &match working_dir {
                     // if a directory is specified, it must exist (it
                     // will not be created)
-                    Some(v) => v.clone(),
+                    Some(v) => v,
                     // create default Haneul config dir if not specified
                     // on the command line and if it does not exist
                     // yet
@@ -149,7 +190,7 @@ impl HaneulCommand {
                         .next()
                         .is_some()
                 {
-                    if *force {
+                    if force {
                         fs::remove_dir_all(haneul_config_dir).map_err(|err| {
                             anyhow!(err).context(format!(
                                 "Cannot remove Haneul config dir {:?}",
@@ -169,19 +210,19 @@ impl HaneulCommand {
 
                 let network_path = haneul_config_dir.join(HANEUL_NETWORK_CONFIG);
                 let genesis_path = haneul_config_dir.join(HANEUL_GENESIS_FILENAME);
-                let wallet_path = haneul_config_dir.join(HANEUL_WALLET_CONFIG);
+                let client_path = haneul_config_dir.join(HANEUL_CLIENT_CONFIG);
                 let gateway_path = haneul_config_dir.join(HANEUL_GATEWAY_CONFIG);
-                let keystore_path = haneul_config_dir.join("wallet.key");
+                let keystore_path = haneul_config_dir.join(HANEUL_KEYSTORE_FILENAME);
                 let db_folder_path = haneul_config_dir.join("client_db");
                 let gateway_db_folder_path = haneul_config_dir.join("gateway_client_db");
 
                 let mut genesis_conf = match from_config {
-                    Some(q) => PersistedConfig::read(q)?,
+                    Some(path) => PersistedConfig::read(&path)?,
                     None => GenesisConfig::for_local_testing(),
                 };
 
                 if let Some(path) = write_config {
-                    let persisted = genesis_conf.persisted(path);
+                    let persisted = genesis_conf.persisted(&path);
                     persisted.save()?;
                     return Ok(());
                 }
@@ -218,7 +259,7 @@ impl HaneulCommand {
 
                 keystore.set_path(&keystore_path);
                 keystore.save()?;
-                info!("Wallet keystore is stored in {:?}.", keystore_path);
+                info!("Client keystore is stored in {:?}.", keystore_path);
 
                 // Use the first address if any
                 let active_address = accounts.get(0).copied();
@@ -239,15 +280,15 @@ impl HaneulCommand {
                     ..Default::default()
                 };
 
-                let wallet_config = WalletConfig {
+                let wallet_config = HaneulClientConfig {
                     accounts,
                     keystore: KeystoreType::File(keystore_path),
                     gateway: GatewayType::Embedded(wallet_gateway_config),
                     active_address,
                 };
 
-                wallet_config.save(&wallet_path)?;
-                info!("Wallet config file is stored in {:?}.", wallet_path);
+                wallet_config.save(&client_path)?;
+                info!("Client config file is stored in {:?}.", client_path);
 
                 let mut fullnode_config = network_config.generate_fullnode_config();
                 fullnode_config.json_rpc_address = haneul_config::node::default_json_rpc_address();
@@ -265,32 +306,101 @@ impl HaneulCommand {
 
                 Ok(())
             }
-            HaneulCommand::SignTool {
-                keystore_path,
-                address,
-                data,
-            } => {
-                let keystore_path = keystore_path
-                    .clone()
-                    .unwrap_or(haneul_config_dir()?.join("wallet.key"));
+            HaneulCommand::KeyTool { keystore_path, cmd } => {
+                let keystore_path =
+                    keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
                 let keystore = HaneulKeystore::load_or_create(&keystore_path)?;
-                info!("Data to sign : {}", data);
-                info!("Address : {}", address);
-                let message = Base64::decode_vec(data).map_err(|e| anyhow!(e))?;
-                let signature = keystore.sign(address, &message)?;
-                // Separate pub key and signature string, signature and pub key are concatenated with an '@' symbol.
-                let signature_string = format!("{:?}", signature);
-                let sig_split = signature_string.split('@').collect::<Vec<_>>();
-                let signature = sig_split
-                    .first()
-                    .ok_or_else(|| anyhow!("Error creating signature."))?;
-                let pub_key = sig_split
-                    .last()
-                    .ok_or_else(|| anyhow!("Error creating signature."))?;
-                info!("Public Key Base64: {}", pub_key);
-                info!("Signature : {}", signature);
+                cmd.execute(keystore)
+            }
+            HaneulCommand::Console { config } => {
+                let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
+                prompt_if_no_config(&config)?;
+                let mut context = WalletContext::new(&config)?;
+                sync_accounts(&mut context).await?;
+                start_console(context, &mut stdout(), &mut stderr()).await
+            }
+            HaneulCommand::Client { config, cmd, json } => {
+                let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
+                prompt_if_no_config(&config)?;
+                let mut context = WalletContext::new(&config)?;
+
+                if let Some(cmd) = cmd {
+                    // Do not sync if command is a gateway switch, as the current gateway might be unreachable and causes sync to panic.
+                    if !matches!(
+                        cmd,
+                        HaneulClientCommands::Switch {
+                            gateway: Some(_),
+                            ..
+                        }
+                    ) {
+                        sync_accounts(&mut context).await?;
+                    }
+                    cmd.execute(&mut context).await?.print(!json);
+                } else {
+                    // Print help
+                    let mut app: Command = HaneulCommand::command();
+                    app.build();
+                    app.find_subcommand_mut("client").unwrap().print_help()?;
+                }
                 Ok(())
             }
+            HaneulCommand::Move { path, std, cmd } => cmd.execute(path.as_ref(), std),
         }
     }
+}
+
+// Sync all accounts on start up.
+async fn sync_accounts(context: &mut WalletContext) -> Result<(), anyhow::Error> {
+    for address in context.config.accounts.clone() {
+        HaneulClientCommands::SyncClientState {
+            address: Some(address),
+        }
+        .execute(context)
+        .await?;
+    }
+    Ok(())
+}
+
+fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
+    // Prompt user for connect to gateway if config not exists.
+    if !wallet_conf_path.exists() {
+        print!(
+            "Config file [{:?}] doesn't exist, do you want to connect to a Haneul RPC server [yN]?",
+            wallet_conf_path
+        );
+        if matches!(read_line(), Ok(line) if line.trim().to_lowercase() == "y") {
+            print!("Haneul RPC server Url (Default to Haneul DevNet if not specified) : ");
+            let url = read_line()?;
+            let url = if url.trim().is_empty() {
+                HANEUL_DEV_NET_URL
+            } else {
+                &url
+            };
+
+            // Check url is valid
+            HaneulRpcClient::new(url)?;
+            let keystore_path = wallet_conf_path
+                .parent()
+                .unwrap_or(&haneul_config_dir()?)
+                .join(HANEUL_KEYSTORE_FILENAME);
+            let keystore = KeystoreType::File(keystore_path);
+            let new_address = keystore.init()?.add_random_key()?;
+            HaneulClientConfig {
+                accounts: vec![new_address],
+                keystore,
+                gateway: GatewayType::RPC(url.to_string()),
+                active_address: Some(new_address),
+            }
+            .persisted(wallet_conf_path)
+            .save()?;
+        }
+    }
+    Ok(())
+}
+
+fn read_line() -> Result<String, anyhow::Error> {
+    let mut s = String::new();
+    let _ = stdout().flush();
+    io::stdin().read_line(&mut s)?;
+    Ok(s.trim_end().to_string())
 }

@@ -18,7 +18,9 @@
 // ./bench microbench local-single-validator-thread latency
 
 use clap::*;
-use haneul::benchmark::{bench_types, run_benchmark, validator_preparer::VALIDATOR_BINARY_NAME};
+use haneul_benchmark::benchmark::{
+    bench_types, run_benchmark, validator_preparer::VALIDATOR_BINARY_NAME,
+};
 use tracing::subscriber::set_global_default;
 use tracing_subscriber::EnvFilter;
 

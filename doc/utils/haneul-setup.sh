@@ -15,7 +15,7 @@ command -v cargo >/dev/null 2>&1 || { echo "Cargo (https://doc.rust-lang.org/car
 rm -rf haneul/
 
 ## Build and install Haneul binaries
-cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul
+cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul haneul-json-rpc
 
 ## Install Move Analyzer language server plugin
 cargo install --git https://github.com/move-language/move move-analyzer

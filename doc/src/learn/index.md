@@ -36,8 +36,8 @@ See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commit
 ### Move quick start
 Go to the [Move Quick Start](../build/move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
 
-### Wallet quick start
-See the [Wallet Quick Start](../build/wallet.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
+### Haneul CLI client quick start
+See the [Haneul CLI client Quick Start](../build/cli-client.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
 
 ### End-to-end tutorial
 Proceed to the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
@@ -50,7 +50,7 @@ Finish with the detailed [Programming with objects](../build/programming-with-ob
 Navigate and search this site however you see fit. Here is the order we recommend if you are new to Haneul:
 
 1. Learn [about Haneul](../learn/about-haneul.md), how [Haneul Move differs from Core Move](../learn/haneul-move-diffs.md), and [how Haneul works](../learn/how-haneul-works.md) starting in this very section.
-1. [Build](../build/index.md) smart contracts, wallets, validators, transactions, and more.
+1. [Build](../build/index.md) smart contracts, the Haneul client, a Haneul fullnode, and more.
 1. [Explore](../explore/index.md) prototypes and examples.
 1. [Contribute](../contribute/index.md) to Haneul by joining the community, making enhancements, and learning about Haneul Labs.
 1. Employ the [Haneul API Reference](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false) reference files for the [Haneul JSON-RPC API](../build/json-rpc.md).
