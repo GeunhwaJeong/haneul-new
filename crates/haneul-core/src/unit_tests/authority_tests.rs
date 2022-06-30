@@ -1345,6 +1345,7 @@ async fn test_genesis_haneul_sysmtem_state_object() {
         .await
         .unwrap()
         .unwrap();
+    assert_eq!(haneul_system_object.version(), SequenceNumber::from(1));
     let move_object = haneul_system_object.data.try_as_move().unwrap();
     let _haneul_system_state = bcs::from_bytes::<HaneulSystemState>(move_object.contents()).unwrap();
     assert_eq!(move_object.type_, HaneulSystemState::type_());
