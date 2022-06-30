@@ -1207,6 +1207,10 @@ impl AuthorityState {
         self.database.get_haneul_system_state_object()
     }
 
+    pub async fn get_haneul_system_state_object_ref(&self) -> HaneulResult<ObjectRef> {
+        self.database.get_haneul_system_state_object_ref()
+    }
+
     pub async fn get_object_read(&self, object_id: &ObjectID) -> Result<ObjectRead, HaneulError> {
         match self.database.get_latest_parent_entry(*object_id)? {
             None => Ok(ObjectRead::NotExists(*object_id)),
