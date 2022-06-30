@@ -1305,6 +1305,13 @@ impl<S: Eq + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         Ok(transaction)
     }
 
+    pub fn multi_get_certified_transaction(
+        &self,
+        transaction_digests: &[TransactionDigest],
+    ) -> HaneulResult<Vec<Option<CertifiedTransaction>>> {
+        Ok(self.certificates.multi_get(transaction_digests)?)
+    }
+
     pub fn insert_new_epoch_info(&self, epoch_info: EpochInfoLocals) -> HaneulResult {
         self.epochs
             .insert(&epoch_info.committee.epoch(), &epoch_info)?;
