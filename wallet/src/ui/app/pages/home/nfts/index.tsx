@@ -11,7 +11,11 @@ function NftsPage() {
     return (
         <ObjectsLayout totalItems={nfts.length} emptyMsg="No NFTs found">
             {nfts.map((anNft) => (
-                <HaneulObject obj={anNft} key={anNft.reference.objectId} />
+                <HaneulObject
+                    obj={anNft}
+                    sendNFT={true}
+                    key={anNft.reference.objectId}
+                />
             ))}
         </ObjectsLayout>
     );

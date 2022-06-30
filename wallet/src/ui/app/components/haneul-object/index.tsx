@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulMoveObject, isHaneulMovePackage } from '@haneullabs/haneul.js';
-import { memo } from 'react';
+import cl from 'classnames';
+import { memo, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
 import Field from './field';
 import CopyToClipboard from '_components/copy-to-clipboard';
@@ -16,9 +18,10 @@ import st from './HaneulObject.module.scss';
 
 export type HaneulObjectProps = {
     obj: HaneulObjectType;
+    sendNFT?: boolean;
 };
 
-function HaneulObject({ obj }: HaneulObjectProps) {
+function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
     const { objectId } = obj.reference;
     const shortId = useMiddleEllipsis(objectId);
     const objType =
@@ -28,6 +31,11 @@ function HaneulObject({ obj }: HaneulObjectProps) {
     const haneulMoveObjectFields = isHaneulMoveObject(obj.data)
         ? obj.data.fields
         : null;
+
+    const sendUrl = useMemo(
+        () => `/send-nft?${new URLSearchParams({ objectId }).toString()}`,
+        [objectId]
+    );
     return (
         <div className={st.container}>
             <span className={st.id} title={objectId}>
@@ -44,13 +52,26 @@ function HaneulObject({ obj }: HaneulObjectProps) {
                     </>
                 ) : null}
                 <div className={st.fields}>
-                    {haneulMoveObjectFields
-                        ? keys.map((aField) => (
-                              <Field key={aField} name={aField}>
-                                  {String(haneulMoveObjectFields[aField])}
-                              </Field>
-                          ))
-                        : null}
+                    {haneulMoveObjectFields ? (
+                        <>
+                            {keys.map((aField) => (
+                                <Field key={aField} name={aField}>
+                                    {String(haneulMoveObjectFields[aField])}
+                                </Field>
+                            ))}
+                            {sendNFT ? (
+                                <div>
+                                    <Link
+                                        className={cl('btn', st.send)}
+                                        to={sendUrl}
+                                    >
+                                        Send NFT
+                                    </Link>
+                                </div>
+                            ) : null}
+                        </>
+                    ) : null}
+
                     {isHaneulMovePackage(obj.data) ? (
                         <Field name="disassembled">
                             {JSON.stringify(obj.data.disassembled).substring(

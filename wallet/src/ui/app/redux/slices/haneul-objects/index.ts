@@ -10,7 +10,7 @@ import {
 
 import { ExampleNFT } from './NFT';
 
-import type { HaneulObject } from '@haneullabs/haneul.js';
+import type { HaneulObject, HaneulAddress, ObjectId } from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
 
@@ -52,6 +52,21 @@ export const mintDemoNFT = createAsyncThunk<void, void, AppThunkConfig>(
     }
 );
 
+export const transferHaneulNFT = createAsyncThunk<
+    void,
+    { nftId: ObjectId; recipientAddress: HaneulAddress },
+    AppThunkConfig
+>(
+    'transferHaneulNFT',
+    async (data, { extra: { api, keypairVault }, dispatch }) => {
+        await ExampleNFT.TransferNFT(
+            api.getSignerInstance(keypairVault.getKeyPair()),
+            data.nftId,
+            data.recipientAddress
+        );
+        await dispatch(fetchAllOwnedObjects());
+    }
+);
 interface HaneulObjectsManualState {
     loading: boolean;
     error: false | { code?: string; message?: string; name?: string };
