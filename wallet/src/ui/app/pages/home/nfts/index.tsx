@@ -1,5 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+import { hasPublicTransfer } from '@haneullabs/haneul.js';
 
 import ObjectsLayout from '_components/objects-layout';
 import HaneulObject from '_components/haneul-object';
@@ -11,7 +12,11 @@ function NftsPage() {
     return (
         <ObjectsLayout totalItems={nfts.length} emptyMsg="No NFTs found">
             {nfts.map((anNft) => (
-                <HaneulObject obj={anNft} key={anNft.reference.objectId} />
+                <HaneulObject
+                    obj={anNft}
+                    sendNFT={hasPublicTransfer(anNft)}
+                    key={anNft.reference.objectId}
+                />
             ))}
         </ObjectsLayout>
     );
