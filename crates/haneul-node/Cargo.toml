@@ -17,18 +17,15 @@ tracing = "0.1.34"
 parking_lot = "0.12.1"
 futures = "0.3.21"
 jsonrpsee = { version = "0.13.1", features = ["full"] }
-jsonrpsee-core = "0.13.1"
-async-trait = "0.1.53"
 
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
-haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-types = { path = "../haneul-types" }
 
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "94d7da89f6a52d7f60a9802b0a03147a9c89c3e4" }
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "94d7da89f6a52d7f60a9802b0a03147a9c89c3e4" }
+
 workspace-hack = { path = "../workspace-hack"}
