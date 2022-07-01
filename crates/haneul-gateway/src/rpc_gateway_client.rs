@@ -12,8 +12,8 @@ use haneul_json_rpc_api::rpc_types::{
     GetObjectDataResponse, GetRawObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo,
     HaneulTypeTag, TransactionEffectsResponse, TransactionResponse,
 };
-use haneul_json_rpc_api::QuorumDriverApiClient;
 use haneul_json_rpc_api::RpcBcsApiClient;
+use haneul_json_rpc_api::RpcGatewayApiClient;
 use haneul_json_rpc_api::RpcTransactionBuilderClient;
 use haneul_json_rpc_api::TransactionBytes;
 use haneul_json_rpc_api::WalletSyncApiClient;

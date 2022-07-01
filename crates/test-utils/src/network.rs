@@ -19,7 +19,7 @@ use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
 use haneul_json_rpc_api::keystore::{KeystoreType, HaneulKeystore};
-use haneul_json_rpc_api::QuorumDriverApiServer;
+use haneul_json_rpc_api::RpcGatewayApiServer;
 use haneul_json_rpc_api::RpcReadApiServer;
 use haneul_json_rpc_api::RpcTransactionBuilderServer;
 use haneul_json_rpc_api::WalletSyncApiServer;

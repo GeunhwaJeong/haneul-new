@@ -16,7 +16,7 @@ use haneul_json_rpc_api::rpc_types::{
 };
 use haneul_json_rpc_api::rpc_types::{RPCTransactionRequestParams, HaneulTypeTag};
 use haneul_json_rpc_api::{
-    QuorumDriverApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
+    RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
     WalletSyncApiServer,
 };
 use haneul_open_rpc::Module;
@@ -68,7 +68,7 @@ impl TransactionBuilderImpl {
 }
 
 #[async_trait]
-impl QuorumDriverApiServer for RpcGatewayImpl {
+impl RpcGatewayApiServer for RpcGatewayImpl {
     async fn execute_transaction(
         &self,
         tx_bytes: Base64,
@@ -93,7 +93,7 @@ impl HaneulRpcModule for RpcGatewayImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::QuorumDriverApiOpenRpc::module_doc()
+        haneul_json_rpc_api::RpcGatewayApiOpenRpc::module_doc()
     }
 }
 
