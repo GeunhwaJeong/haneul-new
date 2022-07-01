@@ -18,7 +18,7 @@ import st from './HaneulObject.module.scss';
 
 export type HaneulObjectProps = {
     obj: HaneulObjectType;
-    sendNFT?: boolean;
+    sendNFT?: boolean | 'unavaliable';
 };
 
 function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {

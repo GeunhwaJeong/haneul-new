@@ -54,7 +54,7 @@ export const mintDemoNFT = createAsyncThunk<void, void, AppThunkConfig>(
 
 export const transferHaneulNFT = createAsyncThunk<
     void,
-    { nftId: ObjectId; recipientAddress: HaneulAddress },
+    { nftId: ObjectId; recipientAddress: HaneulAddress; transferCost: number },
     AppThunkConfig
 >(
     'transferHaneulNFT',
@@ -62,7 +62,8 @@ export const transferHaneulNFT = createAsyncThunk<
         await ExampleNFT.TransferNFT(
             api.getSignerInstance(keypairVault.getKeyPair()),
             data.nftId,
-            data.recipientAddress
+            data.recipientAddress,
+            data.transferCost
         );
         await dispatch(fetchAllOwnedObjects());
     }
