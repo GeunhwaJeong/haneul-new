@@ -15,4 +15,5 @@ export type DataType = CertifiedTransaction & {
     txError: string;
     mutated: HaneulObjectRef[];
     created: HaneulObjectRef[];
+    timestamp_ms: number;
 };
