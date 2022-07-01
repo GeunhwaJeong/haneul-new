@@ -112,8 +112,8 @@
         "fileName": "build/move"
       },
       {
-        "label": "Create Haneul Wallet",
-        "fileName": "build/wallet"
+        "label": "Use Haneul CLI",
+        "fileName": "build/cli-client"
       },
       {
         "label": "Program with Objects",
