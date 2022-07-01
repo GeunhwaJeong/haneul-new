@@ -34,8 +34,22 @@ export const changeRPCNetwork = createAsyncThunk<void, API_ENV, AppThunkConfig>(
         dispatch(setNetworkSelector(true));
         dispatch(getTransactionsByAddress());
         dispatch(fetchAllOwnedObjects());
+        // Set persistent network state
+        chrome.storage.local.set({ haneul_Env: networkName });
     }
 );
+
+export const loadNetworkFromStorage = createAsyncThunk<
+    void,
+    void,
+    AppThunkConfig
+>('loadNetworkFromStorage', async (_, { dispatch }) => {
+    chrome.storage.local.get(['haneul_Env'], function (result) {
+        if (result.haneul_Env) {
+            dispatch(changeRPCNetwork(result.haneul_Env));
+        }
+    });
+});
 
 const slice = createSlice({
     name: 'app',
