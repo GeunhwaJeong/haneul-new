@@ -1,7 +1,11 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject, isHaneulMovePackage } from '@haneullabs/haneul.js';
+import {
+    hasPublicTransfer,
+    isHaneulMoveObject,
+    isHaneulMovePackage,
+} from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -18,10 +22,9 @@ import st from './HaneulObject.module.scss';
 
 export type HaneulObjectProps = {
     obj: HaneulObjectType;
-    sendNFT?: boolean | 'unavaliable';
 };
 
-function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
+function HaneulObject({ obj }: HaneulObjectProps) {
     const { objectId } = obj.reference;
     const shortId = useMiddleEllipsis(objectId);
     const objType =
@@ -31,6 +34,7 @@ function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
     const haneulMoveObjectFields = isHaneulMoveObject(obj.data)
         ? obj.data.fields
         : null;
+    const sendNFT = hasPublicTransfer(obj);
 
     const sendUrl = useMemo(
         () => `/send-nft?${new URLSearchParams({ objectId }).toString()}`,

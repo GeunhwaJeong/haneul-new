@@ -245,7 +245,8 @@ export function isHaneulMoveObject(obj: any, _argumentName?: string): obj is Han
             typeof obj === "object" ||
             typeof obj === "function") &&
         isTransactionDigest(obj.type) as boolean &&
-        isObjectContentFields(obj.fields) as boolean
+        isObjectContentFields(obj.fields) as boolean &&
+        typeof obj.has_public_transfer === "boolean"
     )
 }
 

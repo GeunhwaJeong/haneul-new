@@ -33,6 +33,7 @@ export type HaneulMoveObject = {
   type: string;
   /** Fields and values stored inside the Move object */
   fields: ObjectContentFields;
+  has_public_transfer: boolean;
 };
 
 export type HaneulMovePackage = {
@@ -164,6 +165,12 @@ export function getMoveObject(
     return undefined;
   }
   return haneulObject.data as HaneulMoveObject;
+}
+
+export function hasPublicTransfer(
+  data: GetObjectDataResponse | HaneulObject
+): boolean {
+  return getMoveObject(data)?.has_public_transfer ?? false;
 }
 
 export function getMovePackageContent(
