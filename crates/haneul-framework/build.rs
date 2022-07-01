@@ -3,6 +3,7 @@
 
 use anyhow::Result;
 use move_binary_format::CompiledModule;
+use move_package::BuildConfig;
 use std::{
     env, fs,
     path::{Path, PathBuf},
@@ -15,8 +16,9 @@ fn main() {
     let haneul_framwork_path = Path::new(env!("CARGO_MANIFEST_DIR"));
     let move_stdlib_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("deps/move-stdlib");
 
+    let haneul_build_config = BuildConfig::default();
     let haneul_framework =
-        haneul_framework_build::build_haneul_framework_modules(haneul_framwork_path).unwrap();
+        haneul_framework_build::build_move_package(haneul_framwork_path, haneul_build_config).unwrap();
     let move_stdlib = haneul_framework_build::build_move_stdlib_modules(&move_stdlib_path).unwrap();
 
     serialize_modules_to_file(haneul_framework, &out_dir.join("haneul-framework")).unwrap();

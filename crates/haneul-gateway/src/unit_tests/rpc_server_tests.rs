@@ -1,6 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use move_package::BuildConfig;
 use std::{path::Path, str::FromStr};
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
@@ -82,7 +83,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
 
     let compiled_modules = build_move_package_to_bytes(
         Path::new("../../haneul_programmability/examples/fungible_tokens"),
-        false,
+        BuildConfig::default(),
     )?
     .iter()
     .map(|bytes| Base64::from_bytes(bytes))
