@@ -60,7 +60,7 @@ In addition, to conduct advanced work such as altering Haneul itself, also obtai
 To develop in Haneul, you will need the Haneul binaries. After installing `cargo`, run:
 
 ```shell
-$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "devnet" haneul haneul-json-rpc
+$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "devnet" haneul haneul-gateway
 ```
 
 This will put the following binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
