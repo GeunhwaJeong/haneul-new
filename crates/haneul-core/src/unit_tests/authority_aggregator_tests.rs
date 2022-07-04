@@ -8,8 +8,8 @@ use signature::Signer;
 
 use haneul_adapter::genesis;
 use haneul_config::genesis::Genesis;
-use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::Signature;
+use haneul_types::crypto::{get_key_pair, PublicKeyBytes};
 
 use haneul_types::messages::Transaction;
 use haneul_types::object::{Object, GAS_VALUE_FOR_TESTING};

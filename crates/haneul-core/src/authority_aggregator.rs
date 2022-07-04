@@ -9,13 +9,17 @@ use async_trait::async_trait;
 
 use futures::{future, StreamExt};
 use move_core_types::value::MoveStructLayout;
-use haneul_types::crypto::{AuthoritySignature, PublicKeyBytes};
+use haneul_types::crypto::AuthoritySignature;
 use haneul_types::object::{Object, ObjectFormatOptions, ObjectRead};
 use haneul_types::{
     base_types::*,
     committee::Committee,
     error::{HaneulError, HaneulResult},
     messages::*,
+    messages_checkpoint::{
+        AuthenticatedCheckpoint, AuthorityCheckpointInfo, CertifiedCheckpointSummary,
+        CheckpointContents, CheckpointRequest, CheckpointResponse,
+    },
 };
 use tracing::{debug, info, instrument, trace, Instrument};
 
@@ -24,7 +28,7 @@ use std::string::ToString;
 use std::time::Duration;
 use haneul_types::committee::StakeUnit;
 use tokio::sync::mpsc::Receiver;
-use tokio::time::timeout;
+use tokio::time::{sleep, timeout};
 
 const OBJECT_DOWNLOAD_CHANNEL_BOUND: usize = 1024;
 pub const DEFAULT_RETRIES: usize = 4;
@@ -524,6 +528,59 @@ where
         Ok(accumulated_state)
     }
 
+    // Repeatedly calls the provided closure on a randomly selected validator until it succeeds.
+    // Once all validators have been attempted, starts over at the beginning. Intended for cases
+    // that must eventually succeed as long as the network is up (or comes back up) eventually.
+    async fn quorum_once_inner<'a, S, FMap>(
+        &'a self,
+        // try these authorities first
+        preferences: &[AuthorityName],
+        // only attempt from these authorities.
+        restrict_to: Option<&BTreeSet<AuthorityName>>,
+        // The async function used to apply to each authority. It takes an authority name,
+        // and authority client parameter and returns a Result<V>.
+        map_each_authority: FMap,
+        timeout_each_authority: Duration,
+        authority_errors: &mut HashMap<AuthorityName, HaneulError>,
+    ) -> Result<S, HaneulError>
+    where
+        FMap: Fn(AuthorityName, &'a SafeClient<A>) -> AsyncResult<'a, S, HaneulError>,
+        S: Send,
+    {
+        let mut delay = Duration::from_secs(1);
+        loop {
+            let authorities_shuffled = self.committee.shuffle_by_stake().filter(|a| {
+                // preferences will usually be small so linear search probably ok.
+                !preferences.contains(a) && restrict_to.map(|r| r.contains(a)).unwrap_or(true)
+            });
+
+            let authorities_shuffled = preferences.iter().chain(authorities_shuffled);
+
+            // TODO: possibly increase concurrency after first failure to reduce latency.
+            for name in authorities_shuffled {
+                let client = &self.authority_clients[name];
+
+                let res = timeout(timeout_each_authority, map_each_authority(*name, client)).await;
+
+                match res {
+                    // timeout
+                    Err(_) => authority_errors.insert(*name, HaneulError::TimeoutError),
+                    // request completed
+                    Ok(inner_res) => match inner_res {
+                        Err(e) => authority_errors.insert(*name, e),
+                        Ok(res) => return Ok(res),
+                    },
+                };
+            }
+            info!(
+                ?authority_errors,
+                "quorum_once_with_timeout failed on all authorities, retrying in {:?}", delay
+            );
+            sleep(delay).await;
+            delay = std::cmp::min(delay * 2, Duration::from_secs(5 * 60));
+        }
+    }
+
     /// Like quorum_map_then_reduce_with_timeout, but for things that need only a single
     /// successful response, such as fetching a Transaction from some authority.
     /// This is intended for cases in which byzantine authorities can time out or slow-loris, but
@@ -531,38 +588,47 @@ where
     /// quorum-signed object such as a checkpoint has been requested.
     pub(crate) async fn quorum_once_with_timeout<'a, S, FMap>(
         &'a self,
+        // try these authorities first
+        preferences: &[AuthorityName],
+        // only attempt from these authorities.
+        restrict_to: Option<&BTreeSet<AuthorityName>>,
         // The async function used to apply to each authority. It takes an authority name,
         // and authority client parameter and returns a Result<V>.
         map_each_authority: FMap,
         timeout_each_authority: Duration,
+        // When to give up on the attempt entirely.
+        timeout_total: Option<Duration>,
     ) -> Result<S, HaneulError>
     where
         FMap: Fn(AuthorityName, &'a SafeClient<A>) -> AsyncResult<'a, S, HaneulError>,
+        S: Send,
     {
-        let authorities_shuffled = self.committee.shuffle_by_stake();
+        let mut authority_errors = HashMap::new();
 
-        let mut authority_errors: Vec<(AuthorityName, HaneulError)> = Vec::new();
+        let fut = self.quorum_once_inner(
+            preferences,
+            restrict_to,
+            map_each_authority,
+            timeout_each_authority,
+            &mut authority_errors,
+        );
 
-        // TODO: possibly increase concurrency after first failure to reduce latency.
-        for name in authorities_shuffled {
-            let client = &self.authority_clients[name];
-
-            let res = timeout(timeout_each_authority, map_each_authority(*name, client)).await;
-
-            match res {
-                // timeout
-                Err(_) => authority_errors.push((*name, HaneulError::TimeoutError)),
-                // request completed
-                Ok(inner_res) => match inner_res {
-                    Err(e) => authority_errors.push((*name, e)),
-                    Ok(_) => return inner_res,
-                },
-            }
+        if let Some(t) = timeout_total {
+            timeout(t, fut).await.map_err(|_timeout_error| {
+                if authority_errors.is_empty() {
+                    HaneulError::TimeoutError
+                } else {
+                    HaneulError::TooManyIncorrectAuthorities {
+                        errors: authority_errors
+                            .iter()
+                            .map(|(a, b)| (*a, b.clone()))
+                            .collect(),
+                    }
+                }
+            })?
+        } else {
+            fut.await
         }
-
-        Err(HaneulError::TooManyIncorrectAuthorities {
-            errors: authority_errors,
-        })
     }
 
     /// Return all the information in the network regarding the latest state of a specific object.
@@ -1411,7 +1477,7 @@ where
     /// The object ids are also returned so the caller can determine which fetches failed
     /// NOTE: This function assumes all authorities are honest
     async fn fetch_one_object(
-        authority_clients: BTreeMap<PublicKeyBytes, SafeClient<A>>,
+        authority_clients: BTreeMap<AuthorityName, SafeClient<A>>,
         object_ref: ObjectRef,
         timeout: Duration,
         sender: tokio::sync::mpsc::Sender<Result<Object, HaneulError>>,
@@ -1458,20 +1524,83 @@ where
             .expect("Cannot send object on channel after object fetch attempt");
     }
 
+    pub async fn handle_checkpoint_request(
+        &self,
+        request: &CheckpointRequest,
+        // authorities known to have the checkpoint we are requesting.
+        authorities: &BTreeSet<AuthorityName>,
+        timeout_total: Option<Duration>,
+    ) -> HaneulResult<CheckpointResponse> {
+        self.quorum_once_with_timeout(
+            &[],
+            Some(authorities),
+            |_, client| Box::pin(async move { client.handle_checkpoint(request.clone()).await }),
+            self.timeouts.serial_authority_request_timeout,
+            timeout_total,
+        )
+        .await
+    }
+
+    pub async fn get_certified_checkpoint(
+        &self,
+        request: &CheckpointRequest,
+        // authorities known to have the checkpoint we are requesting.
+        authorities: &BTreeSet<AuthorityName>,
+        timeout_total: Option<Duration>,
+    ) -> HaneulResult<(CertifiedCheckpointSummary, Option<CheckpointContents>)> {
+        self.quorum_once_with_timeout(
+            &[],
+            Some(authorities),
+            |_, client| {
+                Box::pin(async move {
+                    let resp = client.handle_checkpoint(request.clone()).await?;
+
+                    if let CheckpointResponse {
+                        info:
+                            AuthorityCheckpointInfo::Past(AuthenticatedCheckpoint::Certified(past)),
+                        detail,
+                    } = resp
+                    {
+                        Ok((past, detail))
+                    } else {
+                        Err(HaneulError::GenericAuthorityError {
+                            error: "expected Certified checkpoint".into(),
+                        })
+                    }
+                })
+            },
+            self.timeouts.serial_authority_request_timeout,
+            timeout_total,
+        )
+        .await
+    }
+
     pub async fn handle_transaction_and_effects_info_request(
         &self,
         digests: &ExecutionDigests,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
+        // authorities known to have the effects we are requesting.
+        authorities: &BTreeSet<AuthorityName>,
+        timeout_total: Option<Duration>,
+    ) -> HaneulResult<(CertifiedTransaction, SignedTransactionEffects)> {
         self.quorum_once_with_timeout(
-            |_name, client| {
+            &[],
+            Some(authorities),
+            |authority, client| {
                 Box::pin(async move {
-                    client
+                    let resp = client
                         .handle_transaction_and_effects_info_request(digests)
-                        .await
+                        .await?;
+
+                    match (resp.certified_transaction, resp.signed_effects) {
+                        (Some(cert), Some(effects)) => Ok((cert, effects)),
+                        // The caller is passing in authorities that have claimed to have the cert and
+                        // effects, so if they now say they don't, they're byzantine.
+                        _ => Err(HaneulError::ByzantineAuthoritySuspicion { authority }),
+                    }
                 })
             },
-            // A long timeout before we hear back from a quorum
             self.timeouts.serial_authority_request_timeout,
+            timeout_total,
         )
         .await
     }
