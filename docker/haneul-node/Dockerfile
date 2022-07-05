@@ -1,4 +1,4 @@
-FROM rust:1.60.0 AS chef
+FROM rust:1.62.0 AS chef
 WORKDIR haneul
 RUN apt-get update && apt-get install -y cmake clang
 
