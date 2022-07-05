@@ -16,6 +16,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* Employ the enhanced [Move Visual Studio Code (VSCode) plugin](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer) as described in the [related announcement](https://haneul.io/resources-haneul/announcing-enhanced-move-vs-code-plugin).
 * Get ready to participate in [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/)!
 * The former `wallet` binary has been replaced with the [Haneul CLI client](../build/cli-client.md) and combined with related functions.
 * [JSON-RPC PubSub](../build/pubsub.md) is supported by Haneul [fullnode](../build/fullnode.md) to publish / subscribe using notifications via websocket.
