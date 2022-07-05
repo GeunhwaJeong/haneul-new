@@ -207,7 +207,7 @@ impl HaneulNode {
             };
 
         let validator_service = if config.consensus_config().is_some() {
-            Some(ValidatorService::new(config, state.clone()).await?)
+            Some(ValidatorService::new(config, state.clone(), &prometheus_registry).await?)
         } else {
             None
         };
