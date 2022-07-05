@@ -13,6 +13,9 @@ mod cli_tests;
 
 #[tokio::main]
 async fn main() {
+    #[cfg(windows)]
+    colored::control::set_virtual_terminal(true).unwrap();
+
     let bin_name = env!("CARGO_BIN_NAME");
     let cmd: HaneulCommand = HaneulCommand::parse();
     let _guard = match cmd {
