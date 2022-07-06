@@ -48,7 +48,7 @@ To begin using the Haneul Wallet Browser Extension:
 ## Configure
 
 In the Wallet home page, you will see the message _No Tokens Found_:
-![No tokens found](../../static/Haneul-wallet-no-tokens.png.png "[No tokens found")
+![No tokens found](../../static/Haneul-wallet-no-tokens.png "[No tokens found")
 *Time to populate your wallet*
 
 To finish setting up the Haneul Wallet Browser Extension for testing:
@@ -66,13 +66,23 @@ To finish setting up the Haneul Wallet Browser Extension for testing:
 
 The Haneul Wallet Browser Extension lets you:
 
-* See your account balance by clicking the **Tokens ($)** icon.
-* Send coins by clicking **Send** in the _Tokens_ tab.
-* Transfer NFTs by clicking **Send NFT** on the _NFT_ tab.
-* Go to the [Haneul Explorer](https://explorer.devnet.haneul.io/) view of the current transaction by clicking the external link icon at the bottom right.
-* See _recent transactions_ by clicking the **Arrow** icon at the top.
+* See your account balance by clicking the **Tokens ($)** icon:
+   ![See your account balance](../../static/tokens.png "See tokens")
+   *See your account balance in the Haneul Wallet Browser Extension*
+* Send coins by clicking **Send** in the _Tokens_ tab:
+   ![Send tokens](../../static/token-transfer.png "Send tokens")
+   *Send tokens with the Haneul Wallet Browser Extension*
+* Transfer NFTs by clicking **Send NFT** on the _NFT_ tab:
+   ![Transfer NFTs](../../static/NFT-transfer.png "Send tokens")
+   *Send NFTs with the Haneul Wallet Browser Extension*
+* View _recent transactions_ by clicking the **Arrow** icon at the top:
+   ![View recent transactions](../../static/NFT-transfer.png "View recent transactions")
+   *View recent transactions in the Haneul Wallet Browser Extension*
 * From the **Settings (gear)** menu, you may:
     * View your account on the Haneul Explorer
     * Mint Demo NFTs
     * See the Haneul terms of service
     * Log out of the Wallet
+   ![Access settings](../../static/settings.png "Access wallet settings")
+   *Access settings for the Haneul Wallet Browser Extension*
+* Go to the [Haneul Explorer](https://explorer.devnet.haneul.io/) view of the current transaction by clicking the external link icon at the bottom right.
