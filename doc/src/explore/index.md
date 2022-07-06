@@ -6,6 +6,13 @@ Now that you've [learned](../learn/index.md) about Haneul and started [building]
 
 Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
 
+## DevNet and Testnet
+
+Experiment with:
+
+* [Haneul DevNet](../explore/devnet.md) - to gain operational experience with the Haneul software in a public setting
+* [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/) -  will feature a menu of incentives to encourage and reward meaningful participation during the Testnet waves
+
 ## Tutorial
 Taking an end-to-end [tutorial](../explore/tutorials.md) from starting a Haneul network locally to publishing a TicTacToe game on Haneul and playing it.
 
