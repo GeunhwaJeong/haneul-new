@@ -1312,6 +1312,22 @@ impl<S: Eq + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         Ok(self.epochs.iter().skip_to_last().next().unwrap().1)
     }
 
+    pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState>
+    where
+        S: Eq + Serialize + for<'de> Deserialize<'de>,
+    {
+        let haneul_system_object = self
+            .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?
+            .expect("Haneul System State object must always exist");
+        let move_object = haneul_system_object
+            .data
+            .try_as_move()
+            .expect("Haneul System State object must be a Move object");
+        let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
+            .expect("Haneul System State object deserialization cannot fail");
+        Ok(result)
+    }
+
     #[cfg(test)]
     /// Provide read access to the `schedule` table (useful for testing).
     pub fn get_schedule(&self, object_id: &ObjectID) -> HaneulResult<Option<SequenceNumber>> {

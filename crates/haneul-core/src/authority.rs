@@ -1209,17 +1209,7 @@ impl AuthorityState {
     }
 
     pub async fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
-        let haneul_system_object = self
-            .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)
-            .await?
-            .expect("Haneul System State object must always exist");
-        let move_object = haneul_system_object
-            .data
-            .try_as_move()
-            .expect("Haneul System State object must be a Move object");
-        let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
-            .expect("Haneul System State object deserialization cannot fail");
-        Ok(result)
+        self.database.get_haneul_system_state_object()
     }
 
     pub async fn get_object_read(&self, object_id: &ObjectID) -> Result<ObjectRead, HaneulError> {
