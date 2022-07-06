@@ -19,21 +19,44 @@ Note, the wallet will auto split/merge coins if the address does not have a Coin
 
 ## Purpose
 
-Initially, the Haneul Wallet Browser Extension is aimed at Haneul developers for testing purposes. As such, the tokens are of no value (just like the rest of [DevNet](devnet.md)) and will disappear each time we reset the network. In time, the Haneul Wallet Browser Extension will be production ready for real tokens.
+Initially, the Haneul Wallet Browser Extension is aimed at Haneul developers for testing purposes. As such, the tokens are of no value (just like the rest of [DevNet](../explore/devnet.md)) and will disappear each time we reset the network. In time, the Haneul Wallet Browser Extension will be production ready for real tokens.
 
-This browser extension is a pared-down version of the [Haneul Wallet command line interface (CLI)](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/wallet.md) that provides greater ease of use for the most commonly used features. If you need more advanced features, such as merge/split coins or make arbitrary [Move](../build/move.md) calls, instead use the [Haneul CLI client](../build/cli-client.md).
+This browser extension is a pared-down version of the [Haneul Wallet command line interface (CLI)](../build/cli-client.md) that provides greater ease of use for the most commonly used features. If you need more advanced features, such as merge/split coins or make arbitrary [Move](../build/move.md) calls, instead use the [Haneul CLI client](../build/cli-client.md).
 
 ## Demos
 
 The following animated GIFs walk you through some of the most common workflows in the Haneul Wallet Browser Extension.
 
+### Set up Wallet
+
+Install and configure the Haneul Wallet Browser Extension (covered in detail below):
+
+![Set up Wallet](../../static/onboarding.gif "Set up Wallet")
+*Set up the Haneul Wallet Browser Extension*
+
 ### Create NFT
 
 From a demo decentralized site, such as our demonstration [NFT dApp](https://github.com/GeunhwaJeong/haneul/tree/main/wallet/examples/demo-nft-dapp) available [in the Cloud](http://haneul-wallet-demo.s3-website-us-east-1.amazonaws.com/), you can connect to your wallet and create a custom NFT:
 
-![Create NFTs](../../static/create_NFT.gif "Create NFTs")
-*Create NFTs in Haneul Wallet by connecting to an external site*
+![Create NFT](../../static/create_NFT.gif "Create NFT")
+*Create an NFT in Haneul Wallet by connecting to an external site*
 
+### Transfer NFT
+
+![Transfer NFT](../../static/nft_transfer.gif "Transfer NFT")
+*Transfer your NFT to another address*
+
+### Transfer token
+
+![Transfer token](../../static/nft_transfer.gif "Transfer token")
+*Transfer tokens on the Haneul network to another address*
+
+### Transaction history and settings
+
+View your recent transactions, also connected to Haneul Explorer, where you can see more details about the corresponding transaction:
+
+![Transaction history and settings](../../static/txn_history_and_settings.gif "Transaction history and settings")
+*Under the *Settings* tab, view your account on Haneul Explorer*
 
 ## Install
 
