@@ -130,3 +130,8 @@ The Haneul Wallet Browser Extension lets you:
    ![Access settings](../../static/settings.png "Access wallet settings")
    *Access settings for the Haneul Wallet Browser Extension*
 * Go to the [Haneul Explorer](https://explorer.devnet.haneul.io/) view of the current transaction by clicking the external link icon at the bottom right.
+
+## Contribute
+
+If you want to experiment with and contribute to the Haneul Wallet Browser Extension, you can find its source and README at:
+https://github.com/GeunhwaJeong/haneul/tree/main/wallet 
