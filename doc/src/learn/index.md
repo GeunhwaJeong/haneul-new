@@ -16,15 +16,14 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* If your application is written in JavaScript or TypeScript, follow the [TypeScript SDK documentation](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
 * Employ the enhanced [Move Visual Studio Code (VSCode) plugin](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer) as described in the [related announcement](https://haneul.io/resources-haneul/announcing-enhanced-move-vs-code-plugin).
 * Get ready to participate in [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/)!
 * The former `wallet` binary has been replaced with the [Haneul CLI client](../build/cli-client.md) and combined with related functions.
 * [JSON-RPC PubSub](../build/pubsub.md) is supported by Haneul [fullnode](../build/fullnode.md) to publish / subscribe using notifications via websocket.
 * [Docker Compose](../build/fullnode.md#using-docker-compose) enables simple creation of Haneul Fullnodes using [Docker](https://github.com/GeunhwaJeong/haneul/tree/main/docker/fullnode#readme).
 * [Run a fullnode](../build/fullnode.md) in Haneul to have your own local copy of full blockchain state, contribute to Haneul, and qualify to be a potential validator.
-* [Programming with objects](../build/programming-with-objects/index.md) tutorial series offers detailed guidance on manipulating Haneul objects, from creation and storage through wrapping and using child objects.
 * Haneul [version 0.5.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.5.0-rc) released to DevNet. See [RELEASES](https://github.com/GeunhwaJeong/haneul/blob/main/RELEASES.md) for details on other releases.
-* [Haneul tokenomics](../learn/tokenomics/index.md) are now fully explained.
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
@@ -36,16 +35,16 @@ See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commit
 
 ## Kickstart development
 
-### Move quick start
+### Write Smart Contracts with Move
 Go to the [Move Quick Start](../build/move.md) for installation, defining custom objects, object operations (create/destroy/update/transfer/freeze), publishing, and invoking your published code.
 
-### Haneul CLI client quick start
+### Start the Haneul network with Haneul CLI client
 See the [Haneul CLI client Quick Start](../build/cli-client.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
 
-### End-to-end tutorial
+### Take end-to-end tutorial
 Proceed to the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
 
-### Programming with Objects series
+### Program with Objects
 Finish with the detailed [Programming with objects](../build/programming-with-objects/index.md) tutorial series offering detailed guidance on manipulating Haneul objects, from creation and storage through wrapping and using child objects.
 
 ## Navigate this site
