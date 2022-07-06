@@ -15,7 +15,7 @@ import {
 } from '_redux/slices/haneul-objects/Coin';
 import { balanceFormatOptions } from '_shared/formatting';
 
-import type { FormValues } from './';
+import type { FormValues } from '.';
 
 import st from './TransferCoinForm.module.scss';
 
