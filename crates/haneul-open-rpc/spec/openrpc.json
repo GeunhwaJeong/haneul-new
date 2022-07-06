@@ -16,23 +16,6 @@
   },
   "methods": [
     {
-      "name": "haneul_Unknown method name",
-      "tags": [
-        {
-          "name": "Event Subscription"
-        }
-      ],
-      "params": [
-        {
-          "name": "filter",
-          "required": true,
-          "schema": {
-            "$ref": "#/components/schemas/EventFilter"
-          }
-        }
-      ]
-    },
-    {
       "name": "haneul_batchTransaction",
       "tags": [
         {
@@ -1108,6 +1091,36 @@
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/TransactionBytes"
+        }
+      }
+    },
+    {
+      "name": "haneul_subscribeEvent",
+      "tags": [
+        {
+          "name": "Event Subscription"
+        },
+        {
+          "name": "Websocket"
+        },
+        {
+          "name": "PubSub"
+        }
+      ],
+      "params": [
+        {
+          "name": "filter",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/EventFilter"
+          }
+        }
+      ],
+      "result": {
+        "name": "HaneulEventEnvelope",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/EventEnvelope"
         }
       }
     },
