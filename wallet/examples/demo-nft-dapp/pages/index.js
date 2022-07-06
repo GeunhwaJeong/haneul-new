@@ -11,39 +11,63 @@ const DEFAULT_DESCRIPTION = 'An example NFT created by demo Dapp';
 const DEFAULT_URL =
     'ipfs://bafkreibngqhl3gaa7daob4i2vccziay2jjlp435cf66vhono7nrvww53ty';
 
+const useHaneulWallet = () => {
+    const [wallet, setWallet] = useState(null);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        const cb = () => {
+            setLoaded(true);
+            setWallet(window.haneulWallet);
+        };
+        if (window.haneulWallet) {
+            cb();
+            return;
+        }
+        window.addEventListener('load', cb);
+        return () => {
+            window.removeEventListener('load', cb);
+        };
+    }, []);
+    return wallet || (loaded ? false : null);
+};
+
 export default function Home() {
     const [walletInstalled, setWalletInstalled] = useState(null);
     const [connected, setConnected] = useState(false);
     const [connecting, setConnecting] = useState(false);
     const [msgNotice, setMsgNotice] = useState(null);
     const [account, setAccount] = useState(null);
+    const haneulWallet = useHaneulWallet();
     useEffect(() => {
-        const haneulWallet = window.haneulWallet;
-        setWalletInstalled(!!haneulWallet);
+        setWalletInstalled(haneulWallet && true);
         if (haneulWallet) {
             haneulWallet.hasPermissions().then(setConnected, setMsgNotice);
         }
-    }, []);
+    }, [haneulWallet]);
     const onConnectClick = useCallback(async () => {
+        if (!haneulWallet) {
+            return;
+        }
         setConnecting(true);
         try {
-            await window.haneulWallet.requestPermissions();
+            await haneulWallet.requestPermissions();
             setConnected(true);
         } catch (e) {
             setMsgNotice(e);
         } finally {
             setConnecting(false);
         }
-    }, []);
+    }, [haneulWallet]);
     useEffect(() => {
-        if (connected) {
-            window.haneulWallet
+        if (connected && haneulWallet) {
+            haneulWallet
                 .getAccounts()
                 .then((accounts) => setAccount(accounts[0]), setMsgNotice);
         } else {
             setAccount(null);
         }
-    }, [connected]);
+    }, [connected, haneulWallet]);
     useEffect(() => {
         let timeout;
         if (msgNotice) {
@@ -61,7 +85,7 @@ export default function Home() {
         const desc = (descRef.current?.value || DEFAULT_DESCRIPTION).trim();
         const url = (urlRef.current?.value || DEFAULT_URL).trim();
         try {
-            const result = await window.haneulWallet.executeMoveCall({
+            const result = await haneulWallet.executeMoveCall({
                 packageObjectId: '0x2',
                 module: 'devnet_nft',
                 function: 'mint',
@@ -85,7 +109,7 @@ export default function Home() {
         } finally {
             setCreating(false);
         }
-    }, []);
+    }, [haneulWallet]);
     return (
         <div className={styles.container}>
             <Head>
