@@ -5,10 +5,9 @@ use crate::client_commands::{HaneulClientCommands, WalletContext};
 use crate::config::{GatewayConfig, GatewayType, HaneulClientConfig};
 use crate::console::start_console;
 use crate::keytool::KeyToolCommand;
-use crate::haneul_move::execute_move_command;
+use crate::haneul_move::{self, execute_move_command};
 use anyhow::{anyhow, bail};
 use clap::*;
-use move_cli::package::cli::PackageCommand;
 use move_package::BuildConfig;
 use std::io::{stderr, stdout, Write};
 use std::num::NonZeroUsize;
@@ -96,24 +95,14 @@ pub enum HaneulCommand {
     #[clap(name = "move")]
     Move {
         /// Path to a package which the command should be run with respect to.
-        #[clap(
-            long = "path",
-            short = 'p',
-            global = true,
-            parse(from_os_str),
-            default_value = "."
-        )]
-        package_path: PathBuf,
-        /// Whether we are printing in base64.
-        // TODO add this as a custom command to Package Command
-        #[clap(long, global = true)]
-        dump_bytecode_as_base64: bool,
+        #[clap(long = "path", short = 'p', global = true, parse(from_os_str))]
+        package_path: Option<PathBuf>,
         /// Package build options
         #[clap(flatten)]
         build_config: BuildConfig,
         /// Subcommands.
         #[clap(subcommand)]
-        cmd: PackageCommand,
+        cmd: haneul_move::Command,
     },
 }
 
@@ -358,10 +347,9 @@ impl HaneulCommand {
             }
             HaneulCommand::Move {
                 package_path,
-                dump_bytecode_as_base64,
                 build_config,
                 cmd,
-            } => execute_move_command(package_path, dump_bytecode_as_base64, build_config, cmd),
+            } => execute_move_command(package_path, build_config, cmd),
         }
     }
 }
