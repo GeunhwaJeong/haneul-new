@@ -27,5 +27,4 @@ haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
-
-workspace-hack = { path = "../workspace-hack" }
+workspace-hack = { path = "../workspace-hack"}
