@@ -13,7 +13,7 @@ use haneul_types::object::GAS_VALUE_FOR_TESTING;
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
-    gas::{MAX_GAS_BUDGET, MIN_GAS_BUDGET},
+    gas::{HaneulGasStatus, MAX_GAS_BUDGET, MIN_GAS_BUDGET},
     messages::Transaction,
 };
 
