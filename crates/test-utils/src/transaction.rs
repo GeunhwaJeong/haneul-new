@@ -9,10 +9,7 @@ use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::{
-    ConfirmationTransaction, ConsensusTransaction, Transaction, TransactionEffects,
-    TransactionInfoResponse,
-};
+use haneul_types::messages::{Transaction, TransactionEffects, TransactionInfoResponse};
 use haneul_types::object::{Object, Owner};
 
 pub async fn publish_package(
@@ -38,13 +35,12 @@ pub async fn submit_single_owner_transaction(
     configs: &[ValidatorInfo],
 ) -> TransactionEffects {
     let certificate = make_certificates(vec![transaction]).pop().unwrap();
-    let txn = ConfirmationTransaction { certificate };
 
     let mut responses = Vec::new();
     for config in configs {
         let client = get_client(config);
         let reply = client
-            .handle_confirmation_transaction(txn.clone())
+            .handle_certificate(certificate.clone())
             .await
             .unwrap();
         responses.push(reply);
@@ -60,15 +56,14 @@ pub async fn submit_shared_object_transaction(
     configs: &[ValidatorInfo],
 ) -> HaneulResult<TransactionEffects> {
     let certificate = make_certificates(vec![transaction]).pop().unwrap();
-    let message = ConsensusTransaction::UserTransaction(Box::new(certificate));
 
     let replies = loop {
         let futures: Vec<_> = configs
             .iter()
             .map(|config| {
                 let client = get_client(config);
-                let txn = message.clone();
-                async move { client.handle_consensus_transaction(txn).await }
+                let cert = certificate.clone();
+                async move { client.handle_certificate(cert).await }
             })
             .collect();
 

@@ -14,7 +14,7 @@ use haneul_network::tonic;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::PublicKeyBytes;
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::{ConfirmationTransaction, SignedTransaction};
+use haneul_types::messages::SignedTransaction;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use typed_store::Map;
@@ -146,7 +146,7 @@ where
                 .await
             {
                 self.state
-                    .handle_confirmation_transaction(ConfirmationTransaction { certificate })
+                    .handle_certificate(certificate)
                     .await
                     .expect("Executing the special cert cannot fail");
                 break;

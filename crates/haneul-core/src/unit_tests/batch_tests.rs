@@ -24,8 +24,8 @@ use std::fs;
 use std::sync::Arc;
 use haneul_types::messages::{
     AccountInfoRequest, AccountInfoResponse, BatchInfoRequest, BatchInfoResponseItem,
-    ConfirmationTransaction, ConsensusTransaction, ObjectInfoRequest, ObjectInfoResponse,
-    Transaction, TransactionInfoRequest, TransactionInfoResponse,
+    CertifiedTransaction, ObjectInfoRequest, ObjectInfoResponse, Transaction,
+    TransactionInfoRequest, TransactionInfoResponse,
 };
 use haneul_types::object::Object;
 
@@ -505,20 +505,9 @@ impl AuthorityAPI for TrustworthyAuthorityClient {
         })
     }
 
-    async fn handle_confirmation_transaction(
+    async fn handle_certificate(
         &self,
-        _transaction: ConfirmationTransaction,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
-        Ok(TransactionInfoResponse {
-            signed_transaction: None,
-            certified_transaction: None,
-            signed_effects: None,
-        })
-    }
-
-    async fn handle_consensus_transaction(
-        &self,
-        _transaction: ConsensusTransaction,
+        _certificate: CertifiedTransaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
         Ok(TransactionInfoResponse {
             signed_transaction: None,
@@ -631,20 +620,9 @@ impl AuthorityAPI for ByzantineAuthorityClient {
         })
     }
 
-    async fn handle_confirmation_transaction(
+    async fn handle_certificate(
         &self,
-        _transaction: ConfirmationTransaction,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
-        Ok(TransactionInfoResponse {
-            signed_transaction: None,
-            certified_transaction: None,
-            signed_effects: None,
-        })
-    }
-
-    async fn handle_consensus_transaction(
-        &self,
-        _transaction: ConsensusTransaction,
+        _certificate: CertifiedTransaction,
     ) -> Result<TransactionInfoResponse, HaneulError> {
         Ok(TransactionInfoResponse {
             signed_transaction: None,
