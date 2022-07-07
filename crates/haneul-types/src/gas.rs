@@ -6,7 +6,7 @@ use crate::{
     error::{ExecutionError, ExecutionErrorKind},
     error::{HaneulError, HaneulResult},
     gas_coin::GasCoin,
-    object::Object,
+    object::{Object, Owner},
 };
 use move_core_types::{
     gas_schedule::{
@@ -301,13 +301,13 @@ impl<'a> HaneulGasStatus<'a> {
 }
 
 /// Check whether the given gas_object and gas_budget is legit:
-/// 1. If the gas object is owned.
+/// 1. If the gas object has an address owner.
 /// 2. If it's enough to pay the flat minimum transaction fee
 /// 3. If it's less than the max gas budget allowed
 /// 4. If the gas_object actually has enough balance to pay for the budget.
 pub fn check_gas_balance(gas_object: &Object, gas_budget: u64, gas_price: u64) -> HaneulResult {
     ok_or_gas_error!(
-        gas_object.is_owned(),
+        matches!(gas_object.owner, Owner::AddressOwner(_)),
         "Gas object must be owned Move object".to_owned()
     )?;
     ok_or_gas_error!(
