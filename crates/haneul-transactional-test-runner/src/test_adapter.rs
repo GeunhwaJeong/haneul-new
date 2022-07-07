@@ -37,7 +37,6 @@ use std::{
     sync::Arc,
 };
 use haneul_adapter::{adapter::new_move_vm, genesis};
-use haneul_core::transaction_input_checker::InputObjects;
 use haneul_core::{authority::AuthorityTemporaryStore, execution_engine};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::{
@@ -48,7 +47,7 @@ use haneul_types::{
     crypto::{get_key_pair_from_rng, KeyPair, Signature},
     event::Event,
     gas,
-    messages::{ExecutionStatus, Transaction, TransactionData, TransactionEffects},
+    messages::{ExecutionStatus, InputObjects, Transaction, TransactionData, TransactionEffects},
     object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };

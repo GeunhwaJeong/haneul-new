@@ -15,18 +15,18 @@ use haneul_types::{
     crypto::{get_key_pair, AuthoritySignature, Signature},
     error::HaneulError,
     gas::HaneulGasStatus,
-    messages::{SignatureAggregator, Transaction, TransactionData},
+    messages::{InputObjects, SignatureAggregator, Transaction, TransactionData},
     object::Object,
     HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
+use crate::gateway_state::GatewayMetrics;
 use crate::{
     authority::AuthorityTemporaryStore, authority_active::ActiveAuthority,
     authority_aggregator::authority_aggregator_tests::init_local_authorities,
     checkpoints::CheckpointLocals, epoch::reconfiguration::CHECKPOINT_COUNT_PER_EPOCH,
     execution_engine,
 };
-use crate::{gateway_state::GatewayMetrics, transaction_input_checker::InputObjects};
 
 #[tokio::test]
 async fn test_start_epoch_change() {

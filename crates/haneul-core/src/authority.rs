@@ -18,10 +18,8 @@ use chrono::prelude::*;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::SyncModuleCache;
 use move_core_types::{
-    account_address::AccountAddress,
-    ident_str,
-    language_storage::{ModuleId, StructTag},
-    resolver::{ModuleResolver, ResourceResolver},
+    account_address::AccountAddress, ident_str, language_storage::ModuleId,
+    resolver::ModuleResolver,
 };
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
 use narwhal_executor::ExecutionStateError;
@@ -32,7 +30,7 @@ use prometheus::{
 };
 use std::ops::Deref;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     pin::Pin,
     sync::{
         atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering},
@@ -53,10 +51,10 @@ use haneul_types::{
     committee::Committee,
     crypto::AuthoritySignature,
     error::{HaneulError, HaneulResult},
-    fp_bail, fp_ensure,
+    fp_ensure,
     gas::HaneulGasStatus,
     messages::*,
-    object::{Data, Object, ObjectFormatOptions, ObjectRead},
+    object::{Object, ObjectFormatOptions, ObjectRead},
     storage::{BackingPackageStore, DeleteKind, Storage},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
