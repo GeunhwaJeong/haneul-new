@@ -108,7 +108,10 @@ To request HANEUL test tokens:
 
 ## Source code
 
-If you need to download and understand the Haneul source code, clone the Haneul repository:
+If you need to download and understand the Haneul source code:
+https://github.com/GeunhwaJeong/haneul
+
+Clone the Haneul repository:
 
 ```shell
 $ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
@@ -122,14 +125,19 @@ You can start exploring Haneul's source code by looking into the following prima
 * [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
 * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
 
-And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
+## Rustdoc
+
+See the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
 * https://haneullabs.github.io/haneul/ - the Haneul blockchain
 * https://haneullabs.github.io/narwhal/ - the Narwhal and Tusk consensus engine
 * https://haneullabs.github.io/haneullabs-infra/ - Haneul Labs infrastructure
 
+## Help
+
 To contribute updates to Haneul code, [send pull requests](../contribute/index.md#send-pull-requests) our way.
 
-> NOTE: the above `git clone` command syncs with the `devnet` branch, which makes sure the source code is compatible with our devnet. If you want to run network locally using the latest version and don't need to interact with our devnet, you could switch to `main` branch.
+> NOTE: the above `git clone` command syncs with the `devnet` branch, which makes sure the source code is compatible with our devnet. If you want to run network locally using the latest version and don't need to interact with our devnet, you should switch to `main` branch.
+ 
 ## Next steps
 
 Continue your journey through:
