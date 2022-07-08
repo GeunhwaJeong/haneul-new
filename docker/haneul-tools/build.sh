@@ -13,6 +13,7 @@ BUILD_DATE="$(date -u +'%Y-%m-%d')"
 
 echo
 echo "Building haneul-tool docker image"
+echo "Building haneul-tools docker image"
 echo "Dockerfile: \t$DOCKERFILE"
 echo "docker context: $REPO_ROOT"
 echo "build date: \t$BUILD_DATE"
