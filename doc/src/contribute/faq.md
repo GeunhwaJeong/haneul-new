@@ -55,22 +55,22 @@ There is no relationship between Haneul/Haneullabs and Aptos. The similarity is 
 
 ### Can I buy the Haneul token?
 
-We will have a public token for the Haneul mainnet. But it is not available right now and there is no timeline as of yet. Anyone who claims otherwise (offering tokens, whitelists, pre-sale, etc.) is running a scam.
+We will have a public token for the Haneul Mainnet. But it is not available right now and there is no timeline as of yet. Anyone who claims otherwise (offering tokens, whitelists, pre-sale, etc.) is running a scam.
 
 ### Will the token name be HANEUL?
 
 Yes, the token name will be HANEUL.
 
 
-### When is the Haneul devnet/testnet/mainnet launching?
+### When is the Haneul Devnet/Testnet/Mainnet launching?
 
-We have launched our [Haneul DevNet](../explore/devnet.md) in May 2022. A testnet is coming in a few months. 
+We have launched our [Haneul Devnet](../explore/devnet.md) in May 2022. A Testnet is coming in a few months. 
 
 See our roadmap: \
 [https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap) 
 
 
-### Is there some kind of waitlist for the testnet?
+### Is there some kind of waitlist for the Testnet?
 
 No. More information is forthcoming.
 
@@ -135,17 +135,17 @@ See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
 
 ### Can I run a Haneul validator node?
 
-We have a public [Haneul DevNet](../explore/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
+We have a public [Haneul Devnet](../explore/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
 
 You may also run a local, non-networked Haneul node for development using the [Haneul CLI client](../build/cli-client.md). You can interact with the nodes with either the [Haneul Wallet CLI](../build/cli-client.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
 
-Soon we will have a TestNet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, 
+Soon we will have a Testnet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, 
 
-### What does a local node do and what are the hardware requirements to run it? How is it different from a testnet node?
+### What does a local node do and what are the hardware requirements to run it? How is it different from a Testnet node?
 
 A local node allows you to immediately start building software using Move for Haneul, and can be run on commodity hardware. See the [Haneul Fullnode](../build/fullnode.md) documentation for system requirements.
 
-A testnet node will be part of a live network of validators.
+A Testnet node will be part of a live network of validators.
 
 
 ## Technology
