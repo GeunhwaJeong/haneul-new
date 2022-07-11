@@ -15,7 +15,9 @@ function App() {
             <div className={styles.app}>
                 <Header />
                 <main>
-                    <AppRoutes />
+                    <section className={styles.haneulcontainer}>
+                        <AppRoutes />
+                    </section>
                 </main>
                 <Footer />
             </div>
