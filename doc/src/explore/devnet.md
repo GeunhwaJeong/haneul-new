@@ -1,14 +1,14 @@
 ---
-title: Experiment with Haneul DevNet
+title: Experiment with Haneul Devnet
 ---
 
-Welcome to the beginnings of the Haneul DevNet. It exists now to gain operational experience with the Haneul software in a public setting. The Haneul DevNet currently consists of:
+Welcome to the beginnings of the Haneul Devnet. It exists now to gain operational experience with the Haneul software in a public setting. The Haneul Devnet currently consists of:
 
 * A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: https://gateway.devnet.haneul.io:443/ using [JSON-RPC](../build/json-rpc.md)
-* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing the TestNet transaction history: https://explorer.devnet.haneul.io
+* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing transaction history: https://explorer.devnet.haneul.io
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
-Many improvements to the Haneul DevNet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul DevNet blog post](https://medium.com/haneullabs-labs/haneul-devnet-public-release-a2be304ff36b) announcement for full details on upcoming features. All DevNet usage is subject to our [terms of service](https://haneul.io/terms/).
+Many improvements to the Haneul Devnet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul Devnet blog post](https://medium.com/haneullabs-labs/haneul-devnet-public-release-a2be304ff36b) announcement for full details on upcoming features. All Devnet usage is subject to our [terms of service](https://haneul.io/terms/).
 
 ## Tools
 
@@ -24,7 +24,7 @@ We provide the following tools for users to interact with the Haneul Devnet:
 
 ### Set up environment
 
-You may simply [install Haneul](../build/install.md) and then request test tokens as described in the install docs. To use the Haneul DevNet, you will need:
+You may simply [install Haneul](../build/install.md) and then request test tokens as described in the install docs. To use the Haneul Devnet, you will need:
 
 1. Haneul [test coins (tokens)](#request-gas-tokens) requested through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 1. the [`git` command line interface](https://git-scm.com/download/).
@@ -37,13 +37,13 @@ $ which haneul
 ```
 You should see the path to the command. Otherwise, reinstall.
 
-> **Tip:** To reliably test DevNet with the latest Haneul binaries, re-install them at least weekly.
+> **Tip:** To reliably test Devnet with the latest Haneul binaries, re-install them at least weekly.
 
 In addition, to conduct advanced work such as publishing a Move module or making a Move call, also obtain the [Haneul source code](../build/install.md#source-code); for simplicity, we recommend installing in `~/haneul` or using an environment variable.
 
 ### Set up Haneul CLI client, connect to gateway
 
-Now [set up your Haneul CLI client and connect to DevNet](../build/cli-client.md#connect-to-devnet) in a single step. Note you can [manually change the Gateway URL](../build/cli-client.md#manually-change-the-rpc-server-url) if you have already configured a Haneul CLI client.
+Now [set up your Haneul CLI client and connect to Devnet](../build/cli-client.md#connect-to-devnet) in a single step. Note you can [manually change the Gateway URL](../build/cli-client.md#manually-change-the-rpc-server-url) if you have already configured a Haneul CLI client.
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
 
@@ -203,4 +203,4 @@ https://explorer.devnet.haneul.io/objects/OBJECT-ID
 
 ![Magic sword](../../static/magic-sword.png "Magic sword")
 
-This concludes the Haneul DevNet setup and testing instructions. Revisit this page and re-install the binaries regularly to witness and help Haneul grow!
+This concludes the Haneul Devnet setup and testing instructions. Revisit this page and re-install the binaries regularly to witness and help Haneul grow!
