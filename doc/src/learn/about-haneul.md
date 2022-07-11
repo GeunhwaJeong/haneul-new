@@ -8,7 +8,7 @@ Haneul is the first permissionless Layer 1 blockchain designed from the ground u
 
 Haneul is a smart contract platform maintained by a permissionless set of validators that play a role similar to validators or miners in other blockchain systems.
 
-Haneul offers scalability and unprecedented low-latency for common use cases. Haneul makes the vast majority of transactions processable in parallel, which makes better use of processing resources, and offers the option to increase throughput with more resources. Haneul forgoes consensus to instead use simpler and lower-latency primitives for common use cases, such as payment transactions and assets transfer. This is unprecedented in the blockchain world and enables a number of new latency-sensitive distributed applications, ranging from gaming to retail payment at physical points of sale.
+Haneul offers scalability and unprecedented low-latency for simple use cases. Haneul makes the vast majority of transactions processable in parallel, which makes better use of processing resources, and offers the option to increase throughput with more resources. Haneul forgoes consensus to instead use simpler and lower-latency primitives for simple use cases, such as payment transactions and assets transfer. This is unprecedented in the blockchain world and enables a number of new latency-sensitive distributed applications, ranging from gaming to retail payment at physical points of sale.
 
 Haneul is written in [Rust](https://www.rust-lang.org) and supports smart contracts written in the [Move programming language](https://golden.com/wiki/Move_(programming_language)-MNA4DZ6) to define assets that may have an owner. Move programs define operations on these assets including custom rules for their creation, the transfer of these assets to new owners, and operations that mutate assets.
 
@@ -16,13 +16,19 @@ Haneul has a native token called HANEUL, with a fixed supply. The HANEUL token i
 
 Haneul is backed by a number of state-of-the-art [peer-reviewed works](../contribute/research-papers.md) and years of open source development.
 
+### Transactions
+
+A transaction in Haneul is a change to the blockchain. This may be a *simple transaction* affecting only single-owner, single-address objects, such as minting an NFT or transferring it or another token. These transactions may bypass the consensus protocol in Haneul.
+
+More *complex transactions* affecting objects that are shared or owned by multiple addresses, such as asset management and other DeFi use cases, go through the [Narwhal and Tusk](https://github.com/GeunhwaJeong/narwhal) DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus.
+
 ## Parallel agreement - a breakthrough in system design
 
-Haneul scales horizontally with no upper bound to meet application demand while maintaining extremely low operating costs per transaction. Its system design breakthrough eliminates a critical bottleneck in existing blockchains: the need to achieve global consensus on a total-ordered list of transactions. This computation is wasteful given most transactions are not contending for the same resource against other transactions.
+Haneul scales horizontally with no upper bound to meet application demand while maintaining extremely low operating costs per transaction. Its system design breakthrough eliminates a critical bottleneck in existing blockchains: the need to achieve global consensus on a total-ordered list of transactions. This computation is wasteful given many transactions are not contending for the same resource against other transactions.
 
 Haneul takes a significant leap in scalability by enabling parallel agreement on causally independent transactions. Haneul validators commit such transactions using Byzantine Consistent Broadcast, eliminating global consensus's overhead without sacrificing safety and liveness guarantees.
 
-This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on most objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine Fault Tolerant consensus and executed in parallel.
+This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on and executes transactions on many objects in parallel, while a minority of transactions that affect shared state are ordered via Byzantine Fault Tolerant consensus and executed in parallel.
 
 ### Highlights
 
@@ -30,6 +36,7 @@ This breakthrough is possible only with Haneul's novel data model. Thanks to its
 * A safe smart contract language accessible to mainstream developers
 * Ability to define rich and composable on-chain assets
 * Better user experience for web3 apps
+* [Narwhal and Tusk](https://github.com/GeunhwaJeong/narwhal) DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus.
 
 Haneul is the only blockchain today that can scale with the growth of web3 while achieving industry-leading performance, cost, programmability, and usability. As we push towards mainnet launch, we will demonstrate capacity beyond the transaction processing capabilities of established systems – traditional and blockchain alike. We see Haneul as the first internet-scale programmable blockchain platform, a foundational layer for web3.
 
