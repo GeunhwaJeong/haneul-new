@@ -3,3 +3,11 @@
 node_modules
 dist
 configs/environment/.env
+font-icons/output/*
+!font-icons/output/haneul-icons.eot
+!font-icons/output/haneul-icons.scss
+!font-icons/output/haneul-icons.ts
+!font-icons/output/haneul-icons.ttf
+!font-icons/output/haneul-icons.woff
+!font-icons/output/haneul-icons.woff2
+!font-icons/output/haneul-icons.svg

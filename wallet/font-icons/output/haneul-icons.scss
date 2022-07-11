@@ -1,0 +1,22 @@
+@font-face {font-family: haneul-icons;
+    src: url('./haneul-icons.eot');
+    src: url('./haneul-icons.eot#iefix') format('embedded-opentype'),
+    url("./haneul-icons.woff2") format("woff2"),
+    url("./haneul-icons.woff") format("woff"),
+    url('./haneul-icons.ttf') format('truetype'),
+url('./haneul-icons.svg#haneul-icons') format('svg');
+}
+
+[class^="haneul-icons-"], [class*=" haneul-icons-"] {
+    font-family: haneul-icons !important;
+    font-size: 16px;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+}
+
+.haneul-icons-haneul-logo-icon:before { content: "\ea01"; }
+.haneul-icons-haneul-logo-txt:before { content: "\ea02"; }
+
+$haneul-icons-haneul-logo-icon: "\ea01";
+$haneul-icons-haneul-logo-txt: "\ea02";

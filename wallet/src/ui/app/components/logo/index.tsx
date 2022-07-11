@@ -3,6 +3,8 @@
 
 import classnames from 'classnames/bind';
 
+import Icon, { HaneulIcons } from '_components/icon';
+
 import st from './Logo.module.scss';
 
 const cl = classnames.bind(st);
@@ -15,9 +17,11 @@ type LogoProps = {
 
 const Logo = ({ size = 'normal', txt = false, className }: LogoProps) => {
     return (
-        <div className={cl('container', className)}>
-            <span className={cl('image', size)} />
-            {txt ? <span className={cl('txt', size)}>haneul</span> : null}
+        <div className={cl('container', className, size)}>
+            <Icon className={cl('icon')} icon={HaneulIcons.HaneulLogoIcon} />
+            {txt ? (
+                <Icon className={cl('txt')} icon={HaneulIcons.HaneulLogoTxt} />
+            ) : null}
         </div>
     );
 };
