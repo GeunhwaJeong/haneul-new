@@ -12,10 +12,10 @@ interface, *Haneul CLI*.
 
 Follow the instructions to [install Haneul binaries](install.md#binaries).
 
-## Connect to DevNet
-We are hosting a public [DevNet](../explore/devnet.md) for the community to
+## Connect to Devnet
+We are hosting a public [Devnet](../explore/devnet.md) for the community to
 experiment with our  tech and help to shape the future of the Haneul network. To
-connect the Haneul  client to the DevNet, run the following command:
+connect the Haneul  client to the Devnet, run the following command:
 ```shell
 $ haneul client
 ```
@@ -26,17 +26,17 @@ Config file ["/Users/dir/.haneul/haneul_config/client.yaml"] doesn't exist, do y
 ```
 Type 'y' and then press 'Enter'. You should see the following output:
 ```shell
-Haneul RPC server Url (Default to Haneul DevNet if not specified) :
+Haneul RPC server Url (Default to Haneul Devnet if not specified) :
 ```
-The Haneul client will prompt for the RPC server URL; press 'Enter' and it will default to DevNet.
+The Haneul client will prompt for the RPC server URL; press 'Enter' and it will default to Devnet.
 Or enter a custom URL if you want to connect to a server hosted elsewhere.
 
 If you have used the Haneul client before with a local network, follow the next section to
-[manually change the RPC server URL](#manually-change-the-rpc-server-url) to DevNet.
+[manually change the RPC server URL](#manually-change-the-rpc-server-url) to Devnet.
 
 ### Manually change the RPC server URL
 If you have used the Haneul client before, you will have an existing `client.yaml` configuration
-file. Change the configured RPC server URL to DevNet by using:
+file. Change the configured RPC server URL to Devnet by using:
 ```shell
 $ haneul client switch --gateway https://gateway.devnet.haneul.io:443
 ```
@@ -239,7 +239,7 @@ The following commands are supported by the Haneul client:
     objects               Obtain all objects owned by the address
     publish               Publish Move modules
     split-coin            Split a coin object into multiple coins
-    switch                Switch active address and network(e.g., devnet, local rpc server)
+    switch                Switch active address and network (e.g., Devnet, local RPC server)
     sync                  Synchronize client state with authorities
     transfer-coin         Transfer coin object
     transfer-haneul          Transfer HANEUL, and pay gas with the same HANEUL coin object. If amount is
