@@ -1,0 +1,11 @@
+[book]
+title = "Haneul Move by Example"
+description = "Handy collection of Examples for Haneul blockchain. Made with love by HaneulLabs"
+authors = ["damirka"]
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/GeunhwaJeong/haneul"
+git-repository-icon = "fa-github"
