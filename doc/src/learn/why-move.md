@@ -6,12 +6,12 @@ This page links to key [Move](https://golden.com/wiki/Move_(programming_language
 
 ## Haneul Move
 
-First, note Move is based upon the well-supported [Rust](https://www.rust-lang.org/) programming language. And [Haneul Move differs from core Move](haneul-move-diffs.md) in subtle yet distinct ways.
+First, note Move is based upon the well-supported [Rust](https://www.rust-lang.org/) programming language. And [Haneul Move differs from core Move](haneul-move-diffs.md) in subtle yet distinct ways. Here are resources to ramp up on Haneul Move:
 
-Find the the Haneul source code at:
-https://github.com/GeunhwaJeong/haneul
-
-And see the `rustdoc` output for it in the [Install](../build/install.md#rustdoc) docs.
+* [Haneul Move announcement](https://haneul.io/resources-move/why-we-created-haneul-move/)
+* [Haneul source code](https://github.com/GeunhwaJeong/haneul)
+* [`rustdoc` output](../build/install.md#rustdoc)
+* [Haneul Move by example](https://examples.haneul.io/)
 
 ## Move resources
 
