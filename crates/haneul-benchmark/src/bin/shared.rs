@@ -249,7 +249,7 @@ async fn main() {
                                         )))
                                     }
                                     Err(_haneul_err) => {
-                                        //eprintln!("{}", haneul_err);
+                                        println!("{}", _haneul_err);
                                         // TODO (GAS-LEAK): How do we add this gas back in the pool?
                                         NextOp::Response(None)
                                     }
