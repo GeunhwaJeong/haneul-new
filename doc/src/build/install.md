@@ -14,7 +14,7 @@ To immediately get started using Haneul:
 1. Meet the [prerequisites](#prerequisites).
 1. Install the [binaries](#binaries).
 1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
-1. Request [HANEUL tokens](#haneul-tokens) to evaluate DevNet and Haneul Wallet
+1. Request [HANEUL tokens](#haneul-tokens) to evaluate Devnet and Haneul Wallet
 1. Optionally, download the [source code](#source-code) to have local
    access to examples and modify Haneul itself.
 
@@ -91,7 +91,7 @@ See more [IDE options](https://github.com/GeunhwaJeong/awesome-move#ides) in the
 
 ## HANEUL tokens
 
-To [experiment with DevNet](../explore/devnet.md) or [use the Haneul Wallet Browser Extension](../explore/wallet-browser.md), you will need HANEUL tokens. These coins have no financial value and will disappear each time we reset the network.
+To [experiment with Devnet](../explore/devnet.md) or [use the Haneul Wallet Browser Extension](../explore/wallet-browser.md), you will need HANEUL tokens. These coins have no financial value and will disappear each time we reset the network.
 
 To request HANEUL test tokens:
 
@@ -136,7 +136,7 @@ See the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in 
 
 To contribute updates to Haneul code, [send pull requests](../contribute/index.md#send-pull-requests) our way.
 
-> NOTE: the above `git clone` command syncs with the `devnet` branch, which makes sure the source code is compatible with our devnet. If you want to run network locally using the latest version and don't need to interact with our devnet, you should switch to `main` branch.
+> NOTE: the above `git clone` command syncs with the `devnet` branch, which makes sure the source code is compatible with our Devnet. If you want to run network locally using the latest version and don't need to interact with our Devnet, you should switch to `main` branch.
  
 ## Next steps
 
