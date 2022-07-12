@@ -125,6 +125,11 @@
         "name": "See what's New",
         "sublist": [
           {
+            "name": "Learn Haneul Move",
+            "url": "https://haneul.io/resources-move/why-we-created-haneul-move/",
+            "external": true
+          },
+          {
             "name": "Use Move VSCode Plugin",
             "url": "https://haneul.io/resources-haneul/announcing-enhanced-move-vs-code-plugin",
             "external": true
