@@ -9,3 +9,5 @@ pub mod keytool;
 pub mod shell;
 pub mod haneul_commands;
 pub mod haneul_move;
+
+pub mod genesis_ceremony;

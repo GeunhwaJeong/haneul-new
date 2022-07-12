@@ -1,6 +1,6 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::base_types::{AuthorityName, HaneulAddress};
+use crate::base_types::{decode_bytes_hex, AuthorityName, HaneulAddress};
 use crate::committee::{Committee, EpochId};
 use crate::error::{HaneulError, HaneulResult};
 use crate::haneul_serde::Base64;
@@ -184,6 +184,14 @@ impl std::fmt::Debug for PublicKeyBytes {
         let s = hex::encode(&self.0);
         write!(f, "k#{}", s)?;
         Ok(())
+    }
+}
+
+impl FromStr for PublicKeyBytes {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        decode_bytes_hex(s).map_err(Into::into)
     }
 }
 

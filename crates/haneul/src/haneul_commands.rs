@@ -4,6 +4,7 @@
 use crate::client_commands::{HaneulClientCommands, WalletContext};
 use crate::config::{GatewayConfig, GatewayType, HaneulClientConfig};
 use crate::console::start_console;
+use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
 use crate::haneul_move::{self, execute_move_command};
 use anyhow::{anyhow, bail};
@@ -62,6 +63,7 @@ pub enum HaneulCommand {
         #[clap(short, long, help = "Forces overwriting existing configuration")]
         force: bool,
     },
+    GenesisCeremony(Ceremony),
     /// Haneul keystore tool.
     #[clap(name = "keytool")]
     KeyTool {
@@ -307,6 +309,7 @@ impl HaneulCommand {
 
                 Ok(())
             }
+            HaneulCommand::GenesisCeremony(cmd) => run(cmd),
             HaneulCommand::KeyTool { keystore_path, cmd } => {
                 let keystore_path =
                     keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
