@@ -8,8 +8,12 @@ Under [output](./output/) directory, a demo page [index.html](./output/index.htm
 
 It will be useful to also document here the source of each icon.
 
--   haneul-logo-icon.svg - created from the original logo given by design
--   haneul-logo-txt.svg - created from the original logo given by design
+-   [haneul-logo-icon.svg](./svgs/haneul-logo-icon.svg) - created from the original logo given by design
+-   [haneul-logo-txt.svg](./svgs/haneul-logo-txt.svg) - created from the original logo given by design
+-   [tokens.svg](./svgs/tokens.svg) - exported from [figma](https://www.figma.com/file/rkFrheddol8YO7HQaHgIfF/Haneul-Systematize?node-id=3547%3A3433)
+-   [nfts.svg](./svgs/nfts.svg) - exported from [figma](https://www.figma.com/file/rkFrheddol8YO7HQaHgIfF/Haneul-Systematize?node-id=3547%3A3433)
+-   [history.svg](./svgs/history.svg) - exported from [figma](https://www.figma.com/file/rkFrheddol8YO7HQaHgIfF/Haneul-Systematize?node-id=3547%3A3433)
+-   [apps.svg](./svgs/apps.svg) - exported from [figma](https://www.figma.com/file/rkFrheddol8YO7HQaHgIfF/Haneul-Systematize?node-id=3547%3A3433)
 
 # Troubleshooting
 
