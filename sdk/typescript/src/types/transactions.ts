@@ -135,16 +135,31 @@ export type SplitCoinResponse = {
   updatedGas: HaneulObject;
 };
 
+export type PublishResponse = {
+  certificate: CertifiedTransaction;
+  createdObjects: HaneulObject[];
+  package: HaneulPackage;
+  updatedGas: HaneulObject;
+}
+
+export type HaneulPackage = {
+  digest: string;
+  objectId: string;
+  version: number;
+}
+
 export type TransactionResponse =
   | {
       EffectResponse: TransactionEffectsResponse;
-      // TODO: Add Publish Response
     }
   | {
       SplitCoinResponse: SplitCoinResponse;
     }
   | {
       MergeCoinResponse: MergeCoinResponse;
+    }
+  | {
+      PublishResponse: PublishResponse;
     };
 
 /* -------------------------------------------------------------------------- */
@@ -271,6 +286,12 @@ export function getMergeCoinResponse(
   data: TransactionResponse
 ): MergeCoinResponse | undefined {
   return 'MergeCoinResponse' in data ? data.MergeCoinResponse : undefined;
+}
+
+export function getPublishResponse(
+  data: TransactionResponse
+): PublishResponse | undefined {
+  return 'PublishResponse' in data ? data.PublishResponse : undefined;
 }
 
 /**
