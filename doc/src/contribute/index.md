@@ -9,7 +9,7 @@ Find answers to common questions in our [FAQ](../contribute/faq.md). Read other 
 ## See our roadmap
 
 Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) for the
-overall status of Haneul, including timelines for launching devnet, testnet, and mainnet.
+overall status of Haneul, including timelines for launching Devnet, Testnet, and Mainnet.
 
 ## Join the community
 
