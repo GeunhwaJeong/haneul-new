@@ -126,6 +126,10 @@ to run a Haneul fullnode using Docker.
 
 ### Building from source
 
+Remember to install the required tools in your environment as
+outlined in the [Prerequisites](../build/install.md#prerequisites) section if you
+haven't already. Then:
+
 1. Set up your fork of the Haneul repository:
     1. Go to the [Haneul repository](https://github.com/GeunhwaJeong/haneul) on GitHub
        and click the *Fork* button in the top right-hand corner of the screen.
