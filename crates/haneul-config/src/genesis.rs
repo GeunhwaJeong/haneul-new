@@ -30,7 +30,7 @@ use haneul_types::{
     error::HaneulResult,
     object::Object,
 };
-use tracing::{info, trace};
+use tracing::trace;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Genesis {
@@ -196,8 +196,6 @@ impl<'de> Deserialize<'de> for Genesis {
 }
 
 pub struct Builder {
-    haneul_framework: Option<Vec<CompiledModule>>,
-    move_framework: Option<Vec<CompiledModule>>,
     objects: Vec<Object>,
     validators: Vec<ValidatorInfo>,
 }
@@ -211,21 +209,9 @@ impl Default for Builder {
 impl Builder {
     pub fn new() -> Self {
         Self {
-            haneul_framework: None,
-            move_framework: None,
             objects: vec![],
             validators: vec![],
         }
-    }
-
-    pub fn haneul_framework(mut self, haneul_framework: Vec<CompiledModule>) -> Self {
-        self.haneul_framework = Some(haneul_framework);
-        self
-    }
-
-    pub fn move_framework(mut self, move_framework: Vec<CompiledModule>) -> Self {
-        self.move_framework = Some(move_framework);
-        self
     }
 
     pub fn add_object(mut self, object: Object) -> Self {
@@ -244,23 +230,14 @@ impl Builder {
     }
 
     pub fn build(self) -> Genesis {
-        let mut modules = Vec::new();
         let objects = self.objects;
         let mut genesis_ctx = haneul_adapter::genesis::get_genesis_context();
 
-        // Load Move Framework
-        info!("Loading Move framework lib from {:?}", self.move_framework);
-        let move_modules = self
-            .move_framework
-            .unwrap_or_else(haneul_framework::get_move_stdlib);
-        modules.push(move_modules);
-
-        // Load Haneul Framework
-        info!("Loading Haneul framework lib from {:?}", self.haneul_framework);
-        let haneul_modules = self
-            .haneul_framework
-            .unwrap_or_else(haneul_framework::get_haneul_framework);
-        modules.push(haneul_modules);
+        // Get Move and Haneul Framework
+        let modules = [
+            haneul_framework::get_move_stdlib(),
+            haneul_framework::get_haneul_framework(),
+        ];
 
         let objects =
             create_genesis_objects(&mut genesis_ctx, &modules, &objects, &self.validators);
@@ -300,8 +277,6 @@ impl Builder {
         }
 
         Ok(Self {
-            haneul_framework: None,
-            move_framework: None,
             objects,
             validators: committee,
         })
