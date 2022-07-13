@@ -21,6 +21,8 @@ module haneul::validator {
     friend haneul::validator_tests;
     #[test_only]
     friend haneul::validator_set_tests;
+    #[test_only]
+    friend haneul::governance_test_utils;
 
     struct ValidatorMetadata has store, drop, copy {
         /// The Haneul Address of the validator. This is the sender that created the Validator object,
