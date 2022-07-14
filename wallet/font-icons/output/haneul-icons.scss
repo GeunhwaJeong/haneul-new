@@ -15,16 +15,28 @@ url('./haneul-icons.svg#haneul-icons') format('svg');
 }
 
 .haneul-icons-apps:before { content: "\ea01"; }
-.haneul-icons-history:before { content: "\ea02"; }
-.haneul-icons-nfts:before { content: "\ea03"; }
-.haneul-icons-haneul-logo-icon:before { content: "\ea04"; }
-.haneul-icons-haneul-logo-txt:before { content: "\ea05"; }
-.haneul-icons-tokens:before { content: "\ea06"; }
+.haneul-icons-arrow-left:before { content: "\ea02"; }
+.haneul-icons-clipboard:before { content: "\ea03"; }
+.haneul-icons-globe:before { content: "\ea04"; }
+.haneul-icons-history:before { content: "\ea05"; }
+.haneul-icons-logout:before { content: "\ea06"; }
+.haneul-icons-nfts:before { content: "\ea07"; }
+.haneul-icons-person:before { content: "\ea08"; }
+.haneul-icons-haneul-chevron-right:before { content: "\ea09"; }
+.haneul-icons-haneul-logo-icon:before { content: "\ea0a"; }
+.haneul-icons-haneul-logo-txt:before { content: "\ea0b"; }
+.haneul-icons-tokens:before { content: "\ea0c"; }
 
 $haneul-icons-apps: "\ea01";
-$haneul-icons-history: "\ea02";
-$haneul-icons-nfts: "\ea03";
-$haneul-icons-haneul-logo-icon: "\ea04";
-$haneul-icons-haneul-logo-txt: "\ea05";
-$haneul-icons-tokens: "\ea06";
+$haneul-icons-arrow-left: "\ea02";
+$haneul-icons-clipboard: "\ea03";
+$haneul-icons-globe: "\ea04";
+$haneul-icons-history: "\ea05";
+$haneul-icons-logout: "\ea06";
+$haneul-icons-nfts: "\ea07";
+$haneul-icons-person: "\ea08";
+$haneul-icons-haneul-chevron-right: "\ea09";
+$haneul-icons-haneul-logo-icon: "\ea0a";
+$haneul-icons-haneul-logo-txt: "\ea0b";
+$haneul-icons-tokens: "\ea0c";
 
