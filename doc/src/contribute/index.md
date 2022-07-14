@@ -74,6 +74,5 @@ To submit your pull request:
 * Learn [about Haneul Labs](https://haneul-labs.com/) the company on our public site.
 * Read the [Haneul Smart Contract Platform](../../paper/haneul.pdf) white paper.
 * Implementing [logging](../contribute/observability.md) in Haneul to observe the behavior of your development.
-* Employ [performance profiling on macOS](../contribute/xcode-instruments.md).
 * Find related [research papers](../contribute/research-papers.md).
 * See and adhere to our [code of conduct](../contribute/code-of-conduct.md).
