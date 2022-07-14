@@ -16,6 +16,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 * [Haneul Move is feature complete](https://haneul.io/resources-move/why-we-created-haneul-move/) and ready for you to write safe and efficient smart contracts. See https://examples.haneul.io/ to learn Haneul Move by example.
 * Haneul [version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0-rc) released to DevNet. See [RELEASES](https://github.com/GeunhwaJeong/haneul/blob/main/RELEASES.md) for details on other releases.
 * If your application is written in JavaScript or TypeScript, follow the [TypeScript SDK documentation](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
@@ -24,7 +25,6 @@ Find the latest updates to these contents in this section:
 * The former `wallet` binary has been replaced with the [Haneul CLI client](../build/cli-client.md) and combined with related functions.
 * [JSON-RPC PubSub](../build/pubsub.md) is supported by Haneul [fullnode](../build/fullnode.md) to publish / subscribe using notifications via websocket.
 * [Docker Compose](../build/fullnode.md#using-docker-compose) enables simple creation of Haneul Fullnodes using [Docker](https://github.com/GeunhwaJeong/haneul/tree/main/docker/fullnode#readme).
-* [Run a fullnode](../build/fullnode.md) in Haneul to have your own local copy of full blockchain state, contribute to Haneul, and qualify to be a potential validator.
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
