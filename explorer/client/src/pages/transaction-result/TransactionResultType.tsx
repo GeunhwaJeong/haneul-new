@@ -17,3 +17,10 @@ export type DataType = CertifiedTransaction & {
     created: HaneulObjectRef[];
     timestamp_ms: number | null;
 };
+
+export type Category =
+    | 'objects'
+    | 'transactions'
+    | 'addresses'
+    | 'ethAddress'
+    | 'unknown';
