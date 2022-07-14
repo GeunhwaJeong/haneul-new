@@ -125,6 +125,9 @@
         "name": "See what's New",
         "sublist": [
           {
+            "name": "Try Haneul Wallet Browser Extension",
+            "url": "/explore/wallet-browser",
+          },
             "name": "Learn Haneul Move",
             "url": "https://haneul.io/resources-move/why-we-created-haneul-move/",
             "external": true
@@ -176,6 +179,14 @@
           {
             "name": "Haneul Compared to other Blockchains",
             "url": "/learn/haneul-compared"
+          },
+          {
+            "name": "Why Move?",
+            "url": "/learn/why-move"
+          },
+          {
+            "name": "How Haneul Move and Core Move differ",
+            "url": "/learn/haneul-move-diffs"
           }
         ]
       },
