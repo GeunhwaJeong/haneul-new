@@ -13,6 +13,7 @@ use std::{collections::BTreeMap, sync::Arc, time::Duration};
 use tracing::info;
 
 use haneul_config::NodeConfig;
+use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
@@ -156,15 +157,14 @@ impl HaneulNode {
                     authority_clients.insert(validator.public_key(), client);
                 }
             }
-
-            let gateway_metrics =
-                haneul_core::gateway_state::GatewayMetrics::new(&prometheus_registry);
-            let active_authority = Arc::new(ActiveAuthority::new(
-                state.clone(),
-                follower_store,
+            let net = AuthorityAggregator::new(
+                state.clone_committee(),
                 authority_clients,
-                gateway_metrics,
-            )?);
+                AuthAggMetrics::new(&prometheus_registry),
+            );
+
+            let active_authority =
+                Arc::new(ActiveAuthority::new(state.clone(), follower_store, net)?);
 
             Some(if is_validator {
                 // TODO: get degree from config file.
