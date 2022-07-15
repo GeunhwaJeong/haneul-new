@@ -128,6 +128,7 @@
             "name": "Try Haneul Wallet Browser Extension",
             "url": "/explore/wallet-browser",
           },
+          {
             "name": "Learn Haneul Move",
             "url": "https://haneul.io/resources-move/why-we-created-haneul-move/",
             "external": true
