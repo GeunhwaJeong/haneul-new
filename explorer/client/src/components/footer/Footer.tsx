@@ -14,8 +14,8 @@ function Footer() {
                 <div className={styles.logodesktop}>
                     <HaneulLogoIcon />
                     <div className={styles.copyright}>
-                        <div>&copy;2022 Copyright Haneul.</div>
-                        <div>All rights reserved.</div>
+                        <div>&copy;2022 Haneul</div>
+                        <div>All rights reserved</div>
                     </div>
                 </div>
 
@@ -86,7 +86,7 @@ function Footer() {
             <div className={styles.logomobile}>
                 <HaneulLogoIcon />
                 <div className={styles.copyright}>
-                    <div>&copy;2022 Copyright Haneul. All rights reserved.</div>
+                    <div>&copy;2022 Haneul. All rights reserved.</div>
                 </div>
             </div>
 
