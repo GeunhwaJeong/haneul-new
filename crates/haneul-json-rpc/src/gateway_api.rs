@@ -8,16 +8,15 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use tracing::debug;
 
+use crate::api::{
+    RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, WalletSyncApiServer,
+};
 use crate::HaneulRpcModule;
 use haneul_core::gateway_state::{GatewayClient, GatewayTxSeqNumber};
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::rpc_types::{
-    GetObjectDataResponse, HaneulObjectInfo, TransactionEffectsResponse, TransactionResponse,
-};
-use haneul_json_rpc_api::rpc_types::{RPCTransactionRequestParams, HaneulTypeTag};
-use haneul_json_rpc_api::{
-    RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, TransactionBytes,
-    WalletSyncApiServer,
+use haneul_json_rpc_types::{
+    GetObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo, HaneulTypeTag,
+    TransactionBytes, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_open_rpc::Module;
 use haneul_types::haneul_serde::Base64;
@@ -93,7 +92,7 @@ impl HaneulRpcModule for RpcGatewayImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcGatewayApiOpenRpc::module_doc()
+        crate::api::RpcGatewayApiOpenRpc::module_doc()
     }
 }
 
@@ -112,7 +111,7 @@ impl HaneulRpcModule for GatewayWalletSyncApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::WalletSyncApiOpenRpc::module_doc()
+        crate::api::WalletSyncApiOpenRpc::module_doc()
     }
 }
 
@@ -171,13 +170,13 @@ impl HaneulRpcModule for GatewayReadApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcReadApiOpenRpc::module_doc()
+        crate::api::RpcReadApiOpenRpc::module_doc()
     }
 }
 
 #[async_trait]
 impl RpcTransactionBuilderServer for TransactionBuilderImpl {
-    async fn public_transfer_object(
+    async fn transfer_object(
         &self,
         signer: HaneulAddress,
         object_id: ObjectID,
@@ -308,6 +307,6 @@ impl HaneulRpcModule for TransactionBuilderImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcTransactionBuilderOpenRpc::module_doc()
+        crate::api::RpcTransactionBuilderOpenRpc::module_doc()
     }
 }

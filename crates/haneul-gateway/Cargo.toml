@@ -22,7 +22,8 @@ haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
+haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
+haneul-sdk = { path = "../haneul-sdk" }
 haneul-node = { path = "../haneul-node" }
 
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "40dae350a699f59f2e296152e02c78765db34e68" }

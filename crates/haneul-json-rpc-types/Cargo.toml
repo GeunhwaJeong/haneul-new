@@ -1,5 +1,5 @@
 [package]
-name = "haneul-json-rpc-api"
+name = "haneul-json-rpc-types"
 version = "0.0.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"

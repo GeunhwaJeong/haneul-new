@@ -20,7 +20,7 @@ tower-http = { version = "0.3.4", features = ["cors"] }
 http = { version = "0.2.8" }
 
 haneul = { path = "../haneul" }
-haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
+haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "40dae350a699f59f2e296152e02c78765db34e68" }

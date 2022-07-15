@@ -29,7 +29,7 @@ use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
+use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
 use haneul_types::error::HaneulError;
 use haneul_types::event::EventType;
 use haneul_types::event::{Event, TransferType};
@@ -46,8 +46,10 @@ use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, Object
 use haneul_types::haneul_serde::{Base64, Encoding};
 
 #[cfg(test)]
-#[path = "unit_tests/gateway_types_tests.rs"]
-mod gateway_types_tests;
+#[path = "unit_tests/rpc_types_tests.rs"]
+mod rpc_types_tests;
+
+pub type GatewayTxSeqNumber = u64;
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub struct TransactionEffectsResponse {
@@ -514,7 +516,7 @@ impl Display for PublishResponse {
 pub type GetObjectDataResponse = HaneulObjectRead<HaneulParsedMoveObject>;
 pub type GetRawObjectDataResponse = HaneulObjectRead<HaneulRawMoveObject>;
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema)]
 #[serde(tag = "status", content = "details", rename = "ObjectRead")]
 pub enum HaneulObjectRead<T: HaneulMoveObject> {
     Exists(HaneulObject<T>),
@@ -671,6 +673,45 @@ pub enum HaneulMoveStruct {
         fields: BTreeMap<String, HaneulMoveValue>,
     },
     WithFields(BTreeMap<String, HaneulMoveValue>),
+}
+
+impl HaneulMoveStruct {
+    pub fn to_json_value(self) -> Result<Value, serde_json::Error> {
+        // Unwrap MoveStructs
+        let unwrapped = match self {
+            HaneulMoveStruct::Runtime(values) => {
+                let values = values
+                    .into_iter()
+                    .map(|value| match value {
+                        HaneulMoveValue::Struct(move_struct) => move_struct.to_json_value(),
+                        HaneulMoveValue::Vector(values) => {
+                            HaneulMoveStruct::Runtime(values).to_json_value()
+                        }
+                        _ => serde_json::to_value(&value),
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                serde_json::to_value(&values)
+            }
+            // We only care about values here, assuming struct type information is known at the client side.
+            HaneulMoveStruct::WithTypes { type_: _, fields } | HaneulMoveStruct::WithFields(fields) => {
+                let fields = fields
+                    .into_iter()
+                    .map(|(key, value)| {
+                        let value = match value {
+                            HaneulMoveValue::Struct(move_struct) => move_struct.to_json_value(),
+                            HaneulMoveValue::Vector(values) => {
+                                HaneulMoveStruct::Runtime(values).to_json_value()
+                            }
+                            _ => serde_json::to_value(&value),
+                        };
+                        value.map(|value| (key, value))
+                    })
+                    .collect::<Result<BTreeMap<_, _>, _>>()?;
+                serde_json::to_value(&fields)
+            }
+        }?;
+        serde_json::to_value(&unwrapped)
+    }
 }
 
 impl Display for HaneulMoveStruct {
@@ -1512,5 +1553,32 @@ impl TryInto<EventFilter> for HaneulEventFilter {
             Or(filter_a, filter_b) => Any(vec![*filter_a, *filter_b]).try_into()?,
             EventType(type_) => EventFilter::EventType(type_),
         })
+    }
+}
+
+#[serde_as]
+#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionBytes {
+    pub tx_bytes: Base64,
+    pub gas: HaneulObjectRef,
+    pub input_objects: Vec<HaneulInputObjectKind>,
+}
+
+impl TransactionBytes {
+    pub fn from_data(data: TransactionData) -> Result<Self, anyhow::Error> {
+        Ok(Self {
+            tx_bytes: Base64::from_bytes(&data.to_bytes()),
+            gas: data.gas().into(),
+            input_objects: data
+                .input_objects()?
+                .into_iter()
+                .map(HaneulInputObjectKind::from)
+                .collect(),
+        })
+    }
+
+    pub fn to_data(self) -> Result<TransactionData, anyhow::Error> {
+        TransactionData::from_signable_bytes(&self.tx_bytes.to_vec()?)
     }
 }

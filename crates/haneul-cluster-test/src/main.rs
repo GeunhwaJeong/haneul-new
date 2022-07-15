@@ -11,8 +11,8 @@ use haneul::config::{Config, GatewayType, HaneulClientConfig};
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_faucet::FaucetResponse;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::keystore::KeystoreType;
-use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulExecutionStatus, TransactionResponse};
+use haneul_json_rpc_types::{GetObjectDataResponse, HaneulExecutionStatus, TransactionResponse};
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::{
     base_types::{encode_bytes_hex, ObjectID, HaneulAddress},
     crypto::get_key_pair,

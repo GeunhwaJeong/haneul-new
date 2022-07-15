@@ -3,19 +3,17 @@
 
 use std::sync::Arc;
 
+use crate::api::RpcBcsApiServer;
+use crate::HaneulRpcModule;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
-
 use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayClient;
+use haneul_json_rpc_types::GetRawObjectDataResponse;
 use haneul_open_rpc::Module;
 use haneul_types::base_types::ObjectID;
-
-use crate::HaneulRpcModule;
-use haneul_json_rpc_api::rpc_types::GetRawObjectDataResponse;
-use haneul_json_rpc_api::RpcBcsApiServer;
 
 pub struct BcsApiImpl {
     client: ClientStateAdaptor,
@@ -69,6 +67,6 @@ impl HaneulRpcModule for BcsApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcBcsApiOpenRpc::module_doc()
+        crate::api::RpcBcsApiOpenRpc::module_doc()
     }
 }

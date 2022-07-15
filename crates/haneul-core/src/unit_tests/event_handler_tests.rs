@@ -14,8 +14,8 @@ use move_core_types::{
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::json;
+use haneul_json_rpc_types::HaneulMoveStruct;
 
-use crate::event_handler::to_json_value;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -33,10 +33,11 @@ fn test_to_json_value() {
         ],
     };
     let event_bytes = bcs::to_bytes(&move_event).unwrap();
-    let haneul_move_struct = MoveStruct::simple_deserialize(&event_bytes, &TestEvent::layout())
-        .unwrap()
-        .into();
-    let json_value = to_json_value(haneul_move_struct).unwrap();
+    let haneul_move_struct: HaneulMoveStruct =
+        MoveStruct::simple_deserialize(&event_bytes, &TestEvent::layout())
+            .unwrap()
+            .into();
+    let json_value = haneul_move_struct.to_json_value().unwrap();
 
     assert_eq!(
         Some(&json!(1000000)),

@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use clap::*;
 use std::fs;
 use std::path::Path;
-use haneul_json_rpc_api::keystore::{Keystore, HaneulKeystore};
+use haneul_sdk::crypto::{Keystore, HaneulKeystore};
 use haneul_types::base_types::decode_bytes_hex;
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{

@@ -20,8 +20,8 @@ use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
     HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
-use haneul_json_rpc_api::client::HaneulRpcClient;
-use haneul_json_rpc_api::keystore::{KeystoreType, HaneulKeystore};
+use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
+use haneul_sdk::HaneulClient;
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
 use tracing::info;
@@ -386,7 +386,7 @@ fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
             };
 
             // Check url is valid
-            HaneulRpcClient::new(url)?;
+            HaneulClient::new_http_client(url)?;
             let keystore_path = wallet_conf_path
                 .parent()
                 .unwrap_or(&haneul_config_dir()?)

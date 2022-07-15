@@ -42,7 +42,7 @@ use crate::{
     authority_client::AuthorityAPI, query_helpers::QueryHelpers,
 };
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
-use haneul_json_rpc_api::rpc_types::{
+use haneul_json_rpc_types::{
     GetObjectDataResponse, GetRawObjectDataResponse, MergeCoinResponse, MoveCallParams,
     PublishResponse, RPCTransactionRequestParams, SplitCoinResponse, HaneulMoveObject, HaneulObject,
     HaneulObjectInfo, HaneulTransactionEffects, HaneulTypeTag, TransactionEffectsResponse,

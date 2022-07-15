@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 jsonrpsee = { version = "0.14.0", features = ["full"] }
 jsonrpsee-core = "0.14.0"
+jsonrpsee-proc-macros = "0.14.0"
 prometheus = "0.13.1"
 anyhow = "1.0.58"
 tracing = "0.1.35"
@@ -22,5 +23,6 @@ haneul-core = { path = "../haneul-core" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
-haneul-json-rpc-api = { path = "../haneul-json-rpc-api" }
+haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
+haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 workspace-hack = { path = "../workspace-hack"}

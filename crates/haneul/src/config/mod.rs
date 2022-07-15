@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{hex::Hex, serde_as};
 use std::fmt::{Display, Formatter, Write};
-use haneul_json_rpc_api::keystore::KeystoreType;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::base_types::*;
 
 pub use haneul_config::Config;

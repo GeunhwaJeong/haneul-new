@@ -6358,9 +6358,10 @@ dependencies = [
  "haneul-framework",
  "haneul-gateway",
  "haneul-json",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-node",
  "haneul-quorum-driver",
+ "haneul-sdk",
  "haneul-swarm",
  "haneul-types",
  "telemetry-subscribers",
@@ -6447,7 +6448,8 @@ dependencies = [
  "haneul-config",
  "haneul-faucet",
  "haneul-json",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-sdk",
  "haneul-types",
  "telemetry-subscribers",
  "tempfile",
@@ -6521,7 +6523,7 @@ dependencies = [
  "haneul-config",
  "haneul-framework",
  "haneul-json",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-network",
  "haneul-storage",
  "haneul-types",
@@ -6550,7 +6552,7 @@ dependencies = [
  "serde 1.0.139",
  "haneul",
  "haneul-config",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-types",
  "telemetry-subscribers",
  "test-utils",
@@ -6615,8 +6617,9 @@ dependencies = [
  "haneul-framework",
  "haneul-json",
  "haneul-json-rpc",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-node",
+ "haneul-sdk",
  "haneul-types",
  "telemetry-subscribers",
  "test-utils",
@@ -6656,12 +6659,14 @@ dependencies = [
  "futures",
  "jsonrpsee",
  "jsonrpsee-core",
+ "jsonrpsee-proc-macros",
  "prometheus",
  "serde 1.0.139",
  "haneul-core",
  "haneul-json",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-open-rpc",
+ "haneul-open-rpc-macros",
  "haneul-types",
  "tokio",
  "tracing",
@@ -6669,7 +6674,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-json-rpc-api"
+name = "haneul-json-rpc-types"
 version = "0.0.0"
 dependencies = [
  "anyhow",
@@ -6748,7 +6753,7 @@ dependencies = [
  "haneul-config",
  "haneul-json",
  "haneul-json-rpc",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-types",
  "test-utils",
  "tokio",
@@ -6776,6 +6781,30 @@ dependencies = [
  "haneul-types",
  "tokio",
  "tracing",
+ "workspace-hack 0.1.0",
+]
+
+[[package]]
+name = "haneul-sdk"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "async-trait",
+ "bcs",
+ "clap 3.1.18",
+ "dirs",
+ "ed25519-dalek",
+ "futures",
+ "futures-core",
+ "jsonrpsee",
+ "serde 1.0.139",
+ "serde_json",
+ "haneul-json",
+ "haneul-json-rpc",
+ "haneul-json-rpc-types",
+ "haneul-types",
+ "tokio",
  "workspace-hack 0.1.0",
 ]
 
@@ -7166,8 +7195,9 @@ dependencies = [
  "haneul-framework",
  "haneul-gateway",
  "haneul-json-rpc",
- "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
  "haneul-node",
+ "haneul-sdk",
  "haneul-swarm",
  "haneul-types",
  "tempfile",

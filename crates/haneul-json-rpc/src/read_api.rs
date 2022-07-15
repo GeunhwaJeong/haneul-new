@@ -1,6 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::api::RpcFullNodeReadApiServer;
+use crate::api::RpcReadApiServer;
 use crate::HaneulRpcModule;
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -9,11 +11,9 @@ use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
-use haneul_json_rpc_api::rpc_types::{
+use haneul_json_rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, HaneulTransactionEffects, TransactionEffectsResponse,
 };
-use haneul_json_rpc_api::RpcFullNodeReadApiServer;
-use haneul_json_rpc_api::RpcReadApiServer;
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::object::Owner;
@@ -115,7 +115,7 @@ impl HaneulRpcModule for ReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcReadApiOpenRpc::module_doc()
+        crate::api::RpcReadApiOpenRpc::module_doc()
     }
 }
 
@@ -171,6 +171,6 @@ impl HaneulRpcModule for FullNodeApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::RpcFullNodeReadApiOpenRpc::module_doc()
+        crate::api::RpcFullNodeReadApiOpenRpc::module_doc()
     }
 }

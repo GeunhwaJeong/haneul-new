@@ -21,11 +21,9 @@ use tracing::info;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
 use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::rpc_types::{
-    SplitCoinResponse, HaneulEventEnvelope, HaneulEventFilter, TransactionResponse,
-};
-use haneul_json_rpc_api::rpc_types::{
-    HaneulEvent, HaneulMoveStruct, HaneulMoveValue, HaneulObjectInfo, HaneulObjectRead,
+use haneul_json_rpc_types::{
+    SplitCoinResponse, HaneulEvent, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveStruct, HaneulMoveValue,
+    HaneulObjectInfo, HaneulObjectRead, TransactionResponse,
 };
 use haneul_node::HaneulNode;
 use haneul_swarm::memory::Swarm;

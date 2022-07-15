@@ -4,7 +4,7 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
 use haneul::client_commands::WalletContext;
-use haneul_json_rpc_api::rpc_types::{HaneulExecutionStatus, HaneulParsedObject};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulParsedObject};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,

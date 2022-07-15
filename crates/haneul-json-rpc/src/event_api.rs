@@ -1,5 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+use crate::api::EventReadApiServer;
+use crate::api::EventStreamingApiServer;
 use crate::HaneulRpcModule;
 use async_trait::async_trait;
 use futures::{StreamExt, TryStream};
@@ -12,9 +14,7 @@ use std::fmt::Display;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::event_handler::EventHandler;
-use haneul_json_rpc_api::rpc_types::{HaneulEvent, HaneulEventEnvelope, HaneulEventFilter};
-use haneul_json_rpc_api::EventReadApiServer;
-use haneul_json_rpc_api::EventStreamingApiServer;
+use haneul_json_rpc_types::{HaneulEvent, HaneulEventEnvelope, HaneulEventFilter};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use tracing::warn;
@@ -89,7 +89,7 @@ impl HaneulRpcModule for EventStreamingApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::EventStreamingApiOpenRpc::module_doc()
+        crate::api::EventStreamingApiOpenRpc::module_doc()
     }
 }
 
@@ -176,6 +176,6 @@ impl HaneulRpcModule for EventReadApiImpl {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc_api::EventReadApiOpenRpc::module_doc()
+        crate::api::EventReadApiOpenRpc::module_doc()
     }
 }

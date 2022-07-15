@@ -14,14 +14,14 @@ use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_gateway::create_client;
+use haneul_json_rpc::api::RpcGatewayApiServer;
+use haneul_json_rpc::api::RpcReadApiServer;
+use haneul_json_rpc::api::RpcTransactionBuilderServer;
+use haneul_json_rpc::api::WalletSyncApiServer;
 use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
-use haneul_json_rpc_api::keystore::{KeystoreType, HaneulKeystore};
-use haneul_json_rpc_api::RpcGatewayApiServer;
-use haneul_json_rpc_api::RpcReadApiServer;
-use haneul_json_rpc_api::RpcTransactionBuilderServer;
-use haneul_json_rpc_api::WalletSyncApiServer;
+use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
 const NUM_VALIDAOTR: usize = 4;

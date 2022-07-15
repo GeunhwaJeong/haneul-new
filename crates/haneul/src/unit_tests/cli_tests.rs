@@ -19,8 +19,8 @@ use haneul_config::{
     HANEUL_GATEWAY_CONFIG, HANEUL_GENESIS_FILENAME, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_api::keystore::KeystoreType;
-use haneul_json_rpc_api::rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
+use haneul_json_rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 
 use test_utils::network::{setup_network_and_wallet, start_test_network};
