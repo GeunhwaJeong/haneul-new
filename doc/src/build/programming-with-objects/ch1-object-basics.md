@@ -82,9 +82,9 @@ public fun get_color(self: &ColorObject): (u8, u8, u8) {
 
 Find the full code online in [color_object.move](https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/objects_tutorial/sources/color_object.move).
 
-To compile the code, make sure you have [installed Haneul](../install.md) so that `haneul-move` is in `PATH`. In the code root directory (where `Move.toml` is), run:
+To compile the code, make sure you have [installed Haneul](../install.md) so that `haneul` is in `PATH`. In the code root directory (where `Move.toml` is), run:
 ```
-haneul-move build
+haneul move build
 ```
 
 ### Writing unit tests
@@ -142,7 +142,7 @@ Again, you can find the full code in [color_object.move](https://github.com/Geun
 
 To run the test, simply run the following in the code root directory:
 ```
-haneul-move test
+haneul move test
 ```
 
 ### On-chain Interactions
