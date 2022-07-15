@@ -22,6 +22,7 @@ members = [
     "crates/haneul-quorum-driver",
     "crates/haneul-storage",
     "crates/haneul-swarm",
+    "crates/haneul-tool",
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
     "crates/haneul-verifier",

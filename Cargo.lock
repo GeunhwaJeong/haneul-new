@@ -6830,6 +6830,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-tool"
+version = "0.6.0"
+dependencies = [
+ "anyhow",
+ "clap 3.1.18",
+ "colored",
+ "haneullabs-network 0.1.0 (git+https://github.com/GeunhwaJeong/haneullabs-infra?rev=40dae350a699f59f2e296152e02c78765db34e68)",
+ "rustyline",
+ "rustyline-derive",
+ "shell-words",
+ "haneul-config",
+ "haneul-core",
+ "haneul-framework",
+ "haneul-gateway",
+ "haneul-json",
+ "haneul-json-rpc-api",
+ "haneul-swarm",
+ "haneul-types",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+ "unescape",
+ "workspace-hack 0.1.0",
+]
+
+[[package]]
 name = "haneul-transactional-test-runner"
 version = "0.1.0"
 dependencies = [
