@@ -6,8 +6,6 @@ module haneul::tx_context {
     use haneul::id::{Self, VersionedID};
 
     #[test_only]
-    use std::errors;
-    #[test_only]
     use std::vector;
     #[test_only]
     use haneul::id::ID;
@@ -74,10 +72,7 @@ module haneul::tx_context {
     #[test_only]
     /// Create a `TxContext` for testing
     public fun new(addr: address, tx_hash: vector<u8>, epoch: u64, ids_created: u64): TxContext {
-        assert!(
-            vector::length(&tx_hash) == TX_HASH_LENGTH,
-            errors::invalid_argument(EBadTxHashLength)
-        );
+        assert!(vector::length(&tx_hash) == TX_HASH_LENGTH, EBadTxHashLength);
         TxContext { signer: new_signer_from_address(addr), tx_hash, epoch, ids_created }
     }
 

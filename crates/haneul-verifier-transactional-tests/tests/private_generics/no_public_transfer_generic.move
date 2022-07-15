@@ -18,9 +18,9 @@ module test::m {
 module test::m {
     fun t<T: key>(
         s: T,
-        owner_id: haneul::id::VersionedID,
+        owner_id: &haneul::id::VersionedID,
         ctx: &mut haneul::tx_context::TxContext,
-    ): (haneul::id::VersionedID, haneul::transfer::ChildRef<T>)  {
+    ) {
         haneul::transfer::transfer_to_object_id(s, owner_id)
     }
 }
@@ -42,7 +42,7 @@ module test::m {
 //# publish
 module test::m {
     struct R has key { id: haneul::id::VersionedID }
-    fun t<T: key>(child: T, owner: &mut R): haneul::transfer::ChildRef<T> {
+    fun t<T: key>(child: T, owner: &mut R) {
         haneul::transfer::transfer_to_object(child, owner)
     }
 }
@@ -50,34 +50,14 @@ module test::m {
 //# publish
 module test::m {
     struct R has key { id: haneul::id::VersionedID }
-    fun t<T: key>(child: R, owner: &mut T): haneul::transfer::ChildRef<R> {
+    fun t<T: key>(child: R, owner: &mut T) {
         haneul::transfer::transfer_to_object(child, owner)
     }
 }
 
 //# publish
 module test::m {
-    use haneul::transfer::ChildRef;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object<T: key>(child: T, c: ChildRef<T>, owner: &mut R): ChildRef<T> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
-    }
-}
-
-//# publish
-module test::m {
-    use haneul::transfer::ChildRef;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object<T: key>(child: R, c: ChildRef<R>, owner: &mut T): ChildRef<R> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
-    }
-}
-
-//# publish
-module test::m {
-    use haneul::transfer::ChildRef;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object<T: key>(s: T, c: ChildRef<T>) {
-        haneul::transfer::transfer_child_to_address(s, c, @0x100)
+    fun t<T: key>(child: T, owner: &haneul::id::VersionedID) {
+        haneul::transfer::transfer_to_object_id(child, owner)
     }
 }

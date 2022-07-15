@@ -25,14 +25,14 @@ module t1::m {
 module t2::m {
     fun t(
         s: a::m::S<u64>,
-        owner_id: haneul::id::VersionedID,
-    ): (haneul::id::VersionedID, haneul::transfer::ChildRef<a::m::S<u64>>)  {
+        owner_id: &haneul::id::VersionedID,
+    ) {
         haneul::transfer::transfer_to_object_id(s, owner_id)
     }
     fun t_gen<T: key + store>(
         s: T,
-        owner_id: haneul::id::VersionedID,
-    ): (haneul::id::VersionedID, haneul::transfer::ChildRef<T>)  {
+        owner_id: &haneul::id::VersionedID,
+    ) {
         haneul::transfer::transfer_to_object_id(s, owner_id)
     }
 }
@@ -60,10 +60,10 @@ module t4::m {
 //# publish
 module t5::m {
     struct R has key { id: haneul::id::VersionedID }
-    fun t(child: a::m::S<u64>, owner: &mut R): haneul::transfer::ChildRef<a::m::S<u64>> {
+    fun t(child: a::m::S<u64>, owner: &mut R) {
         haneul::transfer::transfer_to_object(child, owner)
     }
-    fun t_gen<T: key + store>(child: T, owner: &mut R): haneul::transfer::ChildRef<T> {
+    fun t_gen<T: key + store>(child: T, owner: &mut R) {
         haneul::transfer::transfer_to_object(child, owner)
     }
 }
@@ -71,57 +71,20 @@ module t5::m {
 //# publish
 module t6::m {
     struct R has key { id: haneul::id::VersionedID }
-    fun t(child: R, owner: &mut a::m::S<u64>): haneul::transfer::ChildRef<R> {
+    fun t(child: R, owner: &mut a::m::S<u64>) {
         haneul::transfer::transfer_to_object(child, owner)
     }
-    fun t_gen<T: key + store>(child: R, owner: &mut T): haneul::transfer::ChildRef<R> {
+    fun t_gen<T: key + store>(child: R, owner: &mut T) {
         haneul::transfer::transfer_to_object(child, owner)
     }
 }
 
 //# publish
 module t7::m {
-    use haneul::transfer::ChildRef;
-    use a::m::S;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object(
-        child: S<u64>,
-        c: ChildRef<S<u64>>,
-        owner: &mut R,
-    ): ChildRef<S<u64>> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
+    fun t(child: a::m::S<u64>, owner: &haneul::id::VersionedID) {
+        haneul::transfer::transfer_to_object_id(child, owner)
     }
-    fun transfer_child_to_object_gen<T: key + store>(
-        child: T,
-        c: ChildRef<T>,
-        owner: &mut R,
-    ): ChildRef<T> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
-    }
-}
-
-//# publish
-module t8::m {
-    use haneul::transfer::ChildRef;
-    use a::m::S;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object(child: R, c: ChildRef<R>, owner: &mut S<u64>): ChildRef<R> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
-    }
-    fun transfer_child_to_object_gen<T: key + store>(child: R, c: ChildRef<R>, owner: &mut T): ChildRef<R> {
-        haneul::transfer::transfer_child_to_object(child, c, owner)
-    }
-}
-
-//# publish
-module t9::m {
-    use haneul::transfer::ChildRef;
-    use a::m::S;
-    struct R has key { id: haneul::id::VersionedID }
-    fun transfer_child_to_object(s: S<u64>, c: ChildRef<S<u64>>) {
-        haneul::transfer::transfer_child_to_address(s, c, @0x100)
-    }
-    fun transfer_child_to_object_gen<T: key + store>(s: T, c: ChildRef<T>) {
-        haneul::transfer::transfer_child_to_address(s, c, @0x100)
+    fun t_gen<T: key + store>(child: T, owner: &haneul::id::VersionedID) {
+        haneul::transfer::transfer_to_object_id(child, owner)
     }
 }

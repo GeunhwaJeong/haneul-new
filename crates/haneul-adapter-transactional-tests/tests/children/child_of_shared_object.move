@@ -24,13 +24,12 @@ module T3::O3 {
 
 module T2::O2 {
     use haneul::id::VersionedID;
-    use haneul::transfer::{Self, ChildRef};
+    use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
     use T3::O3::O3;
 
     struct O2 has key, store {
         id: VersionedID,
-        child: ChildRef<O3>,
     }
 
     public entry fun create_shared(child: O3, ctx: &mut TxContext) {
@@ -47,8 +46,8 @@ module T2::O2 {
 
     fun new(child: O3, ctx: &mut TxContext): O2 {
         let id = tx_context::new_id(ctx);
-        let (id, child) = transfer::transfer_to_object_id(child, id);
-        O2 { id, child }
+        transfer::transfer_to_object_id(child, &id);
+        O2 { id }
     }
 }
 
@@ -57,14 +56,13 @@ module T2::O2 {
 
 module T1::O1 {
     use haneul::id::VersionedID;
-    use haneul::transfer::{Self, ChildRef};
+    use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
     use T2::O2::O2;
     use T3::O3::O3;
 
     struct O1 has key {
         id: VersionedID,
-        child: ChildRef<O2>,
     }
 
     public entry fun create_shared(child: O2, ctx: &mut TxContext) {
@@ -78,8 +76,8 @@ module T1::O1 {
 
     fun new(child: O2, ctx: &mut TxContext): O1 {
         let id = tx_context::new_id(ctx);
-        let (id, child) = transfer::transfer_to_object_id(child, id);
-        O1 { id, child }
+        transfer::transfer_to_object_id(child, &id);
+        O1 { id }
     }
 }
 

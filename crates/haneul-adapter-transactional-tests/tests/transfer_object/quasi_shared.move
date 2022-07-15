@@ -8,22 +8,21 @@
 //# publish
 
 module test::m {
-    use haneul::transfer::{Self, ChildRef};
+    use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
     use haneul::id::VersionedID;
 
-    struct S has key { id: VersionedID, children: vector<ChildRef<Child>> }
+    struct S has key { id: VersionedID }
     struct Child has key { id: VersionedID }
 
     public entry fun mint_s(ctx: &mut TxContext) {
         let id = tx_context::new_id(ctx);
-        transfer::share_object(S { id, children: vector[] })
+        transfer::share_object(S { id })
     }
 
     public entry fun mint_child(s: &mut S, ctx: &mut TxContext) {
         let id = tx_context::new_id(ctx);
-        let child = transfer::transfer_to_object(Child { id }, s);
-        std::vector::push_back(&mut s.children, child)
+        transfer::transfer_to_object(Child { id }, s);
     }
 }
 
