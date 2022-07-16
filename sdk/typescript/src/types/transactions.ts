@@ -9,11 +9,29 @@ export type TransferObject = {
   objectRef: HaneulObjectRef;
 };
 
-export type TransactionKindName = 'TransferObject' | 'Publish' | 'Call';
+export type HaneulTransferHaneul = {
+  recipient: HaneulAddress;
+  amount: number | null;
+};
+
+export type HaneulChangeEpoch = {
+  epoch: EpochId;
+  storage_charge: number;
+  computation_charge: number;
+};
+
+export type TransactionKindName =
+  | 'TransferObject'
+  | 'Publish'
+  | 'Call'
+  | 'TransferHaneul'
+  | 'ChangeEpoch';
 export type HaneulTransactionKind =
   | { TransferObject: TransferObject }
   | { Publish: HaneulMovePackage }
-  | { Call: MoveCall };
+  | { Call: MoveCall }
+  | { TransferHaneul: HaneulTransferHaneul }
+  | { ChangeEpoch: HaneulChangeEpoch };
 export type TransactionData = {
   transactions: HaneulTransactionKind[];
   sender: HaneulAddress;
@@ -140,13 +158,13 @@ export type PublishResponse = {
   createdObjects: HaneulObject[];
   package: HaneulPackage;
   updatedGas: HaneulObject;
-}
+};
 
 export type HaneulPackage = {
   digest: string;
   objectId: string;
   version: number;
-}
+};
 
 export type TransactionResponse =
   | {
@@ -219,6 +237,18 @@ export function getMoveCallTransaction(
   data: HaneulTransactionKind
 ): MoveCall | undefined {
   return 'Call' in data ? data.Call : undefined;
+}
+
+export function getTransferHaneulTransaction(
+  data: HaneulTransactionKind
+): HaneulTransferHaneul | undefined {
+  return 'TransferHaneul' in data ? data.TransferHaneul : undefined;
+}
+
+export function getChangeEpochTransaction(
+  data: HaneulTransactionKind
+): HaneulChangeEpoch | undefined {
+  return 'ChangeEpoch' in data ? data.ChangeEpoch : undefined;
 }
 
 export function getTransactions(

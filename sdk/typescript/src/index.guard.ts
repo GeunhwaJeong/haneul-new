@@ -5,7 +5,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, TransferObjectTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, TransactionEffectsResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, MergeCoinResponse, SplitCoinResponse, PublishResponse, HaneulPackage, TransactionResponse } from "./index";
+import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, TransferObjectTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, TransactionEffectsResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, MergeCoinResponse, SplitCoinResponse, PublishResponse, HaneulPackage, TransactionResponse } from "./index";
 import { BN } from "bn.js";
 import { Base64DataBuffer } from "./serialization/base64";
 import { PublicKey } from "./cryptography/publickey";
@@ -352,11 +352,35 @@ export function isTransferObject(obj: any, _argumentName?: string): obj is Trans
     )
 }
 
+export function isHaneulTransferHaneul(obj: any, _argumentName?: string): obj is HaneulTransferHaneul {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isTransactionDigest(obj.recipient) as boolean &&
+        (obj.amount === null ||
+            isSequenceNumber(obj.amount) as boolean)
+    )
+}
+
+export function isHaneulChangeEpoch(obj: any, _argumentName?: string): obj is HaneulChangeEpoch {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isSequenceNumber(obj.epoch) as boolean &&
+        isSequenceNumber(obj.storage_charge) as boolean &&
+        isSequenceNumber(obj.computation_charge) as boolean
+    )
+}
+
 export function isTransactionKindName(obj: any, _argumentName?: string): obj is TransactionKindName {
     return (
         (obj === "TransferObject" ||
             obj === "Publish" ||
-            obj === "Call")
+            obj === "Call" ||
+            obj === "TransferHaneul" ||
+            obj === "ChangeEpoch")
     )
 }
 
@@ -373,7 +397,15 @@ export function isHaneulTransactionKind(obj: any, _argumentName?: string): obj i
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isMoveCall(obj.Call) as boolean)
+            isMoveCall(obj.Call) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulTransferHaneul(obj.TransferHaneul) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulChangeEpoch(obj.ChangeEpoch) as boolean)
     )
 }
 

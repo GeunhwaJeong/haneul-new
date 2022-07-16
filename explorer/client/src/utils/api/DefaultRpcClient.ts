@@ -8,6 +8,7 @@ import {
     getTransactionDigest,
     getTransactionKindName,
     getTransferObjectTransaction,
+    getTransferHaneulTransaction,
     JsonRpcProvider,
 } from '@haneullabs/haneul.js';
 
@@ -53,7 +54,8 @@ export const getDataOnTxDigests = (
                         const txn = txns[0];
                         const txKind = getTransactionKindName(txn);
                         const recipient =
-                            getTransferObjectTransaction(txn)?.recipient;
+                            getTransferObjectTransaction(txn)?.recipient ||
+                            getTransferHaneulTransaction(txn)?.recipient;
 
                         return {
                             seq,
