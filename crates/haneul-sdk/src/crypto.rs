@@ -1,9 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use ed25519_dalek::ed25519::signature;
-use ed25519_dalek::{ed25519, Signer};
 use serde::{Deserialize, Serialize};
+use signature::Signer;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
@@ -57,13 +56,12 @@ pub struct HaneulKeystore {
 
 impl Keystore for HaneulKeystore {
     fn sign(&self, address: &HaneulAddress, msg: &[u8]) -> Result<Signature, signature::Error> {
-        Ok(self
-            .keys
+        self.keys
             .get(address)
             .ok_or_else(|| {
                 signature::Error::from_source(format!("Cannot find key for address: [{address}]"))
             })?
-            .sign(msg))
+            .try_sign(msg)
     }
 
     fn add_random_key(&mut self) -> Result<HaneulAddress, anyhow::Error> {
@@ -136,11 +134,7 @@ impl HaneulKeystoreSigner {
 }
 
 impl signature::Signer<Signature> for HaneulKeystoreSigner {
-    fn try_sign(&self, msg: &[u8]) -> Result<Signature, ed25519::Error> {
-        self.keystore
-            .read()
-            .unwrap()
-            .sign(&self.address, msg)
-            .map_err(ed25519::Error::from_source)
+    fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
+        self.keystore.read().unwrap().sign(&self.address, msg)
     }
 }
