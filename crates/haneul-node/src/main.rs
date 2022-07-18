@@ -37,9 +37,10 @@ static GLOBAL: Jemalloc = Jemalloc;
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging
-    let _guard = telemetry_subscribers::TelemetryConfig::new(env!("CARGO_BIN_NAME"))
-        .with_env()
-        .init();
+    let (_guard, filter_handle) =
+        telemetry_subscribers::TelemetryConfig::new(env!("CARGO_BIN_NAME"))
+            .with_env()
+            .init();
 
     let args = Args::parse();
 
@@ -70,6 +71,8 @@ async fn main() -> Result<()> {
             }
         });
     }
+
+    haneul_node::admin::start_admin_server(config.admin_interface_port, filter_handle);
 
     let node = haneul_node::HaneulNode::start(&config).await?;
     node.wait().await?;

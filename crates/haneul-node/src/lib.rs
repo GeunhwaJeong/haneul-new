@@ -38,6 +38,7 @@ use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_types::crypto::PublicKeyBytes;
 
+pub mod admin;
 pub mod metrics;
 
 pub struct HaneulNode {
