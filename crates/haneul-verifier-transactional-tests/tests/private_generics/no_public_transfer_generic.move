@@ -18,10 +18,10 @@ module test::m {
 module test::m {
     fun t<T: key>(
         s: T,
-        owner_id: &haneul::id::VersionedID,
+        owner_info: &haneul::object::Info,
         ctx: &mut haneul::tx_context::TxContext,
     ) {
-        haneul::transfer::transfer_to_object_id(s, owner_id)
+        haneul::transfer::transfer_to_object_id(s, owner_info)
     }
 }
 
@@ -41,7 +41,7 @@ module test::m {
 
 //# publish
 module test::m {
-    struct R has key { id: haneul::id::VersionedID }
+    struct R has key { info: haneul::object::Info }
     fun t<T: key>(child: T, owner: &mut R) {
         haneul::transfer::transfer_to_object(child, owner)
     }
@@ -49,7 +49,7 @@ module test::m {
 
 //# publish
 module test::m {
-    struct R has key { id: haneul::id::VersionedID }
+    struct R has key { info: haneul::object::Info }
     fun t<T: key>(child: R, owner: &mut T) {
         haneul::transfer::transfer_to_object(child, owner)
     }
@@ -57,7 +57,7 @@ module test::m {
 
 //# publish
 module test::m {
-    fun t<T: key>(child: T, owner: &haneul::id::VersionedID) {
+    fun t<T: key>(child: T, owner: &haneul::object::Info) {
         haneul::transfer::transfer_to_object_id(child, owner)
     }
 }

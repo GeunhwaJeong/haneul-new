@@ -3,17 +3,17 @@
 
 module examples::object {
     use haneul::transfer;
-    use haneul::id::VersionedID;
+    use haneul::object::Info;
     use haneul::tx_context::{Self, TxContext};
 
     struct Object has key {
-        id: VersionedID
+        info: Info
     }
 
     /// If function is defined as public - any module can call it.
     /// Non-entry functions are also allowed to have return values.
     public fun create(ctx: &mut TxContext): Object {
-        Object { id: tx_context::new_id(ctx) }
+        Object { info: object::new(ctx) }
     }
 
     /// Entrypoints can't have return values as they can only be called

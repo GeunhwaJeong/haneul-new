@@ -9,15 +9,15 @@
 
 module test::m {
     use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::id::VersionedID;
+    use haneul::tx_context::TxContext;
+    use haneul::object::{Self, Info};
 
-    struct S has store, key { id: VersionedID }
-    struct Cup<phantom T: store> has store, key { id: VersionedID }
+    struct S has store, key { info: Info }
+    struct Cup<phantom T: store> has store, key { info: Info }
 
     public entry fun mint_s(ctx: &mut TxContext) {
-        let id = tx_context::new_id(ctx);
-        transfer::freeze_object(S { id })
+        let info = object::new(ctx);
+        transfer::freeze_object(S { info })
     }
 }
 

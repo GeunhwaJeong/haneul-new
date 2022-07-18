@@ -6,7 +6,7 @@ module haneul::haneul_system {
     use haneul::coin::{Self, Coin};
     use haneul::delegation::{Self, Delegation};
     use haneul::epoch_reward_record::{Self, EpochRewardRecord};
-    use haneul::id::{Self, VersionedID};
+    use haneul::object::{Self, Info};
     use haneul::locked_coin::{Self, LockedCoin};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -39,7 +39,7 @@ module haneul::haneul_system {
 
     /// The top-level object containing all information of the Haneul system.
     struct HaneulSystemState has key {
-        id: VersionedID,
+        info: Info,
         /// The current epoch ID, starting from 0.
         epoch: u64,
         /// Contains all information about the validators.
@@ -69,7 +69,7 @@ module haneul::haneul_system {
     ) {
         let state = HaneulSystemState {
             // Use a hardcoded ID.
-            id: id::get_haneul_system_state_object_id(),
+            info: object::haneul_system_state(),
             epoch: 0,
             validators: validator_set::new(validators),
             haneul_supply,

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul::epoch_reward_record {
-    use haneul::id::VersionedID;
+    use haneul::object::{Self, Info};
     use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::tx_context::TxContext;
 
     friend haneul::haneul_system;
     friend haneul::validator_set;
@@ -16,7 +16,7 @@ module haneul::epoch_reward_record {
     /// Delegation reward is simply proportional to to overall delegation reward ratio
     /// and the delegation amount.
     struct EpochRewardRecord has key {
-        id: VersionedID,
+        info: Info,
         epoch: u64,
         computation_charge: u64,
         total_stake: u64,
@@ -33,7 +33,7 @@ module haneul::epoch_reward_record {
         ctx: &mut TxContext,
     ) {
         transfer::share_object(EpochRewardRecord {
-            id: tx_context::new_id(ctx),
+            info: object::new(ctx),
             epoch,
             computation_charge,
             total_stake,

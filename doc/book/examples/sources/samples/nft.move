@@ -4,14 +4,14 @@
 module examples::devnet_nft {
     use haneul::url::{Self, Url};
     use haneul::utf8;
-    use haneul::id::{Self, ID, VersionedID};
+    use haneul::object::{Self, ID, Info};
     use haneul::event;
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
 
     /// An example NFT that can be minted by anybody
     struct DevNetNFT has key, store {
-        id: VersionedID,
+        info: Info,
         /// Name for the token
         name: utf8::String,
         /// Description of the token
@@ -60,14 +60,14 @@ module examples::devnet_nft {
     ) {
         let sender = tx_context::sender(ctx);
         let nft = DevNetNFT {
-            id: tx_context::new_id(ctx),
+            info: object::new(ctx),
             name: utf8::string_unsafe(name),
             description: utf8::string_unsafe(description),
             url: url::new_unsafe_from_bytes(url)
         };
 
         event::emit(NFTMinted {
-            object_id: *id::inner(&nft.id),
+            object_id: *object::info_id(&nft.id),
             creator: sender,
             name: nft.name,
         });
@@ -94,6 +94,6 @@ module examples::devnet_nft {
     /// Permanently delete `nft`
     public entry fun burn(nft: DevNetNFT, _: &mut TxContext) {
         let DevNetNFT { id, name: _, description: _, url: _ } = nft;
-        id::delete(id)
+        object::delete(id)
     }
 }

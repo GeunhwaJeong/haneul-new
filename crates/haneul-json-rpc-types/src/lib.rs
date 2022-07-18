@@ -436,7 +436,7 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
                 if let HaneulMoveValue::Number(balance) = fields["balance"].clone() {
-                    if let HaneulMoveValue::VersionedID { id, version } = fields["id"].clone() {
+                    if let HaneulMoveValue::Info { id, version } = fields["info"].clone() {
                         return Ok(GasCoin::new(id, SequenceNumber::from(version), balance));
                     }
                 }
@@ -573,7 +573,7 @@ pub enum HaneulMoveValue {
     Vector(Vec<HaneulMoveValue>),
     Bytearray(Base64),
     String(String),
-    VersionedID { id: ObjectID, version: u64 },
+    Info { id: ObjectID, version: u64 },
     Struct(HaneulMoveStruct),
     Option(Box<Option<HaneulMoveValue>>),
 }
@@ -601,7 +601,7 @@ impl Display for HaneulMoveValue {
             HaneulMoveValue::String(value) => {
                 write!(writer, "{}", value)?;
             }
-            HaneulMoveValue::VersionedID { id, version } => {
+            HaneulMoveValue::Info { id, version } => {
                 write!(writer, "{id}[{version}]")?;
             }
             HaneulMoveValue::Struct(value) => {
@@ -764,20 +764,15 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
             }
         }
         "0x2::url::Url" => return Some(fields["url"].clone()),
-        "0x2::id::ID" => {
+        "0x2::object::ID" => {
             if let HaneulMoveValue::Address(id) = fields["bytes"] {
                 return Some(HaneulMoveValue::Address(id));
             }
         }
-        "0x2::id::UniqueID" => {
-            if let HaneulMoveValue::Address(id) = fields["id"].clone() {
-                return Some(HaneulMoveValue::Address(id));
-            }
-        }
-        "0x2::id::VersionedID" => {
+        "0x2::object::Info" => {
             if let HaneulMoveValue::Address(address) = fields["id"].clone() {
                 if let HaneulMoveValue::Number(version) = fields["version"].clone() {
-                    return Some(HaneulMoveValue::VersionedID {
+                    return Some(HaneulMoveValue::Info {
                         id: address.into(),
                         version,
                     });

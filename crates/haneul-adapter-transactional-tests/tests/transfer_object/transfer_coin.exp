@@ -5,11 +5,11 @@ A: object(100), B: object(101)
 
 task 1 'view-object'. lines 8-8:
 Owner: Account Address ( A )
-Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::id::VersionedID {id: haneul::id::UniqueID {id: haneul::id::ID {bytes: fake(100)}}, version: 0u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 100000u64}}
+Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {info: haneul::object::Info {id: haneul::object::ID {bytes: fake(100)}, version: 0u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 100000u64}}
 
 task 2 'transfer-object'. lines 10-10:
 written: object(100), object(104)
 
 task 3 'view-object'. lines 12-12:
 Owner: Account Address ( B )
-Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::id::VersionedID {id: haneul::id::UniqueID {id: haneul::id::ID {bytes: fake(100)}}, version: 1u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 100000u64}}
+Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {info: haneul::object::Info {id: haneul::object::ID {bytes: fake(100)}, version: 1u64}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 100000u64}}

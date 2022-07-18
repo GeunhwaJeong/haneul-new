@@ -5,13 +5,13 @@
 module haneul::collection_tests {
     use haneul::bag::{Self, Bag};
     use haneul::collection::{Self, Collection};
-    use haneul::id::VersionedID;
+    use haneul::object::{Self, Info};
     use haneul::test_scenario;
     use haneul::typed_id;
     use haneul::tx_context;
 
     struct Object has key, store {
-        id: VersionedID,
+        info: Info,
     }
 
     #[test]
@@ -31,8 +31,8 @@ module haneul::collection_tests {
             let collection = test_scenario::take_owned<Collection<Object>>(scenario);
             assert!(collection::size(&collection) == 0, 0);
 
-            let obj1 = Object { id: tx_context::new_id(test_scenario::ctx(scenario)) };
-            let obj2 = Object { id: tx_context::new_id(test_scenario::ctx(scenario)) };
+            let obj1 = Object { info: object::new(test_scenario::ctx(scenario)) };
+            let obj2 = Object { info: object::new(test_scenario::ctx(scenario)) };
 
             let item_id1 = collection::add(&mut collection, obj1, test_scenario::ctx(scenario));
             let item_id2 = collection::add(&mut collection, obj2, test_scenario::ctx(scenario));
@@ -61,7 +61,7 @@ module haneul::collection_tests {
         test_scenario::next_tx(scenario, &sender);
         {
             let collection = test_scenario::take_owned<Collection<Object>>(scenario);
-            let obj = Object { id: tx_context::new_id(test_scenario::ctx(scenario)) };
+            let obj = Object { info: object::new(test_scenario::ctx(scenario)) };
             collection::add(&mut collection, obj, test_scenario::ctx(scenario));
             test_scenario::return_owned(scenario, collection);
         };
@@ -128,9 +128,9 @@ module haneul::collection_tests {
         let ctx = tx_context::dummy();
         let collection = collection::new_with_max_capacity<Object>(&mut ctx, 1);
 
-        let obj1 = Object { id: tx_context::new_id(&mut ctx) };
+        let obj1 = Object { info: object::new(&mut ctx) };
         collection::add(&mut collection, obj1, &mut ctx);
-        let obj2 = Object { id: tx_context::new_id(&mut ctx) };
+        let obj2 = Object { info: object::new(&mut ctx) };
         collection::add(&mut collection, obj2, &mut ctx);
         collection::transfer(collection, tx_context::sender(&ctx));
     }

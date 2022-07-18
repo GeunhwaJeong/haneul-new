@@ -7,13 +7,13 @@
 module Test::M {
     use haneul::tx_context::{Self, TxContext};
     struct Obj has key {
-        id: haneul::id::VersionedID,
+        info: haneul::object::Info,
         value: u64
     }
 
     public entry fun mint(ctx: &mut TxContext) {
         haneul::transfer::transfer(
-            Obj { id: tx_context::new_id(ctx), value: 0 },
+            Obj { info: haneul::object::new(ctx), value: 0 },
             tx_context::sender(ctx),
         )
     }

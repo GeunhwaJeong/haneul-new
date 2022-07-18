@@ -107,7 +107,7 @@ fn test_move_value_to_url() {
 fn test_serde() {
     let test_values = [
         HaneulMoveValue::Number(u64::MAX),
-        HaneulMoveValue::VersionedID {
+        HaneulMoveValue::Info {
             id: ObjectID::random(),
             version: u64::MAX,
         },

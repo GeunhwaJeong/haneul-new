@@ -3,13 +3,13 @@
 
 /// A freely transfererrable Wrapper for custom data.
 module examples::wrapper {
-    use haneul::id::{Self, VersionedID};
+    use haneul::object::{Self, Info};
     use haneul::tx_context::{Self, TxContext};
 
     /// An object with `store` can be transferred in any
     /// module without a custom transfer implementation.
     struct Wrapper<T: store> has key, store {
-        id: VersionedID,
+        info: Info,
         contents: T
     }
 
@@ -24,14 +24,14 @@ module examples::wrapper {
     ): Wrapper<T> {
         Wrapper {
             contents,
-            id: tx_context::new_id(ctx),
+            info: object::new(ctx),
         }
     }
 
     /// Destroy `Wrapper` and get T.
     public fun destroy<T: store> (c: Wrapper<T>): T {
         let Wrapper { id, contents } = c;
-        id::delete(id);
+        object::delete(id);
         contents
     }
 }

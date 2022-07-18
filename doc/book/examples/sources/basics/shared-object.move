@@ -8,7 +8,7 @@ module examples::donuts {
     use haneul::transfer;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::id::{Self, VersionedID};
+    use haneul::object::{Self, Info};
     use haneul::balance::{Self, Balance};
     use haneul::tx_context::{Self, TxContext};
 
@@ -16,14 +16,14 @@ module examples::donuts {
     const ENotEnough: u64 = 0;
 
     /// Capability that grants an owner the right to collect profits.
-    struct ShopOwnerCap has key { id: VersionedID }
+    struct ShopOwnerCap has key { info: Info }
 
     /// A purchasable Donut. For simplicity's sake we ignore implementation.
-    struct Donut has key { id: VersionedID }
+    struct Donut has key { info: Info }
 
     /// A shared object. `key` ability is required.
     struct DonutShop has key {
-        id: VersionedID,
+        info: Info,
         price: u64,
         balance: Balance<HANEUL>
     }
@@ -34,12 +34,12 @@ module examples::donuts {
     /// To share an object `transfer::share_object` is used.
     fun init(ctx: &mut TxContext) {
         transfer::transfer(ShopOwnerCap {
-            id: tx_context::new_id(ctx)
+            info: object::new(ctx)
         }, tx_context::sender(ctx));
 
         // Share the object to make it accessible to everyone!
         transfer::share_object(DonutShop {
-            id: tx_context::new_id(ctx),
+            info: object::new(ctx),
             price: 1000,
             balance: balance::zero()
         })
@@ -59,14 +59,14 @@ module examples::donuts {
         balance::join(&mut shop.balance, paid);
 
         transfer::transfer(Donut {
-            id: tx_context::new_id(ctx)
+            info: object::new(ctx)
         }, tx_context::sender(ctx))
     }
 
     /// Consume donut and get nothing...
     public entry fun eat_donut(d: Donut) {
         let Donut { id } = d;
-        id::delete(id);
+        object::delete(id);
     }
 
     /// Take coin from `DonutShop` and transfer it to tx sender.

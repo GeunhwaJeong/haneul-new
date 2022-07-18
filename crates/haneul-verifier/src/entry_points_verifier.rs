@@ -14,7 +14,7 @@ use haneul_types::{
         TX_CONTEXT_STRUCT_NAME,
     },
     error::ExecutionError,
-    id::{ID_MODULE_NAME, ID_STRUCT_NAME},
+    id::{ID_STRUCT_NAME, OBJECT_MODULE_NAME},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 
@@ -195,7 +195,7 @@ fn verify_param_type(
 }
 
 pub const RESOLVED_HANEUL_ID: (&AccountAddress, &IdentStr, &IdentStr) =
-    (&HANEUL_FRAMEWORK_ADDRESS, ID_MODULE_NAME, ID_STRUCT_NAME);
+    (&HANEUL_FRAMEWORK_ADDRESS, OBJECT_MODULE_NAME, ID_STRUCT_NAME);
 pub const RESOLVED_STD_OPTION: (&AccountAddress, &IdentStr, &IdentStr) = (
     &MOVE_STDLIB_ADDRESS,
     STD_OPTION_MODULE_NAME,

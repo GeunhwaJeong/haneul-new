@@ -7,9 +7,9 @@ module nfts::shared_auction_tests {
 
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
-    use haneul::id::VersionedID;
+    use haneul::object::{Self, Info};
     use haneul::test_scenario::Self;
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::tx_context::TxContext;
 
     use nfts::shared_auction;
     use nfts::auction_lib::Auction;
@@ -23,7 +23,7 @@ module nfts::shared_auction_tests {
 
     // Example of an object type that could be sold at an auction.
     struct SomeItemToSell has key, store {
-        id: VersionedID,
+        info: Info,
         value: u64,
     }
 
@@ -59,7 +59,7 @@ module nfts::shared_auction_tests {
         let ctx = test_scenario::ctx(scenario);
         {
             let to_sell = SomeItemToSell {
-                id: tx_context::new_id(ctx),
+                info: object::new(ctx),
                 value: 42,
             };
             shared_auction::create_auction(to_sell, ctx);
