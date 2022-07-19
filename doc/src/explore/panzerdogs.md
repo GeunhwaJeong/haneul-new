@@ -42,7 +42,7 @@ Finally, users prove ownership to the Haneul network by providing a signature co
 ![HaneulEchoNFTMint](/static/haneulpanzerdogs4.png)
 *Letting the user select an NFT, prove ownership, and HaneulEcho it*
 
-And that’s it! After following these steps, the user now owns a new Haneul-based NFT that was brought into Haneul through the HaneulEcho white-label solution. To confirm ownership, the user can check the [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/blob/explorer-rest/explorer/README.md) and read additional information relevant to each NFT.
+And that’s it! After following these steps, the user now owns a new Haneul-based NFT that was brought into Haneul through the HaneulEcho white-label solution. To confirm ownership, the user can check the [Haneul Explorer](https://explorer.devnet.haneul.io/) and read additional information relevant to each NFT.
 
 ![HaneulExplorer](/static/haneulpanzerdogs5.png)
 *Haneul NFTs can be viewed in the Haneul Explorer*
