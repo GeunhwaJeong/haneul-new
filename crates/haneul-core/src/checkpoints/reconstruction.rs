@@ -5,12 +5,13 @@ use std::collections::{BTreeMap, HashMap, VecDeque};
 
 use haneul_types::base_types::ExecutionDigests;
 use haneul_types::committee::StakeUnit;
+use haneul_types::messages_checkpoint::CheckpointProposalSummary;
 use haneul_types::{
     base_types::AuthorityName,
     committee::Committee,
     error::HaneulError,
     messages::CertifiedTransaction,
-    messages_checkpoint::{CheckpointFragment, CheckpointSummary},
+    messages_checkpoint::CheckpointFragment,
     waypoint::{GlobalCheckpoint, WaypointError},
 };
 
@@ -41,12 +42,12 @@ impl FragmentReconstruction {
     ) -> Result<FragmentReconstruction, HaneulError> {
         let mut span = SpanGraph::new(&committee);
         let mut fragments_used = Vec::new();
-        let mut proposals: HashMap<AuthorityName, CheckpointSummary> = HashMap::new();
+        let mut proposals: HashMap<AuthorityName, CheckpointProposalSummary> = HashMap::new();
         let mut extra_transactions = BTreeMap::new();
 
         for frag in fragments {
             // Double check we have only been given waypoints for the correct sequence number
-            debug_assert!(*frag.proposer.summary.sequence_number() == seq);
+            debug_assert!(frag.proposer.summary.sequence_number == seq);
 
             // Check the checkpoint summary of the proposal is the same as the previous one.
             // Otherwise ignore the link.
