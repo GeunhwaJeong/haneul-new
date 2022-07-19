@@ -639,7 +639,7 @@ async fn test_full_node_sub_to_move_event_ok() -> Result<(), anyhow::Error> {
             assert_eq!(type_, "0x2::devnet_nft::MintNFTEvent");
             assert_eq!(
                 fields,
-                HaneulMoveStruct::WithFields(BTreeMap::from([
+                Some(HaneulMoveStruct::WithFields(BTreeMap::from([
                     ("creator".into(), HaneulMoveValue::Address(sender)),
                     (
                         "name".into(),
@@ -649,7 +649,7 @@ async fn test_full_node_sub_to_move_event_ok() -> Result<(), anyhow::Error> {
                         "object_id".into(),
                         HaneulMoveValue::Address(HaneulAddress::from(object_id))
                     ),
-                ]))
+                ])))
             );
             // TODO: verify bcs contents
         }
