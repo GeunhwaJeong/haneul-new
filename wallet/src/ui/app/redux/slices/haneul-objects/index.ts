@@ -82,7 +82,13 @@ const initialState = objectsAdapter.getInitialState<HaneulObjectsManualState>({
 const slice = createSlice({
     name: 'haneul-objects',
     initialState: initialState,
-    reducers: {},
+    reducers: {
+        clearForNetworkSwitch: (state) => {
+            state.error = false;
+            state.lastSync = null;
+            objectsAdapter.removeAll(state);
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchAllOwnedObjects.fulfilled, (state, action) => {
@@ -105,6 +111,8 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
+
+export const { clearForNetworkSwitch } = slice.actions;
 
 export const haneulObjectsAdapterSelectors = objectsAdapter.getSelectors(
     (state: RootState) => state.haneulObjects
