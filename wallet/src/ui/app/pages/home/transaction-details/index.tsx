@@ -28,6 +28,8 @@ const txKindToTxt: Record<TransactionKindName, string> = {
     TransferObject: 'Object transfer',
     Call: 'Call',
     Publish: 'Publish',
+    TransferHaneul: 'Haneul transfer',
+    ChangeEpoch: 'Change epoch',
 };
 
 function TransactionDetailsPage() {
