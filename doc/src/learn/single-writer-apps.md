@@ -1,5 +1,5 @@
 ---
-title: Haneul Single-Writer-Friendly (SWF) apps
+title: Use Haneul Single-Writer-Friendly (SWF) Apps
 ---
 
 This page lists applications that can work in the single-writer model defined as [simple transactions](how-haneul-works.md#simple-transactions) in Haneul. 
