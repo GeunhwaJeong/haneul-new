@@ -148,6 +148,18 @@ pub fn make_transfer_haneul_transaction(gas_object: Object, recipient: HaneulAdd
     Transaction::new(data, signature)
 }
 
+pub fn make_transfer_object_transaction(
+    object_ref: ObjectRef,
+    gas_object: ObjectRef,
+    sender: HaneulAddress,
+    keypair: &KeyPair,
+    recipient: HaneulAddress,
+) -> Transaction {
+    let data = TransactionData::new_transfer(recipient, object_ref, sender, gas_object, MAX_GAS);
+    let signature = Signature::new(&data, keypair);
+    Transaction::new(data, signature)
+}
+
 pub fn make_publish_basics_transaction(gas_object: ObjectRef) -> Transaction {
     let (sender, keypair) = test_keys().pop().unwrap();
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
