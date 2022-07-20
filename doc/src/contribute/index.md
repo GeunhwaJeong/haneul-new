@@ -20,21 +20,27 @@ To connect with the Haneul community, join our [Discord](https://discord.gg/hane
 Report bugs and make feature requests in the [Haneul GitHub](https://github.com/GeunhwaJeong/haneul/issues) repository
 using the [Template for Reporting Issues](https://github.com/GeunhwaJeong/haneul/blob/main/ISSUES.md).
 
-## Provide docs feedback
+## Help docs
 
+### Ideas
 Send ideas to:
 doc@haneul-labs.com
 
+### Issues
 And file documentation fixes or requests for improvement at:
 https://github.com/GeunhwaJeong/haneul/issues/new/choose
 
 Select the **Haneul Doc Bug** template, adjust fields, and describe the issue.
 
+### Updates
+
 You may also make changes to the docs directly in GitHub right here using the **Source Code** link below.
 
 > **Important:** Make sure you are in the `main` rather than `devnet` branch in the URL.
 
-Simply edit the file in question and generate a pull request. We will get back to you shortly.
+Simply edit the file in question and generate a pull request. You may even use our [Haneul doc templates](https://github.com/GeunhwaJeong/haneul/tree/main/doc/template) to create overviews and procedures (uses).
+
+Then send your work our way. We will get back to you shortly.
 
 ## Download Haneul
 
