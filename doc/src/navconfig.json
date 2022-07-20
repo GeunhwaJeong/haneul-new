@@ -28,10 +28,6 @@
             "fileName": "learn/haneul-glossary"
           },
           {
-            "label": "Haneul Compared to Other Blockchains",
-            "fileName": "learn/haneul-compared"
-          },
-          {
             "label": "Why Move?",
             "fileName": "learn/why-move"
           },
@@ -55,6 +51,10 @@
         "fileName": "learn/how-haneul-works",
         "title": "How Haneul Works",
         "items": [
+          {
+            "label": "Haneul Compared to Other Blockchains",
+            "fileName": "learn/haneul-compared"
+          },
           {
             "label": "Manage Objects",
             "fileName": "build/objects"

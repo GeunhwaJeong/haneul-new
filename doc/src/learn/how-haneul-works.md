@@ -14,6 +14,14 @@ Instead of the traditional blockchain’s fire-and-forget broadcast, Haneul ensu
 
 In a world where the cost of bandwidth is diminishing steadily, we are creating an ecosystem of services that will find it easy, fun, and perhaps profitable to ensure transaction voting on behalf of users.
 
+## Components
+
+Become familiar with these key Haneul concepts:
+
+* [Objects](../build/objects.md) - Haneul has programmable objects created and managed by Move packages (a.k.a. smart contracts). Move packages themselves are also objects. Thus, Haneul objects can be partitioned into two categories: mutable data values and immutable packages.
+* [Transactions](../build/transactions.md) - All updates to the Haneul ledger happen via a transaction. This section describes the transaction types supported by Haneul and explains how their execution changes the ledger.
+* [Validators](../learn/architecture/validators.md) - The Haneul network is operated by a set of independent validators, each running its own instance of the Haneul software on a separate machine (or a sharded cluster of machines operated by the same entity).
+
 ## Architecture
 Haneul is a distributed ledger that stores a collection of programmable *[objects](../build/objects.md)*, each with a globally unique ID. Every object is owned by a single *address*, and each address can own an arbitrary number of objects.
 
