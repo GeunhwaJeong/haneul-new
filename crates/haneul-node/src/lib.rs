@@ -183,9 +183,10 @@ impl HaneulNode {
                         Some(active_authority.clone().spawn_execute_process().await),
                         Some(
                             active_authority
-                                .spawn_checkpoint_process(CheckpointMetrics::new(
-                                    &prometheus_registry,
-                                ))
+                                .spawn_checkpoint_process(
+                                    CheckpointMetrics::new(&prometheus_registry),
+                                    config.enable_reconfig,
+                                )
                                 .await,
                         ),
                     )
