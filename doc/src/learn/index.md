@@ -16,6 +16,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
 * Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 * [Haneul Move is feature complete](https://haneul.io/resources-move/why-we-created-haneul-move/) and ready for you to write safe and efficient smart contracts. See https://examples.haneul.io/ to learn Haneul Move by example.
 * Haneul [version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0-rc) released to DevNet. See [RELEASES](https://github.com/GeunhwaJeong/haneul/blob/main/RELEASES.md) for details on other releases.
@@ -23,8 +24,6 @@ Find the latest updates to these contents in this section:
 * Employ the enhanced [Move Visual Studio Code (VSCode) plugin](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer) as described in the [related announcement](https://haneul.io/resources-haneul/announcing-enhanced-move-vs-code-plugin).
 * Get ready to participate in [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/)!
 * The former `wallet` binary has been replaced with the [Haneul CLI client](../build/cli-client.md) and combined with related functions.
-* [JSON-RPC PubSub](../build/pubsub.md) is supported by Haneul [fullnode](../build/fullnode.md) to publish / subscribe using notifications via websocket.
-* [Docker Compose](../build/fullnode.md#using-docker-compose) enables simple creation of Haneul Fullnodes using [Docker](https://github.com/GeunhwaJeong/haneul/tree/main/docker/fullnode#readme).
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
