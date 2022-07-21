@@ -11,6 +11,7 @@ Run a Haneul DevNet [fullnode](../../doc/src/build/fullnode.md) locally for test
 Install Docker / Docker Compose:
 - https://docs.docker.com/get-docker/
 - https://docs.docker.com/compose/install/
+- https://github.com/GeunhwaJeong/haneul/blob/main/docker/fullnode/docker-compose.yaml
 
 ## Running
 
