@@ -1,11 +1,9 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::base_types::{AuthorityName, HaneulAddress};
-use crate::committee::{Committee, EpochId};
-use crate::error::{HaneulError, HaneulResult};
-use crate::haneul_serde::Base64;
-use crate::haneul_serde::Readable;
-use crate::haneul_serde::HaneulBitmap;
+use std::fmt::Display;
+use std::hash::{Hash, Hasher};
+use std::str::FromStr;
+
 use anyhow::Error;
 use base64ct::Encoding;
 use digest::Digest;
@@ -22,12 +20,13 @@ use rand::rngs::OsRng;
 use roaring::RoaringBitmap;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
-use serde_with::Bytes;
+use serde_with::{serde_as, Bytes};
 use sha3::Sha3_256;
-use std::fmt::Display;
-use std::hash::{Hash, Hasher};
-use std::str::FromStr;
+
+use crate::base_types::{AuthorityName, HaneulAddress};
+use crate::committee::{Committee, EpochId};
+use crate::error::{HaneulError, HaneulResult};
+use crate::haneul_serde::{Base64, Readable, HaneulBitmap};
 
 // Comment the one you want to use
 pub type KeyPair = Ed25519KeyPair; // Associated Types don't work here yet for some reason.
