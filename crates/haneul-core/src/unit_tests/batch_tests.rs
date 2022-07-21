@@ -5,7 +5,8 @@ use rand::{prelude::StdRng, SeedableRng};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::get_key_pair_from_rng;
-use haneul_types::crypto::KeyPair;
+use haneul_types::crypto::PublicKeyBytes;
+use haneul_types::crypto::{KeyPair, KeypairTraits};
 use haneul_types::messages_checkpoint::CheckpointRequest;
 use haneul_types::messages_checkpoint::CheckpointResponse;
 
@@ -34,9 +35,9 @@ where
     R: rand::CryptoRng + rand::RngCore,
 {
     let (authority_address, authority_key) = get_key_pair_from_rng(rng);
-    let mut authorities = BTreeMap::new();
+    let mut authorities: BTreeMap<PublicKeyBytes, u64> = BTreeMap::new();
     authorities.insert(
-        /* address */ *authority_key.public_key_bytes(),
+        /* address */ authority_key.public().into(),
         /* voting right */ 1,
     );
     let committee = Committee::new(0, authorities).unwrap();
@@ -51,7 +52,7 @@ pub(crate) async fn init_state(
 ) -> AuthorityState {
     AuthorityState::new(
         committee,
-        *authority_key.public_key_bytes(),
+        authority_key.public().into(),
         Arc::pin(authority_key),
         store,
         None,
@@ -734,8 +735,8 @@ async fn test_safe_batch_stream() {
     fs::create_dir(&path).unwrap();
 
     let (_, authority_key) = get_key_pair();
-    let mut authorities = BTreeMap::new();
-    let public_key_bytes = *authority_key.public_key_bytes();
+    let mut authorities: BTreeMap<PublicKeyBytes, u64> = BTreeMap::new();
+    let public_key_bytes = authority_key.public().into();
     println!("init public key {:?}", public_key_bytes);
 
     authorities.insert(public_key_bytes, 1);
@@ -788,7 +789,7 @@ async fn test_safe_batch_stream() {
 
     // Byzantine cases:
     let (_, authority_key) = get_key_pair();
-    let public_key_bytes_b = *authority_key.public_key_bytes();
+    let public_key_bytes_b = authority_key.public().into();
     let state_b = AuthorityState::new(
         committee.clone(),
         public_key_bytes_b,

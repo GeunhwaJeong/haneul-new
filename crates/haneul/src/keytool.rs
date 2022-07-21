@@ -7,6 +7,7 @@ use std::fs;
 use std::path::Path;
 use haneul_sdk::crypto::{Keystore, HaneulKeystore};
 use haneul_types::base_types::decode_bytes_hex;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{
     base_types::HaneulAddress,
@@ -41,7 +42,7 @@ impl KeyToolCommand {
                 store_and_print_keypair(address, keypair)
             }
             KeyToolCommand::Unpack { keypair } => {
-                store_and_print_keypair(HaneulAddress::from(keypair.public_key_bytes()), keypair)
+                store_and_print_keypair(keypair.public().into(), keypair)
             }
             KeyToolCommand::List => {
                 println!(
@@ -52,8 +53,8 @@ impl KeyToolCommand {
                 for keypair in keystore.key_pairs() {
                     println!(
                         " {0: ^42} | {1: ^45} ",
-                        HaneulAddress::from(keypair.public_key_bytes()),
-                        Base64::encode(keypair.public_key_bytes().to_vec()),
+                        Into::<HaneulAddress>::into(keypair.public()),
+                        Base64::encode(keypair.public().as_ref()),
                     );
                 }
             }

@@ -21,6 +21,7 @@ use haneul_config::{
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_sdk::crypto::KeystoreType;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 
 use test_utils::network::{setup_network_and_wallet, start_test_network};
@@ -109,7 +110,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
             db_folder_path: working_dir.join("client_db"),
             validator_set: vec![ValidatorInfo {
                 name: "0".into(),
-                public_key: *get_key_pair().1.public_key_bytes(),
+                public_key: get_key_pair().1.public().into(),
                 stake: 1,
                 delegation: 1,
                 network_address: haneul_config::utils::new_network_address(),

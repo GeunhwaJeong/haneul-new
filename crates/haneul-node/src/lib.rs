@@ -31,12 +31,13 @@ use haneul_storage::{
     node_sync_store::NodeSyncStore,
     IndexStore,
 };
+use haneul_types::crypto::ToFromBytes;
 
 use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
 use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
-use haneul_types::crypto::PublicKeyBytes;
+use haneul_types::crypto::{KeypairTraits, PublicKeyBytes};
 
 pub mod admin;
 pub mod metrics;
@@ -146,7 +147,7 @@ impl HaneulNode {
                         let channel = net_config.connect_lazy(&address)?;
                         let client = NetworkAuthorityClient::new(channel);
                         let name: &[u8] = &validator.metadata.name;
-                        let public_key_bytes = PublicKeyBytes::try_from(name)?;
+                        let public_key_bytes = PublicKeyBytes::from_bytes(name)?;
                         authority_clients.insert(public_key_bytes, client);
                     }
                 } else {

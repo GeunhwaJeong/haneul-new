@@ -12,7 +12,7 @@ use std::{
 
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
-    crypto::{get_key_pair, AuthoritySignature, Signature},
+    crypto::{get_key_pair, AuthoritySignature, Signature, HaneulAuthoritySignature},
     error::HaneulError,
     gas::HaneulGasStatus,
     messages::{InputObjects, SignatureAggregator, Transaction, TransactionData},

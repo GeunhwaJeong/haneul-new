@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::StakeUnit;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::{KeyPair, PublicKeyBytes};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -84,11 +85,11 @@ impl NodeConfig {
     }
 
     pub fn public_key(&self) -> PublicKeyBytes {
-        *self.key_pair.public_key_bytes()
+        self.key_pair.public().into()
     }
 
     pub fn haneul_address(&self) -> HaneulAddress {
-        HaneulAddress::from(self.public_key())
+        (&self.public_key()).into()
     }
 
     pub fn db_path(&self) -> &Path {
@@ -156,7 +157,7 @@ impl ValidatorInfo {
     }
 
     pub fn haneul_address(&self) -> HaneulAddress {
-        HaneulAddress::from(self.public_key())
+        (&self.public_key()).into()
     }
 
     pub fn public_key(&self) -> PublicKeyBytes {

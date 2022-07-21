@@ -3,7 +3,9 @@
 
 use crate::base_types::{AuthorityName, ExecutionDigests};
 use crate::committee::{Committee, EpochId};
-use crate::crypto::{sha3_hash, AuthoritySignInfo, AuthoritySignature, BcsSignable};
+use crate::crypto::{
+    sha3_hash, AuthoritySignInfo, AuthoritySignature, BcsSignable, HaneulAuthoritySignature,
+};
 use crate::error::{HaneulError, HaneulResult};
 use serde::{Deserialize, Serialize};
 

@@ -24,6 +24,7 @@ use haneul_json_rpc::gateway_api::{
 use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::KeypairTraits;
 const NUM_VALIDAOTR: usize = 4;
 
 pub async fn start_test_network(
@@ -41,9 +42,8 @@ pub async fn start_test_network(
         .config()
         .account_keys
         .iter()
-        .map(|key| HaneulAddress::from(key.public_key_bytes()))
+        .map(|key| key.public().into())
         .collect::<Vec<_>>();
-
     let dir = swarm.dir();
 
     let network_path = dir.join(HANEUL_NETWORK_CONFIG);
@@ -55,7 +55,7 @@ pub async fn start_test_network(
     swarm.config().save(&network_path)?;
     let mut keystore = HaneulKeystore::default();
     for key in &swarm.config().account_keys {
-        keystore.add_key(HaneulAddress::from(key.public_key_bytes()), key.copy())?;
+        keystore.add_key(key.public().into(), key.copy())?;
     }
     keystore.set_path(&keystore_path);
     keystore.save()?;

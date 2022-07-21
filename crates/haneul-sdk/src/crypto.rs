@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{get_key_pair, KeyPair, Signature};
+use haneul_types::crypto::{get_key_pair, KeyPair, KeypairTraits, Signature};
 
 #[derive(Serialize, Deserialize)]
 #[non_exhaustive]
@@ -83,7 +83,7 @@ impl HaneulKeystore {
 
         let keys = keys
             .into_iter()
-            .map(|key| (HaneulAddress::from(key.public_key_bytes()), key))
+            .map(|key| (key.public().into(), key))
             .collect();
 
         Ok(Self {

@@ -26,7 +26,7 @@ use serde_with::Bytes;
 use sha3::Sha3_256;
 
 use crate::committee::EpochId;
-use crate::crypto::PublicKeyBytes;
+use crate::crypto::{PublicKey, PublicKeyBytes};
 use crate::error::ExecutionError;
 use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
@@ -184,20 +184,26 @@ impl TryFrom<Vec<u8>> for HaneulAddress {
 }
 
 impl From<&PublicKeyBytes> for HaneulAddress {
-    fn from(key: &PublicKeyBytes) -> HaneulAddress {
-        Self::from(*key)
-    }
-}
-
-impl From<PublicKeyBytes> for HaneulAddress {
-    fn from(key: PublicKeyBytes) -> HaneulAddress {
+    fn from(pkb: &PublicKeyBytes) -> Self {
         let mut hasher = Sha3_256::default();
-        hasher.update(key.as_ref());
+        hasher.update(pkb.as_ref());
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
         res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-        Self(res)
+        HaneulAddress(res)
+    }
+}
+
+impl From<&PublicKey> for HaneulAddress {
+    fn from(pkb: &PublicKey) -> Self {
+        let mut hasher = Sha3_256::default();
+        hasher.update(pkb.as_ref());
+        let g_arr = hasher.finalize();
+
+        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
+        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
+        HaneulAddress(res)
     }
 }
 
