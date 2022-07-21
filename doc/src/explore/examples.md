@@ -2,7 +2,10 @@
 title: Examples of Haneul Smart Contracts
 ---
 
-Find sample Haneul smart contract implementations in the [haneul_programmability/examples](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples) directory. Here is a rundown of existing examples.
+Find sample Haneul smart contract implementations in the [haneul_programmability/examples](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples) directory. Also see [examples.haneul.io](https://examples.haneul.io/) for a feature-by-feature guide to [Haneul Move](../learn/haneul-move-diffs.md).
+
+
+Here is a rundown of existing examples in the Haneul repository.
 
 ## Basics
 
