@@ -7,8 +7,9 @@
         "link": "explore/devnet"
       },
       {
-        "label": "Examples",
-        "link": "explore/examples"
+        "label": "examples.haneul.io",
+        "link": "https://examples.haneul.io/"
+        "external": true
       },
       {
         "label": "Prototypes",
