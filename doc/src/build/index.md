@@ -19,5 +19,6 @@ Here is our recommended workflow to interact with Haneul:
 1. Build dApps:
    1. [Use](../build/json-rpc.md) *Haneul RPC Server and JSON-RPC API* to interact with a local Haneul network.
    1. [Employ](../build/haneul-json.md) *HaneulJSON format* to align JSON inputs more closely with Move call arguments.
+1. [Run](../build/fullnode.md) a Haneul Fullnode and [subscribe](../build/pubsub.md) to events.
 
 Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
