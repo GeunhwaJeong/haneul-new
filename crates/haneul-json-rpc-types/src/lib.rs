@@ -23,6 +23,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
+use tracing::warn;
 
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
@@ -435,9 +436,9 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     fn try_from(move_struct: &HaneulMoveStruct) -> Result<Self, Self::Error> {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
-                if let HaneulMoveValue::Number(balance) = fields["balance"].clone() {
-                    if let HaneulMoveValue::Info { id, version } = fields["info"].clone() {
-                        return Ok(GasCoin::new(id, SequenceNumber::from(version), balance));
+                if let Some(HaneulMoveValue::Number(balance)) = fields.get("balance") {
+                    if let Some(HaneulMoveValue::Info { id, version }) = fields.get("info") {
+                        return Ok(GasCoin::new(*id, SequenceNumber::from(*version), *balance));
                     }
                 }
             }
@@ -755,7 +756,7 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
         .collect::<BTreeMap<_, HaneulMoveValue>>();
     match struct_name.as_str() {
         "0x2::utf8::String" | "0x1::ascii::String" => {
-            if let HaneulMoveValue::Bytearray(bytes) = fields["bytes"].clone() {
+            if let Some(HaneulMoveValue::Bytearray(bytes)) = fields.get("bytes") {
                 if let Ok(bytes) = bytes.to_vec() {
                     if let Ok(s) = String::from_utf8(bytes) {
                         return Some(HaneulMoveValue::String(s));
@@ -763,34 +764,42 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
                 }
             }
         }
-        "0x2::url::Url" => return Some(fields["url"].clone()),
+        "0x2::url::Url" => {
+            if let Some(url) = fields.get("url") {
+                return Some(url.clone());
+            }
+        }
         "0x2::object::ID" => {
-            if let HaneulMoveValue::Address(id) = fields["bytes"] {
-                return Some(HaneulMoveValue::Address(id));
+            if let Some(HaneulMoveValue::Address(id)) = fields.get("bytes") {
+                return Some(HaneulMoveValue::Address(*id));
             }
         }
         "0x2::object::Info" => {
-            if let HaneulMoveValue::Address(address) = fields["id"].clone() {
-                if let HaneulMoveValue::Number(version) = fields["version"].clone() {
+            if let Some(HaneulMoveValue::Address(address)) = fields.get("id") {
+                if let Some(HaneulMoveValue::Number(version)) = fields.get("version") {
                     return Some(HaneulMoveValue::Info {
-                        id: address.into(),
-                        version,
+                        id: ObjectID::from(*address),
+                        version: *version,
                     });
                 }
             }
         }
         "0x2::balance::Balance" => {
-            if let HaneulMoveValue::Number(value) = fields["value"].clone() {
-                return Some(HaneulMoveValue::Number(value));
+            if let Some(HaneulMoveValue::Number(value)) = fields.get("value") {
+                return Some(HaneulMoveValue::Number(*value));
             }
         }
         "0x1::option::Option" => {
-            if let HaneulMoveValue::Vector(values) = fields["vec"].clone() {
+            if let Some(HaneulMoveValue::Vector(values)) = fields.get("vec") {
                 return Some(HaneulMoveValue::Option(Box::new(values.first().cloned())));
             }
         }
-        _ => {}
+        _ => return None,
     }
+    warn!(
+        fields =? fields,
+        "Failed to convert {struct_name} to HaneulMoveValue"
+    );
     None
 }
 

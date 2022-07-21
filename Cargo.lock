@@ -6866,6 +6866,7 @@ dependencies = [
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-types",
+ "tracing",
  "workspace-hack 0.1.0",
 ]
 
