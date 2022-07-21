@@ -8,7 +8,6 @@ use serde_with::serde_as;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
-use haneul_core::epoch::EpochInfoLocals;
 use haneul_storage::default_db_options;
 use haneul_types::base_types::{
     ExecutionDigests, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, TransactionDigest,
@@ -18,6 +17,7 @@ use haneul_types::batch::{SignedBatch, TxSequenceNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthoritySignInfo, EmptySignInfo};
 use haneul_types::messages::{CertifiedTransaction, TransactionEffectsEnvelope, TransactionEnvelope};
+use haneul_types::messages_checkpoint::AuthenticatedCheckpoint;
 use haneul_types::object::Object;
 use haneul_types::object::Owner;
 use typed_store::rocks::DBMap;
@@ -72,7 +72,7 @@ pub struct HaneulDataStoreReadonly<S> {
 
     last_consensus_index: DBMap<u64, ExecutionIndices>,
 
-    epochs: DBMap<EpochId, EpochInfoLocals>,
+    epochs: DBMap<EpochId, AuthenticatedCheckpoint>,
 }
 
 impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStoreReadonly<S> {
@@ -137,7 +137,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStoreReado
             SCHEDULE_TABLE_NAME;<ObjectID, SequenceNumber>,
             BATCHES_TABLE_NAME;<TxSequenceNumber, SignedBatch>,
             LAST_CONSENSUS_TABLE_NAME;<u64, ExecutionIndices>,
-            EPOCH_TABLE_NAME;<EpochId, EpochInfoLocals>
+            EPOCH_TABLE_NAME;<EpochId, AuthenticatedCheckpoint>
         );
         Self {
             objects,
