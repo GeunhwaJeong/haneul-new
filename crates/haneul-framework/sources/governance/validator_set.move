@@ -72,11 +72,11 @@ module haneul::validator_set {
     /// Called by `HaneulSystem`, add a new validator to `pending_validators`, which will be
     /// processed at the end of epoch.
     public(friend) fun request_add_validator(self: &mut ValidatorSet, validator: Validator) {
-        assert!(
-            !contains_duplicate_validator(&self.active_validators, &validator)
-                && !contains_duplicate_validator(&self.pending_validators, &validator),
-            0
-        );
+//        assert!(
+//            !contains_duplicate_validator(&self.active_validators, &validator)
+//                && !contains_duplicate_validator(&self.pending_validators, &validator),
+//            0
+//        );
         vector::push_back(&mut self.pending_validators, validator);
         self.next_epoch_validators = derive_next_epoch_validators(self);
     }
