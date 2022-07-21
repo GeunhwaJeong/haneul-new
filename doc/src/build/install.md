@@ -138,7 +138,7 @@ $ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --bran
 ```
 
 This will put the following binaries in your `PATH` (ex. under `~/.cargo/bin`) that provide these command line interfaces (CLIs):
-* haneul - The Haneul CLI tool contains subcommands for enabling `genesis` of validators and accounts, starting the Haneul network, and [building and testing Move packages](move.md), as well as a [client](cli-client.md) for interacting with the Haneul network.
+* haneul - The Haneul CLI tool contains subcommands for enabling `genesis` of validators and accounts, starting the Haneul network, and [building and testing Move packages](move/index.md), as well as a [client](cli-client.md) for interacting with the Haneul network.
 * [`rpc-server`](json-rpc.md) - run a local Haneul gateway service accessible via an RPC interface.
 
 Confirm the installation with:
@@ -216,7 +216,7 @@ To contribute updates to Haneul code, [send pull requests](../contribute/index.m
 
 Continue your journey through:
 
-* [Smart Contracts with Move](move.md)
+* [Smart Contracts with Move](move/index.md)
 * [Haneul client Quick Start](cli-client.md)
 * [RPC Server API](json-rpc.md)
 * [End-to-End tutorial](../explore/tutorials.md)
