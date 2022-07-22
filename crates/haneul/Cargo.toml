@@ -28,7 +28,6 @@ haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-gateway = { path = "../haneul-gateway" }
 haneul-swarm = { path = "../haneul-swarm" }
-haneul-storage = { path = "../haneul-storage" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 
@@ -37,10 +36,6 @@ rustyline-derive = "0.7.0"
 colored = "2.0.0"
 unescape = "0.1.0"
 shell-words = "1.1.0"
-rocksdb = "0.18.0"
-typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "123c9e40b529315e1c1d91a54fb717111c3e349c"}
-tempfile = "3.3.0"
-narwhal-executor = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "5ba330d0cefa33ba835ffe56489e6500a2909d8a", package = "executor" }
 
 move-core-types = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a", features = ["address20"] }
 move-prover = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a" }
