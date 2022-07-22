@@ -7,6 +7,7 @@ use anyhow::Result;
 use multiaddr::Multiaddr;
 use narwhal_config::Parameters as ConsensusParameters;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::collections::BTreeMap;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
@@ -15,11 +16,14 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::{KeyPair, PublicKeyBytes};
+use haneul_types::haneul_serde::KeyPairBase64;
 
+#[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct NodeConfig {
     #[serde(default = "default_key_pair")]
+    #[serde_as(as = "Arc<KeyPairBase64>")]
     pub key_pair: Arc<KeyPair>,
     pub db_path: PathBuf,
     #[serde(default = "default_grpc_address")]

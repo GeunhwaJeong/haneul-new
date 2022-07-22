@@ -4,11 +4,13 @@
 use anyhow::Result;
 use multiaddr::Multiaddr;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::collections::{BTreeMap, BTreeSet};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::{get_key_pair_from_rng, KeyPair};
 use haneul_types::object::Object;
+use haneul_types::haneul_serde::KeyPairBase64;
 use tracing::info;
 
 use crate::Config;
@@ -79,8 +81,10 @@ impl GenesisConfig {
     }
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ValidatorGenesisInfo {
+    #[serde_as(as = "KeyPairBase64")]
     pub key_pair: KeyPair,
     pub network_address: Multiaddr,
     pub stake: StakeUnit,
