@@ -55,7 +55,7 @@ curl --location --request POST $HANEUL_RPC_HOST \
 --data-raw '{ "jsonrpc":"2.0", "method":"rpc.discover","id":1}'
 ```
 
-You can see an example of the discovery service in the [OpenRPC Playground](https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/189d61df846f7c3676c1215cc41fb970ee9e22b5/haneul/open_rpc/spec/openrpc.json).
+You can see an example of the discovery service in the [OpenRPC Playground](https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/crates/haneul-open-rpc/spec/openrpc.json).
 
 ### haneul_syncAccountState
 

@@ -19,7 +19,7 @@ Use these online resources:
 * Haneul Website: [https://haneul.io/](https://haneul.io/)
 * Haneul Developer Portal: [https://docs.haneul.io/](https://docs.haneul.io/)
 * Haneul Smart Contract White Paper: [https://haneul.io/whitepaper](https://haneul.io/whitepaper) 
-* SDK reference: [Haneul JSON-RPC](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false)  
+* SDK reference: [Haneul JSON-RPC](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/crates/haneul-open-rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false)  
 
 
 ### What does Haneul offer over other blockchains?

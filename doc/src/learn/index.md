@@ -55,5 +55,5 @@ Navigate and search this site however you see fit. Here is the order we recommen
 1. [Build](../build/index.md) smart contracts, the Haneul client, a Haneul fullnode, and more.
 1. [Explore](../explore/index.md) prototypes and examples.
 1. [Contribute](../contribute/index.md) to Haneul by joining the community, making enhancements, and learning about Haneul Labs.
-1. Employ the [Haneul API Reference](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/haneul/open_rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false) reference files for the [Haneul JSON-RPC API](../build/json-rpc.md).
+1. Employ the [Haneul API Reference](https://playground.open-rpc.org/?uiSchema%5BappBar%5D%5Bui:splitView%5D=false&schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/crates/haneul-open-rpc/spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:input%5D=false) reference files for the [Haneul JSON-RPC API](../build/json-rpc.md).
 1. View the [Haneul Labs](https://www.youtube.com/channel/UCI7pCUVxSLcndVhPpZOwZgg) YouTube channel for introductory videos on technology and partners.
