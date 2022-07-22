@@ -6707,6 +6707,7 @@ dependencies = [
  "haneul-network",
  "haneul-storage",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "tempfile",
  "test-fuzz",
