@@ -355,7 +355,7 @@ impl HaneulClient {
         }
     }
 }
-
+#[allow(clippy::large_enum_variant)]
 enum Client {
     Http(HttpClient),
     Ws(WsClient),
