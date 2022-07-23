@@ -1,5 +1,5 @@
 ---
-title: Debug and Publish the HANEUL Move Package
+title: Debug and Publish the Haneul Move Package
 ---
 
 ## Debugging a package
