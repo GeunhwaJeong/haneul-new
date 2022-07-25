@@ -4,7 +4,9 @@
 export enum HaneulIcons {
   Apps = "haneul-icons-apps",
   ArrowLeft = "haneul-icons-arrow-left",
+  ArrowRight = "haneul-icons-arrow-right",
   Clipboard = "haneul-icons-clipboard",
+  Close = "haneul-icons-close",
   Coins = "haneul-icons-coins",
   Globe = "haneul-icons-globe",
   HandCoins = "haneul-icons-hand-coins",
@@ -19,6 +21,6 @@ export enum HaneulIcons {
   Tokens = "haneul-icons-tokens"
 }
 
-export type HaneulIconsClassname = "haneul-icons-apps" | "haneul-icons-arrow-left" | "haneul-icons-clipboard" | "haneul-icons-coins" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-logout" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-tokens"
-export type HaneulIconsIcon = "apps" | "arrow-left" | "clipboard" | "coins" | "globe" | "hand-coins" | "history" | "logout" | "nfts" | "percentage-polygon" | "person" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "tokens"
+export type HaneulIconsClassname = "haneul-icons-apps" | "haneul-icons-arrow-left" | "haneul-icons-arrow-right" | "haneul-icons-clipboard" | "haneul-icons-close" | "haneul-icons-coins" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-logout" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-tokens"
+export type HaneulIconsIcon = "apps" | "arrow-left" | "arrow-right" | "clipboard" | "close" | "coins" | "globe" | "hand-coins" | "history" | "logout" | "nfts" | "percentage-polygon" | "person" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "tokens"
 export const HaneulIconsPrefix = "haneul-icons-"
