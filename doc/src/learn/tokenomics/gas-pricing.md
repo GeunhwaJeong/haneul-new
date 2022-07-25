@@ -10,7 +10,7 @@ A unique feature of Haneul’s gas price mechanism is that users pay separate fe
 
 $GasFees[\tau] \ = \ ComputationUnits[\tau] \times ComputationPrice[\tau] \ + \ StorageUnits[\tau] \times StoragePrice$
 
-The gas functions $ComputationUnits[\tau]$ and $StorageUnits[\tau]$ measure the amount of computation and storage resources, respectively, required to process and store the data associated with $\tau$. The gas prices $ConsumptionPrice[\tau]$ and $StoragePrice$ translate the cost of computation and storage, respectively, into HANEUL units. The decoupling between gas units and gas prices is useful since HANEUL’s market price will fluctuate over time depending on demand and supply fluctuations.
+The gas functions $ComputationUnits[\tau]$ and $StorageUnits[\tau]$ measure the amount of computation and storage resources, respectively, required to process and store the data associated with $\tau$. The gas prices $ComputationPrice[\tau]$ and $StoragePrice$ translate the cost of computation and storage, respectively, into HANEUL units. The decoupling between gas units and gas prices is useful since HANEUL’s market price will fluctuate over time depending on demand and supply fluctuations.
 
 ## Computation gas prices
 
