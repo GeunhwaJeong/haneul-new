@@ -3,7 +3,7 @@
 
 module examples::one_timer {
     use haneul::transfer;
-    use haneul::object::Info;
+    use haneul::object::{Self, Info};
     use haneul::tx_context::{Self, TxContext};
 
     /// The one of a kind - created in the module initializer.

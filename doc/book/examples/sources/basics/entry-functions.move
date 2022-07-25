@@ -3,8 +3,8 @@
 
 module examples::object {
     use haneul::transfer;
-    use haneul::object::Info;
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::object::{Self, Info};
+    use haneul::tx_context::TxContext;
 
     struct Object has key {
         info: Info

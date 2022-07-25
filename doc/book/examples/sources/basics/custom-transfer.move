@@ -5,7 +5,7 @@ module examples::restricted_transfer {
     use haneul::tx_context::{Self, TxContext};
     use haneul::balance::{Self, Balance};
     use haneul::coin::{Self, Coin};
-    use haneul::object::Info;
+    use haneul::object::{Self, Info};
     use haneul::transfer;
     use haneul::haneul::HANEUL;
 

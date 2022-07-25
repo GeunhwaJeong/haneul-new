@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module examples::strings {
-    use haneul::object::Info;
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::object::{Self, Info};
+    use haneul::tx_context::TxContext;
 
     // Use this dependency to get a type wrapper for UTF-8 strings
     use haneul::utf8::{Self, String};

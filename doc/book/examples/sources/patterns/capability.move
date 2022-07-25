@@ -3,7 +3,7 @@
 
 module examples::item {
     use haneul::transfer;
-    use haneul::object::Info;
+    use haneul::object::{Self, Info};
     use haneul::utf8::{Self, String};
     use haneul::tx_context::{Self, TxContext};
 
