@@ -13,7 +13,7 @@
 // TBD: Try objects of different sizes in natives
 
 #[test_only]
-module haneul::NativesCalibrationTests {
+module haneul::natives_calibration_tests {
     use haneul::object::{Self, Info};
 
     use haneul::test_scenario;

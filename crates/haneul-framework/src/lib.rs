@@ -10,6 +10,7 @@ use once_cell::sync::Lazy;
 use std::path::Path;
 use haneul_types::error::{HaneulError, HaneulResult};
 
+pub mod cost_calib;
 pub mod natives;
 
 pub use haneul_framework_build::build_move_stdlib_modules as get_move_stdlib_modules;
