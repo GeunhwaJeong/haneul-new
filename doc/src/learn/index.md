@@ -42,7 +42,7 @@ Go to the [Move Quick Start](../build/move/index.md) for installation, defining 
 ### Start the Haneul network with Haneul CLI client
 See the [Haneul CLI client Quick Start](../build/cli-client.md) for installation, querying the chain, client setup, sending transfer transactions, and viewing the effects.
 
-### Take tic-tac-toe tutorial
+### Take the tic-tac-toe tutorial
 Proceed to the [Haneul Tutorial](../explore/tutorials.md) for a summary view of setting up your environment, starting a Haneul network, gathering accounts and gas, and publishing and playing a game in Haneul.
 
 ### Program with Objects
