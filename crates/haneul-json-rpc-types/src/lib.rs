@@ -1576,8 +1576,11 @@ impl TryInto<EventFilter> for HaneulEventFilter {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TransactionBytes {
+    /// transaction data bytes, as base-64 encoded string
     pub tx_bytes: Base64,
+    /// the gas object to be used
     pub gas: HaneulObjectRef,
+    /// objects to be used in this transaction
     pub input_objects: Vec<HaneulInputObjectKind>,
 }
 
