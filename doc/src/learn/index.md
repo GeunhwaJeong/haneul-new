@@ -16,15 +16,13 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 Find the latest updates to these contents in this section:
 
+* Haneul now supports development using Microsoft Windows 11, macOS, and Linux. See [install Haneul](../build/install.md) for the prerequisites of each operating system.
 * `haneul::id` is now `haneul::object` and `VersionedID` is now `Info`. Use the [Object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) that has [replaced the former ID.move.](https://github.com/GeunhwaJeong/haneul/pull/3241)
 * Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
 * Haneul [version 0.6.1](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.1) released to DevNet. See the [#haneul-release-notes](https://discord.com/channels/916379725201563759/974444055259910174) channel in Discord for details on this and prior releases.
 * Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 * [Haneul Move is feature complete](https://haneul.io/resources-move/why-we-created-haneul-move/) and ready for you to write safe and efficient smart contracts. See https://examples.haneul.io/ to learn Haneul Move by example.
 * If your application is written in JavaScript or TypeScript, follow the [TypeScript SDK documentation](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
-* Employ the enhanced [Move Visual Studio Code (VSCode) plugin](https://marketplace.visualstudio.com/items?itemName=move.move-analyzer) as described in the [related announcement](https://haneul.io/resources-haneul/announcing-enhanced-move-vs-code-plugin).
-* Get ready to participate in [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/)!
-* The former `wallet` binary has been replaced with the [Haneul CLI client](../build/cli-client.md) and combined with related functions.
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
