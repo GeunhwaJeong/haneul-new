@@ -10,10 +10,10 @@ import {
 } from 'react';
 
 import { Network } from './utils/api/DefaultRpcClient';
-import { IS_LOCAL_ENV } from './utils/envUtil';
+import { IS_LOCAL_ENV, IS_STAGING_ENV, CURRENT_ENV } from './utils/envUtil';
 
-const LOCALSTORE_RPC_KEY = 'haneul-explorer-rpc';
-const LOCALSTORE_RPC_TIME_KEY = 'haneul-explorer-rpc-lastset';
+const LOCALSTORE_RPC_KEY = CURRENT_ENV + 'haneul-explorer-rpc';
+const LOCALSTORE_RPC_TIME_KEY = CURRENT_ENV + 'haneul-explorer-rpc-lastset';
 // Below is 3 hours in milliseconds:
 const LOCALSTORE_RPC_VALID_MS = 60000 * 60 * 3;
 
@@ -53,7 +53,7 @@ export function useNetwork(): [
         // null or was set a long time ago, then instead use website's default value:
         defaultNetwork = window.localStorage.getItem(LOCALSTORE_RPC_KEY);
         if (!defaultNetwork || wasNetworkSetLongTimeAgo()) {
-            defaultNetwork = Network.Devnet;
+            defaultNetwork = IS_STAGING_ENV ? Network.Staging : Network.Devnet;
             window.localStorage.setItem(LOCALSTORE_RPC_KEY, defaultNetwork);
         }
     }
