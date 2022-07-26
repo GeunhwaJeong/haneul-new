@@ -33,6 +33,7 @@ module haneul::genesis {
         validator_names: vector<vector<u8>>,
         validator_net_addresses: vector<vector<u8>>,
         validator_stakes: vector<u64>,
+        validator_gas_prices: vector<u64>,
         ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new();
@@ -43,7 +44,8 @@ module haneul::genesis {
             vector::length(&validator_haneul_addresses) == count
                 && vector::length(&validator_stakes) == count
                 && vector::length(&validator_names) == count
-                && vector::length(&validator_net_addresses) == count,
+                && vector::length(&validator_net_addresses) == count
+                && vector::length(&validator_gas_prices) == count,
             1
         );
         let i = 0;
@@ -53,6 +55,7 @@ module haneul::genesis {
             let name = *vector::borrow(&validator_names, i);
             let net_address = *vector::borrow(&validator_net_addresses, i);
             let stake = *vector::borrow(&validator_stakes, i);
+            let gas_price = *vector::borrow(&validator_gas_prices, i);
             vector::push_back(&mut validators, validator::new(
                 haneul_address,
                 pubkey,
@@ -60,6 +63,7 @@ module haneul::genesis {
                 net_address,
                 balance::increase_supply(&mut haneul_supply, stake),
                 option::none(),
+                gas_price,
                 ctx
             ));
             i = i + 1;

@@ -36,6 +36,7 @@ pub const CONSENSUS_DB_NAME: &str = "consensus_db";
 pub const FULL_NODE_DB_PATH: &str = "full_node_db";
 
 const DEFAULT_STAKE: StakeUnit = 100000000000000;
+const DEFAULT_GAS_PRICE: u64 = 1;
 
 pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {
     match std::env::var_os("HANEUL_CONFIG_DIR") {

@@ -21,6 +21,7 @@ module haneul::governance_test_utils {
             x"FFFF",
             balance::create_for_testing<HANEUL>(init_stake_amount),
             option::none(),
+            1,
             ctx
         )
     }
