@@ -6,6 +6,7 @@ use jsonrpsee_http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
 use std::net::SocketAddr;
 use std::num::NonZeroUsize;
 use std::path::Path;
+use std::sync::Arc;
 use haneul::{
     client_commands::{HaneulClientCommands, WalletContext},
     config::{GatewayConfig, GatewayType, HaneulClientConfig},
@@ -13,7 +14,9 @@ use haneul::{
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME};
+use haneul_core::gateway_state::GatewayClient;
 use haneul_gateway::create_client;
+use haneul_gateway::rpc_gateway_client::RpcGatewayClient;
 use haneul_json_rpc::api::RpcGatewayApiServer;
 use haneul_json_rpc::api::RpcReadApiServer;
 use haneul_json_rpc::api::RpcTransactionBuilderServer;
@@ -22,7 +25,7 @@ use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
 use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
-use haneul_swarm::memory::Swarm;
+use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
 const NUM_VALIDAOTR: usize = 4;
@@ -30,7 +33,16 @@ const NUM_VALIDAOTR: usize = 4;
 pub async fn start_test_network(
     genesis_config: Option<GenesisConfig>,
 ) -> Result<Swarm, anyhow::Error> {
-    let mut builder = Swarm::builder().committee_size(NonZeroUsize::new(NUM_VALIDAOTR).unwrap());
+    start_test_network_with_fullnodes(genesis_config, 0).await
+}
+
+pub async fn start_test_network_with_fullnodes(
+    genesis_config: Option<GenesisConfig>,
+    fullnode_count: usize,
+) -> Result<Swarm, anyhow::Error> {
+    let mut builder: SwarmBuilder = Swarm::builder()
+        .committee_size(NonZeroUsize::new(NUM_VALIDAOTR).unwrap())
+        .with_fullnode_count(fullnode_count);
     if let Some(genesis_config) = genesis_config {
         builder = builder.initial_accounts_config(genesis_config);
     }
@@ -125,7 +137,14 @@ async fn start_rpc_gateway(
 pub async fn start_rpc_test_network(
     genesis_config: Option<GenesisConfig>,
 ) -> Result<TestNetwork, anyhow::Error> {
-    let network = start_test_network(genesis_config).await?;
+    start_rpc_test_network_with_fullnode(genesis_config, 0).await
+}
+
+pub async fn start_rpc_test_network_with_fullnode(
+    genesis_config: Option<GenesisConfig>,
+    fullnode_count: usize,
+) -> Result<TestNetwork, anyhow::Error> {
+    let network = start_test_network_with_fullnodes(genesis_config, fullnode_count).await?;
     let working_dir = network.dir();
     let (server_addr, rpc_server_handle) =
         start_rpc_gateway(&working_dir.join(HANEUL_GATEWAY_CONFIG)).await?;
@@ -139,11 +158,13 @@ pub async fn start_rpc_test_network(
         .save()?;
 
     let http_client = HttpClientBuilder::default().build(rpc_url.clone())?;
+    let gateway_client = RpcGatewayClient::new(rpc_url.clone())?;
     Ok(TestNetwork {
         network,
         _rpc_server: rpc_server_handle,
         accounts,
         http_client,
+        gateway_client: Arc::new(gateway_client),
         rpc_url,
     })
 }
@@ -153,5 +174,6 @@ pub struct TestNetwork {
     _rpc_server: HttpServerHandle,
     pub accounts: Vec<HaneulAddress>,
     pub http_client: HttpClient,
+    pub gateway_client: GatewayClient,
     pub rpc_url: String,
 }

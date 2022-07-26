@@ -44,6 +44,7 @@ pub const MOVE_STDLIB_ADDRESS: AccountAddress = AccountAddress::ONE;
 /// 0x2-- account address where haneul framework modules are stored
 /// Same as the ObjectID
 pub const HANEUL_FRAMEWORK_ADDRESS: AccountAddress = get_hex_address_two();
+pub const HANEUL_FRAMEWORK_OBJECT_ID: ObjectID = ObjectID::from_single_byte(2);
 
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
