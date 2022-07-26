@@ -1,12 +1,11 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::HashSet;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::{collections::BTreeMap, sync::Arc};
 
-use futures::{future, StreamExt};
+use futures::future;
 use jsonrpsee::core::client::{Client, ClientT, Subscription, SubscriptionClientT};
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::rpc_params;
@@ -19,7 +18,7 @@ use tokio::time::{sleep, Duration};
 use tracing::info;
 
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
-use haneul_core::authority::AuthorityState;
+use haneul_core::test_utils::{wait_for_all_txes, wait_for_tx};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     SplitCoinResponse, HaneulEvent, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveStruct, HaneulMoveValue,
@@ -29,8 +28,7 @@ use haneul_node::HaneulNode;
 use haneul_swarm::memory::Swarm;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest},
-    batch::UpdateItem,
-    messages::{BatchInfoRequest, BatchInfoResponseItem, Transaction, TransactionInfoRequest},
+    messages::{Transaction, TransactionInfoRequest},
 };
 use test_utils::network::setup_network_and_wallet;
 
@@ -100,70 +98,6 @@ async fn emit_move_events(
     };
 
     Ok((sender, object_id, digest))
-}
-
-async fn wait_for_tx(wait_digest: TransactionDigest, state: Arc<AuthorityState>) {
-    wait_for_all_txes(vec![wait_digest], state).await
-}
-
-async fn wait_for_all_txes(wait_digests: Vec<TransactionDigest>, state: Arc<AuthorityState>) {
-    let mut wait_digests: HashSet<_> = wait_digests.iter().collect();
-
-    let mut timeout = Box::pin(sleep(Duration::from_millis(15_000)));
-
-    let mut max_seq = Some(0);
-
-    let mut stream = Box::pin(
-        state
-            .handle_batch_streaming(BatchInfoRequest {
-                start: max_seq,
-                length: 1000,
-            })
-            .await
-            .unwrap(),
-    );
-
-    loop {
-        tokio::select! {
-            _ = &mut timeout => panic!("wait_for_tx timed out"),
-
-            items = &mut stream.next() => {
-                match items {
-                    // Upon receiving a batch
-                    Some(Ok(BatchInfoResponseItem(UpdateItem::Batch(batch)) )) => {
-                        max_seq = Some(batch.batch.next_sequence_number);
-                        info!(?max_seq, "Received Batch");
-                    }
-                    // Upon receiving a transaction digest we store it, if it is not processed already.
-                    Some(Ok(BatchInfoResponseItem(UpdateItem::Transaction((_seq, digest))))) => {
-                        info!(?digest, "Received Transaction");
-                        if wait_digests.remove(&digest.transaction) {
-                            info!(?digest, "Digest found");
-                        }
-                        if wait_digests.is_empty() {
-                            info!(?digest, "all digests found");
-                            break;
-                        }
-                    },
-
-                    Some(Err( err )) => panic!("{}", err),
-                    None => {
-                        info!(?max_seq, "Restarting Batch");
-                        stream = Box::pin(
-                                state
-                                    .handle_batch_streaming(BatchInfoRequest {
-                                        start: max_seq,
-                                        length: 1000,
-                                    })
-                                    .await
-                                    .unwrap(),
-                            );
-
-                    }
-                }
-            },
-        }
-    }
 }
 
 #[tokio::test]

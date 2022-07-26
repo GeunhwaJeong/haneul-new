@@ -7382,6 +7382,8 @@ dependencies = [
  "haneul-swarm",
  "haneul-types",
  "tempfile",
+ "tokio",
+ "tracing",
  "workspace-hack 0.1.0",
 ]
 
