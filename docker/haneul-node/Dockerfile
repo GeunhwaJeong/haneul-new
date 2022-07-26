@@ -1,4 +1,5 @@
 FROM rust:1.62.0 AS chef
+ARG PROFILE=release
 WORKDIR haneul
 RUN apt-get update && apt-get install -y cmake clang
 
@@ -25,7 +26,7 @@ FROM chef AS builder
 COPY --from=planner /haneul/Cargo.toml Cargo.toml
 COPY --from=planner /haneul/Cargo.lock Cargo.lock
 COPY --from=planner /haneul/crates/workspace-hack crates/workspace-hack
-RUN cargo build --release
+RUN cargo build --profile $PROFILE
 
 # Build application
 #
@@ -34,12 +35,13 @@ RUN cargo build --release
 # built as they were built and cached by the previous layer.
 COPY Cargo.toml Cargo.lock ./
 COPY crates crates
-RUN cargo build --release --bin haneul-node
+RUN cargo build --profile $PROFILE --bin haneul-node
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
+ARG PROFILE=release
 WORKDIR haneul
-COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
+COPY --from=builder "/haneul/target/$PROFILE/haneul-node" /usr/local/bin
 
 ARG BUILD_DATE
 ARG GIT_REVISION
