@@ -226,7 +226,7 @@ To [experiment with Devnet](../explore/devnet.md) or [use the Haneul Wallet Brow
 To request HANEUL test tokens:
 
 1. Join the [Haneul Discord](https://discord.com/invite/haneul) If you haven’t already.
-1. Identify your address through either the Haneul Wallet Browser Extension or by running the command:
+1. Identify your address through either the Haneul Wallet Browser Extension or by running the following command and electing to connect to a Haneul RPC server if prompted:
    ```shell
    $ haneul client active-address
    ```
