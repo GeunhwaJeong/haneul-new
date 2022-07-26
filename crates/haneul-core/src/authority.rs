@@ -76,6 +76,8 @@ mod gas_tests;
 
 pub use haneul_adapter::temporary_store::TemporaryStore;
 
+pub mod authority_store_tables;
+
 mod authority_store;
 pub use authority_store::{
     AuthorityStore, GatewayStore, ResolverWrapper, HaneulDataStore, UpdateType,
@@ -1073,6 +1075,7 @@ impl AuthorityState {
             // Get all unprocessed checkpoints
             for (_seq, batch) in state
                 .database
+                .tables
                 .batches
                 .iter()
                 .skip_to(&next_expected_tx)
@@ -1080,6 +1083,7 @@ impl AuthorityState {
             {
                 let transactions: Vec<(TxSequenceNumber, ExecutionDigests)> = state
                     .database
+                    .tables
                     .executed_sequence
                     .iter()
                     .skip_to(&batch.batch.initial_sequence_number)
