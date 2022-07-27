@@ -23,6 +23,7 @@ RUN sed -i '/crates\/workspace-hack/b; /crates/d' Cargo.toml \
 # and run `cargo build` in order to create a caching Docker layer
 # with all dependencies built.
 FROM chef AS builder 
+ARG PROFILE=release
 COPY --from=planner /haneul/Cargo.toml Cargo.toml
 COPY --from=planner /haneul/Cargo.lock Cargo.lock
 COPY --from=planner /haneul/crates/workspace-hack crates/workspace-hack
