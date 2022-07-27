@@ -372,21 +372,31 @@ async fn sync_accounts(context: &mut WalletContext) -> Result<(), anyhow::Error>
 fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
     // Prompt user for connect to gateway if config not exists.
     if !wallet_conf_path.exists() {
-        print!(
-            "Config file [{:?}] doesn't exist, do you want to connect to a Haneul RPC server [yN]?",
-            wallet_conf_path
-        );
-        if matches!(read_line(), Ok(line) if line.trim().to_lowercase() == "y") {
-            print!("Haneul RPC server Url (Default to Haneul DevNet if not specified) : ");
-            let url = read_line()?;
-            let url = if url.trim().is_empty() {
-                HANEUL_DEV_NET_URL
-            } else {
-                &url
-            };
+        let url = match std::env::var_os("HANEUL_CONFIG_WITH_RPC_URL") {
+            Some(v) => Some(v.into_string().unwrap()),
+            None => {
+                print!(
+                    "Config file [{:?}] doesn't exist, do you want to connect to a Haneul RPC server [yN]?",
+                    wallet_conf_path
+                );
+                if matches!(read_line(), Ok(line) if line.trim().to_lowercase() == "y") {
+                    print!("Haneul RPC server Url (Default to Haneul DevNet if not specified) : ");
+                    let url = read_line()?;
+                    let url = if url.trim().is_empty() {
+                        HANEUL_DEV_NET_URL
+                    } else {
+                        &url
+                    };
+                    Some(String::from(url))
+                } else {
+                    None
+                }
+            }
+        };
 
+        if let Some(url) = url {
             // Check url is valid
-            HaneulClient::new_http_client(url)?;
+            HaneulClient::new_http_client(&url)?;
             let keystore_path = wallet_conf_path
                 .parent()
                 .unwrap_or(&haneul_config_dir()?)
@@ -396,7 +406,7 @@ fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
             HaneulClientConfig {
                 accounts: vec![new_address],
                 keystore,
-                gateway: GatewayType::RPC(url.to_string()),
+                gateway: GatewayType::RPC(url),
                 active_address: Some(new_address),
             }
             .persisted(wallet_conf_path)
