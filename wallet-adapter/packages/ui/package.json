@@ -1,0 +1,27 @@
+{
+  "name": "haneul-wallet-adapter-ui",
+  "version": "1.0.0",
+  "description": "UI for the Haneul Wallet Adapter",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4",
+    "@haneullabs/haneul.js": "^0.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.4",
+    "haneul-wallet-adapter-react": "file:../react-providers"
+  }
+}

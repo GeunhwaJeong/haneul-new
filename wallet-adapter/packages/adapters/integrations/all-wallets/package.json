@@ -1,0 +1,20 @@
+{
+  "name": "@haneul-wallet-adapter/all-wallets",
+  "version": "1.0.0",
+  "description": "Module exporting all integrated wallets for Haneul Wallet Adapter",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@haneul-wallet-adapter/mock-wallet": "file:../mock-wallet",
+    "@haneul-wallet-adapter/haneul-wallet": "file:../haneul-wallet"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
+}
