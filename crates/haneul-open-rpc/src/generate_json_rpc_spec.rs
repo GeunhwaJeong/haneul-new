@@ -142,6 +142,7 @@ async fn create_response_sample() -> Result<
     let (move_package, publish) = create_package_object_response(&mut context).await?;
     let (hero_package, hero) = create_hero_response(&mut context, &coins).await?;
     let transfer = create_transfer_response(&mut context, address, &coins).await?;
+    let transfer_haneul = create_transfer_haneul_response(&mut context, address, &coins).await?;
     let coin_split = create_coin_split_response(&mut context, &coins).await?;
     let error = create_error_response(address, hero_package, context, &network).await?;
 
@@ -166,6 +167,7 @@ async fn create_response_sample() -> Result<
     let txs = TransactionResponseSample {
         move_call: example_nft_tx,
         transfer,
+        transfer_haneul,
         coin_split,
         publish,
         error,
@@ -216,6 +218,32 @@ async fn create_transfer_response(
     .execute(context)
     .await?;
     if let HaneulClientCommandResult::Transfer(_, certificate, effects) = response {
+        Ok(TransactionResponse::EffectResponse(
+            TransactionEffectsResponse {
+                certificate,
+                effects,
+                timestamp_ms: None,
+            },
+        ))
+    } else {
+        panic!()
+    }
+}
+
+async fn create_transfer_haneul_response(
+    context: &mut WalletContext,
+    address: HaneulAddress,
+    coins: &[HaneulObjectInfo],
+) -> Result<TransactionResponse, anyhow::Error> {
+    let response = HaneulClientCommands::TransferHaneul {
+        to: address,
+        haneul_coin_object_id: coins.first().unwrap().object_id,
+        gas_budget: 1000,
+        amount: Some(10),
+    }
+    .execute(context)
+    .await?;
+    if let HaneulClientCommandResult::TransferHaneul(certificate, effects) = response {
         Ok(TransactionResponse::EffectResponse(
             TransactionEffectsResponse {
                 certificate,
@@ -402,6 +430,7 @@ struct ObjectResponseSample {
 struct TransactionResponseSample {
     pub move_call: TransactionResponse,
     pub transfer: TransactionResponse,
+    pub transfer_haneul: TransactionResponse,
     pub coin_split: TransactionResponse,
     pub publish: TransactionResponse,
     pub error: Value,
