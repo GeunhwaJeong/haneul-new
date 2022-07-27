@@ -1391,13 +1391,6 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
             .next()
             .map(|(_, a)| a)
     }
-
-    pub fn get_haneul_system_state_object_ref(&self) -> HaneulResult<ObjectRef> {
-        let haneul_system_object = self
-            .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?
-            .expect("Haneul System State object must always exist");
-        Ok(haneul_system_object.compute_object_reference())
-    }
 }
 
 impl HaneulDataStore<AuthoritySignInfo> {
