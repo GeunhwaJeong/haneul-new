@@ -26,6 +26,8 @@ using the [Template for Reporting Issues](https://github.com/GeunhwaJeong/haneul
 Send ideas to:
 doc@haneul-labs.com
 
+Or report them in the [#docs](https://discord.com/channels/916379725201563759/1001562806862233701) channel of Discord.
+
 ### Issues
 And file documentation fixes or requests for improvement at:
 https://github.com/GeunhwaJeong/haneul/issues/new/choose
