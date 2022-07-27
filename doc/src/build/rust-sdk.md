@@ -3,25 +3,39 @@ title: Haneul Rust SDK
 ---
 
 ## Overview
-The Haneul SDK is a collection of rust JSON-RPC wrapper and crypto utilities that you can use to interact with the Haneul Gateway and Haneul Full Node.
-The `HaneulClient` can be used to create a http(`HaneulClient::new_http_client`) or a websocket client(`HaneulClient::new_ws_client`).  
-See [JSON-RPC doc](json-rpc.md#haneul-json-rpc-methods) for list of available methods.
+The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet Gateway](../explore/devnet.md) and [Haneul Full Node](fullnode.md).
 
-> Note: As of v0.6.0, the web socket client is for subscription only, please use http client for other api methods.
+The [`HaneulClient`](cli-client.md) can be used to create an HTTP (`HaneulClient::new_http_client`) or a WebSocket client(`HaneulClient::new_ws_client`).  
+See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
 
-## Examples
-Add the haneul-sdk crate in your Cargo.toml:
+> Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](pubsub.md); use the HTTP client for other API methods.
+
+## References
+
+Find the `rustdoc` output for key Haneul projects at:
+
+* Haneul blockchain - https://haneullabs.github.io/haneul/
+* Narwhal and Tusk consensus engine - https://haneullabs.github.io/narwhal/
+* Haneul Labs infrastructure - https://haneullabs.github.io/haneullabs-infra/
+
+## Configuration
+Add the `haneul-sdk` crate in your [`Cargo.toml`](https://doc.rust-lang.org/cargo/reference/manifest.html) file like so:
 ```toml
 [dependencies]
 haneul-sdk = { git = "https://github.com/GeunhwaJeong/haneul" }
 ```
-Use the devnet branch if you are connecting to the devnet. 
+If you are connecting to the devnet, use the `devnet` branch instead:
 ```toml
 [dependencies]
 haneul-sdk = { git = "https://github.com/GeunhwaJeong/haneul", branch = "devnet" }
 ```
 
+## Examples
+
 ### Example 1 - Get all objects owned by an address
+
+This will print a list of object summaries owned by the address `"0xec11cad080d0496a53bafcea629fcbcfff2a9866"`:
+
 ```rust
 use std::str::FromStr;
 use haneul_sdk::types::base_types::HaneulAddress;
@@ -36,10 +50,13 @@ async fn main() -> Result<(), anyhow::Error> {
     Ok(())
 }
 ```
-This will print a list of object summaries owned by the address "0xec11cad080d0496a53bafcea629fcbcfff2a9866".
-You can verify the result with the [Haneul explorer](https://explorer.devnet.haneul.io/) if you are using the Haneul devnet.
+
+You can verify the result with the [Haneul Explorer](https://explorer.devnet.haneul.io/) if you are using the Haneul Devnet Gateway.
 
 ### Example 2 - Create and execute transaction
+
+Use this example to conduct a transaction in Haneul using the Haneul Devnet Gateway:
+
 ```rust
 use std::str::FromStr;
 use haneul_sdk::crypto::{Keystore, HaneulKeystore};
@@ -85,6 +102,9 @@ async fn main() -> Result<(), anyhow::Error> {
 ```
 
 ### Example 3 - Event subscription
+
+Use the the WebSocket client to [subscribe to events](pubsub.md).
+
 ```rust
 use futures::StreamExt;
 use haneul_sdk::rpc_types::HaneulEventFilter;
@@ -99,8 +119,9 @@ async fn main() -> Result<(), anyhow::Error> {
     }
 }
 ```
-> Note: You will need to connect to a fullnode for the Event subscription service, see [Fullnode setup](fullnode.md#fullnode-setup) if you want to run a fullnode.
+> Note: You will need to connect to a fullnode for the Event subscription service, see [Fullnode setup](fullnode.md#fullnode-setup) if you want to run a Haneul Fullnode.
 
 
-## Larger Examples
-[Tic Tac Toe](../../../crates/haneul-sdk/README.md)
+## Larger examples
+
+See the Haneul Rust SDK README for the [Tic Tac Toe](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) example.
