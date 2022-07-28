@@ -4,6 +4,8 @@ title: Contributing to Haneul
 
 This page describes how to add to Haneul. If you merely need to get the Haneul binaries, follow [Install Haneul](../build/install.md).
 
+This site is available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for contributing to the Haneul blockchain as described on this page. Always check and submit fixes to the `main` branch.
+
 Find answers to common questions in our [FAQ](../contribute/faq.md). Read other sub-pages in this section for ways to contribute to Haneul.
 
 ## See our roadmap
@@ -36,9 +38,7 @@ Select the **Haneul Doc Bug** template, adjust fields, and describe the issue.
 
 ### Updates
 
-You may also make changes to the docs directly in GitHub right here using the **Source Code** link below.
-
-> **Important:** Make sure you are in the `main` rather than `devnet` branch in the URL.
+You may also make changes to the docs directly in GitHub right here using the **Source Code** link below. Make sure you are in the `main` rather than `devnet` branch by being on the [Latest build](https://docs.haneul.io/learn) upstream view as described at the top of this page.
 
 Simply edit the file in question and generate a pull request. You may even use our [Haneul doc templates](https://github.com/GeunhwaJeong/haneul/tree/main/doc/template) to create overviews and procedures (uses).
 
@@ -48,9 +48,6 @@ Then send your work our way. We will get back to you shortly.
 
 In order to obtain the Haneul source code, follow the steps to download (`git clone`) the `haneul` repository
 at [Install Haneul](../build/install.md#source-code).
-
-> **Tip:** The install docs recommend use of the `devnet` branch as the last stable release. To instead
-> contribute changes to Haneul, use the `main` branch.
 
 And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
 * https://haneullabs.github.io/haneul/ - the Haneul blockchain

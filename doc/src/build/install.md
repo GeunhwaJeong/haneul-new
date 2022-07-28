@@ -2,10 +2,7 @@
 title: Install Haneul
 ---
 
-Welcome to the Haneul development environment! Note, this site is built from the upstream `main`
-branch and therefore will contain updates not yet found in `devnet`. The instructions here
-recommend use of `devnet` as the latest stable release. To [contribute to Haneul](../contribute/index.md),
-instead use the `main` branch.
+Welcome to the Haneul development environment! This site is available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
 
 ## Summary
 
