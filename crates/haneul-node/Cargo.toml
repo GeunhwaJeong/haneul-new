@@ -23,6 +23,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
 
 telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "123c9e40b529315e1c1d91a54fb717111c3e349c" }
