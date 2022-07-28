@@ -34,6 +34,7 @@ use haneul_json_rpc_types::{
     TransactionResponse,
 };
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::crypto::HaneulSignature;
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::network::{start_rpc_test_network, TestNetwork};

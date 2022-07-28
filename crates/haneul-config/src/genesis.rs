@@ -17,8 +17,7 @@ use haneul_adapter::in_memory_storage::InMemoryStorage;
 use haneul_adapter::temporary_store::TemporaryStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::crypto::PublicKey;
-use haneul_types::crypto::PublicKeyBytes;
+use haneul_types::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes};
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::messages::CallArg;
 use haneul_types::messages::InputObjects;
@@ -61,7 +60,7 @@ impl Genesis {
         )
     }
 
-    pub fn narwhal_committee(&self) -> narwhal_config::SharedCommittee<PublicKey> {
+    pub fn narwhal_committee(&self) -> narwhal_config::SharedCommittee<AuthorityPublicKey> {
         let narwhal_committee = self
             .validator_set
             .iter()
@@ -202,7 +201,7 @@ impl<'de> Deserialize<'de> for Genesis {
 
 pub struct Builder {
     objects: BTreeMap<ObjectID, Object>,
-    validators: BTreeMap<PublicKeyBytes, ValidatorInfo>,
+    validators: BTreeMap<AuthorityPublicKeyBytes, ValidatorInfo>,
 }
 
 impl Default for Builder {
@@ -515,7 +514,7 @@ mod test {
     use super::Builder;
     use crate::{genesis_config::GenesisConfig, utils, ValidatorInfo};
     use narwhal_crypto::traits::KeyPair;
-    use haneul_types::crypto::get_key_pair_from_rng;
+    use haneul_types::crypto::{get_key_pair_from_rng, AuthorityKeyPair};
 
     #[test]
     fn roundtrip() {
@@ -535,7 +534,7 @@ mod test {
             .generate_accounts(&mut rand::rngs::OsRng)
             .unwrap();
 
-        let key = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
+        let key: AuthorityKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
         let validator = ValidatorInfo {
             name: "0".into(),
             public_key: key.public().into(),

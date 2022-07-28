@@ -7,7 +7,7 @@ use haneul_config::genesis_config::GenesisConfig;
 use haneul_swarm::memory::Node;
 use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::KeypairTraits;
-use haneul_types::crypto::{get_key_pair, KeyPair};
+use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use test_utils::network::{start_rpc_test_network_with_fullnode, TestNetwork};
 
 const DEVNET_FAUCET_ADDR: &str = "https://faucet.devnet.haneul.io:443";
@@ -43,7 +43,7 @@ pub trait Cluster {
     fn rpc_url(&self) -> &str;
     fn faucet_url(&self) -> Option<&str>;
     fn fullnode_url(&self) -> &str;
-    fn user_key(&self) -> KeyPair;
+    fn user_key(&self) -> AccountKeyPair;
 }
 
 /// Represents an up and running cluster deployed remotely.
@@ -106,7 +106,7 @@ impl Cluster for RemoteRunningCluster {
     fn faucet_url(&self) -> Option<&str> {
         Some(&self.faucet_url)
     }
-    fn user_key(&self) -> KeyPair {
+    fn user_key(&self) -> AccountKeyPair {
         get_key_pair().1
     }
 }
@@ -161,7 +161,7 @@ impl Cluster for LocalNewCluster {
         None
     }
 
-    fn user_key(&self) -> KeyPair {
+    fn user_key(&self) -> AccountKeyPair {
         self.swarm().config().account_keys[0].copy()
     }
 }

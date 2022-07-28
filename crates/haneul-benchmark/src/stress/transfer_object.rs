@@ -8,7 +8,7 @@ use rand::seq::IteratorRandom;
 use haneul_config::NetworkConfig;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
-    crypto::{get_key_pair, EmptySignInfo, KeyPair},
+    crypto::{get_key_pair, AccountKeyPair, EmptySignInfo},
     messages::TransactionEnvelope,
     object::{Object, Owner},
 };
@@ -24,7 +24,7 @@ pub struct TransferObjectTestPayload {
     transfer_from: HaneulAddress,
     transfer_to: HaneulAddress,
     gas: Vec<Gas>,
-    keypairs: Arc<HashMap<HaneulAddress, KeyPair>>,
+    keypairs: Arc<HashMap<HaneulAddress, AccountKeyPair>>,
 }
 
 impl Payload for TransferObjectTestPayload {
@@ -76,7 +76,7 @@ pub struct TransferObjectTestCtx {
     transfer_gas: Vec<Vec<Object>>,
     transfer_objects: Vec<Object>,
     transfer_objects_owner: HaneulAddress,
-    keypairs: Arc<HashMap<HaneulAddress, KeyPair>>,
+    keypairs: Arc<HashMap<HaneulAddress, AccountKeyPair>>,
 }
 
 impl TransferObjectTestCtx {
@@ -86,7 +86,7 @@ impl TransferObjectTestCtx {
         _configs: &NetworkConfig,
     ) -> Box<dyn StressTestCtx<dyn Payload>> {
         // create several accounts to transfer object between
-        let keypairs: Arc<HashMap<HaneulAddress, KeyPair>> =
+        let keypairs: Arc<HashMap<HaneulAddress, AccountKeyPair>> =
             Arc::new((0..num_accounts).map(|_| get_key_pair()).collect());
         // create enough gas to do those transfers
         let gas: Vec<Vec<Object>> = (0..count)

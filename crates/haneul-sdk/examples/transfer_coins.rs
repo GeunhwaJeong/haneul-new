@@ -6,6 +6,7 @@ use haneul_sdk::crypto::{Keystore, HaneulKeystore};
 use haneul_sdk::types::base_types::{ObjectID, HaneulAddress};
 use haneul_sdk::types::haneul_serde::Base64;
 use haneul_sdk::HaneulClient;
+use haneul_types::crypto::HaneulSignature;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -33,6 +34,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let transaction_response = haneul
         .execute_transaction(
             transfer_tx.tx_bytes,
+            Base64::from_bytes(&[signature.flag_byte()]),
             Base64::from_bytes(signature.signature_bytes()),
             Base64::from_bytes(signature.public_key_bytes()),
         )

@@ -26,7 +26,7 @@ use sha2::Sha512;
 use sha3::Sha3_256;
 
 use crate::committee::EpochId;
-use crate::crypto::{PublicKey, PublicKeyBytes};
+use crate::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes, KeypairTraits, HaneulPublicKey};
 use crate::error::ExecutionError;
 use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
@@ -67,7 +67,7 @@ pub type VersionNumber = SequenceNumber;
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Hash, Default, Debug, Serialize, Deserialize)]
 pub struct UserData(pub Option<[u8; 32]>);
 
-pub type AuthorityName = PublicKeyBytes;
+pub type AuthorityName = AuthorityPublicKeyBytes;
 
 #[serde_as]
 #[derive(Eq, PartialEq, Clone, Copy, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema)]
@@ -183,10 +183,11 @@ impl TryFrom<Vec<u8>> for HaneulAddress {
     }
 }
 
-impl From<&PublicKeyBytes> for HaneulAddress {
-    fn from(pkb: &PublicKeyBytes) -> Self {
+impl From<&AuthorityPublicKeyBytes> for HaneulAddress {
+    fn from(pkb: &AuthorityPublicKeyBytes) -> Self {
         let mut hasher = Sha3_256::default();
-        hasher.update(pkb.as_ref());
+        hasher.update(&[AuthorityPublicKey::FLAG]);
+        hasher.update(pkb);
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
@@ -195,10 +196,11 @@ impl From<&PublicKeyBytes> for HaneulAddress {
     }
 }
 
-impl From<&PublicKey> for HaneulAddress {
-    fn from(pkb: &PublicKey) -> Self {
+impl<T: HaneulPublicKey> From<&T> for HaneulAddress {
+    fn from(pk: &T) -> Self {
         let mut hasher = Sha3_256::default();
-        hasher.update(pkb.as_ref());
+        hasher.update(&[T::FLAG]);
+        hasher.update(pk);
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
@@ -481,8 +483,11 @@ impl ObjectDigest {
     }
 }
 
-pub fn get_new_address() -> HaneulAddress {
-    crate::crypto::get_key_pair().0
+pub fn get_new_address<K: KeypairTraits>() -> HaneulAddress
+where
+    <K as KeypairTraits>::PubKey: HaneulPublicKey,
+{
+    crate::crypto::get_key_pair::<K>().0
 }
 
 pub fn bytes_as_hex<B, S>(bytes: B, serializer: S) -> Result<S::Ok, S::Error>

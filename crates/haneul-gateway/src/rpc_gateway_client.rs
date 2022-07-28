@@ -14,8 +14,10 @@ use haneul_json_rpc_types::{
     HaneulTypeTag, TransactionBytes, TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::crypto::HaneulSignature;
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;
+
 pub struct RpcGatewayClient {
     client: HaneulClient,
 }
@@ -32,12 +34,13 @@ impl GatewayAPI for RpcGatewayClient {
     async fn execute_transaction(&self, tx: Transaction) -> Result<TransactionResponse, Error> {
         let signature = tx.tx_signature;
         let tx_bytes = Base64::from_bytes(&tx.data.to_bytes());
+        let flag_bytes = Base64::from_bytes(&[signature.flag_byte()]);
         let signature_bytes = Base64::from_bytes(signature.signature_bytes());
         let pub_key = Base64::from_bytes(signature.public_key_bytes());
 
         Ok(self
             .client
-            .execute_transaction(tx_bytes, signature_bytes, pub_key)
+            .execute_transaction(tx_bytes, flag_bytes, signature_bytes, pub_key)
             .await?)
     }
 

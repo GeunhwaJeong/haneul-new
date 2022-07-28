@@ -10,7 +10,7 @@ use haneul_core::checkpoints::{CheckpointLocals, CHECKPOINT_COUNT_PER_EPOCH};
 use haneul_core::safe_client::SafeClient;
 use haneul_node::HaneulNode;
 use haneul_types::base_types::{ObjectID, ObjectRef};
-use haneul_types::crypto::{get_key_pair, KeypairTraits};
+use haneul_types::crypto::{get_key_pair, AuthorityKeyPair, KeypairTraits};
 use haneul_types::messages::ObjectInfoResponse;
 use haneul_types::messages::{CallArg, ObjectArg, ObjectInfoRequest, TransactionEffects};
 use haneul_types::object::Object;
@@ -158,10 +158,10 @@ pub async fn create_and_register_new_validator(
 
 #[allow(dead_code)]
 pub fn get_new_validator() -> ValidatorInfo {
-    let keypair = get_key_pair();
+    let keypair: AuthorityKeyPair = get_key_pair().1;
     ValidatorInfo {
         name: "".to_string(),
-        public_key: keypair.1.public().into(),
+        public_key: keypair.public().into(),
         stake: 1,
         delegation: 0,
         network_address: haneul_config::utils::new_network_address(),
