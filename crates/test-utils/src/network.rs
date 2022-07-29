@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use jsonrpsee_http_client::{HttpClient, HttpClientBuilder};
-use jsonrpsee_http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
 use std::net::SocketAddr;
 use std::num::NonZeroUsize;
 use std::path::Path;
@@ -24,6 +23,7 @@ use haneul_json_rpc::api::WalletSyncApiServer;
 use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
+use haneul_json_rpc::http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
 use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
