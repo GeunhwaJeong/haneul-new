@@ -18,8 +18,8 @@ use haneul_storage::{
 };
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::batch::{SignedBatch, TxSequenceNumber};
-use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthoritySignInfo, EmptySignInfo};
+use haneul_types::messages::AuthenticatedEpoch;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::{Owner, OBJECT_START_VERSION};
 use tokio::sync::Notify;
@@ -40,28 +40,6 @@ const NUM_SHARDS: usize = 4096;
 /// The key where the latest consensus index is stored in the database.
 // TODO: Make a single table (e.g., called `variables`) storing all our lonely variables in one place.
 const LAST_CONSENSUS_INDEX_ADDR: u64 = 0;
-
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub enum AuthenticatedEpoch {
-    Signed(SignedEpoch),
-    Certified(CertifiedEpoch),
-}
-
-impl AuthenticatedEpoch {
-    pub fn epoch(&self) -> EpochId {
-        match self {
-            Self::Signed(s) => s.epoch_info.epoch(),
-            Self::Certified(c) => c.epoch_info.epoch(),
-        }
-    }
-
-    pub fn epoch_info(&self) -> &EpochInfo {
-        match self {
-            Self::Signed(s) => &s.epoch_info,
-            Self::Certified(c) => &c.epoch_info,
-        }
-    }
-}
 
 /// ALL_OBJ_VER determines whether we want to store all past
 /// versions of every object in the store. Authority doesn't store
@@ -1339,57 +1317,47 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
 
     // Epoch related functions
 
-    /// This function should be called at the end of the epoch identified by `epoch`,
-    /// and after this call, we expect that the node's committee has changed
-    /// to `next_epoch_committee`.
-    pub fn sign_new_epoch(
-        &self,
-        epoch: EpochId,
-        next_epoch_committee: Committee,
-        authority: AuthorityName,
-        secret: &dyn signature::Signer<AuthoritySignature>,
-        last_checkpoint: CheckpointSequenceNumber,
-    ) -> HaneulResult {
-        let latest_epoch = self.get_latest_authenticated_epoch();
-        match latest_epoch {
-            Some(a) => {
-                fp_ensure!(
-                    a.epoch() + 1 == epoch,
-                    HaneulError::from("Unexpected new epoch number")
-                );
-            }
-            None => {
-                fp_ensure!(
-                    epoch == 0,
-                    HaneulError::from("Could not find previous epoch information")
-                );
-            }
-        }
-
-        let signed_epoch = SignedEpoch::new(
-            epoch,
-            next_epoch_committee,
-            authority,
-            secret,
-            last_checkpoint,
-        )?;
-
-        let mut writer = self.tables.epochs.batch();
-        writer = writer.insert_batch(
-            &self.tables.epochs,
-            iter::once((epoch, AuthenticatedEpoch::Signed(signed_epoch))),
-        )?;
-        writer.write()?;
+    pub fn init_genesis_epoch(&self, genesis_committee: Committee) -> HaneulResult {
+        assert_eq!(genesis_committee.epoch, 0);
+        let epoch_data = AuthenticatedEpoch::Genesis(GenesisEpoch::new(genesis_committee));
+        self.tables.epochs.insert(&0, &epoch_data)?;
         Ok(())
     }
 
-    pub fn get_latest_authenticated_epoch(&self) -> Option<AuthenticatedEpoch> {
+    /// This function should be called at the end of the epoch identified by `epoch`,
+    /// and after this call, we expect that the node's committee has changed
+    /// to `new_committee`.
+    pub fn sign_new_epoch(
+        &self,
+        new_committee: Committee,
+        authority: AuthorityName,
+        secret: &dyn signature::Signer<AuthoritySignature>,
+        next_checkpoint: CheckpointSequenceNumber,
+    ) -> HaneulResult {
+        let cur_epoch = new_committee.epoch;
+        let latest_epoch = self.get_latest_authenticated_epoch();
+        fp_ensure!(
+            latest_epoch.epoch() + 1 == cur_epoch,
+            HaneulError::from("Unexpected new epoch number")
+        );
+
+        let signed_epoch = SignedEpoch::new(new_committee, authority, secret, next_checkpoint);
+        self.tables
+            .epochs
+            .insert(&cur_epoch, &AuthenticatedEpoch::Signed(signed_epoch))?;
+        Ok(())
+    }
+
+    pub fn get_latest_authenticated_epoch(&self) -> AuthenticatedEpoch {
         self.tables
             .epochs
             .iter()
             .skip_to_last()
             .next()
-            .map(|(_, a)| a)
+            // unwrap safe because we guarantee there is at least a genesis epoch
+            // when initializing the store.
+            .unwrap()
+            .1
     }
 }
 
