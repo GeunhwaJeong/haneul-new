@@ -187,7 +187,7 @@ async fn test_handle_transfer_transaction_with_max_sequence_number() {
     assert!(res.is_err());
     assert_eq!(
         res.err(),
-        Some(HaneulError::LockErrors {
+        Some(HaneulError::ObjectErrors {
             errors: vec![HaneulError::InvalidSequenceNumber],
         })
     );
@@ -240,7 +240,7 @@ async fn test_handle_shared_object_with_max_sequence_number() {
     assert!(response.is_err());
     assert_eq!(
         response.err(),
-        Some(HaneulError::LockErrors {
+        Some(HaneulError::ObjectErrors {
             errors: vec![HaneulError::InvalidSequenceNumber],
         })
     );
@@ -1897,7 +1897,7 @@ async fn shared_object() {
 
     // Sending the certificate now fails since it was not sequenced.
     let result = authority.handle_certificate(certificate.clone()).await;
-    assert!(matches!(result, Err(HaneulError::LockErrors { .. })));
+    assert!(matches!(result, Err(HaneulError::ObjectErrors { .. })));
 
     // Sequence the certificate to assign a sequence number to the shared object.
     authority

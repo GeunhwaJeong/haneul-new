@@ -542,7 +542,7 @@ impl AuthorityState {
             lock_errors.is_empty(),
             // NOTE: the error message here will say 'Error acquiring lock' but what it means is
             // 'error checking lock'.
-            HaneulError::LockErrors {
+            HaneulError::ObjectErrors {
                 errors: lock_errors
             }
         );

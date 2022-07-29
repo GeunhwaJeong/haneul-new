@@ -278,7 +278,7 @@ where
                     processed_certificates.insert(cert_digest);
                     continue;
                 }
-                Err(HaneulError::LockErrors { .. }) => {}
+                Err(HaneulError::ObjectErrors { .. }) => {}
                 Err(e) => return Err(e),
             }
 
@@ -1429,7 +1429,7 @@ where
                         // LockErrors indicate the authority may be out-of-date.
                         // We only attempt to update authority and retry if we are seeing LockErrors.
                         // For any other error, we stop here and return.
-                        if !matches!(res, Err(HaneulError::LockErrors { .. })) {
+                        if !matches!(res, Err(HaneulError::ObjectErrors { .. })) {
                             debug!(
                                 tx_digest = ?tx_digest,
                                 ?name,
