@@ -1,6 +1,6 @@
 [package]
 name = "haneul"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 publish = false
