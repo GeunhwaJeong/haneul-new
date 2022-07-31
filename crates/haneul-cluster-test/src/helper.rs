@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::bail;
-use haneul_core::gateway_state::GatewayClient;
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulEvent, HaneulObject, HaneulParsedMoveObject};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{
@@ -11,6 +10,7 @@ use haneul_types::{
     object::Owner,
 };
 
+use haneul_sdk::HaneulClient;
 use tracing::debug;
 
 /// A util struct that helps verify Haneul Object.
@@ -54,7 +54,7 @@ impl ObjectChecker {
         self
     }
 
-    pub async fn check_into_gas_coin(self, client: &GatewayClient) -> GasCoin {
+    pub async fn check_into_gas_coin(self, client: &HaneulClient) -> GasCoin {
         if self.is_haneul_coin == Some(false) {
             panic!("'check_into_gas_coin' shouldn't be called with 'is_haneul_coin' set as false");
         }
@@ -65,14 +65,11 @@ impl ObjectChecker {
             .into_gas_coin()
     }
 
-    pub async fn check_into_haneul_object(
-        self,
-        client: &GatewayClient,
-    ) -> HaneulObject<HaneulParsedMoveObject> {
+    pub async fn check_into_haneul_object(self, client: &HaneulClient) -> HaneulObject<HaneulParsedMoveObject> {
         self.check(client).await.unwrap().into_haneul_object()
     }
 
-    pub async fn check(self, client: &GatewayClient) -> Result<CheckerResultObject, anyhow::Error> {
+    pub async fn check(self, client: &HaneulClient) -> Result<CheckerResultObject, anyhow::Error> {
         debug!(?self);
 
         let object_id = self.object_id;

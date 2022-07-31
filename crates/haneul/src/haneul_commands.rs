@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::client_commands::{HaneulClientCommands, WalletContext};
-use crate::config::{GatewayConfig, GatewayType, HaneulClientConfig};
+use crate::config::HaneulClientConfig;
 use crate::console::start_console;
 use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
@@ -14,6 +14,7 @@ use std::io::{stderr, stdout, Write};
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
+use haneul_config::gateway::GatewayConfig;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_DEV_NET_URL, HANEUL_KEYSTORE_FILENAME};
 use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
 use haneul_config::{
@@ -21,7 +22,7 @@ use haneul_config::{
     HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
 use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{ClientType, HaneulClient};
 use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::KeypairTraits;
 use tracing::info;
@@ -286,7 +287,7 @@ impl HaneulCommand {
                 let wallet_config = HaneulClientConfig {
                     accounts,
                     keystore: KeystoreType::File(keystore_path),
-                    gateway: GatewayType::Embedded(wallet_gateway_config),
+                    gateway: ClientType::Embedded(wallet_gateway_config),
                     active_address,
                 };
 
@@ -319,14 +320,14 @@ impl HaneulCommand {
             HaneulCommand::Console { config } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
                 prompt_if_no_config(&config)?;
-                let mut context = WalletContext::new(&config)?;
+                let mut context = WalletContext::new(&config).await?;
                 sync_accounts(&mut context).await?;
                 start_console(context, &mut stdout(), &mut stderr()).await
             }
             HaneulCommand::Client { config, cmd, json } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
                 prompt_if_no_config(&config)?;
-                let mut context = WalletContext::new(&config)?;
+                let mut context = WalletContext::new(&config).await?;
 
                 if let Some(cmd) = cmd {
                     // Do not sync if command is a gateway switch, as the current gateway might be unreachable and causes sync to panic.
@@ -406,7 +407,7 @@ fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
             HaneulClientConfig {
                 accounts: vec![new_address],
                 keystore,
-                gateway: GatewayType::RPC(url),
+                gateway: ClientType::RPC(url),
                 active_address: Some(new_address),
             }
             .persisted(wallet_conf_path)

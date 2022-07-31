@@ -23,7 +23,6 @@ haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
-haneul-sdk = { path = "../haneul-sdk" }
 haneul-node = { path = "../haneul-node" }
 
 haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "123c9e40b529315e1c1d91a54fb717111c3e349c" }
@@ -33,6 +32,7 @@ workspace-hack = { path = "../workspace-hack"}
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
 haneul-framework = { path = "../haneul-framework" }
+haneul-sdk = { path = "../haneul-sdk" }
 
 [[bin]]
 name = "rpc-server"

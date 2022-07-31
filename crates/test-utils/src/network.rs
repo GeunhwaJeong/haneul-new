@@ -5,17 +5,15 @@ use jsonrpsee_http_client::{HttpClient, HttpClientBuilder};
 use std::net::SocketAddr;
 use std::num::NonZeroUsize;
 use std::path::Path;
-use std::sync::Arc;
 use haneul::{
     client_commands::{HaneulClientCommands, WalletContext},
-    config::{GatewayConfig, GatewayType, HaneulClientConfig},
+    config::HaneulClientConfig,
 };
+use haneul_config::gateway::GatewayConfig;
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME};
-use haneul_core::gateway_state::GatewayClient;
-use haneul_gateway::create_client;
-use haneul_gateway::rpc_gateway_client::RpcGatewayClient;
+use haneul_core::gateway_state::GatewayState;
 use haneul_json_rpc::api::RpcGatewayApiServer;
 use haneul_json_rpc::api::RpcReadApiServer;
 use haneul_json_rpc::api::RpcTransactionBuilderServer;
@@ -25,6 +23,7 @@ use haneul_json_rpc::gateway_api::{
 };
 use haneul_json_rpc::http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
 use haneul_sdk::crypto::{KeystoreType, HaneulKeystore};
+use haneul_sdk::{ClientType, HaneulClient};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
@@ -86,7 +85,7 @@ pub async fn start_test_network_with_fullnodes(
     HaneulClientConfig {
         accounts,
         keystore: KeystoreType::File(keystore_path),
-        gateway: GatewayType::Embedded(GatewayConfig {
+        gateway: ClientType::Embedded(GatewayConfig {
             db_folder_path,
             validator_set: validators,
             ..Default::default()
@@ -105,7 +104,7 @@ pub async fn setup_network_and_wallet() -> Result<(Swarm, WalletContext, HaneulA
 
     // Create Wallet context.
     let wallet_conf = swarm.dir().join(HANEUL_CLIENT_CONFIG);
-    let mut context = WalletContext::new(&wallet_conf)?;
+    let mut context = WalletContext::new(&wallet_conf).await?;
     let address = context.config.accounts.first().cloned().unwrap();
 
     // Sync client to retrieve objects from the network.
@@ -122,8 +121,9 @@ async fn start_rpc_gateway(
 ) -> Result<(SocketAddr, HttpServerHandle), anyhow::Error> {
     let server = HttpServerBuilder::default().build("127.0.0.1:0").await?;
     let addr = server.local_addr()?;
-    let registry = prometheus::Registry::new();
-    let client = create_client(config_path, &registry)?;
+
+    let config = PersistedConfig::read(config_path)?;
+    let client = GatewayState::create_client(&config, None)?;
     let mut module = RpcModule::new(());
     module.merge(RpcGatewayImpl::new(client.clone()).into_rpc())?;
     module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
@@ -152,19 +152,19 @@ pub async fn start_rpc_test_network_with_fullnode(
         PersistedConfig::read(&working_dir.join(HANEUL_CLIENT_CONFIG))?;
     let rpc_url = format!("http://{}", server_addr);
     let accounts = wallet_conf.accounts.clone();
-    wallet_conf.gateway = GatewayType::RPC(rpc_url.clone());
+    wallet_conf.gateway = ClientType::RPC(rpc_url.clone());
     wallet_conf
         .persisted(&working_dir.join(HANEUL_CLIENT_CONFIG))
         .save()?;
 
     let http_client = HttpClientBuilder::default().build(rpc_url.clone())?;
-    let gateway_client = RpcGatewayClient::new(rpc_url.clone())?;
+    let gateway_client = HaneulClient::new_http_client(&rpc_url)?;
     Ok(TestNetwork {
         network,
         _rpc_server: rpc_server_handle,
         accounts,
         http_client,
-        gateway_client: Arc::new(gateway_client),
+        gateway_client,
         rpc_url,
     })
 }
@@ -174,6 +174,6 @@ pub struct TestNetwork {
     _rpc_server: HttpServerHandle,
     pub accounts: Vec<HaneulAddress>,
     pub http_client: HttpClient,
-    pub gateway_client: GatewayClient,
+    pub gateway_client: HaneulClient,
     pub rpc_url: String,
 }

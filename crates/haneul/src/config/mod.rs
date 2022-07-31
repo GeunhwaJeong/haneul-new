@@ -12,8 +12,7 @@ pub use haneul_config::Config;
 pub use haneul_config::PersistedConfig;
 
 pub use haneul_config::utils;
-
-pub use haneul_gateway::config::{GatewayConfig, GatewayType};
+use haneul_sdk::ClientType;
 
 #[serde_as]
 #[derive(Serialize, Deserialize)]
@@ -21,7 +20,7 @@ pub struct HaneulClientConfig {
     #[serde_as(as = "Vec<Hex>")]
     pub accounts: Vec<HaneulAddress>,
     pub keystore: KeystoreType,
-    pub gateway: GatewayType,
+    pub gateway: ClientType,
     pub active_address: Option<HaneulAddress>,
 }
 

@@ -23,8 +23,6 @@ haneul-adapter = { path = "../haneul-adapter" }
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
 haneul-framework = { path = "../haneul-framework" }
-haneul-gateway = { path = "../haneul-gateway" }
-haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }

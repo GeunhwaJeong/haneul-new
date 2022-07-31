@@ -6,9 +6,9 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
 };
-use haneul_config::haneul_config_dir;
 use haneul_config::HANEUL_GATEWAY_CONFIG;
-use haneul_gateway::create_client;
+use haneul_config::{haneul_config_dir, PersistedConfig};
+use haneul_core::gateway_state::GatewayState;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::gateway_api::{GatewayReadApiImpl, TransactionBuilderImpl};
 use haneul_json_rpc::gateway_api::{GatewayWalletSyncApiImpl, RpcGatewayImpl};
@@ -56,7 +56,8 @@ async fn main() -> anyhow::Result<()> {
     info!("Starting Prometheus HTTP endpoint at {}", prom_binding);
     let prometheus_registry = haneul_node::metrics::start_prometheus_server(prom_binding);
 
-    let client = create_client(&config_path, &prometheus_registry)?;
+    let gateway_config = PersistedConfig::read(&config_path)?;
+    let client = GatewayState::create_client(&gateway_config, Some(&prometheus_registry))?;
 
     let address = SocketAddr::new(IpAddr::V4(options.host), options.port);
     let mut server = JsonRpcServerBuilder::new(false, &prometheus_registry)?;

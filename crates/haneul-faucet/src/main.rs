@@ -155,7 +155,7 @@ async fn create_wallet_context() -> Result<WalletContext, anyhow::Error> {
     // Create Wallet context.
     let wallet_conf = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
     info!("Initialize wallet from config path: {:?}", wallet_conf);
-    let mut context = WalletContext::new(&wallet_conf)?;
+    let mut context = WalletContext::new(&wallet_conf).await?;
     let address = context
         .config
         .accounts

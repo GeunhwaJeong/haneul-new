@@ -10,9 +10,10 @@ use serde_json::json;
 use haneul::client_commands::SwitchResponse;
 use haneul::{
     client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext},
-    config::{GatewayConfig, GatewayType, HaneulClientConfig},
+    config::HaneulClientConfig,
     haneul_commands::HaneulCommand,
 };
+use haneul_config::gateway::GatewayConfig;
 use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ObjectConfig};
 use haneul_config::{
     Config, NetworkConfig, PersistedConfig, ValidatorInfo, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
@@ -21,6 +22,7 @@ use haneul_config::{
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_sdk::crypto::KeystoreType;
+use haneul_sdk::ClientType;
 use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, KeypairTraits};
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 
@@ -74,7 +76,7 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
     let wallet_conf =
         PersistedConfig::<HaneulClientConfig>::read(&working_dir.join(HANEUL_CLIENT_CONFIG))?;
 
-    if let GatewayType::Embedded(config) = &wallet_conf.gateway {
+    if let ClientType::Embedded(config) = &wallet_conf.gateway {
         assert_eq!(4, config.validator_set.len());
         assert_eq!(working_dir.join("client_db"), config.db_folder_path);
     } else {
@@ -106,7 +108,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
     let wallet_config = HaneulClientConfig {
         accounts: vec![],
         keystore: KeystoreType::File(working_dir.join(HANEUL_KEYSTORE_FILENAME)),
-        gateway: GatewayType::Embedded(GatewayConfig {
+        gateway: ClientType::Embedded(GatewayConfig {
             db_folder_path: working_dir.join("client_db"),
             validator_set: vec![ValidatorInfo {
                 name: "0".into(),
@@ -136,7 +138,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
     }
     wallet_config.save().unwrap();
 
-    let mut context = WalletContext::new(&wallet_conf_path).unwrap();
+    let mut context = WalletContext::new(&wallet_conf_path).await.unwrap();
 
     // Print all addresses
     HaneulClientCommands::Addresses
@@ -216,7 +218,7 @@ async fn test_custom_genesis() -> Result<(), anyhow::Error> {
     let network = start_test_network(Some(config)).await?;
 
     // Wallet config
-    let mut context = WalletContext::new(&network.dir().join(HANEUL_CLIENT_CONFIG))?;
+    let mut context = WalletContext::new(&network.dir().join(HANEUL_CLIENT_CONFIG)).await?;
     assert_eq!(1, context.config.accounts.len());
     let address = context.config.accounts.first().cloned().unwrap();
 
@@ -669,7 +671,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     // Create Wallet context.
     let wallet_conf = network.dir().join(HANEUL_CLIENT_CONFIG);
 
-    let mut context = WalletContext::new(&wallet_conf)?;
+    let mut context = WalletContext::new(&wallet_conf).await?;
 
     // Get the active address
     let addr1 = context.active_address()?;
@@ -767,7 +769,7 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     // Create Wallet context.
     let wallet_conf = network.dir().join(HANEUL_CLIENT_CONFIG);
 
-    let mut context = WalletContext::new(&wallet_conf)?;
+    let mut context = WalletContext::new(&wallet_conf).await?;
 
     // Get the active address
     let addr1 = context.active_address()?;
