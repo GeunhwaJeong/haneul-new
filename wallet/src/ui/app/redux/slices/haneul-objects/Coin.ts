@@ -22,6 +22,7 @@ const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 export const DEFAULT_GAS_BUDGET_FOR_SPLIT = 1000;
 export const DEFAULT_GAS_BUDGET_FOR_MERGE = 500;
 export const DEFAULT_GAS_BUDGET_FOR_TRANSFER = 100;
+export const DEFAULT_GAS_BUDGET_FOR_TRANSFER_HANEUL = 100;
 export const DEFAULT_GAS_BUDGET_FOR_STAKE = 1000;
 export const GAS_TYPE_ARG = '0x2::haneul::HANEUL';
 export const GAS_SYMBOL = 'HANEUL';
@@ -84,6 +85,33 @@ export class Coin {
     }
 
     /**
+     * Transfer `amount` of Coin<Haneul> to `recipient`.
+     *
+     * @param signer A signer with connection to the gateway:e.g., new RawSigner(keypair, new JsonRpcProvider(endpoint))
+     * @param coins A list of Haneul Coins owned by the signer
+     * @param amount The amount to be transferred
+     * @param recipient The haneul address of the recipient
+     */
+    public static async transferHaneul(
+        signer: RawSigner,
+        coins: HaneulMoveObject[],
+        amount: bigint,
+        recipient: HaneulAddress
+    ): Promise<TransactionResponse> {
+        const coin = await Coin.prepareCoinWithEnoughBalance(
+            signer,
+            coins,
+            amount + BigInt(DEFAULT_GAS_BUDGET_FOR_TRANSFER_HANEUL)
+        );
+        return await signer.transferHaneul({
+            haneulObjectId: Coin.getID(coin),
+            gasBudget: DEFAULT_GAS_BUDGET_FOR_TRANSFER_HANEUL,
+            recipient: recipient,
+            amount: Number(amount),
+        });
+    }
+
+    /**
      * Stake `amount` of Coin<T> to `validator`. Technically it means user delegates `amount` of Coin<T> to `validator`,
      * such that `validator` will stake the `amount` of Coin<T> for the user.
      *
@@ -114,7 +142,11 @@ export class Coin {
         coins: HaneulMoveObject[],
         amount: bigint
     ): Promise<ObjectId> {
-        const coin = await Coin.selectCoinForSplit(signer, coins, amount);
+        const coin = await Coin.prepareCoinWithEnoughBalance(
+            signer,
+            coins,
+            amount
+        );
         const coinID = Coin.getID(coin);
         const balance = Coin.getBalance(coin);
         if (balance === amount) {
@@ -131,7 +163,7 @@ export class Coin {
         }
     }
 
-    private static async selectCoinForSplit(
+    private static async prepareCoinWithEnoughBalance(
         signer: RawSigner,
         coins: HaneulMoveObject[],
         amount: bigint

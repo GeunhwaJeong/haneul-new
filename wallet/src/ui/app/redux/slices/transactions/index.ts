@@ -48,12 +48,20 @@ export const sendTokens = createAsyncThunk<
                     isHaneulMoveObject(anObj.data) && anObj.data.type === coinType
             )
             .map(({ data }) => data as HaneulMoveObject);
-        const response = await Coin.transferCoin(
-            api.getSignerInstance(keypairVault.getKeyPair()),
-            coins,
-            amount,
-            recipientAddress
-        );
+        const response =
+            Coin.getCoinSymbol(tokenTypeArg) === 'HANEUL'
+                ? await Coin.transferHaneul(
+                      api.getSignerInstance(keypairVault.getKeyPair()),
+                      coins,
+                      amount,
+                      recipientAddress
+                  )
+                : await Coin.transferCoin(
+                      api.getSignerInstance(keypairVault.getKeyPair()),
+                      coins,
+                      amount,
+                      recipientAddress
+                  );
 
         // TODO: better way to sync latest objects
         dispatch(fetchAllOwnedObjects());
