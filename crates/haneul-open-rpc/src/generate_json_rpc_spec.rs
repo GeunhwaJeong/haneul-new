@@ -14,12 +14,12 @@ use pretty_assertions::assert_str_eq;
 use serde::Serialize;
 use serde_json::{json, Map, Value};
 
+use crate::examples::RpcExampleProvider;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
 use haneul::client_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::HANEUL_CLIENT_CONFIG;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc::api::EventReadApiOpenRpc;
 use haneul_json_rpc::api::EventStreamingApiOpenRpc;
 use haneul_json_rpc::api::RpcReadApiClient;
 use haneul_json_rpc::api::RpcTransactionBuilderClient;
@@ -38,6 +38,8 @@ use haneul_types::crypto::HaneulSignature;
 use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::network::{start_rpc_test_network, TestNetwork};
+
+mod examples;
 
 #[derive(Debug, Parser, Clone, Copy, ArgEnum)]
 enum Action {
@@ -77,8 +79,11 @@ async fn main() {
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
     open_rpc.add_module(BcsApiImpl::rpc_doc_module());
     open_rpc.add_module(EventStreamingApiOpenRpc::module_doc());
-    open_rpc.add_module(EventReadApiOpenRpc::module_doc());
+    // TODO: Re-enable this when event read API is ready
+    //open_rpc.add_module(EventReadApiOpenRpc::module_doc());
     open_rpc.add_module(GatewayWalletSyncApiImpl::rpc_doc_module());
+
+    open_rpc.add_examples(RpcExampleProvider::new().examples());
 
     match options.action {
         Action::Print => {
