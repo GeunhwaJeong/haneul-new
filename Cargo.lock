@@ -6686,6 +6686,8 @@ dependencies = [
  "strum_macros",
  "haneul-config",
  "haneul-core",
+ "haneul-gateway",
+ "haneul-json-rpc-types",
  "haneul-node",
  "haneul-quorum-driver",
  "haneul-sdk",

@@ -36,11 +36,13 @@ haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-sdk = { path = "../haneul-sdk" }
+haneul-quorum-driver = { path = "../haneul-quorum-driver" }
+haneul-node = { path = "../haneul-node" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
+haneul-gateway = { path = "../haneul-gateway" }
 
 move-core-types = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a", features = ["address20"] }
 narwhal-node = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "259a37b487570763575e6b28f8b8057b16b3e916", package = "node" }
-haneul-quorum-driver = { path = "../haneul-quorum-driver" }
-haneul-node = { path = "../haneul-node" }
 workspace-hack = { path = "../workspace-hack"}
 test-utils = { path = "../test-utils" }
 
