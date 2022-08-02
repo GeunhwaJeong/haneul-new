@@ -33,35 +33,35 @@ The following animated GIFs walk you through some of the most common workflows i
 
 Install and configure the Haneul Wallet Browser Extension (covered in detail starting with [Install](#install)):
 
-![Set up Wallet](../../static/onboarding.gif "Set up Wallet")
+![Set up Wallet](../../static/wallet_0.0.2/set_up_wallet.gif "Set up Wallet")
 *Set up the Haneul Wallet Browser Extension*
 
 ### Create NFT
 
 From a demo decentralized site, such as our demonstration [NFT dApp](https://github.com/GeunhwaJeong/haneul/tree/main/wallet/examples/demo-nft-dapp) available [in the Cloud](http://haneul-wallet-demo.s3-website-us-east-1.amazonaws.com/), you can connect to your wallet and create a custom NFT:
 
-![Create NFT](../../static/create_NFT.gif "Create NFT")
+![Create NFT](../../static/wallet_0.0.2/create_nft.gif "Create NFT")
 *Create an NFT in Haneul Wallet by connecting to an external site*
 
 ### Transfer NFT
 
 Transfer your NFT to another address using the Haneul Wallet Browser Extension:
 
-![Transfer NFT](../../static/nft_transfer.gif "Transfer NFT")
+![Transfer NFT](../../static/wallet_0.0.2/transfer_nft.gif "Transfer NFT")
 *Transfer your NFT to another address*
 
 ### Transfer token
 
 Transfer your token to another address on the Haneul network using the Haneul Wallet Browser Extension:
 
-![Transfer token](../../static/token_transfer.gif "Transfer token")
+![Transfer token](../../static/wallet_0.0.2/transfer_token.gif "Transfer token")
 *Transfer tokens to another address*
 
 ### View transaction history
 
 View your recent transactions and visit [Haneul Explorer](https://explorer.devnet.haneul.io/), where you can see more details about the corresponding transaction:
 
-![Transaction history and settings](../../static/txn_history_and_settings.gif "Transaction history and settings")
+![Transaction history and settings](../../static/wallet_0.0.2/txn_history.gif "Transaction history and settings")
 *Under the *Settings* tab, view your account on Haneul Explorer*
 
 ## Install
