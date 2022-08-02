@@ -18,14 +18,13 @@ built from the upstream `main` branch and therefore will contain updates not yet
 
 Find the latest updates to these contents in this section:
 
+* You can now [register to participate](https://airtable.com/shr3phh3FCZYhZUDF) in [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/)!
 * This site is now available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for  [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
 * Haneul now supports development using [Microsoft Windows 11, macOS, and Linux](../build/install.md#supported-oses). See [install Haneul](../build/install.md#prerequisites) for the prerequisites of each operating system.
 * `haneul::id` is now `haneul::object` and `VersionedID` is now `Info`. Use the [Object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) that has [replaced the former ID.move.](https://github.com/GeunhwaJeong/haneul/pull/3241)
 * Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
 * Haneul [version 0.6.1](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.1) released to DevNet. See the [#haneul-release-notes](https://discord.com/channels/916379725201563759/974444055259910174) channel in Discord for details on this and prior releases.
 * Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
-* [Haneul Move is feature complete](https://haneul.io/resources-move/why-we-created-haneul-move/) and ready for you to write safe and efficient smart contracts. See https://examples.haneul.io/ to learn Haneul Move by example.
-* If your application is written in JavaScript or TypeScript, follow the [TypeScript SDK documentation](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet

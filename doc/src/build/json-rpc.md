@@ -301,4 +301,4 @@ Below you can see a truncated sample output of [haneul_publish](#haneul_publish)
 
 ## Connect to remote JSON-RPC server
 
-Coming soon - alternative ways of working with Haneul's JSON-RPC API. Connect to Haneul Devnet, Testnet, or Mainnet!
+Employ alternative ways of working with Haneul's JSON-RPC API. Connect to [Haneul Devnet](../explore/devnet.md), [Join Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/) and soon Mainnet!
