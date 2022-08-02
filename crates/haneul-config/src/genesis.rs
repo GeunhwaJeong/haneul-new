@@ -17,7 +17,7 @@ use haneul_adapter::in_memory_storage::InMemoryStorage;
 use haneul_adapter::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes};
+use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::messages::CallArg;
 use haneul_types::messages::InputObjects;
@@ -60,7 +60,7 @@ impl Genesis {
         )
     }
 
-    pub fn narwhal_committee(&self) -> narwhal_config::SharedCommittee<AuthorityPublicKey> {
+    pub fn narwhal_committee(&self) -> narwhal_config::SharedCommittee {
         let narwhal_committee = self
             .validator_set
             .iter()
