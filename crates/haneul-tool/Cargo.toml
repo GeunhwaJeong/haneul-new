@@ -21,7 +21,7 @@ tempfile = "3.3.0"
 narwhal-executor = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "259a37b487570763575e6b28f8b8057b16b3e916", package = "executor" }
 serde_with = { version = "1.14.0", features = ["hex"] }
 haneul-storage = { path = "../haneul-storage" }
-serde = { version = "1.0.140", features = ["derive"] }
+serde = { version = "1.0.141", features = ["derive"] }
 
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
