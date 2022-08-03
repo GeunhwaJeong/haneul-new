@@ -22,8 +22,8 @@ use haneul_types::crypto::{get_key_pair, AuthorityKeyPair, AuthorityPublicKeyByt
 use haneul_types::error::HaneulError;
 use haneul_types::messages::{
     AccountInfoRequest, AccountInfoResponse, BatchInfoRequest, BatchInfoResponseItem,
-    CertifiedTransaction, ObjectInfoRequest, ObjectInfoResponse, Transaction,
-    TransactionInfoRequest, TransactionInfoResponse,
+    CertifiedTransaction, EpochRequest, EpochResponse, ObjectInfoRequest, ObjectInfoResponse,
+    Transaction, TransactionInfoRequest, TransactionInfoResponse,
 };
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::object::Object;
@@ -201,9 +201,15 @@ impl AuthorityAPI for ConfigurableBatchActionClient {
 
     async fn handle_checkpoint(
         &self,
-        _request: CheckpointRequest,
+        request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError> {
-        todo!();
+        let state = self.state.clone();
+        state.handle_checkpoint_request(&request)
+    }
+
+    async fn handle_epoch(&self, request: EpochRequest) -> Result<EpochResponse, HaneulError> {
+        let state = self.state.clone();
+        state.handle_epoch_request(&request)
     }
 }
 

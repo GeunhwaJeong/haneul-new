@@ -1354,6 +1354,13 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         Ok(())
     }
 
+    pub fn get_authenticated_epoch(
+        &self,
+        epoch_id: &EpochId,
+    ) -> HaneulResult<Option<AuthenticatedEpoch>> {
+        Ok(self.tables.epochs.get(epoch_id)?)
+    }
+
     pub fn get_latest_authenticated_epoch(&self) -> AuthenticatedEpoch {
         self.tables
             .epochs
