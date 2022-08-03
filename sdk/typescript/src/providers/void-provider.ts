@@ -9,17 +9,28 @@ import {
   HaneulObjectInfo,
   GetObjectDataResponse,
   TransactionResponse,
+  HaneulObjectRef,
 } from '../types';
 import { Provider } from './provider';
 
 export class VoidProvider extends Provider {
   // Objects
   async getObjectsOwnedByAddress(_address: string): Promise<HaneulObjectInfo[]> {
-    throw this.newError('getOwnedObjects');
+    throw this.newError('getObjectsOwnedByAddress');
+  }
+
+  async getGasObjectsOwnedByAddress(
+    _address: string
+  ): Promise<HaneulObjectInfo[]> {
+    throw this.newError('getGasObjectsOwnedByAddress');
   }
 
   async getObject(_objectId: string): Promise<GetObjectDataResponse> {
     throw this.newError('getObject');
+  }
+
+  async getObjectRef(_objectId: string): Promise<HaneulObjectRef | undefined> {
+    throw this.newError('getObjectRef');
   }
 
   // Transactions

@@ -18,6 +18,9 @@ import {
   TransactionDigest,
   TransactionEffectsResponse,
   TransactionResponse,
+  HaneulObjectRef,
+  getObjectReference,
+  Coin,
 } from '../types';
 
 const isNumber = (val: any): val is number => typeof val === 'number';
@@ -51,6 +54,11 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
+  async getGasObjectsOwnedByAddress(address: string): Promise<HaneulObjectInfo[]> {
+    const objects = await this.getObjectsOwnedByAddress(address);
+    return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
+  }
+
   async getObjectsOwnedByObject(objectId: string): Promise<HaneulObjectInfo[]> {
     try {
       return await this.client.requestWithType(
@@ -75,6 +83,11 @@ export class JsonRpcProvider extends Provider {
     } catch (err) {
       throw new Error(`Error fetching object info: ${err} for id ${objectId}`);
     }
+  }
+
+  async getObjectRef(objectId: string): Promise<HaneulObjectRef | undefined> {
+    const resp = await this.getObject(objectId);
+    return getObjectReference(resp);
   }
 
   async getObjectBatch(objectIds: string[]): Promise<GetObjectDataResponse[]> {

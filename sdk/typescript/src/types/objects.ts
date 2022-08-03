@@ -152,8 +152,11 @@ export function getMoveObjectType(
 }
 
 export function getObjectFields(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse | HaneulMoveObject
 ): ObjectContentFields | undefined {
+  if ('fields' in resp) {
+    return resp.fields;
+  }
   return getMoveObject(resp)?.fields;
 }
 

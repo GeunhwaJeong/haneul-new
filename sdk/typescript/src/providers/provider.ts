@@ -7,6 +7,7 @@ import {
   GatewayTxSeqNumber,
   GetTxnDigestsResponse,
   TransactionResponse,
+  HaneulObjectRef,
 } from '../types';
 
 ///////////////////////////////
@@ -21,9 +22,22 @@ export abstract class Provider {
   ): Promise<HaneulObjectInfo[]>;
 
   /**
+   * Convenience method for getting all gas objects(HANEUL Tokens) owned by an address
+   */
+  abstract getGasObjectsOwnedByAddress(
+    _address: string
+  ): Promise<HaneulObjectInfo[]>;
+
+  /**
    * Get details about an object
    */
   abstract getObject(objectId: string): Promise<GetObjectDataResponse>;
+
+  /**
+   * Get object reference(id, tx digest, version id)
+   * @param objectId
+   */
+  abstract getObjectRef(objectId: string): Promise<HaneulObjectRef | undefined>;
 
   // Transactions
   /**
