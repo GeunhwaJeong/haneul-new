@@ -685,23 +685,13 @@ impl Display for HaneulClientCommandResult {
             }
             HaneulClientCommandResult::Gas(gases) => {
                 // TODO: generalize formatting of CLI
-                writeln!(
-                    writer,
-                    " {0: ^42} | {1: ^10} | {2: ^11}",
-                    "Object ID", "Version", "Gas Value"
-                )?;
+                writeln!(writer, " {0: ^42} | {1: ^11}", "Object ID", "Gas Value")?;
                 writeln!(
                     writer,
                     "----------------------------------------------------------------------"
                 )?;
                 for gas in gases {
-                    writeln!(
-                        writer,
-                        " {0: ^42} | {1: ^10} | {2: ^11}",
-                        gas.id(),
-                        u64::from(gas.version()),
-                        gas.value()
-                    )?;
+                    writeln!(writer, " {0: ^42} | {1: ^11}", gas.id(), gas.value())?;
                 }
             }
             HaneulClientCommandResult::SplitCoin(response) => {

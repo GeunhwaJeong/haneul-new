@@ -12,7 +12,7 @@
 /// This solution is rather simple and is based on the example from the Move repo:
 /// https://github.com/move-language/move/blob/main/language/documentation/examples/experimental/coin-swap/sources/CoinSwap.move
 module defi::pool {
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::coin::{Self, Coin, TreasuryCap};
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
@@ -56,7 +56,7 @@ module defi::pool {
     /// - `fee_percent` should be in the range: [0-10000), meaning
     /// that 1000 is 100% and 1 is 0.1%
     struct Pool<phantom P, phantom T> has key {
-        info: Info,
+        id: UID,
         haneul: Balance<HANEUL>,
         token: Balance<T>,
         lsp_treasury: TreasuryCap<LSP<P, T>>,
@@ -108,7 +108,7 @@ module defi::pool {
         let lsp = coin::mint(&mut lsp_treasury, share, ctx);
 
         transfer::share_object(Pool {
-            info: object::new(ctx),
+            id: object::new(ctx),
             token: coin::into_balance(token),
             haneul: coin::into_balance(haneul),
             lsp_treasury,

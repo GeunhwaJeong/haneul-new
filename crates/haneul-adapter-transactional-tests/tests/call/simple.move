@@ -5,13 +5,13 @@
 
 //# publish
 module Test::M1 {
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::tx_context::TxContext;
     use haneul::transfer;
     use haneul::coin::Coin;
 
     struct Object has key, store {
-        info: Info,
+        id: UID,
         value: u64,
     }
 
@@ -21,7 +21,7 @@ module Test::M1 {
 
     public entry fun create(value: u64, recipient: address, ctx: &mut TxContext) {
         transfer::transfer(
-            Object { info: object::new(ctx), value },
+            Object { id: object::new(ctx), value },
             recipient
         )
     }

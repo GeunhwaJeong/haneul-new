@@ -4,17 +4,17 @@
 /// Test CTURD object basics (create, transfer, update, read, delete)
 module haneul::object_basics {
     use haneul::event;
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
 
     struct Object has key, store {
-        info: Info,
+        id: UID,
         value: u64,
     }
 
     struct Wrapper has key {
-        info: Info,
+        id: UID,
         o: Object
     }
 
@@ -24,7 +24,7 @@ module haneul::object_basics {
 
     public entry fun create(value: u64, recipient: address, ctx: &mut TxContext) {
         transfer::transfer(
-            Object { info: object::new(ctx), value },
+            Object { id: object::new(ctx), value },
             recipient
         )
     }
@@ -49,17 +49,17 @@ module haneul::object_basics {
     }
 
     public entry fun delete(o: Object) {
-        let Object { info, value: _ } = o;
-        object::delete(info);
+        let Object { id, value: _ } = o;
+        object::delete(id);
     }
 
     public entry fun wrap(o: Object, ctx: &mut TxContext) {
-        transfer::transfer(Wrapper { info: object::new(ctx), o }, tx_context::sender(ctx))
+        transfer::transfer(Wrapper { id: object::new(ctx), o }, tx_context::sender(ctx))
     }
 
     public entry fun unwrap(w: Wrapper, ctx: &mut TxContext) {
-        let Wrapper { info, o } = w;
-        object::delete(info);
+        let Wrapper { id, o } = w;
+        object::delete(id);
         transfer::transfer(o, tx_context::sender(ctx))
     }
 }

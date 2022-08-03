@@ -5,19 +5,19 @@
 
 //# publish
 module Test::M1 {
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
 
     struct Object has key, store {
-        info: Info,
+        id: UID,
         value: u64,
     }
 
     // initializer that should be executed upon publishing this module
     fun init(ctx: &mut TxContext) {
         let value = 42;
-        let singleton = Object { info: object::new(ctx), value };
+        let singleton = Object { id: object::new(ctx), value };
         transfer::transfer(singleton, tx_context::sender(ctx))
     }
 }

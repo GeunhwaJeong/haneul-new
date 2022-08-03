@@ -10,14 +10,14 @@
 module test::m {
     use haneul::transfer;
     use haneul::tx_context::TxContext;
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
 
-    struct S has store, key { info: Info }
-    struct Cup<phantom T: store> has store, key { info: Info }
+    struct S has store, key { id: UID }
+    struct Cup<phantom T: store> has store, key { id: UID }
 
     public entry fun mint_s(ctx: &mut TxContext) {
-        let info = object::new(ctx);
-        transfer::freeze_object(S { info })
+        let id = object::new(ctx);
+        transfer::freeze_object(S { id })
     }
 }
 

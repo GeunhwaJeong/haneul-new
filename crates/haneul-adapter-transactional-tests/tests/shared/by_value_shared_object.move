@@ -8,22 +8,22 @@
 //# publish
 
 module t2::o2 {
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::transfer;
     use haneul::tx_context::TxContext;
 
     struct Obj2 has key, store {
-        info: Info,
+        id: UID,
     }
 
     public entry fun create(ctx: &mut TxContext) {
-        let o = Obj2 { info: object::new(ctx) };
+        let o = Obj2 { id: object::new(ctx) };
         transfer::share_object(o)
     }
 
     public entry fun consume_o2(o2: Obj2) {
-        let Obj2 { info } = o2;
-        object::delete(info);
+        let Obj2 { id } = o2;
+        object::delete(id);
     }
 }
 

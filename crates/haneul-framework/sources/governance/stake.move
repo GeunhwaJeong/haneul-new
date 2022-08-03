@@ -4,7 +4,7 @@
 module haneul::stake {
     use std::option::{Self, Option};
     use haneul::balance::Balance;
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::locked_coin;
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -19,7 +19,7 @@ module haneul::stake {
 
     /// A custodial stake object holding the staked HANEUL coin.
     struct Stake has key {
-        info: Info,
+        id: UID,
         /// The staked HANEUL tokens.
         balance: Balance<HANEUL>,
         /// The epoch until which the staked coin is locked. If the stake
@@ -44,7 +44,7 @@ module haneul::stake {
         ctx: &mut TxContext,
     ) {
         let stake = Stake {
-            info: object::new(ctx),
+            id: object::new(ctx),
             balance,
             locked_until_epoch,
         };
@@ -76,8 +76,8 @@ module haneul::stake {
 
     /// Burn the stake object. This can be done only when the stake has a zero balance.
     public entry fun burn(self: Stake, ctx: &mut TxContext) {
-        let Stake { info, balance, locked_until_epoch } = self;
-        object::delete(info);
+        let Stake { id, balance, locked_until_epoch } = self;
+        object::delete(id);
         balance::destroy_zero(balance);
         if (option::is_some(&locked_until_epoch)) {
             epoch_time_lock::destroy(option::extract(&mut locked_until_epoch), ctx);

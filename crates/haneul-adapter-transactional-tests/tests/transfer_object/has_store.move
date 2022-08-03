@@ -10,19 +10,19 @@
 module test::m {
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
 
-    struct S has store, key { info: Info }
-    struct Cup<phantom T: store> has store, key { info: Info }
+    struct S has store, key { id: UID }
+    struct Cup<phantom T: store> has store, key { id: UID }
 
     public entry fun mint_s(ctx: &mut TxContext) {
-        let info = object::new(ctx);
-        transfer::transfer(S { info }, tx_context::sender(ctx))
+        let id = object::new(ctx);
+        transfer::transfer(S { id }, tx_context::sender(ctx))
     }
 
     public entry fun mint_cup<T: store>(ctx: &mut TxContext) {
-        let info = object::new(ctx);
-        transfer::transfer(Cup<T> { info }, tx_context::sender(ctx))
+        let id = object::new(ctx);
+        transfer::transfer(Cup<T> { id }, tx_context::sender(ctx))
     }
 }
 

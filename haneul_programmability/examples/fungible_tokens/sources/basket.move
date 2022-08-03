@@ -10,7 +10,7 @@ module fungible_tokens::basket {
     use fungible_tokens::managed::MANAGED;
     use haneul::coin::{Self, Coin};
     use haneul::balance::{Self, Balance, Supply};
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
     use haneul::tx_context::TxContext;
@@ -21,7 +21,7 @@ module fungible_tokens::basket {
 
     /// Singleton shared object holding the reserve assets and the capability.
     struct Reserve has key {
-        info: Info,
+        id: UID,
         /// capability allowing the reserve to mint and burn BASKET
         total_supply: Supply<BASKET>,
         /// HANEUL coins held in the reserve
@@ -38,7 +38,7 @@ module fungible_tokens::basket {
         let total_supply = balance::create_supply<BASKET>(witness);
 
         transfer::share_object(Reserve {
-            info: object::new(ctx),
+            id: object::new(ctx),
             total_supply,
             haneul: balance::zero<HANEUL>(),
             managed: balance::zero<MANAGED>(),

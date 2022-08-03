@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module tutorial::color_object {
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
 
     struct ColorObject has key {
-        info: Info,
+        id: UID,
         red: u8,
         green: u8,
         blue: u8,
@@ -17,7 +17,7 @@ module tutorial::color_object {
 
     fun new(red: u8, green: u8, blue: u8, ctx: &mut TxContext): ColorObject {
         ColorObject {
-            info: object::new(ctx),
+            id: object::new(ctx),
             red,
             green,
             blue,
@@ -43,8 +43,8 @@ module tutorial::color_object {
     }
 
     public entry fun delete(object: ColorObject) {
-        let ColorObject { info, red: _, green: _, blue: _ } = object;
-        object::delete(info);
+        let ColorObject { id, red: _, green: _, blue: _ } = object;
+        object::delete(id);
     }
 
     public entry fun transfer(object: ColorObject, recipient: address) {

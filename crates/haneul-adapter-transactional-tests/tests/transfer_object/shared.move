@@ -10,13 +10,13 @@
 module test::m {
     use haneul::transfer;
     use haneul::tx_context::TxContext;
-    use haneul::object::{Self, Info};
+    use haneul::object::{Self, UID};
 
-    struct S has key { info: Info }
+    struct S has key { id: UID }
 
     public entry fun mint_s(ctx: &mut TxContext) {
-        let info = object::new(ctx);
-        transfer::share_object(S { info })
+        let id = object::new(ctx);
+        transfer::share_object(S { id })
     }
 }
 

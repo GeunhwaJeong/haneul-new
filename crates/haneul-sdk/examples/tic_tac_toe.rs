@@ -17,7 +17,7 @@ use haneul_sdk::{
     types::{
         base_types::{ObjectID, HaneulAddress},
         crypto::Signature,
-        id::Info,
+        id::UID,
         messages::Transaction,
     },
     HaneulClient,
@@ -297,7 +297,7 @@ enum TicTacToeCommand {
 // Data structure mirroring move object `games::shared_tic_tac_toe::TicTacToe` for deserialization.
 #[derive(Deserialize, Debug)]
 struct TicTacToeState {
-    info: Info,
+    info: UID,
     gameboard: Vec<Vec<u8>>,
     cur_turn: u8,
     game_status: u8,

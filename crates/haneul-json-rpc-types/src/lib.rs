@@ -437,8 +437,8 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
                 if let Some(HaneulMoveValue::Number(balance)) = fields.get("balance") {
-                    if let Some(HaneulMoveValue::Info { id, version }) = fields.get("info") {
-                        return Ok(GasCoin::new(*id, SequenceNumber::from(*version), *balance));
+                    if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
+                        return Ok(GasCoin::new(*id, *balance));
                     }
                 }
             }
@@ -574,7 +574,7 @@ pub enum HaneulMoveValue {
     Vector(Vec<HaneulMoveValue>),
     Bytearray(Base64),
     String(String),
-    Info { id: ObjectID, version: u64 },
+    UID { id: ObjectID },
     Struct(HaneulMoveStruct),
     Option(Box<Option<HaneulMoveValue>>),
 }
@@ -602,8 +602,8 @@ impl Display for HaneulMoveValue {
             HaneulMoveValue::String(value) => {
                 write!(writer, "{}", value)?;
             }
-            HaneulMoveValue::Info { id, version } => {
-                write!(writer, "{id}[{version}]")?;
+            HaneulMoveValue::UID { id } => {
+                write!(writer, "{id}")?;
             }
             HaneulMoveValue::Struct(value) => {
                 write!(writer, "{}", value)?;
@@ -774,14 +774,11 @@ fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Op
                 return Some(HaneulMoveValue::Address(*id));
             }
         }
-        "0x2::object::Info" => {
+        "0x2::object::UID" => {
             if let Some(HaneulMoveValue::Address(address)) = fields.get("id") {
-                if let Some(HaneulMoveValue::Number(version)) = fields.get("version") {
-                    return Some(HaneulMoveValue::Info {
-                        id: ObjectID::from(*address),
-                        version: *version,
-                    });
-                }
+                return Some(HaneulMoveValue::UID {
+                    id: ObjectID::from(*address),
+                });
             }
         }
         "0x2::balance::Balance" => {
