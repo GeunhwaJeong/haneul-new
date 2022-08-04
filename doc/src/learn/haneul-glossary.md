@@ -118,7 +118,7 @@ Haneul refers to the Haneul blockchain, the HANEUL currency, and the [Haneul ope
 
 [Total order](https://en.wikipedia.org/wiki/Total_order) refers to the ordered presentation of the history of all transactions processed by a traditional blockchain up to a given time. This is maintained by many blockchain systems, as the only way to process transactions. In contrast, Haneul uses a causal (partial) order wherever possible and safe.
 
-For more information, see [Causal order vs total order](haneul-compared#causal-order-vs-total-order). 
+For more information, see [Causal order vs total order](haneul-compared.md#causal-order-vs-total-order). 
 
 
 ### Transaction
