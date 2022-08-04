@@ -15,7 +15,8 @@ transactions (or a block of transactions), the validator will push that block
 to a fullnode (potentially a number of fullnodes) who will then in turn
 disseminate it to the rest of the network.
 
-**Important**: For potential validators, running a Haneul fullnode is an absolute
+**Important**: For [potential validators](https://haneul.io/resources-haneul/validator-registration-open/),
+running a Haneul fullnode is an absolute
 prerequisite. We encourage auditors, bridges, state mirrors and other
 interested parties to join us. At this time, we offer no guarantees on performance
 or stability of our fullnode software. We expect things to evolve and stabilize

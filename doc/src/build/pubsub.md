@@ -2,7 +2,7 @@
 title: Subscribe to JSON-RPC Real-Time Events
 ---
 
-Haneul [fullnode](fullnode.md) supports publish / subscribe using [JSON-RPC](json-rpc.md) notifications via websocket.
+Haneul [fullnode](fullnode.md) supports publish / subscribe using [JSON-RPC](json-rpc.md) notifications via the WebSocket API.
 This service allows clients to filter and subscribe to a real-time event stream generated from Move or from the Haneul
 network.
 

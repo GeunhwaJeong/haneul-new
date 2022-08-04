@@ -1,5 +1,5 @@
 ---
-title: Haneul CLI Quick Start
+title: Use Haneul CLI to Start and Manage Network
 ---
 
 Welcome to the Haneul tutorial on the Haneul CLI developed
