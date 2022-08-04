@@ -5,6 +5,7 @@ use clap::Parser;
 use move_cli::base::{self, prove};
 use move_package::BuildConfig;
 use std::path::{Path, PathBuf};
+use haneul_types::haneul_framework_address_concat_string;
 
 const HANEUL_NATIVE_TEMPLATE: &[u8] = include_bytes!("haneul-natives.bpl");
 
@@ -42,11 +43,17 @@ impl Prove {
                     template_bytes: HANEUL_NATIVE_TEMPLATE.to_vec(),
                     module_instance_names: vec![
                         (
-                            "0x2::transfer".to_string(),
+                            haneul_framework_address_concat_string("::transfer"),
                             "transfer_instances".to_string(),
                         ),
-                        ("0x2::object".to_string(), "object_instances".to_string()),
-                        ("0x2::event".to_string(), "haneul_event_instances".to_string()),
+                        (
+                            haneul_framework_address_concat_string("::object"),
+                            "object_instances".to_string(),
+                        ),
+                        (
+                            haneul_framework_address_concat_string("::event"),
+                            "haneul_event_instances".to_string(),
+                        ),
                     ],
                 });
         }
