@@ -5,9 +5,9 @@
 use super::{base_types::*, batch::*, committee::Committee, error::*, event::Event};
 use crate::committee::{EpochId, StakeUnit};
 use crate::crypto::{
-    sha3_hash, AuthoritySignInfo, AuthoritySignature, AuthorityStrongQuorumSignInfo,
-    Ed25519HaneulSignature, EmptySignInfo, Signable, Signature, HaneulAuthoritySignature, HaneulSignature,
-    HaneulSignatureInner, ToFromBytes, VerificationObligation,
+    sha3_hash, AuthoritySignInfo, AuthoritySignInfoTrait, AuthoritySignature,
+    AuthorityStrongQuorumSignInfo, Ed25519HaneulSignature, EmptySignInfo, Signable, Signature,
+    HaneulAuthoritySignature, HaneulSignature, HaneulSignatureInner, ToFromBytes, VerificationObligation,
 };
 use crate::gas::GasCostSummary;
 use crate::messages_checkpoint::{CheckpointFragment, CheckpointSequenceNumber};
