@@ -1444,6 +1444,12 @@ pub struct HaneulObjectInfo {
     pub previous_transaction: TransactionDigest,
 }
 
+impl HaneulObjectInfo {
+    pub fn to_object_ref(&self) -> ObjectRef {
+        (self.object_id, self.version, self.digest)
+    }
+}
+
 impl From<ObjectInfo> for HaneulObjectInfo {
     fn from(info: ObjectInfo) -> Self {
         Self {

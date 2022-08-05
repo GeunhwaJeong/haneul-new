@@ -25,6 +25,7 @@ use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::gateway_state::GatewayState;
 use haneul_node::metrics;
 use haneul_node::HaneulNode;
+use haneul_sdk::crypto::Keystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use tokio::sync::OnceCell;
