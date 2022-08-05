@@ -27,7 +27,7 @@ haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-swarm = { path = "../haneul-swarm" }
-haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 
 rustyline = "9.1.2"
@@ -48,7 +48,7 @@ move-unit-test = { git = "https://github.com/move-language/move", rev = "7907152
 move-cli = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a" }
 move-package = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a" }
 
-workspace-hack = { path = "../workspace-hack"}
+workspace-hack = { path = "../workspace-hack" }
 multiaddr = "0.14.0"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]

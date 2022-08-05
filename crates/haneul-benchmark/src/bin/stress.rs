@@ -25,7 +25,6 @@ use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::gateway_state::GatewayState;
 use haneul_node::metrics;
 use haneul_node::HaneulNode;
-use haneul_sdk::crypto::Keystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use tokio::sync::OnceCell;
@@ -44,7 +43,7 @@ use haneul_benchmark::workloads::workload::Payload;
 use haneul_benchmark::workloads::workload::Workload;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_quorum_driver::QuorumDriverHandler;
-use haneul_sdk::crypto::HaneulKeystore;
+use haneul_sdk::crypto::FileBasedKeystore;
 use haneul_types::crypto::EncodeDecodeBase64;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::{AccountKeyPair, EmptySignInfo};
@@ -620,7 +619,7 @@ async fn main() -> Result<()> {
                     &opts.keystore_path
                 ))
             })?;
-        let keystore = HaneulKeystore::load_or_create(&keystore_path)?;
+        let keystore = FileBasedKeystore::load_or_create(&keystore_path)?;
         let keypair = keystore
             .key_pairs()
             .iter()

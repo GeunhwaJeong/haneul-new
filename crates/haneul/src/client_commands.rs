@@ -16,16 +16,16 @@ use move_core_types::{language_storage::TypeTag, parser::parse_type_tag};
 use move_package::BuildConfig;
 use serde::Serialize;
 use serde_json::json;
-use haneul_json_rpc_types::{
-    GetObjectDataResponse, MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
-    HaneulParsedObject,
-};
 use tracing::info;
 
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_types::{
+    GetObjectDataResponse, MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
+    HaneulParsedObject,
+};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::HaneulKeystore;
 use haneul_sdk::{ClientType, HaneulClient};
 use haneul_types::object::Owner;
 use haneul_types::haneul_serde::{Base64, Encoding};
@@ -377,7 +377,7 @@ impl HaneulClientCommands {
             }
 
             HaneulClientCommands::Addresses => {
-                HaneulClientCommandResult::Addresses(context.config.accounts.clone())
+                HaneulClientCommandResult::Addresses(context.keystore.addresses())
             }
 
             HaneulClientCommands::Objects { address } => {
@@ -401,10 +401,8 @@ impl HaneulClientCommands {
                 HaneulClientCommandResult::SyncClientState
             }
             HaneulClientCommands::NewAddress => {
-                let address = context.keystore.add_random_key()?;
-                context.config.accounts.push(address);
-                context.config.save()?;
-                HaneulClientCommandResult::NewAddress(address)
+                let (address, phrase) = context.keystore.generate_new_key()?;
+                HaneulClientCommandResult::NewAddress((address, phrase))
             }
             HaneulClientCommands::Gas { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -458,7 +456,7 @@ impl HaneulClientCommands {
             }
             HaneulClientCommands::Switch { address, gateway } => {
                 if let Some(addr) = address {
-                    if !context.config.accounts.contains(&addr) {
+                    if !context.keystore.addresses().contains(&addr) {
                         return Err(anyhow!("Address {} not managed by wallet", addr));
                     }
                     context.config.active_address = Some(addr);
@@ -525,7 +523,7 @@ impl HaneulClientCommands {
 
 pub struct WalletContext {
     pub config: PersistedConfig<HaneulClientConfig>,
-    pub keystore: Box<dyn Keystore>,
+    pub keystore: HaneulKeystore,
     pub gateway: HaneulClient,
 }
 
@@ -548,7 +546,7 @@ impl WalletContext {
         Ok(context)
     }
     pub fn active_address(&mut self) -> Result<HaneulAddress, anyhow::Error> {
-        if self.config.accounts.is_empty() {
+        if self.keystore.addresses().is_empty() {
             return Err(anyhow!(
                 "No managed addresses. Create new address with `new-address` command."
             ));
@@ -559,7 +557,7 @@ impl WalletContext {
         self.config.active_address = Some(
             self.config
                 .active_address
-                .unwrap_or(*self.config.accounts.get(0).unwrap()),
+                .unwrap_or(*self.keystore.addresses().get(0).unwrap()),
         );
 
         Ok(self.config.active_address.unwrap())
@@ -680,8 +678,9 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
             }
-            HaneulClientCommandResult::NewAddress(address) => {
-                writeln!(writer, "Created new keypair for address : {}", &address)?;
+            HaneulClientCommandResult::NewAddress((address, recovery_phrase)) => {
+                writeln!(writer, "Created new keypair for address : [{address}]")?;
+                writeln!(writer, "Secret Recovery Phrase : [{recovery_phrase}]")?;
             }
             HaneulClientCommandResult::Gas(gases) => {
                 // TODO: generalize formatting of CLI
@@ -836,7 +835,7 @@ pub enum HaneulClientCommandResult {
     Addresses(Vec<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     SyncClientState,
-    NewAddress(HaneulAddress),
+    NewAddress((HaneulAddress, String)),
     Gas(Vec<GasCoin>),
     SplitCoin(SplitCoinResponse),
     MergeCoin(MergeCoinResponse),

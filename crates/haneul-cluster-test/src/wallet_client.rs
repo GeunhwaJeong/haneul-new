@@ -31,7 +31,6 @@ impl WalletClient {
         let address: HaneulAddress = key_pair.public().into();
         keystore.init().unwrap().add_key(key_pair).unwrap();
         HaneulClientConfig {
-            accounts: vec![address],
             keystore,
             gateway: ClientType::RPC(rpc_url.into()),
             active_address: Some(address),

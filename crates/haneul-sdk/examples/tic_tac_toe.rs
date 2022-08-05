@@ -11,6 +11,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::{
     crypto::HaneulKeystore,
     json::HaneulJsonValue,
@@ -27,7 +28,7 @@ use haneul_sdk::{
 async fn main() -> Result<(), anyhow::Error> {
     let opts: TicTacToeOpts = TicTacToeOpts::parse();
     let keystore_path = opts.keystore_path.unwrap_or_else(default_keystore_path);
-    let keystore = HaneulKeystore::load_or_create(&keystore_path)?;
+    let keystore = KeystoreType::File(keystore_path).init()?;
 
     let game = TicTacToe {
         game_package_id: opts.game_package_id,

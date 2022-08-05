@@ -11,7 +11,7 @@ use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_adapter::genesis;
 use haneul_json_rpc_types::HaneulObjectInfo;
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::HaneulKeystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair, KeypairTraits};
@@ -31,8 +31,8 @@ pub const MAX_GAS: u64 = 10_000;
 pub async fn get_account_and_gas_coins(
     context: &mut WalletContext,
 ) -> Result<Vec<(HaneulAddress, Vec<GasCoin>)>, anyhow::Error> {
-    let mut res = Vec::with_capacity(context.config.accounts.len());
-    let accounts = context.config.accounts.clone();
+    let mut res = Vec::with_capacity(context.keystore.addresses().len());
+    let accounts = context.keystore.addresses();
     for address in accounts {
         let result = HaneulClientCommands::Gas {
             address: Some(address),
@@ -58,15 +58,15 @@ pub async fn get_account_and_objects(
 ) -> Vec<(HaneulAddress, Vec<HaneulObjectInfo>)> {
     let owned_gas_objects = futures::future::join_all(
         context
-            .config
-            .accounts
+            .keystore
+            .addresses()
             .iter()
             .map(|account| context.gateway.get_objects_owned_by_address(*account)),
     )
     .await;
     context
-        .config
-        .accounts
+        .keystore
+        .addresses()
         .iter()
         .zip(owned_gas_objects.into_iter())
         .map(|(address, objects)| (*address, objects.unwrap()))
@@ -110,7 +110,7 @@ pub async fn make_transactions_with_wallet_context(
 
 /// Make a few different single-writer test transactions owned by specific addresses.
 pub fn make_transactions_with_pre_genesis_objects(
-    keys: &dyn Keystore,
+    keys: HaneulKeystore,
 ) -> (Vec<Transaction>, Vec<Object>) {
     // The key pair of the recipient of the transaction.
     let recipient = get_key_pair::<AuthorityKeyPair>().0;
@@ -118,18 +118,18 @@ pub fn make_transactions_with_pre_genesis_objects(
     // The gas objects and the objects used in the transfer transactions. Evert two
     // consecutive objects must have the same owner for the transaction to be valid.
     let mut addresses_two_by_two = Vec::new();
-    let mut keypairs = Vec::new(); // Keys are not copiable, move them here.
-    for keypair in keys.key_pairs() {
-        let address = keypair.public().into();
+    let mut signers = Vec::new(); // Keys are not copiable, move them here.
+    for keypair in keys.keys() {
+        let address = (&keypair).into();
         addresses_two_by_two.push(address);
         addresses_two_by_two.push(address);
-        keypairs.push(keypair);
+        signers.push(keys.signer(address));
     }
     let gas_objects = test_gas_objects_with_owners(addresses_two_by_two);
 
     // Make one transaction for every two gas objects.
     let mut transactions = Vec::new();
-    for (objects, keypair) in gas_objects.chunks(2).zip(keypairs) {
+    for (objects, signer) in gas_objects.chunks(2).zip(signers) {
         let [o1, o2]: &[Object; 2] = match objects.try_into() {
             Ok(x) => x,
             Err(_) => break,
@@ -142,7 +142,7 @@ pub fn make_transactions_with_pre_genesis_objects(
             /* gas_object_ref */ o2.compute_object_reference(),
             MAX_GAS,
         );
-        let signature = Signature::new(&data, keypair);
+        let signature = Signature::new(&data, &signer);
         transactions.push(Transaction::new(data, signature));
     }
     (transactions, gas_objects)

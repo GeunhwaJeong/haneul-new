@@ -3,7 +3,7 @@
 
 use std::str::FromStr;
 use haneul_sdk::{
-    crypto::HaneulKeystore,
+    crypto::KeystoreType,
     types::{
         base_types::{ObjectID, HaneulAddress},
         crypto::Signature,
@@ -31,7 +31,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .await?;
 
     // Get signer from keystore
-    let keystore = HaneulKeystore::load_or_create(&keystore_path)?;
+    let keystore = KeystoreType::File(keystore_path).init()?;
     let signer = keystore.signer(my_address);
 
     // Sign the transaction
