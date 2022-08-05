@@ -11,4 +11,5 @@ export { default as useHaneulObjectFields } from './useHaneulObjectFields';
 export { default as useNumberDelimiters } from './useNumberDelimiters';
 export { default as useOnClickOutside } from './useOnClickOutside';
 export { default as useOnKeyboardEvent } from './useOnKeyboardEvent';
+export { default as useFileExtentionType } from './useFileExtentionType';
 export { useObjectsState } from './useObjectsState';

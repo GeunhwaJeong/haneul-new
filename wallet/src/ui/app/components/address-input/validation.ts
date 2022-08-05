@@ -16,7 +16,7 @@ export const HANEUL_ADDRESS_VALIDATION = Yup.string()
     .test(
         'is-haneul-address',
         // eslint-disable-next-line no-template-curly-in-string
-        '${value} is not a valid Haneul address',
+        'Invalid address. Please check again.',
         (value) => isValidHaneulAddress(value)
     )
     .label("Recipient's address");

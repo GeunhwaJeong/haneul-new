@@ -14,39 +14,45 @@ url('./haneul-icons.svg#haneul-icons') format('svg');
       -moz-osx-font-smoothing: grayscale;
 }
 
-.haneul-icons-apps:before { content: "\ea01"; }
-.haneul-icons-arrow-left:before { content: "\ea02"; }
-.haneul-icons-arrow-right:before { content: "\ea03"; }
-.haneul-icons-clipboard:before { content: "\ea04"; }
-.haneul-icons-close:before { content: "\ea05"; }
-.haneul-icons-coins:before { content: "\ea06"; }
-.haneul-icons-globe:before { content: "\ea07"; }
-.haneul-icons-hand-coins:before { content: "\ea08"; }
-.haneul-icons-history:before { content: "\ea09"; }
-.haneul-icons-logout:before { content: "\ea0a"; }
-.haneul-icons-nfts:before { content: "\ea0b"; }
-.haneul-icons-percentage-polygon:before { content: "\ea0c"; }
-.haneul-icons-person:before { content: "\ea0d"; }
-.haneul-icons-haneul-chevron-right:before { content: "\ea0e"; }
-.haneul-icons-haneul-logo-icon:before { content: "\ea0f"; }
-.haneul-icons-haneul-logo-txt:before { content: "\ea10"; }
-.haneul-icons-tokens:before { content: "\ea11"; }
+.haneul-icons-Info:before { content: "\ea01"; }
+.haneul-icons-Preview:before { content: "\ea02"; }
+.haneul-icons-apps:before { content: "\ea03"; }
+.haneul-icons-arrow-left:before { content: "\ea04"; }
+.haneul-icons-arrow-right:before { content: "\ea05"; }
+.haneul-icons-checkmark:before { content: "\ea06"; }
+.haneul-icons-clipboard:before { content: "\ea07"; }
+.haneul-icons-close:before { content: "\ea08"; }
+.haneul-icons-coins:before { content: "\ea09"; }
+.haneul-icons-globe:before { content: "\ea0a"; }
+.haneul-icons-hand-coins:before { content: "\ea0b"; }
+.haneul-icons-history:before { content: "\ea0c"; }
+.haneul-icons-logout:before { content: "\ea0d"; }
+.haneul-icons-nfts:before { content: "\ea0e"; }
+.haneul-icons-percentage-polygon:before { content: "\ea0f"; }
+.haneul-icons-person:before { content: "\ea10"; }
+.haneul-icons-haneul-chevron-right:before { content: "\ea11"; }
+.haneul-icons-haneul-logo-icon:before { content: "\ea12"; }
+.haneul-icons-haneul-logo-txt:before { content: "\ea13"; }
+.haneul-icons-tokens:before { content: "\ea14"; }
 
-$haneul-icons-apps: "\ea01";
-$haneul-icons-arrow-left: "\ea02";
-$haneul-icons-arrow-right: "\ea03";
-$haneul-icons-clipboard: "\ea04";
-$haneul-icons-close: "\ea05";
-$haneul-icons-coins: "\ea06";
-$haneul-icons-globe: "\ea07";
-$haneul-icons-hand-coins: "\ea08";
-$haneul-icons-history: "\ea09";
-$haneul-icons-logout: "\ea0a";
-$haneul-icons-nfts: "\ea0b";
-$haneul-icons-percentage-polygon: "\ea0c";
-$haneul-icons-person: "\ea0d";
-$haneul-icons-haneul-chevron-right: "\ea0e";
-$haneul-icons-haneul-logo-icon: "\ea0f";
-$haneul-icons-haneul-logo-txt: "\ea10";
-$haneul-icons-tokens: "\ea11";
+$haneul-icons-Info: "\ea01";
+$haneul-icons-Preview: "\ea02";
+$haneul-icons-apps: "\ea03";
+$haneul-icons-arrow-left: "\ea04";
+$haneul-icons-arrow-right: "\ea05";
+$haneul-icons-checkmark: "\ea06";
+$haneul-icons-clipboard: "\ea07";
+$haneul-icons-close: "\ea08";
+$haneul-icons-coins: "\ea09";
+$haneul-icons-globe: "\ea0a";
+$haneul-icons-hand-coins: "\ea0b";
+$haneul-icons-history: "\ea0c";
+$haneul-icons-logout: "\ea0d";
+$haneul-icons-nfts: "\ea0e";
+$haneul-icons-percentage-polygon: "\ea0f";
+$haneul-icons-person: "\ea10";
+$haneul-icons-haneul-chevron-right: "\ea11";
+$haneul-icons-haneul-logo-icon: "\ea12";
+$haneul-icons-haneul-logo-txt: "\ea13";
+$haneul-icons-tokens: "\ea14";
 
