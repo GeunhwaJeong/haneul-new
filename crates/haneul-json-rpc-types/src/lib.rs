@@ -844,7 +844,7 @@ impl TryFrom<MoveModulePublish> for HaneulMovePackage {
 pub struct HaneulTransactionData {
     pub transactions: Vec<HaneulTransactionKind>,
     pub sender: HaneulAddress,
-    gas_payment: HaneulObjectRef,
+    pub gas_payment: HaneulObjectRef,
     pub gas_budget: u64,
 }
 
