@@ -35,7 +35,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::HaneulSignature;
-use haneul_types::haneul_serde::{Base64, Encoding};
+use haneul_types::haneul_serde::Base64;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::network::{start_rpc_test_network, TestNetwork};
 
@@ -340,10 +340,10 @@ async fn create_error_response(
     let signature = context
         .keystore
         .sign(&address, &response.tx_bytes.to_vec()?)?;
-    let flag_bytes = Base64::encode(&[signature.flag_byte()]);
-    let signature_byte = Base64::encode(signature.signature_bytes());
-    let pub_key = Base64::encode(signature.public_key_bytes());
-    let tx_data = response.tx_bytes.encoded();
+    let sig_scheme = signature.scheme();
+    let signature_byte = Base64::from_bytes(signature.signature_bytes());
+    let pub_key = Base64::from_bytes(signature.public_key_bytes());
+    let tx_data = response.tx_bytes;
 
     let client = Client::new();
     let request = Request::builder()
@@ -351,11 +351,11 @@ async fn create_error_response(
         .method(Method::POST)
         .header("Content-Type", "application/json")
         .body(Body::from(format!(
-            "{{ \"jsonrpc\": \"2.0\",\"method\": \"haneul_executeTransaction\",\"params\": [\"{}\", \"{}\", \"{}\", \"{}\"],\"id\": 1 }}",
-            tx_data,
-            flag_bytes,
-            signature_byte,
-            pub_key
+            "{{ \"jsonrpc\": \"2.0\",\"method\": \"haneul_executeTransaction\",\"params\": [{}, {}, {}, {}],\"id\": 1 }}",
+            json![tx_data],
+            json![sig_scheme],
+            json![signature_byte],
+            json![pub_key]
         )))?;
 
     let res = client.request(request).await?;
