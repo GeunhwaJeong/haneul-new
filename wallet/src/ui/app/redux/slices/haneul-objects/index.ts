@@ -5,6 +5,7 @@ import {
     getObjectExistsResponse,
     getTotalGasUsed,
     getTransactionEffectsResponse,
+    getTransactionDigest,
 } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
@@ -56,8 +57,15 @@ export const mintDemoNFT = createAsyncThunk<void, void, AppThunkConfig>(
     }
 );
 
+type NFTTxResponse = {
+    timestamp_ms?: number;
+    status?: string;
+    gasFee?: number;
+    txId?: string;
+};
+
 export const transferHaneulNFT = createAsyncThunk<
-    { timestamp_ms?: number; status?: string; gasFee?: number },
+    NFTTxResponse,
     { nftId: ObjectId; recipientAddress: HaneulAddress; transferCost: number },
     AppThunkConfig
 >(
@@ -72,18 +80,15 @@ export const transferHaneulNFT = createAsyncThunk<
 
         await dispatch(fetchAllOwnedObjects());
         const txn = getTransactionEffectsResponse(txRes);
-
+        const txnDigest = txn ? getTransactionDigest(txn.certificate) : null;
         const txnResp = {
             timestamp_ms: txn?.timestamp_ms,
             status: txn?.effects?.status?.status,
             gasFee: txn ? getTotalGasUsed(txn) : 0,
+            txId: txnDigest,
         };
 
-        return txnResp as {
-            timestamp_ms?: number;
-            status?: string;
-            gasFee?: number;
-        };
+        return txnResp as NFTTxResponse;
     }
 );
 interface HaneulObjectsManualState {
