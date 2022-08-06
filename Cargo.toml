@@ -8,6 +8,7 @@ members = [
     "crates/haneul-cluster-test",
     "crates/haneul-config",
     "crates/haneul-core",
+    "crates/haneul-cost",
     "crates/haneul-faucet",
     "crates/haneul-framework",
     "crates/haneul-framework-build",
