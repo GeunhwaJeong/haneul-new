@@ -180,7 +180,7 @@
             "fileName": "build/haneul-json"
           },
           {
-            "label": "See Haneul JSON-RPC API reference",
+            "label": "See JSON-RPC API Reference",
             "link": "https://docs.haneul.io/haneul-jsonrpc",
             "external": true
           },

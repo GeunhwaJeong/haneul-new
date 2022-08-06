@@ -1,5 +1,5 @@
 ---
-title: Haneul Rust SDK
+title: Interact with Haneul over Rust SDK
 ---
 
 ## Overview

@@ -14,12 +14,12 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 The following list includes the recent updates to Haneul and the documentation:
 
+* Interact with the Haneul network using our new [Rust SDK](../build/rust-sdk.md), a collection of Rust language [JSON-RPC wrapper and crypto utilities](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk).
+* Haneul now supports development using [Microsoft Windows 11, macOS, and Linux](../build/install.md#supported-oses). See [install Haneul](../build/install.md#prerequisites) for the prerequisites of each operating system.
 * You can now [register to participate](https://airtable.com/shr3phh3FCZYhZUDF) in [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/)!
 * This site is now available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for  [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
-* Haneul now supports development using [Microsoft Windows 11, macOS, and Linux](../build/install.md#supported-oses). See [install Haneul](../build/install.md#prerequisites) for the prerequisites of each operating system.
 * `haneul::id` is now `haneul::object` and `VersionedID` is now `Info`. Use the [Object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) that has [replaced the former ID.move.](https://github.com/GeunhwaJeong/haneul/pull/3241)
 * Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
-* Haneul [version 0.6.1](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.1) released to DevNet. See the [#haneul-release-notes](https://discord.com/channels/916379725201563759/974444055259910174) channel in Discord for details on this and prior releases.
 * Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
