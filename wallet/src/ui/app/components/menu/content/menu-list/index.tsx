@@ -59,7 +59,7 @@ function MenuList() {
             <div className={st.item}>
                 <Item
                     // TODO: import and use the icon from Figma
-                    icon={HaneulIcons.Info}
+                    icon={HaneulIcons.VersionIcon}
                     title="Wallet version"
                     subtitle={'v' + version}
                 />
