@@ -1,6 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+mod crypto;
 mod event;
 mod object;
 mod test_scenario;
@@ -17,6 +18,7 @@ pub fn all_natives(
     haneul_framework_addr: AccountAddress,
 ) -> NativeFunctionTable {
     const HANEUL_NATIVES: &[(&str, &str, NativeFunction)] = &[
+        ("crypto", "ecrecover", crypto::ecrecover),
         ("event", "emit", event::emit),
         ("object", "bytes_to_address", object::bytes_to_address),
         ("object", "delete_impl", object::delete_impl),
