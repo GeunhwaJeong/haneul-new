@@ -32,6 +32,7 @@ use haneul_storage::{
 use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
 use tracing::info;
 
+use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
 use haneul_json_rpc::http_server::HttpServerHandle;
@@ -79,6 +80,7 @@ impl HaneulNode {
         let secret = Arc::pin(config.key_pair().copy());
         let committee = genesis.committee()?;
         let store = Arc::new(AuthorityStore::open(&config.db_path().join("store"), None));
+        let epoch_store = Arc::new(EpochStore::new(config.db_path().join("epochs")));
 
         let checkpoint_store = Arc::new(Mutex::new(CheckpointStore::open(
             &config.db_path().join("checkpoints"),
@@ -117,6 +119,7 @@ impl HaneulNode {
                 config.public_key(),
                 secret,
                 store,
+                epoch_store,
                 index_store.clone(),
                 event_store,
                 Some(checkpoint_store),
