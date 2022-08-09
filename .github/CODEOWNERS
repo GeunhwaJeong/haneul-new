@@ -1,3 +1,7 @@
-haneul_core/src/crypto.rs @huitseeker
-haneul/src/keystore.rs @huitseeker @patrickkuo
+/crates/haneul-types/src/crypto.rs @huitseeker
+/crates/haneul-sdk/src/crypto.rs @huitseeker @patrickkuo
+
 *.md @Clay-Haneullabs @randall-Haneullabs
+
+# When snapshot changes, most likely we will need to recreate the genesis blob.
+/crates/haneul-config/tests/snapshot_tests.rs @tharbert @huitseeker
