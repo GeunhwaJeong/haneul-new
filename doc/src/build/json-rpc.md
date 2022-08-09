@@ -12,7 +12,7 @@ Follow the instructions to [install Haneul binaries](install.md).
 
 ### Start local Haneul network
 Follow the instructions to [create](cli-client.md#genesis) and [start](cli-client.md#starting-the-network) the Haneul network.
-The genesis process will create a `gateway.conf` configuration file that will be used by the RPC server.
+The genesis process will create a `gateway.yaml` configuration file that will be used by the RPC server.
 
 ### Start local RPC server
 
@@ -22,10 +22,13 @@ $ rpc-server
 ```
 You will see output resembling:
 ```
-2022-04-25T11:06:40.147259Z  INFO rpc_server: Gateway config file path: ".haneul/haneul_config/gateway.conf"
-2022-04-25T11:06:40.147277Z  INFO rpc_server: AccessControl { allowed_hosts: Any, allowed_origins: None, allowed_headers: Any, continue_on_invalid_cors: false }
-2022-04-25T11:06:40.163568Z  INFO rpc_server: Available JSON-RPC methods : ["haneul_moveCall", "haneul_getTransaction", "haneul_getObjectTypedInfo", "haneul_getTotalTransactionNumber", "haneul_getOwnedObjects", "haneul_getObjectInfoRaw", "haneul_transferObject", "haneul_executeTransaction", "haneul_mergeCoins", "haneul_getRecentTransactions", "haneul_getTransactionsInRange", "rpc.discover", "haneul_splitCoin", "haneul_publish", "haneul_syncAccountState"]
-2022-04-25T11:06:40.163590Z  INFO rpc_server: Haneul RPC Gateway listening on local_addr:127.0.0.1:5001
+2022-08-05T19:41:33.227478Z  INFO rpc_server: Gateway config file path config_path="/home/haneul/.haneul/haneul_config/gateway.yaml"
+2022-08-05T19:41:33.227514Z  INFO rpc_server: Starting Prometheus HTTP endpoint at 0.0.0.0:9184
+2022-08-05T19:41:33.896152Z  INFO haneul_storage::lock_service: LockService command processing loop started
+2022-08-05T19:41:33.896230Z  INFO haneul_storage::lock_service: LockService queries processing loop started
+2022-08-05T19:41:34.615529Z  INFO haneul_json_rpc: acl=AccessControl { allowed_hosts: Any, allowed_origins: None, allowed_headers: Any }
+2022-08-05T19:41:34.618762Z  INFO haneul_json_rpc: Haneul JSON-RPC server listening on 127.0.0.1:5001 local_addr=127.0.0.1:5001
+2022-08-05T19:41:34.618789Z  INFO haneul_json_rpc: Available JSON-RPC methods : ["haneul_moveCall", "haneul_getTransaction", "haneul_getObjectsOwnedByAddress", "haneul_getTotalTransactionNumber", "haneul_transferObject", "haneul_transferHaneul", "haneul_batchTransaction", "haneul_executeTransaction", "haneul_mergeCoins", "haneul_getRecentTransactions", "haneul_getTransactionsInRange", "haneul_getObject", "haneul_getObjectsOwnedByObject", "rpc.discover", "haneul_splitCoin", "haneul_getRawObject", "haneul_publish", "haneul_syncAccountState"]
 ```
 
 > **Note:** For additional logs, set `RUST_LOG=debug` before invoking `rpc-server`.
