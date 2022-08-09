@@ -20,13 +20,13 @@ use tracing::info;
 
 const DEVNET_FAUCET_ADDR: &str = "https://faucet.devnet.haneul.io:443";
 const STAGING_FAUCET_ADDR: &str = "https://faucet.staging.haneul.io:443";
-const CONTINUOUS_FAUCET_ADDR: &str = "https://faucet.continuous.haneul.io:443";
+const CONTINUOUS_FAUCET_ADDR: &str = "https://faucet.ci.haneul.io:443";
 const DEVNET_GATEWAY_ADDR: &str = "https://gateway.devnet.haneul.io:443";
 const STAGING_GATEWAY_ADDR: &str = "https://gateway.staging.haneul.io:443";
-const CONTINUOUS_GATEWAY_ADDR: &str = "https://gateway.continuous.haneul.io:443";
+const CONTINUOUS_GATEWAY_ADDR: &str = "https://gateway.ci.haneul.io:443";
 const DEVNET_FULLNODE_ADDR: &str = "https://fullnode.devnet.haneul.io:443";
 const STAGING_FULLNODE_ADDR: &str = "https://fullnode.staging.haneul.io:443";
-const CONTINUOUS_FULLNODE_ADDR: &str = "https://fullnode.continuous.haneul.io:443";
+const CONTINUOUS_FULLNODE_ADDR: &str = "https://fullnode.ci.haneul.io:443";
 
 pub struct ClusterFactory;
 
