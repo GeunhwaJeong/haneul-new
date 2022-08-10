@@ -44,7 +44,7 @@ pub struct TestContext {
 impl TestContext {
     async fn get_haneul_from_faucet(&self, minimum_coins: Option<usize>) -> Vec<GasCoin> {
         self.faucet
-            .request_haneul_coins(self.get_context(), minimum_coins)
+            .request_haneul_coins(self.get_context(), minimum_coins, None)
             .await
             .unwrap_or_else(|e| panic!("Failed to get test HANEUL coins from faucet, {e}"))
     }
