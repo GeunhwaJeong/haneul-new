@@ -4,7 +4,7 @@
 use crate::{helper::ObjectChecker, TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use haneul::client_commands::WalletContext;
-use haneul_json_rpc_types::{HaneulExecutionStatus, TransactionEffectsResponse};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionResponse};
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::object::Owner;
 use test_utils::transaction::{increment_counter, publish_basics_package_and_make_counter};
@@ -30,7 +30,7 @@ impl TestCaseImpl for SharedCounterTest {
         let (package_ref, counter_id) =
             publish_basics_package_and_make_counter(wallet_context, address).await;
 
-        let effects: TransactionEffectsResponse =
+        let effects: HaneulTransactionResponse =
             increment_counter(wallet_context, address, None, package_ref, counter_id).await;
         let effects = effects.effects;
         assert_eq!(

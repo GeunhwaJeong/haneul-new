@@ -5,7 +5,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, TransactionEffectsResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, MergeCoinResponse, SplitCoinResponse, PublishResponse, HaneulPackage, TransactionResponse } from "./index";
+import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse } from "./index";
 import { BN } from "bn.js";
 import { Base64DataBuffer } from "./serialization/base64";
 import { PublicKey } from "./cryptography/publickey";
@@ -567,7 +567,7 @@ export function isTransactionEffects(obj: any, _argumentName?: string): obj is T
     )
 }
 
-export function isTransactionEffectsResponse(obj: any, _argumentName?: string): obj is TransactionEffectsResponse {
+export function isHaneulTransactionResponse(obj: any, _argumentName?: string): obj is HaneulTransactionResponse {
     return (
         (obj !== null &&
             typeof obj === "object" ||
@@ -575,7 +575,20 @@ export function isTransactionEffectsResponse(obj: any, _argumentName?: string): 
         isCertifiedTransaction(obj.certificate) as boolean &&
         isTransactionEffects(obj.effects) as boolean &&
         (obj.timestamp_ms === null ||
-            isSequenceNumber(obj.timestamp_ms) as boolean)
+            isSequenceNumber(obj.timestamp_ms) as boolean) &&
+        (obj.parsed_data === null ||
+            (obj.parsed_data !== null &&
+                typeof obj.parsed_data === "object" ||
+                typeof obj.parsed_data === "function") &&
+            isHaneulParsedSplitCoinResponse(obj.parsed_data.SplitCoin) as boolean ||
+            (obj.parsed_data !== null &&
+                typeof obj.parsed_data === "object" ||
+                typeof obj.parsed_data === "function") &&
+            isHaneulParsedMergeCoinResponse(obj.parsed_data.MergeCoin) as boolean ||
+            (obj.parsed_data !== null &&
+                typeof obj.parsed_data === "object" ||
+                typeof obj.parsed_data === "function") &&
+            isHaneulParsedPublishResponse(obj.parsed_data.Publish) as boolean)
     )
 }
 
@@ -661,23 +674,21 @@ export function isTransactionBytes(obj: any, _argumentName?: string): obj is Tra
     )
 }
 
-export function isMergeCoinResponse(obj: any, _argumentName?: string): obj is MergeCoinResponse {
+export function isHaneulParsedMergeCoinResponse(obj: any, _argumentName?: string): obj is HaneulParsedMergeCoinResponse {
     return (
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isCertifiedTransaction(obj.certificate) as boolean &&
         isHaneulObject(obj.updatedCoin) as boolean &&
         isHaneulObject(obj.updatedGas) as boolean
     )
 }
 
-export function isSplitCoinResponse(obj: any, _argumentName?: string): obj is SplitCoinResponse {
+export function isHaneulParsedSplitCoinResponse(obj: any, _argumentName?: string): obj is HaneulParsedSplitCoinResponse {
     return (
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isCertifiedTransaction(obj.certificate) as boolean &&
         isHaneulObject(obj.updatedCoin) as boolean &&
         Array.isArray(obj.newCoins) &&
         obj.newCoins.every((e: any) =>
@@ -687,12 +698,11 @@ export function isSplitCoinResponse(obj: any, _argumentName?: string): obj is Sp
     )
 }
 
-export function isPublishResponse(obj: any, _argumentName?: string): obj is PublishResponse {
+export function isHaneulParsedPublishResponse(obj: any, _argumentName?: string): obj is HaneulParsedPublishResponse {
     return (
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isCertifiedTransaction(obj.certificate) as boolean &&
         Array.isArray(obj.createdObjects) &&
         obj.createdObjects.every((e: any) =>
             isHaneulObject(e) as boolean
@@ -713,23 +723,19 @@ export function isHaneulPackage(obj: any, _argumentName?: string): obj is Haneul
     )
 }
 
-export function isTransactionResponse(obj: any, _argumentName?: string): obj is TransactionResponse {
+export function isHaneulParsedTransactionResponse(obj: any, _argumentName?: string): obj is HaneulParsedTransactionResponse {
     return (
         ((obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-            isTransactionEffectsResponse(obj.EffectResponse) as boolean ||
+            isHaneulParsedSplitCoinResponse(obj.SplitCoin) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isSplitCoinResponse(obj.SplitCoinResponse) as boolean ||
+            isHaneulParsedMergeCoinResponse(obj.MergeCoin) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isMergeCoinResponse(obj.MergeCoinResponse) as boolean ||
-            (obj !== null &&
-                typeof obj === "object" ||
-                typeof obj === "function") &&
-            isPublishResponse(obj.PublishResponse) as boolean)
+            isHaneulParsedPublishResponse(obj.Publish) as boolean)
     )
 }

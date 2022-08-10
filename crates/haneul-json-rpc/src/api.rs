@@ -9,8 +9,8 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
     RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTypeTag, TransactionBytes,
-    TransactionEffectsResponse, TransactionResponse,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionResponse,
+    HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -32,7 +32,7 @@ pub trait RpcGatewayApi {
         signature: Base64,
         /// signer's public key, as base-64 encoded string
         pub_key: Base64,
-    ) -> RpcResult<TransactionResponse>;
+    ) -> RpcResult<HaneulTransactionResponse>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Wallet Sync API")]
@@ -94,7 +94,7 @@ pub trait RpcReadApi {
         &self,
         /// the digest of the queried transaction
         digest: TransactionDigest,
-    ) -> RpcResult<TransactionEffectsResponse>;
+    ) -> RpcResult<HaneulTransactionResponse>;
 
     /// Return the object information for a specified object
     #[method(name = "getObject")]

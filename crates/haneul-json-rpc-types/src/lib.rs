@@ -303,55 +303,56 @@ pub enum MoveFunctionArgType {
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
-pub struct TransactionEffectsResponse {
+pub struct HaneulTransactionResponse {
     pub certificate: HaneulCertifiedTransaction,
     pub effects: HaneulTransactionEffects,
     pub timestamp_ms: Option<u64>,
+    pub parsed_data: Option<HaneulParsedTransactionResponse>,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
-pub enum TransactionResponse {
-    EffectResponse(TransactionEffectsResponse),
-    PublishResponse(PublishResponse),
-    MergeCoinResponse(MergeCoinResponse),
-    SplitCoinResponse(SplitCoinResponse),
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
+pub enum HaneulParsedTransactionResponse {
+    Publish(HaneulParsedPublishResponse),
+    MergeCoin(HaneulParsedMergeCoinResponse),
+    SplitCoin(HaneulParsedSplitCoinResponse),
 }
 
-impl TransactionResponse {
-    pub fn to_publish_response(self) -> Result<PublishResponse, HaneulError> {
+impl HaneulParsedTransactionResponse {
+    pub fn to_publish_response(self) -> Result<HaneulParsedPublishResponse, HaneulError> {
         match self {
-            TransactionResponse::PublishResponse(resp) => Ok(resp),
+            HaneulParsedTransactionResponse::Publish(resp) => Ok(resp),
             _ => Err(HaneulError::UnexpectedMessage),
         }
     }
 
-    pub fn to_merge_coin_response(self) -> Result<MergeCoinResponse, HaneulError> {
+    pub fn to_merge_coin_response(self) -> Result<HaneulParsedMergeCoinResponse, HaneulError> {
         match self {
-            TransactionResponse::MergeCoinResponse(resp) => Ok(resp),
+            HaneulParsedTransactionResponse::MergeCoin(resp) => Ok(resp),
             _ => Err(HaneulError::UnexpectedMessage),
         }
     }
 
-    pub fn to_split_coin_response(self) -> Result<SplitCoinResponse, HaneulError> {
+    pub fn to_split_coin_response(self) -> Result<HaneulParsedSplitCoinResponse, HaneulError> {
         match self {
-            TransactionResponse::SplitCoinResponse(resp) => Ok(resp),
+            HaneulParsedTransactionResponse::SplitCoin(resp) => Ok(resp),
             _ => Err(HaneulError::UnexpectedMessage),
         }
     }
+}
 
-    pub fn to_effect_response(self) -> Result<TransactionEffectsResponse, HaneulError> {
+impl Display for HaneulParsedTransactionResponse {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            TransactionResponse::EffectResponse(resp) => Ok(resp),
-            _ => Err(HaneulError::UnexpectedMessage),
+            HaneulParsedTransactionResponse::Publish(r) => r.fmt(f),
+            HaneulParsedTransactionResponse::MergeCoin(r) => r.fmt(f),
+            HaneulParsedTransactionResponse::SplitCoin(r) => r.fmt(f),
         }
     }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct SplitCoinResponse {
-    /// Certificate of the transaction
-    pub certificate: HaneulCertifiedTransaction,
+pub struct HaneulParsedSplitCoinResponse {
     /// The updated original coin object after split
     pub updated_coin: HaneulParsedObject,
     /// All the newly created coin objects generated from the split
@@ -360,11 +361,9 @@ pub struct SplitCoinResponse {
     pub updated_gas: HaneulParsedObject,
 }
 
-impl Display for SplitCoinResponse {
+impl Display for HaneulParsedSplitCoinResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
-        writeln!(writer, "{}", "----- Certificate ----".bold())?;
-        write!(writer, "{}", self.certificate)?;
         writeln!(writer, "{}", "----- Split Coin Results ----".bold())?;
 
         let coin = GasCoin::try_from(&self.updated_coin).map_err(fmt::Error::custom)?;
@@ -387,20 +386,16 @@ impl Display for SplitCoinResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct MergeCoinResponse {
-    /// Certificate of the transaction
-    pub certificate: HaneulCertifiedTransaction,
+pub struct HaneulParsedMergeCoinResponse {
     /// The updated original coin object after merge
     pub updated_coin: HaneulParsedObject,
     /// The updated gas payment object after deducting payment
     pub updated_gas: HaneulParsedObject,
 }
 
-impl Display for MergeCoinResponse {
+impl Display for HaneulParsedMergeCoinResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
-        writeln!(writer, "{}", "----- Certificate ----".bold())?;
-        write!(writer, "{}", self.certificate)?;
         writeln!(writer, "{}", "----- Merge Coin Results ----".bold())?;
 
         let coin = GasCoin::try_from(&self.updated_coin).map_err(fmt::Error::custom)?;
@@ -723,9 +718,7 @@ impl<T: HaneulMoveObject> HaneulData<T> {
 
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct PublishResponse {
-    /// Certificate of the transaction
-    pub certificate: HaneulCertifiedTransaction,
+pub struct HaneulParsedPublishResponse {
     /// The newly published package object reference.
     pub package: HaneulObjectRef,
     /// List of Move objects created as part of running the module initializers in the package
@@ -734,11 +727,9 @@ pub struct PublishResponse {
     pub updated_gas: HaneulParsedObject,
 }
 
-impl Display for PublishResponse {
+impl Display for HaneulParsedPublishResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
-        writeln!(writer, "{}", "----- Certificate ----".bold())?;
-        write!(writer, "{}", self.certificate)?;
         writeln!(writer, "{}", "----- Publish Results ----".bold())?;
         writeln!(
             writer,

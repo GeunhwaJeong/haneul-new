@@ -12,7 +12,7 @@ use crate::metrics::FaucetMetrics;
 use prometheus::Registry;
 use haneul::client_commands::{HaneulClientCommands, WalletContext};
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionKind, HaneulTransferHaneul, TransactionEffectsResponse,
+    HaneulExecutionStatus, HaneulTransactionKind, HaneulTransactionResponse, HaneulTransferHaneul,
 };
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
@@ -185,7 +185,7 @@ impl SimpleFaucet {
         budget: u64,
         amount: u64,
         uuid: Uuid,
-    ) -> Result<TransactionEffectsResponse, anyhow::Error> {
+    ) -> Result<HaneulTransactionResponse, anyhow::Error> {
         let context = &self.wallet;
 
         let data = context
@@ -196,11 +196,7 @@ impl SimpleFaucet {
 
         let tx = Transaction::new(data, signature);
         info!(tx_digest = ?tx.digest(), ?recipient, ?coin_id, ?uuid, "Broadcasting transfer obj txn");
-        let response = context
-            .gateway
-            .execute_transaction(tx)
-            .await?
-            .to_effect_response()?;
+        let response = context.gateway.execute_transaction(tx).await?;
         let effects = &response.effects;
         if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
             return Err(anyhow!("Error transferring object: {:#?}", effects.status));

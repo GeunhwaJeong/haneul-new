@@ -3,16 +3,16 @@
 
 import mockTransactionData from '../../../../crates/haneul-open-rpc/samples/transactions.json';
 
-import { isTransactionResponse } from '../../src/index.guard';
+import { isHaneulTransactionResponse } from '../../src/index.guard';
 
 describe('Test Transaction Definition', () => {
   it('Test against different transaction definitions', () => {
     const txns = mockTransactionData;
 
-    expect(isTransactionResponse(txns['move_call'])).toBeTruthy();
-    expect(isTransactionResponse(txns['transfer'])).toBeTruthy();
-    expect(isTransactionResponse(txns['coin_split'])).toBeTruthy();
-    expect(isTransactionResponse(txns['transfer_haneul'])).toBeTruthy();
+    expect(isHaneulTransactionResponse(txns['move_call'])).toBeTruthy();
+    expect(isHaneulTransactionResponse(txns['transfer'])).toBeTruthy();
+    expect(isHaneulTransactionResponse(txns['coin_split'])).toBeTruthy();
+    expect(isHaneulTransactionResponse(txns['transfer_haneul'])).toBeTruthy();
     // TODO: add mock data for failed transaction
     // expect(
     //   isTransactionEffectsResponse(txns['fail'])

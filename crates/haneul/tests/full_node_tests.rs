@@ -21,8 +21,7 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, W
 use haneul_config::utils::get_available_port;
 use haneul_core::test_utils::{wait_for_all_txes, wait_for_tx};
 use haneul_json_rpc_types::{
-    SplitCoinResponse, HaneulEvent, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveStruct, HaneulMoveValue,
-    HaneulObjectRead,
+    HaneulEvent, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveStruct, HaneulMoveValue, HaneulObjectRead,
 };
 use haneul_node::HaneulNode;
 use haneul_swarm::memory::Swarm;
@@ -342,16 +341,14 @@ async fn test_full_node_sync_flood() -> Result<(), anyhow::Error> {
                     .unwrap()
                 };
 
-                owned_tx_digest = if let HaneulClientCommandResult::SplitCoin(SplitCoinResponse {
-                    certificate,
-                    updated_gas,
-                    ..
-                }) = res
-                {
+                owned_tx_digest = if let HaneulClientCommandResult::SplitCoin(resp) = res {
+                    let digest = resp.certificate.transaction_digest;
+                    let split_coin_resp =
+                        resp.parsed_data.unwrap().to_split_coin_response().unwrap();
                     // Re-use the same gas id next time to avoid O(n^2) fetches due to automatic
                     // gas selection.
-                    gas_object = Some(updated_gas.id());
-                    Some(certificate.transaction_digest)
+                    gas_object = Some(split_coin_resp.updated_gas.id());
+                    Some(digest)
                 } else {
                     panic!("transfer command did not return WalletCommandResult::Transfer");
                 };

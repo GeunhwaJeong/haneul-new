@@ -7,7 +7,7 @@ import {
   HaneulObjectInfo,
   GatewayTxSeqNumber,
   GetTxnDigestsResponse,
-  TransactionResponse,
+  HaneulTransactionResponse,
   HaneulObjectRef,
 } from '../types';
 
@@ -69,7 +69,7 @@ export abstract class Provider {
     signatureScheme: SignatureScheme,
     signature: string,
     pubkey: string
-  ): Promise<TransactionResponse>;
+  ): Promise<HaneulTransactionResponse>;
 
   abstract syncAccountState(address: string): Promise<any>;
   // TODO: add more interface methods

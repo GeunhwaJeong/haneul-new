@@ -7,8 +7,7 @@ import {
   isGetObjectDataResponse,
   isGetOwnedObjectsResponse,
   isGetTxnDigestsResponse,
-  isTransactionEffectsResponse,
-  isTransactionResponse,
+  isHaneulTransactionResponse,
 } from '../index.guard';
 import {
   GatewayTxSeqNumber,
@@ -16,8 +15,7 @@ import {
   GetObjectDataResponse,
   HaneulObjectInfo,
   TransactionDigest,
-  TransactionEffectsResponse,
-  TransactionResponse,
+  HaneulTransactionResponse,
   HaneulObjectRef,
   getObjectReference,
   Coin,
@@ -164,12 +162,12 @@ export class JsonRpcProvider extends Provider {
 
   async getTransactionWithEffects(
     digest: TransactionDigest
-  ): Promise<TransactionEffectsResponse> {
+  ): Promise<HaneulTransactionResponse> {
     try {
       const resp = await this.client.requestWithType(
         'haneul_getTransaction',
         [digest],
-        isTransactionEffectsResponse
+        isHaneulTransactionResponse
       );
       return resp;
     } catch (err) {
@@ -181,7 +179,7 @@ export class JsonRpcProvider extends Provider {
 
   async getTransactionWithEffectsBatch(
     digests: TransactionDigest[]
-  ): Promise<TransactionEffectsResponse[]> {
+  ): Promise<HaneulTransactionResponse[]> {
     const requests = digests.map(d => ({
       method: 'haneul_getTransaction',
       args: [d],
@@ -189,7 +187,7 @@ export class JsonRpcProvider extends Provider {
     try {
       return await this.client.batchRequestWithType(
         requests,
-        isTransactionEffectsResponse
+        isHaneulTransactionResponse
       );
     } catch (err) {
       const list = digests.join(', ').substring(0, -2);
@@ -204,12 +202,12 @@ export class JsonRpcProvider extends Provider {
     signatureScheme: SignatureScheme,
     signature: string,
     pubkey: string
-  ): Promise<TransactionResponse> {
+  ): Promise<HaneulTransactionResponse> {
     try {
       const resp = await this.client.requestWithType(
         'haneul_executeTransaction',
         [txnBytes, signatureScheme, signature, pubkey],
-        isTransactionResponse
+        isHaneulTransactionResponse
       );
       return resp;
     } catch (err) {

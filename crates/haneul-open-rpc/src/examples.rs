@@ -18,8 +18,8 @@ use haneul_json_rpc_types::{
     GatewayTxSeqNumber, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
     HaneulCertifiedTransaction, HaneulData, HaneulExecutionStatus, HaneulGasCostSummary, HaneulMoveObject,
     HaneulObject, HaneulObjectRead, HaneulObjectRef, HaneulParsedMoveObject, HaneulRawMoveObject,
-    HaneulTransactionData, HaneulTransactionEffects, TransactionBytes, TransactionEffectsResponse,
-    TransactionResponse, TransferObjectParams,
+    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes,
+    TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -317,7 +317,6 @@ impl RpcExampleProvider {
 
     fn get_transaction(&mut self) -> Examples {
         let (_, _, result) = self.get_transfer_data_response();
-        let result = result.to_effect_response().unwrap();
         Examples::new(
             "haneul_getTransaction",
             vec![ExamplePairing::new(
@@ -423,7 +422,9 @@ impl RpcExampleProvider {
             .collect()
     }
 
-    fn get_transfer_data_response(&mut self) -> (TransactionData, Signature, TransactionResponse) {
+    fn get_transfer_data_response(
+        &mut self,
+    ) -> (TransactionData, Signature, HaneulTransactionResponse) {
         let (signer, kp): (_, AccountKeyPair) = get_key_pair_from_rng(&mut self.rng);
         let recipient = HaneulAddress::from(ObjectID::new(self.rng.gen()));
         let gas_ref = (
@@ -440,7 +441,7 @@ impl RpcExampleProvider {
         let data = TransactionData::new_transfer(recipient, object_ref, signer, gas_ref, 1000);
         let signature = Signature::new(&data, &kp);
 
-        let result = TransactionResponse::EffectResponse(TransactionEffectsResponse {
+        let result = HaneulTransactionResponse {
             certificate: HaneulCertifiedTransaction {
                 transaction_digest: TransactionDigest::new(self.rng.gen()),
                 data: HaneulTransactionData::try_from(data.clone()).unwrap(),
@@ -482,7 +483,8 @@ impl RpcExampleProvider {
                 dependencies: vec![],
             },
             timestamp_ms: None,
-        });
+            parsed_data: None,
+        };
 
         (data, signature, result)
     }

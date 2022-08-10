@@ -23,8 +23,8 @@ use haneul_json_rpc::api::RpcTransactionBuilderClient;
 use haneul_json_rpc::api::WalletSyncApiClient;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse,
-    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulObjectInfo, HaneulTypeTag,
-    TransactionEffectsResponse, TransactionResponse,
+    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulObjectInfo,
+    HaneulTransactionResponse, HaneulTypeTag,
 };
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::{SignableBytes, HaneulSignature};
@@ -119,7 +119,7 @@ impl HaneulClient {
     pub async fn get_transaction(
         &self,
         digest: TransactionDigest,
-    ) -> anyhow::Result<TransactionEffectsResponse> {
+    ) -> anyhow::Result<HaneulTransactionResponse> {
         Ok(match &self {
             Self::Http(c) => c.get_transaction(digest).await?,
             Self::Ws(c) => c.get_transaction(digest).await?,
@@ -220,7 +220,7 @@ impl HaneulClient {
     pub async fn execute_transaction(
         &self,
         tx: Transaction,
-    ) -> anyhow::Result<TransactionResponse> {
+    ) -> anyhow::Result<HaneulTransactionResponse> {
         Ok(match &self {
             Self::Http(c) => {
                 let tx_bytes = Base64::from_bytes(&tx.data.to_bytes());

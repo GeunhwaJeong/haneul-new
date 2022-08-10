@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use haneul::client_commands::WalletContext;
 use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
-use haneul_json_rpc_types::{TransactionEffectsResponse, TransactionResponse};
+use haneul_json_rpc_types::{HaneulParsedTransactionResponse, HaneulTransactionResponse};
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -76,7 +76,7 @@ pub async fn publish_basics_package(context: &WalletContext, sender: HaneulAddre
         .await
         .unwrap();
 
-    if let TransactionResponse::PublishResponse(resp) = resp {
+    if let Some(HaneulParsedTransactionResponse::Publish(resp)) = resp.parsed_data {
         resp.package.to_object_ref()
     } else {
         panic!()
@@ -92,7 +92,7 @@ pub async fn submit_move_transaction(
     arguments: Vec<HaneulJsonValue>,
     sender: HaneulAddress,
     gas_object: Option<ObjectID>,
-) -> TransactionResponse {
+) -> HaneulTransactionResponse {
     debug!(?package_ref, ?arguments, "move_transaction");
 
     let data = context
@@ -136,11 +136,10 @@ pub async fn publish_basics_package_and_make_counter(
     )
     .await;
 
-    let counter_id = if let TransactionResponse::EffectResponse(effects) = create_shared_obj_resp {
-        effects.effects.created[0].clone().reference.object_id
-    } else {
-        panic!()
-    };
+    let counter_id = create_shared_obj_resp.effects.created[0]
+        .clone()
+        .reference
+        .object_id;
     debug!(?counter_id);
     (package_ref, counter_id)
 }
@@ -151,7 +150,7 @@ pub async fn increment_counter(
     gas_object: Option<ObjectID>,
     package_ref: ObjectRef,
     counter_id: ObjectID,
-) -> TransactionEffectsResponse {
+) -> HaneulTransactionResponse {
     let resp = submit_move_transaction(
         context,
         "counter",
@@ -162,11 +161,7 @@ pub async fn increment_counter(
         gas_object,
     )
     .await;
-    if let TransactionResponse::EffectResponse(effects) = resp {
-        effects
-    } else {
-        panic!()
-    }
+    resp
 }
 
 /// Submit a certificate containing only owned-objects to all authorities.

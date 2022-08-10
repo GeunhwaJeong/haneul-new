@@ -17,7 +17,7 @@ import { Coin } from '_redux/slices/haneul-objects/Coin';
 import type {
     HaneulAddress,
     HaneulMoveObject,
-    TransactionEffectsResponse,
+    HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
@@ -27,7 +27,7 @@ type SendTokensTXArgs = {
     amount: bigint;
     recipientAddress: HaneulAddress;
 };
-type TransactionResult = { EffectResponse: TransactionEffectsResponse };
+type TransactionResult = HaneulTransactionResponse;
 
 export const sendTokens = createAsyncThunk<
     TransactionResult,
@@ -116,7 +116,7 @@ export const StakeTokens = createAsyncThunk<
 );
 
 const txAdapter = createEntityAdapter<TransactionResult>({
-    selectId: (tx) => tx.EffectResponse.certificate.transactionDigest,
+    selectId: (tx) => tx.certificate.transactionDigest,
 });
 
 export const txSelectors = txAdapter.getSelectors(

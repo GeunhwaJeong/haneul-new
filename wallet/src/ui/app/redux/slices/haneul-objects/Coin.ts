@@ -11,7 +11,7 @@ import type {
     ObjectId,
     HaneulObject,
     HaneulMoveObject,
-    TransactionResponse,
+    HaneulTransactionResponse,
     RawSigner,
     HaneulAddress,
     JsonRpcProvider,
@@ -75,7 +75,7 @@ export class Coin {
         coins: HaneulMoveObject[],
         amount: bigint,
         recipient: HaneulAddress
-    ): Promise<TransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         await signer.syncAccountState();
         const coin = await Coin.selectCoin(signer, coins, amount);
         return await signer.transferObject({
@@ -98,7 +98,7 @@ export class Coin {
         coins: HaneulMoveObject[],
         amount: bigint,
         recipient: HaneulAddress
-    ): Promise<TransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         await signer.syncAccountState();
         const coin = await Coin.prepareCoinWithEnoughBalance(
             signer,
@@ -127,7 +127,7 @@ export class Coin {
         coins: HaneulMoveObject[],
         amount: bigint,
         validator: HaneulAddress
-    ): Promise<TransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         const coin = await Coin.selectCoin(signer, coins, amount);
         await signer.syncAccountState();
         return await signer.executeMoveCall({

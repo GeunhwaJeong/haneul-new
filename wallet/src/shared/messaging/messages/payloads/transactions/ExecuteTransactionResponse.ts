@@ -3,12 +3,12 @@
 
 import { isBasePayload } from '_payloads';
 
-import type { TransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface ExecuteTransactionResponse extends BasePayload {
     type: 'execute-transaction-response';
-    result: TransactionResponse;
+    result: HaneulTransactionResponse;
 }
 
 export function isExecuteTransactionResponse(

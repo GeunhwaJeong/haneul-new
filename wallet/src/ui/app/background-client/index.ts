@@ -10,7 +10,7 @@ import { isGetTransactionRequestsResponse } from '_payloads/transactions/ui/GetT
 import { setPermissions } from '_redux/slices/permissions';
 import { setTransactionRequests } from '_redux/slices/transaction-requests';
 
-import type { HaneulAddress, TransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulAddress, HaneulTransactionResponse } from '@haneullabs/haneul.js';
 import type { Message } from '_messages';
 import type {
     GetPermissionRequests,
@@ -68,7 +68,7 @@ export class BackgroundClient {
     public async sendTransactionRequestResponse(
         txID: string,
         approved: boolean,
-        txResult: TransactionResponse | undefined,
+        txResult: HaneulTransactionResponse | undefined,
         tsResultError: string | undefined
     ) {
         this.sendMessage(

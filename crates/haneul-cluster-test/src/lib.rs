@@ -7,8 +7,8 @@ use cluster::{Cluster, ClusterFactory};
 use config::ClusterTestOpt;
 use std::sync::Arc;
 use haneul::client_commands::WalletContext;
+use haneul_json_rpc_types::HaneulTransactionResponse;
 
-use haneul_json_rpc_types::TransactionResponse;
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{
@@ -73,7 +73,11 @@ impl TestContext {
         self.client.get_wallet_address()
     }
 
-    async fn sign_and_execute(&self, txn_data: TransactionData, desc: &str) -> TransactionResponse {
+    async fn sign_and_execute(
+        &self,
+        txn_data: TransactionData,
+        desc: &str,
+    ) -> HaneulTransactionResponse {
         let signature = self.get_context().sign(&txn_data, desc);
         self.get_gateway()
             .execute_transaction(Transaction::new(txn_data, signature))

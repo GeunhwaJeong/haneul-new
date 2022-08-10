@@ -21,8 +21,7 @@ use tracing::info;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, MergeCoinResponse, PublishResponse, SplitCoinResponse, HaneulObjectInfo,
-    HaneulParsedObject,
+    GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_sdk::crypto::HaneulKeystore;
@@ -293,8 +292,7 @@ impl HaneulClientCommands {
                 let response = context
                     .gateway
                     .execute_transaction(Transaction::new(data, signature))
-                    .await?
-                    .to_publish_response()?;
+                    .await?;
 
                 HaneulClientCommandResult::Publish(response)
             }
@@ -337,8 +335,7 @@ impl HaneulClientCommands {
                 let response = context
                     .gateway
                     .execute_transaction(Transaction::new(data, signature))
-                    .await?
-                    .to_effect_response()?;
+                    .await?;
                 let cert = response.certificate;
                 let effects = response.effects;
 
@@ -365,8 +362,7 @@ impl HaneulClientCommands {
                 let response = context
                     .gateway
                     .execute_transaction(Transaction::new(data, signature))
-                    .await?
-                    .to_effect_response()?;
+                    .await?;
                 let cert = response.certificate;
                 let effects = response.effects;
 
@@ -430,8 +426,7 @@ impl HaneulClientCommands {
                 let response = context
                     .gateway
                     .execute_transaction(Transaction::new(data, signature))
-                    .await?
-                    .to_split_coin_response()?;
+                    .await?;
                 HaneulClientCommandResult::SplitCoin(response)
             }
             HaneulClientCommands::MergeCoin {
@@ -449,8 +444,7 @@ impl HaneulClientCommands {
                 let response = context
                     .gateway
                     .execute_transaction(Transaction::new(data, signature))
-                    .await?
-                    .to_merge_coin_response()?;
+                    .await?;
 
                 HaneulClientCommandResult::MergeCoin(response)
             }
@@ -627,7 +621,14 @@ impl Display for HaneulClientCommandResult {
         let mut writer = String::new();
         match self {
             HaneulClientCommandResult::Publish(response) => {
-                write!(writer, "{}", response)?;
+                write!(
+                    writer,
+                    "{}",
+                    write_cert_and_effects(&response.certificate, &response.effects)?
+                )?;
+                if let Some(parsed_resp) = &response.parsed_data {
+                    writeln!(writer, "{}", parsed_resp)?;
+                }
             }
             HaneulClientCommandResult::Object(object_read) => {
                 let object = unwrap_err_to_string(|| Ok(object_read.object()?));
@@ -694,10 +695,24 @@ impl Display for HaneulClientCommandResult {
                 }
             }
             HaneulClientCommandResult::SplitCoin(response) => {
-                write!(writer, "{}", response)?;
+                write!(
+                    writer,
+                    "{}",
+                    write_cert_and_effects(&response.certificate, &response.effects)?
+                )?;
+                if let Some(parsed_resp) = &response.parsed_data {
+                    writeln!(writer, "{}", parsed_resp)?;
+                }
             }
             HaneulClientCommandResult::MergeCoin(response) => {
-                write!(writer, "{}", response)?;
+                write!(
+                    writer,
+                    "{}",
+                    write_cert_and_effects(&response.certificate, &response.effects)?
+                )?;
+                if let Some(parsed_resp) = &response.parsed_data {
+                    writeln!(writer, "{}", parsed_resp)?;
+                }
             }
             HaneulClientCommandResult::Switch(response) => {
                 write!(writer, "{}", response)?;
@@ -750,11 +765,7 @@ pub async fn call_move(
         .await?;
     let signature = context.keystore.sign(&sender, &data.to_bytes())?;
     let transaction = Transaction::new(data, signature);
-    let response = context
-        .gateway
-        .execute_transaction(transaction)
-        .await?
-        .to_effect_response()?;
+    let response = context.gateway.execute_transaction(transaction).await?;
     let cert = response.certificate;
     let effects = response.effects;
 
@@ -822,7 +833,7 @@ impl HaneulClientCommandResult {
 #[derive(Serialize)]
 #[serde(untagged)]
 pub enum HaneulClientCommandResult {
-    Publish(PublishResponse),
+    Publish(HaneulTransactionResponse),
     Object(GetObjectDataResponse),
     Call(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Transfer(
@@ -837,8 +848,8 @@ pub enum HaneulClientCommandResult {
     SyncClientState,
     NewAddress((HaneulAddress, String)),
     Gas(Vec<GasCoin>),
-    SplitCoin(SplitCoinResponse),
-    MergeCoin(MergeCoinResponse),
+    SplitCoin(HaneulTransactionResponse),
+    MergeCoin(HaneulTransactionResponse),
     Switch(SwitchResponse),
     ActiveAddress(Option<HaneulAddress>),
     CreateExampleNFT(GetObjectDataResponse),

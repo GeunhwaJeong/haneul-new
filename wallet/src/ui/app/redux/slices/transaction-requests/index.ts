@@ -8,7 +8,7 @@ import {
     createSlice,
 } from '@reduxjs/toolkit';
 
-import type { TransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { TransactionRequest } from '_payloads/transactions';
 import type { RootState } from '_redux/RootReducer';
@@ -26,7 +26,7 @@ export const respondToTransactionRequest = createAsyncThunk<
     {
         txRequestID: string;
         approved: boolean;
-        txResponse: TransactionResponse | null;
+        txResponse: HaneulTransactionResponse | null;
     },
     { txRequestID: string; approved: boolean },
     AppThunkConfig
@@ -41,7 +41,7 @@ export const respondToTransactionRequest = createAsyncThunk<
         if (!txRequest) {
             throw new Error(`TransactionRequest ${txRequestID} not found`);
         }
-        let txResult: TransactionResponse | undefined = undefined;
+        let txResult: HaneulTransactionResponse | undefined = undefined;
         let tsResultError: string | undefined;
         if (approved) {
             const signer = api.getSignerInstance(keypairVault.getKeyPair());
