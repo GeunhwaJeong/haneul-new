@@ -9,6 +9,11 @@ import {
   GetTxnDigestsResponse,
   HaneulTransactionResponse,
   HaneulObjectRef,
+  HaneulMoveFunctionArgTypes,
+  HaneulMoveNormalizedFunction,
+  HaneulMoveNormalizedStruct,
+  HaneulMoveNormalizedModule,
+  HaneulMoveNormalizedModules,
 } from '../types';
 
 ///////////////////////////////
@@ -70,6 +75,48 @@ export abstract class Provider {
     signature: string,
     pubkey: string
   ): Promise<HaneulTransactionResponse>;
+
+  // Move info
+  /**
+   * Get Move function argument types like read, write and full access
+   */
+  abstract getMoveFunctionArgTypes(
+    objectId: string,
+    moduleName: string,
+    functionName: string
+  ): Promise<HaneulMoveFunctionArgTypes>;
+
+  /**
+   * Get a map from module name to
+   * structured representations of Move modules
+   */
+  abstract getNormalizedMoveModulesByPackage(objectId: string,): Promise<HaneulMoveNormalizedModules>;
+
+  /**
+   * Get a structured representation of Move module
+   */
+  abstract getNormalizedMoveModule(
+    objectId: string,
+    moduleName: string,
+  ): Promise<HaneulMoveNormalizedModule>;
+
+  /**
+   * Get a structured representation of Move function
+   */
+  abstract getNormalizedMoveFunction(
+    objectId: string,
+    moduleName: string,
+    functionName: string
+  ): Promise<HaneulMoveNormalizedFunction> 
+
+  /**
+   * Get a structured representation of Move struct
+   */
+  abstract getNormalizedMoveStruct(
+    objectId: string,
+    moduleName: string,
+    structName: string
+  ): Promise<HaneulMoveNormalizedStruct>;
 
   abstract syncAccountState(address: string): Promise<any>;
   // TODO: add more interface methods

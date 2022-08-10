@@ -5,7 +5,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse } from "./index";
+import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, TransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse } from "./index";
 import { BN } from "bn.js";
 import { Base64DataBuffer } from "./serialization/base64";
 import { PublicKey } from "./cryptography/publickey";
@@ -33,12 +33,12 @@ export function isKeypair(obj: any, _argumentName?: string): obj is Keypair {
 export function isPublicKeyInitData(obj: any, _argumentName?: string): obj is PublicKeyInitData {
     return (
         (isTransactionDigest(obj) as boolean ||
-            isSequenceNumber(obj) as boolean ||
+            isHaneulMoveTypeParameterIndex(obj) as boolean ||
             obj instanceof Buffer ||
             obj instanceof Uint8Array ||
             Array.isArray(obj) &&
             obj.every((e: any) =>
-                isSequenceNumber(e) as boolean
+                isHaneulMoveTypeParameterIndex(e) as boolean
             ) ||
             isPublicKeyData(obj) as boolean)
     )
@@ -68,7 +68,7 @@ export function isTransferObjectTransaction(obj: any, _argumentName?: string): o
         isTransactionDigest(obj.objectId) as boolean &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
-        isSequenceNumber(obj.gasBudget) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean &&
         isTransactionDigest(obj.recipient) as boolean
     )
 }
@@ -79,10 +79,10 @@ export function isTransferHaneulTransaction(obj: any, _argumentName?: string): o
             typeof obj === "object" ||
             typeof obj === "function") &&
         isTransactionDigest(obj.haneulObjectId) as boolean &&
-        isSequenceNumber(obj.gasBudget) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean &&
         isTransactionDigest(obj.recipient) as boolean &&
         (typeof obj.amount === "undefined" ||
-            isSequenceNumber(obj.amount) as boolean)
+            isHaneulMoveTypeParameterIndex(obj.amount) as boolean)
     )
 }
 
@@ -95,7 +95,7 @@ export function isMergeCoinTransaction(obj: any, _argumentName?: string): obj is
         isTransactionDigest(obj.coinToMerge) as boolean &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
-        isSequenceNumber(obj.gasBudget) as boolean
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
     )
 }
 
@@ -107,11 +107,11 @@ export function isSplitCoinTransaction(obj: any, _argumentName?: string): obj is
         isTransactionDigest(obj.coinObjectId) as boolean &&
         Array.isArray(obj.splitAmounts) &&
         obj.splitAmounts.every((e: any) =>
-            isSequenceNumber(e) as boolean
+            isHaneulMoveTypeParameterIndex(e) as boolean
         ) &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
-        isSequenceNumber(obj.gasBudget) as boolean
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
     )
 }
 
@@ -133,7 +133,7 @@ export function isMoveCallTransaction(obj: any, _argumentName?: string): obj is 
         ) &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
-        isSequenceNumber(obj.gasBudget) as boolean
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
     )
 }
 
@@ -148,7 +148,7 @@ export function isPublishTransaction(obj: any, _argumentName?: string): obj is P
         ) &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
-        isSequenceNumber(obj.gasBudget) as boolean
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
     )
 }
 
@@ -225,7 +225,7 @@ export function isHaneulObjectRef(obj: any, _argumentName?: string): obj is Hane
             typeof obj === "function") &&
         isTransactionDigest(obj.digest) as boolean &&
         isTransactionDigest(obj.objectId) as boolean &&
-        isSequenceNumber(obj.version) as boolean
+        isHaneulMoveTypeParameterIndex(obj.version) as boolean
     )
 }
 
@@ -299,6 +299,202 @@ export function isHaneulMovePackage(obj: any, _argumentName?: string): obj is Ha
     )
 }
 
+export function isHaneulMoveFunctionArgTypesResponse(obj: any, _argumentName?: string): obj is HaneulMoveFunctionArgTypesResponse {
+    return (
+        Array.isArray(obj) &&
+        obj.every((e: any) =>
+            isHaneulMoveFunctionArgType(e) as boolean
+        )
+    )
+}
+
+export function isHaneulMoveFunctionArgType(obj: any, _argumentName?: string): obj is HaneulMoveFunctionArgType {
+    return (
+        (isTransactionDigest(obj) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isTransactionDigest(obj.Object) as boolean)
+    )
+}
+
+export function isHaneulMoveFunctionArgTypes(obj: any, _argumentName?: string): obj is HaneulMoveFunctionArgTypes {
+    return (
+        Array.isArray(obj) &&
+        obj.every((e: any) =>
+            isHaneulMoveFunctionArgType(e) as boolean
+        )
+    )
+}
+
+export function isHaneulMoveNormalizedModules(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedModules {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        Object.entries<any>(obj)
+            .every(([key, value]) => (isHaneulMoveNormalizedModule(value) as boolean &&
+                isTransactionDigest(key) as boolean))
+    )
+}
+
+export function isHaneulMoveNormalizedModule(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedModule {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isHaneulMoveTypeParameterIndex(obj.file_format_version) as boolean &&
+        isTransactionDigest(obj.address) as boolean &&
+        isTransactionDigest(obj.name) as boolean &&
+        Array.isArray(obj.friends) &&
+        obj.friends.every((e: any) =>
+            isHaneulMoveModuleId(e) as boolean
+        ) &&
+        (obj.structs !== null &&
+            typeof obj.structs === "object" ||
+            typeof obj.structs === "function") &&
+        Object.entries<any>(obj.structs)
+            .every(([key, value]) => (isHaneulMoveNormalizedStruct(value) as boolean &&
+                isTransactionDigest(key) as boolean)) &&
+        (obj.exposed_functions !== null &&
+            typeof obj.exposed_functions === "object" ||
+            typeof obj.exposed_functions === "function") &&
+        Object.entries<any>(obj.exposed_functions)
+            .every(([key, value]) => (isHaneulMoveNormalizedFunction(value) as boolean &&
+                isTransactionDigest(key) as boolean))
+    )
+}
+
+export function isHaneulMoveModuleId(obj: any, _argumentName?: string): obj is HaneulMoveModuleId {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isTransactionDigest(obj.address) as boolean &&
+        isTransactionDigest(obj.name) as boolean
+    )
+}
+
+export function isHaneulMoveNormalizedStruct(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedStruct {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isHaneulMoveAbilitySet(obj.abilities) as boolean &&
+        Array.isArray(obj.type_parameters) &&
+        obj.type_parameters.every((e: any) =>
+            isHaneulMoveStructTypeParameter(e) as boolean
+        ) &&
+        Array.isArray(obj.fields) &&
+        obj.fields.every((e: any) =>
+            isHaneulMoveNormalizedField(e) as boolean
+        )
+    )
+}
+
+export function isHaneulMoveStructTypeParameter(obj: any, _argumentName?: string): obj is HaneulMoveStructTypeParameter {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isHaneulMoveAbilitySet(obj.constraints) as boolean &&
+        typeof obj.is_phantom === "boolean"
+    )
+}
+
+export function isHaneulMoveNormalizedField(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedField {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isTransactionDigest(obj.name) as boolean &&
+        isHaneulMoveNormalizedType(obj.type_) as boolean
+    )
+}
+
+export function isHaneulMoveNormalizedFunction(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedFunction {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isHaneulMoveVisibility(obj.visibility) as boolean &&
+        typeof obj.is_entry === "boolean" &&
+        Array.isArray(obj.type_parameters) &&
+        obj.type_parameters.every((e: any) =>
+            isHaneulMoveAbilitySet(e) as boolean
+        ) &&
+        Array.isArray(obj.parameters) &&
+        obj.parameters.every((e: any) =>
+            isHaneulMoveNormalizedType(e) as boolean
+        ) &&
+        Array.isArray(obj.return_) &&
+        obj.return_.every((e: any) =>
+            isHaneulMoveNormalizedType(e) as boolean
+        )
+    )
+}
+
+export function isHaneulMoveVisibility(obj: any, _argumentName?: string): obj is HaneulMoveVisibility {
+    return (
+        (obj === "Private" ||
+            obj === "Public" ||
+            obj === "Friend")
+    )
+}
+
+export function isHaneulMoveTypeParameterIndex(obj: any, _argumentName?: string): obj is HaneulMoveTypeParameterIndex {
+    return (
+        typeof obj === "number"
+    )
+}
+
+export function isHaneulMoveAbilitySet(obj: any, _argumentName?: string): obj is HaneulMoveAbilitySet {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        Array.isArray(obj.abilities) &&
+        obj.abilities.every((e: any) =>
+            isTransactionDigest(e) as boolean
+        )
+    )
+}
+
+export function isHaneulMoveNormalizedType(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedType {
+    return (
+        (isTransactionDigest(obj) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulMoveTypeParameterIndex(obj.TypeParameter) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulMoveNormalizedType(obj.Reference) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulMoveNormalizedType(obj.MutableReference) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isHaneulMoveNormalizedType(obj.Vector) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            (obj.Struct !== null &&
+                typeof obj.Struct === "object" ||
+                typeof obj.Struct === "function") &&
+            isTransactionDigest(obj.Struct.address) as boolean &&
+            isTransactionDigest(obj.Struct.module) as boolean &&
+            isTransactionDigest(obj.Struct.name) as boolean &&
+            Array.isArray(obj.Struct.type_arguments) &&
+            obj.Struct.type_arguments.every((e: any) =>
+                isHaneulMoveNormalizedType(e) as boolean
+            ))
+    )
+}
+
 export function isHaneulObject(obj: any, _argumentName?: string): obj is HaneulObject {
     return (
         (obj !== null &&
@@ -307,7 +503,7 @@ export function isHaneulObject(obj: any, _argumentName?: string): obj is HaneulO
         isHaneulData(obj.data) as boolean &&
         isObjectOwner(obj.owner) as boolean &&
         isTransactionDigest(obj.previousTransaction) as boolean &&
-        isSequenceNumber(obj.storageRebate) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.storageRebate) as boolean &&
         isHaneulObjectRef(obj.reference) as boolean
     )
 }
@@ -383,7 +579,7 @@ export function isHaneulTransferHaneul(obj: any, _argumentName?: string): obj is
             typeof obj === "function") &&
         isTransactionDigest(obj.recipient) as boolean &&
         (obj.amount === null ||
-            isSequenceNumber(obj.amount) as boolean)
+            isHaneulMoveTypeParameterIndex(obj.amount) as boolean)
     )
 }
 
@@ -392,9 +588,9 @@ export function isHaneulChangeEpoch(obj: any, _argumentName?: string): obj is Ha
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isSequenceNumber(obj.epoch) as boolean &&
-        isSequenceNumber(obj.storage_charge) as boolean &&
-        isSequenceNumber(obj.computation_charge) as boolean
+        isHaneulMoveTypeParameterIndex(obj.epoch) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.storage_charge) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.computation_charge) as boolean
     )
 }
 
@@ -444,7 +640,7 @@ export function isTransactionData(obj: any, _argumentName?: string): obj is Tran
         ) &&
         isTransactionDigest(obj.sender) as boolean &&
         isHaneulObjectRef(obj.gasPayment) as boolean &&
-        isSequenceNumber(obj.gasBudget) as boolean
+        isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
     )
 }
 
@@ -459,7 +655,7 @@ export function isAuthorityQuorumSignInfo(obj: any, _argumentName?: string): obj
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isSequenceNumber(obj.epoch) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.epoch) as boolean &&
         Array.isArray(obj.signature) &&
         obj.signature.every((e: any) =>
             isTransactionDigest(e) as boolean
@@ -484,9 +680,9 @@ export function isGasCostSummary(obj: any, _argumentName?: string): obj is GasCo
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        isSequenceNumber(obj.computationCost) as boolean &&
-        isSequenceNumber(obj.storageCost) as boolean &&
-        isSequenceNumber(obj.storageRebate) as boolean
+        isHaneulMoveTypeParameterIndex(obj.computationCost) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.storageCost) as boolean &&
+        isHaneulMoveTypeParameterIndex(obj.storageRebate) as boolean
     )
 }
 
@@ -575,7 +771,7 @@ export function isHaneulTransactionResponse(obj: any, _argumentName?: string): o
         isCertifiedTransaction(obj.certificate) as boolean &&
         isTransactionEffects(obj.effects) as boolean &&
         (obj.timestamp_ms === null ||
-            isSequenceNumber(obj.timestamp_ms) as boolean) &&
+            isHaneulMoveTypeParameterIndex(obj.timestamp_ms) as boolean) &&
         (obj.parsed_data === null ||
             (obj.parsed_data !== null &&
                 typeof obj.parsed_data === "object" ||
@@ -603,7 +799,7 @@ export function isGetTxnDigestsResponse(obj: any, _argumentName?: string): obj i
         Array.isArray(obj) &&
         obj.every((e: any) =>
             Array.isArray(e) &&
-            isSequenceNumber(e[0]) as boolean &&
+            isHaneulMoveTypeParameterIndex(e[0]) as boolean &&
             isTransactionDigest(e[1]) as boolean
         )
     )
@@ -633,13 +829,13 @@ export function isMoveCall(obj: any, _argumentName?: string): obj is MoveCall {
 export function isHaneulJsonValue(obj: any, _argumentName?: string): obj is HaneulJsonValue {
     return (
         (isTransactionDigest(obj) as boolean ||
-            isSequenceNumber(obj) as boolean ||
+            isHaneulMoveTypeParameterIndex(obj) as boolean ||
             obj === false ||
             obj === true ||
             Array.isArray(obj) &&
             obj.every((e: any) =>
             (isTransactionDigest(e) as boolean ||
-                isSequenceNumber(e) as boolean ||
+                isHaneulMoveTypeParameterIndex(e) as boolean ||
                 e === false ||
                 e === true)
             ))
@@ -719,7 +915,7 @@ export function isHaneulPackage(obj: any, _argumentName?: string): obj is Haneul
             typeof obj === "function") &&
         isTransactionDigest(obj.digest) as boolean &&
         isTransactionDigest(obj.objectId) as boolean &&
-        isSequenceNumber(obj.version) as boolean
+        isHaneulMoveTypeParameterIndex(obj.version) as boolean
     )
 }
 

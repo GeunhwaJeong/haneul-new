@@ -8,12 +8,22 @@ import {
   isGetOwnedObjectsResponse,
   isGetTxnDigestsResponse,
   isHaneulTransactionResponse,
+  isHaneulMoveFunctionArgTypes,
+  isHaneulMoveNormalizedModules,
+  isHaneulMoveNormalizedModule,
+  isHaneulMoveNormalizedFunction,
+  isHaneulMoveNormalizedStruct,
 } from '../index.guard';
 import {
   GatewayTxSeqNumber,
   GetTxnDigestsResponse,
   GetObjectDataResponse,
   HaneulObjectInfo,
+  HaneulMoveFunctionArgTypes,
+  HaneulMoveNormalizedModules,
+  HaneulMoveNormalizedModule,
+  HaneulMoveNormalizedFunction,
+  HaneulMoveNormalizedStruct,
   TransactionDigest,
   HaneulTransactionResponse,
   HaneulObjectRef,
@@ -36,6 +46,84 @@ export class JsonRpcProvider extends Provider {
   constructor(public endpoint: string) {
     super();
     this.client = new JsonRpcClient(endpoint);
+  }
+
+  // Move info
+  async getMoveFunctionArgTypes(
+    objectId: string,
+    moduleName: string,
+    functionName: string
+  ): Promise<HaneulMoveFunctionArgTypes> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getMoveFunctionArgTypes',
+        [objectId, moduleName, functionName],
+        isHaneulMoveFunctionArgTypes
+      );
+    } catch (err) {
+      throw new Error(
+        `Error fetching Move function arg types with package object ID: ${objectId}, module name: ${moduleName}, function name: ${functionName}`
+      );
+    }
+  }
+
+  async getNormalizedMoveModulesByPackage(objectId: string,): Promise<HaneulMoveNormalizedModules> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getNormalizedMoveModulesByPackage',
+        [objectId],
+        isHaneulMoveNormalizedModules,
+      );
+    } catch (err) {
+      throw new Error(`Error fetching package: ${err} for package ${objectId}`);
+    }
+  }
+
+  async getNormalizedMoveModule(
+    objectId: string,
+    moduleName: string,
+  ): Promise<HaneulMoveNormalizedModule> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getNormalizedMoveModule',
+        [objectId, moduleName],
+        isHaneulMoveNormalizedModule,
+      );
+    } catch (err) {
+      throw new Error(`Error fetching module: ${err} for package ${objectId}, module ${moduleName}}`);
+    }
+  }
+
+  async getNormalizedMoveFunction(
+    objectId: string,
+    moduleName: string,
+    functionName: string
+  ): Promise<HaneulMoveNormalizedFunction> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getNormalizedMoveFunction',
+        [objectId, moduleName, functionName],
+        isHaneulMoveNormalizedFunction,
+      );
+    } catch (err) {
+      throw new Error(`Error fetching function: ${err} for package ${objectId}, module ${moduleName} and function ${functionName}}`);
+    }
+  }
+
+  async getNormalizedMoveStruct(
+    objectId: string,
+    moduleName: string,
+    structName: string
+  ): Promise<HaneulMoveNormalizedStruct> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getNormalizedMoveStruct',
+        [objectId, moduleName, structName],
+        isHaneulMoveNormalizedStruct,
+      );
+    } catch (err) {
+      throw new Error(`Error fetching struct: ${err} for package ${objectId}, module ${moduleName} and struct ${structName}}`);
+    }
   }
 
   // Objects

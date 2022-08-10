@@ -11,6 +11,11 @@ import {
   GetObjectDataResponse,
   HaneulTransactionResponse,
   HaneulObjectRef,
+  HaneulMoveFunctionArgTypes,
+  HaneulMoveNormalizedFunction,
+  HaneulMoveNormalizedStruct,
+  HaneulMoveNormalizedModule,
+  HaneulMoveNormalizedModules,
 } from '../types';
 import { Provider } from './provider';
 
@@ -64,6 +69,42 @@ export class VoidProvider extends Provider {
   async getRecentTransactions(_count: number): Promise<GetTxnDigestsResponse> {
     throw this.newError('getRecentTransactions');
   }
+
+  async getMoveFunctionArgTypes(
+    _objectId: string,
+    _moduleName: string,
+    _functionName: string
+  ): Promise<HaneulMoveFunctionArgTypes> {
+    throw this.newError('getMoveFunctionArgTypes');
+  }
+
+  async getNormalizedMoveModulesByPackage(_objectId: string,): Promise<HaneulMoveNormalizedModules> {
+    throw this.newError('getNormalizedMoveModulesByPackage');
+  }
+
+  async getNormalizedMoveModule(
+    _objectId: string,
+    _moduleName: string,
+  ): Promise<HaneulMoveNormalizedModule> {
+    throw this.newError('getNormalizedMoveModule');
+  }
+
+  async getNormalizedMoveFunction(
+    _objectId: string,
+    _moduleName: string,
+    _functionName: string
+  ): Promise<HaneulMoveNormalizedFunction> {
+    throw this.newError('getNormalizedMoveFunction');
+  }
+
+  async getNormalizedMoveStruct(
+    _objectId: string,
+    _oduleName: string,
+    _structName: string
+  ): Promise<HaneulMoveNormalizedStruct> {
+    throw this.newError('getNormalizedMoveStruct');
+  }
+
 
   async syncAccountState(_address: string): Promise<any> {
     throw this.newError('syncAccountState');

@@ -41,6 +41,77 @@ export type HaneulMovePackage = {
   disassembled: MovePackageContent;
 };
 
+export type HaneulMoveFunctionArgTypesResponse = HaneulMoveFunctionArgType[];
+
+export type HaneulMoveFunctionArgType = string | { Object: string };
+
+export type HaneulMoveFunctionArgTypes = HaneulMoveFunctionArgType[];
+
+export type HaneulMoveNormalizedModules = Record<string, HaneulMoveNormalizedModule>;
+
+export type HaneulMoveNormalizedModule = {
+  file_format_version: number;
+  address: string;
+  name: string;
+  friends: HaneulMoveModuleId[];
+  structs: Record<string, HaneulMoveNormalizedStruct>;
+  exposed_functions: Record<string, HaneulMoveNormalizedFunction>;
+}
+
+export type HaneulMoveModuleId = {
+  address: string;
+  name: string;
+};
+
+export type HaneulMoveNormalizedStruct = {
+  abilities: HaneulMoveAbilitySet;
+  type_parameters: HaneulMoveStructTypeParameter[];
+  fields: HaneulMoveNormalizedField[];
+}
+
+export type HaneulMoveStructTypeParameter = {
+  constraints: HaneulMoveAbilitySet;
+  is_phantom: boolean;
+}
+
+export type HaneulMoveNormalizedField = {
+  name: string;
+  type_: HaneulMoveNormalizedType;
+}
+
+export type HaneulMoveNormalizedFunction = {
+  visibility: HaneulMoveVisibility;
+  is_entry: boolean;
+  type_parameters: HaneulMoveAbilitySet[];
+  parameters: HaneulMoveNormalizedType[];
+  return_: HaneulMoveNormalizedType[];
+};
+
+export type HaneulMoveVisibility = 
+  | "Private"
+  | "Public"
+  | "Friend";
+
+export type HaneulMoveTypeParameterIndex = number;
+
+export type HaneulMoveAbilitySet = {
+  abilities: string[],
+};
+
+export type HaneulMoveNormalizedType = (
+  | string
+  | {TypeParameter: HaneulMoveTypeParameterIndex}
+  | {Reference: HaneulMoveNormalizedType}
+  | {MutableReference: HaneulMoveNormalizedType}
+  | {Vector: HaneulMoveNormalizedType}
+  | {Struct: {
+    address: string,
+    module: string,
+    name: string,
+    type_arguments: HaneulMoveNormalizedType[],
+  }}
+);
+
 export type HaneulObject = {
   /** The meat of the object */
   data: HaneulData;
