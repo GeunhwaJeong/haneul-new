@@ -1,13 +1,16 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::collections::BTreeMap;
+
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
-    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulObjectInfo, HaneulTypeTag,
-    TransactionBytes, TransactionEffectsResponse, TransactionResponse,
+    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedFunction,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTypeTag, TransactionBytes,
+    TransactionEffectsResponse, TransactionResponse,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -110,10 +113,43 @@ pub trait RpcFullNodeReadApi {
     #[method(name = "getMoveFunctionArgTypes")]
     async fn get_move_function_arg_types(
         &self,
-        object_id: ObjectID,
+        package: ObjectID,
         module: String,
         function: String,
     ) -> RpcResult<Vec<MoveFunctionArgType>>;
+
+    /// Return structured representations of all modules in the given package
+    #[method(name = "getNormalizedMoveModulesByPackage")]
+    async fn get_normalized_move_modules_by_package(
+        &self,
+        package: ObjectID,
+    ) -> RpcResult<BTreeMap<String, HaneulMoveNormalizedModule>>;
+
+    /// Return a structured representation of Move module
+    #[method(name = "getNormalizedMoveModule")]
+    async fn get_normalized_move_module(
+        &self,
+        package: ObjectID,
+        module_name: String,
+    ) -> RpcResult<HaneulMoveNormalizedModule>;
+
+    /// Return a structured representation of Move struct
+    #[method(name = "getNormalizedMoveStruct")]
+    async fn get_normalized_move_struct(
+        &self,
+        package: ObjectID,
+        module_name: String,
+        struct_name: String,
+    ) -> RpcResult<HaneulMoveNormalizedStruct>;
+
+    /// Return a structured representation of Move function
+    #[method(name = "getNormalizedMoveFunction")]
+    async fn get_normalized_move_function(
+        &self,
+        package: ObjectID,
+        module_name: String,
+        function_name: String,
+    ) -> RpcResult<HaneulMoveNormalizedFunction>;
 
     /// Return list of transactions for a specified input object.
     #[method(name = "getTransactionsByInputObject")]
