@@ -40,17 +40,20 @@ export HANEUL_RPC_HOST=http://127.0.0.1:5001
 
 ## Haneul software development kits
 
-You may sign transactions and interact with the Haneul network using:
+You can sign transactions and interact with the Haneul network using any of the following:
 
-* the [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
-* the [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
+* [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
+* [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
+* [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
 
 ## Haneul JSON-RPC API
 
 In the following sections we will show how to use Haneul's JSON-RPC API with
 the `curl` command.
 
-## Haneul JSON-RPC methods
+## Haneul JSON-RPC examples
+
+This section includes example calls to the HANEUL JSON-RPC interface using `curl`. See the [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for the latest list of all available methods. 
 
 ### rpc.discover
 
@@ -62,8 +65,6 @@ curl --location --request POST $HANEUL_RPC_HOST \
 --header 'Content-Type: application/json' \
 --data-raw '{ "jsonrpc":"2.0", "method":"rpc.discover","id":1}'
 ```
-
-You can see an example of the discovery service in the [OpenRPC Playground](https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/HaneulLabs/haneul/main/crates/haneul-open-rpc/spec/openrpc.json).
 
 ### haneul_syncAccountState
 

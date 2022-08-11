@@ -34,7 +34,7 @@ $ which haneul
 Now proceed to creating a package directory structure in the current
 directory, parallel to the `haneul` repository. It will contain an
 empty manifest file and an empty module source file following the
-[Move code organization](index.md#move-code-organization)
+[Move code organization](../move/index.md#move-code-organization)
 described earlier.
 
 So from the same directory containing the `haneul` repository create a
