@@ -5,6 +5,7 @@ import type {
     CertifiedTransaction,
     ExecutionStatusType,
     HaneulObjectRef,
+    HaneulEvent,
 } from '@haneullabs/haneul.js';
 
 export type DataType = CertifiedTransaction & {
@@ -15,6 +16,7 @@ export type DataType = CertifiedTransaction & {
     txError: string;
     mutated: HaneulObjectRef[];
     created: HaneulObjectRef[];
+    events?: HaneulEvent[];
     timestamp_ms: number | null;
 };
 
