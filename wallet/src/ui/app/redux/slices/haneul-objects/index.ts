@@ -46,6 +46,22 @@ export const fetchAllOwnedObjects = createAsyncThunk<
     return allHaneulObjects;
 });
 
+export const batchFetchObject = createAsyncThunk<
+    HaneulObject[],
+    ObjectId[],
+    AppThunkConfig
+>('haneul-objects/batch', async (objectIDs, { extra: { api } }) => {
+    const allHaneulObjects: HaneulObject[] = [];
+    const allObjRes = await api.instance.fullNode.getObjectBatch(objectIDs);
+    for (const objRes of allObjRes) {
+        const haneulObj = getObjectExistsResponse(objRes);
+        if (haneulObj) {
+            allHaneulObjects.push(haneulObj);
+        }
+    }
+    return allHaneulObjects;
+});
+
 export const mintDemoNFT = createAsyncThunk<void, void, AppThunkConfig>(
     'mintDemoNFT',
     async (_, { extra: { api, keypairVault }, dispatch }) => {
