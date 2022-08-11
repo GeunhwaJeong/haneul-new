@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// invalid, no char type parameter in init
+// invalid, no one-time witness type parameter in init
 
 //# init --addresses test=0x0
 

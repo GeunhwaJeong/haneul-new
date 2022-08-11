@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// invalid, char type has no drop ability
+// invalid, one-time witness type has no drop ability
 
 //# init --addresses test=0x0
 
