@@ -25,13 +25,13 @@ module t1::m {
 module t2::m {
     fun t(
         s: a::m::S<u64>,
-        owner_id: &haneul::object::UID,
+        owner_id: &mut haneul::object::UID,
     ) {
         haneul::transfer::transfer_to_object_id(s, owner_id)
     }
     fun t_gen<T: key + store>(
         s: T,
-        owner_id: &haneul::object::UID,
+        owner_id: &mut haneul::object::UID,
     ) {
         haneul::transfer::transfer_to_object_id(s, owner_id)
     }
@@ -81,10 +81,10 @@ module t6::m {
 
 //# publish
 module t7::m {
-    fun t(child: a::m::S<u64>, owner: &haneul::object::UID) {
+    fun t(child: a::m::S<u64>, owner: &mut haneul::object::UID) {
         haneul::transfer::transfer_to_object_id(child, owner)
     }
-    fun t_gen<T: key + store>(child: T, owner: &haneul::object::UID) {
+    fun t_gen<T: key + store>(child: T, owner: &mut haneul::object::UID) {
         haneul::transfer::transfer_to_object_id(child, owner)
     }
 }

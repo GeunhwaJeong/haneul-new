@@ -23,6 +23,7 @@ use haneul_types::{
         ObjectInfoRequestKind, SingleTransactionKind, TransactionKind,
     },
     object::{Data, Owner},
+    storage::DeleteKind,
 };
 use typed_store::rocks::TypedStoreError;
 
@@ -85,6 +86,7 @@ fn get_registry() -> Result<Registry> {
     tracer.trace_type::<MoveTypeLayout>(&samples)?;
     tracer.trace_type::<base_types::HaneulAddress>(&samples)?;
     tracer.trace_type::<UpdateItem>(&samples)?;
+    tracer.trace_type::<DeleteKind>(&samples)?;
 
     tracer.registry()
 }

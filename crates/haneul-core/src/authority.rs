@@ -52,7 +52,7 @@ use haneul_types::{
     fp_ensure,
     messages::*,
     object::{Object, ObjectFormatOptions, ObjectRead},
-    storage::{BackingPackageStore, DeleteKind, Storage},
+    storage::{BackingPackageStore, DeleteKind},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use tap::TapFallible;
