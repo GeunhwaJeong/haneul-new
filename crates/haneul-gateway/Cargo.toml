@@ -15,7 +15,7 @@ tokio = { version = "1.20.1", features = ["full"] }
 futures = "0.3.21"
 prometheus = "0.13.1"
 clap = { version = "3.1.17", features = ["derive"] }
-telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d965a5a795dcdb4d1c7964acf556bc249fdc58aa" }
+telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "f4aa523d3029bd6a23bead5f04c182f2cfa04c5e" }
 
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
@@ -25,7 +25,7 @@ haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }
 
-haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d965a5a795dcdb4d1c7964acf556bc249fdc58aa" }
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "f4aa523d3029bd6a23bead5f04c182f2cfa04c5e" }
 move-package = { git = "https://github.com/move-language/move", rev = "79071528524f08b12e9abb84c1094d8e976aa17a" }
 workspace-hack = { path = "../workspace-hack"}
 

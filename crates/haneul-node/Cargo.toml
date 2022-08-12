@@ -16,7 +16,7 @@ tokio = { version = "1.20.1", features = ["full"] }
 tracing = "0.1.36"
 parking_lot = "0.12.1"
 futures = "0.3.21"
-typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d965a5a795dcdb4d1c7964acf556bc249fdc58aa"}
+typed-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "f4aa523d3029bd6a23bead5f04c182f2cfa04c5e"}
 
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
@@ -27,8 +27,8 @@ haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
 haneul-quorum-driver = { path = "../haneul-quorum-driver" }
 
-telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d965a5a795dcdb4d1c7964acf556bc249fdc58aa" }
-haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d965a5a795dcdb4d1c7964acf556bc249fdc58aa" }
+telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "f4aa523d3029bd6a23bead5f04c182f2cfa04c5e" }
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "f4aa523d3029bd6a23bead5f04c182f2cfa04c5e" }
 workspace-hack = { path = "../workspace-hack"}
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
