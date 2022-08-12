@@ -26,6 +26,7 @@ use haneul_types::{
         CheckpointSequenceNumber, CheckpointSummary, SignedCheckpointSummary,
     },
 };
+use thiserror::Error;
 use tracing::{debug, error, info};
 use typed_store::traits::DBMapTableUtil;
 use typed_store::{
@@ -79,9 +80,11 @@ pub trait ConsensusSender: Send + Sync + 'static {
     fn send_to_consensus(&self, fragment: CheckpointFragment) -> Result<(), HaneulError>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum FragmentInternalError {
+    #[error("Haneul error: {0}")]
     Error(HaneulError),
+    #[error("Error processing fragment, retrying")]
     Retry(Box<CheckpointFragment>),
 }
 
