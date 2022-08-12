@@ -374,6 +374,7 @@ where
                         if state.bad_weight > validity {
                             return Err(HaneulError::TooManyIncorrectAuthorities {
                                 errors: state.errors,
+                                action: "get_latest_checkpoint_from_all",
                             });
                         }
                     }

@@ -361,6 +361,7 @@ where
                             if state.bad_weight > validity {
                                 return Err(HaneulError::TooManyIncorrectAuthorities {
                                     errors: state.errors,
+                                    action: "wait_for_epoch_cert",
                                 });
                             }
                         }
@@ -377,6 +378,7 @@ where
         } else {
             Err(HaneulError::TooManyIncorrectAuthorities {
                 errors: final_state.errors,
+                action: "wait_for_epoch_cert",
             })
         }
     }
