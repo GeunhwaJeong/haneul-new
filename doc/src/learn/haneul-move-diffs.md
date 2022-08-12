@@ -2,7 +2,9 @@
 title: How Haneul Move differs from Core Move
 ---
 
-This document describes the Haneul programming model and highlights the differences between the core (previously Diem) Move language and the Move we use in Haneul. First remember, Move is a language and Haneul a platform.
+This document describes the Haneul programming model and highlights the differences between the core (previously Diem) Move language and the Move we use in Haneul. First remember, Move is a language and Haneul a platform. 
+
+To learn more about the motivations behind creating Haneul Move, see [Why We Created Haneul Move](https://medium.com/haneullabs-labs/why-we-created-haneul-move-6a234656c36b).
 
 In general, Move code written for other systems will work in Haneul with these exceptions:
 
