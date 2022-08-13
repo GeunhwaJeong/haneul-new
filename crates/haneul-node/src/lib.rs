@@ -35,6 +35,7 @@ use haneul_storage::{
 use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
 use tracing::info;
 
+use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
@@ -149,10 +150,20 @@ impl HaneulNode {
 
         let haneul_system_state = state.get_haneul_system_state_object().await?;
 
+        let network_metrics = Arc::new(NetworkAuthorityClientMetrics::new(&prometheus_registry));
+
         let authority_clients = if config.enable_reconfig && haneul_system_state.epoch > 0 {
-            make_network_authority_client_sets_from_system_state(&haneul_system_state, &net_config)
+            make_network_authority_client_sets_from_system_state(
+                &haneul_system_state,
+                &net_config,
+                network_metrics.clone(),
+            )
         } else {
-            make_network_authority_client_sets_from_genesis(genesis, &net_config)
+            make_network_authority_client_sets_from_genesis(
+                genesis,
+                &net_config,
+                network_metrics.clone(),
+            )
         }?;
         let net = AuthorityAggregator::new(
             state.clone_committee(),
@@ -188,6 +199,7 @@ impl HaneulNode {
                     follower_store,
                     net,
                     GossipMetrics::new(&prometheus_registry),
+                    network_metrics.clone(),
                 )?);
                 active = Some(Arc::clone(&active_authority));
 
