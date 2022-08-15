@@ -4,7 +4,8 @@
     url("./haneul-icons.woff2") format("woff2"),
     url("./haneul-icons.woff") format("woff"),
     url('./haneul-icons.ttf') format('truetype'),
-url('./haneul-icons.svg#haneul-icons') format('svg');
+    url('./haneul-icons.svg#haneul-icons') format('svg');
+    font-display: block;
 }
 
 [class^="haneul-icons-"], [class*=" haneul-icons-"] {
@@ -14,12 +15,12 @@ url('./haneul-icons.svg#haneul-icons') format('svg');
       -moz-osx-font-smoothing: grayscale;
 }
 
-.haneul-icons-Info:before { content: "\ea01"; }
-.haneul-icons-Preview:before { content: "\ea02"; }
-.haneul-icons-apps:before { content: "\ea03"; }
-.haneul-icons-arrow-left:before { content: "\ea04"; }
-.haneul-icons-arrow-right:before { content: "\ea05"; }
-.haneul-icons-buy:before { content: "\ea06"; }
+.haneul-icons-Buy:before { content: "\ea01"; }
+.haneul-icons-Info:before { content: "\ea02"; }
+.haneul-icons-Preview:before { content: "\ea03"; }
+.haneul-icons-apps:before { content: "\ea04"; }
+.haneul-icons-arrow-left:before { content: "\ea05"; }
+.haneul-icons-arrow-right:before { content: "\ea06"; }
 .haneul-icons-checkmark:before { content: "\ea07"; }
 .haneul-icons-clipboard:before { content: "\ea08"; }
 .haneul-icons-close:before { content: "\ea09"; }
@@ -37,12 +38,12 @@ url('./haneul-icons.svg#haneul-icons') format('svg');
 .haneul-icons-tokens:before { content: "\ea15"; }
 .haneul-icons-version-icon:before { content: "\ea16"; }
 
-$haneul-icons-Info: "\ea01";
-$haneul-icons-Preview: "\ea02";
-$haneul-icons-apps: "\ea03";
-$haneul-icons-arrow-left: "\ea04";
-$haneul-icons-arrow-right: "\ea05";
-$haneul-icons-buy: "\ea06";
+$haneul-icons-Buy: "\ea01";
+$haneul-icons-Info: "\ea02";
+$haneul-icons-Preview: "\ea03";
+$haneul-icons-apps: "\ea04";
+$haneul-icons-arrow-left: "\ea05";
+$haneul-icons-arrow-right: "\ea06";
 $haneul-icons-checkmark: "\ea07";
 $haneul-icons-clipboard: "\ea08";
 $haneul-icons-close: "\ea09";
