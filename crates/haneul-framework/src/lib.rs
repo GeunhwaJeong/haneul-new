@@ -2,19 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_binary_format::CompiledModule;
+use move_bytecode_utils::Modules;
 use move_cli::base::test::UnitTestResult;
-use move_package::BuildConfig;
+use move_package::{compilation::compiled_package::CompiledPackage, BuildConfig};
 use move_unit_test::UnitTestingConfig;
 use num_enum::TryFromPrimitive;
 use once_cell::sync::Lazy;
 use std::path::Path;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::{
+    error::{HaneulError, HaneulResult},
+    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
+};
 
 pub mod cost_calib;
 pub mod natives;
 
 pub use haneul_framework_build::build_move_stdlib_modules as get_move_stdlib_modules;
-pub use haneul_framework_build::{build_move_package, verify_modules};
+pub use haneul_framework_build::verify_modules;
+use haneul_framework_build::{
+    build_move_package_with_deps, filter_package_modules, move_stdlib_module_denylist,
+};
 use haneul_types::haneul_serde::{Base64, Encoding};
 
 // Move unit tests will halt after executing this many steps. This is a protection to avoid divergence
@@ -114,8 +121,6 @@ pub fn run_move_unit_tests(
     config: Option<UnitTestingConfig>,
     compute_coverage: bool,
 ) -> anyhow::Result<UnitTestResult> {
-    use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
-
     let config = config
         .unwrap_or_else(|| UnitTestingConfig::default_with_bound(Some(MAX_UNIT_TEST_INSTRUCTIONS)));
 
@@ -130,6 +135,62 @@ pub fn run_move_unit_tests(
         compute_coverage,
         &mut std::io::stdout(),
     )
+}
+
+pub fn build_move_package(
+    path: &Path,
+    build_config: BuildConfig,
+) -> HaneulResult<Vec<CompiledModule>> {
+    let pkg = build_move_package_with_deps(path, build_config)?;
+    verify_framework_version(&pkg)?;
+    filter_package_modules(&pkg)
+}
+
+/// Version of the framework code that the binary used for compilation expects should be the same as
+/// version of the framework code bundled as compiled package's dependency and this function
+/// verifies this.
+fn verify_framework_version(pkg: &CompiledPackage) -> HaneulResult<()> {
+    // We stash compiled modules in the Modules map which is sorted so that we can compare sets of
+    // compiled modules directly.
+
+    let dep_framework_modules = pkg.all_modules_map().iter_modules_owned();
+    let dep_framework: Vec<&CompiledModule> = dep_framework_modules
+        .iter()
+        .filter(|m| *m.self_id().address() == HANEUL_FRAMEWORK_ADDRESS)
+        .collect();
+
+    let framework_modules = Modules::new(get_haneul_framework().iter()).iter_modules_owned();
+    let framework: Vec<&CompiledModule> = framework_modules.iter().collect();
+
+    if dep_framework != framework {
+        return Err(HaneulError::ModuleVerificationFailure {
+            error: "Haneul framework version mismatch detected.\
+                    Make sure that the haneul command line tool and the Haneul framework code\
+                    used as a dependency correspond to the same git commit"
+                .to_string(),
+        });
+    }
+
+    let dep_stdlib_modules = pkg.all_modules_map().iter_modules_owned();
+    let dep_stdlib: Vec<&CompiledModule> = dep_stdlib_modules
+        .iter()
+        .filter(|m| *m.self_id().address() == MOVE_STDLIB_ADDRESS)
+        .filter(|m| !move_stdlib_module_denylist().contains(&m.self_id().name().to_string()))
+        .collect();
+
+    let stdlib_modules = Modules::new(get_move_stdlib().iter()).iter_modules_owned();
+    let stdlib: Vec<&CompiledModule> = stdlib_modules.iter().collect();
+
+    if dep_stdlib != stdlib {
+        return Err(HaneulError::ModuleVerificationFailure {
+            error: "Move stdlib version mismatch detected.\
+                    Make sure that the haneul command line tool and the Move standard library code\
+                    used as a dependency correspond to the same git commit"
+                .to_string(),
+        });
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

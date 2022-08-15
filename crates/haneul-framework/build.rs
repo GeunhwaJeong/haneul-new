@@ -51,9 +51,12 @@ fn build_framework_and_stdlib(
     haneul_framework_path: &Path,
     move_stdlib_path: &Path,
 ) -> (Vec<CompiledModule>, Vec<CompiledModule>) {
-    let haneul_framework =
-        haneul_framework_build::build_move_package(haneul_framework_path, BuildConfig::default())
-            .unwrap();
+    let pkg = haneul_framework_build::build_move_package_with_deps(
+        haneul_framework_path,
+        BuildConfig::default(),
+    )
+    .unwrap();
+    let haneul_framework = haneul_framework_build::filter_package_modules(&pkg).unwrap();
     let move_stdlib = haneul_framework_build::build_move_stdlib_modules(move_stdlib_path).unwrap();
     (haneul_framework, move_stdlib)
 }
