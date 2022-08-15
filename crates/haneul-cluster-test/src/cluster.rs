@@ -15,6 +15,7 @@ use haneul_swarm::memory::Node;
 use haneul_swarm::memory::Swarm;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
+use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use test_utils::network::{start_rpc_test_network_with_fullnode, TestNetwork};
 use tracing::info;
@@ -246,7 +247,11 @@ pub async fn new_wallet_context_from_cluster(
     let keystore_path = temp_dir.path().join(HANEUL_KEYSTORE_FILENAME);
     let keystore = KeystoreType::File(keystore_path);
     let address: HaneulAddress = key_pair.public().into();
-    keystore.init().unwrap().add_key(key_pair).unwrap();
+    keystore
+        .init()
+        .unwrap()
+        .add_key(HaneulKeyPair::Ed25519HaneulKeyPair(key_pair))
+        .unwrap();
     HaneulClientConfig {
         keystore,
         gateway: ClientType::RPC(rpc_url.into()),

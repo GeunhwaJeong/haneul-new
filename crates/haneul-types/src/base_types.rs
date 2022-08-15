@@ -26,7 +26,9 @@ use sha2::Sha512;
 use sha3::Sha3_256;
 
 use crate::committee::EpochId;
-use crate::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes, KeypairTraits, HaneulPublicKey};
+use crate::crypto::{
+    AuthorityPublicKey, AuthorityPublicKeyBytes, KeypairTraits, PublicKey, HaneulPublicKey,
+};
 use crate::error::ExecutionError;
 use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
@@ -199,6 +201,19 @@ impl<T: HaneulPublicKey> From<&T> for HaneulAddress {
     fn from(pk: &T) -> Self {
         let mut hasher = Sha3_256::default();
         hasher.update(&[T::SIGNATURE_SCHEME.flag()]);
+        hasher.update(pk);
+        let g_arr = hasher.finalize();
+
+        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
+        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
+        HaneulAddress(res)
+    }
+}
+
+impl From<&PublicKey> for HaneulAddress {
+    fn from(pk: &PublicKey) -> Self {
+        let mut hasher = Sha3_256::default();
+        hasher.update(&[pk.flag()]);
         hasher.update(pk);
         let g_arr = hasher.finalize();
 

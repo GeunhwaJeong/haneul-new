@@ -20,6 +20,7 @@ use haneul_node::metrics;
 use haneul_node::HaneulNode;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::AccountKeyPair;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -34,9 +35,7 @@ use haneul_benchmark::workloads::workload::Payload;
 use haneul_benchmark::workloads::workload::Workload;
 use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_types::crypto::AccountKeyPair;
 use haneul_types::crypto::EncodeDecodeBase64;
-use haneul_types::crypto::KeypairTraits;
 
 use test_utils::authority::spawn_test_authorities;
 use test_utils::authority::test_and_configure_authority_configs;
@@ -303,7 +302,7 @@ async fn main() -> Result<()> {
             .key_pairs()
             .iter()
             .find(|x| {
-                let address: HaneulAddress = Into::<HaneulAddress>::into(x.public());
+                let address: HaneulAddress = Into::<HaneulAddress>::into(&x.public());
                 address == primary_gas_account
             })
             .map(|x| x.encode_base64())

@@ -11,7 +11,9 @@ use narwhal_crypto::ed25519::{
     Ed25519AggregateSignature, Ed25519KeyPair, Ed25519PrivateKey, Ed25519PublicKey,
     Ed25519Signature,
 };
-use narwhal_crypto::secp256k1::{Secp256k1KeyPair, Secp256k1PublicKey, Secp256k1Signature};
+use narwhal_crypto::secp256k1::{
+    Secp256k1KeyPair, Secp256k1PrivateKey, Secp256k1PublicKey, Secp256k1Signature,
+};
 pub use narwhal_crypto::traits::KeyPair as KeypairTraits;
 pub use narwhal_crypto::traits::{
     AggregateAuthenticator, Authenticator, EncodeDecodeBase64, SigningKey, ToFromBytes,
@@ -33,8 +35,6 @@ use crate::error::{HaneulError, HaneulResult};
 use crate::haneul_serde::{Base64, Readable, HaneulBitmap};
 pub use enum_dispatch::enum_dispatch;
 
-// Comment the one you want to use
-
 // Authority Objects
 pub type AuthorityKeyPair = Ed25519KeyPair;
 pub type AuthorityPrivateKey = Ed25519PrivateKey;
@@ -42,12 +42,115 @@ pub type AuthorityPublicKey = Ed25519PublicKey;
 pub type AuthoritySignature = Ed25519Signature;
 pub type AggregateAuthoritySignature = Ed25519AggregateSignature;
 
-// Account Objects
+// TODO(joyqvq): prefix these types with Default, DefaultAccountKeyPair etc
 pub type AccountKeyPair = Ed25519KeyPair;
 pub type AccountPublicKey = Ed25519PublicKey;
 pub type AccountPrivateKey = Ed25519PrivateKey;
 pub type AccountSignature = Ed25519Signature;
 
+#[derive(Debug)]
+pub enum HaneulKeyPair {
+    Ed25519HaneulKeyPair(Ed25519KeyPair),
+    Secp256k1HaneulKeyPair(Secp256k1KeyPair),
+}
+
+#[derive(Debug, Clone)]
+pub enum PublicKey {
+    Ed25519KeyPair(Ed25519PublicKey),
+    Secp256k1KeyPair(Secp256k1PublicKey),
+}
+
+impl HaneulKeyPair {
+    pub fn public(&self) -> PublicKey {
+        match self {
+            HaneulKeyPair::Ed25519HaneulKeyPair(kp) => PublicKey::Ed25519KeyPair(kp.public().clone()),
+            HaneulKeyPair::Secp256k1HaneulKeyPair(kp) => PublicKey::Secp256k1KeyPair(kp.public().clone()),
+        }
+    }
+}
+
+impl signature::Signer<Signature> for HaneulKeyPair {
+    fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
+        match self {
+            HaneulKeyPair::Ed25519HaneulKeyPair(kp) => kp.try_sign(msg),
+            HaneulKeyPair::Secp256k1HaneulKeyPair(kp) => kp.try_sign(msg),
+        }
+    }
+}
+
+impl FromStr for HaneulKeyPair {
+    type Err = eyre::Report;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let kp = Self::decode_base64(s).map_err(|e| eyre::eyre!("{}", e.to_string()))?;
+        Ok(kp)
+    }
+}
+
+impl EncodeDecodeBase64 for HaneulKeyPair {
+    fn encode_base64(&self) -> String {
+        let mut bytes: Vec<u8> = Vec::new();
+        match self {
+            HaneulKeyPair::Ed25519HaneulKeyPair(kp) => {
+                let kp1 = kp.copy();
+                bytes.extend_from_slice(&[self.public().flag()]);
+                bytes.extend_from_slice(kp.public().as_ref());
+                bytes.extend_from_slice(kp1.private().as_ref());
+            }
+            HaneulKeyPair::Secp256k1HaneulKeyPair(kp) => {
+                let kp1 = kp.copy();
+                bytes.extend_from_slice(&[self.public().flag()]);
+                bytes.extend_from_slice(kp.public().as_ref());
+                bytes.extend_from_slice(kp1.private().as_ref());
+            }
+        }
+        base64ct::Base64::encode_string(&bytes[..])
+    }
+
+    fn decode_base64(value: &str) -> Result<Self, eyre::Report> {
+        let bytes =
+            base64ct::Base64::decode_vec(value).map_err(|e| eyre::eyre!("{}", e.to_string()))?;
+        match bytes.first() {
+            Some(x) => {
+                if x == &Ed25519HaneulSignature::SCHEME.flag() {
+                    let sk = Ed25519PrivateKey::from_bytes(&bytes[1 + Ed25519PublicKey::LENGTH..])?;
+                    Ok(HaneulKeyPair::Ed25519HaneulKeyPair(<Ed25519KeyPair as From<
+                        Ed25519PrivateKey,
+                    >>::from(
+                        sk
+                    )))
+                } else if x == &Secp256k1HaneulSignature::SCHEME.flag() {
+                    let sk =
+                        Secp256k1PrivateKey::from_bytes(&bytes[1 + Secp256k1PublicKey::LENGTH..])?;
+                    Ok(HaneulKeyPair::Secp256k1HaneulKeyPair(
+                        <Secp256k1KeyPair as From<Secp256k1PrivateKey>>::from(sk),
+                    ))
+                } else {
+                    Err(eyre::eyre!("Invalid flag byte"))
+                }
+            }
+            _ => Err(eyre::eyre!("Invalid bytes")),
+        }
+    }
+}
+
+impl AsRef<[u8]> for PublicKey {
+    fn as_ref(&self) -> &[u8] {
+        match self {
+            PublicKey::Ed25519KeyPair(pk) => pk.as_ref(),
+            PublicKey::Secp256k1KeyPair(pk) => pk.as_ref(),
+        }
+    }
+}
+
+impl PublicKey {
+    pub fn flag(&self) -> u8 {
+        match self {
+            PublicKey::Ed25519KeyPair(_) => Ed25519HaneulSignature::SCHEME.flag(),
+            PublicKey::Secp256k1KeyPair(_) => Secp256k1HaneulSignature::SCHEME.flag(),
+        }
+    }
+}
 //
 // Define Bytes representation of the Authority's PublicKey
 //
@@ -242,6 +345,7 @@ where
 #[derive(Clone, JsonSchema, PartialEq, Eq, Hash)]
 pub enum Signature {
     Ed25519HaneulSignature,
+    Secp256k1HaneulSignature,
 }
 
 impl Serialize for Signature {
@@ -295,6 +399,7 @@ impl AsRef<[u8]> for Signature {
     fn as_ref(&self) -> &[u8] {
         match self {
             Signature::Ed25519HaneulSignature(sig) => sig.as_ref(),
+            Signature::Secp256k1HaneulSignature(sig) => sig.as_ref(),
         }
     }
 }
@@ -302,10 +407,18 @@ impl AsRef<[u8]> for Signature {
 impl signature::Signature for Signature {
     fn from_bytes(bytes: &[u8]) -> Result<Self, signature::Error> {
         match bytes.first() {
-            Some(x) if x == &Ed25519HaneulSignature::SCHEME.flag() => {
-                Ok(<Ed25519HaneulSignature as ToFromBytes>::from_bytes(bytes)
-                    .map_err(|_| signature::Error::new())?
-                    .into())
+            Some(x) => {
+                if x == &Ed25519HaneulSignature::SCHEME.flag() {
+                    Ok(<Ed25519HaneulSignature as ToFromBytes>::from_bytes(bytes)
+                        .map_err(|_| signature::Error::new())?
+                        .into())
+                } else if x == &Secp256k1HaneulSignature::SCHEME.flag() {
+                    Ok(<Secp256k1HaneulSignature as ToFromBytes>::from_bytes(bytes)
+                        .map_err(|_| signature::Error::new())?
+                        .into())
+                } else {
+                    Err(signature::Error::new())
+                }
             }
             _ => Err(signature::Error::new()),
         }
@@ -413,14 +526,13 @@ impl signature::Signature for Secp256k1HaneulSignature {
     }
 }
 
-// impl signature::Signer<Signature> for Secp256k1KeyPair {
-//     fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
-//         Ok(Secp256k1HaneulSignature::new(self, msg)
-//             .map_err(|_| signature::Error::new())?
-//             .into())
-//     }
-// }
-
+impl signature::Signer<Signature> for Secp256k1KeyPair {
+    fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
+        Ok(Secp256k1HaneulSignature::new(self, msg)
+            .map_err(|_| signature::Error::new())?
+            .into())
+    }
+}
 //
 // This struct exists due to the limitations of the `enum_dispatch` library.
 //

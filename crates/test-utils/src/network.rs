@@ -27,6 +27,7 @@ use haneul_sdk::{ClientType, HaneulClient};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
+use haneul_types::crypto::HaneulKeyPair::Ed25519HaneulKeyPair;
 const NUM_VALIDAOTR: usize = 4;
 
 pub async fn start_test_network(
@@ -60,7 +61,7 @@ pub async fn start_test_network_with_fullnodes(
     swarm.config().save(&network_path)?;
     let mut keystore = KeystoreType::File(keystore_path.clone()).init()?;
     for key in &swarm.config().account_keys {
-        keystore.add_key(key.copy())?;
+        keystore.add_key(Ed25519HaneulKeyPair(key.copy()))?;
     }
 
     let validators = swarm.config().validator_set().to_owned();

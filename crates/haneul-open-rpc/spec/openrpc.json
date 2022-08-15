@@ -3037,6 +3037,9 @@
           }
         }
       },
+      "Secp256k1HaneulSignature": {
+        "$ref": "#/components/schemas/Base64"
+      },
       "SequenceNumber": {
         "type": "integer",
         "format": "uint64",
@@ -3052,6 +3055,18 @@
             "properties": {
               "Ed25519HaneulSignature": {
                 "$ref": "#/components/schemas/Ed25519HaneulSignature"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "Secp256k1HaneulSignature"
+            ],
+            "properties": {
+              "Secp256k1HaneulSignature": {
+                "$ref": "#/components/schemas/Secp256k1HaneulSignature"
               }
             },
             "additionalProperties": false

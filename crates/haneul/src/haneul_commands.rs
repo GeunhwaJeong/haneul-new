@@ -24,7 +24,7 @@ use haneul_config::{
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::{ClientType, HaneulClient};
 use haneul_swarm::memory::Swarm;
-use haneul_types::crypto::KeypairTraits;
+use haneul_types::crypto::{KeypairTraits, HaneulKeyPair};
 use tracing::info;
 
 #[derive(Parser)]
@@ -246,7 +246,7 @@ impl HaneulCommand {
                 let mut keystore = KeystoreType::File(keystore_path.clone()).init().unwrap();
 
                 for key in &network_config.account_keys {
-                    keystore.add_key(key.copy())?;
+                    keystore.add_key(HaneulKeyPair::Ed25519HaneulKeyPair(key.copy()))?;
                 }
 
                 network_config.genesis.save(&genesis_path)?;

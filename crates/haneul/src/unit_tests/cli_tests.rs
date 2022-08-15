@@ -23,7 +23,7 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
-use haneul_types::crypto::{AuthorityKeyPair, KeypairTraits};
+use haneul_types::crypto::{AuthorityKeyPair, KeypairTraits, HaneulKeyPair};
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_OBJECT_ID};
 
@@ -133,7 +133,9 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
 
     // Add 3 accounts
     for _ in 0..3 {
-        context.keystore.add_key(get_key_pair().1)?;
+        context
+            .keystore
+            .add_key(HaneulKeyPair::Ed25519HaneulKeyPair(get_key_pair().1))?;
     }
 
     // Print all addresses
