@@ -22,6 +22,6 @@
   "dependencies": {
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.4",
-    "haneul-wallet-adapter-react": "file:../react-providers"
+    "haneul-wallet-adapter-react": "workspace:*"
   }
 }

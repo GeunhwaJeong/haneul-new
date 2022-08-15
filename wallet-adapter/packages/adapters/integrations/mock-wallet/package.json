@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@haneullabs/haneul.js": "^0.8.0",
-    "haneul-base-wallet-adapter": "file:../../base-adapter"
+    "haneul-base-wallet-adapter": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.7.4"

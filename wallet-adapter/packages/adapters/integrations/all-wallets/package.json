@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@haneul-wallet-adapter/mock-wallet": "file:../mock-wallet",
-    "@haneul-wallet-adapter/haneul-wallet": "file:../haneul-wallet"
+    "@haneul-wallet-adapter/mock-wallet": "workspace:*",
+    "@haneul-wallet-adapter/haneul-wallet": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.7.4"
