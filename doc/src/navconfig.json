@@ -113,8 +113,8 @@
         "fileName": "build/install"
       },
       {
-        "label": "Use Haneul CLI to Start Network",
-        "fileName": "build/cli-client"
+        "label": "Connect to Haneul Devnet",
+        "fileName": "explore/devnet"
       },
       {
         "label": "Create Smart Contracts with Move",
@@ -210,10 +210,6 @@
         "fileName": "explore/wallet-browser"
       },
       {
-        "label": "Devnet",
-        "fileName": "explore/devnet"
-      },
-      {
         "label": "Tutorial",
         "fileName": "explore/tutorials"
       },
@@ -238,6 +234,10 @@
       {
         "label": "Frequently Asked Questions",
         "fileName": "contribute/faq"
+      },
+      {
+        "label": "Haneul CLI and Local Network",
+        "fileName": "build/cli-client"
       },
       {
         "label": "Logging",

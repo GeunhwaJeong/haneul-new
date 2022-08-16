@@ -8,38 +8,13 @@ command line interface. In this document, we describe how to set up
 the Haneul client and execute commands through its command line
 interface, *Haneul CLI*.
 
+Note, this is an advanced option and an alternative to simply connecting to our public
+[Devnet](../explore/devnet.md). Use Devnet to build upon Haneul. Use the Haneul CLI here to
+[contribute](../contribute/index.md) to Haneul itself.
+
 ## Set up
 
 Follow the instructions to [install Haneul binaries](install.md#binaries).
-
-## Connect to Devnet
-We are hosting a public [Devnet](../explore/devnet.md) for the community to
-experiment with our  tech and help to shape the future of the Haneul network. To
-connect the Haneul  client to the Devnet, run the following command:
-```shell
-$ haneul client
-```
-The Haneul CLI will print the following line if the client is starting up the
-first time.
-```shell
-Config file ["/Users/dir/.haneul/haneul_config/client.yaml"] doesn't exist, do you want to connect to a Haneul RPC server [y/n]?
-```
-Type 'y' and then press 'Enter'. You should see the following output:
-```shell
-Haneul RPC server Url (Default to Haneul Devnet if not specified) :
-```
-The Haneul client will prompt for the RPC server URL; press 'Enter' and it will default to Devnet.
-Or enter a custom URL if you want to connect to a server hosted elsewhere.
-
-If you have used the Haneul client before with a local network, follow the next section to
-[manually change the RPC server URL](#manually-change-the-rpc-server-url) to Devnet.
-
-### Manually change the RPC server URL
-If you have used the Haneul client before, you will have an existing `client.yaml` configuration
-file. Change the configured RPC server URL to Devnet by using:
-```shell
-$ haneul client switch --gateway https://gateway.devnet.haneul.io:443
-```
 
 ## Genesis
 
