@@ -33,6 +33,7 @@ use tracing::warn;
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
+    TransactionEffectsDigest,
 };
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
@@ -43,8 +44,9 @@ use haneul_types::event_filter::EventFilter;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CallArg, CertifiedTransaction, ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg,
-    SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
+    CallArg, CertifiedTransaction, CertifiedTransactionEffects, ExecuteTransactionResponse,
+    ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg, SingleTransactionKind,
+    TransactionData, TransactionEffects, TransactionKind,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::disassemble_modules;
@@ -347,6 +349,51 @@ impl Display for HaneulParsedTransactionResponse {
             HaneulParsedTransactionResponse::MergeCoin(r) => r.fmt(f),
             HaneulParsedTransactionResponse::SplitCoin(r) => r.fmt(f),
         }
+    }
+}
+
+#[allow(clippy::large_enum_variant)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+pub enum HaneulExecuteTransactionResponse {
+    ImmediateReturn {
+        tx_digest: TransactionDigest,
+    },
+    TxCert {
+        certificate: HaneulCertifiedTransaction,
+    },
+    // TODO: Change to CertifiedTransactionEffects eventually.
+    EffectsCert {
+        certificate: HaneulCertifiedTransaction,
+        effects: HaneulCertifiedTransactionEffects,
+    },
+}
+
+impl HaneulExecuteTransactionResponse {
+    pub fn from_execute_transaction_response(
+        resp: ExecuteTransactionResponse,
+        tx_digest: TransactionDigest,
+        resolver: &impl GetModule,
+    ) -> Result<Self, anyhow::Error> {
+        Ok(match resp {
+            ExecuteTransactionResponse::ImmediateReturn => {
+                HaneulExecuteTransactionResponse::ImmediateReturn { tx_digest }
+            }
+            ExecuteTransactionResponse::TxCert(certificate) => {
+                HaneulExecuteTransactionResponse::TxCert {
+                    certificate: (*certificate).try_into()?,
+                }
+            }
+            ExecuteTransactionResponse::EffectsCert(cert) => {
+                let (certificate, effects) = *cert;
+                let certificate: HaneulCertifiedTransaction = certificate.try_into()?;
+                let effects: HaneulCertifiedTransactionEffects =
+                    HaneulCertifiedTransactionEffects::try_from(effects, resolver)?;
+                HaneulExecuteTransactionResponse::EffectsCert {
+                    certificate,
+                    effects,
+                }
+            }
+        })
     }
 }
 
@@ -1257,8 +1304,6 @@ pub struct HaneulChangeEpoch {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "CertifiedTransaction", rename_all = "camelCase")]
 pub struct HaneulCertifiedTransaction {
-    // This is a cache of an otherwise expensive to compute value.
-    // DO NOT serialize or deserialize from the network or disk.
     pub transaction_digest: TransactionDigest,
     pub data: HaneulTransactionData,
     /// tx_signature is signed by the transaction sender, applied on `data`.
@@ -1291,6 +1336,47 @@ impl TryFrom<CertifiedTransaction> for HaneulCertifiedTransaction {
             data: cert.signed_data.data.try_into()?,
             tx_signature: cert.signed_data.tx_signature,
             auth_sign_info: cert.auth_sign_info,
+        })
+    }
+}
+
+/// The certified Transaction Effects which has signatures from >= 2/3 of validators
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "CertifiedTransactionEffects", rename_all = "camelCase")]
+pub struct HaneulCertifiedTransactionEffects {
+    pub transaction_effects_digest: TransactionEffectsDigest,
+    pub effects: HaneulTransactionEffects,
+    /// authority signature information signed by the quorum of the validators.
+    pub auth_sign_info: AuthorityStrongQuorumSignInfo,
+}
+
+impl Display for HaneulCertifiedTransactionEffects {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut writer = String::new();
+        writeln!(
+            writer,
+            "Transaction Effects Digest: {:?}",
+            self.transaction_effects_digest
+        )?;
+        writeln!(writer, "Transaction Effects: {:?}", self.effects)?;
+        writeln!(
+            writer,
+            "Signed Authorities Bitmap: {:?}",
+            self.auth_sign_info.signers_map
+        )?;
+        write!(f, "{}", writer)
+    }
+}
+
+impl HaneulCertifiedTransactionEffects {
+    fn try_from(
+        cert: CertifiedTransactionEffects,
+        resolver: &impl GetModule,
+    ) -> Result<Self, anyhow::Error> {
+        Ok(Self {
+            transaction_effects_digest: *cert.digest(),
+            effects: HaneulTransactionEffects::try_from(cert.effects, resolver)?,
+            auth_sign_info: cert.auth_signature,
         })
     }
 }

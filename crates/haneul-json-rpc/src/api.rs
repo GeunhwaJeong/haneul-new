@@ -8,13 +8,14 @@ use jsonrpsee_proc_macros::rpc;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
-    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionResponse,
-    HaneulTypeTag, TransactionBytes,
+    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
+    HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::SignatureScheme;
+use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::Base64;
 
 #[open_rpc(namespace = "haneul", tag = "Gateway Transaction Execution API")]
@@ -421,4 +422,24 @@ pub trait EventReadApi {
         /// the matching events' timestamp will be before the specified end time
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Quorum Driver APIs to execute transactions.")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait QuorumDriverApi {
+    /// Execute the transaction and wait for results if desired
+    #[method(name = "executeTransaction")]
+    async fn execute_transaction(
+        &self,
+        /// transaction data bytes, as base-64 encoded string
+        tx_bytes: Base64,
+        /// Flag of the signature scheme that is used.
+        sig_scheme: SignatureScheme,
+        /// transaction signature, as base-64 encoded string
+        signature: Base64,
+        /// signer's public key, as base-64 encoded string
+        pub_key: Base64,
+        /// The request type
+        request_type: ExecuteTransactionRequestType,
+    ) -> RpcResult<HaneulExecuteTransactionResponse>;
 }

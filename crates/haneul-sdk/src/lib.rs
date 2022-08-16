@@ -27,7 +27,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionResponse, HaneulTypeTag,
 };
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::crypto::{SignableBytes, HaneulSignature};
+use haneul_types::crypto::SignableBytes;
 use haneul_types::messages::{Transaction, TransactionData};
 use haneul_types::haneul_serde::Base64;
 
@@ -223,18 +223,12 @@ impl HaneulClient {
     ) -> anyhow::Result<HaneulTransactionResponse> {
         Ok(match &self {
             Self::Http(c) => {
-                let tx_bytes = Base64::from_bytes(&tx.signed_data.data.to_bytes());
-                let flag = tx.signed_data.tx_signature.scheme();
-                let signature = Base64::from_bytes(tx.signed_data.tx_signature.signature_bytes());
-                let pub_key = Base64::from_bytes(tx.signed_data.tx_signature.public_key_bytes());
+                let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
                 c.execute_transaction(tx_bytes, flag, signature, pub_key)
                     .await?
             }
             Self::Ws(c) => {
-                let tx_bytes = Base64::from_bytes(&tx.signed_data.data.to_bytes());
-                let flag = tx.signed_data.tx_signature.scheme();
-                let signature = Base64::from_bytes(tx.signed_data.tx_signature.signature_bytes());
-                let pub_key = Base64::from_bytes(tx.signed_data.tx_signature.public_key_bytes());
+                let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
                 c.execute_transaction(tx_bytes, flag, signature, pub_key)
                     .await?
             }
