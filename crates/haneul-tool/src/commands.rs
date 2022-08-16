@@ -13,6 +13,7 @@ use haneul_tool::db_tool::{execute_db_tool_command, print_db_all_tables, DbToolC
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use haneul_types::{base_types::*, batch::*, messages::*, object::Owner};
 
+use anyhow::anyhow;
 use futures::stream::StreamExt;
 
 use clap::*;
@@ -130,7 +131,9 @@ fn make_clients(genesis: PathBuf) -> Result<BTreeMap<AuthorityName, NetworkAutho
     let mut authority_clients = BTreeMap::new();
 
     for validator in genesis.validator_set() {
-        let channel = net_config.connect_lazy(&validator.network_address)?;
+        let channel = net_config
+            .connect_lazy(&validator.network_address)
+            .map_err(|err| anyhow!(err.to_string()))?;
         let client = NetworkAuthorityClient::new(channel);
         let public_key_bytes = validator.public_key();
         authority_clients.insert(public_key_bytes, client);

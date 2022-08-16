@@ -1,6 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use anyhow::anyhow;
 use anyhow::Result;
 use futures::TryFutureExt;
 use parking_lot::Mutex;
@@ -101,11 +102,13 @@ impl HaneulNode {
             Some(Arc::new(IndexStore::open_tables_read_write(
                 config.db_path().join("indexes"),
                 None,
+                None,
             )))
         };
 
         let follower_store = Arc::new(FollowerStore::open_tables_read_write(
             config.db_path().join("follower_db"),
+            None,
             None,
         ));
 
@@ -170,6 +173,7 @@ impl HaneulNode {
             if should_start_follower {
                 let pending_store = Arc::new(NodeSyncStore::open_tables_read_write(
                     config.db_path().join("node_sync_db"),
+                    None,
                     None,
                 ));
 
@@ -249,7 +253,10 @@ impl HaneulNode {
                     server_builder.add_service(ValidatorServer::new(validator_service));
             }
 
-            let server = server_builder.bind(config.network_address()).await?;
+            let server = server_builder
+                .bind(config.network_address())
+                .await
+                .map_err(|err| anyhow!(err.to_string()))?;
             let local_addr = server.local_addr();
             info!("Listening to traffic on {local_addr}");
             tokio::spawn(server.serve().map_err(Into::into))

@@ -68,7 +68,8 @@ pub struct HaneulDataStore<S> {
 impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     /// Open an authority store by directory path
     pub fn open(path: &Path, db_options: Option<Options>) -> Self {
-        let tables = AuthorityStoreTables::open_tables_read_write(path.to_path_buf(), db_options);
+        let tables =
+            AuthorityStoreTables::open_tables_read_write(path.to_path_buf(), db_options, None);
 
         // For now, create one LockService for each HaneulDataStore, and we use a specific
         // subdir of the data store directory
