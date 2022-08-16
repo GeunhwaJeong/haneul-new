@@ -7035,10 +7035,24 @@ dependencies = [
 name = "haneul-cost"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "insta",
  "move-binary-format",
+ "move-cli",
  "move-core-types",
+ "move-package",
+ "move-prover",
+ "move-prover-boogie-backend",
+ "move-unit-test",
  "move-vm-types",
  "once_cell",
+ "serde 1.0.142",
+ "haneul",
+ "haneul-adapter",
+ "haneul-json-rpc-types",
+ "haneul-types",
+ "test-utils",
+ "tokio",
  "workspace-hack 0.1.0",
 ]
 
