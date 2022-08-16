@@ -4,6 +4,8 @@
 import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
 import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
 
+import BN from 'bn.js';
+
 export type TransferObject = {
   recipient: HaneulAddress;
   objectRef: HaneulObjectRef;
@@ -252,6 +254,12 @@ export function getTransactions(
   data: CertifiedTransaction
 ): HaneulTransactionKind[] {
   return data.data.transactions;
+}
+
+export function getTransferHaneulAmount(
+  data: HaneulTransactionKind
+): BN | null {
+  return ("TransferHaneul" in data && data.TransferHaneul.amount) ? new BN.BN(data.TransferHaneul.amount, 10) : null; 
 }
 
 export function getTransactionKindName(
