@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Base64DataBuffer } from '../../serialization/base64';
-import { ObjectId, HaneulAddress, HaneulJsonValue } from '../../types';
+import {
+  CallArg,
+  ObjectId,
+  HaneulAddress,
+  HaneulJsonValue,
+  TypeTag,
+} from '../../types';
 
 ///////////////////////////////
 // Exported Types
@@ -38,18 +44,26 @@ export interface MoveCallTransaction {
   packageObjectId: ObjectId;
   module: string;
   function: string;
-  typeArguments: string[];
-  arguments: HaneulJsonValue[];
+  /**
+   * Usage: pass in string[] if you use RpcTxnDataSerializer,
+   * Otherwise you need to pass in TypeTag[]. We will remove
+   * RpcTxnDataSerializer soon.
+   */
+  typeArguments: string[] | TypeTag[];
+  /**
+   * Usage: pass in HaneulJsonValue[] if you use RpcTxnDataSerializer,
+   * Otherwise you need to pass in CallArg[].
+   */
+  arguments: HaneulJsonValue[] | CallArg[];
   gasPayment?: ObjectId;
   gasBudget: number;
 }
 
 export interface PublishTransaction {
-  compiledModules: string[],
+  compiledModules: string[];
   gasPayment?: ObjectId;
   gasBudget: number;
 }
-
 
 ///////////////////////////////
 // Exported Abstracts

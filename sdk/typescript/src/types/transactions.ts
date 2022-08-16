@@ -32,7 +32,7 @@ export type HaneulTransactionKind =
   | { Call: MoveCall }
   | { TransferHaneul: HaneulTransferHaneul }
   | { ChangeEpoch: HaneulChangeEpoch };
-export type TransactionData = {
+export type HaneulTransactionData = {
   transactions: HaneulTransactionKind[];
   sender: HaneulAddress;
   gasPayment: HaneulObjectRef;
@@ -49,7 +49,7 @@ export type AuthorityQuorumSignInfo = {
 
 export type CertifiedTransaction = {
   transactionDigest: TransactionDigest;
-  data: TransactionData;
+  data: HaneulTransactionData;
   txSignature: string;
   authSignInfo: AuthorityQuorumSignInfo;
 };
@@ -196,7 +196,9 @@ export function getTransactionAuthorityQuorumSignInfo(
   return tx.authSignInfo;
 }
 
-export function getTransactionData(tx: CertifiedTransaction): TransactionData {
+export function getTransactionData(
+  tx: CertifiedTransaction
+): HaneulTransactionData {
   return tx.data;
 }
 

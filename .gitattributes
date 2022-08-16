@@ -6,3 +6,7 @@
 # we don't want an equality to fail because of line endings.
 crates/haneul-core/tests/staged/haneul.yaml text eol=lf
 crates/haneul-open-rpc/spec/openrpc.json text eol=lf
+haneul_core/tests/staged/haneul.yaml text eol=lf
+
+# These files is auto generated
+sdk/typescript/src/index.guard.ts linguist-generated=true
