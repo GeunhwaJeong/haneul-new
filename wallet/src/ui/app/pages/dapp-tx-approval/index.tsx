@@ -12,13 +12,13 @@ import {
     txRequestsSelectors,
 } from '_redux/slices/transaction-requests';
 
-import type { HaneulJsonValue } from '@haneullabs/haneul.js';
+import type { CallArg, HaneulJsonValue, TypeTag } from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
 
 import st from './DappTxApprovalPage.module.scss';
 import stUserApprove from '_components/user-approve-container/UserApproveContainer.module.scss';
 
-function toList(items: HaneulJsonValue[]) {
+function toList(items: HaneulJsonValue[] | TypeTag[] | CallArg[]) {
     if (!items.length) {
         return '-';
     }
