@@ -48,6 +48,8 @@ pub type AccountPublicKey = Ed25519PublicKey;
 pub type AccountPrivateKey = Ed25519PrivateKey;
 pub type AccountSignature = Ed25519Signature;
 
+// TODO: fix below.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
 pub enum HaneulKeyPair {
     Ed25519HaneulKeyPair(Ed25519KeyPair),

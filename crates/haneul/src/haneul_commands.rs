@@ -27,6 +27,7 @@ use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::{KeypairTraits, HaneulKeyPair};
 use tracing::info;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Parser)]
 #[clap(
     name = "haneul",
