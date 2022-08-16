@@ -23,7 +23,7 @@ module examples::guardian {
 }
 
 /// Custom module that makes use of the `guardian`.
-module examples::peace {
+module examples::peace_guardian {
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
 
