@@ -1,22 +1,29 @@
 ---
-title: Local RPC Server & JSON-RPC API Quick Start
+title: RPC Server & JSON-RPC API Quick Start
 ---
 
-Welcome to the Haneul RPC server quick start.
+Welcome to the guide for making remote procedure calls (RPC) to the Haneul network. This document walks you through connecting to Haneul and using the Haneul JSON-RPC API to interact with the Haneul network. Use the RPC layer to test your dApps, sending their transactions onto the [Haneul validators](../learn/architecture/validators.md) for verification.
 
-This document walks you through setting up your own local Haneul RPC Server and using the Haneul JSON-RPC API to interact with a local Haneul network. This guide is useful for developers interested in Haneul network interactions via API. For a similar guide on Haneul network interactions via CLI, refer to the [Haneul CLI client](cli-client.md) documentation.
+This guide is useful for developers interested in Haneul network interactions via API and should be used in conjunction with the [HaneulJSON format](haneul-json.md) for aligning JSON inputs with Move Call arguments.
 
+For a similar guide on Haneul network interactions via CLI, refer to the [Haneul CLI client](cli-client.md) documentation.
 
-## Local RPC server setup
+## Set up RPC server
 Follow the instructions to [install Haneul binaries](install.md).
 
-### Start local Haneul network
-Follow the instructions to [create](cli-client.md#genesis) and [start](cli-client.md#starting-the-network) the Haneul network.
+### Connect to Haneul network
+
+#### Remote Devnet
+Simply [connect to the Haneul Devnet](../explore/devnet.md) to start making RPC calls to our remote server, build on top of Haneul.
+
+#### Local Haneul Network
+Alternatively, to [contribute](../contribute/index.md) to Haneul itself, you may follow the instructions to [create](cli-client.md#genesis) and [start](cli-client.md#starting-the-network) a local Haneul network.
+
 The genesis process will create a `gateway.yaml` configuration file that will be used by the RPC server.
 
-### Start local RPC server
+### Start RPC server
 
-Use the following command to start a local server:
+Use the following command to start an RPC server:
 ```shell
 $ rpc-server
 ```
@@ -38,7 +45,7 @@ Export a local user variable to store the hardcoded hostname + port that the loc
 export HANEUL_RPC_HOST=http://127.0.0.1:5001
 ```
 
-## Haneul software development kits
+## Use Haneul software development kits
 
 You can sign transactions and interact with the Haneul network using any of the following:
 
@@ -46,7 +53,7 @@ You can sign transactions and interact with the Haneul network using any of the 
 * [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
 * [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
 
-## Haneul JSON-RPC examples
+## Follow Haneul JSON-RPC examples
 
 In the following sections we will show how to use Haneul's JSON-RPC API with
 the `curl` command. See the [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for the latest list of all available methods.
@@ -61,8 +68,8 @@ curl --location --request POST $HANEUL_RPC_HOST \
 --data-raw '{ "jsonrpc":"2.0", "method":"rpc.discover","id":1}'
 ```
 
-### Transfer Object
-#### 1, Create an unsigned transaction to transfer a Haneul coin from one address to another:
+### Transfer object
+#### 1, Create an unsigned transaction to transfer a Haneul coin from one address to another
 ```shell
 curl --location --request POST $HANEUL_RPC_HOST \
 --header 'Content-Type: application/json' \
@@ -99,7 +106,7 @@ You will see output resembling:
 2022-04-25T18:50:06.031925Z  INFO haneul::haneul_commands: Signature : 6vc+ku0RsMKdky8DRfoy/hw6eCQ3YsadH6rZ9WUCwGTAumuWER3TOJRw7u7F4QaHkqUsIPfJN9GRraSX+N8ADQ==
 ```
 
-#### 3, Execute the transaction using the transaction data, signature and public key.
+#### 3, Execute the transaction using the transaction data, signature and public key
 ```shell
 curl --location --request POST $HANEUL_RPC_HOST \
 --header 'Content-Type: application/json' \
@@ -130,7 +137,8 @@ be owned by the address represented by `{{owner_address}}`.
 
 ### Invoke Move functions
 
-#### 1, Execute a Move call transaction by calling the specified function in
+#### 1, Execute a Move call transaction
+Execute a Move call transaction by calling the specified function in
 the module of a given package (smart contracts in Haneul are written in
 the [Move](move/index.md) language):
 
@@ -235,7 +243,3 @@ Below you can see a truncated sample output of [haneul_publish](#haneul_publish)
     ...
 }
 ```
-
-## Connect to remote JSON-RPC server
-
-Employ alternative ways of working with Haneul's JSON-RPC API. Connect to [Haneul Devnet](../explore/devnet.md), [Join Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/) and soon Mainnet!
