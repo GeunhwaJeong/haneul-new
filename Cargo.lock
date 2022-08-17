@@ -7351,6 +7351,8 @@ name = "haneul-quorum-driver"
 version = "0.1.0"
 dependencies = [
  "arc-swap",
+ "prometheus",
+ "scopeguard",
  "haneul-core",
  "haneul-types",
  "tokio",

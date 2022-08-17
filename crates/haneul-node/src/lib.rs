@@ -24,6 +24,7 @@ use haneul_core::{
 };
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_network::api::ValidatorServer;
+use haneul_quorum_driver::QuorumDriverMetrics;
 use haneul_quorum_driver::{QuorumDriver, QuorumDriverHandler};
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
@@ -162,7 +163,10 @@ impl HaneulNode {
         );
 
         let quorum_driver_handler = if is_full_node {
-            Some(QuorumDriverHandler::new(net.clone()))
+            Some(QuorumDriverHandler::new(
+                net.clone(),
+                QuorumDriverMetrics::new(&prometheus_registry),
+            ))
         } else {
             None
         };
