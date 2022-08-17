@@ -24,6 +24,7 @@ use tokio::{sync::Notify, time};
 use tracing::{error, info};
 
 use haneul_config::NetworkConfig;
+use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use haneul_types::committee::StakeUnit;
 
 pub fn check_transaction_response(reply_message: Result<TransactionInfoResponse, io::Error>) {
@@ -50,7 +51,11 @@ pub async fn send_tx_chunks(
 
     let mut tasks = Vec::new();
     for tx_chunks in tx_chunks.chunks(tx_chunks.len() / conn) {
-        let client = NetworkAuthorityClient::connect_lazy(&address).unwrap();
+        let client = NetworkAuthorityClient::connect_lazy(
+            &address,
+            Arc::new(NetworkAuthorityClientMetrics::new_for_tests()),
+        )
+        .unwrap();
         let txns = tx_chunks.to_vec();
 
         let task = tokio::spawn(async move {
@@ -93,7 +98,11 @@ pub async fn send_transactions(
 
     let mut tasks = Vec::new();
     for tx_chunks in tx_chunks.chunks(tx_chunks.len() / conn) {
-        let client = NetworkAuthorityClient::connect_lazy(&address).unwrap();
+        let client = NetworkAuthorityClient::connect_lazy(
+            &address,
+            Arc::new(NetworkAuthorityClientMetrics::new_for_tests()),
+        )
+        .unwrap();
         let txns = tx_chunks.to_vec();
 
         let task = tokio::spawn(async move {
@@ -131,7 +140,11 @@ pub async fn send_confs(
 
     let mut tasks = Vec::new();
     for tx_chunks in tx_chunks.chunks(tx_chunks.len() / conn) {
-        let client = NetworkAuthorityClient::connect_lazy(&address).unwrap();
+        let client = NetworkAuthorityClient::connect_lazy(
+            &address,
+            Arc::new(NetworkAuthorityClientMetrics::new_for_tests()),
+        )
+        .unwrap();
         let txns = tx_chunks.to_vec();
 
         let task = tokio::spawn(async move {
