@@ -8,8 +8,8 @@ This directory contains examples of interacting with a Move language smart contr
 
 #### 1. Prepare the environment 
    1. Install `haneul` and `rpc-server` binaries following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md#binaries) docs.
-   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/explore/devnet.md).
-   1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/cli-client.md#adding-accounts-to-the-client) by using the `new-address` command to create new addresses:
+   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/devnet.md).
+   1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/contribute/cli-client.md#adding-accounts-to-the-client) by using the `new-address` command to create new addresses:
       ```shell
       haneul client new-address
       ```

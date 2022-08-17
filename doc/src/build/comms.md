@@ -2,7 +2,7 @@
 title: Connect and Communicate with the Haneul Network
 ---
 
-Now that you have [installed Haneul](install.md), [connected to Devnet](../explore/devnet.md), and started to [create smart contracts in Move](move/index.md) and [program Haneul objects](programming-with-objects/index.md), it's time to let your apps talk to Haneul.
+Now that you have [installed Haneul](install.md), [connected to Devnet](../build/devnet.md), and started to [create smart contracts in Move](move/index.md) and [program Haneul objects](programming-with-objects/index.md), it's time to let your apps talk to Haneul.
 
 The pages in this section provide various options for communicating with Haneul:
 

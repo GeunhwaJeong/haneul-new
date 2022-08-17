@@ -9,7 +9,7 @@ the Haneul client and execute commands through its command line
 interface, *Haneul CLI*.
 
 Note, this is an advanced option and an alternative to simply connecting to our public
-[Devnet](../explore/devnet.md). Use Devnet to build upon Haneul. Use the Haneul CLI here to
+[Devnet](../build/devnet.md). Use Devnet to build upon Haneul. Use the Haneul CLI here to
 [contribute](../contribute/index.md) to Haneul itself.
 
 ## Set up

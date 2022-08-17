@@ -14,7 +14,7 @@ Follow the instructions to [install Haneul binaries](install.md).
 ### Connect to Haneul network
 
 #### Remote Devnet
-Simply [connect to the Haneul Devnet](../explore/devnet.md) to start making RPC calls to our remote server, build on top of Haneul.
+Simply [connect to the Haneul Devnet](../build/devnet.md) to start making RPC calls to our remote server, build on top of Haneul.
 
 #### Local Haneul Network
 Alternatively, to [contribute](../contribute/index.md) to Haneul itself, you may follow the instructions to [create](cli-client.md#genesis) and [start](cli-client.md#starting-the-network) a local Haneul network.

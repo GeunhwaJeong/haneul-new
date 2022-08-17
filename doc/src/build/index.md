@@ -9,7 +9,7 @@ Now that you've [learned about Haneul](../learn/index.md), it's time to start bu
 Here is our recommended workflow to interact with Haneul:
 
 1. [Install](../build/install.md) all of the *required tools*.
-1. [Connect](../explore/devnet.md) to the Haneul Devnet network.
+1. [Connect](../build/devnet.md) to the Haneul Devnet network.
 1. [Create](../build/move/index.md) *smart contracts* with Move:
    1. [Write](../build/move/write-package.md) a package.
    1. [Build and test](../build/move/build-test.md) a package.
@@ -27,6 +27,6 @@ Here is our recommended workflow to interact with Haneul:
    * [Make](../build/rust-sdk.md) Rust SDK calls to Haneul from your app.
    * [Write](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/) TypeScript/JavaScript apps.
    * [Run](../build/fullnode.md) a Haneul Fullnode and [subscribe](../build/pubsub.md) to events.
-1. Optionally, [create](../build/cli-client.md#genesis) and [start](../build/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
+1. Optionally, [create](../contribute/cli-client.md#genesis) and [start](../contribute/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
 
 Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
