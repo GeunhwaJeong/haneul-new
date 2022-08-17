@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@haneullabs/haneul.js": "^0.8.0",
+    "@haneullabs/haneul.js": "workspace:*",
     "haneul-base-wallet-adapter": "workspace:*"
   },
   "devDependencies": {

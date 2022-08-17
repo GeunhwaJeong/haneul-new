@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@haneullabs/haneul.js": "^0.8.0"
+    "@haneullabs/haneul.js": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.7.4"
