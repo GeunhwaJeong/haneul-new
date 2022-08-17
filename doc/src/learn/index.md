@@ -12,6 +12,8 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 ## See what's new
 
+### Doc updates
+
 The following list includes the recent updates to Haneul and the documentation:
 
 * Interact with the Haneul network using our new [Rust SDK](../build/rust-sdk.md), a collection of Rust language [JSON-RPC wrapper and crypto utilities](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk).
@@ -21,13 +23,17 @@ The following list includes the recent updates to Haneul and the documentation:
 * Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
 * Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 
+See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
+
+### Code changes
+
+Learn about the latest releases in the [#release-notes](https://discord.com/channels/916379725201563759/974444055259910174) channel on Discord.
+
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
 
 For upstream updates in the `main` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/main
-
-See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
 ## Kickstart development
 The links in the section point to information to help you start working with Haneul. 
