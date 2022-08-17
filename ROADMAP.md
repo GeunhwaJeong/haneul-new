@@ -1,21 +1,28 @@
 # Roadmap
 
-Currently, builders can:
+This document summarizes current state for the Haneul blockchain and hints at impending changes. For the latest updates, see:
+https://docs.haneul.io/devnet/learn#see-whats-new
+
+Currently, Haneul builders can:
+* Connect to Haneul Devnet
 * Write and test Move smart contracts
-* Spin up a local Haneul network
-* Publish and run Move smart contracts on a local network
+* Publish and run Move smart contracts
+* Program with Haneul objects
+* Run a Haneul Fullnode
+* Use Haneul Explorer to see transactions
+
+See instructions for all of the above at:
+https://docs.haneul.io
 
 In the coming months, we will release:
-1. A public devnet that allows Haneul devs to do all of the above on a shared network powered by Haneullabs-operated authorities
-2. A public testnet that onboards a diverse set of non-Haneullabs authorities to the network
-3. A public mainnet with real assets and production applications!
+1. A public testnet that onboards a diverse set of non-Haneullabs authorities to the network
+1. A public mainnet with real assets and production applications!
 
 A more fine-grained description of the upcoming features and improvements to the Haneul codebase follows.
 
 ## Ongoing work and upcoming features
 
-### Internal devnet
-* Constantly running Haneul network
+### Internal Devnet
 * Productionizing network stack
 * Benchmarking throughput and latency in various configurations
 
@@ -23,8 +30,6 @@ A more fine-grained description of the upcoming features and improvements to the
 
 * Implementing reconfiguration and staking
 * Ledger and state checkpoints
-* Aligning Gateway Service Rust/REST/wallet APIs
-* Finalizing REST data model (aka HaneulJSON)
 * Finalizing core data types
 * Authority "Follower" APIs to support replicas
 * Integration of shared objects and consensus
@@ -32,9 +37,7 @@ A more fine-grained description of the upcoming features and improvements to the
 * Event indexing hints
 
 ### SDK and ecosystem
-* Block explorer
 * Key management and wallet prototypes
-* Support package publishing via REST API
 * More informative error messages
 * More convenient APIs that hide gas object selection and nested object authentication
 
