@@ -127,7 +127,7 @@ Not currently. Packages are immutable objects, and this property is relied upon 
 
 ### Is there any information on node architecture and running validators on Haneul?
 
-Yes! You can now [register to participate](https://airtable.com/shr3phh3FCZYhZUDF) in [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/)!
+Yes! See the [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/) announcement.
 
 Section four in the [Haneul Smart Contract Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper is the best reference for node architecture.
 
@@ -135,8 +135,6 @@ See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
 
 
 ### Can I run a Haneul validator node?
-
-You can now [register to participate](https://airtable.com/shr3phh3FCZYhZUDF) in [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/)!
 
 We have a public [Haneul Devnet](../build/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
 
