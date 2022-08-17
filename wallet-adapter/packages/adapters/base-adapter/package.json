@@ -1,6 +1,6 @@
 {
-  "name": "haneul-base-wallet-adapter",
-  "version": "1.0.0",
+  "name": "@haneullabs/base-wallet-adapter",
+  "version": "0.0.0",
   "description": "Base wallet adapter for Haneul",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

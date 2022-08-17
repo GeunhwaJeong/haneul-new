@@ -1,6 +1,6 @@
 {
-  "name": "haneul-wallet-adapter-react",
-  "version": "1.0.0",
+  "name": "@haneullabs/wallet-adapter-react",
+  "version": "0.0.0",
   "description": "React interface for Haneul Wallet Adapter",
   "main": "lib/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "haneul-base-wallet-adapter": "workspace:*"
+    "@haneullabs/base-wallet-adapter": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.7.4",
