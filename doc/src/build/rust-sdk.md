@@ -3,7 +3,7 @@ title: Interact with Haneul over Rust SDK
 ---
 
 ## Overview
-The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet Gateway](../explore/devnet.md) and [Haneul Full Node](fullnode.md).
+The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet Gateway](../build/devnet.md) and [Haneul Full Node](fullnode.md).
 
 The [`HaneulClient`](cli-client.md) can be used to create an HTTP (`HaneulClient::new_http_client`) or a WebSocket client(`HaneulClient::new_ws_client`).  
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.

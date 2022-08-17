@@ -10,7 +10,7 @@ Find answers to common questions about our [roadmap](https://github.com/GeunhwaJ
 
 Experiment with:
 
-* [Haneul DevNet](../explore/devnet.md) - to gain operational experience with the Haneul software in a public setting
+* [Haneul DevNet](../build/devnet.md) - to gain operational experience with the Haneul software in a public setting
 * [Haneul Incentivized Testnet](https://haneul.io/resources-haneul/announcing-haneul-incentivized-testnet/) -  will feature a menu of incentives to encourage and reward meaningful participation during the Testnet waves
 
 ## Tutorial

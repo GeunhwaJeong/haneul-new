@@ -9,4 +9,4 @@ All code samples in this book are written with the assumption that you use *Hane
 $ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "main" haneul
 ```
 
-Keep in mind that the branch is set to `main`. If you're developing with our [devnet](https://docs.haneul.io/explore/devnet), instead follow the instructions to [install Haneul](https://docs.haneul.io/build/install#binaries).
+Keep in mind that the branch is set to `main`. If you're developing with our [devnet](https://docs.haneul.io/build/devnet), instead follow the instructions to [install Haneul](https://docs.haneul.io/build/install#binaries).

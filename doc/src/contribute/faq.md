@@ -63,7 +63,7 @@ Yes, the token name will be HANEUL.
 
 ### When is the Haneul Devnet/Testnet/Mainnet launching?
 
-We have launched our [Haneul Devnet](../explore/devnet.md) in May 2022. A Testnet is coming in a few months. 
+We have launched our [Haneul Devnet](../build/devnet.md) in May 2022. A Testnet is coming in a few months. 
 
 See our roadmap: \
 [https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap) 
@@ -85,7 +85,7 @@ For developers:
 
 1. [Install Haneul](https://docs.haneul.io/build/install).
 2. Spin up a [Haneul Fullnode](../build/fullnode.md).
-3. Experiment with the [Haneul CLI client](../build/cli-client.md).
+3. Experiment with the [Haneul CLI client](../contribute/cli-client.md).
 4. Join the [Move](https://discord.gg/8prNjUqyFj) and [Haneul](https://discord.gg/CVcnUzKYCB) developer channels in Discord.
 5. [Start building](https://docs.haneul.io/build)!
 
@@ -138,9 +138,9 @@ See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
 
 You can now [register to participate](https://airtable.com/shr3phh3FCZYhZUDF) in [Haneul Incentivized Testnet as a validator](https://haneul.io/resources-haneul/validator-registration-open/)!
 
-We have a public [Haneul Devnet](../explore/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
+We have a public [Haneul Devnet](../build/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
 
-You may also run a local, non-networked Haneul node for development using the [Haneul CLI client](../build/cli-client.md). You can interact with the nodes with either the [Haneul Wallet CLI](../build/cli-client.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
+You may also run a local, non-networked Haneul node for development using the [Haneul CLI client](../contribute/cli-client.md). You can interact with the nodes with either the [Haneul Wallet CLI](../contribute/cli-client.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
 
 Soon we will have a Testnet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, 
 
