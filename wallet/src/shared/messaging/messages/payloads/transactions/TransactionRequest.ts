@@ -3,6 +3,7 @@
 
 import type {
     MoveCallTransaction,
+    HaneulMoveNormalizedFunction,
     HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 
@@ -13,6 +14,7 @@ export type TransactionRequest = {
     originFavIcon?: string;
     txResult?: HaneulTransactionResponse;
     txResultError?: string;
+    metadata?: HaneulMoveNormalizedFunction;
     createdDate: string;
 } & (
     | {
