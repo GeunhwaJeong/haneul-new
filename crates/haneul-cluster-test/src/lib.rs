@@ -8,6 +8,7 @@ use config::ClusterTestOpt;
 use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::HaneulTransactionResponse;
+use test_utils::messages::make_transactions_with_wallet_context;
 
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
@@ -17,6 +18,7 @@ use haneul_types::{
 };
 use test_case::{
     call_contract_test::CallContractTest, coin_merge_split_test::CoinMergeSplitTest,
+    fullnode_execute_transaction_test::FullNodeExecuteTransactionTest,
     native_transfer_test::NativeTransferTest, shared_object_test::SharedCounterTest,
 };
 use tokio::time::{sleep, Duration};
@@ -71,6 +73,12 @@ impl TestContext {
 
     fn get_wallet_address(&self) -> HaneulAddress {
         self.client.get_wallet_address()
+    }
+
+    /// See `make_transactions_with_wallet_context` for potential caveats
+    /// of this helper function.
+    pub async fn make_transactions(&mut self, max_txn_num: usize) -> Vec<Transaction> {
+        make_transactions_with_wallet_context(self.get_wallet_mut(), max_txn_num).await
     }
 
     async fn sign_and_execute(
@@ -156,6 +164,7 @@ impl ClusterTest {
             TestCase::new(CoinMergeSplitTest {}),
             TestCase::new(CallContractTest {}),
             TestCase::new(SharedCounterTest {}),
+            TestCase::new(FullNodeExecuteTransactionTest {}),
         ];
 
         // TODO: improve the runner parallelism for efficiency
