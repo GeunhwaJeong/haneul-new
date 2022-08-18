@@ -263,7 +263,10 @@ impl HaneulNode {
         };
 
         let grpc_server = {
-            let mut server_builder = haneullabs_network::config::Config::new().server_builder();
+            let mut server_conf = haneullabs_network::config::Config::new();
+            server_conf.global_concurrency_limit = config.grpc_concurrency_limit;
+            server_conf.load_shed = config.grpc_load_shed;
+            let mut server_builder = server_conf.server_builder();
 
             if let Some(validator_service) = validator_service {
                 server_builder =
