@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use narwhal_crypto::traits::KeyPair;
+use fastcrypto::traits::KeyPair;
 use rand::{prelude::StdRng, SeedableRng};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::get_key_pair;
