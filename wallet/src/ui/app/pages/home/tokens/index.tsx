@@ -50,8 +50,9 @@ function TokensPage() {
                 />
                 <IconLink
                     icon={HaneulIcons.HandCoins}
-                    to="/"
-                    disabled={true}
+                    to={`/send?${new URLSearchParams({
+                        type: GAS_TYPE_ARG,
+                    }).toString()}`}
                     text="Send & Receive"
                 />
                 <IconLink
