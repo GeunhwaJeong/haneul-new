@@ -6,6 +6,8 @@ Haneul is a blockchain centered on [objects](../../build/objects.md). Once you s
 
 In this tutorial series, we will walk through all the powerful ways to interact with objects in [Haneul Move](../../learn/haneul-move-diffs.md). At the end, we will also explore the designs of a few (close-to-)real-world examples to demonstrate the tradeoffs of using different object types and ownership relationships.
 
+Note, you can also find examples at: https://examples.haneul.io/
+
 ## Prerequisites
 
 Understand:
@@ -29,10 +31,3 @@ Install:
   - Wrapping objects in another object.
 - [Chapter 5: Child Objects](../../build/programming-with-objects/ch5-child-objects.md)
   - Enabling objects to own other objects, transferring objects to objects, adding child objects, removing child objects.
-- Chapter 6: Collection and Bag
-  - Using Collection and Bag library.
-- Chapter 7: Shared Objects
-  - Creating shared objects, using share objects.
-- Chapter 8: Case Study (TicTacToe)
-  - Developing a real game with objects, trade-offs between shared objects and single-writer objects.
-- Chapter 9: Case Study (TBD)
