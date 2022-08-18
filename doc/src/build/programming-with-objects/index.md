@@ -6,7 +6,7 @@ Haneul is a blockchain centered on [objects](../../build/objects.md). Once you s
 
 In this tutorial series, we will walk through all the powerful ways to interact with objects in [Haneul Move](../../learn/haneul-move-diffs.md). At the end, we will also explore the designs of a few (close-to-)real-world examples to demonstrate the tradeoffs of using different object types and ownership relationships.
 
-Note, you can also find examples at: https://examples.haneul.io/
+Note, you can also find Haneul Move programming examples at: https://examples.haneul.io/
 
 ## Prerequisites
 
