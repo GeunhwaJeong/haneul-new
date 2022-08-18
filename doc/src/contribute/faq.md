@@ -24,7 +24,7 @@ Use these online resources:
 
 ### What does Haneul offer over other blockchains?
 
-Haneul offers ease of development, a developer interface, fast transaction speeds, a sane object model, and better security. Haneul calls the [consensus protocol](../learn/architecture/consensus.md) only for transactions affecting objects owned by multiple accounts. This means simple transactions complete almost immediately.
+Haneul offers ease of development, a developer interface, fast transaction speeds, a sane object model, and better security. Haneul calls the [consensus protocol](../learn/architecture/consensus.md) only for transactions affecting objects owned by multiple addresses. This means simple transactions complete almost immediately.
 
 See these resources on the [Haneul Developer Portal](https://docs.haneul.io/) for the complete story on why we built Haneul:
 

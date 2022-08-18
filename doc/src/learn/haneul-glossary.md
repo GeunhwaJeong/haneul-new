@@ -60,11 +60,11 @@ For more information, see [Genesis](../contribute/cli-client.md#genesis).
 
 ### Multi-writer objects
 
-Multi-writer objects are objects that are owned by more than one account. Transactions affecting multi-writer objects require consensus in Haneul. This contrasts with transactions affecting only single-writer objects, which require only a confirmation of the owner’s account contents.
+Multi-writer objects are objects that are owned by more than one address. Transactions affecting multi-writer objects require consensus in Haneul. This contrasts with transactions affecting only single-writer objects, which require only a confirmation of the owner’s address contents.
 
 ### Object
 
-The basic unit of storage in Haneul is object. In contrast to many other blockchains, where storage is centered around accounts and each account contains a key-value store, Haneul's storage is centered around objects. Haneul objects have one of the following primary states:
+The basic unit of storage in Haneul is object. In contrast to many other blockchains, where storage is centered around address and each address contains a key-value store, Haneul's storage is centered around objects. Haneul objects have one of the following primary states:
  * *Immutable* - the object cannot be modified.
  * *Mutable* - the object can be changed.
 
@@ -82,7 +82,7 @@ For more information, see [Haneul Objects](../build/objects.md).
 
 ### Single-writer objects
 
-Single-writer objects are owned by one account. In Haneul, transactions affecting only single-writer objects owned by the same address may proceed with only a verification of the sender’s address, greatly speeding transaction times. We refer to these as *simple transactions*. See [Single-Writer Apps](single-writer-apps.md) for example applications of this simple transaction model.
+Single-writer objects are owned by one address. In Haneul, transactions affecting only single-writer objects owned by the same address may proceed with only a verification of the sender’s address, greatly speeding transaction times. We refer to these as *simple transactions*. See [Single-Writer Apps](single-writer-apps.md) for example applications of this simple transaction model.
 
 ### Smart contract
 
