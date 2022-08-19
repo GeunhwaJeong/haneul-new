@@ -10,6 +10,7 @@ import {
     getTransferObjectTransaction,
     getTransferHaneulTransaction,
     JsonRpcProvider,
+    getTransferHaneulAmount,
 } from '@haneullabs/haneul.js';
 
 import { deduplicate } from '../searchUtil';
@@ -61,6 +62,7 @@ export const getDataOnTxDigests = (
                             txId: digest,
                             status: getExecutionStatusType(txEff),
                             txGas: getTotalGasUsed(txEff),
+                            haneulAmount: getTransferHaneulAmount(txn),
                             kind: txKind,
                             From: res.data.sender,
                             timestamp_ms: txEff.timestamp_ms,

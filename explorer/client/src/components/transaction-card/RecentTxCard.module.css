@@ -87,3 +87,11 @@ div.txadd {
 .txlatestresults td:nth-child(1) {
     @apply text-xs;
 }
+
+.haneulsuffix {
+    @apply text-[10px] text-haneul-grey-60 ml-[2px];
+}
+
+.haneulamount {
+    @apply text-haneul-grey-80;
+}

@@ -1,7 +1,13 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import {
+    type GetTxnDigestsResponse,
+    type ExecutionStatusType,
+    type TransactionKindName,
+} from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
+import BN from 'bn.js';
 import cl from 'classnames';
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
@@ -20,16 +26,10 @@ import {
 import { IS_STATIC_ENV } from '../../utils/envUtil';
 import { numberSuffix } from '../../utils/numberUtil';
 import { getAllMockTransaction } from '../../utils/static/searchUtil';
-import { truncate } from '../../utils/stringUtils';
+import { truncate, presentBN } from '../../utils/stringUtils';
 import { timeAgo } from '../../utils/timeUtils';
 import ErrorResult from '../error-result/ErrorResult';
 import Pagination from '../pagination/Pagination';
-
-import type {
-    GetTxnDigestsResponse,
-    ExecutionStatusType,
-    TransactionKindName,
-} from '@haneullabs/haneul.js';
 
 import styles from './RecentTxCard.module.css';
 
@@ -61,6 +61,7 @@ type TxnData = {
     txId: string;
     status: ExecutionStatusType;
     txGas: number;
+    haneulAmount: BN;
     kind: TransactionKindName | undefined;
     From: string;
     timestamp_ms?: number;
@@ -139,6 +140,31 @@ type RecentTx = {
     truncateLength?: number;
 };
 
+function HaneulAmount({ amount }: { amount: BN | string | undefined }) {
+    if (amount) {
+        const HaneulSuffix = <span className={styles.haneulsuffix}>HANEUL</span>;
+
+        if (BN.isBN(amount)) {
+            return (
+                <span className={styles.haneulamount}>
+                    {presentBN(amount)}
+                    {HaneulSuffix}
+                </span>
+            );
+        }
+        if (typeof amount === 'string') {
+            return (
+                <span className={styles.haneulamount}>
+                    {amount}
+                    {HaneulSuffix}
+                </span>
+            );
+        }
+    }
+
+    return <span className={styles.haneulamount}>--</span>;
+}
+
 // Generate table data from the transaction data
 const recentTxTable = (results: TxnData[], truncateLength: number) => {
     return {
@@ -177,8 +203,8 @@ const recentTxTable = (results: TxnData[], truncateLength: number) => {
                 txTypeName: txn.kind,
                 status: txn.status,
             },
-
-            gas: numberSuffix(txn.txGas),
+            amounts: <HaneulAmount amount={txn.haneulAmount} />,
+            gas: <HaneulAmount amount={numberSuffix(txn.txGas)} />,
         })),
         columns: [
             {
@@ -196,6 +222,10 @@ const recentTxTable = (results: TxnData[], truncateLength: number) => {
             {
                 headerLabel: 'Addresses',
                 accessorKey: 'addresses',
+            },
+            {
+                headerLabel: 'Amount',
+                accessorKey: 'amounts',
             },
             {
                 headerLabel: 'Gas',
