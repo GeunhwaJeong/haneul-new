@@ -578,7 +578,7 @@ pub struct CheckpointFragment {
 }
 
 impl CheckpointFragment {
-    pub fn verify(&self, committee: &Committee) -> Result<(), HaneulError> {
+    pub fn verify(&self, committee: &Committee) -> HaneulResult {
         // Check the signatures of proposer and other
         self.proposer.verify(committee, None)?;
         self.other.verify(committee, None)?;
@@ -598,8 +598,19 @@ impl CheckpointFragment {
             HaneulError::from("Waypoint diff is not valid")
         );
 
-        // TODO:
-        // - check that the certs includes all missing certs on either side.
+        // Check that the fragment contains all missing certs indicated in diff.
+        let digests = self
+            .diff
+            .first
+            .items
+            .iter()
+            .chain(self.diff.second.items.iter());
+        for digest in digests {
+            let cert = self.certs.get(digest).ok_or_else(|| {
+                HaneulError::from(format!("Missing cert with digest {digest:?}").as_str())
+            })?;
+            cert.verify(committee)?;
+        }
 
         Ok(())
     }
