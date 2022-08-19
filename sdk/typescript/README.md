@@ -33,6 +33,12 @@ cd <your project directory>
 npm link @haneullabs/haneul.js
 ```
 
+If you wish to rebuild all dependencies of the TypeScript SDK, or if you're encountering issues with the `@haneullabs/bcs` module not being found, you can re-build the SDK module and all of it's local dependencies using the following command:
+
+```bash
+pnpm --filter @haneullabs/haneul.js... build
+```
+
 Refer to the [JSON RPC doc](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/json-rpc.md) for instructions about how to start a local network and local RPC server
 
 ## Type Doc
