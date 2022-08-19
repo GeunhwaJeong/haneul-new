@@ -51,7 +51,7 @@ use crate::{
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::{
     GetObjectDataResponse, GetRawObjectDataResponse, MoveCallParams, RPCTransactionRequestParams,
-    HaneulMoveObject, HaneulObject, HaneulObjectInfo, HaneulParsedMergeCoinResponse, HaneulParsedPublishResponse,
+    HaneulData, HaneulObject, HaneulObjectInfo, HaneulParsedMergeCoinResponse, HaneulParsedPublishResponse,
     HaneulParsedSplitCoinResponse, HaneulParsedTransactionResponse, HaneulTransactionEffects,
     HaneulTransactionResponse, HaneulTypeTag, TransferObjectParams,
 };
@@ -459,7 +459,7 @@ where
         Ok(object)
     }
 
-    async fn get_haneul_object<T: HaneulMoveObject>(
+    async fn get_haneul_object<T: HaneulData>(
         &self,
         object_id: &ObjectID,
     ) -> Result<HaneulObject<T>, anyhow::Error> {
@@ -467,7 +467,7 @@ where
         self.to_haneul_object(object).await
     }
 
-    async fn to_haneul_object<T: HaneulMoveObject>(
+    async fn to_haneul_object<T: HaneulData>(
         &self,
         object: Object,
     ) -> Result<HaneulObject<T>, anyhow::Error> {

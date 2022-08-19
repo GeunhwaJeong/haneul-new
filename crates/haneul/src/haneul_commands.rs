@@ -22,7 +22,7 @@ use haneul_config::{
     HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
 use haneul_sdk::crypto::KeystoreType;
-use haneul_sdk::{ClientType, HaneulClient};
+use haneul_sdk::ClientType;
 use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::{KeypairTraits, HaneulKeyPair};
 use tracing::info;
@@ -314,14 +314,14 @@ impl HaneulCommand {
             }
             HaneulCommand::Console { config } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
-                prompt_if_no_config(&config)?;
+                prompt_if_no_config(&config).await?;
                 let mut context = WalletContext::new(&config).await?;
                 sync_accounts(&mut context).await?;
                 start_console(context, &mut stdout(), &mut stderr()).await
             }
             HaneulCommand::Client { config, cmd, json } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
-                prompt_if_no_config(&config)?;
+                prompt_if_no_config(&config).await?;
                 let mut context = WalletContext::new(&config).await?;
 
                 if let Some(cmd) = cmd {
@@ -365,7 +365,7 @@ async fn sync_accounts(context: &mut WalletContext) -> Result<(), anyhow::Error>
     Ok(())
 }
 
-fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
+async fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
     // Prompt user for connect to gateway if config not exists.
     if !wallet_conf_path.exists() {
         let url = match std::env::var_os("HANEUL_CONFIG_WITH_RPC_URL") {
@@ -391,8 +391,9 @@ fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
         };
 
         if let Some(url) = url {
+            let client = ClientType::RPC(url, None);
             // Check url is valid
-            HaneulClient::new_http_client(&url)?;
+            client.init().await?;
             let keystore_path = wallet_conf_path
                 .parent()
                 .unwrap_or(&haneul_config_dir()?)
@@ -403,7 +404,7 @@ fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
             println!("Secret Recovery Phrase : [{phrase}]");
             HaneulClientConfig {
                 keystore,
-                gateway: ClientType::RPC(url),
+                gateway: client,
                 active_address: Some(new_address),
             }
             .persisted(wallet_conf_path)

@@ -16,10 +16,9 @@ use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
-    HaneulCertifiedTransaction, HaneulData, HaneulExecutionStatus, HaneulGasCostSummary, HaneulMoveObject,
-    HaneulObject, HaneulObjectRead, HaneulObjectRef, HaneulParsedMoveObject, HaneulRawMoveObject,
-    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes,
-    TransferObjectParams,
+    HaneulCertifiedTransaction, HaneulData, HaneulExecutionStatus, HaneulGasCostSummary, HaneulObject,
+    HaneulObjectRead, HaneulObjectRef, HaneulParsedData, HaneulRawData, HaneulRawMoveObject, HaneulTransactionData,
+    HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -190,13 +189,11 @@ impl RpcExampleProvider {
         let coin = GasCoin::new(object_id, 10000);
 
         let result = HaneulObjectRead::Exists(HaneulObject {
-            data: HaneulData::MoveObject(
-                HaneulParsedMoveObject::try_from_layout(
-                    coin.to_object(SequenceNumber::from_u64(1)),
-                    GasCoin::layout(),
-                )
-                .unwrap(),
-            ),
+            data: HaneulParsedData::try_from_object(
+                coin.to_object(SequenceNumber::from_u64(1)),
+                GasCoin::layout(),
+            )
+            .unwrap(),
             owner: Owner::AddressOwner(HaneulAddress::from(ObjectID::new(self.rng.gen()))),
             previous_transaction: TransactionDigest::new(self.rng.gen()),
             storage_rebate: 100,
@@ -267,9 +264,11 @@ impl RpcExampleProvider {
         let coin = GasCoin::new(object_id, 10000);
         let object = coin.to_object(SequenceNumber::from_u64(1));
         let result = HaneulObjectRead::Exists(HaneulObject {
-            data: HaneulData::MoveObject(HaneulRawMoveObject {
+            data: HaneulRawData::MoveObject(HaneulRawMoveObject {
                 type_: GasCoin::type_().to_string(),
                 has_public_transfer: object.has_public_transfer(),
+                version: object.version(),
+                child_count: None,
                 bcs_bytes: object.into_contents(),
             }),
             owner: Owner::AddressOwner(HaneulAddress::from(ObjectID::new(self.rng.gen()))),

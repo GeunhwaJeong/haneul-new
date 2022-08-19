@@ -14,13 +14,16 @@ use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_core::gateway_state::GatewayState;
+use haneul_json_rpc::api::RpcBcsApiServer;
 use haneul_json_rpc::api::RpcGatewayApiServer;
 use haneul_json_rpc::api::RpcReadApiServer;
 use haneul_json_rpc::api::RpcTransactionBuilderServer;
 use haneul_json_rpc::api::WalletSyncApiServer;
+use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
+
 use haneul_json_rpc::http_server::{HttpServerBuilder, HttpServerHandle, RpcModule};
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::{ClientType, HaneulClient};
@@ -129,6 +132,7 @@ async fn start_rpc_gateway(
     module.merge(GatewayReadApiImpl::new(client.clone()).into_rpc())?;
     module.merge(TransactionBuilderImpl::new(client.clone()).into_rpc())?;
     module.merge(GatewayWalletSyncApiImpl::new(client.clone()).into_rpc())?;
+    module.merge(BcsApiImpl::new_with_gateway(client.clone()).into_rpc())?;
 
     let handle = server.start(module)?;
     Ok((addr, handle))
@@ -155,13 +159,13 @@ pub async fn start_rpc_test_network_with_fullnode(
         PersistedConfig::read(&working_dir.join(HANEUL_CLIENT_CONFIG))?;
     let rpc_url = format!("http://{}", server_addr);
     let accounts = wallet_conf.keystore.init()?.addresses();
-    wallet_conf.gateway = ClientType::RPC(rpc_url.clone());
+    wallet_conf.gateway = ClientType::RPC(rpc_url.clone(), None);
     wallet_conf
         .persisted(&working_dir.join(HANEUL_CLIENT_CONFIG))
         .save()?;
 
     let http_client = HttpClientBuilder::default().build(rpc_url.clone())?;
-    let gateway_client = HaneulClient::new_http_client(&rpc_url)?;
+    let gateway_client = HaneulClient::new_rpc_client(&rpc_url, None).await?;
     Ok(TestNetwork {
         network,
         _rpc_server: rpc_server_handle,
