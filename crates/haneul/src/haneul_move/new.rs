@@ -22,6 +22,7 @@ impl New {
             "0.0.1",
             [(HANEUL_PKG_NAME, HANEUL_PKG_PATH)],
             [(name, "0x0")],
+            "",
         )?;
         Ok(())
     }
