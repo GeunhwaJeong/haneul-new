@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { NetworkContext } from '../../context';
 import codestyle from '../../styles/bytecode.module.css';
 import { DefaultRpcClient as rpc } from '../../utils/api/DefaultRpcClient';
-import { normalizeHaneulAddress } from './util';
+import { normalizeHaneulAddress } from '../../utils/stringUtils';
 
 import type { HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
 import type { Language } from 'prism-react-renderer';
