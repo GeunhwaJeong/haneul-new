@@ -38,6 +38,7 @@ use std::{
 use haneul_adapter::adapter;
 use haneul_adapter::temporary_store::InnerTemporaryStore;
 use haneul_config::genesis::Genesis;
+use haneul_json_rpc_types::HaneulEventEnvelope;
 use haneul_storage::{
     event_store::{EventStore, EventStoreType, StoredEvent},
     write_ahead_log::{DBTxGuard, TxGuard, WriteAheadLog},
@@ -274,8 +275,6 @@ impl AuthorityMetrics {
 ///
 pub type StableSyncAuthoritySigner =
     Pin<Arc<dyn signature::Signer<AuthoritySignature> + Send + Sync>>;
-
-const DEFAULT_QUERY_LIMIT: usize = 1000;
 
 pub struct AuthorityState {
     // Fixed size, static, identity of the authority
@@ -1435,25 +1434,118 @@ impl AuthorityState {
             .map(|handler| handler.event_store.clone())
     }
 
-    /// Returns a set of events corresponding to a given transaction, in order events were emitted
-    pub async fn get_events_for_transaction(
+    /// Returns at most `limit` events emitted in the given transaction,
+    /// emitted within [start_time, end_time) in order of events emitted.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_transaction(
         &self,
         digest: TransactionDigest,
-    ) -> Result<Vec<StoredEvent>, HaneulError> {
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
         let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
-        es.events_for_transaction(digest).await
+        let stored_events = es.events_by_transaction(digest, limit).await?;
+        StoredEvent::into_event_envelopes(stored_events)
     }
 
-    /// Returns a whole set of events for a range of time
-    pub async fn get_events_for_timerange(
+    /// Returns at most `limit` events emitted in the given module,
+    /// emitted within [start_time, end_time), sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_transaction_module(
+        &self,
+        module_id: &ModuleId,
+        start_time: u64,
+        end_time: u64,
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
+        let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
+        let stored_events = es
+            .events_by_module_id(start_time, end_time, module_id, limit)
+            .await?;
+        StoredEvent::into_event_envelopes(stored_events)
+    }
+
+    /// Returns at most `limit` events with the given move event struct name, e.g.
+    /// `0x2::devnet_nft::MintNFTEvent` or
+    /// `0x2::HANEUL::test_foo<address, vector<u8>>` with type params,
+    /// emitted within [start_time, end_time), sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_move_event_struct_name(
+        &self,
+        move_event_struct_name: &str,
+        start_time: u64,
+        end_time: u64,
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
+        let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
+        let stored_events = es
+            .events_by_move_event_struct_name(start_time, end_time, move_event_struct_name, limit)
+            .await?;
+        StoredEvent::into_event_envelopes(stored_events)
+    }
+
+    /// Returns at most `limit` events associated with the given sender,
+    /// emitted within [start_time, end_time), sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_sender(
+        &self,
+        sender: &HaneulAddress,
+        start_time: u64,
+        end_time: u64,
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
+        let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
+        let stored_events = es
+            .events_by_sender(start_time, end_time, sender, limit)
+            .await?;
+        StoredEvent::into_event_envelopes(stored_events)
+    }
+
+    /// Returns at most `limit` events associated with the given recipient,
+    /// emitted within [start_time, end_time), sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_recipient(
+        &self,
+        recipient: &Owner,
+        start_time: u64,
+        end_time: u64,
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
+        let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
+        let stored_events = es
+            .events_by_recipient(start_time, end_time, recipient, limit)
+            .await?;
+        StoredEvent::into_event_envelopes(stored_events)
+    }
+
+    /// Returns at most `limit` events associated with the given object,
+    /// emitted within [start_time, end_time), sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_object(
+        &self,
+        object: &ObjectID,
+        start_time: u64,
+        end_time: u64,
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
+        let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
+        let stored_events = es
+            .events_by_object(start_time, end_time, object, limit)
+            .await?;
+        StoredEvent::into_event_envelopes(stored_events)
+    }
+
+    /// Returns at most `limit` events emitted within [start_time, end_time),
+    /// sorted in in descending time.
+    /// `limit` is capped to EVENT_STORE_QUERY_MAX_LIMIT
+    pub async fn get_events_by_timerange(
         &self,
         start_time: u64,
         end_time: u64,
-        limit: Option<usize>,
-    ) -> Result<Vec<StoredEvent>, HaneulError> {
+        limit: usize,
+    ) -> Result<Vec<HaneulEventEnvelope>, anyhow::Error> {
         let es = self.get_event_store().ok_or(HaneulError::NoEventStore)?;
-        es.event_iterator(start_time, end_time, limit.unwrap_or(DEFAULT_QUERY_LIMIT))
-            .await
+        let stored_events = es.event_iterator(start_time, end_time, limit).await?;
+        StoredEvent::into_event_envelopes(stored_events)
     }
 
     pub async fn insert_genesis_object(&self, object: Object) {

@@ -10,14 +10,19 @@ use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee_core::error::SubscriptionClosed;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use jsonrpsee_core::server::rpc_module::SubscriptionSink;
+use move_core_types::account_address::AccountAddress;
+use move_core_types::identifier::Identifier;
+use move_core_types::language_storage::ModuleId;
 use serde::Serialize;
 use std::fmt::Display;
+use std::str::FromStr;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::event_handler::EventHandler;
 use haneul_json_rpc_types::{HaneulEvent, HaneulEventEnvelope, HaneulEventFilter};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::object::Owner;
 use tracing::warn;
 
 pub struct EventStreamingApiImpl {
@@ -117,59 +122,104 @@ impl EventReadApiServer for EventReadApiImpl {
     async fn get_events_by_transaction(
         &self,
         digest: TransactionDigest,
+        count: usize,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let events = self.state.get_events_by_transaction(digest, count).await?;
+        Ok(events)
     }
 
-    async fn get_events_by_module(
+    async fn get_events_by_transaction_module(
         &self,
         package: ObjectID,
         module: String,
-        count: u64,
+        count: usize,
         start_time: u64,
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let module_id = ModuleId::new(
+            AccountAddress::from(package),
+            Identifier::from_str(&module)?,
+        );
+
+        let events = self
+            .state
+            .get_events_by_transaction_module(&module_id, start_time, end_time, count)
+            .await?;
+        Ok(events)
     }
 
-    async fn get_events_by_event_type(
+    async fn get_events_by_move_event_struct_name(
         &self,
-        event_type: String,
-        count: u64,
+        move_event_struct_name: String,
+        count: usize,
         start_time: u64,
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let events = self
+            .state
+            .get_events_by_move_event_struct_name(
+                &move_event_struct_name,
+                start_time,
+                end_time,
+                count,
+            )
+            .await?;
+        Ok(events)
     }
 
     async fn get_events_by_sender(
         &self,
         sender: HaneulAddress,
-        count: u64,
+        count: usize,
         start_time: u64,
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let events = self
+            .state
+            .get_events_by_sender(&sender, start_time, end_time, count)
+            .await?;
+        Ok(events)
+    }
+
+    async fn get_events_by_recipient(
+        &self,
+        recipient: Owner,
+        count: usize,
+        start_time: u64,
+        end_time: u64,
+    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
+        let events = self
+            .state
+            .get_events_by_recipient(&recipient, start_time, end_time, count)
+            .await?;
+        Ok(events)
     }
 
     async fn get_events_by_object(
         &self,
         object: ObjectID,
-        count: u64,
+        count: usize,
         start_time: u64,
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let events = self
+            .state
+            .get_events_by_object(&object, start_time, end_time, count)
+            .await?;
+        Ok(events)
     }
 
-    async fn get_events_by_owner(
+    async fn get_events_by_timerange(
         &self,
-        owner: HaneulAddress,
-        count: u64,
+        count: usize,
         start_time: u64,
         end_time: u64,
     ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        Ok(vec![])
+        let events = self
+            .state
+            .get_events_by_timerange(start_time, end_time, count)
+            .await?;
+        Ok(events)
     }
 }
 
