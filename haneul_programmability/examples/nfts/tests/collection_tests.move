@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::collection_tests {
-    use haneul::bag::{Self, Bag};
-    use haneul::collection::{Self, Collection};
+module nfts::collection_tests {
+    use nfts::bag::{Self, Bag};
+    use nfts::collection::{Self, Collection};
     use haneul::object::{Self, UID};
     use haneul::test_scenario;
+    use haneul::transfer;
     use haneul::typed_id;
     use haneul::tx_context;
 
@@ -111,7 +112,7 @@ module haneul::collection_tests {
         // Haneul::collection::DEFAULT_MAX_CAPACITY is not readable outside the module
         let max_capacity = 65536;
         let collection = collection::new_with_max_capacity<Object>(&mut ctx, max_capacity + 1);
-        collection::transfer(collection, tx_context::sender(&ctx));
+        transfer::transfer(collection, tx_context::sender(&ctx));
     }
 
     #[test]
@@ -119,7 +120,7 @@ module haneul::collection_tests {
     fun test_init_with_zero() {
         let ctx = tx_context::dummy();
         let collection = collection::new_with_max_capacity<Object>(&mut ctx, 0);
-        collection::transfer(collection, tx_context::sender(&ctx));
+        transfer::transfer(collection, tx_context::sender(&ctx));
     }
 
     #[test]
@@ -132,6 +133,6 @@ module haneul::collection_tests {
         collection::add(&mut collection, obj1, &mut ctx);
         let obj2 = Object { id: object::new(&mut ctx) };
         collection::add(&mut collection, obj2, &mut ctx);
-        collection::transfer(collection, tx_context::sender(&ctx));
+        transfer::transfer(collection, tx_context::sender(&ctx));
     }
 }

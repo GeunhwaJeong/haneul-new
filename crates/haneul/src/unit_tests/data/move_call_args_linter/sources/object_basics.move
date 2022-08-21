@@ -1,13 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// test that freezing prevents transfers/mutations
-
-//# init --addresses test=0x0 --accounts A
-
-//# publish
-
-module test::object_basics {
+/// Test CTURD object basics (create, transfer, update, read, delete)
+module examples::object_basics {
     use haneul::event;
     use haneul::object::{Self, UID};
     use haneul::tx_context::{Self, TxContext};
@@ -68,11 +63,3 @@ module test::object_basics {
         transfer::transfer(o, tx_context::sender(ctx))
     }
 }
-
-//# run test::object_basics::create --args 10 @A
-
-//# run test::object_basics::freeze_object --args object(106)
-
-//# run test::object_basics::transfer --args object(106) @A
-
-//# run test::object_basics::set_value --args object(106) 1

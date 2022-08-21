@@ -25,7 +25,7 @@ use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_types::crypto::{AuthorityKeyPair, KeypairTraits, HaneulKeyPair};
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
-use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_OBJECT_ID};
+use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_ADDRESS};
 
 use test_utils::network::{setup_network_and_wallet, start_test_network};
 
@@ -316,6 +316,31 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     let (_network, mut context, address1) = setup_network_and_wallet().await?;
     let address2 = context.keystore.addresses().get(1).cloned().unwrap();
 
+    // publish the object basics package
+    let object_refs = context
+        .gateway
+        .read_api()
+        .get_objects_owned_by_address(address1)
+        .await?;
+    let gas_obj_id = object_refs.first().unwrap().object_id;
+    let mut package_path = PathBuf::from(TEST_DATA_DIR);
+    package_path.push("move_call_args_linter");
+    let build_config = BuildConfig::default();
+    let resp = HaneulClientCommands::Publish {
+        package_path,
+        build_config,
+        gas: Some(gas_obj_id),
+        gas_budget: 1000,
+    }
+    .execute(&mut context)
+    .await?;
+    let package = if let HaneulClientCommandResult::Publish(response) = resp {
+        let publish_resp = response.parsed_data.unwrap().to_publish_response().unwrap();
+        publish_resp.package.object_id
+    } else {
+        unreachable!("Invalid response");
+    };
+
     // Sync client to retrieve objects from the network.
     HaneulClientCommands::SyncClientState {
         address: Some(address2),
@@ -354,7 +379,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
 
     // Test case with no gas specified
     let resp = HaneulClientCommands::Call {
-        package: HANEUL_FRAMEWORK_OBJECT_ID,
+        package,
         module: "object_basics".to_string(),
         function: "create".to_string(),
         type_args: vec![],
@@ -394,7 +419,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     }
 
     let resp = HaneulClientCommands::Call {
-        package: HANEUL_FRAMEWORK_OBJECT_ID,
+        package,
         module: "object_basics".to_string(),
         function: "create".to_string(),
         type_args: vec![],
@@ -418,7 +443,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     ];
 
     let resp = HaneulClientCommands::Call {
-        package: HANEUL_FRAMEWORK_OBJECT_ID,
+        package,
         module: "object_basics".to_string(),
         function: "transfer".to_string(),
         type_args: vec![],
@@ -432,8 +457,9 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     assert!(resp.is_err());
 
     let err_string = format!("{} ", resp.err().unwrap());
-    let framework_addr = haneul_framework_address_concat_string("");
-    assert!(err_string.contains(&format!("Expected argument of type {framework_addr}::object_basics::Object, but found type {framework_addr}::coin::Coin<{framework_addr}::haneul::HANEUL>")));
+    let framework_addr = HANEUL_FRAMEWORK_ADDRESS.to_hex_literal();
+    let package_addr = package.to_hex_literal();
+    assert!(err_string.contains(&format!("Expected argument of type {package_addr}::object_basics::Object, but found type {framework_addr}::coin::Coin<{framework_addr}::haneul::HANEUL>")));
 
     // Try a proper transfer
     let args = vec![
@@ -442,7 +468,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     ];
 
     HaneulClientCommands::Call {
-        package: HANEUL_FRAMEWORK_OBJECT_ID,
+        package,
         module: "object_basics".to_string(),
         function: "transfer".to_string(),
         type_args: vec![],

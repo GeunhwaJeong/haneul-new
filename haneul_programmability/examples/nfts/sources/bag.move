@@ -9,7 +9,7 @@
 /// could mutate the objects in the Bag.
 /// Bag is different from the Collection type in that Collection
 /// only supports owning objects of the same type.
-module haneul::bag {
+module nfts::bag {
     use haneul::object::{Self, ID, UID};
     use haneul::transfer;
     use haneul::typed_id::{Self, TypedID};

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Test CTURD object basics (create, transfer, update, read, delete)
-module haneul::object_basics {
+module examples::object_basics {
     use haneul::event;
     use haneul::object::{Self, UID};
     use haneul::tx_context::{Self, TxContext};

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module nfts::geniteam {
-    use haneul::bag::{Self, Bag};
-    use haneul::collection::{Self, Collection};
+    use nfts::bag::{Self, Bag};
+    use nfts::collection::{Self, Collection};
     use haneul::object::{Self, UID};
     use haneul::typed_id::{Self, TypedID};
     use haneul::tx_context::{Self, TxContext};

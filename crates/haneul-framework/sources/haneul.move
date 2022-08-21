@@ -3,8 +3,9 @@
 
 /// Coin<HANEUL> is the token used to pay for gas in Haneul
 module haneul::haneul {
-    use haneul::coin;
     use haneul::balance::{Self, Supply};
+    use haneul::coin;
+    use haneul::transfer;
 
     friend haneul::genesis;
 
@@ -17,8 +18,7 @@ module haneul::haneul {
         balance::create_supply(HANEUL {})
     }
 
-    /// Transfer to a recipient
     public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address) {
-        coin::transfer(c, recipient)
+        transfer::transfer(c, recipient)
     }
 }

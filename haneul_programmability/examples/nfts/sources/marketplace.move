@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module nfts::marketplace {
-    use haneul::bag::{Self, Bag};
+    use nfts::bag::{Self, Bag};
     use haneul::tx_context::{Self, TxContext};
     use haneul::object::{Self, ID, UID};
     use haneul::typed_id::{Self, TypedID};
@@ -124,11 +124,11 @@ module nfts::marketplace {
 #[test_only]
 module nfts::marketplaceTests {
     use haneul::object::{Self, UID};
-    use haneul::bag::{Self, Bag};
     use haneul::transfer;
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
     use haneul::test_scenario::{Self, Scenario};
+    use nfts::bag::{Self, Bag};
     use nfts::marketplace::{Self, Marketplace, Listing};
 
     // Simple Kitty-NFT data structure.

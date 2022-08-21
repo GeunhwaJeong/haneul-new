@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::bag_tests {
-    use haneul::bag::{Self, Bag};
+module nfts::bag_tests {
+    use nfts::bag::{Self, Bag};
     use haneul::object::{Self, UID};
     use haneul::test_scenario;
     use haneul::typed_id;

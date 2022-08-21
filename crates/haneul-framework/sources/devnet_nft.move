@@ -56,13 +56,6 @@ module haneul::devnet_nft {
         transfer::transfer(nft, sender);
     }
 
-    /// Transfer `nft` to `recipient`
-    public entry fun transfer(
-        nft: DevNetNFT, recipient: address, _: &mut TxContext
-    ) {
-        transfer::transfer(nft, recipient)
-    }
-
     /// Update the `description` of `nft` to `new_description`
     public entry fun update_description(
         nft: &mut DevNetNFT,
@@ -98,6 +91,7 @@ module haneul::devnet_nft {
 module haneul::devnet_nftTests {
     use haneul::devnet_nft::{Self, DevNetNFT};
     use haneul::test_scenario;
+    use haneul::transfer;
     use haneul::utf8;
 
     #[test]
@@ -113,7 +107,7 @@ module haneul::devnet_nftTests {
         test_scenario::next_tx(&mut scenario, &addr1);
         {
             let nft = test_scenario::take_owned<DevNetNFT>(&mut scenario);
-            devnet_nft::transfer(nft, addr2, test_scenario::ctx(&mut scenario));
+            transfer::transfer(nft, addr2);
         };
         // update its description
         test_scenario::next_tx(&mut scenario, &addr2);

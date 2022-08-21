@@ -13,6 +13,6 @@
 
 //# view-object 106
 
-//# run haneul::coin::transfer --type-args haneul::haneul::HANEUL --args object(100) @C --sender B
+//# run haneul::coin::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 0 @C --sender B
 
 //# view-object 100

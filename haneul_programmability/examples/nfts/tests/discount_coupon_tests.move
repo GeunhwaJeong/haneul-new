@@ -7,6 +7,7 @@ module nfts::discount_coupon_tests {
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
     use haneul::test_scenario::Self;
+    use haneul::transfer;
     use haneul::tx_context::TxContext;
 
     const ISSUER_ADDRESS: address = @0xA001;
@@ -20,8 +21,8 @@ module nfts::discount_coupon_tests {
     // be available in Haneul genesis state (e.g., mints and distributes
     // coins to users).
     fun init(ctx: &mut TxContext) {
-        let coin = coin::mint_for_testing(100, ctx);
-        coin::transfer<HANEUL>(coin, ISSUER_ADDRESS);
+        let coin = coin::mint_for_testing<HANEUL>(100, ctx);
+        transfer::transfer(coin, ISSUER_ADDRESS);
     }
 
     #[test]

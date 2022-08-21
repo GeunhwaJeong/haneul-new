@@ -9,6 +9,7 @@ module nfts::auction_tests {
     use haneul::haneul::HANEUL;
     use haneul::object::{Self, UID};
     use haneul::test_scenario::Self;
+    use haneul::transfer;
     use haneul::tx_context::TxContext;
 
     use nfts::auction::{Self, Bid};
@@ -29,8 +30,8 @@ module nfts::auction_tests {
     fun init(ctx: &mut TxContext, bidders: vector<address>) {
         while (!vector::is_empty(&bidders)) {
             let bidder = vector::pop_back(&mut bidders);
-            let coin = coin::mint_for_testing(100, ctx);
-            coin::transfer<HANEUL>(coin, bidder);
+            let coin = coin::mint_for_testing<HANEUL>(100, ctx);
+            transfer::transfer(coin, bidder);
         };
     }
 

@@ -12,12 +12,12 @@ use haneul_json_rpc::api::{
 };
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulTransactionResponse, TransactionBytes};
 use haneul_sdk::crypto::KeystoreType;
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::TransactionDigest;
+use haneul_types::gas_coin::GAS;
 use haneul_types::messages::Transaction;
 use haneul_types::haneul_serde::Base64;
-use haneul_types::{
-    base_types::{ObjectID, TransactionDigest},
-    HANEUL_FRAMEWORK_ADDRESS,
-};
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use test_utils::network::start_rpc_test_network;
 
@@ -113,14 +113,16 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     http_client.sync_account_state(*address).await?;
     let objects = http_client.get_objects_owned_by_address(*address).await?;
     let gas = objects.first().unwrap();
+    let coin = &objects[1];
 
+    // now do the call
     let package_id = ObjectID::new(HANEUL_FRAMEWORK_ADDRESS.into_bytes());
-    let module = "object_basics".to_string();
-    let function = "create".to_string();
+    let module = "coin".to_string();
+    let function = "split".to_string();
 
     let json_args = vec![
-        HaneulJsonValue::from_str("10000")?,
-        HaneulJsonValue::from_str(&format!("{:#x}", address))?,
+        HaneulJsonValue::from_object_id(coin.object_id),
+        HaneulJsonValue::from_str("10")?,
     ];
 
     let transaction_bytes: TransactionBytes = http_client
@@ -129,7 +131,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
             package_id,
             module,
             function,
-            vec![],
+            vec![GAS::type_tag().into()],
             json_args,
             Some(gas.object_id),
             1000,
