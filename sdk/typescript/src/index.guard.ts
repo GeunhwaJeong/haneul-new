@@ -5,7 +5,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
+import { Ed25519KeypairData, Keypair, PublicKeyInitData, PublicKeyData, SignatureScheme, TransferObjectTransaction, TransferHaneulTransaction, MergeCoinTransaction, SplitCoinTransaction, MoveCallTransaction, PublishTransaction, TxnDataSerializer, SignaturePubkeyPair, Signer, TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
 import { BN } from "bn.js";
 import { Buffer } from "buffer";
 import { Base64DataBuffer } from "./serialization/base64";
@@ -82,7 +82,7 @@ export function isTransferHaneulTransaction(obj: any, _argumentName?: string): o
         isTransactionDigest(obj.haneulObjectId) as boolean &&
         isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean &&
         isTransactionDigest(obj.recipient) as boolean &&
-        (typeof obj.amount === "undefined" ||
+        (obj.amount === null ||
             isHaneulMoveTypeParameterIndex(obj.amount) as boolean)
     )
 }
@@ -151,10 +151,14 @@ export function isPublishTransaction(obj: any, _argumentName?: string): obj is P
         (obj !== null &&
             typeof obj === "object" ||
             typeof obj === "function") &&
-        Array.isArray(obj.compiledModules) &&
-        obj.compiledModules.every((e: any) =>
-            isTransactionDigest(e) as boolean
-        ) &&
+        ((obj.compiledModules !== null &&
+            typeof obj.compiledModules === "object" ||
+            typeof obj.compiledModules === "function") &&
+            typeof obj.compiledModules["__@iterator"] === "function" ||
+            (obj.compiledModules !== null &&
+                typeof obj.compiledModules === "object" ||
+                typeof obj.compiledModules === "function") &&
+            typeof obj.compiledModules["__@iterator"] === "function") &&
         (typeof obj.gasPayment === "undefined" ||
             isTransactionDigest(obj.gasPayment) as boolean) &&
         isHaneulMoveTypeParameterIndex(obj.gasBudget) as boolean
@@ -1125,6 +1129,26 @@ export function isTransferObjectTx(obj: any, _argumentName?: string): obj is Tra
     )
 }
 
+export function isTransferHaneulTx(obj: any, _argumentName?: string): obj is TransferHaneulTx {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        (obj.TransferHaneul !== null &&
+            typeof obj.TransferHaneul === "object" ||
+            typeof obj.TransferHaneul === "function") &&
+        isTransactionDigest(obj.TransferHaneul.recipient) as boolean &&
+        ((obj.TransferHaneul.amount !== null &&
+            typeof obj.TransferHaneul.amount === "object" ||
+            typeof obj.TransferHaneul.amount === "function") &&
+            isHaneulMoveTypeParameterIndex(obj.TransferHaneul.amount.Some) as boolean ||
+            (obj.TransferHaneul.amount !== null &&
+                typeof obj.TransferHaneul.amount === "object" ||
+                typeof obj.TransferHaneul.amount === "function") &&
+            obj.TransferHaneul.amount.None === null)
+    )
+}
+
 export function isPublishTx(obj: any, _argumentName?: string): obj is PublishTx {
     return (
         (obj !== null &&
@@ -1246,6 +1270,7 @@ export function isMoveCallTx(obj: any, _argumentName?: string): obj is MoveCallT
 export function isTransaction(obj: any, _argumentName?: string): obj is Transaction {
     return (
         (isTransferObjectTx(obj) as boolean ||
+            isTransferHaneulTx(obj) as boolean ||
             isPublishTx(obj) as boolean ||
             isMoveCallTx(obj) as boolean)
     )
