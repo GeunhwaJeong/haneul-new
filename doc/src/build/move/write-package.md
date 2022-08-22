@@ -75,11 +75,11 @@ definitions in the `m1.move` file:
 
 ``` rust
 module my_first_package::m1 {
-    use haneul::object::Info;
+    use haneul::object::{Self, UID};
     use haneul::tx_context::TxContext;
 
     struct Sword has key, store {
-        info: Info,
+        id: UID,
         magic: u64,
         strength: u64,
     }
