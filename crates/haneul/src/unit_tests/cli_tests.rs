@@ -23,7 +23,7 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulData, HaneulParsedObject, HaneulTransactionEffects};
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
-use haneul_types::crypto::{AuthorityKeyPair, KeypairTraits, HaneulKeyPair};
+use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, KeypairTraits, HaneulKeyPair};
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_ADDRESS};
 
@@ -113,6 +113,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
             validator_set: vec![ValidatorInfo {
                 name: "0".into(),
                 public_key: get_key_pair::<AuthorityKeyPair>().1.public().into(),
+                network_key: get_key_pair::<AccountKeyPair>().1.public().clone().into(),
                 stake: 1,
                 delegation: 1,
                 gas_price: 1,

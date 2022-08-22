@@ -14,9 +14,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::StakeUnit;
+use haneul_types::crypto::AccountKeyPair;
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::crypto::KeypairTraits;
+use haneul_types::crypto::PublicKey as AccountsPublicKey;
+use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::haneul_serde::KeyPairBase64;
 
 // Default max number of concurrent requests served
@@ -26,9 +29,15 @@ pub const DEFAULT_GRPC_CONCURRENCY_LIMIT: usize = 20000;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct NodeConfig {
+    /// The keypair that is used to deal with consensus transactions
     #[serde(default = "default_key_pair")]
     #[serde_as(as = "Arc<KeyPairBase64>")]
     pub key_pair: Arc<AuthorityKeyPair>,
+    /// The keypair that the authority uses to receive payments
+    #[serde(default = "default_haneul_key_pair")]
+    pub account_key_pair: Arc<HaneulKeyPair>,
+    #[serde(default = "default_haneul_key_pair")]
+    pub network_key_pair: Arc<HaneulKeyPair>,
     pub db_path: PathBuf,
     #[serde(default = "default_grpc_address")]
     pub network_address: Multiaddr,
@@ -65,6 +74,10 @@ pub struct NodeConfig {
 
 fn default_key_pair() -> Arc<AuthorityKeyPair> {
     Arc::new(haneul_types::crypto::get_key_pair().1)
+}
+
+fn default_haneul_key_pair() -> Arc<HaneulKeyPair> {
+    Arc::new((haneul_types::crypto::get_key_pair::<AccountKeyPair>().1).into())
 }
 
 fn default_grpc_address() -> Multiaddr {
@@ -157,6 +170,7 @@ impl ConsensusConfig {
 pub struct ValidatorInfo {
     pub name: String,
     pub public_key: AuthorityPublicKeyBytes,
+    pub network_key: AccountsPublicKey,
     pub stake: StakeUnit,
     pub delegation: StakeUnit,
     pub gas_price: u64,
@@ -181,6 +195,10 @@ impl ValidatorInfo {
 
     pub fn public_key(&self) -> AuthorityPublicKeyBytes {
         self.public_key
+    }
+
+    pub fn network_key(&self) -> &AccountsPublicKey {
+        &self.network_key
     }
 
     pub fn stake(&self) -> StakeUnit {

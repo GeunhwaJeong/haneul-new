@@ -29,6 +29,7 @@ module haneul::genesis {
     /// all the information we need in the system.
     fun create(
         validator_pubkeys: vector<vector<u8>>,
+        validator_network_pubkeys: vector<vector<u8>>,
         validator_haneul_addresses: vector<address>,
         validator_names: vector<vector<u8>>,
         validator_net_addresses: vector<vector<u8>>,
@@ -52,6 +53,7 @@ module haneul::genesis {
         while (i < count) {
             let haneul_address = *vector::borrow(&validator_haneul_addresses, i);
             let pubkey = *vector::borrow(&validator_pubkeys, i);
+            let network_pubkey = *vector::borrow(&validator_network_pubkeys, i);
             let name = *vector::borrow(&validator_names, i);
             let net_address = *vector::borrow(&validator_net_addresses, i);
             let stake = *vector::borrow(&validator_stakes, i);
@@ -59,6 +61,7 @@ module haneul::genesis {
             vector::push_back(&mut validators, validator::new(
                 haneul_address,
                 pubkey,
+                network_pubkey, 
                 name,
                 net_address,
                 balance::increase_supply(&mut haneul_supply, stake),

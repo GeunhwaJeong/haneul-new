@@ -10,7 +10,9 @@ use signature::Signer;
 
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
-use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes};
+use haneul_types::crypto::{
+    get_key_pair, AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes, HaneulKeyPair,
+};
 use haneul_types::crypto::{KeypairTraits, Signature};
 
 use haneul_types::messages::*;
@@ -45,11 +47,13 @@ pub async fn init_local_authorities(
     let mut builder = haneul_config::genesis::Builder::new().add_objects(genesis_objects);
     let mut key_pairs = Vec::new();
     for i in 0..committee_size {
-        let (_, key_pair): (_, AuthorityKeyPair) = get_key_pair();
+        let key_pair: AuthorityKeyPair = get_key_pair().1;
         let authority_name = key_pair.public().into();
+        let network_key_pair: HaneulKeyPair = get_key_pair::<AccountKeyPair>().1.into();
         let validator_info = ValidatorInfo {
             name: format!("validator-{i}"),
             public_key: authority_name,
+            network_key: network_key_pair.public(),
             stake: 1,
             delegation: 0,
             gas_price: 1,

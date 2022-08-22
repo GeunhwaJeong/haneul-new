@@ -8,7 +8,7 @@ use serde_with::serde_as;
 use std::collections::{BTreeMap, BTreeSet};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::StakeUnit;
-use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair};
+use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, HaneulKeyPair};
 use haneul_types::object::Object;
 use haneul_types::haneul_serde::KeyPairBase64;
 use tracing::info;
@@ -89,6 +89,8 @@ impl GenesisConfig {
 pub struct ValidatorGenesisInfo {
     #[serde_as(as = "KeyPairBase64")]
     pub key_pair: AuthorityKeyPair,
+    pub account_key_pair: HaneulKeyPair,
+    pub network_key_pair: HaneulKeyPair,
     pub network_address: Multiaddr,
     pub stake: StakeUnit,
     pub gas_price: u64,

@@ -17,6 +17,7 @@ module haneul::governance_test_utils {
         validator::new(
             addr,
             x"FF",
+            x"FF",
             b"ValidatorName",
             x"FFFF",
             balance::create_for_testing<HANEUL>(init_stake_amount),

@@ -99,6 +99,7 @@ module haneul::haneul_system {
     public entry fun request_add_validator(
         self: &mut HaneulSystemState,
         pubkey_bytes: vector<u8>,
+        network_pubkey_bytes: vector<u8>,
         name: vector<u8>,
         net_address: vector<u8>,
         stake: Coin<HANEUL>,
@@ -117,6 +118,7 @@ module haneul::haneul_system {
         let validator = validator::new(
             tx_context::sender(ctx),
             pubkey_bytes,
+            network_pubkey_bytes,
             name,
             net_address,
             coin::into_balance(stake),
