@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
-import type { HaneulAddress, MoveCallTransaction, TransactionResponse } from '@haneullabs/haneul.js';
-import { WalletCapabilities } from "haneul-base-wallet-adapter";
+import type { HaneulAddress, MoveCallTransaction, HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import { WalletCapabilities } from "@haneullabs/wallet-adapter-base";
 import { Wallet, WalletContext } from './useWallet';
 
 export interface WalletAdapter {
@@ -36,7 +36,7 @@ export const WalletProvider: FC<WalletProviderProps> = ({
                 await wallet.adapter.connect()
                 setConnected(true)
             } catch (e) {
-                setConnected(false) 
+                setConnected(false)
             }
             setConnecting(false);
     }, [wallet]);
@@ -84,13 +84,13 @@ export const WalletProvider: FC<WalletProviderProps> = ({
     }
 
     // Requests wallet for signature and executes if signed
-    const executeMoveCall = async (transaction: MoveCallTransaction): Promise<TransactionResponse> => {
+    const executeMoveCall = async (transaction: MoveCallTransaction): Promise<HaneulTransactionResponse> => {
         if (wallet == null) throw Error('Wallet Not Connected');
         return await wallet.adapter.executeMoveCall(transaction);
     }
 
     // Requests wallet for signature on serialized transaction and executes if signed
-    const executeSerializedMoveCall = async (transactionBytes: Uint8Array): Promise<TransactionResponse> => {
+    const executeSerializedMoveCall = async (transactionBytes: Uint8Array): Promise<HaneulTransactionResponse> => {
         if (wallet == null) throw Error('Wallet Not Connected');
         return await wallet.adapter.executeSerializedMoveCall(transactionBytes);
     }
@@ -98,7 +98,7 @@ export const WalletProvider: FC<WalletProviderProps> = ({
     // Attempt to connect whenever user selects a new wallet
     useEffect(() => {
         if (
-            wallet != null && 
+            wallet != null &&
             connecting !== true &&
             connected !== true
         ) {
@@ -113,7 +113,7 @@ export const WalletProvider: FC<WalletProviderProps> = ({
                 wallet,
                 connecting: connecting,
                 connected: connected,
-                select: choose, 
+                select: choose,
                 connect,
                 disconnect,
                 getAccounts,

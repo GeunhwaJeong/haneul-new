@@ -1,8 +1,8 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { MoveCallTransaction, HaneulAddress, TransactionResponse } from "@haneullabs/haneul.js";
-import { WalletCapabilities } from "haneul-base-wallet-adapter";
+import { MoveCallTransaction, HaneulAddress, HaneulTransactionResponse } from "@haneullabs/haneul.js";
+import { WalletCapabilities } from "@haneullabs/wallet-adapter-base";
 
 const ALL_PERMISSION_TYPES = [
     'viewAccount',
@@ -15,8 +15,8 @@ interface HaneulWallet {
     hasPermissions(permissions: readonly PermissionType[]): Promise<boolean>;
     requestPermissions(): Promise<boolean>;
     getAccounts(): Promise<HaneulAddress[]>;
-    executeMoveCall: (transaction: MoveCallTransaction) => Promise<TransactionResponse>;
-    executeSerializedMoveCall: (transactionBytes: Uint8Array) => Promise<TransactionResponse>;
+    executeMoveCall: (transaction: MoveCallTransaction) => Promise<HaneulTransactionResponse>;
+    executeSerializedMoveCall: (transactionBytes: Uint8Array) => Promise<HaneulTransactionResponse>;
 }
 interface HaneulWalletWindow {
     haneulWallet: HaneulWallet
@@ -32,14 +32,14 @@ export class MockWalletAdapter implements WalletCapabilities{
     getAccounts(): Promise<string[]> {
         return window.haneulWallet.getAccounts();
     }
-    executeMoveCall(transaction: MoveCallTransaction): Promise<TransactionResponse> {
+    executeMoveCall(transaction: MoveCallTransaction): Promise<HaneulTransactionResponse> {
         return window.haneulWallet.executeMoveCall(transaction);
     }
-    executeSerializedMoveCall(transactionBytes: Uint8Array): Promise<TransactionResponse> {
+    executeSerializedMoveCall(transactionBytes: Uint8Array): Promise<HaneulTransactionResponse> {
         return window.haneulWallet.executeSerializedMoveCall(transactionBytes);
     }
 
-    name: string; 
+    name: string;
 
     async connect(): Promise<void> {
         this.connecting = true;

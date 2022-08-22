@@ -4,9 +4,9 @@
 import React from 'react';
 import './App.css';
 import { root } from '.';
-import { Wallet, WalletProvider } from 'haneul-wallet-adapter-react';
-import { HaneulWalletAdapter, MockWalletAdapter} from '@haneul-wallet-adapter/all-wallets';
-import { WalletWrapper } from 'haneul-wallet-adapter-ui';
+import { Wallet, WalletProvider } from '@haneullabs/wallet-adapter-react';
+import { HaneulWalletAdapter, MockWalletAdapter} from '@haneullabs/wallet-adapter-all-wallets';
+import { WalletWrapper } from '@haneullabs/wallet-adapter-react-ui';
 import { Button } from '@mui/material';
 import { TestButton } from './TestButton';
 

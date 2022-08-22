@@ -1,5 +1,5 @@
 {
-  "name": "@haneullabs/base-wallet-adapter",
+  "name": "@haneullabs/wallet-adapter-base",
   "version": "0.0.0",
   "description": "Base wallet adapter for Haneul",
   "main": "lib/index.js",

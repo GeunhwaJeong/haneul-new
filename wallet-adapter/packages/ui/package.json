@@ -1,5 +1,5 @@
 {
-  "name": "@haneullabs/wallet-adapter-ui",
+  "name": "@haneullabs/wallet-adapter-react-ui",
   "version": "0.0.0",
   "description": "UI for the Haneul Wallet Adapter",
   "main": "lib/index.js",
