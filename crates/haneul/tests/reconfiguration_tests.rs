@@ -17,8 +17,8 @@ use haneul_types::error::HaneulResult;
 use haneul_types::messages::ObjectInfoResponse;
 use haneul_types::messages::{CallArg, ObjectArg, ObjectInfoRequest, TransactionEffects};
 use haneul_types::messages_checkpoint::{
-    AuthenticatedCheckpoint, CertifiedCheckpointSummary, CheckpointContents,
-    CheckpointSequenceNumber, SignedCheckpointSummary,
+    AuthenticatedCheckpoint, CertifiedCheckpointSummary, CheckpointSequenceNumber,
+    SignedCheckpointSummary,
 };
 use haneul_types::object::Object;
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
@@ -104,7 +104,7 @@ async fn reconfig_end_to_end_tests() {
             &node.state(),
             CHECKPOINT_COUNT_PER_EPOCH,
             // The transaction that registered the new validator must be included in the checkpoint
-            std::iter::once(ExecutionDigests::new(
+            std::iter::once(&ExecutionDigests::new(
                 effects.transaction_digest,
                 effects.digest(),
             )),
@@ -128,10 +128,10 @@ async fn reconfig_end_to_end_tests() {
     assert_eq!(haneul_system_state.validators.active_validators.len(), 5);
 }
 
-fn sign_checkpoint(
+fn sign_checkpoint<'a>(
     state: &Arc<AuthorityState>,
     seq: CheckpointSequenceNumber,
-    transactions: impl Iterator<Item = ExecutionDigests>,
+    transactions: impl Iterator<Item = &'a ExecutionDigests> + Clone,
 ) -> SignedCheckpointSummary {
     let mut checkpoints = state.checkpoints.as_ref().unwrap().lock();
 
@@ -140,13 +140,7 @@ fn sign_checkpoint(
     checkpoints.set_locals_for_testing(cur_locals).unwrap();
 
     checkpoints
-        .sign_new_checkpoint(
-            0,
-            seq,
-            &CheckpointContents::new(transactions),
-            None,
-            state.db(),
-        )
+        .sign_new_checkpoint(0, seq, transactions, state.db())
         .unwrap();
     match checkpoints.get_checkpoint(seq).unwrap().unwrap() {
         AuthenticatedCheckpoint::Signed(s) => s,
