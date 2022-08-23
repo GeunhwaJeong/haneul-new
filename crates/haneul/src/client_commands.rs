@@ -188,9 +188,9 @@ pub enum HaneulClientCommands {
     #[clap(name = "addresses")]
     Addresses,
 
-    /// Generate new address and keypair.
+    /// Generate new address and keypair, with optional keypair scheme {ed25519 | secp256k1}, default to ed25519.
     #[clap(name = "new-address")]
-    NewAddress,
+    NewAddress { key_scheme: Option<String> },
 
     /// Obtain all objects owned by the address.
     #[clap(name = "objects")]
@@ -406,9 +406,9 @@ impl HaneulClientCommands {
                     .await?;
                 HaneulClientCommandResult::SyncClientState
             }
-            HaneulClientCommands::NewAddress => {
-                let (address, phrase) = context.keystore.generate_new_key()?;
-                HaneulClientCommandResult::NewAddress((address, phrase))
+            HaneulClientCommands::NewAddress { key_scheme } => {
+                let (address, phrase, flag) = context.keystore.generate_new_key(key_scheme)?;
+                HaneulClientCommandResult::NewAddress((address, phrase, flag))
             }
             HaneulClientCommands::Gas { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -771,8 +771,11 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
             }
-            HaneulClientCommandResult::NewAddress((address, recovery_phrase)) => {
-                writeln!(writer, "Created new keypair for address : [{address}]")?;
+            HaneulClientCommandResult::NewAddress((address, recovery_phrase, flag)) => {
+                writeln!(
+                    writer,
+                    "Created new keypair for address with flag {flag}: [{address}]"
+                )?;
                 writeln!(writer, "Secret Recovery Phrase : [{recovery_phrase}]")?;
             }
             HaneulClientCommandResult::Gas(gases) => {
@@ -940,7 +943,7 @@ pub enum HaneulClientCommandResult {
     Addresses(Vec<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     SyncClientState,
-    NewAddress((HaneulAddress, String)),
+    NewAddress((HaneulAddress, String, u8)),
     Gas(Vec<GasCoin>),
     SplitCoin(HaneulTransactionResponse),
     MergeCoin(HaneulTransactionResponse),

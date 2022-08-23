@@ -24,11 +24,11 @@ use haneul_json_rpc_types::{GetObjectDataResponse, HaneulData, HaneulParsedObjec
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_types::crypto::{
-    generate_proof_of_possession, AccountKeyPair, AuthorityKeyPair, KeypairTraits, HaneulKeyPair,
+    generate_proof_of_possession, AccountKeyPair, AuthorityKeyPair, Ed25519HaneulSignature,
+    KeypairTraits, Secp256k1HaneulSignature, HaneulKeyPair, HaneulSignatureInner,
 };
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_ADDRESS};
-
 use test_utils::network::{setup_network_and_wallet, start_test_network};
 
 const TEST_DATA_DIR: &str = "src/unit_tests/data/";
@@ -769,10 +769,10 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     context.config.active_address = None;
 
     // Create a new address
-    let os = HaneulClientCommands::NewAddress {}
+    let os = HaneulClientCommands::NewAddress { key_scheme: None }
         .execute(&mut context)
         .await?;
-    let new_addr = if let HaneulClientCommandResult::NewAddress((a, _)) = os {
+    let new_addr = if let HaneulClientCommandResult::NewAddress((a, _, _)) = os {
         a
     } else {
         panic!("Command failed")
@@ -798,6 +798,66 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
                 fullnode: None,
             })
         )
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_new_address_command_by_flag() -> Result<(), anyhow::Error> {
+    // Create Wallet context.
+    let network = start_test_network(None).await?;
+    let wallet_conf = network.dir().join(HANEUL_CLIENT_CONFIG);
+    let mut context = WalletContext::new(&wallet_conf).await?;
+
+    // keypairs loaded from config are Ed25519
+    assert_eq!(
+        context
+            .keystore
+            .keys()
+            .iter()
+            .filter(|k| k.flag() == Ed25519HaneulSignature::SCHEME.flag())
+            .count(),
+        5
+    );
+
+    HaneulClientCommands::NewAddress {
+        key_scheme: Some("secp256k1".to_string()),
+    }
+    .execute(&mut context)
+    .await?;
+
+    // new keypair generated is Secp256k1
+    assert_eq!(
+        context
+            .keystore
+            .keys()
+            .iter()
+            .filter(|k| k.flag() == Secp256k1HaneulSignature::SCHEME.flag())
+            .count(),
+        1
+    );
+
+    // random key scheme errors out
+    assert!(HaneulClientCommands::NewAddress {
+        key_scheme: Some("random".to_string()),
+    }
+    .execute(&mut context)
+    .await
+    .is_err());
+
+    HaneulClientCommands::NewAddress { key_scheme: None }
+        .execute(&mut context)
+        .await?;
+
+    // None key scheme defaults to Ed25519
+    assert_eq!(
+        context
+            .keystore
+            .keys()
+            .iter()
+            .filter(|k| k.flag() == Ed25519HaneulSignature::SCHEME.flag())
+            .count(),
+        6
     );
     Ok(())
 }
