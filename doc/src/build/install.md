@@ -259,7 +259,7 @@ You can start exploring Haneul's source code by looking into the following prima
 
 See the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
 * https://haneullabs.github.io/haneul/ - the Haneul blockchain
-* https://haneullabs.github.io/narwhal/ - the Narwhal and Tusk consensus engine
+* https://haneullabs.github.io/narwhal/ - the Narwhal and Bullshark consensus engine
 * https://haneullabs.github.io/haneullabs-infra/ - Haneul Labs infrastructure
 
 ## Help

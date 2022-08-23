@@ -24,7 +24,7 @@ A lot of transactions do not have complex interdependencies with other, arbitrar
 
 Haneul further expands this approach to more involved transactions that may explicitly depend on multiple elements under their sender's control, using an [object model](../build/objects.md) and leveraging [Move](../build/move/index.md)'s strong ownership model. By requiring that dependencies be explicit, Haneul applies a "multi-lane" approach to transaction validation, making sure those independent transaction flows can progress without impediment from the others.
 
-This doesn't mean that Haneul as a platform never orders transactions with respect to each other, or that it allows owners to affect only their owned microcosm of objects. Haneul also processes transactions that have an effect on some shared state in a rigorous, consensus-ordered manner. They're just not the default use case. See the [State-of-the-art consensus](#state-of-the-art-consensus) section for details on the [Narwhal and Tusk consensus engine](architecture/consensus.md).
+This doesn't mean that Haneul as a platform never orders transactions with respect to each other, or that it allows owners to affect only their owned microcosm of objects. Haneul also processes transactions that have an effect on some shared state in a rigorous, consensus-ordered manner. They're just not the default use case. See the [State-of-the-art consensus](#state-of-the-art-consensus) section for details on the [Narwhal and Bullshark consensus engine](architecture/consensus.md).
 
 
 ## A collaborative approach to transaction submission
@@ -56,9 +56,9 @@ Unlike most existing blockchain systems (and as the reader may have guessed from
 
 ## State-of-the-art consensus
 
-[Narwhal and Tusk](architecture/consensus.md) represent the latest variant of decades of work on multi-proposer, high-throughput consensus algorithms that reaches throughputs more than 130,000 transactions per second on a WAN, with production cryptography, permanent storage, and a scaled-out primary-worker architecture.
+[Narwhal and Bullshark](architecture/consensus.md) represent the latest variant of decades of work on multi-proposer, high-throughput consensus algorithms that reaches throughputs more than 130,000 transactions per second on a WAN, with production cryptography, permanent storage, and a scaled-out primary-worker architecture.
 
-The [Narwhal mempool](https://github.com/GeunhwaJeong/narwhal) offers a high-throughput data availability engine and a scaled architecture, splitting the disk I/O and networking requirements across several workers. And Tusk is a zero-message overhead consensus algorithm, leveraging graph traversals.
+The [Narwhal mempool](https://github.com/GeunhwaJeong/narwhal) offers a high-throughput data availability engine and a scaled architecture, splitting the disk I/O and networking requirements across several workers. And Bullshark is a zero-message overhead consensus algorithm, leveraging graph traversals.
 
 ## Where Haneul excels
 
@@ -125,6 +125,6 @@ Haneul uses the state commitment that arrives upon epoch change. Haneul requires
 
 ## Conclusion
 
-In summary, Haneul offers many performance and usability gains at the cost of some complexity in less simple use cases. Direct sender transactions excel in Haneul. And the [Narwhal and Tusk](https://github.com/GeunhwaJeong/narwhal) DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus supports more complex use cases seamlessly.
+In summary, Haneul offers many performance and usability gains at the cost of some complexity in less simple use cases. Direct sender transactions excel in Haneul. And complex smart contracts may benefit from shared objects where more than one user can mutate those objects (following smart contract specific rules). In this case, Haneul totally orders all transactions involving shared objects using a [consensus](architecture/consensus.md) protocol.
 
-Complex smart contracts may benefit from shared objects where more than one user can mutate those objects (following smart contract specific rules). In this case, Haneul totally orders all transactions involving shared objects using a [consensus](architecture/consensus.md) protocol. Haneul uses a novel peer-reviewed consensus protocol based on [Narwhal](https://github.com/GeunhwaJeong/narwhal). This is state-of-the-art in terms of both performance and robustness.
+Haneul uses a novel peer-reviewed consensus protocol based on [Narwhal and Bullshark](https://github.com/GeunhwaJeong/narwhal), which provides a DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus. This is state-of-the-art in terms of both performance and robustness.

@@ -32,7 +32,7 @@ See these resources on the [Haneul Developer Portal](https://docs.haneul.io/) fo
 * [How Haneul Move differs from Core Move](../learn/haneul-move-diffs.md)
 * [How Haneul Works](../learn/how-haneul-works.md)
 * [Haneul Compared to Other Blockchains](../learn/haneul-compared.md)
-* [Narwhal and Tusk, Haneul's Consensus Engine](../learn/architecture/consensus.md)
+* [Narwhal and Bullshark, Haneul's Consensus Engine](../learn/architecture/consensus.md)
 
 
 ### Is Haneul based on Diem?

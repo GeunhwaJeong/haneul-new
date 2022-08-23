@@ -15,7 +15,7 @@ See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of avai
 Find the `rustdoc` output for key Haneul projects at:
 
 * Haneul blockchain - https://haneullabs.github.io/haneul/
-* Narwhal and Tusk consensus engine - https://haneullabs.github.io/narwhal/
+* Narwhal and Bullshark consensus engine - https://haneullabs.github.io/narwhal/
 * Haneul Labs infrastructure - https://haneullabs.github.io/haneullabs-infra/
 
 ## Configuration

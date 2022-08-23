@@ -102,7 +102,7 @@ For more information, see [Causal order vs total order](haneul-compared.md#causa
 
 A transaction in Haneul is a change to the blockchain. This may be a *simple transaction* affecting only single-writer, single-address objects, such as minting an NFT or transferring an NFT or another token. These transactions may bypass the consensus protocol in Haneul.
 
-More *complex transactions* affecting objects that are shared or owned by multiple addresses, such as asset management and other DeFi use cases, go through the [Narwhal and Tusk](https://github.com/GeunhwaJeong/narwhal) DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus.
+More *complex transactions* affecting objects that are shared or owned by multiple addresses, such as asset management and other DeFi use cases, go through the [Narwhal and Bullshark](https://github.com/GeunhwaJeong/narwhal) DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus.
 
 ### Transfer
 
