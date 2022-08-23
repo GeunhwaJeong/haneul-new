@@ -7,6 +7,7 @@ use futures::TryFutureExt;
 use parking_lot::Mutex;
 use prometheus::Registry;
 use std::option::Option::None;
+use std::time::Instant;
 use std::{sync::Arc, time::Duration};
 use haneul_config::NodeConfig;
 use haneul_core::authority_active::checkpoint_driver::CheckpointMetrics;
@@ -33,7 +34,7 @@ use haneul_storage::{
     IndexStore,
 };
 use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
-use tracing::info;
+use tracing::{error, info};
 
 use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use haneul_core::epoch::epoch_store::EpochStore;
@@ -219,9 +220,20 @@ impl HaneulNode {
                         ),
                     )
                 } else {
-                    // TODO: enable checkpoint sync on fullnode
-                    // let metrics = CheckpointMetrics::new(&prometheus_registry);
-                    // active_authority.sync_to_latest_checkpoint(&metrics).await?;
+                    info!("Starting full node sync to latest checkpoint (this may take a while)");
+                    let metrics = CheckpointMetrics::new(&prometheus_registry);
+                    let now = Instant::now();
+                    if let Err(err) = active_authority.sync_to_latest_checkpoint(&metrics).await {
+                        error!(
+                            "Full node failed to catch up to latest checkpoint: {:?}",
+                            err
+                        );
+                    } else {
+                        info!(
+                            "Full node caught up to latest checkpoint in {:?}",
+                            now.elapsed()
+                        );
+                    }
                     (
                         Some(active_authority.spawn_node_sync_process().await),
                         None,
