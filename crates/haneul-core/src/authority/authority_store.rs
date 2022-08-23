@@ -100,10 +100,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         }
     }
 
-    pub async fn acquire_tx_guard<'a, 'b>(
-        &'a self,
-        cert: &'b CertifiedTransaction,
-    ) -> HaneulResult<CertTxGuard<'a>> {
+    pub async fn acquire_tx_guard(&self, cert: &CertifiedTransaction) -> HaneulResult<CertTxGuard> {
         let digest = cert.digest();
         let guard = self.wal.begin_tx(digest, cert).await?;
 
@@ -119,7 +116,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     }
 
     /// Acquire the lock for a tx without writing to the WAL.
-    pub async fn acquire_tx_lock<'a, 'b>(&'a self, digest: &'b TransactionDigest) -> CertLockGuard {
+    pub async fn acquire_tx_lock(&self, digest: &TransactionDigest) -> CertLockGuard {
         CertLockGuard(self.wal.acquire_lock(digest).await)
     }
 
