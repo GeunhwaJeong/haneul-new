@@ -3,8 +3,11 @@
 
 export enum HaneulIcons {
   Buy = "haneul-icons-Buy",
+  Download = "haneul-icons-Download",
   Info = "haneul-icons-Info",
+  Plus = "haneul-icons-Plus",
   Preview = "haneul-icons-Preview",
+  ThumbsUp = "haneul-icons-ThumbsUp",
   Apps = "haneul-icons-apps",
   ArrowLeft = "haneul-icons-arrow-left",
   ArrowRight = "haneul-icons-arrow-right",
@@ -27,6 +30,6 @@ export enum HaneulIcons {
   VersionIcon = "haneul-icons-version-icon"
 }
 
-export type HaneulIconsClassname = "haneul-icons-Buy" | "haneul-icons-Info" | "haneul-icons-Preview" | "haneul-icons-apps" | "haneul-icons-arrow-left" | "haneul-icons-arrow-right" | "haneul-icons-checkmark" | "haneul-icons-clipboard" | "haneul-icons-close" | "haneul-icons-coins" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-logout" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-search" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-tokens" | "haneul-icons-version-icon"
-export type HaneulIconsIcon = "Buy" | "Info" | "Preview" | "apps" | "arrow-left" | "arrow-right" | "checkmark" | "clipboard" | "close" | "coins" | "globe" | "hand-coins" | "history" | "logout" | "nfts" | "percentage-polygon" | "person" | "search" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "tokens" | "version-icon"
+export type HaneulIconsClassname = "haneul-icons-Buy" | "haneul-icons-Download" | "haneul-icons-Info" | "haneul-icons-Plus" | "haneul-icons-Preview" | "haneul-icons-ThumbsUp" | "haneul-icons-apps" | "haneul-icons-arrow-left" | "haneul-icons-arrow-right" | "haneul-icons-checkmark" | "haneul-icons-clipboard" | "haneul-icons-close" | "haneul-icons-coins" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-logout" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-search" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-tokens" | "haneul-icons-version-icon"
+export type HaneulIconsIcon = "Buy" | "Download" | "Info" | "Plus" | "Preview" | "ThumbsUp" | "apps" | "arrow-left" | "arrow-right" | "checkmark" | "clipboard" | "close" | "coins" | "globe" | "hand-coins" | "history" | "logout" | "nfts" | "percentage-polygon" | "person" | "search" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "tokens" | "version-icon"
 export const HaneulIconsPrefix = "haneul-icons-"
