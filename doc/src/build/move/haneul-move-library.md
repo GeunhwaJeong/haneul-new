@@ -12,7 +12,7 @@ Objects in Haneul can have different ownership types. Specifically, they are:
 - Shared and mutable (work-in-progress).
 
 ### Transfer to address
-The [`Transfer`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/transfer.move) module provides all the APIs needed to manipuate the ownership of objects.
+The [`Transfer`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/transfer.move) module provides all the APIs needed to manipulate the ownership of objects.
 
 The most common case is to transfer an object to an address. For example, when a new object is created, it is typically transferred to an address so that the address owns the object. To transfer an object `obj` to an address `recipient`:
 ```
