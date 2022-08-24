@@ -76,7 +76,7 @@ fn main() -> Result<()> {
         .method(
             Method::builder()
                 .name("batch_info")
-                .route_name("BatchInfo")
+                .route_name("FollowTxStream")
                 .input_type("haneul_types::messages::BatchInfoRequest")
                 .output_type("haneul_types::messages::BatchInfoResponseItem")
                 .server_streaming()
