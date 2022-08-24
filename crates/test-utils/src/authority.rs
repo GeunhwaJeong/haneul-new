@@ -5,7 +5,7 @@ use rand::{prelude::StdRng, SeedableRng};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_config::{NetworkConfig, ValidatorInfo};
+use haneul_config::{NetworkConfig, NodeConfig, ValidatorInfo};
 use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_core::{
@@ -17,8 +17,9 @@ use haneul_core::{
     authority_client::NetworkAuthorityClient,
     safe_client::SafeClientMetrics,
 };
-use haneul_node::HaneulNode;
 use haneul_types::{committee::Committee, object::Object};
+
+pub use haneul_node::HaneulNode;
 
 /// The default network buffer size of a test authority.
 pub const NETWORK_BUFFER_SIZE: usize = 65_000;
@@ -50,6 +51,10 @@ pub fn test_and_configure_authority_configs(committee_size: usize) -> NetworkCon
     configs
 }
 
+pub async fn start_node(config: &NodeConfig) -> HaneulNode {
+    HaneulNode::start(config).await.unwrap()
+}
+
 /// Spawn all authorities in the test committee into a separate tokio task.
 pub async fn spawn_test_authorities<I>(objects: I, config: &NetworkConfig) -> Vec<HaneulNode>
 where
@@ -57,7 +62,7 @@ where
 {
     let mut handles = Vec::new();
     for validator in config.validator_configs() {
-        let node = HaneulNode::start(validator).await.unwrap();
+        let node = start_node(validator).await;
         let state = node.state();
 
         for o in objects.clone() {

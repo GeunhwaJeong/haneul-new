@@ -26,7 +26,6 @@ use tracing::info;
 
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
 use haneul_config::utils::get_available_port;
-use haneul_core::test_utils::{wait_for_all_txes, wait_for_tx};
 use haneul_json_rpc_types::{
     HaneulEvent, HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulMoveStruct,
     HaneulMoveValue, HaneulObjectRead,
@@ -43,6 +42,7 @@ use haneul_types::{
 use test_utils::messages::get_account_and_gas_coins;
 use test_utils::messages::make_transactions_with_wallet_context;
 use test_utils::network::setup_network_and_wallet;
+use test_utils::transaction::{wait_for_all_txes, wait_for_tx};
 
 async fn transfer_coin(
     context: &mut WalletContext,

@@ -29,7 +29,6 @@ use haneul_quorum_driver::QuorumDriverMetrics;
 use haneul_quorum_driver::{QuorumDriver, QuorumDriverHandler};
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
-    follower_store::FollowerStore,
     node_sync_store::NodeSyncStore,
     IndexStore,
 };
@@ -114,12 +113,6 @@ impl HaneulNode {
             )))
         };
 
-        let follower_store = Arc::new(FollowerStore::open_tables_read_write(
-            config.db_path().join("follower_db"),
-            None,
-            None,
-        ));
-
         let event_store = if config.enable_event_processing {
             let path = config.db_path().join("events.db");
             let db = SqlEventStore::new_from_file(&path).await?;
@@ -197,7 +190,6 @@ impl HaneulNode {
                 let active_authority = Arc::new(ActiveAuthority::new(
                     state.clone(),
                     pending_store,
-                    follower_store,
                     net,
                     GossipMetrics::new(&prometheus_registry),
                     network_metrics.clone(),
@@ -234,11 +226,8 @@ impl HaneulNode {
                             now.elapsed()
                         );
                     }
-                    (
-                        Some(active_authority.spawn_node_sync_process().await),
-                        None,
-                        None,
-                    )
+                    active_authority.spawn_node_sync_process().await;
+                    (None, None, None)
                 }
             } else {
                 (None, None, None)

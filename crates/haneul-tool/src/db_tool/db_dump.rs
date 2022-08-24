@@ -11,10 +11,7 @@ use strum_macros::EnumString;
 use haneul_core::authority::authority_store_tables::AuthorityStoreTables;
 use haneul_core::checkpoints::CheckpointStoreTables;
 use haneul_storage::default_db_options;
-use haneul_storage::{
-    follower_store::FollowerStore, lock_service::LockServiceImpl, node_sync_store::NodeSyncStore,
-    IndexStore,
-};
+use haneul_storage::{lock_service::LockServiceImpl, node_sync_store::NodeSyncStore, IndexStore};
 use haneul_types::crypto::{AuthoritySignInfo, EmptySignInfo};
 use typed_store::traits::DBMapTableUtil;
 
@@ -22,7 +19,6 @@ use typed_store::traits::DBMapTableUtil;
 pub enum StoreName {
     Validator,
     Gateway,
-    Follower,
     Index,
     LocksService,
     NodeSync,
@@ -69,11 +65,6 @@ pub fn dump_table(
             db_path, None, None,
         )
         .dump(table_name, page_size, page_number),
-        StoreName::Follower => FollowerStore::open_tables_read_only(db_path, None, None).dump(
-            table_name,
-            page_size,
-            page_number,
-        ),
         StoreName::Index => IndexStore::open_tables_read_only(db_path, None, None).dump(
             table_name,
             page_size,
