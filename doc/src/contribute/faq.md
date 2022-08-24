@@ -63,7 +63,7 @@ Yes, the token name will be HANEUL.
 
 ### When is the Haneul Devnet/Testnet/Mainnet launching?
 
-We have launched our [Haneul Devnet](../build/devnet.md) in May 2022. A Testnet is coming in a few months. 
+We launched our [Haneul Devnet](../build/devnet.md) in May 2022. A Testnet is coming soon.
 
 See our roadmap: \
 [https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap) 
@@ -71,7 +71,7 @@ See our roadmap: \
 
 ### Is there some kind of waitlist for the Testnet?
 
-No. More information is forthcoming.
+We accepted applications for validators to participate in Wave 1 of the Incentivized Testnet and are now evaluating them.
 
 
 ## Getting involved
@@ -136,11 +136,13 @@ See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
 
 ### Can I run a Haneul validator node?
 
+We accepted applications for validators to participate in Wave 1 of the Incentivized Testnet and are now evaluating them.
+
 We have a public [Haneul Devnet](../build/devnet.md) with nodes operated by Haneul Labs. And you can now run a networked [Haneul Fullnode](../build/fullnode.md).
 
 You may also run a local, non-networked Haneul node for development using the [Haneul CLI client](../contribute/cli-client.md). You can interact with the nodes with either the [Haneul Wallet CLI](../contribute/cli-client.md#command-line-mode) or over the [Haneul RPC API](../build/json-rpc.md).
 
-Soon we will have a Testnet that allow others to operate Haneul nodes, but both are on our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap). Right now, 
+We have a Testnet that will soon allow others to operate Haneul nodes; see our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md#roadmap).
 
 ### What does a local node do and what are the hardware requirements to run it? How is it different from a Testnet node?
 
