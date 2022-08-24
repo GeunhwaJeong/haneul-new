@@ -204,7 +204,7 @@
         "items": [
           {
             "label": "JSON-RPC API Reference",
-            "fileName": "https://docs.haneul.io/haneul-jsonrpc",
+            "link": "https://docs.haneul.io/haneul-jsonrpc",
             "external": true
           },
           {
