@@ -64,7 +64,7 @@ async fn transfer_coin(
     );
     let res = HaneulClientCommands::Transfer {
         to: receiver,
-        coin_object_id: object_to_send,
+        object_id: object_to_send,
         gas: None,
         gas_budget: 50000,
     }

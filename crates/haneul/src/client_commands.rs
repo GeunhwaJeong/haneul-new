@@ -136,16 +136,16 @@ pub enum HaneulClientCommands {
         gas_budget: u64,
     },
 
-    /// Transfer coin object
-    #[clap(name = "transfer-coin")]
+    /// Transfer object
+    #[clap(name = "transfer")]
     Transfer {
         /// Recipient address
         #[clap(long)]
         to: HaneulAddress,
 
-        /// Coin to transfer, in 20 bytes Hex string
+        /// Object to transfer, in 20 bytes Hex string
         #[clap(long)]
-        coin_object_id: ObjectID,
+        object_id: ObjectID,
 
         /// ID of the gas object for gas payment, in 20 bytes Hex string
         /// If not provided, a gas object with at least gas_budget value will be selected
@@ -324,7 +324,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Transfer {
                 to,
-                coin_object_id: object_id,
+                object_id,
                 gas,
                 gas_budget,
             } => {

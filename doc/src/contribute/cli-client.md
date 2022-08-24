@@ -216,7 +216,7 @@ The following commands are supported by the Haneul client:
     split-coin            Split a coin object into multiple coins
     switch                Switch active address and network (e.g., Devnet, local RPC server)
     sync                  Synchronize client state with authorities
-    transfer-coin         Transfer coin object
+    transfer              Transfer object
     transfer-haneul          Transfer HANEUL, and pay gas with the same HANEUL coin object. If amount is
                               specified, only the amount is transferred; otherwise the entire object
                               is transferred
@@ -540,7 +540,7 @@ Here is example `json` output:
 
 ## Transferring coins
 
-Coins *are* objects yet have a specific use case that allow for native commands like transfer-coin/merge-coin/split-coin to be used. This is different from non-coin objects that can only be mutated via [Move calls](#calling-move-code).
+Coins *are* objects, but they have a specific use case that allows you to use native commands such as `transfer`, `merge-coin`, and `split-coin`. This is different from non-coin objects that you can mutate only using [Move calls](#calling-move-code).
 
 If you inspect a newly created account, you would expect the account does not own any object. Let us inspect the fresh account we create in the [Generating a new account](#generating-a-new-account) section (`C72CF3ADCC4D11C03079CEF2C8992AEA5268677A`):
 
@@ -555,14 +555,14 @@ To add objects to the account, you can [invoke a Move function](#calling-move-co
 or you can transfer one of the existing coins from the genesis account to the new account using a dedicated Haneul client command.
 We will explore how to transfer coins using the Haneul CLI client in this section.
 
-`transfer-coin` command usage:
+`transfer` command usage:
 
 ```shell
-haneul-client-transfer-coin
-Transfer coin object
+haneul-client-transfer
+Transfer object
 
 USAGE:
-    haneul client transfer-coin [OPTIONS] --to <TO> --coin-object-id <COIN_OBJECT_ID> --gas-budget <GAS_BUDGET>
+    haneul client transfer [OPTIONS] --to <TO> --coin-object-id <COIN_OBJECT_ID> --gas-budget <GAS_BUDGET>
 
 OPTIONS:
         --coin-object-id <COIN_OBJECT_ID>
@@ -595,7 +595,7 @@ mechanisms. For now, just set something large enough.
 Here is an example transfer of an object to account `0xf456ebef195e4a231488df56b762ac90695be2dd`:
 
 ```shell
-$ haneul client transfer-coin --to 0xf456ebef195e4a231488df56b762ac90695be2dd --coin-object-id 0x66eaa38c8ea99673a92a076a00101ab9b3a06b55 --gas-budget 100
+$ haneul client transfer --to 0xf456ebef195e4a231488df56b762ac90695be2dd --coin-object-id 0x66eaa38c8ea99673a92a076a00101ab9b3a06b55 --gas-budget 100
 ```
 
 With output like:

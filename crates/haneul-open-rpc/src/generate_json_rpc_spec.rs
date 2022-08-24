@@ -251,7 +251,7 @@ async fn create_transfer_response(
 ) -> Result<HaneulTransactionResponse, anyhow::Error> {
     let response = HaneulClientCommands::Transfer {
         to: address,
-        coin_object_id: coins.first().unwrap().object_id,
+        object_id: coins.first().unwrap().object_id,
         gas: None,
         gas_budget: 1000,
     }
