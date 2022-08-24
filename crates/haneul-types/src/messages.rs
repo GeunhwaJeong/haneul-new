@@ -297,6 +297,35 @@ impl TransactionKind {
             TransactionKind::Single(SingleTransactionKind::ChangeEpoch(_))
         )
     }
+
+    pub fn validity_check(&self) -> HaneulResult {
+        match self {
+            Self::Batch(b) => {
+                fp_ensure!(
+                    !b.is_empty(),
+                    HaneulError::InvalidBatchTransaction {
+                        error: "Batch Transaction cannot be empty".to_string(),
+                    }
+                );
+                // Check that all transaction kinds can be in a batch.
+                let valid = self.single_transactions().all(|s| match s {
+                    SingleTransactionKind::Call(_) => true,
+                    SingleTransactionKind::TransferObject(_) => true,
+                    SingleTransactionKind::TransferHaneul(_) => false,
+                    SingleTransactionKind::ChangeEpoch(_) => false,
+                    SingleTransactionKind::Publish(_) => false,
+                });
+                fp_ensure!(
+                    valid,
+                    HaneulError::InvalidBatchTransaction {
+                        error: "Batch transaction contains non-batchable transactions. Only Call and TransferObject are allowed".to_string()
+                    }
+                );
+            }
+            Self::Single(_) => (),
+        }
+        Ok(())
+    }
 }
 
 impl Display for TransactionKind {
@@ -447,46 +476,22 @@ impl TransactionData {
         &self.gas_payment
     }
 
-    pub fn move_calls(&self) -> HaneulResult<Vec<&MoveCall>> {
-        let move_calls = match &self.kind {
-            TransactionKind::Single(s) => s.move_call().into_iter().collect(),
-            TransactionKind::Batch(b) => {
-                let mut result = vec![];
-                for kind in b {
-                    fp_ensure!(
-                        !matches!(kind, &SingleTransactionKind::Publish(..)),
-                        HaneulError::InvalidBatchTransaction {
-                            error: "Publish transaction is not allowed in Batch Transaction"
-                                .to_owned(),
-                        }
-                    );
-                    result.extend(kind.move_call().into_iter());
-                }
-                result
-            }
-        };
-        Ok(move_calls)
+    pub fn move_calls(&self) -> Vec<&MoveCall> {
+        self.kind
+            .single_transactions()
+            .flat_map(|s| s.move_call())
+            .collect()
     }
 
     pub fn input_objects(&self) -> HaneulResult<Vec<InputObjectKind>> {
-        let mut inputs = match &self.kind {
-            TransactionKind::Single(s) => s.input_objects()?,
-            TransactionKind::Batch(b) => {
-                let mut result = vec![];
-                for kind in b {
-                    fp_ensure!(
-                        !matches!(kind, &SingleTransactionKind::Publish(..)),
-                        HaneulError::InvalidBatchTransaction {
-                            error: "Publish transaction is not allowed in Batch Transaction"
-                                .to_owned(),
-                        }
-                    );
-                    let sub = kind.input_objects()?;
-                    result.extend(sub);
-                }
-                result
-            }
-        };
+        let mut inputs: Vec<_> = self
+            .kind
+            .single_transactions()
+            .map(|s| s.input_objects())
+            .collect::<HaneulResult<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect();
         if !self.kind.is_system_tx() {
             inputs.push(InputObjectKind::ImmOrOwnedMoveObject(
                 *self.gas_payment_object_ref(),

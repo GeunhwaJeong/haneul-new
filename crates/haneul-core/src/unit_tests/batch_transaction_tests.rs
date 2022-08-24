@@ -169,6 +169,36 @@ async fn test_batch_contains_publish() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
+async fn test_batch_contains_transfer_haneul() -> anyhow::Result<()> {
+    // Test that a batch transaction containing TransferHaneul will fail.
+    let (sender, sender_key): (_, AccountKeyPair) = get_key_pair();
+    let gas_object_id = ObjectID::random();
+    let authority_state = init_state_with_ids([(sender, gas_object_id)]).await;
+    let transactions = vec![SingleTransactionKind::TransferHaneul(TransferHaneul {
+        recipient: Default::default(),
+        amount: None,
+    })];
+    let data = TransactionData::new(
+        TransactionKind::Batch(transactions),
+        sender,
+        authority_state
+            .get_object(&gas_object_id)
+            .await?
+            .unwrap()
+            .compute_object_reference(),
+        100000,
+    );
+    let signature = Signature::new(&data, &sender_key);
+    let tx = Transaction::new(data, signature);
+    let response = send_and_confirm_transaction(&authority_state, tx).await;
+    assert!(matches!(
+        response.unwrap_err(),
+        HaneulError::InvalidBatchTransaction { .. }
+    ));
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_batch_insufficient_gas_balance() -> anyhow::Result<()> {
     // This test creates 100 Move call transactions batch, each with a budget of 5000.
     // However we provide a gas coin with only 49999 balance.
