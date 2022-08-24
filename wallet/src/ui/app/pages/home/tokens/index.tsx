@@ -43,22 +43,31 @@ function TokensPage() {
             </div>
             <div className={st.actions}>
                 <IconLink
-                    icon={HaneulIcons.Coins}
+                    icon={HaneulIcons.Buy}
                     to="/"
                     disabled={true}
-                    text="Buy, Sell & Swap"
+                    text="Buy"
                 />
                 <IconLink
-                    icon={HaneulIcons.HandCoins}
+                    icon={HaneulIcons.ArrowLeft}
                     to={`/send?${new URLSearchParams({
                         type: GAS_TYPE_ARG,
                     }).toString()}`}
-                    text="Send & Receive"
+                    text="Send"
                 />
                 <IconLink
-                    icon={HaneulIcons.PercentagePolygon}
+                    icon={HaneulIcons.Swap}
+                    to="/"
+                    disabled={true}
+                    text="Swap"
+                />
+            </div>
+            <div className={st.staking}>
+                <IconLink
+                    icon={HaneulIcons.Union}
                     to="/stake"
-                    text="Stake & Earn"
+                    disabled={true}
+                    text="Stake & Earn HANEUL"
                 />
             </div>
             <div className={st.title}>OTHER COINS</div>
