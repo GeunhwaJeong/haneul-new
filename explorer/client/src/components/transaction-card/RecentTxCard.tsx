@@ -142,11 +142,11 @@ type RecentTx = {
 
 function HaneulAmount({ amount }: { amount: BN | string | undefined }) {
     if (amount) {
-        const HaneulSuffix = <span className={styles.haneulsuffix}>HANEUL</span>;
+        const HaneulSuffix = <abbr className={styles.haneulsuffix}>HANEUL</abbr>;
 
         if (BN.isBN(amount)) {
             return (
-                <span className={styles.haneulamount}>
+                <span>
                     {presentBN(amount)}
                     {HaneulSuffix}
                 </span>
