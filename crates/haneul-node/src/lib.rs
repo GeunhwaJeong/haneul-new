@@ -33,6 +33,7 @@ use haneul_storage::{
     IndexStore,
 };
 use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
+use tokio::sync::mpsc::channel;
 use tracing::{error, info};
 
 use haneul_core::authority_client::NetworkAuthorityClientMetrics;
@@ -63,6 +64,7 @@ pub struct HaneulNode {
     state: Arc<AuthorityState>,
     active: Arc<ActiveAuthority<NetworkAuthorityClient>>,
     quorum_driver_handler: Option<QuorumDriverHandler<NetworkAuthorityClient>>,
+    _prometheus_registry: Registry,
 }
 
 impl HaneulNode {
@@ -122,6 +124,7 @@ impl HaneulNode {
             None
         };
 
+        let (tx_reconfigure_consensus, rx_reconfigure_consensus) = channel(100);
         let state = Arc::new(
             AuthorityState::new(
                 config.protocol_public_key(),
@@ -133,6 +136,7 @@ impl HaneulNode {
                 Some(checkpoint_store),
                 genesis,
                 &prometheus_registry,
+                tx_reconfigure_consensus,
             )
             .await,
         );
@@ -251,8 +255,12 @@ impl HaneulNode {
                 None
             };
 
+        let registry = prometheus_registry.clone();
         let validator_service = if config.consensus_config().is_some() {
-            Some(ValidatorService::new(config, state.clone(), &prometheus_registry).await?)
+            Some(
+                ValidatorService::new(config, state.clone(), registry, rx_reconfigure_consensus)
+                    .await?,
+            )
         } else {
             None
         };
@@ -297,6 +305,7 @@ impl HaneulNode {
             state,
             active: active_authority,
             quorum_driver_handler,
+            _prometheus_registry: prometheus_registry,
         };
 
         info!("HaneulNode started!");
