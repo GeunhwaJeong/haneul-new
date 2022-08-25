@@ -288,14 +288,13 @@ where
             .clone()
     }
 
-    pub async fn sync_to_latest_checkpoint(&self, metrics: &CheckpointMetrics) -> HaneulResult {
-        self.sync_to_latest_checkpoint_with_config(metrics, Default::default())
+    pub async fn sync_to_latest_checkpoint(&self) -> HaneulResult {
+        self.sync_to_latest_checkpoint_with_config(Default::default())
             .await
     }
 
     pub async fn sync_to_latest_checkpoint_with_config(
         &self,
-        metrics: &CheckpointMetrics,
         checkpoint_process_control: CheckpointProcessControl,
     ) -> HaneulResult {
         let checkpoint_store =
@@ -324,7 +323,7 @@ where
             }
         };
 
-        sync_to_checkpoint(self, checkpoint_store, checkpoint_summary, metrics).await
+        sync_to_checkpoint(self, checkpoint_store, checkpoint_summary).await
     }
 
     /// Spawn gossip process

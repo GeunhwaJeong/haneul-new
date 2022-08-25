@@ -1,25 +1,22 @@
-use std::sync::Arc;
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
+use futures::future::join_all;
 use multiaddr::Multiaddr;
 use haneul_config::ValidatorInfo;
-use haneul_core::authority::AuthorityState;
-use haneul_core::authority_active::checkpoint_driver::CheckpointMetrics;
+use haneul_core::authority_active::checkpoint_driver::{
+    checkpoint_process_step, CheckpointProcessControl,
+};
 use haneul_core::authority_client::AuthorityAPI;
-use haneul_core::checkpoints::CHECKPOINT_COUNT_PER_EPOCH;
 use haneul_core::safe_client::SafeClient;
 use haneul_node::HaneulNode;
-use haneul_types::base_types::{ExecutionDigests, ObjectID, ObjectRef};
+use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair, AccountKeyPair, AuthorityKeyPair, KeypairTraits,
 };
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::ObjectInfoResponse;
 use haneul_types::messages::{CallArg, ObjectArg, ObjectInfoRequest, TransactionEffects};
-use haneul_types::messages_checkpoint::{
-    AuthenticatedCheckpoint, CertifiedCheckpointSummary, CheckpointSequenceNumber,
-    SignedCheckpointSummary,
-};
 use haneul_types::object::Object;
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 use test_utils::authority::test_authority_configs;
@@ -34,25 +31,17 @@ async fn reconfig_end_to_end_tests() {
 
     let mut configs = test_authority_configs();
     for c in configs.validator_configs.iter_mut() {
-        c.enable_gossip = true;
+        // Turn off checkpoint process so that we can have fine control over it in the test.
+        c.enable_checkpoint = false;
     }
     let validator_info = configs.validator_set();
     let mut gas_objects = test_gas_objects();
     let validator_stake = generate_gas_object_with_balance(100000000000000);
     let mut states = Vec::new();
     let mut nodes = Vec::new();
-    let mut prev_signed_checkpoints = Vec::new();
     for validator in configs.validator_configs() {
         let node = HaneulNode::start(validator).await.unwrap();
         let state = node.state();
-
-        // Make sure that every validator just finished checkpoint CHECKPOINT_COUNT_PER_EPOCH - 1,
-        // and is ready for checkpoint CHECKPOINT_COUNT_PER_EPOCH.
-        prev_signed_checkpoints.push(sign_checkpoint(
-            &state,
-            CHECKPOINT_COUNT_PER_EPOCH - 1,
-            std::iter::empty(),
-        ));
 
         for gas in gas_objects.clone() {
             state.insert_genesis_object(gas).await;
@@ -61,8 +50,6 @@ async fn reconfig_end_to_end_tests() {
         states.push(state);
         nodes.push(node);
     }
-
-    update_checkpoint_cert_for_all(&states, prev_signed_checkpoints.clone());
 
     // get haneul system state and confirm it matches network info
     let haneul_system_state = states[0].get_haneul_system_state_object().await.unwrap();
@@ -97,25 +84,52 @@ async fn reconfig_end_to_end_tests() {
     let new_committee_size = haneul_system_state.validators.next_epoch_validators.len();
     assert_eq!(old_committee_size + 1, new_committee_size);
 
-    let mut last_signed_checkpoints = Vec::new();
+    let mut checkpoint_processes = vec![];
     for node in &nodes {
-        node.active().unwrap().start_epoch_change().await.unwrap();
-        last_signed_checkpoints.push(sign_checkpoint(
-            &node.state(),
-            CHECKPOINT_COUNT_PER_EPOCH,
-            // The transaction that registered the new validator must be included in the checkpoint
-            std::iter::once(&ExecutionDigests::new(
-                effects.transaction_digest,
-                effects.digest(),
-            )),
-        ));
+        let active = node.active().clone();
+        let handle = tokio::spawn(async move {
+            while !active
+                .state
+                .checkpoints
+                .as_ref()
+                .unwrap()
+                .lock()
+                .is_ready_to_start_epoch_change()
+            {
+                let _ =
+                    checkpoint_process_step(&active, &CheckpointProcessControl::default()).await;
+            }
+        });
+        checkpoint_processes.push(handle);
     }
+    // Wait for all validators to be ready for epoch change.
+    join_all(checkpoint_processes).await;
 
-    update_checkpoint_cert_for_all(&states, last_signed_checkpoints.clone());
     let results: Vec<_> = nodes
         .iter()
         .map(|node| async {
-            node.active().unwrap().finish_epoch_change().await.unwrap();
+            let active = node.active().clone();
+            active.start_epoch_change().await.unwrap();
+            while !active
+                .state
+                .checkpoints
+                .as_ref()
+                .unwrap()
+                .lock()
+                .is_ready_to_finish_epoch_change()
+            {
+                let _ =
+                    checkpoint_process_step(&active, &CheckpointProcessControl::default()).await;
+            }
+        })
+        .collect();
+
+    join_all(results).await;
+
+    let results: Vec<_> = nodes
+        .iter()
+        .map(|node| async {
+            node.active().finish_epoch_change().await.unwrap();
         })
         .collect();
 
@@ -126,50 +140,6 @@ async fn reconfig_end_to_end_tests() {
     assert_eq!(haneul_system_state.epoch, 1);
     // We should now have one more active validator.
     assert_eq!(haneul_system_state.validators.active_validators.len(), 5);
-}
-
-fn sign_checkpoint<'a>(
-    state: &Arc<AuthorityState>,
-    seq: CheckpointSequenceNumber,
-    transactions: impl Iterator<Item = &'a ExecutionDigests> + Clone,
-) -> SignedCheckpointSummary {
-    let mut checkpoints = state.checkpoints.as_ref().unwrap().lock();
-
-    let mut cur_locals = (*checkpoints.get_locals()).clone();
-    cur_locals.next_checkpoint = seq;
-    checkpoints.set_locals_for_testing(cur_locals).unwrap();
-
-    checkpoints
-        .sign_new_checkpoint(0, seq, transactions, state.db())
-        .unwrap();
-    match checkpoints.get_checkpoint(seq).unwrap().unwrap() {
-        AuthenticatedCheckpoint::Signed(s) => s,
-        _ => {
-            unreachable!()
-        }
-    }
-}
-
-fn update_checkpoint_cert_for_all(
-    states: &[Arc<AuthorityState>],
-    signed_checkpoints: Vec<SignedCheckpointSummary>,
-) {
-    let committee = states[0].clone_committee();
-    let checkpoint_cert =
-        CertifiedCheckpointSummary::aggregate(signed_checkpoints, &committee).unwrap();
-    for state in states {
-        state
-            .checkpoints
-            .as_ref()
-            .unwrap()
-            .lock()
-            .promote_signed_checkpoint_to_cert(
-                &checkpoint_cert,
-                &committee,
-                &CheckpointMetrics::new_for_tests(),
-            )
-            .unwrap();
-    }
 }
 
 pub async fn create_and_register_new_validator(
