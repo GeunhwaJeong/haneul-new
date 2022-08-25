@@ -12,7 +12,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::MoveObject;
 use haneul_types::haneul_serde::Base64;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
+use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 
 #[test]
 fn test_move_value_to_haneul_bytearray() {
@@ -56,8 +56,8 @@ fn test_move_value_to_string() {
 
     let move_value = MoveValue::Struct(MoveStruct::WithTypes {
         type_: StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
-            module: ident_str!("utf8").to_owned(),
+            address: MOVE_STDLIB_ADDRESS,
+            module: ident_str!("string").to_owned(),
             name: ident_str!("String").to_owned(),
             type_params: vec![],
         },
@@ -80,8 +80,8 @@ fn test_move_value_to_url() {
 
     let string_move_value = MoveValue::Struct(MoveStruct::WithTypes {
         type_: StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
-            module: ident_str!("utf8").to_owned(),
+            address: MOVE_STDLIB_ADDRESS,
+            module: ident_str!("string").to_owned(),
             name: ident_str!("String").to_owned(),
             type_params: vec![],
         },

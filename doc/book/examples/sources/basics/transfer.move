@@ -39,7 +39,7 @@ module examples::wrapper {
 module examples::profile {
     use haneul::transfer;
     use haneul::url::{Self, Url};
-    use haneul::utf8::{Self, String};
+    use std::string::{Self, String};
     use haneul::tx_context::{Self, TxContext};
 
     // using Wrapper functionality
@@ -69,7 +69,7 @@ module examples::profile {
     ) {
         // create a new container and wrap ProfileInfo into it
         let container = wrapper::create(ProfileInfo {
-            name: utf8::string_unsafe(name),
+            name: string::utf8(name),
             url: url::new_unsafe_from_bytes(url)
         }, ctx);
 

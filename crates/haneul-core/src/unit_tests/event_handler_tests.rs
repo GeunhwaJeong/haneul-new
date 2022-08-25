@@ -18,7 +18,7 @@ use haneul_json_rpc_types::HaneulMoveStruct;
 
 use haneul_types::base_types::ObjectID;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
+use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 
 #[test]
 fn test_to_json_value() {
@@ -105,7 +105,7 @@ impl TestEvent {
     }
 }
 
-// Rust version of the Move haneul::utf8::String type
+// Rust version of the Move std::string::String type
 // TODO: Do we need this in the haneul-types lib?
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 struct UTF8String {
@@ -123,9 +123,9 @@ impl From<&str> for UTF8String {
 impl UTF8String {
     fn type_() -> StructTag {
         StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
+            address: MOVE_STDLIB_ADDRESS,
             name: Identifier::new("String").unwrap(),
-            module: Identifier::new("utf8").unwrap(),
+            module: Identifier::new("string").unwrap(),
             type_params: vec![],
         }
     }

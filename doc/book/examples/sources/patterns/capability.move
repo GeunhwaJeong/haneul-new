@@ -4,7 +4,7 @@
 module examples::item {
     use haneul::transfer;
     use haneul::object::{Self, UID};
-    use haneul::utf8::{Self, String};
+    use std::string::{Self, String};
     use haneul::tx_context::{Self, TxContext};
 
     /// Type that marks Capability to create new `Item`s.
@@ -29,7 +29,7 @@ module examples::item {
     ) {
         transfer::transfer(Item {
             id: object::new(ctx),
-            name: utf8::string_unsafe(name)
+            name: string::utf8(name)
         }, to)
     }
 }
