@@ -9,6 +9,7 @@ Now that you've [learned about Haneul](../learn/index.md), it's time to start bu
 Here is our recommended workflow to interact with Haneul:
 
 1. [Install](../build/install.md) all of the *required tools*.
+1. Optionally, [create](../contribute/cli-client.md#genesis) and [start](../contribute/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
 1. [Connect](../build/devnet.md) to the Haneul Devnet network.
 1. [Create](../build/move/index.md) *smart contracts* with Move:
    1. [Write](../build/move/write-package.md) a package.
@@ -22,11 +23,11 @@ Here is our recommended workflow to interact with Haneul:
    1. [Enable](../build/programming-with-objects/ch5-child-objects.md) objects to own other objects.
 1. [Talk](../build/comms.md) with Haneul using our API and SDKs:
    * [Use](../build/json-rpc.md) the *Haneul RPC Server and JSON-RPC API* to interact with a local Haneul network.
-   * [Employ](../build/haneul-json.md) *HaneulJSON format* to align JSON inputs more closely with Move call arguments.
-   * [Follow](https://docs.haneul.io/haneul-jsonrpc) the Haneul API Reference.
    * [Make](../build/rust-sdk.md) Rust SDK calls to Haneul from your app.
-   * [Write](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/) TypeScript/JavaScript apps.
+   * [Make](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/) TypeScript/JavaScript calls to Haneul from your apps.
    * [Run](../build/fullnode.md) a Haneul Fullnode and [subscribe](../build/pubsub.md) to events.
-1. Optionally, [create](../contribute/cli-client.md#genesis) and [start](../contribute/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
+1. [Reference](../build/reference.md) the format for our API and HaneulJSON:
+   * [Follow](https://docs.haneul.io/haneul-jsonrpc) the Haneul API Reference.
+   * [Employ](../build/haneul-json.md) *HaneulJSON format* to align JSON inputs more closely with Move call arguments.
 
 Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
