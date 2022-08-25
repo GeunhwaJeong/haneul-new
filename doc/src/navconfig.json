@@ -217,6 +217,10 @@
     ],
     "explore": [
       {
+        "label": "Haneul Explorer",
+        "fileName": "explore/haneul-explorer"
+      },
+      {
         "label": "Wallet in Browser",
         "fileName": "explore/wallet-browser"
       },

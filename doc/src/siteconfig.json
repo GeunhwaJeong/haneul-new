@@ -126,17 +126,16 @@
         "name": "See what's New",
         "sublist": [
           {
+            "name": "Use Haneul Explorer",
+            "url": "/explore/haneul-explorer"
+          },
+          {
             "name": "Make Rust SDK Calls",
             "url": "/build/rust-sdk"
           },
           {
             "name": "Run Windows, Linux, macOS",
             "url": "/build/install#supported-oses"
-          },
-          {
-            "name": "Apply to be a Validator",
-            "url": "https://haneul.io/resources-haneul/validator-registration-open/",
-            "external": true
           },
           {
             "name": "Try Haneul Wallet Browser Extension",
