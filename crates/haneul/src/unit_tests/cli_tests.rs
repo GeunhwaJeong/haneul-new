@@ -24,8 +24,8 @@ use haneul_json_rpc_types::{GetObjectDataResponse, HaneulData, HaneulParsedObjec
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_types::crypto::{
-    generate_proof_of_possession, AccountKeyPair, AuthorityKeyPair, Ed25519HaneulSignature,
-    KeypairTraits, Secp256k1HaneulSignature, HaneulKeyPair, HaneulSignatureInner,
+    AccountKeyPair, AuthorityKeyPair, Ed25519HaneulSignature, KeypairTraits, Secp256k1HaneulSignature,
+    HaneulKeyPair, HaneulSignatureInner,
 };
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
 use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_ADDRESS};
@@ -119,10 +119,6 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
                 protocol_key: keypair.public().into(),
                 account_key: account_keypair.public(),
                 network_key: get_key_pair::<AccountKeyPair>().1.public().clone().into(),
-                proof_of_possession: generate_proof_of_possession(
-                    &keypair,
-                    (&account_keypair.public()).into(),
-                ),
                 stake: 1,
                 delegation: 1,
                 gas_price: 1,

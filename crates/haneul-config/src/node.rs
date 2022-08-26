@@ -17,11 +17,10 @@ use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
-use haneul_types::crypto::AuthoritySignature;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::PublicKey as AccountsPublicKey;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::haneul_serde::{AuthSignature, KeyPairBase64};
+use haneul_types::haneul_serde::KeyPairBase64;
 
 // Default max number of concurrent requests served
 pub const DEFAULT_GRPC_CONCURRENCY_LIMIT: usize = 20000;
@@ -181,8 +180,6 @@ pub struct ValidatorInfo {
     pub account_key: AccountsPublicKey,
     pub protocol_key: AuthorityPublicKeyBytes,
     pub network_key: AccountsPublicKey,
-    #[serde_as(as = "AuthSignature")]
-    pub proof_of_possession: AuthoritySignature,
     pub stake: StakeUnit,
     pub delegation: StakeUnit,
     pub gas_price: u64,
@@ -215,10 +212,6 @@ impl ValidatorInfo {
 
     pub fn account_key(&self) -> &AccountsPublicKey {
         &self.account_key
-    }
-
-    pub fn proof_of_possession(&self) -> &AuthoritySignature {
-        &self.proof_of_possession
     }
 
     pub fn stake(&self) -> StakeUnit {
