@@ -1,0 +1,66 @@
+// Copyright (c) 2022, Haneul Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::fs;
+use std::str::FromStr;
+use strum_macros::Display;
+use strum_macros::EnumString;
+use haneul_types::gas::GasCostSummary;
+use haneul_types::messages::SingleTransactionKind;
+use haneul_types::messages::TransactionKind;
+
+pub const ESTIMATE_FILE: &str = "data/estimate.toml";
+#[derive(
+    Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Ord, PartialOrd, Clone, Display, EnumString,
+)]
+pub enum CommonTransactionCosts {
+    Publish,
+    MergeCoin,
+    SplitCoin(usize),
+    TransferWholeCoin,
+    TransferWholeHaneulCoin,
+    TransferPortionHaneulCoin,
+    SharedCounterCreate,
+    SharedCounterAssertValue,
+    SharedCounterIncrement,
+}
+
+pub fn estimate_computational_costs_for_transaction(
+    tx_kind: TransactionKind,
+) -> Result<GasCostSummary, anyhow::Error> {
+    let cost_map = read_estimate_file()?;
+    let unsupported_tx_kind = Err(anyhow!("Transaction kind not supported for estimator yet"));
+    match tx_kind {
+        TransactionKind::Single(s) => match s {
+            SingleTransactionKind::TransferHaneul(t) => Ok(if t.amount.is_none() {
+                cost_map.get(&CommonTransactionCosts::TransferWholeHaneulCoin)
+            } else {
+                cost_map.get(&CommonTransactionCosts::TransferPortionHaneulCoin)
+            }
+            .unwrap()
+            .clone()),
+
+            SingleTransactionKind::TransferObject(_) => unsupported_tx_kind,
+            SingleTransactionKind::Publish(_) => unsupported_tx_kind,
+            SingleTransactionKind::Call(_) => unsupported_tx_kind,
+            SingleTransactionKind::ChangeEpoch(_) => unsupported_tx_kind,
+        },
+        TransactionKind::Batch(_) => return Err(anyhow!("Batch TXes not supported for estimator")),
+    }
+}
+
+pub fn read_estimate_file(
+) -> Result<BTreeMap<CommonTransactionCosts, GasCostSummary>, anyhow::Error> {
+    let toml_str = fs::read_to_string(&ESTIMATE_FILE).unwrap();
+
+    let cost_map: BTreeMap<String, GasCostSummary> = toml::from_str(&toml_str).unwrap();
+    let cost_map: BTreeMap<CommonTransactionCosts, GasCostSummary> = cost_map
+        .iter()
+        .map(|(k, v)| (CommonTransactionCosts::from_str(k).unwrap(), v.clone()))
+        .collect();
+
+    Ok(cost_map)
+}

@@ -9,8 +9,8 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
     RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
-    HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
+    HaneulGasCostSummary, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    HaneulObjectInfo, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -479,4 +479,19 @@ pub trait QuorumDriverApi {
         /// The request type
         request_type: ExecuteTransactionRequestType,
     ) -> RpcResult<HaneulExecuteTransactionResponse>;
+}
+
+#[open_rpc(
+    namespace = "haneul",
+    tag = "Estimator API to estimate gas quantities for a transactions."
+)]
+#[rpc(server, client, namespace = "haneul")]
+pub trait EstimatorApi {
+    /// Execute the transaction and wait for results if desired
+    #[method(name = "estimateTransactionComputationCost")]
+    async fn estimate_transaction_computation_cost(
+        &self,
+        /// transaction data bytes, as base-64 encoded string
+        tx_bytes: Base64,
+    ) -> RpcResult<HaneulGasCostSummary>;
 }
