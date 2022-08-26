@@ -145,7 +145,7 @@ represent different types of user-defined coins as Haneul objects:
 
 ``` rust
 struct Coin<phantom T> has key, store {
-    info: Info,
+    id: UID,
     value: u64
 }
 ```
@@ -161,7 +161,7 @@ and [structs](https://github.com/move-language/move/blob/main/language/documenta
 in the Move book.
 
 In order for a Move struct type to define a Haneul object type such as
-`Coin`, its first field must be `info: Info`, which is a
+`Coin`, its first field must be `id: UID`, which is a
 struct type defined in the
 [object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move). The
 Move struct type must
