@@ -5,7 +5,7 @@ title: Interact with Haneul over Rust SDK
 ## Overview
 The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet Gateway](../build/devnet.md) and [Haneul Full Node](fullnode.md).
 
-The [`HaneulClient`](cli-client.md) can be used to create an HTTP (`HaneulClient::new_http_client`) or a WebSocket client(`HaneulClient::new_ws_client`).  
+The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).  
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
 
 > Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](pubsub.md); use the HTTP client for other API methods.
@@ -43,9 +43,9 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_http_client("https://gateway.devnet.haneul.io:443")?;
+    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", None).await?;
     let address = HaneulAddress::from_str("0xec11cad080d0496a53bafcea629fcbcfff2a9866")?;
-    let objects = haneul.get_objects_owned_by_address(address).await?;
+    let objects = haneul.read_api().get_objects_owned_by_address(address).await?;
     println!("{:?}", objects);
     Ok(())
 }
@@ -71,7 +71,7 @@ use haneul_sdk::{
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_http_client("https://gateway.devnet.haneul.io:443")?;
+    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", None).await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
@@ -84,11 +84,12 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Create a haneul transfer transaction
     let transfer_tx = haneul
+        .transaction_builder()
         .transfer_haneul(my_address, gas_object_id, 1000, recipient, Some(1000))
         .await?;
 
     // Get signer from keystore
-    let keystore = HaneulKeystore::load_or_create(&keystore_path)?;
+    let keystore = KeystoreType::File(keystore_path).init()?;
     let signer = keystore.signer(my_address);
 
     // Sign the transaction
@@ -96,6 +97,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Execute the transaction
     let transaction_response = haneul
+        .quorum_driver()
         .execute_transaction(Transaction::new(transfer_tx, signature))
         .await?;
 
@@ -116,8 +118,8 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_ws_client("ws://127.0.0.1:9001").await?;
-    let mut subscribe_all = haneul.subscribe_event(HaneulEventFilter::All(vec![])).await?;
+    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", Some("ws://127.0.0.1:9001")).await?;
+    let mut subscribe_all = haneul.event_api().subscribe_event(HaneulEventFilter::All(vec![])).await?;
     loop {
         println!("{:?}", subscribe_all.next().await);
     }
