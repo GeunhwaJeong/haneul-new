@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["haneul-explorer", "haneul-dapp-sdk"]
+  "ignore": ["haneul-explorer", "haneul-dapp-sdk", "demo-nft-dapp"]
 }
