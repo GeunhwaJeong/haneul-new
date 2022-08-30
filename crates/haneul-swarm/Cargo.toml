@@ -20,8 +20,8 @@ haneul-config = { path = "../haneul-config" }
 haneul-node = { path = "../haneul-node" }
 haneul-types = { path = "../haneul-types" }
 
-haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "8d090689be14078f2ca41c356e7bbc0af21f73ab" }
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7ef7415a4e11cf68fa68ce9db884c46e704e0445" }
 workspace-hack = { path = "../workspace-hack"}
 
 [dev-dependencies]
-telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "8d090689be14078f2ca41c356e7bbc0af21f73ab" }
+telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7ef7415a4e11cf68fa68ce9db884c46e704e0445" }
