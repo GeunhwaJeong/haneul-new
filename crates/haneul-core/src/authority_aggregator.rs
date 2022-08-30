@@ -16,8 +16,8 @@ use haneul_types::{
     error::{HaneulError, HaneulResult},
     messages::*,
     messages_checkpoint::{
-        AuthenticatedCheckpoint, AuthorityCheckpointInfo, CertifiedCheckpointSummary,
-        CheckpointContents, CheckpointRequest, CheckpointResponse,
+        AuthenticatedCheckpoint, CertifiedCheckpointSummary, CheckpointContents, CheckpointRequest,
+        CheckpointResponse,
     },
 };
 use tracing::{debug, error, info, instrument, trace, Instrument};
@@ -1763,15 +1763,12 @@ where
                 Box::pin(async move {
                     let resp = client.handle_checkpoint(r).await?;
 
-                    if let CheckpointResponse {
-                        info:
-                            AuthorityCheckpointInfo::AuthenticatedCheckpoint(Some(
-                                AuthenticatedCheckpoint::Certified(past),
-                            )),
-                        detail,
+                    if let CheckpointResponse::AuthenticatedCheckpoint {
+                        checkpoint: Some(AuthenticatedCheckpoint::Certified(past)),
+                        contents,
                     } = resp
                     {
-                        Ok((past, detail))
+                        Ok((past, contents))
                     } else {
                         Err(HaneulError::GenericAuthorityError {
                             error: "expected Certified checkpoint".into(),
