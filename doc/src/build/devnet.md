@@ -4,7 +4,7 @@ title: Connect to Haneul Devnet
 
 Welcome to the Haneul Devnet. We are hosting a public Devnet for the community to experiment with our tech and help to shape the future of the Haneul network. It exists to gain operational experience with the Haneul software in a public setting prior to our Mainnet launch.
 
-To instead [contribute](../contribute/index.md) to Haneul itself, you may experiment with the advanced [Haneul CLI client](../contribute/cli-client.md) at the command line.
+To instead [contribute](../contribute/index.md) to Haneul itself, you may experiment with the advanced [Haneul CLI client](../build/cli-client.md) at the command line.
 
 
 The Haneul Devnet currently consists of:
@@ -19,7 +19,7 @@ Many improvements to the Haneul Devnet are underway, such as the ability to run 
 
 We provide the following tools for users to interact with the Haneul Devnet:
 
-* The [Haneul Wallet command line interface (CLI)](../contribute/cli-client.md)
+* The [Haneul Wallet command line interface (CLI)](../build/cli-client.md)
     * create and manage your private keys
     * submit transactions for creating example NFTs
     * call and publish Move modules
@@ -102,7 +102,7 @@ Owner: Account Address ( 9E9A9D406961E478AA80F4A6B2B167673F3DF8BA )
 Type: 0x2::devnet_nft::DevNetNFT
 ```
 
-The above command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Note you may use `Haneul CLI client` to [view objects owned by the address](../contribute/cli-client.md#view-objects-owned-by-the-address).
+The above command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Note you may use `Haneul CLI client` to [view objects owned by the address](../build/cli-client.md#view-objects-owned-by-the-address).
 
 Now you can view the created object in the [Haneul Explorer](https://explorer.devnet.haneul.io) by appending the object ID to:
 https://explorer.devnet.haneul.io/objects/

@@ -9,8 +9,9 @@ Now that you've [learned about Haneul](../learn/index.md), it's time to start bu
 Here is our recommended workflow to interact with Haneul:
 
 1. [Install](../build/install.md) all of the *required tools*.
-1. Optionally, [create](../contribute/cli-client.md#genesis) and [start](../contribute/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
-1. [Connect](../build/devnet.md) to the Haneul Devnet network.
+1. Interact with the Haneul network:
+   * Simply [connect](../build/devnet.md) to the Haneul Devnet network to begin working with Haneul immediately.
+   * Optionally, [create](../build/cli-client.md#genesis) and [start](../build/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
 1. [Create](../build/move/index.md) *smart contracts* with Move:
    1. [Write](../build/move/write-package.md) a package.
    1. [Build and test](../build/move/build-test.md) a package.
