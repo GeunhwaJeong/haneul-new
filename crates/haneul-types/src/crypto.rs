@@ -1275,8 +1275,14 @@ impl VerificationObligation {
 
     pub fn verify_all(self) -> HaneulResult<()> {
         AggregateAuthoritySignature::batch_verify(
-            &self.signatures[..],
-            &self.public_keys.iter().map(|x| &x[..]).collect::<Vec<_>>(),
+            &self
+                .signatures
+                .iter()
+                .collect::<Vec<&Ed25519AggregateSignature>>(),
+            self.public_keys
+                .iter()
+                .map(|x| x.iter())
+                .collect::<Vec<_>>(),
             &self.messages.iter().map(|x| &x[..]).collect::<Vec<_>>()[..],
         )
         .map_err(|error| HaneulError::InvalidSignature {
