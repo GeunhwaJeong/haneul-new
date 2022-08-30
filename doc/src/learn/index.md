@@ -16,15 +16,13 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 The following list includes the recent updates to Haneul and the documentation:
 
+* Follow the [Cryptography (math)](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/math) example for a simple contract that hashes a piece of data using keccak256, recovers a [Secp256k1](https://crates.io/crates/secp256k1/) signature to its public key, and verifies a Secp256k1 signature, producing an event with the results.
 * [Bullshark](https://arxiv.org/abs/2201.05677) has replaced Tusk as the consensus component of the [Narwhal](https://github.com/GeunhwaJeong/narwhal)-based [Haneul consensus engine](../learn/architecture/consensus.md) for reduced latency and support for fairness with slower validators.
 * Haneul now supports [shared objects](../build/objects.md#shared) that anyone can read or write to. For an example of creating and accessing a shared object, see [Shared Object](https://examples.haneul.io/basics/shared-object.html#shared-object) on https://examples.haneul.io/.
 * [Haneul version 0.7.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.7.0) is now live in Devnet with numerous fixes and enhancements, including new designs for the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) and [Haneul Explorer](https://explorer.devnet.haneul.io/).
 * Interact with the Haneul network using our new [Rust SDK](../build/rust-sdk.md), a collection of Rust language [JSON-RPC wrapper and crypto utilities](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk).
 * Haneul now supports development using [Microsoft Windows 11, macOS, and Linux](../build/install.md#supported-oses). See [install Haneul](../build/install.md#prerequisites) for the prerequisites of each operating system.
 * This site is now available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for  [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
-* `haneul::id` is now `haneul::object` and `Info` is now `UID` (as of [#3624](https://github.com/GeunhwaJeong/haneul/pull/3624)). Use the [Object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) that has *replaced the former ID.move* (as of [#3241](https://github.com/GeunhwaJeong/haneul/pull/3241)).
-* Find a list of [single-writer apps](../learn/single-writer-apps.md) that would benefit from Haneul's advantages in handling [simple transactions](../learn/how-haneul-works.md#simple-transactions).
-* Install the [Haneul Wallet Browser Extension](../explore/wallet-browser.md) to create NFTs, transfer coins, and carry out common transactions in a Chrome tab.
 
 See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
