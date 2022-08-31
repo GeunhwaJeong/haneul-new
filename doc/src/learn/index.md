@@ -16,13 +16,13 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 The following list includes the recent updates to Haneul and the documentation:
 
+* You must now specify the key scheme type as an argument (`secp256k1` or `ed25519`)  when running either the `haneul keytool generate` or `haneul client new-address` commands, as shown in [adding accounts to the client](../build/cli-client.md#adding-accounts-to-the-client).
 * [Haneul version 0.8.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.8.0) is now live in Devnet with numerous fixes and enhancements, including new designs for [Haneul Explorer](https://explorer.devnet.haneul.io/) and [event query support](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-json-rpc/src/event_api.rs#L122-L210) in fullnode.
 * Follow the [Cryptography (math)](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/math) example for a simple contract that hashes a piece of data using keccak256, recovers a [Secp256k1](https://crates.io/crates/secp256k1/) signature to its public key, and verifies a Secp256k1 signature, producing an event with the results.
 * [Bullshark](https://arxiv.org/abs/2201.05677) has replaced Tusk as the consensus component of the [Narwhal](https://github.com/GeunhwaJeong/narwhal)-based [Haneul consensus engine](../learn/architecture/consensus.md) for reduced latency and support for fairness with slower validators.
 * Haneul now supports [shared objects](../build/objects.md#shared) that anyone can read or write to. For an example of creating and accessing a shared object, see [Shared Object](https://examples.haneul.io/basics/shared-object.html#shared-object) on https://examples.haneul.io/.
 * Interact with the Haneul network using our new [Rust SDK](../build/rust-sdk.md), a collection of Rust language [JSON-RPC wrapper and crypto utilities](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk).
 * Haneul now supports development using [Microsoft Windows 11, macOS, and Linux](../build/install.md#supported-oses). See [install Haneul](../build/install.md#prerequisites) for the prerequisites of each operating system.
-* This site is now available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for  [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
 
 See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
