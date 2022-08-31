@@ -7,4 +7,9 @@ export default defineConfig({
   test: {
     exclude: [...configDefaults.exclude, 'bcs/**'],
   },
+  resolve: {
+    alias: {
+      '@haneullabs/bcs': new URL('./bcs/src', import.meta.url).toString(),
+    },
+  },
 });

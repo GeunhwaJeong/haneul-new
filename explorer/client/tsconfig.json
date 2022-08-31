@@ -14,7 +14,12 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        "paths": {
+            "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
+            "@haneullabs/bcs": ["../../sdk/typescript/bcs/src/"]
+        }
     },
     "include": ["src"]
 }
