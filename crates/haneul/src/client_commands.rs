@@ -26,7 +26,6 @@ use haneul_json_rpc_types::{
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_sdk::crypto::HaneulKeystore;
 use haneul_sdk::{ClientType, HaneulClient};
-use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -34,6 +33,10 @@ use haneul_types::{
     messages::Transaction,
     object::Owner,
     parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
+};
+use haneul_types::{
+    crypto::SignatureScheme,
+    haneul_serde::{Base64, Encoding},
 };
 use tracing::info;
 
@@ -188,9 +191,9 @@ pub enum HaneulClientCommands {
     #[clap(name = "addresses")]
     Addresses,
 
-    /// Generate new address and keypair, with optional keypair scheme {ed25519 | secp256k1}, default to ed25519.
+    /// Generate new address and keypair with keypair scheme flag {ed25519 | secp256k1}.
     #[clap(name = "new-address")]
-    NewAddress { key_scheme: Option<String> },
+    NewAddress { key_scheme: SignatureScheme },
 
     /// Obtain all objects owned by the address.
     #[clap(name = "objects")]
@@ -407,8 +410,8 @@ impl HaneulClientCommands {
                 HaneulClientCommandResult::SyncClientState
             }
             HaneulClientCommands::NewAddress { key_scheme } => {
-                let (address, phrase, flag) = context.keystore.generate_new_key(key_scheme)?;
-                HaneulClientCommandResult::NewAddress((address, phrase, flag))
+                let (address, phrase, scheme) = context.keystore.generate_new_key(key_scheme)?;
+                HaneulClientCommandResult::NewAddress((address, phrase, scheme))
             }
             HaneulClientCommands::Gas { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -771,10 +774,11 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
             }
-            HaneulClientCommandResult::NewAddress((address, recovery_phrase, flag)) => {
+            HaneulClientCommandResult::NewAddress((address, recovery_phrase, scheme)) => {
                 writeln!(
                     writer,
-                    "Created new keypair for address with flag {flag}: [{address}]"
+                    "Created new keypair for address with scheme {:?}: [{address}]",
+                    scheme
                 )?;
                 writeln!(writer, "Secret Recovery Phrase : [{recovery_phrase}]")?;
             }
@@ -943,7 +947,7 @@ pub enum HaneulClientCommandResult {
     Addresses(Vec<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     SyncClientState,
-    NewAddress((HaneulAddress, String, u8)),
+    NewAddress((HaneulAddress, String, SignatureScheme)),
     Gas(Vec<GasCoin>),
     SplitCoin(HaneulTransactionResponse),
     MergeCoin(HaneulTransactionResponse),

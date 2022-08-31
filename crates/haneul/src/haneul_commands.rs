@@ -24,7 +24,7 @@ use haneul_config::{
 use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_swarm::memory::Swarm;
-use haneul_types::crypto::{KeypairTraits, HaneulKeyPair};
+use haneul_types::crypto::{KeypairTraits, SignatureScheme, HaneulKeyPair};
 use tracing::info;
 
 #[allow(clippy::large_enum_variant)]
@@ -400,15 +400,16 @@ async fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Erro
                 .unwrap_or(&haneul_config_dir()?)
                 .join(HANEUL_KEYSTORE_FILENAME);
             let keystore = KeystoreType::File(keystore_path);
-            println!("Generating keypair ...\n");
-
-            println!("Do you want to generate a secp256k1 keypair instead? [y/N] No will select Ed25519 by default. ");
-            let key_scheme = match read_line()?.trim() {
-                "y" => Some(String::from("secp256k1")),
-                _ => None,
+            println!("Select key scheme to generate keypair (0 for ed25519, 1 for secp256k1):");
+            let key_scheme = match SignatureScheme::from_flag(read_line()?.trim()) {
+                Ok(s) => s,
+                Err(e) => return Err(anyhow!("{e}")),
             };
-            let (new_address, phrase, flag) = keystore.init()?.generate_new_key(key_scheme)?;
-            println!("Generated new keypair for address with flag {flag} [{new_address}]");
+            let (new_address, phrase, scheme) = keystore.init()?.generate_new_key(key_scheme)?;
+            println!(
+                "Generated new keypair for address with scheme {:?} [{new_address}]",
+                scheme.to_string()
+            );
             println!("Secret Recovery Phrase : [{phrase}]");
             HaneulClientConfig {
                 keystore,
