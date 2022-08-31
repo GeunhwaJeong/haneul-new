@@ -9,6 +9,7 @@ members = [
     "crates/haneul-config",
     "crates/haneul-core",
     "crates/haneul-cost",
+    "crates/haneul-cost-tables",
     "crates/haneul-faucet",
     "crates/haneul-framework",
     "crates/haneul-framework-build",
