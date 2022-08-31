@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import mockTransactionData from '../../../../crates/haneul-open-rpc/samples/transactions.json';
+import mockTransactionData from '@haneullabs/haneul-open-rpc/samples/transactions.json';
 
 import { isHaneulTransactionResponse } from '../../src/index.guard';
 

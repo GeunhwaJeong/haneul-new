@@ -7,6 +7,9 @@ outputs:
   isTypeScriptSDK:
     description: True when there are changes to files related to TypeScript SDK
     value: "${{ steps.changes.outputs.sdk }}"
+  isWalletExt:
+    description: True when there are changes to files related to Wallet Extension
+    value: "${{ steps.changes.outputs.wallet }}"
   isWalletAdapter:
     description: True when there are changes to files related to wallet adapter
     value: "${{ steps.changes.outputs.walletAdapter }}"
@@ -30,4 +33,5 @@ runs:
       run: |
         echo "::set-output name=explorer::$(jq 'any(.[]; .name == "haneul-explorer")' changes.json)"
         echo "::set-output name=sdk::$(jq 'any(.[]; .name == "@haneullabs/haneul.js")' changes.json)"
+        echo "::set-output name=wallet::$(jq 'any(.[]; .name == "haneul-wallet")' changes.json)"
         echo "::set-output name=walletAdapter::$(jq 'any(.[]; .name | startswith("@haneullabs/wallet-adapter"))' changes.json)"
