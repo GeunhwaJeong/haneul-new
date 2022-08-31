@@ -13,7 +13,7 @@ import {
   isHaneulMoveNormalizedModule,
   isHaneulMoveNormalizedFunction,
   isHaneulMoveNormalizedStruct,
-} from '../index.guard';
+} from '../types/index.guard';
 import {
   GatewayTxSeqNumber,
   GetTxnDigestsResponse,

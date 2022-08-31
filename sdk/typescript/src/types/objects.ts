@@ -56,7 +56,7 @@ export type HaneulMoveNormalizedModule = {
   friends: HaneulMoveModuleId[];
   structs: Record<string, HaneulMoveNormalizedStruct>;
   exposed_functions: Record<string, HaneulMoveNormalizedFunction>;
-}
+};
 
 export type HaneulMoveModuleId = {
   address: string;
@@ -67,17 +67,17 @@ export type HaneulMoveNormalizedStruct = {
   abilities: HaneulMoveAbilitySet;
   type_parameters: HaneulMoveStructTypeParameter[];
   fields: HaneulMoveNormalizedField[];
-}
+};
 
 export type HaneulMoveStructTypeParameter = {
   constraints: HaneulMoveAbilitySet;
   is_phantom: boolean;
-}
+};
 
 export type HaneulMoveNormalizedField = {
   name: string;
   type_: HaneulMoveNormalizedType;
-}
+};
 
 export type HaneulMoveNormalizedFunction = {
   visibility: HaneulMoveVisibility;
@@ -87,30 +87,28 @@ export type HaneulMoveNormalizedFunction = {
   return_: HaneulMoveNormalizedType[];
 };
 
-export type HaneulMoveVisibility = 
-  | "Private"
-  | "Public"
-  | "Friend";
+export type HaneulMoveVisibility = 'Private' | 'Public' | 'Friend';
 
 export type HaneulMoveTypeParameterIndex = number;
 
 export type HaneulMoveAbilitySet = {
-  abilities: string[],
+  abilities: string[];
 };
 
-export type HaneulMoveNormalizedType = (
+export type HaneulMoveNormalizedType =
   | string
-  | {TypeParameter: HaneulMoveTypeParameterIndex}
-  | {Reference: HaneulMoveNormalizedType}
-  | {MutableReference: HaneulMoveNormalizedType}
-  | {Vector: HaneulMoveNormalizedType}
-  | {Struct: {
-    address: string,
-    module: string,
-    name: string,
-    type_arguments: HaneulMoveNormalizedType[],
-  }}
-);
+  | { TypeParameter: HaneulMoveTypeParameterIndex }
+  | { Reference: HaneulMoveNormalizedType }
+  | { MutableReference: HaneulMoveNormalizedType }
+  | { Vector: HaneulMoveNormalizedType }
+  | {
+      Struct: {
+        address: string;
+        module: string;
+        name: string;
+        type_arguments: HaneulMoveNormalizedType[];
+      };
+    };
 
 export type HaneulObject = {
   /** The meat of the object */

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SignatureScheme } from '../cryptography/publickey';
-import { isHaneulObjectRef } from '../index.guard';
+import { isHaneulObjectRef } from '../types/index.guard';
 import {
   GetObjectDataResponse,
   HaneulObjectInfo,

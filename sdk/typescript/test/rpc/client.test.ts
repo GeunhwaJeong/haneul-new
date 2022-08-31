@@ -9,7 +9,7 @@ import {
   MOCK_ENDPOINT,
   MOCK_PORT,
 } from '../mocks/rpc-http';
-import { isGetOwnedObjectsResponse } from '../../src/index.guard';
+import { isGetOwnedObjectsResponse } from '../../src/types/index.guard';
 import { HaneulObjectInfo } from '../../src';
 
 const EXAMPLE_OBJECT: HaneulObjectInfo = {
