@@ -10,7 +10,7 @@ use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
     RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse,
     HaneulGasCostSummary, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
-    HaneulObjectInfo, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
+    HaneulObjectInfo, HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -349,6 +349,18 @@ pub trait RpcBcsApi {
         /// the id of the object
         object_id: ObjectID,
     ) -> RpcResult<GetRawObjectDataResponse>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Transaction Subscription")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait TransactionStreamingApi {
+    /// Subscribe to a stream of Haneul event
+    #[subscription(name = "subscribeTransaction", item = HaneulTransactionResponse)]
+    fn subscribe_transaction(
+        &self,
+        /// the filter criteria of the transaction stream.
+        filter: HaneulTransactionFilter,
+    );
 }
 
 #[open_rpc(namespace = "haneul", tag = "Event Subscription")]

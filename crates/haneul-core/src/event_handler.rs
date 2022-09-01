@@ -18,7 +18,7 @@ use haneul_types::{
 
 use crate::authority::{AuthorityStore, ResolverWrapper};
 use crate::streamer::Streamer;
-use haneul_types::event_filter::EventFilter;
+use haneul_types::filter::EventFilter;
 
 #[cfg(test)]
 #[path = "unit_tests/event_handler_tests.rs"]

@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulError;
-use haneul_types::event_filter::Filter;
+use haneul_types::filter::Filter;
 use tokio::runtime::Handle;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::{mpsc, RwLock};

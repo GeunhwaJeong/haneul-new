@@ -294,6 +294,7 @@ fn make_authority_state(
                 None,
                 None,
                 None,
+                None,
                 &haneul_config::genesis::Genesis::get_default_genesis(),
                 &prometheus::Registry::new(),
                 tx_reconfigure_consensus,

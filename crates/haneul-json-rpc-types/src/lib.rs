@@ -39,7 +39,7 @@ use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signatu
 use haneul_types::error::HaneulError;
 use haneul_types::event::{Event, TransferType};
 use haneul_types::event::{EventEnvelope, EventType};
-use haneul_types::event_filter::EventFilter;
+use haneul_types::filter::{EventFilter, TransactionFilter};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
@@ -2124,6 +2124,21 @@ pub struct MoveCallParams {
     #[serde(default)]
     pub type_arguments: Vec<HaneulTypeTag>,
     pub arguments: Vec<HaneulJsonValue>,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, Debug)]
+#[serde(rename = "HaneulTransactionFilter")]
+pub enum HaneulTransactionFilter {
+    Any,
+}
+
+impl From<HaneulTransactionFilter> for TransactionFilter {
+    fn from(filter: HaneulTransactionFilter) -> Self {
+        use HaneulTransactionFilter::*;
+        match filter {
+            Any => TransactionFilter::Any,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug)]

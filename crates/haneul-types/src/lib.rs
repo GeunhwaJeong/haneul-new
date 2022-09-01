@@ -37,7 +37,7 @@ pub mod haneul_serde;
 pub mod haneul_system_state;
 pub mod waypoint;
 
-pub mod event_filter;
+pub mod filter;
 #[path = "./unit_tests/utils.rs"]
 pub mod utils;
 
