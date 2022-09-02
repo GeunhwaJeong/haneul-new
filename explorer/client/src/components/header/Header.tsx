@@ -12,7 +12,12 @@ import styles from './Header.module.css';
 const Header = () => {
     return (
         <header>
-            <Link id="homeBtn" className={styles.haneultitle} to="/">
+            <Link
+                id="homeBtn"
+                data-testid="nav-logo-button"
+                className={styles.haneultitle}
+                to="/"
+            >
                 <HaneulLogo />
             </Link>
 
