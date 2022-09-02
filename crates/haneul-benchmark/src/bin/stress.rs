@@ -5,37 +5,37 @@ use clap::*;
 use futures::future::join_all;
 use futures::future::try_join_all;
 use prometheus::Registry;
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::time::Duration;
+use strum_macros::EnumString;
 use haneul_benchmark::benchmark::follow;
+use haneul_benchmark::drivers::bench_driver::BenchDriver;
 use haneul_benchmark::drivers::driver::Driver;
+use haneul_benchmark::workloads::shared_counter::SharedCounterWorkload;
+use haneul_benchmark::workloads::transfer_object::TransferObjectWorkload;
 use haneul_benchmark::workloads::workload::get_latest;
+use haneul_benchmark::workloads::workload::CombinationWorkload;
+use haneul_benchmark::workloads::workload::Payload;
+use haneul_benchmark::workloads::workload::Workload;
 use haneul_benchmark::workloads::workload::WorkloadType;
 use haneul_config::gateway::GatewayConfig;
 use haneul_config::Config;
 use haneul_config::PersistedConfig;
 use haneul_core::authority_aggregator::AuthAggMetrics;
 use haneul_core::authority_aggregator::AuthorityAggregator;
+use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_core::gateway_state::GatewayState;
 use haneul_core::safe_client::SafeClientMetrics;
 use haneul_node::metrics;
 use haneul_node::HaneulNode;
+use haneul_sdk::crypto::FileBasedKeystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::AccountKeyPair;
-
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::time::Duration;
-use strum_macros::EnumString;
-use haneul_benchmark::drivers::bench_driver::BenchDriver;
-use haneul_benchmark::workloads::shared_counter::SharedCounterWorkload;
-use haneul_benchmark::workloads::transfer_object::TransferObjectWorkload;
-use haneul_benchmark::workloads::workload::CombinationWorkload;
-use haneul_benchmark::workloads::workload::Payload;
-use haneul_benchmark::workloads::workload::Workload;
-use haneul_core::epoch::epoch_store::EpochStore;
-use haneul_sdk::crypto::FileBasedKeystore;
 use haneul_types::crypto::EncodeDecodeBase64;
+use haneul_types::crypto::HaneulKeyPair;
 
 use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use test_utils::authority::spawn_test_authorities;
@@ -314,10 +314,16 @@ async fn main() -> Result<()> {
             })
             .map(|x| x.encode_base64())
             .unwrap();
+        // TODO(joyqvq): This is a hack to decode base64 keypair with added flag, ok for now since it is for benchmark use.
+        // Rework to get the typed keypair directly from above.
+        let ed25519_keypair = match HaneulKeyPair::decode_base64(&keypair).unwrap() {
+            HaneulKeyPair::Ed25519HaneulKeyPair(x) => x,
+            _ => panic!("Unexpected keypair type"),
+        };
         (
             primary_gas_id,
             primary_gas_account,
-            Arc::new(keypair.parse().map_err(|e| anyhow!("{:#?}", e))?),
+            Arc::new(ed25519_keypair),
             config,
         )
     };
