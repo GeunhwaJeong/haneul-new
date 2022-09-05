@@ -7,7 +7,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
+import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulMoveNormalizedTypeParameterType, HaneulMoveNormalizedStructType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, ExecuteTransactionRequestType, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, HaneulCertifiedTransactionEffects, HaneulExecuteTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
 
 export function isTransactionDigest(obj: any, _argumentName?: string): obj is TransactionDigest {
     return (
@@ -285,35 +285,47 @@ export function isHaneulMoveAbilitySet(obj: any, _argumentName?: string): obj is
 export function isHaneulMoveNormalizedType(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedType {
     return (
         (isTransactionDigest(obj) as boolean ||
+            isHaneulMoveNormalizedTypeParameterType(obj) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isHaneulMoveTypeParameterIndex(obj.TypeParameter) as boolean ||
+            isHaneulMoveNormalizedStructType(obj.Reference) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isHaneulMoveNormalizedType(obj.Reference) as boolean ||
-            (obj !== null &&
-                typeof obj === "object" ||
-                typeof obj === "function") &&
-            isHaneulMoveNormalizedType(obj.MutableReference) as boolean ||
+            isHaneulMoveNormalizedStructType(obj.MutableReference) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
             isHaneulMoveNormalizedType(obj.Vector) as boolean ||
-            (obj !== null &&
-                typeof obj === "object" ||
-                typeof obj === "function") &&
-            (obj.Struct !== null &&
-                typeof obj.Struct === "object" ||
-                typeof obj.Struct === "function") &&
-            isTransactionDigest(obj.Struct.address) as boolean &&
-            isTransactionDigest(obj.Struct.module) as boolean &&
-            isTransactionDigest(obj.Struct.name) as boolean &&
-            Array.isArray(obj.Struct.type_arguments) &&
-            obj.Struct.type_arguments.every((e: any) =>
-                isHaneulMoveNormalizedType(e) as boolean
-            ))
+            isHaneulMoveNormalizedStructType(obj) as boolean)
+    )
+}
+
+export function isHaneulMoveNormalizedTypeParameterType(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedTypeParameterType {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isHaneulMoveTypeParameterIndex(obj.TypeParameter) as boolean
+    )
+}
+
+export function isHaneulMoveNormalizedStructType(obj: any, _argumentName?: string): obj is HaneulMoveNormalizedStructType {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        (obj.Struct !== null &&
+            typeof obj.Struct === "object" ||
+            typeof obj.Struct === "function") &&
+        isTransactionDigest(obj.Struct.address) as boolean &&
+        isTransactionDigest(obj.Struct.module) as boolean &&
+        isTransactionDigest(obj.Struct.name) as boolean &&
+        Array.isArray(obj.Struct.type_arguments) &&
+        obj.Struct.type_arguments.every((e: any) =>
+            isHaneulMoveNormalizedTypeParameterType(e) as boolean
+        )
     )
 }
 
@@ -421,7 +433,9 @@ export function isTransferObjectEvent(obj: any, _argumentName?: string): obj is 
         isObjectOwner(obj.recipient) as boolean &&
         isTransactionDigest(obj.objectId) as boolean &&
         isHaneulMoveTypeParameterIndex(obj.version) as boolean &&
-        isTransactionDigest(obj.type) as boolean
+        isTransactionDigest(obj.type) as boolean &&
+        (obj.amount === null ||
+            isHaneulMoveTypeParameterIndex(obj.amount) as boolean)
     )
 }
 
@@ -512,6 +526,14 @@ export function isHaneulChangeEpoch(obj: any, _argumentName?: string): obj is Ha
         isHaneulMoveTypeParameterIndex(obj.epoch) as boolean &&
         isHaneulMoveTypeParameterIndex(obj.storage_charge) as boolean &&
         isHaneulMoveTypeParameterIndex(obj.computation_charge) as boolean
+    )
+}
+
+export function isExecuteTransactionRequestType(obj: any, _argumentName?: string): obj is ExecuteTransactionRequestType {
+    return (
+        (obj === "ImmediateReturn" ||
+            obj === "WaitForTxCert" ||
+            obj === "WaitForEffectsCert")
     )
 }
 
@@ -709,6 +731,42 @@ export function isHaneulTransactionResponse(obj: any, _argumentName?: string): o
     )
 }
 
+export function isHaneulCertifiedTransactionEffects(obj: any, _argumentName?: string): obj is HaneulCertifiedTransactionEffects {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        isTransactionEffects(obj.effects) as boolean
+    )
+}
+
+export function isHaneulExecuteTransactionResponse(obj: any, _argumentName?: string): obj is HaneulExecuteTransactionResponse {
+    return (
+        ((obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+            (obj.ImmediateReturn !== null &&
+                typeof obj.ImmediateReturn === "object" ||
+                typeof obj.ImmediateReturn === "function") &&
+            isTransactionDigest(obj.ImmediateReturn.tx_digest) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            (obj.TxCert !== null &&
+                typeof obj.TxCert === "object" ||
+                typeof obj.TxCert === "function") &&
+            isCertifiedTransaction(obj.TxCert.certificate) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            (obj.EffectsCert !== null &&
+                typeof obj.EffectsCert === "object" ||
+                typeof obj.EffectsCert === "function") &&
+            isCertifiedTransaction(obj.EffectsCert.certificate) as boolean &&
+            isHaneulCertifiedTransactionEffects(obj.EffectsCert.effects) as boolean)
+    )
+}
+
 export function isGatewayTxSeqNumber(obj: any, _argumentName?: string): obj is GatewayTxSeqNumber {
     return (
         typeof obj === "number"
@@ -755,10 +813,7 @@ export function isHaneulJsonValue(obj: any, _argumentName?: string): obj is Hane
             obj === true ||
             Array.isArray(obj) &&
             obj.every((e: any) =>
-            (isTransactionDigest(e) as boolean ||
-                isHaneulMoveTypeParameterIndex(e) as boolean ||
-                e === false ||
-                e === true)
+                isHaneulJsonValue(e) as boolean
             ))
     )
 }

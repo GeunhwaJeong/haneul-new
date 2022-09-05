@@ -13,6 +13,7 @@ import {
   isHaneulMoveNormalizedModule,
   isHaneulMoveNormalizedFunction,
   isHaneulMoveNormalizedStruct,
+  isHaneulExecuteTransactionResponse,
 } from '../types/index.guard';
 import {
   GatewayTxSeqNumber,
@@ -29,6 +30,8 @@ import {
   HaneulObjectRef,
   getObjectReference,
   Coin,
+  ExecuteTransactionRequestType,
+  HaneulExecuteTransactionResponse,
 } from '../types';
 import { SignatureScheme } from '../cryptography/publickey';
 
@@ -80,6 +83,7 @@ export class JsonRpcProvider extends Provider {
   async getNormalizedMoveModulesByPackage(
     objectId: string
   ): Promise<HaneulMoveNormalizedModules> {
+    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModulesByPackage',
@@ -96,6 +100,7 @@ export class JsonRpcProvider extends Provider {
     objectId: string,
     moduleName: string
   ): Promise<HaneulMoveNormalizedModule> {
+    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModule',
@@ -115,6 +120,7 @@ export class JsonRpcProvider extends Provider {
     moduleName: string,
     functionName: string
   ): Promise<HaneulMoveNormalizedFunction> {
+    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveFunction',
@@ -203,7 +209,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getObjectBatch(objectIds: string[]): Promise<GetObjectDataResponse[]> {
-    const requests = objectIds.map(id => ({
+    const requests = objectIds.map((id) => ({
       method: 'haneul_getObject',
       args: [id],
     }));
@@ -297,7 +303,7 @@ export class JsonRpcProvider extends Provider {
   async getTransactionWithEffectsBatch(
     digests: TransactionDigest[]
   ): Promise<HaneulTransactionResponse[]> {
-    const requests = digests.map(d => ({
+    const requests = digests.map((d) => ({
       method: 'haneul_getTransaction',
       args: [d],
     }));
@@ -331,6 +337,26 @@ export class JsonRpcProvider extends Provider {
       return resp;
     } catch (err) {
       throw new Error(`Error executing transaction: ${err}}`);
+    }
+  }
+
+  async executeTransactionWithRequestType(
+    txnBytes: string,
+    signatureScheme: SignatureScheme,
+    signature: string,
+    pubkey: string,
+    requestType: ExecuteTransactionRequestType = 'WaitForEffectsCert'
+  ): Promise<HaneulExecuteTransactionResponse> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_executeTransaction',
+        [txnBytes, signatureScheme, signature, pubkey, requestType],
+        isHaneulExecuteTransactionResponse,
+        this.skipDataValidation
+      );
+      return resp;
+    } catch (err) {
+      throw new Error(`Error executing transaction with request type: ${err}}`);
     }
   }
 

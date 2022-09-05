@@ -97,18 +97,24 @@ export type HaneulMoveAbilitySet = {
 
 export type HaneulMoveNormalizedType =
   | string
-  | { TypeParameter: HaneulMoveTypeParameterIndex }
-  | { Reference: HaneulMoveNormalizedType }
-  | { MutableReference: HaneulMoveNormalizedType }
+  | HaneulMoveNormalizedTypeParameterType
+  | { Reference: HaneulMoveNormalizedStructType }
+  | { MutableReference: HaneulMoveNormalizedStructType }
   | { Vector: HaneulMoveNormalizedType }
-  | {
-      Struct: {
-        address: string;
-        module: string;
-        name: string;
-        type_arguments: HaneulMoveNormalizedType[];
-      };
-    };
+  | HaneulMoveNormalizedStructType;
+
+export type HaneulMoveNormalizedTypeParameterType = {
+  TypeParameter: HaneulMoveTypeParameterIndex;
+};
+
+export type HaneulMoveNormalizedStructType = {
+  Struct: {
+    address: string;
+    module: string;
+    name: string;
+    type_arguments: HaneulMoveNormalizedTypeParameterType[];
+  };
+};
 
 export type HaneulObject = {
   /** The meat of the object */
@@ -214,6 +220,16 @@ export function getObjectOwner(
   return getObjectExistsResponse(resp)?.owner;
 }
 
+export function isSharedObject(resp: GetObjectDataResponse): boolean {
+  const owner = getObjectOwner(resp);
+  return owner === 'Shared';
+}
+
+export function isImmutableObject(resp: GetObjectDataResponse): boolean {
+  const owner = getObjectOwner(resp);
+  return owner === 'Immutable';
+}
+
 export function getMoveObjectType(
   resp: GetObjectDataResponse
 ): string | undefined {
@@ -256,4 +272,35 @@ export function getMovePackageContent(
     return undefined;
   }
   return (haneulObject.data as HaneulMovePackage).disassembled;
+}
+
+export function extractMutableReference(
+  normalizedType: HaneulMoveNormalizedType
+): HaneulMoveNormalizedStructType | undefined {
+  return typeof normalizedType === 'object' &&
+    'MutableReference' in normalizedType
+    ? normalizedType.MutableReference
+    : undefined;
+}
+
+export function extractReference(
+  normalizedType: HaneulMoveNormalizedType
+): HaneulMoveNormalizedStructType | undefined {
+  return typeof normalizedType === 'object' && 'Reference' in normalizedType
+    ? normalizedType.Reference
+    : undefined;
+}
+
+export function extractStructTag(
+  normalizedType: HaneulMoveNormalizedType
+): HaneulMoveNormalizedStructType | undefined {
+  if (typeof normalizedType === 'object' && 'Struct' in normalizedType) {
+    return normalizedType;
+  }
+
+  return (
+    (extractReference(normalizedType) ||
+      extractMutableReference(normalizedType)) ??
+    undefined
+  );
 }

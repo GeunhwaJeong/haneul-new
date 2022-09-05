@@ -2,13 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Base64DataBuffer } from '../../serialization/base64';
-import {
-  CallArg,
-  ObjectId,
-  HaneulAddress,
-  HaneulJsonValue,
-  TypeTag,
-} from '../../types';
+import { ObjectId, HaneulAddress, HaneulJsonValue, TypeTag } from '../../types';
 
 ///////////////////////////////
 // Exported Types
@@ -50,11 +44,7 @@ export interface MoveCallTransaction {
    * RpcTxnDataSerializer soon.
    */
   typeArguments: string[] | TypeTag[];
-  /**
-   * Usage: pass in HaneulJsonValue[] if you use RpcTxnDataSerializer,
-   * Otherwise you need to pass in CallArg[].
-   */
-  arguments: HaneulJsonValue[] | CallArg[];
+  arguments: HaneulJsonValue[];
   gasPayment?: ObjectId;
   gasBudget: number;
 }

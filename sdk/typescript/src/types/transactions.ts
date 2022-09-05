@@ -22,6 +22,11 @@ export type HaneulChangeEpoch = {
   computation_charge: number;
 };
 
+export type ExecuteTransactionRequestType =
+  | 'ImmediateReturn'
+  | 'WaitForTxCert'
+  | 'WaitForEffectsCert';
+
 export type TransactionKindName =
   | 'TransferObject'
   | 'Publish'
@@ -115,6 +120,25 @@ export type HaneulTransactionResponse = {
   parsed_data: HaneulParsedTransactionResponse | null;
 };
 
+// TODO: this is likely to go away after https://github.com/GeunhwaJeong/haneul/issues/4207
+export type HaneulCertifiedTransactionEffects = {
+  effects: TransactionEffects;
+};
+
+export type HaneulExecuteTransactionResponse =
+  | {
+      ImmediateReturn: {
+        tx_digest: string;
+      };
+    }
+  | { TxCert: { certificate: CertifiedTransaction } }
+  | {
+      EffectsCert: {
+        certificate: CertifiedTransaction;
+        effects: HaneulCertifiedTransactionEffects;
+      };
+    };
+
 export type GatewayTxSeqNumber = number;
 
 export type GetTxnDigestsResponse = [GatewayTxSeqNumber, TransactionDigest][];
@@ -127,11 +151,7 @@ export type MoveCall = {
   arguments?: HaneulJsonValue[];
 };
 
-export type HaneulJsonValue =
-  | boolean
-  | number
-  | string
-  | Array<boolean | number | string>;
+export type HaneulJsonValue = boolean | number | string | Array<HaneulJsonValue>;
 
 export type EmptySignInfo = object;
 export type AuthorityName = string;
@@ -256,10 +276,10 @@ export function getTransactions(
   return data.data.transactions;
 }
 
-export function getTransferHaneulAmount(
-  data: HaneulTransactionKind
-): BN | null {
-  return ("TransferHaneul" in data && data.TransferHaneul.amount) ? new BN.BN(data.TransferHaneul.amount, 10) : null; 
+export function getTransferHaneulAmount(data: HaneulTransactionKind): BN | null {
+  return 'TransferHaneul' in data && data.TransferHaneul.amount
+    ? new BN.BN(data.TransferHaneul.amount, 10)
+    : null;
 }
 
 export function getTransactionKindName(
@@ -301,6 +321,12 @@ export function getTotalGasUsed(data: HaneulTransactionResponse): number {
     gasSummary.storageCost -
     gasSummary.storageRebate
   );
+}
+
+export function getTransactionEffects(
+  data: HaneulExecuteTransactionResponse
+): TransactionEffects | undefined {
+  return 'EffectsCert' in data ? data.EffectsCert.effects.effects : undefined;
 }
 
 /* --------------------------- TransactionResponse -------------------------- */
@@ -357,4 +383,17 @@ export function getNewlyCreatedCoinsAfterSplit(
   data: HaneulTransactionResponse
 ): HaneulObject[] | undefined {
   return getParsedSplitCoinResponse(data)?.newCoins;
+}
+
+/**
+ * Get the newly created coin refs after a split.
+ */
+export function getNewlyCreatedCoinRefsAfterSplit(
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+): HaneulObjectRef[] | undefined {
+  if ('EffectsCert' in data) {
+    const effects = data.EffectsCert.effects.effects;
+    return effects.created?.map((c) => c.reference);
+  }
+  return undefined;
 }
