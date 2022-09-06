@@ -23,7 +23,7 @@ use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::haneul_serde::KeyPairBase64;
 
 // Default max number of concurrent requests served
-pub const DEFAULT_GRPC_CONCURRENCY_LIMIT: usize = 20000;
+pub const DEFAULT_GRPC_CONCURRENCY_LIMIT: usize = 20000000000;
 
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize)]
