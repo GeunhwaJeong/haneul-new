@@ -28,7 +28,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
-telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "7ef7415a4e11cf68fa68ce9db884c46e704e0445" }
+telemetry-subscribers = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "0a2956d113d29369a8c05bd492c51ca0ff3423e8" }
 workspace-hack = { path = "../workspace-hack"}
 
 [dev-dependencies]
