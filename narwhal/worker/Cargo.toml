@@ -28,10 +28,10 @@ crypto = { path = "../crypto" }
 network = { path = "../network" }
 primary = { path = "../primary" }
 types = { path = "../types" }
-haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra.git", rev = "9deac015fbf66e24b6da9699630e06750eaa094a" }
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra.git", rev = "d96230a9272c322a7eefac49708aadfff1eed77e" }
 prometheus = "0.13.1"
 
-store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra.git", package = "typed-store", rev = "9deac015fbf66e24b6da9699630e06750eaa094a" }
+store = { git = "https://github.com/GeunhwaJeong/haneullabs-infra.git", package = "typed-store", rev = "d96230a9272c322a7eefac49708aadfff1eed77e" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
