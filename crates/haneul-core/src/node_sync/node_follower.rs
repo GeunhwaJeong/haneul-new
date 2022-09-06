@@ -325,7 +325,6 @@ mod test {
         authority::test_and_configure_authority_configs, messages::make_transfer_haneul_transaction,
     };
     use tokio::{sync::broadcast, time::Instant};
-    use typed_store::traits::DBMapTableUtil;
 
     #[derive(Clone)]
     struct TestNodeSyncHandler {

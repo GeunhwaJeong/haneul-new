@@ -11,7 +11,8 @@ use haneul_storage::default_db_options;
 use haneul_types::base_types::{ExecutionDigests, SequenceNumber};
 use haneul_types::batch::{SignedBatch, TxSequenceNumber};
 use typed_store::rocks::DBMap;
-use typed_store::traits::DBMapTableUtil;
+use typed_store::traits::TypedStoreDebug;
+
 use typed_store_macros::DBMapUtils;
 #[derive(DBMapUtils)]
 pub struct AuthorityStoreTables<S> {

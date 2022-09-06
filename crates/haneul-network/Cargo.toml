@@ -12,7 +12,8 @@ tonic = "0.7"
 
 haneul-types = { path = "../haneul-types" }
 
-haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "0a2956d113d29369a8c05bd492c51ca0ff3423e8" }
+
+haneullabs-network = { git = "https://github.com/GeunhwaJeong/haneullabs-infra", rev = "d96230a9272c322a7eefac49708aadfff1eed77e" }
 workspace-hack = { path = "../workspace-hack"}
 
 [build-dependencies]

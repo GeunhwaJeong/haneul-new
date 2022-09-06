@@ -52,7 +52,6 @@ use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::ws_server::WsServerHandle;
 use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_types::crypto::KeypairTraits;
-use typed_store::traits::DBMapTableUtil;
 
 pub mod admin;
 pub mod metrics;
