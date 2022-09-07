@@ -25,6 +25,10 @@ on:
         type: string
         required: true
 
+env:
+  HANEUL_COMMIT: "${{ github.event.client_payload.haneul_commit || github.event.inputs.haneul_commit }}"
+  TAG_NAME: "${{ github.event.client_payload.tag_name || github.event.inputs.tag_name }}"
+
 jobs:
   tag:
     name: Tag
@@ -37,8 +41,8 @@ jobs:
     - name: Tag
       uses: julbme/gh-action-manage-tag@v1
       with:
-        name: ${{ inputs.tag_name }}
+        name: ${{ env.TAG_NAME }}
         state: present
-        from: ${{ inputs.haneul_commit }}
+        from: ${{ env.HANEUL_COMMIT }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
