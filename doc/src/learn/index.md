@@ -1,5 +1,5 @@
 ---
-title: Learning Haneul
+title: Learn About Haneul
 ---
 
 *Haneul: pronounced "sweet" without the "T" - with Transactions (loads of them), things are SWEET indeed. :-)*
@@ -12,13 +12,14 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 ## See what's new
 
+Check for the latest release of Haneul on the [Releases](https://github.com/GeunhwaJeong/haneul/releases) page.
+
 ### Doc updates
 
-The following list includes the recent updates to Haneul and the documentation:
+We made the following updates to Haneul documentation:
 
 * [Bullshark](https://arxiv.org/abs/2201.05677) replaced Tusk as the default consensus component of the [Narwhal](https://github.com/GeunhwaJeong/narwhal)-based [Haneul consensus engine](../learn/architecture/consensus.md) for reduced latency and support for fairness with slower validators. Note, Tusk may still be used.
 * You must now specify the key scheme type as an argument (`ed25519` or `secp256k1`) when running either the `haneul keytool generate` or `haneul client new-address` commands, as shown in [adding accounts to the client](../build/cli-client.md#adding-accounts-to-the-client).
-* [Haneul version 0.8.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.8.0) is now live in Devnet with numerous fixes and enhancements, including new designs for [Haneul Explorer](https://explorer.devnet.haneul.io/) and [event query support](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-json-rpc/src/event_api.rs#L122-L210) in fullnode.
 * Follow the [Cryptography (math)](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/math) example for a simple contract that hashes a piece of data using keccak256, recovers a [Secp256k1](https://crates.io/crates/secp256k1/) signature to its public key, and verifies a Secp256k1 signature, producing an event with the results.
 * Haneul now supports [shared objects](../build/objects.md#shared) that anyone can read or write to. For an example of creating and accessing a shared object, see [Shared Object](https://examples.haneul.io/basics/shared-object.html#shared-object) on https://examples.haneul.io/.
 * Interact with the Haneul network using our new [Rust SDK](../build/rust-sdk.md), a collection of Rust language [JSON-RPC wrapper and crypto utilities](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk).
@@ -27,8 +28,6 @@ The following list includes the recent updates to Haneul and the documentation:
 See the Haneul `doc/src` [history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) for a complete changelog of updates to this site. 
 
 ### Code changes
-
-Learn about the latest releases in the [#release-notes](https://discord.com/channels/916379725201563759/974444055259910174) channel on Discord.
 
 For a complete view of all changes in the Haneul `devnet` branch, see:
 https://github.com/GeunhwaJeong/haneul/commits/devnet
