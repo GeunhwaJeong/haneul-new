@@ -1404,12 +1404,20 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                     .into_iter()
                     .map(|arg| match arg {
                         CallArg::Pure(p) => HaneulJsonValue::from_bcs_bytes(&p),
-                        CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _))) => {
+                        CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _)))
+                        | CallArg::Object(ObjectArg::SharedObject(id)) => {
                             HaneulJsonValue::new(Value::String(id.to_hex_literal()))
                         }
-                        CallArg::Object(ObjectArg::SharedObject(id)) => {
-                            HaneulJsonValue::new(Value::String(id.to_hex_literal()))
-                        }
+                        CallArg::ObjVec(vec) => HaneulJsonValue::new(Value::Array(
+                            vec.iter()
+                                .map(|obj_arg| match obj_arg {
+                                    ObjectArg::ImmOrOwnedObject((id, _, _))
+                                    | ObjectArg::SharedObject(id) => {
+                                        Value::String(id.to_hex_literal())
+                                    }
+                                })
+                                .collect(),
+                        )),
                     })
                     .collect::<Result<Vec<_>, _>>()?,
             }),
