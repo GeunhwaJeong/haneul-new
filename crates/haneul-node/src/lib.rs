@@ -72,19 +72,10 @@ pub struct HaneulNode {
 }
 
 impl HaneulNode {
-    pub async fn start(config: &NodeConfig) -> Result<HaneulNode> {
+    pub async fn start(config: &NodeConfig, prometheus_registry: Registry) -> Result<HaneulNode> {
         // TODO: maybe have a config enum that takes care of this for us.
         let is_validator = config.consensus_config().is_some();
         let is_full_node = !is_validator;
-
-        //
-        // Start metrics server
-        //
-        info!(
-            "Starting Prometheus HTTP endpoint at {}",
-            config.metrics_address
-        );
-        let prometheus_registry = metrics::start_prometheus_server(config.metrics_address);
 
         info!(node =? config.protocol_public_key(),
             "Initializing haneul-node listening on {}", config.network_address
