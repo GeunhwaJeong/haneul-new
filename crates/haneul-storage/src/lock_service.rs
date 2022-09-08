@@ -25,7 +25,7 @@ use tracing::{debug, error, info, trace, warn};
 use typed_store::rocks::{DBBatch, DBMap};
 use typed_store::traits::Map;
 use typed_store::traits::TypedStoreDebug;
-use typed_store_macros::DBMapUtils;
+use typed_store_derive::DBMapUtils;
 
 use haneul_types::base_types::{ObjectRef, TransactionDigest};
 use haneul_types::batch::TxSequenceNumber;
