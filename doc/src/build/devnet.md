@@ -68,7 +68,7 @@ Or enter a custom URL to connect to a server hosted elsewhere.
 If you have used the Haneul client before with a local network, you will have an existing `client.yaml` configuration
 file needing update. Change the configured RPC server URL to Devnet by using:
 ```shell
-$ haneul client switch --gateway https://gateway.devnet.haneul.io:443
+$ haneul client switch --rpc https://gateway.devnet.haneul.io:443
 ```
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).

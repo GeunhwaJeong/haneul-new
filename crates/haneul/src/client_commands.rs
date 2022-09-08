@@ -16,6 +16,8 @@ use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig;
 use serde::Serialize;
 use serde_json::json;
+use tracing::info;
+
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::HaneulData;
@@ -26,6 +28,8 @@ use haneul_json_rpc_types::{
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_sdk::crypto::HaneulKeystore;
 use haneul_sdk::{ClientType, HaneulClient};
+use haneul_types::crypto::SignatureScheme;
+use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -34,11 +38,6 @@ use haneul_types::{
     object::Owner,
     parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
 };
-use haneul_types::{
-    crypto::SignatureScheme,
-    haneul_serde::{Base64, Encoding},
-};
-use tracing::info;
 
 use crate::config::{Config, PersistedConfig, HaneulClientConfig};
 
@@ -57,13 +56,13 @@ pub enum HaneulClientCommands {
         /// commands.
         #[clap(long)]
         address: Option<HaneulAddress>,
-        /// The gateway URL (e.g., local rpc server, devnet rpc server, etc) to be
+        /// The RPC server URL (e.g., local rpc server, devnet rpc server, etc) to be
         /// used for subsequent commands.
         #[clap(long, value_hint = ValueHint::Url)]
-        gateway: Option<String>,
-        /// The fullnode URL
+        rpc: Option<String>,
+        /// The pubsub Websocket server URL
         #[clap(long, value_hint = ValueHint::Url)]
-        fullnode: Option<String>,
+        ws: Option<String>,
     },
 
     /// Default address used for commands when none specified
@@ -292,7 +291,7 @@ impl HaneulClientCommands {
 
                 let compiled_modules = build_move_package_to_bytes(&package_path, build_config)?;
                 let data = context
-                    .gateway
+                    .client
                     .transaction_builder()
                     .publish(sender, compiled_modules, gas, gas_budget)
                     .await?;
@@ -306,7 +305,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Object { id } => {
                 // Fetch the object ref
-                let object_read = context.gateway.read_api().get_parsed_object(id).await?;
+                let object_read = context.client.read_api().get_parsed_object(id).await?;
                 HaneulClientCommandResult::Object(object_read)
             }
             HaneulClientCommands::Call {
@@ -335,7 +334,7 @@ impl HaneulClientCommands {
                 let time_start = Instant::now();
 
                 let data = context
-                    .gateway
+                    .client
                     .transaction_builder()
                     .transfer_object(from, object_id, gas, gas_budget, to)
                     .await?;
@@ -362,7 +361,7 @@ impl HaneulClientCommands {
                 let from = context.get_object_owner(&object_id).await?;
 
                 let data = context
-                    .gateway
+                    .client
                     .transaction_builder()
                     .transfer_haneul(from, object_id, gas_budget, to, amount)
                     .await?;
@@ -386,12 +385,12 @@ impl HaneulClientCommands {
             HaneulClientCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 let mut address_object = context
-                    .gateway
+                    .client
                     .read_api()
                     .get_objects_owned_by_address(address)
                     .await?;
                 let object_objects = context
-                    .gateway
+                    .client
                     .read_api()
                     .get_objects_owned_by_object(address.into())
                     .await?;
@@ -403,10 +402,11 @@ impl HaneulClientCommands {
             HaneulClientCommands::SyncClientState { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 context
-                    .gateway
+                    .client
                     .wallet_sync_api()
                     .sync_account_state(address)
                     .await?;
+
                 HaneulClientCommandResult::SyncClientState
             }
             HaneulClientCommands::NewAddress { key_scheme } => {
@@ -434,7 +434,7 @@ impl HaneulClientCommands {
                 let signer = context.get_object_owner(&coin_id).await?;
                 let data = if let Some(amounts) = amounts {
                     context
-                        .gateway
+                        .client
                         .transaction_builder()
                         .split_coin(signer, coin_id, amounts, gas, gas_budget)
                         .await?
@@ -443,7 +443,7 @@ impl HaneulClientCommands {
                         return Err(anyhow!("Coin split count must be greater than 0"));
                     }
                     context
-                        .gateway
+                        .client
                         .transaction_builder()
                         .split_coin_equal(signer, coin_id, count, gas, gas_budget)
                         .await?
@@ -462,7 +462,7 @@ impl HaneulClientCommands {
             } => {
                 let signer = context.get_object_owner(&primary_coin).await?;
                 let data = context
-                    .gateway
+                    .client
                     .transaction_builder()
                     .merge_coins(signer, primary_coin, coin_to_merge, gas, gas_budget)
                     .await?;
@@ -473,44 +473,23 @@ impl HaneulClientCommands {
 
                 HaneulClientCommandResult::MergeCoin(response)
             }
-            HaneulClientCommands::Switch {
-                address,
-                gateway,
-                fullnode,
-            } => {
+            HaneulClientCommands::Switch { address, rpc, ws } => {
                 if let Some(addr) = address {
                     if !context.keystore.addresses().contains(&addr) {
                         return Err(anyhow!("Address {} not managed by wallet", addr));
                     }
                     context.config.active_address = Some(addr);
-                    context.config.save()?;
                 }
 
-                if let Some(gateway) = &gateway {
-                    // TODO: handle embedded gateway
-                    context.config.gateway = ClientType::RPC(gateway.clone(), None);
-                    context.config.save()?;
-                }
+                Self::switch_server(&mut context.config, &rpc, &ws)?;
 
-                if let Some(fullnode) = &fullnode {
-                    context.config.fullnode = Some(ClientType::RPC(fullnode.clone(), None));
-                    context.config.save()?;
-                }
-
-                if Option::is_none(&address)
-                    && Option::is_none(&gateway)
-                    && Option::is_none(&fullnode)
-                {
+                if Option::is_none(&address) && Option::is_none(&rpc) && Option::is_none(&ws) {
                     return Err(anyhow!(
-                        "No address or gateway specified. Please Specify one."
+                        "No address or RPC url specified. Please Specify one."
                     ));
                 }
-
-                HaneulClientCommandResult::Switch(SwitchResponse {
-                    address,
-                    gateway,
-                    fullnode,
-                })
+                context.config.save()?;
+                HaneulClientCommandResult::Switch(SwitchResponse { address, rpc, ws })
             }
             HaneulClientCommands::ActiveAddress => {
                 HaneulClientCommandResult::ActiveAddress(context.active_address().ok())
@@ -548,19 +527,41 @@ impl HaneulClientCommands {
                     .ok_or_else(|| anyhow!("Failed to create NFT"))?
                     .reference
                     .object_id;
-                let object_read = context.gateway.read_api().get_parsed_object(nft_id).await?;
+                let object_read = context.client.read_api().get_parsed_object(nft_id).await?;
                 HaneulClientCommandResult::CreateExampleNFT(object_read)
             }
         });
         ret
+    }
+
+    pub fn switch_server(
+        config: &mut HaneulClientConfig,
+        rpc: &Option<String>,
+        ws: &Option<String>,
+    ) -> Result<(), anyhow::Error> {
+        if let Some(rpc) = rpc {
+            let ws = match &config.client_type {
+                ClientType::RPC(_, Some(ws)) => Some(ws.clone()),
+                _ => None,
+            };
+            config.client_type = ClientType::RPC(rpc.clone(), ws);
+        }
+
+        if let Some(ws) = ws {
+            let rpc = match &config.client_type {
+                ClientType::RPC(rpc, _) => rpc.clone(),
+                _ => return Err(anyhow!("RPC server address must be defined")),
+            };
+            config.client_type = ClientType::RPC(rpc, Some(ws.clone()));
+        }
+        Ok(())
     }
 }
 
 pub struct WalletContext {
     pub config: PersistedConfig<HaneulClientConfig>,
     pub keystore: HaneulKeystore,
-    pub gateway: HaneulClient,
-    pub fullnode: Option<HaneulClient>,
+    pub client: HaneulClient,
 }
 
 impl WalletContext {
@@ -571,21 +572,18 @@ impl WalletContext {
                 config_path
             ))
         })?;
-        let config = config.persisted(config_path);
         let keystore = config.keystore.init()?;
-        let client = config.gateway.init().await?;
-        let fullnode_client = match &config.fullnode {
-            Some(client) => Some(client.init().await?),
-            None => None,
-        };
+        let client = config.client_type.init().await?;
+
+        let config = config.persisted(config_path);
         let context = Self {
             config,
             keystore,
-            gateway: client,
-            fullnode: fullnode_client,
+            client,
         };
         Ok(context)
     }
+
     pub fn active_address(&mut self) -> Result<HaneulAddress, anyhow::Error> {
         if self.keystore.addresses().is_empty() {
             return Err(anyhow!(
@@ -610,7 +608,7 @@ impl WalletContext {
         address: HaneulAddress,
     ) -> Result<Vec<(u64, HaneulParsedObject, HaneulObjectInfo)>, anyhow::Error> {
         let object_refs = self
-            .gateway
+            .client
             .read_api()
             .get_objects_owned_by_address(address)
             .await?;
@@ -619,7 +617,7 @@ impl WalletContext {
         let mut values_objects = Vec::new();
         for oref in object_refs {
             let response = self
-                .gateway
+                .client
                 .read_api()
                 .get_parsed_object(oref.object_id)
                 .await?;
@@ -640,7 +638,7 @@ impl WalletContext {
 
     pub async fn get_object_owner(&self, id: &ObjectID) -> Result<HaneulAddress, anyhow::Error> {
         let object = self
-            .gateway
+            .client
             .read_api()
             .get_object(*id)
             .await?
@@ -679,33 +677,33 @@ impl WalletContext {
     /// A backward-compatible migration of transaction execution from gateway to fullnode
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<HaneulTransactionResponse> {
         let tx_digest = *tx.digest();
-        match &self.fullnode {
-            None => self.gateway.quorum_driver().execute_transaction(tx).await,
-            Some(client) => {
-                let result = client
-                    .quorum_driver()
-                    .execute_transaction_by_fullnode(
-                        tx,
-                        ExecuteTransactionRequestType::WaitForEffectsCert,
-                    )
-                    .await;
-                match result {
-                    Ok(HaneulExecuteTransactionResponse::EffectsCert {
-                        certificate,
-                        effects,
-                    }) => Ok(HaneulTransactionResponse {
-                        certificate,
-                        effects: effects.effects,
-                        timestamp_ms: None,
-                        parsed_data: None,
-                    }),
-                    Err(err) => Err(anyhow!(
-                        "Failed to execute transaction {tx_digest:?} with error {err:?}"
-                    )),
-                    other => Err(anyhow!(
-                        "Expect HaneulExecuteTransactionResponse::EffectsCert but got {other:?}"
-                    )),
-                }
+        if self.client.is_gateway() {
+            self.client.quorum_driver().execute_transaction(tx).await
+        } else {
+            let result = self
+                .client
+                .quorum_driver()
+                .execute_transaction_by_fullnode(
+                    tx,
+                    ExecuteTransactionRequestType::WaitForEffectsCert,
+                )
+                .await;
+            match result {
+                Ok(HaneulExecuteTransactionResponse::EffectsCert {
+                    certificate,
+                    effects,
+                }) => Ok(HaneulTransactionResponse {
+                    certificate,
+                    effects: effects.effects,
+                    timestamp_ms: None,
+                    parsed_data: None,
+                }),
+                Err(err) => Err(anyhow!(
+                    "Failed to execute transaction {tx_digest:?} with error {err:?}"
+                )),
+                other => Err(anyhow!(
+                    "Expect HaneulExecuteTransactionResponse::EffectsCert but got {other:?}"
+                )),
             }
         }
     }
@@ -847,7 +845,7 @@ pub async fn call_move(
     let sender = gas_owner.unwrap_or(context.active_address()?);
 
     let data = context
-        .gateway
+        .client
         .transaction_builder()
         .move_call(
             sender,
@@ -960,8 +958,8 @@ pub enum HaneulClientCommandResult {
 pub struct SwitchResponse {
     /// Active address
     pub address: Option<HaneulAddress>,
-    pub gateway: Option<String>,
-    pub fullnode: Option<String>,
+    pub rpc: Option<String>,
+    pub ws: Option<String>,
 }
 
 impl Display for SwitchResponse {
@@ -970,11 +968,12 @@ impl Display for SwitchResponse {
         if let Some(addr) = self.address {
             writeln!(writer, "Active address switched to {}", addr)?;
         }
-        if let Some(gateway) = &self.gateway {
-            writeln!(writer, "Active gateway switched to {}", gateway)?;
+        if let Some(rpc) = &self.rpc {
+            writeln!(writer, "Active RPC server switched to {}", rpc)?;
         }
-        if let Some(fullnode) = &self.fullnode {
-            writeln!(writer, "Active fullnode switched to {}", fullnode)?;
+
+        if let Some(ws) = &self.ws {
+            writeln!(writer, "Active Websocket server switched to {}", ws)?;
         }
         write!(f, "{}", writer)
     }

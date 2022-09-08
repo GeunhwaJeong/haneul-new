@@ -8,11 +8,12 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use futures::StreamExt;
 use futures_core::Stream;
-use jsonrpsee::core::client::Subscription;
+use jsonrpsee::core::client::{ClientT, Subscription};
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 use serde::Deserialize;
 use serde::Serialize;
+use serde_json::Value;
 
 use rpc_types::HaneulExecuteTransactionResponse;
 pub use haneul_config::gateway;
@@ -43,6 +44,7 @@ pub mod crypto;
 mod transaction_builder;
 
 pub struct HaneulClient {
+    api: Arc<HaneulClientApi>,
     transaction_builder: TransactionBuilder,
     read_api: Arc<ReadApi>,
     full_node_api: FullNodeApi,
@@ -53,8 +55,84 @@ pub struct HaneulClient {
 
 #[allow(clippy::large_enum_variant)]
 enum HaneulClientApi {
-    Rpc(HttpClient, Option<WsClient>),
+    Rpc(RpcClient),
     Embedded(GatewayClient),
+}
+
+struct RpcClient {
+    http: HttpClient,
+    ws: Option<WsClient>,
+    info: ServerInfo,
+}
+
+struct ServerInfo {
+    rpc_methods: Vec<String>,
+    subscriptions: Vec<String>,
+    version: String,
+}
+
+impl RpcClient {
+    pub async fn new(http: &str, ws: Option<&str>) -> Result<Self, anyhow::Error> {
+        let http = HttpClientBuilder::default().build(http)?;
+        let ws = if let Some(url) = ws {
+            Some(WsClientBuilder::default().build(url).await?)
+        } else {
+            None
+        };
+        let info = Self::get_server_info(&http, &ws).await?;
+        Ok(Self { http, ws, info })
+    }
+
+    async fn get_server_info(
+        http: &HttpClient,
+        ws: &Option<WsClient>,
+    ) -> Result<ServerInfo, anyhow::Error> {
+        let rpc_spec: Value = http
+            .request("rpc.discover", None)
+            .await
+            .map_err(|e| anyhow!("Fail to connect to the RPC server: {e}"))?;
+        let version = rpc_spec
+            .pointer("/info/version")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| anyhow!("Fail parsing server version from rpc.discover endpoint."))?;
+        let rpc_methods = Self::parse_methods(&rpc_spec)?;
+
+        let subscriptions = if let Some(ws) = ws {
+            let rpc_spec: Value = ws
+                .request("rpc.discover", None)
+                .await
+                .map_err(|e| anyhow!("Fail to connect to the Websocket server: {e}"))?;
+            Self::parse_methods(&rpc_spec)?
+        } else {
+            Vec::new()
+        };
+        Ok(ServerInfo {
+            rpc_methods,
+            subscriptions,
+            version: version.to_string(),
+        })
+    }
+
+    fn parse_methods(server_spec: &Value) -> Result<Vec<String>, anyhow::Error> {
+        let methods = server_spec
+            .pointer("/methods")
+            .and_then(|methods| methods.as_array())
+            .ok_or_else(|| {
+                anyhow!("Fail parsing server information from rpc.discover endpoint.")
+            })?;
+
+        Ok(methods
+            .iter()
+            .flat_map(|method| method["name"].as_str())
+            .map(|s| s.into())
+            .collect())
+    }
+
+    fn is_gateway(&self) -> bool {
+        self.info
+            .rpc_methods
+            .contains(&"haneul_syncAccountState".to_string())
+    }
 }
 
 impl HaneulClient {
@@ -62,13 +140,8 @@ impl HaneulClient {
         http_url: &str,
         ws_url: Option<&str>,
     ) -> Result<HaneulClient, anyhow::Error> {
-        let client = HttpClientBuilder::default().build(http_url)?;
-        let ws_client = if let Some(url) = ws_url {
-            Some(WsClientBuilder::default().build(url).await?)
-        } else {
-            None
-        };
-        Ok(HaneulClient::new(HaneulClientApi::Rpc(client, ws_client)))
+        let rpc = RpcClient::new(http_url, ws_url).await?;
+        Ok(HaneulClient::new(HaneulClientApi::Rpc(rpc)))
     }
 
     pub fn new_embedded_client(config: &GatewayConfig) -> Result<HaneulClient, anyhow::Error> {
@@ -84,15 +157,44 @@ impl HaneulClient {
         let full_node_api = FullNodeApi(api.clone());
         let event_api = EventApi(api.clone());
         let transaction_builder = TransactionBuilder(read_api.clone());
-        let wallet_sync_api = WalletSyncApi(api);
+        let wallet_sync_api = WalletSyncApi(api.clone());
 
         HaneulClient {
+            api,
             transaction_builder,
             read_api,
             full_node_api,
             event_api,
             quorum_driver,
             wallet_sync_api,
+        }
+    }
+
+    pub fn is_gateway(&self) -> bool {
+        match &*self.api {
+            HaneulClientApi::Rpc(c) => c.is_gateway(),
+            HaneulClientApi::Embedded(_) => true,
+        }
+    }
+
+    pub fn available_rpc_methods(&self) -> Vec<String> {
+        match &*self.api {
+            HaneulClientApi::Rpc(c) => c.info.rpc_methods.clone(),
+            HaneulClientApi::Embedded(_) => vec![],
+        }
+    }
+
+    pub fn available_subscriptions(&self) -> Vec<String> {
+        match &*self.api {
+            HaneulClientApi::Rpc(c) => c.info.subscriptions.clone(),
+            HaneulClientApi::Embedded(_) => vec![],
+        }
+    }
+
+    pub fn api_version(&self) -> String {
+        match &*self.api {
+            HaneulClientApi::Rpc(c) => c.info.version.clone(),
+            HaneulClientApi::Embedded(_) => env!("CARGO_PKG_VERSION").to_owned(),
         }
     }
 }
@@ -107,7 +209,7 @@ impl ReadApi {
         address: HaneulAddress,
     ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_objects_owned_by_address(address).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_objects_owned_by_address(address).await?,
             HaneulClientApi::Embedded(c) => c.get_objects_owned_by_address(address).await?,
         })
     }
@@ -117,7 +219,7 @@ impl ReadApi {
         object_id: ObjectID,
     ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_objects_owned_by_object(object_id).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_objects_owned_by_object(object_id).await?,
             HaneulClientApi::Embedded(c) => c.get_objects_owned_by_object(object_id).await?,
         })
     }
@@ -127,7 +229,7 @@ impl ReadApi {
         object_id: ObjectID,
     ) -> anyhow::Result<GetObjectDataResponse> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_object(object_id).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_object(object_id).await?,
             HaneulClientApi::Embedded(c) => c.get_object(object_id).await?,
         })
     }
@@ -137,14 +239,14 @@ impl ReadApi {
         object_id: ObjectID,
     ) -> anyhow::Result<GetRawObjectDataResponse> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_raw_object(object_id).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_raw_object(object_id).await?,
             HaneulClientApi::Embedded(c) => c.get_raw_object(object_id).await?,
         })
     }
 
     pub async fn get_total_transaction_number(&self) -> anyhow::Result<u64> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_total_transaction_number().await?,
+            HaneulClientApi::Rpc(c) => c.http.get_total_transaction_number().await?,
             HaneulClientApi::Embedded(c) => c.get_total_transaction_number()?,
         })
     }
@@ -155,7 +257,7 @@ impl ReadApi {
         end: GatewayTxSeqNumber,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_transactions_in_range(start, end).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_transactions_in_range(start, end).await?,
             HaneulClientApi::Embedded(c) => c.get_transactions_in_range(start, end)?,
         })
     }
@@ -165,7 +267,7 @@ impl ReadApi {
         count: u64,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_recent_transactions(count).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_recent_transactions(count).await?,
             HaneulClientApi::Embedded(c) => c.get_recent_transactions(count)?,
         })
     }
@@ -175,7 +277,7 @@ impl ReadApi {
         digest: TransactionDigest,
     ) -> anyhow::Result<HaneulTransactionResponse> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => c.get_transaction(digest).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_transaction(digest).await?,
             HaneulClientApi::Embedded(c) => c.get_transaction(digest).await?,
         })
     }
@@ -189,7 +291,7 @@ impl FullNodeApi {
         object: ObjectID,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => c.get_transactions_by_input_object(object).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_transactions_by_input_object(object).await?,
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
@@ -201,7 +303,7 @@ impl FullNodeApi {
         object: ObjectID,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => c.get_transactions_by_mutated_object(object),
+            HaneulClientApi::Rpc(c) => c.http.get_transactions_by_mutated_object(object),
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
@@ -216,9 +318,9 @@ impl FullNodeApi {
         function: Option<String>,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => {
-                c.get_transactions_by_move_function(package, module, function)
-            }
+            HaneulClientApi::Rpc(c) => c
+                .http
+                .get_transactions_by_move_function(package, module, function),
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
@@ -231,7 +333,7 @@ impl FullNodeApi {
         addr: HaneulAddress,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => c.get_transactions_from_addr(addr),
+            HaneulClientApi::Rpc(c) => c.http.get_transactions_from_addr(addr),
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
@@ -244,7 +346,7 @@ impl FullNodeApi {
         addr: HaneulAddress,
     ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => c.get_transactions_to_addr(addr),
+            HaneulClientApi::Rpc(c) => c.http.get_transactions_to_addr(addr),
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
@@ -260,7 +362,7 @@ impl EventApi {
         filter: HaneulEventFilter,
     ) -> anyhow::Result<impl Stream<Item = Result<HaneulEventEnvelope, anyhow::Error>>> {
         match &*self.0 {
-            HaneulClientApi::Rpc(_, Some(c)) => {
+            HaneulClientApi::Rpc(RpcClient { ws: Some(c), .. }) => {
                 let subscription: Subscription<HaneulEventEnvelope> =
                     c.subscribe_event(filter).await?;
                 Ok(subscription.map(|item| Ok(item?)))
@@ -279,10 +381,12 @@ impl QuorumDriver {
         tx: Transaction,
     ) -> anyhow::Result<HaneulTransactionResponse> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => {
+            HaneulClientApi::Rpc(c) => {
                 let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
-                RpcGatewayApiClient::execute_transaction(c, tx_bytes, flag, signature, pub_key)
-                    .await?
+                RpcGatewayApiClient::execute_transaction(
+                    &c.http, tx_bytes, flag, signature, pub_key,
+                )
+                .await?
             }
             HaneulClientApi::Embedded(c) => c.execute_transaction(tx).await?,
         })
@@ -294,10 +398,10 @@ impl QuorumDriver {
         request_type: ExecuteTransactionRequestType,
     ) -> anyhow::Result<HaneulExecuteTransactionResponse> {
         Ok(match &*self.api {
-            HaneulClientApi::Rpc(c, _) => {
+            HaneulClientApi::Rpc(c) => {
                 let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
                 QuorumDriverApiClient::execute_transaction(
-                    c,
+                    &c.http,
                     tx_bytes,
                     flag,
                     signature,
@@ -317,7 +421,11 @@ pub struct WalletSyncApi(Arc<HaneulClientApi>);
 impl WalletSyncApi {
     pub async fn sync_account_state(&self, address: HaneulAddress) -> anyhow::Result<()> {
         match &*self.0 {
-            HaneulClientApi::Rpc(c, _) => c.sync_account_state(address).await?,
+            HaneulClientApi::Rpc(c) => {
+                if c.is_gateway() {
+                    c.http.sync_account_state(address).await?
+                }
+            }
             HaneulClientApi::Embedded(c) => c.sync_account_state(address).await?,
         }
         Ok(())
@@ -371,7 +479,7 @@ impl Display for ClientType {
                     .validator_set
                     .iter()
                     .map(|info| info.network_address());
-                writeln!(
+                write!(
                     writer,
                     "Authorities : {:?}",
                     authorities.collect::<Vec<_>>()
@@ -380,7 +488,11 @@ impl Display for ClientType {
             ClientType::RPC(url, ws_url) => {
                 writeln!(writer, "Client Type : JSON-RPC")?;
                 writeln!(writer, "HTTP RPC URL : {}", url)?;
-                writeln!(writer, "WS RPC URL : {:?}", ws_url)?;
+                write!(
+                    writer,
+                    "WS RPC URL : {}",
+                    ws_url.clone().unwrap_or_else(|| "None".to_string())
+                )?;
             }
         }
         write!(f, "{}", writer)

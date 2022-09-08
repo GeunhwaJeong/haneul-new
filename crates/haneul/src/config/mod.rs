@@ -18,10 +18,8 @@ use haneul_sdk::ClientType;
 #[derive(Serialize, Deserialize)]
 pub struct HaneulClientConfig {
     pub keystore: KeystoreType,
-    pub gateway: ClientType,
+    pub client_type: ClientType,
     pub active_address: Option<HaneulAddress>,
-    // Temporarily make this optional, until we fully deprecate gateway
-    pub fullnode: Option<ClientType>,
 }
 
 impl Config for HaneulClientConfig {}
@@ -41,12 +39,7 @@ impl Display for HaneulClientConfig {
             None => writeln!(writer, "None")?,
         };
         writeln!(writer, "{}", self.keystore)?;
-        write!(writer, "{}", self.gateway)?;
-
-        if let Some(fullnode_type) = &self.fullnode {
-            write!(writer, "{}", fullnode_type)?;
-        }
-
+        write!(writer, "{}", self.client_type)?;
         write!(f, "{}", writer)
     }
 }

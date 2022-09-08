@@ -1,19 +1,24 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::client_commands::SwitchResponse;
-use crate::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
-use crate::shell::{
-    install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
-};
+use std::io::{stderr, Write};
+use std::ops::Deref;
+
 use async_trait::async_trait;
 use clap::Command;
 use clap::CommandFactory;
 use clap::FromArgMatches;
 use clap::Parser;
 use colored::Colorize;
-use std::io::{stderr, Write};
-use std::ops::Deref;
+
+use haneul_sdk::ClientType;
+
+use crate::client_commands::SwitchResponse;
+use crate::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
+use crate::shell::{
+    install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
+};
+
 const HANEUL: &str = "   _____       _    ______                       __   
   / ___/__  __(_)  / ____/___  ____  _________  / /__ 
   \\__ \\/ / / / /  / /   / __ \\/ __ \\/ ___/ __ \\/ / _ \\
@@ -45,6 +50,42 @@ pub async fn start_console(
     writeln!(out, "--- Haneul Console {version} ---")?;
     writeln!(out)?;
     writeln!(out, "{}", context.config.deref())?;
+
+    if let ClientType::RPC { .. } = context.config.client_type {
+        writeln!(out)?;
+        if context.client.is_gateway() {
+            writeln!(
+                out,
+                "Connecting to Haneul Gateway. API version {}",
+                context.client.api_version()
+            )?;
+        } else {
+            writeln!(
+                out,
+                "Connecting to Haneul Fullnode. API version {}",
+                context.client.api_version()
+            )?;
+        }
+    }
+
+    if !context.client.available_rpc_methods().is_empty() {
+        writeln!(out)?;
+        writeln!(
+            out,
+            "Available RPC methods: {:?}",
+            context.client.available_rpc_methods()
+        )?;
+    }
+    if !context.client.available_subscriptions().is_empty() {
+        writeln!(out)?;
+        writeln!(
+            out,
+            "Available Subscriptions: {:?}",
+            context.client.available_subscriptions()
+        )?;
+    }
+
+    writeln!(out)?;
     writeln!(out, "Welcome to the Haneul interactive console.")?;
     writeln!(out)?;
 
@@ -119,15 +160,12 @@ async fn handle_command(
     }
     result.print(!wallet_opts.json);
 
-    // Quit shell after gateway switch
+    // Quit shell after RPC switch
     if matches!(
         result,
-        HaneulClientCommandResult::Switch(SwitchResponse {
-            gateway: Some(_),
-            ..
-        })
+        HaneulClientCommandResult::Switch(SwitchResponse { rpc: Some(_), .. })
     ) {
-        println!("Gateway switch completed, please restart Haneul console.");
+        println!("RPC server switch completed, please restart Haneul console.");
         return Ok(true);
     }
     Ok(false)
