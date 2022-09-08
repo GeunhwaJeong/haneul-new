@@ -14,6 +14,9 @@ import {
   HaneulMoveNormalizedStruct,
   HaneulMoveNormalizedModule,
   HaneulMoveNormalizedModules,
+  HaneulEventFilter,
+  HaneulEventEnvelope,
+  SubscriptionId,
   ExecuteTransactionRequestType,
   HaneulExecuteTransactionResponse,
 } from '../types';
@@ -136,5 +139,21 @@ export abstract class Provider {
   ): Promise<HaneulMoveNormalizedStruct>;
 
   abstract syncAccountState(address: string): Promise<any>;
+
+  /**
+   * Subscribe to get notifications whenever an event matching the filter occurs
+   * @param filter - filter describing the subset of events to follow
+   * @param onMessage - function to run when we receive a notification of a new event matching the filter
+   */
+  abstract subscribeEvent(
+    filter: HaneulEventFilter,
+    onMessage: (event: HaneulEventEnvelope) => void
+  ): Promise<SubscriptionId>;
+
+  /**
+   * Unsubscribe from an event subscription
+   * @param id - subscription id to unsubscribe from (previously received from subscribeEvent)
+   */
+  abstract unsubscribeEvent(id: SubscriptionId): Promise<boolean>;
   // TODO: add more interface methods
 }

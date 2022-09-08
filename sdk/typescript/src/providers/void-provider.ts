@@ -16,6 +16,9 @@ import {
   HaneulMoveNormalizedStruct,
   HaneulMoveNormalizedModule,
   HaneulMoveNormalizedModules,
+  HaneulEventFilter,
+  HaneulEventEnvelope,
+  SubscriptionId,
   ExecuteTransactionRequestType,
   HaneulExecuteTransactionResponse,
 } from '../types';
@@ -121,6 +124,17 @@ export class VoidProvider extends Provider {
 
   async syncAccountState(_address: string): Promise<any> {
     throw this.newError('syncAccountState');
+  }
+
+  async subscribeEvent(
+    _filter: HaneulEventFilter,
+    _onMessage: (event: HaneulEventEnvelope) => void
+  ): Promise<SubscriptionId> {
+      throw this.newError('subscribeEvent');
+  }
+
+  async unsubscribeEvent(_id: SubscriptionId): Promise<boolean> {
+    throw this.newError('unsubscribeEvent');
   }
 
   private newError(operation: string): Error {
