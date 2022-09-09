@@ -675,7 +675,10 @@ impl WalletContext {
     }
 
     /// A backward-compatible migration of transaction execution from gateway to fullnode
-    async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<HaneulTransactionResponse> {
+    pub async fn execute_transaction(
+        &self,
+        tx: Transaction,
+    ) -> anyhow::Result<HaneulTransactionResponse> {
         let tx_digest = *tx.digest();
         if self.client.is_gateway() {
             self.client.quorum_driver().execute_transaction(tx).await

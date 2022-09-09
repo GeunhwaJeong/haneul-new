@@ -7,13 +7,14 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
-    RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse,
-    HaneulGasCostSummary, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
-    HaneulObjectInfo, HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
+    GatewayTxSeqNumber, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
+    MoveFunctionArgType, RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter,
+    HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionFilter,
+    HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
@@ -202,6 +203,19 @@ pub trait RpcFullNodeReadApi {
         /// the recipient's Haneul address
         addr: HaneulAddress,
     ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+
+    /// Note there is no software-level guarantee/SLA that objects with past versions
+    /// can be retrieved by this API, even if the object and version exists/existed.
+    /// The result may vary across nodes depending on their pruning policies.
+    /// Return the object information for a specified version
+    #[method(name = "tryGetPastObject")]
+    async fn try_get_past_object(
+        &self,
+        /// the ID of the queried object
+        object_id: ObjectID,
+        /// the version of the queried object. If None, default to the latest known version
+        version: SequenceNumber,
+    ) -> RpcResult<GetPastObjectDataResponse>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]

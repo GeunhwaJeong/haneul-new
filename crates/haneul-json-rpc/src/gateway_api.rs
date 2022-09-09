@@ -1,17 +1,15 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::api::{
+    RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, WalletSyncApiServer,
+};
+use crate::HaneulRpcModule;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use signature::Signature;
-use tracing::debug;
-
-use crate::api::{
-    RpcGatewayApiServer, RpcReadApiServer, RpcTransactionBuilderServer, WalletSyncApiServer,
-};
-use crate::HaneulRpcModule;
 use haneul_core::gateway_state::{GatewayClient, GatewayTxSeqNumber};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
@@ -27,6 +25,7 @@ use haneul_types::{
     crypto::SignableBytes,
     messages::{Transaction, TransactionData},
 };
+use tracing::debug;
 
 pub struct RpcGatewayImpl {
     client: GatewayClient,

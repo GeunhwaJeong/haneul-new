@@ -15,7 +15,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
-use rpc_types::HaneulExecuteTransactionResponse;
+use rpc_types::{GetPastObjectDataResponse, HaneulExecuteTransactionResponse};
 pub use haneul_config::gateway;
 use haneul_config::gateway::GatewayConfig;
 use haneul_core::gateway_state::{GatewayClient, GatewayState};
@@ -35,6 +35,7 @@ use haneul_json_rpc_types::{
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::Transaction;
+use types::base_types::SequenceNumber;
 use types::messages::ExecuteTransactionRequestType;
 
 use crate::transaction_builder::TransactionBuilder;
@@ -231,6 +232,20 @@ impl ReadApi {
         Ok(match &*self.api {
             HaneulClientApi::Rpc(c) => c.http.get_object(object_id).await?,
             HaneulClientApi::Embedded(c) => c.get_object(object_id).await?,
+        })
+    }
+
+    pub async fn try_get_parsed_past_object(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+    ) -> anyhow::Result<GetPastObjectDataResponse> {
+        Ok(match &*self.api {
+            HaneulClientApi::Rpc(c) => c.http.try_get_past_object(object_id, version).await?,
+            // Gateway does not support get past object
+            HaneulClientApi::Embedded(_) => {
+                unimplemented!("Gateway/embedded client does not support get past object")
+            }
         })
     }
 

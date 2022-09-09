@@ -49,7 +49,9 @@ use haneul_types::messages::{
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{disassemble_modules, MovePackage};
-use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
+use haneul_types::object::{
+    Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner, PastObjectRead,
+};
 use haneul_types::haneul_serde::{Base64, Encoding};
 
 #[cfg(test)]
@@ -989,6 +991,104 @@ impl<T: HaneulData> TryFrom<ObjectRead> for HaneulObjectRead<T> {
                 Ok(HaneulObjectRead::Exists(HaneulObject::try_from(o, layout)?))
             }
             ObjectRead::Deleted(oref) => Ok(HaneulObjectRead::Deleted(oref.into())),
+        }
+    }
+}
+
+pub type GetPastObjectDataResponse = HaneulPastObjectRead<HaneulParsedData>;
+
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
+#[serde(tag = "status", content = "details", rename = "ObjectRead")]
+pub enum HaneulPastObjectRead<T: HaneulData> {
+    /// The object exists and is found with this version
+    VersionFound(HaneulObject<T>),
+    /// The object does not exist
+    ObjectNotExists(ObjectID),
+    /// The object is found to be deleted with this version
+    ObjectDeleted(HaneulObjectRef),
+    /// The object exists but not found with this version
+    VersionNotFound(ObjectID, SequenceNumber),
+    /// The asked object version is higher than the latest
+    VersionTooHigh {
+        object_id: ObjectID,
+        asked_version: SequenceNumber,
+        latest_version: SequenceNumber,
+    },
+}
+
+impl<T: HaneulData> HaneulPastObjectRead<T> {
+    /// Returns a reference to the object if there is any, otherwise an Err
+    pub fn object(&self) -> Result<&HaneulObject<T>, HaneulError> {
+        match &self {
+            Self::ObjectDeleted(oref) => Err(HaneulError::ObjectDeleted {
+                object_ref: oref.to_object_ref(),
+            }),
+            Self::ObjectNotExists(id) => Err(HaneulError::ObjectNotFound { object_id: *id }),
+            Self::VersionFound(o) => Ok(o),
+            Self::VersionNotFound(id, seq_num) => Err(HaneulError::ObjectVersionNotFound {
+                object_id: *id,
+                version: *seq_num,
+            }),
+            Self::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            } => Err(HaneulError::ObjectSequenceNumberTooHigh {
+                object_id: *object_id,
+                asked_version: *asked_version,
+                latest_version: *latest_version,
+            }),
+        }
+    }
+
+    /// Returns the object value if there is any, otherwise an Err
+    pub fn into_object(self) -> Result<HaneulObject<T>, HaneulError> {
+        match self {
+            Self::ObjectDeleted(oref) => Err(HaneulError::ObjectDeleted {
+                object_ref: oref.to_object_ref(),
+            }),
+            Self::ObjectNotExists(id) => Err(HaneulError::ObjectNotFound { object_id: id }),
+            Self::VersionFound(o) => Ok(o),
+            Self::VersionNotFound(object_id, version) => {
+                Err(HaneulError::ObjectVersionNotFound { object_id, version })
+            }
+            Self::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            } => Err(HaneulError::ObjectSequenceNumberTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            }),
+        }
+    }
+}
+
+impl<T: HaneulData> TryFrom<PastObjectRead> for HaneulPastObjectRead<T> {
+    type Error = anyhow::Error;
+
+    fn try_from(value: PastObjectRead) -> Result<Self, Self::Error> {
+        match value {
+            PastObjectRead::ObjectNotExists(id) => Ok(HaneulPastObjectRead::ObjectNotExists(id)),
+            PastObjectRead::VersionFound(_, o, layout) => Ok(HaneulPastObjectRead::VersionFound(
+                HaneulObject::try_from(o, layout)?,
+            )),
+            PastObjectRead::ObjectDeleted(oref) => {
+                Ok(HaneulPastObjectRead::ObjectDeleted(oref.into()))
+            }
+            PastObjectRead::VersionNotFound(id, seq_num) => {
+                Ok(HaneulPastObjectRead::VersionNotFound(id, seq_num))
+            }
+            PastObjectRead::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            } => Ok(HaneulPastObjectRead::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            }),
         }
     }
 }

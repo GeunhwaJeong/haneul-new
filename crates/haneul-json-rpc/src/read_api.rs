@@ -15,11 +15,12 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, MoveFunctionArgType, ObjectValueKind, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionEffects,
-    HaneulTransactionResponse,
+    GetObjectDataResponse, GetPastObjectDataResponse, MoveFunctionArgType, ObjectValueKind,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
+    HaneulTransactionEffects, HaneulTransactionResponse,
 };
 use haneul_open_rpc::Module;
+use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead, Owner};
@@ -276,6 +277,19 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
         addr: HaneulAddress,
     ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
         Ok(self.state.get_transactions_to_addr(addr).await?)
+    }
+
+    async fn try_get_past_object(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+    ) -> RpcResult<GetPastObjectDataResponse> {
+        Ok(self
+            .state
+            .get_past_object_read(&object_id, version)
+            .await
+            .map_err(|e| anyhow!("{e}"))?
+            .try_into()?)
     }
 }
 

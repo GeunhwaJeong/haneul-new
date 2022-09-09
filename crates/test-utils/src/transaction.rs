@@ -1,7 +1,10 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::authority::get_client;
-use crate::messages::{create_publish_move_package_transaction, make_tx_certs_and_signed_effects};
+use crate::messages::{
+    create_publish_move_package_transaction, get_account_and_gas_coins,
+    get_gas_object_with_wallet_context, make_tx_certs_and_signed_effects, MAX_GAS,
+};
 use crate::test_account_keys;
 use futures::StreamExt;
 use move_package::BuildConfig;
@@ -10,9 +13,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
 use haneul::client_commands::WalletContext;
+use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::AuthorityAPI;
+use haneul_json_rpc_types::HaneulObjectRead;
 use haneul_json_rpc_types::{HaneulParsedTransactionResponse, HaneulTransactionResponse};
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
@@ -20,8 +25,8 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::batch::UpdateItem;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::{
-    BatchInfoRequest, BatchInfoResponseItem, ObjectInfoRequest, ObjectInfoResponse, Transaction,
-    TransactionEffects, TransactionInfoResponse,
+    BatchInfoRequest, BatchInfoResponseItem, CallArg, ObjectArg, ObjectInfoRequest,
+    ObjectInfoResponse, Transaction, TransactionData, TransactionEffects, TransactionInfoResponse,
 };
 use haneul_types::object::{Object, Owner};
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
@@ -187,6 +192,101 @@ pub async fn increment_counter(
         gas_object,
     )
     .await
+}
+
+pub async fn create_devnet_nft(
+    context: &mut WalletContext,
+) -> Result<(HaneulAddress, ObjectID, TransactionDigest), anyhow::Error> {
+    let (sender, gas_objects) = get_account_and_gas_coins(context).await?.swap_remove(0);
+    let gas_object = gas_objects.get(0).unwrap().id();
+
+    let res = HaneulClientCommands::CreateExampleNFT {
+        name: Some("example_nft_name".into()),
+        description: Some("example_nft_desc".into()),
+        url: Some("https://haneul.io/_nuxt/img/haneul-logo.8d3c44e.svg".into()),
+        gas: Some(*gas_object),
+        gas_budget: Some(50000),
+    }
+    .execute(context)
+    .await?;
+
+    let (object_id, digest) = if let HaneulClientCommandResult::CreateExampleNFT(
+        HaneulObjectRead::Exists(obj),
+    ) = res
+    {
+        (obj.reference.object_id, obj.previous_transaction)
+    } else {
+        panic!("CreateExampleNFT command did not return WalletCommandResult::CreateExampleNFT(HaneulObjectRead::Exists, got {:?}", res);
+    };
+
+    Ok((sender, object_id, digest))
+}
+
+pub async fn transfer_coin(
+    context: &mut WalletContext,
+) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
+    let sender = context.keystore.addresses().get(0).cloned().unwrap();
+    let receiver = context.keystore.addresses().get(1).cloned().unwrap();
+
+    let object_refs = context
+        .client
+        .read_api()
+        .get_objects_owned_by_address(sender)
+        .await?;
+    let object_to_send = object_refs.get(1).unwrap().object_id;
+
+    // Send an object
+    info!(
+        "transferring coin {:?} from {:?} -> {:?}",
+        object_to_send, sender, receiver
+    );
+    let res = HaneulClientCommands::Transfer {
+        to: receiver,
+        object_id: object_to_send,
+        gas: None,
+        gas_budget: 50000,
+    }
+    .execute(context)
+    .await?;
+
+    let digest = if let HaneulClientCommandResult::Transfer(_, cert, _) = res {
+        cert.transaction_digest
+    } else {
+        panic!("transfer command did not return WalletCommandResult::Transfer");
+    };
+
+    Ok((object_to_send, sender, receiver, digest))
+}
+
+pub async fn delete_devnet_nft(
+    context: &mut WalletContext,
+    sender: &HaneulAddress,
+    nft_to_delete: ObjectRef,
+    package_ref: ObjectRef,
+) -> HaneulTransactionResponse {
+    let gas = get_gas_object_with_wallet_context(context, sender)
+        .await
+        .unwrap_or_else(|| panic!("Expect {sender} to have at least one gas object"));
+    let data = TransactionData::new_move_call(
+        *sender,
+        package_ref,
+        "devnet_nft".parse().unwrap(),
+        "burn".parse().unwrap(),
+        Vec::new(),
+        gas,
+        vec![CallArg::Object(ObjectArg::ImmOrOwnedObject(nft_to_delete))],
+        MAX_GAS,
+    );
+
+    let signature = context.keystore.sign(sender, &data.to_bytes()).unwrap();
+    let tx = Transaction::new(data, signature);
+
+    context
+        .client
+        .quorum_driver()
+        .execute_transaction(tx)
+        .await
+        .unwrap()
 }
 
 /// Submit a certificate containing only owned-objects to all authorities.
