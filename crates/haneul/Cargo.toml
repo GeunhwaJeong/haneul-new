@@ -26,6 +26,7 @@ haneul-framework = { path = "../haneul-framework" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
+haneul-simulator = { path = "../haneul-simulator" }
 haneul-swarm = { path = "../haneul-swarm" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
@@ -72,6 +73,7 @@ rand = "0.8.5"
 move-package = { git = "https://github.com/move-language/move", rev = "e1e647b73dbd3652aabb2020728a4a517c26e28e" }
 haneul-core = { path = "../haneul-core" }
 haneul-node = { path = "../haneul-node" }
+haneul-macros = { path = "../haneul-macros" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemallocator", "jemalloc-ctl"]

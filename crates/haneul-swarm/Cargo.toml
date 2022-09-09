@@ -19,6 +19,7 @@ prometheus = "0.13.1"
 
 haneul-config = { path = "../haneul-config" }
 haneul-node = { path = "../haneul-node" }
+haneul-simulator = { path = "../haneul-simulator" }
 haneul-types = { path = "../haneul-types" }
 
 haneullabs-network = "0.1.0"

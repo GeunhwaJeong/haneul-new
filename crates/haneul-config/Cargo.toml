@@ -31,6 +31,7 @@ narwhal-config = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "c969d
 
 haneul-framework = { path = "../haneul-framework" }
 haneul-adapter = { path = "../haneul-adapter" }
+haneul-simulator = { path = "../haneul-simulator" }
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { path = "../workspace-hack"}
 sha3 = "0.10.2"
