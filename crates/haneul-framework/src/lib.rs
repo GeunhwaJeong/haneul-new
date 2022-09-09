@@ -179,10 +179,20 @@ fn verify_framework_version(pkg: &CompiledPackage) -> HaneulResult<()> {
     let framework: Vec<&CompiledModule> = framework_modules.iter().collect();
 
     if dep_framework != framework {
+        // note: this advice is overfitted to the most common failure modes we see:
+        // user is trying to publish to testnet, but has a `haneul` binary and Haneul Framework
+        // sources that are not in sync. the first part of the advice ensures that the
+        // user's project is always pointing at the devnet copy of the `Haneul` Framework.
+        // the second ensures that the `haneul` binary matches the devnet framework
         return Err(HaneulError::ModuleVerificationFailure {
             error: "Haneul framework version mismatch detected.\
-                    Make sure that the haneul command line tool and the Haneul framework code\
-                    used as a dependency correspond to the same git commit"
+		    Make sure that you are using a GitHub dep in your Move.toml:\
+		    \
+                    [dependencies]
+                    Haneul = { git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework\", rev = \"devnet\" }
+`                   \
+                    If that does not fix the issue, your `haneul` binary is likely out of date--try\
+                    cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul"
                 .to_string(),
         });
     }
