@@ -14,6 +14,7 @@ import {
   isHaneulMoveNormalizedFunction,
   isHaneulMoveNormalizedStruct,
   isHaneulExecuteTransactionResponse,
+  isHaneulEvents
 } from '../types/index.guard';
 import {
   GatewayTxSeqNumber,
@@ -35,6 +36,13 @@ import {
   SubscriptionId,
   ExecuteTransactionRequestType,
   HaneulExecuteTransactionResponse,
+  HaneulAddress,
+  ObjectOwner,
+  ObjectId,
+  HaneulEvents,
+  EVENT_QUERY_MAX_LIMIT,
+  DEFAULT_START_TIME,
+  DEFAULT_END_TIME,
 } from '../types';
 import { SignatureScheme } from '../cryptography/publickey';
 import { DEFAULT_CLIENT_OPTIONS, WebsocketClient, WebsocketClientOptions } from '../rpc/websocket-client';
@@ -427,6 +435,146 @@ export class JsonRpcProvider extends Provider {
     } catch (err) {
       throw new Error(
         `Error sync account address for address: ${address} with error: ${err}`
+      );
+    }
+  }
+
+  // Events
+
+  async getEventsByTransaction(
+    digest: TransactionDigest,
+    count: number = EVENT_QUERY_MAX_LIMIT
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByTransaction',
+        [digest, count],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by transaction: ${digest}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsByModule(
+    package_: string,
+    module: string,
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByModule',
+        [package_, module, count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by transaction module: ${package_}::${module}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsByMoveEventStructName(
+    moveEventStructName: string,
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByMoveEventStructName',
+        [moveEventStructName, count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by move event struct name: ${moveEventStructName}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsBySender(
+    sender: HaneulAddress,
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsBySender',
+        [sender, count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by sender: ${sender}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsByRecipient(
+    recipient: ObjectOwner,
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByRecipient',
+        [recipient, count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by receipient: ${recipient}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsByObject(
+    object: ObjectId,
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByObject',
+        [object, count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by object: ${object}, with error: ${err}`
+      );
+    }
+  }
+
+  async getEventsByTimeRange(
+    count: number = EVENT_QUERY_MAX_LIMIT,
+    startTime: number = DEFAULT_START_TIME,
+    endTime: number = DEFAULT_END_TIME
+  ): Promise<HaneulEvents> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getEventsByTimeRange',
+        [count, startTime, endTime],
+        isHaneulEvents,
+        this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting events by time range: ${startTime} thru ${endTime}, with error: ${err}`
       );
     }
   }
