@@ -13,6 +13,9 @@
 /// ```
 /// module me::my_pool {
 ///   use defi::pool;
+///   use haneul::coin::Coin;
+///   use haneul::haneul::HANEUL;
+///   use haneul::tx_context::TxContext;
 ///
 ///   struct POOL_TEAM has drop {}
 ///
