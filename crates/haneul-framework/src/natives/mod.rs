@@ -26,6 +26,11 @@ pub fn all_natives(
 ) -> NativeFunctionTable {
     let haneul_natives: &[(&str, &str, NativeFunction)] = &[
         ("crypto", "ecrecover", make_native!(crypto::ecrecover)),
+        (
+            "crypto",
+            "decompress_pubkey",
+            make_native!(crypto::decompress_pubkey),
+        ),
         ("crypto", "keccak256", make_native!(crypto::keccak256)),
         (
             "crypto",
