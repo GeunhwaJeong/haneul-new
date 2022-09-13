@@ -33,7 +33,7 @@ haneul-adapter = { path = "../haneul-adapter" }
 haneul-simulator = { path = "../haneul-simulator" }
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { path = "../workspace-hack"}
-sha3 = "0.10.2"
+sha3 = "0.10.4"
 digest = "0.10.3"
 
 [dev-dependencies]
