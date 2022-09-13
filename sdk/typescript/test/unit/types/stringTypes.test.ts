@@ -6,11 +6,11 @@ import {
   isValidTransactionDigest,
   isValidHaneulAddress,
   normalizeHaneulAddress,
-} from '../../src/index';
+} from '../../../src/index';
 
 describe('String type guards', () => {
   function expectAll<T>(data: T[], check: (value: T) => any, expected: any) {
-    data.forEach(d => expect(check(d)).toBe(expected));
+    data.forEach((d) => expect(check(d)).toBe(expected));
   }
 
   describe('isValidTransactionDigest()', () => {

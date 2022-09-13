@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import mockTransactionData from '@haneullabs/haneul-open-rpc/samples/transactions.json';
 
-import { isHaneulTransactionResponse } from '../../src/types/index.guard';
+import { isHaneulTransactionResponse } from '../../../src/types/index.guard';
 
 describe('Test Transaction Definition', () => {
   it('Test against different transaction definitions', () => {
