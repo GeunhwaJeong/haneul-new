@@ -10,8 +10,8 @@ use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
     MoveFunctionArgType, RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter,
     HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionFilter,
-    HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionEffects,
+    HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
@@ -117,6 +117,15 @@ pub trait RpcReadApi {
 #[open_rpc(namespace = "haneul", tag = "Full Node API")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcFullNodeReadApi {
+    #[method(name = "dryRunTransaction")]
+    async fn dry_run_transaction(
+        &self,
+        tx_bytes: Base64,
+        sig_scheme: SignatureScheme,
+        signature: Base64,
+        pub_key: Base64,
+    ) -> RpcResult<HaneulTransactionEffects>;
+
     /// Return the argument types of a Move function,
     /// based on normalized Type.
     #[method(name = "getMoveFunctionArgTypes")]
