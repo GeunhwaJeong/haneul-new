@@ -178,7 +178,9 @@ fn verify_framework_version(pkg: &CompiledPackage) -> HaneulResult<()> {
     let framework_modules = Modules::new(get_haneul_framework().iter()).iter_modules_owned();
     let framework: Vec<&CompiledModule> = framework_modules.iter().collect();
 
-    if dep_framework != framework {
+    // compare framework modules pulled as dependencies (if any - a developer may choose to use only
+    // stdlib) with framework modules bundled with the distribution
+    if !dep_framework.is_empty() && dep_framework != framework {
         // note: this advice is overfitted to the most common failure modes we see:
         // user is trying to publish to testnet, but has a `haneul` binary and Haneul Framework
         // sources that are not in sync. the first part of the advice ensures that the
@@ -191,7 +193,7 @@ fn verify_framework_version(pkg: &CompiledPackage) -> HaneulResult<()> {
                     [dependencies]
                     Haneul = { git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework\", rev = \"devnet\" }
 `                   \
-                    If that does not fix the issue, your `haneul` binary is likely out of date--try\
+                    If that does not fix the issue, your `haneul` binary is likely out of date--try \
                     cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul"
                 .to_string(),
         });
@@ -206,7 +208,9 @@ fn verify_framework_version(pkg: &CompiledPackage) -> HaneulResult<()> {
     let stdlib_modules = Modules::new(get_move_stdlib().iter()).iter_modules_owned();
     let stdlib: Vec<&CompiledModule> = stdlib_modules.iter().collect();
 
-    if dep_stdlib != stdlib {
+    // compare stdlib modules pulled as dependencies (if any) with stdlib modules bundled with the
+    // distribution
+    if !dep_stdlib.is_empty() && dep_stdlib != stdlib {
         return Err(HaneulError::ModuleVerificationFailure {
             error: "Move stdlib version mismatch detected.\
                     Make sure that the haneul command line tool and the Move standard library code\
