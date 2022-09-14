@@ -31,6 +31,8 @@ haneul-swarm = { path = "../haneul-swarm" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 
+fastcrypto = { version = "0.1.1" }
+
 rustyline = "9.1.2"
 rustyline-derive = "0.7.0"
 colored = "2.0.0"

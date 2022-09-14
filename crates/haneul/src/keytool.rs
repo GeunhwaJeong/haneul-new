@@ -5,14 +5,18 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
+use base64ct::Encoding as _;
 use clap::*;
+use fastcrypto::traits::{ToFromBytes, VerifyingKey};
 use tracing::info;
 
+use fastcrypto::ed25519::{Ed25519KeyPair, Ed25519PrivateKey, Ed25519PublicKey};
 use haneul_sdk::crypto::HaneulKeystore;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{decode_bytes_hex, encode_bytes_hex};
 use haneul_types::crypto::{
-    random_key_pair_by_type, AuthorityKeyPair, EncodeDecodeBase64, SignatureScheme, HaneulKeyPair,
+    get_key_pair, random_key_pair_by_type, AuthorityKeyPair, Ed25519HaneulSignature,
+    EncodeDecodeBase64, NetworkKeyPair, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,
 };
 use haneul_types::haneul_serde::{Base64, Encoding};
 
@@ -61,14 +65,20 @@ impl KeyToolCommand {
         match self {
             KeyToolCommand::Generate { key_scheme } => {
                 let k = key_scheme.to_string();
-                match random_key_pair_by_type(key_scheme) {
-                    Ok((address, keypair)) => {
-                        let file_name = format!("{address}.key");
-                        write_keypair_to_file(&keypair, &file_name)?;
-                        println!("{:?} key generated and saved to '{file_name}'", k);
-                    }
-                    Err(e) => {
-                        println!("Failed to generate keypair: {:?}", e)
+                if "bls12381" == key_scheme.to_string() {
+                    let (address, keypair): (_, AuthorityKeyPair) = get_key_pair();
+                    let file_name = format!("bls-{address}.key");
+                    write_authority_keypair_to_file(&keypair, &file_name)?;
+                } else {
+                    match random_key_pair_by_type(key_scheme) {
+                        Ok((address, keypair)) => {
+                            let file_name = format!("{address}.key");
+                            write_keypair_to_file(&keypair, &file_name)?;
+                            println!("{:?} key generated and saved to '{file_name}'", k);
+                        }
+                        Err(e) => {
+                            println!("Failed to generate keypair: {:?}", e)
+                        }
                     }
                 }
             }
@@ -178,19 +188,38 @@ pub fn write_keypair_to_file<P: AsRef<std::path::Path>>(
     Ok(())
 }
 
+pub fn write_authority_keypair_to_file<P: AsRef<std::path::Path>>(
+    keypair: &AuthorityKeyPair,
+    path: P,
+) -> anyhow::Result<()> {
+    let contents = keypair.encode_base64();
+    std::fs::write(path, contents)?;
+    Ok(())
+}
+
 pub fn read_authority_keypair_from_file<P: AsRef<std::path::Path>>(
     path: P,
 ) -> anyhow::Result<AuthorityKeyPair> {
-    match read_keypair_from_file(path) {
-        Ok(kp) => match kp {
-            HaneulKeyPair::Ed25519HaneulKeyPair(k) => Ok(k),
-            HaneulKeyPair::Secp256k1HaneulKeyPair(_) => Err(anyhow!("Invalid authority keypair type")),
-        },
-        Err(e) => Err(anyhow!("Failed to read keypair file {:?}", e)),
-    }
+    let contents = std::fs::read_to_string(path)?;
+    AuthorityKeyPair::decode_base64(contents.as_str().trim()).map_err(|e| anyhow!(e))
 }
 
 pub fn read_keypair_from_file<P: AsRef<std::path::Path>>(path: P) -> anyhow::Result<HaneulKeyPair> {
     let contents = std::fs::read_to_string(path)?;
     HaneulKeyPair::decode_base64(contents.as_str().trim()).map_err(|e| anyhow!(e))
+}
+
+pub fn read_network_keypair_from_file<P: AsRef<std::path::Path>>(
+    path: P,
+) -> anyhow::Result<NetworkKeyPair> {
+    let value = std::fs::read_to_string(path)?;
+    let bytes =
+        base64ct::Base64::decode_vec(value.as_str()).map_err(|e| anyhow!("{}", e.to_string()))?;
+    if let Some(flag) = bytes.first() {
+        if flag == &Ed25519HaneulSignature::SCHEME.flag() {
+            let sk = Ed25519PrivateKey::from_bytes(&bytes[1 + Ed25519PublicKey::LENGTH..])?;
+            return Ok(<Ed25519KeyPair as From<Ed25519PrivateKey>>::from(sk));
+        }
+    }
+    Err(anyhow!("Invalid bytes"))
 }

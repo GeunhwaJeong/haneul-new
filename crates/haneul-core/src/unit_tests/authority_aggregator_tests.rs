@@ -12,7 +12,7 @@ use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair, AccountKeyPair, AuthorityKeyPair,
-    AuthorityPublicKeyBytes, HaneulKeyPair,
+    AuthorityPublicKeyBytes, NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::crypto::{KeypairTraits, Signature};
 
@@ -50,16 +50,16 @@ pub async fn init_local_authorities(
     for i in 0..committee_size {
         let key_pair: AuthorityKeyPair = get_key_pair().1;
         let authority_name = key_pair.public().into();
-        let worker_key_pair: AuthorityKeyPair = get_key_pair().1;
-        let worker_name = worker_key_pair.public().into();
+        let worker_key_pair: NetworkKeyPair = get_key_pair().1;
+        let worker_name = worker_key_pair.public().clone();
         let account_key_pair: HaneulKeyPair = get_key_pair::<AccountKeyPair>().1.into();
-        let network_key_pair: AuthorityKeyPair = get_key_pair().1;
+        let network_key_pair: NetworkKeyPair = get_key_pair().1;
         let validator_info = ValidatorInfo {
             name: format!("validator-{i}"),
             protocol_key: authority_name,
             worker_key: worker_name,
             account_key: account_key_pair.public(),
-            network_key: network_key_pair.public().into(),
+            network_key: network_key_pair.public().clone(),
             stake: 1,
             delegation: 0,
             gas_price: 1,

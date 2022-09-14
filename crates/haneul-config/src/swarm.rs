@@ -9,7 +9,9 @@ use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::Arc;
 use haneul_types::committee::Committee;
-use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, HaneulKeyPair};
+use haneul_types::crypto::{
+    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair,
+};
 use haneul_types::haneul_serde::KeyPairBase64;
 
 /// This is a config that is used for testing or local use as it contains the config and keys for
@@ -70,13 +72,13 @@ impl NetworkConfig {
     ) -> NodeConfig {
         let protocol_key_pair: Arc<AuthorityKeyPair> =
             Arc::new(get_key_pair_from_rng(&mut OsRng).1);
-        let worker_key_pair: Arc<AuthorityKeyPair> = Arc::new(get_key_pair_from_rng(&mut OsRng).1);
+        let worker_key_pair: Arc<NetworkKeyPair> = Arc::new(get_key_pair_from_rng(&mut OsRng).1);
         let account_key_pair: Arc<HaneulKeyPair> = Arc::new(
             get_key_pair_from_rng::<AccountKeyPair, _>(&mut OsRng)
                 .1
                 .into(),
         );
-        let network_key_pair: Arc<AuthorityKeyPair> = Arc::new(get_key_pair_from_rng(&mut OsRng).1);
+        let network_key_pair: Arc<NetworkKeyPair> = Arc::new(get_key_pair_from_rng(&mut OsRng).1);
         let validator_config = &self.validator_configs[0];
 
         let mut db_path = validator_config.db_path.clone();

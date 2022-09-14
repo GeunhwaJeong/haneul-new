@@ -9,7 +9,9 @@ use serde_with::serde_as;
 use std::collections::{BTreeMap, BTreeSet};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::StakeUnit;
-use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, HaneulKeyPair};
+use haneul_types::crypto::{
+    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair,
+};
 use haneul_types::object::Object;
 use haneul_types::haneul_serde::KeyPairBase64;
 use tracing::info;
@@ -91,10 +93,10 @@ pub struct ValidatorGenesisInfo {
     #[serde_as(as = "KeyPairBase64")]
     pub key_pair: AuthorityKeyPair,
     #[serde_as(as = "KeyPairBase64")]
-    pub worker_key_pair: AuthorityKeyPair,
+    pub worker_key_pair: NetworkKeyPair,
     pub account_key_pair: HaneulKeyPair,
     #[serde_as(as = "KeyPairBase64")]
-    pub network_key_pair: AuthorityKeyPair,
+    pub network_key_pair: NetworkKeyPair,
     pub network_address: Multiaddr,
     pub stake: StakeUnit,
     pub gas_price: u64,
@@ -106,9 +108,9 @@ pub struct ValidatorGenesisInfo {
 impl ValidatorGenesisInfo {
     pub fn from_localhost_for_testing(
         key_pair: AuthorityKeyPair,
-        worker_key_pair: AuthorityKeyPair,
+        worker_key_pair: NetworkKeyPair,
         account_key_pair: HaneulKeyPair,
-        network_key_pair: AuthorityKeyPair,
+        network_key_pair: NetworkKeyPair,
     ) -> Self {
         Self {
             key_pair,
@@ -126,9 +128,9 @@ impl ValidatorGenesisInfo {
 
     pub fn from_base_ip(
         key_pair: AuthorityKeyPair,
-        worker_key_pair: AuthorityKeyPair,
+        worker_key_pair: NetworkKeyPair,
         account_key_pair: HaneulKeyPair,
-        network_key_pair: AuthorityKeyPair,
+        network_key_pair: NetworkKeyPair,
         ip: String,
         // Port offset allows running many HaneulNodes inside the same simulator node, which is
         // helpful for tests that don't use Swarm.
