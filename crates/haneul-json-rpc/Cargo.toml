@@ -26,7 +26,6 @@ haneul-core = { path = "../haneul-core" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
-haneul-quorum-driver = { path = "../haneul-quorum-driver" }
 haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-cost = { path = "../haneul-cost" }

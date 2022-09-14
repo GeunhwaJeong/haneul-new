@@ -24,8 +24,7 @@ use std::collections::{BTreeMap, VecDeque};
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_quorum_driver::QuorumDriverHandler;
-use haneul_quorum_driver::QuorumDriverMetrics;
+use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_types::crypto::EmptySignInfo;
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,

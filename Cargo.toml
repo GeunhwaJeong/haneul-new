@@ -22,7 +22,6 @@ members = [
     "crates/haneul-node",
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
-    "crates/haneul-quorum-driver",
     "crates/haneul-sdk",
     "crates/haneul-simulator",
     "crates/haneul-storage",

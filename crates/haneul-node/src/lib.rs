@@ -15,6 +15,7 @@ use haneul_config::NodeConfig;
 use haneul_core::authority_active::checkpoint_driver::CheckpointMetrics;
 use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::authority_server::ValidatorService;
+use haneul_core::quorum_driver::{QuorumDriver, QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_core::safe_client::SafeClientMetrics;
 use haneul_core::transaction_streamer::TransactionStreamer;
 use haneul_core::{
@@ -29,8 +30,6 @@ use haneul_core::{
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
 use haneul_network::api::ValidatorServer;
-use haneul_quorum_driver::QuorumDriverMetrics;
-use haneul_quorum_driver::{QuorumDriver, QuorumDriverHandler};
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
     node_sync_store::NodeSyncStore,

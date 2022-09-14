@@ -4,8 +4,8 @@
 use std::time::Duration;
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
+use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_node::HaneulNode;
-use haneul_quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,

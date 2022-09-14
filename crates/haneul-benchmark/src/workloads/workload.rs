@@ -3,10 +3,10 @@
 
 use async_trait::async_trait;
 use std::{collections::HashMap, fmt};
+use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_core::{
     authority_aggregator::AuthorityAggregator, authority_client::NetworkAuthorityClient,
 };
-use haneul_quorum_driver::QuorumDriverMetrics;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef},
     crypto::EmptySignInfo,
@@ -15,7 +15,6 @@ use haneul_types::{
 };
 
 use futures::FutureExt;
-use haneul_quorum_driver::QuorumDriverHandler;
 use haneul_types::{
     base_types::HaneulAddress,
     crypto::AccountKeyPair,

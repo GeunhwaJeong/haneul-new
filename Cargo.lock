@@ -7268,7 +7268,6 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-macros",
  "haneul-node",
- "haneul-quorum-driver",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-swarm",
@@ -7342,7 +7341,6 @@ dependencies = [
  "haneul-core",
  "haneul-json-rpc-types",
  "haneul-node",
- "haneul-quorum-driver",
  "haneul-sdk",
  "haneul-types",
  "telemetry-subscribers",
@@ -7664,7 +7662,6 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
- "haneul-quorum-driver",
  "haneul-types",
  "tokio",
  "tracing",
@@ -7737,7 +7734,6 @@ dependencies = [
  "haneul-core",
  "haneul-json-rpc",
  "haneul-network",
- "haneul-quorum-driver",
  "haneul-storage",
  "haneul-telemetry",
  "haneul-types",
@@ -7783,20 +7779,6 @@ dependencies = [
  "quote 1.0.21",
  "syn 1.0.99",
  "unescape",
- "workspace-hack 0.1.0",
-]
-
-[[package]]
-name = "haneul-quorum-driver"
-version = "0.1.0"
-dependencies = [
- "arc-swap",
- "prometheus",
- "scopeguard",
- "haneul-core",
- "haneul-types",
- "tokio",
- "tracing",
  "workspace-hack 0.1.0",
 ]
 

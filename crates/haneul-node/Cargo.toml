@@ -26,7 +26,6 @@ haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
-haneul-quorum-driver = { path = "../haneul-quorum-driver" }
 
 telemetry-subscribers = "0.1.0"
 haneullabs-network = "0.1.0"

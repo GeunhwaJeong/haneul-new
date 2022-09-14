@@ -1,6 +1,9 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+mod metrics;
+pub use metrics::*;
+
 use arc_swap::ArcSwap;
 use std::sync::Arc;
 
@@ -9,9 +12,8 @@ use tokio::task::JoinHandle;
 use tracing::Instrument;
 use tracing::{debug, error, warn};
 
-pub use metrics::QuorumDriverMetrics;
-use haneul_core::authority_aggregator::AuthorityAggregator;
-use haneul_core::authority_client::AuthorityAPI;
+use crate::authority_aggregator::AuthorityAggregator;
+use crate::authority_client::AuthorityAPI;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     CertifiedTransaction, CertifiedTransactionEffects, ExecuteTransactionRequest,
@@ -22,7 +24,6 @@ pub enum QuorumTask<A> {
     ProcessCertificate(CertifiedTransaction),
     UpdateCommittee(AuthorityAggregator<A>),
 }
-pub mod metrics;
 
 /// A handler to wrap around QuorumDriver. This handler should be owned by the node with exclusive
 /// mutability.
