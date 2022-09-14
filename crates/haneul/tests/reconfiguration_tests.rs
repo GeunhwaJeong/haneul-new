@@ -13,8 +13,7 @@ use haneul_core::safe_client::SafeClient;
 use haneul_node::HaneulNode;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::crypto::{
-    generate_proof_of_possession, get_key_pair, AccountKeyPair, AuthorityKeyPair,
-    AuthoritySignature, KeypairTraits,
+    generate_proof_of_possession, get_key_pair, AuthorityKeyPair, AuthoritySignature, KeypairTraits,
 };
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::ObjectInfoResponse;
@@ -160,7 +159,7 @@ pub async fn create_and_register_new_validator(
         vec![
             CallArg::Object(ObjectArg::SharedObject(HANEUL_SYSTEM_STATE_OBJECT_ID)),
             CallArg::Pure(bcs::to_bytes(&new_validator.protocol_key()).unwrap()),
-            CallArg::Pure(bcs::to_bytes(new_validator.network_key()).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&new_validator.network_key()).unwrap()),
             CallArg::Pure(bcs::to_bytes(&new_validator_pop.as_ref()).unwrap()),
             CallArg::Pure(
                 bcs::to_bytes(format!("Validator{}", new_validator.haneul_address()).as_bytes())
@@ -177,7 +176,7 @@ pub async fn create_and_register_new_validator(
 pub fn get_new_validator() -> (ValidatorInfo, AuthoritySignature) {
     let keypair: AuthorityKeyPair = get_key_pair().1;
     let worker_keypair: AuthorityKeyPair = get_key_pair().1;
-    let network_keypair: AccountKeyPair = get_key_pair().1;
+    let network_keypair: AuthorityKeyPair = get_key_pair().1;
     let account_keypair = test_account_keys().pop().unwrap().1;
     let pop = generate_proof_of_possession(&keypair, account_keypair.public().into());
     (
@@ -186,15 +185,13 @@ pub fn get_new_validator() -> (ValidatorInfo, AuthoritySignature) {
             protocol_key: keypair.public().into(),
             worker_key: worker_keypair.public().into(),
             account_key: account_keypair.public().clone().into(),
-            network_key: network_keypair.public().clone().into(),
+            network_key: network_keypair.public().into(),
             stake: 1,
             delegation: 0,
             gas_price: 1,
             network_address: haneul_config::utils::new_network_address(),
-            narwhal_primary_to_primary: haneul_config::utils::new_network_address(),
-            narwhal_worker_to_primary: haneul_config::utils::new_network_address(),
-            narwhal_primary_to_worker: haneul_config::utils::new_network_address(),
-            narwhal_worker_to_worker: haneul_config::utils::new_network_address(),
+            narwhal_primary_address: haneul_config::utils::new_network_address(),
+            narwhal_worker_address: haneul_config::utils::new_network_address(),
             narwhal_consensus_address: haneul_config::utils::new_network_address(),
         },
         pop,
