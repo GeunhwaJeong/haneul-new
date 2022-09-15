@@ -20,7 +20,7 @@ use haneul_adapter::in_memory_storage::InMemoryStorage;
 use haneul_adapter::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::crypto::ToFromBytes;
+use haneul_types::crypto::{AuthorityPublicKey, ToFromBytes};
 use haneul_types::crypto::{AuthorityPublicKeyBytes, AuthoritySignature};
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::messages::CallArg;
@@ -101,7 +101,7 @@ impl Genesis {
             .validator_set
             .iter()
             .map(|validator| {
-                let name = NetworkPublicKey::from_bytes(validator.protocol_key().as_ref())
+                let name = AuthorityPublicKey::from_bytes(validator.protocol_key().as_ref())
                     .expect("Can't get protocol key");
                 let workers = [(
                     0, // worker_id
@@ -624,7 +624,7 @@ mod test {
         let key: AuthorityKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
         let worker_key: NetworkKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
         let account_key: AccountKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
-        let network_key: AuthorityKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
+        let network_key: NetworkKeyPair = get_key_pair_from_rng(&mut rand::rngs::OsRng).1;
         let validator = ValidatorInfo {
             name: "0".into(),
             protocol_key: key.public().into(),
