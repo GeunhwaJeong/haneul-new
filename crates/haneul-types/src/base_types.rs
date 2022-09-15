@@ -174,6 +174,12 @@ impl From<ObjectID> for HaneulAddress {
     }
 }
 
+impl From<AccountAddress> for HaneulAddress {
+    fn from(address: AccountAddress) -> HaneulAddress {
+        Self(address.into_bytes())
+    }
+}
+
 impl TryFrom<Vec<u8>> for HaneulAddress {
     type Error = HaneulError;
 
