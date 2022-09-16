@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 const COOKIE_NAME = 'haneul_explorer_cookie_consent';
 
 async function loadAndEnableAnalytics() {
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
         await import('./analytics');
     }
 }

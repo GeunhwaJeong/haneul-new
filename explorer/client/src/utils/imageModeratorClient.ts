@@ -1,9 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { IS_LOCAL_ENV, IS_STATIC_ENV } from './envUtil';
-
-const ENV_STUBS_IMG_CHECK = IS_STATIC_ENV || IS_LOCAL_ENV;
+const ENV_STUBS_IMG_CHECK = import.meta.env.DEV;
 const HOST = 'https://imgmod.haneul.io';
 
 export type ImageCheckResponse = { ok: boolean };
