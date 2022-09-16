@@ -46,12 +46,12 @@ $ touch my_first_package/sources/my_module.move
 
 and adding the following code to the `my_module.move` file:
 
-```move
+```rust
 module my_first_package::my_module {
     // Part 1: imports
     use haneul::object::{Self, UID};
     use haneul::transfer;
-    use haneul::tx_context::TxContext;
+    use haneul::tx_context::{Self, TxContext};
 
     // Part 2: struct definitions
     struct Sword has key, store {
