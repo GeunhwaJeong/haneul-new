@@ -379,8 +379,8 @@ pub enum HaneulError {
     ConsensusConnectionBroken(String),
     #[error("Failed to hear back from consensus: {0}")]
     FailedToHearBackFromConsensus(String),
-    #[error("Failed to lock shared objects: {0}")]
-    SharedObjectLockingFailure(String),
+    #[error("Failed to execute handle_consensus_transaction on Haneul: {0}")]
+    HandleConsensusTransactionFailure(String),
     #[error("Consensus listener is out of capacity")]
     ListenerCapacityExceeded,
     #[error("Failed to serialize/deserialize Narwhal message: {0}")]
@@ -460,7 +460,7 @@ impl std::convert::From<VMError> for HaneulError {
 
 impl std::convert::From<SubscriberError> for HaneulError {
     fn from(error: SubscriberError) -> Self {
-        HaneulError::SharedObjectLockingFailure(error.to_string())
+        HaneulError::HandleConsensusTransactionFailure(error.to_string())
     }
 }
 
