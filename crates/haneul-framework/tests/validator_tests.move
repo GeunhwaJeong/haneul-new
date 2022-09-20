@@ -36,7 +36,7 @@ module haneul::validator_tests {
             assert!(validator::stake_amount(&validator) == 10, 0);
             assert!(validator::haneul_address(&validator) == sender, 0);
 
-            validator::destroy(validator);
+            validator::destroy(validator, ctx);
         };
 
         // Check that after destroy, the original stake still exists.
@@ -103,6 +103,6 @@ module haneul::validator_tests {
             test_scenario::return_owned(scenario, withdraw);
         };
 
-        validator::destroy(validator);
+        validator::destroy(validator, test_scenario::ctx(scenario));
     }
 }
