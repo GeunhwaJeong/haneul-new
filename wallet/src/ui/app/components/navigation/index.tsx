@@ -25,25 +25,36 @@ function Navigation({ className }: NavigationProps) {
         <nav
             className={cl(st.container, className, { [st.hidden]: !isVisible })}
         >
-            <NavLink to="./tokens" className={makeLinkCls} title="Tokens">
-                <Icon className={st.icon} icon={HaneulIcons.Tokens} />
-                <span className={st.title}>Coins</span>
-            </NavLink>
-            <NavLink to="./nfts" className={makeLinkCls} title="NFTs">
-                <Icon className={st.icon} icon={HaneulIcons.Nfts} />
-                <span className={st.title}>NFTs</span>
-            </NavLink>
-            <NavLink
-                to="./transactions"
-                className={makeLinkCls}
-                title="Transactions"
-            >
-                <Icon
-                    className={cl(st.icon, st.walletActivityIcon)}
-                    icon={HaneulIcons.Activity}
-                />
-                <span className={st.title}>Activity</span>
-            </NavLink>
+            <div id="haneul-apps-filters"></div>
+
+            <div className={st.navMenu}>
+                <NavLink to="./tokens" className={makeLinkCls} title="Tokens">
+                    <Icon className={st.icon} icon={HaneulIcons.Tokens} />
+                    <span className={st.title}>Coins</span>
+                </NavLink>
+                <NavLink to="./nfts" className={makeLinkCls} title="NFTs">
+                    <Icon className={st.icon} icon={HaneulIcons.Nfts} />
+                    <span className={st.title}>NFTs</span>
+                </NavLink>
+                <NavLink to="./apps" className={makeLinkCls} title="Apps">
+                    <Icon
+                        className={cl(st.icon, st.appsIcon)}
+                        icon={HaneulIcons.Apps}
+                    />
+                    <span className={st.title}>Apps</span>
+                </NavLink>
+                <NavLink
+                    to="./transactions"
+                    className={makeLinkCls}
+                    title="Transactions"
+                >
+                    <Icon
+                        className={cl(st.icon, st.walletActivityIcon)}
+                        icon={HaneulIcons.Activity}
+                    />
+                    <span className={st.title}>Activity</span>
+                </NavLink>
+            </div>
         </nav>
     );
 }

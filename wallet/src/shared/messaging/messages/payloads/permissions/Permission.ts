@@ -4,9 +4,13 @@
 import type { PermissionType } from './PermissionType';
 import type { HaneulAddress } from '@haneullabs/haneul.js';
 
+//TODO: add description, name, tags
+//TODO add PageLink for instance where the origin and the wallet landing page are different.
 export interface Permission {
+    name?: string;
     id: string;
     origin: string;
+    pagelink?: string;
     favIcon: string | undefined;
     accounts: HaneulAddress[];
     allowed: boolean | null;
