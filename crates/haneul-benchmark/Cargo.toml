@@ -48,5 +48,9 @@ narwhal-node = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "9d667b4
 workspace-hack = { path = "../workspace-hack"}
 test-utils = { path = "../test-utils" }
 
+[target.'cfg(msim)'.dependencies]
+haneul-macros = { path = "../haneul-macros" }
+haneul-simulator = { path = "../haneul-simulator" }
+
 [features]
 benchmark = ["narwhal-node/benchmark"]

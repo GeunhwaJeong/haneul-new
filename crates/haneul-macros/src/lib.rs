@@ -27,9 +27,9 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
             // be very important for being able to reproduce a failure that occurs in the Nth
             // iteration of a multi-iteration test run.
             std::thread::spawn(|| {
-                ::telemetry_subscribers::init_for_testing();
-                ::haneul_framework::get_move_stdlib();
-                ::haneul_framework::get_haneul_framework();
+                ::haneul_simulator::telemetry_subscribers::init_for_testing();
+                ::haneul_simulator::haneul_framework::get_move_stdlib();
+                ::haneul_simulator::haneul_framework::get_haneul_framework();
             }).join().unwrap();
 
             #body
@@ -56,13 +56,13 @@ pub fn haneul_test(args: TokenStream, item: TokenStream) -> TokenStream {
     let header = if cfg!(msim) {
         quote! {
             #[::haneul_simulator::sim_test(crate = "haneul_simulator", #(#args)*)]
-            #[init_static_initializers]
+            #[::haneul_macros::init_static_initializers]
         }
     } else {
         quote! {
             #[::tokio::test(#(#args)*)]
             // though this is not required for tokio, we do it to get logs as well.
-            #[init_static_initializers]
+            #[::haneul_macros::init_static_initializers]
         }
     };
 
@@ -88,7 +88,7 @@ pub fn sim_test(args: TokenStream, item: TokenStream) -> TokenStream {
     let result = if cfg!(msim) {
         quote! {
             #[::haneul_simulator::sim_test(crate = "haneul_simulator", #(#args)*)]
-            #[init_static_initializers]
+            #[::haneul_macros::init_static_initializers]
             #input
         }
     } else {

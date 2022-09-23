@@ -60,9 +60,6 @@ hex = "0.4.3"
 jemallocator = { version = "^0.5", features = ["profiling"] }
 jemalloc-ctl = "^0.5"
 
-[target.'cfg(msim)'.dependencies]
-haneul-simulator = { path = "../haneul-simulator" }
-
 [dev-dependencies]
 tempfile = "3.3.0"
 futures = "0.3.23"
@@ -78,6 +75,7 @@ move-package = { git = "https://github.com/move-language/move", rev = "e1e647b73
 haneul-core = { path = "../haneul-core" }
 haneul-node = { path = "../haneul-node" }
 haneul-macros = { path = "../haneul-macros" }
+haneul-simulator = { path = "../haneul-simulator" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemallocator", "jemalloc-ctl"]

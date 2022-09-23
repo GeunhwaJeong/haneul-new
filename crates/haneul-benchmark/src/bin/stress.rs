@@ -7,7 +7,6 @@ use futures::future::try_join_all;
 use futures::StreamExt;
 use prometheus::Registry;
 use rand::seq::SliceRandom;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -17,14 +16,11 @@ use haneul_benchmark::drivers::driver::Driver;
 use haneul_benchmark::drivers::BenchmarkCmp;
 use haneul_benchmark::drivers::BenchmarkStats;
 use haneul_benchmark::drivers::Interval;
-use haneul_benchmark::workloads::shared_counter::SharedCounterWorkload;
-use haneul_benchmark::workloads::transfer_object::TransferObjectWorkload;
+use haneul_benchmark::util::get_ed25519_keypair_from_keystore;
 use haneul_benchmark::workloads::workload::get_latest;
-use haneul_benchmark::workloads::workload::CombinationWorkload;
-use haneul_benchmark::workloads::workload::Payload;
-use haneul_benchmark::workloads::workload::Workload;
-use haneul_benchmark::workloads::workload::WorkloadInfo;
-use haneul_benchmark::workloads::workload::WorkloadType;
+use haneul_benchmark::workloads::{
+    make_combination_workload, make_shared_counter_workload, make_transfer_object_workload,
+};
 use haneul_config::gateway::GatewayConfig;
 use haneul_config::Config;
 use haneul_config::PersistedConfig;
@@ -37,13 +33,10 @@ use haneul_core::gateway_state::GatewayState;
 use haneul_core::safe_client::SafeClientMetrics;
 use haneul_node::metrics;
 use haneul_node::HaneulNode;
-use haneul_sdk::crypto::FileBasedKeystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::batch::UpdateItem;
 use haneul_types::crypto::AccountKeyPair;
-use haneul_types::crypto::EncodeDecodeBase64;
-use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::messages::BatchInfoRequest;
 use haneul_types::messages::BatchInfoResponseItem;
 use haneul_types::messages::TransactionInfoRequest;
@@ -225,103 +218,6 @@ pub async fn follow(authority_client: NetworkAuthorityClient, download_txes: boo
     });
 }
 
-fn make_combination_workload(
-    target_qps: u64,
-    num_workers: u64,
-    in_flight_ratio: u64,
-    primary_gas_id: ObjectID,
-    primary_gas_account_owner: HaneulAddress,
-    primary_gas_account_keypair: Arc<AccountKeyPair>,
-    opts: &Opts,
-) -> WorkloadInfo {
-    let mut workloads = HashMap::<WorkloadType, (u32, Box<dyn Workload<dyn Payload>>)>::new();
-    match opts.run_spec {
-        RunSpec::Bench {
-            shared_counter,
-            transfer_object,
-            ..
-        } => {
-            if shared_counter > 0 {
-                let workload = SharedCounterWorkload::new_boxed(
-                    primary_gas_id,
-                    primary_gas_account_owner,
-                    primary_gas_account_keypair.clone(),
-                    None,
-                );
-                workloads
-                    .entry(WorkloadType::SharedCounter)
-                    .or_insert((shared_counter, workload));
-            }
-            if transfer_object > 0 {
-                let workload = TransferObjectWorkload::new_boxed(
-                    opts.num_transfer_accounts,
-                    primary_gas_id,
-                    primary_gas_account_owner,
-                    primary_gas_account_keypair,
-                );
-                workloads
-                    .entry(WorkloadType::TransferObject)
-                    .or_insert((transfer_object, workload));
-            }
-        }
-    }
-    let workload = CombinationWorkload::new_boxed(workloads);
-    WorkloadInfo {
-        target_qps,
-        num_workers,
-        max_in_flight_ops: in_flight_ratio * target_qps,
-        workload,
-    }
-}
-
-fn make_shared_counter_workload(
-    target_qps: u64,
-    num_workers: u64,
-    max_in_flight_ops: u64,
-    primary_gas_id: ObjectID,
-    owner: HaneulAddress,
-    keypair: Arc<AccountKeyPair>,
-) -> Option<WorkloadInfo> {
-    if target_qps == 0 || max_in_flight_ops == 0 || num_workers == 0 {
-        None
-    } else {
-        let workload = SharedCounterWorkload::new_boxed(primary_gas_id, owner, keypair, None);
-        Some(WorkloadInfo {
-            target_qps,
-            num_workers,
-            max_in_flight_ops,
-            workload,
-        })
-    }
-}
-
-fn make_transfer_object_workload(
-    target_qps: u64,
-    num_workers: u64,
-    max_in_flight_ops: u64,
-    num_transfer_accounts: u64,
-    primary_gas_id: &ObjectID,
-    owner: HaneulAddress,
-    keypair: Arc<AccountKeyPair>,
-) -> Option<WorkloadInfo> {
-    if target_qps == 0 || max_in_flight_ops == 0 || num_workers == 0 {
-        None
-    } else {
-        let workload = TransferObjectWorkload::new_boxed(
-            num_transfer_accounts,
-            *primary_gas_id,
-            owner,
-            keypair,
-        );
-        Some(WorkloadInfo {
-            target_qps,
-            num_workers,
-            max_in_flight_ops,
-            workload,
-        })
-    }
-}
-
 /// To spin up a local cluster and direct some load
 /// at it with 50/50 shared and owned traffic, use
 /// it something like:
@@ -478,22 +374,8 @@ async fn main() -> Result<()> {
                     &opts.keystore_path
                 ))
             })?;
-        let keystore = FileBasedKeystore::load_or_create(&keystore_path)?;
-        let keypair = keystore
-            .key_pairs()
-            .iter()
-            .find(|x| {
-                let address: HaneulAddress = Into::<HaneulAddress>::into(&x.public());
-                address == primary_gas_account
-            })
-            .map(|x| x.encode_base64())
-            .unwrap();
-        // TODO(joyqvq): This is a hack to decode base64 keypair with added flag, ok for now since it is for benchmark use.
-        // Rework to get the typed keypair directly from above.
-        let ed25519_keypair = match HaneulKeyPair::decode_base64(&keypair).unwrap() {
-            HaneulKeyPair::Ed25519HaneulKeyPair(x) => x,
-            _ => panic!("Unexpected keypair type"),
-        };
+        let ed25519_keypair =
+            get_ed25519_keypair_from_keystore(keystore_path, &primary_gas_account)?;
         (
             *primary_gas_id,
             primary_gas_account,
@@ -550,7 +432,9 @@ async fn main() -> Result<()> {
                             primary_gas_id,
                             owner,
                             keypair,
-                            &opts,
+                            opts.num_transfer_accounts,
+                            shared_counter,
+                            transfer_object,
                         );
                         combination_workload.workload.init(&aggregator).await;
                         vec![combination_workload]
