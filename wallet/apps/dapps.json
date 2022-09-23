@@ -2,7 +2,7 @@
     {
         "name": "Haneul NFT Mint",
         "description": "Mint your NFTs on the Haneul Network",
-        "link": "http://haneul-wallet-demo.s3-website-us-east-1.amazonaws.com/",
+        "link": "https://haneul-wallet-demo.haneul.io/",
         "icon": "https://haneul.io/img/haneul-social.jpg",
         "tags": ["NFT"]
     },
