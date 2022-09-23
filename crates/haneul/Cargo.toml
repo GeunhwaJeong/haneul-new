@@ -27,7 +27,6 @@ haneul-framework = { path = "../haneul-framework" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
-haneul-simulator = { path = "../haneul-simulator" }
 haneul-swarm = { path = "../haneul-swarm" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
@@ -60,6 +59,9 @@ hex = "0.4.3"
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "^0.5", features = ["profiling"] }
 jemalloc-ctl = "^0.5"
+
+[target.'cfg(msim)'.dependencies]
+haneul-simulator = { path = "../haneul-simulator" }
 
 [dev-dependencies]
 tempfile = "3.3.0"

@@ -30,11 +30,13 @@ narwhal-crypto = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "9d667
 
 haneul-framework = { path = "../haneul-framework" }
 haneul-adapter = { path = "../haneul-adapter" }
-haneul-simulator = { path = "../haneul-simulator" }
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { path = "../workspace-hack"}
 sha3 = "0.10.4"
 digest = "0.10.3"
+
+[target.'cfg(msim)'.dependencies]
+haneul-simulator = { path = "../haneul-simulator" }
 
 [dev-dependencies]
 insta = { version = "1.19.1", features = ["redactions", "yaml"] }
