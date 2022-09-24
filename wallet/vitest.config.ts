@@ -12,7 +12,7 @@ export default defineConfig({
             ).toString(),
 
             '@haneullabs/bcs': new URL(
-                '../sdk/typescript/bcs/src',
+                '../sdk/bcs/src',
                 import.meta.url
             ).toString(),
         },

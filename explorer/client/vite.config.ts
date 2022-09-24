@@ -19,10 +19,7 @@ export default defineConfig({
                 __dirname,
                 '../../sdk/typescript/src/'
             ),
-            '@haneullabs/bcs': path.resolve(
-                __dirname,
-                '../../sdk/typescript/bcs/src/'
-            ),
+            '@haneullabs/bcs': path.resolve(__dirname, '../../sdk/bcs/src/'),
         },
     },
 });

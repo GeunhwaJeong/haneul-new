@@ -1,7 +1,7 @@
 {
-  "name": "@haneullabs/wallet-adapter-base",
+  "name": "@haneullabs/wallet-adapter-react",
   "version": "0.0.0",
-  "description": "Base wallet adapter for Haneul",
+  "description": "React interface for Haneul Wallet Adapter",
   "license": "Apache-2.0",
   "author": "Haneul Labs <build@haneul-labs.com>",
   "main": "./dist/index.js",
@@ -24,11 +24,21 @@
     "build:types": "tsc --build",
     "prepublishOnly": "pnpm build"
   },
+  "peerDependencies": {
+    "@haneullabs/haneul.js": "workspace:*",
+    "react": "*",
+    "react-dom": "*"
+  },
   "dependencies": {
-    "@haneullabs/haneul.js": "workspace:*"
+    "@haneullabs/wallet-adapter-base": "workspace:*"
   },
   "devDependencies": {
+    "@haneullabs/haneul.js": "workspace:*",
+    "@types/react": "^18.0.20",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "tsup": "^6.2.2",
-    "typescript": "^4.8.2"
+    "typescript": "^4.8.3"
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@haneullabs/wallet-adapter-mock-wallet",
+  "name": "@haneullabs/wallet-adapter-base",
   "version": "0.0.0",
-  "description": "",
+  "description": "Base wallet adapter for Haneul",
   "license": "Apache-2.0",
   "author": "Haneul Labs <build@haneul-labs.com>",
   "main": "./dist/index.js",
@@ -25,11 +25,10 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@haneullabs/haneul.js": "workspace:*",
-    "@haneullabs/wallet-adapter-base": "workspace:*"
+    "@haneullabs/haneul.js": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^6.2.2",
-    "typescript": "^4.8.2"
+    "typescript": "^4.8.3"
   }
 }
