@@ -11,14 +11,18 @@ import type { HaneulObject } from '@haneullabs/haneul.js';
 export default function useNFTBasicData(nftObj: HaneulObject) {
     const nftObjectID = getObjectId(nftObj.reference);
     const filePath = useMediaUrl(nftObj.data);
-    const nftFields = isHaneulMoveObject(nftObj.data)
-        ? getObjectFields(nftObj.data)
-        : null;
+    let objType = null;
+    let nftFields = null;
+    if (isHaneulMoveObject(nftObj.data)) {
+        objType = nftObj.data.type;
+        nftFields = getObjectFields(nftObj.data);
+    }
     const fileExtentionType = useFileExtentionType(filePath || '');
     return {
         nftObjectID,
         filePath,
         nftFields,
         fileExtentionType,
+        objType,
     };
 }
