@@ -1,6 +1,12 @@
+## A note on Security
+
+**DISCLAIMER:** This code is provided for demonstration purposes only. The Haneul Wallet has not been thoroughly tested, verified, or audited.
+There are known security issues with the current implementation of the Haneul Wallet. Currently, the wallet is not password protected, and the mnemonic is not encrypted in storage.
+Please do not use the code or derivatives in production without proper diligence.
+
 # Haneul Wallet
 
-A Chrome (v88+) extension wallet for [Haneul](https://haneul.io).
+A Chrome extension wallet for [Haneul](https://haneul.io).
 
 # Set Up
 
