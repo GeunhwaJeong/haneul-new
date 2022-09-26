@@ -21,11 +21,11 @@ haneul-config = { path = "../haneul-config" }
 haneul-node = { path = "../haneul-node" }
 haneul-types = { path = "../haneul-types" }
 
-haneullabs-network = "0.1.0"
+haneullabs-network.workspace = true
 workspace-hack = { path = "../workspace-hack"}
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }
 
 [dev-dependencies]
-telemetry-subscribers = "0.1.0"
+telemetry-subscribers.workspace = true

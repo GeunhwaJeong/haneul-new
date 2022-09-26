@@ -28,7 +28,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
-telemetry-subscribers = "0.1.0"
+telemetry-subscribers.workspace = true
 workspace-hack = { path = "../workspace-hack"}
 
 [dev-dependencies]

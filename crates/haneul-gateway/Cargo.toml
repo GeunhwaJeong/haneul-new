@@ -15,7 +15,7 @@ tokio = { version = "1.20.1", features = ["full"] }
 futures = "0.3.23"
 prometheus = "0.13.2"
 clap = { version = "3.2.17", features = ["derive"] }
-telemetry-subscribers = "0.1.0"
+telemetry-subscribers.workspace = true
 
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
@@ -26,7 +26,7 @@ haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }
 
 
-haneullabs-network = "0.1.0"
+haneullabs-network.workspace = true
 move-package.workspace = true
 workspace-hack = { path = "../workspace-hack"}
 

@@ -12,8 +12,7 @@ tonic = "0.7"
 
 haneul-types = { path = "../haneul-types" }
 
-
-haneullabs-network = "0.1.0"
+haneullabs-network.workspace = true
 workspace-hack = { path = "../workspace-hack"}
 
 [build-dependencies]
