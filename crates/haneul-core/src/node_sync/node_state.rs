@@ -437,7 +437,7 @@ where
             Ok(_) => Ok(SyncStatus::CertExecuted),
             Err(HaneulError::ObjectNotFound { .. })
             | Err(HaneulError::ObjectErrors { .. })
-            | Err(HaneulError::SharedObjectLockNotSetObject) => {
+            | Err(HaneulError::SharedObjectLockNotSetError) => {
                 debug!(?digest, "cert execution failed due to missing parents");
 
                 let effects = self.get_true_effects(&cert).await?;

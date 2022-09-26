@@ -337,11 +337,9 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     }
 
     /// Get many objects by their (id, version number) key.
-    pub fn get_input_objects(
-        &self,
-        objects: &[InputObjectKind],
-    ) -> Result<Vec<Option<Object>>, HaneulError> {
+    pub fn get_input_objects(&self, objects: &[InputObjectKind]) -> Result<Vec<Object>, HaneulError> {
         let mut result = Vec::new();
+        let mut errors = Vec::new();
         for kind in objects {
             let obj = match kind {
                 InputObjectKind::MovePackage(id) | InputObjectKind::SharedMoveObject(id) => {
@@ -351,9 +349,16 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
                     self.get_object_by_key(&objref.0, objref.1)?
                 }
             };
-            result.push(obj);
+            match obj {
+                Some(obj) => result.push(obj),
+                None => errors.push(kind.object_not_found_error()),
+            }
         }
-        Ok(result)
+        if !errors.is_empty() {
+            Err(HaneulError::ObjectErrors { errors })
+        } else {
+            Ok(result)
+        }
     }
 
     /// Get many objects by their (id, version number) key.
@@ -361,24 +366,35 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         &self,
         digest: &TransactionDigest,
         objects: &[InputObjectKind],
-    ) -> Result<Vec<Option<Object>>, HaneulError> {
+    ) -> Result<Vec<Object>, HaneulError> {
         let shared_locks: HashMap<_, _> = self.all_shared_locks(digest)?.into_iter().collect();
 
         let mut result = Vec::new();
+        let mut errors = Vec::new();
         for kind in objects {
             let obj = match kind {
                 InputObjectKind::MovePackage(id) => self.get_object(id)?,
                 InputObjectKind::SharedMoveObject(id) => match shared_locks.get(id) {
                     Some(version) => self.get_object_by_key(id, *version)?,
-                    None => None,
+                    None => {
+                        errors.push(HaneulError::SharedObjectLockNotSetError);
+                        continue;
+                    }
                 },
                 InputObjectKind::ImmOrOwnedMoveObject(objref) => {
                     self.get_object_by_key(&objref.0, objref.1)?
                 }
             };
-            result.push(obj);
+            match obj {
+                Some(obj) => result.push(obj),
+                None => errors.push(kind.object_not_found_error()),
+            }
         }
-        Ok(result)
+        if !errors.is_empty() {
+            Err(HaneulError::ObjectErrors { errors })
+        } else {
+            Ok(result)
+        }
     }
 
     /// Read a transaction envelope via lock or returns Err(TransactionLockDoesNotExist) if the lock does not exist.
