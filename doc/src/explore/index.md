@@ -33,7 +33,7 @@ View projects built by third parties demonstrating the power of Haneul.
 
 [Panzerdogs x Haneul](../explore/panzerdogs.md) - an example of how the Haneul infrastructure delivers a more integrated feedback loop between gameplay and NFT ownership.
 <section class="haneul-dev-video">
- 
+
 <iframe id="ytplayer" type="text/html" src="https://www.youtube.com/embed/Nx7hTb8dOb4?autoplay=0" frameborder="0"></iframe>
 </section>
 
@@ -48,5 +48,5 @@ View projects built by third parties demonstrating the power of Haneul.
 
 ## Haneul Explorer
 
-Navigate the [Haneul Explorer](https://explorer.devnet.haneul.io/) to see the latest transactions and objects. Read the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for instructions on how to run the Explorer locally.
+Navigate the [Haneul Explorer](https://explorer.devnet.haneul.io/) to see the latest transactions and objects. Read the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) for instructions on how to run the Explorer locally.
 https://explorer.devnet.haneul.io/

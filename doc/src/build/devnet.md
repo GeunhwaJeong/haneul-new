@@ -10,7 +10,7 @@ To instead [contribute](../contribute/index.md) to Haneul itself, you may experi
 The Haneul Devnet currently consists of:
 
 * A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: gateway.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
-* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for browsing transaction history: https://explorer.devnet.haneul.io
+* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) for browsing transaction history: https://explorer.devnet.haneul.io
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
 Many improvements to the Haneul Devnet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul Devnet blog post](https://medium.com/haneullabs-labs/haneul-devnet-public-release-a2be304ff36b) announcement for full details on upcoming features. All Devnet usage is subject to our [terms of service](https://haneul.io/terms/).
@@ -23,7 +23,7 @@ We provide the following tools for users to interact with the Haneul Devnet:
     * create and manage your private keys
     * submit transactions for creating example NFTs
     * call and publish Move modules
-* [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) - view transactions and objects
+* [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) - view transactions and objects
 
 ## Prerequisites
 
@@ -143,7 +143,7 @@ Click on any address to see the objects it owns:
 
 ![Owned objects](../../static/owned-objects.png "Owned objects")
 
-See the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/explorer/client#readme) for more details.
+See the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) for more details.
 
 ## Advanced testing
 
@@ -187,7 +187,7 @@ Let’s assume that the placeholder for the address of the player to receive a s
 ```shell
 $ haneul client new-address ed25519
 ```
-New address creation requires key scheme flag `{ed25519 | secp256k1}`. 
+New address creation requires key scheme flag `{ed25519 | secp256k1}`.
 
 Which yields output resembling:
 ```shell

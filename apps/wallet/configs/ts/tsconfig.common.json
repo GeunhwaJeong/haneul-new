@@ -42,8 +42,8 @@
             "_utils": ["./src/ui/styles/utils"],
             "_utils/*": ["./src/ui/styles/utils/*"],
             "_font-icons/*": ["./font-icons/*"],
-            "@haneullabs/haneul.js": ["../sdk/typescript/src/"],
-            "@haneullabs/bcs": ["../sdk/bcs/src/"]
+            "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
+            "@haneullabs/bcs": ["../../sdk/bcs/src/"]
         }
     },
     "include": ["../../src"],
