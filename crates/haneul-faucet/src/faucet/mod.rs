@@ -3,11 +3,7 @@
 use crate::FaucetError;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use haneul_json_rpc_types::HaneulParsedObject;
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
-    gas_coin::GasCoin,
-};
+use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use uuid::Uuid;
 
 mod simple_faucet;
@@ -22,6 +18,7 @@ pub struct FaucetReceipt {
 pub struct CoinInfo {
     pub amount: u64,
     pub id: ObjectID,
+    pub transfer_tx_digest: TransactionDigest,
 }
 
 #[async_trait]
@@ -33,22 +30,4 @@ pub trait Faucet {
         recipient: HaneulAddress,
         amounts: &[u64],
     ) -> Result<FaucetReceipt, FaucetError>;
-}
-
-impl<'a> FromIterator<&'a HaneulParsedObject> for FaucetReceipt {
-    fn from_iter<T: IntoIterator<Item = &'a HaneulParsedObject>>(iter: T) -> Self {
-        FaucetReceipt {
-            sent: iter.into_iter().map(|o| o.into()).collect(),
-        }
-    }
-}
-
-impl From<&HaneulParsedObject> for CoinInfo {
-    fn from(v: &HaneulParsedObject) -> Self {
-        let gas_coin = GasCoin::try_from(v).unwrap();
-        Self {
-            amount: gas_coin.value(),
-            id: *gas_coin.id(),
-        }
-    }
 }

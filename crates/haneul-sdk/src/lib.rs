@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Haneul Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::fmt::Write;
+use std::fmt::{Debug, Write};
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
@@ -58,6 +58,19 @@ pub struct HaneulClient {
 enum HaneulClientApi {
     Rpc(RpcClient),
     Embedded(GatewayClient),
+}
+
+impl Debug for HaneulClientApi {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            HaneulClientApi::Rpc(rpc_client) => write!(
+                f,
+                "RPC client. Http: {:?}, Websocket: {:?}",
+                rpc_client.http, rpc_client.ws
+            ),
+            HaneulClientApi::Embedded(_) => write!(f, "Embedded Gateway client."),
+        }
+    }
 }
 
 struct RpcClient {
@@ -200,6 +213,7 @@ impl HaneulClient {
     }
 }
 
+#[derive(Debug)]
 pub struct ReadApi {
     api: Arc<HaneulClientApi>,
 }

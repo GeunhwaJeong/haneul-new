@@ -17,8 +17,8 @@ use tracing::debug;
 /// Use builder style to construct the conditions.
 /// When optionals fields are not set, related checks are omitted.
 /// Consuming functions such as `check` perform the check and panics if
-/// verification results are unexpected. `check_into_haneul_object` and
-/// `check_info_gas_object` expect to get a `HaneulObject` and `GasObject`
+/// verification results are unexpected. `check_into_object` and
+/// `check_into_gas_coin` expect to get a `HaneulRawObject` and `GasCoin`
 /// respectfully.
 /// ```
 #[derive(Debug)]
@@ -65,8 +65,8 @@ impl ObjectChecker {
             .into_gas_coin()
     }
 
-    pub async fn check_into_haneul_object(self, client: &HaneulClient) -> HaneulRawObject {
-        self.check(client).await.unwrap().into_haneul_object()
+    pub async fn check_into_object(self, client: &HaneulClient) -> HaneulRawObject {
+        self.check(client).await.unwrap().into_object()
     }
 
     pub async fn check(self, client: &HaneulClient) -> Result<CheckerResultObject, anyhow::Error> {
@@ -83,7 +83,11 @@ impl ObjectChecker {
 
         match object_info {
             GetRawObjectDataResponse::NotExists(_) => {
-                panic!("Node can't find gas object {}", object_id)
+                panic!(
+                    "Node can't find gas object {} with client {:?}",
+                    object_id,
+                    client.read_api()
+                )
             }
             GetRawObjectDataResponse::Deleted(_) => {
                 if !self.is_deleted {
@@ -119,21 +123,18 @@ impl ObjectChecker {
 
 pub struct CheckerResultObject {
     gas_coin: Option<GasCoin>,
-    haneul_object: Option<HaneulRawObject>,
+    object: Option<HaneulRawObject>,
 }
 
 impl CheckerResultObject {
-    pub fn new(gas_coin: Option<GasCoin>, haneul_object: Option<HaneulRawObject>) -> Self {
-        Self {
-            gas_coin,
-            haneul_object,
-        }
+    pub fn new(gas_coin: Option<GasCoin>, object: Option<HaneulRawObject>) -> Self {
+        Self { gas_coin, object }
     }
     pub fn into_gas_coin(self) -> GasCoin {
         self.gas_coin.unwrap()
     }
-    pub fn into_haneul_object(self) -> HaneulRawObject {
-        self.haneul_object.unwrap()
+    pub fn into_object(self) -> HaneulRawObject {
+        self.object.unwrap()
     }
 }
 
