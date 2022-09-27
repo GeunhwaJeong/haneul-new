@@ -4,13 +4,10 @@ title: Connect to Haneul Devnet
 
 Welcome to the Haneul Devnet. We are hosting a public Devnet for the community to experiment with our tech and help to shape the future of the Haneul network. It exists to gain operational experience with the Haneul software in a public setting prior to our Mainnet launch.
 
-To instead [contribute](../contribute/index.md) to Haneul itself, you may experiment with the advanced [Haneul CLI client](../build/cli-client.md) at the command line.
-
-
 The Haneul Devnet currently consists of:
 
 * A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: gateway.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
-* A public network [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) for browsing transaction history: https://explorer.devnet.haneul.io
+* A public network [Haneul Explorer](https://explorer.devnet.haneul.io) for browsing transaction history.
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
 Many improvements to the Haneul Devnet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul Devnet blog post](https://medium.com/haneullabs-labs/haneul-devnet-public-release-a2be304ff36b) announcement for full details on upcoming features. All Devnet usage is subject to our [terms of service](https://haneul.io/terms/).
@@ -19,17 +16,16 @@ Many improvements to the Haneul Devnet are underway, such as the ability to run 
 
 We provide the following tools for users to interact with the Haneul Devnet:
 
-* The [Haneul Wallet command line interface (CLI)](../build/cli-client.md)
+* The [Haneul command line interface (CLI)](../build/cli-client.md)
     * create and manage your private keys
     * submit transactions for creating example NFTs
     * call and publish Move modules
-* [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) - view transactions and objects
+* [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/blob/main/apps/explorer/README.md) - view transactions and objects
 
-## Prerequisites
 
-### Set up environment
+## Environment set up
 
-You may simply [install Haneul](../build/install.md) and then request test tokens as described in the install docs. To use the Haneul Devnet, you will need:
+You can [install Haneul](../build/install.md) and then request test tokens as described in the install docs. To use the Haneul Devnet, you need:
 
 1. Haneul [test coins (tokens)](#request-gas-tokens) requested through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 1. the [`git` command line interface](https://git-scm.com/download/).
@@ -46,7 +42,7 @@ You should see the path to the command. Otherwise, reinstall.
 
 In addition, to conduct advanced work such as publishing a Move module or making a Move call, also obtain the [Haneul source code](../build/install.md#source-code); for simplicity, we recommend installing in `~/haneul` or using an environment variable.
 
-### Set up Haneul CLI client, connect to gateway
+## Configure the Haneul client
 
 Now set up your Haneul CLI client and connect to Devnet. Note you can manually change the Gateway URL if you have already configured a Haneul CLI client.
 
@@ -73,11 +69,11 @@ $ haneul client switch --rpc https://gateway.devnet.haneul.io:443
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
 
-## Basic testing
+## Validating
 
 Note that in the following sections, the object ID's, addresses, and authority signatures used are example values only. Haneul generates unique values for each of these, so you see different values when you run the commands.
 
-### Request gas tokens
+## Request gas tokens
 
 1. Join [Discord](https://discord.gg/haneul) If you haven’t already.
 1. Find your address by running:
@@ -87,7 +83,7 @@ Note that in the following sections, the object ID's, addresses, and authority s
 1. Request tokens in the [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130)
    channel per the [HANEUL tokens](../build/install.md#haneul-tokens) install documentation.
 
-### Mint an example NFT
+## Mint an example NFT
 
 To create a Non-Fungible Token (NFT), run:
 ```shell
@@ -104,19 +100,19 @@ Owner: Account Address ( 9E9A9D406961E478AA80F4A6B2B167673F3DF8BA )
 Type: 0x2::devnet_nft::DevNetNFT
 ```
 
-The above command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Note you may use `Haneul CLI client` to [view objects owned by the address](../build/cli-client.md#view-objects-owned-by-the-address).
+The preceding command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Use the `Haneul CLI client` to [view objects owned by the address](../build/cli-client.md#view-objects-owned-by-the-address).
 
 Now you can view the created object in the [Haneul Explorer](https://explorer.devnet.haneul.io) by appending the object ID to:
 https://explorer.devnet.haneul.io/objects/
 
 ![Example NFT](../../static/example-nft.png "Example NFT")
 
-Note you may easily customize the name, description, or image of the NFT upon creation, like so:
+The following example command demonstrates how to customize the name, description, or image of the NFT:
 ```shell
 $ haneul client create-example-nft --url=https://user-images.githubusercontent.com/76067158/166136286-c60fe70e-b982-4813-932a-0414d0f55cfb.png --description="The greatest chef in the world" --name="Greatest Chef"
 ```
 
-Which results in a new object ID:
+The command returns a new object ID:
 ```shell
 Successfully created an ExampleNFT:
 
@@ -126,28 +122,10 @@ Owner: Account Address ( 9E9A9D406961E478AA80F4A6B2B167673F3DF8BA )
 Type: 0x2::devnet_nft::DevNetNFT
 ```
 
-That you can similarly view at:
+You can view details about the object in Haneul Explorer:
 https://explorer.devnet.haneul.io/objects/EC97467A40A1305FFDEF7019C3045FBC7AA31E29
 
-![Custom NFT](../../static/custom-nft.png "Custom NFT")
-
-See all transactions on the [home page](https://explorer.devnet.haneul.io) and find the transaction hash under *Latest Transactions*:
-
-![Explorer home](../../static/explorer-home.png "Explorer home")
-
-To get to the *Transaction Details* view in Haneul Explorer after minting an NFT, click on the *Last Transaction ID* field in the *Object View*.
-
-![Transaction details](../../static/transaction-details.png "Transaction details")
-
-Click on any address to see the objects it owns:
-
-![Owned objects](../../static/owned-objects.png "Owned objects")
-
-See the [Haneul Explorer README](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer#readme) for more details.
-
-## Advanced testing
-
-### Publish a Move module
+## Publish a Move module
 
 Publish a sample Move package containing code developed in the [Haneul Move tutorial](../build/move/write-package.md) as follows (assuming you installed the source code in `~haneul` as advised in set up):
 ```shell
@@ -179,7 +157,7 @@ Two important things happened as a result of publishing this package:
 
 Specific object IDs displayed above may differ from one Haneul installation to the other, so we will use the following placeholders for them (respectively): <PACKAGE_ID> and <FORGE_ID>. Whenever you see these used in the command line, for example when calling Move functions in the next section, *replace them with actual object IDs*.
 
-### Make a Move call
+## Make a Move call
 
 In the previous section, we learned how to publish a Move package; and in this section, we will learn how to call into functions defined in this package. As a result of publishing a package, we obtained the new package object ID (<PACKAGE_ID>) and ID of the `Forge` object (<FORGE_ID>) that can be used to create swords and transfer them to other players.
 

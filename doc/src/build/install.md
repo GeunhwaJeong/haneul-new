@@ -2,47 +2,39 @@
 title: Install Haneul
 ---
 
-Welcome to the Haneul development environment! This site is available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for [contributing to the Haneul blockchain](../contribute/index.md) itself. Always check and submit fixes to the `main` branch.
+Welcome to the Haneul development environment! This site is available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for [contributing to the Haneul blockchain](../contribute/index.md). Always check and submit fixes to the `main` branch.
 
 ## Summary
 
-To immediately get started using Haneul:
+To get started using Haneul:
 
-1. Meet the [prerequisites](#prerequisites).
-1. Install the [binaries](#binaries).
+1. Install [prerequisites](#prerequisites).
+1. Install Haneul [binaries](#binaries).
 1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
 1. Request [HANEUL tokens](#haneul-tokens) to evaluate Devnet and Haneul Wallet
 1. Optionally, download the [source code](#source-code) to have local
    access to examples and modify Haneul itself.
 
-> **Tip:** Assuming you on macOS or Linux, have `curl`, Rust Cargo, the `git` command, and a GitHub account
-> (see [Prerequisites](#prerequisites)), you can download the `haneul-setup.sh` script
-> and run it to conduct all of the setup below, **including removal of any existing
-> haneul assets**. To use it, run these commands in a terminal:
-> ```shell
-> $ curl https://raw.githubusercontent.com/HaneulLabs/haneul/main/doc/utils/haneul-setup.sh -o haneul-setup.sh
-> chmod 755 haneul-setup.sh
-> ./haneul-setup.sh
-> ```
+## Install with a script
+
+If you're using macOS or Linux and already have `curl`, Rust Cargo, the `git` command, and a GitHub account (see [Prerequisites](#prerequisites)), you can download the `haneul-setup.sh` script and run it install Haneul, including removal of any existing Haneul assets.
+```shell
+$ curl https://raw.githubusercontent.com/HaneulLabs/haneul/main/doc/utils/haneul-setup.sh -o haneul-setup.sh
+chmod 755 haneul-setup.sh
+./haneul-setup.sh
+```
 
 ## Supported OSes
 
-The following operating systems (OSes) have been tested and are supported for
-running Haneul:
+Haneul supports the following operating systems:
 
 * [Linux](#linux-specific) - Ubuntu version 18.04 (Bionic Beaver)
 * [macOS](#macOS-specific) - macOS Monterey
 * [Microsoft Windows](#microsoft-windows-specific) - Windows 11
 
-First install the [General packages](#general-packages) (plus [Brew](#brew) if on macOS), then install the OS-specific packages.
-
 ## Prerequisites
 
-At a minimum, you should have a machine capable of installing command line tools (namely, a terminal).
-First install the packages outlined this section. Then add the additional dependencies
-below for your operating system.
-
-Here are the packages required by operating system:
+Haneul requires the following prerequisities, listed by operating system:
 
 |Package/OS |Linux  | macOS| Windows 11|
 --- | :---: | :---:| :---:|
@@ -209,7 +201,7 @@ And ensure the `.cargo/bin` directory appears. Access the help for any of these 
 > **Important:** Make sure your entire toolchain stays up-to-date. If you encounter issues building and installing the Haneul binaries, update all packages above and re-install.
 
 ## Integrated Development Environment
-For Move development, we recommend the [Visual Studio Code (vscode)](https://code.visualstudio.com/) IDE with the Move Analyzer language server plugin installed:
+For Move development, we recommend the [Visual Studio Code](https://code.visualstudio.com/) IDE with the Move Analyzer language server plugin installed:
 
 ```shell
 $ cargo install --git https://github.com/move-language/move move-analyzer --features "address20"
@@ -252,7 +244,7 @@ You can start exploring Haneul's source code by looking into the following prima
 * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
 * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - authority server and Haneul Gateway
 * [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - coins, gas, and other object types
-* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/explorer) - object explorer for the Haneul network
+* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) - object explorer for the Haneul network
 * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
 
 ## Rustdoc

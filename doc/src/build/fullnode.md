@@ -2,7 +2,7 @@
 title: Run a Haneul Fullnode
 ---
 
-We welcome you to run your own Haneul fullnode! Haneul fullnodes run a service that
+Haneul fullnodes run a service that
 stores the full blockchain state and history. They service reads, either for
 end clients or by helping other fullnodes get up-to-date with the latest
 transactions that have been committed to the chain.
@@ -14,15 +14,6 @@ transactions as fast as possible. Once a validator has committed a new set of
 transactions (or a block of transactions), the validator will push that block
 to a fullnode (potentially a number of fullnodes) who will then in turn
 disseminate it to the rest of the network.
-
-**Important**: For [potential validators](https://haneul.io/resources-haneul/validator-registration-open/),
-running a Haneul fullnode is an absolute
-prerequisite. We encourage auditors, bridges, state mirrors and other
-interested parties to join us. At this time, we offer no guarantees on performance
-or stability of our fullnode software. We expect things to evolve and stabilize
-over time, and we're seeking feedback in the form of [Haneul Code Bug issues filed in
-GitHub](https://github.com/GeunhwaJeong/haneul/issues/new/choose) for any problems
-encountered.
 
 ## Features
 
