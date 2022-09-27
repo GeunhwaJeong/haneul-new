@@ -7398,6 +7398,7 @@ dependencies = [
  "move-vm-runtime",
  "once_cell",
  "haneul-framework",
+ "haneul-json",
  "haneul-types",
  "haneul-verifier",
  "workspace-hack 0.1.0",

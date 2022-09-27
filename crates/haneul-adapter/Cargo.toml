@@ -19,6 +19,7 @@ move-vm-runtime.workspace = true
 
 haneul-framework = { path = "../haneul-framework" }
 haneul-verifier = { path = "../haneul-verifier" }
+haneul-json = { path = "../haneul-json" }
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { path = "../workspace-hack"}
 
