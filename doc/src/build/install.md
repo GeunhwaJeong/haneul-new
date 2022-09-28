@@ -37,7 +37,7 @@ Haneul supports the following operating systems:
 Haneul requires the following prerequisites, listed by operating system:
 
 |Package/OS |Linux  | macOS| Windows 11|
---- | :---: | :---:| :---:|
+| --- | :---: | :---:| :---:|
 |Curl|X|X|X|
 |Rust|X|X|X|
 |Git CLI|X|X|X|
