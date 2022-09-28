@@ -1,5 +1,6 @@
 {
     "name": "haneul-wallet",
+    "private": true,
     "version": "0.1.1",
     "description": "A wallet for Haneul",
     "main": "./dist/ui.js",
