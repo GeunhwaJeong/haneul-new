@@ -1,6 +1,6 @@
 {
   "name": "@haneullabs/wallet-adapter-all-wallets",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Module exporting all integrated wallets for Haneul Wallet Adapter",
   "license": "Apache-2.0",
   "author": "Haneul Labs <build@haneul-labs.com>",
