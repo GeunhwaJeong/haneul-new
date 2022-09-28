@@ -38,7 +38,7 @@ module haneul::genesis {
         validator_gas_prices: vector<u64>,
         ctx: &mut TxContext,
     ) {
-        let haneul_supply = haneul::new();
+        let haneul_supply = haneul::new(ctx);
         let storage_fund = balance::increase_supply(&mut haneul_supply, INIT_STORAGE_FUND);
         let validators = vector::empty();
         let count = vector::length(&validator_pubkeys);
@@ -63,7 +63,7 @@ module haneul::genesis {
             vector::push_back(&mut validators, validator::new(
                 haneul_address,
                 pubkey,
-                network_pubkey, 
+                network_pubkey,
                 proof_of_possession,
                 name,
                 net_address,
