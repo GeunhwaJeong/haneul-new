@@ -205,11 +205,12 @@ module haneul::validator {
         self: &mut Validator, 
         delegation: &mut Delegation, 
         staked_haneul: &mut StakedHaneul,
-        withdraw_amount: u64,
+        withdraw_pool_token_amount: u64,
         ctx: &mut TxContext,
     ) {
-        staking_pool::withdraw_stake(&mut self.delegation_staking_pool, delegation, staked_haneul, withdraw_amount, ctx);
-        decrease_next_epoch_delegation(self, withdraw_amount);
+        let withdraw_haneul_amount = staking_pool::withdraw_stake(
+                &mut self.delegation_staking_pool, delegation, staked_haneul, withdraw_pool_token_amount, ctx);
+        decrease_next_epoch_delegation(self, withdraw_haneul_amount);
     }
 
     public(friend) fun decrease_next_epoch_delegation(self: &mut Validator, amount: u64) {

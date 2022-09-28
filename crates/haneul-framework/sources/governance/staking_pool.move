@@ -166,16 +166,17 @@ module haneul::staking_pool {
 
     /// Withdraw `withdraw_pool_token_amount` worth of delegated stake from a staking pool. A proportional amount of principal and rewards
     /// in HANEUL will be withdrawn and transferred to the delegator. 
+    /// Returns the amount of HANEUL withdrawn.
     public(friend) fun withdraw_stake(
         pool: &mut StakingPool,  
         delegation: &mut Delegation, 
         staked_haneul: &mut StakedHaneul,
         withdraw_pool_token_amount: u64, 
         ctx: &mut TxContext
-    ) {
+    ) : u64 {
         let (principal_withdraw, reward_withdraw, time_lock) = 
             withdraw_to_haneul_tokens(pool, delegation, staked_haneul, withdraw_pool_token_amount);
-
+        let haneul_withdraw_amount = balance::value(&principal_withdraw) + balance::value(&reward_withdraw);
         let delegator = tx_context::sender(ctx);
 
         // TODO: implement withdraw bonding period here.
@@ -186,7 +187,8 @@ module haneul::staking_pool {
         } else {
             transfer::transfer(coin::from_balance(principal_withdraw, ctx), delegator);
             option::destroy_none(time_lock);
-        }
+        };
+        haneul_withdraw_amount
     }
 
     /// Withdraw all the pool tokens in `delegation` object, with separate principal and rewards components, and
@@ -243,7 +245,6 @@ module haneul::staking_pool {
         // withdraw the rewards component from rewards pool and transfer it to the delegator.
         assert!(balance::value(&pool.rewards_pool) >= haneul_withdraw_from_rewards, EINSUFFICIENT_REWARDS_POOL_BALANCE);
         let reward_withdraw = balance::split(&mut pool.rewards_pool, haneul_withdraw_from_rewards);
-        pool.haneul_balance = pool.haneul_balance - haneul_withdraw_from_rewards;
 
         (principal_withdraw, reward_withdraw, time_lock)
     }

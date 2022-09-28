@@ -33,9 +33,7 @@ module haneul::delegation_tests {
 
             let ctx = test_scenario::ctx(scenario);
 
-            // Create two delegations to VALIDATOR_ADDR_1.
-            haneul_system::request_add_delegation(
-                system_state_mut_ref, coin::mint_for_testing(10, ctx), VALIDATOR_ADDR_1, ctx);
+            // Create a delegation to VALIDATOR_ADDR_1.
             haneul_system::request_add_delegation(
                 system_state_mut_ref, coin::mint_for_testing(60, ctx), VALIDATOR_ADDR_1, ctx);
 
@@ -45,7 +43,7 @@ module haneul::delegation_tests {
             governance_test_utils::advance_epoch(system_state_mut_ref, scenario);
 
             // The amount hasn't changed yet because delegation is not activated
-            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 70, 103);
+            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 60, 103);
             assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_2) == 0, 104);
             test_scenario::return_shared(scenario, system_state_wrapper);
         };
@@ -54,7 +52,7 @@ module haneul::delegation_tests {
         {
             
             let delegation = test_scenario::take_last_created_owned<Delegation>(scenario);
-            assert!(staking_pool::delegation_token_amount(&delegation) == 70, 105);
+            assert!(staking_pool::delegation_token_amount(&delegation) == 60, 105);
 
             let staked_haneul = test_scenario::take_last_created_owned<StakedHaneul>(scenario);
             assert!(staking_pool::staked_haneul_amount(&staked_haneul) == 60, 105);
@@ -69,16 +67,16 @@ module haneul::delegation_tests {
             haneul_system::request_withdraw_delegation(
                 system_state_mut_ref, &mut delegation, &mut staked_haneul, 40, ctx);
 
-            assert!(staking_pool::delegation_token_amount(&delegation) == 30, 106);
+            assert!(staking_pool::delegation_token_amount(&delegation) == 20, 106);
             test_scenario::return_owned(scenario, delegation);
             assert!(staking_pool::staked_haneul_amount(&staked_haneul) == 20, 106);
             test_scenario::return_owned(scenario, staked_haneul);
 
-            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 70, 107);
+            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 60, 107);
 
             governance_test_utils::advance_epoch(system_state_mut_ref, scenario);
 
-            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 30, 107);
+            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 20, 107);
             test_scenario::return_shared(scenario, system_state_wrapper);
         };
     }
