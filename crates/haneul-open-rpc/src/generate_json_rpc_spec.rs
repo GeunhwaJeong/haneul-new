@@ -163,6 +163,7 @@ async fn create_response_sample() -> Result<
     let (hero_package, hero) = create_hero_response(&mut context, &coins).await?;
     let transfer = create_transfer_response(&mut context, address, &coins).await?;
     let transfer_haneul = create_transfer_haneul_response(&mut context, address, &coins).await?;
+    let pay = create_pay_response(&mut context, address, &coins).await?;
     let coin_split = create_coin_split_response(&mut context, &coins).await?;
     let error = create_error_response(address, hero_package, context, &network).await?;
 
@@ -192,6 +193,7 @@ async fn create_response_sample() -> Result<
         move_call: example_nft_tx,
         transfer,
         transfer_haneul,
+        pay,
         coin_split,
         publish,
         error,
@@ -283,6 +285,34 @@ async fn create_transfer_haneul_response(
     .execute(context)
     .await?;
     if let HaneulClientCommandResult::TransferHaneul(certificate, effects) = response {
+        Ok(HaneulTransactionResponse {
+            certificate,
+            effects,
+            timestamp_ms: None,
+            parsed_data: None,
+        })
+    } else {
+        panic!()
+    }
+}
+
+async fn create_pay_response(
+    context: &mut WalletContext,
+    address: HaneulAddress,
+    coins: &[HaneulObjectInfo],
+) -> Result<HaneulTransactionResponse, anyhow::Error> {
+    let coins = vec![coins.first().unwrap().object_id];
+    let response = HaneulClientCommands::Pay {
+        input_coins: coins,
+        recipients: vec![address],
+        amounts: vec![100],
+        gas: None,
+        gas_budget: 1000,
+    }
+    .execute(context)
+    .await?;
+
+    if let HaneulClientCommandResult::Pay(certificate, effects) = response {
         Ok(HaneulTransactionResponse {
             certificate,
             effects,
@@ -482,6 +512,7 @@ struct TransactionResponseSample {
     pub move_call: HaneulTransactionResponse,
     pub transfer: HaneulTransactionResponse,
     pub transfer_haneul: HaneulTransactionResponse,
+    pub pay: HaneulTransactionResponse,
     pub coin_split: HaneulTransactionResponse,
     pub publish: HaneulTransactionResponse,
     pub error: Value,

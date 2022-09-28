@@ -5,6 +5,8 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use futures::future::join_all;
+
 use anyhow::anyhow;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
@@ -98,6 +100,37 @@ impl TransactionBuilder {
         Ok(TransactionData::new_transfer_haneul(
             recipient, signer, amount, object, gas_budget,
         ))
+    }
+
+    pub async fn pay(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> anyhow::Result<TransactionData> {
+        if let Some(gas) = gas {
+            if input_coins.contains(&gas) {
+                return Err(anyhow!("Gas coin is in input coins of Pay transaction, use PayHaneul transaction instead!"));
+            }
+        }
+
+        let handles: Vec<_> = input_coins
+            .iter()
+            .map(|id| self.get_object_ref(*id))
+            .collect();
+        let coins = join_all(handles)
+            .await
+            .into_iter()
+            .map(|c| c.unwrap())
+            .collect();
+        let gas = self
+            .select_gas(signer, gas, gas_budget, input_coins)
+            .await?;
+        let data = TransactionData::new_pay(signer, coins, recipients, amounts, gas, gas_budget);
+        Ok(data)
     }
 
     pub async fn move_call(
