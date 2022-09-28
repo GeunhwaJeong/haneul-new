@@ -20,6 +20,14 @@ export interface TransferHaneulTransaction {
   amount: number | null;
 }
 
+export interface PayTransaction {
+  inputCoins: ObjectId[];
+  recipients: HaneulAddress[];
+  amounts: number[];
+  gasPayment?: ObjectId;
+  gasBudget: number;
+}
+
 export interface MergeCoinTransaction {
   primaryCoin: ObjectId;
   coinToMerge: ObjectId;
@@ -90,6 +98,11 @@ export interface TxnDataSerializer {
   newTransferHaneul(
     signerAddress: HaneulAddress,
     txn: TransferHaneulTransaction
+  ): Promise<Base64DataBuffer>;
+
+  newPay(
+    signerAddress: HaneulAddress,
+    txn: PayTransaction
   ): Promise<Base64DataBuffer>;
 
   newMoveCall(
