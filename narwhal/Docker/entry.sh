@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2022, Haneul Labs, Inc.
+# SPDX-License-Identifier: Apache-2.0
 
 # Capture stack trace
 export RUST_BACKTRACE=1
