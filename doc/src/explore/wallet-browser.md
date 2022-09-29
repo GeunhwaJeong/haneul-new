@@ -93,11 +93,28 @@ To view all of the transactions for your address, click **Apps** and then click 
 Haneul Explorer opens with the details for your wallet address displayed.
 
 
-## Mint an NFT
+## Mint an example NFT
 
-You can mint your own NFTs directly from the Haneul Wallet.
+You can mint an example Haneul NFT directly from the Haneul Wallet.
 
 Click **Apps**, then click **Mint NFT**. In the current version you can mint only example NFTs.
+
+## Create a new NFT
+
+The [Haneul Wallet demo](https://haneul-wallet-demo.haneul.io/) site lets you create a new NFT on the Haneul network using your own image file. To access the site directly from the Haneul Wallet, click the **Apps** tab, and then click **Haneul NFT Mint**. You must have an active wallet to mint NFTs.
+
+To mint a new NFT using the demo site
+1. Open the [Haneul Wallet demo](https://haneul-wallet-demo.haneul.io/) site.
+1. Click **Connect**.
+1. In your Haneul Wallet, click **Connect** to connect your wallet with the demo site.
+1. Enter a **Name** and **Description** for your NFT, and then enter Image URL to the image to use.
+1. Click **Create**.
+1. Click **Approve** in your wallet to allow the site to add the NFT to your wallet.
+
+After you successfully create a new NFT, you can transfer it to another wallet address. Enter the address to send it to in the **Recipient** field, then click **Transfer**. Click **Approve** in your wallet to allow the transfer.
+
+You can view details for the transactions to create the NFT and then transfer it in [Haneul Explorer](https://explorer.devnet.haneul.io/).
+
 
 
 ## View your NFTs
@@ -132,8 +149,8 @@ To open the site associated with the app, click on the app and then click View.
 ## Disconnect from an app
 
 You can easily disconnect your wallet from a connected app. 
-1. Click Apps and then click Active Connections.
-1. Click the app to disconnect from your wallet, then click Disconnect.
+1. Click **Apps** and then click **Active Connections**.
+1. Click the app to disconnect from your wallet, then click **Disconnect**.
 
 Your wallet immediately disconnects from the app and returns to the **Apps** tab.
 
