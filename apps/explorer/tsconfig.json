@@ -18,7 +18,8 @@
         "baseUrl": ".",
         "paths": {
             "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
-            "@haneullabs/bcs": ["../../sdk/bcs/src/"]
+            "@haneullabs/bcs": ["../../sdk/bcs/src/"],
+            "~/*": ["./src/*"]
         }
     },
     "include": ["src"]
