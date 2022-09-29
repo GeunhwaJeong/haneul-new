@@ -6,6 +6,6 @@
   "linked": [],
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "patch",
+  "updateInternalDependencies": "minor",
   "ignore": ["haneul-explorer", "haneul-wallet", "demo-nft-dapp", "haneul-wallet-adapter"]
 }
