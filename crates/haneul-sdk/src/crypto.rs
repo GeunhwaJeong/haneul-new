@@ -176,10 +176,6 @@ impl HaneulKeystore {
         self.keys().iter().map(|k| k.into()).collect()
     }
 
-    pub fn signer(&self, signer: HaneulAddress) -> impl Signer<Signature> + '_ {
-        KeystoreSigner::new(&*self.0, signer)
-    }
-
     pub fn import_from_mnemonic(
         &mut self,
         phrase: &str,
@@ -200,26 +196,6 @@ impl HaneulKeystore {
 
     pub fn sign(&self, address: &HaneulAddress, msg: &[u8]) -> Result<Signature, signature::Error> {
         self.0.sign(address, msg)
-    }
-}
-
-struct KeystoreSigner<'a> {
-    keystore: &'a dyn AccountKeystore,
-    address: HaneulAddress,
-}
-
-impl<'a> KeystoreSigner<'a> {
-    pub fn new(keystore: &'a dyn AccountKeystore, account: HaneulAddress) -> Self {
-        Self {
-            keystore,
-            address: account,
-        }
-    }
-}
-
-impl Signer<Signature> for KeystoreSigner<'_> {
-    fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
-        self.keystore.sign(&self.address, msg)
     }
 }
 

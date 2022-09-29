@@ -6,7 +6,6 @@ use haneul_sdk::{
     crypto::KeystoreType,
     types::{
         base_types::{ObjectID, HaneulAddress},
-        crypto::Signature,
         messages::Transaction,
     },
     HaneulClient,
@@ -33,10 +32,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Get signer from keystore
     let keystore = KeystoreType::File(keystore_path).init()?;
-    let signer = keystore.signer(my_address);
-
-    // Sign the transaction
-    let signature = Signature::new(&transfer_tx, &signer);
+    let signature = keystore.sign(&my_address, &transfer_tx.to_bytes())?;
 
     // Execute the transaction
     let transaction_response = haneul
