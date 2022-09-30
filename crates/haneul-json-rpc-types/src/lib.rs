@@ -366,6 +366,9 @@ pub enum HaneulExecuteTransactionResponse {
     EffectsCert {
         certificate: HaneulCertifiedTransaction,
         effects: HaneulCertifiedTransactionEffects,
+        // If the transaction is confirmed to be executed locally
+        // before this reponse.
+        confirmed_local_execution: bool,
     },
 }
 
@@ -385,13 +388,14 @@ impl HaneulExecuteTransactionResponse {
                 }
             }
             ExecuteTransactionResponse::EffectsCert(cert) => {
-                let (certificate, effects) = *cert;
+                let (certificate, effects, is_executed_locally) = *cert;
                 let certificate: HaneulCertifiedTransaction = certificate.try_into()?;
                 let effects: HaneulCertifiedTransactionEffects =
                     HaneulCertifiedTransactionEffects::try_from(effects, resolver)?;
                 HaneulExecuteTransactionResponse::EffectsCert {
                     certificate,
                     effects,
+                    confirmed_local_execution: is_executed_locally,
                 }
             }
         })

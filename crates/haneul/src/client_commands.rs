@@ -21,11 +21,11 @@ use tracing::info;
 
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::HaneulData;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, HaneulExecuteTransactionResponse, HaneulObjectInfo, HaneulParsedObject,
     HaneulTransactionResponse,
 };
+use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_sdk::crypto::HaneulKeystore;
 use haneul_sdk::{ClientType, HaneulClient};
@@ -34,7 +34,6 @@ use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
-    messages::ExecuteTransactionRequestType,
     messages::Transaction,
     object::Owner,
     parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
@@ -681,6 +680,14 @@ impl WalletContext {
         Ok(self.config.active_address.unwrap())
     }
 
+    /// Get the latest object reference given a object id
+    pub async fn get_object_ref(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
+        self.client.read_api().get_object(object_id).await
+    }
+
     /// Get all the gas objects (and conveniently, gas amounts) for the address
     pub async fn gas_objects(
         &self,
@@ -767,13 +774,15 @@ impl WalletContext {
                 .quorum_driver()
                 .execute_transaction_by_fullnode(
                     tx,
-                    ExecuteTransactionRequestType::WaitForEffectsCert,
+                    haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution,
                 )
                 .await;
             match result {
+                // TODO: if confirmed_local_execution is false, poll fullnode until it's confirmed
                 Ok(HaneulExecuteTransactionResponse::EffectsCert {
                     certificate,
                     effects,
+                    confirmed_local_execution: _,
                 }) => Ok(HaneulTransactionResponse {
                     certificate,
                     effects: effects.effects,

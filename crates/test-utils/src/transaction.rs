@@ -224,6 +224,41 @@ pub async fn create_devnet_nft(
     Ok((sender, object_id, digest))
 }
 
+pub async fn transfer_haneul(
+    context: &mut WalletContext,
+    sender: Option<HaneulAddress>,
+    receiver: Option<HaneulAddress>,
+) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
+    let sender = match sender {
+        None => context.keystore.addresses().get(0).cloned().unwrap(),
+        Some(addr) => addr,
+    };
+    let receiver = match receiver {
+        None => context.keystore.addresses().get(1).cloned().unwrap(),
+        Some(addr) => addr,
+    };
+    let gas_ref = get_gas_object_with_wallet_context(context, &sender)
+        .await
+        .unwrap();
+
+    let res = HaneulClientCommands::TransferHaneul {
+        to: receiver,
+        amount: None,
+        haneul_coin_object_id: gas_ref.0,
+        gas_budget: 50000,
+    }
+    .execute(context)
+    .await?;
+
+    let digest = if let HaneulClientCommandResult::TransferHaneul(tx_cert, _effects) = res {
+        tx_cert.transaction_digest
+    } else {
+        panic!("transfer command did not return WalletCommandResult::TransferHaneul");
+    };
+
+    Ok((gas_ref.0, sender, receiver, digest))
+}
+
 pub async fn transfer_coin(
     context: &mut WalletContext,
 ) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
@@ -258,6 +293,19 @@ pub async fn transfer_coin(
     };
 
     Ok((object_to_send, sender, receiver, digest))
+}
+
+pub async fn split_coin_with_wallet_context(context: &mut WalletContext, coin_id: ObjectID) {
+    HaneulClientCommands::SplitCoin {
+        coin_id,
+        amounts: None,
+        count: 2,
+        gas: None,
+        gas_budget: MAX_GAS,
+    }
+    .execute(context)
+    .await
+    .unwrap();
 }
 
 pub async fn delete_devnet_nft(

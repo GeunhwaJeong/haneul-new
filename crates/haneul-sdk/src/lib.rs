@@ -21,11 +21,11 @@ use haneul_config::gateway::GatewayConfig;
 use haneul_core::gateway_state::{GatewayClient, GatewayState};
 pub use haneul_json as json;
 use haneul_json_rpc::api::EventStreamingApiClient;
-use haneul_json_rpc::api::QuorumDriverApiClient;
 use haneul_json_rpc::api::RpcBcsApiClient;
 use haneul_json_rpc::api::RpcFullNodeReadApiClient;
 use haneul_json_rpc::api::RpcGatewayApiClient;
 use haneul_json_rpc::api::RpcReadApiClient;
+use haneul_json_rpc::api::TransactionExecutionApiClient;
 use haneul_json_rpc::api::WalletSyncApiClient;
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
@@ -429,7 +429,7 @@ impl QuorumDriver {
         Ok(match &*self.api {
             HaneulClientApi::Rpc(c) => {
                 let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
-                QuorumDriverApiClient::execute_transaction(
+                TransactionExecutionApiClient::execute_transaction(
                     &c.http,
                     tx_bytes,
                     flag,
