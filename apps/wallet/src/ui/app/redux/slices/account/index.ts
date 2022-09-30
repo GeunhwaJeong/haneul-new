@@ -10,7 +10,7 @@ import Browser from 'webextension-polyfill';
 
 import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
-import { generateMnemonic } from '_shared/cryptography/mnemonics';
+import { generateMnemonic } from '_src/shared/utils/bip39';
 
 import type { HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
