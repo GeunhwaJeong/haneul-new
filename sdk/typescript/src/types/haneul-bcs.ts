@@ -74,11 +74,20 @@ export type TransferHaneulTx = {
  */
 export type PayTx = {
   Pay: {
-    input_coins: string[];
+    coins: HaneulObjectRef[];
     recipients: string[];
     amounts: number[];
   };
 };
+
+bcs
+  .registerVectorType('vector<HaneulAddress>', 'HaneulAddress')
+  .registerVectorType('vector<HaneulObjectRef>', 'HaneulObjectRef')
+  .registerStructType('PayTx', {
+    coins: 'vector<HaneulObjectRef>',
+    recipients: 'vector<HaneulAddress>',
+    amounts: 'vector<u64>',
+  });
 
 bcs.registerEnumType('Option<u64>', {
   None: null,
@@ -237,6 +246,7 @@ bcs.registerEnumType('Transaction', {
   Publish: 'PublishTx',
   Call: 'MoveCallTx',
   TransferHaneul: 'TransferHaneulTx',
+  Pay: 'PayTx',
 });
 /**
  * Transaction kind - either Batch or Single.

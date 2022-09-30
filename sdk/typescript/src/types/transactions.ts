@@ -22,6 +22,12 @@ export type HaneulChangeEpoch = {
   computation_charge: number;
 };
 
+export type Pay = {
+  coins: HaneulObjectRef[];
+  recipients: HaneulAddress[];
+  amounts: number[];
+};
+
 export type ExecuteTransactionRequestType =
   | 'ImmediateReturn'
   | 'WaitForTxCert'
@@ -32,13 +38,16 @@ export type TransactionKindName =
   | 'Publish'
   | 'Call'
   | 'TransferHaneul'
-  | 'ChangeEpoch';
+  | 'ChangeEpoch'
+  | 'Pay';
+
 export type HaneulTransactionKind =
   | { TransferObject: TransferObject }
   | { Publish: HaneulMovePackage }
   | { Call: MoveCall }
   | { TransferHaneul: HaneulTransferHaneul }
-  | { ChangeEpoch: HaneulChangeEpoch };
+  | { ChangeEpoch: HaneulChangeEpoch }
+  | { Pay: Pay };
 export type HaneulTransactionData = {
   transactions: HaneulTransactionKind[];
   sender: HaneulAddress;
@@ -265,6 +274,10 @@ export function getTransferHaneulTransaction(
   data: HaneulTransactionKind
 ): HaneulTransferHaneul | undefined {
   return 'TransferHaneul' in data ? data.TransferHaneul : undefined;
+}
+
+export function getPayTransaction(data: HaneulTransactionKind): Pay | undefined {
+  return 'Pay' in data ? data.Pay : undefined;
 }
 
 export function getChangeEpochTransaction(
