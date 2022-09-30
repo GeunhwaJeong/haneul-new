@@ -22,7 +22,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-types = { path = "../haneul-types" }
 
 haneullabs-network.workspace = true
-workspace-hack = { path = "../workspace-hack"}
+workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }

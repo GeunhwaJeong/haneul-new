@@ -7,7 +7,7 @@ publish = false
 edition = "2021"
 
 [dependencies]
-workspace-hack = { path = "../workspace-hack"}
+workspace-hack.workspace = true
 haneul-framework = { path = "../haneul-framework" }
 telemetry-subscribers.workspace = true
 tracing = "0.1"
