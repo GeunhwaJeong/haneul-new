@@ -32,10 +32,7 @@
 use arc_swap::ArcSwap;
 use std::{collections::HashMap, ops::Deref, sync::Arc, time::Duration};
 use haneul_storage::node_sync_store::NodeSyncStore;
-use haneul_types::{
-    base_types::AuthorityName,
-    error::{HaneulError, HaneulResult},
-};
+use haneul_types::{base_types::AuthorityName, error::HaneulResult};
 use tokio::{
     sync::{oneshot, Mutex, MutexGuard},
     task::JoinHandle,
@@ -292,13 +289,7 @@ where
         self: Arc<Self>,
         checkpoint_process_control: CheckpointProcessControl,
     ) -> HaneulResult {
-        let checkpoint_store =
-            self.state
-                .checkpoints
-                .clone()
-                .ok_or(HaneulError::UnsupportedFeatureError {
-                    error: "Checkpoint not supported".to_owned(),
-                })?;
+        let checkpoint_store = self.state.checkpoints.clone();
 
         // TODO: fullnode should not get proposals
         // TODO: potentially move get_latest_proposal_and_checkpoint_from_all and
