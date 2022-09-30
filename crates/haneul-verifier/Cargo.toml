@@ -13,4 +13,4 @@ move-bytecode-verifier.workspace = true
 move-core-types.workspace = true
 
 haneul-types = { path = "../haneul-types" }
-workspace-hack = { path = "../workspace-hack"}
+workspace-hack.workspace = true

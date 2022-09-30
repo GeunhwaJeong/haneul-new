@@ -32,4 +32,4 @@ haneul-core = { path = "../haneul-core" }
 haneul-json = { path = "../haneul-json" }
 haneul-config = { path = "../haneul-config" }
 test-utils = { path = "../test-utils" }
-workspace-hack = { path = "../workspace-hack"}
+workspace-hack.workspace = true

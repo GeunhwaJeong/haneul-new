@@ -43,8 +43,8 @@ haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 
 move-core-types.workspace = true
-narwhal-node = { git = "https://github.com/GeunhwaJeong/narwhal", rev = "103b9f481f321620ee3054e7964c7211f1a335d3" }
-workspace-hack = { path = "../workspace-hack"}
+narwhal-node = { path = "../../narwhal/node" }
+workspace-hack.workspace = true
 test-utils = { path = "../test-utils" }
 
 [target.'cfg(msim)'.dependencies]
