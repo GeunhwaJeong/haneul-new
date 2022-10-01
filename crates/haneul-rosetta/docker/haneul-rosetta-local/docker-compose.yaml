@@ -1,0 +1,32 @@
+---
+version: "3.9"
+services:
+  rosetta-online:
+    image: haneullabs/haneul-rosetta
+    ports:
+      - "9002:9002"
+    expose:
+      - "9002"
+    working_dir: /haneul/localnet
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /usr/local/bin/haneul-rosetta generate-rosetta-cli-config &
+        /usr/local/bin/haneul start &> /haneul/haneul.log &
+        /usr/local/bin/haneul-rosetta start-online-server
+    stdin_open: true
+    tty: true
+  rosetta-offline:
+    image: haneullabs/haneul-rosetta
+    ports:
+      - "9003:9003"
+    expose:
+      - "9003"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /usr/local/bin/haneul-rosetta start-offline-server
+    stdin_open: true
+    tty: true
