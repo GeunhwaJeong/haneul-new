@@ -56,7 +56,7 @@ use haneul_json_rpc_types::{
     HaneulParsedSplitCoinResponse, HaneulParsedTransactionResponse, HaneulTransactionEffects,
     HaneulTransactionResponse, HaneulTypeTag, TransferObjectParams,
 };
-use haneul_types::error::HaneulError::ConflictingTransaction;
+use haneul_types::error::HaneulError::ObjectLockConflict;
 
 use crate::epoch::epoch_store::EpochStore;
 use tap::TapFallible;
@@ -733,8 +733,9 @@ where
             // we should first try to finish executing the previous transaction. If that failed,
             // we should just reset the locks.
             match err {
-                ConflictingTransaction {
+                ObjectLockConflict {
                     pending_transaction,
+                    ..
                 } => {
                     debug!(tx_digest=?pending_transaction, "Objects locked by a previous transaction, re-executing the previous transaction");
                     if let Err(err) = self.retry_pending_tx(pending_transaction).await {
