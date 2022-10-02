@@ -6,10 +6,11 @@ use std::path::PathBuf;
 use haneul_storage::default_db_options;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::error::HaneulResult;
+use haneul_types::error::{HaneulError, HaneulResult};
 use typed_store::rocks::DBMap;
 use typed_store::traits::TypedStoreDebug;
 
+use haneul_types::fp_ensure;
 use typed_store::Map;
 use typed_store_derive::DBMapUtils;
 
@@ -32,8 +33,8 @@ impl CommitteeStore {
         let committee_store = Self::open_tables_read_write(path, db_options, None);
         if committee_store.database_is_empty() {
             committee_store
-                .init_genesis_epoch(genesis_committee.clone())
-                .expect("Init genesis epoch data must not fail");
+                .init_genesis_committee(genesis_committee.clone())
+                .expect("Init genesis committee data must not fail");
         }
         committee_store
     }
@@ -41,13 +42,23 @@ impl CommitteeStore {
     pub fn new_for_testing(genesis_committee: &Committee) -> Self {
         let dir = std::env::temp_dir();
         let path = dir.join(format!("DB_{:?}", ObjectID::random()));
-        std::fs::create_dir(&path).unwrap();
         Self::new(path, genesis_committee, None)
     }
 
-    pub fn init_genesis_epoch(&self, genesis_committee: Committee) -> HaneulResult {
+    pub fn init_genesis_committee(&self, genesis_committee: Committee) -> HaneulResult {
         assert_eq!(genesis_committee.epoch, 0);
         self.committee_map.insert(&0, &genesis_committee)?;
+        Ok(())
+    }
+
+    pub fn insert_new_committee(&self, new_committee: &Committee) -> HaneulResult {
+        let latest_committee = self.get_latest_committee();
+        fp_ensure!(
+            latest_committee.epoch + 1 == new_committee.epoch,
+            HaneulError::from("Unexpected new epoch number")
+        );
+        self.committee_map
+            .insert(&new_committee.epoch, new_committee)?;
         Ok(())
     }
 

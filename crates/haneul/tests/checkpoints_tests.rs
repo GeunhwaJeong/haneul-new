@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::HashSet;
-use std::sync::Arc;
 use haneul_config::NetworkConfig;
 use haneul_core::{
     authority::AuthorityState, authority_aggregator::AuthorityAggregator,
-    authority_client::NetworkAuthorityClient, epoch::epoch_store::EpochStore,
+    authority_client::NetworkAuthorityClient,
 };
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
@@ -110,9 +109,8 @@ fn make_aggregator(
     configs: &NetworkConfig,
     handles: &[HaneulNodeHandle],
 ) -> AuthorityAggregator<NetworkAuthorityClient> {
-    let committee = handles[0].with(|h| h.state().clone_committee());
-    let epoch_store = Arc::new(EpochStore::new_for_testing(&committee));
-    test_authority_aggregator(configs, epoch_store)
+    let committee_store = handles[0].with(|h| h.state().committee_store().clone());
+    test_authority_aggregator(configs, committee_store)
 }
 
 #[sim_test]

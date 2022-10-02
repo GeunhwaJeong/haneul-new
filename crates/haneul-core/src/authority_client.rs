@@ -66,8 +66,6 @@ pub trait AuthorityAPI {
         &self,
         request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError>;
-
-    async fn handle_epoch(&self, request: EpochRequest) -> Result<EpochResponse, HaneulError>;
 }
 
 pub type BatchInfoResponseItemStream = BoxStream<'static, Result<BatchInfoResponseItem, HaneulError>>;
@@ -240,14 +238,6 @@ impl AuthorityAPI for NetworkAuthorityClient {
             .map(tonic::Response::into_inner)
             .map_err(Into::into)
     }
-
-    async fn handle_epoch(&self, request: EpochRequest) -> Result<EpochResponse, HaneulError> {
-        self.client()
-            .epoch_info(request)
-            .await
-            .map(tonic::Response::into_inner)
-            .map_err(Into::into)
-    }
 }
 
 pub fn make_network_authority_client_sets_from_system_state(
@@ -389,12 +379,6 @@ impl AuthorityAPI for LocalAuthorityClient {
         let state = self.state.clone();
 
         state.handle_checkpoint_request(&request)
-    }
-
-    async fn handle_epoch(&self, request: EpochRequest) -> Result<EpochResponse, HaneulError> {
-        let state = self.state.clone();
-
-        state.handle_epoch_request(&request)
     }
 }
 
