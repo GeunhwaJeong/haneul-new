@@ -7,7 +7,7 @@ import { memo, useState, useCallback } from 'react';
 import DisconnectApp from './DisconnectApp';
 import ExternalLink from '_components/external-link';
 import Icon, { HaneulIcons } from '_components/icon';
-import { plausible } from '_src/shared/constants';
+import { trackEvent } from '_src/shared/plausible';
 
 import st from './HaneulApp.module.scss';
 
@@ -123,11 +123,9 @@ function HaneulApp({
     );
 
     const onClickAppLink = useCallback(() => {
-        if (process.env.NODE_ENV !== 'development') {
-            plausible.trackEvent('AppOpen', {
-                props: { name: name || link, source: 'AppPage' },
-            });
-        }
+        trackEvent('AppOpen', {
+            props: { name: name || link, source: 'AppPage' },
+        });
     }, [name, link]);
 
     return (
