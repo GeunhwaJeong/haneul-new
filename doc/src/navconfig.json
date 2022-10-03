@@ -3,17 +3,17 @@
     "title": "QUICK LINKS",
     "items": [
       {
-        "label": "Devnet",
-        "link": "build/devnet"
+        "label": "Haneul Doc Updates",
+        "link": "doc-updates"
       },
       {
-        "label": "examples.haneul.io",
+        "label": "Haneul by Example",
         "link": "https://examples.haneul.io/",
         "external": true
       },
       {
-        "label": "Doc updates",
-        "link": "learn/haneul-doc-updates"
+        "label": "Connect to Haneul Devnet",
+        "link": "build/devnet"
       }
     ]
   },
@@ -58,11 +58,11 @@
           },
           {
             "label": "Objects",
-            "fileName": "build/objects"
+            "fileName": "learn/objects"
           },
           {
             "label": "Transactions",
-            "fileName": "build/transactions"
+            "fileName": "learn/transactions"
           },
           {
             "label": "Single-Writer Apps",
@@ -266,12 +266,6 @@
         "label": "About Haneul Labs",
         "link": "https://haneul-labs.com/",
         "external": true
-      }
-    ],
-      "Doc updates":[
-      {
-      "fileName": "learn/haneul-doc-updates",
-      "title": "Haneul doc updates"
       }
     ]
   }

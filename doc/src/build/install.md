@@ -15,16 +15,7 @@ To get started using Haneul:
 1. Optionally, download the [source code](#source-code) to have local
    access to examples and modify Haneul itself.
 
-## Install with a script
-
-If you're using macOS or Linux and already have `curl`, Rust Cargo, the `git` command, and a GitHub account (see [Prerequisites](#prerequisites)), you can download the `haneul-setup.sh` script and run it install Haneul, including removal of any existing Haneul assets.
-```shell
-$ curl https://raw.githubusercontent.com/HaneulLabs/haneul/main/doc/utils/haneul-setup.sh -o haneul-setup.sh
-chmod 755 haneul-setup.sh
-./haneul-setup.sh
-```
-
-## Supported OSes
+## Supported Operating Systems
 
 Haneul supports the following operating systems:
 
