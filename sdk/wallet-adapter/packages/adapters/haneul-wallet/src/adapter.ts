@@ -3,6 +3,7 @@
 
 import {
   MoveCallTransaction,
+  SignableTransaction,
   HaneulAddress,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
@@ -22,7 +23,11 @@ interface HaneulWallet {
   executeSerializedMoveCall: (
     transactionBytes: Uint8Array
   ) => Promise<HaneulTransactionResponse>;
+  signAndExecuteTransaction: (
+    transaction: SignableTransaction
+  ) => Promise<HaneulTransactionResponse>;
 }
+
 interface HaneulWalletWindow {
   haneulWallet: HaneulWallet;
 }
@@ -46,6 +51,11 @@ export class HaneulWalletAdapter implements WalletCapabilities {
     transactionBytes: Uint8Array
   ): Promise<HaneulTransactionResponse> {
     return window.haneulWallet.executeSerializedMoveCall(transactionBytes);
+  }
+  signAndExecuteTransaction(
+    transaction: SignableTransaction
+  ): Promise<HaneulTransactionResponse> {
+    return window.haneulWallet.signAndExecuteTransaction(transaction);
   }
 
   name = "Haneul Wallet";

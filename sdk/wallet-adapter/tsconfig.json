@@ -1,21 +1,29 @@
 {
-	"extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@haneullabs/wallet-adapter-react": ["./packages/react-providers/src"],
       "@haneullabs/wallet-adapter-react-ui": ["./packages/ui/src"],
       "@haneullabs/wallet-adapter-all-wallets": [
-        "./packages/adapters/integrations/all-wallets/src"
+        "./packages/adapters/all-wallets/src"
       ],
       "@haneullabs/wallet-adapter-base": ["./packages/adapters/base-adapter/src"],
       "@haneullabs/wallet-adapter-haneul-wallet": [
-        "./packages/adapters/integrations/haneul-wallet/src"
+        "./packages/adapters/haneul-wallet/src"
       ],
       "@haneullabs/wallet-adapter-mock-wallet": [
-        "./packages/adapters/integrations/mock-wallet/src"
+        "./packages/adapters/mock-wallet/src"
       ]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "./packages/react-providers" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/adapters/all-wallets" },
+    { "path": "./packages/adapters/base-adapter" },
+    { "path": "./packages/adapters/haneul-wallet" },
+    { "path": "./packages/adapters/mock-wallet" }
+  ]
 }

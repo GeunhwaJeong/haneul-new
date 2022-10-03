@@ -3,6 +3,7 @@
 
 import {
   MoveCallTransaction,
+  SignableTransaction,
   HaneulAddress,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
@@ -28,9 +29,16 @@ export interface WalletContextState {
   disconnect(): Promise<void>;
 
   getAccounts: () => Promise<HaneulAddress[]>;
+
+  signAndExecuteTransaction(
+    transaction: SignableTransaction
+  ): Promise<HaneulTransactionResponse>;
+
+  /** @deprecated Prefer `signAndExecuteTransaction` when available. */
   executeMoveCall: (
     transaction: MoveCallTransaction
   ) => Promise<HaneulTransactionResponse>;
+  /** @deprecated Prefer `signAndExecuteTransaction` when available. */
   executeSerializedMoveCall: (
     transactionBytes: Uint8Array
   ) => Promise<HaneulTransactionResponse>;
@@ -59,6 +67,15 @@ const DEFAULT_CONTEXT = {
   getAccounts() {
     return Promise.reject(
       console.error(constructMissingProviderErrorMessage("get", "getAccounts"))
+    );
+  },
+  signAndExecuteTransaction(
+    transaction: SignableTransaction
+  ): Promise<HaneulTransactionResponse> {
+    return Promise.reject(
+      console.error(
+        constructMissingProviderErrorMessage("get", "signAndExecuteTransaction")
+      )
     );
   },
   executeMoveCall(
