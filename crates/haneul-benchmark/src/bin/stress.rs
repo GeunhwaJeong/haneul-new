@@ -32,7 +32,6 @@ use haneul_core::epoch::epoch_store::EpochStore;
 use haneul_core::gateway_state::GatewayState;
 use haneul_core::safe_client::SafeClientMetrics;
 use haneul_node::metrics;
-use haneul_node::HaneulNode;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::batch::UpdateItem;
@@ -300,7 +299,7 @@ async fn main() -> Result<()> {
                 .unwrap();
             server_runtime.block_on(async move {
                 // Setup the network
-                let nodes: Vec<HaneulNode> = spawn_test_authorities(cloned_gas, &cloned_config).await;
+                let nodes: Vec<_> = spawn_test_authorities(cloned_gas, &cloned_config).await;
                 let handles: Vec<_> = nodes.into_iter().map(move |node| node.wait()).collect();
                 cloned_barrier.wait().await;
                 let mut follower_handles = vec![];

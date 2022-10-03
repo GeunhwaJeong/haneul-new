@@ -31,6 +31,9 @@ telemetry-subscribers.workspace = true
 haneullabs-network.workspace = true
 workspace-hack.workspace = true
 
+[target.'cfg(msim)'.dependencies]
+haneul-simulator = { path = "../haneul-simulator" }
+
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "^0.5", features = ["profiling"] }
 jemalloc-ctl = "^0.5"
