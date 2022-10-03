@@ -307,21 +307,26 @@ export function getTransactionKindName(
 /* ----------------------------- ExecutionStatus ---------------------------- */
 
 export function getExecutionStatusType(
-  data: HaneulTransactionResponse
-): ExecutionStatusType {
-  return getExecutionStatus(data).status;
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+): ExecutionStatusType | undefined {
+  return getExecutionStatus(data)?.status;
 }
 
 export function getExecutionStatus(
-  data: HaneulTransactionResponse
-): ExecutionStatus {
-  return data.effects.status;
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+): ExecutionStatus | undefined {
+  if ('effects' in data) {
+    return data.effects.status;
+  } else if ('EffectsCert' in data) {
+    return data.EffectsCert.effects.effects.status;
+  }
+  return undefined;
 }
 
 export function getExecutionStatusError(
   data: HaneulTransactionResponse
 ): string | undefined {
-  return getExecutionStatus(data).error;
+  return getExecutionStatus(data)?.error;
 }
 
 export function getExecutionStatusGasSummary(
