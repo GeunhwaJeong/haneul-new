@@ -17,6 +17,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::{CallArg, ObjectArg, TransactionEffects};
+use haneul_types::messages_checkpoint::AuthenticatedCheckpoint;
 use haneul_types::object::Object;
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 use test_utils::authority::{get_object, test_authority_configs};
@@ -82,6 +83,7 @@ async fn reconfig_end_to_end_tests() {
 
     let haneul_system_state = states[0].get_haneul_system_state_object().await.unwrap();
     let new_committee_size = haneul_system_state.validators.next_epoch_validators.len();
+    let expected_committee = haneul_system_state.get_next_epoch_committee().voting_rights;
     assert_eq!(old_committee_size + 1, new_committee_size);
 
     fast_forward_to_ready_for_reconfig_start(&nodes).await;
@@ -92,6 +94,25 @@ async fn reconfig_end_to_end_tests() {
     }
 
     fast_forward_to_ready_for_reconfig_finish(&nodes).await;
+
+    for node in &nodes {
+        // Check that the last checkpoint contains the committee of the next epoch.
+        if let AuthenticatedCheckpoint::Certified(cert) = node
+            .active()
+            .state
+            .checkpoints
+            .lock()
+            .latest_stored_checkpoint()
+            .unwrap()
+        {
+            assert_eq!(
+                cert.summary.next_epoch_committee.unwrap(),
+                expected_committee
+            );
+        } else {
+            unreachable!("Expecting checkpoint cert");
+        }
+    }
 
     let results: Vec<_> = nodes
         .iter()
@@ -178,9 +199,12 @@ async fn reconfig_last_checkpoint_sync_missing_tx() {
                 .lock()
                 .is_ready_to_finish_epoch_change()
             {
-                let _ =
-                    checkpoint_process_step(active.clone(), &CheckpointProcessControl::default())
-                        .await;
+                let _ = checkpoint_process_step(
+                    active.clone(),
+                    &CheckpointProcessControl::default(),
+                    true,
+                )
+                .await;
             }
         });
         checkpoint_processes.push(handle);
@@ -201,6 +225,7 @@ async fn reconfig_last_checkpoint_sync_missing_tx() {
         let _ = checkpoint_process_step(
             nodes[3].active().clone(),
             &CheckpointProcessControl::default(),
+            true,
         )
         .await;
     }
@@ -272,9 +297,12 @@ async fn fast_forward_to_ready_for_reconfig_start(nodes: &[HaneulNode]) {
                 .lock()
                 .is_ready_to_start_epoch_change()
             {
-                let _ =
-                    checkpoint_process_step(active.clone(), &CheckpointProcessControl::default())
-                        .await;
+                let _ = checkpoint_process_step(
+                    active.clone(),
+                    &CheckpointProcessControl::default(),
+                    true,
+                )
+                .await;
             }
         });
         checkpoint_processes.push(handle);
@@ -294,9 +322,12 @@ async fn fast_forward_to_ready_for_reconfig_finish(nodes: &[HaneulNode]) {
                 .lock()
                 .is_ready_to_finish_epoch_change()
             {
-                let _ =
-                    checkpoint_process_step(active.clone(), &CheckpointProcessControl::default())
-                        .await;
+                let _ = checkpoint_process_step(
+                    active.clone(),
+                    &CheckpointProcessControl::default(),
+                    true,
+                )
+                .await;
             }
         });
         checkpoint_processes.push(handle);
