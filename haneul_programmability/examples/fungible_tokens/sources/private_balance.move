@@ -18,7 +18,7 @@ module fungible_tokens::private_balance {
     /// The maximum unsigned bits that the coin value should be
     const MAX_COIN_BIT: u64 = 64;
 
-    use haneul::crypto::{verify_full_range_proof};
+    use haneul::bulletproofs::{verify_full_range_proof};
     use haneul::elliptic_curve::{Self as ec, RistrettoPoint};
     use std::option::{Self, Option};
 
