@@ -30,6 +30,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-node = { path = "../haneul-node" }
 haneul-config = { path = "../haneul-config" }
+haneul-sdk = { path = "../haneul-sdk" }
 
 move-core-types = { git = "https://github.com/move-language/move", rev = "e1e647b73dbd3652aabb2020728a4a517c26e28e", features = ["address20"] }
 

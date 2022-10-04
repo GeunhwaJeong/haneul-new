@@ -12,7 +12,8 @@ use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_adapter::genesis;
 use haneul_json_rpc_types::HaneulObjectInfo;
-use haneul_sdk::crypto::HaneulKeystore;
+use haneul_sdk::crypto::AccountKeystore;
+use haneul_sdk::crypto::Keystore;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber};
 use haneul_types::crypto::{
@@ -45,8 +46,8 @@ pub fn random_object_ref() -> ObjectRef {
 pub async fn get_account_and_gas_coins(
     context: &mut WalletContext,
 ) -> Result<Vec<(HaneulAddress, Vec<GasCoin>)>, anyhow::Error> {
-    let mut res = Vec::with_capacity(context.keystore.addresses().len());
-    let accounts = context.keystore.addresses();
+    let mut res = Vec::with_capacity(context.config.keystore.addresses().len());
+    let accounts = context.config.keystore.addresses();
     for address in accounts {
         let result = HaneulClientCommands::Gas {
             address: Some(address),
@@ -98,6 +99,7 @@ pub async fn get_account_and_gas_objects(
 ) -> Vec<(HaneulAddress, Vec<HaneulObjectInfo>)> {
     let owned_gas_objects = futures::future::join_all(
         context
+            .config
             .keystore
             .addresses()
             .iter()
@@ -105,6 +107,7 @@ pub async fn get_account_and_gas_objects(
     )
     .await;
     context
+        .config
         .keystore
         .addresses()
         .iter()
@@ -141,7 +144,11 @@ pub async fn make_transactions_with_wallet_context(
                 obj.to_object_ref(),
                 MAX_GAS,
             );
-            let sig = context.keystore.sign(address, &data.to_bytes()).unwrap();
+            let sig = context
+                .config
+                .keystore
+                .sign(address, &data.to_bytes())
+                .unwrap();
 
             res.push(Transaction::new(data, sig));
         }
@@ -172,13 +179,17 @@ pub async fn make_counter_increment_transaction_with_wallet_context(
         vec![CallArg::Object(ObjectArg::SharedObject(counter_id))],
         MAX_GAS,
     );
-    let signature = context.keystore.sign(&sender, &data.to_bytes()).unwrap();
+    let signature = context
+        .config
+        .keystore
+        .sign(&sender, &data.to_bytes())
+        .unwrap();
     Transaction::new(data, signature)
 }
 
 /// Make a few different single-writer test transactions owned by specific addresses.
 pub fn make_transactions_with_pre_genesis_objects(
-    keys: HaneulKeystore,
+    keys: Keystore,
 ) -> (Vec<Transaction>, Vec<Object>) {
     // The key pair of the recipient of the transaction.
     let recipient = get_key_pair::<AuthorityKeyPair>().0;
@@ -304,7 +315,11 @@ pub fn make_transfer_object_transaction_with_wallet_context(
     recipient: HaneulAddress,
 ) -> Transaction {
     let data = TransactionData::new_transfer(recipient, object_ref, sender, gas_object, MAX_GAS);
-    let sig = context.keystore.sign(&sender, &data.to_bytes()).unwrap();
+    let sig = context
+        .config
+        .keystore
+        .sign(&sender, &data.to_bytes())
+        .unwrap();
     Transaction::new(data, sig)
 }
 

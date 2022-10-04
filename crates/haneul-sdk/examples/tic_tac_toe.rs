@@ -13,8 +13,9 @@ use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
 
+use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore};
 use haneul_sdk::{
-    crypto::{KeystoreType, HaneulKeystore},
+    crypto::Keystore,
     json::HaneulJsonValue,
     rpc_types::HaneulData,
     types::{
@@ -29,7 +30,7 @@ use haneul_sdk::{
 async fn main() -> Result<(), anyhow::Error> {
     let opts: TicTacToeOpts = TicTacToeOpts::parse();
     let keystore_path = opts.keystore_path.unwrap_or_else(default_keystore_path);
-    let keystore = KeystoreType::File(keystore_path).init()?;
+    let keystore = Keystore::File(FileBasedKeystore::new(&keystore_path)?);
 
     let game = TicTacToe {
         game_package_id: opts.game_package_id,
@@ -55,7 +56,7 @@ async fn main() -> Result<(), anyhow::Error> {
 struct TicTacToe {
     game_package_id: ObjectID,
     client: HaneulClient,
-    keystore: HaneulKeystore,
+    keystore: Keystore,
 }
 
 impl TicTacToe {

@@ -27,7 +27,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
-use haneul_sdk::crypto::HaneulKeystore;
+use haneul_sdk::crypto::AccountKeystore;
 use haneul_sdk::{ClientType, HaneulClient};
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::haneul_serde::{Base64, Encoding};
@@ -324,7 +324,7 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .publish(sender, compiled_modules, gas, gas_budget)
                     .await?;
-                let signature = context.keystore.sign(&sender, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&sender, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -367,7 +367,7 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .transfer_object(from, object_id, gas, gas_budget, to)
                     .await?;
-                let signature = context.keystore.sign(&from, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&from, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -394,7 +394,7 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .transfer_haneul(from, object_id, gas_budget, to, amount)
                     .await?;
-                let signature = context.keystore.sign(&from, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&from, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -436,7 +436,7 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .pay(from, input_coins, recipients, amounts, gas, gas_budget)
                     .await?;
-                let signature = context.keystore.sign(&from, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&from, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -452,7 +452,7 @@ impl HaneulClientCommands {
             }
 
             HaneulClientCommands::Addresses => {
-                HaneulClientCommandResult::Addresses(context.keystore.addresses())
+                HaneulClientCommandResult::Addresses(context.config.keystore.addresses())
             }
 
             HaneulClientCommands::Objects { address } => {
@@ -487,6 +487,7 @@ impl HaneulClientCommands {
                 derivation_path,
             } => {
                 let (address, phrase, scheme) = context
+                    .config
                     .keystore
                     .generate_new_key(key_scheme, derivation_path)?;
                 HaneulClientCommandResult::NewAddress((address, phrase, scheme))
@@ -526,7 +527,7 @@ impl HaneulClientCommands {
                         .split_coin_equal(signer, coin_id, count, gas, gas_budget)
                         .await?
                 };
-                let signature = context.keystore.sign(&signer, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&signer, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -544,7 +545,7 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .merge_coins(signer, primary_coin, coin_to_merge, gas, gas_budget)
                     .await?;
-                let signature = context.keystore.sign(&signer, &data.to_bytes())?;
+                let signature = context.config.keystore.sign(&signer, &data.to_bytes())?;
                 let response = context
                     .execute_transaction(Transaction::new(data, signature))
                     .await?;
@@ -553,7 +554,7 @@ impl HaneulClientCommands {
             }
             HaneulClientCommands::Switch { address, rpc, ws } => {
                 if let Some(addr) = address {
-                    if !context.keystore.addresses().contains(&addr) {
+                    if !context.config.keystore.addresses().contains(&addr) {
                         return Err(anyhow!("Address {} not managed by wallet", addr));
                     }
                     context.config.active_address = Some(addr);
@@ -638,7 +639,6 @@ impl HaneulClientCommands {
 
 pub struct WalletContext {
     pub config: PersistedConfig<HaneulClientConfig>,
-    pub keystore: HaneulKeystore,
     pub client: HaneulClient,
 }
 
@@ -650,20 +650,15 @@ impl WalletContext {
                 config_path
             ))
         })?;
-        let keystore = config.keystore.init()?;
-        let client = config.client_type.init().await?;
 
+        let client = config.client_type.init().await?;
         let config = config.persisted(config_path);
-        let context = Self {
-            config,
-            keystore,
-            client,
-        };
+        let context = Self { config, client };
         Ok(context)
     }
 
     pub fn active_address(&mut self) -> Result<HaneulAddress, anyhow::Error> {
-        if self.keystore.addresses().is_empty() {
+        if self.config.keystore.addresses().is_empty() {
             return Err(anyhow!(
                 "No managed addresses. Create new address with `new-address` command."
             ));
@@ -674,7 +669,7 @@ impl WalletContext {
         self.config.active_address = Some(
             self.config
                 .active_address
-                .unwrap_or(*self.keystore.addresses().get(0).unwrap()),
+                .unwrap_or(*self.config.keystore.addresses().get(0).unwrap()),
         );
 
         Ok(self.config.active_address.unwrap())
@@ -955,7 +950,7 @@ pub async fn call_move(
             gas_budget,
         )
         .await?;
-    let signature = context.keystore.sign(&sender, &data.to_bytes())?;
+    let signature = context.config.keystore.sign(&sender, &data.to_bytes())?;
     let transaction = Transaction::new(data, signature);
 
     let response = context.execute_transaction(transaction).await?;
