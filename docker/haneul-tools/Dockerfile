@@ -42,7 +42,8 @@ RUN cargo build --release \
     --bin haneul \
     --bin rpc-server \
     --bin haneul-faucet \
-    --bin stress
+    --bin stress \
+    --bin haneul-cluster-test
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
@@ -52,6 +53,7 @@ COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/rpc-server /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
+COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
 
 ARG BUILD_DATE
 LABEL build-date=$BUILD_DATE
