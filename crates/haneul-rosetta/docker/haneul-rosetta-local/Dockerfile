@@ -17,7 +17,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 FROM chef AS planner
 COPY Cargo.toml Cargo.lock ./
 COPY crates/workspace-hack crates/workspace-hack
-RUN sed -i '/crates\/workspace-hack/b; /crates/d' Cargo.toml \
+RUN sed -i '/crates\/workspace-hack/b; /crates/d; /narwhal/d' Cargo.toml \
     && cargo metadata -q >/dev/null
 
 # Build and cache all dependencies.
@@ -31,7 +31,6 @@ COPY --from=planner /haneul/Cargo.lock Cargo.lock
 COPY --from=planner /haneul/crates/workspace-hack crates/workspace-hack
 RUN cargo build --release
 RUN curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s
-RUN curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob
 
 # Build application
 #
@@ -40,6 +39,7 @@ RUN curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/ge
 # built as they were built and cached by the previous layer.
 COPY Cargo.toml Cargo.lock ./
 COPY crates crates
+COPY narwhal narwhal
 RUN cargo build --release --bin haneul --bin haneul-rosetta
 
 # Production Image
@@ -49,7 +49,6 @@ COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-rosetta /usr/local/bin
 COPY --from=builder /haneul/bin/rosetta-cli /usr/local/bin
 COPY --from=builder /haneul/crates/haneul-config/data/fullnode-template.yaml /haneul/devnet/fullnode.yaml
-COPY --from=builder /haneul/genesis.blob /haneul/devnet/genesis.blob
 RUN /usr/local/bin/haneul genesis
 
 ARG BUILD_DATE

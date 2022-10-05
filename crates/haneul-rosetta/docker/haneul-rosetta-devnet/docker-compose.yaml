@@ -2,7 +2,7 @@
 version: "3.9"
 services:
   rosetta-online:
-    image: haneullabs/haneul-rosetta
+    image: haneullabs/haneul-rosetta-devnet
     ports:
       - "9002:9002"
     expose:
@@ -17,7 +17,7 @@ services:
     stdin_open: true
     tty: true
   rosetta-offline:
-    image: haneullabs/haneul-rosetta
+    image: haneullabs/haneul-rosetta-devnet
     ports:
       - "9003:9003"
     expose:

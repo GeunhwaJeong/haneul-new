@@ -38,12 +38,12 @@ default.
 `./haneul-rosetta generate-rosetta-cli-config`
 This will generate the `rosetta-cli.json` and `haneul.ros` file to be used by the [Rosetta-CLI](https://github.com/coinbase/rosetta-cli)
 
-### Build local test network using Docker
+### Build local test network using Docker Compose
 
 #### 1. CD into the Dockerfile directory
 
 ```shell
-cd <haneul project directory>/crate/haneul-rosetta/docker
+cd <haneul project directory>/crate/haneul-rosetta/docker/haneul-rosetta-local
 ```   
 #### 2. Build the image
 ```shell
@@ -52,7 +52,6 @@ cd <haneul project directory>/crate/haneul-rosetta/docker
 #### 3. Start the container
 
 ```shell
-cd haneul-rosetta-local
 docker-compose up -d
 ```
 Docker compose will start the rosetta-online and rosetta-offline containers, the ports for both rosetta server (9002, 9003 respectively) will be exposed to the host.  
@@ -67,6 +66,17 @@ docker-compose exec rosetta-online bash
 ```shell
 rosetta-cli --configuration-file rosetta-cli.json check:data
 rosetta-cli --configuration-file rosetta-cli.json check:construction
+```
+
+### Start Rosetta servers using docker run
+you can also start the individual server using docker run.
+To start the rosetta-online server, run
+```shell
+docker run haneullabs/haneul-rosetta-devnet haneul-rosetta start-online-server
+```
+Alternatively, to start the rosetta-offline server, run
+```shell
+docker run haneullabs/haneul-rosetta-devnet haneul-rosetta start-offline-server
 ```
 
 ## Supported APIs
