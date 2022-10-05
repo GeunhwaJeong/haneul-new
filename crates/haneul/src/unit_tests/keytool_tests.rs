@@ -8,10 +8,7 @@ use super::write_keypair_to_file;
 use super::KeyToolCommand;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_sdk::crypto::InMemKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::get_key_pair_from_rng;
@@ -30,7 +27,7 @@ const TEST_MNEMONIC: &str = "result crisp session latin must fruit genuine quest
 #[test]
 fn test_addresses_command() -> Result<(), anyhow::Error> {
     // Add 3 Ed25519 KeyPairs as default
-    let mut keystore = Keystore::from(InMemKeystore::new(3));
+    let mut keystore = KeystoreType::InMem(3).init().unwrap();
 
     // Add another 3 Secp256k1 KeyPairs
     for _ in 0..3 {
@@ -44,7 +41,7 @@ fn test_addresses_command() -> Result<(), anyhow::Error> {
 
 #[test]
 fn test_flag_in_signature_and_keypair() -> Result<(), anyhow::Error> {
-    let mut keystore = Keystore::from(InMemKeystore::new(0));
+    let mut keystore = KeystoreType::InMem(0).init().unwrap();
 
     keystore.add_key(HaneulKeyPair::Secp256k1HaneulKeyPair(get_key_pair().1))?;
     keystore.add_key(HaneulKeyPair::Ed25519HaneulKeyPair(get_key_pair().1))?;
@@ -140,13 +137,13 @@ fn test_load_keystore_err() {
     assert!(res.is_ok());
 
     // cannot load keypair due to missing flag
-    assert!(FileBasedKeystore::new(&path2).is_err());
+    assert!(KeystoreType::File(path2).init().is_err());
 }
 
 #[test]
 fn test_mnemonics_ed25519() -> Result<(), anyhow::Error> {
     // Test case matches with /haneullabs/haneul/sdk/typescript/test/unit/cryptography/ed25519-keypair.test.ts
-    let mut keystore = Keystore::from(InMemKeystore::new(0));
+    let mut keystore = KeystoreType::InMem(0).init().unwrap();
     KeyToolCommand::Import {
         mnemonic_phrase: TEST_MNEMONIC.to_string(),
         key_scheme: SignatureScheme::ED25519,
@@ -171,7 +168,7 @@ fn test_mnemonics_ed25519() -> Result<(), anyhow::Error> {
 #[test]
 fn test_mnemonics_secp256k1() -> Result<(), anyhow::Error> {
     // Test case generated from https://microbitcoinorg.github.io/mnemonic/ with path m/54'/8282'/0'/0/0
-    let mut keystore = Keystore::from(InMemKeystore::new(0));
+    let mut keystore = KeystoreType::InMem(0).init().unwrap();
     KeyToolCommand::Import {
         mnemonic_phrase: TEST_MNEMONIC.to_string(),
         key_scheme: SignatureScheme::Secp256k1,
@@ -195,7 +192,7 @@ fn test_mnemonics_secp256k1() -> Result<(), anyhow::Error> {
 
 #[test]
 fn test_invalid_derivation_path() -> Result<(), anyhow::Error> {
-    let mut keystore = Keystore::from(InMemKeystore::new(0));
+    let mut keystore = KeystoreType::InMem(0).init().unwrap();
     assert!(KeyToolCommand::Import {
         mnemonic_phrase: TEST_MNEMONIC.to_string(),
         key_scheme: SignatureScheme::ED25519,
@@ -241,7 +238,7 @@ fn test_invalid_derivation_path() -> Result<(), anyhow::Error> {
 
 #[test]
 fn test_valid_derivation_path() -> Result<(), anyhow::Error> {
-    let mut keystore = Keystore::from(InMemKeystore::new(0));
+    let mut keystore = KeystoreType::InMem(0).init().unwrap();
     assert!(KeyToolCommand::Import {
         mnemonic_phrase: TEST_MNEMONIC.to_string(),
         key_scheme: SignatureScheme::ED25519,

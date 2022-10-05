@@ -5,7 +5,7 @@ use std::str::FromStr;
 use sha3::{Digest, Sha3_256};
 use tempfile::TempDir;
 
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::crypto::{SignatureScheme, HaneulSignatureInner};
 use haneul_types::{
     base_types::{HaneulAddress, HANEUL_ADDRESS_LENGTH},
@@ -15,13 +15,13 @@ use haneul_types::{
 fn mnemonic_test() {
     let temp_dir = TempDir::new().unwrap();
     let keystore_path = temp_dir.path().join("haneul.keystore");
-    let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path).unwrap());
+    let mut keystore = KeystoreType::File(keystore_path).init().unwrap();
     let (address, phrase, scheme) = keystore
         .generate_new_key(SignatureScheme::ED25519, None)
         .unwrap();
 
     let keystore_path_2 = temp_dir.path().join("haneul2.keystore");
-    let mut keystore2 = Keystore::from(FileBasedKeystore::new(&keystore_path_2).unwrap());
+    let mut keystore2 = KeystoreType::File(keystore_path_2).init().unwrap();
     let imported_address = keystore2
         .import_from_mnemonic(&phrase, SignatureScheme::ED25519, None)
         .unwrap();
@@ -37,7 +37,7 @@ fn haneul_wallet_address_mnemonic_test() -> Result<(), anyhow::Error> {
 
     let temp_dir = TempDir::new().unwrap();
     let keystore_path = temp_dir.path().join("haneul.keystore");
-    let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path).unwrap());
+    let mut keystore = KeystoreType::File(keystore_path).init().unwrap();
 
     keystore
         .import_from_mnemonic(phrase, SignatureScheme::ED25519, None)

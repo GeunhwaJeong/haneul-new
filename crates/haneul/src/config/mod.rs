@@ -5,8 +5,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::fmt::{Display, Formatter, Write};
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::base_types::*;
 
 pub use haneul_config::Config;
@@ -18,7 +17,7 @@ use haneul_sdk::ClientType;
 #[serde_as]
 #[derive(Serialize, Deserialize)]
 pub struct HaneulClientConfig {
-    pub keystore: Keystore,
+    pub keystore: KeystoreType,
     pub client_type: ClientType,
     pub active_address: Option<HaneulAddress>,
 }
@@ -32,7 +31,7 @@ impl Display for HaneulClientConfig {
         writeln!(
             writer,
             "Managed addresses : {}",
-            self.keystore.addresses().len()
+            self.keystore.init().unwrap().addresses().len()
         )?;
         write!(writer, "Active address: ")?;
         match self.active_address {

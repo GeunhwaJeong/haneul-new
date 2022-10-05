@@ -19,7 +19,6 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_json_rpc_types::HaneulObjectRead;
 use haneul_json_rpc_types::{HaneulParsedTransactionResponse, HaneulTransactionResponse};
-use haneul_sdk::crypto::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -94,11 +93,7 @@ pub async fn publish_basics_package(context: &WalletContext, sender: HaneulAddre
             .await
             .unwrap();
 
-        let signature = context
-            .config
-            .keystore
-            .sign(&sender, &data.to_bytes())
-            .unwrap();
+        let signature = context.keystore.sign(&sender, &data.to_bytes()).unwrap();
         Transaction::new(data, signature)
     };
 
@@ -144,11 +139,7 @@ pub async fn submit_move_transaction(
         .await
         .unwrap();
 
-    let signature = context
-        .config
-        .keystore
-        .sign(&sender, &data.to_bytes())
-        .unwrap();
+    let signature = context.keystore.sign(&sender, &data.to_bytes()).unwrap();
     let tx = Transaction::new(data, signature);
     let tx_digest = tx.digest();
     debug!(?tx_digest, "submitting move transaction");
@@ -242,11 +233,11 @@ pub async fn transfer_haneul(
     receiver: Option<HaneulAddress>,
 ) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
     let sender = match sender {
-        None => context.config.keystore.addresses().get(0).cloned().unwrap(),
+        None => context.keystore.addresses().get(0).cloned().unwrap(),
         Some(addr) => addr,
     };
     let receiver = match receiver {
-        None => context.config.keystore.addresses().get(1).cloned().unwrap(),
+        None => context.keystore.addresses().get(1).cloned().unwrap(),
         Some(addr) => addr,
     };
     let gas_ref = get_gas_object_with_wallet_context(context, &sender)
@@ -274,8 +265,8 @@ pub async fn transfer_haneul(
 pub async fn transfer_coin(
     context: &mut WalletContext,
 ) -> Result<(ObjectID, HaneulAddress, HaneulAddress, TransactionDigest), anyhow::Error> {
-    let sender = context.config.keystore.addresses().get(0).cloned().unwrap();
-    let receiver = context.config.keystore.addresses().get(1).cloned().unwrap();
+    let sender = context.keystore.addresses().get(0).cloned().unwrap();
+    let receiver = context.keystore.addresses().get(1).cloned().unwrap();
 
     let object_refs = context
         .client
@@ -340,11 +331,7 @@ pub async fn delete_devnet_nft(
         MAX_GAS,
     );
 
-    let signature = context
-        .config
-        .keystore
-        .sign(sender, &data.to_bytes())
-        .unwrap();
+    let signature = context.keystore.sign(sender, &data.to_bytes()).unwrap();
     let tx = Transaction::new(data, signature);
 
     context

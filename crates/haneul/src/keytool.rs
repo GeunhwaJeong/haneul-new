@@ -13,7 +13,7 @@ use signature::rand_core::OsRng;
 use tracing::info;
 
 use fastcrypto::ed25519::{Ed25519KeyPair, Ed25519PrivateKey, Ed25519PublicKey};
-use haneul_sdk::crypto::{AccountKeystore, Keystore};
+use haneul_sdk::crypto::HaneulKeystore;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{decode_bytes_hex, encode_bytes_hex};
 use haneul_types::crypto::{
@@ -68,7 +68,7 @@ pub enum KeyToolCommand {
 }
 
 impl KeyToolCommand {
-    pub fn execute(self, keystore: &mut Keystore) -> Result<(), anyhow::Error> {
+    pub fn execute(self, keystore: &mut HaneulKeystore) -> Result<(), anyhow::Error> {
         match self {
             KeyToolCommand::Generate {
                 key_scheme,

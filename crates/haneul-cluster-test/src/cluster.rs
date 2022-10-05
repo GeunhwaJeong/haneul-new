@@ -9,9 +9,7 @@ use haneul::config::HaneulClientConfig;
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::Config;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_swarm::memory::Node;
 use haneul_swarm::memory::Swarm;
@@ -287,9 +285,11 @@ pub async fn new_wallet_context_from_cluster(
     let rpc_url = cluster.rpc_url();
     info!("Use gateway: {}", &rpc_url);
     let keystore_path = temp_dir.path().join(HANEUL_KEYSTORE_FILENAME);
-    let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path).unwrap());
+    let keystore = KeystoreType::File(keystore_path);
     let address: HaneulAddress = key_pair.public().into();
     keystore
+        .init()
+        .unwrap()
         .add_key(HaneulKeyPair::Ed25519HaneulKeyPair(key_pair))
         .unwrap();
     HaneulClientConfig {

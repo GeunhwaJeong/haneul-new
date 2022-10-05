@@ -7,13 +7,11 @@ use crate::console::start_console;
 use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
 use crate::haneul_move::{self, execute_move_command};
-use fastcrypto::traits::KeyPair;
 use move_package::BuildConfig;
 use std::io::{stderr, stdout, Write};
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
-use haneul_types::base_types::HaneulAddress;
 
 use anyhow::{anyhow, bail};
 use clap::*;
@@ -26,10 +24,10 @@ use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
     HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_sdk::crypto::KeystoreType;
 use haneul_sdk::ClientType;
 use haneul_swarm::memory::Swarm;
-use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};
+use haneul_types::crypto::{KeypairTraits, SignatureScheme, HaneulKeyPair};
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Parser)]
@@ -249,11 +247,11 @@ impl HaneulCommand {
                         .build()
                 };
 
-                let mut keystore = FileBasedKeystore::new(&keystore_path)?;
+                let mut keystore = KeystoreType::File(keystore_path.clone()).init().unwrap();
+
                 for key in &network_config.account_keys {
                     keystore.add_key(HaneulKeyPair::Ed25519HaneulKeyPair(key.copy()))?;
                 }
-                let active_address: Option<HaneulAddress> = Some(keystore.addresses()[0]);
 
                 network_config.genesis.save(&genesis_path)?;
                 for validator in &mut network_config.validator_configs {
@@ -265,6 +263,9 @@ impl HaneulCommand {
                 info!("Network config file is stored in {:?}.", network_path);
 
                 info!("Client keystore is stored in {:?}.", keystore_path);
+
+                // Use the first address if any
+                let active_address = keystore.keys().get(0).map(|k| k.into());
 
                 let validator_set = network_config.validator_set();
 
@@ -283,7 +284,7 @@ impl HaneulCommand {
                 };
 
                 let wallet_config = HaneulClientConfig {
-                    keystore: Keystore::from(keystore),
+                    keystore: KeystoreType::File(keystore_path),
                     client_type: ClientType::Embedded(wallet_gateway_config),
                     active_address,
                 };
@@ -311,7 +312,7 @@ impl HaneulCommand {
             HaneulCommand::KeyTool { keystore_path, cmd } => {
                 let keystore_path =
                     keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
-                let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+                let mut keystore = KeystoreType::File(keystore_path).init()?;
                 cmd.execute(&mut keystore)
             }
             HaneulCommand::Console { config } => {
@@ -362,7 +363,7 @@ impl HaneulCommand {
 
 // Sync all accounts on start up.
 async fn sync_accounts(context: &mut WalletContext) -> Result<(), anyhow::Error> {
-    for address in context.config.keystore.addresses().clone() {
+    for address in context.keystore.addresses().clone() {
         HaneulClientCommands::SyncClientState {
             address: Some(address),
         }
@@ -405,13 +406,14 @@ async fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Erro
                 .parent()
                 .unwrap_or(&haneul_config_dir()?)
                 .join(HANEUL_KEYSTORE_FILENAME);
-            let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+            let keystore = KeystoreType::File(keystore_path);
             println!("Select key scheme to generate keypair (0 for ed25519, 1 for secp256k1):");
             let key_scheme = match SignatureScheme::from_flag(read_line()?.trim()) {
                 Ok(s) => s,
                 Err(e) => return Err(anyhow!("{e}")),
             };
-            let (new_address, phrase, scheme) = keystore.generate_new_key(key_scheme, None)?;
+            let (new_address, phrase, scheme) =
+                keystore.init()?.generate_new_key(key_scheme, None)?;
             println!(
                 "Generated new keypair for address with scheme {:?} [{new_address}]",
                 scheme.to_string()

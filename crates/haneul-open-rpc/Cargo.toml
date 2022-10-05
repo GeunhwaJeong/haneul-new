@@ -25,7 +25,6 @@ haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-types = { path = "../haneul-types" }
-haneul-sdk = { path = "../haneul-sdk" }
 haneul-config = { path = "../haneul-config" }
 test-utils = { path = "../test-utils" }
 rand = "0.8.5"

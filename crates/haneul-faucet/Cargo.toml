@@ -28,7 +28,6 @@ haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
-haneul-sdk = { path = "../haneul-sdk" }
 telemetry-subscribers.workspace = true
 workspace-hack.workspace = true
 

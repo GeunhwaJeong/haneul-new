@@ -11,9 +11,7 @@ use haneul_json_rpc::api::{
     RpcGatewayApiClient, RpcReadApiClient, RpcTransactionBuilderClient, WalletSyncApiClient,
 };
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulTransactionResponse, TransactionBytes};
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_sdk::crypto::KeystoreType;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::gas_coin::GAS;
@@ -54,7 +52,7 @@ async fn test_public_transfer_object() -> Result<(), anyhow::Error> {
         .await?;
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
-    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let keystore = KeystoreType::File(keystore_path).init()?;
 
     let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
     let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
@@ -93,7 +91,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
         .await?;
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
-    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let keystore = KeystoreType::File(keystore_path).init()?;
     let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
 
     let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
@@ -141,7 +139,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
         .await?;
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
-    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let keystore = KeystoreType::File(keystore_path).init()?;
 
     let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
 
@@ -194,7 +192,7 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
             .await?;
 
         let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
-        let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+        let keystore = KeystoreType::File(keystore_path).init()?;
 
         let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
 
