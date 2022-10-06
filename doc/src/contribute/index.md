@@ -1,78 +1,69 @@
 ---
-title: Contributing to Haneul
+title: Contribute to Haneul
 ---
 
-This page describes how to add to Haneul. If you merely need to get the Haneul binaries, follow [Install Haneul](../build/install.md).
+This page describes how to contribute to Haneul, and provides additional information about participating in the Haneul community.
 
-This site is available in two versions in the menu at top left: the default and stable [Devnet](https://docs.haneul.io/devnet/learn) branch and the [Latest build](https://docs.haneul.io/learn) upstream `main` branch. Use the `devnet` version for app development on top of Haneul. Use the Latest build `main` branch for contributing to the Haneul blockchain as described on this page. Always check and submit fixes to the `main` branch.
-
-Find answers to common questions in our [FAQ](../contribute/faq.md). Read other sub-pages in this section for ways to contribute to Haneul.
+You can find answers to common questions in our [FAQ](../contribute/faq.md).
 
 ## See our roadmap
 
-Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) for the
-overall status of Haneul, including timelines for launching Devnet, Testnet, and Mainnet.
+Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) for the planned updates over the next 30 days.
 
 ## Join the community
 
 To connect with the Haneul community, join our [Discord](https://discord.gg/haneul).
 
-## File issues
+## Open issues
 
-Report bugs and make feature requests in the [Haneul GitHub](https://github.com/GeunhwaJeong/haneul/issues) repository
-using the [Template for Reporting Issues](https://github.com/GeunhwaJeong/haneul/blob/main/ISSUES.md).
+To report an issue with Haneul, [create an issue](https://github.com/GeunhwaJeong/haneul/issues/new/choose) in the GitHub repo. Click **Get started** to open a template for the type of issue to create.
 
-## Help docs
 
-### Ideas
-Send ideas to:
-doc@haneul-labs.com
+## Updates to docs
 
-Or report them in the [#docs](https://discord.com/channels/916379725201563759/1001562806862233701) channel of Discord.
+To request an update to a specific topic, click the **Source Code** link near the bottom of the page to open the source file in the GitHub repo. To submit a request, first choose the **Latest build** version of the doc site. This opens the main branch of the repo, which may contain a newer version of the topic than the one on **Devnet**.
 
-### Issues
-And file documentation fixes or requests for improvement at:
-https://github.com/GeunhwaJeong/haneul/issues/new/choose
+Click **Edit this file**, make your changes, and then click **Propose changes** to create a pull request that includes your changes in a new branch.
 
-Select the **Haneul Doc Bug** template, adjust fields, and describe the issue.
+## Install Haneul to contribute
 
-### Updates
+To contribute to Haneul source code or documentation, you need only a GitHub account. You can commit updates and then submit a PR directly from the Github website, or create a fork of the repo to your local environment and use your favorite tools to make changes. Always submit PRs to the `main` branch.
 
-You may also make changes to the docs directly in GitHub right here using the **Source Code** link below. Make sure you are in the `main` rather than `devnet` branch by being on the [Latest build](https://docs.haneul.io/learn) upstream view as described at the top of this page.
+### Create a fork
 
-Simply edit the file in question and generate a pull request. You may even use our [Haneul doc templates](https://github.com/GeunhwaJeong/haneul/tree/main/doc/template) to create overviews and procedures (uses).
+First, create a fork of the Haneul Labs Haneul repo in your own account so that you can work with your own copy.
 
-Then send your work our way. We will get back to you shortly.
+**To create a fork using the website**
 
-## Download Haneul
+1. Log in to your Github account.
+1. Browse to the [Haneul repo](https://github.com/GeunhwaJeong/haneul) on GitHub.
+1. Choose **Fork** in the top-right, then choose **Create new fork**.
+1. For **Owner**, select your username.
+1. For **Repository name**, we suggest keeping the name haneul, but you can use any name. 
+1. Optional. To contribute you need only the main branch of the repo. To include all branches, unselect the checkbox for **Copy the `main` branch only**.
+1. Click **Create fork**.
 
-In order to obtain the Haneul source code, follow the steps to download (`git clone`) the `haneul` repository
-at [Install Haneul](../build/install.md#source-code).
+### Clone your fork
 
-And see the Rust [Crates](https://doc.rust-lang.org/rust-by-example/crates.html) in use at:
-* https://haneullabs.github.io/haneul/ - the Haneul blockchain
-* https://haneullabs.github.io/narwhal/ - the Narwhal and Bullshark consensus engine
-* https://haneullabs.github.io/haneullabs-infra/ - Haneul Labs infrastructure
+Next, clone your fork of the repo to your local workspace.
 
-## Send pull requests
+**To clone your fork to your local workspace**
+1. Open the GitHub page for your fork of the repo, then click **Sync fork**.
+1. Click **Code**, then click **HTTPS** and copy the web URL displayed.
+1. Open a terminal session and navigate to the folder to use, then run the following command, replacing the URL with the URL you copied from the Git page:
 
-Start by creating your own fork of the repo:
-```bash
-$ gh repo fork https://github.com/GeunhwaJeong/haneul.git # or alternatively, clone your fork
-cargo install --path haneul/haneul # put Haneul CLI's in your PATH
-cd haneul
-cargo build --all --all-targets # check that build works
-cargo test # check that tests pass
-```
+`git clone https://github.com/github-user-name/haneul.git`
 
-To submit your pull request:
+The repo is automatically cloned into the `haneul` folder in your workspace.
+Create a branch of your fork with following command (or follow the [GitHub topic on branching](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository))
 
-1. Make your changes in a descriptively named branch.
-2. If you have added code that should be tested, add unit tests.
-3. Ensure your code builds and passes the tests: `cargo test`
-4. Make sure your code passes the linters and autoformatter: `cargo clippy --all --all-targets && cargo fmt --all`
-5. If you have made changes to APIs, update the relevant documentation, and build and test the developer site.
-6. Run `git push -f origin <branch_name>`, then open a pull request from the Haneul GitHub site.
+`Git checkout -b your-branch-name`
+
+Use the following command to set the [remote upstream repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork):
+
+`git remote add upstream https://github.com/GeunhwaJeong/haneul.git`
+
+You now have a fork of the Haneul repo set up in your local workspace. You can make changes to the files in the workspace, add commits, then push your changes to your fork of the repo to then create a Pull Request.
 
 ## Further reading
 

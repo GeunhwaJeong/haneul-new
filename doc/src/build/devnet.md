@@ -2,19 +2,21 @@
 title: Connect to Haneul Devnet
 ---
 
-Welcome to the Haneul Devnet. We are hosting a public Devnet for the community to experiment with our tech and help to shape the future of the Haneul network. It exists to gain operational experience with the Haneul software in a public setting prior to our Mainnet launch.
+We are hosting a public Devnet for the community to experiment with Haneul and provide feedback to help to shape the future of the Haneul network.
 
-The Haneul Devnet currently consists of:
+The Haneul Devnet network currently consists of:
 
-* A four-validator network with all nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: gateway.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
+* Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: gateway.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
 * A public network [Haneul Explorer](https://explorer.devnet.haneul.io) for browsing transaction history.
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
-Many improvements to the Haneul Devnet are underway, such as the ability to run full nodes and use a browser-based wallet. See the [Haneul Devnet blog post](https://medium.com/haneullabs-labs/haneul-devnet-public-release-a2be304ff36b) announcement for full details on upcoming features. All Devnet usage is subject to our [terms of service](https://haneul.io/terms/).
+Watch for update announcements in the [#devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) Discord channel.
+
+See the [terms of service](https://haneul.io/terms/) for using the Devnet network.
 
 ## Tools
 
-We provide the following tools for users to interact with the Haneul Devnet:
+We provide the following tools for users to interact with Haneul Devnet:
 
 * The [Haneul command line interface (CLI)](../build/cli-client.md)
     * create and manage your private keys
@@ -38,9 +40,7 @@ $ which haneul
 ```
 You should see the path to the command. Otherwise, reinstall.
 
-> **Tip:** To reliably test Devnet with the latest Haneul binaries, re-install them at least weekly.
-
-In addition, to conduct advanced work such as publishing a Move module or making a Move call, also obtain the [Haneul source code](../build/install.md#source-code); for simplicity, we recommend installing in `~/haneul` or using an environment variable.
+> **Tip:** Check the [Haneul Releases](https://github.com/GeunhwaJeong/haneul/releases) page to make sure you have the latest release.
 
 ## Configure the Haneul client
 
@@ -58,11 +58,9 @@ Type `y` and then press `Enter`. You should see the following output:
 ```shell
 Haneul RPC server Url (Default to Haneul Devnet if not specified) :
 ```
-The Haneul client will prompt for the RPC server URL; press 'Enter' and it will default to Devnet.
-Or enter a custom URL to connect to a server hosted elsewhere.
+The Haneul client prompts you for the RPC server URL; press 'Enter' and it defaults to Devnet. You can also enter a custom URL to connect to a custom RPC endpoint.
 
-If you have used the Haneul client before with a local network, you will have an existing `client.yaml` configuration
-file needing update. Change the configured RPC server URL to Devnet by using:
+If you previously installed a Haneul client with a local network, modify your existing  `client.yaml` to change the RPC endpoint with the following command:
 ```shell
 $ haneul client switch --rpc https://gateway.devnet.haneul.io:443
 ```

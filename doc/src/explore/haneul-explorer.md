@@ -1,22 +1,20 @@
 ---
-title: Use Haneul Explorer
+title: Haneul Explorer
 ---
 
-The [Haneul Explorer](https://explorer.devnet.haneul.io/) lets you view data about transactions and activity on the Haneul network. In addition to viewing activity on the network, you can use the Explorer to:
+[Haneul Explorer](https://explorer.devnet.haneul.io/) lets you view data about transactions and activity on the Haneul network. In addition to viewing activity on the network, you can use the Explorer to:
  * View up-to-date information about the activity and metrics on the Haneul network.
  * Look up, verify, and track your assets and contracts.
  * Utilize fast, reliable, and transparent debugging and auditing data to help identify and resolve issues. 
  * Get go-to-definition support for all smart contracts, referred to as packages in Haneul.
- * View validators and geographic locations of currently active fullnodes.
+ * View validators and geographic locations of currently active full nodes.
 
 ## Choose a network
+
 When you start Haneul Explorer, it displays the transactions for the Devnet network by default. You can also use the Explorer to view data for a local network running in your environment or a custom RPC endpoint URL. Use the drop-down menu at the top-right of the page to choose a different network.
 
-![Choose a network](../../static/explorer-choose-network.png "Choose a network")
-
-*Choose a network for Haneul Explorer*
-
 ## Finding your transaction
+
 You can search for the transactions using an address, object ID, or transaction ID. For example, you can search for your wallet address to confirm a transaction or view additional details about a transaction you’ve approved. See [Haneul Wallet](../explore/wallet-browser.md) to learn how to create a wallet.  
 
 **To search for a transaction made using the Haneul Wallet**
@@ -29,22 +27,19 @@ You can search for the transactions using an address, object ID, or transaction 
 The Explorer displays the **Address** details page for your wallet address. You should see the same transaction in Explorer that you see in your wallet history. Click on a transaction to view the details for it.
 
 ## Explorer start page
-When you open the Haneul Explorer, the page displays the transactions and top validators on the network. The **Transactions** table lists the most recent transaction first.
 
-![Explorer start page](../../static/explorer-start-page.png "Haneul Explorer start page")
-*The page displayed when you open Haneul Explorer*
+When you open Haneul Explorer, the page displays the transactions and top validators on the network. The **Transactions** table lists the most recent transaction first.
 
 The **Top Validators** table lists the top validators on the network and includes a map showing the geographic locations of all nodes on the network.
 
 Click **More Transactions** to open the **Transactions** page and view all of the transactions on the network.
 
 ## Transactions
+
 The **Transactions** page lists all transactions on the network. You can display 20, 40, or 60 rows of transactions per page. Use the drop-down near the bottom-right corner of the page to change the number of rows displayed per page. Use the page selector icons at the bottom of the page to view more transactions.
 
-![Explorer Transactions page](../../static/explorer-transactions-page.png "Haneuln Explorer Transactions page")
-*The Haneul Explorer Transactions page*
-
 ### Transaction table columns
+
 The **Transactions** table on the page includes the following columns:
  * **Time** - The time at which the transaction occurred.
  * **Type** - The type of transaction, one of Call, TransferHaneul, TransferObject, or Publish.
@@ -58,7 +53,7 @@ The **Transactions** table on the page includes the following columns:
  * **Amount** - The number of coins and coin type used for the transaction.
  * **Gas** - the amount of Haneul used to pay for the gas required to complete the transaction.
 
-You can click on a value in the **Transaction ID** or **Addresses** column to open a details page for the transaction or address. When you click a transaction ID, the page that opens depends on the type of transaction. Haneul Eplorer provides the following detail pages:
+You can click on a value in the **Transaction ID** or **Addresses** column to open a details page for the transaction or address. When you click a transaction ID, the page that opens depends on the type of transaction. Haneul Explorer provides the following detail pages:
  * [Transaction details](#transaction-details-pages) for each transaction type
      * TransferHaneul
      * TransferObject
@@ -70,10 +65,8 @@ You can click on a value in the **Transaction ID** or **Addresses** column to op
  * [Package details](#package-details-page)
 
 ## Transaction details
-When you click a **Transaction ID**, a details page opens. The page title reflects the transaction type, and the fields displayed vary depending on the transaction type. If you don’t see one of the fields, it is because it is not available for the selected transaction type. For example, a TransferHaneul transaction does not include an **Events** tab.
 
-![Explorer Transaction details](../../static/explorer-transaction-details-page.png "Haneul Explorer Transaction details page for a TransferObject transaction")
-*The Haneul Explorer Transaction details page*
+When you click a **Transaction ID**, a details page opens. The page title reflects the transaction type, and the fields displayed vary depending on the transaction type. If you don’t see one of the fields, it is because it is not available for the selected transaction type. For example, a TransferHaneul transaction does not include an **Events** tab.
 
 The transaction details pages include the following tabs:
  * **Details** - Provides additional details about the transaction.
@@ -104,10 +97,8 @@ The **Signatures** tab includes the following fields:
  * **Validator Signatures** - The signatures from the validators that validated the transaction.
 
 ## Object details
-When you click on an object ID displayed on a transaction details page it opens a page that displays the details for the object, such as the transactions associated with the object.
 
-![Explorer Object details](../../static/explorer-object-details-page.png "Haneul Explorer Object details page")
-*The Haneul Explorer Object details page*
+When you click on an object ID displayed on a transaction details page it opens a page that displays the details for the object, such as the transactions associated with the object.
 
 The page includes the following details:
 
@@ -122,10 +113,8 @@ The page includes the following details:
 **Transactions** - The same information as the **Transactions** page, but limited to the transactions associated with the object.
 
 ## Address details
-The **Address** details page lets you view details about a specific address, including assets owned by the address and transactions that interacted with the address.
 
-![Explorer Address details](../../static/explorer-address-details-page.png "Haneul Explorer Address details page")
-*The Haneul Explorer Address details page*
+The **Address** details page lets you view details about a specific address, including assets owned by the address and transactions that interacted with the address.
 
 The **Address** details page includes the following fields:
  * **Owned objects** - The objects owned by the address, such as coins.
@@ -134,10 +123,8 @@ The **Address** details page includes the following fields:
  * **Transactions** - Click to view more detailed information about each transaction.
 
 ## Package details
-The **Package** details page displays the object ID, version, and publisher of the package. It also shows the modules used, including the code for each.
 
-![Explorer Package details](../../static/explorer-package-details-page.png "Haneul Explorer Package details")
-*The Haneul Explorer Package details page*
+The **Package** details page displays the object ID, version, and publisher of the package. It also shows the modules used, including the code for each.
 
 The **Package** details page includes the following fields:
  * **Details**
