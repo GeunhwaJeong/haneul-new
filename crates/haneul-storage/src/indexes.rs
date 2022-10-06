@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Haneul Labs, Inc.
+// Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 //! IndexStore supports creation of various ancillary indexes of state in HaneulDataStore.

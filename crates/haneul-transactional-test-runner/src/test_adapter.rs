@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Haneul Labs, Inc.
+// Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 //! This module contains the transactional test runner instantiation for the Haneul adapter
