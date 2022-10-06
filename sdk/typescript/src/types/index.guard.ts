@@ -289,11 +289,11 @@ export function isHaneulMoveNormalizedType(obj: any, _argumentName?: string): ob
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isHaneulMoveNormalizedStructType(obj.Reference) as boolean ||
+            isHaneulMoveNormalizedType(obj.Reference) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isHaneulMoveNormalizedStructType(obj.MutableReference) as boolean ||
+            isHaneulMoveNormalizedType(obj.MutableReference) as boolean ||
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
@@ -324,7 +324,7 @@ export function isHaneulMoveNormalizedStructType(obj: any, _argumentName?: strin
         isTransactionDigest(obj.Struct.name) as boolean &&
         Array.isArray(obj.Struct.type_arguments) &&
         obj.Struct.type_arguments.every((e: any) =>
-            isHaneulMoveNormalizedTypeParameterType(e) as boolean
+            isHaneulMoveNormalizedType(e) as boolean
         )
     )
 }

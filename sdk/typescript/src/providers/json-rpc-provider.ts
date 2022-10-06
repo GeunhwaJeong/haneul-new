@@ -88,61 +88,63 @@ export class JsonRpcProvider extends Provider {
 
   // Move info
   async getMoveFunctionArgTypes(
-    objectId: string,
+    packageId: string,
     moduleName: string,
     functionName: string
   ): Promise<HaneulMoveFunctionArgTypes> {
     try {
       return await this.client.requestWithType(
         'haneul_getMoveFunctionArgTypes',
-        [objectId, moduleName, functionName],
+        [packageId, moduleName, functionName],
         isHaneulMoveFunctionArgTypes,
         this.skipDataValidation
       );
     } catch (err) {
       throw new Error(
-        `Error fetching Move function arg types with package object ID: ${objectId}, module name: ${moduleName}, function name: ${functionName}`
+        `Error fetching Move function arg types with package object ID: ${packageId}, module name: ${moduleName}, function name: ${functionName}`
       );
     }
   }
 
   async getNormalizedMoveModulesByPackage(
-    objectId: string
+    packageId: string
   ): Promise<HaneulMoveNormalizedModules> {
     // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModulesByPackage',
-        [objectId],
+        [packageId],
         isHaneulMoveNormalizedModules,
         this.skipDataValidation
       );
     } catch (err) {
-      throw new Error(`Error fetching package: ${err} for package ${objectId}`);
+      throw new Error(
+        `Error fetching package: ${err} for package ${packageId}`
+      );
     }
   }
 
   async getNormalizedMoveModule(
-    objectId: string,
+    packageId: string,
     moduleName: string
   ): Promise<HaneulMoveNormalizedModule> {
     // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModule',
-        [objectId, moduleName],
+        [packageId, moduleName],
         isHaneulMoveNormalizedModule,
         this.skipDataValidation
       );
     } catch (err) {
       throw new Error(
-        `Error fetching module: ${err} for package ${objectId}, module ${moduleName}}`
+        `Error fetching module: ${err} for package ${packageId}, module ${moduleName}}`
       );
     }
   }
 
   async getNormalizedMoveFunction(
-    objectId: string,
+    packageId: string,
     moduleName: string,
     functionName: string
   ): Promise<HaneulMoveNormalizedFunction> {
@@ -150,32 +152,32 @@ export class JsonRpcProvider extends Provider {
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveFunction',
-        [objectId, moduleName, functionName],
+        [packageId, moduleName, functionName],
         isHaneulMoveNormalizedFunction,
         this.skipDataValidation
       );
     } catch (err) {
       throw new Error(
-        `Error fetching function: ${err} for package ${objectId}, module ${moduleName} and function ${functionName}}`
+        `Error fetching function: ${err} for package ${packageId}, module ${moduleName} and function ${functionName}}`
       );
     }
   }
 
   async getNormalizedMoveStruct(
-    objectId: string,
+    packageId: string,
     moduleName: string,
     structName: string
   ): Promise<HaneulMoveNormalizedStruct> {
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveStruct',
-        [objectId, moduleName, structName],
+        [packageId, moduleName, structName],
         isHaneulMoveNormalizedStruct,
         this.skipDataValidation
       );
     } catch (err) {
       throw new Error(
-        `Error fetching struct: ${err} for package ${objectId}, module ${moduleName} and struct ${structName}}`
+        `Error fetching struct: ${err} for package ${packageId}, module ${moduleName} and struct ${structName}}`
       );
     }
   }

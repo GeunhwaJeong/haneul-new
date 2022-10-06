@@ -98,8 +98,8 @@ export type HaneulMoveAbilitySet = {
 export type HaneulMoveNormalizedType =
   | string
   | HaneulMoveNormalizedTypeParameterType
-  | { Reference: HaneulMoveNormalizedStructType }
-  | { MutableReference: HaneulMoveNormalizedStructType }
+  | { Reference: HaneulMoveNormalizedType }
+  | { MutableReference: HaneulMoveNormalizedType }
   | { Vector: HaneulMoveNormalizedType }
   | HaneulMoveNormalizedStructType;
 
@@ -112,7 +112,7 @@ export type HaneulMoveNormalizedStructType = {
     address: string;
     module: string;
     name: string;
-    type_arguments: HaneulMoveNormalizedTypeParameterType[];
+    type_arguments: HaneulMoveNormalizedType[];
   };
 };
 
@@ -276,7 +276,7 @@ export function getMovePackageContent(
 
 export function extractMutableReference(
   normalizedType: HaneulMoveNormalizedType
-): HaneulMoveNormalizedStructType | undefined {
+): HaneulMoveNormalizedType | undefined {
   return typeof normalizedType === 'object' &&
     'MutableReference' in normalizedType
     ? normalizedType.MutableReference
@@ -285,7 +285,7 @@ export function extractMutableReference(
 
 export function extractReference(
   normalizedType: HaneulMoveNormalizedType
-): HaneulMoveNormalizedStructType | undefined {
+): HaneulMoveNormalizedType | undefined {
   return typeof normalizedType === 'object' && 'Reference' in normalizedType
     ? normalizedType.Reference
     : undefined;
@@ -298,9 +298,15 @@ export function extractStructTag(
     return normalizedType;
   }
 
-  return (
-    (extractReference(normalizedType) ||
-      extractMutableReference(normalizedType)) ??
-    undefined
-  );
+  const ref = extractReference(normalizedType);
+  const mutRef = extractMutableReference(normalizedType);
+
+  if (typeof ref === 'object' && 'Struct' in ref) {
+    return ref;
+  }
+
+  if (typeof mutRef === 'object' && 'Struct' in mutRef) {
+    return mutRef;
+  }
+  return undefined;
 }

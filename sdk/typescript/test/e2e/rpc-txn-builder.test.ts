@@ -7,7 +7,6 @@ import {
   getExecutionStatusType,
   getObjectId,
   RawSigner,
-  HaneulObjectInfo,
 } from '../../src';
 import {
   DEFAULT_GAS_BUDGET,
