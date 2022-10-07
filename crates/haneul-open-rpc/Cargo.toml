@@ -21,6 +21,7 @@ tokio = { version = "1.20.1", features = ["full"] }
 hyper = { version = "0.14.20", features = ["full"] }
 
 haneul = { path = "../haneul" }
+haneul-core = { path = "../haneul-core"}
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-json = { path = "../haneul-json" }

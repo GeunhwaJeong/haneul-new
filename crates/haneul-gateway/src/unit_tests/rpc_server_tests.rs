@@ -5,6 +5,7 @@ use move_package::BuildConfig;
 use std::{path::Path, str::FromStr};
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_core::gateway_state::GatewayTxSeqNumber;
+use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::api::{
@@ -17,7 +18,6 @@ use haneul_sdk::crypto::Keystore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::Transaction;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
@@ -55,10 +55,7 @@ async fn test_public_transfer_object() -> Result<(), anyhow::Error> {
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
     let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-
-    let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
-    let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
-
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
     let (tx_bytes, sig_scheme, signature_bytes, pub_key) = tx.to_network_data_for_execution();
 
     let tx_response = http_client
@@ -94,10 +91,7 @@ async fn test_publish() -> Result<(), anyhow::Error> {
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
     let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-    let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
-
-    let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
-
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
     let (tx_bytes, sig_scheme, signature_bytes, pub_key) = tx.to_network_data_for_execution();
 
     let tx_response = http_client
@@ -142,10 +136,7 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
 
     let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
     let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-
-    let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
-
-    let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
 
     let (tx_bytes, sig_scheme, signature_bytes, pub_key) = tx.to_network_data_for_execution();
 
@@ -195,10 +186,8 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
 
         let keystore_path = test_network.network.dir().join(HANEUL_KEYSTORE_FILENAME);
         let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-
-        let signature = keystore.sign(address, &transaction_bytes.tx_bytes.to_vec()?)?;
-
-        let tx = Transaction::new(transaction_bytes.to_data().unwrap(), signature);
+        let tx =
+            to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
 
         let (tx_bytes, sig_scheme, signature_bytes, pub_key) = tx.to_network_data_for_execution();
 

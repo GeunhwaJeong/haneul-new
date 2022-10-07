@@ -39,21 +39,20 @@ use std::{
 use haneul_adapter::in_memory_storage::InMemoryStorage;
 use haneul_adapter::temporary_store::TemporaryStore;
 use haneul_adapter::{adapter::new_move_vm, genesis};
-use haneul_core::execution_engine;
+use haneul_core::{execution_engine, test_utils::to_sender_signed_transaction};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
         HANEUL_ADDRESS_LENGTH,
     },
-    crypto::{get_key_pair_from_rng, AccountKeyPair, Signature},
+    crypto::{get_key_pair_from_rng, AccountKeyPair},
     event::Event,
     gas,
     messages::{ExecutionStatus, InputObjects, Transaction, TransactionData, TransactionEffects},
     object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
-
 pub(crate) type FakeID = u64;
 
 // initial value for fake object ID mapping
@@ -449,8 +448,7 @@ impl<'a> HaneulTestAdapter<'a> {
         let storage_mut = Arc::get_mut(&mut self.storage).unwrap();
         storage_mut.insert_object(gas_object);
         let data = txn_data(sender, gas_payment);
-        let signature = Signature::new(&data, sender_key);
-        Transaction::new(data, signature)
+        to_sender_signed_transaction(data, sender_key)
     }
 
     fn execute_txn(

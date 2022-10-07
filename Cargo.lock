@@ -8243,6 +8243,7 @@ dependencies = [
  "serde_json",
  "haneul",
  "haneul-config",
+ "haneul-core",
  "haneul-json",
  "haneul-json-rpc",
  "haneul-json-rpc-types",

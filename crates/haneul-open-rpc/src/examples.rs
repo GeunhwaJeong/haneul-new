@@ -13,6 +13,7 @@ use serde_json::json;
 use haneul::client_commands::EXAMPLE_NFT_DESCRIPTION;
 use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
+use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
@@ -488,9 +489,14 @@ impl RpcExampleProvider {
         );
 
         let data = TransactionData::new_transfer(recipient, object_ref, signer, gas_ref, 1000);
-        let signature = Signature::new(&data, &kp);
-        let tx = Transaction::new(data.clone(), signature.clone());
-        let tx_digest = tx.digest();
+        let data1 = data.clone();
+        let data2 = data.clone();
+
+        let tx = to_sender_signed_transaction(data, &kp);
+        let tx1 = tx.clone();
+        let signature = tx.signed_data.tx_signature;
+
+        let tx_digest = tx1.digest();
         let haneul_event = HaneulEvent::TransferObject {
             package_id: ObjectID::from_hex_literal("0x2").unwrap(),
             transaction_module: String::from("native"),
@@ -509,7 +515,7 @@ impl RpcExampleProvider {
         let result = HaneulTransactionResponse {
             certificate: HaneulCertifiedTransaction {
                 transaction_digest: *tx_digest,
-                data: HaneulTransactionData::try_from(data.clone()).unwrap(),
+                data: HaneulTransactionData::try_from(data1).unwrap(),
                 tx_signature: signature.clone(),
                 auth_sign_info: AuthorityQuorumSignInfo {
                     epoch: 0,
@@ -551,7 +557,7 @@ impl RpcExampleProvider {
             parsed_data: None,
         };
 
-        (data, signature, recipient, obj_id, result, events)
+        (data2, signature, recipient, obj_id, result, events)
     }
 
     fn get_events_by_transaction(&mut self) -> Examples {

@@ -8,13 +8,13 @@ use strum_macros::Display;
 use strum_macros::EnumString;
 use haneul_adapter::temporary_store::TemporaryStore;
 use haneul_core::authority::AuthorityState;
+use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_core::transaction_input_checker;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::AccountKeyPair;
-use haneul_types::crypto::Signature as HaneulSignature;
 use haneul_types::error::HaneulResult;
 use haneul_types::gas::start_gas_metering;
 use haneul_types::gas::GasCostSummary;
@@ -22,7 +22,6 @@ use haneul_types::gas::HaneulGas;
 use haneul_types::gas::MAX_GAS_BUDGET;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::SingleTransactionKind;
-use haneul_types::messages::Transaction;
 use haneul_types::messages::TransactionData;
 use haneul_types::messages::TransactionKind;
 
@@ -138,8 +137,7 @@ pub async fn estimate_transaction_computation_cost(
 ) -> anyhow::Result<GasCostSummary> {
     // Make a dummy transaction
     let (_, keypair): (_, AccountKeyPair) = get_key_pair();
-    let dummy_sig = HaneulSignature::new(&tx_data, &keypair);
-    let tx = Transaction::new(tx_data, dummy_sig);
+    let tx = to_sender_signed_transaction(tx_data, &keypair);
 
     let (_gas_status, input_objects) =
         transaction_input_checker::check_transaction_input(&state.db(), &tx).await?;
