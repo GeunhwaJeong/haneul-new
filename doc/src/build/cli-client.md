@@ -19,8 +19,8 @@ Follow the instructions to [install Haneul binaries](install.md#binaries).
 ## Genesis
 
 The `genesis` command creates four validators and five user accounts
-each with five gas objects. These are Haneul [objects](objects.md) used
-to pay for Haneul [transactions](transactions.md#transaction-metadata),
+each with five gas objects. These are Haneul [objects](../learn/objects.md) used
+to pay for Haneul [transactions](../learn/transactions.md#transaction-metadata),
 such other object transfers or smart contract (Move) calls. These
 numbers represent a sample configuration and have been chosen somewhat
 arbitrarily; the process of generating the genesis state can be
