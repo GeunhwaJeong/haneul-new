@@ -35,6 +35,7 @@ use slip10_ed25519::derive_ed25519_private_key;
 use crate::base_types::{AuthorityName, HaneulAddress};
 use crate::committee::{Committee, EpochId};
 use crate::error::{HaneulError, HaneulResult};
+use crate::intent::{Intent, IntentMessage};
 use crate::haneul_serde::{AggrAuthSignature, Base64, Readable, HaneulBitmap};
 pub use enum_dispatch::enum_dispatch;
 
@@ -429,6 +430,19 @@ pub trait HaneulAuthoritySignature {
     fn verify<T>(&self, value: &T, author: AuthorityPublicKeyBytes) -> Result<(), HaneulError>
     where
         T: Signable<Vec<u8>>;
+
+    fn verify_secure<T>(
+        &self,
+        value: &T,
+        intent: Intent,
+        author: AuthorityPublicKeyBytes,
+    ) -> Result<(), HaneulError>
+    where
+        T: Serialize;
+
+    fn new_secure<T>(value: &T, intent: Intent, secret: &dyn signature::Signer<Self>) -> Self
+    where
+        T: Serialize;
 }
 
 impl HaneulAuthoritySignature for AuthoritySignature {
@@ -460,6 +474,39 @@ impl HaneulAuthoritySignature for AuthoritySignature {
             .verify(&message, self)
             .map_err(|error| HaneulError::InvalidSignature {
                 error: error.to_string(),
+            })
+    }
+
+    fn new_secure<T>(value: &T, intent: Intent, secret: &dyn signature::Signer<Self>) -> Self
+    where
+        T: Serialize,
+    {
+        secret.sign(
+            &bcs::to_bytes(&IntentMessage::new(intent, value))
+                .expect("Message serialization should not fail"),
+        )
+    }
+
+    fn verify_secure<T>(
+        &self,
+        value: &T,
+        intent: Intent,
+        author: AuthorityPublicKeyBytes,
+    ) -> Result<(), HaneulError>
+    where
+        T: Serialize,
+    {
+        let message = bcs::to_bytes(&IntentMessage::new(intent, value))
+            .expect("Message serialization should not fail");
+        let public_key = AuthorityPublicKey::try_from(author).map_err(|_| {
+            HaneulError::KeyConversionError(
+                "Failed to serialize public key bytes to valid public key".to_string(),
+            )
+        })?;
+        public_key
+            .verify(&message[..], self)
+            .map_err(|e| HaneulError::InvalidSignature {
+                error: format!("{}", e),
             })
     }
 }
@@ -719,6 +766,20 @@ impl Signature {
         value.write(&mut message);
         secret.sign(&message)
     }
+
+    pub fn new_secure<T>(
+        value: &T,
+        intent: Intent,
+        secret: &dyn signature::Signer<Signature>,
+    ) -> Self
+    where
+        T: Serialize,
+    {
+        secret.sign(
+            &bcs::to_bytes(&IntentMessage::new(intent, value))
+                .expect("Message serialization should not fail"),
+        )
+    }
 }
 
 impl AsRef<[u8]> for Signature {
@@ -933,6 +994,10 @@ pub trait HaneulSignature: Sized + signature::Signature {
     where
         T: Signable<Vec<u8>>;
 
+    fn verify_secure<T>(&self, value: &T, intent: Intent, author: HaneulAddress) -> HaneulResult<()>
+    where
+        T: Serialize;
+
     fn add_to_verification_obligation_or_verify(
         &self,
         author: HaneulAddress,
@@ -963,8 +1028,26 @@ impl<S: HaneulSignatureInner + Sized> HaneulSignature for S {
         let mut message = Vec::new();
         value.write(&mut message);
         pk.verify(&message[..], sig)
-            .map_err(|_| HaneulError::InvalidSignature {
-                error: "hello".to_string(),
+            .map_err(|e| HaneulError::InvalidSignature {
+                error: format!("{}", e),
+            })
+    }
+
+    fn verify_secure<T>(
+        &self,
+        value: &T,
+        intent: Intent,
+        author: HaneulAddress,
+    ) -> Result<(), HaneulError>
+    where
+        T: Serialize,
+    {
+        let message = bcs::to_bytes(&IntentMessage::new(intent, value))
+            .expect("Message serialization should not fail");
+        let (sig, pk) = &self.get_verification_inputs(author)?;
+        pk.verify(&message[..], sig)
+            .map_err(|e| HaneulError::InvalidSignature {
+                error: format!("{}", e),
             })
     }
 
