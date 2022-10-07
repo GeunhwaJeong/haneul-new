@@ -11,6 +11,6 @@ declare namespace Cypress {
         task(
             name: 'mint',
             address?: string
-        ): Chainable<import('@haneullabs/haneul.js').HaneulTransactionResponse>;
+        ): Chainable<import('@haneullabs/haneul.js').HaneulExecuteTransactionResponse>;
     }
 }
