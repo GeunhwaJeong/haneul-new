@@ -443,7 +443,7 @@ pub enum HaneulError {
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
 
 // TODO these are both horribly wrong, categorization needs to be considered
-impl std::convert::From<PartialVMError> for HaneulError {
+impl From<PartialVMError> for HaneulError {
     fn from(error: PartialVMError) -> Self {
         HaneulError::ModuleVerificationFailure {
             error: error.to_string(),
@@ -451,13 +451,13 @@ impl std::convert::From<PartialVMError> for HaneulError {
     }
 }
 
-impl std::convert::From<ExecutionError> for HaneulError {
+impl From<ExecutionError> for HaneulError {
     fn from(error: ExecutionError) -> Self {
         HaneulError::ExecutionError(error.to_string())
     }
 }
 
-impl std::convert::From<VMError> for HaneulError {
+impl From<VMError> for HaneulError {
     fn from(error: VMError) -> Self {
         HaneulError::ModuleVerificationFailure {
             error: error.to_string(),
@@ -465,7 +465,7 @@ impl std::convert::From<VMError> for HaneulError {
     }
 }
 
-impl std::convert::From<SubscriberError> for HaneulError {
+impl From<SubscriberError> for HaneulError {
     fn from(error: SubscriberError) -> Self {
         HaneulError::HandleConsensusTransactionFailure(error.to_string())
     }
@@ -483,7 +483,7 @@ impl From<ExecutionErrorKind> for HaneulError {
     }
 }
 
-impl std::convert::From<&str> for HaneulError {
+impl From<&str> for HaneulError {
     fn from(error: &str) -> Self {
         HaneulError::GenericAuthorityError {
             error: error.to_string(),

@@ -344,7 +344,7 @@ impl HaneulParsedTransactionResponse {
 }
 
 impl Display for HaneulParsedTransactionResponse {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             HaneulParsedTransactionResponse::Publish(r) => r.fmt(f),
             HaneulParsedTransactionResponse::MergeCoin(r) => r.fmt(f),
@@ -367,7 +367,7 @@ pub enum HaneulExecuteTransactionResponse {
         certificate: HaneulCertifiedTransaction,
         effects: HaneulCertifiedTransactionEffects,
         // If the transaction is confirmed to be executed locally
-        // before this reponse.
+        // before this response.
         confirmed_local_execution: bool,
     },
 }
@@ -414,7 +414,7 @@ pub struct HaneulParsedSplitCoinResponse {
 }
 
 impl Display for HaneulParsedSplitCoinResponse {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "{}", "----- Split Coin Results ----".bold())?;
 
@@ -446,7 +446,7 @@ pub struct HaneulParsedMergeCoinResponse {
 }
 
 impl Display for HaneulParsedMergeCoinResponse {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "{}", "----- Merge Coin Results ----".bold())?;
 
@@ -532,7 +532,7 @@ impl From<ObjectRef> for HaneulObjectRef {
 }
 
 impl Display for HaneulParsedObject {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let type_ = if self.data.type_().is_some() {
             "Move Object"
         } else {
@@ -916,7 +916,7 @@ pub struct HaneulParsedPublishResponse {
 }
 
 impl Display for HaneulParsedPublishResponse {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "{}", "----- Publish Results ----".bold())?;
         writeln!(
@@ -1399,7 +1399,7 @@ pub struct HaneulTransactionData {
 }
 
 impl Display for HaneulTransactionData {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         if self.transactions.len() == 1 {
             writeln!(writer, "{}", self.transactions.first().unwrap())?;
@@ -1455,7 +1455,7 @@ pub enum HaneulTransactionKind {
 }
 
 impl Display for HaneulTransactionKind {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         match &self {
             Self::TransferObject(t) => {
@@ -1601,7 +1601,7 @@ pub struct HaneulCertifiedTransaction {
 }
 
 impl Display for HaneulCertifiedTransaction {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "Transaction Hash: {:?}", self.transaction_digest)?;
         writeln!(writer, "Transaction Signature: {:?}", self.tx_signature)?;
@@ -1639,7 +1639,7 @@ pub struct HaneulCertifiedTransactionEffects {
 }
 
 impl Display for HaneulCertifiedTransactionEffects {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(
             writer,
@@ -1744,7 +1744,7 @@ impl HaneulTransactionEffects {
 }
 
 impl Display for HaneulTransactionEffects {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "Status : {:?}", self.status)?;
         if !self.created.is_empty() {
