@@ -7,8 +7,6 @@ import {
     isHaneulMoveObject,
 } from '@haneullabs/haneul.js';
 
-import { HaneulIcons } from '_font-icons/output/haneul-icons';
-
 import type {
     ObjectId,
     HaneulObject,
@@ -31,18 +29,6 @@ export const GAS_SYMBOL = 'HANEUL';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
 export const HANEUL_SYSTEM_STATE_OBJECT_ID =
     '0x0000000000000000000000000000000000000005';
-
-// List of all supported coins
-// TODO: Extend this list as needed
-// Supported coins icons should be included
-export const SUPPORTED_COINS_LIST = [
-    {
-        coinName: 'HANEUL Coin',
-        coinSymbol: GAS_SYMBOL,
-        coinType: GAS_TYPE_ARG,
-        coinIconName: HaneulIcons.HaneulLogoIcon,
-    },
-];
 
 // TODO use sdk
 export class Coin {
