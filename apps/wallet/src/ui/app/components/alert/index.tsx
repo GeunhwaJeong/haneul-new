@@ -4,7 +4,7 @@
 import cl from 'classnames';
 import { memo } from 'react';
 
-import Icon from '_components/icon';
+import Icon, { HaneulIcons } from '_components/icon';
 
 import type { ReactNode } from 'react';
 
@@ -18,7 +18,7 @@ export type AlertProps = {
 function Alert({ children, className }: AlertProps) {
     return (
         <div className={cl(st.container, st.error, className)}>
-            <Icon className={st.icon} icon="exclamation-circle" />
+            <Icon className={st.icon} icon={HaneulIcons.Info} />
             <div className={st.message}>{children}</div>
         </div>
     );
