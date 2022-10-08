@@ -10,6 +10,7 @@ import CopyToClipboard from '_components/copy-to-clipboard';
 import Icon, { HaneulIcons } from '_components/icon';
 import Loading from '_components/loading';
 import { useAppDispatch } from '_hooks';
+import CardLayout from '_pages/initialize/shared/card-layout';
 import { loadMnemonicFromKeyring } from '_redux/slices/account';
 
 import st from './Backup.module.scss';
@@ -36,7 +37,7 @@ const BackupPage = () => {
         })();
     }, [dispatch]);
     return (
-        <div className={st.walletCreated}>
+        <CardLayout>
             <div className={st.successIcon}>
                 <div className={st.successBg}>
                     <Icon icon={HaneulIcons.ThumbsUp} className={st.thumbsUp} />
@@ -79,7 +80,7 @@ const BackupPage = () => {
                 Open Haneul Wallet
                 <Icon icon={HaneulIcons.ArrowLeft} className={st.arrowUp} />
             </Button>
-        </div>
+        </CardLayout>
     );
 };
 
