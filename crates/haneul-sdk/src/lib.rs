@@ -4,8 +4,9 @@
 use std::fmt::{Debug, Write};
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use futures::StreamExt;
 use futures_core::Stream;
 use jsonrpsee::core::client::{ClientT, Subscription};
@@ -15,7 +16,10 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
-use rpc_types::{GetPastObjectDataResponse, HaneulExecuteTransactionResponse};
+use rpc_types::{
+    GetPastObjectDataResponse, HaneulCertifiedTransaction, HaneulExecuteTransactionResponse,
+    HaneulParsedTransactionResponse, HaneulTransactionEffects,
+};
 pub use haneul_config::gateway;
 use haneul_config::gateway::GatewayConfig;
 use haneul_core::gateway_state::{GatewayClient, GatewayState};
@@ -23,10 +27,8 @@ pub use haneul_json as json;
 use haneul_json_rpc::api::EventStreamingApiClient;
 use haneul_json_rpc::api::RpcBcsApiClient;
 use haneul_json_rpc::api::RpcFullNodeReadApiClient;
-use haneul_json_rpc::api::RpcGatewayApiClient;
 use haneul_json_rpc::api::RpcReadApiClient;
 use haneul_json_rpc::api::TransactionExecutionApiClient;
-use haneul_json_rpc::api::WalletSyncApiClient;
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope,
@@ -36,6 +38,7 @@ pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::Transaction;
 use types::base_types::SequenceNumber;
+use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use types::messages::ExecuteTransactionRequestType;
 
 use crate::transaction_builder::TransactionBuilder;
@@ -43,6 +46,18 @@ use crate::transaction_builder::TransactionBuilder;
 // re-export essential haneul crates
 pub mod crypto;
 mod transaction_builder;
+
+const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 10;
+
+#[derive(Debug)]
+pub struct TransactionExecutionResult {
+    pub tx_digest: TransactionDigest,
+    pub tx_cert: Option<HaneulCertifiedTransaction>,
+    pub effects: Option<HaneulTransactionEffects>,
+    pub confirmed_local_execution: bool,
+    pub timestamp_ms: Option<u64>,
+    pub parsed_data: Option<HaneulParsedTransactionResponse>,
+}
 
 pub struct HaneulClient {
     api: Arc<HaneulClientApi>,
@@ -405,43 +420,147 @@ pub struct QuorumDriver {
 }
 
 impl QuorumDriver {
+    /// Execute a transaction with a FullNode client or embedded Gateway.
+    /// `request_type` is ignored when the client is an embedded Gateway.
+    /// For Fullnode client, `request_type` defaults to
+    /// `ExecuteTransactionRequestType::WaitForLocalExecution`.
+    /// When `ExecuteTransactionRequestType::WaitForLocalExecution` is used,
+    /// but returned `confirmed_local_execution` is false, the client polls
+    /// the fullnode untils the fullnode recognizes this transaction, or
+    /// until times out (see WAIT_FOR_TX_TIMEOUT_SEC). If it times out, an
+    /// error is returned from this call.
     pub async fn execute_transaction(
         &self,
         tx: Transaction,
-    ) -> anyhow::Result<HaneulTransactionResponse> {
+        request_type: Option<ExecuteTransactionRequestType>,
+    ) -> anyhow::Result<TransactionExecutionResult> {
         Ok(match &*self.api {
             HaneulClientApi::Rpc(c) => {
                 let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
-                RpcGatewayApiClient::execute_transaction(
-                    &c.http, tx_bytes, flag, signature, pub_key,
-                )
-                .await?
-            }
-            HaneulClientApi::Embedded(c) => c.execute_transaction(tx).await?,
-        })
-    }
-
-    pub async fn execute_transaction_by_fullnode(
-        &self,
-        tx: Transaction,
-        request_type: ExecuteTransactionRequestType,
-    ) -> anyhow::Result<HaneulExecuteTransactionResponse> {
-        Ok(match &*self.api {
-            HaneulClientApi::Rpc(c) => {
-                let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
-                TransactionExecutionApiClient::execute_transaction(
+                let request_type =
+                    request_type.unwrap_or(ExecuteTransactionRequestType::WaitForLocalExecution);
+                let resp = TransactionExecutionApiClient::execute_transaction(
                     &c.http,
                     tx_bytes,
                     flag,
                     signature,
                     pub_key,
-                    request_type,
+                    request_type.clone(),
                 )
-                .await?
+                .await?;
+
+                match (request_type, resp) {
+                    (
+                        ExecuteTransactionRequestType::ImmediateReturn,
+                        HaneulExecuteTransactionResponse::ImmediateReturn { tx_digest },
+                    ) => TransactionExecutionResult {
+                        tx_digest,
+                        tx_cert: None,
+                        effects: None,
+                        confirmed_local_execution: false,
+                        timestamp_ms: None,
+                        parsed_data: None,
+                    },
+                    (
+                        ExecuteTransactionRequestType::WaitForTxCert,
+                        HaneulExecuteTransactionResponse::TxCert { certificate },
+                    ) => TransactionExecutionResult {
+                        tx_digest: certificate.transaction_digest,
+                        tx_cert: Some(certificate),
+                        effects: None,
+                        confirmed_local_execution: false,
+                        timestamp_ms: None,
+                        parsed_data: None,
+                    },
+                    (
+                        ExecuteTransactionRequestType::WaitForEffectsCert,
+                        HaneulExecuteTransactionResponse::EffectsCert {
+                            certificate,
+                            effects,
+                            confirmed_local_execution,
+                        },
+                    ) => TransactionExecutionResult {
+                        tx_digest: certificate.transaction_digest,
+                        tx_cert: Some(certificate),
+                        effects: Some(effects.effects),
+                        confirmed_local_execution,
+                        timestamp_ms: None,
+                        parsed_data: None,
+                    },
+                    (
+                        ExecuteTransactionRequestType::WaitForLocalExecution,
+                        HaneulExecuteTransactionResponse::EffectsCert {
+                            certificate,
+                            effects,
+                            confirmed_local_execution,
+                        },
+                    ) => {
+                        if !confirmed_local_execution {
+                            Self::wait_until_fullnode_sees_tx(c, certificate.transaction_digest)
+                                .await?;
+                        }
+                        TransactionExecutionResult {
+                            tx_digest: certificate.transaction_digest,
+                            tx_cert: Some(certificate),
+                            effects: Some(effects.effects),
+                            confirmed_local_execution,
+                            timestamp_ms: None,
+                            parsed_data: None,
+                        }
+                    }
+                    (other_request_type, other_resp) => {
+                        bail!(
+                            "Invalid response type {:?} for request type: {:?}",
+                            other_resp,
+                            other_request_type
+                        );
+                    }
+                }
             }
             // TODO do we want to support an embedded quorum driver?
-            HaneulClientApi::Embedded(_c) => unimplemented!(),
+            HaneulClientApi::Embedded(c) => {
+                let resp = c.execute_transaction(tx).await?;
+                TransactionExecutionResult {
+                    tx_digest: resp.certificate.transaction_digest,
+                    tx_cert: Some(resp.certificate),
+                    effects: Some(resp.effects),
+                    confirmed_local_execution: true,
+                    timestamp_ms: resp.timestamp_ms,
+                    parsed_data: resp.parsed_data,
+                }
+            }
         })
+    }
+
+    async fn wait_until_fullnode_sees_tx(
+        c: &RpcClient,
+        tx_digest: TransactionDigest,
+    ) -> anyhow::Result<()> {
+        let start = Instant::now();
+        loop {
+            let resp = RpcReadApiClient::get_transaction(&c.http, tx_digest).await;
+            if let Err(err) = resp {
+                if err.to_string().contains(TRANSACTION_NOT_FOUND_MSG_PREFIX) {
+                    tokio::time::sleep(Duration::from_millis(300)).await;
+                } else {
+                    // immediately return on other types of errors
+                    bail!(
+                        "Encountered error when confirming tx status for {:?}, err: {:?}",
+                        tx_digest,
+                        err
+                    );
+                }
+            } else {
+                return Ok(());
+            }
+            if start.elapsed().as_secs() >= WAIT_FOR_TX_TIMEOUT_SEC {
+                bail!(
+                    "Failed to confirm tx status for {:?} within {} seconds.",
+                    tx_digest,
+                    WAIT_FOR_TX_TIMEOUT_SEC
+                );
+            }
+        }
     }
 }
 
@@ -450,10 +569,8 @@ pub struct WalletSyncApi(Arc<HaneulClientApi>);
 impl WalletSyncApi {
     pub async fn sync_account_state(&self, address: HaneulAddress) -> anyhow::Result<()> {
         match &*self.0 {
-            HaneulClientApi::Rpc(c) => {
-                if c.is_gateway() {
-                    c.http.sync_account_state(address).await?
-                }
+            HaneulClientApi::Rpc(_) => {
+                unimplemented!("Rpc HaneulClient does not support WalletSyncApi");
             }
             HaneulClientApi::Embedded(c) => c.sync_account_state(address).await?,
         }

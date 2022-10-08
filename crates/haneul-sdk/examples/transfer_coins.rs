@@ -10,10 +10,11 @@ use haneul_sdk::{
     },
     HaneulClient,
 };
+use haneul_types::messages::ExecuteTransactionRequestType;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
@@ -37,7 +38,10 @@ async fn main() -> Result<(), anyhow::Error> {
     // Execute the transaction
     let transaction_response = haneul
         .quorum_driver()
-        .execute_transaction(Transaction::new(transfer_tx, signature))
+        .execute_transaction(
+            Transaction::new(transfer_tx, signature),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
         .await?;
 
     println!("{:?}", transaction_response);

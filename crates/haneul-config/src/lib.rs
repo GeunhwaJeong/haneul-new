@@ -29,7 +29,7 @@ pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
 pub const HANEUL_KEYSTORE_FILENAME: &str = "haneul.keystore";
 pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.yaml";
 pub const HANEUL_GENESIS_FILENAME: &str = "genesis.blob";
-pub const HANEUL_DEV_NET_URL: &str = "https://gateway.devnet.haneul.io:443";
+pub const HANEUL_DEV_NET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 
 pub const AUTHORITIES_DB_NAME: &str = "authorities_db";
 pub const CONSENSUS_DB_NAME: &str = "consensus_db";

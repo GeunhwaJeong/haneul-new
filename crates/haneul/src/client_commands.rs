@@ -22,12 +22,12 @@ use tracing::info;
 use haneul_framework::build_move_package_to_bytes;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, HaneulExecuteTransactionResponse, HaneulObjectInfo, HaneulParsedObject,
-    HaneulTransactionResponse,
+    GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_sdk::crypto::AccountKeystore;
+use haneul_sdk::TransactionExecutionResult;
 use haneul_sdk::{ClientType, HaneulClient};
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::haneul_serde::{Base64, Encoding};
@@ -755,43 +755,43 @@ impl WalletContext {
         ))
     }
 
-    /// A backward-compatible migration of transaction execution from gateway to fullnode
+    /// This function is compatible with both fullnode and an embedded gateway
     pub async fn execute_transaction(
         &self,
         tx: Transaction,
     ) -> anyhow::Result<HaneulTransactionResponse> {
         let tx_digest = *tx.digest();
-        if self.client.is_gateway() {
-            self.client.quorum_driver().execute_transaction(tx).await
-        } else {
-            let result = self
-                .client
-                .quorum_driver()
-                .execute_transaction_by_fullnode(
-                    tx,
-                    haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution,
-                )
-                .await;
-            match result {
-                // TODO: if confirmed_local_execution is false, poll fullnode until it's confirmed
-                Ok(HaneulExecuteTransactionResponse::EffectsCert {
-                    certificate,
-                    effects,
-                    confirmed_local_execution: _,
-                }) => Ok(HaneulTransactionResponse {
-                    certificate,
-                    effects: effects.effects,
-                    timestamp_ms: None,
-                    parsed_data: None,
-                }),
-                Err(err) => Err(anyhow!(
-                    "Failed to execute transaction {tx_digest:?} with error {err:?}"
-                )),
-                other => Err(anyhow!(
-                    "Expect HaneulExecuteTransactionResponse::EffectsCert but got {other:?}"
-                )),
-            }
+
+        let result = self
+            .client
+            .quorum_driver()
+            .execute_transaction(
+                tx,
+                Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
+            )
+            .await;
+        match result {
+            Ok(TransactionExecutionResult {
+                tx_digest: _,
+                tx_cert,
+                effects,
+                confirmed_local_execution: _,
+                timestamp_ms,
+                parsed_data,
+            }) => Ok(HaneulTransactionResponse {
+                certificate: tx_cert.unwrap(), // check is done in execute_transaction, safe to unwrap
+                effects: effects.unwrap(), // check is done in execute_transaction, safe to unwrap
+                timestamp_ms,
+                parsed_data,
+            }),
+            Err(err) => Err(anyhow!(
+                "Failed to execute transaction {tx_digest:?} with error {err:?}"
+            )),
         }
+    }
+
+    pub fn switch_client(&mut self, new_client: HaneulClient) {
+        self.client = new_client;
     }
 }
 

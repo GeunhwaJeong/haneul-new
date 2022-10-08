@@ -31,8 +31,8 @@ use haneul_types::crypto::{AuthorityQuorumSignInfo, HaneulSignature};
 use haneul_types::event::TransferType;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CallArg, MoveCall, SingleTransactionKind, Transaction, TransactionData, TransactionKind,
-    TransferObject,
+    CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, Transaction,
+    TransactionData, TransactionKind, TransferObject,
 };
 use haneul_types::object::Owner;
 use haneul_types::haneul_serde::Base64;
@@ -188,6 +188,10 @@ impl RpcExampleProvider {
                     (
                         "pub_key",
                         json!(Base64::from_bytes(signature.public_key_bytes())),
+                    ),
+                    (
+                        "request_type",
+                        json!(ExecuteTransactionRequestType::WaitForLocalExecution),
                     ),
                 ],
                 json!(result),

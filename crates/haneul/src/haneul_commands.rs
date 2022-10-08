@@ -361,28 +361,30 @@ impl HaneulCommand {
 
 // Sync all accounts on start up.
 async fn sync_accounts(context: &mut WalletContext) -> Result<(), anyhow::Error> {
-    for address in context.config.keystore.addresses().clone() {
-        HaneulClientCommands::SyncClientState {
-            address: Some(address),
+    if context.client.is_gateway() {
+        for address in context.config.keystore.addresses().clone() {
+            HaneulClientCommands::SyncClientState {
+                address: Some(address),
+            }
+            .execute(context)
+            .await?;
         }
-        .execute(context)
-        .await?;
     }
     Ok(())
 }
 
 async fn prompt_if_no_config(wallet_conf_path: &Path) -> Result<(), anyhow::Error> {
-    // Prompt user for connect to gateway if config not exists.
+    // Prompt user for connect to devnet fullnode if config does not exist.
     if !wallet_conf_path.exists() {
         let url = match std::env::var_os("HANEUL_CONFIG_WITH_RPC_URL") {
             Some(v) => Some(v.into_string().unwrap()),
             None => {
                 print!(
-                    "Config file [{:?}] doesn't exist, do you want to connect to a Haneul RPC server [yN]?",
+                    "Config file [{:?}] doesn't exist, do you want to connect to a Haneul full node server [yN]?",
                     wallet_conf_path
                 );
                 if matches!(read_line(), Ok(line) if line.trim().to_lowercase() == "y") {
-                    print!("Haneul RPC server Url (Default to Haneul DevNet if not specified) : ");
+                    print!("Haneul full node server url (Default to Haneul DevNet if not specified) : ");
                     let url = read_line()?;
                     let url = if url.trim().is_empty() {
                         HANEUL_DEV_NET_URL
