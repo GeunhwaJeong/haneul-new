@@ -8418,6 +8418,8 @@ dependencies = [
 name = "haneul-node"
 version = "0.12.0"
 dependencies = [
+ "anemo",
+ "anemo-tower",
  "anyhow",
  "axum",
  "chrono",
@@ -8427,6 +8429,7 @@ dependencies = [
  "jemallocator",
  "multiaddr",
  "haneullabs-network",
+ "narwhal-network",
  "parking_lot 0.12.1",
  "prometheus",
  "haneul-config",
@@ -8439,6 +8442,7 @@ dependencies = [
  "haneul-types",
  "telemetry-subscribers 0.2.0",
  "tokio",
+ "tower",
  "tracing",
  "typed-store",
  "workspace-hack",
