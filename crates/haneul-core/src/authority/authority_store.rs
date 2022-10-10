@@ -150,14 +150,6 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
             .map_err(|e| e.into())
     }
 
-    /// Returns true if we have a transaction structure for this transaction digest
-    pub fn transaction_exists(&self, transaction_digest: &TransactionDigest) -> HaneulResult<bool> {
-        self.tables
-            .transactions
-            .contains_key(transaction_digest)
-            .map_err(|e| e.into())
-    }
-
     /// Returns true if there are no objects in the database
     pub fn database_is_empty(&self) -> HaneulResult<bool> {
         Ok(self
@@ -1383,6 +1375,20 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
 }
 
 impl HaneulDataStore<AuthoritySignInfo> {
+    /// Returns true if we have a transaction structure for this transaction digest
+    pub fn transaction_exists(
+        &self,
+        cur_epoch: EpochId,
+        transaction_digest: &TransactionDigest,
+    ) -> HaneulResult<bool> {
+        let tx = self.tables.transactions.get(transaction_digest)?;
+        Ok(if let Some(signed_tx) = tx {
+            signed_tx.auth_sign_info.epoch == cur_epoch
+        } else {
+            false
+        })
+    }
+
     pub fn get_signed_transaction_info(
         &self,
         transaction_digest: &TransactionDigest,
