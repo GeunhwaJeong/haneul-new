@@ -36,11 +36,11 @@ use std::{
     path::Path,
     sync::Arc,
 };
-use haneul_adapter::in_memory_storage::InMemoryStorage;
-use haneul_adapter::temporary_store::TemporaryStore;
 use haneul_adapter::{adapter::new_move_vm, genesis};
 use haneul_core::{execution_engine, test_utils::to_sender_signed_transaction};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
+use haneul_types::in_memory_storage::InMemoryStorage;
+use haneul_types::temporary_store::TemporaryStore;
 use haneul_types::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -636,7 +636,10 @@ impl<'a> HaneulTestAdapter<'a> {
 
     fn list_objs(&self, objs: &[ObjectID]) -> String {
         objs.iter()
-            .map(|id| format!("object({})", self.real_to_fake_object_id(id).unwrap()))
+            .map(|id| match self.real_to_fake_object_id(id) {
+                None => "object(_)".to_string(),
+                Some(fake) => format!("object({})", fake),
+            })
             .collect::<Vec<_>>()
             .join(", ")
     }

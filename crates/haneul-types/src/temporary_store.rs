@@ -1,25 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::{
+    base_types::{
+        ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
+    },
+    error::{ExecutionError, HaneulError, HaneulResult},
+    event::Event,
+    fp_bail,
+    gas::{GasCostSummary, HaneulGasStatus},
+    messages::{ExecutionStatus, InputObjects, TransactionEffects},
+    object::Owner,
+    object::{Data, Object},
+    storage::{
+        BackingPackageStore, DeleteKind, ObjectChange, ObjectResolver, ParentSync, Storage,
+        WriteKind,
+    },
+};
 use move_core_types::account_address::AccountAddress;
 use move_core_types::language_storage::{ModuleId, StructTag};
 use move_core_types::resolver::{ModuleResolver, ResourceResolver};
 use std::collections::BTreeMap;
-use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-};
-use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
-use haneul_types::fp_bail;
-use haneul_types::messages::{ExecutionStatus, InputObjects, TransactionEffects};
-use haneul_types::object::{Data, Object};
-use haneul_types::storage::{
-    BackingPackageStore, DeleteKind, ObjectChange, ParentSync, Storage, WriteKind,
-};
-use haneul_types::{
-    event::Event,
-    gas::{GasCostSummary, HaneulGasStatus},
-    object::Owner,
-};
 
 pub struct InnerTemporaryStore {
     pub objects: BTreeMap<ObjectID, Object>,
@@ -169,7 +170,7 @@ impl<S> TemporaryStore<S> {
     /// for the gas object mutation in advance.
     pub fn charge_gas_for_storage_changes(
         &mut self,
-        gas_status: &mut HaneulGasStatus,
+        gas_status: &mut HaneulGasStatus<'_>,
         gas_object: &mut Object,
     ) -> Result<(), ExecutionError> {
         let mut objects_to_update = vec![];
@@ -372,14 +373,7 @@ impl<S> TemporaryStore<S> {
     }
 }
 
-impl<S> Storage for TemporaryStore<S> {
-    /// Resets any mutations and deletions recorded in the store.
-    fn reset(&mut self) {
-        self._written.clear();
-        self.deleted.clear();
-        self.events.clear();
-    }
-
+impl<S> ObjectResolver for TemporaryStore<S> {
     fn read_object(&self, id: &ObjectID) -> Option<&Object> {
         // there should be no read after delete
         debug_assert!(self.deleted.get(id).is_none());
@@ -387,6 +381,15 @@ impl<S> Storage for TemporaryStore<S> {
             .get(id)
             .map(|(obj, _kind)| obj)
             .or_else(|| self.input_objects.get(id))
+    }
+}
+
+impl<S> Storage for TemporaryStore<S> {
+    /// Resets any mutations and deletions recorded in the store.
+    fn reset(&mut self) {
+        self._written.clear();
+        self.deleted.clear();
+        self.events.clear();
     }
 
     fn log_event(&mut self, event: Event) {

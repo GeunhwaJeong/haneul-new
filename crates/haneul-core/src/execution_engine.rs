@@ -4,11 +4,11 @@
 use move_core_types::ident_str;
 use move_core_types::identifier::Identifier;
 use std::{collections::BTreeSet, sync::Arc};
-#[cfg(test)]
-use haneul_adapter::temporary_store;
-use haneul_adapter::temporary_store::InnerTemporaryStore;
 use haneul_types::id::UID;
-use haneul_types::storage::{DeleteKind, ParentSync, WriteKind};
+use haneul_types::storage::{DeleteKind, ObjectResolver, ParentSync, WriteKind};
+#[cfg(test)]
+use haneul_types::temporary_store;
+use haneul_types::temporary_store::InnerTemporaryStore;
 
 use crate::authority::TemporaryStore;
 use move_core_types::language_storage::ModuleId;

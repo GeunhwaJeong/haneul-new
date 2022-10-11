@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use strum_macros::Display;
 use strum_macros::EnumString;
-use haneul_adapter::temporary_store::TemporaryStore;
 use haneul_core::authority::AuthorityState;
 use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_core::transaction_input_checker;
@@ -24,6 +23,7 @@ use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::SingleTransactionKind;
 use haneul_types::messages::TransactionData;
 use haneul_types::messages::TransactionKind;
+use haneul_types::temporary_store::TemporaryStore;
 
 const DEFAULT_COMPUTATION_GAS_UNIT_PRICE: u64 = 1;
 const DEFAULT_STORAGE_GAS_UNIT_PRICE: u64 = 1;

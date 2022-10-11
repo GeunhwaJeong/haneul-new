@@ -43,7 +43,6 @@ use std::{
     },
 };
 use haneul_adapter::adapter;
-use haneul_adapter::temporary_store::InnerTemporaryStore;
 use haneul_config::genesis::Genesis;
 use haneul_json_rpc_types::{HaneulEventEnvelope, HaneulTransactionEffects};
 use haneul_simulator::nondeterministic;
@@ -53,6 +52,7 @@ use haneul_storage::{
     IndexStore,
 };
 use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair};
+use haneul_types::temporary_store::InnerTemporaryStore;
 use haneul_types::{
     base_types::*,
     batch::{TxSequenceNumber, UpdateItem},
@@ -89,7 +89,7 @@ pub mod move_integration_tests;
 #[path = "unit_tests/gas_tests.rs"]
 mod gas_tests;
 
-pub use haneul_adapter::temporary_store::TemporaryStore;
+pub use haneul_types::temporary_store::TemporaryStore;
 
 pub mod authority_store_tables;
 
