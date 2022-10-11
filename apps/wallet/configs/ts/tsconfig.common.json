@@ -43,7 +43,10 @@
             "_utils/*": ["./src/ui/styles/utils/*"],
             "_font-icons/*": ["./font-icons/*"],
             "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
-            "@haneullabs/bcs": ["../../sdk/bcs/src/"]
+            "@haneullabs/bcs": ["../../sdk/bcs/src/"],
+            "@haneullabs/wallet-standard": [
+                "../../sdk/wallet-adapter/packages/wallet-standard/src/"
+            ]
         }
     },
     "include": ["../../src"],

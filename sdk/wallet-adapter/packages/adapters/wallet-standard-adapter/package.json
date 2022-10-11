@@ -1,7 +1,7 @@
 {
-  "name": "@haneullabs/wallet-adapter-base",
+  "name": "@haneullabs/wallet-adapter-wallet-standard",
   "version": "0.1.0",
-  "description": "Base wallet adapter for Haneul",
+  "description": "Integration of the Wallet Standard for the Haneul Wallet Adapter",
   "license": "Apache-2.0",
   "author": "Haneul Labs <build@haneul-labs.com>",
   "main": "./dist/index.js",
@@ -26,7 +26,11 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@haneullabs/haneul.js": "workspace:*"
+    "@haneullabs/haneul.js": "workspace:*",
+    "@haneullabs/wallet-adapter-base": "workspace:*",
+    "@haneullabs/wallet-standard": "workspace:*",
+    "@wallet-standard/app": "0.1.0-alpha.6",
+    "mitt": "^3.0.0"
   },
   "devDependencies": {
     "tsup": "^6.2.2",

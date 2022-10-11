@@ -14,6 +14,12 @@
       ],
       "@haneullabs/wallet-adapter-mock-wallet": [
         "./packages/adapters/mock-wallet/src"
+      ],
+      "@haneullabs/wallet-standard": [
+        "./packages/wallet-standard/src"
+      ],
+      "@haneullabs/wallet-adapter-wallet-standard": [
+        "./packages/adapters/wallet-standard-adapter/src"
       ]
     }
   },
@@ -21,9 +27,11 @@
   "references": [
     { "path": "./packages/react-providers" },
     { "path": "./packages/ui" },
+    { "path": "./packages/wallet-standard" },
     { "path": "./packages/adapters/all-wallets" },
     { "path": "./packages/adapters/base-adapter" },
     { "path": "./packages/adapters/haneul-wallet" },
-    { "path": "./packages/adapters/mock-wallet" }
+    { "path": "./packages/adapters/mock-wallet" },
+    { "path": "./packages/adapters/wallet-standard-adapter" }
   ]
 }

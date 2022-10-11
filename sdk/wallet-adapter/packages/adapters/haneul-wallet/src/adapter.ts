@@ -7,7 +7,7 @@ import {
   HaneulAddress,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
-import { WalletCapabilities } from "@haneullabs/wallet-adapter-base";
+import { WalletAdapter } from "@haneullabs/wallet-adapter-base";
 
 const ALL_PERMISSION_TYPES = ["viewAccount", "suggestTransactions"] as const;
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
@@ -34,8 +34,10 @@ interface HaneulWalletWindow {
 
 declare const window: HaneulWalletWindow;
 
-// Stored as state somewhere (Probably in a place with generics )
-export class HaneulWalletAdapter implements WalletCapabilities {
+/**
+ * @deprecated This wallet adapter has been replaced by the `WalletStandardAdapterProvider`.
+ */
+export class HaneulWalletAdapter implements WalletAdapter {
   connecting: boolean;
   connected: boolean;
 
@@ -58,7 +60,7 @@ export class HaneulWalletAdapter implements WalletCapabilities {
     return window.haneulWallet.signAndExecuteTransaction(transaction);
   }
 
-  name = "Haneul Wallet";
+  name = "Haneul Wallet (legacy)";
 
   async connect(): Promise<void> {
     this.connecting = true;

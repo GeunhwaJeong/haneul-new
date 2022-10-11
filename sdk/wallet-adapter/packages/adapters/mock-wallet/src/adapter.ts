@@ -6,7 +6,7 @@ import {
   HaneulAddress,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
-import { WalletCapabilities } from "@haneullabs/wallet-adapter-base";
+import { WalletAdapter } from "@haneullabs/wallet-adapter-base";
 
 const ALL_PERMISSION_TYPES = ["viewAccount", "suggestTransactions"];
 type AllPermissionsType = typeof ALL_PERMISSION_TYPES;
@@ -30,7 +30,7 @@ interface HaneulWalletWindow {
 declare const window: HaneulWalletWindow;
 
 // Stored as state somewhere (Probably in a place with generics )
-export class MockWalletAdapter implements WalletCapabilities {
+export class MockWalletAdapter implements WalletAdapter {
   connecting: boolean;
   connected: boolean;
 
