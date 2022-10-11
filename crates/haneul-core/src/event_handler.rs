@@ -6,7 +6,7 @@ use std::sync::Arc;
 use move_bytecode_utils::module_cache::SyncModuleCache;
 use haneul_json_rpc_types::HaneulMoveStruct;
 use tokio_stream::Stream;
-use tracing::{debug, error, trace};
+use tracing::{debug, error, instrument, trace};
 
 use haneul_storage::event_store::{EventStore, EventStoreType};
 use haneul_types::base_types::TransactionDigest;
@@ -42,6 +42,7 @@ impl EventHandler {
         }
     }
 
+    #[instrument(level = "debug", skip_all, fields(seq=?seq_num, tx_digest=?effects.transaction_digest), err)]
     pub async fn process_events(
         &self,
         effects: &TransactionEffects,
