@@ -13,6 +13,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use haneul_json_rpc::api::EventReadApiOpenRpc;
+use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
 use haneul_sdk::crypto::AccountKeystore;
 use haneul_types::messages::ExecuteTransactionRequestType;
@@ -26,7 +27,6 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::api::EventStreamingApiOpenRpc;
 use haneul_json_rpc::api::RpcReadApiClient;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
-use haneul_json_rpc::gateway_api::{GatewayWalletSyncApiImpl, TransactionBuilderImpl};
 use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
 use haneul_json_rpc::haneul_rpc_doc;
 use haneul_json_rpc::HaneulRpcModule;
@@ -74,14 +74,13 @@ async fn main() {
     let options = Options::parse();
 
     let mut open_rpc = haneul_rpc_doc();
-    open_rpc.add_module(TransactionBuilderImpl::rpc_doc_module());
     open_rpc.add_module(ReadApi::rpc_doc_module());
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
     open_rpc.add_module(BcsApiImpl::rpc_doc_module());
     open_rpc.add_module(EventStreamingApiOpenRpc::module_doc());
     open_rpc.add_module(EventReadApiOpenRpc::module_doc());
-    open_rpc.add_module(GatewayWalletSyncApiImpl::rpc_doc_module());
     open_rpc.add_module(FullNodeTransactionExecutionApi::rpc_doc_module());
+    open_rpc.add_module(FullNodeTransactionBuilderApi::rpc_doc_module());
 
     open_rpc.add_examples(RpcExampleProvider::new().examples());
 

@@ -29,6 +29,7 @@ use haneul_core::{
 };
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
+use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_network::api::ValidatorServer;
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
@@ -382,6 +383,7 @@ pub async fn build_http_servers(
     server.register_module(ReadApi::new(state.clone()))?;
     server.register_module(FullNodeApi::new(state.clone()))?;
     server.register_module(BcsApiImpl::new(state.clone()))?;
+    server.register_module(FullNodeTransactionBuilderApi::new(state.clone()))?;
 
     if let Some(transaction_orchestrator) = transaction_orchestrator {
         server.register_module(FullNodeTransactionExecutionApi::new(

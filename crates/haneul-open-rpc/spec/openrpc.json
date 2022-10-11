@@ -2702,32 +2702,6 @@
       }
     },
     {
-      "name": "haneul_syncAccountState",
-      "tags": [
-        {
-          "name": "Wallet Sync API"
-        }
-      ],
-      "description": "Synchronize client state with validators.",
-      "params": [
-        {
-          "name": "address",
-          "description": "the Haneul address to be synchronized",
-          "required": true,
-          "schema": {
-            "$ref": "#/components/schemas/HaneulAddress"
-          }
-        }
-      ],
-      "result": {
-        "name": "()",
-        "required": true,
-        "schema": {
-          "type": "null"
-        }
-      }
-    },
-    {
       "name": "haneul_transferObject",
       "tags": [
         {

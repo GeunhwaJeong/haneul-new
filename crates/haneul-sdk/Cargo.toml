@@ -22,6 +22,7 @@ tiny-bip39 = "1.0.0"
 bip32 = "0.4.0"
 
 haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }

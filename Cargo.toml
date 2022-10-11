@@ -30,6 +30,7 @@ members = [
     "crates/haneul-telemetry",
     "crates/haneul-test-validator",
     "crates/haneul-tool",
+    "crates/haneul-transaction-builder",
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
     "crates/haneul-verifier",

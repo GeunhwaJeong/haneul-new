@@ -7,6 +7,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, bail};
+use async_trait::async_trait;
 use futures::StreamExt;
 use futures_core::Stream;
 use jsonrpsee::core::client::{ClientT, Subscription};
@@ -34,6 +35,7 @@ use haneul_json_rpc_types::{
     GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope,
     HaneulEventFilter, HaneulObjectInfo, HaneulTransactionResponse,
 };
+use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::Transaction;
@@ -41,11 +43,8 @@ use types::base_types::SequenceNumber;
 use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use types::messages::ExecuteTransactionRequestType;
 
-use crate::transaction_builder::TransactionBuilder;
-
 // re-export essential haneul crates
 pub mod crypto;
-mod transaction_builder;
 
 const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 10;
 
@@ -653,5 +652,22 @@ impl ClientType {
                 HaneulClient::new_rpc_client(url, ws_url.as_deref()).await?
             }
         })
+    }
+}
+
+#[async_trait]
+impl DataReader for ReadApi {
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error> {
+        self.get_objects_owned_by_address(address).await
+    }
+
+    async fn get_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
+        self.get_object(object_id).await
     }
 }

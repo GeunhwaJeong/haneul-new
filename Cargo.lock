@@ -7849,6 +7849,8 @@ dependencies = [
  "bcs",
  "clap 3.2.17",
  "futures",
+ "jsonrpsee",
+ "move-core-types",
  "prometheus",
  "reqwest",
  "serde 1.0.144",
@@ -7861,6 +7863,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-sdk",
  "haneul-swarm",
+ "haneul-transaction-builder",
  "haneul-types",
  "telemetry-subscribers 0.2.0",
  "tempfile",
@@ -8157,6 +8160,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
+ "haneul-transaction-builder",
  "haneul-types",
  "tokio",
  "tracing",
@@ -8342,6 +8346,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
+ "haneul-transaction-builder",
  "haneul-types",
  "tempfile",
  "tiny-bip39",
@@ -8476,6 +8481,22 @@ dependencies = [
  "tracing",
  "typed-store",
  "typed-store-derive",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-transaction-builder"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "futures",
+ "move-core-types",
+ "haneul-adapter",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-types",
  "workspace-hack",
 ]
 

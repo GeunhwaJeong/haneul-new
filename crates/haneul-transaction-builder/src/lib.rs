@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use futures::future::join_all;
 
 use anyhow::anyhow;
@@ -13,6 +14,8 @@ use move_core_types::language_storage::TypeTag;
 
 use haneul_adapter::adapter::resolve_and_type_check;
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
+use haneul_json_rpc_types::GetRawObjectDataResponse;
+use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulData, HaneulTypeTag};
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::error::HaneulError;
@@ -25,9 +28,20 @@ use haneul_types::move_package::MovePackage;
 use haneul_types::object::Object;
 use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID};
 
-use crate::ReadApi;
+#[async_trait]
+pub trait DataReader {
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error>;
 
-pub struct TransactionBuilder(pub(crate) Arc<ReadApi>);
+    async fn get_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error>;
+}
+
+pub struct TransactionBuilder(pub Arc<dyn DataReader + Sync + Send>);
 
 impl TransactionBuilder {
     async fn select_gas(

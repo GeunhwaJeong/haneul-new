@@ -1,0 +1,22 @@
+[package]
+name = "haneul-transaction-builder"
+version = "0.0.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.64"
+async-trait = "0.1.57"
+futures = "0.3.23"
+bcs = "0.1.3"
+
+haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
+haneul-types = { path = "../haneul-types" }
+haneul-json = { path = "../haneul-json" }
+haneul-adapter =  { path = "../haneul-adapter" }
+
+move-core-types.workspace = true
+
+workspace-hack.workspace = true
