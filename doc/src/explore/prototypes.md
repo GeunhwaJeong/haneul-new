@@ -2,8 +2,7 @@
 title: Haneul Prototypes
 ---
 
-Here are two short gaming pre-alpha prototypes that demonstrate the speed, scalability, and rich interactions made possible with mutable, expressive NFTs. The first prototype [Haneul Monstars](https://haneul.io/monstar), is playable now.
-
+Here are two short gaming pre-alpha prototypes that demonstrate the speed, scalability, and rich interactions made possible with mutable, expressive NFTs.
 
 ## Haneul and gaming
 
@@ -20,12 +19,11 @@ With Haneul, we believe game developers should not be limited by the platform pe
 
 [Move](https://github.com/GeunhwaJeong/awesome-move/blob/main/README.md) is simply awesome: it’s safe, expressive and immune from reentrancy; but Move expertise is not required to build meaningful experiences on Haneul. To make it easy for developers and creators to start using Haneul for gaming, we will be releasing gaming SDKs that address common use cases and game asset-related features.
 
-
 ## How we did it
 
 Created by game development studio GenITeam, these prototypes use both the Unity SDK and Haneul [APIs](https://docs.haneul.io/haneul-jsonrpc).
 
-GenITeam’s developers who worked on this collaboration are neither smart contract nor Move developers. Based on their input, we created a data model and shared simple APIs. With these APIs, geniteam was able to mint fully on-chain NFTs that are mutable, own other on-chain assets, and freely transfer to other applications.
+GenITeam’s developers who worked on this collaboration are neither smart contract nor Move developers. Based on their input, we created a data model and shared simple APIs. With these APIs, GenITeam was able to mint fully on-chain NFTs that are mutable, own other on-chain assets, and freely transfer to other applications.
 
 This proof of concept build is meant to demonstrate the capabilities for game developers unlocked through Haneul. We look forward to seeing what the creative minds in the gaming community come up with as we unveil additional capabilities in the upcoming months. With each bug fixed we learned insights on what game developers look for in a SDK. Haneul is committed to building SDKs that are accessible for all levels of developers with varying degrees of smart contracts expertise.
 
@@ -188,9 +186,9 @@ GET /object_info?objectId={{monster_id}}
     }
 ```
 
-## Protype 1 Haneul Monstar
+## Haneul Monstar prototype
 
-The first prototype is [Haneul Monstar](https://haneul.io/monstar), a pet simulation game.
+Haneul Monstar is an example of a pet simulation game.
 
 Gameplay:
 
@@ -208,11 +206,11 @@ In Haneul Monstars, capture cute monstars and watch them get closer to you as yo
 ![Update NFT properties](../../static/nft-properties.png "Equip elemental runes to your Monstar")
 *Equip elemental runes to your Monstar and watch your NFT evolve with updated properties*
 
-That’s not all! As your Monstars become stronger, you can use them to help you battle…in the next prototype>>>
+That’s not all! As your Monstars become stronger, you can use them to help you battle in Haneul Battler.
 
-## Prototype 2 Haneul Battler
+## Haneul Battler prototype
 
-Welcome to Haneul Battler, where your cute monstars transform into warriors!
+Haneul Battler is an example game where your cute monstars transform into warriors!
 
 Gameplay:
 
@@ -235,4 +233,4 @@ Gameplay:
 ## Further reading
 
 * Check out Haneul [APIs](https://docs.haneul.io/haneul-jsonrpc).
-* Learn about Haneul [objects](../build/objects.md).
+* Learn about Haneul [objects](../learn/objects.md).
