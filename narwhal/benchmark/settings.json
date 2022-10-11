@@ -5,8 +5,8 @@
     },
     "port": 5000,
     "repo": {
-        "name": "narwhal",
-        "url": "https://github.com/GeunhwaJeong/narwhal",
+        "name": "haneul",
+        "url": "https://github.com/GeunhwaJeong/haneul",
         "branch": "main"
     },
     "instances": {
