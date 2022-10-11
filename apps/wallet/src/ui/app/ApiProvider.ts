@@ -4,7 +4,7 @@
 import { RawSigner, JsonRpcProvider } from '@haneullabs/haneul.js';
 
 import type FeatureGating from './experimentation/feature-gating';
-import type { Ed25519Keypair } from '@haneullabs/haneul.js';
+import type { Keypair } from '@haneullabs/haneul.js';
 
 export enum API_ENV {
     local = 'local',
@@ -93,7 +93,7 @@ export default class ApiProvider {
         };
     }
 
-    public getSignerInstance(keypair: Ed25519Keypair): RawSigner {
+    public getSignerInstance(keypair: Keypair): RawSigner {
         if (!this._apiFullNodeProvider) {
             this.setNewJsonRpcProvider();
         }
