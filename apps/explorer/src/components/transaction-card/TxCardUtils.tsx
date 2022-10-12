@@ -15,7 +15,6 @@ import {
     type ExecutionStatusType,
     type TransactionKindName,
 } from '@haneullabs/haneul.js';
-import BN from 'bn.js';
 
 import { DefaultRpcClient } from '../../utils/api/DefaultRpcClient';
 import { type Network } from '../../utils/api/rpcSetting';
@@ -32,17 +31,17 @@ export type TxnData = {
     txId: string;
     status: ExecutionStatusType;
     txGas: number;
-    haneulAmount: BN;
+    haneulAmount: bigint;
     kind: TransactionKindName | undefined;
     From: string;
     timestamp_ms?: number;
 };
 
-export function HaneulAmount({ amount }: { amount: BN | string | undefined }) {
+export function HaneulAmount({ amount }: { amount: bigint | string | undefined }) {
     if (amount) {
         const HaneulSuffix = <abbr className={styles.haneulsuffix}>HANEUL</abbr>;
 
-        if (BN.isBN(amount)) {
+        if (typeof amount === 'bigint') {
             return (
                 <span>
                     {presentBN(amount)}

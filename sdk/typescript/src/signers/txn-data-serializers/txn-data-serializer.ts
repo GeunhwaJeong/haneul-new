@@ -21,6 +21,11 @@ export interface TransferHaneulTransaction {
 }
 
 export interface PayTransaction {
+  /**
+   * use `provider.selectCoinSetWithCombinedBalanceGreaterThanOrEqual` to
+   * derive a minimal set of coins with combined balance greater than or
+   * equal to sent amounts
+   */
   inputCoins: ObjectId[];
   recipients: HaneulAddress[];
   amounts: number[];
