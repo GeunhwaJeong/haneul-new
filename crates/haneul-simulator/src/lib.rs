@@ -5,7 +5,10 @@
 pub use msim::*;
 
 // Re-export things used by haneul-macros
+pub use anemo;
+pub use fastcrypto;
 pub use haneul_framework;
+pub use haneul_types;
 pub use telemetry_subscribers;
 
 /// Evaluates an expression in a new thread which will not be subject to interception of

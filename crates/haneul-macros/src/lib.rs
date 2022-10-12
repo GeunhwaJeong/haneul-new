@@ -30,6 +30,33 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
                 ::haneul_simulator::haneul_framework::get_move_stdlib();
                 ::haneul_simulator::haneul_framework::get_haneul_framework();
+                ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
+
+                use ::haneul_simulator::fastcrypto::traits::KeyPair;
+
+                // anemo uses x509-parser, which has many lazy static variables. start a network to
+                // initialize all that static state before the first test.
+                let rt = ::haneul_simulator::runtime::Runtime::new();
+                rt.block_on(async move {
+                    use ::haneul_simulator::anemo::{Network, Request};
+
+                    let make_network = |port: u16| {
+                        Network::bind(format!("127.0.0.1:{}", port))
+                            .server_name("static-init-network")
+                            .private_key(
+                                ::haneul_simulator::fastcrypto::ed25519::Ed25519KeyPair::generate(&mut rand::rngs::OsRng)
+                                    .private()
+                                    .0
+                                    .to_bytes(),
+                            )
+                            .start(::haneul_simulator::anemo::Router::new())
+                            .unwrap()
+                    };
+                    let n1 = make_network(80);
+                    let n2 = make_network(81);
+
+                    let _peer = n1.connect(n2.local_addr()).await.unwrap();
+                });
             }).join().unwrap();
 
             #body
