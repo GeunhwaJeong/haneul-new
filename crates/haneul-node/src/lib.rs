@@ -31,6 +31,7 @@ use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
 use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_network::api::ValidatorServer;
+use haneul_network::default_haneullabs_network_config;
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
     node_sync_store::NodeSyncStore,
@@ -147,11 +148,7 @@ impl HaneulNode {
             )
             .await,
         );
-
-        let mut net_config = haneullabs_network::config::Config::new();
-        net_config.connect_timeout = Some(Duration::from_secs(5));
-        net_config.request_timeout = Some(Duration::from_secs(5));
-        net_config.http2_keepalive_interval = Some(Duration::from_secs(5));
+        let net_config = default_haneullabs_network_config();
 
         let haneul_system_state = state.get_haneul_system_state_object().await?;
 
@@ -175,7 +172,8 @@ impl HaneulNode {
             committee_store,
             authority_clients,
             AuthAggMetrics::new(&prometheus_registry),
-            SafeClientMetrics::new(&prometheus_registry),
+            Arc::new(SafeClientMetrics::new(&prometheus_registry)),
+            network_metrics.clone(),
         );
 
         let node_sync_store = Arc::new(NodeSyncStore::open_tables_read_write(

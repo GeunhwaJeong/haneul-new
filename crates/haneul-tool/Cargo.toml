@@ -31,6 +31,7 @@ eyre = "0.6.8"
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
+haneul-network = { path = "../haneul-network" }
 
 colored = "2.0.0"
 workspace-hack.workspace = true
