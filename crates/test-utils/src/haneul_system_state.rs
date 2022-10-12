@@ -39,6 +39,7 @@ pub fn test_staking_pool(haneul_address: HaneulAddress, epoch_starting_haneul_ba
         validator_address: haneul_address.into(),
         starting_epoch: 0,
         epoch_starting_haneul_balance,
+        epoch_starting_delegation_token_supply: 0,
         haneul_balance: 999,
         rewards_pool: Balance::new(0),
         delegation_token_supply: Supply { value: 0 },

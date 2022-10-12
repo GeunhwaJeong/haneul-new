@@ -315,6 +315,12 @@ module haneul::haneul_system {
         validator_set::validator_delegate_amount(&self.validators, validator_addr)
     }
 
+    /// Returns the amount of stake `validator_addr` has.
+    /// Aborts if `validator_addr` is not an active validator.
+    public fun validator_stake_amount(self: &HaneulSystemState, validator_addr: address): u64 {
+        validator_set::validator_stake_amount(&self.validators, validator_addr)
+    }
+
     #[test_only]
     public fun set_epoch_for_testing(self: &mut HaneulSystemState, epoch_num: u64) {
         self.epoch = epoch_num

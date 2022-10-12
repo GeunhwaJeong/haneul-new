@@ -32,6 +32,8 @@ module haneul::staking_pool {
         starting_epoch: u64,
         /// The total number of HANEUL tokens in this pool at the beginning of the current epoch.
         epoch_starting_haneul_balance: u64,
+        /// The total number of delegation tokens issued by this pool at the beginning of the current epoch.
+        epoch_starting_delegation_token_supply: u64,
         /// The total number of HANEUL tokens in this pool, including the HANEUL in the rewards_pool, as well as in all the principal
         /// in the `Delegation` object.
         haneul_balance: u64,
@@ -93,6 +95,7 @@ module haneul::staking_pool {
             validator_address,
             starting_epoch,
             epoch_starting_haneul_balance: 0,
+            epoch_starting_delegation_token_supply: 0,
             haneul_balance: 0,
             rewards_pool: balance::zero(),
             delegation_token_supply: balance::create_supply(DelegationToken {}),
@@ -112,8 +115,9 @@ module haneul::staking_pool {
             pool.haneul_balance = pool.haneul_balance + haneul_amount
         };
 
-        // Record the epoch starting balance.
+        // Record the epoch starting balances.
         pool.epoch_starting_haneul_balance = pool.haneul_balance;
+        pool.epoch_starting_delegation_token_supply = balance::supply_value(&pool.delegation_token_supply);
     }
 
     // TODO: implement rate limiting new delegations per epoch.
@@ -180,11 +184,11 @@ module haneul::staking_pool {
         let delegator = tx_context::sender(ctx);
 
         // TODO: implement withdraw bonding period here.
-        transfer::transfer(coin::from_balance(reward_withdraw, ctx), delegator);
-
         if (option::is_some(&time_lock)) {
             locked_coin::new_from_balance(principal_withdraw, option::destroy_some(time_lock), delegator, ctx);
+            transfer::transfer(coin::from_balance(reward_withdraw, ctx), delegator);
         } else {
+            balance::join(&mut principal_withdraw, reward_withdraw);
             transfer::transfer(coin::from_balance(principal_withdraw, ctx), delegator);
             option::destroy_none(time_lock);
         };
@@ -325,20 +329,22 @@ module haneul::staking_pool {
     }
 
     fun get_haneul_amount(pool: &StakingPool, token_amount: u64): u64 {
-        let token_supply_amount = balance::supply_value(&pool.delegation_token_supply);
-        if (token_supply_amount == 0) { 
+        if (pool.epoch_starting_delegation_token_supply == 0) { 
             return token_amount 
         };
-        let res = (pool.haneul_balance as u128) * (token_amount as u128) / (token_supply_amount as u128);
+        let res = (pool.epoch_starting_haneul_balance as u128) 
+                * (token_amount as u128) 
+                / (pool.epoch_starting_delegation_token_supply as u128);
         (res as u64)
     }
 
     fun get_token_amount(pool: &StakingPool, haneul_amount: u64): u64 {
-        let token_supply_amount = balance::supply_value(&pool.delegation_token_supply);
-        if (pool.haneul_balance == 0) { 
+        if (pool.epoch_starting_haneul_balance == 0) { 
             return haneul_amount
         };
-        let res = (token_supply_amount as u128) * (haneul_amount as u128) / (pool.haneul_balance as u128);
+        let res = (pool.epoch_starting_delegation_token_supply as u128) 
+                * (haneul_amount as u128)
+                / (pool.epoch_starting_haneul_balance as u128);
         (res as u64)
     }    
 }
