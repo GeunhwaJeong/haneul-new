@@ -32,7 +32,7 @@ use haneul_types::object::Object;
 use haneul_types::object::Owner;
 
 /// The maximum gas per transaction.
-pub const MAX_GAS: u64 = 10_000;
+pub const MAX_GAS: u64 = 50_000;
 
 pub fn random_object_ref() -> ObjectRef {
     (

@@ -101,7 +101,7 @@ impl FaucetClient for LocalFaucetClient {
     async fn request_haneul_coins(&self, request_address: HaneulAddress) -> FaucetResponse {
         let receipt = self
             .simple_faucet
-            .send(Uuid::new_v4(), request_address, &[50000; 5])
+            .send(Uuid::new_v4(), request_address, &[100000; 5])
             .await
             .unwrap_or_else(|err| panic!("Failed to get gas tokens with error: {}", err));
 

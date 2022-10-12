@@ -7779,6 +7779,7 @@ dependencies = [
  "move-package",
  "move-vm-runtime",
  "once_cell",
+ "haneul-cost-tables",
  "haneul-framework",
  "haneul-json",
  "haneul-types",
