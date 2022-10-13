@@ -1,5 +1,20 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.2.0
+
+### Minor Changes
+
+- 5ac98bc9a: Introduce new wallet adapter based on the Wallet Standard. This wallet adapter automatically detects wallets that adhere to the standard interface.
+
+### Patch Changes
+
+- 5ac98bc9a: Add support for standard wallet adapter.
+- Updated dependencies [5ac98bc9a]
+- Updated dependencies [5ac98bc9a]
+  - @haneullabs/wallet-adapter-haneul-wallet@0.2.0
+  - @haneullabs/wallet-adapter-mock-wallet@0.2.0
+  - @haneullabs/wallet-adapter-wallet-standard@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
