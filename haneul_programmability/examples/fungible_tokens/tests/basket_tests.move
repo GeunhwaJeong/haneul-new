@@ -5,6 +5,7 @@
 module fungible_tokens::basket_tests {
     use fungible_tokens::basket::{Self, Reserve};
     use fungible_tokens::managed::MANAGED;
+    use haneul::pay;
     use haneul::coin;
     use haneul::haneul::HANEUL;
     use haneul::test_scenario;
@@ -37,8 +38,8 @@ module fungible_tokens::basket_tests {
             assert!(coin::value(&haneul) == num_coins, 3);
             assert!(coin::value(&managed) == num_coins, 4);
 
-            coin::keep(haneul, ctx);
-            coin::keep(managed, ctx);
+            pay::keep(haneul, ctx);
+            pay::keep(managed, ctx);
             test_scenario::return_shared(reserve_val);
         };
         test_scenario::end(scenario_val);

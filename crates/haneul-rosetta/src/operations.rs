@@ -11,7 +11,7 @@ use serde_json::{json, Value};
 use serde_with::serde_as;
 use serde_with::DisplayFromStr;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::coin::{COIN_JOIN_FUNC_NAME, COIN_MODULE_NAME, COIN_SPLIT_VEC_FUNC_NAME};
+use haneul_types::coin::{PAY_JOIN_FUNC_NAME, PAY_MODULE_NAME, PAY_SPLIT_VEC_FUNC_NAME};
 use haneul_types::event::Event;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
@@ -536,8 +536,8 @@ impl HaneulAction {
                 TransactionData::new_move_call(
                     sender,
                     metadata.try_get_info(&HANEUL_FRAMEWORK_OBJECT_ID)?.into(),
-                    COIN_MODULE_NAME.to_owned(),
-                    COIN_JOIN_FUNC_NAME.to_owned(),
+                    PAY_MODULE_NAME.to_owned(),
+                    PAY_JOIN_FUNC_NAME.to_owned(),
                     type_args,
                     gas.into(),
                     vec![
@@ -560,8 +560,8 @@ impl HaneulAction {
                 TransactionData::new_move_call(
                     sender,
                     metadata.try_get_info(&HANEUL_FRAMEWORK_OBJECT_ID)?.into(),
-                    COIN_MODULE_NAME.to_owned(),
-                    COIN_SPLIT_VEC_FUNC_NAME.to_owned(),
+                    PAY_MODULE_NAME.to_owned(),
+                    PAY_SPLIT_VEC_FUNC_NAME.to_owned(),
                     type_args,
                     gas.into(),
                     vec![

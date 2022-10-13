@@ -7,12 +7,12 @@
 
 //# view-object 100
 
-//# run haneul::coin::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 10 @B --sender A
+//# run haneul::pay::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 10 @B --sender A
 
 //# view-object 100
 
 //# view-object 106
 
-//# run haneul::coin::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 0 @C --sender B
+//# run haneul::pay::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 0 @C --sender B
 
 //# view-object 100

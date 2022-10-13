@@ -18,11 +18,13 @@ import { getOption, Option } from './option';
 import { StructTag } from './haneul-bcs';
 import { isHaneulMoveObject } from './index.guard';
 
-export const COIN_PACKAGE_ID = '0x2';
-export const COIN_MODULE_NAME = 'coin';
-export const COIN_TYPE = `${COIN_PACKAGE_ID}::${COIN_MODULE_NAME}::Coin`;
-export const COIN_SPLIT_VEC_FUNC_NAME = 'split_vec';
-export const COIN_JOIN_FUNC_NAME = 'join';
+export const HANEUL_PACKAGE_ID = '0x2';
+export const COIN_TYPE = `${HANEUL_PACKAGE_ID}::coin::Coin`;
+
+// `haneul::pay` module is used for Coin management (split, join, join_and_transfer etc);
+export const PAY_MODULE_NAME = 'pay';
+export const PAY_SPLIT_COIN_VEC_FUNC_NAME = 'split_vec';
+export const PAY_JOIN_COIN_FUNC_NAME = 'join';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 
 export const HANEUL_TYPE_ARG = '0x2::haneul::HANEUL';
