@@ -1,56 +1,56 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Provider } from './provider';
-import { JsonRpcClient } from '../rpc/client';
+import {Provider} from './provider';
+import {JsonRpcClient} from '../rpc/client';
 import {
   isGetObjectDataResponse,
   isGetOwnedObjectsResponse,
   isGetTxnDigestsResponse,
-  isHaneulTransactionResponse,
-  isHaneulMoveFunctionArgTypes,
-  isHaneulMoveNormalizedModules,
-  isHaneulMoveNormalizedModule,
-  isHaneulMoveNormalizedFunction,
-  isHaneulMoveNormalizedStruct,
-  isHaneulExecuteTransactionResponse,
+  isPaginatedTransactionDigests,
   isHaneulEvents,
+  isHaneulExecuteTransactionResponse,
+  isHaneulMoveFunctionArgTypes,
+  isHaneulMoveNormalizedFunction,
+  isHaneulMoveNormalizedModule,
+  isHaneulMoveNormalizedModules,
+  isHaneulMoveNormalizedStruct,
+  isHaneulTransactionResponse,
 } from '../types/index.guard';
 import {
-  GatewayTxSeqNumber,
-  GetTxnDigestsResponse,
-  GetObjectDataResponse,
-  HaneulObjectInfo,
-  HaneulMoveFunctionArgTypes,
-  HaneulMoveNormalizedModules,
-  HaneulMoveNormalizedModule,
-  HaneulMoveNormalizedFunction,
-  HaneulMoveNormalizedStruct,
-  TransactionDigest,
-  HaneulTransactionResponse,
-  HaneulObjectRef,
-  getObjectReference,
   Coin,
-  HaneulEventFilter,
-  HaneulEventEnvelope,
-  SubscriptionId,
-  ExecuteTransactionRequestType,
-  HaneulExecuteTransactionResponse,
-  HaneulAddress,
-  ObjectOwner,
-  ObjectId,
-  HaneulEvents,
-  EVENT_QUERY_MAX_LIMIT,
-  DEFAULT_START_TIME,
   DEFAULT_END_TIME,
+  DEFAULT_START_TIME,
+  EVENT_QUERY_MAX_LIMIT,
+  ExecuteTransactionRequestType,
+  GatewayTxSeqNumber,
+  GetObjectDataResponse,
+  getObjectReference,
+  GetTxnDigestsResponse,
+  ObjectId,
+  ObjectOwner,
+  Ordering,
+  PaginatedTransactionDigests,
+  SubscriptionId,
+  HaneulAddress,
+  HaneulEventEnvelope,
+  HaneulEventFilter,
+  HaneulEvents,
+  HaneulExecuteTransactionResponse,
+  HaneulMoveFunctionArgTypes,
+  HaneulMoveNormalizedFunction,
+  HaneulMoveNormalizedModule,
+  HaneulMoveNormalizedModules,
+  HaneulMoveNormalizedStruct,
+  HaneulObjectInfo,
+  HaneulObjectRef,
+  HaneulTransactionResponse,
+  TransactionDigest,
+  TransactionQuery,
   HANEUL_TYPE_ARG,
 } from '../types';
-import { SignatureScheme } from '../cryptography/publickey';
-import {
-  DEFAULT_CLIENT_OPTIONS,
-  WebsocketClient,
-  WebsocketClientOptions,
-} from '../rpc/websocket-client';
+import {SignatureScheme} from '../cryptography/publickey';
+import {DEFAULT_CLIENT_OPTIONS, WebsocketClient, WebsocketClientOptions,} from '../rpc/websocket-client';
 
 const isNumber = (val: any): val is number => typeof val === 'number';
 const isAny = (_val: any): _val is any => true;
@@ -298,28 +298,47 @@ export class JsonRpcProvider extends Provider {
   }
 
   // Transactions
+  async getTransactions(
+      query: TransactionQuery,
+      cursor: TransactionDigest| null,
+      limit: number|null,
+      order: Ordering
+  ): Promise<PaginatedTransactionDigests> {
+    try {
+      return await this.client.requestWithType(
+          'haneul_getTransactions',
+          [query, cursor, limit, order],
+          isPaginatedTransactionDigests,
+          this.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+          `Error getting transactions for query: ${err} for query ${query}`
+      );
+    }
+  }
 
   async getTransactionsForObject(
     objectID: string
   ): Promise<GetTxnDigestsResponse> {
     const requests = [
       {
-        method: 'haneul_getTransactionsByInputObject',
-        args: [objectID],
+        method: 'haneul_getTransactions',
+        args: [{ InputObject: objectID }, null, null, "Ascending"],
       },
       {
-        method: 'haneul_getTransactionsByMutatedObject',
-        args: [objectID],
+        method: 'haneul_getTransactions',
+        args: [{ MutatedObject: objectID }, null, null, "Ascending"],
       },
     ];
 
     try {
       const results = await this.client.batchRequestWithType(
         requests,
-        isGetTxnDigestsResponse,
+          isPaginatedTransactionDigests,
         this.skipDataValidation
       );
-      return [...results[0], ...results[1]];
+      return [...results[0].data, ...results[1].data];
     } catch (err) {
       throw new Error(
         `Error getting transactions for object: ${err} for id ${objectID}`
@@ -332,22 +351,22 @@ export class JsonRpcProvider extends Provider {
   ): Promise<GetTxnDigestsResponse> {
     const requests = [
       {
-        method: 'haneul_getTransactionsToAddress',
-        args: [addressID],
+        method: 'haneul_getTransactions',
+        args: [{ ToAddress: addressID }, null, null, "Ascending"],
       },
       {
-        method: 'haneul_getTransactionsFromAddress',
-        args: [addressID],
+        method: 'haneul_getTransactions',
+        args: [{ FromAddress: addressID }, null, null, "Ascending"],
       },
     ];
 
     try {
       const results = await this.client.batchRequestWithType(
         requests,
-        isGetTxnDigestsResponse,
+          isPaginatedTransactionDigests,
         this.skipDataValidation
       );
-      return [...results[0], ...results[1]];
+      return [...results[0].data, ...results[1].data];
     } catch (err) {
       throw new Error(
         `Error getting transactions for address: ${err} for id ${addressID}`

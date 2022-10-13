@@ -5,26 +5,29 @@ use std::collections::BTreeMap;
 
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
+
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GatewayTxSeqNumber, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
+    GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
     MoveFunctionArgType, RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter,
     HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
     HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionEffects,
-    HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
+    HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
+use haneul_types::batch::TxSequenceNumber;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
+use haneul_types::query::{Ordering, TransactionQuery};
 use haneul_types::haneul_serde::Base64;
 
 /// Maximum number of events returned in an event query.
 /// This is equivalent to EVENT_STORE_QUERY_MAX_LIMIT in `haneul-storage` crate.
 /// To avoid unnecessary dependency on that crate, we have a reference here
 /// for document purposes.
-pub const EVENT_QUERY_MAX_LIMIT: usize = 100;
+pub const MAX_RESULT_SIZE: usize = 4096;
 
 #[open_rpc(namespace = "haneul", tag = "Gateway Transaction Execution API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -84,18 +87,10 @@ pub trait RpcReadApi {
     async fn get_transactions_in_range(
         &self,
         /// the matching transactions' sequence number will be greater than or equals to the starting sequence number
-        start: GatewayTxSeqNumber,
+        start: TxSequenceNumber,
         /// the matching transactions' sequence number will be less than the ending sequence number
-        end: GatewayTxSeqNumber,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return list of recent transaction digest.
-    #[method(name = "getRecentTransactions")]
-    async fn get_recent_transactions(
-        &self,
-        /// maximum size of the result
-        count: u64,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+        end: TxSequenceNumber,
+    ) -> RpcResult<Vec<TransactionDigest>>;
 
     /// Return the transaction response object.
     #[method(name = "getTransaction")]
@@ -169,49 +164,19 @@ pub trait RpcFullNodeReadApi {
         function_name: String,
     ) -> RpcResult<HaneulMoveNormalizedFunction>;
 
-    /// Return list of transactions for a specified input object.
-    #[method(name = "getTransactionsByInputObject")]
-    async fn get_transactions_by_input_object(
+    /// Return list of transactions for a specified query criteria.
+    #[method(name = "getTransactions")]
+    async fn get_transactions(
         &self,
-        /// the ID of the input object
-        object: ObjectID,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return list of transactions for a specified mutated object.
-    #[method(name = "getTransactionsByMutatedObject")]
-    async fn get_transactions_by_mutated_object(
-        &self,
-        /// the ID of the mutated object
-        object: ObjectID,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return list of transactions for a specified move function.
-    #[method(name = "getTransactionsByMoveFunction")]
-    async fn get_transactions_by_move_function(
-        &self,
-        /// the Move package ID, e.g. `0x2`
-        package: ObjectID,
-        /// the Move module name, e.g. `devnet_nft`
-        module: Option<String>,
-        /// the move function name, e.g. `mint`
-        function: Option<String>,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return list of transactions for a specified sender's Haneul address.
-    #[method(name = "getTransactionsFromAddress")]
-    async fn get_transactions_from_addr(
-        &self,
-        /// the sender's Haneul address
-        addr: HaneulAddress,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
-
-    /// Return list of transactions for a specified recipient's Haneul address.
-    #[method(name = "getTransactionsToAddress")]
-    async fn get_transactions_to_addr(
-        &self,
-        /// the recipient's Haneul address
-        addr: HaneulAddress,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>>;
+        /// the transaction query criteria.
+        query: TransactionQuery,
+        /// Optional paging cursor
+        cursor: Option<TransactionDigest>,
+        /// Maximum item returned per page
+        limit: Option<usize>,
+        /// Transaction query ordering
+        order: Ordering,
+    ) -> RpcResult<TransactionsPage>;
 
     /// Note there is no software-level guarantee/SLA that objects with past versions
     /// can be retrieved by this API, even if the object and version exists/existed.

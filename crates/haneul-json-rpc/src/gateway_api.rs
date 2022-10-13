@@ -10,13 +10,14 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use signature::Signature;
-use haneul_core::gateway_state::{GatewayClient, GatewayTxSeqNumber};
+use haneul_core::gateway_state::GatewayClient;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo, HaneulTransactionResponse,
     HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc::Module;
+use haneul_types::batch::TxSequenceNumber;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{
@@ -140,13 +141,6 @@ impl RpcReadApiServer for GatewayReadApiImpl {
         Ok(self.client.get_object(object_id).await?)
     }
 
-    async fn get_recent_transactions(
-        &self,
-        count: u64,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(self.client.get_recent_transactions(count)?)
-    }
-
     async fn get_transaction(
         &self,
         digest: TransactionDigest,
@@ -160,9 +154,9 @@ impl RpcReadApiServer for GatewayReadApiImpl {
 
     async fn get_transactions_in_range(
         &self,
-        start: GatewayTxSeqNumber,
-        end: GatewayTxSeqNumber,
-    ) -> RpcResult<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
+        start: TxSequenceNumber,
+        end: TxSequenceNumber,
+    ) -> RpcResult<Vec<TransactionDigest>> {
         Ok(self.client.get_transactions_in_range(start, end)?)
     }
 }

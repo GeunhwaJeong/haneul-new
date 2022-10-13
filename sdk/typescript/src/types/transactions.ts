@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
-import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
+import {ObjectId, HaneulMovePackage, HaneulObject, HaneulObjectRef} from './objects';
 
 export type TransferObject = {
   recipient: HaneulAddress;
@@ -152,7 +152,24 @@ export type HaneulExecuteTransactionResponse =
 
 export type GatewayTxSeqNumber = number;
 
-export type GetTxnDigestsResponse = [GatewayTxSeqNumber, TransactionDigest][];
+export type GetTxnDigestsResponse = TransactionDigest[];
+
+export type PaginatedTransactionDigests = {
+  data: TransactionDigest[];
+  nextCursor: TransactionDigest | null;
+};
+
+export type TransactionQuery =
+    | "All"
+    | { "MoveFunction": { "package": ObjectId, "module": string | null, "function": string | null } }
+    | { "InputObject": ObjectId }
+    | { "MutatedObject": ObjectId }
+    | { "FromAddress": HaneulAddress }
+    | { "ToAddress": HaneulAddress };
+
+export type Ordering =
+    | "Ascending"
+    | "Descending"
 
 export type MoveCall = {
   package: HaneulObjectRef;

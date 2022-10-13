@@ -23,7 +23,7 @@ use rpc_types::{
 };
 pub use haneul_config::gateway;
 use haneul_config::gateway::GatewayConfig;
-use haneul_core::gateway_state::{GatewayClient, GatewayState};
+use haneul_core::gateway_state::{GatewayClient, GatewayState, TxSeqNumber};
 pub use haneul_json as json;
 use haneul_json_rpc::api::EventStreamingApiClient;
 use haneul_json_rpc::api::RpcBcsApiClient;
@@ -32,13 +32,14 @@ use haneul_json_rpc::api::RpcReadApiClient;
 use haneul_json_rpc::api::TransactionExecutionApiClient;
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
-    GatewayTxSeqNumber, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope,
-    HaneulEventFilter, HaneulObjectInfo, HaneulTransactionResponse,
+    GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope, HaneulEventFilter,
+    HaneulObjectInfo, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::Transaction;
+use haneul_types::query::{Ordering, TransactionQuery};
 use types::base_types::SequenceNumber;
 use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use types::messages::ExecuteTransactionRequestType;
@@ -296,22 +297,12 @@ impl ReadApi {
 
     pub async fn get_transactions_in_range(
         &self,
-        start: GatewayTxSeqNumber,
-        end: GatewayTxSeqNumber,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
+        start: TxSeqNumber,
+        end: TxSeqNumber,
+    ) -> anyhow::Result<Vec<TransactionDigest>> {
         Ok(match &*self.api {
             HaneulClientApi::Rpc(c) => c.http.get_transactions_in_range(start, end).await?,
             HaneulClientApi::Embedded(c) => c.get_transactions_in_range(start, end)?,
-        })
-    }
-
-    pub async fn get_recent_transactions(
-        &self,
-        count: u64,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(match &*self.api {
-            HaneulClientApi::Rpc(c) => c.http.get_recent_transactions(count).await?,
-            HaneulClientApi::Embedded(c) => c.get_recent_transactions(count)?,
         })
     }
 
@@ -329,72 +320,19 @@ impl ReadApi {
 pub struct FullNodeApi(Arc<HaneulClientApi>);
 
 impl FullNodeApi {
-    pub async fn get_transactions_by_input_object(
+    pub async fn get_transactions(
         &self,
-        object: ObjectID,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
+        query: TransactionQuery,
+        cursor: Option<TransactionDigest>,
+        limit: Option<usize>,
+        order: Ordering,
+    ) -> anyhow::Result<TransactionsPage> {
         Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c) => c.http.get_transactions_by_input_object(object).await?,
+            HaneulClientApi::Rpc(c) => c.http.get_transactions(query, cursor, limit, order).await?,
             HaneulClientApi::Embedded(_) => {
                 return Err(anyhow!("Method not supported by embedded gateway client."))
             }
         })
-    }
-
-    pub async fn get_transactions_by_mutated_object(
-        &self,
-        object: ObjectID,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c) => c.http.get_transactions_by_mutated_object(object),
-            HaneulClientApi::Embedded(_) => {
-                return Err(anyhow!("Method not supported by embedded gateway client."))
-            }
-        }
-        .await?)
-    }
-
-    pub async fn get_transactions_by_move_function(
-        &self,
-        package: ObjectID,
-        module: Option<String>,
-        function: Option<String>,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c) => c
-                .http
-                .get_transactions_by_move_function(package, module, function),
-            HaneulClientApi::Embedded(_) => {
-                return Err(anyhow!("Method not supported by embedded gateway client."))
-            }
-        }
-        .await?)
-    }
-
-    pub async fn get_transactions_from_addr(
-        &self,
-        addr: HaneulAddress,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c) => c.http.get_transactions_from_addr(addr),
-            HaneulClientApi::Embedded(_) => {
-                return Err(anyhow!("Method not supported by embedded gateway client."))
-            }
-        }
-        .await?)
-    }
-
-    pub async fn get_transactions_to_addr(
-        &self,
-        addr: HaneulAddress,
-    ) -> anyhow::Result<Vec<(GatewayTxSeqNumber, TransactionDigest)>> {
-        Ok(match &*self.0 {
-            HaneulClientApi::Rpc(c) => c.http.get_transactions_to_addr(addr),
-            HaneulClientApi::Embedded(_) => {
-                return Err(anyhow!("Method not supported by embedded gateway client."))
-            }
-        }
-        .await?)
     }
 }
 pub struct EventApi(Arc<HaneulClientApi>);

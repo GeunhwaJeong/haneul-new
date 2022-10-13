@@ -9,7 +9,7 @@ use haneul_types::messages::{CertifiedTransaction, TransactionEffects};
 use haneul_types::{base_types::*, batch::TxSequenceNumber, error::HaneulError, fp_ensure};
 use tracing::debug;
 
-const MAX_TX_RANGE_SIZE: u64 = 4096;
+pub const MAX_TX_RANGE_SIZE: u64 = 4096;
 
 pub struct QueryHelpers<S> {
     _s: std::marker::PhantomData<S>,
