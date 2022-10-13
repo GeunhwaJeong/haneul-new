@@ -71,6 +71,11 @@ pub trait AuthorityAPI {
         request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError>;
 
+    async fn handle_checkpoint_stream(
+        &self,
+        request: CheckpointStreamRequest,
+    ) -> Result<CheckpointStreamResponseItemStream, HaneulError>;
+
     async fn handle_committee_info_request(
         &self,
         request: CommitteeInfoRequest,
@@ -78,6 +83,8 @@ pub trait AuthorityAPI {
 }
 
 pub type BatchInfoResponseItemStream = BoxStream<'static, Result<BatchInfoResponseItem, HaneulError>>;
+pub type CheckpointStreamResponseItemStream =
+    BoxStream<'static, Result<CheckpointStreamResponseItem, HaneulError>>;
 
 #[derive(Clone)]
 pub struct NetworkAuthorityClient {
@@ -240,6 +247,21 @@ impl AuthorityAPI for NetworkAuthorityClient {
             .await
             .map(tonic::Response::into_inner)
             .map_err(Into::into)
+    }
+
+    /// Stream checkpoint notifications
+    async fn handle_checkpoint_stream(
+        &self,
+        request: CheckpointStreamRequest,
+    ) -> Result<CheckpointStreamResponseItemStream, HaneulError> {
+        let stream = self
+            .client()
+            .checkpoint_info(request)
+            .await
+            .map(tonic::Response::into_inner)?
+            .map_err(Into::into);
+
+        Ok(Box::pin(stream))
     }
 
     async fn handle_committee_info_request(
@@ -438,6 +460,14 @@ impl AuthorityAPI for LocalAuthorityClient {
         let state = self.state.clone();
 
         state.handle_checkpoint_request(&request)
+    }
+
+    async fn handle_checkpoint_stream(
+        &self,
+        request: CheckpointStreamRequest,
+    ) -> Result<CheckpointStreamResponseItemStream, HaneulError> {
+        let stream = self.state.handle_checkpoint_streaming(request).await?;
+        Ok(Box::pin(stream))
     }
 
     async fn handle_committee_info_request(
