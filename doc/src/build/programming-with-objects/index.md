@@ -13,7 +13,7 @@ Note, you can find Haneul Move programming examples at: https://examples.haneul.
 Understand:
 - [Learn about Haneul](../../learn/about-haneul.md)
 - [Smart Contracts with Move](../../build/move/index.md)
-- [Haneul Objects](../../build/objects.md)
+- [Haneul Objects](../../learn/objects.md)
 
 Install:
 - [Haneul binaries](../install.md#binaries)
