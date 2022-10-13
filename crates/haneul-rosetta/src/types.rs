@@ -127,7 +127,7 @@ pub struct Amount {
     pub currency: Currency,
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct SignedValue {
     negative: bool,
     value: u128,
@@ -400,10 +400,12 @@ pub struct ConstructionPayloadsRequest {
 
 #[derive(Deserialize, Serialize, Copy, Clone, Debug, EnumIter)]
 pub enum OperationType {
+    // Balance changing operations from TransactionEffect
+    GasSpent,
+    HaneulBalanceChange,
+    // Haneul transaction types, readonly
     GasBudget,
     TransferHANEUL,
-    // Readonly
-    GasSpent,
     Pay,
     TransferObject,
     Publish,
