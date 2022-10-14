@@ -23,7 +23,10 @@ import {
   ObjectId,
   HaneulAddress,
   ObjectOwner,
-  HaneulEvents, PaginatedTransactionDigests, TransactionQuery, Ordering,
+  HaneulEvents,
+  PaginatedTransactionDigests,
+  TransactionQuery,
+  Ordering,
 } from '../types';
 
 ///////////////////////////////
@@ -111,10 +114,10 @@ export abstract class Provider {
    * Get transactions for a given query criteria
    */
   abstract getTransactions(
-      query: TransactionQuery,
-      cursor: TransactionDigest | null,
-      limit: number | null,
-      order: Ordering
+    query: TransactionQuery,
+    cursor: TransactionDigest | null,
+    limit: number | null,
+    order: Ordering
   ): Promise<PaginatedTransactionDigests>;
 
   /**

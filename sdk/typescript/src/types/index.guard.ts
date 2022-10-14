@@ -7,7 +7,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulMoveNormalizedTypeParameterType, HaneulMoveNormalizedStructType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, MoveEventField, EventType, HaneulEventFilter, HaneulEventEnvelope, HaneulEvents, SubscriptionId, SubscriptionEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, Pay, ExecuteTransactionRequestType, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, GenericAuthoritySignature, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, HaneulCertifiedTransactionEffects, HaneulExecuteTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, PaginatedTransactionDigests, TransactionQuery, Ordering, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PayTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
+import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulMoveNormalizedTypeParameterType, HaneulMoveNormalizedStructType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, MoveEventField, EventType, HaneulEventFilter, HaneulEventEnvelope, HaneulEvents, SubscriptionId, SubscriptionEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, Pay, ExecuteTransactionRequestType, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, GenericAuthoritySignature, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, HaneulCertifiedTransactionEffects, HaneulExecuteTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, GetTxnDigestsResponse__DEPRECATED, PaginatedTransactionDigests, TransactionQuery, Ordering, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PayTx, PublishTx, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData } from "./index";
 
 export function isTransactionDigest(obj: any, _argumentName?: string): obj is TransactionDigest {
     return (
@@ -925,6 +925,17 @@ export function isGetTxnDigestsResponse(obj: any, _argumentName?: string): obj i
         Array.isArray(obj) &&
         obj.every((e: any) =>
             isTransactionDigest(e) as boolean
+        )
+    )
+}
+
+export function isGetTxnDigestsResponse__DEPRECATED(obj: any, _argumentName?: string): obj is GetTxnDigestsResponse__DEPRECATED {
+    return (
+        Array.isArray(obj) &&
+        obj.every((e: any) =>
+            Array.isArray(e) &&
+            isHaneulMoveTypeParameterIndex(e[0]) as boolean &&
+            isTransactionDigest(e[1]) as boolean
         )
     )
 }

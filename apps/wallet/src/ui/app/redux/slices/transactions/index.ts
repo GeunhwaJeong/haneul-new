@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject } from '@haneullabs/haneul.js';
+import { getTransactionDigest, isHaneulMoveObject } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createEntityAdapter,
@@ -13,10 +13,12 @@ import {
     haneulObjectsAdapterSelectors,
 } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
+import { FEATURES } from '_src/ui/app/experimentation/features';
 
 import type {
     HaneulAddress,
     HaneulMoveObject,
+    HaneulExecuteTransactionResponse,
     HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
@@ -27,7 +29,7 @@ type SendTokensTXArgs = {
     amount: bigint;
     recipientAddress: HaneulAddress;
 };
-type TransactionResult = HaneulTransactionResponse;
+type TransactionResult = HaneulTransactionResponse | HaneulExecuteTransactionResponse;
 
 export const sendTokens = createAsyncThunk<
     TransactionResult,
@@ -37,7 +39,7 @@ export const sendTokens = createAsyncThunk<
     'haneul-objects/send-tokens',
     async (
         { tokenTypeArg, amount, recipientAddress },
-        { getState, extra: { api, keypairVault }, dispatch }
+        { getState, extra: { api, keypairVault, featureGating }, dispatch }
     ) => {
         const state = getState();
         const coinType = Coin.getCoinTypeFromArg(tokenTypeArg);
@@ -48,25 +50,30 @@ export const sendTokens = createAsyncThunk<
                     isHaneulMoveObject(anObj.data) && anObj.data.type === coinType
             )
             .map(({ data }) => data as HaneulMoveObject);
+
+        const signer = api.getSignerInstance(keypairVault.getKeyPair());
+
         const response =
             Coin.getCoinSymbol(tokenTypeArg) === 'HANEUL'
                 ? await Coin.transferHaneul(
-                      api.getSignerInstance(keypairVault.getKeyPair()),
+                      signer,
                       coins,
                       amount,
-                      recipientAddress
+                      recipientAddress,
+                      featureGating.isOn(FEATURES.DEPRECATE_GATEWAY)
                   )
                 : await Coin.transferCoin(
-                      api.getSignerInstance(keypairVault.getKeyPair()),
+                      signer,
                       coins,
                       amount,
-                      recipientAddress
+                      recipientAddress,
+                      featureGating.isOn(FEATURES.DEPRECATE_GATEWAY)
                   );
 
         // TODO: better way to sync latest objects
         dispatch(fetchAllOwnedAndRequiredObjects());
         // TODO: is this correct? Find a better way to do it
-        return response as TransactionResult;
+        return response;
     }
 );
 
@@ -83,7 +90,7 @@ export const StakeTokens = createAsyncThunk<
     'haneul-objects/stake',
     async (
         { tokenTypeArg, amount },
-        { getState, extra: { api, keypairVault }, dispatch }
+        { getState, extra: { api, keypairVault, featureGating }, dispatch }
     ) => {
         const state = getState();
         const coinType = Coin.getCoinTypeFromArg(tokenTypeArg);
@@ -108,15 +115,16 @@ export const StakeTokens = createAsyncThunk<
             api.getSignerInstance(keypairVault.getKeyPair()),
             coins,
             amount,
-            validatorAddress
+            validatorAddress,
+            featureGating.isOn(FEATURES.DEPRECATE_GATEWAY)
         );
         dispatch(fetchAllOwnedAndRequiredObjects());
-        return response as TransactionResult;
+        return response;
     }
 );
 
 const txAdapter = createEntityAdapter<TransactionResult>({
-    selectId: (tx) => tx.certificate.transactionDigest,
+    selectId: (tx) => getTransactionDigest(tx),
 });
 
 export const txSelectors = txAdapter.getSelectors(
