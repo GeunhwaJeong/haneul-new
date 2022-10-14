@@ -24,6 +24,7 @@ type HaneulAppProps = {
     link: string;
     account?: string;
     id?: string;
+    pageLink?: string;
     permissions: string[];
     disconnect?: boolean;
 };
@@ -56,6 +57,7 @@ function HaneulApp({
     tags,
     id,
     account,
+    pageLink,
     permissions,
     disconnect,
 }: HaneulAppProps) {
@@ -66,6 +68,7 @@ function HaneulApp({
         link,
         id,
         permissions,
+        pageLink,
     };
 
     const originLabel = useMiddleEllipsis(
@@ -135,7 +138,7 @@ function HaneulApp({
                 </>
             ) : (
                 <ExternalLink
-                    href={link}
+                    href={pageLink || link}
                     title={name}
                     className={st.ecosystemApp}
                     showIcon={false}
