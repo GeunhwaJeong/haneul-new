@@ -2,7 +2,7 @@
   "openrpc": "1.2.6",
   "info": {
     "title": "Haneul JSON-RPC",
-    "description": "Haneul JSON-RPC API for interaction with the Haneul network gateway.",
+    "description": "Haneul JSON-RPC API for interaction with Haneul Full node.",
     "contact": {
       "name": "Haneul Labs",
       "url": "https://haneul-labs.com",

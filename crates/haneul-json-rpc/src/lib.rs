@@ -79,7 +79,7 @@ pub struct JsonRpcServerBuilder {
 pub fn haneul_rpc_doc() -> Project {
     Project::new(
         "Haneul JSON-RPC",
-        "Haneul JSON-RPC API for interaction with the Haneul network gateway.",
+        "Haneul JSON-RPC API for interaction with Haneul Full node.",
         "Haneul Labs",
         "https://haneul-labs.com",
         "build@haneul-labs.com",

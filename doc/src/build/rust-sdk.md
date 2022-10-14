@@ -43,7 +43,7 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
     let address = HaneulAddress::from_str("0xec11cad080d0496a53bafcea629fcbcfff2a9866")?;
     let objects = haneul.read_api().get_objects_owned_by_address(address).await?;
     println!("{:?}", objects);
@@ -51,7 +51,7 @@ async fn main() -> Result<(), anyhow::Error> {
 }
 ```
 
-You can verify the result with the [Haneul Explorer](https://explorer.devnet.haneul.io/) if you are using the Haneul Devnet Gateway.
+You can verify the result with the [Haneul Explorer](https://explorer.devnet.haneul.io/) if you are using the Haneul Devnet Full node.
 
 ### Example 2 - Create and execute transaction
 
@@ -71,7 +71,7 @@ use haneul_sdk::{
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
@@ -115,7 +115,7 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://gateway.devnet.haneul.io:443", Some("ws://127.0.0.1:9001")).await?;
+    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", Some("ws://127.0.0.1:9001")).await?;
     let mut subscribe_all = haneul.event_api().subscribe_event(HaneulEventFilter::All(vec![])).await?;
     loop {
         println!("{:?}", subscribe_all.next().await);

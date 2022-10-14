@@ -6,7 +6,7 @@ We are hosting a public Devnet for the community to experiment with Haneul and p
 
 The Haneul Devnet network currently consists of:
 
-* Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: gateway.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
+* Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: fullnode.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
 * A public network [Haneul Explorer](https://explorer.devnet.haneul.io) for browsing transaction history.
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
@@ -62,7 +62,7 @@ The Haneul client prompts you for the RPC server URL; press 'Enter' and it defau
 
 If you previously installed a Haneul client with a local network, modify your existing  `client.yaml` to change the RPC endpoint with the following command:
 ```shell
-$ haneul client switch --rpc https://gateway.devnet.haneul.io:443
+$ haneul client switch --rpc https://fullnode.devnet.haneul.io:443
 ```
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
