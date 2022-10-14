@@ -1,5 +1,13 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.2.1
+
+### Patch Changes
+
+- @haneullabs/wallet-adapter-mock-wallet@0.2.1
+- @haneullabs/wallet-adapter-haneul-wallet@0.2.1
+- @haneullabs/wallet-adapter-wallet-standard@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

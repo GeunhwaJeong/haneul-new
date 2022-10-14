@@ -1,6 +1,6 @@
 {
   "name": "@haneullabs/wallet-adapter-mock-wallet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "license": "Apache-2.0",
   "author": "Haneul Labs <build@haneul-labs.com>",

@@ -1,5 +1,11 @@
 # @haneullabs/wallet-adapter-react-ui
 
+## 0.2.1
+
+### Patch Changes
+
+- @haneullabs/wallet-adapter-react@4.0.0
+
 ## 0.2.0
 
 ### Minor Changes
