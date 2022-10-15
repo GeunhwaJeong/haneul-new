@@ -1,18 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::str::FromStr;
+
 use anyhow::anyhow;
 use move_core_types::ident_str;
-use move_core_types::language_storage::StructTag;
+use move_core_types::identifier::Identifier;
+use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::value::{MoveStruct, MoveValue};
 
-use crate::{HaneulMoveStruct, HaneulMoveValue};
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::MoveObject;
 use haneul_types::haneul_serde::Base64;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
+
+use crate::{HaneulMoveStruct, HaneulMoveValue};
 
 #[test]
 fn test_move_value_to_haneul_bytearray() {
@@ -70,6 +74,28 @@ fn test_move_value_to_string() {
 }
 
 #[test]
+fn test_option() {
+    // bugfix for https://github.com/GeunhwaJeong/haneul/issues/4995
+    let option = MoveValue::Struct(MoveStruct::WithTypes {
+        type_: StructTag {
+            address: MOVE_STDLIB_ADDRESS,
+            module: Identifier::from_str("option").unwrap(),
+            name: Identifier::from_str("Option").unwrap(),
+            type_params: vec![TypeTag::U8],
+        },
+        fields: vec![(
+            Identifier::from_str("vec").unwrap(),
+            MoveValue::Vector(vec![MoveValue::U8(5)]),
+        )],
+    });
+    let haneul_value = HaneulMoveValue::from(option);
+    assert!(matches!(
+        haneul_value,
+        HaneulMoveValue::Option(value) if *value == Some(HaneulMoveValue::Number(5))
+    ));
+}
+
+#[test]
 fn test_move_value_to_url() {
     let test_url = "http://testing.com";
     let bytes = test_url.as_bytes();
@@ -114,7 +140,11 @@ fn test_serde() {
         HaneulMoveValue::Address(HaneulAddress::random_for_testing_only()),
         HaneulMoveValue::Bool(true),
         HaneulMoveValue::Option(Box::new(None)),
-        HaneulMoveValue::Bytearray(Base64::from_bytes(&[10u8; 20])),
+        HaneulMoveValue::Vector(vec![
+            HaneulMoveValue::Number(1000000),
+            HaneulMoveValue::Number(2000000),
+            HaneulMoveValue::Number(3000000),
+        ]),
     ];
 
     for value in test_values {
