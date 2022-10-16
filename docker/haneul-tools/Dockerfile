@@ -56,5 +56,6 @@ COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
 
 ARG BUILD_DATE
+ARG GIT_REVISION
 LABEL build-date=$BUILD_DATE
 LABEL git-revision=$GIT_REVISION
