@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_core::authority_aggregator::AuthorityAggregator;
+use haneul_core::authority_aggregator::{AuthorityAggregator, AuthorityAggregatorBuilder};
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_node::HaneulNodeHandle;
@@ -11,9 +11,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{
     QuorumDriverRequest, QuorumDriverRequestType, QuorumDriverResponse, Transaction,
 };
-use test_utils::authority::{
-    spawn_test_authorities, test_authority_aggregator, test_authority_configs,
-};
+use test_utils::authority::{spawn_test_authorities, test_authority_configs};
 use test_utils::messages::make_transfer_haneul_transaction;
 use test_utils::objects::test_gas_objects;
 use test_utils::test_account_keys;
@@ -27,7 +25,10 @@ async fn setup() -> (
     let configs = test_authority_configs();
     let handles = spawn_test_authorities(gas_objects.clone(), &configs).await;
     let committee_store = handles[0].with(|h| h.state().committee_store().clone());
-    let aggregator = test_authority_aggregator(&configs, committee_store);
+    let (aggregator, _) = AuthorityAggregatorBuilder::from_network_config(&configs)
+        .with_committee_store(committee_store)
+        .build()
+        .unwrap();
     let (sender, keypair) = test_account_keys().pop().unwrap();
     let tx = make_transfer_haneul_transaction(
         gas_objects.pop().unwrap().compute_object_reference(),
