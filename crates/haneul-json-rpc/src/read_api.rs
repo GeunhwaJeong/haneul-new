@@ -22,8 +22,11 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::batch::TxSequenceNumber;
+use haneul_types::committee::EpochId;
 use haneul_types::crypto::{SignableBytes, SignatureScheme};
-use haneul_types::messages::{Transaction, TransactionData};
+use haneul_types::messages::{
+    CommitteeInfoRequest, CommitteeInfoResponse, Transaction, TransactionData,
+};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead, Owner};
 use haneul_types::query::{Ordering, TransactionQuery};
@@ -296,6 +299,13 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
             .await
             .map_err(|e| anyhow!("{e}"))?
             .try_into()?)
+    }
+
+    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<CommitteeInfoResponse> {
+        Ok(self
+            .state
+            .handle_committee_info_request(&CommitteeInfoRequest { epoch })
+            .map_err(|e| anyhow!("{e}"))?)
     }
 }
 

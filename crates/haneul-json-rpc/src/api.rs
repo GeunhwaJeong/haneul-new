@@ -17,7 +17,9 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::batch::TxSequenceNumber;
+use haneul_types::committee::EpochId;
 use haneul_types::crypto::SignatureScheme;
+use haneul_types::messages::CommitteeInfoResponse;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use haneul_types::query::{Ordering, TransactionQuery};
@@ -190,6 +192,14 @@ pub trait RpcFullNodeReadApi {
         /// the version of the queried object. If None, default to the latest known version
         version: SequenceNumber,
     ) -> RpcResult<GetPastObjectDataResponse>;
+
+    /// Return the committee information for the asked epoch
+    #[method(name = "getCommitteeInfo")]
+    async fn get_committee_info(
+        &self,
+        /// The epoch of interest. If None, default to the latest epoch
+        epoch: Option<EpochId>,
+    ) -> RpcResult<CommitteeInfoResponse>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]
