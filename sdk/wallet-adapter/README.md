@@ -92,6 +92,7 @@ The `WalletStandardAdapterProvider` adapter (published under `@haneullabs/wallet
 The following wallets are known to work with the Wallet Standard:
 
 - **[Haneul Wallet](https://docs.haneul.io/devnet/explore/wallet-browser)**
+- **[Ethos Wallet](https://chrome.google.com/webstore/detail/ethos-wallet/mcbigmjiafegjnnogedioegffbooigli)**
 
 ## Demo app
 
