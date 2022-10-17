@@ -399,6 +399,20 @@ export function getTransactionEffects(
   return 'EffectsCert' in data ? data.EffectsCert.effects.effects : undefined;
 }
 
+/* ---------------------------- Transaction Effects --------------------------- */
+
+export function getEvents(
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+): any {
+  return getTransactionEffects(data)?.events;
+}
+
+export function getCreatedObjects(
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+): OwnedObjectRef[] | undefined {
+  return getTransactionEffects(data)?.created;
+}
+
 /* --------------------------- TransactionResponse -------------------------- */
 
 export function getTimestampFromTransactionResponse(
