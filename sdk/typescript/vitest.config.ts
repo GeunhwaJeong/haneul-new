@@ -11,10 +11,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@haneullabs/bcs': new URL('../bcs/src', import.meta.url).toString(),
-      '@haneullabs/haneul-open-rpc': new URL(
-        '../../crates/haneul-open-rpc',
-        import.meta.url
-      ).toString(),
     },
   },
 });

@@ -16,7 +16,7 @@ export function ListItem({ active, children, onClick }: ListItemProps) {
             <button
                 type="button"
                 className={clsx(
-                    'cursor-pointer px-3 py-2 rounded-md text-body block w-full font-sans border-1 border-solid text-left',
+                    'cursor-pointer px-3 py-2 rounded-md text-body block w-full border-1 border-solid text-left',
                     active
                         ? 'bg-haneul-grey-45 text-haneul-grey-90 font-semibold border-haneul-grey-50 shadow-sm'
                         : 'bg-white text-haneul-grey-80 font-medium border-transparent'
