@@ -34,7 +34,7 @@ use tokio::{
 use haneul_types::messages_checkpoint::CheckpointRequest;
 use haneul_types::messages_checkpoint::CheckpointResponse;
 
-use crate::authority::ConsensusHandler;
+use crate::consensus_handler::ConsensusHandler;
 use tracing::{error, info, Instrument};
 
 #[cfg(test)]
