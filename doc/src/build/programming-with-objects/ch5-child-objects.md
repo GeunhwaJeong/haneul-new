@@ -86,7 +86,7 @@ Both functions will compile successfully, because object ownership relationships
 
 Let's try to interact with these two entry functions on-chain and see what happens. First we publish the sample code:
 ```
-$ haneul client publish --path $ROOT/haneul-core/src/unit_tests/data/object_owner --gas-budget 5000
+$ haneul client publish --path $ROOT/crates/haneul-core/src/unit_tests/data/object_owner --gas-budget 5000
 ```
 ```
 ----- Publish Results ----
