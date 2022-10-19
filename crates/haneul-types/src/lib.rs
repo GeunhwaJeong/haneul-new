@@ -7,10 +7,12 @@
     rust_2021_compatibility
 )]
 
+use base_types::SequenceNumber;
 use move_core_types::{
     account_address::AccountAddress,
     language_storage::{StructTag, TypeTag},
 };
+use object::OBJECT_START_VERSION;
 
 use base_types::ObjectID;
 
@@ -57,6 +59,7 @@ pub const HANEUL_FRAMEWORK_OBJECT_ID: ObjectID = ObjectID::from_single_byte(2);
 
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
+pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
 
 const fn get_hex_address_two() -> AccountAddress {
     let mut addr = [0u8; AccountAddress::LENGTH];

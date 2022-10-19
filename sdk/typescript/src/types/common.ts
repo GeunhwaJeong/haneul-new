@@ -11,7 +11,8 @@ export type ObjectOwner =
   | { AddressOwner: HaneulAddress }
   | { ObjectOwner: HaneulAddress }
   | { SingleOwner: HaneulAddress }
-  | 'Shared'
+  | { Shared: { initial_shared_version: number } }
+  | 'Shared' /* deprecated */
   | 'Immutable';
 
 // source of truth is

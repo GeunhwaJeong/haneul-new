@@ -1534,14 +1534,14 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                     .map(|arg| match arg {
                         CallArg::Pure(p) => HaneulJsonValue::from_bcs_bytes(&p),
                         CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _)))
-                        | CallArg::Object(ObjectArg::SharedObject(id)) => {
+                        | CallArg::Object(ObjectArg::SharedObject { id, .. }) => {
                             HaneulJsonValue::new(Value::String(id.to_hex_literal()))
                         }
                         CallArg::ObjVec(vec) => HaneulJsonValue::new(Value::Array(
                             vec.iter()
                                 .map(|obj_arg| match obj_arg {
                                     ObjectArg::ImmOrOwnedObject((id, _, _))
-                                    | ObjectArg::SharedObject(id) => {
+                                    | ObjectArg::SharedObject { id, .. } => {
                                         Value::String(id.to_hex_literal())
                                     }
                                 })
@@ -2168,7 +2168,10 @@ pub enum HaneulInputObjectKind {
     // A Move object, either immutable, or owned mutable.
     ImmOrOwnedMoveObject(HaneulObjectRef),
     // A Move object that's shared and mutable.
-    SharedMoveObject(ObjectID),
+    SharedMoveObject {
+        id: ObjectID,
+        initial_shared_version: SequenceNumber,
+    },
 }
 
 impl From<InputObjectKind> for HaneulInputObjectKind {
@@ -2176,7 +2179,13 @@ impl From<InputObjectKind> for HaneulInputObjectKind {
         match input {
             InputObjectKind::MovePackage(id) => Self::MovePackage(id),
             InputObjectKind::ImmOrOwnedMoveObject(oref) => Self::ImmOrOwnedMoveObject(oref.into()),
-            InputObjectKind::SharedMoveObject(id) => Self::SharedMoveObject(id),
+            InputObjectKind::SharedMoveObject {
+                id,
+                initial_shared_version,
+            } => Self::SharedMoveObject {
+                id,
+                initial_shared_version,
+            },
         }
     }
 }

@@ -25,7 +25,7 @@ use haneul_types::messages::{
     TransactionKind, TransferObject,
 };
 use haneul_types::move_package::MovePackage;
-use haneul_types::object::Object;
+use haneul_types::object::{Object, Owner};
 use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID};
 
 #[async_trait]
@@ -228,10 +228,16 @@ impl TransactionBuilder {
         let obj_ref = obj.compute_object_reference();
         let owner = obj.owner;
         objects.insert(id, obj);
-        Ok(if owner.is_shared() {
-            ObjectArg::SharedObject(id)
-        } else {
-            ObjectArg::ImmOrOwnedObject(obj_ref)
+        Ok(match owner {
+            Owner::Shared {
+                initial_shared_version,
+            } => ObjectArg::SharedObject {
+                id,
+                initial_shared_version,
+            },
+            Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
+                ObjectArg::ImmOrOwnedObject(obj_ref)
+            }
         })
     }
 

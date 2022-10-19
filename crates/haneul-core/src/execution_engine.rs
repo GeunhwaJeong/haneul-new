@@ -9,6 +9,7 @@ use haneul_types::storage::{DeleteKind, ObjectResolver, ParentSync, WriteKind};
 #[cfg(test)]
 use haneul_types::temporary_store;
 use haneul_types::temporary_store::InnerTemporaryStore;
+use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 
 use crate::authority::TemporaryStore;
 use move_core_types::language_storage::ModuleId;
@@ -227,7 +228,10 @@ fn execute_transaction<S: BackingPackageStore + ParentSync>(
                         &function,
                         vec![],
                         vec![
-                            CallArg::Object(ObjectArg::SharedObject(HANEUL_SYSTEM_STATE_OBJECT_ID)),
+                            CallArg::Object(ObjectArg::SharedObject {
+                                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                            }),
                             CallArg::Pure(bcs::to_bytes(&epoch).unwrap()),
                             CallArg::Pure(bcs::to_bytes(&storage_charge).unwrap()),
                             CallArg::Pure(bcs::to_bytes(&computation_charge).unwrap()),
