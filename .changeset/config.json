@@ -7,5 +7,11 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "minor",
-  "ignore": ["haneul-explorer", "haneul-wallet", "demo-nft-dapp", "haneul-wallet-adapter"]
+  "ignore": [
+    "haneul-explorer",
+    "haneul-wallet",
+    "demo-nft-dapp",
+    "haneul-wallet-adapter",
+    "@haneullabs/core"
+  ]
 }
