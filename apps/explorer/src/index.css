@@ -29,6 +29,7 @@
     --warning-dark: theme('colors.warning.dark');
     --issue-light: theme('colors.issue.light');
     --issue-dark: theme('colors.issue.dark');
+    --haneul-steel: theme('colors.haneul.steel.DEFAULT');
 }
 
 body {
