@@ -52,7 +52,7 @@ You can use your Haneul Wallet on multiple devices and browsers. After you creat
 
 ## Add HANEUL tokens to your Haneul Wallet
 
-When you first open the wallet you have no coins in it. You can add HANEUL tokens to your wallet through Discord. You need an active Discord account to access the Haneul channels.
+When you first open the wallet, you have no coins in it. You can add HANEUL tokens to your wallet through Discord. You need an active Discord account to access the Haneul channels.
 
 1. Click **Coins**.
 1. Click the small clipboard icon next to your address to copy it. 
