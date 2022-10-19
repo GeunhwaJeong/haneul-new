@@ -3,9 +3,10 @@
 use crate::authority::get_client;
 use crate::messages::{
     create_publish_move_package_transaction, get_account_and_gas_coins,
-    get_gas_object_with_wallet_context, make_tx_certs_and_signed_effects, MAX_GAS,
+    get_gas_object_with_wallet_context, make_tx_certs_and_signed_effects,
+    make_tx_certs_and_signed_effects_with_committee, MAX_GAS,
 };
-use crate::test_account_keys;
+use crate::{test_account_keys, test_committee};
 use futures::StreamExt;
 use move_package::BuildConfig;
 use serde_json::json;
@@ -25,6 +26,7 @@ use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::batch::UpdateItem;
+use haneul_types::committee::Committee;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::messages::{
@@ -411,7 +413,19 @@ pub async fn submit_shared_object_transaction(
     transaction: Transaction,
     configs: &[ValidatorInfo],
 ) -> HaneulResult<TransactionEffects> {
-    let certificate = make_tx_certs_and_signed_effects(vec![transaction])
+    let committee = test_committee();
+    submit_shared_object_transaction_with_committee(transaction, configs, &committee).await
+}
+
+/// Keep submitting the certificates of a shared-object transaction until it is sequenced by
+/// at least one consensus node. We use the loop since some consensus protocols (like Tusk)
+/// may drop transactions. The certificate is submitted to every Haneul authority.
+pub async fn submit_shared_object_transaction_with_committee(
+    transaction: Transaction,
+    configs: &[ValidatorInfo],
+    committee: &Committee,
+) -> HaneulResult<TransactionEffects> {
+    let certificate = make_tx_certs_and_signed_effects_with_committee(vec![transaction], committee)
         .0
         .pop()
         .unwrap();
