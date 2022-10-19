@@ -1,21 +1,24 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::fs::File;
+use std::io::Write;
+
 use clap::ArgEnum;
 use clap::Parser;
 use pretty_assertions::assert_str_eq;
-use std::fs::File;
-use std::io::Write;
-use haneul_json_rpc::api::EventReadApiOpenRpc;
-use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
-use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
+use haneul_core::HANEUL_CORE_VERSION;
 
-use crate::examples::RpcExampleProvider;
+use haneul_json_rpc::api::EventReadApiOpenRpc;
 use haneul_json_rpc::api::EventStreamingApiOpenRpc;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
 use haneul_json_rpc::haneul_rpc_doc;
+use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
+use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
 use haneul_json_rpc::HaneulRpcModule;
+
+use crate::examples::RpcExampleProvider;
 
 mod examples;
 
@@ -42,7 +45,7 @@ const FILE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/spec/openrpc.json"
 async fn main() {
     let options = Options::parse();
 
-    let mut open_rpc = haneul_rpc_doc();
+    let mut open_rpc = haneul_rpc_doc(HANEUL_CORE_VERSION);
     open_rpc.add_module(ReadApi::rpc_doc_module());
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
     open_rpc.add_module(BcsApiImpl::rpc_doc_module());

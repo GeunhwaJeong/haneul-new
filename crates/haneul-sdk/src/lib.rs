@@ -220,11 +220,20 @@ impl HaneulClient {
         }
     }
 
-    pub fn api_version(&self) -> String {
+    pub fn api_version(&self) -> &str {
         match &*self.api {
-            HaneulClientApi::Rpc(c) => c.info.version.clone(),
-            HaneulClientApi::Embedded(_) => env!("CARGO_PKG_VERSION").to_owned(),
+            HaneulClientApi::Rpc(c) => &c.info.version,
+            HaneulClientApi::Embedded(_) => env!("CARGO_PKG_VERSION"),
         }
+    }
+
+    pub fn check_api_version(&self) -> Result<(), anyhow::Error> {
+        let server_version = self.api_version();
+        let client_version = env!("CARGO_PKG_VERSION");
+        if server_version != client_version {
+            return Err(anyhow!("Client/Server api version mismatch, client api version : {client_version}, server api version : {server_version}"));
+        };
+        Ok(())
     }
 }
 
