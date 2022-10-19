@@ -36,6 +36,18 @@ export type HaneulMoveObject = {
   has_public_transfer?: boolean;
 };
 
+export const GEUNHWA_PER_HANEUL: BigInt = BigInt(1000000000);
+
+export type CoinDenominationInfoResponse = {
+  /** Coin type like "0x2::haneul::HANEUL" */
+  coinType: string;
+  /** min unit, like GEUNHWA */
+  basicUnit?: string;
+  /** number of zeros in the denomination,
+   * e.g., 9 here for HANEUL. */
+  decimalNumber: number;
+}
+
 export type HaneulMovePackage = {
   /** A mapping from module name to disassembled Move bytecode */
   disassembled: MovePackageContent;

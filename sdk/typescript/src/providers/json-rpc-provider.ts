@@ -24,6 +24,7 @@ import {
   DEFAULT_START_TIME,
   EVENT_QUERY_MAX_LIMIT,
   ExecuteTransactionRequestType,
+  CoinDenominationInfoResponse,
   GatewayTxSeqNumber,
   GetObjectDataResponse,
   getObjectReference,
@@ -49,6 +50,7 @@ import {
   TransactionDigest,
   TransactionQuery,
   HANEUL_TYPE_ARG,
+  normalizeHaneulAddress,
 } from '../types';
 import { SignatureScheme } from '../cryptography/publickey';
 import {
@@ -219,6 +221,23 @@ export class JsonRpcProvider extends Provider {
   async getGasObjectsOwnedByAddress(address: string): Promise<HaneulObjectInfo[]> {
     const objects = await this.getObjectsOwnedByAddress(address);
     return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
+  }
+
+  getCoinDenominationInfo(
+    coinType: string,
+  ): CoinDenominationInfoResponse {
+    const [packageId, module, symbol] = coinType.split('::');
+    if (normalizeHaneulAddress(packageId) !== normalizeHaneulAddress('0x2') || module != 'haneul' || symbol !== 'HANEUL') {
+      throw new Error(
+        'only HANEUL coin is supported in getCoinDenominationInfo for now.'
+      );
+    }
+
+    return {
+      coinType: coinType,
+      basicUnit: 'GEUNHWA',
+      decimalNumber: 9,
+    };
   }
 
   async getCoinBalancesOwnedByAddress(
