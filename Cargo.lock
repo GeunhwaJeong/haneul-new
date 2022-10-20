@@ -8223,6 +8223,7 @@ dependencies = [
  "haneul-node",
  "haneul-sdk",
  "haneul-types",
+ "tap",
  "telemetry-subscribers 0.2.0",
  "test-utils",
  "thiserror",
