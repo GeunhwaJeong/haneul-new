@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  MoveCallTransaction,
+  SignableTransaction,
   HaneulAddress,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
@@ -16,11 +16,8 @@ interface HaneulWallet {
   hasPermissions(permissions: readonly PermissionType[]): Promise<boolean>;
   requestPermissions(): Promise<boolean>;
   getAccounts(): Promise<HaneulAddress[]>;
-  executeMoveCall: (
-    transaction: MoveCallTransaction
-  ) => Promise<HaneulTransactionResponse>;
-  executeSerializedMoveCall: (
-    transactionBytes: Uint8Array
+  signAndExecuteTransaction: (
+    transaction: SignableTransaction
   ) => Promise<HaneulTransactionResponse>;
 }
 interface HaneulWalletWindow {
@@ -37,15 +34,10 @@ export class MockWalletAdapter implements WalletAdapter {
   getAccounts(): Promise<string[]> {
     return window.haneulWallet.getAccounts();
   }
-  executeMoveCall(
-    transaction: MoveCallTransaction
+  signAndExecuteTransaction(
+    transaction: SignableTransaction
   ): Promise<HaneulTransactionResponse> {
-    return window.haneulWallet.executeMoveCall(transaction);
-  }
-  executeSerializedMoveCall(
-    transactionBytes: Uint8Array
-  ): Promise<HaneulTransactionResponse> {
-    return window.haneulWallet.executeSerializedMoveCall(transactionBytes);
+    return window.haneulWallet.signAndExecuteTransaction(transaction);
   }
 
   name: string;
