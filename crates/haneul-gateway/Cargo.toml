@@ -28,12 +28,11 @@ haneul-keys = { path = "../haneul-keys" }
 
 
 haneullabs-network.workspace = true
-move-package.workspace = true
 workspace-hack.workspace = true
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
-haneul-framework = { path = "../haneul-framework" }
+haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-sdk = { path = "../haneul-sdk" }
 
 [[bin]]

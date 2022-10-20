@@ -23,6 +23,7 @@ bip32 = "0.4.0"
 
 haneul-core = { path = "../haneul-core" }
 haneul-framework = { path = "../haneul-framework" }
+haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }

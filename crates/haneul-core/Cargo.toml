@@ -68,13 +68,13 @@ haneul-macros = { path = "../haneul-macros" }
 [dev-dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
 rand = "0.8.5"
-move-package.workspace = true
 
 serde-reflection = "0.3.6"
 serde_yaml = "0.8.26"
 pretty_assertions = "1.2.1"
 telemetry-subscribers.workspace = true
 
+haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-macros = { path = "../haneul-macros" }
 
 test-fuzz = "3.0.4"

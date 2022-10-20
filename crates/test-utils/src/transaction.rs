@@ -8,7 +8,6 @@ use crate::messages::{
 };
 use crate::{test_account_keys, test_committee};
 use futures::StreamExt;
-use move_package::BuildConfig;
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -18,6 +17,7 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::AuthorityAPI;
+use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json_rpc_types::HaneulCertifiedTransaction;
 use haneul_json_rpc_types::HaneulObjectRead;
 use haneul_json_rpc_types::HaneulTransactionEffects;
@@ -79,16 +79,9 @@ pub fn compile_basics_package() -> Vec<Vec<u8>> {
     path.push("../../haneul_programmability/examples/basics");
 
     let build_config = BuildConfig::default();
-    let modules = haneul_framework::build_move_package(&path, build_config).unwrap();
-
-    modules
-        .iter()
-        .map(|m| {
-            let mut module_bytes = Vec::new();
-            m.serialize(&mut module_bytes).unwrap();
-            module_bytes
-        })
-        .collect()
+    haneul_framework::build_move_package(&path, build_config)
+        .unwrap()
+        .get_package_bytes()
 }
 
 /// Helper function to publish basic package.

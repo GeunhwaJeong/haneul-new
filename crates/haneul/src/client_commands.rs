@@ -15,13 +15,14 @@ use clap::*;
 use colored::Colorize;
 use fastcrypto::traits::ToFromBytes;
 use move_core_types::language_storage::TypeTag;
-use move_package::BuildConfig;
+use move_package::BuildConfig as MoveBuildConfig;
 use serde::Serialize;
 use serde_json::json;
 use tracing::info;
 
 use crate::config::{Config, PersistedConfig, HaneulClientConfig};
-use haneul_framework::build_move_package_to_bytes;
+use haneul_framework::build_move_package;
+use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
@@ -98,7 +99,7 @@ pub enum HaneulClientCommands {
 
         /// Package build options
         #[clap(flatten)]
-        build_config: BuildConfig,
+        build_config: MoveBuildConfig,
 
         /// ID of the gas object for gas payment, in 20 bytes Hex string
         /// If not provided, a gas object with at least gas_budget value will be selected
@@ -403,7 +404,15 @@ impl HaneulClientCommands {
                 let sender = context.try_get_object_owner(&gas).await?;
                 let sender = sender.unwrap_or(context.active_address()?);
 
-                let compiled_modules = build_move_package_to_bytes(&package_path, build_config)?;
+                let compiled_modules = build_move_package(
+                    &package_path,
+                    BuildConfig {
+                        config: build_config,
+                        run_bytecode_verifier: true,
+                        print_diags_to_stderr: true,
+                    },
+                )?
+                .get_package_bytes();
                 let data = context
                     .client
                     .transaction_builder()
