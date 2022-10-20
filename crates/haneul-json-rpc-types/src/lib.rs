@@ -1576,6 +1576,7 @@ pub struct HaneulChangeEpoch {
     pub epoch: EpochId,
     pub storage_charge: u64,
     pub computation_charge: u64,
+    // TODO: add storage rebate here
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
