@@ -7,7 +7,6 @@ import {
   isGetObjectDataResponse,
   isGetOwnedObjectsResponse,
   isGetTxnDigestsResponse,
-  isGetTxnDigestsResponse__DEPRECATED,
   isPaginatedTransactionDigests,
   isHaneulEvents,
   isHaneulExecuteTransactionResponse,
@@ -223,11 +222,13 @@ export class JsonRpcProvider extends Provider {
     return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
   }
 
-  getCoinDenominationInfo(
-    coinType: string,
-  ): CoinDenominationInfoResponse {
+  getCoinDenominationInfo(coinType: string): CoinDenominationInfoResponse {
     const [packageId, module, symbol] = coinType.split('::');
-    if (normalizeHaneulAddress(packageId) !== normalizeHaneulAddress('0x2') || module != 'haneul' || symbol !== 'HANEUL') {
+    if (
+      normalizeHaneulAddress(packageId) !== normalizeHaneulAddress('0x2') ||
+      module != 'haneul' ||
+      symbol !== 'HANEUL'
+    ) {
       throw new Error(
         'only HANEUL coin is supported in getCoinDenominationInfo for now.'
       );
@@ -355,42 +356,17 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getTransactionsForObject(
-    objectID: string
+    objectID: string,
+    ordering: Ordering = 'Descending'
   ): Promise<GetTxnDigestsResponse> {
-    // TODO: remove after we deploy 0.12.0 DevNet
-    if ((await this.getRpcApiVersion()) === PRE_PAGINATION_API_VERSION) {
-      const requests = [
-        {
-          method: 'haneul_getTransactionsByInputObject',
-          args: [objectID],
-        },
-        {
-          method: 'haneul_getTransactionsByMutatedObject',
-          args: [objectID],
-        },
-      ];
-
-      try {
-        const results = await this.client.batchRequestWithType(
-          requests,
-          isGetTxnDigestsResponse__DEPRECATED,
-          this.skipDataValidation
-        );
-        return [...results[0], ...results[1]].map((tx) => tx[1]);
-      } catch (err) {
-        throw new Error(
-          `Error getting transactions for object: ${err} for id ${objectID}`
-        );
-      }
-    }
     const requests = [
       {
         method: 'haneul_getTransactions',
-        args: [{ InputObject: objectID }, null, null, 'Ascending'],
+        args: [{ InputObject: objectID }, null, null, ordering],
       },
       {
         method: 'haneul_getTransactions',
-        args: [{ MutatedObject: objectID }, null, null, 'Ascending'],
+        args: [{ MutatedObject: objectID }, null, null, ordering],
       },
     ];
 
@@ -409,41 +385,17 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getTransactionsForAddress(
-    addressID: string
+    addressID: string,
+    ordering: Ordering = 'Descending'
   ): Promise<GetTxnDigestsResponse> {
-    // TODO: remove after we deploy 0.12.0 DevNet
-    if ((await this.getRpcApiVersion()) === PRE_PAGINATION_API_VERSION) {
-      const requests = [
-        {
-          method: 'haneul_getTransactionsToAddress',
-          args: [addressID],
-        },
-        {
-          method: 'haneul_getTransactionsFromAddress',
-          args: [addressID],
-        },
-      ];
-      try {
-        const results = await this.client.batchRequestWithType(
-          requests,
-          isGetTxnDigestsResponse__DEPRECATED,
-          this.skipDataValidation
-        );
-        return [...results[0], ...results[1]].map((r) => r[1]);
-      } catch (err) {
-        throw new Error(
-          `Error getting transactions for address: ${err} for id ${addressID}`
-        );
-      }
-    }
     const requests = [
       {
         method: 'haneul_getTransactions',
-        args: [{ ToAddress: addressID }, null, null, 'Ascending'],
+        args: [{ ToAddress: addressID }, null, null, ordering],
       },
       {
         method: 'haneul_getTransactions',
-        args: [{ FromAddress: addressID }, null, null, 'Ascending'],
+        args: [{ FromAddress: addressID }, null, null, ordering],
       },
     ];
     try {
