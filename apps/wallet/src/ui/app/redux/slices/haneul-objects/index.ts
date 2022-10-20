@@ -4,9 +4,11 @@
 import {
     getExecutionStatusType,
     getObjectExistsResponse,
+    getObjectId,
     getTimestampFromTransactionResponse,
     getTotalGasUsed,
     getTransactionDigest,
+    getObjectVersion,
 } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
@@ -16,7 +18,7 @@ import {
 
 import { HANEUL_SYSTEM_STATE_OBJECT_ID } from './Coin';
 import { ExampleNFT } from './NFT';
-import { FEATURES } from '_src/ui/app/experimentation/features';
+import { FEATURES } from '_app/experimentation/features';
 
 import type {
     HaneulObject,
@@ -39,12 +41,31 @@ export const fetchAllOwnedAndRequiredObjects = createAsyncThunk<
     void,
     AppThunkConfig
 >('haneul-objects/fetch-all', async (_, { getState, extra: { api } }) => {
-    const address = getState().account.address;
+    const state = getState();
+    const {
+        account: { address },
+    } = state;
     const allHaneulObjects: HaneulObject[] = [];
     if (address) {
         const allObjectRefs =
             await api.instance.fullNode.getObjectsOwnedByAddress(`${address}`);
-        const objectIDs = allObjectRefs.map((anObj) => anObj.objectId);
+        const objectIDs = allObjectRefs
+            .filter((anObj) => {
+                const fetchedVersion = getObjectVersion(anObj);
+                const storedObj = haneulObjectsAdapterSelectors.selectById(
+                    state,
+                    getObjectId(anObj)
+                );
+                const storedVersion = storedObj
+                    ? getObjectVersion(storedObj.reference)
+                    : null;
+                const objOutdated = fetchedVersion !== storedVersion;
+                if (!objOutdated && storedObj) {
+                    allHaneulObjects.push(storedObj);
+                }
+                return objOutdated;
+            })
+            .map((anObj) => anObj.objectId);
         objectIDs.push(HANEUL_SYSTEM_STATE_OBJECT_ID);
         const allObjRes = await api.instance.fullNode.getObjectBatch(objectIDs);
         for (const objRes of allObjRes) {
