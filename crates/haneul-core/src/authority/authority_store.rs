@@ -23,7 +23,7 @@ use haneul_storage::{
 use haneul_types::batch::{SignedBatch, TxSequenceNumber};
 use haneul_types::crypto::{AuthoritySignInfo, EmptySignInfo};
 use haneul_types::object::Owner;
-use haneul_types::storage::WriteKind;
+use haneul_types::storage::{ChildObjectResolver, WriteKind};
 use haneul_types::{base_types::SequenceNumber, storage::ParentSync};
 use tokio::sync::Notify;
 use tokio_retry::strategy::{jitter, ExponentialBackoff};
@@ -1403,6 +1403,26 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> BackingPackageStore
             );
         }
         Ok(package)
+    }
+}
+
+impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ChildObjectResolver
+    for HaneulDataStore<S>
+{
+    fn read_child_object(&self, parent: &ObjectID, child: &ObjectID) -> HaneulResult<Option<Object>> {
+        let child_object = match self.get_object(child)? {
+            None => return Ok(None),
+            Some(o) => o,
+        };
+        let parent = *parent;
+        if child_object.owner != Owner::ObjectOwner(parent.into()) {
+            return Err(HaneulError::InvalidChildObjectAccess {
+                object: *child,
+                given_parent: parent,
+                actual_owner: child_object.owner,
+            });
+        }
+        Ok(Some(child_object))
     }
 }
 
