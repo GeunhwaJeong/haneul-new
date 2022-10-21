@@ -15,9 +15,7 @@ use haneul_json_rpc::api::{
     RpcGatewayApiClient, RpcReadApiClient, RpcTransactionBuilderClient, WalletSyncApiClient,
 };
 use haneul_json_rpc_types::{GetObjectDataResponse, HaneulTransactionResponse, TransactionBytes};
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;

@@ -24,7 +24,7 @@ use haneul_json_rpc_types::{
     GetObjectDataResponse, HaneulData, HaneulObject, HaneulParsedData, HaneulParsedObject,
     HaneulTransactionEffects,
 };
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::ClientType;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{

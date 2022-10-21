@@ -28,6 +28,7 @@ haneul-swarm = { path = "../haneul-swarm" }
 haneul = { path = "../haneul" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
+haneul-keys = { path = "../haneul-keys" }
 haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-json = { path = "../haneul-json" }

@@ -32,7 +32,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-node = { path = "../haneul-node" }
 haneul-config = { path = "../haneul-config" }
-haneul-sdk = { path = "../haneul-sdk" }
+haneul-keys = { path = "../haneul-keys" }
 
 move-core-types.workspace = true
 

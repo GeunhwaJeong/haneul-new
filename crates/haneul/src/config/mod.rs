@@ -5,8 +5,8 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::fmt::{Display, Formatter, Write};
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_keys::keystore::AccountKeystore;
+use haneul_keys::keystore::Keystore;
 use haneul_types::base_types::*;
 
 pub use haneul_config::Config;

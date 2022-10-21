@@ -10,9 +10,9 @@ use haneul_core::{
     authority_aggregator::{AuthorityAggregator, AuthorityAggregatorBuilder},
     authority_client::NetworkAuthorityClient,
 };
+use haneul_keys::keystore::{InMemKeystore, Keystore};
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
-use haneul_sdk::crypto::{InMemKeystore, Keystore};
 use haneul_types::{
     base_types::{ExecutionDigests, TransactionDigest},
     messages::{

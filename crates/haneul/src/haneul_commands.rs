@@ -20,7 +20,7 @@ use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
     HANEUL_GATEWAY_CONFIG, HANEUL_NETWORK_CONFIG,
 };
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::ClientType;
 use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};

@@ -13,9 +13,8 @@ use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
 
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
-    crypto::Keystore,
     json::HaneulJsonValue,
     rpc_types::HaneulData,
     types::{

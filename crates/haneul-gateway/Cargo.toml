@@ -24,6 +24,7 @@ haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }
+haneul-keys = { path = "../haneul-keys" }
 
 
 haneullabs-network.workspace = true

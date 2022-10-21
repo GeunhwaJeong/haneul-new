@@ -17,6 +17,7 @@ members = [
     "crates/haneul-json",
     "crates/haneul-json-rpc",
     "crates/haneul-json-rpc-types",
+    "crates/haneul-keys",
     "crates/haneul-macros",
     "crates/haneul-network",
     "crates/haneul-node",

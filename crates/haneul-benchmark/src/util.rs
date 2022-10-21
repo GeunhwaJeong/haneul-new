@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Result;
-use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_types::{
     base_types::HaneulAddress,
     crypto::{AccountKeyPair, KeypairTraits, HaneulKeyPair},

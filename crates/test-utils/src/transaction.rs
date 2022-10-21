@@ -21,7 +21,7 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_json_rpc_types::HaneulCertifiedTransaction;
 use haneul_json_rpc_types::HaneulObjectRead;
 use haneul_json_rpc_types::HaneulTransactionEffects;
-use haneul_sdk::crypto::AccountKeystore;
+use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};

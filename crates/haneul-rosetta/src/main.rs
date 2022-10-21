@@ -170,7 +170,7 @@ fn read_prefunded_account(path: &Path) -> Result<Vec<PrefundedAccount>, anyhow::
 
 #[test]
 fn test_read_keystore() {
-    use haneul_sdk::crypto::{AccountKeystore, FileBasedKeystore, Keystore};
+    use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
     use haneul_types::crypto::SignatureScheme;
 
     let temp_dir = tempfile::tempdir().unwrap();

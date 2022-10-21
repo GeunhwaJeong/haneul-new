@@ -9,15 +9,16 @@ use bip32::{DerivationPath, Mnemonic};
 use clap::*;
 use fastcrypto::traits::{ToFromBytes, VerifyingKey};
 use signature::rand_core::OsRng;
+use haneul_keys::key_derive::derive_key_pair_from_path;
 use tracing::info;
 
 use fastcrypto::ed25519::{Ed25519KeyPair, Ed25519PrivateKey, Ed25519PublicKey};
-use haneul_sdk::crypto::{AccountKeystore, Keystore};
+use haneul_keys::keystore::{AccountKeystore, Keystore};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{decode_bytes_hex, encode_bytes_hex};
 use haneul_types::crypto::{
-    derive_key_pair_from_path, get_key_pair, AuthorityKeyPair, Ed25519HaneulSignature,
-    EncodeDecodeBase64, NetworkKeyPair, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,
+    get_key_pair, AuthorityKeyPair, Ed25519HaneulSignature, EncodeDecodeBase64, NetworkKeyPair,
+    SignatureScheme, HaneulKeyPair, HaneulSignatureInner,
 };
 use haneul_types::haneul_serde::{Base64, Encoding};
 

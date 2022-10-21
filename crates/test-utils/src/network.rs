@@ -25,9 +25,7 @@ use haneul_json_rpc::gateway_api::{
     GatewayReadApiImpl, GatewayWalletSyncApiImpl, RpcGatewayImpl, TransactionBuilderImpl,
 };
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
-use haneul_sdk::crypto::AccountKeystore;
-use haneul_sdk::crypto::FileBasedKeystore;
-use haneul_sdk::crypto::Keystore;
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{ClientType, HaneulClient};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
