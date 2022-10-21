@@ -10,14 +10,22 @@
 
 module test::m {
     use haneul::tx_context::{Self, TxContext};
+    use haneul::dynamic_object_field as ofield;
 
     struct S has key, store {
         id: haneul::object::UID,
     }
 
+    struct R has key, store {
+        id: haneul::object::UID,
+        s: S,
+    }
+
     public entry fun mint(ctx: &mut TxContext) {
-        let s = S { id: haneul::object::new(ctx) };
-        haneul::transfer::transfer(s, tx_context::sender(ctx))
+        let id = haneul::object::new(ctx);
+        let child = S { id: haneul::object::new(ctx) };
+        ofield::add(&mut id, 0, child);
+        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
     }
 
     public entry fun share(s: S) {
@@ -28,27 +36,7 @@ module test::m {
         haneul::transfer::transfer(s, recipient)
     }
 
-    public entry fun transfer_to_object(child: S, parent: &mut S) {
-        haneul::transfer::transfer_to_object(child, parent)
-    }
-
 }
-
-//
-// Test transfer_to_object allows non-zero child count
-//
-
-//# run test::m::mint --sender A
-
-//# run test::m::mint --sender A
-
-//# run test::m::mint --sender A
-
-//# run test::m::transfer_to_object --sender A --args object(111) object(109)
-
-//# view-object 109
-
-//# run test::m::transfer_to_object --sender A --args object(109) object(107)
 
 //
 // Test share object allows non-zero child count
@@ -56,13 +44,9 @@ module test::m {
 
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
+//# run test::m::share --sender A --args object(108)
 
-//# run test::m::transfer_to_object --sender A --args object(117) object(115)
-
-//# view-object 115
-
-//# run test::m::share --sender A --args object(115)
+//# view-object 108
 
 //
 // Test transfer allows non-zero child count
@@ -70,13 +54,9 @@ module test::m {
 
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
+//# run test::m::transfer --sender A --args object(113) @B
 
-//# run test::m::transfer_to_object --sender A --args object(123) object(121)
-
-//# view-object 121
-
-//# run test::m::transfer --sender A --args object(121) @B
+//# view-object 113
 
 //
 // Test TransferObject allows non-zero child count
@@ -84,10 +64,6 @@ module test::m {
 
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
+//# transfer-object 119 --sender A --recipient B
 
-//# run test::m::transfer_to_object --sender A --args object(129) object(127)
-
-//# view-object 127
-
-//# transfer-object 127 --sender A --recipient B
+//# view-object 119

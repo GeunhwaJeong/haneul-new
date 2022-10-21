@@ -10,31 +10,25 @@
 
 module test::m {
     use haneul::tx_context::{Self, TxContext};
+    use haneul::dynamic_object_field as ofield;
 
     struct S has key, store {
         id: haneul::object::UID,
     }
 
-    struct R has key {
+    struct R has key, store {
         id: haneul::object::UID,
         s: S,
     }
 
     public entry fun mint(ctx: &mut TxContext) {
-        let s = S { id: haneul::object::new(ctx) };
-        haneul::transfer::transfer(s, tx_context::sender(ctx))
+        let id = haneul::object::new(ctx);
+        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
     }
 
-    public entry fun share(s: S) {
-        haneul::transfer::share_object(s)
-    }
-
-    public entry fun transfer(s: S, recipient: address) {
-        haneul::transfer::transfer(s, recipient)
-    }
-
-    public entry fun transfer_to_object(child: S, parent: &mut S) {
-        haneul::transfer::transfer_to_object(child, parent)
+    public entry fun add(parent: &mut S, idx: u64, ctx: &mut TxContext) {
+        let child = S { id: haneul::object::new(ctx) };
+        ofield::add(&mut parent.id, idx, child);
     }
 
     public entry fun wrap(s: S, ctx: &mut TxContext) {
@@ -45,10 +39,8 @@ module test::m {
 
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
+//# run test::m::add --sender A --args object(107) 0
 
-//# run test::m::transfer_to_object --sender A --args object(107) object(109)
+//# view-object 107
 
-//# view-object 109
-
-//# run test::m::wrap --sender A --args object(109)
+//# run test::m::wrap --sender A --args object(107)

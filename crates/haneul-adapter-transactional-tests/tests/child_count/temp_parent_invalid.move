@@ -18,7 +18,7 @@ module test::m {
     public entry fun t(ctx: &mut TxContext) {
         let parent = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
-        haneul::transfer::transfer_to_object_id(child, &mut parent);
+        haneul::dynamic_object_field::add(&mut parent, 0, child);
         haneul::object::delete(parent);
     }
 }

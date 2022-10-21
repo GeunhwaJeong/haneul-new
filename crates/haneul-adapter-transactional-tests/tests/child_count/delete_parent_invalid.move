@@ -10,36 +10,31 @@
 
 module test::m {
     use haneul::tx_context::{Self, TxContext};
+    use haneul::dynamic_object_field as ofield;
 
     struct S has key, store {
         id: haneul::object::UID,
     }
 
     public entry fun mint(ctx: &mut TxContext) {
-        let s = S { id: haneul::object::new(ctx) };
-        haneul::transfer::transfer(s, tx_context::sender(ctx))
+        let id = haneul::object::new(ctx);
+        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
     }
 
-    public entry fun transfer(s: S, recipient: address) {
-        haneul::transfer::transfer(s, recipient)
-    }
-
-    public entry fun transfer_to_object(child: S, parent: &mut S) {
-        haneul::transfer::transfer_to_object(child, parent)
+    public entry fun add(parent: &mut S, idx: u64, ctx: &mut TxContext) {
+        let child = S { id: haneul::object::new(ctx) };
+        ofield::add(&mut parent.id, idx, child);
     }
 
     public entry fun delete(s: S) {
         let S { id } = s;
         haneul::object::delete(id)
     }
-
 }
 
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
-
-//# run test::m::transfer_to_object --sender A --args object(109) object(107)
+//# run test::m::add --sender A --args object(107) 0
 
 //# view-object 107
 

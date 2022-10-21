@@ -10,27 +10,40 @@
 
 module test::m {
     use haneul::tx_context::{Self, TxContext};
+    use haneul::dynamic_object_field as ofield;
 
     struct S has key, store {
         id: haneul::object::UID,
     }
 
+    struct R has key, store {
+        id: haneul::object::UID,
+        s: S,
+    }
+
     public entry fun mint(ctx: &mut TxContext) {
-        let s = S { id: haneul::object::new(ctx) };
-        haneul::transfer::transfer(s, tx_context::sender(ctx))
+        let id = haneul::object::new(ctx);
+        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
     }
 
-    public entry fun transfer(s: S, recipient: address) {
-        haneul::transfer::transfer(s, recipient)
+    public entry fun add(parent: &mut S, idx: u64, ctx: &mut TxContext) {
+        let child = S { id: haneul::object::new(ctx) };
+        ofield::add(&mut parent.id, idx, child);
     }
 
-    public entry fun transfer_to_object(child: S, parent: &mut S) {
-        haneul::transfer::transfer_to_object(child, parent)
-    }
-
-    public entry fun delete_child(_parent: &S, child: S) {
-        let S { id } = child;
+    public entry fun remove(parent: &mut S, idx: u64) {
+        let S { id } = ofield::remove(&mut parent.id, idx);
         haneul::object::delete(id)
+    }
+
+    public entry fun remove_and_add(parent: &mut S, idx: u64) {
+        let child: S = ofield::remove(&mut parent.id, idx);
+        ofield::add(&mut parent.id, idx, child)
+    }
+
+    public entry fun remove_and_wrap(parent: &mut S, idx: u64, ctx: &mut TxContext) {
+        let child: S = ofield::remove(&mut parent.id, idx);
+        ofield::add(&mut parent.id, idx, R { id: haneul::object::new(ctx), s: child })
     }
 
     public entry fun delete(s: S) {
@@ -38,16 +51,17 @@ module test::m {
         haneul::object::delete(id)
     }
 
+    public entry fun wrap(s: S, ctx: &mut TxContext) {
+        let r = R { id: haneul::object::new(ctx), s };
+        haneul::transfer::transfer(r, tx_context::sender(ctx))
+    }
 }
-
 //# run test::m::mint --sender A
 
-//# run test::m::mint --sender A
-
-//# run test::m::transfer_to_object --sender A --args object(109) object(107)
+//# run test::m::add --sender A --args object(107) 0
 
 //# view-object 107
 
-//# run test::m::delete_child --sender A --args object(107) object(109)
+//# run test::m::remove --sender A --args object(107) 0
 
 //# run test::m::delete --sender A --args object(107)
