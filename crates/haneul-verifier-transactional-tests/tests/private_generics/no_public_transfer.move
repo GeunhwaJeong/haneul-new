@@ -19,17 +19,6 @@ module test::m {
 
 //# publish
 module test::m {
-    fun t(
-        s: a::m::S,
-        owner_id: &mut haneul::object::UID,
-        ctx: &mut haneul::tx_context::TxContext,
-    ) {
-        haneul::transfer::transfer_to_object_id(s, owner_id)
-    }
-}
-
-//# publish
-module test::m {
     fun t(s: a::m::S) {
         haneul::transfer::freeze_object(s)
     }
@@ -39,29 +28,5 @@ module test::m {
 module test::m {
     fun t(s: a::m::S) {
         haneul::transfer::share_object(s)
-    }
-}
-
-//# publish
-module test::m {
-    struct R has key { id: haneul::object::UID }
-    fun t(child: a::m::S, owner: &mut R) {
-        haneul::transfer::transfer_to_object(child, owner)
-    }
-}
-
-//# publish
-module test::m {
-    struct R has key { id: haneul::object::UID }
-    fun t(child: R, owner: &mut a::m::S) {
-        haneul::transfer::transfer_to_object(child, owner)
-    }
-}
-
-//# publish
-module test::m {
-    struct R has key { id: haneul::object::UID }
-    fun t(child: a::m::S, owner: &mut haneul::object::UID) {
-        haneul::transfer::transfer_to_object_id(child, owner)
     }
 }
