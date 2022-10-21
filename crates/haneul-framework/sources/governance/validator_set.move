@@ -13,6 +13,8 @@ module haneul::validator_set {
     use haneul::staking_pool::{Self, Delegation, StakedHaneul};
     use haneul::epoch_time_lock::EpochTimeLock;
     use haneul::priority_queue as pq;
+    use haneul::vec_map::VecMap;
+    use haneul::vec_set::VecSet;
 
     friend haneul::haneul_system;
 
@@ -225,6 +227,7 @@ module haneul::validator_set {
         self: &mut ValidatorSet,
         validator_reward: &mut Balance<HANEUL>,
         delegator_reward: &mut Balance<HANEUL>,
+        _validator_report_records: &VecMap<address, VecSet<address>>,
         ctx: &mut TxContext,
     ) {
         // `compute_reward_distribution` must be called before `adjust_stake` to make sure we are using the current
@@ -241,6 +244,8 @@ module haneul::validator_set {
         // each validator's pending stake, and that shouldn't be available in the next epoch.
         adjust_stake_and_gas_price(&mut self.active_validators);
 
+        // TODO: use `validator_report_records` and punish validators whose numbers of reports receives are greater than
+        // some threshold.
         distribute_reward(
             &mut self.active_validators, 
             &validator_reward_amounts, 

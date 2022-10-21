@@ -4,6 +4,7 @@
 use bcs::to_bytes;
 use haneul_types::balance::{Balance, Supply};
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::collection_types::VecMap;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{
     get_key_pair, AuthorityPublicKeyBytes, KeypairTraits, NetworkKeyPair, ToFromBytes,
@@ -86,5 +87,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
             storage_gas_price: 1,
         },
         reference_gas_price: 1,
+        validator_report_records: VecMap { contents: vec![] },
     }
 }
