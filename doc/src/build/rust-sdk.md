@@ -3,7 +3,7 @@ title: Interact with Haneul over Rust SDK
 ---
 
 ## Overview
-The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet Gateway](../build/devnet.md) and [Haneul Full Node](fullnode.md).
+The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet](../build/devnet.md) and [Haneul Full node](fullnode.md).
 
 The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).  
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
@@ -55,7 +55,7 @@ You can verify the result with the [Haneul Explorer](https://explorer.devnet.han
 
 ### Example 2 - Create and execute transaction
 
-Use this example to conduct a transaction in Haneul using the Haneul Devnet Gateway:
+Use this example to conduct a transaction in Haneul using the Haneul Devnet Full node:
 
 ```rust
 use std::str::FromStr;
@@ -122,7 +122,7 @@ async fn main() -> Result<(), anyhow::Error> {
     }
 }
 ```
-> Note: You will need to connect to a fullnode for the Event subscription service, see [Fullnode setup](fullnode.md#fullnode-setup) if you want to run a Haneul Fullnode.
+> Note: You will need to connect to a fullnode for the Event subscription service, see [Full node setup](fullnode.md#fullnode-setup) if you want to run a Haneul Fullnode.
 
 
 ## Larger examples

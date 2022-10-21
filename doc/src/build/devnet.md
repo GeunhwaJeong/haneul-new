@@ -2,11 +2,11 @@
 title: Connect to Haneul Devnet
 ---
 
-We are hosting a public Devnet for the community to experiment with Haneul and provide feedback to help to shape the future of the Haneul network.
+The Haneul Devnet network lets you experiment with Haneul and provide feedback to help to shape the future of the Haneul network.
 
 The Haneul Devnet network currently consists of:
 
-* Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: fullnode.devnet.haneul.io:443 using [JSON-RPC](../build/json-rpc.md)
+* Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: `https://fullnode.devnet.haneul.io:443` using [JSON-RPC](../build/json-rpc.md).
 * A public network [Haneul Explorer](https://explorer.devnet.haneul.io) for browsing transaction history.
 * A [Discord channel](https://discordapp.com/channels/916379725201563759/971488439931392130) for requesting test coins that can be used to pay for gas on the test network. These coins have no financial value and will disappear each time we reset the network.
 
@@ -24,33 +24,29 @@ We provide the following tools for users to interact with Haneul Devnet:
     * call and publish Move modules
 * [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/blob/main/apps/explorer/README.md) - view transactions and objects
 
-
 ## Environment set up
 
-You can [install Haneul](../build/install.md) and then request test tokens as described in the install docs. To use the Haneul Devnet, you need:
+Learn how to install Haneul and then request test tokens in the [Install Haneul](topic). After you install Haneul, request Haneul [test coins](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 
-1. Haneul [test coins (tokens)](#request-gas-tokens) requested through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
-1. the [`git` command line interface](https://git-scm.com/download/).
-1. [Haneul binaries](../build/install.md#binaries) in your PATH environment variable, particularly `haneul`.
-
-Remember, you can confirm the existence of a command in your PATH by running `which` followed by the command, for example:
+To check whether Haneul is installed, run the following command:
 
 ```shell
 $ which haneul
 ```
-You should see the path to the command. Otherwise, reinstall.
 
-> **Tip:** Check the [Haneul Releases](https://github.com/GeunhwaJeong/haneul/releases) page to make sure you have the latest release.
+If the command doesn't return a path to the command you need to install Haneul.
 
-## Configure the Haneul client
+> **Tip:** Check the [Haneul Releases](https://github.com/GeunhwaJeong/haneul/releases) page to see the changes in the latest release.
 
-Now set up your Haneul CLI client and connect to Devnet. Note you can manually change the Gateway URL if you have already configured a Haneul CLI client.
+## Configure Haneul client
 
- To connect the Haneul client to the Devnet, run the following command:
+Now set up your Haneul Client CLI to connect to Haneul Devnet.
+
+To connect the Haneul client to Haneul Devnet, run the following command:
 ```shell
 $ haneul client
 ```
-The Haneul CLI will print the following line if the client is starting up for the first time:
+The Haneul CLI prints the following line when the client starts up for the first time:
 ```shell
 Config file ["/Users/dir/.haneul/haneul_config/client.yaml"] doesn't exist, do you want to connect to a Haneul RPC server [y/n]?
 ```
