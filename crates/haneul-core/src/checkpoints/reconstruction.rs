@@ -7,6 +7,7 @@ use tracing::debug;
 
 use haneul_types::base_types::ExecutionDigests;
 use haneul_types::committee::StakeUnit;
+use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages_checkpoint::{CheckpointProposalSummary, CheckpointSequenceNumber};
 use haneul_types::{
     base_types::AuthorityName,
@@ -117,11 +118,6 @@ impl SpanGraph {
         span
     }
 
-    /// Reset the span graph back to Uninitialized.
-    pub fn reset(&mut self) {
-        *self = Self::Uninitialized;
-    }
-
     /// Add a new fragment to the span graph and checks whether it can construct a connected
     /// component checkpoint with weight over 2/3 of stake. Note that the minimum
     /// prefix of links is used in this process.
@@ -211,7 +207,7 @@ impl SpanGraph {
         matches!(self, Self::Completed(_))
     }
 
-    pub fn construct_checkpoint(&self) -> FragmentReconstruction {
+    pub fn construct_checkpoint(&self) -> HaneulResult<FragmentReconstruction> {
         if let Self::Completed(span) = &self {
             let mut global = GlobalCheckpoint::new();
             let mut extra_transactions = BTreeMap::new();
@@ -235,12 +231,14 @@ impl SpanGraph {
                 }
             }
 
-            FragmentReconstruction {
+            Ok(FragmentReconstruction {
                 global,
                 extra_transactions,
-            }
+            })
         } else {
-            unreachable!("construct_checkpoint should only be called after completion check");
+            Err(HaneulError::from(
+                "Not yet enough fragments to construct checkpoint",
+            ))
         }
     }
 
