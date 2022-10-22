@@ -53,7 +53,7 @@ Minimum hardware requirements for running a Haneul Full node:
 ### Software requirements
 
 We recommend running Haneul Full nodes on Linux. Haneul supports the Ubuntu and
-Debian distributions.
+Debian distributions. You can also run a Haneul Full node on macOS.
 
 Make sure to update [Rust](../build/install.md#rust).
 
