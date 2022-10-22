@@ -70,7 +70,7 @@ function Footer() {
                         </li>
                         <li>
                             <ExternalLink
-                                href="https://twitter.com/haneul_labs"
+                                href="https://twitter.com/HaneulNetwork"
                                 label="Twitter"
                             />
                         </li>

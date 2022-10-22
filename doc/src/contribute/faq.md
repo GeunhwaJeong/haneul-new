@@ -79,7 +79,7 @@ We accepted applications for validators to participate in Wave 1 of the Incentiv
 
 ### How can I join the Haneul network? How do I participate in the Haneul project?
 
-Join our [Discord](https://discord.gg/haneul) and follow our [Twitter](https://twitter.com/Haneul_Labs) for the latest updates and announcements.
+Join our [Discord](https://discord.gg/haneul) and follow our [Twitter](https://twitter.com/HaneulNetwork) for the latest updates and announcements.
 
 For developers:
 
