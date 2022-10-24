@@ -7872,6 +7872,7 @@ dependencies = [
  "haneul-macros",
  "haneul-network",
  "haneul-node",
+ "haneul-sdk",
  "haneul-simulator",
  "haneul-types",
  "telemetry-subscribers 0.2.0",

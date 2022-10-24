@@ -39,6 +39,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-network = { path = "../haneul-network" }
 haneul-types = { path = "../haneul-types" }
+haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }

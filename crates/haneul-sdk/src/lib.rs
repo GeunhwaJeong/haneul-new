@@ -41,8 +41,9 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::messages::Transaction;
 use haneul_types::query::{Ordering, TransactionQuery};
 use types::base_types::SequenceNumber;
+use types::committee::EpochId;
 use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
-use types::messages::ExecuteTransactionRequestType;
+use types::messages::{CommitteeInfoResponse, ExecuteTransactionRequestType};
 
 const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 10;
 
@@ -56,6 +57,7 @@ pub struct TransactionExecutionResult {
     pub parsed_data: Option<HaneulParsedTransactionResponse>,
 }
 
+#[derive(Clone)]
 pub struct HaneulClient {
     api: Arc<HaneulClientApi>,
     transaction_builder: TransactionBuilder,
@@ -321,8 +323,21 @@ impl ReadApi {
             HaneulClientApi::Embedded(c) => c.get_transaction(digest).await?,
         })
     }
+
+    pub async fn get_committee_info(
+        &self,
+        epoch: Option<EpochId>,
+    ) -> anyhow::Result<CommitteeInfoResponse> {
+        Ok(match &*self.api {
+            HaneulClientApi::Rpc(c) => c.http.get_committee_info(epoch).await?,
+            HaneulClientApi::Embedded(_c) => {
+                unimplemented!("Gateway/embedded client does not support get committee info")
+            }
+        })
+    }
 }
 
+#[derive(Clone)]
 pub struct FullNodeApi(Arc<HaneulClientApi>);
 
 impl FullNodeApi {
@@ -341,6 +356,8 @@ impl FullNodeApi {
         })
     }
 }
+
+#[derive(Clone)]
 pub struct EventApi(Arc<HaneulClientApi>);
 
 impl EventApi {
@@ -358,6 +375,8 @@ impl EventApi {
         }
     }
 }
+
+#[derive(Clone)]
 pub struct QuorumDriver {
     api: Arc<HaneulClientApi>,
 }
@@ -507,6 +526,7 @@ impl QuorumDriver {
     }
 }
 
+#[derive(Clone)]
 pub struct WalletSyncApi(Arc<HaneulClientApi>);
 
 impl WalletSyncApi {
