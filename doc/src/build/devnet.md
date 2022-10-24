@@ -26,7 +26,7 @@ We provide the following tools for users to interact with Haneul Devnet:
 
 ## Environment set up
 
-Learn how to install Haneul and then request test tokens in the [Install Haneul](topic). After you install Haneul, request Haneul [test coins](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
+Learn how to install Haneul and then request test tokens in the [Install Haneul](../build/install.md#haneul-tokens). After you install Haneul, request Haneul [test coins](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 
 To check whether Haneul is installed, run the following command:
 
