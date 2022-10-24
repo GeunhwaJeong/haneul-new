@@ -8,12 +8,12 @@ Before you install Haneul, you need to install some prerequisite tools and then 
 
 The steps to install Haneul include:
 
-1. Install [prerequisites](#prerequisites).
-1. Install Haneul [binaries](#binaries).
-1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
+1. Install [prerequisites](#prerequisites)
+1. [Install Haneul binaries](#install-haneul-binaries)
+1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment)
 1. Request [HANEUL tokens](#haneul-tokens) to evaluate Devnet and Haneul Wallet
 1. Optionally, download the [source code](#source-code) to have local
-   access to examples and modify Haneul itself.
+   access to examples and contribute to Haneul.
 
 ## Branches of the Haneul repo
 
