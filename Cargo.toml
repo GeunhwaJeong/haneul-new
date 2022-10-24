@@ -43,7 +43,7 @@ members = [
 ]
 
 [workspace.package]
-# This version string will be inheritted by haneul-core, haneul-faucet, haneul-node, haneul-tools and haneul crates
+# This version string will be inheritted by haneul-core, haneul-faucet, haneul-node, haneul-tools, haneul-sdk, and haneul crates
 version = "0.13.0"
 
 [profile.release]
