@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeMap;
-use std::sync::Arc;
-
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
@@ -11,6 +8,9 @@ use jsonrpsee_core::server::rpc_module::RpcModule;
 use move_binary_format::normalized::{Module as NormalizedModule, Type};
 use move_core_types::identifier::Identifier;
 use signature::Signature;
+use std::collections::BTreeMap;
+use std::sync::Arc;
+use tap::TapFallible;
 
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
@@ -31,6 +31,8 @@ use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead, Owner};
 use haneul_types::query::{Ordering, TransactionQuery};
 use haneul_types::haneul_serde::Base64;
+
+use tracing::debug;
 
 use crate::api::RpcReadApiServer;
 use crate::api::{RpcFullNodeReadApiServer, MAX_RESULT_SIZE};
@@ -91,7 +93,10 @@ impl RpcReadApiServer for ReadApi {
             .state
             .get_object_read(&object_id)
             .await
-            .map_err(|e| anyhow!("{e}"))?
+            .map_err(|e| {
+                debug!(?object_id, "Failed to get object: {:?}", e);
+                anyhow!("{e}")
+            })?
             .try_into()?)
     }
 
@@ -116,7 +121,11 @@ impl RpcReadApiServer for ReadApi {
         &self,
         digest: TransactionDigest,
     ) -> RpcResult<HaneulTransactionResponse> {
-        let (cert, effects) = self.state.get_transaction(digest).await?;
+        let (cert, effects) = self
+            .state
+            .get_transaction(digest)
+            .await
+            .tap_err(|err| debug!(tx_digest=?digest, "Failed to get transaction: {:?}", err))?;
         Ok(HaneulTransactionResponse {
             certificate: cert.try_into()?,
             effects: HaneulTransactionEffects::try_from(effects, self.state.module_cache.as_ref())?,

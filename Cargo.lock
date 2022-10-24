@@ -8364,6 +8364,7 @@ dependencies = [
  "haneul-open-rpc-macros",
  "haneul-transaction-builder",
  "haneul-types",
+ "tap",
  "tokio",
  "tracing",
  "workspace-hack",

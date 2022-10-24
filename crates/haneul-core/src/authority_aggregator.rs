@@ -396,7 +396,7 @@ where
                     processed_certificates.insert(cert_digest);
                     continue;
                 }
-                Err(HaneulError::ObjectErrors { .. }) => {}
+                Err(HaneulError::TransactionInputObjectsErrors { .. }) => {}
                 Err(e) => return Err(e),
             }
 

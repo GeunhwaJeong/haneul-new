@@ -103,9 +103,10 @@ where
         Ok(HaneulGasStatus::new_unmetered())
     } else {
         let gas_object = store.get_object_by_key(&gas_payment.0, gas_payment.1)?;
-        let gas_object = gas_object.ok_or(HaneulError::ObjectErrors {
+        let gas_object = gas_object.ok_or(HaneulError::TransactionInputObjectsErrors {
             errors: vec![HaneulError::ObjectNotFound {
                 object_id: gas_payment.0,
+                version: Some(gas_payment.1),
             }],
         })?;
 
@@ -192,7 +193,7 @@ async fn check_objects(
     // If any errors with the locks were detected, we return all errors to give the client
     // a chance to update the authority if possible.
     if !errors.is_empty() {
-        return Err(HaneulError::ObjectErrors { errors });
+        return Err(HaneulError::TransactionInputObjectsErrors { errors });
     }
     fp_ensure!(!all_objects.is_empty(), HaneulError::ObjectInputArityViolation);
 
