@@ -85,7 +85,8 @@ describe.each([{ useLocalTxnBuilder: true }, { useLocalTxnBuilder: false }])(
       );
 
       const validators = await toolbox.getActiveValidators();
-      const validator_metadata = (validators[0] as HaneulMoveObject).fields.metadata;
+      const validator_metadata = (validators[0] as HaneulMoveObject).fields
+        .metadata;
       const validator_address = (validator_metadata as HaneulMoveObject).fields
         .haneul_address;
 
