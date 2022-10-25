@@ -116,7 +116,16 @@
   },
   "HomePage": {
     "title": "Haneul Documentation",
-    "subTitle": "Documentation for Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move.",
+    "subTitle": "Docs for Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
+    "partner": {
+      "title": "Partnerships Highlight",
+      "copy": "Explore examples and 3rd-party projects built on Haneul.",
+      "cta": {
+        "label": "Go",
+        "link": "https://haneul.io/ecosystem/",
+        "external": true
+      }
+    },
     "cta": [
       {
         "name": "What's New",
@@ -154,6 +163,10 @@
             "url": "/build"
           },
           {
+            "name": "Haneul Reference Docs",
+            "url": "/reference"
+          },          
+          {
             "name": "Explore Haneul",
             "url": "/explore"
           }
@@ -168,13 +181,9 @@
             "external": true
           },
           {
-            "name": "Haneul Partners",
-            "url": "https://haneul.io/ecosystem/",
-            "external": true            
-          },
-          {
             "name": "Haneul by Example",
             "url": "https://examples.haneul.io/"
+            "external": true
           },
           {
             "name": "Why We Created Haneul Move",
