@@ -60,7 +60,7 @@ Use this example to conduct a transaction in Haneul using the Haneul Devnet Full
 ```rust
 use std::str::FromStr;
 use haneul_sdk::{
-    crypto::HaneulKeystore,
+    crypto::{FileBasedKeystore, Keystore},
     types::{
         base_types::{ObjectID, HaneulAddress},
         crypto::Signature,
