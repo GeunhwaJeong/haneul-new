@@ -17,9 +17,24 @@
         "jsx": "react-jsx",
         "baseUrl": ".",
         "paths": {
+            "~/*": ["./src/*"],
             "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
             "@haneullabs/bcs": ["../../sdk/bcs/src/"],
-            "~/*": ["./src/*"]
+            "@haneullabs/wallet-adapter-base": [
+                "../../sdk/wallet-adapter/packages/adapters/base-adapter/src/"
+            ],
+            "@haneullabs/wallet-standard": [
+                "../../sdk/wallet-adapter/packages/wallet-standard/src/"
+            ],
+            "@haneullabs/wallet-adapter-wallet-standard": [
+                "../../sdk/wallet-adapter/packages/adapters/wallet-standard-adapter/src/"
+            ],
+            "@haneullabs/wallet-adapter-react": [
+                "../../sdk/wallet-adapter/packages/react-providers/src/"
+            ],
+            "@haneullabs/wallet-adapter-react-ui": [
+                "../../sdk/wallet-adapter/packages/ui/src/"
+            ]
         }
     },
     "include": ["src"]
