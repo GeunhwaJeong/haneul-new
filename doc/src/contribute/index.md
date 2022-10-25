@@ -8,7 +8,7 @@ You can find answers to common questions in our [FAQ](../contribute/faq.md).
 
 ## See our roadmap
 
-Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) for the planned updates over the next 30 days.
+Haneul is evolving quickly. See our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md) for the planned updates over the next 30 days.
 
 ## Join the community
 
