@@ -238,6 +238,10 @@ pub trait RpcTransactionBuilder {
         amount: Option<u64>,
     ) -> RpcResult<TransactionBytes>;
 
+    /// Send Coin<T> to a list of addresses, where `T` can be any coin type, following a list of amounts,
+    /// The object specified in the `gas` field will be used to pay the gas fee for the transaction.
+    /// The gas object can not appear in `input_coins`. If the gas object is not specified, the RPC server
+    /// will auto-select one.
     #[method(name = "pay")]
     async fn pay(
         &self,
@@ -251,6 +255,50 @@ pub trait RpcTransactionBuilder {
         amounts: Vec<u64>,
         /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
+        /// the gas budget, the transaction will fail if the gas cost exceed the budget
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes>;
+
+    /// Send HANEUL coins to a list of addresses, following a list of amounts.
+    /// This is for HANEUL coin only and does not require a separate gas coin object.
+    /// Specifically, what pay_haneul does are:
+    /// 1. debit each input_coin to create new coin following the order of
+    /// amounts and assign it to the corresponding recipient.
+    /// 2. accumulate all residual HANEUL from input coins left and deposit all HANEUL to the first
+    /// input coin, then use the first input coin as the gas coin object.
+    /// 3. the balance of the first input coin after tx is sum(input_coins) - sum(amounts) - actual_gas_cost
+    /// 4. all other input coints other than the first one are deleted.
+    #[method(name = "payHaneul")]
+    async fn pay_haneul(
+        &self,
+        /// the transaction signer's Haneul address
+        signer: HaneulAddress,
+        /// the Haneul coins to be used in this transaction, including the coin for gas payment.
+        input_coins: Vec<ObjectID>,
+        /// the recipients' addresses, the length of this vector must be the same as amounts.
+        recipients: Vec<HaneulAddress>,
+        /// the amounts to be transferred to recipients, following the same order
+        amounts: Vec<u64>,
+        /// the gas budget, the transaction will fail if the gas cost exceed the budget
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes>;
+
+    /// Send all HANEUL coins to one recipient.
+    /// This is for HANEUL coin only and does not require a separate gas coin object.
+    /// Specifically, what pay_all_haneul does are:
+    /// 1. accumulate all HANEUL from input coins and deposit all HANEUL to the first input coin
+    /// 2. transfer the updated first coin to the recipient and also use this first coin as gas coin object.
+    /// 3. the balance of the first input coin after tx is sum(input_coins) - actual_gas_cost.
+    /// 4. all other input coins other than the first are deleted.
+    #[method(name = "payAllHaneul")]
+    async fn pay_all_haneul(
+        &self,
+        /// the transaction signer's Haneul address
+        signer: HaneulAddress,
+        /// the Haneul coins to be used in this transaction, including the coin for gas payment.
+        input_coins: Vec<ObjectID>,
+        /// the recipient address,
+        recipient: HaneulAddress,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;

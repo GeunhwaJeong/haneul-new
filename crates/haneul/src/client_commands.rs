@@ -185,7 +185,7 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         amount: Option<u64>,
     },
-    /// Pay HANEUL to recipients following specified amounts, with input coins.
+    /// Pay coins to recipients following specified amounts, with input coins.
     /// Length of recipients must be the same as that of amounts.
     #[clap(name = "pay")]
     Pay {
@@ -197,7 +197,7 @@ pub enum HaneulClientCommands {
         #[clap(long, multiple_occurrences = false, multiple_values = true)]
         recipients: Vec<HaneulAddress>,
 
-        /// The amounts to be transferred, following the order of recipients.
+        /// The amounts to be paid, following the order of recipients.
         #[clap(long, multiple_occurrences = false, multiple_values = true)]
         amounts: Vec<u64>,
 
@@ -206,10 +206,50 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         gas: Option<ObjectID>,
 
-        /// Gas budget for this transfer
+        /// Gas budget for this transaction
         #[clap(long)]
         gas_budget: u64,
     },
+
+    /// Pay HANEUL coins to recipients following following specified amounts, with input coins.
+    /// Length of recipients must be the same as that of amounts.
+    /// The input coins also include the coin for gas payment, so no extra gas coin is required.
+    #[clap(name = "pay_haneul")]
+    PayHaneul {
+        /// The input coins to be used for pay recipients, including the gas coin.
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        input_coins: Vec<ObjectID>,
+
+        /// The recipient addresses, must be of same length as amounts.
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        recipients: Vec<HaneulAddress>,
+
+        /// The amounts to be paid, following the order of recipients.
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        amounts: Vec<u64>,
+
+        /// Gas budget for this transaction
+        #[clap(long)]
+        gas_budget: u64,
+    },
+
+    /// Pay all residual HANEUL coins to the recipient with input coins, after deducting the gas cost.
+    /// The input coins also include the coin for gas payment, so no extra gas coin is required.
+    #[clap(name = "pay_all_haneul")]
+    PayAllHaneul {
+        /// The input coins to be used for pay recipients, including the gas coin.
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        input_coins: Vec<ObjectID>,
+
+        /// The recipient address.
+        #[clap(long, multiple_occurrences = false)]
+        recipient: HaneulAddress,
+
+        /// Gas budget for this transaction
+        #[clap(long)]
+        gas_budget: u64,
+    },
+
     /// Synchronize client state with authorities.
     #[clap(name = "sync")]
     SyncClientState {
@@ -494,6 +534,82 @@ impl HaneulClientCommands {
                     ));
                 }
                 HaneulClientCommandResult::Pay(cert, effects)
+            }
+
+            HaneulClientCommands::PayHaneul {
+                input_coins,
+                recipients,
+                amounts,
+                gas_budget,
+            } => {
+                ensure!(
+                    !input_coins.is_empty(),
+                    "PayHaneul transaction requires a non-empty list of input coins"
+                );
+                ensure!(
+                    !recipients.is_empty(),
+                    "PayHaneul transaction requires a non-empty list of recipient addresses"
+                );
+                ensure!(
+                    recipients.len() == amounts.len(),
+                    format!(
+                        "Found {:?} recipient addresses, but {:?} recipient amounts",
+                        recipients.len(),
+                        amounts.len()
+                    ),
+                );
+                let signer = context.get_object_owner(&input_coins[0]).await?;
+                let data = context
+                    .client
+                    .transaction_builder()
+                    .pay_haneul(signer, input_coins, recipients, amounts, gas_budget)
+                    .await?;
+                let signature = context.config.keystore.sign(&signer, &data.to_bytes())?;
+                let response = context
+                    .execute_transaction(Transaction::new(data, signature))
+                    .await?;
+
+                let cert = response.certificate;
+                let effects = response.effects;
+                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
+                    return Err(anyhow!(
+                        "Error executing PayHaneul transaction: {:#?}",
+                        effects.status
+                    ));
+                }
+                HaneulClientCommandResult::PayHaneul(cert, effects)
+            }
+
+            HaneulClientCommands::PayAllHaneul {
+                input_coins,
+                recipient,
+                gas_budget,
+            } => {
+                ensure!(
+                    !input_coins.is_empty(),
+                    "PayAllHaneul transaction requires a non-empty list of input coins"
+                );
+                let signer = context.get_object_owner(&input_coins[0]).await?;
+                let data = context
+                    .client
+                    .transaction_builder()
+                    .pay_all_haneul(signer, input_coins, recipient, gas_budget)
+                    .await?;
+
+                let signature = context.config.keystore.sign(&signer, &data.to_bytes())?;
+                let response = context
+                    .execute_transaction(Transaction::new(data, signature))
+                    .await?;
+
+                let cert = response.certificate;
+                let effects = response.effects;
+                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
+                    return Err(anyhow!(
+                        "Error executing PayAllHaneul transaction: {:#?}",
+                        effects.status
+                    ));
+                }
+                HaneulClientCommandResult::PayAllHaneul(cert, effects)
             }
 
             HaneulClientCommands::Addresses => {
@@ -918,6 +1034,12 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::Pay(cert, effects) => {
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
             }
+            HaneulClientCommandResult::PayHaneul(cert, effects) => {
+                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            }
+            HaneulClientCommandResult::PayAllHaneul(cert, effects) => {
+                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            }
             HaneulClientCommandResult::Addresses(addresses) => {
                 writeln!(writer, "Showing {} results.", addresses.len())?;
                 for address in addresses {
@@ -1137,6 +1259,8 @@ pub enum HaneulClientCommandResult {
     ),
     TransferHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Pay(HaneulCertifiedTransaction, HaneulTransactionEffects),
+    PayHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
+    PayAllHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Addresses(Vec<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     SyncClientState,

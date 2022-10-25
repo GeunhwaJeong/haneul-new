@@ -219,6 +219,35 @@ impl RpcTransactionBuilderServer for TransactionBuilderImpl {
         Ok(TransactionBytes::from_data(data)?)
     }
 
+    async fn pay_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        let data = self
+            .client
+            .pay_haneul(signer, input_coins, recipients, amounts, gas_budget)
+            .await?;
+        Ok(TransactionBytes::from_data(data)?)
+    }
+
+    async fn pay_all_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipient: HaneulAddress,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        let data = self
+            .client
+            .pay_all_haneul(signer, input_coins, recipient, gas_budget)
+            .await?;
+        Ok(TransactionBytes::from_data(data)?)
+    }
+
     async fn publish(
         &self,
         sender: HaneulAddress,
