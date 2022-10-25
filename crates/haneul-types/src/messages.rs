@@ -94,10 +94,48 @@ pub struct MoveModulePublish {
     pub modules: Vec<Vec<u8>>,
 }
 
+// TODO: we can deprecate TransferHaneul when its callsites on RPC & SDK are
+// fully replaced by PayHaneul and PayAllHaneul.
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub struct TransferHaneul {
     pub recipient: HaneulAddress,
     pub amount: Option<u64>,
+}
+
+/// Send all HANEUL coins to one recipient.
+/// only for HANEUL coin and does not require a separate gas coin object either.
+/// Specifically, what pay_all_haneul does are:
+/// 1. accumulate all HANEUL from input coins and deposit all HANEUL to the first input coin
+/// 2. transfer the updated first coin to the recipient and also use this first coin as
+/// gas coin object.
+/// 3. the balance of the first input coin after tx is sum(input_coins) - actual_gas_cost.
+/// 4. all other input coins other than the first are deleted.
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
+pub struct PayAllHaneul {
+    /// The coins to be used for payment.
+    pub coins: Vec<ObjectRef>,
+    /// The address that will receive payment
+    pub recipient: HaneulAddress,
+}
+
+/// Send HANEUL coins to a list of addresses, following a list of amounts.
+/// only for HANEUL coin and does not require a separate gas coin object.
+/// Specifically, what pay_haneul does are:
+/// 1. debit each input_coin to create new coin following the order of
+/// amounts and assign it to the corresponding recipient.
+/// 2. accumulate all residual HANEUL from input coins left and deposit all HANEUL to the first
+/// input coin, then use the first input coin as the gas coin object.
+/// 3. the balance of the first input coin after tx is sum(input_coins) - sum(amounts) - actual_gas_cost
+/// 4. all other input coints other than the first one are deleted.
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
+pub struct PayHaneul {
+    /// The coins to be used for payment.
+    pub coins: Vec<ObjectRef>,
+    /// The addresses that will receive payment
+    pub recipients: Vec<HaneulAddress>,
+    /// The amounts each recipient will receive.
+    /// Must be the same length as recipients
+    pub amounts: Vec<u64>,
 }
 
 /// Pay each recipient the corresponding amount using the input coins
@@ -136,6 +174,12 @@ pub enum SingleTransactionKind {
     TransferHaneul(TransferHaneul),
     /// Pay multiple recipients using multiple input coins
     Pay(Pay),
+    /// Pay multiple recipients using multiple HANEUL coins,
+    /// no extra gas payment HANEUL coin is required.
+    PayHaneul(PayHaneul),
+    /// After paying the gas of the transaction itself, pay
+    /// pay all remaining coins to the recipient.
+    PayAllHaneul(PayAllHaneul),
     /// A system transaction that will update epoch information on-chain.
     /// It will only ever be executed once in an epoch.
     /// The argument is the next epoch number, which is critical
@@ -273,6 +317,14 @@ impl SingleTransactionKind {
                 .iter()
                 .map(|o| InputObjectKind::ImmOrOwnedMoveObject(*o))
                 .collect(),
+            Self::PayHaneul(PayHaneul { coins, .. }) => coins
+                .iter()
+                .map(|o| InputObjectKind::ImmOrOwnedMoveObject(*o))
+                .collect(),
+            Self::PayAllHaneul(PayAllHaneul { coins, .. }) => coins
+                .iter()
+                .map(|o| InputObjectKind::ImmOrOwnedMoveObject(*o))
+                .collect(),
             Self::ChangeEpoch(_) => {
                 vec![InputObjectKind::SharedMoveObject {
                     id: HANEUL_SYSTEM_STATE_OBJECT_ID,
@@ -332,6 +384,34 @@ impl Display for SingleTransactionKind {
                 for amount in &p.amounts {
                     writeln!(writer, "{}", amount)?
                 }
+            }
+            Self::PayHaneul(p) => {
+                writeln!(writer, "Transaction Kind : Pay HANEUL")?;
+                writeln!(writer, "Coins:")?;
+                for (object_id, seq, digest) in &p.coins {
+                    writeln!(writer, "Object ID : {}", &object_id)?;
+                    writeln!(writer, "Sequence Number : {:?}", seq)?;
+                    writeln!(writer, "Object Digest : {}", encode_bytes_hex(digest.0))?;
+                }
+                writeln!(writer, "Recipients:")?;
+                for recipient in &p.recipients {
+                    writeln!(writer, "{}", recipient)?;
+                }
+                writeln!(writer, "Amounts:")?;
+                for amount in &p.amounts {
+                    writeln!(writer, "{}", amount)?
+                }
+            }
+            Self::PayAllHaneul(p) => {
+                writeln!(writer, "Transaction Kind : Pay all HANEUL")?;
+                writeln!(writer, "Coins:")?;
+                for (object_id, seq, digest) in &p.coins {
+                    writeln!(writer, "Object ID : {}", &object_id)?;
+                    writeln!(writer, "Sequence Number : {:?}", seq)?;
+                    writeln!(writer, "Object Digest : {}", encode_bytes_hex(digest.0))?;
+                }
+                writeln!(writer, "Recipient:")?;
+                writeln!(writer, "{}", &p.recipient)?;
             }
             Self::Publish(_p) => {
                 writeln!(writer, "Transaction Kind : Publish")?;
@@ -411,6 +491,14 @@ impl TransactionKind {
         }
     }
 
+    pub fn is_pay_haneul_tx(&self) -> bool {
+        matches!(
+            self,
+            TransactionKind::Single(SingleTransactionKind::PayHaneul(_))
+                | TransactionKind::Single(SingleTransactionKind::PayAllHaneul(_))
+        )
+    }
+
     pub fn is_system_tx(&self) -> bool {
         matches!(
             self,
@@ -440,6 +528,8 @@ impl TransactionKind {
                     | SingleTransactionKind::TransferObject(_)
                     | SingleTransactionKind::Pay(_) => true,
                     SingleTransactionKind::TransferHaneul(_)
+                    | SingleTransactionKind::PayHaneul(_)
+                    | SingleTransactionKind::PayAllHaneul(_)
                     | SingleTransactionKind::ChangeEpoch(_)
                     | SingleTransactionKind::Publish(_) => false,
                 });
@@ -452,6 +542,8 @@ impl TransactionKind {
             }
             Self::Single(s) => match s {
                 SingleTransactionKind::Pay(_)
+                | SingleTransactionKind::PayHaneul(_)
+                | SingleTransactionKind::PayAllHaneul(_)
                 | SingleTransactionKind::Call(_)
                 | SingleTransactionKind::Publish(_)
                 | SingleTransactionKind::TransferObject(_)
@@ -588,6 +680,36 @@ impl TransactionData {
         Self::new(kind, sender, gas_payment, gas_budget)
     }
 
+    pub fn new_pay_haneul(
+        sender: HaneulAddress,
+        coins: Vec<ObjectRef>,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+        gas_payment: ObjectRef,
+        gas_budget: u64,
+    ) -> Self {
+        let kind = TransactionKind::Single(SingleTransactionKind::PayHaneul(PayHaneul {
+            coins,
+            recipients,
+            amounts,
+        }));
+        Self::new(kind, sender, gas_payment, gas_budget)
+    }
+
+    pub fn new_pay_all_haneul(
+        sender: HaneulAddress,
+        coins: Vec<ObjectRef>,
+        recipient: HaneulAddress,
+        gas_payment: ObjectRef,
+        gas_budget: u64,
+    ) -> Self {
+        let kind = TransactionKind::Single(SingleTransactionKind::PayAllHaneul(PayAllHaneul {
+            coins,
+            recipient,
+        }));
+        Self::new(kind, sender, gas_payment, gas_budget)
+    }
+
     pub fn new_module(
         sender: HaneulAddress,
         gas_payment: ObjectRef,
@@ -637,7 +759,7 @@ impl TransactionData {
     pub fn input_objects(&self) -> HaneulResult<Vec<InputObjectKind>> {
         let mut inputs = self.kind.input_objects()?;
 
-        if !self.kind.is_system_tx() {
+        if !self.kind.is_system_tx() && !self.kind.is_pay_haneul_tx() {
             inputs.push(InputObjectKind::ImmOrOwnedMoveObject(
                 *self.gas_payment_object_ref(),
             ));
@@ -1177,6 +1299,10 @@ pub enum ExecutionFailureStatus {
     RecipientsAmountsArityMismatch,
     /// Not enough funds to perform the requested payment
     InsufficientBalance,
+    /// Coin type check failed in pay/pay_haneul/pay_all_haneul transaction.
+    /// In pay transaction, it means the input coins' types are not the same;
+    /// In PayHaneul/PayAllHaneul, it means some input coins are not HANEUL coins.
+    CoinTypeMismatch,
 
     //
     // MoveCall errors
@@ -1271,6 +1397,12 @@ impl ExecutionFailureStatus {
 impl Display for ExecutionFailureStatus {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
+            ExecutionFailureStatus::CoinTypeMismatch => {
+                write!(
+                    f,
+                    "Coin type check failed in pay/pay_haneul/pay_all_haneul transaction"
+                )
+            }
             ExecutionFailureStatus::EmptyInputCoins => {
                 write!(f, "Expected a non-empty list of input Coin objects")
             }

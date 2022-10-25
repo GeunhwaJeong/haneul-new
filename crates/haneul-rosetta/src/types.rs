@@ -407,6 +407,8 @@ pub enum OperationType {
     GasBudget,
     TransferHANEUL,
     Pay,
+    PayHaneul,
+    PayAllHaneul,
     TransferObject,
     Publish,
     MoveCall,

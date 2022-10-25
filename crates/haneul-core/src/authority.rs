@@ -1699,7 +1699,10 @@ impl AuthorityState {
         self.committee.load().clone().deref().clone()
     }
 
-    async fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+    pub(crate) async fn get_object(
+        &self,
+        object_id: &ObjectID,
+    ) -> Result<Option<Object>, HaneulError> {
         self.database.get_object(object_id)
     }
 

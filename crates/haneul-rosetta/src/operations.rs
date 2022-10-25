@@ -15,8 +15,8 @@ use haneul_types::coin::{PAY_JOIN_FUNC_NAME, PAY_MODULE_NAME, PAY_SPLIT_VEC_FUNC
 use haneul_types::event::Event;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CallArg, InputObjectKind, MoveCall, ObjectArg, Pay, SingleTransactionKind, TransactionData,
-    TransactionEffects, TransferObject,
+    CallArg, InputObjectKind, MoveCall, ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind,
+    TransactionData, TransactionEffects, TransferObject,
 };
 use haneul_types::move_package::disassemble_modules;
 use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_OBJECT_ID};
@@ -334,6 +334,12 @@ fn parse_operations(
             metadata: Some(json!(change)),
         }],
         SingleTransactionKind::Pay(pay) => parse_pay(sender, gas, budget, pay, counter, status),
+        SingleTransactionKind::PayHaneul(pay_haneul) => {
+            parse_pay_haneul(sender, gas, budget, pay_haneul, counter, status)
+        }
+        SingleTransactionKind::PayAllHaneul(pay_all_haneul) => {
+            parse_pay_all_haneul(sender, gas, budget, pay_all_haneul, counter, status)
+        }
     };
     if let Some(effects) = effects {
         let coin_change_operations = Operation::get_coin_operation_from_events(
@@ -455,6 +461,52 @@ fn parse_pay(
             amount: None,
             coin_change: None,
             metadata: Some(json!(pay)),
+        },
+        Operation::gas_budget(counter, status, gas, budget, sender),
+    ]
+}
+
+fn parse_pay_haneul(
+    sender: HaneulAddress,
+    gas: ObjectRef,
+    budget: u64,
+    pay_haneul: &PayHaneul,
+    counter: &mut IndexCounter,
+    status: Option<OperationStatus>,
+) -> Vec<Operation> {
+    vec![
+        Operation {
+            operation_identifier: counter.next_idx().into(),
+            related_operations: vec![],
+            type_: OperationType::PayHaneul,
+            status,
+            account: Some(AccountIdentifier { address: sender }),
+            amount: None,
+            coin_change: None,
+            metadata: Some(json!(pay_haneul)),
+        },
+        Operation::gas_budget(counter, status, gas, budget, sender),
+    ]
+}
+
+fn parse_pay_all_haneul(
+    sender: HaneulAddress,
+    gas: ObjectRef,
+    budget: u64,
+    pay_all_haneul: &PayAllHaneul,
+    counter: &mut IndexCounter,
+    status: Option<OperationStatus>,
+) -> Vec<Operation> {
+    vec![
+        Operation {
+            operation_identifier: counter.next_idx().into(),
+            related_operations: vec![],
+            type_: OperationType::PayAllHaneul,
+            status,
+            account: Some(AccountIdentifier { address: sender }),
+            amount: None,
+            coin_change: None,
+            metadata: Some(json!(pay_all_haneul)),
         },
         Operation::gas_budget(counter, status, gas, budget, sender),
     ]
@@ -654,6 +706,8 @@ impl TryInto<HaneulAction> for Vec<Operation> {
                 OperationType::TransferObject
                 | OperationType::HaneulBalanceChange
                 | OperationType::Pay
+                | OperationType::PayHaneul
+                | OperationType::PayAllHaneul
                 | OperationType::GasSpent
                 | OperationType::Genesis
                 | OperationType::MoveCall

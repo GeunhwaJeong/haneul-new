@@ -478,6 +478,9 @@ pub enum HaneulError {
 
     #[error("Failed to get supermajority's consensus on committee information for minimal epoch: {minimal_epoch}")]
     FailedToGetAgreedCommitteeFromMajority { minimal_epoch: EpochId },
+
+    #[error("Empty input coins for Pay related transaction")]
+    EmptyInputCoins,
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;

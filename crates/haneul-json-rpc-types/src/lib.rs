@@ -43,8 +43,8 @@ use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     CallArg, CertifiedTransaction, CertifiedTransactionEffects, ExecuteTransactionResponse,
-    ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg, Pay, SingleTransactionKind,
-    TransactionData, TransactionEffects, TransactionKind,
+    ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg, Pay, PayAllHaneul, PayHaneul,
+    SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{disassemble_modules, MovePackage};
@@ -1391,6 +1391,65 @@ impl From<Pay> for HaneulPay {
     }
 }
 
+/// Send HANEUL coins to a list of addresses, following a list of amounts.
+/// only for HANEUL coin and does not require a separate gas coin object.
+/// Specifically, what pay_haneul does are:
+/// 1. debit each input_coin to create new coin following the order of
+/// amounts and assign it to the corresponding recipient.
+/// 2. accumulate all residual HANEUL from input coins left and deposit all HANEUL to the first
+/// input coin, then use the first input coin as the gas coin object.
+/// 3. the balance of the first input coin after tx is sum(input_coins) - sum(amounts) - actual_gas_cost
+/// 4. all other input coints other than the first one are deleted.
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[serde(rename = "PayHaneul")]
+pub struct HaneulPayHaneul {
+    /// The coins to be used for payment
+    pub coins: Vec<HaneulObjectRef>,
+    /// The addresses that will receive payment
+    pub recipients: Vec<HaneulAddress>,
+    /// The amounts each recipient will receive.
+    /// Must be the same length as amounts
+    pub amounts: Vec<u64>,
+}
+
+impl From<PayHaneul> for HaneulPayHaneul {
+    fn from(p: PayHaneul) -> Self {
+        let coins = p.coins.into_iter().map(|c| c.into()).collect();
+        HaneulPayHaneul {
+            coins,
+            recipients: p.recipients,
+            amounts: p.amounts,
+        }
+    }
+}
+
+/// Send all HANEUL coins to one recipient.
+/// only for HANEUL coin and does not require a separate gas coin object either.
+/// Specifically, what pay_all_haneul does are:
+/// 1. accumulate all HANEUL from input coins and deposit all HANEUL to the first input coin
+/// 2. transfer the updated first coin to the recipient and also use this first coin as
+/// gas coin object.
+/// 3. the balance of the first input coin after tx is sum(input_coins) - actual_gas_cost.
+/// 4. all other input coins other than the first are deleted.
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[serde(rename = "PayHaneul")]
+pub struct HaneulPayAllHaneul {
+    /// The coins to be used for payment
+    pub coins: Vec<HaneulObjectRef>,
+    /// The addresses that will receive payment
+    pub recipient: HaneulAddress,
+}
+
+impl From<PayAllHaneul> for HaneulPayAllHaneul {
+    fn from(p: PayAllHaneul) -> Self {
+        let coins = p.coins.into_iter().map(|c| c.into()).collect();
+        HaneulPayAllHaneul {
+            coins,
+            recipient: p.recipient,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
 #[serde(rename = "TransactionData", rename_all = "camelCase")]
 pub struct HaneulTransactionData {
@@ -1445,6 +1504,12 @@ pub enum HaneulTransactionKind {
     TransferObject(HaneulTransferObject),
     /// Pay one or more recipients from a set of input coins
     Pay(HaneulPay),
+    /// Pay one or more recipients from a set of Haneul coins, the input coins
+    /// are also used to for gas payments.
+    PayHaneul(HaneulPayHaneul),
+    /// Pay one or more recipients from a set of Haneul coins, the input coins
+    /// are also used to for gas payments.
+    PayAllHaneul(HaneulPayAllHaneul),
     /// Publish a new Move module
     Publish(HaneulMovePackage),
     /// Call a function in a published Move module
@@ -1495,6 +1560,30 @@ impl Display for HaneulTransactionKind {
                     writeln!(writer, "{}", amount)?
                 }
             }
+            Self::PayHaneul(p) => {
+                writeln!(writer, "Transaction Kind : Pay HANEUL")?;
+                writeln!(writer, "Coins:")?;
+                for obj_ref in &p.coins {
+                    writeln!(writer, "Object ID : {}", obj_ref.object_id)?;
+                }
+                writeln!(writer, "Recipients:")?;
+                for recipient in &p.recipients {
+                    writeln!(writer, "{}", recipient)?;
+                }
+                writeln!(writer, "Amounts:")?;
+                for amount in &p.amounts {
+                    writeln!(writer, "{}", amount)?
+                }
+            }
+            Self::PayAllHaneul(p) => {
+                writeln!(writer, "Transaction Kind : Pay HANEUL")?;
+                writeln!(writer, "Coins:")?;
+                for obj_ref in &p.coins {
+                    writeln!(writer, "Object ID : {}", obj_ref.object_id)?;
+                }
+                writeln!(writer, "Recipient:")?;
+                writeln!(writer, "{}", &p.recipient)?;
+            }
             Self::Publish(_p) => {
                 write!(writer, "Transaction Kind : Publish")?;
             }
@@ -1535,6 +1624,8 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                 amount: t.amount,
             }),
             SingleTransactionKind::Pay(p) => Self::Pay(p.into()),
+            SingleTransactionKind::PayHaneul(p) => Self::PayHaneul(p.into()),
+            SingleTransactionKind::PayAllHaneul(p) => Self::PayAllHaneul(p.into()),
             SingleTransactionKind::Publish(p) => Self::Publish(p.try_into()?),
             SingleTransactionKind::Call(c) => Self::Call(HaneulMoveCall {
                 package: c.package.into(),

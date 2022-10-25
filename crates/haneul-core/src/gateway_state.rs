@@ -317,6 +317,40 @@ pub trait GatewayAPI {
         gas_budget: u64,
     ) -> Result<TransactionData, anyhow::Error>;
 
+    /// Send HANEUL coins to a list of addresses, following a list of amounts.
+    /// only for HANEUL coin and does not require a separate gas coin object.
+    /// Specifically, what pay_haneul does are:
+    /// 1. debit each input_coin to create new coin following the order of
+    /// amounts and assign it to the corresponding recipient.
+    /// 2. accumulate all residual HANEUL from input coins left and deposit all HANEUL to the first
+    /// input coin, then use the first input coin as the gas coin object.
+    /// 3. the balance of the first input coin after tx is sum(input_coins) - sum(amounts) - actual_gas_cost
+    /// 4. all other input coints other than the first one are deleted.
+    async fn pay_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+        gas_budget: u64,
+    ) -> Result<TransactionData, anyhow::Error>;
+
+    /// Send all HANEUL coins to one recipient.
+    /// only for HANEUL coin and does not require a separate gas coin object either.
+    /// Specifically, what pay_all_haneul does are:
+    /// 1. accumulate all HANEUL from input coins and deposit all HANEUL to the first input coin
+    /// 2. transfer the updated first coin to the recipient and also use this first coin as
+    /// gas coin object.
+    /// 3. the balance of the first input coin after tx is sum(input_coins) - actual_gas_cost.
+    /// 4. all other input coins other than the first are deleted.
+    async fn pay_all_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipient: HaneulAddress,
+        gas_budget: u64,
+    ) -> Result<TransactionData, anyhow::Error>;
+
     /// Synchronise account state with a random authorities, updates all object_ids
     /// from account_addr, request only goes out to one authority.
     /// this method doesn't guarantee data correctness, caller will have to handle potential byzantine authority
@@ -1426,6 +1460,57 @@ where
             .collect();
         let data = TransactionData::new_pay(signer, coins, recipients, amounts, gas, gas_budget);
         Ok(data)
+    }
+
+    async fn pay_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+        gas_budget: u64,
+    ) -> Result<TransactionData, anyhow::Error> {
+        fp_ensure!(!input_coins.is_empty(), HaneulError::EmptyInputCoins.into());
+
+        let handles: Vec<_> = input_coins
+            .iter()
+            .map(|id| self.get_object_ref(id))
+            .collect();
+        let coins: Vec<ObjectRef> = join_all(handles)
+            .await
+            .into_iter()
+            .map(|c| c.unwrap())
+            .collect();
+        // [0] is safe because input_coins is non-empty and coins are of same length as input_coins.
+        let gas_object = coins[0];
+        Ok(TransactionData::new_pay_haneul(
+            signer, coins, recipients, amounts, gas_object, gas_budget,
+        ))
+    }
+
+    async fn pay_all_haneul(
+        &self,
+        signer: HaneulAddress,
+        input_coins: Vec<ObjectID>,
+        recipient: HaneulAddress,
+        gas_budget: u64,
+    ) -> Result<TransactionData, anyhow::Error> {
+        fp_ensure!(!input_coins.is_empty(), HaneulError::EmptyInputCoins.into());
+
+        let handles: Vec<_> = input_coins
+            .iter()
+            .map(|id| self.get_object_ref(id))
+            .collect();
+        let coins: Vec<ObjectRef> = join_all(handles)
+            .await
+            .into_iter()
+            .map(|c| c.unwrap())
+            .collect();
+        // [0] is safe because input_coins is non-empty and coins are of same length as input_coins.
+        let gas_object = coins[0];
+        Ok(TransactionData::new_pay_all_haneul(
+            signer, coins, recipient, gas_object, gas_budget,
+        ))
     }
 
     async fn batch_transaction(
