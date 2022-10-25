@@ -7,13 +7,13 @@
         "link": "doc-updates"
       },
       {
+        "label": "Haneul Framework Reference",
+        "link": "reference/framework"
+      },
+      {
         "label": "Haneul by Example",
         "link": "https://examples.haneul.io/",
         "external": true
-      },
-      {
-        "label": "Connect to Haneul Devnet",
-        "link": "build/devnet"
       }
     ]
   },
@@ -37,13 +37,8 @@
             "fileName": "learn/haneul-move-diffs"
           },
           {
-            "label": "Understand Haneul Security",
+            "label": "Haneul Security",
             "fileName": "learn/haneul-security"
-          },
-          {
-            "label": "Haneul White Paper",
-            "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf",
-            "external": true
           }
         ]
       },
@@ -127,7 +122,7 @@
       {
         "label": "Create Smart Contracts with Move",
         "fileName": "build/move/index",
-        "title": "Create Smart Contracts with Move",
+        "title": "Smart Contracts with Move",
         "items": [
           {
             "label": "Write Move Packages",
@@ -142,7 +137,7 @@
             "fileName": "build/move/debug-publish"
           },
           {
-            "label": "Use Haneul Move Library",
+            "label": "Haneul Move Library",
             "fileName": "build/move/haneul-move-library"
           }
         ]
@@ -179,25 +174,25 @@
         ]
       },
       {
-        "label": "Talk with Haneul",
+        "label": "Connect to Haneul",
         "fileName": "build/comms",
-        "title": "Talk with Haneul",
+        "title": "Connect to Haneul",
         "items": [
           {
-            "label": "Connect with Haneul RPC Server",
+            "label": "JSON-RPC API",
             "fileName": "build/json-rpc"
           },
           {
-            "label": "Use Rust SDK",
+            "label": "Rust SDK",
             "fileName": "build/rust-sdk"
           },
           {
-            "label": "Use TypeScript/JavaScript SDK",
+            "label": "TypeScript/JavaScript SDK",
             "link": "https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript",
             "external": true
           },
           {
-            "label": "Run a Fullnode",
+            "label": "Haneul Full node",
             "fileName": "build/fullnode"
           },
           {
@@ -205,23 +200,22 @@
             "fileName": "build/pubsub"
           }
         ]
-      },
-      {
-        "label": "Reference",
-        "fileName": "build/reference",
-        "title": "Reference",
-        "items": [
-          {
-            "label": "JSON-RPC API Reference",
-            "link": "https://docs.haneul.io/haneul-jsonrpc",
-            "external": true
-          },
-          {
-            "label": "HaneulJSON Format",
-            "fileName": "build/haneul-json"
-          }
-        ]
       }
+    ],
+    "reference": [
+      {
+          "label": "TypeScript/JavaScript SDK",
+          "link": "https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript",
+          "external": true
+        },
+      {
+          "label": "HaneulJSON Format",
+          "fileName": "reference/haneul-json"
+        },
+      {
+          "label": "Haneul Framework Reference",
+          "fileName": "reference/framework"
+        }
     ],
     "explore": [
       {
@@ -229,11 +223,11 @@
         "fileName": "explore/haneul-explorer"
       },
       {
-        "label": "Wallet in Browser",
+        "label": "Haneul Wallet",
         "fileName": "explore/wallet-browser"
       },
       {
-        "label": "Tutorial",
+        "label": "Tutorials",
         "fileName": "explore/tutorials"
       },
       {
@@ -269,11 +263,6 @@
       {
         "label": "Code of Conduct",
         "fileName": "contribute/code-of-conduct"
-      },
-      {
-        "label": "About Haneul Labs",
-        "link": "https://haneul-labs.com/",
-        "external": true
       }
     ]
   }

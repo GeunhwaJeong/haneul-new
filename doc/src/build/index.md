@@ -1,34 +1,23 @@
 ---
-title: Building Haneul
+title: Build on Haneul
 ---
 
-Now that you've [learned about Haneul](../learn/index.md), it's time to start building.
+The topics in this section provide information and guidance to help you start building on Haneul.
 
-## Workflow
+## Get started
 
-Here is our recommended workflow to interact with Haneul:
+To get started, see [Install](../build/install.md) to learn about prerequisites and steps to install Haneul binaries. 
 
-1. [Install](../build/install.md) all of the *required tools*.
-1. Interact with the Haneul network:
-   * Simply [connect](../build/devnet.md) to the Haneul Devnet network to begin working with Haneul immediately.
-   * Optionally, [create](../build/cli-client.md#genesis) and [start](../build/cli-client.md#starting-the-network) a *local Haneul network* to contribute to the blockchain.
-1. [Create](../build/move/index.md) *smart contracts* with Move:
-   1. [Write](../build/move/write-package.md) a package.
-   1. [Build and test](../build/move/build-test.md) a package.
-   1. [Debug and publish](../build/move/debug-publish.md) a package.
-1. [Program objects](../build/programming-with-objects/index.md) in Haneul:
-   1. [Learn](../build/programming-with-objects/ch1-object-basics.md) object basics.
-   1. [Pass](../build/programming-with-objects/ch2-using-objects.md) Move objects as arguments, mutating objects, deleting objects.
-   1. [Freeze](../build//programming-with-objects/ch3-immutable-objects.md) an object, using immutable objects.
-   1. [Wrap](../build/programming-with-objects/ch4-object-wrapping.md) objects in another object.
-   1. [Enable](../build/programming-with-objects/ch5-child-objects.md) objects to own other objects.
-1. [Talk](../build/comms.md) with Haneul using our API and SDKs:
-   * [Use](../build/json-rpc.md) the *Haneul RPC Server and JSON-RPC API* to interact with a local Haneul network.
-   * [Make](../build/rust-sdk.md) Rust SDK calls to Haneul from your app.
-   * [Make](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/) TypeScript/JavaScript calls to Haneul from your apps.
-   * [Run](../build/fullnode.md) a Haneul Fullnode and [subscribe](../build/pubsub.md) to events.
-1. [Reference](../build/reference.md) the format for our API and HaneulJSON:
-   * [Follow](https://docs.haneul.io/haneul-jsonrpc) the Haneul API Reference.
-   * [Employ](../build/haneul-json.md) *HaneulJSON format* to align JSON inputs more closely with Move call arguments.
+After you install Haneul, learn how to use the [Haneul Client CLI](cli-client.md). You can use the client to interact with a [Devnet](devnet.md) Full node or your own [local network](../build/cli-client.md#genesis).
 
-Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
+## Smart contracts
+
+Learn about how to [Write Smart Contracts with Move](../build/move/index.md), including how to write, build, test, and publish Move packages on Haneul.
+
+## Programming with Objects
+
+Read about [Programming with Objects](../build/programming-with-objects/), including the basics, working with objects, immutable objects, object ownership, and more.
+
+## Haneul Full node
+
+Learn how to set up and run a [Haneul Full node](fullnode.md).

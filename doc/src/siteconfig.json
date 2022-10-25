@@ -1,6 +1,6 @@
 {
-  "title": "Haneul Developer Portal",
-  "tagline": "Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
+  "title": "Haneul Documentation",
+  "tagline": "Documentation for Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move.",
   "URL": "https://docs.haneul.io/",
   "baseUrl": "/",
   "favIcon": "/favicon2.png",
@@ -16,67 +16,78 @@
       "label": "Terms of Service",
       "link": "https://haneul.io/terms/"
     },
-    "menu": [
+  "menu": [
       {
-        "title": "Docs",
-        "listItems": [
-          {
-            "title": "Getting Started",
-            "link": "/build/move"
-          },
-          {
-            "title": "API Reference",
-            "link": "https://docs.haneul.io/haneul-jsonrpc",
-            "external": true
-          },
-          {
-            "title": "Examples",
-            "link": "https://examples.haneul.io/",
-            "external": true
-          }
+      "title": "Community",
+      "listItems": [
+        {
+          "title": "Discord",
+          "link": "https://discord.gg/haneul",
+          "external": true
+        },
+        {
+          "title": "Twitter",
+          "link": "https://twitter.com/HaneulNetwork/",
+          "external": true
+        },
+        {
+          "title": "Medium",
+          "link": "https://medium.com/haneullabs-labs/",
+          "external": true
+        },
+        {
+          "title": "GitHub",
+          "link": "https://github.com/GeunhwaJeong",
+          "external": true
+        }
+      ]
+      },
+      {
+      "title": "Ecosystem",
+      "listItems": [
+        {
+          "title": "Haneul.io",
+          "link": "https://haneul.io/",
+          "external": true,
+          "arrow": true
+        },
+        {
+          "title": "Haneul Resources",
+          "link": "https://haneul.io/resources/",
+          "external": true,
+          "arrow": true
+        },
+        {
+          "title": "Haneul Blog (Medium)",
+          "link": "https://medium.com/haneullabs-labs",
+          "external": true,
+          "arrow": true
+        }
         ]
       },
       {
-        "title": "Community",
-        "listItems": [
-          {
-            "title": "Discord",
-            "link": "https://discord.gg/haneul",
-            "external": true
-          },
-          {
-            "title": "Twitter",
-            "link": "https://twitter.com/HaneulNetwork/",
-            "external": true
-          },
-          {
-            "title": "Medium",
-            "link": "https://medium.com/haneullabs-labs/",
-            "external": true
-          }
+      "title": "Send Feedback",
+      "listItems": [
+        {
+          "title": "Contact us (Email)",
+          "link": "mailto:doc@haneul-labs.com",
+          "external": true,
+          "arrow": true
+        },
+        {
+          "title": "Create an Issue (GitHub)",
+          "link": "https://github.com/GeunhwaJeong/haneul/issues/new/choose",
+          "external": true,
+          "arrow": true
+        },
+        {
+          "title": "Chat about Docs (Discord)",
+          "link": "https://discord.com/channels/916379725201563759/1001562806862233701",
+          "external": true,
+          "arrow": true
+        }
         ]
-      },
-      {
-        "title": "Team",
-        "listItems": [
-          {
-            "title": "GitHub",
-            "link": "https://github.com/GeunhwaJeong",
-            "external": true
-          },
-          {
-            "title": "Haneul.io",
-            "link": "https://haneul.io/",
-            "external": true,
-            "arrow": true
-          },
-          {
-            "title": "White Paper",
-            "link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf",
-            "external": true
-          }
-        ]
-      }
+      }  
     ]
   },
   "headerData": {
@@ -90,161 +101,85 @@
         "link": "/build"
       },
       {
+        "title": "Reference",
+        "link": "/reference"
+      },
+      {
         "title": "Explore",
         "link": "/explore"
       },
       {
         "title": "Contribute",
         "link": "/contribute"
-      },
-      {
-        "title": "Discord",
-        "link": "https://discord.gg/haneul",
-        "external": true
-      },
-      {
-        "title": "GitHub",
-        "link": "https://github.com/GeunhwaJeong",
-        "external": true
       }
     ]
   },
   "HomePage": {
-    "title": "Haneul Developer Hub",
-    "subTitle": "Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
-    "partner": {
-      "title": "Partnerships Highlight",
-      "copy": "Explore examples and 3rd party projects built on Haneul.",
-      "cta": {
-        "label": "Go",
-        "link": "/explore",
-        "external": false
-      }
-    },
+    "title": "Haneul Documentation",
+    "subTitle": "Documentation for Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move.",
     "cta": [
       {
-        "name": "See what's New",
+        "name": "What's New",
         "sublist": [
           {
-            "name": "Use Haneul Explorer",
-            "url": "/explore/haneul-explorer"
+            "name": "Doc Updates",
+            "url": "/doc-updates"
           },
           {
-            "name": "Make Rust SDK Calls",
-            "url": "/build/rust-sdk"
-          },
-          {
-            "name": "Run Windows, Linux, macOS",
-            "url": "/build/install#supported-oses"
-          },
-          {
-            "name": "Try Haneul Wallet Browser Extension",
-            "url": "/explore/wallet-browser"
-          },
-          {
-            "name": "Learn Haneul Move",
-            "url": "https://haneul.io/resources-move/why-we-created-haneul-move/",
+            "name": "Haneul Releases",
+            "url": "https://github.com/GeunhwaJeong/haneul/releases",
             "external": true
           },
           {
-            "name": "Use Move VS Code Plugin",
-            "url": "https://haneul.io/resources-move/announcing-enhanced-move-vs-code-plugin/",
+            "name": "Haneul Announcements (Discord)",
+            "url": "https://discord.com/channels/916379725201563759/925109817834631189",
+            "external": true            
+          },
+          {
+            "name": "Haneul Developer Experience Roadmap",
+            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md",
             "external": true
           }
         ]
       },
       {
-        "name": "Get Started",
+        "name": "Read the Docs",
         "sublist": [
           {
-            "name": "Create Smart Contracts",
-            "url": "/build/move"
+            "name": "Learn About Haneul",
+            "url": "/learn"
           },
           {
-            "name": "Connect to Devnet",
-            "url": "/build/devnet"
+            "name": "Start Building on Haneul",
+            "url": "/build"
           },
           {
-            "name": "Program Haneul Objects",
-            "url": "/build/programming-with-objects/index"
+            "name": "Explore Haneul",
+            "url": "/explore"
           }
         ]
       },
       {
-        "name": "Learn about Haneul",
+        "name": "More About Haneul",
         "sublist": [
           {
-            "name": "How Haneul Works",
-            "url": "/learn/how-haneul-works"
-          },
-          {
-            "name": "Haneul Compared to other Blockchains",
-            "url": "/learn/haneul-compared"
-          },
-          {
-            "name": "Why Move?",
-            "url": "/learn/why-move"
-          },
-          {
-            "name": "How Haneul Move and Core Move differ",
-            "url": "/learn/haneul-move-diffs"
-          }
-        ]
-      },
-      {
-        "name": "See Haneul in Action",
-        "sublist": [
-          {
-            "name": "Create and play Tic-Tac-Toe on Haneul",
-            "url": "/explore/tutorials"
-          },
-          {
-            "name": "See two games with mutable, expressive NFTs",
-            "url": "/explore/prototypes"
-          }
-        ]
-      },
-      {
-        "name": "Build with Examples",
-        "sublist": [
-          {
-            "name": "Create an escrow",
-            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/escrow.move",
+            "name": "Haneul Resources",
+            "url": "https://haneul.io/resources/",
             "external": true
           },
           {
-            "name": "Try A flash loan",
-            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/defi/sources/flash_lender.move",
-            "external": true
+            "name": "Haneul Partners",
+            "url": "https://haneul.io/ecosystem/",
+            "external": true            
           },
           {
-            "name": "See all examples",
-            "url": "/explore/examples"
-          }
-        ]
-      },
-      {
-        "name": "Join the Community",
-        "sublist": [
-          {
-            "name": "GitHub",
-            "url": "https://github.com/GeunhwaJeong",
-            "external": true
+            "name": "Haneul by Example",
+            "url": "https://examples.haneul.io/"
           },
           {
-            "name": "Discord",
-            "url": "https://discord.gg/haneul",
-            "external": true
-          },
-          {
-            "name": "Twitter",
-            "url": "https://twitter.com/HaneulNetwork/",
-            "external": true
-          },
-          {
-            "name": "Medium",
-            "url": "https://medium.com/haneullabs-labs/",
-            "external": true
+            "name": "Why We Created Haneul Move",
+            "url": "https://medium.com/haneullabs-labs/why-we-created-haneul-move-6a234656c36b",
+            "external": true            
           }
         ]
       }
