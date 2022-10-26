@@ -24,7 +24,6 @@ RUN sed -i '/crates\/workspace-hack/b; /crates/d; /narwhal/d' Cargo.toml \
 # with all dependencies built.
 FROM chef AS builder 
 ARG PROFILE=release
-ENV RUSTFLAGS "--cfg tokio_unstable"
 COPY --from=planner /haneul/Cargo.toml Cargo.toml
 COPY --from=planner /haneul/Cargo.lock Cargo.lock
 COPY --from=planner /haneul/crates/workspace-hack crates/workspace-hack
