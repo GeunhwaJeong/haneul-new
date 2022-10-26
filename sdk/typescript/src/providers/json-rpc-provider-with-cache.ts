@@ -6,7 +6,6 @@ import { isHaneulObjectRef } from '../types/index.guard';
 import {
   GetObjectDataResponse,
   HaneulObjectInfo,
-  HaneulTransactionResponse,
   HaneulObjectRef,
   getObjectReference,
   TransactionEffects,
@@ -66,22 +65,6 @@ export class JsonRpcProviderWithCache extends JsonRpcProvider {
   }
 
   // Transactions
-  async executeTransaction(
-    txnBytes: string,
-    signatureScheme: SignatureScheme,
-    signature: string,
-    pubkey: string
-  ): Promise<HaneulTransactionResponse> {
-    const resp = await super.executeTransaction(
-      txnBytes,
-      signatureScheme,
-      signature,
-      pubkey
-    );
-
-    this.updateObjectRefCacheFromTransactionEffects(resp.effects);
-    return resp;
-  }
 
   async executeTransactionWithRequestType(
     txnBytes: string,

@@ -12,8 +12,8 @@
     },
     "host_permissions": [
         "http://127.0.0.1:5001/",
-        "https://gateway.devnet.haneul.io/",
-        "https://gateway.staging.haneul.io/"
+        "https://fullnode.devnet.haneul.io/",
+        "https://fullnode.staging.haneul.io/"
     ],
     "icons": {
         "16": "manifest/icons/haneul-icon-16.png",

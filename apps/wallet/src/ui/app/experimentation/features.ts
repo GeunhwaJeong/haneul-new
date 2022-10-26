@@ -6,6 +6,6 @@
  * in https://docs.growthbook.io/app/features#feature-keys
  */
 export enum FEATURES {
-    DEPRECATE_GATEWAY = 'deprecate-gateway',
+    USE_LOCAL_TXN_SERIALIZER = 'use-local-txn-serializer',
     HANEUL_DENOMINATION = 'haneul-denomination',
 }
