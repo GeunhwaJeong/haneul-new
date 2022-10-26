@@ -17,6 +17,8 @@ import {
   MoveCallTransaction,
   MergeCoinTransaction,
   PayTransaction,
+  PayHaneulTransaction,
+  PayAllHaneulTransaction,
   SplitCoinTransaction,
   TransferObjectTransaction,
   TransferHaneulTransaction,
@@ -158,6 +160,10 @@ export abstract class SignerWithProvider implements Signer {
         return this.splitCoinWithRequestType(transaction.data, requestType);
       case 'pay':
         return this.payWithRequestType(transaction.data, requestType);
+      case 'payHaneul':
+        return this.payHaneulWithRequestType(transaction.data, requestType);
+      case 'payAllHaneul':
+        return this.payAllHaneulWithRequestType(transaction.data, requestType);
       case 'publish':
         return this.publishWithRequestType(transaction.data, requestType);
       default:
@@ -342,6 +348,39 @@ export abstract class SignerWithProvider implements Signer {
   ): Promise<HaneulExecuteTransactionResponse> {
     const signerAddress = await this.getAddress();
     const txBytes = await this.serializer.newPay(signerAddress, transaction);
+    return await this.signAndExecuteTransactionWithRequestType(
+      txBytes,
+      requestType
+    );
+  }
+
+  /**
+   * Serialize and Sign a `PayHaneul` transaction and submit to the fullnode for execution
+   */
+  async payHaneulWithRequestType(
+    transaction: PayHaneulTransaction,
+    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
+  ): Promise<HaneulExecuteTransactionResponse> {
+    const signerAddress = await this.getAddress();
+    const txBytes = await this.serializer.newPayHaneul(signerAddress, transaction);
+    return await this.signAndExecuteTransactionWithRequestType(
+      txBytes,
+      requestType
+    );
+  }
+
+  /**
+   * Serialize and Sign a `PayAllHaneul` transaction and submit to the fullnode for execution
+   */
+  async payAllHaneulWithRequestType(
+    transaction: PayAllHaneulTransaction,
+    requestType: ExecuteTransactionRequestType = 'WaitForLocalExecution'
+  ): Promise<HaneulExecuteTransactionResponse> {
+    const signerAddress = await this.getAddress();
+    const txBytes = await this.serializer.newPayAllHaneul(
+      signerAddress,
+      transaction
+    );
     return await this.signAndExecuteTransactionWithRequestType(
       txBytes,
       requestType

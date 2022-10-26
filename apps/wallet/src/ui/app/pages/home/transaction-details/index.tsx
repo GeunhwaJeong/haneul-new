@@ -32,6 +32,8 @@ const txKindToTxt: Record<TransactionKindName, string> = {
     TransferHaneul: 'Haneul transfer',
     ChangeEpoch: 'Change epoch',
     Pay: 'Pay',
+    PayHaneul: 'PayHaneul',
+    PayAllHaneul: 'PayAllHaneul',
 };
 
 function TransactionDetailsPage() {

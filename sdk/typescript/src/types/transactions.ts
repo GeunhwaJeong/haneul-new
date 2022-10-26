@@ -26,6 +26,17 @@ export type Pay = {
   amounts: number[];
 };
 
+export type PayHaneul = {
+  coins: HaneulObjectRef[];
+  recipients: HaneulAddress[];
+  amounts: number[];
+};
+
+export type PayAllHaneul = {
+  coins: HaneulObjectRef[];
+  recipient: HaneulAddress;
+};
+
 export type ExecuteTransactionRequestType =
   | 'ImmediateReturn'
   | 'WaitForTxCert'
@@ -38,7 +49,9 @@ export type TransactionKindName =
   | 'Call'
   | 'TransferHaneul'
   | 'ChangeEpoch'
-  | 'Pay';
+  | 'Pay'
+  | 'PayHaneul'
+  | 'PayAllHaneul';
 
 export type HaneulTransactionKind =
   | { TransferObject: TransferObject }
@@ -46,7 +59,9 @@ export type HaneulTransactionKind =
   | { Call: MoveCall }
   | { TransferHaneul: HaneulTransferHaneul }
   | { ChangeEpoch: HaneulChangeEpoch }
-  | { Pay: Pay };
+  | { Pay: Pay }
+  | { PayHaneul: PayHaneul }
+  | { PayAllHaneul: PayAllHaneul };
 export type HaneulTransactionData = {
   transactions: HaneulTransactionKind[];
   sender: HaneulAddress;

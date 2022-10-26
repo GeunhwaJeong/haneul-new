@@ -12,6 +12,8 @@ import {
   TransferObjectTransaction,
   TransferHaneulTransaction,
   PayTransaction,
+  PayHaneulTransaction,
+  PayAllHaneulTransaction,
   PublishTransaction,
   TxnDataSerializer,
 } from './txn-data-serializer';
@@ -104,6 +106,48 @@ export class RpcTxnDataSerializer implements TxnDataSerializer {
     } catch (err) {
       throw new Error(
         `Error executing Pay transaction: ${err} with args ${JSON.stringify(t)}`
+      );
+    }
+  }
+
+  async newPayHaneul(
+    signerAddress: HaneulAddress,
+    t: PayHaneulTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_payHaneul',
+        [signerAddress, t.inputCoins, t.recipients, t.amounts, t.gasBudget],
+        isTransactionBytes,
+        this.skipDataValidation
+      );
+      return new Base64DataBuffer(resp.txBytes);
+    } catch (err) {
+      throw new Error(
+        `Error executing PayHaneul transaction: ${err} with args ${JSON.stringify(
+          t
+        )}`
+      );
+    }
+  }
+
+  async newPayAllHaneul(
+    signerAddress: HaneulAddress,
+    t: PayAllHaneulTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_payAllHaneul',
+        [signerAddress, t.inputCoins, t.recipient, t.gasBudget],
+        isTransactionBytes,
+        this.skipDataValidation
+      );
+      return new Base64DataBuffer(resp.txBytes);
+    } catch (err) {
+      throw new Error(
+        `Error executing PayAllHaneul transaction: ${err} with args ${JSON.stringify(
+          t
+        )}`
       );
     }
   }

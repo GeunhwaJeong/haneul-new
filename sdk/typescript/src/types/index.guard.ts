@@ -7,7 +7,7 @@
  * Generated type guards for "index.ts".
  * WARNING: Do not manually change this file.
  */
-import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, CoinDenominationInfoResponse, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulMoveNormalizedTypeParameterType, HaneulMoveNormalizedStructType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, MoveEventField, EventType, HaneulEventFilter, HaneulEventEnvelope, HaneulEvents, SubscriptionId, SubscriptionEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, Pay, ExecuteTransactionRequestType, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, GenericAuthoritySignature, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, HaneulCertifiedTransactionEffects, HaneulExecuteTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, PaginatedTransactionDigests, TransactionQuery, Ordering, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PayTx, PublishTx, SharedObjectRef, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData, RpcApiVersion } from "./index";
+import { TransactionDigest, HaneulAddress, ObjectOwner, HaneulObjectRef, HaneulObjectInfo, ObjectContentFields, MovePackageContent, HaneulData, HaneulMoveObject, CoinDenominationInfoResponse, HaneulMovePackage, HaneulMoveFunctionArgTypesResponse, HaneulMoveFunctionArgType, HaneulMoveFunctionArgTypes, HaneulMoveNormalizedModules, HaneulMoveNormalizedModule, HaneulMoveModuleId, HaneulMoveNormalizedStruct, HaneulMoveStructTypeParameter, HaneulMoveNormalizedField, HaneulMoveNormalizedFunction, HaneulMoveVisibility, HaneulMoveTypeParameterIndex, HaneulMoveAbilitySet, HaneulMoveNormalizedType, HaneulMoveNormalizedTypeParameterType, HaneulMoveNormalizedStructType, HaneulObject, ObjectStatus, ObjectType, GetOwnedObjectsResponse, GetObjectDataResponse, ObjectDigest, ObjectId, SequenceNumber, MoveEvent, PublishEvent, TransferObjectEvent, DeleteObjectEvent, NewObjectEvent, HaneulEvent, MoveEventField, EventType, HaneulEventFilter, HaneulEventEnvelope, HaneulEvents, SubscriptionId, SubscriptionEvent, TransferObject, HaneulTransferHaneul, HaneulChangeEpoch, Pay, PayHaneul, PayAllHaneul, ExecuteTransactionRequestType, TransactionKindName, HaneulTransactionKind, HaneulTransactionData, EpochId, GenericAuthoritySignature, AuthorityQuorumSignInfo, CertifiedTransaction, GasCostSummary, ExecutionStatusType, ExecutionStatus, OwnedObjectRef, TransactionEffects, HaneulTransactionResponse, HaneulCertifiedTransactionEffects, HaneulExecuteTransactionResponse, GatewayTxSeqNumber, GetTxnDigestsResponse, PaginatedTransactionDigests, TransactionQuery, Ordering, MoveCall, HaneulJsonValue, EmptySignInfo, AuthorityName, AuthoritySignature, TransactionBytes, HaneulParsedMergeCoinResponse, HaneulParsedSplitCoinResponse, HaneulParsedPublishResponse, HaneulPackage, HaneulParsedTransactionResponse, DelegationData, DelegationHaneulObject, TransferObjectTx, TransferHaneulTx, PayTx, PayHaneulTx, PayAllHaneulTx, PublishTx, SharedObjectRef, ObjectArg, CallArg, StructTag, TypeTag, MoveCallTx, Transaction, TransactionKind, TransactionData, RpcApiVersion } from "./index";
 
 export function isTransactionDigest(obj: any, _argumentName?: string): obj is TransactionDigest {
     return (
@@ -682,6 +682,39 @@ export function isPay(obj: any, _argumentName?: string): obj is Pay {
     )
 }
 
+export function isPayHaneul(obj: any, _argumentName?: string): obj is PayHaneul {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        Array.isArray(obj.coins) &&
+        obj.coins.every((e: any) =>
+            isHaneulObjectRef(e) as boolean
+        ) &&
+        Array.isArray(obj.recipients) &&
+        obj.recipients.every((e: any) =>
+            isTransactionDigest(e) as boolean
+        ) &&
+        Array.isArray(obj.amounts) &&
+        obj.amounts.every((e: any) =>
+            isHaneulMoveTypeParameterIndex(e) as boolean
+        )
+    )
+}
+
+export function isPayAllHaneul(obj: any, _argumentName?: string): obj is PayAllHaneul {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        Array.isArray(obj.coins) &&
+        obj.coins.every((e: any) =>
+            isHaneulObjectRef(e) as boolean
+        ) &&
+        isTransactionDigest(obj.recipient) as boolean
+    )
+}
+
 export function isExecuteTransactionRequestType(obj: any, _argumentName?: string): obj is ExecuteTransactionRequestType {
     return (
         (obj === "ImmediateReturn" ||
@@ -698,7 +731,9 @@ export function isTransactionKindName(obj: any, _argumentName?: string): obj is 
             obj === "Call" ||
             obj === "TransferHaneul" ||
             obj === "ChangeEpoch" ||
-            obj === "Pay")
+            obj === "Pay" ||
+            obj === "PayHaneul" ||
+            obj === "PayAllHaneul")
     )
 }
 
@@ -727,7 +762,15 @@ export function isHaneulTransactionKind(obj: any, _argumentName?: string): obj i
             (obj !== null &&
                 typeof obj === "object" ||
                 typeof obj === "function") &&
-            isPay(obj.Pay) as boolean)
+            isPay(obj.Pay) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isPayHaneul(obj.PayHaneul) as boolean ||
+            (obj !== null &&
+                typeof obj === "object" ||
+                typeof obj === "function") &&
+            isPayAllHaneul(obj.PayAllHaneul) as boolean)
     )
 }
 
@@ -1254,6 +1297,45 @@ export function isPayTx(obj: any, _argumentName?: string): obj is PayTx {
     )
 }
 
+export function isPayHaneulTx(obj: any, _argumentName?: string): obj is PayHaneulTx {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        (obj.PayHaneul !== null &&
+            typeof obj.PayHaneul === "object" ||
+            typeof obj.PayHaneul === "function") &&
+        Array.isArray(obj.PayHaneul.coins) &&
+        obj.PayHaneul.coins.every((e: any) =>
+            isHaneulObjectRef(e) as boolean
+        ) &&
+        Array.isArray(obj.PayHaneul.recipients) &&
+        obj.PayHaneul.recipients.every((e: any) =>
+            isTransactionDigest(e) as boolean
+        ) &&
+        Array.isArray(obj.PayHaneul.amounts) &&
+        obj.PayHaneul.amounts.every((e: any) =>
+            isHaneulMoveTypeParameterIndex(e) as boolean
+        )
+    )
+}
+
+export function isPayAllHaneulTx(obj: any, _argumentName?: string): obj is PayAllHaneulTx {
+    return (
+        (obj !== null &&
+            typeof obj === "object" ||
+            typeof obj === "function") &&
+        (obj.PayAllHaneul !== null &&
+            typeof obj.PayAllHaneul === "object" ||
+            typeof obj.PayAllHaneul === "function") &&
+        Array.isArray(obj.PayAllHaneul.coins) &&
+        obj.PayAllHaneul.coins.every((e: any) =>
+            isHaneulObjectRef(e) as boolean
+        ) &&
+        isTransactionDigest(obj.PayAllHaneul.recipient) as boolean
+    )
+}
+
 export function isPublishTx(obj: any, _argumentName?: string): obj is PublishTx {
     return (
         (obj !== null &&
@@ -1398,6 +1480,8 @@ export function isTransaction(obj: any, _argumentName?: string): obj is Transact
         (isTransferObjectTx(obj) as boolean ||
             isTransferHaneulTx(obj) as boolean ||
             isPayTx(obj) as boolean ||
+            isPayHaneulTx(obj) as boolean ||
+            isPayAllHaneulTx(obj) as boolean ||
             isPublishTx(obj) as boolean ||
             isMoveCallTx(obj) as boolean)
     )

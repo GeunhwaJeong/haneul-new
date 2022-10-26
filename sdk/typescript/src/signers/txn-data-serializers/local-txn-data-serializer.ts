@@ -27,6 +27,8 @@ import {
   PublishTransaction,
   TxnDataSerializer,
   PayTransaction,
+  PayHaneulTransaction,
+  PayAllHaneulTransaction,
   SignableTransaction,
   UnserializedSignableTransaction,
 } from './txn-data-serializer';
@@ -122,6 +124,71 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
     } catch (err) {
       throw new Error(
         `Error constructing a Pay transaction: ${err} args ${JSON.stringify(t)}`
+      );
+    }
+  }
+
+  async newPayHaneul(
+    signerAddress: HaneulAddress,
+    t: PayHaneulTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const inputCoinRefs = (
+        await Promise.all(
+          t.inputCoins.map((coin) => this.provider.getObjectRef(coin))
+        )
+      ).map((ref) => ref!);
+      const tx = {
+        PayHaneul: {
+          coins: inputCoinRefs,
+          recipients: t.recipients,
+          amounts: t.amounts,
+        },
+      };
+      const gas_coin_obj = t.inputCoins[0];
+      return await this.constructTransactionData(
+        tx,
+        { kind: 'payHaneul', data: t },
+        gas_coin_obj,
+        signerAddress
+      );
+    } catch (err) {
+      throw new Error(
+        `Error constructing a PayHaneul transaction: ${err} args ${JSON.stringify(
+          t
+        )}`
+      );
+    }
+  }
+
+  async newPayAllHaneul(
+    signerAddress: HaneulAddress,
+    t: PayAllHaneulTransaction
+  ): Promise<Base64DataBuffer> {
+    try {
+      const inputCoinRefs = (
+        await Promise.all(
+          t.inputCoins.map((coin) => this.provider.getObjectRef(coin))
+        )
+      ).map((ref) => ref!);
+      const tx = {
+        PayAllHaneul: {
+          coins: inputCoinRefs,
+          recipient: t.recipient,
+        },
+      };
+      const gas_coin_obj = t.inputCoins[0];
+      return await this.constructTransactionData(
+        tx,
+        { kind: 'payAllHaneul', data: t },
+        gas_coin_obj,
+        signerAddress
+      );
+    } catch (err) {
+      throw new Error(
+        `Error constructing a PayAllHaneul transaction: ${err} args ${JSON.stringify(
+          t
+        )}`
       );
     }
   }

@@ -80,6 +80,21 @@ export type PayTx = {
   };
 };
 
+export type PayHaneulTx = {
+  PayHaneul: {
+    coins: HaneulObjectRef[];
+    recipients: string[];
+    amounts: number[];
+  };
+};
+
+export type PayAllHaneulTx = {
+  PayAllHaneul: {
+    coins: HaneulObjectRef[];
+    recipient: string;
+  };
+};
+
 bcs
   .registerVectorType('vector<HaneulAddress>', 'HaneulAddress')
   .registerVectorType('vector<HaneulObjectRef>', 'HaneulObjectRef')
@@ -88,6 +103,17 @@ bcs
     recipients: 'vector<HaneulAddress>',
     amounts: 'vector<u64>',
   });
+
+bcs.registerStructType('PayHaneulTx', {
+  coins: 'vector<HaneulObjectRef>',
+  recipients: 'vector<HaneulAddress>',
+  amounts: 'vector<u64>',
+});
+
+bcs.registerStructType('PayAllHaneulTx', {
+  coins: 'vector<HaneulObjectRef>',
+  recipient: 'HaneulAddress',
+});
 
 bcs.registerEnumType('Option<u64>', {
   None: null,
@@ -263,6 +289,8 @@ bcs
 export type Transaction =
   | MoveCallTx
   | PayTx
+  | PayHaneulTx
+  | PayAllHaneulTx
   | PublishTx
   | TransferObjectTx
   | TransferHaneulTx;
@@ -273,6 +301,8 @@ bcs.registerEnumType('Transaction', {
   Call: 'MoveCallTx',
   TransferHaneul: 'TransferHaneulTx',
   Pay: 'PayTx',
+  PayHaneul: 'PayHaneulTx',
+  PayAllHaneul: 'PayAllHaneulTx',
 });
 /**
  * Transaction kind - either Batch or Single.
@@ -345,6 +375,8 @@ bcs
     Call: 'MoveCallTx_Deprecated',
     TransferHaneul: 'TransferHaneulTx',
     Pay: 'PayTx',
+    PayHaneul: 'PayHaneulTx',
+    PayAllHaneul: 'PayAllHaneulTx',
   })
   .registerVectorType(
     'vector<Transaction_Deprecated>',
