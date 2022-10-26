@@ -13,8 +13,8 @@ use haneul_types::{
     fp_ensure,
     gas::{self, HaneulGasStatus},
     messages::{
-        CertifiedTransaction, InputObjectKind, InputObjects, SingleTransactionKind,
-        TransactionData, TransactionEnvelope,
+        InputObjectKind, InputObjects, SingleTransactionKind, TransactionData, VerifiedCertificate,
+        VerifiedTransactionEnvelope,
     },
     object::{Object, Owner},
 };
@@ -22,7 +22,7 @@ use tracing::instrument;
 
 async fn get_gas_status<S, T>(
     store: &HaneulDataStore<S>,
-    transaction: &TransactionEnvelope<T>,
+    transaction: &VerifiedTransactionEnvelope<T>,
 ) -> HaneulResult<HaneulGasStatus<'static>>
 where
     S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
@@ -58,7 +58,7 @@ where
 #[instrument(level = "trace", skip_all)]
 pub async fn check_transaction_input<S, T>(
     store: &HaneulDataStore<S>,
-    transaction: &TransactionEnvelope<T>,
+    transaction: &VerifiedTransactionEnvelope<T>,
 ) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)>
 where
     S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
@@ -74,7 +74,7 @@ where
 
 pub async fn check_certificate_input<S>(
     store: &HaneulDataStore<S>,
-    cert: &CertifiedTransaction,
+    cert: &VerifiedCertificate,
 ) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)>
 where
     S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,

@@ -9,7 +9,7 @@ use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{
-    QuorumDriverRequest, QuorumDriverRequestType, QuorumDriverResponse, Transaction,
+    QuorumDriverRequest, QuorumDriverRequestType, QuorumDriverResponse, VerifiedTransaction,
 };
 use test_utils::authority::{spawn_test_authorities, test_authority_configs};
 use test_utils::messages::make_transfer_haneul_transaction;
@@ -19,7 +19,7 @@ use test_utils::test_account_keys;
 async fn setup() -> (
     Vec<HaneulNodeHandle>,
     AuthorityAggregator<NetworkAuthorityClient>,
-    Transaction,
+    VerifiedTransaction,
 ) {
     let mut gas_objects = test_gas_objects();
     let configs = test_authority_configs();

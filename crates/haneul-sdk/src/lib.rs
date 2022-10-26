@@ -38,7 +38,7 @@ use haneul_json_rpc_types::{
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::messages::Transaction;
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::query::{Ordering, TransactionQuery};
 use types::base_types::SequenceNumber;
 use types::committee::EpochId;
@@ -393,7 +393,7 @@ impl QuorumDriver {
     /// error is returned from this call.
     pub async fn execute_transaction(
         &self,
-        tx: Transaction,
+        tx: VerifiedTransaction,
         request_type: Option<ExecuteTransactionRequestType>,
     ) -> anyhow::Result<TransactionExecutionResult> {
         Ok(match &*self.api {
@@ -481,7 +481,7 @@ impl QuorumDriver {
             }
             // TODO do we want to support an embedded quorum driver?
             HaneulClientApi::Embedded(c) => {
-                let resp = c.execute_transaction(tx).await?;
+                let resp = c.execute_transaction(tx.into_inner()).await?;
                 TransactionExecutionResult {
                     tx_digest: resp.certificate.transaction_digest,
                     tx_cert: Some(resp.certificate),

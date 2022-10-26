@@ -21,7 +21,8 @@ use haneul_types::{
     batch::{TxSequenceNumber, UpdateItem},
     error::{HaneulError, HaneulResult},
     messages::{
-        BatchInfoRequest, BatchInfoResponseItem, TransactionInfoRequest, TransactionInfoResponse,
+        BatchInfoRequest, BatchInfoResponseItem, TransactionInfoRequest,
+        VerifiedTransactionInfoResponse,
     },
 };
 use tap::TapFallible;
@@ -320,7 +321,7 @@ impl GossipDigestHandler {
     async fn process_response(
         state: Arc<AuthorityState>,
         peer_name: AuthorityName,
-        response: TransactionInfoResponse,
+        response: VerifiedTransactionInfoResponse,
     ) -> Result<(), HaneulError> {
         if let Some(certificate) = response.certified_transaction {
             let digest = *certificate.digest();

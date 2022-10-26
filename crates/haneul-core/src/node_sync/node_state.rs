@@ -17,7 +17,8 @@ use haneul_types::{
     },
     error::{HaneulError, HaneulResult},
     messages::{
-        CertifiedTransaction, SignedTransactionEffects, TransactionEffects, TransactionInfoResponse,
+        CertifiedTransaction, SignedTransactionEffects, TransactionEffects,
+        TransactionInfoResponse, VerifiedCertificate,
     },
     messages_checkpoint::CheckpointContents,
 };
@@ -508,7 +509,7 @@ where
         &self,
         epoch_id: EpochId,
         digest: &TransactionDigest,
-    ) -> HaneulResult<CertifiedTransaction> {
+    ) -> HaneulResult<VerifiedCertificate> {
         if let Some(cert) = self.store().get_cert(epoch_id, digest)? {
             assert_eq!(epoch_id, cert.epoch());
             return Ok(cert);
@@ -860,7 +861,7 @@ where
         epoch_id: EpochId,
         authorities_with_cert: Option<BTreeSet<AuthorityName>>,
         req: &DownloadRequest,
-    ) -> HaneulResult<(CertifiedTransaction, Option<SignedTransactionEffects>)> {
+    ) -> HaneulResult<(VerifiedCertificate, Option<SignedTransactionEffects>)> {
         let tx_digest = *req.transaction_digest();
 
         match (

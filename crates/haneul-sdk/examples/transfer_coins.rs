@@ -39,7 +39,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let transaction_response = haneul
         .quorum_driver()
         .execute_transaction(
-            Transaction::new(transfer_tx, signature),
+            Transaction::new(transfer_tx, signature).verify()?,
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await?;

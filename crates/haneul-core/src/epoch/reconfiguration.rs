@@ -15,7 +15,7 @@ use haneul_network::{default_haneullabs_network_config, tonic};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::SignedTransaction;
+use haneul_types::messages::VerifiedSignedTransaction;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tracing::{debug, error, info, warn};
 use typed_store::Map;
@@ -145,7 +145,7 @@ where
         // all active processes, maybe batch service.
         // We should also reduce the amount of committee passed around.
 
-        let advance_epoch_tx = SignedTransaction::new_change_epoch(
+        let advance_epoch_tx = VerifiedSignedTransaction::new_change_epoch(
             next_epoch,
             storage_charge,
             computation_charge,
@@ -171,12 +171,15 @@ where
                 .process_transaction(advance_epoch_tx.clone().to_transaction())
                 .await
             {
-                Ok(certificate) => match self.state.handle_certificate(&certificate).await {
-                    Ok(_) => {
-                        break;
+                Ok(certificate) => {
+                    let certificate = certificate.verify(&self.state.committee.load())?;
+                    match self.state.handle_certificate(&certificate).await {
+                        Ok(_) => {
+                            break;
+                        }
+                        Err(err) => err,
                     }
-                    Err(err) => err,
-                },
+                }
                 Err(err) => err,
             };
             debug!(

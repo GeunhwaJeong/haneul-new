@@ -5,7 +5,7 @@ use crate::authority::HaneulDataStore;
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use haneul_types::messages::{CertifiedTransaction, TransactionEffects};
+use haneul_types::messages::{TransactionEffects, VerifiedCertificate};
 use haneul_types::{base_types::*, batch::TxSequenceNumber, error::HaneulError, fp_ensure};
 use tracing::debug;
 
@@ -82,7 +82,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> QueryHelpers<S> {
     pub fn get_transaction(
         database: &HaneulDataStore<S>,
         digest: &TransactionDigest,
-    ) -> Result<(CertifiedTransaction, TransactionEffects), anyhow::Error> {
+    ) -> Result<(VerifiedCertificate, TransactionEffects), anyhow::Error> {
         let opt = database.get_certified_transaction(digest)?;
         match opt {
             Some(certificate) => Ok((certificate, database.get_effects(digest)?)),

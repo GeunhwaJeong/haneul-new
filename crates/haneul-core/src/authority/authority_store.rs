@@ -55,7 +55,7 @@ const LAST_CONSENSUS_INDEX_ADDR: u64 = 0;
 pub struct HaneulDataStore<S> {
     /// A write-ahead/recovery log used to ensure we finish fully processing certs after errors or
     /// crashes.
-    pub wal: Arc<DBWriteAheadLog<CertifiedTransaction>>,
+    pub wal: Arc<DBWriteAheadLog<TrustedCertificate>>,
 
     /// The LockService this store depends on for locking functionality
     lock_service: LockService,
@@ -135,9 +135,9 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         self.epoch_tables.load()
     }
 
-    pub async fn acquire_tx_guard(&self, cert: &CertifiedTransaction) -> HaneulResult<CertTxGuard> {
+    pub async fn acquire_tx_guard(&self, cert: &VerifiedCertificate) -> HaneulResult<CertTxGuard> {
         let digest = cert.digest();
-        let guard = self.wal.begin_tx(digest, cert).await?;
+        let guard = self.wal.begin_tx(digest, cert.serializable_ref()).await?;
 
         if guard.retry_num() > MAX_TX_RECOVERY_RETRY {
             // If the tx has been retried too many times, it could be a poison pill, and we should
@@ -395,7 +395,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub async fn get_object_locking_transaction(
         &self,
         object_ref: &ObjectRef,
-    ) -> HaneulResult<Option<TransactionEnvelope<S>>> {
+    ) -> HaneulResult<Option<VerifiedTransactionEnvelope<S>>> {
         let tx_lock = self.lock_service.get_lock(*object_ref).await?.ok_or(
             HaneulError::ObjectLockUninitialized {
                 obj_ref: *object_ref,
@@ -424,7 +424,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
                     }
                     tx_option = self.epoch_tables().transactions.get(tx_digest)?;
                 }
-                Ok(tx_option)
+                Ok(tx_option.map(|t| t.into()))
             }
             None => Ok(None),
         }
@@ -434,10 +434,11 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub fn read_certificate(
         &self,
         digest: &TransactionDigest,
-    ) -> Result<Option<CertifiedTransaction>, HaneulError> {
+    ) -> Result<Option<VerifiedCertificate>, HaneulError> {
         self.perpetual_tables
             .certificates
             .get(digest)
+            .map(|r| r.map(|c| c.into()))
             .map_err(|e| e.into())
     }
 
@@ -602,7 +603,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         &self,
         epoch: EpochId,
         owned_input_objects: &[ObjectRef],
-        transaction: TransactionEnvelope<S>,
+        transaction: VerifiedTransactionEnvelope<S>,
     ) -> Result<(), HaneulError> {
         let tx_digest = *transaction.digest();
 
@@ -617,7 +618,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         // https://github.com/GeunhwaJeong/haneul/issues/1990
         self.epoch_tables()
             .transactions
-            .insert(&tx_digest, &transaction)?;
+            .insert(&tx_digest, transaction.serializable_ref())?;
 
         Ok(())
     }
@@ -639,7 +640,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub async fn update_state(
         &self,
         inner_temporary_store: InnerTemporaryStore,
-        certificate: &CertifiedTransaction,
+        certificate: &VerifiedCertificate,
         proposed_seq: TxSequenceNumber,
         effects: &TransactionEffectsEnvelope<S>,
         effects_digest: &TransactionEffectsDigest,
@@ -652,7 +653,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         let transaction_digest: &TransactionDigest = certificate.digest();
         write_batch = write_batch.insert_batch(
             &self.perpetual_tables.certificates,
-            iter::once((transaction_digest, certificate)),
+            iter::once((transaction_digest, certificate.serializable_ref())),
         )?;
 
         let seq = self
@@ -699,7 +700,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         &self,
         input_objects: InputObjects,
         mutated_objects: BTreeMap<ObjectRef, (Object, WriteKind)>,
-        certificate: CertifiedTransaction,
+        certificate: VerifiedCertificate,
         proposed_seq: TxSequenceNumber,
         effects: TransactionEffectsEnvelope<S>,
         effects_digest: &TransactionEffectsDigest,
@@ -722,7 +723,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         // Store the certificate indexed by transaction digest
         write_batch = write_batch.insert_batch(
             &self.perpetual_tables.certificates,
-            iter::once((transaction_digest, &certificate)),
+            iter::once((transaction_digest, certificate.serializable_ref())),
         )?;
         self.sequence_tx(
             write_batch,
@@ -1066,7 +1067,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub fn remove_shared_objects_locks(
         &self,
         transaction_digest: &TransactionDigest,
-        transaction: &CertifiedTransaction,
+        transaction: &VerifiedCertificate,
     ) -> HaneulResult {
         let mut sequenced_to_delete = Vec::new();
         let mut schedule_to_delete = Vec::new();
@@ -1093,7 +1094,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     /// of that transaction. Used by the nodes, which don't listen to consensus.
     pub fn acquire_shared_locks_from_effects(
         &self,
-        certificate: &CertifiedTransaction,
+        certificate: &VerifiedCertificate,
         effects: &TransactionEffects,
         // Do not remove unused arg - ensures that this function is not called without holding a
         // lock.
@@ -1133,7 +1134,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     /// Caller is responsible to call consensus_message_processed before this method
     pub async fn lock_shared_objects(
         &self,
-        certificate: CertifiedTransaction,
+        certificate: &VerifiedCertificate,
         consensus_index: ExecutionIndicesWithHash,
     ) -> Result<(), HaneulError> {
         // Make an iterator to save the certificate.
@@ -1354,27 +1355,30 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub fn get_transaction(
         &self,
         transaction_digest: &TransactionDigest,
-    ) -> HaneulResult<Option<TransactionEnvelope<S>>> {
+    ) -> HaneulResult<Option<VerifiedTransactionEnvelope<S>>> {
         let transaction = self.epoch_tables().transactions.get(transaction_digest)?;
-        Ok(transaction)
+        Ok(transaction.map(|t| t.into()))
     }
 
     pub fn get_certified_transaction(
         &self,
         transaction_digest: &TransactionDigest,
-    ) -> HaneulResult<Option<CertifiedTransaction>> {
+    ) -> HaneulResult<Option<VerifiedCertificate>> {
         let transaction = self.perpetual_tables.certificates.get(transaction_digest)?;
-        Ok(transaction)
+        Ok(transaction.map(|t| t.into()))
     }
 
     pub fn multi_get_certified_transaction(
         &self,
         transaction_digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<CertifiedTransaction>>> {
+    ) -> HaneulResult<Vec<Option<VerifiedCertificate>>> {
         Ok(self
             .perpetual_tables
             .certificates
-            .multi_get(transaction_digests)?)
+            .multi_get(transaction_digests)?
+            .into_iter()
+            .map(|o| o.map(|c| c.into()))
+            .collect())
     }
 
     pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState>
@@ -1392,7 +1396,11 @@ impl HaneulDataStore<AuthoritySignInfo> {
         cur_epoch: EpochId,
         transaction_digest: &TransactionDigest,
     ) -> HaneulResult<bool> {
-        let tx = self.epoch_tables().transactions.get(transaction_digest)?;
+        let tx: Option<VerifiedTransactionEnvelope<AuthoritySignInfo>> = self
+            .epoch_tables()
+            .transactions
+            .get(transaction_digest)?
+            .map(|t| t.into());
         Ok(if let Some(signed_tx) = tx {
             signed_tx.auth_sign_info.epoch == cur_epoch
         } else {
@@ -1403,10 +1411,18 @@ impl HaneulDataStore<AuthoritySignInfo> {
     pub fn get_signed_transaction_info(
         &self,
         transaction_digest: &TransactionDigest,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
-        Ok(TransactionInfoResponse {
-            signed_transaction: self.epoch_tables().transactions.get(transaction_digest)?,
-            certified_transaction: self.perpetual_tables.certificates.get(transaction_digest)?,
+    ) -> Result<VerifiedTransactionInfoResponse, HaneulError> {
+        Ok(VerifiedTransactionInfoResponse {
+            signed_transaction: self
+                .epoch_tables()
+                .transactions
+                .get(transaction_digest)?
+                .map(|t| t.into()),
+            certified_transaction: self
+                .perpetual_tables
+                .certificates
+                .get(transaction_digest)?
+                .map(|c| c.into()),
             signed_effects: self.perpetual_tables.effects.get(transaction_digest)?,
         })
     }
