@@ -2,7 +2,7 @@
 title: Explore Haneul
 ---
 
-Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
+Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
 
 ## Tutorials
 
