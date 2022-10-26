@@ -5,6 +5,8 @@ import { useMemo } from 'react';
 
 import CoinBalance from './coin-balance';
 import IconLink from './icon-link';
+import FaucetMessageInfo from '_app/shared/faucet/message-info';
+import FaucetRequestButton from '_app/shared/faucet/request-button';
 import AccountAddress from '_components/account-address';
 import Alert from '_components/alert';
 import Loading from '_components/loading';
@@ -15,19 +17,18 @@ import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 
 import st from './TokensPage.module.scss';
 
+const emptyWalletDescription = (
+    <div className={st.emptyWalletDescription}>
+        To conduct transactions on the Haneul network, you need HANEUL in your wallet.
+    </div>
+);
+
 function TokensPage() {
     const { loading, error, showError } = useObjectsState();
     const balances = useAppSelector(accountAggregateBalancesSelector);
     const haneulBalance = balances[GAS_TYPE_ARG] || BigInt(0);
-    const otherCoinTypes = useMemo(
-        () => Object.keys(balances).filter((aType) => aType !== GAS_TYPE_ARG),
-        [balances]
-    );
-
-    // Send only coins that have a balance
-    // deactivate send for wallet with no balance
-    const activeCoinType = haneulBalance > 0 ? GAS_TYPE_ARG : otherCoinTypes[0];
-
+    const allCoinTypes = useMemo(() => Object.keys(balances), [balances]);
+    const coinTypeWithBalance = haneulBalance > 0 ? GAS_TYPE_ARG : allCoinTypes[0];
     return (
         <div className={st.container}>
             {showError && error ? (
@@ -55,10 +56,14 @@ function TokensPage() {
                 />
                 <IconLink
                     icon={HaneulIcons.ArrowLeft}
-                    to={`/send?${new URLSearchParams({
-                        type: activeCoinType,
-                    }).toString()}`}
-                    disabled={!activeCoinType}
+                    to={`/send${
+                        coinTypeWithBalance
+                            ? `?${new URLSearchParams({
+                                  type: coinTypeWithBalance,
+                              }).toString()}`
+                            : ''
+                    }`}
+                    disabled={!coinTypeWithBalance}
                     text="Send"
                 />
                 <IconLink
@@ -76,44 +81,38 @@ function TokensPage() {
                     text="Stake & Earn HANEUL"
                 />
             </div>
-            {activeCoinType ? (
-                <>
-                    <div className={st.title}>MY COINS</div>
-                    <div className={st.otherCoins}>
-                        <Loading loading={loading} className={st.othersLoader}>
-                            {otherCoinTypes.length ? (
-                                otherCoinTypes.map((aCoinType) => {
-                                    const aCoinBalance = balances[aCoinType];
-                                    return (
-                                        <CoinBalance
-                                            type={aCoinType}
-                                            balance={aCoinBalance}
-                                            key={aCoinType}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                <div className={st.empty}>
-                                    No coins have added. When you have multiple
-                                    coins in your wallet, they will be listed
-                                    here.
+            <Loading loading={loading} className={st.othersLoader}>
+                {allCoinTypes.length ? (
+                    <>
+                        <div className={st.title}>MY COINS</div>
+                        <div className={st.otherCoins}>
+                            {allCoinTypes.map((aCoinType) => (
+                                <CoinBalance
+                                    type={aCoinType}
+                                    balance={balances[aCoinType] || BigInt(0)}
+                                    key={aCoinType}
+                                />
+                            ))}
+                            {haneulBalance <= 0 ? (
+                                <div className={st.emptyWallet}>
+                                    <FaucetRequestButton />
+                                    {emptyWalletDescription}
                                 </div>
-                            )}
-                        </Loading>
+                            ) : null}
+                        </div>
+                    </>
+                ) : (
+                    <div className={st.emptyWallet}>
+                        <div className={st.emptyWalletIcon} />
+                        <div className={st.emptyWalletTitle}>
+                            Your wallet contains no HANEUL.
+                        </div>
+                        {emptyWalletDescription}
+                        <FaucetRequestButton />
                     </div>
-                </>
-            ) : (
-                <div className={st.emptyWallet}>
-                    <div className={st.emptyWalletIcon}></div>
-                    <div className={st.emptyWalletTitle}>
-                        Your wallet is empty
-                    </div>
-                    <div className={st.emptyWalletDescription}>
-                        To conduct transactions on the HANEUL network, you’ll need
-                        HANEUL in your wallet.
-                    </div>
-                </div>
-            )}
+                )}
+                <FaucetMessageInfo className={st.gasRequestInfo} />
+            </Loading>
         </div>
     );
 }
