@@ -10,6 +10,7 @@ import {
     getTransferObjectTransaction,
     getTransferHaneulTransaction,
     getTransferHaneulAmount,
+    HANEUL_TYPE_ARG,
     type GetTxnDigestsResponse,
     type CertifiedTransaction,
     type ExecutionStatusType,
@@ -23,12 +24,13 @@ import { ReactComponent as ContentArrowRight } from '../../assets/SVGIcons/16px/
 import Longtext from '../../components/longtext/Longtext';
 import { DefaultRpcClient } from '../../utils/api/DefaultRpcClient';
 import { type Network } from '../../utils/api/rpcSetting';
-import { numberSuffix } from '../../utils/numberUtil';
 import { deduplicate } from '../../utils/searchUtil';
-import { truncate, presentBN } from '../../utils/stringUtils';
+import { truncate } from '../../utils/stringUtils';
 import { timeAgo } from '../../utils/timeUtils';
 
 import styles from './RecentTxCard.module.css';
+
+import { useFormatCoin } from '~/hooks/useFormatCoin';
 
 export type TxnData = {
     To?: string;
@@ -61,30 +63,24 @@ type TxStatus = {
     status: ExecutionStatusType;
 };
 
-export function HaneulAmount({ amount }: { amount: bigint | string | undefined }) {
+export function HaneulAmount({
+    amount,
+}: {
+    amount: bigint | number | string | undefined;
+}) {
+    const [formattedAmount] = useFormatCoin(amount, HANEUL_TYPE_ARG);
+
     if (amount) {
         const HaneulSuffix = <abbr className={styles.haneulsuffix}>HANEUL</abbr>;
 
-        if (typeof amount === 'bigint') {
-            return (
-                <section>
-                    <span>
-                        {presentBN(amount)}
-                        {HaneulSuffix}
-                    </span>
-                </section>
-            );
-        }
-        if (typeof amount === 'string') {
-            return (
-                <section>
-                    <span className={styles.haneulamount}>
-                        {amount}
-                        {HaneulSuffix}
-                    </span>
-                </section>
-            );
-        }
+        return (
+            <section>
+                <span className={styles.haneulamount}>
+                    {formattedAmount}
+                    {HaneulSuffix}
+                </span>
+            </section>
+        );
     }
 
     return <span className={styles.haneulamount}>--</span>;
@@ -195,7 +191,7 @@ export const genTableDataFromTxData = (
                 />
             ),
             amounts: <HaneulAmount amount={txn.haneulAmount} />,
-            gas: <HaneulAmount amount={numberSuffix(txn.txGas)} />,
+            gas: <HaneulAmount amount={txn.txGas} />,
         })),
         columns: [
             {

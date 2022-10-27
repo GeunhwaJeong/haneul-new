@@ -12,6 +12,7 @@ import {
     getObjectId,
     getTransferHaneulTransaction,
     getTransferHaneulAmount,
+    HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 import cl from 'clsx';
 import { Link } from 'react-router-dom';
@@ -26,7 +27,6 @@ import {
     type LinkObj,
     TxAddresses,
 } from '../../components/transaction-card/TxCardUtils';
-import { presentBN } from '../../utils/stringUtils';
 import SendReceiveView from './SendReceiveView';
 import TxLinks from './TxLinks';
 
@@ -42,6 +42,7 @@ import type {
 
 import styles from './TransactionResult.module.css';
 
+import { CoinFormat, useFormatCoin } from '~/hooks/useFormatCoin';
 import { Banner } from '~/ui/Banner';
 import { PageHeader } from '~/ui/PageHeader';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '~/ui/Tabs';
@@ -241,6 +242,11 @@ function ItemView({ data }: { data: TxItemView }) {
 function TransactionView({ txdata }: { txdata: DataType }) {
     const txdetails = getTransactions(txdata)[0];
     const amount = getTransferHaneulAmount(txdetails);
+    const [formattedAmount] = useFormatCoin(
+        amount,
+        HANEUL_TYPE_ARG,
+        CoinFormat.FULL
+    );
     const txKindName = getTransactionKindName(txdetails);
     const sender = getTransactionSender(txdata);
     const recipient =
@@ -432,7 +438,7 @@ function TransactionView({ txdata }: { txdata: DataType }) {
                                     <div className={styles.amountbox}>
                                         <div>Amount</div>
                                         <div>
-                                            {presentBN(amount)}
+                                            {formattedAmount}
                                             <sup>HANEUL</sup>
                                         </div>
                                     </div>
