@@ -5,7 +5,7 @@ import type {
   SignableTransaction,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
-import type { SignAndSendTransactionInput } from "@wallet-standard/features";
+import type { SignAndSendTransactionInput } from "@wallet-standard/core";
 
 /** The latest API version of the signAndExecuteTransaction API. */
 export type HaneulSignAndExecuteTransactionVersion = "1.0.0";

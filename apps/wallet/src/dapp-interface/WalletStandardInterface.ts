@@ -122,10 +122,7 @@ export class HaneulWallet implements Wallet {
                     // TODO: Expose public key instead of address:
                     publicKey: new Uint8Array(),
                     chains: HANEUL_CHAINS,
-                    features: [
-                        'haneul:signAndExecuteTransaction',
-                        'standard:signMessage',
-                    ],
+                    features: ['haneul:signAndExecuteTransaction'],
                 });
                 this.#events.emit('change', { accounts: this.accounts });
             }

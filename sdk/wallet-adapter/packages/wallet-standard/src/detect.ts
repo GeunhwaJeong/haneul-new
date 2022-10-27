@@ -5,8 +5,9 @@ import {
   ConnectFeature,
   DisconnectFeature,
   EventsFeature,
-} from "@wallet-standard/features";
-import { Wallet, WalletWithFeatures } from "@wallet-standard/standard";
+  Wallet,
+  WalletWithFeatures,
+} from "@wallet-standard/core";
 import { HaneulSignAndExecuteTransactionFeature } from "./features";
 
 export type StandardWalletAdapterWallet = WalletWithFeatures<
