@@ -1,36 +1,34 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::ident_str;
-use move_core_types::identifier::Identifier;
 use std::{collections::BTreeSet, sync::Arc};
-use haneul_types::id::UID;
-use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKind};
-#[cfg(test)]
-use haneul_types::temporary_store;
-use haneul_types::temporary_store::InnerTemporaryStore;
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 
-use crate::authority::TemporaryStore;
 use move_core_types::language_storage::{ModuleId, StructTag};
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
+use tracing::{debug, instrument};
+
 use haneul_adapter::adapter;
 use haneul_types::coin::{transfer_coin, update_input_coins, Coin};
 use haneul_types::committee::EpochId;
 use haneul_types::error::{ExecutionError, ExecutionErrorKind};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
-
+use haneul_types::id::UID;
 #[cfg(test)]
 use haneul_types::messages::ExecutionFailureStatus;
 #[cfg(test)]
 use haneul_types::messages::InputObjects;
 use haneul_types::messages::{ObjectArg, Pay, PayAllHaneul, PayHaneul};
 use haneul_types::object::{Data, MoveObject, Owner, OBJECT_START_VERSION};
+use haneul_types::storage::SingleTxContext;
+use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKind};
+#[cfg(test)]
+use haneul_types::temporary_store;
+use haneul_types::temporary_store::InnerTemporaryStore;
+use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
-    event::{Event, TransferType},
-    gas::{self, HaneulGasStatus},
+    gas::HaneulGasStatus,
     messages::{
         CallArg, ChangeEpoch, ExecutionStatus, MoveCall, MoveModulePublish, SingleTransactionKind,
         TransactionData, TransactionEffects, TransferObject, TransferHaneul,
@@ -40,7 +38,8 @@ use haneul_types::{
     haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
-use tracing::{debug, instrument, trace};
+
+use crate::authority::TemporaryStore;
 
 #[cfg(test)]
 #[path = "unit_tests/pay_haneul_tests.rs"]
@@ -187,7 +186,12 @@ fn execute_transaction<S: BackingPackageStore + ParentSync + ChildObjectResolver
                         .unwrap()
                         .clone()
                     ).collect();
-                    pay_all_haneul(temporary_store, &mut coin_objects, recipient)
+                    pay_all_haneul(
+                        tx_ctx.sender(),
+                        temporary_store,
+                        &mut coin_objects,
+                        recipient,
+                    )
                 }
                 SingleTransactionKind::Call(MoveCall {
                     package,
@@ -293,47 +297,10 @@ fn execute_transaction<S: BackingPackageStore + ParentSync + ChildObjectResolver
     // Make sure every mutable object's version number is incremented.
     // This needs to happen before `charge_gas_for_storage_changes` so that it
     // can charge gas for all mutated objects properly.
-    temporary_store.ensure_active_inputs_mutated(&gas_object_id);
+    let sender = tx_ctx.sender();
+    temporary_store.ensure_active_inputs_mutated(sender, &gas_object_id);
     if !gas_status.is_unmetered() {
-        // We must call `read_object` instead of getting it from `temporary_store.objects`
-        // because a `TransferHaneul` transaction may have already mutated the gas object and put
-        // it in `temporary_store.written`.
-        let mut gas_object = temporary_store
-            .read_object(&gas_object_id)
-            .expect("We constructed the object map so it should always have the gas object id")
-            .clone();
-        trace!(?gas_object_id, "Obtained gas object");
-        if let Err(err) =
-            temporary_store.charge_gas_for_storage_changes(&mut gas_status, &mut gas_object)
-        {
-            // If `result` is already `Err`, we basically have two errors at the same time.
-            // Users should be generally more interested in the actual execution error, so we
-            // let that shadow the out of gas error. Also in this case, we don't need to reset
-            // the `temporary_store` because `charge_gas_for_storage_changes` won't mutate
-            // `temporary_store` if gas charge failed.
-            //
-            // If `result` is `Ok`, now we failed when charging gas, we have to reset
-            // the `temporary_store` to eliminate all effects caused by the execution,
-            // and re-ensure all mutable objects' versions are incremented.
-            if result.is_ok() {
-                temporary_store.reset();
-                temporary_store.ensure_active_inputs_mutated(&gas_object_id);
-                result = Err(err);
-            }
-        }
-        let cost_summary = gas_status.summary(result.is_ok());
-        let gas_used = cost_summary.gas_used();
-        // TODO: Only refund to user a percentage of the storage rebate. This percentage should be read
-        // from a system parameter stored on-chain.
-        let gas_rebate = cost_summary.storage_rebate;
-        // We must re-fetch the gas object from the temporary store, as it may have been reset
-        // previously in the case of error.
-        // TODO: It might be cleaner and less error-prone if we put gas object id into
-        // temporary store and move much of the gas logic there.
-        gas_object = temporary_store.read_object(&gas_object_id).unwrap().clone();
-        gas::deduct_gas(&mut gas_object, gas_used, gas_rebate);
-        trace!(gas_used, gas_obj_id =? gas_object.id(), gas_obj_ver =? gas_object.version(), "Updated gas object");
-        temporary_store.write_object(gas_object, WriteKind::Mutate);
+        temporary_store.charge_gas(sender, gas_object_id, &mut gas_status, &mut result);
     }
 
     let cost_summary = gas_status.summary(result.is_ok());
@@ -349,18 +316,8 @@ fn transfer_object<S>(
     object.ensure_public_transfer_eligible()?;
     object.transfer_and_increment_version(recipient);
     // This will extract the transfer amount if the object is a Coin of some kind
-    let amount = Coin::extract_balance_if_coin(&object)?;
-    temporary_store.log_event(Event::TransferObject {
-        package_id: ObjectID::from(HANEUL_FRAMEWORK_ADDRESS),
-        transaction_module: Identifier::from(ident_str!("native")),
-        sender,
-        recipient: Owner::AddressOwner(recipient),
-        object_id: object.id(),
-        version: object.version(),
-        type_: TransferType::Coin,
-        amount,
-    });
-    temporary_store.write_object(object, WriteKind::Mutate);
+    let ctx = SingleTxContext::transfer_object(sender);
+    temporary_store.write_object(&ctx, object, WriteKind::Mutate);
     Ok(())
 }
 
@@ -444,6 +401,7 @@ fn check_total_coins(coins: &[Coin], amounts: &[u64]) -> Result<(u64, u64), Exec
 }
 
 fn debit_coins_and_transfer<S>(
+    ctx: &SingleTxContext,
     temporary_store: &mut TemporaryStore<S>,
     coins: &mut [Coin],
     recipients: &[HaneulAddress],
@@ -478,7 +436,7 @@ fn debit_coins_and_transfer<S>(
                     Owner::AddressOwner(*recipient),
                     tx_ctx.digest(),
                 );
-                temporary_store.write_object(new_coin, WriteKind::Create);
+                temporary_store.write_object(ctx, new_coin, WriteKind::Create);
                 break; // done paying this recipieint, on to the next one
             } else {
                 // need to take all of this coin and some from a subsequent coin
@@ -502,7 +460,10 @@ fn pay<S>(
     check_recipients(&recipients, &amounts)?;
     let (mut coins, coin_type) = check_coins(&coin_objects, None)?;
     let (total_coins, total_amount) = check_total_coins(&coins, &amounts)?;
+    let ctx = SingleTxContext::pay(tx_ctx.sender());
+
     debit_coins_and_transfer(
+        &ctx,
         temporary_store,
         &mut coins,
         &recipients,
@@ -524,10 +485,11 @@ fn pay<S>(
         let coin = &coins[coin_idx];
         if coin.value() == 0 {
             temporary_store.delete_object(
+                &ctx,
                 &coin_object.id(),
                 coin_object.version(),
                 DeleteKind::Normal,
-            )
+            );
         } else {
             // unwrapped unsafe because we checked that it was a coin object above
             coin_object
@@ -537,7 +499,7 @@ fn pay<S>(
                 .update_contents_and_increment_version(
                     bcs::to_bytes(&coin).expect("Coin serialization should not fail"),
                 );
-            temporary_store.write_object(coin_object, WriteKind::Mutate);
+            temporary_store.write_object(&ctx, coin_object, WriteKind::Mutate);
         }
     }
     Ok(())
@@ -557,20 +519,23 @@ fn pay_haneul<S>(
     let mut merged_coin = coins.swap_remove(0);
     merged_coin.merge_coins(&mut coins);
 
+    let ctx = SingleTxContext::pay_haneul(tx_ctx.sender());
+
     for (recipient, amount) in recipients.iter().zip(amounts) {
         // unwrap is safe b/c merged_coin value is total_coins, which is greater than total_amount
         let new_coin = merged_coin
             .split_coin(amount, UID::new(tx_ctx.fresh_id()))
             .unwrap();
         transfer_coin(
+            &ctx,
             temporary_store,
             &new_coin,
             *recipient,
             coin_type.clone(),
-            tx_ctx,
+            tx_ctx.digest(),
         );
     }
-    update_input_coins(temporary_store, coin_objects, &merged_coin, None);
+    update_input_coins(&ctx, temporary_store, coin_objects, &merged_coin, None);
 
     #[cfg(debug_assertions)]
     {
@@ -580,6 +545,7 @@ fn pay_haneul<S>(
 }
 
 fn pay_all_haneul<S>(
+    sender: HaneulAddress,
     temporary_store: &mut TemporaryStore<S>,
     coin_objects: &mut Vec<Object>,
     recipient: HaneulAddress,
@@ -589,7 +555,14 @@ fn pay_all_haneul<S>(
 
     let mut merged_coin = coins.swap_remove(0);
     merged_coin.merge_coins(&mut coins);
-    update_input_coins(temporary_store, coin_objects, &merged_coin, Some(recipient));
+    let ctx = SingleTxContext::pay_all_haneul(sender);
+    update_input_coins(
+        &ctx,
+        temporary_store,
+        coin_objects,
+        &merged_coin,
+        Some(recipient),
+    );
 
     #[cfg(debug_assertions)]
     {
@@ -614,8 +587,8 @@ fn transfer_haneul<S>(
 ) -> Result<(), ExecutionError> {
     #[cfg(debug_assertions)]
     let version = object.version();
-
-    let transferred = if let Some(amount) = amount {
+    let ctx = SingleTxContext::transfer_haneul(tx_ctx.sender());
+    if let Some(amount) = amount {
         // Deduct the amount from the gas coin and update it.
         let mut gas_coin = GasCoin::try_from(&object)
             .expect("gas object is transferred, so already checked to be a HANEUL coin");
@@ -639,7 +612,7 @@ fn transfer_haneul<S>(
             Owner::AddressOwner(recipient),
             tx_ctx.digest(),
         );
-        temporary_store.write_object(new_object, WriteKind::Create);
+        temporary_store.write_object(&ctx, new_object, WriteKind::Create);
         Some(amount)
     } else {
         // If amount is not specified, we simply transfer the entire coin object.
@@ -648,21 +621,10 @@ fn transfer_haneul<S>(
         Coin::extract_balance_if_coin(&object)?
     };
 
-    temporary_store.log_event(Event::TransferObject {
-        package_id: ObjectID::from(HANEUL_FRAMEWORK_ADDRESS),
-        transaction_module: Identifier::from(ident_str!("native")),
-        sender: tx_ctx.sender(),
-        recipient: Owner::AddressOwner(recipient),
-        object_id: object.id(),
-        version: object.version(),
-        type_: TransferType::Coin, // Should this be a separate type, like HaneulCoin?
-        amount: transferred,
-    });
-
     #[cfg(debug_assertions)]
     assert_eq!(object.version(), version);
 
-    temporary_store.write_object(object, WriteKind::Mutate);
+    temporary_store.write_object(&ctx, object, WriteKind::Mutate);
 
     Ok(())
 }
@@ -968,7 +930,7 @@ fn test_pay_all_haneul_success_multiple_input_coins() {
 
     let mut store: TemporaryStore<()> =
         temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
-    assert!(pay_all_haneul(&mut store, &mut coin_objects, recipient).is_ok());
+    assert!(pay_all_haneul(sender, &mut store, &mut coin_objects, recipient).is_ok());
     let (store, _events) = store.into_inner();
 
     assert_eq!(store.deleted.len(), 2);

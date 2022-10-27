@@ -44,4 +44,8 @@ workspace-hack = { path = "../workspace-hack" }
 
 [dev-dependencies]
 haneul-sdk = { path = "../haneul-sdk" }
+haneul-framework = { path = "../haneul-framework" }
+haneul-framework-build = { path = "../haneul-framework-build" }
+test-utils = { path = "../test-utils" }
 tempfile = "3.3.0"
+rand = "0.8.5"

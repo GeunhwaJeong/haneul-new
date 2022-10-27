@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 use colored::Colorize;
 use itertools::Itertools;
@@ -36,7 +37,7 @@ use haneul_types::base_types::{
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
 use haneul_types::error::HaneulError;
-use haneul_types::event::{Event, TransferType};
+use haneul_types::event::{BalanceChangeType, Event};
 use haneul_types::event::{EventEnvelope, EventType};
 use haneul_types::filter::{EventFilter, TransactionFilter};
 use haneul_types::gas::GasCostSummary;
@@ -2008,6 +2009,23 @@ pub enum HaneulEvent {
         sender: HaneulAddress,
         package_id: ObjectID,
     },
+    /// Coin balance changing event
+    #[serde(rename_all = "camelCase")]
+    CoinBalanceChange {
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
+        change_type: BalanceChangeType,
+        owner: Owner,
+        coin_type: String,
+        coin_object_id: ObjectID,
+        version: SequenceNumber,
+        amount: i128,
+    },
+    /// Epoch change
+    EpochChange(EpochId),
+    /// New checkpoint
+    Checkpoint(CheckpointSequenceNumber),
     /// Transfer objects to new address / wrap in another object / coin
     #[serde(rename_all = "camelCase")]
     TransferObject {
@@ -2015,10 +2033,19 @@ pub enum HaneulEvent {
         transaction_module: String,
         sender: HaneulAddress,
         recipient: Owner,
+        object_type: String,
         object_id: ObjectID,
         version: SequenceNumber,
-        type_: TransferType,
-        amount: Option<u64>,
+    },
+    /// Object mutated.
+    #[serde(rename_all = "camelCase")]
+    MutateObject {
+        package_id: ObjectID,
+        transaction_module: String,
+        sender: HaneulAddress,
+        object_type: String,
+        object_id: ObjectID,
+        version: SequenceNumber,
     },
     /// Delete object
     #[serde(rename_all = "camelCase")]
@@ -2027,6 +2054,7 @@ pub enum HaneulEvent {
         transaction_module: String,
         sender: HaneulAddress,
         object_id: ObjectID,
+        version: SequenceNumber,
     },
     /// New object creation
     #[serde(rename_all = "camelCase")]
@@ -2035,12 +2063,118 @@ pub enum HaneulEvent {
         transaction_module: String,
         sender: HaneulAddress,
         recipient: Owner,
+        object_type: String,
         object_id: ObjectID,
+        version: SequenceNumber,
     },
-    /// Epoch change
-    EpochChange(EpochId),
-    /// New checkpoint
-    Checkpoint(CheckpointSequenceNumber),
+}
+
+impl TryFrom<HaneulEvent> for Event {
+    type Error = anyhow::Error;
+    fn try_from(event: HaneulEvent) -> Result<Self, Self::Error> {
+        Ok(match event {
+            HaneulEvent::MoveEvent {
+                package_id,
+                transaction_module,
+                sender,
+                type_,
+                fields: _,
+                bcs,
+            } => Event::MoveEvent {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                type_: parse_haneul_struct_tag(&type_)?,
+                contents: bcs,
+            },
+            HaneulEvent::Publish { sender, package_id } => Event::Publish { sender, package_id },
+            HaneulEvent::TransferObject {
+                package_id,
+                transaction_module,
+                sender,
+                recipient,
+                object_type,
+                object_id,
+                version,
+            } => Event::TransferObject {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                recipient,
+                object_type,
+                object_id,
+                version,
+            },
+            HaneulEvent::DeleteObject {
+                package_id,
+                transaction_module,
+                sender,
+                object_id,
+                version,
+            } => Event::DeleteObject {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                object_id,
+                version,
+            },
+            HaneulEvent::NewObject {
+                package_id,
+                transaction_module,
+                sender,
+                recipient,
+                object_type,
+                object_id,
+                version,
+            } => Event::NewObject {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                recipient,
+                object_type,
+                object_id,
+                version,
+            },
+            HaneulEvent::EpochChange(id) => Event::EpochChange(id),
+            HaneulEvent::Checkpoint(seq) => Event::Checkpoint(seq),
+            HaneulEvent::CoinBalanceChange {
+                package_id,
+                transaction_module,
+                sender,
+                change_type,
+                owner,
+                coin_object_id: coin_id,
+                version,
+                coin_type,
+                amount,
+            } => Event::CoinBalanceChange {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                change_type,
+                owner,
+                coin_type,
+                coin_object_id: coin_id,
+                version,
+                amount,
+            },
+            HaneulEvent::MutateObject {
+                package_id,
+                transaction_module,
+                sender,
+                object_type,
+                object_id,
+                version,
+            } => Event::MutateObject {
+                package_id,
+                transaction_module: Identifier::from_str(&transaction_module)?,
+                sender,
+                object_type,
+                object_id,
+                version,
+            },
+        })
+    }
 }
 
 impl HaneulEvent {
@@ -2083,46 +2217,86 @@ impl HaneulEvent {
                 transaction_module,
                 sender,
                 recipient,
+                object_type,
                 object_id,
                 version,
-                type_,
-                amount,
             } => HaneulEvent::TransferObject {
                 package_id,
                 transaction_module: transaction_module.to_string(),
                 sender,
                 recipient,
+                object_type,
                 object_id,
                 version,
-                type_,
-                amount,
             },
             Event::DeleteObject {
                 package_id,
                 transaction_module,
                 sender,
                 object_id,
+                version,
             } => HaneulEvent::DeleteObject {
                 package_id,
                 transaction_module: transaction_module.to_string(),
                 sender,
                 object_id,
+                version,
             },
             Event::NewObject {
                 package_id,
                 transaction_module,
                 sender,
                 recipient,
+                object_type,
                 object_id,
+                version,
             } => HaneulEvent::NewObject {
                 package_id,
                 transaction_module: transaction_module.to_string(),
                 sender,
                 recipient,
+                object_type,
                 object_id,
+                version,
             },
             Event::EpochChange(id) => HaneulEvent::EpochChange(id),
             Event::Checkpoint(seq) => HaneulEvent::Checkpoint(seq),
+            Event::CoinBalanceChange {
+                package_id,
+                transaction_module,
+                sender,
+                change_type,
+                owner,
+                coin_object_id: coin_id,
+                version,
+                coin_type,
+                amount,
+            } => HaneulEvent::CoinBalanceChange {
+                package_id,
+                transaction_module: transaction_module.to_string(),
+                sender,
+                change_type,
+                owner,
+                coin_object_id: coin_id,
+                version,
+                coin_type,
+                amount,
+            },
+            Event::MutateObject {
+                package_id,
+                transaction_module,
+                sender,
+                object_type,
+                object_id,
+                version,
+            } => HaneulEvent::MutateObject {
+                package_id,
+                transaction_module: transaction_module.to_string(),
+                sender,
+                object_type,
+                object_id,
+                version,
+            },
         })
     }
 }
@@ -2178,20 +2352,18 @@ impl PartialEq<HaneulEvent> for Event {
                 transaction_module: self_transaction_module,
                 sender: self_sender,
                 recipient: self_recipient,
-                type_: self_type,
+                object_type: self_object_type,
                 object_id: self_object_id,
                 version: self_version,
-                amount: self_amount,
             } => {
                 if let HaneulEvent::TransferObject {
                     package_id,
                     transaction_module,
                     sender,
                     recipient,
+                    object_type,
                     object_id,
                     version,
-                    type_,
-                    amount,
                 } = other
                 {
                     package_id == self_package_id
@@ -2200,8 +2372,7 @@ impl PartialEq<HaneulEvent> for Event {
                         && self_recipient == recipient
                         && self_object_id == object_id
                         && self_version == version
-                        && self_type == type_
-                        && self_amount == amount
+                        && self_object_type == object_type
                 } else {
                     false
                 }
@@ -2211,18 +2382,21 @@ impl PartialEq<HaneulEvent> for Event {
                 transaction_module: self_transaction_module,
                 sender: self_sender,
                 object_id: self_object_id,
+                version: self_version,
             } => {
                 if let HaneulEvent::DeleteObject {
                     package_id,
                     transaction_module,
                     sender,
                     object_id,
+                    version,
                 } = other
                 {
                     package_id == self_package_id
                         && &self_transaction_module.to_string() == transaction_module
                         && self_sender == sender
                         && self_object_id == object_id
+                        && self_version == version
                 } else {
                     false
                 }
@@ -2232,14 +2406,18 @@ impl PartialEq<HaneulEvent> for Event {
                 transaction_module: self_transaction_module,
                 sender: self_sender,
                 recipient: self_recipient,
+                object_type: self_object_type,
                 object_id: self_object_id,
+                version: self_version,
             } => {
                 if let HaneulEvent::NewObject {
                     package_id,
                     transaction_module,
                     sender,
                     recipient,
+                    object_type,
                     object_id,
+                    version,
                 } = other
                 {
                     package_id == self_package_id
@@ -2247,6 +2425,8 @@ impl PartialEq<HaneulEvent> for Event {
                         && self_sender == sender
                         && self_recipient == recipient
                         && self_object_id == object_id
+                        && self_object_type == object_type
+                        && self_version == version
                 } else {
                     false
                 }
@@ -2261,6 +2441,69 @@ impl PartialEq<HaneulEvent> for Event {
             Event::Checkpoint(self_id) => {
                 if let HaneulEvent::Checkpoint(id) = other {
                     self_id == id
+                } else {
+                    false
+                }
+            }
+            Event::CoinBalanceChange {
+                package_id: self_package_id,
+                transaction_module: self_transaction_module,
+                sender: self_sender,
+                change_type: self_change_type,
+                owner: self_owner,
+                coin_object_id: self_coin_id,
+                version: self_version,
+                coin_type: self_coin_type,
+                amount: self_amount,
+            } => {
+                if let HaneulEvent::CoinBalanceChange {
+                    package_id,
+                    transaction_module,
+                    sender,
+                    change_type,
+                    owner,
+                    coin_object_id,
+                    version,
+                    coin_type,
+                    amount,
+                } = other
+                {
+                    package_id == self_package_id
+                        && &self_transaction_module.to_string() == transaction_module
+                        && self_owner == owner
+                        && self_coin_id == coin_object_id
+                        && self_version == version
+                        && &self_coin_type.to_string() == coin_type
+                        && self_amount == amount
+                        && self_sender == sender
+                        && self_change_type == change_type
+                } else {
+                    false
+                }
+            }
+            Event::MutateObject {
+                package_id: self_package_id,
+                transaction_module: self_transaction_module,
+                sender: self_sender,
+                object_type: self_object_type,
+                object_id: self_object_id,
+                version: self_version,
+            } => {
+                if let HaneulEvent::MutateObject {
+                    package_id,
+                    transaction_module,
+                    sender,
+                    object_type,
+                    object_id,
+                    version,
+                } = other
+                {
+                    package_id == self_package_id
+                        && &self_transaction_module.to_string() == transaction_module
+                        && self_sender == sender
+                        && self_object_type == object_type
+                        && self_object_id == object_id
+                        && self_version == version
                 } else {
                     false
                 }

@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress, ObjectOwner, TransactionDigest } from './common';
-import { ObjectId, SequenceNumber } from './objects';
-import { HaneulJsonValue } from './transactions';
+import {ObjectOwner, HaneulAddress, TransactionDigest} from './common';
+import {ObjectId, SequenceNumber} from './objects';
+import {HaneulJsonValue} from './transactions';
 
 // event types mirror those in "haneul-json-rpc-types/lib.rs"
 export type MoveEvent = {
@@ -20,15 +20,35 @@ export type PublishEvent = {
   packageId: ObjectId;
 };
 
+export type CoinBalanceChangeEvent = {
+  packageId: ObjectId,
+  transactionModule: string,
+  sender: HaneulAddress,
+  owner: ObjectOwner,
+  changeType: BalanceChangeType,
+  coinType: string,
+  coinObjectId: ObjectId,
+  version: SequenceNumber,
+  amount: number,
+};
+
 export type TransferObjectEvent = {
   packageId: ObjectId;
   transactionModule: string;
   sender: HaneulAddress;
   recipient: ObjectOwner;
+  objectType: string,
   objectId: ObjectId;
   version: SequenceNumber;
-  type: string; // TODO - better type
-  amount: number | null;
+};
+
+export type MutateObjectEvent = {
+  packageId: ObjectId;
+  transactionModule: string;
+  sender: HaneulAddress;
+  objectType: string,
+  objectId: ObjectId;
+  version: SequenceNumber;
 };
 
 export type DeleteObjectEvent = {
@@ -36,6 +56,7 @@ export type DeleteObjectEvent = {
   transactionModule: string;
   sender: HaneulAddress;
   objectId: ObjectId;
+  version: SequenceNumber;
 };
 
 export type NewObjectEvent = {
@@ -43,13 +64,17 @@ export type NewObjectEvent = {
   transactionModule: string;
   sender: HaneulAddress;
   recipient: ObjectOwner;
+  objectType: string,
   objectId: ObjectId;
+  version: SequenceNumber;
 };
 
 export type HaneulEvent =
   | { moveEvent: MoveEvent }
   | { publish: PublishEvent }
+  | { coinBalanceChange: CoinBalanceChangeEvent }
   | { transferObject: TransferObjectEvent }
+  | { mutateObject: MutateObjectEvent }
   | { deleteObject: DeleteObjectEvent }
   | { newObject: NewObjectEvent }
   | { epochChange: bigint }
@@ -64,10 +89,14 @@ export type EventType =
   | 'MoveEvent'
   | 'Publish'
   | 'TransferObject'
+  | 'MutateObject'
+  | 'CoinBalanceChange'
   | 'DeleteObject'
   | 'NewObject'
   | 'EpochChange'
   | 'Checkpoint';
+
+export type BalanceChangeType = "Gas" | "Pay" | "Receive"
 
 // mirrors haneul_json_rpc_types::HaneulEventFilter
 export type HaneulEventFilter =
