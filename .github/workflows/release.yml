@@ -53,6 +53,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
 
       - name: cargo build (release)
+        id: build
         run: |
           cargo build --release
 
@@ -67,20 +68,20 @@ jobs:
         with:
           name: haneul-binaries
           path: |
-            ${{ steps.package.outputs.BIN_HANEUL }}
-            ${{ steps.package.outputs.BIN_HANEUL_NODE }}
-            ${{ steps.package.outputs.BIN_HANEUL_TOOL }}
-            ${{ steps.package.outputs.BIN_HANEUL_FAUCET }}
-            ${{ steps.package.outputs.BIN_RPC_SERVER }}
+            ${{ steps.build.outputs.BIN_HANEUL }}
+            ${{ steps.build.outputs.BIN_HANEUL_NODE }}
+            ${{ steps.build.outputs.BIN_HANEUL_TOOL }}
+            ${{ steps.build.outputs.BIN_HANEUL_FAUCET }}
+            ${{ steps.build.outputs.BIN_RPC_SERVER }}
 
       - name: Publish binaries
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ steps.package.outputs.BIN_HANEUL }}
-            ${{ steps.package.outputs.BIN_HANEUL_NODE }}
-            ${{ steps.package.outputs.BIN_HANEUL_TOOL }}
-            ${{ steps.package.outputs.BIN_HANEUL_FAUCET }}
-            ${{ steps.package.outputs.BIN_RPC_SERVER }}
+            ${{ steps.build.outputs.BIN_HANEUL }}
+            ${{ steps.build.outputs.BIN_HANEUL_NODE }}
+            ${{ steps.build.outputs.BIN_HANEUL_TOOL }}
+            ${{ steps.build.outputs.BIN_HANEUL_FAUCET }}
+            ${{ steps.build.outputs.BIN_RPC_SERVER }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
