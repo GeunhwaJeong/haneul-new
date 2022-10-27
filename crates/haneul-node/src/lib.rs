@@ -45,6 +45,7 @@ use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
 use tokio::sync::mpsc::channel;
 use tower::ServiceBuilder;
 use tracing::{error, info, warn};
+use typed_store::DBMetrics;
 
 use crate::metrics::GrpcMetrics;
 use haneul_core::authority_client::NetworkAuthorityClientMetrics;
@@ -94,6 +95,9 @@ impl HaneulNode {
         info!(node =? config.protocol_public_key(),
             "Initializing haneul-node listening on {}", config.network_address
         );
+
+        // Initialize metrics to track db usage before creating any stores
+        DBMetrics::init(&prometheus_registry);
 
         let genesis = config.genesis()?;
 
