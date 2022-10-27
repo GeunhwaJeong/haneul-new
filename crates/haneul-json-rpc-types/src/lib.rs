@@ -105,8 +105,11 @@ pub struct HaneulMoveNormalizedStruct {
 pub enum HaneulMoveNormalizedType {
     Bool,
     U8,
+    U16,
+    U32,
     U64,
     U128,
+    U256,
     Address,
     Signer,
     Struct {
@@ -245,8 +248,11 @@ impl From<NormalizedType> for HaneulMoveNormalizedType {
         match type_ {
             NormalizedType::Bool => HaneulMoveNormalizedType::Bool,
             NormalizedType::U8 => HaneulMoveNormalizedType::U8,
+            NormalizedType::U16 => HaneulMoveNormalizedType::U16,
+            NormalizedType::U32 => HaneulMoveNormalizedType::U32,
             NormalizedType::U64 => HaneulMoveNormalizedType::U64,
             NormalizedType::U128 => HaneulMoveNormalizedType::U128,
+            NormalizedType::U256 => HaneulMoveNormalizedType::U256,
             NormalizedType::Address => HaneulMoveNormalizedType::Address,
             NormalizedType::Signer => HaneulMoveNormalizedType::Signer,
             NormalizedType::Struct {
@@ -1154,8 +1160,11 @@ impl From<MoveValue> for HaneulMoveValue {
     fn from(value: MoveValue) -> Self {
         match value {
             MoveValue::U8(value) => HaneulMoveValue::Number(value.into()),
+            MoveValue::U16(value) => HaneulMoveValue::Number(value.into()),
+            MoveValue::U32(value) => HaneulMoveValue::Number(value.into()),
             MoveValue::U64(value) => HaneulMoveValue::Number(value),
             MoveValue::U128(value) => HaneulMoveValue::String(format!("{value}")),
+            MoveValue::U256(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::Bool(value) => HaneulMoveValue::Bool(value),
             MoveValue::Vector(values) => {
                 if let Some(bytes) = to_bytearray(&values) {
