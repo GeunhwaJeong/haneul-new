@@ -7971,6 +7971,7 @@ dependencies = [
  "haneul-json",
  "haneul-types",
  "haneul-verifier",
+ "tracing",
  "workspace-hack",
 ]
 
