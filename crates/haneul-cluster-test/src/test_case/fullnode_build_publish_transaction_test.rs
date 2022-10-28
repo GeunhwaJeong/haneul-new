@@ -3,8 +3,8 @@
 
 use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
+use fastcrypto::encoding::Base64;
 use jsonrpsee::rpc_params;
-use haneul_types::haneul_serde::Base64;
 use haneul_types::{base_types::ObjectID, object::Owner};
 use test_utils::transaction::compile_basics_package;
 

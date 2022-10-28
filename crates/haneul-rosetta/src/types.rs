@@ -15,14 +15,13 @@ use serde_with::serde_as;
 use strum_macros::EnumIter;
 use strum_macros::EnumString;
 
+use fastcrypto::encoding::{Base64, Hex};
 use haneul_types::base_types::{
     ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
     TRANSACTION_DIGEST_LENGTH,
 };
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::messages::ExecutionStatus;
-use haneul_types::haneul_serde::Base64;
-use haneul_types::haneul_serde::Hex;
 use haneul_types::haneul_serde::Readable;
 
 use crate::errors::Error;
@@ -361,7 +360,7 @@ impl TryInto<HaneulAddress> for PublicKey {
     type Error = Error;
 
     fn try_into(self) -> Result<HaneulAddress, Self::Error> {
-        let key_bytes = self.hex_bytes.to_vec()?;
+        let key_bytes = self.hex_bytes.to_vec().map_err(|e| anyhow::anyhow!(e))?;
         let pub_key =
             haneul_types::crypto::PublicKey::try_from_bytes(self.curve_type.into(), &key_bytes)
                 .map_err(|e| Error::new_with_cause(ErrorType::ParsingError, e))?;

@@ -5,6 +5,7 @@ use crate::api::TransactionExecutionApiServer;
 use crate::HaneulRpcModule;
 use anyhow::anyhow;
 use async_trait::async_trait;
+use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use move_bytecode_utils::module_cache::SyncModuleCache;
@@ -17,7 +18,6 @@ use haneul_json_rpc_types::HaneulExecuteTransactionResponse;
 use haneul_open_rpc::Module;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::messages::{ExecuteTransactionRequest, ExecuteTransactionRequestType};
-use haneul_types::haneul_serde::Base64;
 use haneul_types::{
     crypto,
     crypto::SignableBytes,
@@ -51,10 +51,16 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         pub_key: Base64,
         request_type: ExecuteTransactionRequestType,
     ) -> RpcResult<HaneulExecuteTransactionResponse> {
-        let data = TransactionData::from_signable_bytes(&tx_bytes.to_vec()?)?;
+        let data =
+            TransactionData::from_signable_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?)?;
         let flag = vec![sig_scheme.flag()];
         let signature = crypto::Signature::from_bytes(
-            &[&*flag, &*signature.to_vec()?, &pub_key.to_vec()?].concat(),
+            &[
+                &*flag,
+                &*signature.to_vec().map_err(|e| anyhow!(e))?,
+                &pub_key.to_vec().map_err(|e| anyhow!(e))?,
+            ]
+            .concat(),
         )
         .map_err(|e| anyhow!(e))?;
         let txn = Transaction::new(data, signature);

@@ -33,7 +33,10 @@ use crate::base_types::{AuthorityName, HaneulAddress};
 use crate::committee::{Committee, EpochId, StakeUnit};
 use crate::error::{HaneulError, HaneulResult};
 use crate::intent::{Intent, IntentMessage};
-use crate::haneul_serde::{AggrAuthSignature, Base64, Encoding, Readable, HaneulBitmap};
+use crate::haneul_serde::{AggrAuthSignature, Readable, HaneulBitmap};
+use fastcrypto::encoding::{Base64, Encoding};
+use std::fmt::Debug;
+
 pub use enum_dispatch::enum_dispatch;
 
 // Authority Objects

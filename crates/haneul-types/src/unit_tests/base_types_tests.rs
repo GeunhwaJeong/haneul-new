@@ -13,7 +13,6 @@ use crate::crypto::{
     get_key_pair_from_bytes, AccountKeyPair, AuthorityKeyPair, AuthoritySignature,
     HaneulAuthoritySignature, HaneulSignature,
 };
-use crate::haneul_serde::Encoding;
 use crate::{
     crypto::{get_key_pair, Signature},
     gas_coin::GasCoin,

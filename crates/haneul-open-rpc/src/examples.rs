@@ -10,6 +10,7 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use serde_json::json;
 
+use fastcrypto::encoding::Base64;
 use haneul::client_commands::EXAMPLE_NFT_DESCRIPTION;
 use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
@@ -36,7 +37,6 @@ use haneul_types::messages::{
 use haneul_types::object::Owner;
 use haneul_types::query::Ordering;
 use haneul_types::query::TransactionQuery;
-use haneul_types::haneul_serde::Base64;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
 struct Examples {

@@ -14,7 +14,7 @@ use haneul_open_rpc::Module;
 use haneul_types::crypto::SignableBytes;
 use haneul_types::messages::TransactionData;
 
-use haneul_types::haneul_serde::Base64;
+use fastcrypto::encoding::Base64;
 
 pub struct EstimatorApi {
     pub state: Arc<AuthorityState>,
@@ -36,7 +36,9 @@ impl EstimatorApiServer for EstimatorApi {
         mutated_object_sizes_after: Option<usize>,
         storage_rebate: Option<u64>,
     ) -> RpcResult<HaneulGasCostSummary> {
-        let data = TransactionData::from_signable_bytes(&tx_bytes.to_vec()?)?;
+        let data = TransactionData::from_signable_bytes(
+            &tx_bytes.to_vec().map_err(|e| anyhow::anyhow!(e))?,
+        )?;
 
         Ok(HaneulGasCostSummary::from(
             estimate_transaction_computation_cost(

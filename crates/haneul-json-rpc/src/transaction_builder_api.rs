@@ -14,7 +14,7 @@ use haneul_transaction_builder::{DataReader, TransactionBuilder};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::object::Owner;
 
-use haneul_types::haneul_serde::Base64;
+use fastcrypto::encoding::Base64;
 
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::RPCTransactionRequestParams;
@@ -150,7 +150,7 @@ impl RpcTransactionBuilderServer for FullNodeTransactionBuilderApi {
     ) -> RpcResult<TransactionBytes> {
         let compiled_modules = compiled_modules
             .into_iter()
-            .map(|data| data.to_vec())
+            .map(|data| data.to_vec().map_err(|e| anyhow::anyhow!(e)))
             .collect::<Result<Vec<_>, _>>()?;
         let data = self
             .builder

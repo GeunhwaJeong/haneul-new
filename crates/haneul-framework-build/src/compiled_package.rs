@@ -3,6 +3,7 @@
 
 use std::{collections::HashSet, path::PathBuf};
 
+use fastcrypto::encoding::Base64;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::{module_cache::GetModule, Modules};
 use move_compiler::compiled_unit::CompiledUnitEnum;
@@ -13,7 +14,6 @@ use move_package::{
 };
 use haneul_types::{
     error::{HaneulError, HaneulResult},
-    haneul_serde::Base64,
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;

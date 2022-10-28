@@ -29,6 +29,7 @@ use serde_json::Value;
 use serde_with::serde_as;
 use tracing::warn;
 
+use fastcrypto::encoding::{Base64, Encoding};
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -53,7 +54,6 @@ use haneul_types::move_package::{disassemble_modules, MovePackage};
 use haneul_types::object::{
     Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner, PastObjectRead,
 };
-use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag};
 
 #[cfg(test)]
@@ -2730,7 +2730,9 @@ impl TransactionBytes {
     }
 
     pub fn to_data(self) -> Result<TransactionData, anyhow::Error> {
-        TransactionData::from_signable_bytes(&self.tx_bytes.to_vec()?)
+        TransactionData::from_signable_bytes(
+            &self.tx_bytes.to_vec().map_err(|e| anyhow::anyhow!(e))?,
+        )
     }
 }
 

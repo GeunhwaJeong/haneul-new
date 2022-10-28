@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
+use fastcrypto::encoding::Base64;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
@@ -23,7 +24,6 @@ use haneul_types::messages::CommitteeInfoResponse;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use haneul_types::query::{Ordering, TransactionQuery};
-use haneul_types::haneul_serde::Base64;
 
 /// Maximum number of events returned in an event query.
 /// This is equivalent to EVENT_STORE_QUERY_MAX_LIMIT in `haneul-storage` crate.

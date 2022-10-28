@@ -9,11 +9,11 @@ use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::value::{MoveStruct, MoveValue};
 
+use fastcrypto::encoding::Base64;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::MoveObject;
-use haneul_types::haneul_serde::Base64;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 
 use crate::{HaneulMoveStruct, HaneulMoveValue};

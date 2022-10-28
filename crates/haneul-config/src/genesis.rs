@@ -4,6 +4,7 @@
 use crate::ValidatorInfo;
 use anyhow::{bail, Context, Result};
 use camino::Utf8Path;
+use fastcrypto::encoding::{Base64, Encoding};
 use move_binary_format::CompiledModule;
 use move_core_types::ident_str;
 use move_core_types::language_storage::ModuleId;
@@ -25,7 +26,6 @@ use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::messages::CallArg;
 use haneul_types::messages::InputObjects;
 use haneul_types::messages::Transaction;
-use haneul_types::haneul_serde::{Base64, Encoding};
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;

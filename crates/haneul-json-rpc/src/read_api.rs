@@ -12,6 +12,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use tap::TapFallible;
 
+use fastcrypto::encoding::Base64;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, GetPastObjectDataResponse, MoveFunctionArgType, ObjectValueKind, Page,
@@ -30,7 +31,6 @@ use haneul_types::messages::{
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead, Owner};
 use haneul_types::query::{Ordering, TransactionQuery};
-use haneul_types::haneul_serde::Base64;
 
 use tracing::debug;
 
@@ -154,11 +154,18 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
         signature: Base64,
         pub_key: Base64,
     ) -> RpcResult<HaneulTransactionEffects> {
-        let data = TransactionData::from_signable_bytes(&tx_bytes.to_vec()?)?;
+        let data =
+            TransactionData::from_signable_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?)?;
         let flag = vec![sig_scheme.flag()];
-        let signature =
-            Signature::from_bytes(&[&*flag, &*signature.to_vec()?, &pub_key.to_vec()?].concat())
-                .map_err(|e| anyhow!(e))?;
+        let signature = Signature::from_bytes(
+            &[
+                &*flag,
+                &*signature.to_vec().map_err(|e| anyhow!(e))?,
+                &pub_key.to_vec().map_err(|e| anyhow!(e))?,
+            ]
+            .concat(),
+        )
+        .map_err(|e| anyhow!(e))?;
         let txn = Transaction::new(data, signature)
             .verify()
             .map_err(|e| anyhow!(e))?;

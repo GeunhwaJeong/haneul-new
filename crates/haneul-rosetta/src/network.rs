@@ -7,8 +7,8 @@ use axum::{Extension, Json};
 use serde_json::json;
 use strum::IntoEnumIterator;
 
+use fastcrypto::encoding::Hex;
 use haneul_types::base_types::ObjectID;
-use haneul_types::haneul_serde::Hex;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
