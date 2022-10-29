@@ -3,17 +3,13 @@
 
 import "./App.css";
 import { useMemo } from "react";
-import { Wallet, WalletProvider } from "@haneullabs/wallet-adapter-react";
-import { HaneulWalletAdapter } from "@haneullabs/wallet-adapter-all-wallets";
-import { WalletStandardAdapterProvider } from "@haneullabs/wallet-adapter-wallet-standard";
+import { WalletProvider } from "@haneullabs/wallet-adapter-react";
+import { WalletStandardAdapterProvider } from "@haneullabs/wallet-adapter-all-wallets";
 import { WalletWrapper } from "@haneullabs/wallet-adapter-react-ui";
 import { TestButton } from "./TestButton";
 
 function App() {
-  const adapters = useMemo(
-    () => [new HaneulWalletAdapter(), new WalletStandardAdapterProvider()],
-    []
-  );
+  const adapters = useMemo(() => [new WalletStandardAdapterProvider()], []);
 
   return (
     <div className="App">

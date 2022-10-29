@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@haneullabs/wallet-adapter-mock-wallet": "workspace:*",
-    "@haneullabs/wallet-adapter-haneul-wallet": "workspace:*",
     "@haneullabs/wallet-adapter-wallet-standard": "workspace:*"
   },
   "devDependencies": {

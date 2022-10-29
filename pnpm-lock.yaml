@@ -442,7 +442,6 @@ importers:
       '@haneullabs/wallet-adapter-base': workspace:*
       '@haneullabs/wallet-adapter-react': workspace:*
       '@haneullabs/wallet-adapter-react-ui': workspace:*
-      '@haneullabs/wallet-adapter-haneul-wallet': workspace:*
       '@haneullabs/wallet-adapter-wallet-standard': workspace:*
       '@testing-library/jest-dom': ^5.16.4
       '@testing-library/react': ^13.3.0
@@ -466,7 +465,6 @@ importers:
       '@haneullabs/wallet-adapter-base': link:packages/adapters/base-adapter
       '@haneullabs/wallet-adapter-react': link:packages/react-providers
       '@haneullabs/wallet-adapter-react-ui': link:packages/ui
-      '@haneullabs/wallet-adapter-haneul-wallet': link:packages/adapters/haneul-wallet
       '@haneullabs/wallet-adapter-wallet-standard': link:packages/adapters/wallet-standard-adapter
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 13.3.0_biqbaboplfbrettd7655fr4n2y
@@ -485,13 +483,11 @@ importers:
   sdk/wallet-adapter/packages/adapters/all-wallets:
     specifiers:
       '@haneullabs/wallet-adapter-mock-wallet': workspace:*
-      '@haneullabs/wallet-adapter-haneul-wallet': workspace:*
       '@haneullabs/wallet-adapter-wallet-standard': workspace:*
       tsup: ^6.2.2
       typescript: ^4.8.3
     dependencies:
       '@haneullabs/wallet-adapter-mock-wallet': link:../mock-wallet
-      '@haneullabs/wallet-adapter-haneul-wallet': link:../haneul-wallet
       '@haneullabs/wallet-adapter-wallet-standard': link:../wallet-standard-adapter
     devDependencies:
       tsup: 6.2.2_typescript@4.8.3
@@ -509,19 +505,6 @@ importers:
       typescript: 4.8.3
 
   sdk/wallet-adapter/packages/adapters/mock-wallet:
-    specifiers:
-      '@haneullabs/haneul.js': workspace:*
-      '@haneullabs/wallet-adapter-base': workspace:*
-      tsup: ^6.2.2
-      typescript: ^4.8.3
-    dependencies:
-      '@haneullabs/haneul.js': link:../../../../typescript
-      '@haneullabs/wallet-adapter-base': link:../base-adapter
-    devDependencies:
-      tsup: 6.2.2_typescript@4.8.3
-      typescript: 4.8.3
-
-  sdk/wallet-adapter/packages/adapters/haneul-wallet:
     specifiers:
       '@haneullabs/haneul.js': workspace:*
       '@haneullabs/wallet-adapter-base': workspace:*
