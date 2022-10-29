@@ -5,7 +5,6 @@ import type {
   SignableTransaction,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
-import type { SignAndSendTransactionInput } from "@wallet-standard/core";
 
 /** The latest API version of the signAndExecuteTransaction API. */
 export type HaneulSignAndExecuteTransactionVersion = "1.0.0";
@@ -29,15 +28,9 @@ export type HaneulSignAndExecuteTransactionMethod = (
 ) => Promise<HaneulSignAndExecuteTransactionOutput>;
 
 /** Input for signing and sending transactions. */
-export interface HaneulSignAndExecuteTransactionInput
-  extends Omit<
-    SignAndSendTransactionInput,
-    // TODO: Right now, we don't have intent signing, but eventually we'll need to re-introduce
-    // the concept of chains + account during the signing here.
-    "transaction" | "chain" | "account"
-  > {
-  options?: HaneulSignAndExecuteTransactionOptions;
+export interface HaneulSignAndExecuteTransactionInput {
   transaction: SignableTransaction;
+  options?: HaneulSignAndExecuteTransactionOptions;
 }
 
 /** Output of signing and sending transactions. */
