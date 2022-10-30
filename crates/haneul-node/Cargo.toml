@@ -31,12 +31,11 @@ haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
 narwhal-network = { path = "../../narwhal/network" }
 
+ying-profiler = { git = "https://github.com/velvia/ying-profiler", features = ["profile-spans"] }
+
 telemetry-subscribers.workspace = true
 haneullabs-network.workspace = true
 workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }
-
-[target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemalloc-ctl = "^0.5"
