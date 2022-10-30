@@ -8,3 +8,4 @@ export * from './transactions';
 export * from './framework';
 export * from './haneul-bcs';
 export * from './version';
+export * from './faucet';
