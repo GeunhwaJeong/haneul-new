@@ -1,21 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { bcs, decodeStr, encodeStr } from '@haneullabs/bcs';
+import { BCS, decodeStr, encodeStr, getHaneulMoveConfig } from '@haneullabs/bcs';
 import { Buffer } from 'buffer';
 import { HaneulObjectRef } from './objects';
 
+const bcs = new BCS(getHaneulMoveConfig());
+
 bcs
-  .registerVectorType('vector<u8>', 'u8')
-  .registerVectorType('vector<u16>', 'u16')
-  .registerVectorType('vector<u32>', 'u32')
-  .registerVectorType('vector<u64>', 'u64')
-  .registerVectorType('vector<u128>', 'u128')
-  .registerVectorType('vector<u256>', 'u256')
-  .registerVectorType('vector<vector<u8>>', 'vector<u8>')
-  .registerAddressType('ObjectID', 20)
-  .registerAddressType('HaneulAddress', 20)
-  .registerAddressType('address', 20)
   .registerType(
     'utf8string',
     (writer, str) => {
@@ -40,7 +32,7 @@ bcs
   );
 
 bcs.registerStructType('HaneulObjectRef', {
-  objectId: 'ObjectID',
+  objectId: 'address',
   version: 'u64',
   digest: 'ObjectDigest',
 });
@@ -58,7 +50,7 @@ export type TransferObjectTx = {
 };
 
 bcs.registerStructType('TransferObjectTx', {
-  recipient: 'HaneulAddress',
+  recipient: 'address',
   object_ref: 'HaneulObjectRef',
 });
 
@@ -99,32 +91,30 @@ export type PayAllHaneulTx = {
 };
 
 bcs
-  .registerVectorType('vector<HaneulAddress>', 'HaneulAddress')
-  .registerVectorType('vector<HaneulObjectRef>', 'HaneulObjectRef')
   .registerStructType('PayTx', {
     coins: 'vector<HaneulObjectRef>',
-    recipients: 'vector<HaneulAddress>',
+    recipients: 'vector<address>',
     amounts: 'vector<u64>',
   });
 
 bcs.registerStructType('PayHaneulTx', {
   coins: 'vector<HaneulObjectRef>',
-  recipients: 'vector<HaneulAddress>',
+  recipients: 'vector<address>',
   amounts: 'vector<u64>',
 });
 
 bcs.registerStructType('PayAllHaneulTx', {
   coins: 'vector<HaneulObjectRef>',
-  recipient: 'HaneulAddress',
+  recipient: 'address',
 });
 
-bcs.registerEnumType('Option<u64>', {
+bcs.registerEnumType('Option<T>', {
   None: null,
-  Some: 'u64',
+  Some: 'T',
 });
 
 bcs.registerStructType('TransferHaneulTx', {
-  recipient: 'HaneulAddress',
+  recipient: 'address',
   amount: 'Option<u64>',
 });
 
@@ -206,14 +196,13 @@ export type CallArg =
 
 bcs
   .registerStructType('SharedObjectRef', {
-    objectId: 'ObjectID',
+    objectId: 'address',
     initialSharedVersion: 'u64',
   })
   .registerEnumType('ObjectArg', {
     ImmOrOwned: 'HaneulObjectRef',
     Shared: 'SharedObjectRef',
   })
-  .registerVectorType('vector<ObjectArg>', 'ObjectArg')
   .registerEnumType('CallArg', {
     Pure: 'vector<u8>',
     Object: 'ObjectArg',
@@ -260,9 +249,8 @@ bcs
     u32: null,
     u256: null,
   })
-  .registerVectorType('vector<TypeTag>', 'TypeTag')
   .registerStructType('StructTag', {
-    address: 'HaneulAddress',
+    address: 'address',
     module: 'string',
     name: 'string',
     typeParams: 'vector<TypeTag>',
@@ -284,7 +272,6 @@ export type MoveCallTx = {
 };
 
 bcs
-  .registerVectorType('vector<CallArg>', 'CallArg')
   .registerStructType('MoveCallTx', {
     package: 'HaneulObjectRef',
     module: 'string',
@@ -324,7 +311,6 @@ export type TransactionKind =
   | { Batch: Transaction[] };
 
 bcs
-  .registerVectorType('vector<Transaction>', 'Transaction')
   .registerEnumType('TransactionKind', {
     Single: 'Transaction',
     Batch: 'vector<Transaction>',
@@ -346,7 +332,7 @@ export type TransactionData = {
 
 bcs.registerStructType('TransactionData', {
   kind: 'TransactionKind',
-  sender: 'HaneulAddress',
+  sender: 'address',
   gasPayment: 'HaneulObjectRef',
   gasPrice: 'u64',
   gasBudget: 'u64',
@@ -362,15 +348,13 @@ bcs.registerStructType('TransactionData', {
 bcs
   .registerEnumType('ObjectArg_Deprecated', {
     ImmOrOwned: 'HaneulObjectRef',
-    Shared_Deprecated: 'ObjectID',
+    Shared_Deprecated: 'address',
   })
-  .registerVectorType('vector<ObjectArg_Deprecated>', 'ObjectArg_Deprecated')
   .registerEnumType('CallArg_Deprecated', {
     Pure: 'vector<u8>',
     Object: 'ObjectArg_Deprecated',
     ObjVec: 'vector<ObjectArg_Deprecated>',
   })
-  .registerVectorType('vector<CallArg_Deprecated>', 'CallArg_Deprecated')
   .registerStructType('MoveCallTx_Deprecated', {
     package: 'HaneulObjectRef',
     module: 'string',
@@ -387,17 +371,13 @@ bcs
     PayHaneul: 'PayHaneulTx',
     PayAllHaneul: 'PayAllHaneulTx',
   })
-  .registerVectorType(
-    'vector<Transaction_Deprecated>',
-    'Transaction_Deprecated'
-  )
   .registerEnumType('TransactionKind_Deprecated', {
     Single: 'Transaction_Deprecated',
     Batch: 'vector<Transaction_Deprecated>',
   })
   .registerStructType('TransactionData_Deprecated', {
     kind: 'TransactionKind_Deprecated',
-    sender: 'HaneulAddress',
+    sender: 'address',
     gasPayment: 'HaneulObjectRef',
     gasPrice: 'u64',
     gasBudget: 'u64',
