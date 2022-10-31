@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFeature } from '@growthbook/growthbook-react';
 import { Coin } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
@@ -15,8 +14,6 @@ type FormattedCoin = [
     coinSymbol: string,
     queryResult: UseQueryResult
 ];
-
-const HANEUL_DENOMINATION_FEATURE = 'haneul-denomination';
 
 export enum CoinFormat {
     ROUNDED = 'ROUNDED',
@@ -60,7 +57,6 @@ export function formatBalance(
 
 export function useCoinDecimals(coinType?: string | null) {
     const [network] = useContext(NetworkContext);
-    const haneulDenomination = useFeature(HANEUL_DENOMINATION_FEATURE).on;
 
     const queryResult = useQuery(
         ['denomination', coinType],
@@ -76,7 +72,7 @@ export function useCoinDecimals(coinType?: string | null) {
         {
             // This is currently expected to fail for non-HANEUL tokens, so disable retries:
             retry: false,
-            enabled: haneulDenomination && !!coinType,
+            enabled: !!coinType,
             // Never consider this data to be stale:
             staleTime: Infinity,
             // Keep this data in the cache for 24 hours.
@@ -104,7 +100,6 @@ export function useFormatCoin(
     coinType?: string | null,
     format: CoinFormat = CoinFormat.ROUNDED
 ): FormattedCoin {
-    const haneulDenomination = useFeature(HANEUL_DENOMINATION_FEATURE).on;
     const symbol = useMemo(
         () => (coinType ? Coin.getCoinSymbol(coinType) : ''),
         [coinType]
@@ -116,14 +111,14 @@ export function useFormatCoin(
     const formatted = useMemo(() => {
         if (typeof balance === 'undefined' || balance === null) return '';
 
-        if (!haneulDenomination || isError) {
+        if (isError) {
             return numberFormatter.format(BigInt(balance));
         }
 
         if (!isFetched) return '...';
 
         return formatBalance(balance, decimals, format);
-    }, [decimals, isError, isFetched, haneulDenomination, balance, format]);
+    }, [decimals, isError, isFetched, balance, format]);
 
     return [formatted, symbol, queryResult];
 }
