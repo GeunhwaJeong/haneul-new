@@ -26,7 +26,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@haneullabs/wallet-adapter-mock-wallet": "workspace:*",
+    "@haneullabs/wallet-adapter-unsafe-burner": "workspace:*",
     "@haneullabs/wallet-adapter-wallet-standard": "workspace:*"
   },
   "devDependencies": {

@@ -4,12 +4,18 @@
 import "./App.css";
 import { useMemo } from "react";
 import { WalletProvider } from "@haneullabs/wallet-adapter-react";
-import { WalletStandardAdapterProvider } from "@haneullabs/wallet-adapter-all-wallets";
+import { WalletStandardAdapterProvider, UnsafeBurnerWalletAdapter } from "@haneullabs/wallet-adapter-all-wallets";
 import { WalletWrapper } from "@haneullabs/wallet-adapter-react-ui";
 import { TestButton } from "./TestButton";
 
 function App() {
-  const adapters = useMemo(() => [new WalletStandardAdapterProvider()], []);
+  const adapters = useMemo(
+    () => [
+      new WalletStandardAdapterProvider(),
+      new UnsafeBurnerWalletAdapter(),
+    ],
+    []
+  );
 
   return (
     <div className="App">
