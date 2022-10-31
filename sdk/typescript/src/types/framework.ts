@@ -18,16 +18,20 @@ import { getOption, Option } from './option';
 import { StructTag } from './haneul-bcs';
 import { isHaneulMoveObject } from './index.guard';
 
-export const HANEUL_PACKAGE_ID = '0x2';
-export const COIN_TYPE = `${HANEUL_PACKAGE_ID}::coin::Coin`;
+export const HANEUL_FRAMEWORK_ADDRESS = '0x2';
+export const MOVE_STDLIB_ADDRESS = '0x1';
+export const OBJECT_MODULE_NAME = 'object';
+export const UID_STRUCT_NAME = 'UID';
+export const ID_STRUCT_NAME = 'ID';
+export const HANEUL_TYPE_ARG = `${HANEUL_FRAMEWORK_ADDRESS}::haneul::HANEUL`;
+
+export const COIN_TYPE = `${HANEUL_FRAMEWORK_ADDRESS}::coin::Coin`;
 
 // `haneul::pay` module is used for Coin management (split, join, join_and_transfer etc);
 export const PAY_MODULE_NAME = 'pay';
 export const PAY_SPLIT_COIN_VEC_FUNC_NAME = 'split_vec';
 export const PAY_JOIN_COIN_FUNC_NAME = 'join';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
-
-export const HANEUL_TYPE_ARG = '0x2::haneul::HANEUL';
 
 type ObjectData = ObjectDataFull | HaneulObjectInfo;
 type ObjectDataFull = GetObjectDataResponse | HaneulMoveObject;

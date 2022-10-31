@@ -9,7 +9,7 @@ import {
   LocalTxnDataSerializer,
   ObjectId,
   RawSigner,
-  HANEUL_PACKAGE_ID,
+  HANEUL_FRAMEWORK_ADDRESS,
 } from '../../src';
 import {
   DEFAULT_GAS_BUDGET,
@@ -75,7 +75,7 @@ describe.each([{ useLocalTxnBuilder: true }, { useLocalTxnBuilder: false }])(
       );
       const coinIDs = coins.map((coin) => Coin.getID(coin));
       const txn = await signer.executeMoveCallWithRequestType({
-        packageObjectId: HANEUL_PACKAGE_ID,
+        packageObjectId: HANEUL_FRAMEWORK_ADDRESS,
         module: 'pay',
         function: 'join_vec',
         typeArguments: ['0x2::haneul::HANEUL'],
