@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::FutureExt;
-use prometheus::Registry;
 use std::thread;
 use haneul_config::NodeConfig;
-use haneul_node::HaneulNode;
-use tracing::trace;
+use haneul_node::{metrics, HaneulNode};
+use tracing::{info, trace};
 
 use super::node::RuntimeType;
 
@@ -79,7 +78,12 @@ impl Container {
             let runtime = builder.enable_all().build().unwrap();
 
             runtime.block_on(async move {
-                let _server = HaneulNode::start(&config, Registry::new()).await.unwrap();
+                let prometheus_registry = metrics::start_prometheus_server(config.metrics_address);
+                info!(
+                    "Started Prometheus HTTP endpoint. To query metrics use\n\tcurl -s http://{}/metrics",
+                    config.metrics_address
+                );
+                let _server = HaneulNode::start(&config, prometheus_registry).await.unwrap();
                 // Notify that we've successfully started the node
                 let _ = startup_sender.send(());
                 // run until canceled
