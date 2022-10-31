@@ -4,6 +4,7 @@
 import type {
     HaneulMoveNormalizedFunction,
     HaneulTransactionResponse,
+    UnserializedSignableTransaction,
 } from '@haneullabs/haneul.js';
 import type { TransactionDataType } from '_messages/payloads/transactions/ExecuteTransactionRequest';
 
@@ -17,4 +18,5 @@ export type TransactionRequest = {
     metadata?: HaneulMoveNormalizedFunction;
     createdDate: string;
     tx: TransactionDataType;
+    unSerializedTxn?: UnserializedSignableTransaction | null;
 };
