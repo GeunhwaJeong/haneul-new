@@ -3,7 +3,7 @@
 
 import { isHaneulMoveObject, getObjectId, getObjectFields } from '@haneullabs/haneul.js';
 
-import useFileExtentionType from './useFileExtentionType';
+import useFileExtensionType from './useFileExtensionType';
 import useMediaUrl from './useMediaUrl';
 
 import type { HaneulObject } from '@haneullabs/haneul.js';
@@ -17,12 +17,12 @@ export default function useNFTBasicData(nftObj: HaneulObject) {
         objType = nftObj.data.type;
         nftFields = getObjectFields(nftObj.data);
     }
-    const fileExtentionType = useFileExtentionType(filePath || '');
+    const fileExtensionType = useFileExtensionType(filePath || '');
     return {
         nftObjectID,
         filePath,
         nftFields,
-        fileExtentionType,
+        fileExtensionType,
         objType,
     };
 }
