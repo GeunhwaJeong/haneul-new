@@ -626,7 +626,7 @@ impl AuthorityState {
         debug!(?digest, "handle_certificate_with_effects");
         fp_ensure!(
             effects.effects.transaction_digest == digest,
-            HaneulError::ErrorWhileProcessingConfirmationTransaction {
+            HaneulError::ErrorWhileProcessingCertificate {
                 err: "effects/tx digest mismatch".to_string()
             }
         );

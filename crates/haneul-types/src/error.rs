@@ -113,12 +113,17 @@ pub enum HaneulError {
     },
     #[error("Invalid Authority Bitmap: {}", error)]
     InvalidAuthorityBitmap { error: String },
-    #[error("Transaction processing failed: {err}")]
-    ErrorWhileProcessingTransactionTransaction { err: String },
-    #[error("Confirmation transaction processing failed: {err}")]
-    ErrorWhileProcessingConfirmationTransaction { err: String },
+    #[error("Unexpected validator response from handle_transaction: {err}")]
+    UnexectedResultFromValidatorHandleTransaction { err: String },
+    #[error("Transaction certificate processing failed: {err}")]
+    ErrorWhileProcessingCertificate { err: String },
     #[error(
-    "Failed to execute certificate on a quorum of validators, cause by : {:#?}",
+        "Failed to process transaction on a quorum of validators to form a transaction certificate, caused by : {:#?}",
+        errors.iter().map(| e | ToString::to_string(&e)).collect::<Vec<String>>()
+        )]
+    QuorumFailedToProcessTransaction { errors: Vec<HaneulError> },
+    #[error(
+    "Failed to execute certificate on a quorum of validators, caused by : {:#?}",
     errors.iter().map(| e | ToString::to_string(&e)).collect::<Vec<String>>()
     )]
     QuorumFailedToExecuteCertificate { errors: Vec<HaneulError> },

@@ -144,7 +144,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
             // prevent the client from continually retrying it.
             let err = "tx has exceeded the maximum retry limit for transient errors".to_owned();
             debug!(?digest, "{}", err);
-            return Err(HaneulError::ErrorWhileProcessingConfirmationTransaction { err });
+            return Err(HaneulError::ErrorWhileProcessingCertificate { err });
         }
 
         Ok(guard)
