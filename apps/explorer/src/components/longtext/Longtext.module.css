@@ -1,6 +1,7 @@
+.extra,
 .copy16,
 .copy24 {
-    @apply cursor-pointer stroke-haneul-steel leading-[100%] self-start sm:self-end;
+    @apply cursor-pointer stroke-haneul-grey-60 self-start sm:self-end leading-[100%] hover:stroke-haneul-steel text-haneul-grey-60 hover:text-haneul-steel;
 }
 
 .copy16 {
