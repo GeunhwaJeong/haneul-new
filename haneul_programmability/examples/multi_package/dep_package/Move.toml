@@ -1,0 +1,9 @@
+[package]
+name = "DepPackage"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../../crates/haneul-framework" }
+
+[addresses]
+dep_package = "0x0"
