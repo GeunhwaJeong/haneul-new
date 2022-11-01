@@ -1,5 +1,20 @@
 # @haneullabs/wallet-standard
 
+## 0.2.0
+
+### Minor Changes
+
+- e97d280d7: Update to 1.0 release of wallet standard
+- 56de8448f: Update wallet standard adapters to use new wallet registration logic.
+
+### Patch Changes
+
+- Updated dependencies [c27933292]
+- Updated dependencies [90898d366]
+- Updated dependencies [c27933292]
+- Updated dependencies [c27933292]
+  - @haneullabs/haneul.js@0.15.0
+
 ## 0.1.2
 
 ### Patch Changes
