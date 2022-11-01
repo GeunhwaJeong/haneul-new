@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
@@ -17,8 +16,7 @@ use strum_macros::EnumString;
 
 use fastcrypto::encoding::{Base64, Hex};
 use haneul_types::base_types::{
-    ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-    TRANSACTION_DIGEST_LENGTH,
+    ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest, TRANSACTION_DIGEST_LENGTH,
 };
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::messages::ExecutionStatus;
@@ -406,21 +404,23 @@ pub struct ConstructionPayloadsRequest {
     pub public_keys: Vec<PublicKey>,
 }
 
-#[derive(Deserialize, Serialize, Copy, Clone, Debug, EnumIter)]
+#[derive(Deserialize, Serialize, Copy, Clone, Debug, EnumIter, Eq, PartialEq)]
 pub enum OperationType {
     // Balance changing operations from TransactionEffect
     GasSpent,
     HaneulBalanceChange,
-    // Haneul transaction types, readonly
+    // haneul-rosetta supported operation type
+    PayHaneul,
     GasBudget,
+    // All other Haneul transaction types, readonly
     TransferHANEUL,
     Pay,
-    PayHaneul,
     PayAllHaneul,
     TransferObject,
     Publish,
     MoveCall,
     EpochChange,
+    // Rosetta only transaction type, used for fabricating genesis transactions.
     Genesis,
 }
 
@@ -551,7 +551,7 @@ pub struct ConstructionPreprocessResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct MetadataOptions {
-    pub input_objects: Vec<ObjectID>,
+    pub sender: HaneulAddress,
 }
 
 impl IntoResponse for ConstructionPreprocessResponse {
@@ -583,15 +583,7 @@ pub struct ConstructionMetadataResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct ConstructionMetadata {
-    pub input_objects: BTreeMap<ObjectID, ObjectInfo>,
-}
-
-impl ConstructionMetadata {
-    pub fn try_get_info(&self, id: &ObjectID) -> Result<&ObjectInfo, Error> {
-        self.input_objects
-            .get(id)
-            .ok_or_else(|| Error::missing_metadata(id))
-    }
+    pub sender_coins: Vec<ObjectRef>,
 }
 
 impl IntoResponse for ConstructionMetadataResponse {
