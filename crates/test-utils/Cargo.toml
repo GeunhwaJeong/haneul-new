@@ -32,7 +32,7 @@ haneul-swarm = { path = "../haneul-swarm" }
 haneul-types = { path = "../haneul-types" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-sdk = { path = "../haneul-sdk" }
-once_cell = "1.14.0"
+once_cell = "1.16"
 multiaddr = "0.15.0"
 
 haneullabs-network.workspace = true
