@@ -483,6 +483,9 @@ pub enum HaneulError {
 
     #[error("Empty input coins for Pay related transaction")]
     EmptyInputCoins,
+
+    #[error("HANEUL payment transactions use first input coin for gas payment, but found a different gas object.")]
+    UnexpectedGasPaymentObject,
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;

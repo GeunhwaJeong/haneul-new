@@ -766,6 +766,37 @@ impl TransactionData {
         }
         Ok(inputs)
     }
+
+    pub fn validity_check(&self) -> HaneulResult {
+        match &self.kind {
+            TransactionKind::Batch(_) => (),
+            TransactionKind::Single(s) => match s {
+                SingleTransactionKind::Pay(_)
+                | SingleTransactionKind::Call(_)
+                | SingleTransactionKind::Publish(_)
+                | SingleTransactionKind::TransferObject(_)
+                | SingleTransactionKind::TransferHaneul(_)
+                | SingleTransactionKind::ChangeEpoch(_) => (),
+                SingleTransactionKind::PayHaneul(p) => {
+                    fp_ensure!(!p.coins.is_empty(), HaneulError::EmptyInputCoins);
+                    fp_ensure!(
+                        // unwrap() is safe because coins are not empty.
+                        p.coins.first().unwrap() == &self.gas_payment,
+                        HaneulError::UnexpectedGasPaymentObject
+                    );
+                }
+                SingleTransactionKind::PayAllHaneul(pa) => {
+                    fp_ensure!(!pa.coins.is_empty(), HaneulError::EmptyInputCoins);
+                    fp_ensure!(
+                        // unwrap() is safe because coins are not empty.
+                        pa.coins.first().unwrap() == &self.gas_payment,
+                        HaneulError::UnexpectedGasPaymentObject
+                    );
+                }
+            },
+        }
+        Ok(())
+    }
 }
 
 /// A transaction signed by a client, optionally signed by an authority (depending on `S`).
