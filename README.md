@@ -1,4 +1,22 @@
-# Haneul README
+<p align="center">
+  <a href="https://docs.haneul.io/">
+    <img src="https://github.com/GeunhwaJeong/haneul/blob/main/doc/static/Haneul_Icon_Brand.png" alt="Logo" width="80" height="80">
+  </a>
+  
+  <h3 align="center">Haneul</h3>
+
+  <p align="center">
+    Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model.
+    <br />
+    <a href="#"><strong>Explore more about Haneul »</strong></a>
+    <br />
+    <br />
+    <a href="https://discord.gg/haneul">Community</a>
+    ·
+    <a href="https://docs.haneul.io/">Docs</a>
+  </p>
+</p>
+<hr>
 
 |             |             |
 | ----------- | ----------- |
