@@ -15,6 +15,7 @@ use haneul_config::genesis::Genesis;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::QuorumDriver;
+use haneul_metrics::spawn_monitored_task;
 use haneul_types::base_types::{
     SequenceNumber, HaneulAddress, TransactionDigest, TRANSACTION_DIGEST_LENGTH,
 };
@@ -181,7 +182,7 @@ impl PseudoBlockProvider {
         let block_interval = Duration::from_millis(block_interval);
 
         let f = blocks.clone();
-        tokio::spawn(async move {
+        spawn_monitored_task!(async move {
             if let Err(e) = f.update_balance(0, genesis_txs).await {
                 error!("Error updating balance, cause: {e:?}")
             }

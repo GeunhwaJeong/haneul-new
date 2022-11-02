@@ -33,4 +33,5 @@ haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-cost = { path = "../haneul-cost" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
+haneul-metrics = { path = "../haneul-metrics" }
 workspace-hack.workspace = true

@@ -36,6 +36,8 @@ store.workspace = true
 match_opt = "0.1.2"
 rand = "0.8.5"
 
+haneul-metrics = { path = "../../crates/haneul-metrics" }
+
 workspace-hack.workspace = true
 
 [dev-dependencies]

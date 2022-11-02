@@ -14,6 +14,7 @@ use haneul_config::genesis::Genesis;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::QuorumDriver;
+use haneul_metrics::spawn_monitored_task;
 
 use crate::errors::{Error, ErrorType};
 use crate::state::{OnlineServerContext, PseudoBlockProvider};
@@ -73,7 +74,7 @@ impl RosettaOnlineServer {
             "Haneul Rosetta online server listening on {}",
             server.local_addr()
         );
-        tokio::spawn(server)
+        spawn_monitored_task!(server)
     }
 }
 
@@ -103,6 +104,6 @@ impl RosettaOfflineServer {
             "Haneul Rosetta offline server listening on {}",
             server.local_addr()
         );
-        tokio::spawn(server)
+        spawn_monitored_task!(server)
     }
 }

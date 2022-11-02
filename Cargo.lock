@@ -4867,6 +4867,7 @@ dependencies = [
  "prometheus",
  "rand 0.8.5",
  "serde 1.0.147",
+ "haneul-metrics",
  "thiserror",
  "tokio",
  "tracing",
@@ -4962,6 +4963,7 @@ dependencies = [
  "prometheus",
  "rand 0.8.5",
  "serde 1.0.147",
+ "haneul-metrics",
  "telemetry-subscribers 0.2.0",
  "tempfile",
  "thiserror",
@@ -4996,6 +4998,7 @@ dependencies = [
  "prometheus",
  "rand 0.8.5",
  "serde 1.0.147",
+ "haneul-metrics",
  "thiserror",
  "tokio",
  "tokio-util 0.7.4",
@@ -5043,6 +5046,7 @@ dependencies = [
  "serde-reflection",
  "serde_yaml",
  "structopt",
+ "haneul-metrics",
  "telemetry-subscribers 0.2.0",
  "thiserror",
  "tokio",
@@ -5098,6 +5102,7 @@ dependencies = [
  "reqwest",
  "roaring",
  "serde 1.0.147",
+ "haneul-metrics",
  "tap",
  "telemetry-subscribers 0.2.0",
  "tempfile",
@@ -5249,6 +5254,7 @@ dependencies = [
  "rand 0.8.5",
  "reqwest",
  "serde 1.0.147",
+ "haneul-metrics",
  "tap",
  "telemetry-subscribers 0.2.0",
  "tempfile",
@@ -8175,6 +8181,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-macros",
+ "haneul-metrics",
  "haneul-network",
  "haneul-simulator",
  "haneul-storage",
@@ -8249,6 +8256,7 @@ dependencies = [
  "haneul-config",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-metrics",
  "haneul-node",
  "haneul-types",
  "tap",
@@ -8382,6 +8390,7 @@ dependencies = [
  "haneul-cost",
  "haneul-json",
  "haneul-json-rpc-types",
+ "haneul-metrics",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-transaction-builder",
@@ -8447,6 +8456,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-metrics"
+version = "0.7.0"
+dependencies = [
+ "once_cell",
+ "prometheus",
+ "scopeguard",
+ "tap",
+ "telemetry-subscribers 0.2.0",
+ "tokio",
+ "tracing",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-network"
 version = "0.0.0"
 dependencies = [
@@ -8477,6 +8500,7 @@ dependencies = [
  "haneul-config",
  "haneul-core",
  "haneul-json-rpc",
+ "haneul-metrics",
  "haneul-network",
  "haneul-simulator",
  "haneul-storage",
@@ -8553,6 +8577,7 @@ dependencies = [
  "haneul-framework",
  "haneul-framework-build",
  "haneul-keys",
+ "haneul-metrics",
  "haneul-node",
  "haneul-sdk",
  "haneul-types",
@@ -8639,6 +8664,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "haneul-json-rpc-types",
+ "haneul-metrics",
  "haneul-types",
  "tap",
  "telemetry-subscribers 0.2.0",

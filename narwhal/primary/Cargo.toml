@@ -44,6 +44,8 @@ haneullabs-network.workspace = true
 store.workspace = true
 workspace-hack.workspace = true
 
+haneul-metrics = { path = "../../crates/haneul-metrics" }
+
 anemo.workspace = true
 anemo-tower.workspace = true
 

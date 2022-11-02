@@ -27,6 +27,7 @@ tempfile = "3.3.0"
 tap = "1.0.1"
 
 haneul-types = { path = "../haneul-types" }
+haneul-metrics = { path = "../haneul-metrics" }
 typed-store.workspace = true
 typed-store-derive.workspace = true
 move-core-types.workspace = true

@@ -29,6 +29,7 @@ haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
+haneul-metrics = { path = "../haneul-metrics" }
 narwhal-network = { path = "../../narwhal/network" }
 
 ying-profiler = { git = "https://github.com/velvia/ying-profiler", features = ["profile-spans"] }

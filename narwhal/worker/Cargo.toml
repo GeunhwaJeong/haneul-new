@@ -32,6 +32,8 @@ types = { path = "../types", package = "narwhal-types" }
 haneullabs-network.workspace = true
 prometheus = "0.13.2"
 
+haneul-metrics = { path = "../../crates/haneul-metrics" }
+
 anemo.workspace = true
 anemo-tower.workspace = true
 anyhow = "1.0.65"

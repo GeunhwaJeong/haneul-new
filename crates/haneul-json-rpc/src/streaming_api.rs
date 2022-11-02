@@ -17,6 +17,7 @@ use haneul_json_rpc_types::HaneulCertifiedTransaction;
 use haneul_json_rpc_types::HaneulTransactionEffects;
 use haneul_json_rpc_types::HaneulTransactionFilter;
 use haneul_json_rpc_types::HaneulTransactionResponse;
+use haneul_metrics::spawn_monitored_task;
 use haneul_open_rpc::Module;
 use haneul_types::filter::TransactionFilter;
 use tracing::warn;
@@ -86,7 +87,7 @@ where
     T: Serialize,
     E: Display,
 {
-    tokio::spawn(async move {
+    spawn_monitored_task!(async move {
         match sink.pipe_from_try_stream(rx).await {
             SubscriptionClosed::Success => {
                 sink.close(SubscriptionClosed::Success);
