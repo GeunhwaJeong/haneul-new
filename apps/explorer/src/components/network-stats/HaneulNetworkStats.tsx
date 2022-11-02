@@ -71,7 +71,12 @@ function HaneulNetworkCardStatic() {
     return <HaneulNetworkCard count={3030} />;
 }
 
-const HaneulNetworkStats = ({ count }: { count: number }) =>
-    IS_STATIC_ENV ? <HaneulNetworkCardStatic /> : <HaneulNetworkCard count={count} />;
+function HaneulNetworkStats({ count }: { count: number }) {
+    return IS_STATIC_ENV ? (
+        <HaneulNetworkCardStatic />
+    ) : (
+        <HaneulNetworkCard count={count} />
+    );
+}
 
 export default HaneulNetworkStats;
