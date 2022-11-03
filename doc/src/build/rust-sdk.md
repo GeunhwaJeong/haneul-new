@@ -8,7 +8,7 @@ The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-
 The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).  
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
 
-> Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](pubsub.md); use the HTTP client for other API methods.
+> Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](event_api.md#subscribe-to-haneul-events); use the HTTP client for other API methods.
 
 ## References
 
@@ -106,7 +106,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 ### Example 3 - Event subscription
 
-Use the WebSocket client to [subscribe to events](pubsub.md).
+Use the WebSocket client to [subscribe to events](event_api.md#subscribe-to-haneul-events).
 
 ```rust
 use futures::StreamExt;

@@ -126,7 +126,7 @@ Follow the instructions in the [Full node Docker README](https://github.com/Geun
     ```shell
     $ cargo run --release --bin haneul-node -- --config-path fullnode.yaml
     ```
-1. Optional: [Publish / subscribe](pubsub.md) to notifications using JSON-RPC via websocket.
+1. Optional: [Publish / subscribe](event_api.md#subscribe-to-haneul-events) to notifications using JSON-RPC via websocket.
 
 Your Full node will now be serving the read endpoints of the [Haneul JSON-RPC
 API](../build/json-rpc.md#haneul-json-rpc-api) at:
