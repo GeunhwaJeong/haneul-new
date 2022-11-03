@@ -3,13 +3,17 @@
 
 import { Ed25519Keypair } from '@haneullabs/haneul.js';
 
+import { toEntropy, entropyToMnemonic } from '_shared/utils/bip39';
+
 import type { Keypair } from '@haneullabs/haneul.js';
 
 export default class KeypairVault {
     private _keypair: Keypair | null = null;
 
-    public set mnemonic(mnemonic: string) {
-        this._keypair = Ed25519Keypair.deriveKeypair(mnemonic);
+    public set entropy(entropy: string) {
+        this._keypair = Ed25519Keypair.deriveKeypair(
+            entropyToMnemonic(toEntropy(entropy))
+        );
     }
 
     public getAccount(): string | null {
