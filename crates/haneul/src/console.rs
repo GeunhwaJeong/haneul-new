@@ -11,8 +11,6 @@ use clap::FromArgMatches;
 use clap::Parser;
 use colored::Colorize;
 
-use haneul_sdk::ClientType;
-
 use crate::client_commands::SwitchResponse;
 use crate::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
 use crate::shell::{
@@ -51,22 +49,11 @@ pub async fn start_console(
     writeln!(out)?;
     writeln!(out, "{}", context.config.deref())?;
 
-    if let ClientType::RPC { .. } = context.config.client_type {
-        writeln!(out)?;
-        if context.client.is_gateway() {
-            writeln!(
-                out,
-                "Connecting to Haneul Embedded Gateway. API version {}",
-                context.client.api_version()
-            )?;
-        } else {
-            writeln!(
-                out,
-                "Connecting to Haneul Fullnode. API version {}",
-                context.client.api_version()
-            )?;
-        }
-    }
+    writeln!(
+        out,
+        "Connecting to Haneul full node. API version {}",
+        context.client.api_version()
+    )?;
 
     if !context.client.available_rpc_methods().is_empty() {
         writeln!(out)?;
@@ -168,9 +155,9 @@ async fn handle_command(
     // Quit shell after RPC switch
     if matches!(
         result,
-        HaneulClientCommandResult::Switch(SwitchResponse { rpc: Some(_), .. })
+        HaneulClientCommandResult::Switch(SwitchResponse { env: Some(_), .. })
     ) {
-        println!("RPC server switch completed, please restart Haneul console.");
+        println!("Haneul environment switch completed, please restart Haneul console.");
         return Ok(true);
     }
     Ok(false)

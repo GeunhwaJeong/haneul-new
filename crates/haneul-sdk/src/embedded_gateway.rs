@@ -1,0 +1,196 @@
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+// TODO: Remove this file when sim test supports jsonrpc/ws
+use std::sync::Arc;
+
+use async_trait::async_trait;
+use std::path::Path;
+use haneul_config::gateway::GatewayConfig;
+use haneul_config::{NetworkConfig, PersistedConfig, HANEUL_NETWORK_CONFIG};
+use haneul_core::gateway_state::{GatewayClient, GatewayState, TxSeqNumber};
+use haneul_json_rpc_types::{
+    GetObjectDataResponse, GetRawObjectDataResponse, HaneulObjectInfo, HaneulTransactionResponse,
+};
+use haneul_transaction_builder::{DataReader, TransactionBuilder};
+use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::messages::{ExecuteTransactionRequestType, VerifiedTransaction};
+
+use crate::TransactionExecutionResult;
+
+#[derive(Clone)]
+pub struct HaneulClient {
+    transaction_builder: TransactionBuilder,
+    read_api: Arc<ReadApi>,
+    quorum_driver: QuorumDriver,
+    wallet_sync_api: WalletSyncApi,
+}
+
+impl HaneulClient {
+    pub fn transaction_builder(&self) -> &TransactionBuilder {
+        &self.transaction_builder
+    }
+    pub fn read_api(&self) -> &ReadApi {
+        &self.read_api
+    }
+    pub fn quorum_driver(&self) -> &QuorumDriver {
+        &self.quorum_driver
+    }
+
+    pub fn wallet_sync_api(&self) -> &WalletSyncApi {
+        &self.wallet_sync_api
+    }
+}
+
+impl HaneulClient {
+    pub fn new(haneul_config_dir: &Path) -> Result<Self, anyhow::Error> {
+        let network_path = haneul_config_dir.join(HANEUL_NETWORK_CONFIG);
+        let network_conf: NetworkConfig = PersistedConfig::read(&network_path)?;
+        let db_folder_path = haneul_config_dir.join("gateway_client_db");
+        let gateway_conf = GatewayConfig {
+            validator_set: network_conf.validator_set().to_owned(),
+            db_folder_path,
+            ..Default::default()
+        };
+        let api = GatewayState::create_client(&gateway_conf, None)?;
+        let read_api = Arc::new(ReadApi { api: api.clone() });
+        let quorum_driver = QuorumDriver { api: api.clone() };
+        let transaction_builder =
+            TransactionBuilder(Arc::new(GatewayClientDataReader::new(api.clone())));
+        let wallet_sync_api = WalletSyncApi(api);
+
+        Ok(Self {
+            transaction_builder,
+            read_api,
+            quorum_driver,
+            wallet_sync_api,
+        })
+    }
+
+    pub fn available_rpc_methods(&self) -> Vec<String> {
+        vec![]
+    }
+
+    pub fn available_subscriptions(&self) -> Vec<String> {
+        vec![]
+    }
+
+    pub fn api_version(&self) -> &str {
+        env!("CARGO_PKG_VERSION")
+    }
+
+    pub fn check_api_version(&self) -> Result<(), anyhow::Error> {
+        Ok(())
+    }
+}
+
+pub struct ReadApi {
+    api: GatewayClient,
+}
+
+impl ReadApi {
+    pub async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
+        Ok(self.api.get_objects_owned_by_address(address).await?)
+    }
+
+    pub async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
+        Ok(self.api.get_objects_owned_by_object(object_id).await?)
+    }
+
+    pub async fn get_parsed_object(
+        &self,
+        object_id: ObjectID,
+    ) -> anyhow::Result<GetObjectDataResponse> {
+        Ok(self.api.get_object(object_id).await?)
+    }
+
+    pub async fn get_object(
+        &self,
+        object_id: ObjectID,
+    ) -> anyhow::Result<GetRawObjectDataResponse> {
+        Ok(self.api.get_raw_object(object_id).await?)
+    }
+
+    pub async fn get_total_transaction_number(&self) -> anyhow::Result<u64> {
+        Ok(self.api.get_total_transaction_number()?)
+    }
+
+    pub async fn get_transactions_in_range(
+        &self,
+        start: TxSeqNumber,
+        end: TxSeqNumber,
+    ) -> anyhow::Result<Vec<TransactionDigest>> {
+        Ok(self.api.get_transactions_in_range(start, end)?)
+    }
+
+    pub async fn get_transaction(
+        &self,
+        digest: TransactionDigest,
+    ) -> anyhow::Result<HaneulTransactionResponse> {
+        Ok(self.api.get_transaction(digest).await?)
+    }
+}
+
+#[derive(Clone)]
+pub struct QuorumDriver {
+    api: GatewayClient,
+}
+
+impl QuorumDriver {
+    pub async fn execute_transaction(
+        &self,
+        tx: VerifiedTransaction,
+        _request_type: Option<ExecuteTransactionRequestType>,
+    ) -> anyhow::Result<TransactionExecutionResult> {
+        let resp = self.api.execute_transaction(tx.into_inner()).await?;
+        Ok(TransactionExecutionResult {
+            tx_digest: resp.certificate.transaction_digest,
+            tx_cert: Some(resp.certificate),
+            effects: Some(resp.effects),
+            confirmed_local_execution: true,
+            timestamp_ms: resp.timestamp_ms,
+            parsed_data: resp.parsed_data,
+        })
+    }
+}
+
+#[derive(Clone)]
+pub struct WalletSyncApi(GatewayClient);
+
+impl WalletSyncApi {
+    pub async fn sync_account_state(&self, address: HaneulAddress) -> anyhow::Result<()> {
+        self.0.sync_account_state(address).await?;
+        Ok(())
+    }
+}
+
+pub struct GatewayClientDataReader(GatewayClient);
+
+impl GatewayClientDataReader {
+    pub fn new(state: GatewayClient) -> Self {
+        Self(state)
+    }
+}
+
+#[async_trait]
+impl DataReader for GatewayClientDataReader {
+    async fn get_objects_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error> {
+        self.0.get_objects_owned_by_address(address).await
+    }
+
+    async fn get_object(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
+        self.0.get_raw_object(object_id).await
+    }
+}

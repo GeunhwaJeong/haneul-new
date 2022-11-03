@@ -209,12 +209,11 @@ Haneul requires the following additional tools on computers running Windows.
 After you install Cargo, use the following command to install Haneul binaries:
 
 ```shell
-$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul haneul-node
+$ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul
 ```
 
 The command installs the following Haneul components in `~/.cargo/bin`:
 * [`haneul`](cli-client.md) - The Haneul CLI tool contains subcommands for enabling `genesis` of validators and accounts, starting the Haneul network, and [building and testing Move packages](move/index.md), as well as a [client](cli-client.md) for interacting with the Haneul network.
-* `Haneul node` - installs the Haneul node binary.
 
 Trouble shooting:
 If the previous command fails, make sure you have the latest version of Rust installed:

@@ -23,7 +23,6 @@ use serde::Serialize;
 use serde_json::json;
 use tracing::info;
 
-use crate::config::{Config, PersistedConfig, HaneulClientConfig};
 use haneul_framework::build_move_package;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
@@ -34,7 +33,6 @@ use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::TransactionExecutionResult;
-use haneul_sdk::{ClientType, HaneulClient};
 use haneul_types::crypto::SignableBytes;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -47,6 +45,13 @@ use haneul_types::{
     crypto::{Signature, SignatureScheme},
     messages::TransactionData,
 };
+
+#[cfg(msim)]
+use haneul_sdk::embedded_gateway::HaneulClient;
+#[cfg(not(msim))]
+use haneul_sdk::HaneulClient;
+
+use crate::config::{Config, PersistedConfig, HaneulClientConfig, HaneulEnv};
 
 pub const EXAMPLE_NFT_NAME: &str = "Example NFT";
 pub const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the Haneul Command Line Tool";
@@ -65,16 +70,29 @@ pub enum HaneulClientCommands {
         address: Option<HaneulAddress>,
         /// The RPC server URL (e.g., local rpc server, devnet rpc server, etc) to be
         /// used for subsequent commands.
+        #[clap(long)]
+        env: Option<String>,
+    },
+    /// Add new Haneul environment.
+    #[clap(name = "new-env")]
+    NewEnv {
+        #[clap(long)]
+        alias: String,
         #[clap(long, value_hint = ValueHint::Url)]
-        rpc: Option<String>,
-        /// The pubsub Websocket server URL
+        rpc: String,
         #[clap(long, value_hint = ValueHint::Url)]
         ws: Option<String>,
     },
+    /// List all Haneul environments
+    Envs,
 
     /// Default address used for commands when none specified
     #[clap(name = "active-address")]
     ActiveAddress,
+
+    /// Default environment used for commands when none specified
+    #[clap(name = "active-env")]
+    ActiveEnv,
 
     /// Get object info
     #[clap(name = "object")]
@@ -249,13 +267,6 @@ pub enum HaneulClientCommands {
         /// Gas budget for this transaction
         #[clap(long)]
         gas_budget: u64,
-    },
-
-    /// Synchronize client state with authorities.
-    #[clap(name = "sync")]
-    SyncClientState {
-        #[clap(long)]
-        address: Option<HaneulAddress>,
     },
 
     /// Obtain the Addresses managed by the client.
@@ -642,16 +653,6 @@ impl HaneulClientCommands {
                 HaneulClientCommandResult::Objects(address_object)
             }
 
-            HaneulClientCommands::SyncClientState { address } => {
-                let address = address.unwrap_or(context.active_address()?);
-                context
-                    .client
-                    .wallet_sync_api()
-                    .sync_account_state(address)
-                    .await?;
-
-                HaneulClientCommandResult::SyncClientState
-            }
             HaneulClientCommands::NewAddress {
                 key_scheme,
                 derivation_path,
@@ -728,23 +729,21 @@ impl HaneulClientCommands {
 
                 HaneulClientCommandResult::MergeCoin(response)
             }
-            HaneulClientCommands::Switch { address, rpc, ws } => {
-                if let Some(addr) = address {
-                    if !context.config.keystore.addresses().contains(&addr) {
-                        return Err(anyhow!("Address {} not managed by wallet", addr));
+            HaneulClientCommands::Switch { address, env } => {
+                match (address, &env) {
+                    (None, Some(env)) => {
+                        Self::switch_env(&mut context.config, env)?;
                     }
-                    context.config.active_address = Some(addr);
-                }
-
-                Self::switch_server(&mut context.config, &rpc, &ws)?;
-
-                if Option::is_none(&address) && Option::is_none(&rpc) && Option::is_none(&ws) {
-                    return Err(anyhow!(
-                        "No address or RPC url specified. Please Specify one."
-                    ));
+                    (Some(addr), None) => {
+                        if !context.config.keystore.addresses().contains(&addr) {
+                            return Err(anyhow!("Address {} not managed by wallet", addr));
+                        }
+                        context.config.active_address = Some(addr);
+                    }
+                    _ => return Err(anyhow!("No address or env specified. Please Specify one.")),
                 }
                 context.config.save()?;
-                HaneulClientCommandResult::Switch(SwitchResponse { address, rpc, ws })
+                HaneulClientCommandResult::Switch(SwitchResponse { address, env })
             }
             HaneulClientCommands::ActiveAddress => {
                 HaneulClientCommandResult::ActiveAddress(context.active_address().ok())
@@ -830,30 +829,35 @@ impl HaneulClientCommands {
                 let response = context.execute_transaction(signed_tx).await?;
                 HaneulClientCommandResult::ExecuteSignedTx(response)
             }
+            HaneulClientCommands::NewEnv { alias, rpc, ws } => {
+                if context.config.envs.iter().any(|env| env.alias == alias) {
+                    return Err(anyhow!(
+                        "Environment config with name [{alias}] already exists."
+                    ));
+                }
+                let env = HaneulEnv { alias, rpc, ws };
+
+                // Check urls are valid and server is reachable
+                env.create_rpc_client().await?;
+                context.config.envs.push(env.clone());
+                context.config.save()?;
+                HaneulClientCommandResult::NewEnv(env)
+            }
+            HaneulClientCommands::ActiveEnv => {
+                HaneulClientCommandResult::ActiveEnv(context.config.active_env.clone())
+            }
+            HaneulClientCommands::Envs => HaneulClientCommandResult::Envs(
+                context.config.envs.clone(),
+                context.config.active_env.clone(),
+            ),
         });
         ret
     }
 
-    pub fn switch_server(
-        config: &mut HaneulClientConfig,
-        rpc: &Option<String>,
-        ws: &Option<String>,
-    ) -> Result<(), anyhow::Error> {
-        if let Some(rpc) = rpc {
-            let ws = match &config.client_type {
-                ClientType::RPC(_, Some(ws)) => Some(ws.clone()),
-                _ => None,
-            };
-            config.client_type = ClientType::RPC(rpc.clone(), ws);
-        }
-
-        if let Some(ws) = ws {
-            let rpc = match &config.client_type {
-                ClientType::RPC(rpc, _) => rpc.clone(),
-                _ => return Err(anyhow!("RPC server address must be defined")),
-            };
-            config.client_type = ClientType::RPC(rpc, Some(ws.clone()));
-        }
+    pub fn switch_env(config: &mut HaneulClientConfig, env: &str) -> Result<(), anyhow::Error> {
+        let env = Some(env.into());
+        ensure!(config.get_env(&env).is_some(), "Environment config not found for [{env:?}], add new environment config using the `haneul client new-env` command.");
+        config.active_env = env;
         Ok(())
     }
 }
@@ -871,8 +875,11 @@ impl WalletContext {
                 config_path
             ))
         })?;
+        #[cfg(not(msim))]
+        let client = config.get_active_env()?.create_rpc_client().await?;
+        #[cfg(msim)]
+        let client = haneul_sdk::embedded_gateway::HaneulClient::new(&config_path.parent().unwrap())?;
 
-        let client = config.client_type.init().await?;
         let config = config.persisted(config_path);
         let context = Self { config, client };
         Ok(context)
@@ -1009,10 +1016,6 @@ impl WalletContext {
                 "Failed to execute transaction {tx_digest:?} with error {err:?}"
             )),
         }
-    }
-
-    pub fn switch_client(&mut self, new_client: HaneulClient) {
-        self.client = new_client;
     }
 }
 
@@ -1155,6 +1158,21 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::SerializeTransferHaneul(res) => {
                 write!(writer, "{}", res)?;
             }
+            HaneulClientCommandResult::ActiveEnv(env) => {
+                write!(writer, "{}", env.as_deref().unwrap_or("None"))?;
+            }
+            HaneulClientCommandResult::NewEnv(env) => {
+                writeln!(writer, "Added new Haneul env [{}] to config.", env.alias)?;
+            }
+            HaneulClientCommandResult::Envs(envs, active) => {
+                for env in envs {
+                    write!(writer, "{} => {}", env.alias, env.rpc)?;
+                    if Some(env.alias.as_str()) == active.as_deref() {
+                        write!(writer, " (active)")?;
+                    }
+                    writeln!(writer)?;
+                }
+            }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
@@ -1283,31 +1301,29 @@ pub enum HaneulClientCommandResult {
     MergeCoin(HaneulTransactionResponse),
     Switch(SwitchResponse),
     ActiveAddress(Option<HaneulAddress>),
+    ActiveEnv(Option<String>),
+    Envs(Vec<HaneulEnv>, Option<String>),
     CreateExampleNFT(GetObjectDataResponse),
     SerializeTransferHaneul(String),
     ExecuteSignedTx(HaneulTransactionResponse),
+    NewEnv(HaneulEnv),
 }
 
 #[derive(Serialize, Clone, Debug)]
 pub struct SwitchResponse {
     /// Active address
     pub address: Option<HaneulAddress>,
-    pub rpc: Option<String>,
-    pub ws: Option<String>,
+    pub env: Option<String>,
 }
 
 impl Display for SwitchResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         if let Some(addr) = self.address {
-            writeln!(writer, "Active address switched to {}", addr)?;
+            writeln!(writer, "Active address switched to {addr}")?;
         }
-        if let Some(rpc) = &self.rpc {
-            writeln!(writer, "Active RPC server switched to {}", rpc)?;
-        }
-
-        if let Some(ws) = &self.ws {
-            writeln!(writer, "Active Websocket server switched to {}", ws)?;
+        if let Some(env) = &self.env {
+            writeln!(writer, "Active environment switched to [{env}]")?;
         }
         write!(f, "{}", writer)
     }

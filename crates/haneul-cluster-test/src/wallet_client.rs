@@ -29,7 +29,7 @@ impl WalletClient {
 
         let rpc_url = String::from(cluster.fullnode_url());
         info!("Use fullnode rpc: {}", &rpc_url);
-        let fullnode_client = HaneulClient::new_rpc_client(&rpc_url, None).await.unwrap();
+        let fullnode_client = HaneulClient::new(&rpc_url, None).await.unwrap();
 
         Self {
             wallet_context,

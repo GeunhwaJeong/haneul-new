@@ -17,7 +17,7 @@ use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
     OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulTransactionEffects,
 };
-use haneul_sdk::{HaneulClient, TransactionExecutionResult};
+use haneul_sdk::TransactionExecutionResult;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
@@ -30,6 +30,11 @@ use test_utils::network::TestClusterBuilder;
 use crate::operations::Operation;
 use crate::state::extract_balance_changes_from_ops;
 use crate::types::SignedValue;
+
+#[cfg(msim)]
+use haneul_sdk::embedded_gateway::HaneulClient;
+#[cfg(not(msim))]
+use haneul_sdk::HaneulClient;
 
 #[tokio::test]
 async fn test_all_transaction_type() {

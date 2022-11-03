@@ -10,7 +10,7 @@ use tap::tap::TapFallible;
 #[cfg(test)]
 use std::collections::HashSet;
 
-use haneul::client_commands::{HaneulClientCommands, WalletContext};
+use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
     HaneulExecutionStatus, HaneulObjectRead, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse,
 };
@@ -51,16 +51,6 @@ impl SimpleFaucet {
             .active_address()
             .map_err(|err| FaucetError::Wallet(err.to_string()))?;
         info!("SimpleFaucet::new with active address: {active_address}");
-
-        // Sync to have the latest status
-        if wallet.client.is_gateway() {
-            HaneulClientCommands::SyncClientState {
-                address: Some(active_address),
-            }
-            .execute(&mut wallet)
-            .await
-            .map_err(|err| FaucetError::Wallet(format!("Fail to sync client state: {}", err)))?;
-        }
 
         let coins = wallet
             .gas_objects(active_address)

@@ -221,7 +221,7 @@ pub struct FullNodeProxy {
 
 impl FullNodeProxy {
     pub async fn from_url(http_url: &str) -> Result<Self, anyhow::Error> {
-        let haneul_client = HaneulClient::new_rpc_client(http_url, None).await?;
+        let haneul_client = HaneulClient::new(http_url, None).await?;
 
         let resp = haneul_client.read_api().get_committee_info(None).await?;
         let epoch = resp.epoch;

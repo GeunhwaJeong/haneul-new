@@ -14,7 +14,7 @@ use haneul_types::messages::ExecuteTransactionRequestType;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None).await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
