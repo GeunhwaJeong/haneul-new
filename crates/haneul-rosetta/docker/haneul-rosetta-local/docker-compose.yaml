@@ -5,8 +5,10 @@ services:
     image: haneullabs/haneul-rosetta-local
     ports:
       - "9002:9002"
+      - "9000:9000"
     expose:
       - "9002"
+      - "9000"
     working_dir: /haneul/localnet
     command:
       - /bin/bash

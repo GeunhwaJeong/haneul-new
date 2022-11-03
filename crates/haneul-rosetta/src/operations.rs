@@ -10,7 +10,7 @@ use serde_with::serde_as;
 use serde_with::DisplayFromStr;
 
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
-use haneul_types::event::Event;
+use haneul_types::event::{BalanceChangeType, Event};
 use haneul_types::gas_coin::GAS;
 use haneul_types::messages::{ExecutionStatus, SingleTransactionKind, TransactionData};
 use haneul_types::move_package::disassemble_modules;
@@ -100,11 +100,18 @@ impl Operation {
             owner: Owner::AddressOwner(owner),
             coin_type,
             amount,
+            change_type,
             ..
         } = event
         {
             // We only interested in HANEUL coins and account addresses
             if coin_type == &GAS::type_().to_string() {
+                let status = if change_type == &BalanceChangeType::Gas {
+                    // We always charge gas
+                    Some(OperationStatus::Success)
+                } else {
+                    status
+                };
                 operations.push(Operation {
                     operation_identifier: counter.next_idx().into(),
                     related_operations: vec![],
