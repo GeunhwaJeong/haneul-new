@@ -339,6 +339,18 @@ export function getPayTransaction(data: HaneulTransactionKind): Pay | undefined 
   return 'Pay' in data ? data.Pay : undefined;
 }
 
+export function getPayHaneulTransaction(
+  data: HaneulTransactionKind
+): PayHaneul | undefined {
+  return 'PayHaneul' in data ? data.PayHaneul : undefined;
+}
+
+export function getPayAllHaneulTransaction(
+  data: HaneulTransactionKind
+): PayAllHaneul | undefined {
+  return 'PayAllHaneul' in data ? data.PayAllHaneul : undefined;
+}
+
 export function getChangeEpochTransaction(
   data: HaneulTransactionKind
 ): HaneulChangeEpoch | undefined {
