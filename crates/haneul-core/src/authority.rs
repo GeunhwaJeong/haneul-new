@@ -47,6 +47,7 @@ use narwhal_config::{
     Committee as ConsensusCommittee, WorkerCache as ConsensusWorkerCache,
     WorkerId as ConsensusWorkerId,
 };
+use narwhal_consensus::ConsensusOutput;
 use haneul_adapter::adapter;
 use haneul_config::genesis::Genesis;
 use haneul_json_rpc_types::{
@@ -2359,5 +2360,13 @@ impl AuthorityState {
                 Ok(())
             }
         }
+    }
+
+    pub(crate) fn handle_commit_boundary(
+        &self,
+        consensus_output: &Arc<ConsensusOutput>,
+    ) -> HaneulResult {
+        self.database
+            .record_checkpoint_boundary(consensus_output.consensus_index)
     }
 }
