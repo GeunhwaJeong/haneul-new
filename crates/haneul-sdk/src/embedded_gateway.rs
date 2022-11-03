@@ -1,20 +1,24 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::path::Path;
 // TODO: Remove this file when sim test supports jsonrpc/ws
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use std::path::Path;
+
 use haneul_config::gateway::GatewayConfig;
 use haneul_config::{NetworkConfig, PersistedConfig, HANEUL_NETWORK_CONFIG};
 use haneul_core::gateway_state::{GatewayClient, GatewayState, TxSeqNumber};
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, GetRawObjectDataResponse, HaneulObjectInfo, HaneulTransactionResponse,
+    EventPage, GetObjectDataResponse, GetRawObjectDataResponse, HaneulObjectInfo,
+    HaneulTransactionResponse,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, VerifiedTransaction};
+use haneul_types::query::EventQuery;
 
 use crate::TransactionExecutionResult;
 
@@ -22,6 +26,7 @@ use crate::TransactionExecutionResult;
 pub struct HaneulClient {
     transaction_builder: TransactionBuilder,
     read_api: Arc<ReadApi>,
+    event_api: EventApi,
     quorum_driver: QuorumDriver,
     wallet_sync_api: WalletSyncApi,
 }
@@ -36,7 +41,9 @@ impl HaneulClient {
     pub fn quorum_driver(&self) -> &QuorumDriver {
         &self.quorum_driver
     }
-
+    pub fn event_api(&self) -> &EventApi {
+        &self.event_api
+    }
     pub fn wallet_sync_api(&self) -> &WalletSyncApi {
         &self.wallet_sync_api
     }
@@ -62,6 +69,7 @@ impl HaneulClient {
         Ok(Self {
             transaction_builder,
             read_api,
+            event_api: EventApi,
             quorum_driver,
             wallet_sync_api,
         })
@@ -192,5 +200,20 @@ impl DataReader for GatewayClientDataReader {
         object_id: ObjectID,
     ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
         self.0.get_raw_object(object_id).await
+    }
+}
+
+#[derive(Clone)]
+pub struct EventApi;
+
+impl EventApi {
+    pub async fn get_events(
+        &self,
+        _query: EventQuery,
+        _cursor: Option<EventID>,
+        _limit: Option<usize>,
+        _descending_order: Option<bool>,
+    ) -> anyhow::Result<EventPage> {
+        panic!("Event not supported by gateway")
     }
 }

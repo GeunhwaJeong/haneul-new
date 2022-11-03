@@ -10,7 +10,6 @@ export type HaneulAddress = string;
 export type ObjectOwner =
   | { AddressOwner: HaneulAddress }
   | { ObjectOwner: HaneulAddress }
-  | { SingleOwner: HaneulAddress }
   | { Shared: { initial_shared_version: number } }
   | 'Shared' /* deprecated */
   | 'Immutable';

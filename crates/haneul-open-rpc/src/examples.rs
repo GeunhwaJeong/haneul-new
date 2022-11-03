@@ -17,11 +17,11 @@ use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams, HaneulCertifiedTransaction, HaneulData,
-    HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus, HaneulGasCostSummary, HaneulObject, HaneulObjectRead,
-    HaneulObjectRef, HaneulParsedData, HaneulPastObjectRead, HaneulRawData, HaneulRawMoveObject,
-    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes,
-    TransactionsPage, TransferObjectParams,
+    EventPage, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
+    HaneulCertifiedTransaction, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
+    HaneulGasCostSummary, HaneulObject, HaneulObjectRead, HaneulObjectRef, HaneulParsedData, HaneulPastObjectRead,
+    HaneulRawData, HaneulRawMoveObject, HaneulTransactionData, HaneulTransactionEffects,
+    HaneulTransactionResponse, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -31,11 +31,11 @@ use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, Signature};
 use haneul_types::crypto::{AuthorityQuorumSignInfo, HaneulSignature};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
-    CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, Transaction,
-    TransactionData, TransactionKind, TransferObject,
+    CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, TransactionData,
+    TransactionKind, TransferObject,
 };
 use haneul_types::object::Owner;
-use haneul_types::query::Ordering;
+use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
@@ -76,13 +76,7 @@ impl RpcExampleProvider {
             self.get_total_transaction_number(),
             self.get_transaction(),
             self.get_transactions(),
-            self.get_events_by_transaction(),
-            self.get_events_by_object(),
-            self.get_events_by_sender(),
-            self.get_events_by_recipient(),
-            self.get_events_by_move_event_struct_name(),
-            self.get_events_by_transaction_module(),
-            self.get_events_by_timerange(),
+            self.get_events(),
         ]
         .into_iter()
         .map(|example| (example.function_name, example.examples))
@@ -375,7 +369,7 @@ impl RpcExampleProvider {
                     ),
                     ("cursor", json!(TransactionDigest::new(self.rng.gen()))),
                     ("limit", json!(100)),
-                    ("order", json!(Ordering::Ascending)),
+                    ("descending_order", json!(false)),
                 ],
                 json!(result),
             )],
@@ -484,145 +478,28 @@ impl RpcExampleProvider {
         (data2, signature, recipient, obj_id, result, events)
     }
 
-    fn get_events_by_transaction(&mut self) -> Examples {
+    fn get_events(&mut self) -> Examples {
         let (_, _, _, _, result, events) = self.get_transfer_data_response();
+        let page = EventPage {
+            data: events.clone(),
+            next_cursor: Some((1000, 5).into()),
+        };
         Examples::new(
-            "haneul_getEventsByTransaction",
+            "haneul_getEvents",
             vec![ExamplePairing::new(
                 "Return the Events emitted by a transaction",
                 vec![
                     (
-                        "digest",
-                        json!(result.certificate.transaction_digest.clone()),
+                        "query",
+                        json!(EventQuery::Transaction(
+                            result.certificate.transaction_digest
+                        )),
                     ),
-                    ("count", json!(2)),
+                    ("cursor", json!("10:0")),
+                    ("limit", json!(events.len())),
+                    ("descending_order", json!(false)),
                 ],
-                json!(events),
-            )],
-        )
-    }
-
-    fn get_events_by_sender(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (tx_data, _, _, _, _, events) = self.get_transfer_data_response();
-        Examples::new(
-            "haneul_getEventsBySender",
-            vec![ExamplePairing::new(
-                "Return the Events associated with the given sender",
-                vec![
-                    ("sender", json!(tx_data.signer())),
-                    ("count", json!(2)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(events),
-            )],
-        )
-    }
-
-    fn get_events_by_recipient(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (_, _, recipient, _, _, events) = self.get_transfer_data_response();
-        Examples::new(
-            "haneul_getEventsByRecipient",
-            vec![ExamplePairing::new(
-                "Return the Events associated with the given recipient",
-                vec![
-                    ("recipient", json!(Owner::AddressOwner(recipient))),
-                    ("count", json!(2)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(events),
-            )],
-        )
-    }
-
-    fn get_events_by_object(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (_, _, _, obj_id, _, events) = self.get_transfer_data_response();
-        Examples::new(
-            "haneul_getEventsByObject",
-            vec![ExamplePairing::new(
-                "Return the Events associated with the given object",
-                vec![
-                    ("object", json!(obj_id)),
-                    ("count", json!(2)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(events),
-            )],
-        )
-    }
-
-    fn get_events_by_timerange(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (_, _, _, _, _, events) = self.get_transfer_data_response();
-        Examples::new(
-            "haneul_getEventsByTimeRange",
-            vec![ExamplePairing::new(
-                "Return the Events emitted in [start_time, end_time) interval",
-                vec![
-                    ("count", json!(2)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(events),
-            )],
-        )
-    }
-
-    fn get_events_by_move_event_struct_name(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (data, signature, _, _, _, _) = self.get_transfer_data_response();
-        let tx = Transaction::new(data, signature);
-
-        let event = HaneulEventEnvelope {
-            timestamp: ts,
-            tx_digest: Some(*tx.digest()),
-            event: HaneulEvent::MoveEvent {
-                package_id: ObjectID::from_hex_literal("0x2").unwrap(),
-                transaction_module: String::from("devnet_nft"),
-                sender: HaneulAddress::from_str("0x9421e7ad826ba13aca8ae41316644f06759b4506").unwrap(),
-                type_: String::from("0x2::devnet_nft::MintNFTEvent"),
-                fields: None,
-                bcs: vec![],
-            },
-        };
-        Examples::new(
-            "haneul_getEventsByMoveEventStructName",
-            vec![ExamplePairing::new(
-                "Return the Events with the given move event struct name",
-                vec![
-                    (
-                        "move_event_struct_name",
-                        json!("0x2::devnet_nft::MintNFTEvent"),
-                    ),
-                    ("count", json!(5)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(vec![event]),
-            )],
-        )
-    }
-
-    fn get_events_by_transaction_module(&mut self) -> Examples {
-        let ts = std::time::Instant::now().elapsed().as_secs();
-        let (_, _, _, _, _, events) = self.get_transfer_data_response();
-        Examples::new(
-            "haneul_getEventsByModule",
-            vec![ExamplePairing::new(
-                "Return the Events emitted in a specified Move module",
-                vec![
-                    ("package", json!(ObjectID::from_hex_literal("0x2").unwrap())),
-                    ("module", json!("devnet_nft")),
-                    ("count", json!(5)),
-                    ("start_time", json!(ts)),
-                    ("end_time", json!(ts + 10)),
-                ],
-                json!(events),
+                json!(page),
             )],
         )
     }

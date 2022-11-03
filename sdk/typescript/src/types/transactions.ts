@@ -188,8 +188,6 @@ export type TransactionQuery =
   | { FromAddress: HaneulAddress }
   | { ToAddress: HaneulAddress };
 
-export type Ordering = 'Ascending' | 'Descending';
-
 export type MoveCall = {
   package: HaneulObjectRef;
   module: string;

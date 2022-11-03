@@ -17,7 +17,7 @@ import type { GetObjectDataResponse, ObjectOwner } from '@haneullabs/haneul.js';
 export type DataType = {
     id: string;
     category?: string;
-    owner: ObjectOwner | { SingleOwner: string };
+    owner: ObjectOwner;
     version: string;
     readonly?: string;
     objType: string;

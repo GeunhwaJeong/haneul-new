@@ -1,27 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::api::EventReadApiServer;
-use crate::api::EventStreamingApiServer;
-use crate::streaming_api::spawn_subscription;
-use crate::HaneulRpcModule;
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use futures::StreamExt;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee_core::server::rpc_module::RpcModule;
 use jsonrpsee_core::server::rpc_module::SubscriptionSink;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::identifier::Identifier;
-use move_core_types::language_storage::ModuleId;
-use std::str::FromStr;
-use std::sync::Arc;
+use tracing::warn;
+
 use haneul_core::authority::AuthorityState;
 use haneul_core::event_handler::EventHandler;
-use haneul_json_rpc_types::{HaneulEvent, HaneulEventEnvelope, HaneulEventFilter};
+use haneul_json_rpc_types::{EventPage, HaneulEvent, HaneulEventEnvelope, HaneulEventFilter};
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::object::Owner;
-use tracing::warn;
+use haneul_types::event::{EventEnvelope, EventID};
+use haneul_types::query::EventQuery;
+
+use crate::api::EventReadApiServer;
+use crate::api::{cap_page_limit, EventStreamingApiServer};
+use crate::streaming_api::spawn_subscription;
+use crate::HaneulRpcModule;
 
 pub struct EventStreamingApiImpl {
     state: Arc<AuthorityState>,
@@ -55,7 +54,7 @@ impl EventStreamingApiServer for EventStreamingApiImpl {
 
         let state = self.state.clone();
         let stream = self.event_handler.subscribe(filter);
-        let stream = stream.map(move |e| {
+        let stream = stream.map(move |e: EventEnvelope| {
             let event = HaneulEvent::try_from(e.event, state.module_cache.as_ref());
             event.map(|event| HaneulEventEnvelope {
                 timestamp: e.timestamp,
@@ -64,7 +63,6 @@ impl EventStreamingApiServer for EventStreamingApiImpl {
             })
         });
         spawn_subscription(sink, stream);
-
         Ok(())
     }
 }
@@ -97,107 +95,24 @@ impl EventReadApiImpl {
 #[allow(unused)]
 #[async_trait]
 impl EventReadApiServer for EventReadApiImpl {
-    async fn get_events_by_transaction(
+    async fn get_events(
         &self,
-        digest: TransactionDigest,
-        count: usize,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self.state.get_events_by_transaction(digest, count).await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_transaction_module(
-        &self,
-        package: ObjectID,
-        module: String,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let module_id = ModuleId::new(
-            AccountAddress::from(package),
-            Identifier::from_str(&module)?,
-        );
-
-        let events = self
+        query: EventQuery,
+        cursor: Option<EventID>,
+        limit: Option<usize>,
+        descending_order: Option<bool>,
+    ) -> RpcResult<EventPage> {
+        let descending = descending_order.unwrap_or_default();
+        let limit = cap_page_limit(limit)?;
+        // Retrieve 1 extra item for next cursor
+        let mut data = self
             .state
-            .get_events_by_transaction_module(&module_id, start_time, end_time, count)
+            .get_events(query, cursor, limit + 1, descending)
             .await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_move_event_struct_name(
-        &self,
-        move_event_struct_name: String,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self
-            .state
-            .get_events_by_move_event_struct_name(
-                &move_event_struct_name,
-                start_time,
-                end_time,
-                count,
-            )
-            .await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_sender(
-        &self,
-        sender: HaneulAddress,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self
-            .state
-            .get_events_by_sender(&sender, start_time, end_time, count)
-            .await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_recipient(
-        &self,
-        recipient: Owner,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self
-            .state
-            .get_events_by_recipient(&recipient, start_time, end_time, count)
-            .await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_object(
-        &self,
-        object: ObjectID,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self
-            .state
-            .get_events_by_object(&object, start_time, end_time, count)
-            .await?;
-        Ok(events)
-    }
-
-    async fn get_events_by_timerange(
-        &self,
-        count: usize,
-        start_time: u64,
-        end_time: u64,
-    ) -> RpcResult<Vec<HaneulEventEnvelope>> {
-        let events = self
-            .state
-            .get_events_by_timerange(start_time, end_time, count)
-            .await?;
-        Ok(events)
+        let next_cursor = data.get(limit).map(|(id, _)| id.clone());
+        data.truncate(limit);
+        let data = data.into_iter().map(|(_, event)| event).collect();
+        Ok(EventPage { data, next_cursor })
     }
 }
 

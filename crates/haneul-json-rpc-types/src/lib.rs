@@ -38,7 +38,7 @@ use haneul_types::base_types::{
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
 use haneul_types::error::HaneulError;
-use haneul_types::event::{BalanceChangeType, Event};
+use haneul_types::event::{BalanceChangeType, Event, EventID};
 use haneul_types::event::{EventEnvelope, EventType};
 use haneul_types::filter::{EventFilter, TransactionFilter};
 use haneul_types::gas::GasCostSummary;
@@ -62,6 +62,8 @@ mod rpc_types_tests;
 
 pub type HaneulMoveTypeParameterIndex = u16;
 pub type TransactionsPage = Page<TransactionDigest, TransactionDigest>;
+
+pub type EventPage = Page<HaneulEventEnvelope, EventID>;
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub enum HaneulMoveAbility {
@@ -791,17 +793,13 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
     }
 }
 
-impl HaneulParsedMoveObject {
-    fn try_type_and_fields_from_move_struct(
-        type_: &StructTag,
-        move_struct: MoveStruct,
-    ) -> Result<(String, HaneulMoveStruct), anyhow::Error> {
-        Ok(match move_struct.into() {
-            HaneulMoveStruct::WithTypes { type_, fields } => {
-                (type_, HaneulMoveStruct::WithFields(fields))
-            }
-            fields => (type_.to_string(), fields),
-        })
+pub fn type_and_fields_from_move_struct(
+    type_: &StructTag,
+    move_struct: MoveStruct,
+) -> (String, HaneulMoveStruct) {
+    match move_struct.into() {
+        HaneulMoveStruct::WithTypes { type_, fields } => (type_, HaneulMoveStruct::WithFields(fields)),
+        fields => (type_.to_string(), fields),
     }
 }
 
@@ -1974,7 +1972,6 @@ pub struct OwnedObjectRef {
     pub reference: HaneulObjectRef,
 }
 
-#[serde_as]
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "EventEnvelope", rename_all = "camelCase")]
 pub struct HaneulEventEnvelope {
@@ -2193,10 +2190,7 @@ impl HaneulEvent {
                 let (type_, fields) = if let Ok(move_struct) =
                     Event::move_event_to_move_struct(&type_, &contents, resolver)
                 {
-                    let (type_, field) = HaneulParsedMoveObject::try_type_and_fields_from_move_struct(
-                        &type_,
-                        move_struct,
-                    )?;
+                    let (type_, field) = type_and_fields_from_move_struct(&type_, move_struct);
                     (type_, Some(field))
                 } else {
                     (type_.to_string(), None)

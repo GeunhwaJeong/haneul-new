@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+extern crate core;
+
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::sync::Arc;
@@ -13,15 +15,16 @@ use futures_core::Stream;
 use jsonrpsee::core::client::{ClientT, Subscription};
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
-use serde_json::Value;
 
 use rpc_types::{
     GetPastObjectDataResponse, HaneulCertifiedTransaction, HaneulExecuteTransactionResponse,
     HaneulParsedTransactionResponse, HaneulTransactionEffects,
 };
+use serde_json::Value;
 pub use haneul_config::gateway;
 use haneul_core::gateway_state::TxSeqNumber;
 pub use haneul_json as json;
+use haneul_json_rpc::api::EventReadApiClient;
 use haneul_json_rpc::api::EventStreamingApiClient;
 use haneul_json_rpc::api::RpcBcsApiClient;
 use haneul_json_rpc::api::RpcFullNodeReadApiClient;
@@ -29,14 +32,15 @@ use haneul_json_rpc::api::RpcReadApiClient;
 use haneul_json_rpc::api::TransactionExecutionApiClient;
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope, HaneulEventFilter,
+    EventPage, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope, HaneulEventFilter,
     HaneulObjectInfo, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::event::EventID;
 use haneul_types::messages::VerifiedTransaction;
-use haneul_types::query::{Ordering, TransactionQuery};
+use haneul_types::query::{EventQuery, TransactionQuery};
 use types::base_types::SequenceNumber;
 use types::committee::EpochId;
 use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
@@ -263,12 +267,12 @@ impl ReadApi {
         query: TransactionQuery,
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
-        order: Ordering,
+        descending_order: Option<bool>,
     ) -> anyhow::Result<TransactionsPage> {
         Ok(self
             .api
             .http
-            .get_transactions(query, cursor, limit, order)
+            .get_transactions(query, cursor, limit, descending_order)
             .await?)
     }
 }
@@ -289,6 +293,20 @@ impl EventApi {
             }
             _ => Err(anyhow!("Subscription only supported by WebSocket client.")),
         }
+    }
+
+    pub async fn get_events(
+        &self,
+        query: EventQuery,
+        cursor: Option<EventID>,
+        limit: Option<usize>,
+        descending_order: Option<bool>,
+    ) -> anyhow::Result<EventPage> {
+        Ok(self
+            .0
+            .http
+            .get_events(query, cursor, limit, descending_order)
+            .await?)
     }
 }
 
