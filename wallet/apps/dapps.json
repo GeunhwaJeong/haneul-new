@@ -1,5 +1,12 @@
 [
     {
+        "name": "Capy",
+        "description": "Haneul Capy",
+        "link": "https://capy.art/",
+        "icon": "https://storage.googleapis.com/haneul-cms-content/capy_64caa3122e/capy_64caa3122e.png",
+        "tags": ["Game"]
+    },
+    {
         "name": "Haneul NFT Mint",
         "description": "Mint your NFTs on the Haneul Network",
         "link": "https://haneul-wallet-demo.haneul.io/",
