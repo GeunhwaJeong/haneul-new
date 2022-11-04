@@ -7,14 +7,4 @@ module haneul::event {
     // TODO(https://github.com/GeunhwaJeong/haneul/issues/19):
     // restrict to internal types once we can express this in the ability system
     public native fun emit<T: copy + drop>(event: T);
-
-    // Cost calibration functions
-    #[test_only]
-    public fun calibrate_emit<T: copy + drop>(obj: T) {
-        emit(obj);
-    }
-    #[test_only]
-    public fun calibrate_emit_nop<T: copy + drop>(obj: T) {
-        let _ = obj;
-    }
 }

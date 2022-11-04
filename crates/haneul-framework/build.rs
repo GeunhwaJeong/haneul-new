@@ -52,6 +52,35 @@ fn build_framework_and_stdlib(haneul_framework_path: &Path, out_dir: PathBuf) {
         generate_docs: true,
         ..Default::default()
     };
+    debug_assert!(!config.test_mode);
+    build_framework_and_stdlib_with_move_config(
+        haneul_framework_path,
+        out_dir.clone(),
+        "haneul-framework",
+        "move-stdlib",
+        config,
+    );
+    let config = MoveBuildConfig {
+        generate_docs: true,
+        test_mode: true,
+        ..Default::default()
+    };
+    build_framework_and_stdlib_with_move_config(
+        haneul_framework_path,
+        out_dir,
+        "haneul-framework-test",
+        "move-stdlib-test",
+        config,
+    );
+}
+
+fn build_framework_and_stdlib_with_move_config(
+    haneul_framework_path: &Path,
+    out_dir: PathBuf,
+    framework_dir: &str,
+    stdlib_dir: &str,
+    config: MoveBuildConfig,
+) {
     let pkg = BuildConfig {
         config,
         run_bytecode_verifier: true,
@@ -62,8 +91,8 @@ fn build_framework_and_stdlib(haneul_framework_path: &Path, out_dir: PathBuf) {
     let haneul_framework = pkg.get_framework_modules();
     let move_stdlib = pkg.get_stdlib_modules();
 
-    serialize_modules_to_file(haneul_framework, &out_dir.join("haneul-framework")).unwrap();
-    serialize_modules_to_file(move_stdlib, &out_dir.join("move-stdlib")).unwrap();
+    serialize_modules_to_file(haneul_framework, &out_dir.join(framework_dir)).unwrap();
+    serialize_modules_to_file(move_stdlib, &out_dir.join(stdlib_dir)).unwrap();
     // write out generated docs
     // TODO: remove docs of deleted files
     for (fname, doc) in pkg.package.compiled_docs.unwrap() {
