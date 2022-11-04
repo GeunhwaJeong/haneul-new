@@ -116,13 +116,7 @@ pub trait RpcReadApi {
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcFullNodeReadApi {
     #[method(name = "dryRunTransaction")]
-    async fn dry_run_transaction(
-        &self,
-        tx_bytes: Base64,
-        sig_scheme: SignatureScheme,
-        signature: Base64,
-        pub_key: Base64,
-    ) -> RpcResult<HaneulTransactionEffects>;
+    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects>;
 
     /// Return the argument types of a Move function,
     /// based on normalized Type.
