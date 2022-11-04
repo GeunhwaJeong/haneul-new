@@ -6,9 +6,11 @@ import type {
     ExecutionStatusType,
     HaneulObjectRef,
     HaneulEvent,
+    HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 
 export type DataType = CertifiedTransaction & {
+    transaction: HaneulTransactionResponse | null;
     loadState: string;
     txId: string;
     status: ExecutionStatusType;
