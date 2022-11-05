@@ -4,7 +4,7 @@ jobs:
   diff:
     runs-on: [ubuntu-latest]
     outputs:
-      isWalletAdapter: ${{ contains(fromJson(steps.diff.outputs.packages), 'haneul-wallet-adapter') }}
+      isWalletAdapter: ${{ steps.diff.outputs.packages && contains(fromJson(steps.diff.outputs.packages), 'haneul-wallet-adapter') }}
     steps:
       - uses: actions/checkout@v3
       - name: Detect Changes
