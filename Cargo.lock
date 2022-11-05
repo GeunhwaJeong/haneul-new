@@ -8860,6 +8860,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-types",
+ "tracing",
  "workspace-hack",
 ]
 
