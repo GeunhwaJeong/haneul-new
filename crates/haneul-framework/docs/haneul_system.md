@@ -642,7 +642,7 @@ If the sender represents an active validator, the request will be processed at t
 
 
 
-<pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_switch_delegation">request_switch_delegation</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, delegation: <a href="staking_pool.md#0x2_staking_pool_Delegation">staking_pool::Delegation</a>, staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, new_validator_address: <b>address</b>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_switch_delegation">request_switch_delegation</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, delegation: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_Delegation">staking_pool::Delegation</a>, staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, new_validator_address: <b>address</b>, switch_pool_token_amount: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -653,12 +653,15 @@ If the sender represents an active validator, the request will be processed at t
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_switch_delegation">request_switch_delegation</a>(
     self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">HaneulSystemState</a>,
-    delegation: Delegation,
+    delegation: &<b>mut</b> Delegation,
     staked_haneul: &<b>mut</b> StakedHaneul,
     new_validator_address: <b>address</b>,
+    switch_pool_token_amount: u64,
     ctx: &<b>mut</b> TxContext,
 ) {
-    <a href="validator_set.md#0x2_validator_set_request_switch_delegation">validator_set::request_switch_delegation</a>(&<b>mut</b> self.validators, delegation, staked_haneul, new_validator_address, ctx);
+    <a href="validator_set.md#0x2_validator_set_request_switch_delegation">validator_set::request_switch_delegation</a>(
+        &<b>mut</b> self.validators, delegation, staked_haneul, new_validator_address, switch_pool_token_amount, ctx
+    );
 }
 </code></pre>
 

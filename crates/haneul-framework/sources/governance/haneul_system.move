@@ -280,12 +280,15 @@ module haneul::haneul_system {
     // Switch delegation from the current validator to a new one.
     public entry fun request_switch_delegation(
         self: &mut HaneulSystemState,
-        delegation: Delegation,
+        delegation: &mut Delegation,
         staked_haneul: &mut StakedHaneul,
         new_validator_address: address,
+        switch_pool_token_amount: u64,
         ctx: &mut TxContext,
     ) {
-        validator_set::request_switch_delegation(&mut self.validators, delegation, staked_haneul, new_validator_address, ctx);
+        validator_set::request_switch_delegation(
+            &mut self.validators, delegation, staked_haneul, new_validator_address, switch_pool_token_amount, ctx
+        );
     }
 
     /// Report a validator as a bad or non-performant actor in the system.
