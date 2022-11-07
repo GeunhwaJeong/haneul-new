@@ -72,8 +72,11 @@ pub struct HaneulEnv {
 }
 
 impl HaneulEnv {
-    pub async fn create_rpc_client(&self) -> Result<HaneulClient, anyhow::Error> {
-        HaneulClient::new(&self.rpc, self.ws.as_deref()).await
+    pub async fn create_rpc_client(
+        &self,
+        request_timeout: Option<std::time::Duration>,
+    ) -> Result<HaneulClient, anyhow::Error> {
+        HaneulClient::new(&self.rpc, self.ws.as_deref(), request_timeout).await
     }
 
     pub fn devnet() -> Self {
