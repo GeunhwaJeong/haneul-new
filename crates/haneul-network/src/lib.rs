@@ -5,6 +5,7 @@ use haneullabs_network::config::Config;
 use std::time::Duration;
 
 pub mod api;
+pub mod utils;
 
 pub use tonic;
 
