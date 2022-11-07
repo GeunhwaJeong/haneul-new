@@ -8640,11 +8640,22 @@ dependencies = [
 name = "haneul-network"
 version = "0.0.0"
 dependencies = [
+ "anemo",
+ "anemo-build",
  "async-trait",
+ "futures",
+ "multiaddr",
  "haneullabs-network",
+ "rand 0.8.5",
+ "serde 1.0.147",
+ "haneul-config",
  "haneul-types",
+ "tap",
+ "tokio",
+ "tokio-stream",
  "tonic",
  "tonic-build",
+ "tracing",
  "workspace-hack",
 ]
 
