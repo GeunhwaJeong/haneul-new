@@ -1,21 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use std::sync::Arc;
-
-use futures::StreamExt;
-use serde_json::json;
-use tokio::time::{sleep, Duration};
-use tracing::debug;
-use tracing::info;
+use tracing::{debug, info};
 
 use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
-use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::AuthorityAPI;
+pub use haneul_core::test_utils::{wait_for_all_txes, wait_for_tx};
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json_rpc_types::HaneulCertifiedTransaction;
 use haneul_json_rpc_types::HaneulObjectRead;
@@ -24,14 +19,12 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::batch::UpdateItem;
 use haneul_types::committee::Committee;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::messages::{
-    BatchInfoRequest, BatchInfoResponseItem, CallArg, ObjectArg, ObjectInfoRequest,
-    ObjectInfoResponse, Transaction, TransactionData, TransactionEffects, TransactionInfoResponse,
-    VerifiedTransaction,
+    CallArg, ObjectArg, ObjectInfoRequest, ObjectInfoResponse, Transaction, TransactionData,
+    TransactionEffects, TransactionInfoResponse, VerifiedTransaction,
 };
 use haneul_types::object::{Object, Owner};
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
@@ -524,74 +517,4 @@ pub fn extract_obj(replies: Vec<ObjectInfoResponse>) -> Object {
     }
     assert_eq!(all_objects.len(), 1);
     all_objects.into_iter().next().unwrap()
-}
-
-pub async fn wait_for_tx(wait_digest: TransactionDigest, state: Arc<AuthorityState>) {
-    wait_for_all_txes(vec![wait_digest], state).await
-}
-
-pub async fn wait_for_all_txes(wait_digests: Vec<TransactionDigest>, state: Arc<AuthorityState>) {
-    let mut wait_digests: HashSet<_> = wait_digests.iter().collect();
-
-    let mut timeout = Box::pin(sleep(Duration::from_millis(15_000)));
-
-    let mut max_seq = Some(0);
-
-    let mut stream = Box::pin(
-        state
-            .handle_batch_streaming(BatchInfoRequest {
-                start: max_seq,
-                length: 1000,
-            })
-            .await
-            .unwrap(),
-    );
-
-    // TODO: Duplicated code in test_utils
-    loop {
-        tokio::select! {
-            _ = &mut timeout => panic!("wait_for_tx timed out"),
-
-            items = &mut stream.next() => {
-                match items {
-                    // Upon receiving a batch
-                    Some(Ok(BatchInfoResponseItem(UpdateItem::Batch(batch)) )) => {
-                        max_seq = Some(batch.data().next_sequence_number);
-                        info!(?max_seq, "Received Batch");
-                    }
-                    // Upon receiving a transaction digest we store it, if it is not processed already.
-                    Some(Ok(BatchInfoResponseItem(UpdateItem::Transaction((_seq, digest))))) => {
-                        info!(?digest, "Received Transaction");
-                        if wait_digests.remove(&digest.transaction) {
-                            info!(?digest, "Digest found");
-                        }
-                        if wait_digests.is_empty() {
-                            info!(?digest, "all digests found");
-                            break;
-                        }
-                    },
-
-                    Some(Err( err )) => panic!("{}", err),
-                    None => {
-                        info!(?max_seq, "Restarting Batch");
-                        stream = Box::pin(
-                                state
-                                    .handle_batch_streaming(BatchInfoRequest {
-                                        start: max_seq,
-                                        length: 1000,
-                                    })
-                                    .await
-                                    .unwrap(),
-                            );
-
-                    }
-                }
-            },
-        }
-    }
-
-    // A small delay is needed so that the batch process can finish notifying other subscribers,
-    // which tests may depend on. Otherwise tests can pass or fail depending on whether the
-    // subscriber in this function was notified first or last.
-    sleep(Duration::from_millis(10)).await;
 }
