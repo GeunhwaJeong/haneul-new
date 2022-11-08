@@ -19,13 +19,13 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     EventPage, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
     HaneulCertifiedTransaction, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
-    HaneulGasCostSummary, HaneulObject, HaneulObjectRead, HaneulObjectRef, HaneulParsedData, HaneulPastObjectRead,
-    HaneulRawData, HaneulRawMoveObject, HaneulTransactionData, HaneulTransactionEffects,
+    HaneulGasCostSummary, HaneulObject, HaneulObjectInfo, HaneulObjectRead, HaneulObjectRef, HaneulParsedData,
+    HaneulPastObjectRead, HaneulRawData, HaneulRawMoveObject, HaneulTransactionData, HaneulTransactionEffects,
     HaneulTransactionResponse, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectInfo, SequenceNumber, HaneulAddress, TransactionDigest,
+    ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, Signature};
 use haneul_types::crypto::{AuthorityQuorumSignInfo, HaneulSignature};
@@ -254,11 +254,11 @@ impl RpcExampleProvider {
     fn get_objects_owned_by_address(&mut self) -> Examples {
         let owner = HaneulAddress::from(ObjectID::new(self.rng.gen()));
         let result = (0..4)
-            .map(|_| ObjectInfo {
+            .map(|_| HaneulObjectInfo {
                 object_id: ObjectID::new(self.rng.gen()),
                 version: Default::default(),
                 digest: ObjectDigest::new(self.rng.gen()),
-                type_: GasCoin::type_().to_string(),
+                type_: ObjectType::Struct(GasCoin::type_()).to_string(),
                 owner: Owner::AddressOwner(owner),
                 previous_transaction: TransactionDigest::new(self.rng.gen()),
             })
@@ -276,11 +276,11 @@ impl RpcExampleProvider {
     fn get_objects_owned_by_object(&mut self) -> Examples {
         let owner = ObjectID::new(self.rng.gen());
         let result = (0..4)
-            .map(|_| ObjectInfo {
+            .map(|_| HaneulObjectInfo {
                 object_id: ObjectID::new(self.rng.gen()),
                 version: Default::default(),
                 digest: ObjectDigest::new(self.rng.gen()),
-                type_: GasCoin::type_().to_string(),
+                type_: ObjectType::Struct(GasCoin::type_()).to_string(),
                 owner: Owner::ObjectOwner(HaneulAddress::from(owner)),
                 previous_transaction: TransactionDigest::new(self.rng.gen()),
             })

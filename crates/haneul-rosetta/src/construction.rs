@@ -8,7 +8,6 @@ use fastcrypto::encoding::{Encoding, Hex};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto;
 use haneul_types::crypto::{SignableBytes, SignatureScheme, ToFromBytes};
-use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     QuorumDriverRequest, QuorumDriverRequestType, QuorumDriverResponse, SenderSignedData,
     Transaction, TransactionData,
@@ -207,13 +206,8 @@ pub async fn metadata(
             .state
             .get_owner_objects(Owner::AddressOwner(option.sender))?
             .iter()
-            .filter_map(|info| {
-                if info.type_ == GasCoin::type_().to_string() {
-                    Some(info.into())
-                } else {
-                    None
-                }
-            })
+            .filter(|info| info.type_.is_gas_coin())
+            .map(|info| info.into())
             .collect::<Vec<_>>()
     } else {
         Default::default()
