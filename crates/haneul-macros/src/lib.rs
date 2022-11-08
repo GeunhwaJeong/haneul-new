@@ -33,7 +33,8 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                 ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
 
                 use ::haneul_simulator::fastcrypto::traits::KeyPair;
-
+                use rand::rngs::{StdRng, OsRng};
+                use rand::SeedableRng;
                 // anemo uses x509-parser, which has many lazy static variables. start a network to
                 // initialize all that static state before the first test.
                 let rt = ::haneul_simulator::runtime::Runtime::new();
@@ -44,7 +45,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                         Network::bind(format!("127.0.0.1:{}", port))
                             .server_name("static-init-network")
                             .private_key(
-                                ::haneul_simulator::fastcrypto::ed25519::Ed25519KeyPair::generate(&mut rand::rngs::OsRng)
+                                ::haneul_simulator::fastcrypto::ed25519::Ed25519KeyPair::generate(&mut StdRng::from_rng(OsRng).unwrap())
                                     .private()
                                     .0
                                     .to_bytes(),
