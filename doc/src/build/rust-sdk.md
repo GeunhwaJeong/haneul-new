@@ -5,7 +5,7 @@ title: Interact with Haneul over Rust SDK
 ## Overview
 The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet](../build/devnet.md) and [Haneul Full node](fullnode.md).
 
-The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).  
+The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
 
 > Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](event_api.md#subscribe-to-haneul-events); use the HTTP client for other API methods.
@@ -91,11 +91,11 @@ async fn main() -> Result<(), anyhow::Error> {
     // Sign transaction
     let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
     let signature = keystore.sign(&my_address, &transfer_tx)?;
-    
+
     // Execute the transaction
     let transaction_response = haneul
         .quorum_driver()
-        .execute_transaction(Transaction::new(transfer_tx, signature))
+        .execute_transaction(Transaction::from_data(transfer_tx, signature))
         .await?;
 
     println!("{:?}", transaction_response);

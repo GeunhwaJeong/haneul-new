@@ -18,7 +18,9 @@ use haneul_json_rpc_types::HaneulExecuteTransactionResponse;
 use haneul_metrics::spawn_monitored_task;
 use haneul_open_rpc::Module;
 use haneul_types::crypto::SignatureScheme;
-use haneul_types::messages::{ExecuteTransactionRequest, ExecuteTransactionRequestType};
+use haneul_types::messages::{
+    ExecuteTransactionRequest, ExecuteTransactionRequestType, SenderSignedData,
+};
 use haneul_types::{
     crypto,
     crypto::SignableBytes,
@@ -64,7 +66,7 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
             .concat(),
         )
         .map_err(|e| anyhow!(e))?;
-        let txn = Transaction::new(data, signature);
+        let txn = Transaction::new(SenderSignedData::new(data, signature));
         let txn_digest = *txn.digest();
 
         let transaction_orchestrator = self.transaction_orchestrator.clone();

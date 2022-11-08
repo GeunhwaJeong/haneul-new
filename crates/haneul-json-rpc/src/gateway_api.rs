@@ -20,6 +20,7 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_types::batch::TxSequenceNumber;
 use haneul_types::crypto::SignatureScheme;
+use haneul_types::messages::SenderSignedData;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     crypto,
@@ -90,7 +91,7 @@ impl RpcGatewayApiServer for RpcGatewayImpl {
         .map_err(|e| anyhow!(e))?;
         let result = self
             .client
-            .execute_transaction(Transaction::new(data, signature))
+            .execute_transaction(Transaction::new(SenderSignedData::new(data, signature)))
             .await;
         Ok(result?)
     }
