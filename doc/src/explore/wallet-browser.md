@@ -2,7 +2,7 @@
 title: Haneul Wallet
 ---
 
-This topic describes how to install and use the [Haneul Wallet Browser Extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). You can use Haneul Wallet to create an address and complete transactions, mint NFTs, view and manage assets on the Haneul network, and connect with blockchain dApps on Web3.
+This topic describes how to install and use the [Haneul Wallet Browser Extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). You can use the Haneul Wallet to create an address, complete transactions, mint NFTs, view or manage assets on the Haneul network, and connect with blockchain dApps on Web3.
 
 The early versions of Haneul Wallet let you experiment with the Haneul network for testing. The Haneul network is still in development, and the tokens have no real value. Accounts reset with each deployment of a new version of the network. View the [devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) channel in Discord for updates about the network.
 
