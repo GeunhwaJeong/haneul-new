@@ -23,9 +23,8 @@ use haneul_types::error::HaneulResult;
 use haneul_types::messages::TransactionEffects;
 use tokio::sync::oneshot;
 
-#[allow(dead_code)]
 #[async_trait]
-pub trait EffectsNotifyRead {
+pub trait EffectsNotifyRead: Send + Sync + 'static {
     /// This method reads transaction effects from database.
     /// If effects are not available immediately, the method blocks until they are persisted
     /// in the database.
@@ -36,6 +35,11 @@ pub trait EffectsNotifyRead {
         &self,
         digests: Vec<TransactionDigest>,
     ) -> HaneulResult<Vec<TransactionEffects>>;
+
+    fn get_effects(
+        &self,
+        digests: &[TransactionDigest],
+    ) -> HaneulResult<Vec<Option<TransactionEffects>>>;
 }
 
 type Registrations<V> = Vec<oneshot::Sender<V>>;
@@ -182,6 +186,14 @@ impl EffectsNotifyRead for Arc<AuthorityStore> {
             });
 
         Ok(join_all(results).await)
+    }
+
+    fn get_effects(
+        &self,
+        digests: &[TransactionDigest],
+    ) -> HaneulResult<Vec<Option<TransactionEffects>>> {
+        // todo - delete checkpoint v1 EffectsStore trait and inline implementation here
+        EffectsStore::get_effects(self, digests.iter())
     }
 }
 

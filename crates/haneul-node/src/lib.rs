@@ -66,6 +66,7 @@ pub mod metrics;
 
 mod handle;
 pub use handle::HaneulNodeHandle;
+use haneul_core::checkpoints2::{CheckpointService, LogCheckpointOutput};
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
@@ -151,6 +152,11 @@ impl HaneulNode {
             None,
             None,
         ));
+        let checkpoint_service = CheckpointService::spawn(
+            &config.db_path().join("checkpoints2"),
+            Box::new(store.clone()),
+            LogCheckpointOutput::boxed(),
+        );
 
         let state = Arc::new(
             AuthorityState::new(
@@ -166,6 +172,7 @@ impl HaneulNode {
                 genesis,
                 &prometheus_registry,
                 tx_reconfigure_consensus,
+                checkpoint_service,
             )
             .await,
         );
