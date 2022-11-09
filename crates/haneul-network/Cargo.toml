@@ -11,8 +11,8 @@ async-trait = "0.1.57"
 tonic = "0.8"
 
 haneul-types = { path = "../haneul-types" }
+haneullabs-network = { path = "../../crates/haneullabs-network" }
 
-haneullabs-network.workspace = true
 workspace-hack.workspace = true
 
 [build-dependencies]

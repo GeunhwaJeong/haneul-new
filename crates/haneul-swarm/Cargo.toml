@@ -20,12 +20,11 @@ prometheus = "0.13.2"
 haneul-config = { path = "../haneul-config" }
 haneul-node = { path = "../haneul-node" }
 haneul-types = { path = "../haneul-types" }
+haneullabs-network = { path = "../../crates/haneullabs-network" }
+telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
 
-haneullabs-network.workspace = true
 workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }
 
-[dev-dependencies]
-telemetry-subscribers.workspace = true

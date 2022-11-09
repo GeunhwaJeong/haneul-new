@@ -40,8 +40,10 @@ crypto = { path = "../crypto", package = "narwhal-crypto" }
 network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
 storage = { path = "../storage", package = "narwhal-storage" }
-haneullabs-network.workspace = true
-store.workspace = true
+store = { path = "../../crates/typed-store", package = "typed-store" }
+haneullabs-network = { path = "../../crates/haneullabs-network" }
+telemetry-subscribers = { path = "../../crates/telemetry-subscribers"}
+
 workspace-hack.workspace = true
 
 haneul-metrics = { path = "../../crates/haneul-metrics" }
@@ -59,7 +61,6 @@ mockall = "0.11.2"
 node = { path = "../node", package = "narwhal-node" }
 proptest = "1.0.0"
 tempfile = "3.3.0"
-telemetry-subscribers.workspace = true
 test-utils = { path = "../test-utils", package = "narwhal-test-utils" }
 thiserror = "1.0.35"
 tracing = "0.1.36"
