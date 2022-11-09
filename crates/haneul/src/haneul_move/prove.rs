@@ -54,6 +54,14 @@ impl Prove {
                             haneul_framework_address_concat_string("::event"),
                             "haneul_event_instances".to_string(),
                         ),
+                        (
+                            haneul_framework_address_concat_string("::types"),
+                            "haneul_types_instances".to_string(),
+                        ),
+                        (
+                            haneul_framework_address_concat_string("::dynamic_field"),
+                            "dynamic_field_instances".to_string(),
+                        ),
                     ],
                 });
         }
