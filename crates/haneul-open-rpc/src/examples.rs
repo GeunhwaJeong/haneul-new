@@ -29,6 +29,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, Signature};
 use haneul_types::crypto::{AuthorityQuorumSignInfo, HaneulSignature};
+use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, TransactionData,
@@ -428,6 +429,7 @@ impl RpcExampleProvider {
         let events = vec![HaneulEventEnvelope {
             timestamp: std::time::Instant::now().elapsed().as_secs(),
             tx_digest: Some(*tx_digest),
+            id: EventID::from((0, 0)),
             event: haneul_event.clone(),
         }];
         let result = HaneulTransactionResponse {

@@ -132,6 +132,7 @@ export type HaneulEventFilter =
 export type HaneulEventEnvelope = {
   timestamp: number;
   txDigest: TransactionDigest;
+  id: EventId;  // tx_seq_num:event_seq
   event: HaneulEvent;
 };
 
