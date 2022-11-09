@@ -31,7 +31,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-metrics = { path = "../../crates/haneul-metrics" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 workspace-hack.workspace = true
 

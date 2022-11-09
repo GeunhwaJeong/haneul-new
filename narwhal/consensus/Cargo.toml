@@ -27,9 +27,9 @@ types = { path = "../types", package = "narwhal-types" }
 workspace-hack.workspace = true
 cfg-if = "1.0.0"
 haneul-metrics = { path = "../../crates/haneul-metrics" }
-haneullabs-util-mem = { path = "../../crates/haneullabs-util-mem" }
+haneullabs-util-mem.workspace = true
 store = { path = "../../crates/typed-store", package = "typed-store" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 [dev-dependencies]
 bincode = "1.3.3"

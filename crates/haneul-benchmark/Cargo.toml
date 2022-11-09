@@ -42,7 +42,7 @@ haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 move-core-types.workspace = true
 narwhal-node = { path = "../../narwhal/node" }

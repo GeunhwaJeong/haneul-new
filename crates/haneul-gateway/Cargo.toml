@@ -24,7 +24,7 @@ haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }
 haneul-keys = { path = "../haneul-keys" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 workspace-hack.workspace = true
 

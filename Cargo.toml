@@ -123,6 +123,12 @@ anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "87d60b
 # Use the same workspace-hack across crates.
 workspace-hack = { path = "crates/workspace-hack" }
 
+haneullabs-network = { path = "crates/haneullabs-network" }
+telemetry-subscribers = { path = "crates/telemetry-subscribers" }
+haneullabs-util-mem = { path = "crates/haneullabs-util-mem" }
+typed-store = { path = "crates/typed-store" }
+typed-store-derive = { path = "crates/typed-store-derive" }
+
 # patch sqlx to a version using libsqlite3-sys v0.25.1 or later, see
 # https://github.com/launchbadge/sqlx/pull/2176
 [patch.crates-io]

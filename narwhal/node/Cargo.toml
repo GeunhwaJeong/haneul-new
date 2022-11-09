@@ -42,8 +42,8 @@ worker = { path = "../worker", package = "narwhal-worker" }
 eyre = "0.6.8"
 
 store = { path = "../../crates/typed-store", package = "typed-store" }
-haneullabs-network = { path = "../../crates/haneullabs-network" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+haneullabs-network.workspace = true
+telemetry-subscribers.workspace = true
 
 haneul-metrics = { path = "../../crates/haneul-metrics" }
 workspace-hack.workspace = true

@@ -35,7 +35,7 @@ haneul-sdk = { path = "../haneul-sdk" }
 once_cell = "1.16"
 multiaddr = "0.15.0"
 
-haneullabs-network = { path = "../../crates/haneullabs-network" }
+haneullabs-network.workspace = true
 
 move-core-types.workspace = true
 workspace-hack.workspace = true

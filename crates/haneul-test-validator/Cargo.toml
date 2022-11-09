@@ -23,6 +23,6 @@ haneul = { path = "../haneul" }
 haneul-faucet = { path = "../haneul-faucet" }
 haneul-cluster-test = { path = "../haneul-cluster-test" }
 haneul-types = { path = "../haneul-types" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 move-package.workspace = true

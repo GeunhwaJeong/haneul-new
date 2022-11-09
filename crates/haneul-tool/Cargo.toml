@@ -28,7 +28,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-network = { path = "../haneul-network" }
-telemetry-subscribers = { path = "../../crates/telemetry-subscribers" }
+telemetry-subscribers.workspace = true
 
 colored = "2.0.0"
 workspace-hack.workspace = true
