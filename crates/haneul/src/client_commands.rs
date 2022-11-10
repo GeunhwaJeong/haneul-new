@@ -885,6 +885,8 @@ impl WalletContext {
             .await?;
         #[cfg(msim)]
         let client = haneul_sdk::embedded_gateway::HaneulClient::new(&config_path.parent().unwrap())?;
+        #[cfg(msim)]
+        let _request_timeout = request_timeout; // silence linter.
 
         let config = config.persisted(config_path);
         let context = Self { config, client };
