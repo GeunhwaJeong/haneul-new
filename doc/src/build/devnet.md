@@ -46,19 +46,18 @@ To connect the Haneul client to Haneul Devnet, run the following command:
 ```shell
 $ haneul client
 ```
-The Haneul CLI prints the following line when the client starts up for the first time:
-```shell
-Config file ["/Users/dir/.haneul/haneul_config/client.yaml"] doesn't exist, do you want to connect to a Haneul RPC server [y/n]?
-```
-Type `y` and then press `Enter`. You should see the following output:
-```shell
-Haneul RPC server Url (Default to Haneul Devnet if not specified) :
-```
-The Haneul client prompts you for the RPC server URL; press 'Enter' and it defaults to Devnet. You can also enter a custom URL to connect to a custom RPC endpoint.
 
-If you previously installed a Haneul client with a local network, modify your existing  `client.yaml` to change the RPC endpoint with the following command:
+The Haneul client defaults to use localnet environment. You can also change it to Devnet fullnode RPC.
+
+Previously installed a Haneul client with a local network, modify your existing  `client.yaml` to change the RPC endpoint to connect to Haneul Devnet fullnode with the following commands:
 ```shell
-$ haneul client switch --rpc https://fullnode.devnet.haneul.io:443
+$ haneul client switch --env devnet
+```
+
+To add a custom URL to connect to a custom RPC endpoint:
+```shell
+$ haneul client new-env --alias <ALIAS> --rpc <RPC>
+$ haneul client switch --env <ALIAS>
 ```
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
