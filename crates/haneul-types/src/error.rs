@@ -570,8 +570,17 @@ impl From<&str> for HaneulError {
 
 impl HaneulError {
     pub fn indicates_epoch_change(&self) -> bool {
-        matches!(self, HaneulError::ValidatorHaltedAtEpochEnd)
-            || matches!(self, HaneulError::MissingCommitteeAtEpoch(_))
+        match self {
+            HaneulError::QuorumFailedToProcessTransaction { errors, .. }
+            | HaneulError::QuorumFailedToExecuteCertificate { errors, .. } => {
+                errors.iter().any(|err| {
+                    matches!(err, HaneulError::ValidatorHaltedAtEpochEnd)
+                        || matches!(self, HaneulError::MissingCommitteeAtEpoch(_))
+                })
+            }
+            HaneulError::ValidatorHaltedAtEpochEnd | HaneulError::MissingCommitteeAtEpoch(_) => true,
+            _ => false,
+        }
     }
 }
 
