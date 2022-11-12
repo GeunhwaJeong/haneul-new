@@ -5,7 +5,7 @@ title: Interact with Haneul over Rust SDK
 ## Overview
 The [Haneul SDK](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk) is a collection of Rust language JSON-RPC wrapper and crypto utilities you can use to interact with the [Haneul Devnet](../build/devnet.md) and [Haneul Full node](fullnode.md).
 
-The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new_rpc_client`).
+The [`HaneulClient`](cli-client.md) can be used to create an HTTP or a WebSocket client (`HaneulClient::new`).
 See our [JSON-RPC](json-rpc.md#haneul-json-rpc-methods) doc for the list of available methods.
 
 > Note: As of [Haneul version 0.6.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.6.0), the WebSocket client is for [subscription only](event_api.md#subscribe-to-haneul-events); use the HTTP client for other API methods.
@@ -43,7 +43,7 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
     let address = HaneulAddress::from_str("0xec11cad080d0496a53bafcea629fcbcfff2a9866")?;
     let objects = haneul.read_api().get_objects_owned_by_address(address).await?;
     println!("{:?}", objects);
@@ -71,7 +71,7 @@ use haneul_sdk::{
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", None).await?;
+    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
@@ -115,7 +115,7 @@ use haneul_sdk::HaneulClient;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new_rpc_client("https://fullnode.devnet.haneul.io:443", Some("ws://127.0.0.1:9001")).await?;
+    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", Some("ws://127.0.0.1:9001"), None).await?;
     let mut subscribe_all = haneul.event_api().subscribe_event(HaneulEventFilter::All(vec![])).await?;
     loop {
         println!("{:?}", subscribe_all.next().await);
