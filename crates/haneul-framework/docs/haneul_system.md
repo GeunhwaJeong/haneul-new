@@ -218,7 +218,7 @@ The top-level object containing all information of the Haneul system.
 ## Function `create`
 
 Create a new HaneulSystemState object and make it shared.
-This function will be called only once in Genesis.
+This function will be called only once in genesis.
 
 
 <pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_create">create</a>(validators: <a href="">vector</a>&lt;<a href="validator.md#0x2_validator_Validator">validator::Validator</a>&gt;, haneul_supply: <a href="balance.md#0x2_balance_Supply">balance::Supply</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_fund: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, max_validator_candidate_count: u64, min_validator_stake: u64, storage_gas_price: u64)
@@ -539,6 +539,7 @@ If the sender represents an active validator, the request will be processed at t
 
 ## Function `request_add_delegation`
 
+Add delegated stake to a validator's staking pool.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_add_delegation">request_add_delegation</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, delegate_stake: <a href="coin.md#0x2_coin_Coin">coin::Coin</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, validator_address: <b>address</b>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
@@ -574,6 +575,7 @@ If the sender represents an active validator, the request will be processed at t
 
 ## Function `request_add_delegation_with_locked_coin`
 
+Add delegated stake to a validator's staking pool using a locked HANEUL coin.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_add_delegation_with_locked_coin">request_add_delegation_with_locked_coin</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, delegate_stake: <a href="locked_coin.md#0x2_locked_coin_LockedCoin">locked_coin::LockedCoin</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, validator_address: <b>address</b>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
@@ -604,6 +606,7 @@ If the sender represents an active validator, the request will be processed at t
 
 ## Function `request_withdraw_delegation`
 
+Withdraw some portion of a delegation from a validator's staking pool.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_withdraw_delegation">request_withdraw_delegation</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, delegation: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_Delegation">staking_pool::Delegation</a>, staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, withdraw_pool_token_amount: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)

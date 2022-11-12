@@ -68,10 +68,10 @@ module haneul::haneul_system {
     const ECANNOT_REPORT_ONESELF: u64 = 3;
     const EREPORT_RECORD_NOT_FOUND: u64 = 4;
 
-    // ==== functions that can only be called by Genesis ====
+    // ==== functions that can only be called by genesis ====
 
     /// Create a new HaneulSystemState object and make it shared.
-    /// This function will be called only once in Genesis.
+    /// This function will be called only once in genesis.
     public(friend) fun create(
         validators: vector<Validator>,
         haneul_supply: Supply<HANEUL>,
@@ -236,6 +236,7 @@ module haneul::haneul_system {
         )
     }
 
+    /// Add delegated stake to a validator's staking pool.
     public entry fun request_add_delegation(
         self: &mut HaneulSystemState,
         delegate_stake: Coin<HANEUL>,
@@ -251,6 +252,7 @@ module haneul::haneul_system {
         );
     }
 
+    /// Add delegated stake to a validator's staking pool using a locked HANEUL coin.
     public entry fun request_add_delegation_with_locked_coin(
         self: &mut HaneulSystemState,
         delegate_stake: LockedCoin<HANEUL>,
@@ -261,6 +263,7 @@ module haneul::haneul_system {
         validator_set::request_add_delegation(&mut self.validators, validator_address, balance, option::some(lock), ctx);
     }
 
+    /// Withdraw some portion of a delegation from a validator's staking pool.
     public entry fun request_withdraw_delegation(
         self: &mut HaneulSystemState,
         delegation: &mut Delegation,
