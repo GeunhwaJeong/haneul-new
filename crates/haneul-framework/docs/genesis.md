@@ -75,7 +75,7 @@ It will create a singleton HaneulSystemState object, which contains
 all the information we need in the system.
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x2_genesis_create">create</a>(validator_pubkeys: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_network_pubkeys: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_proof_of_possessions: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_haneul_addresses: <a href="">vector</a>&lt;<b>address</b>&gt;, validator_names: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_net_addresses: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_stakes: <a href="">vector</a>&lt;u64&gt;, validator_gas_prices: <a href="">vector</a>&lt;u64&gt;, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="genesis.md#0x2_genesis_create">create</a>(validator_pubkeys: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_network_pubkeys: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_proof_of_possessions: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_haneul_addresses: <a href="">vector</a>&lt;<b>address</b>&gt;, validator_names: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_net_addresses: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;, validator_stakes: <a href="">vector</a>&lt;u64&gt;, validator_gas_prices: <a href="">vector</a>&lt;u64&gt;, validator_commission_rates: <a href="">vector</a>&lt;u64&gt;, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -93,6 +93,7 @@ all the information we need in the system.
     validator_net_addresses: <a href="">vector</a>&lt;<a href="">vector</a>&lt;u8&gt;&gt;,
     validator_stakes: <a href="">vector</a>&lt;u64&gt;,
     validator_gas_prices: <a href="">vector</a>&lt;u64&gt;,
+    validator_commission_rates: <a href="">vector</a>&lt;u64&gt;,
     ctx: &<b>mut</b> TxContext,
 ) {
     <b>let</b> haneul_supply = <a href="haneul.md#0x2_haneul_new">haneul::new</a>(ctx);
@@ -104,7 +105,8 @@ all the information we need in the system.
             && <a href="_length">vector::length</a>(&validator_stakes) == count
             && <a href="_length">vector::length</a>(&validator_names) == count
             && <a href="_length">vector::length</a>(&validator_net_addresses) == count
-            && <a href="_length">vector::length</a>(&validator_gas_prices) == count,
+            && <a href="_length">vector::length</a>(&validator_gas_prices) == count
+            && <a href="_length">vector::length</a>(&validator_commission_rates) == count,
         1
     );
     <b>let</b> i = 0;
@@ -117,6 +119,7 @@ all the information we need in the system.
         <b>let</b> net_address = *<a href="_borrow">vector::borrow</a>(&validator_net_addresses, i);
         <b>let</b> <a href="stake.md#0x2_stake">stake</a> = *<a href="_borrow">vector::borrow</a>(&validator_stakes, i);
         <b>let</b> gas_price = *<a href="_borrow">vector::borrow</a>(&validator_gas_prices, i);
+        <b>let</b> commission_rate = *<a href="_borrow">vector::borrow</a>(&validator_commission_rates, i);
         <a href="_push_back">vector::push_back</a>(&<b>mut</b> validators, <a href="validator.md#0x2_validator_new">validator::new</a>(
             haneul_address,
             pubkey,
@@ -127,6 +130,7 @@ all the information we need in the system.
             <a href="balance.md#0x2_balance_increase_supply">balance::increase_supply</a>(&<b>mut</b> haneul_supply, <a href="stake.md#0x2_stake">stake</a>),
             <a href="_none">option::none</a>(),
             gas_price,
+            commission_rate,
             ctx
         ));
         i = i + 1;
