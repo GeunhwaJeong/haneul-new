@@ -19,7 +19,7 @@ use std::{
 };
 use haneul::client_commands::WalletContext;
 use haneul_config::{haneul_config_dir, HANEUL_CLIENT_CONFIG};
-use haneul_faucet::{Faucet, FaucetRequest, FaucetResponse, SimpleFaucet};
+use haneul_faucet::{Faucet, FaucetRequest, FaucetResponse, RequestMetricsLayer, SimpleFaucet};
 use haneul_metrics::spawn_monitored_task;
 use tower::{limit::RateLimitLayer, ServiceBuilder};
 use tower_http::cors::{Any, CorsLayer};
@@ -110,6 +110,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(handle_error))
+                .layer(RequestMetricsLayer::new(&prometheus_registry))
                 .layer(cors)
                 .load_shed()
                 .buffer(request_buffer_size)
