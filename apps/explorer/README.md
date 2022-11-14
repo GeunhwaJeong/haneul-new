@@ -1,6 +1,6 @@
 # Haneul Explorer Frontend
 
-[Haneul Explorer](https://explorer.devnet.haneul.io/) is a network explorer for the Haneul network, similar in functionality to [Etherscan](https://etherscan.io/) or [Solana Explorer](https://explorer.solana.com/). Use Haneul Explorer to see the latest transactions and objects.
+[Haneul Explorer](https://explorer.haneul.io/) is a network explorer for the Haneul network, similar in functionality to [Etherscan](https://etherscan.io/) or [Solana Explorer](https://explorer.solana.com/). Use Haneul Explorer to see the latest transactions and objects.
 
 # Set Up
 

@@ -17,13 +17,13 @@ You can use Haneul Wallet to:
 * View your coins, tokens, and NFTs
 * View recent transactions
 * Auto split/merge coins to the exact transfer amount
-* Easily access transaction history in the [Haneul Explorer](https://explorer.devnet.haneul.io/)
+* Easily access transaction history in the [Haneul Explorer](https://explorer.haneul.io/)
 
-Note that in the current release, Haneul Wallet includes buttons to **Buy**, **Swap**, and **Stake & Earn HANEUL**. These are placeholders for functionality included in future versions of Haneul Wallet. 
+Note that in the current release, Haneul Wallet includes buttons to **Buy**, **Swap**, and **Stake & Earn HANEUL**. These are placeholders for functionality included in future versions of Haneul Wallet.
 
 ## Install the Haneul Wallet browser extension
 
-To use Haneul Wallet you must install a Chrome browser extension. You can use the extension with any browser that supports Chrome extensions from the Chrome Web Store. 
+To use Haneul Wallet you must install a Chrome browser extension. You can use the extension with any browser that supports Chrome extensions from the Chrome Web Store.
 
 1. Open the [Haneul Wallet](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil) page on the Chrome Web Store.
 1. Click **Add to Chrome**.
@@ -49,7 +49,7 @@ If you lose access to your wallet, you can recover it only with the recovery phr
 
 ## Import an existing Haneul Wallet
 
-You can use your Haneul Wallet on multiple devices and browsers. After you create a Haneul Wallet, use the 12-word recovery phrase to import your wallet to a new browser or device. 
+You can use your Haneul Wallet on multiple devices and browsers. After you create a Haneul Wallet, use the 12-word recovery phrase to import your wallet to a new browser or device.
 
 1. Open the Haneul Wallet extension in your browser and then click **Get Started**.
 1. Click **Import an Existing Wallet**.
@@ -68,7 +68,7 @@ To view details about your Haneul Wallet, including the Account ID, current netw
 
 ## Reset your Haneul Wallet password
 
-If you forget the password for your Haneul Wallet you can reset it using your 12-word recovery phrase. 
+If you forget the password for your Haneul Wallet you can reset it using your 12-word recovery phrase.
 
 1. Click **Forgot password?** on the **Welcome Back** page.
 1. Enter your 12-word recovery phrase, and then click **Continue**.
@@ -82,7 +82,7 @@ You can lock your wallet to prevent unauthorized access. You must enter your pas
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Lock Wallet**.
 
-You can also set a timer to automatically lock your wallet after a period of idle time. 
+You can also set a timer to automatically lock your wallet after a period of idle time.
 
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Account**.
@@ -96,7 +96,7 @@ You can change the active network for Haneul Wallet. Currently, Haneul Wallet su
 
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Network**.
-1. Click the network to use. 
+1. Click the network to use.
    A checkmark displays next to the active network.
 
 ## Add HANEUL tokens to your Haneul Wallet
@@ -104,7 +104,7 @@ You can change the active network for Haneul Wallet. Currently, Haneul Wallet su
 When you first open the wallet, you have no coins in it. You can add HANEUL tokens to your wallet through Discord. You need an active Discord account to access the Haneul channels.
 
 1. Click **Coins**.
-1. Click the small clipboard icon next to your address to copy it. 
+1. Click the small clipboard icon next to your address to copy it.
 It's near the top of the wallet and starts with 0x.
 1. Open the Haneul [devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel in Discord.
 1. Use the `!faucet` command with your wallet address to request tokens:
@@ -132,7 +132,7 @@ The wallet displays the recent transactions to and from your wallet on the **Act
 
 ## View all transactions in Haneul Explorer
 
-You can view all transactions for your address in [Haneul Explorer](https://explorer.devnet.haneul.io/).
+You can view all transactions for your address in [Haneul Explorer](https://explorer.haneul.io/).
 
 To view all of the transactions for your address, click **Apps** and then click **View account on Haneul Explorer**.
 
@@ -159,7 +159,7 @@ To mint a new NFT using the demo site
 
 After you successfully create a new NFT, you can transfer it to another wallet address. Enter the address to send it to in the **Recipient** field, then click **Transfer**. Click **Approve** in your wallet to allow the transfer.
 
-You can view details for the transactions to create the NFT and then transfer it in [Haneul Explorer](https://explorer.devnet.haneul.io/).
+You can view details for the transactions to create the NFT and then transfer it in [Haneul Explorer](https://explorer.haneul.io/).
 
 ## View your NFTs
 
@@ -188,7 +188,7 @@ To open the site associated with the app, click on the app and then click **View
 
 ## Disconnect from an app
 
-You can easily disconnect your wallet from a connected app. 
+You can easily disconnect your wallet from a connected app.
 1. Click **Apps** and then click **Active Connections**.
 1. Click the app to disconnect from your wallet, then click **Disconnect**.
 

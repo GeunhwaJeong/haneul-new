@@ -4,9 +4,9 @@ title: Panzerdogs x Haneul
 
 Lucky Kat teamed up with Haneul Labs to create a demo showcasing how Haneul’s performance will help lead the synergies between gaming and blockchain technologies. In particular, our goal is to highlight how Haneul can be used to create a tight feedback loop between on-chain asset ownership and gameplay.
 
-Panzerdogs, developed by Lucky Kat Studios, is an NFT gaming project where users can own their in-game assets and use them to battle against each other in tanks. Brawl Stars x Tanks x Play-To-Earn. 
+Panzerdogs, developed by Lucky Kat Studios, is an NFT gaming project where users can own their in-game assets and use them to battle against each other in tanks. Brawl Stars x Tanks x Play-To-Earn.
 
-## About Lucky Kat Studios 
+## About Lucky Kat Studios
 
 Lucky Kat Studios is an independent game studio located in the Hague, Netherlands. The studio’s mission is to create fun and challenging mobile games that are easily accessible for users of all age. Consisting of a young and driven team of artists, Lucky Kat is specialized in creating pixel art games that aim to make retro the present future.
 
@@ -37,12 +37,12 @@ The user can then visualize their overall NFT portfolio and choose which to Echo
 ![HaneulEchoNFTPortfolio](/static/haneulpanzerdogs3.png)
 *And showcases the address’s NFT portfolio*
 
-Finally, users prove ownership to the Haneul network by providing a signature confirming they indeed hold the private keys to the associated address and include the Haneul address where the Haneul-based NFT will be minted. 
+Finally, users prove ownership to the Haneul network by providing a signature confirming they indeed hold the private keys to the associated address and include the Haneul address where the Haneul-based NFT will be minted.
 
 ![HaneulEchoNFTMint](/static/haneulpanzerdogs4.png)
 *Letting the user select an NFT, prove ownership, and HaneulEcho it*
 
-And that’s it! After following these steps, the user now owns a new Haneul-based NFT that was brought into Haneul through the HaneulEcho white-label solution. To confirm ownership, the user can check the [Haneul Explorer](https://explorer.devnet.haneul.io/) and read additional information relevant to each NFT.
+And that’s it! After following these steps, the user now owns a new Haneul-based NFT that was brought into Haneul through the HaneulEcho white-label solution. To confirm ownership, the user can check the [Haneul Explorer](https://explorer.haneul.io/) and read additional information relevant to each NFT.
 
 ![HaneulExplorer](/static/haneulpanzerdogs5.png)
 *Haneul NFTs can be viewed in the Haneul Explorer*

@@ -51,7 +51,7 @@ async fn main() -> Result<(), anyhow::Error> {
 }
 ```
 
-You can verify the result with the [Haneul Explorer](https://explorer.devnet.haneul.io/) if you are using the Haneul Devnet Full node.
+You can verify the result with the [Haneul Explorer](https://explorer.haneul.io/) if you are using the Haneul Devnet Full node.
 
 ### Example 2 - Create and execute transaction
 
