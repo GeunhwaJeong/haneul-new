@@ -40,27 +40,46 @@ If the command doesn't return a path to the command you need to install Haneul.
 
 ## Configure Haneul client
 
-Now set up your Haneul Client CLI to connect to Haneul Devnet.
+> **Tip:** If you ran `haneul genesis -f` before it created configuration files of Haneul client and connecting to localhost `http://0.0.0.0:9000`. You can skip next step and continue on connect to custom RPC endpoint.
 
 To connect the Haneul client to Haneul Devnet, run the following command:
 ```shell
 $ haneul client
 ```
+The Haneul CLI prints the following line when the client starts up for the first time:
 
-The Haneul client defaults to use localnet environment. You can also change it to Devnet fullnode RPC.
-
-Previously installed a Haneul client with a local network, modify your existing  `client.yaml` to change the RPC endpoint to connect to Haneul Devnet fullnode with the following commands:
 ```shell
-$ haneul client switch --env devnet
+Config file ["/Users/dir/.haneul/haneul_config/client.yaml"] doesn't exist, do you want to connect to a Haneul RPC server [y/n]?
 ```
+Type `y` and then press `Enter`. You should see the following output:
 
-To add a custom URL to connect to a custom RPC endpoint:
+```shell
+Haneul RPC server Url (Default to Haneul Devnet if not specified) :
+```
+The Haneul client prompts you for the RPC server URL. Press Enter to use the default value for Devnet. You can also enter a custom URL to connect to a custom RPC endpoint.
+
+```shell
+Select key scheme to generate keypair (0 for ed25519, 1 for secp256k1):
+```
+Type `0` or `1` to select key scheme.
+
+### Connect to custom RPC endpoint
+
+> **Tip:** If you configured with `haneul genesis -f` you already have two RPC endpoints (localnet `http://0.0.0.0:9000` and devnet `https://fullnode.devnet.haneul.io:443`), check the list `haneul client envs`. You can switch to suitable for you.
+
+If you previously installed a Haneul client that connected to the Devnet network, you can modify your existing  `client.yaml` to change the RPC endpoint to connect to a custom RPC endpoint:
+
+To add a custom RPC endpoint run the following command with your data:
 ```shell
 $ haneul client new-env --alias <ALIAS> --rpc <RPC>
+```
+To switch an active network, run the following commands:
+```shell
 $ haneul client switch --env <ALIAS>
 ```
 
 > **Tip:** If you run into issues, reset the Haneul configuration by removing its directory, by default located at `~/.haneul/haneul_config`. Then reinstall [Haneul binaries](../build/install.md#binaries).
+
 
 ## Validating
 
