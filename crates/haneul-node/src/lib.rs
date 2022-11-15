@@ -64,7 +64,9 @@ pub mod metrics;
 mod handle;
 pub use handle::HaneulNodeHandle;
 use narwhal_types::TransactionsClient;
-use haneul_core::checkpoints2::{CheckpointService, LogCheckpointOutput, SubmitCheckpointToConsensus};
+use haneul_core::checkpoints2::{
+    CheckpointMetrics, CheckpointService, LogCheckpointOutput, SubmitCheckpointToConsensus,
+};
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
@@ -167,6 +169,7 @@ impl HaneulNode {
             checkpoint_output,
             LogCheckpointOutput::boxed_certified(),
             committee.clone(),
+            CheckpointMetrics::new(&prometheus_registry),
         );
 
         let state = Arc::new(
