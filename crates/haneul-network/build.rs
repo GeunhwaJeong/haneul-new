@@ -168,7 +168,7 @@ fn build_anemo_services(out_dir: &Path) {
                 .name("get_transaction_and_effects")
                 .route_name("GetTransactionAndEffects")
                 .request_type("haneul_types::base_types::ExecutionDigests")
-                .response_type("Option<(haneul_types::messages::Transaction, haneul_types::messages::TransactionEffects)>")
+                .response_type("Option<(haneul_types::messages::CertifiedTransaction, haneul_types::messages::TransactionEffects)>")
                 .codec_path("anemo::rpc::codec::BincodeCodec")
                 .build(),
         )
