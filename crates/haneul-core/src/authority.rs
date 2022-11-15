@@ -846,6 +846,17 @@ impl AuthorityState {
         certificate: &VerifiedCertificate,
         mut bypass_validator_halt: bool,
     ) -> HaneulResult<VerifiedTransactionInfoResponse> {
+        // Any caller that verifies the signatures on the certificate will have already checked the
+        // epoch. But paths that don't verify sigs (e.g. execution from checkpoint, reading from db)
+        // present the possibility of an epoch mismatch.
+        if certificate.epoch() != self.epoch() {
+            tx_guard.release();
+            return Err(HaneulError::WrongEpoch {
+                expected_epoch: self.epoch(),
+                actual_epoch: certificate.epoch(),
+            });
+        }
+
         let digest = *certificate.digest();
         // The cert could have been processed by a concurrent attempt of the same cert, so check if
         // the effects have already been written.
