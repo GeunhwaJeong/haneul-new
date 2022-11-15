@@ -1,13 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getTransactionDigest, isHaneulMoveObject } from '@haneullabs/haneul.js';
+import {
+    getTransactionDigest,
+    isHaneulMoveObject,
+    Coin as CoinAPI,
+} from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createEntityAdapter,
     createSlice,
 } from '@reduxjs/toolkit';
 
+import { accountCoinsSelector } from '_redux/slices/account';
 import {
     fetchAllOwnedAndRequiredObjects,
     haneulObjectsAdapterSelectors,
@@ -40,35 +45,23 @@ export const sendTokens = createAsyncThunk<
         { getState, extra: { api, keypairVault }, dispatch }
     ) => {
         const state = getState();
-        const coinType = Coin.getCoinTypeFromArg(tokenTypeArg);
-        const coins: HaneulMoveObject[] = haneulObjectsAdapterSelectors
-            .selectAll(state)
-            .filter(
-                (anObj) =>
-                    isHaneulMoveObject(anObj.data) && anObj.data.type === coinType
-            )
-            .map(({ data }) => data as HaneulMoveObject);
-
+        const coins: HaneulMoveObject[] = accountCoinsSelector(state);
         const signer = api.getSignerInstance(keypairVault.getKeyPair());
-
-        const response =
-            Coin.getCoinSymbol(tokenTypeArg) === 'HANEUL'
-                ? await Coin.transferHaneul(
-                      signer,
-                      coins,
-                      amount,
-                      recipientAddress
-                  )
-                : await Coin.transferCoin(
-                      signer,
-                      coins,
-                      amount,
-                      recipientAddress
-                  );
-
+        const response = await CoinAPI.transfer(
+            signer,
+            coins,
+            tokenTypeArg,
+            amount,
+            recipientAddress,
+            Coin.computeGasBudgetForPay(
+                coins.filter(
+                    (aCoin) => Coin.getCoinTypeArg(aCoin) === tokenTypeArg
+                ),
+                amount
+            )
+        );
         // TODO: better way to sync latest objects
         dispatch(fetchAllOwnedAndRequiredObjects());
-        // TODO: is this correct? Find a better way to do it
         return response;
     }
 );
