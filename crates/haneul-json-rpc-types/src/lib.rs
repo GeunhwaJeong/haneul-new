@@ -1774,10 +1774,12 @@ impl HaneulCertifiedTransactionEffects {
         cert: CertifiedTransactionEffects,
         resolver: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
+        let digest = *cert.digest();
+        let (effects, auth_sign_info) = cert.into_data_and_sig();
         Ok(Self {
-            transaction_effects_digest: *cert.digest(),
-            effects: HaneulTransactionEffects::try_from(cert.effects, resolver)?,
-            auth_sign_info: cert.auth_signature,
+            transaction_effects_digest: digest,
+            effects: HaneulTransactionEffects::try_from(effects, resolver)?,
+            auth_sign_info,
         })
     }
 }

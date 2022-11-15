@@ -23,6 +23,7 @@ use futures::StreamExt;
 use haneul_types::base_types::{random_object_ref, AuthorityName, ExecutionDigests};
 use haneul_types::committee::Committee;
 use haneul_types::gas::GasCostSummary;
+use haneul_types::message_envelope::Message;
 use haneul_types::messages::{CertifiedTransaction, ExecutionStatus, TransactionEffects};
 use haneul_types::object::Owner;
 use tokio::time::sleep;

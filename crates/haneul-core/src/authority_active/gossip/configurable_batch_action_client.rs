@@ -19,6 +19,7 @@ use haneul_types::batch::{AuthorityBatch, SignedBatch, UpdateItem};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AuthorityKeyPair};
 use haneul_types::error::HaneulError;
+use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
     AccountInfoRequest, AccountInfoResponse, BatchInfoRequest, BatchInfoResponseItem,
     CertifiedTransaction, CommitteeInfoRequest, CommitteeInfoResponse, ObjectInfoRequest,

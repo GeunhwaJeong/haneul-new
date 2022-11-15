@@ -45,7 +45,7 @@ impl ExecutionEffects {
     pub fn mutated(&self) -> Vec<(ObjectRef, Owner)> {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects) => {
-                certified_effects.effects.mutated.clone()
+                certified_effects.data().mutated.clone()
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => haneul_tx_effects
                 .mutated
@@ -59,7 +59,7 @@ impl ExecutionEffects {
     pub fn created(&self) -> Vec<(ObjectRef, Owner)> {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects) => {
-                certified_effects.effects.created.clone()
+                certified_effects.data().created.clone()
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => haneul_tx_effects
                 .created
@@ -73,7 +73,7 @@ impl ExecutionEffects {
     pub fn quorum_sig(&self) -> Option<&AuthorityStrongQuorumSignInfo> {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects) => {
-                Some(&certified_effects.auth_signature)
+                Some(certified_effects.auth_sig())
             }
             ExecutionEffects::HaneulTransactionEffects(_) => None,
         }
@@ -82,7 +82,7 @@ impl ExecutionEffects {
     pub fn gas_object(&self) -> (ObjectRef, Owner) {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects) => {
-                certified_effects.effects.gas_object
+                certified_effects.data().gas_object
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => {
                 let refe = &haneul_tx_effects.gas_object;
@@ -275,7 +275,7 @@ impl ValidatorProxy for FullNodeProxy {
     }
 
     async fn reconfig(&self) {
-        // TOOD poll FN untils it has proceeds to next epoch
+        // TODO poll FN until it has proceeds to next epoch
         // and update self.committee
         return;
     }

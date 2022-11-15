@@ -52,7 +52,7 @@ impl TransactionStreamingApiServer for TransactionStreamingApiImpl {
             async move {
                 let haneul_tx_cert = HaneulCertifiedTransaction::try_from(tx_cert)?;
                 let haneul_tx_effects = HaneulTransactionEffects::try_from(
-                    signed_effects.effects,
+                    signed_effects.into_data(),
                     state_clone.module_cache.as_ref(),
                 )?;
                 let digest = haneul_tx_cert.transaction_digest;
