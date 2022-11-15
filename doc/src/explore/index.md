@@ -12,6 +12,10 @@ View the [Tic Tac Toe tutorial](../explore/tutorials.md) to learn how to create 
 
 View [example](../explore/examples.md) Haneul projects that help you learn how to work with Haneul.
 
+## App examples
+
+View the code for [Haneul Wallet](https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet) or [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) for examples of web apps that interact with Haneul using the Typescript SDK.
+
 ## Haneul prototypes
 
 To learn about how the implementation details for the Haneul Monstar example prototype, see [Haneul Prototypes](../explore/prototypes.md).
