@@ -2,13 +2,9 @@
 title: Logging, Tracing, Metrics, and Observability
 ---
 
-Good observability facilities are key to the development and growth of Haneul. This is made
-more challenging by the distributed and asynchronous nature of Haneul, with multiple client and validator
-processes distributed over a potentially global network.
+Good observability capabilities are key to the development and growth of Haneul. This is made more challenging by the distributed and asynchronous nature of Haneul, with multiple client and validator processes distributed over a potentially global network.
 
-The observability stack in Haneul is based on the [Tokio tracing](https://tokio.rs/blog/2019-08-tracing) library.
-The rest of this document highlights specific aspects of achieving good observability through structured logging
-and metrics in Haneul.
+The observability stack in Haneul is based on the [Tokio tracing](https://tokio.rs/blog/2019-08-tracing) library. The rest of this document highlights specific aspects of achieving good observability through structured logging and metrics in Haneul.
 
 NOTE: The output here is largely for the consumption of Haneul operators, administrators, and developers. The
 content of logs and traces do not represent the authoritative, certified output of validators and are subject

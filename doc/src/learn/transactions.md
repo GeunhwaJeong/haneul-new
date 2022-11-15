@@ -1,8 +1,8 @@
 ---
-title: Transactions
+title: Haneul Transactions
 ---
 
-All updates to the Haneul ledger happen via a transaction. This section describes the transaction types supported by Haneul and explains how their execution changes the ledger.
+All updates to the Haneul ledger happen via a transaction. This topic describes the transaction types supported by Haneul and explains how their execution changes the ledger.
 
 ## Transaction metadata
 

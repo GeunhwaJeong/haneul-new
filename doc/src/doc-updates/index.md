@@ -17,7 +17,6 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 
 | Topic | Update | 
 | :------ | :------- |
-
 | [Haneul Wallet](../explore/wallet-browser.md) | Updates for version 0.2. |
 | [Multiple topics](https://github.com/GeunhwaJeong/haneul/pull/5266) | Updates related to gateway deprecation. |
 | [Haneul Client CLI](../build/cli-client.md) | Moved information about creating a local network to a new [Haneul Local Network](../build/haneul-local-network.md) topic. General copyedit and updates for changes to Haneul. |
