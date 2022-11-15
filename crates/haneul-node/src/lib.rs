@@ -10,13 +10,10 @@ use futures::TryFutureExt;
 use haneullabs_network::server::ServerBuilder;
 use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
-use parking_lot::Mutex;
 use prometheus::Registry;
 use std::option::Option::None;
-use std::time::Instant;
 use std::{sync::Arc, time::Duration};
 use haneul_config::NodeConfig;
-use haneul_core::authority_active::checkpoint_driver::CheckpointMetrics;
 use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::safe_client::SafeClientMetrics;
@@ -29,7 +26,6 @@ use haneul_core::{
         make_network_authority_client_sets_from_genesis,
         make_network_authority_client_sets_from_system_state, NetworkAuthorityClient,
     },
-    checkpoints::CheckpointStore,
 };
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
@@ -45,7 +41,7 @@ use haneul_storage::{
 use haneul_types::messages::{CertifiedTransaction, CertifiedTransactionEffects};
 use tokio::sync::mpsc::channel;
 use tower::ServiceBuilder;
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 use typed_store::DBMetrics;
 
 use crate::metrics::GrpcMetrics;
@@ -78,7 +74,6 @@ pub struct HaneulNode {
     _post_processing_subsystem_handle: Option<tokio::task::JoinHandle<Result<()>>>,
     _gossip_handle: Option<tokio::task::JoinHandle<()>>,
     _execute_driver_handle: tokio::task::JoinHandle<()>,
-    _checkpoint_process_handle: Option<tokio::task::JoinHandle<()>>,
     state: Arc<AuthorityState>,
     active: Arc<ActiveAuthority<NetworkAuthorityClient>>,
     transaction_orchestrator: Option<Arc<TransactiondOrchestrator<NetworkAuthorityClient>>>,
@@ -115,15 +110,6 @@ impl HaneulNode {
             &committee,
             None,
         ));
-
-        let checkpoint_store = Arc::new(Mutex::new(CheckpointStore::open(
-            &config.db_path().join("checkpoints"),
-            None,
-            &committee,
-            config.protocol_public_key(),
-            secret.clone(),
-            config.enable_reconfig,
-        )?));
 
         let index_store = if is_validator {
             None
@@ -193,7 +179,6 @@ impl HaneulNode {
                 index_store.clone(),
                 event_store,
                 transaction_streamer,
-                checkpoint_store,
                 genesis,
                 &prometheus_registry,
                 tx_reconfigure_consensus,
@@ -273,35 +258,12 @@ impl HaneulNode {
             };
 
         let gossip_handle = if is_full_node {
-            info!("Starting full node sync to latest checkpoint (this may take a while)");
-            let now = Instant::now();
-            if let Err(err) = active_authority.clone().sync_to_latest_checkpoint().await {
-                error!(
-                    "Full node failed to catch up to latest checkpoint: {:?}",
-                    err
-                );
-            } else {
-                info!(
-                    "Full node caught up to latest checkpoint in {:?}",
-                    now.elapsed()
-                );
-            }
             active_authority.clone().spawn_node_sync_process().await;
             None
         } else {
             None
         };
         let execute_driver_handle = active_authority.clone().spawn_execute_process().await;
-        let checkpoint_process_handle = if config.enable_checkpoint && is_validator {
-            Some(
-                active_authority
-                    .clone()
-                    .spawn_checkpoint_process(CheckpointMetrics::new(&prometheus_registry))
-                    .await,
-            )
-        } else {
-            None
-        };
 
         let registry = prometheus_registry.clone();
         let validator_service = if let Some(consensus_client) = consensus_client {
@@ -401,7 +363,6 @@ impl HaneulNode {
             _ws_subscription_service: ws_subscription_service,
             _gossip_handle: gossip_handle,
             _execute_driver_handle: execute_driver_handle,
-            _checkpoint_process_handle: checkpoint_process_handle,
             _batch_subsystem_handle: batch_subsystem_handle,
             _post_processing_subsystem_handle: post_processing_subsystem_handle,
             state,

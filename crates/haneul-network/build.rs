@@ -88,16 +88,6 @@ fn main() -> Result<()> {
         )
         .method(
             Method::builder()
-                .name("checkpoint_info")
-                .route_name("FollowCheckpointStream")
-                .input_type("haneul_types::messages::CheckpointStreamRequest")
-                .output_type("haneul_types::messages::CheckpointStreamResponseItem")
-                .server_streaming()
-                .codec_path(codec_path)
-                .build(),
-        )
-        .method(
-            Method::builder()
                 .name("committee_info")
                 .route_name("CommitteeInfo")
                 .input_type("haneul_types::messages::CommitteeInfoRequest")
