@@ -49,7 +49,7 @@ use narwhal_config::{
     Committee as ConsensusCommittee, WorkerCache as ConsensusWorkerCache,
     WorkerId as ConsensusWorkerId,
 };
-use narwhal_consensus::ConsensusOutput;
+use narwhal_types::ConsensusOutput;
 use haneul_adapter::adapter;
 use haneul_config::genesis::Genesis;
 use haneul_json_rpc_types::{
