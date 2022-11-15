@@ -56,7 +56,7 @@ jobs:
         with:
           title: Link checker report
           content-filepath: ${{ env.LYCHEE_OUT }}
-          assignees: Clay-Haneullabs, huitseeker, asonnino
+          assignees: randall-Haneullabs, huitseeker, asonnino, ronny-haneullabs
           issue-number: ${{ steps.last_issue.outputs.issue_number }}
           labels: |
             report

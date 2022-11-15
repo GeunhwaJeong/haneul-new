@@ -1,7 +1,7 @@
 /crates/haneul-types/src/crypto.rs @huitseeker
 /crates/haneul-sdk/src/crypto.rs @huitseeker @patrickkuo
 
-*.md @randall-Haneullabs
+*.md @randall-Haneullabs @ronny-haneullabs
 # Omit auto-generated changelogs and changesets from docs review:
 /.changeset/*.md
 CHANGELOG.md
