@@ -59,6 +59,10 @@ impl Genesis {
         &self.validator_set
     }
 
+    pub fn into_validator_set(self) -> Vec<ValidatorInfo> {
+        self.validator_set
+    }
+
     pub fn committee(&self) -> HaneulResult<Committee> {
         Committee::new(
             self.epoch(),
