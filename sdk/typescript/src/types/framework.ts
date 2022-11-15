@@ -17,6 +17,7 @@ import { normalizeHaneulObjectId, HaneulAddress } from './common';
 import { getOption, Option } from './option';
 import { StructTag } from './haneul-bcs';
 import { isHaneulMoveObject } from './index.guard';
+import { SignerWithProvider } from '../signers/signer-with-provider';
 
 export const HANEUL_FRAMEWORK_ADDRESS = '0x2';
 export const MOVE_STDLIB_ADDRESS = '0x1';
@@ -201,6 +202,109 @@ export class Coin {
       return getMoveObjectType(data);
     }
     return data.type;
+  }
+
+  /**
+   * Creates and executes a transaction to transfer coins to a recipient address.
+   * see {@link Coin.newTransferTx}
+   * @param signer
+   * @param allCoins
+   * @param coinTypeArg
+   * @param amountToSend
+   * @param recipient
+   * @param gasBudget
+   * @returns
+   */
+  public static async transfer(
+    signer: SignerWithProvider,
+    allCoins: HaneulMoveObject[],
+    coinTypeArg: string,
+    amountToSend: bigint,
+    recipient: HaneulAddress,
+    gasBudget: number
+  ) {
+    const tx = await Coin.newTransferTx(
+      signer,
+      allCoins,
+      coinTypeArg,
+      amountToSend,
+      recipient,
+      gasBudget
+    );
+    return signer.signAndExecuteTransaction(tx);
+  }
+
+  /**
+   * Create a new transaction for sending coins ready to be singed and executed.
+   * @param signer User's signer
+   * @param allCoins All the coins that are owned by the user. Can be only the relevant type of coins for the transfer, Haneul for gas and the coins with the same type as the type to send.
+   * @param coinTypeArg The coin type argument (Coin<T> the T) of the coin to send
+   * @param amountToSend Total amount to send to recipient
+   * @param recipient Recipient's address
+   * @param gasBudget Gas budget for the tx
+   * @throws in case of insufficient funds, network errors etc
+   */
+  private static async newTransferTx(
+    signer: SignerWithProvider,
+    allCoins: HaneulMoveObject[],
+    coinTypeArg: string,
+    amountToSend: bigint,
+    recipient: HaneulAddress,
+    gasBudget: number
+  ) {
+    const isHaneulTransfer = coinTypeArg === HANEUL_TYPE_ARG;
+    const coinsOfTransferType = allCoins.filter(
+      (aCoin) => Coin.getCoinTypeArg(aCoin) === coinTypeArg
+    );
+    const totalAmountIncludingGas =
+      amountToSend + BigInt(isHaneulTransfer ? gasBudget : 0);
+    const inputCoinObjs =
+      await Coin.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+        coinsOfTransferType,
+        totalAmountIncludingGas
+      );
+    if (!inputCoinObjs.length) {
+      const totalBalanceOfTransferType = Coin.totalBalance(coinsOfTransferType);
+      const suggestedAmountToSend =
+        totalBalanceOfTransferType - BigInt(isHaneulTransfer ? gasBudget : 0);
+      // TODO: denomination for values?
+      throw new Error(
+        `Coin balance ${totalBalanceOfTransferType} is not sufficient to cover the transfer amount ` +
+          `${amountToSend}. Try reducing the transfer amount to ${suggestedAmountToSend}.`
+      );
+    }
+    if (!isHaneulTransfer) {
+      const allGasCoins = allCoins.filter((aCoin) => Coin.isHANEUL(aCoin));
+      const gasCoin = Coin.selectCoinWithBalanceGreaterThanOrEqual(
+        allGasCoins,
+        BigInt(gasBudget)
+      );
+      if (!gasCoin) {
+        // TODO: denomination for gasBudget?
+        throw new Error(
+          `Unable to find a coin to cover the gas budget ${gasBudget}`
+        );
+      }
+    }
+    const signerAddress = await signer.getAddress();
+    const inputCoins = inputCoinObjs.map(Coin.getID);
+    const txCommon = {
+      inputCoins,
+      recipients: [recipient],
+      // TODO: change this to string to avoid losing precision
+      amounts: [Number(amountToSend)],
+      gasBudget: Number(gasBudget),
+    };
+    if (isHaneulTransfer) {
+      return signer.serializer.newPayHaneul(signerAddress, {
+        ...txCommon,
+      });
+    }
+    return signer.serializer.newPay(signerAddress, {
+      ...txCommon,
+      // we know there is a gas coin with enough balance to cover
+      // the gas budget let rpc select one for us
+    });
   }
 }
 
