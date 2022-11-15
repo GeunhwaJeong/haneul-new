@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
 use clap::Parser;
+use fastcrypto::encoding::{Encoding, Hex};
 use serde_json::{json, Value};
 use tracing::info;
 
@@ -17,7 +18,7 @@ use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFI
 use haneul_node::{metrics, HaneulNode};
 use haneul_rosetta::types::{AccountIdentifier, CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
-use haneul_types::base_types::{encode_bytes_hex, HaneulAddress};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, HaneulKeyPair, ToFromBytes};
 
 #[derive(Parser)]
@@ -149,14 +150,12 @@ fn read_prefunded_account(path: &Path) -> Result<Vec<PrefundedAccount>, anyhow::
         .into_iter()
         .map(|(address, key)| {
             let (privkey, curve_type) = match key {
-                HaneulKeyPair::Ed25519HaneulKeyPair(k) => (
-                    encode_bytes_hex(k.private().as_bytes()),
-                    CurveType::Edwards25519,
-                ),
-                HaneulKeyPair::Secp256k1HaneulKeyPair(k) => (
-                    encode_bytes_hex(k.private().as_bytes()),
-                    CurveType::Secp256k1,
-                ),
+                HaneulKeyPair::Ed25519HaneulKeyPair(k) => {
+                    (Hex::encode(k.private().as_bytes()), CurveType::Edwards25519)
+                }
+                HaneulKeyPair::Secp256k1HaneulKeyPair(k) => {
+                    (Hex::encode(k.private().as_bytes()), CurveType::Secp256k1)
+                }
             };
             PrefundedAccount {
                 privkey,

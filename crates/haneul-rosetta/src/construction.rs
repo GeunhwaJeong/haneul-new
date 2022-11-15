@@ -4,9 +4,8 @@
 use std::sync::Arc;
 
 use axum::{Extension, Json};
-use fastcrypto::encoding::Hex;
-
-use haneul_types::base_types::{encode_bytes_hex, HaneulAddress};
+use fastcrypto::encoding::{Encoding, Hex};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto;
 use haneul_types::crypto::{SignableBytes, SignatureScheme, ToFromBytes};
 use haneul_types::gas_coin::GasCoin;
@@ -61,7 +60,7 @@ pub async fn payloads(
         .ok_or_else(|| Error::new(ErrorType::MissingMetadata))?;
 
     let data = Operation::create_data(request.operations, metadata).await?;
-    let hex_bytes = encode_bytes_hex(data.to_bytes());
+    let hex_bytes = Hex::encode(data.to_bytes());
 
     Ok(ConstructionPayloadsResponse {
         unsigned_transaction: Hex::from_bytes(&data.to_bytes()),
