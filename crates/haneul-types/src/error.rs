@@ -500,6 +500,9 @@ pub enum HaneulError {
 
     #[error("HANEUL payment transactions use first input coin for gas payment, but found a different gas object.")]
     UnexpectedGasPaymentObject,
+
+    #[error("unknown error: {0}")]
+    Unknown(String),
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;

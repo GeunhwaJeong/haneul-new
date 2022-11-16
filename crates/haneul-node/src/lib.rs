@@ -17,6 +17,7 @@ use haneul_config::NodeConfig;
 use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::safe_client::SafeClientMetrics;
+use haneul_core::storage::RocksDbStore;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_core::transaction_streamer::TransactionStreamer;
 use haneul_core::{
@@ -33,6 +34,7 @@ use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_network::api::ValidatorServer;
 use haneul_network::default_haneullabs_network_config;
 use haneul_network::discovery;
+use haneul_network::state_sync;
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
     node_sync_store::NodeSyncStore,
@@ -83,6 +85,7 @@ pub struct HaneulNode {
 
     _p2p_network: anemo::Network,
     _discovery: discovery::Handle,
+    _state_sync: state_sync::Handle,
 
     #[cfg(msim)]
     sim_node: haneul_simulator::runtime::NodeHandle,
@@ -163,13 +166,21 @@ impl HaneulNode {
             LogCheckpointOutput::boxed()
         };
 
+        let (certified_checkpoint_output, forward_to_state_sync_task) =
+            haneul_core::checkpoints::SendCheckpointToStateSync::new();
         let checkpoint_service = CheckpointService::spawn(
             &config.db_path().join("checkpoints"),
             Box::new(store.clone()),
             checkpoint_output,
-            LogCheckpointOutput::boxed_certified(),
+            Box::new(certified_checkpoint_output),
             committee.clone(),
             CheckpointMetrics::new(&prometheus_registry),
+        );
+
+        let state_sync_store = RocksDbStore::new(
+            store.clone(),
+            committee_store.clone(),
+            checkpoint_service.tables(),
         );
 
         let state = Arc::new(
@@ -305,12 +316,19 @@ impl HaneulNode {
             spawn_monitored_task!(server.serve().map_err(Into::into))
         };
 
+        let (state_sync, state_sync_server) = state_sync::Builder::new()
+            .config(config.p2p_config.state_sync.clone().unwrap_or_default())
+            .store(state_sync_store)
+            .build();
+
         let (discovery, discovery_server) = discovery::Builder::new()
             .config(config.p2p_config.clone())
             .build();
 
         let p2p_network = {
-            let routes = anemo::Router::new().add_rpc_service(discovery_server);
+            let routes = anemo::Router::new()
+                .add_rpc_service(discovery_server)
+                .add_rpc_service(state_sync_server);
 
             let inbound_network_metrics =
                 NetworkMetrics::new("haneul", "inbound", &prometheus_registry);
@@ -351,6 +369,9 @@ impl HaneulNode {
         };
 
         let discovery_handle = discovery.start(p2p_network.clone());
+        let state_sync_handle = state_sync.start(p2p_network.clone());
+        // init the task that forwards checkpoitns to state_sync
+        forward_to_state_sync_task.start(state_sync_handle.clone());
 
         let (json_rpc_service, ws_subscription_service) = build_http_servers(
             state.clone(),
@@ -374,6 +395,7 @@ impl HaneulNode {
             _prometheus_registry: prometheus_registry,
             _p2p_network: p2p_network,
             _discovery: discovery_handle,
+            _state_sync: state_sync_handle,
 
             #[cfg(msim)]
             sim_node: haneul_simulator::runtime::NodeHandle::current(),
