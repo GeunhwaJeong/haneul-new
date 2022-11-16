@@ -25,8 +25,6 @@ import {
   HaneulAddress,
   EventQuery,
   EventId,
-  ObjectOwner,
-  HaneulEvents,
   PaginatedTransactionDigests,
   TransactionQuery,
   PaginatedEvents,
@@ -241,114 +239,6 @@ export abstract class Provider {
       limit: number | null,
       order: Order,
   ): Promise<PaginatedEvents>;
-
-  /**
-   * Get events for one transaction
-   * @param digest transaction digest to search by
-   * @param count max result count
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByTransaction(
-    digest: TransactionDigest,
-    count: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get events emitted from within the specified Move module
-   * @param packageId Move package object ID
-   * @param module Move module name
-   * @param count max result count
-   * @param startTime start of time range
-   * @param endTime end of time range, exclusive
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByModule(
-    packageId: ObjectId,
-    module: string,
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get events with a matching Move type name
-   * @param moveEventStructName Move struct type name
-   * @param count max result count
-   * @param startTime start of time range to search
-   * @param endTime end of time range
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByMoveEventStructName(
-    moveEventStructName: string,
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get events from transactions sent by a specific address
-   * @param sender Haneul address of the sender of the transaction that generated the event
-   * @param count max result count
-   * @param startTime start of time range to search
-   * @param endTime end of time range
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsBySender(
-    sender: HaneulAddress,
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get events with a matching recipient
-   * @param recipient object owner that received the transaction that generated the event
-   * @param count max result count
-   * @param startTime start of time range to search
-   * @param endTime end of time range
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByRecipient(
-    recipient: ObjectOwner,
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get events involving the given object
-   * @param object object id created, mutated, or deleted in events
-   * @param count max result count
-   * @param startTime start of time range to search
-   * @param endTime end of time range
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByObject(
-    object: ObjectId,
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
-
-  /**
-   * Get all events within the given time span
-   * @param count max result count
-   * @param startTime start of time range to search
-   * @param endTime end of time range
-   *
-   * @deprecated The method will be replaced by 'getEvents'
-   */
-  abstract getEventsByTimeRange(
-    count: number,
-    startTime: number,
-    endTime: number
-  ): Promise<HaneulEvents>;
 
   /**
    * Subscribe to get notifications whenever an event matching the filter occurs
