@@ -31,6 +31,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-metrics = { path = "../haneul-metrics" }
 narwhal-network = { path = "../../narwhal/network" }
 narwhal-types = { path = "../../narwhal/types" }
+prometheus-closure-metric = { path = "../prometheus-closure-metric" }
 typed-store.workspace = true
 haneullabs-network.workspace = true
 telemetry-subscribers.workspace = true
