@@ -9,7 +9,6 @@ import {
     getTransactionKindName,
     getTransferObjectTransaction,
     getTransferHaneulTransaction,
-    getTransferHaneulAmount,
     HANEUL_TYPE_ARG,
     type GetTxnDigestsResponse,
     type CertifiedTransaction,
@@ -23,9 +22,10 @@ import { ReactComponent as ContentSuccessStatus } from '../../assets/SVGIcons/12
 import { ReactComponent as ContentFailedStatus } from '../../assets/SVGIcons/12px/X.svg';
 import { ReactComponent as ContentArrowRight } from '../../assets/SVGIcons/16px/ArrowRight.svg';
 import Longtext from '../../components/longtext/Longtext';
-import { TxTimeType } from '../../components/tx-time/TxTimeType';
+import { getAmount } from '../../utils/getAmount';
 import { deduplicate } from '../../utils/searchUtil';
 import { truncate } from '../../utils/stringUtils';
+import { TxTimeType } from '../tx-time/TxTimeType';
 
 import styles from './RecentTxCard.module.css';
 
@@ -36,7 +36,8 @@ export type TxnData = {
     txId: string;
     status: ExecutionStatusType;
     txGas: number;
-    haneulAmount: bigint;
+    haneulAmount: bigint | number;
+    coinType?: string | null;
     kind: TransactionKindName | undefined;
     From: string;
     timestamp_ms?: number;
@@ -65,7 +66,7 @@ type TxStatus = {
 export function HaneulAmount({
     amount,
 }: {
-    amount: bigint | number | string | undefined;
+    amount: bigint | number | string | undefined | null;
 }) {
     const [formattedAmount] = useFormatCoin(amount, HANEUL_TYPE_ARG);
 
@@ -244,11 +245,14 @@ export const getDataOnTxDigests = (
                             getTransferObjectTransaction(txn)?.recipient ||
                             getTransferHaneulTransaction(txn)?.recipient;
 
+                        const txnTransfer = getAmount(txn, txEff.effects)?.[0];
+
                         return {
                             txId: digest,
                             status: getExecutionStatusType(txEff)!,
                             txGas: getTotalGasUsed(txEff),
-                            haneulAmount: getTransferHaneulAmount(txn),
+                            haneulAmount: txnTransfer?.amount || null,
+                            coinType: txnTransfer?.coinType || null,
                             kind: txKind,
                             From: res.data.sender,
                             timestamp_ms: txEff.timestamp_ms,
