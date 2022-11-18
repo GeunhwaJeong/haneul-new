@@ -101,7 +101,7 @@ import { JsonRpcProvider } from '@haneullabs/haneul.js';
 // connect to a custom RPC server
 const provider = new JsonRpcProvider('https://fullnode.devnet.haneul.io', {
   // you can also skip providing this field if you don't plan to interact with the faucet
-  faucetURL: 'https://faucet.devnet.haneul.io',
+  faucetURL: 'https://faucet.devnet.haneul.io/gas',
 });
 // get tokens from a custom faucet server
 await provider.requestHaneulFromFaucet(
