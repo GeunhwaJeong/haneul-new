@@ -22,12 +22,12 @@ use haneul_storage::{
     write_ahead_log::{DBWriteAheadLog, WriteAheadLog},
     LockService,
 };
-use haneul_types::batch::TxSequenceNumber;
 use haneul_types::crypto::{AuthoritySignInfo, EmptySignInfo};
 use haneul_types::message_envelope::VerifiedEnvelope;
 use haneul_types::object::Owner;
 use haneul_types::storage::{ChildObjectResolver, SingleTxContext, WriteKind};
 use haneul_types::{base_types::SequenceNumber, storage::ParentSync};
+use haneul_types::{batch::TxSequenceNumber, object::PACKAGE_VERSION};
 use tokio_retry::strategy::{jitter, ExponentialBackoff};
 use tracing::{debug, info, trace};
 use typed_store::rocks::DBBatch;
@@ -368,11 +368,9 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
                     };
                 }
                 InputObjectKind::MovePackage(id) => {
-                    // Move package always uses version 1.
-                    let version = VersionNumber::from_u64(1);
-                    if !self.object_exists(id, version)? {
+                    if !self.object_exists(id, PACKAGE_VERSION)? {
                         // The cert cannot have been formed if immutable inputs were missing.
-                        missing.push(ObjectKey(*id, version));
+                        missing.push(ObjectKey(*id, PACKAGE_VERSION));
                     }
                 }
                 InputObjectKind::ImmOrOwnedMoveObject(objref) => {

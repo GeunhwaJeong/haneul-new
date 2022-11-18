@@ -39,12 +39,10 @@ use std::{
 use haneul_adapter::{adapter::new_move_vm, genesis};
 use haneul_core::{execution_engine, test_utils::to_sender_signed_transaction};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
-use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::temporary_store::TemporaryStore;
 use haneul_types::{
     base_types::{
-        ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-        HANEUL_ADDRESS_LENGTH,
+        ObjectDigest, ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH,
     },
     crypto::{get_key_pair_from_rng, AccountKeyPair},
     event::Event,
@@ -55,6 +53,7 @@ use haneul_types::{
     object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
+use haneul_types::{in_memory_storage::InMemoryStorage, object::PACKAGE_VERSION};
 pub(crate) type FakeID = u64;
 
 // initial value for fake object ID mapping
@@ -283,11 +282,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         let package_ref = match self.storage.get_object(&package_id) {
             Some(obj) => obj.compute_object_reference(),
             // object not found
-            None => (
-                package_id,
-                SequenceNumber::from(1),
-                ObjectDigest::new([0; 32]),
-            ),
+            None => (package_id, PACKAGE_VERSION, ObjectDigest::new([0; 32])),
         };
 
         let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);

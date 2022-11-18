@@ -35,7 +35,7 @@ use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, TransactionData,
     TransactionKind, TransferObject,
 };
-use haneul_types::object::Owner;
+use haneul_types::object::{Owner, PACKAGE_VERSION};
 use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
@@ -113,7 +113,7 @@ impl RpcExampleProvider {
                 SingleTransactionKind::Call(MoveCall {
                     package: (
                         HANEUL_FRAMEWORK_OBJECT_ID,
-                        SequenceNumber::from_u64(1),
+                        PACKAGE_VERSION,
                         ObjectDigest::new(self.rng.gen()),
                     ),
                     module: Identifier::from_str("devnet_nft").unwrap(),
