@@ -3,6 +3,7 @@
 
 /// Test CTURD object basics (create, transfer, update, read, delete)
 module examples::object_basics {
+    use haneul::dynamic_object_field as ofield;
     use haneul::event;
     use haneul::object::{Self, UID};
     use haneul::tx_context::{Self, TxContext};
@@ -61,5 +62,16 @@ module examples::object_basics {
         let Wrapper { id, o } = w;
         object::delete(id);
         transfer::transfer(o, tx_context::sender(ctx))
+    }
+
+    public entry fun add_ofield(o: &mut Object, v: Object) {
+        ofield::add(&mut o.id, true, v);
+    }
+
+    public entry fun remove_ofield(o: &mut Object, ctx: &mut TxContext) {
+        transfer::transfer(
+            ofield::remove<bool, Object>(&mut o.id, true),
+            tx_context::sender(ctx),
+        );
     }
 }
