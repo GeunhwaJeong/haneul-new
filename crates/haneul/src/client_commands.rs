@@ -884,7 +884,8 @@ impl WalletContext {
             .create_rpc_client(request_timeout)
             .await?;
         #[cfg(msim)]
-        let client = haneul_sdk::embedded_gateway::HaneulClient::new(&config_path.parent().unwrap())?;
+        let client =
+            haneul_sdk::embedded_gateway::HaneulClient::new(&config_path.parent().unwrap()).await?;
         #[cfg(msim)]
         let _request_timeout = request_timeout; // silence linter.
 
