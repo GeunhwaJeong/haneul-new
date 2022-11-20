@@ -66,11 +66,7 @@ pub mod metrics;
 
 mod handle;
 pub use handle::HaneulNodeHandle;
-use narwhal_types::TransactionsClient;
-use haneul_core::checkpoints::{
-    CheckpointMetrics, CheckpointService, CheckpointStore, LogCheckpointOutput,
-    SubmitCheckpointToConsensus,
-};
+use haneul_core::checkpoints::CheckpointStore;
 
 pub struct HaneulNode {
     grpc_server: tokio::task::JoinHandle<Result<()>>,
@@ -163,37 +159,6 @@ impl HaneulNode {
             None,
         ));
 
-        let consensus_client = config.consensus_config().map(|config| {
-            let consensus_address = config.address().to_owned();
-            TransactionsClient::new(
-                haneullabs_network::client::connect_lazy(&consensus_address)
-                    .expect("Failed to connect to consensus"),
-            )
-        });
-
-        let checkpoint_output = if let Some(ref consensus_client) = consensus_client {
-            Box::new(SubmitCheckpointToConsensus {
-                sender: consensus_client.clone(),
-                signer: secret.clone(),
-                authority: config.protocol_public_key(),
-            })
-        } else {
-            // todo - we should refactor code a bit and simply don't start checkpoint builder on full node
-            LogCheckpointOutput::boxed()
-        };
-
-        let certified_checkpoint_output =
-            haneul_core::checkpoints::SendCheckpointToStateSync::new(state_sync_handle.clone());
-
-        let checkpoint_service = CheckpointService::spawn(
-            checkpoint_store,
-            Box::new(store.clone()),
-            checkpoint_output,
-            Box::new(certified_checkpoint_output),
-            committee.clone(),
-            CheckpointMetrics::new(&prometheus_registry),
-        );
-
         let state = Arc::new(
             AuthorityState::new(
                 config.protocol_public_key(),
@@ -206,7 +171,6 @@ impl HaneulNode {
                 transaction_streamer,
                 &prometheus_registry,
                 tx_reconfigure_consensus,
-                checkpoint_service,
             )
             .await,
         );
@@ -262,12 +226,13 @@ impl HaneulNode {
         let execute_driver_handle = active_authority.clone().spawn_execute_process().await;
 
         let registry = prometheus_registry.clone();
-        let validator_service = if let Some(consensus_client) = consensus_client {
+        let validator_service = if is_validator {
             Some(
                 ValidatorService::new(
-                    Box::new(consensus_client),
                     config,
                     state.clone(),
+                    checkpoint_store,
+                    state_sync_handle.clone(),
                     registry,
                     rx_reconfigure_consensus,
                 )
