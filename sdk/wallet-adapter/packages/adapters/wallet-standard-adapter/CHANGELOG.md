@@ -1,5 +1,14 @@
 # @haneullabs/wallet-adapter-wallet-standard
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [623505886]
+  - @haneullabs/haneul.js@0.17.1
+  - @haneullabs/wallet-adapter-base@0.3.4
+  - @haneullabs/wallet-standard@0.2.3
+
 ## 0.3.2
 
 ### Patch Changes
