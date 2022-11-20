@@ -1,0 +1,9 @@
+[package]
+name = "serializer"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../../../../crates/haneul-framework" }
+
+[addresses]
+serializer =  "0x0"
