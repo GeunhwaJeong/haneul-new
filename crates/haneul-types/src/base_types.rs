@@ -205,6 +205,7 @@ impl From<&AuthorityPublicKeyBytes> for HaneulAddress {
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
+        // OK to access slice because Sha3_256 should never be shorter than HANEUL_ADDRESS_LENGTH.
         res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
         HaneulAddress(res)
     }
@@ -218,6 +219,7 @@ impl<T: HaneulPublicKey> From<&T> for HaneulAddress {
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
+        // OK to access slice because Sha3_256 should never be shorter than HANEUL_ADDRESS_LENGTH.
         res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
         HaneulAddress(res)
     }
@@ -231,6 +233,7 @@ impl From<&PublicKey> for HaneulAddress {
         let g_arr = hasher.finalize();
 
         let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
+        // OK to access slice because Sha3_256 should never be shorter than HANEUL_ADDRESS_LENGTH.
         res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
         HaneulAddress(res)
     }
@@ -444,6 +447,7 @@ impl TransactionDigest {
         let hash = hasher.finalize();
 
         // truncate into an ObjectID.
+        // OK to access slice because Sha3_256 should never be shorter than ObjectID::LENGTH.
         ObjectID::try_from(&hash.as_ref()[0..ObjectID::LENGTH]).unwrap()
     }
 
