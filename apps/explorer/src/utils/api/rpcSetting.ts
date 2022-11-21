@@ -7,12 +7,10 @@ export enum Network {
     DEVNET = 'DEVNET',
     STAGING = 'STAGING',
     TESTNET = 'TESTNET',
-    CI = 'CI',
 }
 
 const ENDPOINTS: Record<Network, string> = {
     [Network.LOCAL]: 'http://127.0.0.1:9000',
-    [Network.CI]: 'https://fullnode.devnet.haneul.io:443',
     [Network.DEVNET]: 'https://fullnode.devnet.haneul.io:443',
     [Network.STAGING]: 'https://fullnode.staging.haneul.io:443',
     [Network.TESTNET]: 'https://fullnode.testnet.haneul.io:443',
