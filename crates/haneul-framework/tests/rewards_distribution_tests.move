@@ -89,7 +89,7 @@ module haneul::rewards_distribution_tests {
 
         // 10 HANEUL rewards for each 120 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 160, scenario);
-        undelegate(DELEGATOR_ADDR_2, 0, 0, 500, scenario); 
+        undelegate(DELEGATOR_ADDR_2, 0, 0, 600, scenario); // unstake 600 principal HANEUL
         governance_test_utils::advance_epoch(scenario); 
         // compared to at line 87, additional 600 HANEUL of principal and 50 HANEUL of rewards withdrawn to Coin<HANEUL>
         assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 770, 0); 

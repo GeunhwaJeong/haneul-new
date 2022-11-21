@@ -268,14 +268,14 @@ module haneul::haneul_system {
         self: &mut HaneulSystemState,
         delegation: &mut Delegation,
         staked_haneul: &mut StakedHaneul,
-        withdraw_pool_token_amount: u64,
+        principal_withdraw_amount: u64,
         ctx: &mut TxContext,
     ) {
         validator_set::request_withdraw_delegation(
             &mut self.validators,
             delegation,
             staked_haneul,
-            withdraw_pool_token_amount,
+            principal_withdraw_amount,
             ctx,
         );
     }

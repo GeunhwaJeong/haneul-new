@@ -135,23 +135,21 @@ module haneul::staking_pool {
         transfer::transfer(staked_haneul, delegator);
     }
 
-    /// Request to withdraw `withdraw_pool_token_amount` worth of delegated stake from a staking pool. 
-    /// A proportional amount of principal in HANEUL is withdrawn and transferred to the delegator. 
+    /// Request to withdraw `principal_withdraw_amount` of stake plus rewards from a staking pool.
+    /// This amount of principal in HANEUL is withdrawn and transferred to the delegator. A proportional amount
+    /// of pool tokens will be later burnt.
     /// The rewards portion will be withdrawn at the end of the epoch, after the rewards have come in so we
     /// can use the new exchange rate to calculate the rewards.
-    /// Returns the amount of HANEUL withdrawn.
     public(friend) fun request_withdraw_delegation(
         pool: &mut StakingPool,  
         delegation: &mut Delegation, 
         staked_haneul: &mut StakedHaneul,
-        withdraw_pool_token_amount: u64, 
+        principal_withdraw_amount: u64,
         ctx: &mut TxContext
-    ) : u64 {
+    ) {
         let (withdrawn_pool_tokens, principal_withdraw, time_lock) = 
-            withdraw_from_principal(pool, delegation, staked_haneul, withdraw_pool_token_amount);
+            withdraw_from_principal(pool, delegation, staked_haneul, principal_withdraw_amount);
         
-        let principal_withdraw_amount = balance::value(&principal_withdraw);
-
         let delegator = tx_context::sender(ctx);
         vector::push_back(&mut pool.pending_withdraws, PendingWithdrawEntry { 
             delegator, principal_withdraw_amount, withdrawn_pool_tokens });
@@ -163,13 +161,12 @@ module haneul::staking_pool {
             transfer::transfer(coin::from_balance(principal_withdraw, ctx), delegator);
             option::destroy_none(time_lock);
         };
-        principal_withdraw_amount
     }
 
-    /// Withdraw a proportional amount of the principal HANEUL stored in the StakedHaneul object, as
-    /// well as the requested amount of pool tokens from the delegation object. 
+    /// Withdraw the requested amount of the principal HANEUL stored in the StakedHaneul object, as
+    /// well as a proportional amount of pool tokens from the delegation object.
     /// For example, suppose the delegation object contains 15 pool tokens and the principal HANEUL 
-    /// amount is 21. Then if `withdraw_pool_token_amount` is 5, 5 pool tokens and 7 HANEUL tokens will 
+    /// amount is 21. Then if `principal_withdraw_amount` is 7, 5 pool tokens and 7 HANEUL tokens will
     /// be withdrawn.
     /// Returns values are withdrawn pool tokens, withdrawn principal portion of HANEUL, and its 
     /// time lock if applicable.
@@ -177,7 +174,7 @@ module haneul::staking_pool {
         pool: &mut StakingPool,  
         delegation: &mut Delegation, 
         staked_haneul: &mut StakedHaneul,
-        withdraw_pool_token_amount: u64,
+        principal_withdraw_amount: u64,
     ) : (Balance<DelegationToken>, Balance<HANEUL>, Option<EpochTimeLock>) {
         // Check that the delegation information matches the pool. 
         assert!(
@@ -186,20 +183,20 @@ module haneul::staking_pool {
             EWRONG_POOL
         );
 
-        assert!(withdraw_pool_token_amount > 0, EWITHDRAW_AMOUNT_CANNOT_BE_ZERO);
+        assert!(principal_withdraw_amount > 0, EWITHDRAW_AMOUNT_CANNOT_BE_ZERO);
+        assert!(delegation.principal_haneul_amount >= principal_withdraw_amount, EINSUFFICIENT_HANEUL_TOKEN_BALANCE);
 
         let pool_token_balance = balance::value(&delegation.pool_tokens);
-        assert!(pool_token_balance >= withdraw_pool_token_amount, EINSUFFICIENT_POOL_TOKEN_BALANCE);
 
-        // Calculate the amounts of HANEUL to be withdrawn from the principal component.
-        // We already checked that pool_token_balance is greater than zero.
-        let haneul_withdraw_from_principal = 
-            (delegation.principal_haneul_amount as u128) * (withdraw_pool_token_amount as u128) / (pool_token_balance as u128);
+        // Calculate the amount of pool tokens to be withdrawn.
+        // We already checked that `delegation.principal_haneul_amount` is greater than zero.
+        let withdraw_pool_token_amount =
+            (pool_token_balance as u128) * (principal_withdraw_amount as u128) / (delegation.principal_haneul_amount as u128);
         
-        let (principal_withdraw, time_lock) = withdraw_from_principal_impl(delegation, staked_haneul, (haneul_withdraw_from_principal as u64));
+        let (principal_withdraw, time_lock) = withdraw_from_principal_impl(delegation, staked_haneul, principal_withdraw_amount);
 
         (
-            balance::split(&mut delegation.pool_tokens, withdraw_pool_token_amount),
+            balance::split(&mut delegation.pool_tokens, (withdraw_pool_token_amount as u64)),
             principal_withdraw,
             time_lock
         )

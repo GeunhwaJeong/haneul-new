@@ -212,12 +212,12 @@ module haneul::validator {
         self: &mut Validator,
         delegation: &mut Delegation,
         staked_haneul: &mut StakedHaneul,
-        withdraw_pool_token_amount: u64,
+        principal_withdraw_amount: u64,
         ctx: &mut TxContext,
     ) {
-        let withdraw_haneul_amount = staking_pool::request_withdraw_delegation(
-                &mut self.delegation_staking_pool, delegation, staked_haneul, withdraw_pool_token_amount, ctx);
-        decrease_next_epoch_delegation(self, withdraw_haneul_amount);
+        staking_pool::request_withdraw_delegation(
+                &mut self.delegation_staking_pool, delegation, staked_haneul, principal_withdraw_amount, ctx);
+        decrease_next_epoch_delegation(self, principal_withdraw_amount);
     }
 
     /// Decrement the delegation amount for next epoch. Also called by `validator_set` when handling delegation switches.

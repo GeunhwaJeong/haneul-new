@@ -491,7 +491,7 @@ Request to add delegation to the validator's staking pool, processed at the end 
 Request to withdraw delegation from the validator's staking pool, processed at the end of the epoch.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator.md#0x2_validator_request_withdraw_delegation">request_withdraw_delegation</a>(self: &<b>mut</b> <a href="validator.md#0x2_validator_Validator">validator::Validator</a>, delegation: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_Delegation">staking_pool::Delegation</a>, staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, withdraw_pool_token_amount: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator.md#0x2_validator_request_withdraw_delegation">request_withdraw_delegation</a>(self: &<b>mut</b> <a href="validator.md#0x2_validator_Validator">validator::Validator</a>, delegation: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_Delegation">staking_pool::Delegation</a>, staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, principal_withdraw_amount: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -504,12 +504,12 @@ Request to withdraw delegation from the validator's staking pool, processed at t
     self: &<b>mut</b> <a href="validator.md#0x2_validator_Validator">Validator</a>,
     delegation: &<b>mut</b> Delegation,
     staked_haneul: &<b>mut</b> StakedHaneul,
-    withdraw_pool_token_amount: u64,
+    principal_withdraw_amount: u64,
     ctx: &<b>mut</b> TxContext,
 ) {
-    <b>let</b> withdraw_haneul_amount = <a href="staking_pool.md#0x2_staking_pool_request_withdraw_delegation">staking_pool::request_withdraw_delegation</a>(
-            &<b>mut</b> self.delegation_staking_pool, delegation, staked_haneul, withdraw_pool_token_amount, ctx);
-    <a href="validator.md#0x2_validator_decrease_next_epoch_delegation">decrease_next_epoch_delegation</a>(self, withdraw_haneul_amount);
+    <a href="staking_pool.md#0x2_staking_pool_request_withdraw_delegation">staking_pool::request_withdraw_delegation</a>(
+            &<b>mut</b> self.delegation_staking_pool, delegation, staked_haneul, principal_withdraw_amount, ctx);
+    <a href="validator.md#0x2_validator_decrease_next_epoch_delegation">decrease_next_epoch_delegation</a>(self, principal_withdraw_amount);
 }
 </code></pre>
 
