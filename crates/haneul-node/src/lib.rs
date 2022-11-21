@@ -16,24 +16,20 @@ use prometheus::Registry;
 use std::option::Option::None;
 use std::{sync::Arc, time::Duration};
 use haneul_config::NodeConfig;
-use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
+use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_server::ValidatorService;
-use haneul_core::safe_client::SafeClientMetrics;
 use haneul_core::storage::RocksDbStore;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_core::transaction_streamer::TransactionStreamer;
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
     authority_active::ActiveAuthority,
-    authority_client::{
-        make_network_authority_client_sets_from_system_state, NetworkAuthorityClient,
-    },
+    authority_client::NetworkAuthorityClient,
 };
 use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
 use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_network::api::ValidatorServer;
-use haneul_network::default_haneullabs_network_config;
 use haneul_network::discovery;
 use haneul_network::state_sync;
 use haneul_storage::{
@@ -48,7 +44,6 @@ use tracing::{info, warn};
 use typed_store::DBMetrics;
 
 use crate::metrics::GrpcMetrics;
-use haneul_core::authority_client::NetworkAuthorityClientMetrics;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
@@ -144,8 +139,11 @@ impl HaneulNode {
         let (p2p_network, discovery_handle, state_sync_handle) =
             Self::create_p2p_network(config, state_sync_store, &prometheus_registry)?;
 
-        let net =
-            Self::create_authority_aggregator(&store, &committee_store, &prometheus_registry)?;
+        let net = AuthorityAggregator::new_from_system_state(
+            &store,
+            &committee_store,
+            &prometheus_registry,
+        )?;
 
         let (tx_reconfigure_consensus, rx_reconfigure_consensus) = channel(100);
 
@@ -294,30 +292,6 @@ impl HaneulNode {
         info!("HaneulNode started!");
 
         Ok(node)
-    }
-
-    fn create_authority_aggregator(
-        store: &Arc<AuthorityStore>,
-        committee_store: &Arc<CommitteeStore>,
-        prometheus_registry: &Registry,
-    ) -> Result<AuthorityAggregator<NetworkAuthorityClient>> {
-        let net_config = default_haneullabs_network_config();
-        let haneul_system_state = store.get_haneul_system_state_object()?;
-
-        let network_metrics = Arc::new(NetworkAuthorityClientMetrics::new(prometheus_registry));
-        let authority_clients = make_network_authority_client_sets_from_system_state(
-            &haneul_system_state,
-            &net_config,
-            network_metrics.clone(),
-        )?;
-        Ok(AuthorityAggregator::new(
-            haneul_system_state.get_current_epoch_committee().committee,
-            committee_store.clone(),
-            authority_clients,
-            AuthAggMetrics::new(prometheus_registry),
-            Arc::new(SafeClientMetrics::new(prometheus_registry)),
-            network_metrics,
-        ))
     }
 
     fn create_p2p_network(
