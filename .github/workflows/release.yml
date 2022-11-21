@@ -48,11 +48,11 @@ jobs:
         run: |
           cargo build --release
 
-          echo ::set-output name=BIN_HANEUL::"target/release/haneul"
-          echo ::set-output name=BIN_HANEUL_NODE::"target/release/haneul-node"
-          echo ::set-output name=BIN_HANEUL_TOOL::"target/release/haneul-tool"
-          echo ::set-output name=BIN_HANEUL_FAUCET::"target/release/haneul-faucet"
-          echo ::set-output name=BIN_RPC_SERVER::"target/release/rpc-server"
+          echo BIN_HANEUL="target/release/haneul" >> $GITHUB_OUTPUT
+          echo BIN_HANEUL_NODE="target/release/haneul-node" >> $GITHUB_OUTPUT
+          echo BIN_HANEUL_TOOL="target/release/haneul-tool" >> $GITHUB_OUTPUT
+          echo BIN_HANEUL_FAUCET="target/release/haneul-faucet" >> $GITHUB_OUTPUT
+          echo BIN_RPC_SERVER="target/release/rpc-server" >> $GITHUB_OUTPUT
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v3
