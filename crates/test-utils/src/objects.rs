@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::test_account_keys;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::{MoveObject, Object, Owner, OBJECT_START_VERSION};
 
 /// Make a few test gas objects (all with the same owner).
@@ -72,8 +71,7 @@ where
 pub fn test_shared_object() -> Object {
     let seed = "0x6666666666666660";
     let shared_object_id = ObjectID::from_hex_literal(seed).unwrap();
-    let content = GasCoin::new(shared_object_id, 10);
-    let obj = MoveObject::new_gas_coin(OBJECT_START_VERSION, content.to_bcs_bytes());
+    let obj = MoveObject::new_gas_coin(OBJECT_START_VERSION, shared_object_id, 10);
     let owner = Owner::Shared {
         initial_shared_version: obj.version(),
     };

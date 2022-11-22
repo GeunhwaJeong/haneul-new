@@ -500,7 +500,7 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
                         o.has_public_transfer,
                         o.version,
                         o.bcs_bytes,
-                    )
+                    )?
                 })
             }
             HaneulRawData::Package(p) => Data::Package(MovePackage::new(p.id, &p.module_map)),
