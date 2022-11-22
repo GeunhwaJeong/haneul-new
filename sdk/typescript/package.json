@@ -29,7 +29,7 @@
     "test": "pnpm test:unit && pnpm test:e2e",
     "test:unit": "vitest unit",
     "test:e2e": "wait-on http://127.0.0.1:9123 -l --timeout 120000 && vitest e2e",
-    "prepare:e2e": "cargo build --bin haneul-test-validator --bin haneul --profile dev && cargo run --bin haneul-test-validator",
+    "prepare:e2e": "cargo build --bin haneul-test-validator --bin haneul --profile dev && RUST_LOG=info,haneul=debug,anemo_tower=warn cargo run --bin haneul-test-validator",
     "lint": "eslint './{src,test}/**.{ts,js}'",
     "prepublishOnly": "pnpm build",
     "size": "size-limit",

@@ -38,6 +38,8 @@ use crate::messages::{
 };
 use crate::{test_account_keys, test_committee};
 
+const GAS_BUDGET: u64 = 5000;
+
 pub fn make_publish_package(gas_object: Object, path: PathBuf) -> VerifiedTransaction {
     let (sender, keypair) = test_account_keys().pop().unwrap();
     create_publish_move_package_transaction(
@@ -90,7 +92,7 @@ pub async fn publish_basics_package(context: &WalletContext, sender: HaneulAddre
         let data = context
             .client
             .transaction_builder()
-            .publish(sender, all_module_bytes, None, 50000)
+            .publish(sender, all_module_bytes, None, GAS_BUDGET)
             .await
             .unwrap();
 
@@ -146,7 +148,7 @@ pub async fn submit_move_transaction(
             vec![], // type_args
             arguments,
             gas_object,
-            50000,
+            GAS_BUDGET,
         )
         .await
         .unwrap();
@@ -234,7 +236,7 @@ pub async fn create_devnet_nft(
         description: Some("example_nft_desc".into()),
         url: Some("https://haneul.io/_nuxt/img/haneul-logo.8d3c44e.svg".into()),
         gas: Some(*gas_object),
-        gas_budget: Some(50000),
+        gas_budget: Some(GAS_BUDGET),
     }
     .execute(context)
     .await?;
@@ -272,7 +274,7 @@ pub async fn transfer_haneul(
         to: receiver,
         amount: None,
         haneul_coin_object_id: gas_ref.0,
-        gas_budget: 50000,
+        gas_budget: GAS_BUDGET,
     }
     .execute(context)
     .await?;
@@ -318,7 +320,7 @@ pub async fn transfer_coin(
         to: receiver,
         object_id: object_to_send,
         gas: None,
-        gas_budget: 50000,
+        gas_budget: GAS_BUDGET,
     }
     .execute(context)
     .await?;

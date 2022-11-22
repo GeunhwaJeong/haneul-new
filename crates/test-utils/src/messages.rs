@@ -36,7 +36,7 @@ use haneul_types::messages::{
 use haneul_types::object::Object;
 
 /// The maximum gas per transaction.
-pub const MAX_GAS: u64 = 100_000;
+pub const MAX_GAS: u64 = 2_000;
 
 /// A helper function to get all accounts and their owned GasCoin
 /// with a WalletContext
