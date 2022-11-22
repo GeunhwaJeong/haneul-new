@@ -20,6 +20,20 @@ const textStyles = cva([], {
             caption: 'uppercase text-caption',
             captionSmall: 'uppercase text-captionSmall ',
         },
+
+        color: {
+            'grey-100': 'text-haneul-grey-100',
+            'grey-90': 'text-haneul-grey-90',
+            'grey-75': 'text-haneul-grey-75',
+            'grey-70': 'text-haneul-grey-70',
+            'grey-65': 'text-haneul-grey-65',
+            'haneul-dark': 'text-haneul-dark',
+            haneul: 'text-haneul',
+            'haneul-light': 'text-haneul-light',
+            'haneul-steel': 'text-haneul-steel',
+            'haneul-steel-dark': 'text-haneul-steel-dark',
+            'haneul-steel-darker': 'text-haneul-steel-darker',
+        },
         italic: {
             true: 'italic',
             false: '',
