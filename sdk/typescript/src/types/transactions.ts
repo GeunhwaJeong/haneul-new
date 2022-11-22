@@ -3,6 +3,7 @@
 
 import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
 import { isTransactionEffects } from './index.guard';
+import { HaneulEvent } from './events';
 import { ObjectId, HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
 
 export type TransferObject = {
@@ -134,8 +135,7 @@ export type TransactionEffects = {
    */
   gasObject: OwnedObjectRef;
   /** The events emitted during execution. Note that only successful transactions emit events */
-  // TODO: properly define type when this is being used
-  events?: any[];
+  events?: HaneulEvent[];
   /** The set of transaction digests this transaction depends on */
   dependencies?: TransactionDigest[];
 };
@@ -395,7 +395,10 @@ export function getExecutionStatusError(
 }
 
 export function getExecutionStatusGasSummary(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse | TransactionEffects
+  data:
+    | HaneulTransactionResponse
+    | HaneulExecuteTransactionResponse
+    | TransactionEffects
 ): GasCostSummary | undefined {
   if (isTransactionEffects(data)) {
     return data.gasUsed;
@@ -404,7 +407,10 @@ export function getExecutionStatusGasSummary(
 }
 
 export function getTotalGasUsed(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse | TransactionEffects
+  data:
+    | HaneulTransactionResponse
+    | HaneulExecuteTransactionResponse
+    | TransactionEffects
 ): number | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
@@ -427,7 +433,7 @@ export function getTransactionEffects(
 
 export function getEvents(
   data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
-): any {
+): HaneulEvent[] | undefined {
   return getTransactionEffects(data)?.events;
 }
 

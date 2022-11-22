@@ -3,6 +3,7 @@
 
 /// Example coin with a trusted owner responsible for minting/burning (e.g., a stablecoin)
 module examples::trusted_coin {
+    use std::option;
     use haneul::coin::{Self, TreasuryCap};
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
@@ -16,7 +17,8 @@ module examples::trusted_coin {
     fun init(ctx: &mut TxContext) {
         // Get a treasury cap for the coin and give it to the transaction
         // sender
-        let treasury_cap = coin::create_currency<EXAMPLE>(EXAMPLE{}, 2, ctx);
+        let (treasury_cap, metadata) = coin::create_currency<EXAMPLE>(EXAMPLE{}, 2, b"EXAMPLE", b"", b"", option::none(), ctx);
+        transfer::freeze_object(metadata);
         transfer::transfer(treasury_cap, tx_context::sender(ctx))
     }
 
