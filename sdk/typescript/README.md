@@ -62,7 +62,7 @@ To run E2E tests against DevNet
 
 ```
 cd sdk/typescript
-VITE_FAUCET_URL='https://faucet.devnet.haneul.io:443/gas' VITE_FULLNODE_URL='https://fullnode.devnet.haneul.io' pnpm test:e2e
+VITE_FAUCET_URL='https://faucet.devnet.haneul.io:443/gas' VITE_FULLNODE_URL='https://fullnode.devnet.haneul.io' vitest e2e
 ```
 
 ## Connecting to Haneul Network
