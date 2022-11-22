@@ -13,6 +13,7 @@ use haneullabs_network::server::ServerBuilder;
 use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use prometheus::Registry;
+use std::collections::HashMap;
 use std::option::Option::None;
 use std::{sync::Arc, time::Duration};
 use haneul_config::NodeConfig;
@@ -352,6 +353,7 @@ impl HaneulNode {
                 narwhal_network::connectivity::ConnectionMonitor::spawn(
                     network.downgrade(),
                     network_connection_metrics,
+                    HashMap::default(),
                 );
 
             network
