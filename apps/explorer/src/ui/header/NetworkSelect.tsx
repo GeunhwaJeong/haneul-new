@@ -67,18 +67,18 @@ function SelectableNetwork({
             className={clsx(
                 // CSS Reset:
                 'cursor-pointer border-0 bg-transparent text-left',
-                'flex items-start gap-4 px-2 py-3 text-body font-semibold rounded-md hover:text-haneul-grey-90 ui-active:text-haneul-grey-90 hover:bg-haneul-grey-40 ui-active:bg-haneul-grey-40',
+                'flex items-start gap-4 px-2 py-3 text-body font-semibold rounded-md hover:text-gray-90 ui-active:text-gray-90 hover:bg-gray-40 ui-active:bg-gray-40',
                 state !== NetworkState.UNSELECTED
-                    ? 'text-haneul-grey-90'
-                    : 'text-haneul-grey-75'
+                    ? 'text-gray-90'
+                    : 'text-gray-75'
             )}
             {...props}
         >
             <CheckIcon
                 className={clsx('flex-shrink-0', {
                     'text-success': state === NetworkState.SELECTED,
-                    'text-haneul-grey-60': state === NetworkState.PENDING,
-                    'text-haneul-grey-45': state === NetworkState.UNSELECTED,
+                    'text-gray-60': state === NetworkState.PENDING,
+                    'text-gray-45': state === NetworkState.UNSELECTED,
                 })}
             />
             <div className="mt-px">{children}</div>
@@ -122,7 +122,7 @@ function CustomRPCInput({
                     'block w-full rounded-md border border-solid shadow-sm outline-none p-3 pr-16',
                     formState.errors.url
                         ? 'border-issue-dark text-issue-dark'
-                        : 'border-haneul-grey-65 text-haneul-grey-90'
+                        : 'border-gray-65 text-gray-90'
                 )}
             />
 
@@ -130,7 +130,7 @@ function CustomRPCInput({
                 <button
                     disabled={!formState.isDirty || !formState.isValid}
                     type="submit"
-                    className="text-white uppercase text-captionSmall font-semibold rounded-full px-2 py-1 bg-haneul-grey-90 flex items-center justify-center border-0 transition disabled:bg-haneul-grey-45 disabled:text-haneul-grey-65"
+                    className="text-white uppercase text-captionSmall font-semibold rounded-full px-2 py-1 bg-gray-90 flex items-center justify-center border-0 transition disabled:bg-gray-45 disabled:text-gray-65"
                 >
                     Save
                 </button>
