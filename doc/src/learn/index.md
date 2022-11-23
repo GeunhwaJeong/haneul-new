@@ -1,10 +1,10 @@
 ---
-title: Learn About Haneul
+title: Learn about Haneul
 ---
 
-*Haneul: pronounced "sweet" without the "T" - with Transactions (loads of them), things are SWEET indeed. :-)*
+Haneul *(swē)* is the water element in Japanese philosophy. The power of the haneul element lies in its fluidity---its ability to easily adapt to and transform any environment. Similarly, the Haneul platform seeks to provide a flexible network that you can leverage to shape the web3 landscape. 
 
-Welcome to the documentation for the Haneul platform. Haneul is built on the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language. This documentation assumes that you have a basic working knowledge of Move. To learn more about the differences between core Move and Haneul Move, see [How Haneul Move differs from core Move](../learn/haneul-move-diffs.md).
+The Haneul platform is built on Haneul Move, which is derived from the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language. This documentation assumes that you have a basic working knowledge of Move. To learn more about the differences between core Move and Haneul Move, see [How Haneul Move differs from core Move](../learn/haneul-move-diffs.md).
 
 For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper. Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
 
