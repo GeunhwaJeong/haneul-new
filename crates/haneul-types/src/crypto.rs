@@ -916,13 +916,6 @@ pub trait HaneulSignature: Sized + signature::Signature {
     fn verify_secure<T>(&self, value: &T, intent: Intent, author: HaneulAddress) -> HaneulResult<()>
     where
         T: Serialize;
-
-    fn add_to_verification_obligation_or_verify(
-        &self,
-        author: HaneulAddress,
-        obligation: &mut VerificationObligation,
-        idx: usize,
-    ) -> HaneulResult<()>;
 }
 
 impl<S: HaneulSignatureInner + Sized> HaneulSignature for S {
@@ -974,24 +967,6 @@ impl<S: HaneulSignatureInner + Sized> HaneulSignature for S {
             })
     }
 
-    fn add_to_verification_obligation_or_verify(
-        &self,
-        author: HaneulAddress,
-        obligation: &mut VerificationObligation,
-        idx: usize,
-    ) -> HaneulResult<()> {
-        let (sig, pk) = self.get_verification_inputs(author)?;
-        match obligation.add_signature_and_public_key(sig.clone(), pk.clone(), idx) {
-            Ok(_) => Ok(()),
-            Err(err) => {
-                let msg = &obligation.messages[idx][..];
-                pk.verify(msg, &sig)
-                    .map_err(|_| HaneulError::InvalidSignature {
-                        error: err.to_string(),
-                    })
-            }
-        }
-    }
 }
 
 /// AuthoritySignInfoTrait is a trait used specifically for a few structs in messages.rs
