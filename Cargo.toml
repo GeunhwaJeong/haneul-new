@@ -5,7 +5,6 @@ members = [
     "crates/haneullabs-network",
     "crates/haneullabs-util-mem",
     "crates/haneullabs-util-mem-derive",
-    "crates/name-variant",
     "crates/prometheus-closure-metric",
     "crates/rccheck",
     "crates/haneul",
