@@ -544,7 +544,7 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
                     )?
                 })
             }
-            HaneulRawData::Package(p) => Data::Package(MovePackage::new(p.id, &p.module_map)),
+            HaneulRawData::Package(p) => Data::Package(MovePackage::new(p.id, &p.module_map)?),
         };
         Ok(Object {
             data,

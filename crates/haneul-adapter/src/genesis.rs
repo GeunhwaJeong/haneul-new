@@ -39,9 +39,10 @@ pub fn get_genesis_context() -> TxContext {
 fn create_genesis_module_objects() -> Genesis {
     let haneul_modules = haneul_framework::get_haneul_framework();
     let std_modules = haneul_framework::get_move_stdlib();
+    // unwraps safe because genesis packages should never exceed max size
     let objects = vec![
-        Object::new_package(std_modules.clone(), TransactionDigest::genesis()),
-        Object::new_package(haneul_modules.clone(), TransactionDigest::genesis()),
+        Object::new_package(std_modules.clone(), TransactionDigest::genesis()).unwrap(),
+        Object::new_package(haneul_modules.clone(), TransactionDigest::genesis()).unwrap(),
     ];
     let modules = vec![std_modules, haneul_modules];
     Genesis { objects, modules }
