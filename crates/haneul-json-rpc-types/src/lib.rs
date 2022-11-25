@@ -2303,6 +2303,20 @@ impl HaneulEvent {
             },
         })
     }
+
+    pub fn get_event_type(&self) -> String {
+        match self {
+            HaneulEvent::MoveEvent { .. } => "MoveEvent".to_string(),
+            HaneulEvent::Publish { .. } => "Publish".to_string(),
+            HaneulEvent::TransferObject { .. } => "TransferObject".to_string(),
+            HaneulEvent::DeleteObject { .. } => "DeleteObject".to_string(),
+            HaneulEvent::NewObject { .. } => "NewObject".to_string(),
+            HaneulEvent::EpochChange(..) => "EpochChange".to_string(),
+            HaneulEvent::Checkpoint(..) => "CheckPoint".to_string(),
+            HaneulEvent::CoinBalanceChange { .. } => "CoinBalanceChange".to_string(),
+            HaneulEvent::MutateObject { .. } => "MutateObject".to_string(),
+        }
+    }
 }
 
 impl PartialEq<HaneulEventEnvelope> for EventEnvelope {

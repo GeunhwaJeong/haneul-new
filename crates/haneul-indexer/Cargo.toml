@@ -1,0 +1,48 @@
+[package]
+name = "haneul-indexer"
+version = "0.0.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+
+[dependencies]
+anyhow = { version = "1.0.64", features = ["backtrace"] }
+async-trait = "0.1.57"
+backoff = { version = "0.4", features = ["futures", "futures-core", "pin-project-lite", "tokio", "tokio_1"] }
+chrono = { version = "0.4.23", features = [
+  "clock",
+  "serde",
+] }
+diesel = { version = "2.0.0", features = ["chrono", "postgres", "serde_json"] }
+futures = "0.3.23"
+dotenvy = "0.15"
+jsonrpsee = { version = "0.15.1", features = ["full"] }
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.83"
+thiserror = "1.0.34"
+tracing = "0.1.36"
+tokio = { version = "1.20.1", features = ["full"] }
+
+narwhal-network = { path = "../../narwhal/network" }
+haneul = { path = "../haneul" }
+haneul-core = { path = "../haneul-core" }
+haneul-config = { path = "../haneul-config" }
+haneul-types = { path = "../haneul-types" }
+haneul-json = { path = "../haneul-json" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
+haneul-node = { path = "../haneul-node" }
+haneul-keys = { path = "../haneul-keys" }
+haneul-sdk = { path = "../haneul-sdk" }
+telemetry-subscribers.workspace = true
+workspace-hack = { path = "../workspace-hack"}
+
+[dev-dependencies]
+test-utils = { path = "../test-utils" }
+haneul-framework-build = { path = "../haneul-framework-build" }
+
+[[bin]]
+name = "haneul-indexer"
+path = "src/main.rs"
