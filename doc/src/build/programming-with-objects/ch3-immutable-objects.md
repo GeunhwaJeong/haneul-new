@@ -102,7 +102,7 @@ To summarize, we introduced two new API functions to interact with immutable obj
 First of all, take a look at the current list of objects you own:
 ```
 $ export ADDR=`haneul client active-address`
-$ haneul client objects --address=$ADDR
+$ haneul client objects $ADDR
 ```
 
 Let's publish the `ColorObject` code on-chain using the Haneul CLI client:
@@ -117,7 +117,7 @@ $ haneul client call --gas-budget 1000 --package $PACKAGE --module "color_object
 ```
 Set the newly created object ID to `$OBJECT`. If we look at the list of objects in the current active address:
 ```
-$ haneul client objects --address=$ADDR
+$ haneul client objects $ADDR
 ```
 There should be one more, with ID `$OBJECT`. Let's turn it into an immutable object:
 ```
@@ -125,11 +125,11 @@ $ haneul client call --gas-budget 1000 --package $PACKAGE --module "color_object
 ```
 Now let's look at the list of objects we own again:
 ```
-$ haneul client objects --address=$ADDR
+$ haneul client objects $ADDR
 ```
 `$OBJECT` is no longer there. It's no longer owned by anyone. You can see that it's now immutable by querying the object information:
 ```
-$ haneul client object --id $OBJECT
+$ haneul client object $OBJECT
 Owner: Immutable
 ...
 ```

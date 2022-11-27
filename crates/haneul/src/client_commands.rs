@@ -100,7 +100,7 @@ pub enum HaneulClientCommands {
     #[clap(name = "object")]
     Object {
         /// Object ID of the object to fetch
-        #[clap(long)]
+        #[clap(name = "object_id")]
         id: ObjectID,
     },
 
@@ -109,8 +109,7 @@ pub enum HaneulClientCommands {
     Publish {
         /// Path to directory containing a Move package
         #[clap(
-            long = "path",
-            short = 'p',
+            name = "package_path",
             global = true,
             parse(from_os_str),
             default_value = "."
@@ -288,11 +287,12 @@ pub enum HaneulClientCommands {
         derivation_path: Option<DerivationPath>,
     },
 
-    /// Obtain all objects owned by the address.
+    /// Obtain all objects owned by the address
     #[clap(name = "objects")]
     Objects {
         /// Address owning the objects
-        #[clap(long)]
+        /// Shows all objects owned by `haneul client active-address` if no argument is passed
+        #[clap(name = "owner_address")]
         address: Option<HaneulAddress>,
     },
 
@@ -300,7 +300,7 @@ pub enum HaneulClientCommands {
     #[clap(name = "gas")]
     Gas {
         /// Address owning the objects
-        #[clap(long)]
+        #[clap(name = "owner_address")]
         address: Option<HaneulAddress>,
     },
 
