@@ -15,7 +15,7 @@ services:
       - -c
       - |
         /usr/local/bin/haneul-rosetta generate-rosetta-cli-config &
-        /usr/local/bin/haneul start &> /haneul/haneul.log &
+        /usr/local/bin/haneul start --no-full-node &> /haneul/haneul.log &
         /usr/local/bin/haneul-rosetta start-online-server
     stdin_open: true
     tty: true
