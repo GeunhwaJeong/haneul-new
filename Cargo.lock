@@ -8346,6 +8346,7 @@ dependencies = [
  "haneul-node",
  "haneul-sdk",
  "haneul-simulator",
+ "haneul-source-validation",
  "haneul-swarm",
  "haneul-types",
  "telemetry-subscribers",
@@ -9058,6 +9059,32 @@ dependencies = [
  "haneul-framework",
  "haneul-types",
  "telemetry-subscribers",
+ "tracing",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-source-validation"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier",
+ "move-compiler",
+ "move-core-types",
+ "move-package",
+ "move-symbol-pool",
+ "rand 0.8.5",
+ "haneul",
+ "haneul-framework",
+ "haneul-framework-build",
+ "haneul-sdk",
+ "haneul-types",
+ "tempfile",
+ "test-utils",
+ "thiserror",
+ "tokio",
  "tracing",
  "workspace-hack",
 ]
