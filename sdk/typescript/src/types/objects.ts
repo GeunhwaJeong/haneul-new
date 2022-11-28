@@ -38,16 +38,6 @@ export type HaneulMoveObject = {
 
 export const GEUNHWA_PER_HANEUL: BigInt = BigInt(1000000000);
 
-export type CoinDenominationInfoResponse = {
-  /** Coin type like "0x2::haneul::HANEUL" */
-  coinType: string;
-  /** min unit, like GEUNHWA */
-  basicUnit?: string;
-  /** number of zeros in the denomination,
-   * e.g., 9 here for HANEUL. */
-  decimalNumber: number;
-};
-
 export type HaneulMovePackage = {
   /** A mapping from module name to disassembled Move bytecode */
   disassembled: MovePackageContent;
@@ -246,7 +236,7 @@ export function getSharedObjectInitialVersion(
 
 export function isSharedObject(resp: GetObjectDataResponse): boolean {
   const owner = getObjectOwner(resp);
-  return (typeof owner === 'object' && 'Shared' in owner);
+  return typeof owner === 'object' && 'Shared' in owner;
 }
 
 export function isImmutableObject(resp: GetObjectDataResponse): boolean {

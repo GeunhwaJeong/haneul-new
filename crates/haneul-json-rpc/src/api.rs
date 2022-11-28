@@ -11,8 +11,8 @@ use fastcrypto::encoding::Base64;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
-    MoveFunctionArgType, RPCTransactionRequestParams, HaneulEventEnvelope, HaneulEventFilter,
-    HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
+    MoveFunctionArgType, RPCTransactionRequestParams, HaneulCoinMetadata, HaneulEventEnvelope,
+    HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
     HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionEffects,
     HaneulTransactionFilter, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes, TransactionsPage,
 };
@@ -117,6 +117,14 @@ pub trait RpcReadApi {
 pub trait RpcFullNodeReadApi {
     #[method(name = "dryRunTransaction")]
     async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects>;
+
+    /// Return metadata(e.g., symbol, decimals) for a coin
+    #[method(name = "getCoinMetadata")]
+    async fn get_coin_metadata(
+        &self,
+        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
+        coin_type: String,
+    ) -> RpcResult<HaneulCoinMetadata>;
 
     /// Return the argument types of a Move function,
     /// based on normalized Type.

@@ -37,6 +37,15 @@ export const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 type ObjectData = ObjectDataFull | HaneulObjectInfo;
 type ObjectDataFull = GetObjectDataResponse | HaneulMoveObject;
 
+export type CoinMetadata = {
+  decimals: number;
+  name: string;
+  symbol: string;
+  description: string;
+  iconUrl: string | null;
+  id: ObjectId | null;
+};
+
 /**
  * Utility class for 0x2::coin
  * as defined in https://github.com/GeunhwaJeong/haneul/blob/ca9046fd8b1a9e8634a4b74b0e7dabdc7ea54475/haneul_programmability/framework/sources/Coin.move#L4

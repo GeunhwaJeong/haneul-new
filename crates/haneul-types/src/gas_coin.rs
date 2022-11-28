@@ -37,6 +37,10 @@ impl GAS {
     pub fn type_tag() -> TypeTag {
         TypeTag::Struct(Self::type_())
     }
+
+    pub fn is_gas(other: &StructTag) -> bool {
+        &Self::type_() == other
+    }
 }
 
 /// Rust version of the Move haneul::coin::Coin<Haneul::haneul::HANEUL> type
