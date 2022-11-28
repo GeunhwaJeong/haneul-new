@@ -3,7 +3,7 @@
 
 import { Base64DataBuffer } from '@haneullabs/haneul.js';
 
-import { type Validator, type ValidatorState } from './Validators';
+import { type Validator, type ValidatorState } from './TopValidatorsCard';
 
 const encoder = new TextEncoder();
 
