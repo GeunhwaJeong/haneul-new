@@ -177,48 +177,8 @@ export interface PublishTransaction {
  * Serializes a transaction to a string that can be signed by a `Signer`.
  */
 export interface TxnDataSerializer {
-  newTransferObject(
+  serializeToBytes(
     signerAddress: HaneulAddress,
-    txn: TransferObjectTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newTransferHaneul(
-    signerAddress: HaneulAddress,
-    txn: TransferHaneulTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newPay(
-    signerAddress: HaneulAddress,
-    txn: PayTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newPayHaneul(
-    signerAddress: HaneulAddress,
-    txn: PayHaneulTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newPayAllHaneul(
-    signerAddress: HaneulAddress,
-    txn: PayAllHaneulTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newMoveCall(
-    signerAddress: HaneulAddress,
-    txn: MoveCallTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newMergeCoin(
-    signerAddress: HaneulAddress,
-    txn: MergeCoinTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newSplitCoin(
-    signerAddress: HaneulAddress,
-    txn: SplitCoinTransaction
-  ): Promise<Base64DataBuffer>;
-
-  newPublish(
-    signerAddress: HaneulAddress,
-    txn: PublishTransaction
+    txn: UnserializedSignableTransaction
   ): Promise<Base64DataBuffer>;
 }

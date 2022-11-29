@@ -4,7 +4,6 @@
 import { isTransactionBytes } from '../../types/index.guard';
 import { JsonRpcClient } from '../../rpc/client';
 import { Base64DataBuffer } from '../../serialization/base64';
-import { HaneulAddress } from '../../types';
 import {
   MoveCallTransaction,
   MergeCoinTransaction,
@@ -16,6 +15,7 @@ import {
   PayAllHaneulTransaction,
   PublishTransaction,
   TxnDataSerializer,
+  UnserializedSignableTransaction,
 } from './txn-data-serializer';
 
 /**
@@ -46,200 +46,133 @@ export class RpcTxnDataSerializer implements TxnDataSerializer {
     this.client = new JsonRpcClient(endpoint);
   }
 
-  async newTransferObject(
-    signerAddress: HaneulAddress,
-    t: TransferObjectTransaction
+  async serializeToBytes(
+    signerAddress: string,
+    unserializedTxn: UnserializedSignableTransaction
   ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_transferObject',
-        [signerAddress, t.objectId, t.gasPayment, t.gasBudget, t.recipient],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(
-        `Error transferring object: ${err} with args ${JSON.stringify(t)}`
-      );
-    }
-  }
-
-  async newTransferHaneul(
-    signerAddress: HaneulAddress,
-    t: TransferHaneulTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_transferHaneul',
-        [signerAddress, t.haneulObjectId, t.gasBudget, t.recipient, t.amount],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(
-        `Error transferring Haneul coin: ${err} with args ${JSON.stringify(t)}`
-      );
-    }
-  }
-
-  async newPay(
-    signerAddress: HaneulAddress,
-    t: PayTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_pay',
-        [
+    let endpoint: string;
+    let args: Array<any>;
+    switch (unserializedTxn.kind) {
+      case 'transferObject':
+        const t = unserializedTxn.data as TransferObjectTransaction;
+        endpoint = 'haneul_transferObject';
+        args = [
           signerAddress,
-          t.inputCoins,
-          t.recipients,
-          t.amounts,
+          t.objectId,
           t.gasPayment,
           t.gasBudget,
-        ],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(
-        `Error executing Pay transaction: ${err} with args ${JSON.stringify(t)}`
-      );
-    }
-  }
-
-  async newPayHaneul(
-    signerAddress: HaneulAddress,
-    t: PayHaneulTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_payHaneul',
-        [signerAddress, t.inputCoins, t.recipients, t.amounts, t.gasBudget],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(
-        `Error executing PayHaneul transaction: ${err} with args ${JSON.stringify(
-          t
-        )}`
-      );
-    }
-  }
-
-  async newPayAllHaneul(
-    signerAddress: HaneulAddress,
-    t: PayAllHaneulTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_payAllHaneul',
-        [signerAddress, t.inputCoins, t.recipient, t.gasBudget],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(
-        `Error executing PayAllHaneul transaction: ${err} with args ${JSON.stringify(
-          t
-        )}`
-      );
-    }
-  }
-
-  async newMoveCall(
-    signerAddress: HaneulAddress,
-    t: MoveCallTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_moveCall',
-        [
+          t.recipient,
+        ];
+        break;
+      case 'transferHaneul':
+        const transferHaneul = unserializedTxn.data as TransferHaneulTransaction;
+        endpoint = 'haneul_transferHaneul';
+        args = [
           signerAddress,
-          t.packageObjectId,
-          t.module,
-          t.function,
-          t.typeArguments,
-          t.arguments,
-          t.gasPayment,
-          t.gasBudget,
-        ],
+          transferHaneul.haneulObjectId,
+          transferHaneul.gasBudget,
+          transferHaneul.recipient,
+          transferHaneul.amount,
+        ];
+        break;
+      case 'pay':
+        const pay = unserializedTxn.data as PayTransaction;
+        endpoint = 'haneul_pay';
+        args = [
+          signerAddress,
+          pay.inputCoins,
+          pay.recipients,
+          pay.amounts,
+          pay.gasPayment,
+          pay.gasBudget,
+        ];
+        break;
+      case 'payHaneul':
+        const payHaneul = unserializedTxn.data as PayHaneulTransaction;
+        endpoint = 'haneul_payHaneul';
+        args = [
+          signerAddress,
+          payHaneul.inputCoins,
+          payHaneul.recipients,
+          payHaneul.amounts,
+          payHaneul.gasBudget,
+        ];
+        break;
+      case 'payAllHaneul':
+        const payAllHaneul = unserializedTxn.data as PayAllHaneulTransaction;
+        endpoint = 'haneul_payAllHaneul';
+        args = [
+          signerAddress,
+          payAllHaneul.inputCoins,
+          payAllHaneul.recipient,
+          payAllHaneul.gasBudget,
+        ];
+        break;
+      case 'moveCall':
+        const moveCall = unserializedTxn.data as MoveCallTransaction;
+        endpoint = 'haneul_moveCall';
+        args = [
+          signerAddress,
+          moveCall.packageObjectId,
+          moveCall.module,
+          moveCall.function,
+          moveCall.typeArguments,
+          moveCall.arguments,
+          moveCall.gasPayment,
+          moveCall.gasBudget,
+        ];
+        break;
+      case 'mergeCoin':
+        const mergeCoin = unserializedTxn.data as MergeCoinTransaction;
+        endpoint = 'haneul_mergeCoins';
+        args = [
+          signerAddress,
+          mergeCoin.primaryCoin,
+          mergeCoin.coinToMerge,
+          mergeCoin.gasPayment,
+          mergeCoin.gasBudget,
+        ];
+        break;
+      case 'splitCoin':
+        const splitCoin = unserializedTxn.data as SplitCoinTransaction;
+        endpoint = 'haneul_splitCoin';
+        args = [
+          signerAddress,
+          splitCoin.coinObjectId,
+          splitCoin.splitAmounts,
+          splitCoin.gasPayment,
+          splitCoin.gasBudget,
+        ];
+        break;
+      case 'publish':
+        const publish = unserializedTxn.data as PublishTransaction;
+        endpoint = 'haneul_publish';
+        args = [
+          signerAddress,
+          publish.compiledModules,
+          publish.gasPayment,
+          publish.gasBudget,
+        ];
+        break;
+    }
+
+    try {
+      const resp = await this.client.requestWithType(
+        endpoint,
+        args,
         isTransactionBytes,
         this.skipDataValidation
       );
       return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
+    } catch (e) {
       throw new Error(
-        `Error executing a move call: ${err} with args ${JSON.stringify(t)}`
+        `Encountered error when calling RpcTxnDataSerialize for a ${unserializedTxn.kind} transaction for ` +
+          `address ${signerAddress} for transaction ${JSON.stringify(
+            unserializedTxn,
+            null,
+            2
+          )}: ${e}`
       );
-    }
-  }
-
-  async newMergeCoin(
-    signerAddress: HaneulAddress,
-    t: MergeCoinTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_mergeCoins',
-        [
-          signerAddress,
-          t.primaryCoin,
-          t.coinToMerge,
-          t.gasPayment,
-          t.gasBudget,
-        ],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(`Error merging coin: ${err}`);
-    }
-  }
-
-  async newSplitCoin(
-    signerAddress: HaneulAddress,
-    t: SplitCoinTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_splitCoin',
-        [
-          signerAddress,
-          t.coinObjectId,
-          t.splitAmounts,
-          t.gasPayment,
-          t.gasBudget,
-        ],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(`Error splitting coin: ${err}`);
-    }
-  }
-
-  async newPublish(
-    signerAddress: HaneulAddress,
-    t: PublishTransaction
-  ): Promise<Base64DataBuffer> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_publish',
-        [signerAddress, t.compiledModules, t.gasPayment, t.gasBudget],
-        isTransactionBytes,
-        this.skipDataValidation
-      );
-      return new Base64DataBuffer(resp.txBytes);
-    } catch (err) {
-      throw new Error(`Error publishing package ${err}`);
     }
   }
 }

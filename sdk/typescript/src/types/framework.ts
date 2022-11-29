@@ -304,12 +304,14 @@ export class Coin {
       gasBudget: Number(gasBudget),
     };
     if (isHaneulTransfer) {
-      return signer.serializer.newPayHaneul(signerAddress, {
-        ...txCommon,
+      return signer.serializer.serializeToBytes(signerAddress, {
+        kind: 'payHaneul',
+        data: { ...txCommon },
       });
     }
-    return signer.serializer.newPay(signerAddress, {
-      ...txCommon,
+    return signer.serializer.serializeToBytes(signerAddress, {
+      kind: 'pay',
+      data: { ...txCommon },
       // we know there is a gas coin with enough balance to cover
       // the gas budget let rpc select one for us
     });
