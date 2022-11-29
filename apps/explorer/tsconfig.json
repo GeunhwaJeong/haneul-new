@@ -26,6 +26,12 @@
             "@haneullabs/wallet-standard": [
                 "../../sdk/wallet-adapter/packages/wallet-standard/src/"
             ],
+            "@haneullabs/wallet-adapter-all-wallets": [
+                "../../sdk/wallet-adapter/packages/adapters/all-wallets/src/"
+            ],
+            "@haneullabs/wallet-adapter-unsafe-burner": [
+                "../../sdk/wallet-adapter/packages/adapters/unsafe-burner/src/"
+            ],
             "@haneullabs/wallet-adapter-wallet-standard": [
                 "../../sdk/wallet-adapter/packages/adapters/wallet-standard-adapter/src/"
             ],

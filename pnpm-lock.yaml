@@ -37,9 +37,9 @@ importers:
       '@hookform/resolvers': ^2.9.10
       '@haneullabs/core': workspace:*
       '@haneullabs/haneul.js': workspace:*
+      '@haneullabs/wallet-adapter-all-wallets': workspace:*
       '@haneullabs/wallet-adapter-react': workspace:*
       '@haneullabs/wallet-adapter-react-ui': workspace:*
-      '@haneullabs/wallet-adapter-wallet-standard': workspace:*
       '@sentry/react': ^7.6.0
       '@sentry/tracing': ^7.6.0
       '@storybook/addon-a11y': 7.0.0-alpha.38
@@ -113,9 +113,9 @@ importers:
       '@hookform/resolvers': 2.9.10_react-hook-form@7.39.2
       '@haneullabs/core': link:../core
       '@haneullabs/haneul.js': link:../../sdk/typescript
+      '@haneullabs/wallet-adapter-all-wallets': link:../../sdk/wallet-adapter/packages/adapters/all-wallets
       '@haneullabs/wallet-adapter-react': link:../../sdk/wallet-adapter/packages/react-providers
       '@haneullabs/wallet-adapter-react-ui': link:../../sdk/wallet-adapter/packages/ui
-      '@haneullabs/wallet-adapter-wallet-standard': link:../../sdk/wallet-adapter/packages/adapters/wallet-standard-adapter
       '@sentry/react': 7.11.1_react@18.2.0
       '@sentry/tracing': 7.11.1
       '@tanstack/react-query': 4.14.1_biqbaboplfbrettd7655fr4n2y
