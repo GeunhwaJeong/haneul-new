@@ -60,7 +60,7 @@ const transformTable = (events: HaneulEvents) => ({
                 sender: (
                     <Link
                         variant="mono"
-                        to={`/addresses/${encodeURIComponent(
+                        to={`/address/${encodeURIComponent(
                             event.publish.sender
                         )}`}
                     >
@@ -81,7 +81,7 @@ const transformTable = (events: HaneulEvents) => ({
                 txnDigest: (
                     <Link
                         variant="mono"
-                        to={`/transactions/${encodeURIComponent(txDigest)}`}
+                        to={`/transaction/${encodeURIComponent(txDigest)}`}
                     >
                         {truncate(txDigest, TRUNCATE_LENGTH)}
                     </Link>
