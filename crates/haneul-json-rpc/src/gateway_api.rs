@@ -14,8 +14,8 @@ use signature::Signature;
 use haneul_core::gateway_state::GatewayClient;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo, HaneulTransactionResponse,
-    HaneulTypeTag, TransactionBytes,
+    GetObjectDataResponse, RPCTransactionRequestParams, HaneulObjectInfo,
+    HaneulTransactionAuthSignersResponse, HaneulTransactionResponse, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc::Module;
 use haneul_types::batch::TxSequenceNumber;
@@ -165,6 +165,13 @@ impl RpcReadApiServer for GatewayReadApiImpl {
         end: TxSequenceNumber,
     ) -> RpcResult<Vec<TransactionDigest>> {
         Ok(self.client.get_transactions_in_range(start, end)?)
+    }
+
+    async fn get_transaction_auth_signers(
+        &self,
+        _digest: TransactionDigest,
+    ) -> RpcResult<HaneulTransactionAuthSignersResponse> {
+        todo!()
     }
 }
 

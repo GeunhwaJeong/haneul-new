@@ -33,8 +33,8 @@ use tracing::warn;
 use fastcrypto::encoding::{Base64, Encoding};
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-    TransactionEffectsDigest,
+    AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
+    TransactionDigest, TransactionEffectsDigest,
 };
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
@@ -322,6 +322,11 @@ pub struct HaneulTransactionResponse {
     pub effects: HaneulTransactionEffects,
     pub timestamp_ms: Option<u64>,
     pub parsed_data: Option<HaneulParsedTransactionResponse>,
+}
+
+#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+pub struct HaneulTransactionAuthSignersResponse {
+    pub signers: Vec<AuthorityName>,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
