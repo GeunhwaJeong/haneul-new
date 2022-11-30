@@ -11,11 +11,11 @@ use async_trait::async_trait;
 use tokio::sync::RwLock;
 use tracing::{debug, error};
 
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::QuorumDriver;
-use haneul_metrics::spawn_monitored_task;
 use haneul_types::base_types::{
     SequenceNumber, HaneulAddress, TransactionDigest, TRANSACTION_DIGEST_LENGTH,
 };

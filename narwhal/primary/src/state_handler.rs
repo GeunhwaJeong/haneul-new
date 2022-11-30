@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 use config::{Committee, SharedCommittee, SharedWorkerCache, WorkerCache, WorkerIndex};
 use crypto::PublicKey;
+use haneullabs_metrics::spawn_monitored_task;
 use network::{P2pNetwork, UnreliableNetwork};
 use std::{collections::BTreeMap, sync::Arc};
-use haneul_metrics::spawn_monitored_task;
 use tap::TapOptional;
 use tokio::{sync::watch, task::JoinHandle};
 use tracing::{debug, info, warn};

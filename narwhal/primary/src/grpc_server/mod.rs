@@ -12,8 +12,8 @@ use consensus::dag::Dag;
 
 use crypto::PublicKey;
 use multiaddr::Multiaddr;
+use haneullabs_metrics::spawn_monitored_task;
 use std::{sync::Arc, time::Duration};
-use haneul_metrics::spawn_monitored_task;
 use tokio::task::JoinHandle;
 use tracing::{error, info};
 use types::{ConfigurationServer, ProposerServer, ValidatorServer};

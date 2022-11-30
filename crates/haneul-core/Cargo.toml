@@ -43,13 +43,13 @@ haneul-storage = { path = "../haneul-storage" }
 haneul-config = { path = "../haneul-config" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-haneul-metrics = { path = "../haneul-metrics" }
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
 move-core-types.workspace = true
 move-vm-runtime.workspace = true
 
+haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-config = { path = "../../narwhal/config" }
 narwhal-consensus = { path = "../../narwhal/consensus" }
 narwhal-executor = { path = "../../narwhal/executor" }

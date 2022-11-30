@@ -7,8 +7,8 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use haneullabs_metrics::spawn_monitored_task;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use haneul_metrics::spawn_monitored_task;
 use telemetry_subscribers::FilterHandle;
 use tracing::info;
 

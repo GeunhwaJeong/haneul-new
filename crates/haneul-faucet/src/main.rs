@@ -10,6 +10,7 @@ use axum::{
 };
 use clap::Parser;
 use http::Method;
+use haneullabs_metrics::spawn_monitored_task;
 use std::env;
 use std::{
     borrow::Cow,
@@ -20,7 +21,6 @@ use std::{
 use haneul::client_commands::WalletContext;
 use haneul_config::{haneul_config_dir, HANEUL_CLIENT_CONFIG};
 use haneul_faucet::{Faucet, FaucetRequest, FaucetResponse, RequestMetricsLayer, SimpleFaucet};
-use haneul_metrics::spawn_monitored_task;
 use tower::{limit::RateLimitLayer, ServiceBuilder};
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{info, warn};

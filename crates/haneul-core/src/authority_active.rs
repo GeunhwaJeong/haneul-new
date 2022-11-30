@@ -30,9 +30,9 @@
 */
 
 use arc_swap::ArcSwap;
+use haneullabs_metrics::spawn_monitored_task;
 use prometheus::Registry;
 use std::{collections::HashMap, ops::Deref, sync::Arc, time::Duration};
-use haneul_metrics::spawn_monitored_task;
 use haneul_types::{base_types::AuthorityName, error::HaneulResult};
 use tokio::{
     sync::{oneshot, Mutex, MutexGuard},

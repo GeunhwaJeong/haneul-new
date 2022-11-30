@@ -44,6 +44,7 @@ use tracing::{info, warn};
 use typed_store::DBMetrics;
 
 use crate::metrics::GrpcMetrics;
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
@@ -51,7 +52,6 @@ use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
-use haneul_metrics::spawn_monitored_task;
 use haneul_types::crypto::KeypairTraits;
 
 pub mod admin;
@@ -107,7 +107,7 @@ impl HaneulNode {
 
         // Initialize metrics to track db usage before creating any stores
         DBMetrics::init(&prometheus_registry);
-        haneul_metrics::init_metrics(&prometheus_registry);
+        haneullabs_metrics::init_metrics(&prometheus_registry);
 
         let genesis = config.genesis()?;
 

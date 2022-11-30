@@ -33,7 +33,7 @@ use tokio::task::JoinHandle;
 use tokio::time;
 
 use crate::authority::AuthorityState;
-use haneul_metrics::spawn_monitored_task;
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::messages::ConsensusTransactionKind;
 use tokio::time::Duration;

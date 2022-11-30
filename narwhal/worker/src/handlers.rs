@@ -26,7 +26,7 @@ use types::{
     WorkerToWorkerClient,
 };
 
-use haneul_metrics::monitored_future;
+use haneullabs_metrics::monitored_future;
 
 use crate::TransactionValidator;
 

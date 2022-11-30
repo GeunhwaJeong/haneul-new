@@ -5,13 +5,13 @@ use config::Committee;
 use crypto::PublicKey;
 use dag::node_dag::{NodeDag, NodeDagError};
 use fastcrypto::hash::Hash;
+use haneullabs_metrics::spawn_monitored_task;
 use std::{
     borrow::Borrow,
     collections::{BTreeMap, HashMap, HashSet, VecDeque},
     ops::RangeInclusive,
     sync::{Arc, RwLock},
 };
-use haneul_metrics::spawn_monitored_task;
 use thiserror::Error;
 use tokio::{
     sync::{

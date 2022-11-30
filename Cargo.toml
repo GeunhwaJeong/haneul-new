@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/component",
+    "crates/haneullabs-metrics",
     "crates/haneullabs-network",
     "crates/haneullabs-util-mem",
     "crates/haneullabs-util-mem-derive",
@@ -26,7 +27,6 @@ members = [
     "crates/haneul-json-rpc-types",
     "crates/haneul-keys",
     "crates/haneul-macros",
-    "crates/haneul-metrics",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-open-rpc",

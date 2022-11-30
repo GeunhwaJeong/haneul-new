@@ -1,5 +1,5 @@
 [package]
-name = "haneul-metrics"
+name = "haneullabs-metrics"
 version = "0.7.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"

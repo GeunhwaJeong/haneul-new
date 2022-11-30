@@ -19,7 +19,7 @@ use tracing::{debug, error, info, warn};
 
 use crate::authority_aggregator::AuthorityAggregator;
 use crate::authority_client::AuthorityAPI;
-use haneul_metrics::spawn_monitored_task;
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     CertifiedTransaction, CertifiedTransactionEffects, QuorumDriverRequest,

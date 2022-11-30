@@ -5,7 +5,7 @@ use crate::{
     authority_active::gossip::GossipMetrics, authority_aggregator::AuthorityAggregator,
     authority_client::AuthorityAPI, safe_client::SafeClient,
 };
-use haneul_metrics::monitored_future;
+use haneullabs_metrics::monitored_future;
 use haneul_storage::node_sync_store::NodeSyncStore;
 use haneul_types::{
     base_types::{AuthorityName, EpochId, ExecutionDigests},

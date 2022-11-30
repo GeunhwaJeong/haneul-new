@@ -10,11 +10,11 @@ use once_cell::sync::Lazy;
 use tokio::task::JoinHandle;
 use tracing::info;
 
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::QuorumDriver;
-use haneul_metrics::spawn_monitored_task;
 
 use crate::errors::{Error, ErrorType};
 use crate::state::{OnlineServerContext, PseudoBlockProvider};

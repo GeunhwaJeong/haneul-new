@@ -29,7 +29,7 @@ tempfile = "3.3.0"
 tap = "1.0.1"
 
 haneul-types = { path = "../haneul-types" }
-haneul-metrics = { path = "../haneul-metrics" }
+haneullabs-metrics = { path = "../haneullabs-metrics" }
 move-core-types.workspace = true
 move-bytecode-utils.workspace = true
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }

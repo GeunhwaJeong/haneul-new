@@ -3,10 +3,10 @@
 
 use crate::event_handler::EVENT_DISPATCH_BUFFER_SIZE;
 use futures::Stream;
+use haneullabs_metrics::spawn_monitored_task;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::sync::Arc;
-use haneul_metrics::spawn_monitored_task;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulError;
 use haneul_types::filter::Filter;

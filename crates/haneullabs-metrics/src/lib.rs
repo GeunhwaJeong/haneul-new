@@ -59,11 +59,11 @@ macro_rules! monitored_future {
         const LOCATION: &str = concat!(file!(), ':', line!());
 
         async move {
-            let metrics = haneul_metrics::get_metrics();
+            let metrics = haneullabs_metrics::get_metrics();
 
             let _guard = if let Some(m) = &metrics {
                 m.$metric.with_label_values(&[LOCATION]).inc();
-                Some(haneul_metrics::scopeguard::guard(m, |metrics| {
+                Some(haneullabs_metrics::scopeguard::guard(m, |metrics| {
                     m.$metric.with_label_values(&[LOCATION]).dec();
                 }))
             } else {
@@ -78,6 +78,6 @@ macro_rules! monitored_future {
 #[macro_export]
 macro_rules! spawn_monitored_task {
     ($fut: expr) => {
-        tokio::task::spawn(haneul_metrics::monitored_future!(tasks, $fut))
+        tokio::task::spawn(haneullabs_metrics::monitored_future!(tasks, $fut))
     };
 }

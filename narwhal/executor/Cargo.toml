@@ -35,7 +35,7 @@ match_opt = "0.1.2"
 rand = "0.8.5"
 mockall = "0.11.2"
 
-haneul-metrics = { path = "../../crates/haneul-metrics" }
+haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 store = { path = "../../crates/typed-store", package = "typed-store" }
 telemetry-subscribers = { path = "../../crates/telemetry-subscribers"}
 

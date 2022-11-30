@@ -14,11 +14,11 @@ use async_trait::async_trait;
 use futures::{future, future::BoxFuture, stream::FuturesUnordered, StreamExt};
 use itertools::Itertools;
 use move_core_types::value::MoveStructLayout;
+use haneullabs_metrics::{monitored_future, spawn_monitored_task};
 use haneullabs_network::config::Config;
 use std::convert::AsRef;
 use haneul_config::genesis::Genesis;
 use haneul_config::NetworkConfig;
-use haneul_metrics::{monitored_future, spawn_monitored_task};
 use haneul_network::{
     default_haneullabs_network_config, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC,
 };

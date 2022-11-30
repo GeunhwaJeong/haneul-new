@@ -35,7 +35,7 @@ store = { path = "../../crates/typed-store", package = "typed-store" }
 haneullabs-network = { path = "../../crates/haneullabs-network"}
 telemetry-subscribers = { path = "../../crates/telemetry-subscribers"}
 
-haneul-metrics = { path = "../../crates/haneul-metrics" }
+haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 
 anemo.workspace = true
 anemo-tower.workspace = true

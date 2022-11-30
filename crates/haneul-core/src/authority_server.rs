@@ -29,7 +29,7 @@ use tap::TapFallible;
 use tokio::time::sleep;
 use tokio::{sync::mpsc::Receiver, task::JoinHandle};
 
-use haneul_metrics::spawn_monitored_task;
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_types::messages_checkpoint::CheckpointRequest;
 use haneul_types::messages_checkpoint::CheckpointResponse;
 
