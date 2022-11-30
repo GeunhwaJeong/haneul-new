@@ -8,7 +8,8 @@ use rocksdb::MultiThreaded;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use strum_macros::EnumString;
-use haneul_core::authority::authority_store_tables::{AuthorityEpochTables, AuthorityPerpetualTables};
+use haneul_core::authority::authority_per_epoch_store::AuthorityEpochTables;
+use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_storage::default_db_options;
 use haneul_storage::{lock_service::LockServiceImpl, node_sync_store::NodeSyncStore, IndexStore};
@@ -127,7 +128,7 @@ pub fn dump_table(
 
 #[cfg(test)]
 mod test {
-    use haneul_core::authority::authority_store_tables::AuthorityEpochTables;
+    use haneul_core::authority::authority_per_epoch_store::AuthorityEpochTables;
     use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
     use haneul_types::crypto::AuthoritySignInfo;
 
