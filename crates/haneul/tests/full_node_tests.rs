@@ -20,6 +20,7 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
 use haneul_node::HaneulNode;
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
+use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
 use haneul_types::event::BalanceChangeType;
 use haneul_types::event::Event;
 use haneul_types::messages::{
@@ -1040,6 +1041,51 @@ async fn test_validator_node_has_no_transaction_orchestrator() {
     assert!(node
         .subscribe_to_transaction_orchestrator_effects()
         .is_err());
+}
+
+#[tokio::test]
+async fn test_execute_tx_with_serialized_signature() -> Result<(), anyhow::Error> {
+    let mut test_cluster = init_cluster_builder_env_aware().build().await?;
+    let context = &mut test_cluster.wallet;
+    context
+        .config
+        .keystore
+        .add_key(HaneulKeyPair::Secp256k1HaneulKeyPair(get_key_pair().1))?;
+    context
+        .config
+        .keystore
+        .add_key(HaneulKeyPair::Ed25519HaneulKeyPair(get_key_pair().1))?;
+
+    let jsonrpc_client = &test_cluster.fullnode_handle.as_ref().unwrap().rpc_client;
+
+    let txn_count = 4;
+    let txns = make_transactions_with_wallet_context(context, txn_count).await;
+    for txn in txns {
+        let tx_digest = txn.digest();
+        let (tx_bytes, signature) = txn.to_tx_bytes_and_signature();
+        let params = rpc_params![
+            tx_bytes,
+            signature,
+            ExecuteTransactionRequestType::WaitForLocalExecution
+        ];
+        let response: HaneulExecuteTransactionResponse = jsonrpc_client
+            .request("haneul_executeTransactionSerializedSig", params)
+            .await
+            .unwrap();
+
+        if let HaneulExecuteTransactionResponse::EffectsCert {
+            certificate,
+            effects: _,
+            confirmed_local_execution,
+        } = response
+        {
+            assert_eq!(&certificate.transaction_digest, tx_digest);
+            assert!(confirmed_local_execution);
+        } else {
+            panic!("Expect EffectsCert but got {:?}", response);
+        }
+    }
+    Ok(())
 }
 
 #[tokio::test]
