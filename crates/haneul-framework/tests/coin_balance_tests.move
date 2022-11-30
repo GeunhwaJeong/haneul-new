@@ -73,7 +73,7 @@ module haneul::test_coin {
     }
 
     #[test]
-    #[expected_failure(abort_code = 1)]
+    #[expected_failure(abort_code = haneul::epoch_time_lock::EEpochNotYetEnded)]
     public entry fun test_locked_coin_invalid() {
         let scenario_val = test_scenario::begin(TEST_SENDER_ADDR);
         let scenario = &mut scenario_val;
