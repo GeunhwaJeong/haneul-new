@@ -31,6 +31,7 @@ mod histogram;
 mod module_cache_gauge;
 mod node_sync;
 mod query_helpers;
+mod stake_aggregator;
 mod transaction_manager;
 
 pub const HANEUL_CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
