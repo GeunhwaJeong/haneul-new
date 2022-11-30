@@ -65,7 +65,7 @@ impl HaneulNodeHandle {
     }
 
     pub async fn wait(self) -> Result<()> {
-        self.0.wait().await
+        self.0.monitor_reconfiguration().await
     }
 }
 

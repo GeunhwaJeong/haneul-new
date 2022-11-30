@@ -68,7 +68,7 @@ async fn main() -> Result<()> {
     haneul_node::admin::start_admin_server(config.admin_interface_port, filter_handle);
 
     let node = haneul_node::HaneulNode::start(&config, prometheus_registry).await?;
-    node.wait().await?;
+    node.monitor_reconfiguration().await?;
 
     Ok(())
 }

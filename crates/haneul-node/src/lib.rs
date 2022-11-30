@@ -59,10 +59,19 @@ pub mod metrics;
 
 mod handle;
 pub use handle::HaneulNodeHandle;
+use haneul_core::authority::ReconfigConsensusMessage;
 use haneul_core::checkpoints::CheckpointStore;
+use haneul_types::committee::EpochId;
+
+type ValidatorServerInfo = (
+    tokio::task::JoinHandle<Result<()>>,
+    tokio::sync::mpsc::Sender<ReconfigConsensusMessage>,
+);
 
 pub struct HaneulNode {
-    grpc_server: tokio::task::JoinHandle<Result<()>>,
+    config: NodeConfig,
+    checkpoint_store: Arc<CheckpointStore>,
+    validator_server_info: Option<ValidatorServerInfo>,
     _json_rpc_service: Option<ServerHandle>,
     _batch_subsystem_handle: tokio::task::JoinHandle<()>,
     _post_processing_subsystem_handle: Option<tokio::task::JoinHandle<Result<()>>>,
@@ -76,6 +85,11 @@ pub struct HaneulNode {
     _p2p_network: anemo::Network,
     _discovery: discovery::Handle,
     _state_sync: state_sync::Handle,
+
+    reconfig_channel: (
+        tokio::sync::mpsc::Sender<EpochId>,
+        tokio::sync::mpsc::Receiver<EpochId>,
+    ),
 
     #[cfg(msim)]
     sim_node: haneul_simulator::runtime::NodeHandle,
@@ -142,7 +156,7 @@ impl HaneulNode {
             &prometheus_registry,
         )?;
 
-        let (tx_reconfigure_consensus, rx_reconfigure_consensus) = channel(100);
+        let reconfig_channel = channel(1);
 
         let transaction_streamer = if is_full_node {
             Some(Arc::new(TransactionStreamer::new()))
@@ -167,7 +181,6 @@ impl HaneulNode {
                 event_store,
                 transaction_streamer,
                 &prometheus_registry,
-                tx_reconfigure_consensus,
             )
             .await,
         );
@@ -222,43 +235,14 @@ impl HaneulNode {
         };
         let execute_driver_handle = active_authority.clone().spawn_execute_process().await;
 
-        let registry = prometheus_registry.clone();
-        let validator_service = if is_validator {
-            Some(
-                ValidatorService::new(
-                    config,
-                    state.clone(),
-                    checkpoint_store,
-                    state_sync_handle.clone(),
-                    registry,
-                    rx_reconfigure_consensus,
-                )
-                .await?,
-            )
-        } else {
-            None
-        };
-
-        let grpc_server = {
-            let mut server_conf = haneullabs_network::config::Config::new();
-            server_conf.global_concurrency_limit = config.grpc_concurrency_limit;
-            server_conf.load_shed = config.grpc_load_shed;
-            let mut server_builder =
-                ServerBuilder::from_config(&server_conf, GrpcMetrics::new(&prometheus_registry));
-
-            if let Some(validator_service) = validator_service {
-                server_builder =
-                    server_builder.add_service(ValidatorServer::new(validator_service));
-            }
-
-            let server = server_builder
-                .bind(config.network_address())
-                .await
-                .map_err(|err| anyhow!(err.to_string()))?;
-            let local_addr = server.local_addr();
-            info!("Listening to traffic on {local_addr}");
-            spawn_monitored_task!(server.serve().map_err(Into::into))
-        };
+        let validator_server_info = Self::start_grpc_validator_service(
+            config,
+            state.clone(),
+            checkpoint_store.clone(),
+            &state_sync_handle,
+            &prometheus_registry,
+        )
+        .await?;
 
         let json_rpc_service = build_server(
             state.clone(),
@@ -269,7 +253,9 @@ impl HaneulNode {
         .await?;
 
         let node = Self {
-            grpc_server,
+            config: config.clone(),
+            checkpoint_store,
+            validator_server_info,
             _json_rpc_service: json_rpc_service,
             _gossip_handle: gossip_handle,
             _execute_driver_handle: execute_driver_handle,
@@ -282,6 +268,7 @@ impl HaneulNode {
             _p2p_network: p2p_network,
             _discovery: discovery_handle,
             _state_sync: state_sync_handle,
+            reconfig_channel,
 
             #[cfg(msim)]
             sim_node: haneul_simulator::runtime::NodeHandle::current(),
@@ -362,6 +349,48 @@ impl HaneulNode {
         Ok((p2p_network, discovery_handle, state_sync_handle))
     }
 
+    async fn start_grpc_validator_service(
+        config: &NodeConfig,
+        state: Arc<AuthorityState>,
+        checkpoint_store: Arc<CheckpointStore>,
+        state_sync_handle: &state_sync::Handle,
+        prometheus_registry: &Registry,
+    ) -> Result<Option<ValidatorServerInfo>> {
+        if state.is_fullnode() {
+            return Ok(None);
+        }
+
+        let (tx_reconfigure_consensus, rx_reconfigure_consensus) = channel(100);
+
+        let validator_service = ValidatorService::new(
+            config,
+            state.clone(),
+            checkpoint_store,
+            state_sync_handle.clone(),
+            prometheus_registry.clone(),
+            rx_reconfigure_consensus,
+        )
+        .await?;
+
+        let mut server_conf = haneullabs_network::config::Config::new();
+        server_conf.global_concurrency_limit = config.grpc_concurrency_limit;
+        server_conf.load_shed = config.grpc_load_shed;
+        let mut server_builder =
+            ServerBuilder::from_config(&server_conf, GrpcMetrics::new(prometheus_registry));
+
+        server_builder = server_builder.add_service(ValidatorServer::new(validator_service));
+
+        let server = server_builder
+            .bind(config.network_address())
+            .await
+            .map_err(|err| anyhow!(err.to_string()))?;
+        let local_addr = server.local_addr();
+        info!("Listening to traffic on {local_addr}");
+        let grpc_server = spawn_monitored_task!(server.serve().map_err(Into::into));
+
+        Ok(Some((grpc_server, tx_reconfigure_consensus)))
+    }
+
     pub fn state(&self) -> Arc<AuthorityState> {
         self.state.clone()
     }
@@ -386,11 +415,56 @@ impl HaneulNode {
             .ok_or_else(|| anyhow::anyhow!("Transaction Orchestrator is not enabled in this node."))
     }
 
-    //TODO watch/wait on all the components
-    pub async fn wait(self) -> Result<()> {
-        self.grpc_server.await??;
-
-        Ok(())
+    pub async fn monitor_reconfiguration(mut self) -> Result<()> {
+        loop {
+            let next_epoch = self
+                .reconfig_channel
+                .1
+                .recv()
+                .await
+                .expect("Reconfiguration channel was closed unexpectedly.");
+            info!(
+                ?next_epoch,
+                "Received reconfiguration signal. About to reconfigure the system."
+            );
+            let new_committee = self
+                .state
+                .get_haneul_system_state_object()
+                .await
+                .expect("Reading Haneul system state object cannot fail")
+                .get_current_epoch_committee();
+            assert_eq!(next_epoch, new_committee.committee.epoch);
+            if let Some((_, _)) = &self.validator_server_info {
+                info!("Reconfiguring the validator.");
+                info!("Shutting down Narwhal");
+                // TODO: Shutdown Narwhal here.
+                self.state
+                    .reconfigure(new_committee.committee)
+                    .expect("Reconfigure authority state cannot fail");
+                info!("Validator State has been reconfigured");
+                if self.state.is_validator() {
+                    // Only restart Narwhal if this node is still a validator.
+                    // TODO: Start Narwhal here.
+                    info!("Starting Narwhal");
+                } else {
+                    info!("This node is no longer a validator after reconfiguration");
+                }
+            } else if self.state.is_validator() {
+                // TODO: It might be easier to require node operator to manually restart the node
+                // for this transition.
+                info!("Promoting the node from fullnode to validator, starting grpc server");
+                self.validator_server_info = Self::start_grpc_validator_service(
+                    &self.config,
+                    self.state.clone(),
+                    self.checkpoint_store.clone(),
+                    &self._state_sync,
+                    &self._prometheus_registry,
+                )
+                .await
+                .expect("Starting grpc server cannot fail");
+            }
+            info!("Reconfiguration finished");
+        }
     }
 }
 
