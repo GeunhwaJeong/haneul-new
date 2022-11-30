@@ -5,7 +5,6 @@ use crate::api::RpcTransactionBuilderServer;
 use crate::HaneulRpcModule;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
-use jsonrpsee_core::server::rpc_module::RpcModule;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo, HaneulTypeTag, TransactionBytes};
@@ -15,6 +14,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::object::Owner;
 
 use fastcrypto::encoding::Base64;
+use jsonrpsee::RpcModule;
 
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::RPCTransactionRequestParams;

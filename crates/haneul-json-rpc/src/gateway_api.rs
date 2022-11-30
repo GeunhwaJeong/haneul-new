@@ -9,7 +9,7 @@ use anyhow::anyhow;
 use async_trait::async_trait;
 use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
-use jsonrpsee_core::server::rpc_module::RpcModule;
+use jsonrpsee::RpcModule;
 use signature::Signature;
 use haneul_core::gateway_state::GatewayClient;
 use haneul_json::HaneulJsonValue;

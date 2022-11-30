@@ -4,7 +4,6 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
-use jsonrpsee_core::server::rpc_module::RpcModule;
 use move_binary_format::normalized::{Module as NormalizedModule, Type};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
@@ -16,6 +15,7 @@ use haneul_types::gas_coin::GAS;
 use tap::TapFallible;
 
 use fastcrypto::encoding::Base64;
+use jsonrpsee::RpcModule;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     GetObjectDataResponse, GetPastObjectDataResponse, MoveFunctionArgType, ObjectValueKind, Page,
