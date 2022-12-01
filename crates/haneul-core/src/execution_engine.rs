@@ -5,6 +5,7 @@ use std::{collections::BTreeSet, sync::Arc};
 
 use move_core_types::language_storage::{ModuleId, StructTag};
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
+use haneul_types::base_types::SequenceNumber;
 use tracing::{debug, instrument};
 
 use haneul_adapter::adapter;
@@ -19,7 +20,7 @@ use haneul_types::messages::ExecutionFailureStatus;
 #[cfg(test)]
 use haneul_types::messages::InputObjects;
 use haneul_types::messages::{ObjectArg, Pay, PayAllHaneul, PayHaneul};
-use haneul_types::object::{Data, MoveObject, Owner, OBJECT_START_VERSION};
+use haneul_types::object::{Data, MoveObject, Owner};
 use haneul_types::storage::SingleTxContext;
 use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKind};
 #[cfg(test)]
@@ -314,7 +315,7 @@ fn transfer_object<S>(
     recipient: HaneulAddress,
 ) -> Result<(), ExecutionError> {
     object.ensure_public_transfer_eligible()?;
-    object.transfer_and_increment_version(recipient);
+    object.transfer(recipient);
     // This will extract the transfer amount if the object is a Coin of some kind
     let ctx = SingleTxContext::transfer_object(sender);
     temporary_store.write_object(&ctx, object, WriteKind::Mutate);
@@ -429,7 +430,7 @@ fn debit_coins_and_transfer<S>(
                 let new_coin = Object::new_move(
                     MoveObject::new_coin(
                         coin_type.clone(),
-                        OBJECT_START_VERSION,
+                        SequenceNumber::new(),
                         tx_ctx.fresh_id(),
                         *amount,
                     ),
@@ -494,9 +495,7 @@ fn pay<S>(
             // unwrap safe because we checked that it was a coin object above
             let move_obj = coin_object.data.try_as_move_mut().unwrap();
             // unwrap safe because coin object is always below maximum size
-            move_obj
-                .update_contents_and_increment_version(new_contents)
-                .unwrap();
+            move_obj.update_contents(new_contents).unwrap();
             temporary_store.write_object(&ctx, coin_object, WriteKind::Mutate);
         }
     }
@@ -590,15 +589,13 @@ fn transfer_haneul<S>(
             .try_as_move_mut()
             .expect("Gas object must be Move object");
         let new_contents = bcs::to_bytes(&gas_coin).expect("Serializing gas coin can never fail");
-        // We do not update the version number yet because gas charge will update it later.
         // unwrap safe because coin object is always below maximum size
-        move_object
-            .update_contents_without_version_change(new_contents)
-            .unwrap();
+        move_object.update_contents(new_contents).unwrap();
 
-        // Creat a new gas coin with the amount.
+        // Creat a new gas coin with the amount.  Set a blank version, to be updated by the store
+        // when it is committed to effects.
         let new_object = Object::new_move(
-            MoveObject::new_gas_coin(OBJECT_START_VERSION, tx_ctx.fresh_id(), amount),
+            MoveObject::new_gas_coin(SequenceNumber::new(), tx_ctx.fresh_id(), amount),
             Owner::AddressOwner(recipient),
             tx_ctx.digest(),
         );
@@ -606,8 +603,7 @@ fn transfer_haneul<S>(
         Some(amount)
     } else {
         // If amount is not specified, we simply transfer the entire coin object.
-        // We don't want to increment the version number yet because latter gas charge will do it.
-        object.transfer_without_version_change(recipient);
+        object.transfer(recipient);
         Coin::extract_balance_if_coin(&object)?
     };
 

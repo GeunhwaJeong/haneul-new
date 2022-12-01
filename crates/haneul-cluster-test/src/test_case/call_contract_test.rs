@@ -11,7 +11,6 @@ use tracing::info;
 use haneul::client_commands::{EXAMPLE_NFT_DESCRIPTION, EXAMPLE_NFT_NAME, EXAMPLE_NFT_URL};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::HaneulEvent;
-use haneul_types::base_types::SequenceNumber;
 use haneul_types::id::ID;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -79,22 +78,28 @@ impl TestCaseImpl for CallContractTest {
             events.len()
         );
 
-        events
+        let new_object_version = events
             .iter()
-            .find(|e| {
-                matches!(e, HaneulEvent::NewObject {
+            .find_map(|e| match e {
+                HaneulEvent::NewObject {
                     package_id,
                     transaction_module,
-                    sender, recipient, object_type, object_id, version
-                } if
-                    package_id == &HANEUL_FRAMEWORK_OBJECT_ID
+                    sender,
+                    recipient,
+                    object_type,
+                    object_id,
+                    version,
+                } if package_id == &HANEUL_FRAMEWORK_OBJECT_ID
                     && transaction_module == &String::from("devnet_nft")
                     && sender == &signer
                     && recipient == &Owner::AddressOwner(signer)
-                    && object_id == &nft_id
                     && object_type == "0x2::devnet_nft::DevNetNFT"
-                    && version == &SequenceNumber::from_u64(1)
-                )
+                    && object_id == &nft_id =>
+                {
+                    Some(*version)
+                }
+
+                _ => None,
             })
             .unwrap_or_else(|| panic!("Expect such a NewObject in events {:?}", events));
 
@@ -123,8 +128,7 @@ impl TestCaseImpl for CallContractTest {
             .await;
 
         assert_eq!(
-            object.reference.version,
-            SequenceNumber::from_u64(1),
+            object.reference.version, new_object_version,
             "Expect sequence number to be 1"
         );
 
