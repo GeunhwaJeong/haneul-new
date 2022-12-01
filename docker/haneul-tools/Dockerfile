@@ -40,7 +40,6 @@ COPY narwhal narwhal
 RUN cargo build --release \
     --bin haneul-node \
     --bin haneul \
-    --bin rpc-server \
     --bin haneul-faucet \
     --bin stress \
     --bin haneul-cluster-test
@@ -50,7 +49,6 @@ FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
-COPY --from=builder /haneul/target/release/rpc-server /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
