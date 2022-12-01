@@ -9,7 +9,7 @@ Haneul Wallet Kit is a library that makes it easy to connect your dApp to Haneul
 To get started in a React application, you can install the following packages:
 
 ```bash
-npm install @haneullabs/wallet-kit @haneullabs/haneul.js
+npm install @haneullabs/wallet-kit
 ```
 
 At the root of your application, you can then set up the wallet kit provider:
