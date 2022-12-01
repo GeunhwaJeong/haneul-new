@@ -4,13 +4,13 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::{path::Path, str::FromStr};
 
+use crate::api::TransactionExecutionApiClient;
+use crate::api::{RpcReadApiClient, RpcTransactionBuilderClient};
 use haneul_config::utils::get_available_port;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc::api::{RpcFullNodeReadApiClient, TransactionExecutionApiClient};
-use haneul_json_rpc::api::{RpcReadApiClient, RpcTransactionBuilderClient};
 use haneul_json_rpc_types::{
     GetObjectDataResponse, HaneulExecuteTransactionResponse, HaneulTransactionResponse, TransactionBytes,
 };
@@ -203,7 +203,6 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
     let port = get_available_port();
     let cluster = TestClusterBuilder::new()
         .set_fullnode_rpc_port(port)
-        .with_num_validators(6)
         .build()
         .await?;
     let http_client = cluster.rpc_client().unwrap();
@@ -245,30 +244,14 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
     let tx: Vec<TransactionDigest> = http_client.get_transactions_in_range(1, 3).await?;
     assert_eq!(2, tx.len());
 
+    // test get_transaction
     for tx_digest in tx {
-        // test get_transaction
-        let tx_response: HaneulTransactionResponse = http_client.get_transaction(tx_digest).await?;
+        let response: HaneulTransactionResponse = http_client.get_transaction(tx_digest).await?;
         assert!(tx_responses.iter().any(
-            |resp| matches!(resp, HaneulExecuteTransactionResponse::EffectsCert {effects, ..} if effects.effects.transaction_digest == tx_response.effects.transaction_digest)
-        ));
-        let response = http_client.get_transaction_auth_signers(tx_digest).await?;
-
-        // test get_transaction_auth_signers
-        // There are 2f+1 signers out of 6 validators.
-        assert_eq!(response.signers.len(), 5);
-
-        // All authorities for the tx's epoch are included as signers for the tx.
-        let committee = http_client
-            .get_committee_info(Some(tx_response.certificate.auth_sign_info.epoch))
-            .await?;
-        let authorities = committee
-            .committee_info
-            .unwrap()
-            .iter()
-            .map(|c| c.0)
-            .collect::<Vec<_>>();
-        assert!(response.signers.iter().all(|s| authorities.contains(s)));
+            |resp| matches!(resp, HaneulExecuteTransactionResponse::EffectsCert {effects, ..} if effects.effects.transaction_digest == response.effects.transaction_digest)
+        ))
     }
+
     Ok(())
 }
 

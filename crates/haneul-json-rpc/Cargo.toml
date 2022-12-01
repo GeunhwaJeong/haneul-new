@@ -37,3 +37,10 @@ haneul-cost = { path = "../haneul-cost" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 workspace-hack.workspace = true
+
+[dev-dependencies]
+haneul-config = { path = "../haneul-config" }
+haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-keys = { path = "../haneul-keys" }
+test-utils = { path = "../test-utils" }
+haneul-sdk = { path = "../haneul-sdk" }

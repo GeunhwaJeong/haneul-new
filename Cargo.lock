@@ -8581,33 +8581,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-gateway"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap 3.2.22",
- "futures",
- "prometheus",
- "serde 1.0.147",
- "haneul-config",
- "haneul-core",
- "haneul-framework-build",
- "haneul-json",
- "haneul-json-rpc",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-node",
- "haneul-sdk",
- "haneul-types",
- "telemetry-subscribers",
- "test-utils",
- "tokio",
- "tracing",
- "workspace-hack",
-]
-
-[[package]]
 name = "haneul-indexer"
 version = "0.0.0"
 dependencies = [
@@ -8679,15 +8652,20 @@ dependencies = [
  "prometheus",
  "serde 1.0.147",
  "signature",
+ "haneul-config",
  "haneul-core",
  "haneul-cost",
+ "haneul-framework-build",
  "haneul-json",
  "haneul-json-rpc-types",
+ "haneul-keys",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
+ "haneul-sdk",
  "haneul-transaction-builder",
  "haneul-types",
  "tap",
+ "test-utils",
  "tokio",
  "tower",
  "tower-http",
