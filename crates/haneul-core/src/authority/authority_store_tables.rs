@@ -171,6 +171,13 @@ where
         Ok(self.get_haneul_system_state_object()?.epoch)
     }
 
+    pub fn get_committee(&self) -> HaneulResult<Committee> {
+        Ok(self
+            .get_haneul_system_state_object()?
+            .get_current_epoch_committee()
+            .committee)
+    }
+
     pub fn database_is_empty(&self) -> HaneulResult<bool> {
         Ok(self
             .objects
