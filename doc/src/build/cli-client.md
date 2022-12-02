@@ -319,7 +319,7 @@ $ haneul client merge-coin --primary-coin 0x1e90389f5d70d7fa6ce973155460e1c04dea
 ### Split coins
 
 ```shell
-    haneul client split-coin [OPTIONS] --coin-id <COIN_ID> --gas-budget <GAS_BUDGET> <--amounts <AMOUNTS>...|--count <COUNT>>
+    haneul client split-coin [OPTIONS] --coin-id <COIN_ID> --gas-budget <GAS_BUDGET> (--amounts <AMOUNTS>... | --count <COUNT>)
 
 OPTIONS:
         --amounts <AMOUNTS>...       Specific amounts to split out from the coin
