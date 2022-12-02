@@ -12,7 +12,7 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
     MoveFunctionArgType, RPCTransactionRequestParams, HaneulCoinMetadata, HaneulEventEnvelope,
-    HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulGasCostSummary, HaneulMoveNormalizedFunction,
+    HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulMoveNormalizedFunction,
     HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
     HaneulTransactionAuthSignersResponse, HaneulTransactionEffects, HaneulTransactionFilter,
     HaneulTransactionResponse, HaneulTypeTag, TransactionBytes, TransactionsPage,
@@ -481,25 +481,6 @@ pub trait TransactionExecutionApi {
         /// The request type
         request_type: ExecuteTransactionRequestType,
     ) -> RpcResult<HaneulExecuteTransactionResponse>;
-}
-
-#[open_rpc(
-    namespace = "haneul",
-    tag = "Estimator API to estimate gas quantities for a transactions."
-)]
-#[rpc(server, client, namespace = "haneul")]
-pub trait EstimatorApi {
-    /// Execute the transaction and wait for results if desired
-    #[method(name = "estimateTransactionComputationCost")]
-    async fn estimate_transaction_computation_cost(
-        &self,
-        /// transaction data bytes, as base-64 encoded string
-        tx_bytes: Base64,
-        computation_gas_unit_price: Option<u64>,
-        storage_gas_unit_price: Option<u64>,
-        mutated_object_sizes_after: Option<usize>,
-        storage_rebate: Option<u64>,
-    ) -> RpcResult<HaneulGasCostSummary>;
 }
 
 pub fn cap_page_limit(limit: Option<usize>) -> Result<usize, anyhow::Error> {
