@@ -1,5 +1,13 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.3.4
+
+### Patch Changes
+
+- Updated dependencies [e6282ae71]
+  - @haneullabs/wallet-adapter-unsafe-burner@0.3.0
+  - @haneullabs/wallet-adapter-wallet-standard@0.3.4
+
 ## 0.3.3
 
 ### Patch Changes
