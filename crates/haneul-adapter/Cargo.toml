@@ -25,6 +25,7 @@ haneul-json = { path = "../haneul-json" }
 haneul-verifier = { path = "../haneul-verifier" }
 haneul-types = { path = "../haneul-types" }
 haneul-cost-tables = { path = "../haneul-cost-tables"}
+haneul-protocol-constants = { path = "../haneul-protocol-constants" }
 workspace-hack.workspace = true
 
 [dev-dependencies]

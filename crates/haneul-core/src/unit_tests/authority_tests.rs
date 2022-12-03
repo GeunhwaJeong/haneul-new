@@ -31,12 +31,13 @@ use std::task::{Context, Poll};
 
 use std::{convert::TryInto, env};
 use haneul_adapter::genesis;
+use haneul_protocol_constants::MAX_MOVE_PACKAGE_SIZE;
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
     crypto::{AccountKeyPair, AuthorityKeyPair, KeypairTraits},
     messages::VerifiedTransaction,
-    object::{Owner, GAS_VALUE_FOR_TESTING, MAX_MOVE_PACKAGE_SIZE, OBJECT_START_VERSION},
+    object::{Owner, GAS_VALUE_FOR_TESTING, OBJECT_START_VERSION},
     haneul_system_state::HaneulSystemState,
     HANEUL_SYSTEM_STATE_OBJECT_ID,
 };

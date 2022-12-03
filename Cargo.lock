@@ -8232,6 +8232,7 @@ dependencies = [
  "haneul-cost-tables",
  "haneul-framework",
  "haneul-json",
+ "haneul-protocol-constants",
  "haneul-types",
  "haneul-verifier",
  "tracing",
@@ -8417,6 +8418,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-macros",
  "haneul-network",
+ "haneul-protocol-constants",
  "haneul-simulator",
  "haneul-storage",
  "haneul-types",
@@ -8470,6 +8472,7 @@ dependencies = [
  "move-vm-types",
  "once_cell",
  "serde 1.0.147",
+ "haneul-protocol-constants",
  "workspace-hack",
 ]
 
@@ -8800,6 +8803,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-protocol-constants"
+version = "0.1.0"
+dependencies = [
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-rosetta"
 version = "0.1.0"
 dependencies = [
@@ -9115,6 +9125,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "haneul-cost-tables",
+ "haneul-protocol-constants",
  "tap",
  "test-utils",
  "thiserror",

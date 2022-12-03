@@ -30,6 +30,7 @@ members = [
     "crates/haneul-node",
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
+    "crates/haneul-protocol-constants",
     "crates/haneul-rosetta",
     "crates/haneul-sdk",
     "crates/haneul-simulator",
