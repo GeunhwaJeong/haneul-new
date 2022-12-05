@@ -14,9 +14,13 @@ use haneul_config::utils::get_available_port;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
+#[cfg(msim)]
+use haneul_sdk::embedded_gateway::HaneulClient;
 use haneul_sdk::rpc_types::{
     OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulTransactionEffects,
 };
+#[cfg(not(msim))]
+use haneul_sdk::HaneulClient;
 use haneul_sdk::TransactionExecutionResult;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
@@ -31,13 +35,8 @@ use crate::operations::Operation;
 use crate::state::extract_balance_changes_from_ops;
 use crate::types::SignedValue;
 
-#[cfg(msim)]
-use haneul_sdk::embedded_gateway::HaneulClient;
-#[cfg(not(msim))]
-use haneul_sdk::HaneulClient;
-
 #[tokio::test]
-async fn test_all_transaction_type() {
+async fn test_transfer_haneul() {
     let port = get_available_port();
     let network = TestClusterBuilder::new()
         .set_fullnode_rpc_port(port)
@@ -55,6 +54,18 @@ async fn test_all_transaction_type() {
         amount: Some(50000),
     });
     test_transaction(&client, keystore, vec![recipient], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_transfer_haneul_whole_coin() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test transfer haneul whole coin
     let sender = get_random_address(&network.accounts, vec![]);
@@ -64,6 +75,18 @@ async fn test_all_transaction_type() {
         amount: None,
     });
     test_transaction(&client, keystore, vec![recipient], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_transfer_object() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test transfer object
     let sender = get_random_address(&network.accounts, vec![]);
@@ -74,6 +97,18 @@ async fn test_all_transaction_type() {
         object_ref,
     });
     test_transaction(&client, keystore, vec![recipient], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_publish_and_move_call() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test publish
     let sender = get_random_address(&network.accounts, vec![]);
@@ -107,6 +142,7 @@ async fn test_all_transaction_type() {
             }
         })
         .unwrap();
+
     // Get object ref from effect
     let package = effect
         .created
@@ -130,9 +166,21 @@ async fn test_all_transaction_type() {
         ],
     });
     test_transaction(&client, keystore, vec![], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_split_coin() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test spilt coin
-    let sender = recipient;
+    let sender = get_random_address(&network.accounts, vec![]);
     let coin = get_random_haneul(&client, sender, vec![]).await;
     let tx = client
         .transaction_builder()
@@ -141,6 +189,18 @@ async fn test_all_transaction_type() {
         .unwrap();
     let tx = tx.kind.single_transactions().next().unwrap().clone();
     test_transaction(&client, keystore, vec![], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_merge_coin() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test merge coin
     let sender = get_random_address(&network.accounts, vec![]);
@@ -153,6 +213,18 @@ async fn test_all_transaction_type() {
         .unwrap();
     let tx = tx.kind.single_transactions().next().unwrap().clone();
     test_transaction(&client, keystore, vec![], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_pay() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test Pay
     let sender = get_random_address(&network.accounts, vec![]);
@@ -164,6 +236,18 @@ async fn test_all_transaction_type() {
         amounts: vec![100000],
     });
     test_transaction(&client, keystore, vec![recipient], sender, tx, None).await;
+}
+
+#[tokio::test]
+async fn test_pay_multiple_coin_multiple_recipient() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test Pay multiple coin multiple recipient
     let sender = get_random_address(&network.accounts, vec![]);
@@ -185,6 +269,42 @@ async fn test_all_transaction_type() {
         None,
     )
     .await;
+}
+
+#[tokio::test]
+async fn test_pay_haneul_multiple_coin_same_recipient() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
+
+    // Test Pay multiple coin same recipient
+    let sender = get_random_address(&network.accounts, vec![]);
+    let recipient1 = get_random_address(&network.accounts, vec![sender]);
+    let coin1 = get_random_haneul(&client, sender, vec![]).await;
+    let coin2 = get_random_haneul(&client, sender, vec![coin1.0]).await;
+    let tx = SingleTransactionKind::PayHaneul(PayHaneul {
+        coins: vec![coin1, coin2],
+        recipients: vec![recipient1, recipient1, recipient1],
+        amounts: vec![100000, 100000, 100000],
+    });
+    test_transaction(&client, keystore, vec![recipient1], sender, tx, Some(coin1)).await;
+}
+
+#[tokio::test]
+async fn test_pay_haneul() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test Pay Haneul
     let sender = get_random_address(&network.accounts, vec![]);
@@ -206,6 +326,18 @@ async fn test_all_transaction_type() {
         Some(coin1),
     )
     .await;
+}
+
+#[tokio::test]
+async fn test_pay_all_haneul() {
+    let port = get_available_port();
+    let network = TestClusterBuilder::new()
+        .set_fullnode_rpc_port(port)
+        .build()
+        .await
+        .unwrap();
+    let client = network.wallet.client;
+    let keystore = &network.wallet.config.keystore;
 
     // Test Pay All Haneul
     let sender = get_random_address(&network.accounts, vec![]);

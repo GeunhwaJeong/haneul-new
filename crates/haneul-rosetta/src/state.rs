@@ -329,7 +329,10 @@ fn extract_balance_changes_from_ops(
     let mut changes: BTreeMap<HaneulAddress, SignedValue> = BTreeMap::new();
     for op in ops {
         match op.type_ {
-            OperationType::HaneulBalanceChange | OperationType::GasSpent | OperationType::Genesis => {
+            OperationType::HaneulBalanceChange
+            | OperationType::GasSpent
+            | OperationType::Genesis
+            | OperationType::PayHaneul => {
                 let addr = op
                     .account
                     .ok_or_else(|| anyhow!("Account address cannot be null for {:?}", op.type_))?

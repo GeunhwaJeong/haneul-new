@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use axum::{Extension, Json};
 use fastcrypto::encoding::{Encoding, Hex};
+
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto;
 use haneul_types::crypto::{SignableBytes, SignatureScheme, ToFromBytes};
@@ -157,12 +158,27 @@ pub async fn preprocess(
     Extension(env): Extension<HaneulEnv>,
 ) -> Result<ConstructionPreprocessResponse, Error> {
     env.check_network_identifier(&request.network_identifier)?;
+
     let sender = request
         .operations
-        .first()
-        .and_then(|op| op.account.clone())
-        .ok_or_else(|| Error::new(ErrorType::MalformedOperationError))?
-        .address;
+        .iter()
+        .find_map(|op| match (&op.account, &op.amount) {
+            (Some(acc), Some(amount)) => {
+                if amount.value.is_negative() {
+                    Some(acc.address)
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+        .ok_or_else(|| {
+            Error::new_with_msg(
+                ErrorType::MalformedOperationError,
+                "Cannot extract sender's address from operations.",
+            )
+        })?;
+
     Ok(ConstructionPreprocessResponse {
         options: Some(MetadataOptions { sender }),
         required_public_keys: vec![AccountIdentifier { address: sender }],
