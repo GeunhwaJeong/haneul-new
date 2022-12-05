@@ -1,1 +1,0 @@
-UI for the Haneul Wallet Adapter

@@ -7,7 +7,6 @@
       "@haneullabs/haneul.js": ["../typescript/src"],
       "@haneullabs/wallet-kit": ["./packages/wallet-kit/src"],
       "@haneullabs/wallet-adapter-react": ["./packages/react-providers/src"],
-      "@haneullabs/wallet-adapter-react-ui": ["./packages/ui/src"],
       "@haneullabs/wallet-adapter-all-wallets": [
         "./packages/adapters/all-wallets/src"
       ],
@@ -27,7 +26,6 @@
     { "path": "../typescript" },
     { "path": "./packages/react-providers" },
     { "path": "./packages/wallet-kit" },
-    { "path": "./packages/ui" },
     { "path": "./packages/wallet-standard" },
     { "path": "./packages/adapters/all-wallets" },
     { "path": "./packages/adapters/base-adapter" },
