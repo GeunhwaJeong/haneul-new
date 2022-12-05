@@ -38,8 +38,8 @@
             "@haneullabs/wallet-adapter-react": [
                 "../../sdk/wallet-adapter/packages/react-providers/src/"
             ],
-            "@haneullabs/wallet-adapter-react-ui": [
-                "../../sdk/wallet-adapter/packages/ui/src/"
+            "@haneullabs/wallet-kit": [
+                "../../sdk/wallet-adapter/packages/wallet-kit/src/"
             ]
         }
     },

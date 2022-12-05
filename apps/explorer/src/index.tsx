@@ -2,13 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    UnsafeBurnerWalletAdapter,
     WalletStandardAdapterProvider,
+    UnsafeBurnerWalletAdapter,
 } from '@haneullabs/wallet-adapter-all-wallets';
-import {
-    WalletProvider,
-    type WalletProviderProps,
-} from '@haneullabs/wallet-adapter-react';
+import { WalletProvider, type WalletProviderProps } from '@haneullabs/wallet-kit';
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 import React from 'react';
