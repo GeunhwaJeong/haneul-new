@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getObjectId } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createSelector,
@@ -12,7 +13,7 @@ import { isKeyringPayload } from '_payloads/keyring';
 import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 
-import type { HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
+import type { ObjectId, HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
 import type { PayloadAction, Reducer } from '@reduxjs/toolkit';
 import type { KeyringPayload } from '_payloads/keyring';
 import type { RootState } from '_redux/RootReducer';
@@ -183,3 +184,11 @@ export const accountNftsSelector = createSelector(
         return allHaneulObjects.filter((anObj) => !Coin.isCoin(anObj));
     }
 );
+
+export function createAccountNftByIdSelector(nftId: ObjectId) {
+    return createSelector(
+        accountNftsSelector,
+        (allNfts) =>
+            allNfts.find((nft) => getObjectId(nft.reference) === nftId) || null
+    );
+}

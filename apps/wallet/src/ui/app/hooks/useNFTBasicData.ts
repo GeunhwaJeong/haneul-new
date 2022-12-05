@@ -8,12 +8,12 @@ import useMediaUrl from './useMediaUrl';
 
 import type { HaneulObject } from '@haneullabs/haneul.js';
 
-export default function useNFTBasicData(nftObj: HaneulObject) {
-    const nftObjectID = getObjectId(nftObj.reference);
-    const filePath = useMediaUrl(nftObj.data);
+export default function useNFTBasicData(nftObj: HaneulObject | null) {
+    const nftObjectID = (nftObj && getObjectId(nftObj.reference)) || null;
+    const filePath = useMediaUrl(nftObj?.data || null);
     let objType = null;
     let nftFields = null;
-    if (isHaneulMoveObject(nftObj.data)) {
+    if (nftObj && isHaneulMoveObject(nftObj.data)) {
         objType = nftObj.data.type;
         nftFields = getObjectFields(nftObj.data);
     }

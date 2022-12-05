@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import type { HaneulData } from '@haneullabs/haneul.js';
 
-export default function useMediaUrl(objData: HaneulData) {
+export default function useMediaUrl(objData: HaneulData | null) {
     const { fields } = (isHaneulMoveObject(objData) && objData) || {};
     return useMemo(() => {
         if (fields) {
