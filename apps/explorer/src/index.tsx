@@ -34,6 +34,11 @@ if (import.meta.env.PROD) {
         tracesSampler: () => {
             return growthbook.getFeatureValue('explorer-sentry-tracing', 0);
         },
+        allowUrls: [
+            /.*\.haneul\.io/i,
+            /.*-haneullabs-labs\.vercel\.app/i,
+            'explorer-topaz.vercel.app',
+        ],
     });
 }
 
