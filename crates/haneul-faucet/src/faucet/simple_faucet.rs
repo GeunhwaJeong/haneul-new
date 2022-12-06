@@ -182,12 +182,8 @@ impl SimpleFaucet {
     /// If the coin is valid, return Ok(Some(GasCoin))
     /// If the coin invalid, return Ok(None)
     async fn get_gas_coin(&self, coin_id: ObjectID) -> anyhow::Result<Option<GasCoin>> {
-        let gas_obj = self
-            .wallet
-            .client
-            .read_api()
-            .get_parsed_object(coin_id)
-            .await?;
+        let client = self.wallet.get_client().await?;
+        let gas_obj = client.read_api().get_parsed_object(coin_id).await?;
         Ok(match gas_obj {
             HaneulObjectRead::NotExists(_) | HaneulObjectRead::Deleted(_) => None,
             HaneulObjectRead::Exists(obj) => match &obj.owner {
@@ -335,9 +331,8 @@ impl SimpleFaucet {
             ?uuid,
             "PayHaneul transaction in faucet."
         );
-
-        let response = context
-            .client
+        let client = self.wallet.get_client().await?;
+        let response = client
             .quorum_driver()
             .execute_transaction(
                 tx,
@@ -382,9 +377,8 @@ impl SimpleFaucet {
     ) -> Result<TransactionData, anyhow::Error> {
         let recipients: Vec<HaneulAddress> =
             std::iter::repeat(recipient).take(amounts.len()).collect();
-
-        self.wallet
-            .client
+        let client = self.wallet.get_client().await?;
+        client
             .transaction_builder()
             .pay_haneul(signer, vec![coin_id], recipients, amounts.to_vec(), budget)
             .await

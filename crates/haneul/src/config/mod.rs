@@ -64,7 +64,7 @@ impl HaneulClientConfig {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HaneulEnv {
     pub alias: String,
     pub rpc: String,

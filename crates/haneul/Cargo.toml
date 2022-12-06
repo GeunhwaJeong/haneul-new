@@ -77,5 +77,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
 
+assert_cmd = "2.0.6"
+
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemalloc-ctl"]

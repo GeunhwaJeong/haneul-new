@@ -43,7 +43,7 @@ async fn test_transfer_haneul() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Transfer Haneul
@@ -64,7 +64,7 @@ async fn test_transfer_haneul_whole_coin() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test transfer haneul whole coin
@@ -85,7 +85,7 @@ async fn test_transfer_object() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test transfer object
@@ -107,7 +107,7 @@ async fn test_publish_and_move_call() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test publish
@@ -176,7 +176,7 @@ async fn test_split_coin() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test spilt coin
@@ -199,7 +199,7 @@ async fn test_merge_coin() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test merge coin
@@ -223,7 +223,7 @@ async fn test_pay() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Pay
@@ -246,7 +246,7 @@ async fn test_pay_multiple_coin_multiple_recipient() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Pay multiple coin multiple recipient
@@ -279,7 +279,7 @@ async fn test_pay_haneul_multiple_coin_same_recipient() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Pay multiple coin same recipient
@@ -303,7 +303,7 @@ async fn test_pay_haneul() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Pay Haneul
@@ -336,7 +336,7 @@ async fn test_pay_all_haneul() {
         .build()
         .await
         .unwrap();
-    let client = network.wallet.client;
+    let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
     // Test Pay All Haneul

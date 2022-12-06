@@ -8,10 +8,9 @@ use std::{fs, io};
 
 use anyhow::{anyhow, bail};
 use clap::*;
-use colored::Colorize;
 use fastcrypto::traits::KeyPair;
 use move_package::BuildConfig;
-use tracing::{info, warn};
+use tracing::info;
 
 use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
@@ -203,24 +202,8 @@ impl HaneulCommand {
             HaneulCommand::Client { config, cmd, json } => {
                 let config_path = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
                 prompt_if_no_config(&config_path).await?;
-
-                // Server switch need to happen before context creation, or else it might fail due to previously misconfigured url.
-                if let Some(HaneulClientCommands::Switch { env: Some(env), .. }) = &cmd {
-                    let config: HaneulClientConfig = PersistedConfig::read(&config_path)?;
-                    let mut config = config.persisted(&config_path);
-                    HaneulClientCommands::switch_env(&mut config, env)?;
-                    // This will init the client to check if the urls are correct and reachable
-                    config.get_active_env()?.create_rpc_client(None).await?;
-                    config.save()?;
-                }
-
                 let mut context = WalletContext::new(&config_path, None).await?;
-
                 if let Some(cmd) = cmd {
-                    if let Err(e) = context.client.check_api_version() {
-                        warn!("{e}");
-                        println!("{}", format!("[warn] {e}").yellow().bold());
-                    };
                     cmd.execute(&mut context).await?.print(!json);
                 } else {
                     // Print help
