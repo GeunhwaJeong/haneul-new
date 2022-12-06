@@ -13,14 +13,19 @@ import { isKeyringPayload } from '_payloads/keyring';
 import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 
-import type { ObjectId, HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
+import type {
+    ObjectId,
+    HaneulAddress,
+    HaneulMoveObject,
+    ExportedKeypair,
+} from '@haneullabs/haneul.js';
 import type { PayloadAction, Reducer } from '@reduxjs/toolkit';
 import type { KeyringPayload } from '_payloads/keyring';
 import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
 
 export const createVault = createAsyncThunk<
-    string,
+    ExportedKeypair,
     {
         importedEntropy?: string;
         password: string;
@@ -37,10 +42,10 @@ export const createVault = createAsyncThunk<
         if (!isKeyringPayload(payload, 'create')) {
             throw new Error('Unknown payload');
         }
-        if (!payload.return?.entropy) {
-            throw new Error('Empty entropy in payload');
+        if (!payload.return?.keypair) {
+            throw new Error('Empty keypair in payload');
         }
-        return payload.return.entropy;
+        return payload.return.keypair;
     }
 );
 
