@@ -21,10 +21,12 @@ use tracing::info;
 const DEVNET_FAUCET_ADDR: &str = "https://faucet.devnet.haneul.io:443";
 const STAGING_FAUCET_ADDR: &str = "https://faucet.staging.haneul.io:443";
 const CONTINUOUS_FAUCET_ADDR: &str = "https://faucet.ci.haneul.io:443";
+const CONTINUOUS_NOMAD_FAUCET_ADDR: &str = "https://faucet.nomad.ci.haneul.io:443";
 const TESTNET_FAUCET_ADDR: &str = "https://faucet.testnet.haneul.io:443";
 const DEVNET_FULLNODE_ADDR: &str = "https://fullnode.devnet.haneul.io:443";
 const STAGING_FULLNODE_ADDR: &str = "https://fullnode.staging.haneul.io:443";
 const CONTINUOUS_FULLNODE_ADDR: &str = "https://fullnode.ci.haneul.io:443";
+const CONTINUOUS_NOMAD_FULLNODE_ADDR: &str = "https://fullnode.nomad.ci.haneul.io:443";
 const TESTNET_FULLNODE_ADDR: &str = "https://fullnode.testnet.haneul.io:443";
 
 pub struct ClusterFactory;
@@ -78,6 +80,10 @@ impl Cluster for RemoteRunningCluster {
             Env::Ci => (
                 String::from(CONTINUOUS_FULLNODE_ADDR),
                 String::from(CONTINUOUS_FAUCET_ADDR),
+            ),
+            Env::CiNomad => (
+                String::from(CONTINUOUS_NOMAD_FULLNODE_ADDR),
+                String::from(CONTINUOUS_NOMAD_FAUCET_ADDR),
             ),
             Env::Testnet => (
                 String::from(TESTNET_FULLNODE_ADDR),
