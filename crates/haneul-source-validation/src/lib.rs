@@ -15,10 +15,7 @@ use haneul_types::{base_types::ObjectID, error::HaneulError};
 #[cfg(test)]
 mod tests;
 
-#[cfg(not(msim))]
 type ReadApi = haneul_sdk::ReadApi;
-#[cfg(msim)]
-type ReadApi = haneul_sdk::embedded_gateway::ReadApi;
 
 #[derive(Debug, Error)]
 pub enum DependencyVerificationError {

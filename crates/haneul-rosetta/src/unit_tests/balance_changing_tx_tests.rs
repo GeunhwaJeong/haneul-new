@@ -14,12 +14,9 @@ use haneul_config::utils::get_available_port;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
-#[cfg(msim)]
-use haneul_sdk::embedded_gateway::HaneulClient;
 use haneul_sdk::rpc_types::{
     OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulTransactionEffects,
 };
-#[cfg(not(msim))]
 use haneul_sdk::HaneulClient;
 use haneul_sdk::TransactionExecutionResult;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};

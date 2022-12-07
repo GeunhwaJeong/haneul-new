@@ -44,3 +44,6 @@ haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-keys = { path = "../haneul-keys" }
 test-utils = { path = "../test-utils" }
 haneul-sdk = { path = "../haneul-sdk" }
+rand = "0.8.5"
+haneul-macros = { path = "../haneul-macros" }
+haneul-simulator = { path = "../haneul-simulator" }

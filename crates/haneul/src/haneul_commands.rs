@@ -15,8 +15,8 @@ use tracing::info;
 use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
 use haneul_config::{
-    haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG,
-    HANEUL_NETWORK_CONFIG,
+    haneul_config_dir, Config, PersistedConfig, FULL_NODE_DB_PATH, HANEUL_CLIENT_CONFIG,
+    HANEUL_FULLNODE_CONFIG, HANEUL_NETWORK_CONFIG,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_swarm::memory::Swarm;
@@ -339,7 +339,11 @@ async fn genesis(
 
     info!("Client keystore is stored in {:?}.", keystore_path);
 
-    let mut fullnode_config = network_config.generate_fullnode_config();
+    let mut fullnode_config = network_config
+        .fullnode_config_builder()
+        .with_dir(FULL_NODE_DB_PATH.into())
+        .build()?;
+
     fullnode_config.json_rpc_address = haneul_config::node::default_json_rpc_address();
     fullnode_config.save(haneul_config_dir.join(HANEUL_FULLNODE_CONFIG))?;
 

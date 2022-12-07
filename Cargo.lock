@@ -4772,7 +4772,7 @@ dependencies = [
 [[package]]
 name = "msim"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=0667864838a8c1b5b9d19972102086ccf4a525ff#0667864838a8c1b5b9d19972102086ccf4a525ff"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=3aeccfeb0f021ad5801c1ab4dcf4004de7780847#3aeccfeb0f021ad5801c1ab4dcf4004de7780847"
 dependencies = [
  "ahash",
  "async-task",
@@ -4801,7 +4801,7 @@ dependencies = [
 [[package]]
 name = "msim-macros"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=0667864838a8c1b5b9d19972102086ccf4a525ff#0667864838a8c1b5b9d19972102086ccf4a525ff"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=3aeccfeb0f021ad5801c1ab4dcf4004de7780847#3aeccfeb0f021ad5801c1ab4dcf4004de7780847"
 dependencies = [
  "darling",
  "proc-macro2 1.0.47",
@@ -8653,6 +8653,7 @@ dependencies = [
  "move-core-types",
  "haneullabs-metrics",
  "prometheus",
+ "rand 0.8.5",
  "serde 1.0.147",
  "signature",
  "haneul-config",
@@ -8662,9 +8663,11 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-macros",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-sdk",
+ "haneul-simulator",
  "haneul-transaction-builder",
  "haneul-types",
  "tap",

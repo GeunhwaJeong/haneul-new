@@ -50,9 +50,6 @@ use haneul_types::{
     messages::TransactionData,
 };
 
-#[cfg(msim)]
-use haneul_sdk::embedded_gateway::HaneulClient;
-#[cfg(not(msim))]
 use haneul_sdk::HaneulClient;
 
 use crate::config::HaneulEnv;
@@ -914,17 +911,12 @@ impl WalletContext {
             client.clone()
         } else {
             drop(read);
-            #[cfg(not(msim))]
             let client = self
                 .config
                 .get_active_env()?
                 .create_rpc_client(self.request_timeout)
                 .await?;
 
-            #[cfg(msim)]
-            let client =
-                haneul_sdk::embedded_gateway::HaneulClient::new(&self.config.path().parent().unwrap())
-                    .await?;
             if let Err(e) = client.check_api_version() {
                 warn!("{e}");
                 println!("{}", format!("[warn] {e}").yellow().bold());
