@@ -14,6 +14,13 @@
         "tags": ["NFT"]
     },
     {
+        "name": "Haneul Name Service (HaneulNS)",
+        "description": "Find your .haneul name!",
+        "link": "https://haneulns.io/",
+        "icon": "https://raw.githubusercontent.com/HaneulNSdapp/docs/main/HaneulNS-small2.jpg",
+        "tags": ["Infra"]
+    },
+    {
         "name": "Got Beef?",
         "description": "Got Beef? is a dApp to create on-chain bets on the Haneul Network",
         "link": "https://gotbeef.app/",
