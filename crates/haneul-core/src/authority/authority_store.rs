@@ -1200,7 +1200,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         authority: AuthorityName,
         transaction: &ConsensusTransaction,
         consensus_index: ExecutionIndicesWithHash,
-    ) -> HaneulResult<bool> {
+    ) -> HaneulResult {
         self.epoch_store()
             .record_end_of_publish(authority, transaction.key(), consensus_index)
     }
@@ -1340,6 +1340,10 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         );
 
         Ok(Some((index, roots)))
+    }
+
+    pub fn final_epoch_checkpoint(&self) -> HaneulResult<Option<u64>> {
+        self.epoch_store().final_epoch_checkpoint()
     }
 
     pub fn record_checkpoint_boundary(&self, commit_round: u64) -> HaneulResult {
