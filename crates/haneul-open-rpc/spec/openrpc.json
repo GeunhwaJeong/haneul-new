@@ -1160,6 +1160,23 @@
       ]
     },
     {
+      "name": "haneul_getHaneulSystemState",
+      "tags": [
+        {
+          "name": "Full Node API"
+        }
+      ],
+      "description": "Return HaneulSystemState",
+      "params": [],
+      "result": {
+        "name": "HaneulSystemState",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/HaneulSystemState"
+        }
+      }
+    },
+    {
       "name": "haneul_getTotalTransactionNumber",
       "tags": [
         {
@@ -2296,6 +2313,19 @@
           }
         }
       },
+      "Balance": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
       "BalanceChangeType": {
         "type": "string",
         "enum": [
@@ -2464,6 +2494,41 @@
       },
       "Ed25519HaneulSignature": {
         "$ref": "#/components/schemas/Base64"
+      },
+      "Entry_for_HaneulAddress_and_VecSet_for_HaneulAddress": {
+        "description": "Rust version of the Move haneul::vec_map::Entry type",
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          },
+          "value": {
+            "$ref": "#/components/schemas/VecSet_for_HaneulAddress"
+          }
+        }
+      },
+      "Entry_for_ValidatorPair_and_Array_of_PendingWithdrawEntry": {
+        "description": "Rust version of the Move haneul::vec_map::Entry type",
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/ValidatorPair"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingWithdrawEntry"
+            }
+          }
+        }
       },
       "Event": {
         "oneOf": [
@@ -3939,6 +4004,46 @@
           }
         }
       },
+      "PendingDelegationEntry": {
+        "description": "Rust version of the Move haneul::staking_pool::PendingDelegationEntry type.",
+        "type": "object",
+        "required": [
+          "delegator",
+          "haneul_amount"
+        ],
+        "properties": {
+          "delegator": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          },
+          "haneul_amount": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "PendingWithdrawEntry": {
+        "description": "Rust version of the Move haneul::staking_pool::PendingWithdrawEntry type.",
+        "type": "object",
+        "required": [
+          "delegator",
+          "principal_withdraw_amount",
+          "withdrawn_pool_tokens"
+        ],
+        "properties": {
+          "delegator": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          },
+          "principal_withdraw_amount": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "withdrawn_pool_tokens": {
+            "$ref": "#/components/schemas/Balance"
+          }
+        }
+      },
       "RPCTransactionRequestParams": {
         "oneOf": [
           {
@@ -4010,6 +4115,52 @@
           "Secp256k1",
           "BLS12381"
         ]
+      },
+      "StakingPool": {
+        "description": "Rust version of the Move haneul::staking_pool::StakingPool type",
+        "type": "object",
+        "required": [
+          "delegation_token_supply",
+          "pending_delegations",
+          "pending_withdraws",
+          "rewards_pool",
+          "starting_epoch",
+          "haneul_balance",
+          "validator_address"
+        ],
+        "properties": {
+          "delegation_token_supply": {
+            "$ref": "#/components/schemas/Supply"
+          },
+          "pending_delegations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingDelegationEntry"
+            }
+          },
+          "pending_withdraws": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingWithdrawEntry"
+            }
+          },
+          "rewards_pool": {
+            "$ref": "#/components/schemas/Balance"
+          },
+          "starting_epoch": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "haneul_balance": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "validator_address": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          }
+        }
       },
       "HaneulAddress": {
         "$ref": "#/components/schemas/Hex"
@@ -4572,6 +4723,50 @@
           }
         ]
       },
+      "HaneulSystemState": {
+        "description": "Rust version of the Move haneul::haneul_system::HaneulSystemState type",
+        "type": "object",
+        "required": [
+          "epoch",
+          "info",
+          "parameters",
+          "reference_gas_price",
+          "storage_fund",
+          "treasury_cap",
+          "validator_report_records",
+          "validators"
+        ],
+        "properties": {
+          "epoch": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "info": {
+            "$ref": "#/components/schemas/UID"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/SystemParameters"
+          },
+          "reference_gas_price": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "storage_fund": {
+            "$ref": "#/components/schemas/Balance"
+          },
+          "treasury_cap": {
+            "$ref": "#/components/schemas/Supply"
+          },
+          "validator_report_records": {
+            "$ref": "#/components/schemas/VecMap_for_HaneulAddress_and_VecSet_for_HaneulAddress"
+          },
+          "validators": {
+            "$ref": "#/components/schemas/ValidatorSet"
+          }
+        }
+      },
       "HaneulTransactionAuthSignersResponse": {
         "type": "object",
         "required": [
@@ -4614,6 +4809,45 @@
               "integer",
               "null"
             ],
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "Supply": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "SystemParameters": {
+        "description": "Rust version of the Move haneul::haneul_system::SystemParameters type",
+        "type": "object",
+        "required": [
+          "max_validator_candidate_count",
+          "min_validator_stake",
+          "storage_gas_price"
+        ],
+        "properties": {
+          "max_validator_candidate_count": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "min_validator_stake": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "storage_gas_price": {
+            "type": "integer",
             "format": "uint64",
             "minimum": 0.0
           }
@@ -5020,6 +5254,265 @@
       },
       "TypeTag": {
         "type": "string"
+      },
+      "UID": {
+        "description": "Rust version of the Move haneul::object::Info type",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ObjectID"
+          }
+        }
+      },
+      "Validator": {
+        "description": "Rust version of the Move haneul::validator::Validator type",
+        "type": "object",
+        "required": [
+          "commission_rate",
+          "delegation_staking_pool",
+          "gas_price",
+          "metadata",
+          "pending_stake",
+          "pending_withdraw",
+          "stake_amount"
+        ],
+        "properties": {
+          "commission_rate": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "delegation_staking_pool": {
+            "$ref": "#/components/schemas/StakingPool"
+          },
+          "gas_price": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ValidatorMetadata"
+          },
+          "pending_stake": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "pending_withdraw": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "stake_amount": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "ValidatorMetadata": {
+        "type": "object",
+        "required": [
+          "name",
+          "net_address",
+          "network_pubkey_bytes",
+          "next_epoch_commission_rate",
+          "next_epoch_delegation",
+          "next_epoch_gas_price",
+          "next_epoch_stake",
+          "proof_of_possession_bytes",
+          "pubkey_bytes",
+          "haneul_address"
+        ],
+        "properties": {
+          "name": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "net_address": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "network_pubkey_bytes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "next_epoch_commission_rate": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "next_epoch_delegation": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "next_epoch_gas_price": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "next_epoch_stake": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "proof_of_possession_bytes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "pubkey_bytes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "haneul_address": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          }
+        }
+      },
+      "ValidatorPair": {
+        "description": "Rust version of the Move haneul::validator_set::ValidatorPair type",
+        "type": "object",
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          },
+          "to": {
+            "$ref": "#/components/schemas/HaneulAddress"
+          }
+        }
+      },
+      "ValidatorSet": {
+        "description": "Rust version of the Move haneul::validator_set::ValidatorSet type",
+        "type": "object",
+        "required": [
+          "active_validators",
+          "delegation_stake",
+          "next_epoch_validators",
+          "pending_delegation_switches",
+          "pending_removals",
+          "pending_validators",
+          "quorum_stake_threshold",
+          "validator_stake"
+        ],
+        "properties": {
+          "active_validators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Validator"
+            }
+          },
+          "delegation_stake": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "next_epoch_validators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidatorMetadata"
+            }
+          },
+          "pending_delegation_switches": {
+            "$ref": "#/components/schemas/VecMap_for_ValidatorPair_and_Array_of_PendingWithdrawEntry"
+          },
+          "pending_removals": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "pending_validators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Validator"
+            }
+          },
+          "quorum_stake_threshold": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "validator_stake": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "VecMap_for_HaneulAddress_and_VecSet_for_HaneulAddress": {
+        "description": "Rust version of the Move haneul::vec_map::VecMap type",
+        "type": "object",
+        "required": [
+          "contents"
+        ],
+        "properties": {
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entry_for_HaneulAddress_and_VecSet_for_HaneulAddress"
+            }
+          }
+        }
+      },
+      "VecMap_for_ValidatorPair_and_Array_of_PendingWithdrawEntry": {
+        "description": "Rust version of the Move haneul::vec_map::VecMap type",
+        "type": "object",
+        "required": [
+          "contents"
+        ],
+        "properties": {
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entry_for_ValidatorPair_and_Array_of_PendingWithdrawEntry"
+            }
+          }
+        }
+      },
+      "VecSet_for_HaneulAddress": {
+        "description": "Rust version of the Move haneul::vec_set::VecSet type",
+        "type": "object",
+        "required": [
+          "contents"
+        ],
+        "properties": {
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HaneulAddress"
+            }
+          }
+        }
       }
     }
   }

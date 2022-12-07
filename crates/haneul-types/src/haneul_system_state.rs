@@ -4,12 +4,11 @@
 use std::collections::BTreeMap;
 
 use fastcrypto::traits::ToFromBytes;
-use move_core_types::{
-    account_address::AccountAddress, ident_str, identifier::IdentStr, language_storage::StructTag,
-};
+use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::base_types::AuthorityName;
+use crate::base_types::{AuthorityName, HaneulAddress};
 use crate::collection_types::{VecMap, VecSet};
 use crate::committee::{Committee, CommitteeWithNetAddresses, StakeUnit};
 use crate::crypto::AuthorityPublicKeyBytes;
@@ -24,7 +23,7 @@ pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 
 /// Rust version of the Move haneul::haneul_system::SystemParameters type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct SystemParameters {
     pub min_validator_stake: u64,
     pub max_validator_candidate_count: u64,
@@ -38,9 +37,9 @@ pub struct MoveOption<T> {
     pub vec: Vec<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct ValidatorMetadata {
-    pub haneul_address: AccountAddress,
+    pub haneul_address: HaneulAddress,
     pub pubkey_bytes: Vec<u8>,
     pub network_pubkey_bytes: Vec<u8>,
     pub proof_of_possession_bytes: Vec<u8>,
@@ -64,7 +63,7 @@ impl ValidatorMetadata {
 }
 
 /// Rust version of the Move haneul::validator::Validator type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct Validator {
     pub metadata: ValidatorMetadata,
     pub stake_amount: u64,
@@ -90,24 +89,24 @@ impl Validator {
 }
 
 /// Rust version of the Move haneul::staking_pool::PendingDelegationEntry type.
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct PendingDelegationEntry {
-    pub delegator: AccountAddress,
+    pub delegator: HaneulAddress,
     pub haneul_amount: u64,
 }
 
 /// Rust version of the Move haneul::staking_pool::PendingWithdrawEntry type.
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct PendingWithdrawEntry {
-    delegator: AccountAddress,
+    delegator: HaneulAddress,
     principal_withdraw_amount: u64,
     withdrawn_pool_tokens: Balance,
 }
 
 /// Rust version of the Move haneul::staking_pool::StakingPool type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct StakingPool {
-    pub validator_address: AccountAddress,
+    pub validator_address: HaneulAddress,
     pub starting_epoch: u64,
     pub haneul_balance: u64,
     pub rewards_pool: Balance,
@@ -117,14 +116,14 @@ pub struct StakingPool {
 }
 
 /// Rust version of the Move haneul::validator_set::ValidatorPair type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct ValidatorPair {
-    from: AccountAddress,
-    to: AccountAddress,
+    from: HaneulAddress,
+    to: HaneulAddress,
 }
 
 /// Rust version of the Move haneul::validator_set::ValidatorSet type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct ValidatorSet {
     pub validator_stake: u64,
     pub delegation_stake: u64,
@@ -137,7 +136,7 @@ pub struct ValidatorSet {
 }
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct HaneulSystemState {
     pub info: UID,
     pub epoch: u64,
@@ -146,7 +145,7 @@ pub struct HaneulSystemState {
     pub storage_fund: Balance,
     pub parameters: SystemParameters,
     pub reference_gas_price: u64,
-    pub validator_report_records: VecMap<AccountAddress, VecSet<AccountAddress>>,
+    pub validator_report_records: VecMap<HaneulAddress, VecSet<HaneulAddress>>,
     // TODO: Use getters instead of all pub.
 }
 

@@ -12,6 +12,7 @@ use std::sync::Arc;
 use haneul_types::coin::CoinMetadata;
 use haneul_types::event::Event;
 use haneul_types::gas_coin::GAS;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::TapFallible;
 
 use fastcrypto::encoding::Base64;
@@ -395,6 +396,14 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
         Ok(self
             .state
             .handle_committee_info_request(&CommitteeInfoRequest { epoch })
+            .map_err(|e| anyhow!("{e}"))?)
+    }
+
+    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState> {
+        Ok(self
+            .state
+            .get_haneul_system_state_object()
+            .await
             .map_err(|e| anyhow!("{e}"))?)
     }
 }

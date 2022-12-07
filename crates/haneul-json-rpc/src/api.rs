@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::anyhow;
-use std::collections::BTreeMap;
-
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
+use std::collections::BTreeMap;
+use haneul_types::haneul_system_state::HaneulSystemState;
 
 use fastcrypto::encoding::Base64;
 use haneul_json::HaneulJsonValue;
@@ -182,6 +182,10 @@ pub trait RpcFullNodeReadApi {
         /// The epoch of interest. If None, default to the latest epoch
         epoch: Option<EpochId>,
     ) -> RpcResult<CommitteeInfoResponse>;
+
+    /// Return HaneulSystemState
+    #[method(name = "getHaneulSystemState")]
+    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]

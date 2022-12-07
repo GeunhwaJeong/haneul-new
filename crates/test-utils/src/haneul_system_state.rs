@@ -23,7 +23,7 @@ pub fn test_validatdor_metadata(
 ) -> ValidatorMetadata {
     let network_keypair: NetworkKeyPair = get_key_pair().1;
     ValidatorMetadata {
-        haneul_address: haneul_address.into(),
+        haneul_address,
         pubkey_bytes: pubkey_bytes.as_bytes().to_vec(),
         network_pubkey_bytes: network_keypair.public().as_bytes().to_vec(),
         proof_of_possession_bytes: vec![],
@@ -38,7 +38,7 @@ pub fn test_validatdor_metadata(
 
 pub fn test_staking_pool(haneul_address: HaneulAddress, haneul_balance: u64) -> StakingPool {
     StakingPool {
-        validator_address: haneul_address.into(),
+        validator_address: haneul_address,
         starting_epoch: 0,
         haneul_balance,
         rewards_pool: Balance::new(0),
