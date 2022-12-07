@@ -18,6 +18,7 @@ import {
   isHaneulTransactionResponse,
   isTransactionEffects,
   isCoinMetadata,
+  isHaneulTransactionAuthSignersResponse,
 } from '../types/index.guard';
 import {
   Coin,
@@ -55,6 +56,7 @@ import {
   CoinMetadata,
   versionToString,
   normalizeHaneulAddress,
+  HaneulTransactionAuthSignersResponse,
 } from '../types';
 import { PublicKey, SignatureScheme, SIGNATURE_SCHEME_TO_FLAG } from '../cryptography/publickey';
 import {
@@ -608,6 +610,23 @@ export class JsonRpcProvider extends Provider {
     } catch (err) {
       throw new Error(
         `Error fetching transaction digests in range: ${err} for range ${start}-${end}`
+      );
+    }
+  }
+
+  async getTransactionAuthSigners(
+    digest: TransactionDigest
+  ): Promise<HaneulTransactionAuthSignersResponse> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getTransactionAuthSigners',
+        [digest],
+        isHaneulTransactionAuthSignersResponse,
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error fetching transaction auth signers: ${err}`
       );
     }
   }

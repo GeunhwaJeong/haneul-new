@@ -147,6 +147,10 @@ export type HaneulTransactionResponse = {
   parsed_data: HaneulParsedTransactionResponse | null;
 };
 
+export type HaneulTransactionAuthSignersResponse = {
+  signers: AuthorityName[]
+};
+
 // TODO: this is likely to go away after https://github.com/GeunhwaJeong/haneul/issues/4207
 export type HaneulCertifiedTransactionEffects = {
   effects: TransactionEffects;
