@@ -3,6 +3,7 @@
 
 extern crate core;
 
+use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::sync::Arc;
@@ -34,7 +35,7 @@ use haneul_json_rpc::api::TransactionExecutionApiClient;
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
     EventPage, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope, HaneulEventFilter,
-    HaneulObjectInfo, HaneulTransactionResponse, TransactionsPage,
+    HaneulMoveNormalizedModule, HaneulObjectInfo, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
@@ -292,6 +293,17 @@ impl ReadApi {
             .api
             .http
             .get_transactions(query, cursor, limit, descending_order)
+            .await?)
+    }
+
+    pub async fn get_normalized_move_modules_by_package(
+        &self,
+        package: ObjectID,
+    ) -> anyhow::Result<BTreeMap<String, HaneulMoveNormalizedModule>> {
+        Ok(self
+            .api
+            .http
+            .get_normalized_move_modules_by_package(package)
             .await?)
     }
 }

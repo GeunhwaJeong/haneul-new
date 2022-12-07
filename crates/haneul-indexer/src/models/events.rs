@@ -3,12 +3,13 @@
 
 use crate::errors::IndexerError;
 use crate::schema::events;
-use crate::schema::events::{event_sequence, transaction_digest, transaction_sequence};
+use crate::schema::events::dsl::{events as events_table, id};
+use crate::schema::events::{event_sequence, transaction_sequence};
 use crate::utils::log_errors_to_pg;
 
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use haneul_json_rpc_types::{EventPage, HaneulEventEnvelope};
+use haneul_json_rpc_types::{EventPage, HaneulEvent, HaneulEventEnvelope};
 
 #[derive(Queryable, Debug)]
 pub struct Event {
@@ -32,12 +33,29 @@ pub struct NewEvent {
     pub event_content: String,
 }
 
+pub fn read_events(
+    conn: &mut PgConnection,
+    last_processed_id: i64,
+    limit: usize,
+) -> Result<Vec<Event>, IndexerError> {
+    events_table
+        .filter(id.gt(last_processed_id))
+        .limit(limit as i64)
+        .load::<Event>(conn)
+        .map_err(|e| {
+            IndexerError::PostgresReadError(format!(
+                "Failed reading events with last_processed_id {} and error: {:?}",
+                last_processed_id, e
+            ))
+        })
+}
+
 // NOTE: no need to retry here b/c errors here are not transient,
 // instead we write them to PG tables for debugging purposes.
 pub fn event_to_new_event(e: HaneulEventEnvelope) -> Result<NewEvent, IndexerError> {
     let event_json = serde_json::to_string(&e.event).map_err(|err| {
         IndexerError::InsertableParsingError(format!(
-            "Failed converting event to JSON with error : {}",
+            "Failed converting event to JSON with error: {:?}",
             err
         ))
     })?;
@@ -68,11 +86,11 @@ pub fn commit_events(
         .map(event_to_new_event)
         .filter_map(|r| r.map_err(|e| errors.push(e)).ok())
         .collect();
-    log_errors_to_pg(errors);
 
+    log_errors_to_pg(conn, errors);
     diesel::insert_into(events::table)
         .values(&new_events)
-        .on_conflict((transaction_digest, transaction_sequence, event_sequence))
+        .on_conflict((transaction_sequence, event_sequence))
         .do_nothing()
         .execute(conn)
         .map_err(|e| {
@@ -81,4 +99,29 @@ pub fn commit_events(
                 new_events, e
             ))
         })
+}
+
+pub fn events_to_haneul_events(conn: &mut PgConnection, events: Vec<Event>) -> Vec<HaneulEvent> {
+    let mut errors = vec![];
+    let haneul_events_to_process: Vec<HaneulEvent> = events
+        .into_iter()
+        .filter_map(|event| {
+            let haneul_event_str = event.event_content.as_str();
+            let haneul_event: Result<HaneulEvent, IndexerError> = serde_json::from_str(haneul_event_str)
+                .map_err(|e| {
+                    IndexerError::EventDeserializationError(format!(
+                        "Failed deserializing event {:?} with error: {:?}",
+                        event.event_content, e
+                    ))
+                });
+            haneul_event
+                .map_err(|e| {
+                    errors.push(e.clone());
+                    e
+                })
+                .ok()
+        })
+        .collect();
+    log_errors_to_pg(conn, errors);
+    haneul_events_to_process
 }

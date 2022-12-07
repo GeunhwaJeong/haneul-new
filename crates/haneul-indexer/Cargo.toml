@@ -39,6 +39,8 @@ haneul-sdk = { path = "../haneul-sdk" }
 telemetry-subscribers.workspace = true
 workspace-hack = { path = "../workspace-hack"}
 
+fastcrypto = { workspace = true, features = ["copy_key"] }
+
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
 haneul-framework-build = { path = "../haneul-framework-build" }
