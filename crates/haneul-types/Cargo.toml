@@ -45,6 +45,7 @@ move-disassembler.workspace = true
 move-ir-types.workspace = true
 move-vm-types.workspace = true
 
+narwhal-config = { path = "../../narwhal/config" }
 narwhal-executor = { path = "../../narwhal/executor" }
 haneul-cost-tables = { path = "../haneul-cost-tables"}
 haneul-protocol-constants = { path = "../haneul-protocol-constants" }
