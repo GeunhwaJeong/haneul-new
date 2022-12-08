@@ -23,8 +23,6 @@ use rpc_types::{
     HaneulParsedTransactionResponse, HaneulTransactionEffects,
 };
 use serde_json::Value;
-pub use haneul_config::gateway;
-use haneul_core::gateway_state::TxSeqNumber;
 pub use haneul_json as json;
 use haneul_json_rpc::api::EventReadApiClient;
 use haneul_json_rpc::api::EventStreamingApiClient;
@@ -40,6 +38,7 @@ use haneul_json_rpc_types::{
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::batch::TxSequenceNumber;
 use haneul_types::event::EventID;
 use haneul_types::messages::VerifiedTransaction;
 use haneul_types::query::{EventQuery, TransactionQuery};
@@ -259,8 +258,8 @@ impl ReadApi {
 
     pub async fn get_transactions_in_range(
         &self,
-        start: TxSeqNumber,
-        end: TxSeqNumber,
+        start: TxSequenceNumber,
+        end: TxSequenceNumber,
     ) -> anyhow::Result<Vec<TransactionDigest>> {
         Ok(self.api.http.get_transactions_in_range(start, end).await?)
     }
@@ -344,10 +343,8 @@ pub struct QuorumDriver {
 }
 
 impl QuorumDriver {
-    /// Execute a transaction with a FullNode client or embedded Gateway.
-    /// `request_type` is ignored when the client is an embedded Gateway.
-    /// For Fullnode client, `request_type` defaults to
-    /// `ExecuteTransactionRequestType::WaitForLocalExecution`.
+    /// Execute a transaction with a FullNode client. `request_type`
+    /// defaults to `ExecuteTransactionRequestType::WaitForLocalExecution`.
     /// When `ExecuteTransactionRequestType::WaitForLocalExecution` is used,
     /// but returned `confirmed_local_execution` is false, the client polls
     /// the fullnode untils the fullnode recognizes this transaction, or

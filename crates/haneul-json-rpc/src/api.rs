@@ -200,7 +200,7 @@ pub trait RpcTransactionBuilder {
         signer: HaneulAddress,
         /// the ID of the object to be transferred
         object_id: ObjectID,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -239,7 +239,7 @@ pub trait RpcTransactionBuilder {
         recipients: Vec<HaneulAddress>,
         /// the amounts to be transferred to recipients, following the same order
         amounts: Vec<u64>,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -305,7 +305,7 @@ pub trait RpcTransactionBuilder {
         type_arguments: Vec<HaneulTypeTag>,
         /// the arguments to be passed into the Move function, in [HaneulJson](https://docs.haneul.io/build/haneul-json) format
         arguments: Vec<HaneulJsonValue>,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -319,7 +319,7 @@ pub trait RpcTransactionBuilder {
         sender: HaneulAddress,
         /// the compiled bytes of a move module, the
         compiled_modules: Vec<Base64>,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -335,7 +335,7 @@ pub trait RpcTransactionBuilder {
         coin_object_id: ObjectID,
         /// the amounts to split out from the coin
         split_amounts: Vec<u64>,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -351,7 +351,7 @@ pub trait RpcTransactionBuilder {
         coin_object_id: ObjectID,
         /// the number of coins to split into
         split_count: u64,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -367,7 +367,7 @@ pub trait RpcTransactionBuilder {
         primary_coin: ObjectID,
         /// the coin object to be merged, this coin will be destroyed, the balance will be added to `primary_coin`
         coin_to_merge: ObjectID,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
@@ -381,7 +381,7 @@ pub trait RpcTransactionBuilder {
         signer: HaneulAddress,
         /// list of transaction request parameters
         single_transaction_params: Vec<RPCTransactionRequestParams>,
-        /// gas object to be used in this transaction, the gateway will pick one from the signer's possession if not provided
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
         gas: Option<ObjectID>,
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,

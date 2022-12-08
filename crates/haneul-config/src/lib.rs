@@ -11,7 +11,6 @@ use haneul_types::committee::StakeUnit;
 use tracing::trace;
 
 pub mod builder;
-pub mod gateway;
 pub mod genesis;
 pub mod genesis_config;
 pub mod node;
@@ -29,7 +28,6 @@ pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
 pub const HANEUL_KEYSTORE_FILENAME: &str = "haneul.keystore";
-pub const HANEUL_GATEWAY_CONFIG: &str = "gateway.yaml";
 pub const HANEUL_GENESIS_FILENAME: &str = "genesis.blob";
 pub const HANEUL_DEV_NET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 

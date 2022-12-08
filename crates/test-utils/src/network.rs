@@ -13,7 +13,6 @@ use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
-use haneul_json_rpc::ServerHandle;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNode;
 use haneul_sdk::HaneulClient;
@@ -31,12 +30,6 @@ pub struct FullNodeHandle {
     pub rpc_url: String,
     pub ws_client: WsClient,
     pub ws_url: String,
-}
-
-pub struct GatewayHandle {
-    pub handle: ServerHandle,
-    pub http_client: HttpClient,
-    pub url: String,
 }
 
 pub struct TestCluster {
@@ -177,7 +170,7 @@ impl TestClusterBuilder {
         })
     }
 
-    /// Start a Swarm and set up WalletConfig with an embedded Gateway
+    /// Start a Swarm and set up WalletConfig
     async fn start_swarm(&mut self) -> Result<Swarm, anyhow::Error> {
         let mut builder: SwarmBuilder = Swarm::builder().committee_size(
             NonZeroUsize::new(self.num_validators.unwrap_or(NUM_VALIDAOTR)).unwrap(),
