@@ -1,5 +1,18 @@
 # @haneullabs/wallet-adapter-react
 
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies [b8257cecb]
+- Updated dependencies [6c1f81228]
+- Updated dependencies [519e11551]
+- Updated dependencies [b03bfaec2]
+- Updated dependencies [f9be28a42]
+- Updated dependencies [24987df35]
+  - @haneullabs/haneul.js@0.19.0
+  - @haneullabs/wallet-adapter-base@0.3.6
+
 ## 9.0.0
 
 ### Minor Changes
