@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactComponent as HaneulLogoIcon } from '../../assets/Haneul Logo.svg';
-import ExternalLink from '../external-link/ExternalLink';
 
 import styles from './Footer.module.css';
+
+import { Link } from '~/ui/Link';
 
 function Footer() {
     return (
@@ -22,16 +23,14 @@ function Footer() {
                     <h6>Read</h6>
                     <ul>
                         <li>
-                            <ExternalLink
-                                href="https://medium.com/haneullabs-labs"
-                                label="Blog"
-                            />
+                            <Link href="https://medium.com/haneullabs-labs">
+                                Blog
+                            </Link>
                         </li>
                         <li>
-                            <ExternalLink
-                                href="https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf"
-                                label="Whitepaper"
-                            />
+                            <Link href="https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf">
+                                Whitepaper
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -39,22 +38,15 @@ function Footer() {
                     <h6>Build</h6>
                     <ul>
                         <li>
-                            <ExternalLink
-                                href="https://docs.haneul.io/"
-                                label="Docs"
-                            />
+                            <Link href="https://docs.haneul.io/">Docs</Link>
                         </li>
                         <li>
-                            <ExternalLink
-                                href="https://github.com/GeunhwaJeong"
-                                label="GitHub"
-                            />
+                            <Link href="https://github.com/GeunhwaJeong">
+                                GitHub
+                            </Link>
                         </li>
                         <li>
-                            <ExternalLink
-                                href="https://discord.gg/haneul"
-                                label="Discord"
-                            />
+                            <Link href="https://discord.gg/haneul">Discord</Link>
                         </li>
                     </ul>
                 </div>
@@ -62,22 +54,19 @@ function Footer() {
                     <h6>Follow</h6>
                     <ul>
                         <li>
-                            <ExternalLink
-                                href="https://haneul-labs.com/#community"
-                                label="Press"
-                            />
+                            <Link href="https://haneul-labs.com/#community">
+                                Press
+                            </Link>
                         </li>
                         <li>
-                            <ExternalLink
-                                href="https://twitter.com/HaneulNetwork"
-                                label="Twitter"
-                            />
+                            <Link href="https://twitter.com/HaneulNetwork">
+                                Twitter
+                            </Link>
                         </li>
                         <li>
-                            <ExternalLink
-                                href="https://www.linkedin.com/company/haneullabs-labs/"
-                                label="LinkedIn"
-                            />
+                            <Link href="https://www.linkedin.com/company/haneullabs-labs/">
+                                LinkedIn
+                            </Link>
                         </li>
                     </ul>
                 </div>
