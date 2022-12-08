@@ -637,12 +637,12 @@ impl<S> TemporaryStore<S> {
             .insert(object.id(), (ctx.clone(), object, kind));
     }
 
-    pub fn charge_gas(
+    pub fn charge_gas<T>(
         &mut self,
         sender: HaneulAddress,
         gas_object_id: ObjectID,
         gas_status: &mut HaneulGasStatus<'_>,
-        result: &mut Result<(), ExecutionError>,
+        result: &mut Result<T, ExecutionError>,
     ) {
         // We must call `read_object` instead of getting it from `temporary_store.objects`
         // because a `TransferHaneul` transaction may have already mutated the gas object and put

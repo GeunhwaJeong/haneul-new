@@ -36,7 +36,7 @@ use std::{
     path::Path,
     sync::Arc,
 };
-use haneul_adapter::{adapter::new_move_vm, genesis};
+use haneul_adapter::{adapter::new_move_vm, execution_mode, genesis};
 use haneul_core::{execution_engine, test_utils::to_sender_signed_transaction};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::temporary_store::TemporaryStore;
@@ -488,7 +488,7 @@ impl<'a> HaneulTestAdapter<'a> {
                 ..
             },
             execution_error,
-        ) = execution_engine::execute_transaction_to_effects(
+        ) = execution_engine::execute_transaction_to_effects::<execution_mode::Normal, _>(
             shared_object_refs,
             temporary_store,
             transaction.into_inner().into_data().data,
@@ -548,7 +548,7 @@ impl<'a> HaneulTestAdapter<'a> {
                 Err(anyhow::anyhow!(self.stabilize_str(format!(
                     "Transaction Effects Status: {}\nExecution Error: {}",
                     error,
-                    execution_error.expect(
+                    execution_error.expect_err(
                         "to have an execution error if a transaction's status is a failure"
                     )
                 ))))

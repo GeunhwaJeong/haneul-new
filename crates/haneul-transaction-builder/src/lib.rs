@@ -13,6 +13,7 @@ use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
 
 use haneul_adapter::adapter::resolve_and_type_check;
+use haneul_adapter::execution_mode;
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::GetRawObjectDataResponse;
 use haneul_json_rpc_types::HaneulObjectInfo;
@@ -349,7 +350,8 @@ impl TransactionBuilder {
         }
         let compiled_module = package.deserialize_module(module)?;
 
-        resolve_and_type_check(
+        // TODO set the Mode from outside?
+        resolve_and_type_check::<execution_mode::Normal>(
             &objects,
             &compiled_module,
             function,
