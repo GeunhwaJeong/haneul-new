@@ -150,6 +150,7 @@ pub struct HaneulSystemState {
     pub parameters: SystemParameters,
     pub reference_gas_price: u64,
     pub validator_report_records: VecMap<HaneulAddress, VecSet<HaneulAddress>>,
+    pub next_epoch_stake_subsidy: u64,
     // TODO: Use getters instead of all pub.
 }
 
