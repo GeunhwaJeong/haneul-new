@@ -28,6 +28,7 @@ module haneul::genesis {
     /// It will create a singleton HaneulSystemState object, which contains
     /// all the information we need in the system.
     fun create(
+        chain_id: u8,
         validator_pubkeys: vector<vector<u8>>,
         validator_network_pubkeys: vector<vector<u8>>,
         validator_proof_of_possessions: vector<vector<u8>>,
@@ -79,6 +80,7 @@ module haneul::genesis {
             i = i + 1;
         };
         haneul_system::create(
+            chain_id,
             validators,
             haneul_supply,
             storage_fund,

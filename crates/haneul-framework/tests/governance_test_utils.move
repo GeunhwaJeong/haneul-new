@@ -37,6 +37,7 @@ module haneul::governance_test_utils {
         validators: vector<Validator>, haneul_supply_amount: u64, storage_fund_amount: u64
     ) {
         haneul_system::create(
+            127,
             validators,
             balance::create_supply_for_testing(haneul_supply_amount), // haneul_supply
             balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
