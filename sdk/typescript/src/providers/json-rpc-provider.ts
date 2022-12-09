@@ -55,7 +55,11 @@ import {
   TransactionEffects,
   CoinMetadata,
   versionToString,
+  isValidTransactionDigest,
+  isValidHaneulAddress,
+  isValidHaneulObjectId,
   normalizeHaneulAddress,
+  normalizeHaneulObjectId,
   HaneulTransactionAuthSignersResponse,
 } from '../types';
 import { PublicKey, SignatureScheme, SIGNATURE_SCHEME_TO_FLAG } from '../cryptography/publickey';
@@ -315,8 +319,11 @@ export class JsonRpcProvider extends Provider {
   }
 
   // Objects
-  async getObjectsOwnedByAddress(address: string): Promise<HaneulObjectInfo[]> {
+  async getObjectsOwnedByAddress(address: HaneulAddress): Promise<HaneulObjectInfo[]> {
     try {
+      if (!address || !isValidHaneulAddress(normalizeHaneulAddress(address))) {
+        throw new Error('Invalid Haneul address');
+      }
       return await this.client.requestWithType(
         'haneul_getObjectsOwnedByAddress',
         [address],
@@ -330,13 +337,13 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getGasObjectsOwnedByAddress(address: string): Promise<HaneulObjectInfo[]> {
+  async getGasObjectsOwnedByAddress(address: HaneulAddress): Promise<HaneulObjectInfo[]> {
     const objects = await this.getObjectsOwnedByAddress(address);
     return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
   }
 
   async getCoinBalancesOwnedByAddress(
-    address: string,
+    address: HaneulAddress,
     typeArg?: string
   ): Promise<GetObjectDataResponse[]> {
     const objects = await this.getObjectsOwnedByAddress(address);
@@ -352,7 +359,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async selectCoinsWithBalanceGreaterThanOrEqual(
-    address: string,
+    address: HaneulAddress,
     amount: bigint,
     typeArg: string = HANEUL_TYPE_ARG,
     exclude: ObjectId[] = []
@@ -366,7 +373,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-    address: string,
+    address: HaneulAddress,
     amount: bigint,
     typeArg: string = HANEUL_TYPE_ARG,
     exclude: ObjectId[] = []
@@ -379,8 +386,11 @@ export class JsonRpcProvider extends Provider {
     )) as GetObjectDataResponse[];
   }
 
-  async getObjectsOwnedByObject(objectId: string): Promise<HaneulObjectInfo[]> {
+  async getObjectsOwnedByObject(objectId: ObjectId): Promise<HaneulObjectInfo[]> {
     try {
+      if (!objectId || !isValidHaneulObjectId(normalizeHaneulObjectId(objectId))) {
+        throw new Error('Invalid Haneul Object id');
+      }
       return await this.client.requestWithType(
         'haneul_getObjectsOwnedByObject',
         [objectId],
@@ -394,8 +404,11 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getObject(objectId: string): Promise<GetObjectDataResponse> {
+  async getObject(objectId: ObjectId): Promise<GetObjectDataResponse> {
     try {
+      if (!objectId || !isValidHaneulObjectId(normalizeHaneulObjectId(objectId))) {
+        throw new Error('Invalid Haneul Object id');
+      }
       return await this.client.requestWithType(
         'haneul_getObject',
         [objectId],
@@ -407,24 +420,29 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getObjectRef(objectId: string): Promise<HaneulObjectRef | undefined> {
+  async getObjectRef(objectId: ObjectId): Promise<HaneulObjectRef | undefined> {
     const resp = await this.getObject(objectId);
     return getObjectReference(resp);
   }
 
-  async getObjectBatch(objectIds: string[]): Promise<GetObjectDataResponse[]> {
-    const requests = objectIds.map((id) => ({
-      method: 'haneul_getObject',
-      args: [id],
-    }));
+  async getObjectBatch(objectIds: ObjectId[]): Promise<GetObjectDataResponse[]> {
     try {
+      const requests = objectIds.map((id) => {
+        if (!id || !isValidHaneulObjectId(normalizeHaneulObjectId(id))) {
+          throw new Error(`Invalid Haneul Object id ${id}`);
+        }
+        return { 
+          method: 'haneul_getObject',
+          args: [id],
+        };
+      });
       return await this.client.batchRequestWithType(
         requests,
         isGetObjectDataResponse,
         this.options.skipDataValidation
       );
     } catch (err) {
-      throw new Error(`Error fetching object info: ${err} for id ${objectIds}`);
+      throw new Error(`Error fetching object info: ${err} for ids [${objectIds}]`);
     }
   }
 
@@ -450,7 +468,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getTransactionsForObject(
-    objectID: string,
+    objectID: ObjectId,
     descendingOrder: boolean = true
   ): Promise<GetTxnDigestsResponse> {
     const requests = [
@@ -465,6 +483,9 @@ export class JsonRpcProvider extends Provider {
     ];
 
     try {
+      if (!objectID || !isValidHaneulObjectId(normalizeHaneulObjectId(objectID))) {
+        throw new Error('Invalid Haneul Object id');
+      }
       const results = await this.client.batchRequestWithType(
         requests,
         isPaginatedTransactionDigests,
@@ -479,7 +500,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getTransactionsForAddress(
-    addressID: string,
+    addressID: HaneulAddress,
     descendingOrder: boolean = true
   ): Promise<GetTxnDigestsResponse> {
     const requests = [
@@ -493,6 +514,9 @@ export class JsonRpcProvider extends Provider {
       },
     ];
     try {
+      if (!addressID || !isValidHaneulAddress(normalizeHaneulAddress(addressID))) {
+        throw new Error('Invalid Haneul address');
+      }
       const results = await this.client.batchRequestWithType(
         requests,
         isPaginatedTransactionDigests,
@@ -510,6 +534,9 @@ export class JsonRpcProvider extends Provider {
     digest: TransactionDigest
   ): Promise<HaneulTransactionResponse> {
     try {
+      if (!isValidTransactionDigest(digest, "base58")) {
+        throw new Error('Invalid Transaction digest');
+      }
       const resp = await this.client.requestWithType(
         'haneul_getTransaction',
         [digest],
@@ -523,24 +550,28 @@ export class JsonRpcProvider extends Provider {
       );
     }
   }
-
+ 
   async getTransactionWithEffectsBatch(
     digests: TransactionDigest[]
   ): Promise<HaneulTransactionResponse[]> {
-    const requests = digests.map((d) => ({
-      method: 'haneul_getTransaction',
-      args: [d],
-    }));
     try {
+      const requests = digests.map((d) => {
+        if (!isValidTransactionDigest(d, "base58")) {
+          throw new Error(`Invalid Transaction digest ${d}`);
+        }
+        return { 
+          method: 'haneul_getTransaction',
+          args: [d],
+        };
+      });
       return await this.client.batchRequestWithType(
         requests,
         isHaneulTransactionResponse,
         this.options.skipDataValidation
       );
     } catch (err) {
-      const list = digests.join(', ').substring(0, -2);
       throw new Error(
-        `Error getting transaction effects: ${err} for digests [${list}]`
+        `Error getting transaction effects: ${err} for digests [${digests}]`
       );
     }
   }
