@@ -10,14 +10,15 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use fastcrypto::encoding::Base64;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
-    MoveFunctionArgType, RPCTransactionRequestParams, HaneulCoinMetadata, HaneulEventEnvelope,
-    HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulMoveNormalizedFunction,
+    Balance, CoinPage, EventPage, GetObjectDataResponse, GetPastObjectDataResponse,
+    GetRawObjectDataResponse, MoveFunctionArgType, RPCTransactionRequestParams, HaneulCoinMetadata,
+    HaneulEventEnvelope, HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulMoveNormalizedFunction,
     HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
     HaneulTransactionAuthSignersResponse, HaneulTransactionEffects, HaneulTransactionFilter,
     HaneulTransactionResponse, HaneulTypeTag, TransactionBytes, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
+use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::batch::TxSequenceNumber;
 use haneul_types::committee::EpochId;
@@ -32,6 +33,50 @@ use haneul_types::query::{EventQuery, TransactionQuery};
 /// To avoid unnecessary dependency on that crate, we have a reference here
 /// for document purposes.
 pub const QUERY_MAX_RESULT_LIMIT: usize = 1000;
+
+#[open_rpc(namespace = "haneul", tag = "Coin Query API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait CoinReadApi {
+    /// Return the list of Coin objects owned by an address.
+    #[method(name = "getCoins")]
+    async fn get_coins(
+        &self,
+        /// the owner's Haneul address
+        owner: HaneulAddress,
+        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
+        coin_type: Option<String>,
+        /// optional paging cursor
+        cursor: Option<ObjectID>,
+        /// maximum number of items per page
+        limit: Option<usize>,
+    ) -> RpcResult<CoinPage>;
+
+    /// Return the total coin balance for each coin type.
+    #[method(name = "getBalance")]
+    async fn get_balances(
+        &self,
+        /// the owner's Haneul address
+        owner: HaneulAddress,
+        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
+        coin_type: Option<String>,
+    ) -> RpcResult<Vec<Balance>>;
+
+    /// Return metadata(e.g., symbol, decimals) for a coin
+    #[method(name = "getCoinMetadata")]
+    async fn get_coin_metadata(
+        &self,
+        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
+        coin_type: String,
+    ) -> RpcResult<HaneulCoinMetadata>;
+
+    /// Return total supply for a coin
+    #[method(name = "getTotalSupply")]
+    async fn get_total_supply(
+        &self,
+        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
+        coin_type: String,
+    ) -> RpcResult<Supply>;
+}
 
 #[open_rpc(namespace = "haneul", tag = "Read API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -96,14 +141,6 @@ pub trait RpcReadApi {
 pub trait RpcFullNodeReadApi {
     #[method(name = "dryRunTransaction")]
     async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects>;
-
-    /// Return metadata(e.g., symbol, decimals) for a coin
-    #[method(name = "getCoinMetadata")]
-    async fn get_coin_metadata(
-        &self,
-        /// fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC)
-        coin_type: String,
-    ) -> RpcResult<HaneulCoinMetadata>;
 
     /// Return the argument types of a Move function,
     /// based on normalized Type.

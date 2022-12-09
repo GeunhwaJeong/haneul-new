@@ -12,6 +12,7 @@ use haneul_core::HANEUL_CORE_VERSION;
 use haneul_json_rpc::api::EventReadApiOpenRpc;
 use haneul_json_rpc::api::EventStreamingApiOpenRpc;
 use haneul_json_rpc::bcs_api::BcsApiImpl;
+use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
 use haneul_json_rpc::haneul_rpc_doc;
 use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
@@ -47,6 +48,7 @@ async fn main() {
 
     let mut open_rpc = haneul_rpc_doc(HANEUL_CORE_VERSION);
     open_rpc.add_module(ReadApi::rpc_doc_module());
+    open_rpc.add_module(CoinReadApi::rpc_doc_module());
     open_rpc.add_module(FullNodeApi::rpc_doc_module());
     open_rpc.add_module(BcsApiImpl::rpc_doc_module());
     open_rpc.add_module(EventStreamingApiOpenRpc::module_doc());

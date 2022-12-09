@@ -61,6 +61,7 @@ mod handle;
 pub use handle::HaneulNodeHandle;
 use haneul_core::authority::ReconfigConsensusMessage;
 use haneul_core::checkpoints::CheckpointStore;
+use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_types::committee::EpochId;
 
 type ValidatorServerInfo = (
@@ -506,6 +507,7 @@ pub async fn build_server(
     let mut server = JsonRpcServerBuilder::new(env!("CARGO_PKG_VERSION"), prometheus_registry)?;
 
     server.register_module(ReadApi::new(state.clone()))?;
+    server.register_module(CoinReadApi::new(state.clone()))?;
     server.register_module(FullNodeApi::new(state.clone()))?;
     server.register_module(BcsApiImpl::new(state.clone()))?;
     server.register_module(FullNodeTransactionBuilderApi::new(state.clone()))?;
