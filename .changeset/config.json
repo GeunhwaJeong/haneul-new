@@ -10,7 +10,7 @@
   "ignore": [
     "haneul-explorer",
     "haneul-wallet",
-    "haneul-wallet-adapter",
+    "haneul-wallet-adapter-demo",
     "@haneullabs/core"
   ]
 }

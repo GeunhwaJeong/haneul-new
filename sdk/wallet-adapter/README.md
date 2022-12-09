@@ -6,6 +6,6 @@ Haneul Wallet Adapter is a set of libraries that makes it easy to connect your d
 
 ## Getting started
 
-We recommend using [Haneul Wallet Kit](./packages/wallet-kit/README.md) for connecting to wallets from React applications.
+We recommend using [Haneul Wallet Kit](./wallet-kit/README.md) for connecting to wallets from React applications.
 
-If you're not using React, you can use the underlying [wallet adapter packages](./packages/adapters/) to determine which wallets are currently available in the dApp, and interact with the wallets.
+If you're not using React, you can use the underlying [wallet adapter packages](./adapters/) to determine which wallets are currently available in the dApp, and interact with the wallets.
