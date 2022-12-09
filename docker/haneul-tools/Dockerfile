@@ -42,6 +42,7 @@ RUN cargo build --release \
     --bin haneul \
     --bin haneul-faucet \
     --bin stress \
+    --bin haneul-indexer \
     --bin haneul-cluster-test
 
 # Production Image
@@ -51,6 +52,7 @@ COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
+COPY --from=builder /haneul/target/release/haneul-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
 
 ARG BUILD_DATE
