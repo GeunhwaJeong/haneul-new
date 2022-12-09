@@ -1,10 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::HaneulDataStore;
-use serde::{Deserialize, Serialize};
+use crate::authority::AuthorityStore;
 use std::collections::HashSet;
-use std::fmt::Debug;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::messages::TransactionKind;
 use haneul_types::{
@@ -19,13 +17,10 @@ use haneul_types::{
 };
 use tracing::instrument;
 
-async fn get_gas_status<S>(
-    store: &HaneulDataStore<S>,
+async fn get_gas_status(
+    store: &AuthorityStore,
     transaction: &TransactionData,
-) -> HaneulResult<HaneulGasStatus<'static>>
-where
-    S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
-{
+) -> HaneulResult<HaneulGasStatus<'static>> {
     let tx_kind = &transaction.kind;
     let gas_object_ref = transaction.gas_payment_object_ref();
     let gas_object_refs = match tx_kind {
@@ -55,13 +50,10 @@ where
 }
 
 #[instrument(level = "trace", skip_all)]
-pub async fn check_transaction_input<S>(
-    store: &HaneulDataStore<S>,
+pub async fn check_transaction_input(
+    store: &AuthorityStore,
     transaction: &TransactionData,
-) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)>
-where
-    S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
-{
+) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)> {
     transaction.validity_check()?;
     transaction.kind.validity_check()?;
     let gas_status = get_gas_status(store, transaction).await?;
@@ -71,13 +63,10 @@ where
     Ok((gas_status, input_objects))
 }
 
-pub async fn check_certificate_input<S>(
-    store: &HaneulDataStore<S>,
+pub async fn check_certificate_input(
+    store: &AuthorityStore,
     cert: &VerifiedCertificate,
-) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)>
-where
-    S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
-{
+) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)> {
     let gas_status = get_gas_status(store, &cert.data().data).await?;
     let input_object_kinds = cert.data().data.input_objects()?;
     let tx_data = &cert.data().data;
@@ -98,17 +87,14 @@ where
 /// Returns the gas object (to be able to reuse it latter) and a gas status
 /// that will be used in the entire lifecycle of the transaction execution.
 #[instrument(level = "trace", skip_all)]
-async fn check_gas<S>(
-    store: &HaneulDataStore<S>,
+async fn check_gas(
+    store: &AuthorityStore,
     gas_payment: &ObjectRef,
     gas_budget: u64,
     computation_gas_price: u64,
     tx_kind: &TransactionKind,
     additional_objects_for_gas_payment: Vec<ObjectRef>,
-) -> HaneulResult<HaneulGasStatus<'static>>
-where
-    S: Eq + Debug + Serialize + for<'de> Deserialize<'de>,
-{
+) -> HaneulResult<HaneulGasStatus<'static>> {
     if tx_kind.is_system_tx() {
         Ok(HaneulGasStatus::new_unmetered())
     } else {

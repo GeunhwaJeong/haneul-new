@@ -35,7 +35,7 @@ use tracing::{debug, error, instrument, warn};
 use typed_store::Map;
 
 pub use authority_notify_read::EffectsNotifyRead;
-pub use authority_store::{AuthorityStore, ResolverWrapper, HaneulDataStore, UpdateType};
+pub use authority_store::{AuthorityStore, ResolverWrapper, UpdateType};
 use narwhal_config::{
     Committee as ConsensusCommittee, WorkerCache as ConsensusWorkerCache,
     WorkerId as ConsensusWorkerId,
@@ -55,7 +55,7 @@ use haneul_storage::{
     IndexStore,
 };
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{AuthorityKeyPair, AuthoritySignInfo, NetworkKeyPair};
+use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair};
 use haneul_types::event::{Event, EventID};
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::object::{Owner, PastObjectRead};
@@ -1616,7 +1616,7 @@ impl AuthorityState {
         self.database.clone()
     }
 
-    pub fn epoch_store(&self) -> Guard<Arc<AuthorityPerEpochStore<AuthoritySignInfo>>> {
+    pub fn epoch_store(&self) -> Guard<Arc<AuthorityPerEpochStore>> {
         self.database.epoch_store()
     }
 

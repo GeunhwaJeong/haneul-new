@@ -20,8 +20,6 @@ use haneul_storage::{
     mutex_table::{LockGuard, MutexTable},
     LockService,
 };
-use haneul_types::crypto::AuthoritySignInfo;
-use haneul_types::message_envelope::VerifiedEnvelope;
 use haneul_types::object::Owner;
 use haneul_types::storage::ChildObjectResolver;
 use haneul_types::{base_types::SequenceNumber, storage::ParentSync};
@@ -30,8 +28,6 @@ use tokio_retry::strategy::{jitter, ExponentialBackoff};
 use tracing::{debug, info, trace};
 use typed_store::rocks::DBBatch;
 use typed_store::traits::Map;
-
-pub type AuthorityStore = HaneulDataStore<AuthoritySignInfo>;
 
 const NUM_SHARDS: usize = 4096;
 const SHARD_SIZE: usize = 128;
@@ -42,15 +38,15 @@ const SHARD_SIZE: usize = 128;
 /// S is a template on Authority signature state. This allows HaneulDataStore to be used on either
 /// authorities or non-authorities. Specifically, when storing transactions and effects,
 /// S allows HaneulDataStore to either store the authority signed version or unsigned version.
-pub struct HaneulDataStore<S> {
+pub struct AuthorityStore {
     /// The LockService this store depends on for locking functionality
     lock_service: LockService,
 
     /// Internal vector of locks to manage concurrent writes to the database
     mutex_table: MutexTable<ObjectDigest>,
 
-    pub(crate) perpetual_tables: AuthorityPerpetualTables<S>,
-    epoch_store: ArcSwap<AuthorityPerEpochStore<S>>,
+    pub(crate) perpetual_tables: AuthorityPerpetualTables,
+    epoch_store: ArcSwap<AuthorityPerEpochStore>,
 
     // needed for re-opening epoch db.
     path: PathBuf,
@@ -59,7 +55,7 @@ pub struct HaneulDataStore<S> {
     pub(crate) effects_notify_read: NotifyRead<TransactionDigest, TransactionEffects>,
 }
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
+impl AuthorityStore {
     /// Open an authority store by directory path.
     /// If the store is empty, initialize it using genesis objects.
     pub async fn open(
@@ -97,7 +93,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         path: &Path,
         db_options: Option<Options>,
         genesis: &Genesis,
-        perpetual_tables: AuthorityPerpetualTables<S>,
+        perpetual_tables: AuthorityPerpetualTables,
         committee: Committee,
     ) -> HaneulResult<Self> {
         let epoch_tables = Arc::new(AuthorityPerEpochStore::new(
@@ -146,7 +142,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         previous_store.epoch_terminated();
     }
 
-    pub fn epoch_store(&self) -> Guard<Arc<AuthorityPerEpochStore<S>>> {
+    pub fn epoch_store(&self) -> Guard<Arc<AuthorityPerEpochStore>> {
         self.epoch_store.load()
     }
 
@@ -429,7 +425,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         &self,
         object_ref: &ObjectRef,
         epoch_id: EpochId,
-    ) -> HaneulResult<Option<VerifiedEnvelope<SenderSignedData, S>>> {
+    ) -> HaneulResult<Option<VerifiedSignedTransaction>> {
         let lock_info = self.lock_service.get_lock(*object_ref, epoch_id).await?;
         let lock_info = match lock_info {
             ObjectLockStatus::LockedAtDifferentVersion { locked_ref } => {
@@ -621,7 +617,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         &self,
         epoch: EpochId,
         owned_input_objects: &[ObjectRef],
-        transaction: VerifiedEnvelope<SenderSignedData, S>,
+        transaction: VerifiedSignedTransaction,
     ) -> Result<(), HaneulError> {
         let tx_digest = *transaction.digest();
 
@@ -648,7 +644,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         inner_temporary_store: InnerTemporaryStore,
         certificate: &VerifiedCertificate,
         proposed_seq: TxSequenceNumber,
-        effects: &TransactionEffectsEnvelope<S>,
+        effects: &SignedTransactionEffects,
         effects_digest: &TransactionEffectsDigest,
     ) -> HaneulResult<TxSequenceNumber> {
         // Extract the new state from the execution
@@ -721,7 +717,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
         inner_temporary_store: InnerTemporaryStore,
         transaction_digest: &TransactionDigest,
         proposed_seq: TxSequenceNumber,
-        effects: &TransactionEffectsEnvelope<S>,
+        effects: &SignedTransactionEffects,
         effects_digest: &TransactionEffectsDigest,
     ) -> HaneulResult<TxSequenceNumber> {
         // Safe to unwrap since UpdateType::Transaction ensures we get a sequence number back.
@@ -1281,7 +1277,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
     pub fn get_transaction(
         &self,
         transaction_digest: &TransactionDigest,
-    ) -> HaneulResult<Option<VerifiedEnvelope<SenderSignedData, S>>> {
+    ) -> HaneulResult<Option<VerifiedSignedTransaction>> {
         self.epoch_store().get_transaction(transaction_digest)
     }
 
@@ -1306,15 +1302,10 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> HaneulDataStore<S> {
             .collect())
     }
 
-    pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState>
-    where
-        S: Eq + Serialize + for<'de> Deserialize<'de>,
-    {
+    pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
         self.perpetual_tables.get_haneul_system_state_object()
     }
-}
 
-impl HaneulDataStore<AuthoritySignInfo> {
     /// Returns true if we have a transaction structure for this transaction digest
     pub fn transaction_exists(
         &self,
@@ -1349,9 +1340,7 @@ impl HaneulDataStore<AuthoritySignInfo> {
     }
 }
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> BackingPackageStore
-    for HaneulDataStore<S>
-{
+impl BackingPackageStore for AuthorityStore {
     fn get_package(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
         let package = self.get_object(package_id)?;
         if let Some(obj) = &package {
@@ -1366,9 +1355,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> BackingPackageStore
     }
 }
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ChildObjectResolver
-    for HaneulDataStore<S>
-{
+impl ChildObjectResolver for AuthorityStore {
     fn read_child_object(&self, parent: &ObjectID, child: &ObjectID) -> HaneulResult<Option<Object>> {
         let child_object = match self.get_object(child)? {
             None => return Ok(None),
@@ -1386,7 +1373,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ChildObjectResolver
     }
 }
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ParentSync for HaneulDataStore<S> {
+impl ParentSync for AuthorityStore {
     fn get_latest_parent_entry_ref(&self, object_id: ObjectID) -> HaneulResult<Option<ObjectRef>> {
         Ok(self
             .get_latest_parent_entry(object_id)?
@@ -1394,7 +1381,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ParentSync for Haneu
     }
 }
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> ModuleResolver for HaneulDataStore<S> {
+impl ModuleResolver for AuthorityStore {
     type Error = HaneulError;
 
     // TODO: duplicated code with ModuleResolver for InMemoryStorage in memory_storage.rs.

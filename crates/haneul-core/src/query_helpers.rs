@@ -1,27 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::HaneulDataStore;
+use crate::authority::AuthorityStore;
 use anyhow::anyhow;
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 use haneul_types::messages::{TransactionEffects, VerifiedCertificate};
 use haneul_types::{base_types::*, batch::TxSequenceNumber, error::HaneulError, fp_ensure};
 use tracing::debug;
 
 pub const MAX_TX_RANGE_SIZE: u64 = 4096;
 
-pub struct QueryHelpers<S> {
-    _s: std::marker::PhantomData<S>,
-}
+pub struct QueryHelpers {}
 
-impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> QueryHelpers<S> {
-    pub fn get_total_transaction_number(database: &HaneulDataStore<S>) -> Result<u64, anyhow::Error> {
+impl QueryHelpers {
+    pub fn get_total_transaction_number(database: &AuthorityStore) -> Result<u64, anyhow::Error> {
         Ok(database.next_sequence_number()?)
     }
 
     pub fn get_transactions_in_range(
-        database: &HaneulDataStore<S>,
+        database: &AuthorityStore,
         start: TxSequenceNumber,
         end: TxSequenceNumber,
     ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
@@ -56,7 +52,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> QueryHelpers<S> {
     }
 
     pub fn get_recent_transactions(
-        database: &HaneulDataStore<S>,
+        database: &AuthorityStore,
         count: u64,
     ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
         fp_ensure!(
@@ -75,7 +71,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> QueryHelpers<S> {
     }
 
     pub fn get_transaction(
-        database: &HaneulDataStore<S>,
+        database: &AuthorityStore,
         digest: &TransactionDigest,
     ) -> Result<(VerifiedCertificate, TransactionEffects), anyhow::Error> {
         let opt = database.get_certified_transaction(digest)?;
