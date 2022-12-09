@@ -117,13 +117,14 @@ export class Coin {
             return coinWithExactAmount;
         }
         // use transferHaneul API to get a coin with the exact amount
-        await CoinAPI.transfer(
-            signer,
-            coins,
-            HANEUL_TYPE_ARG,
-            amount,
-            await signer.getAddress(),
-            Coin.computeGasBudgetForPay(coins, amount)
+        await signer.signAndExecuteTransaction(
+            await CoinAPI.newPayTransaction(
+                coins,
+                HANEUL_TYPE_ARG,
+                amount,
+                await signer.getAddress(),
+                Coin.computeGasBudgetForPay(coins, amount)
+            )
         );
 
         const coinWithExactAmount2 = await Coin.selectHaneulCoinWithExactAmount(
