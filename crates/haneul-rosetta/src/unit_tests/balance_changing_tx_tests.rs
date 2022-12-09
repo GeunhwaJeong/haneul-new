@@ -21,6 +21,7 @@ use haneul_sdk::HaneulClient;
 use haneul_sdk::TransactionExecutionResult;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::intent::Intent;
 use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, ExecutionStatus, InputObjectKind, MoveCall,
     MoveModulePublish, ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind, Transaction,
@@ -410,7 +411,9 @@ async fn test_transaction(
 
     let data = TransactionData::new(TransactionKind::Single(tx.clone()), sender, gas, 10000);
 
-    let signature = keystore.sign(&data.signer(), &data.to_bytes()).unwrap();
+    let signature = keystore
+        .sign_secure(&data.signer(), &data, Intent::default())
+        .unwrap();
 
     // Balance before execution
     let mut balances = BTreeMap::new();
@@ -423,7 +426,7 @@ async fn test_transaction(
     let response = client
         .quorum_driver()
         .execute_transaction(
-            Transaction::from_data(data.clone(), signature)
+            Transaction::from_data(data.clone(), Intent::default(), signature)
                 .verify()
                 .unwrap(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),

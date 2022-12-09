@@ -33,7 +33,7 @@ use strum::EnumString;
 use crate::base_types::{AuthorityName, HaneulAddress};
 use crate::committee::{Committee, EpochId, StakeUnit};
 use crate::error::{HaneulError, HaneulResult};
-use crate::intent::{Intent, IntentMessage};
+use crate::intent::IntentMessage;
 use crate::haneul_serde::{AggrAuthSignature, Readable, HaneulBitmap};
 use fastcrypto::encoding::{Base64, Encoding, Hex};
 use fastcrypto::hash::{HashFunction, Sha3_256};
@@ -76,6 +76,7 @@ pub fn generate_proof_of_possession<K: KeypairTraits>(
     domain_with_pk.extend_from_slice(PROOF_OF_POSSESSION_DOMAIN);
     domain_with_pk.extend_from_slice(keypair.public().as_bytes());
     domain_with_pk.extend_from_slice(address.as_ref());
+    // TODO (joyqvq): Use Signature::new_secure
     keypair.sign(&domain_with_pk[..])
 }
 
@@ -431,14 +432,13 @@ pub trait HaneulAuthoritySignature {
 
     fn verify_secure<T>(
         &self,
-        value: &T,
-        intent: Intent,
+        value: &IntentMessage<T>,
         author: AuthorityPublicKeyBytes,
     ) -> Result<(), HaneulError>
     where
         T: Serialize;
 
-    fn new_secure<T>(value: &T, intent: Intent, secret: &dyn signature::Signer<Self>) -> Self
+    fn new_secure<T>(value: &IntentMessage<T>, secret: &dyn signature::Signer<Self>) -> Self
     where
         T: Serialize;
 }
@@ -482,27 +482,22 @@ impl HaneulAuthoritySignature for AuthoritySignature {
             })
     }
 
-    fn new_secure<T>(value: &T, intent: Intent, secret: &dyn signature::Signer<Self>) -> Self
+    fn new_secure<T>(value: &IntentMessage<T>, secret: &dyn signature::Signer<Self>) -> Self
     where
         T: Serialize,
     {
-        secret.sign(
-            &bcs::to_bytes(&IntentMessage::new(intent, value))
-                .expect("Message serialization should not fail"),
-        )
+        secret.sign(&bcs::to_bytes(&value).expect("Message serialization should not fail"))
     }
 
     fn verify_secure<T>(
         &self,
-        value: &T,
-        intent: Intent,
+        value: &IntentMessage<T>,
         author: AuthorityPublicKeyBytes,
     ) -> Result<(), HaneulError>
     where
         T: Serialize,
     {
-        let message = bcs::to_bytes(&IntentMessage::new(intent, value))
-            .expect("Message serialization should not fail");
+        let message = bcs::to_bytes(&value).expect("Message serialization should not fail");
         let public_key = AuthorityPublicKey::try_from(author).map_err(|_| {
             HaneulError::KeyConversionError(
                 "Failed to serialize public key bytes to valid public key".to_string(),
@@ -674,6 +669,7 @@ impl<'de> Deserialize<'de> for Signature {
 }
 
 impl Signature {
+    #[warn(deprecated)]
     pub fn new<T>(value: &T, secret: &dyn Signer<Signature>) -> Signature
     where
         T: Signable<Vec<u8>>,
@@ -684,20 +680,13 @@ impl Signature {
     }
 
     pub fn new_secure<T>(
-        value: &T,
-        intent: Intent,
+        value: &IntentMessage<T>,
         secret: &dyn signature::Signer<Signature>,
     ) -> Self
     where
         T: Serialize,
     {
-        secret.sign(
-            &bcs::to_bytes(&IntentMessage::new(intent, value))
-                .expect("Message serialization should not fail"),
-        )
-    }
-    pub fn new_temp(value: &[u8], secret: &dyn signature::Signer<Signature>) -> Signature {
-        secret.sign(value)
+        secret.sign(&bcs::to_bytes(&value).expect("Message serialization should not fail"))
     }
 }
 
@@ -913,7 +902,7 @@ pub trait HaneulSignature: Sized + signature::Signature {
     where
         T: Signable<Vec<u8>>;
 
-    fn verify_secure<T>(&self, value: &T, intent: Intent, author: HaneulAddress) -> HaneulResult<()>
+    fn verify_secure<T>(&self, value: &IntentMessage<T>, author: HaneulAddress) -> HaneulResult<()>
     where
         T: Serialize;
 }
@@ -949,17 +938,11 @@ impl<S: HaneulSignatureInner + Sized> HaneulSignature for S {
             })
     }
 
-    fn verify_secure<T>(
-        &self,
-        value: &T,
-        intent: Intent,
-        author: HaneulAddress,
-    ) -> Result<(), HaneulError>
+    fn verify_secure<T>(&self, value: &IntentMessage<T>, author: HaneulAddress) -> Result<(), HaneulError>
     where
         T: Serialize,
     {
-        let message = bcs::to_bytes(&IntentMessage::new(intent, value))
-            .expect("Message serialization should not fail");
+        let message = bcs::to_bytes(&value).expect("Message serialization should not fail");
         let (sig, pk) = &self.get_verification_inputs(author)?;
         pk.verify(&message[..], sig)
             .map_err(|e| HaneulError::InvalidSignature {

@@ -9,6 +9,7 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, Signature};
+use haneul_types::intent::Intent;
 use haneul_types::messages::TransactionData;
 use tracing::{info, info_span, Instrument};
 
@@ -58,7 +59,7 @@ impl WalletClient {
         self.get_wallet()
             .config
             .keystore
-            .sign(&self.address, &txn_data.to_bytes())
+            .sign_secure(&self.address, txn_data, Intent::default())
             .unwrap_or_else(|e| panic!("Failed to sign transaction for {}. {}", desc, e))
     }
 }

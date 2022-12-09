@@ -28,8 +28,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
-use tracing::warn;
-
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
@@ -37,7 +35,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
+use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
 use haneul_types::error::HaneulError;
 use haneul_types::event::{BalanceChangeType, Event, EventID};
 use haneul_types::event::{EventEnvelope, EventType};
@@ -56,6 +54,7 @@ use haneul_types::object::{
     Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner, PastObjectRead,
 };
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag};
+use tracing::warn;
 
 #[cfg(test)]
 #[path = "unit_tests/rpc_types_tests.rs"]
@@ -1751,7 +1750,7 @@ pub struct HaneulChangeEpoch {
 pub struct HaneulCertifiedTransaction {
     pub transaction_digest: TransactionDigest,
     pub data: HaneulTransactionData,
-    /// tx_signature is signed by the transaction sender, applied on `data`.
+    /// tx_signature is signed by the transaction sender, committing to the intent message containing the transaction data and intent.
     pub tx_signature: Signature,
     /// authority signature information, if available, is signed by an authority, applied on `data`.
     pub auth_sign_info: AuthorityStrongQuorumSignInfo,
@@ -1780,7 +1779,7 @@ impl TryFrom<CertifiedTransaction> for HaneulCertifiedTransaction {
         let (data, sig) = cert.into_data_and_sig();
         Ok(Self {
             transaction_digest: digest,
-            data: data.data.try_into()?,
+            data: data.intent_message.value.try_into()?,
             tx_signature: data.tx_signature,
             auth_sign_info: sig,
         })
@@ -2788,7 +2787,7 @@ impl TryInto<EventFilter> for HaneulEventFilter {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TransactionBytes {
-    /// transaction data bytes, as base-64 encoded string
+    /// BCS serialized transaction data bytes without its type tag, as base-64 encoded string.
     pub tx_bytes: Base64,
     /// the gas object to be used
     pub gas: HaneulObjectRef,
@@ -2799,7 +2798,7 @@ pub struct TransactionBytes {
 impl TransactionBytes {
     pub fn from_data(data: TransactionData) -> Result<Self, anyhow::Error> {
         Ok(Self {
-            tx_bytes: Base64::from_bytes(&data.to_bytes()),
+            tx_bytes: Base64::from_bytes(bcs::to_bytes(&data)?.as_slice()),
             gas: data.gas().into(),
             input_objects: data
                 .input_objects()?
@@ -2810,9 +2809,8 @@ impl TransactionBytes {
     }
 
     pub fn to_data(self) -> Result<TransactionData, anyhow::Error> {
-        TransactionData::from_signable_bytes(
-            &self.tx_bytes.to_vec().map_err(|e| anyhow::anyhow!(e))?,
-        )
+        bcs::from_bytes::<TransactionData>(&self.tx_bytes.to_vec().map_err(|e| anyhow::anyhow!(e))?)
+            .map_err(|e| anyhow::anyhow!(e))
     }
 }
 

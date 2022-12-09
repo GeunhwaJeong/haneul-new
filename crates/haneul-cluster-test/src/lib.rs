@@ -22,6 +22,7 @@ use test_utils::messages::make_transactions_with_wallet_context;
 
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::intent::Intent;
 use haneul_types::{
     base_types::HaneulAddress,
     messages::{Transaction, TransactionData, VerifiedTransaction},
@@ -133,7 +134,7 @@ impl TestContext {
             .get_fullnode_client()
             .quorum_driver()
             .execute_transaction(
-                Transaction::from_data(txn_data, signature)
+                Transaction::from_data(txn_data, Intent::default(), signature)
                     .verify()
                     .unwrap(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
