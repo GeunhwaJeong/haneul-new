@@ -1,5 +1,15 @@
 # @haneullabs/haneul.js
 
+## 0.20.0
+
+### Minor Changes
+
+- ea71d8216: Use intent signing if haneul version > 0.18
+
+### Patch Changes
+
+- f93b59f3a: Fixed usage of named export for CommonJS module
+
 ## 0.19.0
 
 ### Minor Changes
