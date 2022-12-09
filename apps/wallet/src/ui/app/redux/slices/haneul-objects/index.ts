@@ -16,10 +16,7 @@ import {
     createSlice,
 } from '@reduxjs/toolkit';
 
-import {
-    DEFAULT_NFT_TRANSFER_GAS_FEE,
-    HANEUL_SYSTEM_STATE_OBJECT_ID,
-} from './Coin';
+import { HANEUL_SYSTEM_STATE_OBJECT_ID } from './Coin';
 import { ExampleNFT } from './NFT';
 
 import type { HaneulObject, HaneulAddress, ObjectId } from '@haneullabs/haneul.js';
@@ -108,15 +105,11 @@ type NFTTxResponse = {
 
 export const transferNFT = createAsyncThunk<
     NFTTxResponse,
-    { nftId: ObjectId; recipientAddress: HaneulAddress },
+    { objectId: ObjectId; recipient: HaneulAddress; gasBudget: number },
     AppThunkConfig
 >('transferNFT', async (data, { extra: { api, keypairVault }, dispatch }) => {
     const signer = api.getSignerInstance(keypairVault.getKeypair());
-    const txn = await signer.transferObject({
-        objectId: data.nftId,
-        recipient: data.recipientAddress,
-        gasBudget: DEFAULT_NFT_TRANSFER_GAS_FEE,
-    });
+    const txn = await signer.transferObject(data);
     await dispatch(fetchAllOwnedAndRequiredObjects());
     const txnResp = {
         timestamp_ms: getTimestampFromTransactionResponse(txn),
