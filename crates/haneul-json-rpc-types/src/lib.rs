@@ -960,9 +960,11 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     fn try_from(move_struct: &HaneulMoveStruct) -> Result<Self, Self::Error> {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
-                if let Some(HaneulMoveValue::Number(balance)) = fields.get("balance") {
-                    if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
-                        return Ok(GasCoin::new(*id, *balance));
+                if let Some(HaneulMoveValue::String(balance)) = fields.get("balance") {
+                    if let Ok(balance) = balance.parse::<u64>() {
+                        if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
+                            return Ok(GasCoin::new(*id, balance));
+                        }
                     }
                 }
             }
@@ -1182,7 +1184,6 @@ pub enum HaneulMoveValue {
     Bool(bool),
     Address(HaneulAddress),
     Vector(Vec<HaneulMoveValue>),
-    Bytearray(Base64),
     String(String),
     UID { id: ObjectID },
     Struct(HaneulMoveStruct),
@@ -1207,13 +1208,6 @@ impl Display for HaneulMoveValue {
                     vec.iter().map(|value| format!("{value}")).join(",\n")
                 )?;
             }
-            HaneulMoveValue::Bytearray(value) => {
-                write!(
-                    writer,
-                    "{:?}",
-                    value.clone().to_vec().map_err(fmt::Error::custom)?
-                )?;
-            }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
@@ -1225,16 +1219,12 @@ impl From<MoveValue> for HaneulMoveValue {
             MoveValue::U8(value) => HaneulMoveValue::Number(value.into()),
             MoveValue::U16(value) => HaneulMoveValue::Number(value.into()),
             MoveValue::U32(value) => HaneulMoveValue::Number(value.into()),
-            MoveValue::U64(value) => HaneulMoveValue::Number(value),
+            MoveValue::U64(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::U128(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::U256(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::Bool(value) => HaneulMoveValue::Bool(value),
             MoveValue::Vector(values) => {
-                if let Some(bytes) = to_bytearray(&values) {
-                    HaneulMoveValue::Bytearray(Base64::from_bytes(&bytes))
-                } else {
-                    HaneulMoveValue::Vector(values.into_iter().map(|value| value.into()).collect())
-                }
+                HaneulMoveValue::Vector(values.into_iter().map(|value| value.into()).collect())
             }
             MoveValue::Struct(value) => {
                 // Best effort Haneul core type conversion

@@ -9,7 +9,6 @@ use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::value::{MoveStruct, MoveValue};
 
-use fastcrypto::encoding::Base64;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
@@ -17,20 +16,6 @@ use haneul_types::object::MoveObject;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 
 use crate::{HaneulMoveStruct, HaneulMoveValue};
-
-#[test]
-fn test_move_value_to_haneul_bytearray() {
-    let move_value = MoveValue::Vector(vec![
-        MoveValue::U8(0),
-        MoveValue::U8(1),
-        MoveValue::U8(2),
-        MoveValue::U8(3),
-        MoveValue::U8(4),
-    ]);
-    let haneul_value = HaneulMoveValue::from(move_value);
-    let bytes_base64 = Base64::from_bytes(&[0, 1, 2, 3, 4]);
-    assert!(matches!(haneul_value, HaneulMoveValue::Bytearray(bytes) if bytes == bytes_base64))
-}
 
 #[test]
 fn test_move_value_to_haneul_coin() {
