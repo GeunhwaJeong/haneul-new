@@ -13,7 +13,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use haneul_config::builder::{CommitteeConfig, ConfigBuilder};
-use haneul_config::genesis_config::{GenesisConfig, ValidatorGenesisInfo};
+use haneul_config::genesis_config::{GenesisConfig, ValidatorConfigInfo};
 use haneul_config::NetworkConfig;
 use haneul_types::base_types::HaneulAddress;
 use tempfile::TempDir;
@@ -72,7 +72,7 @@ impl<R> SwarmBuilder<R> {
         self
     }
 
-    pub fn with_validators(mut self, validators: Vec<ValidatorGenesisInfo>) -> Self {
+    pub fn with_validators(mut self, validators: Vec<ValidatorConfigInfo>) -> Self {
         self.committee = CommitteeConfig::Validators(validators);
         self
     }
