@@ -3,7 +3,7 @@
 
 #[test_only]
 module haneul::object_tests {
-    use std::vector;
+    use haneul::address;
     use haneul::object;
     use haneul::tx_context;
 
@@ -26,38 +26,10 @@ module haneul::object_tests {
         assert!(addr0 != addr1, EDifferentAddress);
         assert!(byte0 != byte1, EDifferentBytes);
 
-        assert!(addr0 == object::address_from_bytes(byte0), EAddressRoundTrip);
-        assert!(addr1 == object::address_from_bytes(byte1), EAddressRoundTrip);
+        assert!(addr0 == address::from_bytes(byte0), EAddressRoundTrip);
+        assert!(addr1 == address::from_bytes(byte1), EAddressRoundTrip);
 
         object::delete(uid0);
         object::delete(uid1);
-    }
-
-    #[test]
-    #[expected_failure(abort_code = haneul::object::EAddressParseError)]
-    fun test_address_from_too_few_bytes() {
-        let ctx = tx_context::dummy();
-        let uid = object::new(&mut ctx);
-
-        let bytes = object::uid_to_bytes(&uid);
-        vector::pop_back(&mut bytes);
-
-        let _ = object::address_from_bytes(bytes);
-
-        object::delete(uid);
-    }
-
-    #[test]
-    #[expected_failure(abort_code = haneul::object::EAddressParseError)]
-    fun test_address_from_too_many_bytes() {
-        let ctx = tx_context::dummy();
-        let uid = object::new(&mut ctx);
-
-        let bytes = object::uid_to_bytes(&uid);
-        vector::push_back(&mut bytes, 0x42);
-
-        let _ = object::address_from_bytes(bytes);
-
-        object::delete(uid);
     }
 }
