@@ -11,4 +11,4 @@ The pages in this section provide various options for communicating with Haneul:
 * Run a [Haneul Full node](fullnode.md) yourself to store the full Haneul blockchain state and history.
 * Filter and subscribe to a [real-time event stream](event_api.md#subscribe-to-haneul-events) on your Haneul Full node using the WebSocket API.
 
-See the [Haneul Reference Documentation](reference.md) for information on our API and HaneulJSON format.
+See the [Haneul Reference Documentation](../reference/index.md) for information on the Haneul API and HaneulJSON format.
