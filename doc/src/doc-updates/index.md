@@ -9,7 +9,7 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 | Topic | Update | 
 | :------ | :------- |
 | [Exchange Integration FAQ](../learn/exchange-integration-faq.md) | New topic. |
-| [Haneul Client CLI](../build/cli-client.md) | [Added the `--verify-dependencies` flag to Haneul client `publish`](https://github.com/GeunhwaJeong/haneul/pull/6601) to `haneul client publish`. |
+| [Haneul Client CLI](../build/cli-client.md) | [Added the `--verify-dependencies` flag to Haneul client `publish`](https://github.com/GeunhwaJeong/haneul/pull/6601). |
 
 ## Week Ending 11/12/22
 
