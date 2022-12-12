@@ -14,21 +14,21 @@ To create the configuration files and objects for a local Haneul network, run th
 
 The network that genesis creates includes four validators and five user accounts that contain five coin objects each.
 
-   ```shell
-   $ haneul genesis
-   ```
+```shell
+haneul genesis
+```
 
 ### Run genesis after using the Client CLI
 If you used the Haneul Client CLI before you create a local network, it created a client.yaml file in the .haneul/haneul_config directory. When you run genesis to create a local network, a warning displays that the .haneul/haneul_config folder is not empty because of the existing client.yaml file. You can use the `--force` argument to replace the configuration files, or use `--working-dir` to specify a different directory for the network configuration files.
 
 Use the following command to replace the configuration files in the .haneul/haneul_config directory.
 ```shell
-$ haneul genesis --force
+haneul genesis --force
 ```
 
 Use the following command to use a different directory to store the configuration files.
 ```shell
-$ haneul genesis --working-dir /workspace/config-files
+haneul genesis --working-dir /workspace/config-files
 ```
 
 The directory must already exist, and be empty, before you run the command.
@@ -43,7 +43,7 @@ Run the following command to start the local Haneul network, assuming you
 accepted the default location for configuration:
 
 ```shell
-$ haneul start
+haneul start
 ```
 
 This command looks for the Haneul network configuration file
@@ -52,7 +52,7 @@ This command looks for the Haneul network configuration file
 Use the following command to use a network.yaml file in a directory other than the default:
 
 ```shell
-$ haneul start --network.config /workspace/config-files/network.yaml
+haneul start --network.config /workspace/config-files/network.yaml
 ```
 When you start the network, Haneul generates an authorities_db directory that stores validator data, and a consensus_db directory that stores consensus data.
 

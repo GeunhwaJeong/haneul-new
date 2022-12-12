@@ -4,7 +4,7 @@ title: How Haneul Works
 
 This document is written for engineers, developers, and technical readers knowledgeable about the blockchain. It does not assume deep programming language or distributed systems expertise. See the [Haneul white paper](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) for a much deeper explanation of how Haneul works. See [How Haneul Differs from Other Blockchains](haneul-compared.md) for a high-level overview of the differences between Haneul and other blockchain systems.
 
-## tl;dr
+## Overview
 
 The Haneul blockchain operates at a speed and scale previously thought unattainable. Haneul assumes most blockchain transactions touch non-overlapping states, meaning that transactions can run in parallel. Haneul optimizes for single-writer objects, allowing a design that forgoes consensus for simple transactions.
 
@@ -23,6 +23,7 @@ Become familiar with these key Haneul concepts:
 * [Validators](../learn/architecture/validators.md) - The Haneul network is operated by a set of independent validators, each running its own instance of the Haneul software on a separate machine (or a sharded cluster of machines operated by the same entity).
 
 ## Architecture
+
 Haneul is a distributed ledger that stores a collection of programmable [objects](../learn/objects.md), each with a globally unique ID. Every object is owned by a single *address*, and each address can own an arbitrary number of objects.
 
 The ledger is updated via a [transaction](../learn/transactions.md) sent by a particular address. A transaction can create, destroy, and write objects, as well as transfer them to other addresses.
@@ -82,9 +83,9 @@ Haneul validates transactions individually, rather than batching them into tradi
 The process of submitting a Haneul transaction is thus a bit more involved than in traditional blockchains. Whereas a usual blockchain can accept a bunch of transactions from the same author in a fire-and-forget mode, Haneul transaction submission follows these steps:
 
 1. The sender broadcasts a transaction to all Haneul validators.
-2. Each Haneul validator replies with an individual vote for this transaction. Each vote has a certain weight based on the stake owned by the validator.
-3. The sender collects a Byzantine-resistant-majority of these votes into a _certificate_ and broadcasts that back to all Haneul validators. This settles the transaction, ensuring _finality_ that the transaction will not be dropped (revoked).
-4. Optionally, the sender collects a certificate detailing the effects of the transaction.
+1. Each Haneul validator replies with an individual vote for this transaction. Each vote has a certain weight based on the stake owned by the validator.
+1. The sender collects a Byzantine-resistant-majority of these votes into a _certificate_ and broadcasts that back to all Haneul validators. This settles the transaction, ensuring _finality_ that the transaction will not be dropped (revoked).
+1. Optionally, the sender collects a certificate detailing the effects of the transaction.
 
 While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide [Haneul Gateway services](#haneul-gateway-services).
 
@@ -98,9 +99,9 @@ The Narwhal mempool offers a high-throughput data availability engine and a scal
 Transactions involving shared objects also contain at least one owned object to pay for gas fees. It is thus essential to carefully compose the protocol dealing with owned objects with the protocol sequencing the transaction to guarantee Haneul’s security properties. When shared objects are involved, transaction submission follows these steps:
 
 1. The sender broadcasts a transaction to all Haneul validators.
-2. Each Haneul validator replies with an individual vote for this transaction. Each vote has a certain weight based on the stake owned by the validator.
-3. The sender collects a Byzantine-resistant-majority of these votes into a certificate and broadcasts it back to all Haneul validators. _This time however, the certificate is sequenced through Byzantine Agreement._
-4. Once the transaction has been successfully sequenced, the user broadcasts again the certificate to the validators to settle the transaction.
+1. Each Haneul validator replies with an individual vote for this transaction. Each vote has a certain weight based on the stake owned by the validator.
+1. The sender collects a Byzantine-resistant-majority of these votes into a certificate and broadcasts it back to all Haneul validators. _This time however, the certificate is sequenced through Byzantine Agreement._
+1. Once the transaction has been successfully sequenced, the user broadcasts again the certificate to the validators to settle the transaction.
 
 ## Scalability
 

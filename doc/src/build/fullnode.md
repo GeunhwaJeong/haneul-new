@@ -44,7 +44,7 @@ Follow the instructions here to run your own Haneul Full node.
 
 ### Hardware requirements
 
-Minimum hardware requirements for running a Haneul Full node:
+Suggested hardware requirements for running a Haneul Full node:
 
 * CPUs: 10 core
 * RAM: 32 GB
@@ -90,27 +90,27 @@ Follow the instructions in the [Full node Docker README](https://github.com/Geun
        ```
 1. `cd` into your `haneul` repository:
     ```shell
-    $ cd haneul
+    cd haneul
     ```
 1. Set up the Haneul repository as a git remote:
     ```shell
-    $ git remote add upstream https://github.com/GeunhwaJeong/haneul
+    git remote add upstream https://github.com/GeunhwaJeong/haneul
     ```
 1. Sync your fork:
     ```shell
-    $ git fetch upstream
+    git fetch upstream
     ```
 1. Check out the `devnet` branch:
     ```shell
-    $ git checkout --track upstream/devnet
+    git checkout --track upstream/devnet
     ```
 1. Make a copy of the [Full node YAML template](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-config/data/fullnode-template.yaml):
    ```shell
-   $ cp crates/haneul-config/data/fullnode-template.yaml fullnode.yaml
+   cp crates/haneul-config/data/fullnode-template.yaml fullnode.yaml
    ```
 1. Download the [`genesis`](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob) state for Devnet:
     ```shell
-    $ curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob
+    curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob
     ```
 1. Optional: Skip this step to accept the default paths to resources. Edit the `fullnode.yaml` file to use custom paths.
    * Update the `db-path` field with the path to the Full node database.
@@ -124,7 +124,7 @@ Follow the instructions in the [Full node Docker README](https://github.com/Geun
        ```
 1. Start your Haneul Full node:
     ```shell
-    $ cargo run --release --bin haneul-node -- --config-path fullnode.yaml
+    cargo run --release --bin haneul-node -- --config-path fullnode.yaml
     ```
 1. Optional: [Publish / subscribe](event_api.md#subscribe-to-haneul-events) to notifications using JSON-RPC via websocket.
 
@@ -160,7 +160,7 @@ Whenever Haneul releases a new version, Devnet restarts as a new network with no
 Follow the instructions to [reset the environment](https://github.com/GeunhwaJeong/haneul/tree/main/docker/fullnode#reset-the-environment),
 namely by running the command:
 ```shell
-$ docker-compose down --volumes
+docker-compose down --volumes
 ```
 
 ### Update from source
@@ -171,38 +171,26 @@ Source](#building-from-source), update your Full node as follows:
 1. Shut down your currently running Full node.
 1. `cd` into your local Haneul repository:
     ```shell
-    $ cd haneul
+    cd haneul
     ```
 1. Remove the old on-disk database and 'genesis.blob' file:
     ```shell
-    $ rm -r haneuldb genesis.blob
+    rm -r haneuldb genesis.blob
     ```
 1. Fetch the source from the latest release:
     ```shell
-    $ git fetch upstream
+    git fetch upstream
     ```
 1. Reset your branch:
     ```shell
-    $ git checkout -B devnet --track upstream/devnet
+    git checkout -B devnet --track upstream/devnet
     ```
 1. Download the latest [`genesis`](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob) state for Devnet as described above.
 1. Update your `fullnode.yaml` configuration file if needed.
 1. Restart your Haneul Full node:
     ```shell
-    $ cargo run --release --bin haneul-node -- --config-path fullnode.yaml
+    cargo run --release --bin haneul-node -- --config-path fullnode.yaml
     ```
 Your Full node starts on:
 `http://127.0.0.1:9000`
 
-## Future plans
-
-Today, a Full node relies only on synchronizing with 2f+1 validators in order to
-ensure it has seen all committed transactions. In the future, we expect
-Full nodes to fully participate in a peer-to-peer (p2p) environment where the
-load of disseminating new transactions can be shared with the whole network and
-not place the burden solely on the validators. We also expect future
-features, such as checkpoints, to enable improved performance of synchronizing the
-state of the chain from genesis.
-
-Please see our [privacy policy](https://haneul.io/policy/) to learn how we handle
-information about our nodes.
