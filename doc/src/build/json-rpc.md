@@ -10,7 +10,7 @@ For a similar guide on Haneul network interactions via CLI, refer to the [Haneul
 
 Follow the instructions to [install Haneul binaries](install.md).
 
-### Connect to a Haneul network
+## Connect to a Haneul network
 
 You can connect to a Haneul Full node on Devnet. Follow the guidance in the [Connect to Haneul Devnet](../build/devnet.md) topic to start making RPC calls to the Haneul network.
 
