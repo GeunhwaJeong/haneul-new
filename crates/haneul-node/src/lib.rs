@@ -207,7 +207,6 @@ impl HaneulNode {
             Some(Arc::new(TransactiondOrchestrator::new(
                 arc_net,
                 state.clone(),
-                active_authority.clone().node_sync_handle(),
                 &prometheus_registry,
             )))
         } else {
