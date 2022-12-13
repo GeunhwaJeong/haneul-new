@@ -89,7 +89,6 @@ function ReceiptPage() {
                 title={transferStatus}
                 closeOverlay={closeReceipt}
                 closeIcon={HaneulIcons.Check}
-                className={st.receiptOverlay}
             >
                 {txnItem && <ReceiptCard txDigest={txnItem} />}
             </Overlay>
