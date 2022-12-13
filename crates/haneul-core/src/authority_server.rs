@@ -23,13 +23,7 @@ use haneul_network::{
 };
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::*;
-use haneul_types::messages::{
-    AccountInfoRequest, AccountInfoResponse, BatchInfoRequest, BatchInfoResponseItem,
-    CertifiedTransaction, CommitteeInfoRequest, CommitteeInfoResponse, ConsensusTransaction,
-    ObjectInfoRequest, ObjectInfoResponse, TransactionInfoRequest, TransactionInfoResponse,
-};
-use haneul_types::messages_checkpoint::CheckpointRequest;
-use haneul_types::messages_checkpoint::CheckpointResponse;
+use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use tap::TapFallible;
 use tokio::{task::JoinHandle, time::sleep};
 use tracing::{debug, info, Instrument};
@@ -247,8 +241,6 @@ pub struct ValidatorService {
 }
 
 impl ValidatorService {
-    /// Spawn all the subsystems run by a Haneul authority: a consensus node, a haneul authority server,
-    /// and a consensus listener bridging the consensus node and the haneul authority.
     pub async fn new(
         state: Arc<AuthorityState>,
         consensus_adapter: Arc<ConsensusAdapter>,

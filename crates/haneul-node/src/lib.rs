@@ -400,7 +400,7 @@ impl HaneulNode {
             config,
             state.clone(),
             consensus_adapter.clone(),
-            &prometheus_registry,
+            prometheus_registry,
         )
         .await?;
 
