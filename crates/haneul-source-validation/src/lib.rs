@@ -8,6 +8,8 @@ use move_compiler::compiled_unit::CompiledUnitEnum;
 use move_core_types::account_address::AccountAddress;
 use move_package::compilation::compiled_package::CompiledPackage;
 use move_symbol_pool::Symbol;
+use haneul_sdk::apis::ReadApi;
+use haneul_sdk::error::RpcError;
 
 use haneul_sdk::rpc_types::{HaneulRawData, HaneulRawMoveObject, HaneulRawMovePackage};
 use haneul_types::{base_types::ObjectID, error::HaneulError};
@@ -15,12 +17,10 @@ use haneul_types::{base_types::ObjectID, error::HaneulError};
 #[cfg(test)]
 mod tests;
 
-type ReadApi = haneul_sdk::ReadApi;
-
 #[derive(Debug, Error)]
 pub enum DependencyVerificationError {
     #[error("Could not read a dependency's on-chain object: {0:?}")]
-    DependencyObjectReadFailure(anyhow::Error),
+    DependencyObjectReadFailure(RpcError),
 
     #[error("Dependency object does not exist or was deleted: {0:?}")]
     HaneulObjectRefFailure(HaneulError),

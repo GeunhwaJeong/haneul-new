@@ -76,7 +76,7 @@ impl HaneulEnv {
         &self,
         request_timeout: Option<std::time::Duration>,
     ) -> Result<HaneulClient, anyhow::Error> {
-        HaneulClient::new(&self.rpc, self.ws.as_deref(), request_timeout).await
+        Ok(HaneulClient::new(&self.rpc, self.ws.as_deref(), request_timeout).await?)
     }
 
     pub fn devnet() -> Self {

@@ -17,13 +17,13 @@ futures = "0.3.23"
 tokio = { workspace = true }
 rand = "0.8.5"
 bcs = "0.1.4"
+thiserror = "1.0.37"
 
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
-haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-keys =  { path = "../haneul-keys" }
 
@@ -39,6 +39,10 @@ dirs = "4.0.0"
 async-recursion = "1.0.0"
 tempfile = "3.3.0"
 fastcrypto.workspace = true
+test-utils = { path = "../test-utils" }
+futures-core = "0.3.21"
+futures = "0.3.23"
+haneul =  { path = "../haneul" }
 
 [[example]]
 name = "tic-tac-toe"

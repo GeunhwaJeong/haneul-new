@@ -1,52 +1,32 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-extern crate core;
-
-use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
-use anyhow::{anyhow, bail};
 use async_trait::async_trait;
-use futures::StreamExt;
-use futures_core::Stream;
-use jsonrpsee::core::client::{ClientT, Subscription};
+use jsonrpsee::core::client::ClientT;
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 
-use rpc_types::{
-    GetPastObjectDataResponse, HaneulCertifiedTransaction, HaneulExecuteTransactionResponse,
-    HaneulParsedTransactionResponse, HaneulTransactionEffects,
-};
+use crate::error::{RpcError, HaneulRpcResult};
+use rpc_types::{HaneulCertifiedTransaction, HaneulParsedTransactionResponse, HaneulTransactionEffects};
 use serde_json::Value;
 pub use haneul_json as json;
-use haneul_json_rpc::api::EventReadApiClient;
-use haneul_json_rpc::api::EventStreamingApiClient;
-use haneul_json_rpc::api::RpcBcsApiClient;
-use haneul_json_rpc::api::RpcFullNodeReadApiClient;
-use haneul_json_rpc::api::RpcReadApiClient;
-use haneul_json_rpc::api::TransactionExecutionApiClient;
+
+use crate::apis::{CoinReadApi, EventApi, QuorumDriver, ReadApi};
 pub use haneul_json_rpc_types as rpc_types;
-use haneul_json_rpc_types::{
-    EventPage, GetObjectDataResponse, GetRawObjectDataResponse, HaneulEventEnvelope, HaneulEventFilter,
-    HaneulMoveNormalizedModule, HaneulObjectInfo, HaneulTransactionResponse, TransactionsPage,
-};
+use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo};
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::batch::TxSequenceNumber;
-use haneul_types::event::EventID;
-use haneul_types::messages::VerifiedTransaction;
-use haneul_types::query::{EventQuery, TransactionQuery};
-use types::base_types::SequenceNumber;
-use types::committee::EpochId;
-use types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
-use types::messages::{CommitteeInfoResponse, ExecuteTransactionRequestType};
 
+pub mod apis;
+pub mod error;
+pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
 const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 10;
 
 #[derive(Debug)]
@@ -64,11 +44,12 @@ pub struct HaneulClient {
     api: Arc<RpcClient>,
     transaction_builder: TransactionBuilder,
     read_api: Arc<ReadApi>,
+    coin_read_api: CoinReadApi,
     event_api: EventApi,
     quorum_driver: QuorumDriver,
 }
 
-struct RpcClient {
+pub(crate) struct RpcClient {
     http: HttpClient,
     ws: Option<WsClient>,
     info: ServerInfo,
@@ -95,7 +76,7 @@ impl RpcClient {
         http: &str,
         ws: Option<&str>,
         request_timeout: Option<Duration>,
-    ) -> Result<Self, anyhow::Error> {
+    ) -> Result<Self, RpcError> {
         let mut http_builder = HttpClientBuilder::default();
         if let Some(request_timeout) = request_timeout {
             http_builder = http_builder.request_timeout(request_timeout);
@@ -119,22 +100,20 @@ impl RpcClient {
     async fn get_server_info(
         http: &HttpClient,
         ws: &Option<WsClient>,
-    ) -> Result<ServerInfo, anyhow::Error> {
-        let rpc_spec: Value = http
-            .request("rpc.discover", rpc_params![])
-            .await
-            .map_err(|e| anyhow!("Fail to connect to the RPC server: {e}"))?;
+    ) -> Result<ServerInfo, RpcError> {
+        let rpc_spec: Value = http.request("rpc.discover", rpc_params![]).await?;
         let version = rpc_spec
             .pointer("/info/version")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("Fail parsing server version from rpc.discover endpoint."))?;
+            .ok_or_else(|| {
+                RpcError::DataError(
+                    "Fail parsing server version from rpc.discover endpoint.".into(),
+                )
+            })?;
         let rpc_methods = Self::parse_methods(&rpc_spec)?;
 
         let subscriptions = if let Some(ws) = ws {
-            let rpc_spec: Value = ws
-                .request("rpc.discover", rpc_params![])
-                .await
-                .map_err(|e| anyhow!("Fail to connect to the Websocket server: {e}"))?;
+            let rpc_spec: Value = ws.request("rpc.discover", rpc_params![]).await?;
             Self::parse_methods(&rpc_spec)?
         } else {
             Vec::new()
@@ -146,12 +125,14 @@ impl RpcClient {
         })
     }
 
-    fn parse_methods(server_spec: &Value) -> Result<Vec<String>, anyhow::Error> {
+    fn parse_methods(server_spec: &Value) -> Result<Vec<String>, RpcError> {
         let methods = server_spec
             .pointer("/methods")
             .and_then(|methods| methods.as_array())
             .ok_or_else(|| {
-                anyhow!("Fail parsing server information from rpc.discover endpoint.")
+                RpcError::DataError(
+                    "Fail parsing server information from rpc.discover endpoint.".into(),
+                )
             })?;
 
         Ok(methods
@@ -167,18 +148,20 @@ impl HaneulClient {
         http_url: &str,
         ws_url: Option<&str>,
         request_timeout: Option<Duration>,
-    ) -> Result<Self, anyhow::Error> {
+    ) -> Result<Self, RpcError> {
         let rpc = RpcClient::new(http_url, ws_url, request_timeout).await?;
         let api = Arc::new(rpc);
-        let read_api = Arc::new(ReadApi { api: api.clone() });
-        let quorum_driver = QuorumDriver { api: api.clone() };
-        let event_api = EventApi(api.clone());
+        let read_api = Arc::new(ReadApi::new(api.clone()));
+        let quorum_driver = QuorumDriver::new(api.clone());
+        let event_api = EventApi::new(api.clone());
         let transaction_builder = TransactionBuilder(read_api.clone());
+        let coin_read_api = CoinReadApi::new(api.clone());
 
         Ok(HaneulClient {
             api,
             transaction_builder,
             read_api,
+            coin_read_api,
             event_api,
             quorum_driver,
         })
@@ -196,276 +179,16 @@ impl HaneulClient {
         &self.api.info.version
     }
 
-    pub fn check_api_version(&self) -> Result<(), anyhow::Error> {
+    pub fn check_api_version(&self) -> HaneulRpcResult<()> {
         let server_version = self.api_version();
         let client_version = env!("CARGO_PKG_VERSION");
         if server_version != client_version {
-            return Err(anyhow!("Client/Server api version mismatch, client api version : {client_version}, server api version : {server_version}"));
+            return Err(RpcError::ServerVersionMismatch {
+                client_version: client_version.to_string(),
+                server_version: server_version.to_string(),
+            });
         };
         Ok(())
-    }
-}
-
-#[derive(Debug)]
-pub struct ReadApi {
-    api: Arc<RpcClient>,
-}
-
-impl ReadApi {
-    pub async fn get_objects_owned_by_address(
-        &self,
-        address: HaneulAddress,
-    ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
-        Ok(self.api.http.get_objects_owned_by_address(address).await?)
-    }
-
-    pub async fn get_objects_owned_by_object(
-        &self,
-        object_id: ObjectID,
-    ) -> anyhow::Result<Vec<HaneulObjectInfo>> {
-        Ok(self.api.http.get_objects_owned_by_object(object_id).await?)
-    }
-
-    pub async fn get_parsed_object(
-        &self,
-        object_id: ObjectID,
-    ) -> anyhow::Result<GetObjectDataResponse> {
-        Ok(self.api.http.get_object(object_id).await?)
-    }
-
-    pub async fn try_get_parsed_past_object(
-        &self,
-        object_id: ObjectID,
-        version: SequenceNumber,
-    ) -> anyhow::Result<GetPastObjectDataResponse> {
-        Ok(self
-            .api
-            .http
-            .try_get_past_object(object_id, version)
-            .await?)
-    }
-
-    pub async fn get_object(
-        &self,
-        object_id: ObjectID,
-    ) -> anyhow::Result<GetRawObjectDataResponse> {
-        Ok(self.api.http.get_raw_object(object_id).await?)
-    }
-
-    pub async fn get_total_transaction_number(&self) -> anyhow::Result<u64> {
-        Ok(self.api.http.get_total_transaction_number().await?)
-    }
-
-    pub async fn get_transactions_in_range(
-        &self,
-        start: TxSequenceNumber,
-        end: TxSequenceNumber,
-    ) -> anyhow::Result<Vec<TransactionDigest>> {
-        Ok(self.api.http.get_transactions_in_range(start, end).await?)
-    }
-
-    pub async fn get_transaction(
-        &self,
-        digest: TransactionDigest,
-    ) -> anyhow::Result<HaneulTransactionResponse> {
-        Ok(self.api.http.get_transaction(digest).await?)
-    }
-
-    pub async fn get_committee_info(
-        &self,
-        epoch: Option<EpochId>,
-    ) -> anyhow::Result<CommitteeInfoResponse> {
-        Ok(self.api.http.get_committee_info(epoch).await?)
-    }
-
-    pub async fn get_transactions(
-        &self,
-        query: TransactionQuery,
-        cursor: Option<TransactionDigest>,
-        limit: Option<usize>,
-        descending_order: Option<bool>,
-    ) -> anyhow::Result<TransactionsPage> {
-        Ok(self
-            .api
-            .http
-            .get_transactions(query, cursor, limit, descending_order)
-            .await?)
-    }
-
-    pub async fn get_normalized_move_modules_by_package(
-        &self,
-        package: ObjectID,
-    ) -> anyhow::Result<BTreeMap<String, HaneulMoveNormalizedModule>> {
-        Ok(self
-            .api
-            .http
-            .get_normalized_move_modules_by_package(package)
-            .await?)
-    }
-}
-
-#[derive(Clone)]
-pub struct EventApi(Arc<RpcClient>);
-
-impl EventApi {
-    pub async fn subscribe_event(
-        &self,
-        filter: HaneulEventFilter,
-    ) -> anyhow::Result<impl Stream<Item = Result<HaneulEventEnvelope, anyhow::Error>>> {
-        match &self.0.ws {
-            Some(c) => {
-                let subscription: Subscription<HaneulEventEnvelope> =
-                    c.subscribe_event(filter).await?;
-                Ok(subscription.map(|item| Ok(item?)))
-            }
-            _ => Err(anyhow!("Subscription only supported by WebSocket client.")),
-        }
-    }
-
-    pub async fn get_events(
-        &self,
-        query: EventQuery,
-        cursor: Option<EventID>,
-        limit: Option<usize>,
-        descending_order: Option<bool>,
-    ) -> anyhow::Result<EventPage> {
-        Ok(self
-            .0
-            .http
-            .get_events(query, cursor, limit, descending_order)
-            .await?)
-    }
-}
-
-#[derive(Clone)]
-pub struct QuorumDriver {
-    api: Arc<RpcClient>,
-}
-
-impl QuorumDriver {
-    /// Execute a transaction with a FullNode client. `request_type`
-    /// defaults to `ExecuteTransactionRequestType::WaitForLocalExecution`.
-    /// When `ExecuteTransactionRequestType::WaitForLocalExecution` is used,
-    /// but returned `confirmed_local_execution` is false, the client polls
-    /// the fullnode untils the fullnode recognizes this transaction, or
-    /// until times out (see WAIT_FOR_TX_TIMEOUT_SEC). If it times out, an
-    /// error is returned from this call.
-    pub async fn execute_transaction(
-        &self,
-        tx: VerifiedTransaction,
-        request_type: Option<ExecuteTransactionRequestType>,
-    ) -> anyhow::Result<TransactionExecutionResult> {
-        let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
-        let request_type =
-            request_type.unwrap_or(ExecuteTransactionRequestType::WaitForLocalExecution);
-        let resp = TransactionExecutionApiClient::execute_transaction(
-            &self.api.http,
-            tx_bytes,
-            flag,
-            signature,
-            pub_key,
-            request_type.clone(),
-        )
-        .await?;
-
-        Ok(match (request_type, resp) {
-            (
-                ExecuteTransactionRequestType::ImmediateReturn,
-                HaneulExecuteTransactionResponse::ImmediateReturn { tx_digest },
-            ) => TransactionExecutionResult {
-                tx_digest,
-                tx_cert: None,
-                effects: None,
-                confirmed_local_execution: false,
-                timestamp_ms: None,
-                parsed_data: None,
-            },
-            (
-                ExecuteTransactionRequestType::WaitForTxCert,
-                HaneulExecuteTransactionResponse::TxCert { certificate },
-            ) => TransactionExecutionResult {
-                tx_digest: certificate.transaction_digest,
-                tx_cert: Some(certificate),
-                effects: None,
-                confirmed_local_execution: false,
-                timestamp_ms: None,
-                parsed_data: None,
-            },
-            (
-                ExecuteTransactionRequestType::WaitForEffectsCert,
-                HaneulExecuteTransactionResponse::EffectsCert {
-                    certificate,
-                    effects,
-                    confirmed_local_execution,
-                },
-            ) => TransactionExecutionResult {
-                tx_digest: certificate.transaction_digest,
-                tx_cert: Some(certificate),
-                effects: Some(effects.effects),
-                confirmed_local_execution,
-                timestamp_ms: None,
-                parsed_data: None,
-            },
-            (
-                ExecuteTransactionRequestType::WaitForLocalExecution,
-                HaneulExecuteTransactionResponse::EffectsCert {
-                    certificate,
-                    effects,
-                    confirmed_local_execution,
-                },
-            ) => {
-                if !confirmed_local_execution {
-                    Self::wait_until_fullnode_sees_tx(&self.api, certificate.transaction_digest)
-                        .await?;
-                }
-                TransactionExecutionResult {
-                    tx_digest: certificate.transaction_digest,
-                    tx_cert: Some(certificate),
-                    effects: Some(effects.effects),
-                    confirmed_local_execution,
-                    timestamp_ms: None,
-                    parsed_data: None,
-                }
-            }
-            (other_request_type, other_resp) => {
-                bail!(
-                    "Invalid response type {:?} for request type: {:?}",
-                    other_resp,
-                    other_request_type
-                );
-            }
-        })
-    }
-
-    async fn wait_until_fullnode_sees_tx(
-        c: &RpcClient,
-        tx_digest: TransactionDigest,
-    ) -> anyhow::Result<()> {
-        let start = Instant::now();
-        loop {
-            let resp = RpcReadApiClient::get_transaction(&c.http, tx_digest).await;
-            if let Err(err) = resp {
-                if err.to_string().contains(TRANSACTION_NOT_FOUND_MSG_PREFIX) {
-                    tokio::time::sleep(Duration::from_millis(300)).await;
-                } else {
-                    // immediately return on other types of errors
-                    bail!(
-                        "Encountered error when confirming tx status for {:?}, err: {:?}",
-                        tx_digest,
-                        err
-                    );
-                }
-            } else {
-                return Ok(());
-            }
-            if start.elapsed().as_secs() >= WAIT_FOR_TX_TIMEOUT_SEC {
-                bail!(
-                    "Failed to confirm tx status for {:?} within {} seconds.",
-                    tx_digest,
-                    WAIT_FOR_TX_TIMEOUT_SEC
-                );
-            }
-        }
     }
 }
 
@@ -475,6 +198,9 @@ impl HaneulClient {
     }
     pub fn read_api(&self) -> &ReadApi {
         &self.read_api
+    }
+    pub fn coin_read_api(&self) -> &CoinReadApi {
+        &self.coin_read_api
     }
     pub fn event_api(&self) -> &EventApi {
         &self.event_api
@@ -490,13 +216,13 @@ impl DataReader for ReadApi {
         &self,
         address: HaneulAddress,
     ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error> {
-        self.get_objects_owned_by_address(address).await
+        Ok(self.get_objects_owned_by_address(address).await?)
     }
 
     async fn get_object(
         &self,
         object_id: ObjectID,
     ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
-        self.get_object(object_id).await
+        Ok(self.get_object(object_id).await?)
     }
 }
