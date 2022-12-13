@@ -391,7 +391,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
 
     // Create the args
     let args = vec![
-        HaneulJsonValue::new(json!(123u8))?,
+        HaneulJsonValue::new(json!("123"))?,
         HaneulJsonValue::new(json!(address1))?,
     ];
 
