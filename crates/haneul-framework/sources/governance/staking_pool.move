@@ -88,6 +88,10 @@ module haneul::staking_pool {
     /// A self-custodial object holding the staked HANEUL tokens.
     struct StakedHaneul has key {
         id: UID,
+        /// The validator we are staking with.
+        validator_address: address,
+        /// The epoch at which the delegation is requested.
+        delegation_request_epoch: u64,
         /// The staked HANEUL tokens.
         principal: Balance<HANEUL>,
         /// If the stake comes from a Coin<HANEUL>, this field is None. If it comes from a LockedCoin<HANEUL>, this
@@ -129,6 +133,8 @@ module haneul::staking_pool {
         vector::push_back(&mut pool.pending_delegations, PendingDelegationEntry { delegator, haneul_amount });
         let staked_haneul = StakedHaneul {
             id: object::new(ctx),
+            validator_address: pool.validator_address,
+            delegation_request_epoch: tx_context::epoch(ctx),
             principal: stake,
             haneul_token_lock,
         };
@@ -179,6 +185,7 @@ module haneul::staking_pool {
         // Check that the delegation information matches the pool. 
         assert!(
             delegation.validator_address == pool.validator_address &&
+            delegation.validator_address == staked_haneul.validator_address &&
             delegation.pool_starting_epoch == pool.starting_epoch,
             EWRONG_POOL
         );
@@ -375,6 +382,8 @@ module haneul::staking_pool {
     public entry fun destroy_empty_staked_haneul(staked_haneul: StakedHaneul) {
         let StakedHaneul {
             id,
+            validator_address: _,
+            delegation_request_epoch: _,
             principal,
             haneul_token_lock
         } = staked_haneul;
