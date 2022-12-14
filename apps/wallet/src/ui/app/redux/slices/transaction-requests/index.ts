@@ -6,7 +6,6 @@ import {
     getCertifiedTransaction,
     getTransactionEffects,
     LocalTxnDataSerializer,
-    type HaneulMoveNormalizedFunction,
 } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
@@ -15,6 +14,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import type {
+    HaneulMoveNormalizedFunction,
     HaneulTransactionResponse,
     SignableTransaction,
     HaneulExecuteTransactionResponse,
@@ -91,6 +91,7 @@ export const deserializeTxn = createAsyncThunk<
             )) as UnserializedSignableTransaction;
 
         const deserializeData = deserializeTx?.data as MoveCallTransaction;
+
         const normalized = {
             ...deserializeData,
             gasBudget: Number(deserializeData.gasBudget.toString(10)),
@@ -225,7 +226,6 @@ const slice = createSlice({
         build.addCase(deserializeTxn.rejected, (state, { payload }) => {
             state.deserializeTxnFailed = true;
         });
-
         build.addCase(deserializeTxn.fulfilled, (state, { payload }) => {
             const { txRequestID, unSerializedTxn } = payload;
             if (unSerializedTxn) {
