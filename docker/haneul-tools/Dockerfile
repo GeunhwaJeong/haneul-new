@@ -53,6 +53,8 @@ COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-indexer /usr/local/bin
+# haneul-indexer needs postgres libpq
+RUN apt update && apt install -y libpq
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
 
 ARG BUILD_DATE
