@@ -13,7 +13,7 @@ use haneul_types::crypto::{
 use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
-    StakingPool, HaneulSystemState, Validator, ValidatorMetadata, ValidatorSet,
+    StakingPool, StakeSubsidy, HaneulSystemState, Validator, ValidatorMetadata, ValidatorSet,
 };
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
@@ -94,6 +94,10 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
         },
         reference_gas_price: 1,
         validator_report_records: VecMap { contents: vec![] },
-        next_epoch_stake_subsidy: 0,
+        stake_subsidy: StakeSubsidy {
+            epoch_counter: 0,
+            balance: Balance::new(0),
+            current_epoch_amount: 0,
+        },
     }
 }
