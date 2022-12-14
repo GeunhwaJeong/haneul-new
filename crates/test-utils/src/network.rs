@@ -8,6 +8,7 @@ use jsonrpsee::ws_client::WsClient;
 use jsonrpsee::ws_client::WsClientBuilder;
 use prometheus::Registry;
 
+use haneullabs_metrics::RegistryService;
 use haneul::config::HaneulEnv;
 use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
 use haneul_config::genesis_config::GenesisConfig;
@@ -220,7 +221,8 @@ impl Default for TestClusterBuilder {
 pub async fn start_fullnode_from_config(
     config: NodeConfig,
 ) -> Result<FullNodeHandle, anyhow::Error> {
-    let haneul_node = HaneulNode::start(&config, Registry::new()).await?;
+    let registry_service = RegistryService::new(Registry::new());
+    let haneul_node = HaneulNode::start(&config, registry_service).await?;
 
     let rpc_url = format!("http://{}", config.json_rpc_address);
     let rpc_client = HttpClientBuilder::default().build(&rpc_url)?;

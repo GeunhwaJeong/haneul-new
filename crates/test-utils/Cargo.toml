@@ -31,6 +31,7 @@ haneul-swarm = { path = "../haneul-swarm" }
 haneul-types = { path = "../haneul-types" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-sdk = { path = "../haneul-sdk" }
+haneullabs-metrics = { path = "../haneullabs-metrics"}
 once_cell = "1.16"
 multiaddr = "0.17.0"
 

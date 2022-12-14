@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::TEST_COMMITTEE_SIZE;
+use haneullabs_metrics::RegistryService;
 use prometheus::Registry;
 use rand::{prelude::StdRng, SeedableRng};
 use std::time::Duration;
@@ -39,8 +40,11 @@ pub fn test_and_configure_authority_configs(committee_size: usize) -> NetworkCon
 }
 
 #[cfg(not(msim))]
-pub async fn start_node(config: &NodeConfig, prom_registry: Registry) -> HaneulNodeHandle {
-    HaneulNode::start(config, prom_registry).await.unwrap().into()
+pub async fn start_node(config: &NodeConfig, registry_service: RegistryService) -> HaneulNodeHandle {
+    HaneulNode::start(config, registry_service)
+        .await
+        .unwrap()
+        .into()
 }
 
 /// In the simulator, we call HaneulNode::start from inside a newly spawned simulator node.
@@ -52,7 +56,7 @@ pub async fn start_node(config: &NodeConfig, prom_registry: Registry) -> HaneulN
 /// Most of the time, tests do this just in order to verify some internal state, so this is fine
 /// most of the time.
 #[cfg(msim)]
-pub async fn start_node(config: &NodeConfig, prom_registry: Registry) -> HaneulNodeHandle {
+pub async fn start_node(config: &NodeConfig, registry_service: RegistryService) -> HaneulNodeHandle {
     use std::net::{IpAddr, SocketAddr};
 
     let config = config.clone();
@@ -72,7 +76,7 @@ pub async fn start_node(config: &NodeConfig, prom_registry: Registry) -> HaneulN
         })
         .build();
 
-    node.spawn(async move { HaneulNode::start(&config, prom_registry).await.unwrap() })
+    node.spawn(async move { HaneulNode::start(&config, registry_service).await.unwrap() })
         .await
         .unwrap()
         .into()
@@ -85,8 +89,8 @@ where
 {
     let mut handles = Vec::new();
     for validator in config.validator_configs() {
-        let prom_registry = Registry::new();
-        let node = start_node(validator, prom_registry).await;
+        let registry_service = RegistryService::new(Registry::new());
+        let node = start_node(validator, registry_service).await;
         let objects = objects.clone();
 
         node.with_async(|node| async move {
