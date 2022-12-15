@@ -6,13 +6,13 @@ use super::*;
 use super::authority_tests::{init_state_with_ids, send_and_confirm_transaction};
 use super::move_integration_tests::build_and_try_publish_test_package;
 use crate::authority::authority_tests::{init_state, init_state_with_ids_and_object_basics};
-use crate::test_utils::to_sender_signed_transaction;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::ident_str;
 use haneul_adapter::genesis;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::GAS_VALUE_FOR_TESTING;
+use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     base_types::dbg_addr,
     crypto::get_key_pair,

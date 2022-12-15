@@ -37,9 +37,10 @@ use std::{
     sync::Arc,
 };
 use haneul_adapter::{adapter::new_move_vm, execution_mode, genesis};
-use haneul_core::{execution_engine, test_utils::to_sender_signed_transaction};
+use haneul_core::execution_engine;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::temporary_store::TemporaryStore;
+use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH,

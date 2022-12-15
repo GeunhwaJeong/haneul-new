@@ -11,9 +11,7 @@ use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_adapter::genesis;
-use haneul_core::test_utils::{
-    dummy_transaction_effects, to_sender_signed_transaction, to_sender_signed_transaction_arc,
-};
+use haneul_core::test_utils::dummy_transaction_effects;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_keys::keystore::AccountKeystore;
@@ -34,6 +32,7 @@ use haneul_types::messages::{
     VerifiedSignedTransaction, VerifiedTransaction,
 };
 use haneul_types::object::Object;
+use haneul_types::utils::{to_sender_signed_transaction, to_sender_signed_transaction_arc};
 
 /// The maximum gas per transaction.
 pub const MAX_GAS: u64 = 2_000;

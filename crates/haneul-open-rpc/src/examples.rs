@@ -14,7 +14,6 @@ use serde_json::json;
 use haneul::client_commands::EXAMPLE_NFT_DESCRIPTION;
 use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
-use haneul_core::test_utils::to_sender_signed_transaction;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     EventPage, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
@@ -41,6 +40,7 @@ use haneul_types::messages::{
 use haneul_types::object::{Owner, PACKAGE_VERSION};
 use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
+use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
 struct Examples {

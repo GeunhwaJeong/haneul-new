@@ -84,6 +84,22 @@ impl TestCluster {
         let config = self.fullnode_config_builder().build().unwrap();
         start_fullnode_from_config(config).await
     }
+
+    pub fn get_validator_addresses(&self) -> Vec<HaneulAddress> {
+        self.swarm.validators().map(|v| v.name()).collect()
+    }
+
+    pub fn stop_validator(&mut self, name: HaneulAddress) {
+        self.swarm.validator_mut(name).unwrap().stop();
+    }
+
+    pub async fn start_validator(&mut self, name: HaneulAddress) {
+        let node = self.swarm.validator_mut(name).unwrap();
+        if node.is_running() {
+            return;
+        }
+        node.start().await.unwrap();
+    }
 }
 
 pub struct TestClusterBuilder {

@@ -210,6 +210,7 @@ impl HaneulNode {
             Some(Arc::new(TransactiondOrchestrator::new(
                 arc_net,
                 state.clone(),
+                config.db_path(),
                 &prometheus_registry,
             )))
         } else {
