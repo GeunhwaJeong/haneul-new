@@ -1,19 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type GetObjectDataResponse } from '@haneullabs/haneul.js';
+import {
+    type GetObjectDataResponse,
+    normalizeHaneulAddress,
+} from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { useRpc } from '_hooks';
 
-export function useGetObjectData(
+export function useGetObject(
     objectId: string
 ): UseQueryResult<GetObjectDataResponse, unknown> {
     const rpc = useRpc();
+    const normalizedObjId = normalizeHaneulAddress(objectId);
     const response = useQuery(
-        ['object', objectId],
+        ['object', normalizedObjId],
         async () => {
-            return rpc.getObject(objectId);
+            return rpc.getObject(normalizedObjId);
         },
         { enabled: !!objectId }
     );
