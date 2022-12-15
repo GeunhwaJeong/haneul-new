@@ -21,10 +21,8 @@ use haneul_types::committee::CommitteeWithNetAddresses;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{error::HaneulError, messages::*};
-
-#[cfg(test)]
 use haneul_types::{committee::Committee, crypto::AuthorityKeyPair, object::Object};
+use haneul_types::{error::HaneulError, messages::*};
 
 use haneul_network::tonic::transport::Channel;
 
@@ -391,7 +389,6 @@ impl AuthorityAPI for LocalAuthorityClient {
 }
 
 impl LocalAuthorityClient {
-    #[cfg(test)]
     pub async fn new(committee: Committee, secret: AuthorityKeyPair, genesis: &Genesis) -> Self {
         let state = AuthorityState::new_for_testing(committee, &secret, None, Some(genesis)).await;
         Self {
@@ -400,7 +397,6 @@ impl LocalAuthorityClient {
         }
     }
 
-    #[cfg(test)]
     pub async fn new_with_objects(
         committee: Committee,
         secret: AuthorityKeyPair,

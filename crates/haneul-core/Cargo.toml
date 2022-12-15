@@ -37,6 +37,7 @@ either = "1.8.0"
 rand = "0.8.5"
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-framework = { path = "../haneul-framework" }
+haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-network = { path = "../haneul-network" }
 haneul-types = { path = "../haneul-types" }
 haneul-storage = { path = "../haneul-storage" }
@@ -78,7 +79,6 @@ serde-reflection = "0.3.6"
 serde_yaml = "0.8.26"
 pretty_assertions = "1.2.1"
 
-haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-protocol-constants = { path = "../haneul-protocol-constants" }
 haneul-macros = { path = "../haneul-macros" }
 
