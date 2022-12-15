@@ -43,7 +43,8 @@ use narwhal_types::CommittedSubDag;
 use haneul_adapter::{adapter, execution_mode};
 use haneul_config::genesis::Genesis;
 use haneul_json_rpc_types::{
-    type_and_fields_from_move_struct, HaneulEvent, HaneulEventEnvelope, HaneulTransactionEffects,
+    type_and_fields_from_move_struct, DevInspectResults, HaneulEvent, HaneulEventEnvelope,
+    HaneulTransactionEffects,
 };
 use haneul_simulator::nondeterministic;
 use haneul_storage::write_ahead_log::WriteAheadLog;
@@ -1197,6 +1198,34 @@ impl AuthorityState {
                 self.epoch(),
             );
         HaneulTransactionEffects::try_from(effects, self.module_cache.as_ref())
+    }
+
+    pub async fn dev_inspect_transaction(
+        &self,
+        transaction: TransactionData,
+        transaction_digest: TransactionDigest,
+    ) -> Result<DevInspectResults, anyhow::Error> {
+        let (gas_status, input_objects) =
+            transaction_input_checker::check_dev_inspect_input(&self.database, &transaction)
+                .await?;
+        let shared_object_refs = input_objects.filter_shared_objects();
+
+        let transaction_dependencies = input_objects.transaction_dependencies();
+        let temporary_store =
+            TemporaryStore::new(self.database.clone(), input_objects, transaction_digest);
+        let (_inner_temp_store, effects, execution_result) =
+            execution_engine::execute_transaction_to_effects::<execution_mode::DevInspect, _>(
+                shared_object_refs,
+                temporary_store,
+                transaction,
+                transaction_digest,
+                transaction_dependencies,
+                &self.move_vm,
+                &self._native_functions,
+                gas_status,
+                self.epoch(),
+            );
+        DevInspectResults::new(effects, execution_result, self.module_cache.as_ref())
     }
 
     pub fn is_tx_already_executed(&self, digest: &TransactionDigest) -> HaneulResult<bool> {
