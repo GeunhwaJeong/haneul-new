@@ -2735,15 +2735,23 @@
               "publish": {
                 "type": "object",
                 "required": [
+                  "digest",
                   "packageId",
-                  "sender"
+                  "sender",
+                  "version"
                 ],
                 "properties": {
+                  "digest": {
+                    "$ref": "#/components/schemas/ObjectDigest"
+                  },
                   "packageId": {
                     "$ref": "#/components/schemas/ObjectID"
                   },
                   "sender": {
                     "$ref": "#/components/schemas/HaneulAddress"
+                  },
+                  "version": {
+                    "$ref": "#/components/schemas/SequenceNumber"
                   }
                 }
               }

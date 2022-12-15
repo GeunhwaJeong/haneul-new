@@ -2074,6 +2074,8 @@ pub enum HaneulEvent {
     Publish {
         sender: HaneulAddress,
         package_id: ObjectID,
+        version: SequenceNumber,
+        digest: ObjectDigest,
     },
     /// Coin balance changing event
     #[serde(rename_all = "camelCase")]
@@ -2153,7 +2155,17 @@ impl TryFrom<HaneulEvent> for Event {
                 type_: parse_haneul_struct_tag(&type_)?,
                 contents: bcs,
             },
-            HaneulEvent::Publish { sender, package_id } => Event::Publish { sender, package_id },
+            HaneulEvent::Publish {
+                sender,
+                package_id,
+                version,
+                digest,
+            } => Event::Publish {
+                sender,
+                package_id,
+                version,
+                digest,
+            },
             HaneulEvent::TransferObject {
                 package_id,
                 transaction_module,
@@ -2273,7 +2285,17 @@ impl HaneulEvent {
                     bcs,
                 }
             }
-            Event::Publish { sender, package_id } => HaneulEvent::Publish { sender, package_id },
+            Event::Publish {
+                sender,
+                package_id,
+                version,
+                digest,
+            } => HaneulEvent::Publish {
+                sender,
+                package_id,
+                version,
+                digest,
+            },
             Event::TransferObject {
                 package_id,
                 transaction_module,
@@ -2416,9 +2438,20 @@ impl PartialEq<HaneulEvent> for Event {
             Event::Publish {
                 sender: self_sender,
                 package_id: self_package_id,
+                version: self_version,
+                digest: self_digest,
             } => {
-                if let HaneulEvent::Publish { package_id, sender } = other {
-                    package_id == self_package_id && self_sender == sender
+                if let HaneulEvent::Publish {
+                    package_id,
+                    sender,
+                    version,
+                    digest,
+                } = other
+                {
+                    package_id == self_package_id
+                        && self_sender == sender
+                        && self_version == version
+                        && self_digest == digest
                 } else {
                     false
                 }
