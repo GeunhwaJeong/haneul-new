@@ -20,7 +20,6 @@ use haneul_types::{
 /// verification results are unexpected. `check_into_object` and
 /// `check_into_gas_coin` expect to get a `HaneulRawObject` and `GasCoin`
 /// respectfully.
-/// ```
 #[derive(Debug)]
 pub struct ObjectChecker {
     object_id: ObjectID,
