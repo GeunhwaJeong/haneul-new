@@ -10,10 +10,10 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use haneul_json_rpc_types::{
-    Balance, Coin, CoinPage, EventPage, GetObjectDataResponse, GetPastObjectDataResponse,
-    GetRawObjectDataResponse, HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter,
-    HaneulExecuteTransactionResponse, HaneulMoveNormalizedModule, HaneulObjectInfo, HaneulTransactionResponse,
-    TransactionsPage,
+    Balance, Coin, CoinPage, DynamicFieldPage, EventPage, GetObjectDataResponse,
+    GetPastObjectDataResponse, GetRawObjectDataResponse, HaneulCoinMetadata, HaneulEventEnvelope,
+    HaneulEventFilter, HaneulExecuteTransactionResponse, HaneulMoveNormalizedModule, HaneulObjectInfo,
+    HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
@@ -54,6 +54,19 @@ impl ReadApi {
         object_id: ObjectID,
     ) -> HaneulRpcResult<Vec<HaneulObjectInfo>> {
         Ok(self.api.http.get_objects_owned_by_object(object_id).await?)
+    }
+
+    pub async fn get_dynamic_fields(
+        &self,
+        object_id: ObjectID,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+    ) -> HaneulRpcResult<DynamicFieldPage> {
+        Ok(self
+            .api
+            .http
+            .get_dynamic_fields(object_id, cursor, limit)
+            .await?)
     }
 
     pub async fn get_parsed_object(

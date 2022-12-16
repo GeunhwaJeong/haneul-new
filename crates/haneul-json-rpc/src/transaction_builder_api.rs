@@ -11,7 +11,6 @@ use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo, HaneulTy
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::object::Owner;
 
 use fastcrypto::encoding::Base64;
 use jsonrpsee::RpcModule;
@@ -48,7 +47,7 @@ impl DataReader for AuthorityStateDataReader {
     ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error> {
         let refs: Vec<HaneulObjectInfo> = self
             .0
-            .get_owner_objects(Owner::AddressOwner(address))?
+            .get_owner_objects(address)?
             .into_iter()
             .map(HaneulObjectInfo::from)
             .collect();

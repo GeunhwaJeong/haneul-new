@@ -9,7 +9,6 @@ use axum::{Extension, Json};
 use haneul_core::authority::AuthorityState;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::object::Owner;
 
 use crate::errors::Error;
 use crate::types::{
@@ -72,7 +71,7 @@ pub async fn coins(
 }
 
 async fn get_coins(state: &AuthorityState, address: HaneulAddress) -> Result<Vec<Coin>, Error> {
-    let object_infos = state.get_owner_objects(Owner::AddressOwner(address))?;
+    let object_infos = state.get_owner_objects(address)?;
     let coin_infos = object_infos
         .iter()
         .filter(|o| o.type_.is_gas_coin())

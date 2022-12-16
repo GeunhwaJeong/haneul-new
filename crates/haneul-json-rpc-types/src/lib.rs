@@ -11,7 +11,6 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
 use colored::Colorize;
-use fastcrypto::encoding::{Base64, Encoding};
 use itertools::Itertools;
 use move_binary_format::file_format::{Ability, AbilitySet, StructTypeParameter, Visibility};
 use move_binary_format::normalized::{
@@ -28,6 +27,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
+
+use fastcrypto::encoding::{Base64, Encoding};
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
     AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
@@ -36,6 +37,7 @@ use haneul_types::base_types::{
 use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
+use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::event::{BalanceChangeType, Event, EventID};
 use haneul_types::event::{EventEnvelope, EventType};
@@ -64,6 +66,7 @@ pub type HaneulMoveTypeParameterIndex = u16;
 pub type TransactionsPage = Page<TransactionDigest, TransactionDigest>;
 pub type EventPage = Page<HaneulEventEnvelope, EventID>;
 pub type CoinPage = Page<Coin, ObjectID>;
+pub type DynamicFieldPage = Page<DynamicFieldInfo, ObjectID>;
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
