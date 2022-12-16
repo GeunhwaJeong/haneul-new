@@ -28,7 +28,6 @@ use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKi
 #[cfg(test)]
 use haneul_types::temporary_store;
 use haneul_types::temporary_store::InnerTemporaryStore;
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     gas::HaneulGasStatus,
@@ -40,6 +39,9 @@ use haneul_types::{
     storage::BackingPackageStore,
     haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
+};
+use haneul_types::{
+    MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
 use crate::authority::TemporaryStore;
@@ -118,8 +120,10 @@ fn charge_gas_for_object_read<S>(
     // fetching only unique objects.
     let total_size = temporary_store
         .objects()
-        .values()
-        .map(|obj| obj.object_size_for_gas_metering())
+        .iter()
+        // don't charge for loading Haneul Framework or Move stdlib
+        .filter(|(id, _)| *id != &HANEUL_FRAMEWORK_OBJECT_ID && *id != &MOVE_STDLIB_OBJECT_ID)
+        .map(|(_, obj)| obj.object_size_for_gas_metering())
         .sum();
     gas_status.charge_storage_read(total_size)
 }
