@@ -9,16 +9,13 @@ use strum::IntoEnumIterator;
 
 use fastcrypto::encoding::Hex;
 use haneul_types::base_types::ObjectID;
-use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
-use crate::errors::Error;
+use crate::errors::{Error, ErrorType};
 use crate::types::{
     Allow, Case, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkRequest,
     NetworkStatusResponse, OperationStatus, OperationType, Peer, SyncStatus, Version,
 };
-use crate::ErrorType::InternalError;
-use crate::{ErrorType, OnlineServerContext, HaneulEnv};
+use crate::{OnlineServerContext, HaneulEnv};
 
 /// This module implements the [Rosetta Network API](https://www.rosetta-api.org/docs/NetworkApi.html)
 
@@ -43,19 +40,8 @@ pub async fn status(
     Extension(env): Extension<HaneulEnv>,
 ) -> Result<NetworkStatusResponse, Error> {
     env.check_network_identifier(&request.network_identifier)?;
-    let object = context
-        .state
-        .get_object_read(&HANEUL_SYSTEM_STATE_OBJECT_ID)
-        .await?;
 
-    let system_state: HaneulSystemState = bcs::from_bytes(
-        object
-            .into_object()?
-            .data
-            .try_as_move()
-            .ok_or_else(|| Error::new(InternalError))?
-            .contents(),
-    )?;
+    let system_state = context.client.read_api().get_haneul_system_state().await?;
 
     let peers = system_state
         .validators
@@ -72,7 +58,12 @@ pub async fn status(
     let blocks = context.blocks();
     let current_block = blocks.current_block().await?;
     let index = current_block.block.block_identifier.index;
-    let target = context.state.get_total_transaction_number()?;
+    let target = context
+        .client
+        .read_api()
+        .get_total_transaction_number()
+        .await?;
+
     Ok(NetworkStatusResponse {
         current_block_identifier: current_block.block.block_identifier,
         current_block_timestamp: current_block.block.timestamp,
@@ -97,7 +88,7 @@ pub async fn options(
 ) -> Result<NetworkOptionsResponse, Error> {
     env.check_network_identifier(&request.network_identifier)?;
 
-    let errors = ErrorType::iter().map(Error::new).collect();
+    let errors = ErrorType::iter().collect();
     let operation_statuses = vec![
         json!({"status": OperationStatus::Success, "successful" : true}),
         json!({"status": OperationStatus::Failure, "successful" : false}),

@@ -7,17 +7,21 @@ use std::fs::File;
 use std::io::BufReader;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use anyhow::anyhow;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
 use serde_json::{json, Value};
 use tracing::info;
+use tracing::log::warn;
 
+use haneul_config::genesis::Genesis;
 use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
 use haneul_node::{metrics, HaneulNode};
 use haneul_rosetta::types::{AccountIdentifier, CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
+use haneul_sdk::HaneulClient;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, HaneulKeyPair, ToFromBytes};
 
@@ -33,6 +37,16 @@ pub enum RosettaServerCommand {
         online_url: String,
         #[clap(long, default_value = "http://rosetta-offline:9003")]
         offline_url: String,
+    },
+    StartOnlineRemoteServer {
+        #[clap(long, default_value = "localnet")]
+        env: HaneulEnv,
+        #[clap(long, default_value = "0.0.0.0:9002")]
+        addr: SocketAddr,
+        #[clap(long)]
+        full_node_url: String,
+        #[clap(long, default_value = "genesis.blob")]
+        genesis_path: PathBuf,
     },
     StartOnlineServer {
         #[clap(long, default_value = "localnet")]
@@ -112,38 +126,65 @@ impl RosettaServerCommand {
                 info!("Rosetta DSL file is stored in {:?}", dsl_path);
             }
             RosettaServerCommand::StartOfflineServer { env, addr } => {
+                info!("Starting Rosetta Offline Server.");
                 let server = RosettaOfflineServer::new(env);
                 server.serve(addr).await??;
             }
+            RosettaServerCommand::StartOnlineRemoteServer {
+                env,
+                addr,
+                full_node_url,
+                genesis_path,
+            } => {
+                info!(
+                    "Starting Rosetta Online Server with remove Haneul full node [{full_node_url}]."
+                );
+                let haneul_client = wait_for_haneul_client(full_node_url).await;
+                let rosetta =
+                    RosettaOnlineServer::new(env, haneul_client, &Genesis::load(genesis_path)?);
+                rosetta.serve(addr).await??;
+            }
+
             RosettaServerCommand::StartOnlineServer {
                 env,
                 addr,
                 node_config,
             } => {
+                info!("Starting Rosetta Online Server with embedded Haneul full node.");
+
                 let node_config = node_config.unwrap_or_else(|| {
                     let path = haneul_config_dir().unwrap().join(HANEUL_FULLNODE_CONFIG);
                     info!("Using default node config from {path:?}");
                     path
                 });
-
                 let config = NodeConfig::load(&node_config)?;
                 let registry_service = metrics::start_prometheus_server(config.metrics_address);
                 // Staring a full node for the rosetta server.
-                let node = HaneulNode::start(&config, registry_service).await?;
-                let quorum_driver = node
-                    .transaction_orchestrator()
-                    .ok_or_else(|| anyhow!("Quorum driver is None"))?
-                    .quorum_driver()
-                    .clone();
+                let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
+                let genesis = config.genesis.genesis()?.clone();
+                let _node = HaneulNode::start(&config, registry_service).await?;
 
-                let rosetta =
-                    RosettaOnlineServer::new(env, node.state(), quorum_driver, config.genesis()?);
+                let haneul_client = wait_for_haneul_client(rpc_address).await;
+                let rosetta = RosettaOnlineServer::new(env, haneul_client, &genesis);
                 rosetta.serve(addr).await??;
             }
         };
         Ok(())
     }
 }
+
+async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
+    loop {
+        match HaneulClient::new(&rpc_address, None, None).await {
+            Ok(client) => return client,
+            Err(e) => {
+                warn!("Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds.");
+                tokio::time::sleep(Duration::from_millis(5000)).await;
+            }
+        }
+    }
+}
+
 /// This method reads the keypairs from the Haneul keystore to create the PrefundedAccount objects,
 /// PrefundedAccount will be written to the rosetta-cli config file for testing.
 ///

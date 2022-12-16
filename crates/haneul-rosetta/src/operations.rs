@@ -8,19 +8,19 @@ use std::str::FromStr;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::{json, Value};
+use haneul_sdk::rpc_types::{HaneulEvent, HaneulExecutionStatus, HaneulTransactionData, HaneulTransactionKind};
 
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
-use haneul_types::event::{BalanceChangeType, Event};
+use haneul_types::event::BalanceChangeType;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::{ExecutionStatus, SingleTransactionKind, TransactionData};
-use haneul_types::move_package::disassemble_modules;
+use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
 
 use crate::types::{
     AccountIdentifier, Amount, CoinAction, CoinChange, CoinIdentifier, ConstructionMetadata,
     IndexCounter, OperationIdentifier, OperationStatus, OperationType, SignedValue,
 };
-use crate::{Error, ErrorType};
+use crate::Error;
 
 #[cfg(test)]
 #[path = "unit_tests/operations_tests.rs"]
@@ -46,35 +46,47 @@ pub struct Operation {
 }
 
 impl Operation {
-    pub fn from_data(data: &TransactionData) -> Result<Vec<Operation>, anyhow::Error> {
-        let sender = data.signer();
+    pub fn from_data(data: &HaneulTransactionData) -> Result<Vec<Operation>, anyhow::Error> {
+        let sender = data.sender;
         let mut counter = IndexCounter::default();
         let mut ops = data
-            .kind
-            .single_transactions()
+            .transactions
+            .iter()
             .flat_map(|tx| parse_operations(tx, sender, &mut counter, None))
             .flatten()
             .collect::<Vec<_>>();
-        let gas = Operation::gas_budget(&mut counter, None, data.gas(), data.gas_budget, sender);
+        let gas = Operation::gas_budget(
+            &mut counter,
+            None,
+            data.gas_payment.to_object_ref(),
+            data.gas_budget,
+            sender,
+        );
         ops.push(gas);
         Ok(ops)
     }
 
     pub fn from_data_and_events(
-        data: &TransactionData,
-        status: &ExecutionStatus,
-        events: &[Event],
+        data: &HaneulTransactionData,
+        status: &HaneulExecutionStatus,
+        events: &[HaneulEvent],
     ) -> Result<Vec<Operation>, anyhow::Error> {
-        let sender = data.signer();
+        let sender = data.sender;
         let mut counter = IndexCounter::default();
         let status = Some((status).into());
         let mut ops = data
-            .kind
-            .single_transactions()
+            .transactions
+            .iter()
             .flat_map(|tx| parse_operations(tx, sender, &mut counter, status))
             .flatten()
             .collect::<Vec<_>>();
-        let gas = Operation::gas_budget(&mut counter, status, data.gas(), data.gas_budget, sender);
+        let gas = Operation::gas_budget(
+            &mut counter,
+            status,
+            data.gas_payment.to_object_ref(),
+            data.gas_budget,
+            sender,
+        );
         ops.push(gas);
 
         // We will need to subtract the PayHaneul operation amounts from the actual balance
@@ -113,7 +125,7 @@ impl Operation {
     }
 
     pub fn get_coin_operation_from_events(
-        events: &[Event],
+        events: &[HaneulEvent],
         status: Option<OperationStatus>,
         balance_to_subtract: HashMap<HaneulAddress, i128>,
         counter: &mut IndexCounter,
@@ -169,8 +181,10 @@ impl Operation {
         ops
     }
 
-    fn get_balance_change_from_event(event: &Event) -> Option<(OperationType, HaneulAddress, i128)> {
-        if let Event::CoinBalanceChange {
+    fn get_balance_change_from_event(
+        event: &HaneulEvent,
+    ) -> Option<(OperationType, HaneulAddress, i128)> {
+        if let HaneulEvent::CoinBalanceChange {
             owner: Owner::AddressOwner(owner),
             coin_type,
             amount,
@@ -205,10 +219,7 @@ impl Operation {
         for op in operations {
             // Currently only PayHaneul is support,
             if op.type_ != OperationType::PayHaneul && op.type_ != OperationType::GasBudget {
-                return Err(Error::new_with_msg(
-                    ErrorType::InvalidInput,
-                    &format!("Unsupported operation {:?}", op.type_),
-                ));
+                return Err(Error::UnsupportedOperation(op.type_));
             }
             if type_.is_none() && op.type_ != OperationType::GasBudget {
                 type_ = Some(op.type_)
@@ -218,17 +229,12 @@ impl Operation {
                     .metadata
                     .clone()
                     .and_then(|v| v.pointer("/budget").cloned())
-                    .ok_or_else(|| Error::missing_input("gas budget"))?;
+                    .ok_or_else(|| Error::MissingInput("gas budget".to_string()))?;
                 budget = Some(
                     budget_value
                         .as_u64()
                         .or_else(|| budget_value.as_str().and_then(|s| u64::from_str(s).ok()))
-                        .ok_or_else(|| {
-                            Error::new_with_msg(
-                                ErrorType::InvalidInput,
-                                format!("Cannot parse gas budget : [{budget_value}]").as_str(),
-                            )
-                        })?,
+                        .ok_or_else(|| Error::InvalidInput(format!("{budget_value}")))?,
                 );
             } else if op.type_ == OperationType::PayHaneul {
                 if let (Some(amount), Some(account)) = (op.amount, op.account) {
@@ -238,9 +244,8 @@ impl Operation {
                         recipients.push(account.address);
                         let amount = amount.value.abs();
                         if amount > u64::MAX as u128 {
-                            return Err(Error::new_with_msg(
-                                ErrorType::InvalidInput,
-                                "Input amount exceed u64::MAX",
+                            return Err(Error::InvalidInput(
+                                "Input amount exceed u64::MAX".to_string(),
                             ));
                         }
                         amounts.push(amount as u64)
@@ -249,9 +254,9 @@ impl Operation {
             }
         }
 
-        let address = sender.ok_or_else(|| Error::missing_input("Sender address"))?;
+        let address = sender.ok_or_else(|| Error::MissingInput("Sender address".to_string()))?;
         let gas = metadata.sender_coins[0];
-        let budget = budget.ok_or_else(|| Error::missing_input("gas budget"))?;
+        let budget = budget.ok_or_else(|| Error::MissingInput("gas budget".to_string()))?;
 
         Ok(TransactionData::new_pay_haneul(
             address,
@@ -289,12 +294,12 @@ impl Operation {
 }
 
 fn parse_operations(
-    tx: &SingleTransactionKind,
+    tx: &HaneulTransactionKind,
     sender: HaneulAddress,
     counter: &mut IndexCounter,
     status: Option<OperationStatus>,
 ) -> Result<Vec<Operation>, anyhow::Error> {
-    let operations = if let SingleTransactionKind::PayHaneul(tx) = tx {
+    let operations = if let HaneulTransactionKind::PayHaneul(tx) = tx {
         let recipients = tx.recipients.iter().zip(&tx.amounts);
         let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
 
@@ -329,17 +334,14 @@ fn parse_operations(
         pay_operations
     } else {
         let (type_, metadata) = match tx {
-            SingleTransactionKind::TransferObject(tx) => (OperationType::TransferObject, json!(tx)),
-            SingleTransactionKind::Publish(tx) => {
-                let disassembled = disassemble_modules(tx.modules.iter())?;
-                (OperationType::Publish, json!(disassembled))
-            }
-            SingleTransactionKind::Call(tx) => (OperationType::MoveCall, json!(tx)),
-            SingleTransactionKind::TransferHaneul(tx) => (OperationType::TransferHANEUL, json!(tx)),
-            SingleTransactionKind::Pay(tx) => (OperationType::Pay, json!(tx)),
-            SingleTransactionKind::PayAllHaneul(tx) => (OperationType::PayAllHaneul, json!(tx)),
-            SingleTransactionKind::ChangeEpoch(tx) => (OperationType::EpochChange, json!(tx)),
-            SingleTransactionKind::PayHaneul(_) => unreachable!(),
+            HaneulTransactionKind::TransferObject(tx) => (OperationType::TransferObject, json!(tx)),
+            HaneulTransactionKind::Publish(tx) => (OperationType::Publish, json!(tx.disassembled)),
+            HaneulTransactionKind::Call(tx) => (OperationType::MoveCall, json!(tx)),
+            HaneulTransactionKind::TransferHaneul(tx) => (OperationType::TransferHANEUL, json!(tx)),
+            HaneulTransactionKind::Pay(tx) => (OperationType::Pay, json!(tx)),
+            HaneulTransactionKind::PayAllHaneul(tx) => (OperationType::PayAllHaneul, json!(tx)),
+            HaneulTransactionKind::ChangeEpoch(tx) => (OperationType::EpochChange, json!(tx)),
+            HaneulTransactionKind::PayHaneul(_) => unreachable!(),
         };
         generic_operation(counter, type_, status, sender, metadata)
     };

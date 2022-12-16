@@ -23,9 +23,9 @@ use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::intent::Intent;
 use haneul_types::messages::{
-    CallArg, ExecuteTransactionRequestType, ExecutionStatus, InputObjectKind, MoveCall,
-    MoveModulePublish, ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind, Transaction,
-    TransactionData, TransactionKind, TransferHaneul,
+    CallArg, ExecuteTransactionRequestType, InputObjectKind, MoveCall, MoveModulePublish,
+    ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind, Transaction, TransactionData,
+    TransactionKind, TransferHaneul,
 };
 use test_utils::network::TestClusterBuilder;
 
@@ -444,15 +444,12 @@ async fn test_transaction(
         data
     );
 
-    let events = effect
-        .events
-        .clone()
-        .into_iter()
-        .map(|event| event.try_into())
-        .collect::<Result<Vec<_>, _>>()
-        .unwrap();
-
-    let ops = Operation::from_data_and_events(&data, &ExecutionStatus::Success, &events).unwrap();
+    let ops = Operation::from_data_and_events(
+        &data.try_into().unwrap(),
+        &HaneulExecutionStatus::Success,
+        &effect.events,
+    )
+    .unwrap();
     let balances_from_ops = extract_balance_changes_from_ops(ops).unwrap();
 
     // get actual balance changed after transaction

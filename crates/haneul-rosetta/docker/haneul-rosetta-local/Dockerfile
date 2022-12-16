@@ -2,7 +2,7 @@ FROM ubuntu:latest AS chef
 WORKDIR haneul
 ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
-RUN apt-get update && apt-get install -y build-essential libssl-dev pkg-config curl cmake clang
+RUN apt-get update && apt-get install -y build-essential libssl-dev pkg-config curl cmake clang ca-certificates
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -45,6 +45,7 @@ RUN cargo build --release --bin haneul --bin haneul-rosetta
 # Production Image
 FROM ubuntu:latest AS runtime
 WORKDIR haneul
+RUN apt-get update && apt-get install -y ca-certificates
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-rosetta /usr/local/bin
 COPY --from=builder /haneul/bin/rosetta-cli /usr/local/bin

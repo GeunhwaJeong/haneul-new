@@ -1,20 +1,6 @@
 ---
 version: "3.9"
 services:
-  haneul-full-node:
-    image: haneullabs/haneul-rosetta-devnet
-    ports:
-      - "9000:9000"
-    expose:
-      - "9000"
-    working_dir: /haneul/devnet
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /usr/local/bin/haneul-node --config-path fullnode.yaml
-    stdin_open: true
-    tty: true
   rosetta-online:
     image: haneullabs/haneul-rosetta-devnet
     ports:
@@ -27,7 +13,7 @@ services:
       - -c
       - |
         /usr/local/bin/haneul-rosetta generate-rosetta-cli-config --env devnet &
-        /usr/local/bin/haneul-rosetta start-online-remote-server --env devnet --full-node-url http://haneul-full-node:9000
+        /usr/local/bin/haneul-rosetta start-online-remote-server --env devnet --genesis-path genesis.blob --full-node-url https://fullnode.devnet.haneul.io:443
     stdin_open: true
     tty: true
   rosetta-offline:
