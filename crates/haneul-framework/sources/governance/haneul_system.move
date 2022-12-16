@@ -427,9 +427,9 @@ module haneul::haneul_system {
     }
 
     spec advance_epoch {
-        /// Total supply of HANEUL shouldn't change.
+        /// Total supply of HANEUL increases by the amount of stake subsidy we minted.
         ensures balance::supply_value(self.haneul_supply) 
-            == old(balance::supply_value(self.haneul_supply));
+            == old(balance::supply_value(self.haneul_supply)) + old(stake_subsidy::current_epoch_subsidy_amount(self.stake_subsidy));
     }
 
     /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,

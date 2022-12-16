@@ -13,7 +13,7 @@ use haneul_types::crypto::{
 use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
-    StakingPool, StakeSubsidy, HaneulSystemState, Validator, ValidatorMetadata, ValidatorSet,
+    StakeSubsidy, StakingPool, HaneulSystemState, Validator, ValidatorMetadata, ValidatorSet,
 };
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
