@@ -20,7 +20,7 @@ use haneul_sdk::HaneulClient;
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
-use haneul_types::crypto::HaneulKeyPair::Ed25519HaneulKeyPair;
+use haneul_types::crypto::HaneulKeyPair;
 
 const NUM_VALIDAOTR: usize = 4;
 
@@ -209,7 +209,7 @@ impl TestClusterBuilder {
         swarm.config().save(&network_path)?;
         let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
         for key in &swarm.config().account_keys {
-            keystore.add_key(Ed25519HaneulKeyPair(key.copy()))?;
+            keystore.add_key(HaneulKeyPair::Ed25519(key.copy()))?;
         }
 
         let active_address = keystore.addresses().first().cloned();

@@ -233,9 +233,7 @@ pub async fn new_wallet_context_from_cluster(
     let keystore_path = temp_dir.path().join(HANEUL_KEYSTORE_FILENAME);
     let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path).unwrap());
     let address: HaneulAddress = key_pair.public().into();
-    keystore
-        .add_key(HaneulKeyPair::Ed25519HaneulKeyPair(key_pair))
-        .unwrap();
+    keystore.add_key(HaneulKeyPair::Ed25519(key_pair)).unwrap();
     HaneulClientConfig {
         keystore,
         envs: vec![HaneulEnv {
