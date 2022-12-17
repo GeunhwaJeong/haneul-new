@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::TEST_COMMITTEE_SIZE;
 use haneullabs_metrics::RegistryService;
 use prometheus::Registry;
 use rand::{prelude::StdRng, SeedableRng};
@@ -13,6 +12,7 @@ use haneul_types::object::Object;
 
 pub use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::base_types::ObjectID;
+use haneul_types::crypto::TEST_COMMITTEE_SIZE;
 use haneul_types::messages::{ObjectInfoRequest, ObjectInfoRequestKind};
 
 /// The default network buffer size of a test authority.

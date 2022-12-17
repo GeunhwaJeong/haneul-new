@@ -30,7 +30,7 @@ use haneul_node::metrics;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::batch::UpdateItem;
-use haneul_types::crypto::AccountKeyPair;
+use haneul_types::crypto::{deterministic_random_account_key, AccountKeyPair};
 use haneul_types::messages::BatchInfoRequest;
 use haneul_types::messages::BatchInfoResponseItem;
 use haneul_types::messages::TransactionInfoRequest;
@@ -39,7 +39,6 @@ use tracing::log::info;
 use test_utils::authority::spawn_test_authorities;
 use test_utils::authority::test_and_configure_authority_configs;
 use test_utils::objects::generate_gas_objects_with_owner;
-use test_utils::test_account_keys;
 use tokio::runtime::Builder;
 use tokio::sync::Barrier;
 use tracing::error;
@@ -285,7 +284,7 @@ async fn main() -> Result<()> {
         };
 
         // bring up servers ..
-        let (owner, keypair): (HaneulAddress, AccountKeyPair) = test_account_keys().pop().unwrap();
+        let (owner, keypair): (HaneulAddress, AccountKeyPair) = deterministic_random_account_key();
         let primary_gas = generate_gas_objects_with_owner(1, owner);
         let primary_gas_id = primary_gas.get(0).unwrap().id();
         // Make the client runtime wait until we are done creating genesis objects
