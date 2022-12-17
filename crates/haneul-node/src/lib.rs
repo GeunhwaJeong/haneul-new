@@ -8,6 +8,7 @@ use anemo_tower::trace::DefaultMakeSpan;
 use anemo_tower::trace::TraceLayer;
 use anyhow::anyhow;
 use anyhow::Result;
+use checkpoint_executor::CheckpointExecutor;
 use futures::TryFutureExt;
 use haneullabs_metrics::{spawn_monitored_task, RegistryService};
 use haneullabs_network::server::ServerBuilder;
@@ -20,7 +21,7 @@ use std::{sync::Arc, time::Duration};
 use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_core::authority_aggregator::{AuthorityAggregator, NetworkTransactionCertifier};
 use haneul_core::authority_server::ValidatorService;
-use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
+use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_core::storage::RocksDbStore;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
@@ -47,6 +48,7 @@ use haneul_storage::{
     node_sync_store::NodeSyncStore,
     IndexStore,
 };
+use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::messages::VerifiedCertificate;
 use haneul_types::messages::VerifiedCertifiedTransactionEffects;
@@ -68,7 +70,6 @@ use haneul_core::consensus_handler::ConsensusHandler;
 use haneul_core::consensus_validator::HaneulTxValidator;
 use haneul_core::narwhal_manager::{run_narwhal_manager, NarwhalConfiguration, NarwhalManager};
 use haneul_json_rpc::coin_api::CoinReadApi;
-use haneul_types::committee::EpochId;
 
 pub struct HaneulNode {
     config: NodeConfig,
@@ -87,14 +88,10 @@ pub struct HaneulNode {
     _p2p_network: Network,
     _discovery: discovery::Handle,
     state_sync: state_sync::Handle,
-
     checkpoint_store: Arc<CheckpointStore>,
-    _checkpoint_executor_handle: tokio::task::JoinHandle<()>,
+    _checkpoint_executor_handle: checkpoint_executor::Handle,
 
-    reconfig_channel: (
-        tokio::sync::mpsc::Sender<EpochId>,
-        tokio::sync::mpsc::Receiver<EpochId>,
-    ),
+    reconfig_channel: tokio::sync::broadcast::Receiver<Committee>,
 
     #[cfg(msim)]
     sim_node: haneul_simulator::runtime::NodeHandle,
@@ -162,8 +159,6 @@ impl HaneulNode {
             &prometheus_registry,
         )?;
 
-        let reconfig_channel = channel(1);
-
         let transaction_streamer = if is_full_node {
             Some(Arc::new(TransactionStreamer::new()))
         } else {
@@ -189,15 +184,13 @@ impl HaneulNode {
         )
         .await;
 
-        let checkpoint_executor_handle = {
-            let executor = CheckpointExecutor::new(
-                state_sync_handle.subscribe_to_synced_checkpoints(),
-                checkpoint_store.clone(),
-                state.clone(),
-                &prometheus_registry,
-            )?;
-            tokio::spawn(executor.run())
-        };
+        let (checkpoint_executor_handle, reconfig_channel) = CheckpointExecutor::new(
+            state_sync_handle.subscribe_to_synced_checkpoints(),
+            checkpoint_store.clone(),
+            state.clone(),
+            &prometheus_registry,
+        )
+        .start()?;
 
         let active_authority = Arc::new(ActiveAuthority::new(
             state.clone(),
@@ -568,9 +561,10 @@ impl HaneulNode {
     /// epoch has changed. Upon receiving such signal, we reconfigure the entire system.
     pub async fn monitor_reconfiguration(mut self) -> Result<()> {
         loop {
-            let next_epoch = self
+            let Committee {
+                epoch: next_epoch, ..
+            } = self
                 .reconfig_channel
-                .1
                 .recv()
                 .await
                 .expect("Reconfiguration channel was closed unexpectedly.");
