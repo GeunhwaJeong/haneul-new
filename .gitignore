@@ -34,3 +34,6 @@ tsconfig.tsbuildinfo
 wallet.log.*
 haneul.log.*
 .vercel
+
+# misc
+*.key
