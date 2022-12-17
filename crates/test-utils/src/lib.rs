@@ -4,6 +4,5 @@
 pub mod authority;
 pub mod messages;
 pub mod network;
-pub mod objects;
 pub mod haneul_system_state;
 pub mod transaction;

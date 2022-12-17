@@ -13,19 +13,18 @@ use haneul_types::error::HaneulError;
 use haneul_types::messages::{
     QuorumDriverRequest, QuorumDriverRequestType, QuorumDriverResponse, VerifiedTransaction,
 };
-use haneul_types::object::Object;
+use haneul_types::object::{generate_test_gas_objects, Object};
 use test_utils::authority::{
     spawn_test_authorities, test_and_configure_authority_configs, test_authority_configs,
 };
 use test_utils::messages::make_transfer_haneul_transaction;
-use test_utils::objects::test_gas_objects;
 
 async fn setup() -> (
     Vec<HaneulNodeHandle>,
     AuthorityAggregator<NetworkAuthorityClient>,
     VerifiedTransaction,
 ) {
-    let mut gas_objects = test_gas_objects();
+    let mut gas_objects = generate_test_gas_objects();
     let configs = test_authority_configs();
     let handles = spawn_test_authorities(gas_objects.clone(), &configs).await;
     let committee_store = handles[0].with(|h| h.state().committee_store().clone());
@@ -169,7 +168,7 @@ async fn test_update_validators() {
 
 #[tokio::test]
 async fn test_retry_on_object_locked() -> Result<(), anyhow::Error> {
-    let mut gas_objects = test_gas_objects();
+    let mut gas_objects = generate_test_gas_objects();
     let configs = test_and_configure_authority_configs(4);
     let handles = spawn_test_authorities(gas_objects.clone(), &configs).await;
     let committee_store = handles[0].with(|h| h.state().committee_store().clone());
