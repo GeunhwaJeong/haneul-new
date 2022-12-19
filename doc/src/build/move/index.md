@@ -37,13 +37,10 @@ to deepen your understanding of the Move language but not strict prerequisites
 to following the Haneul tutorial, which we strived to make self-contained.
 Further, Haneul does differ in some ways from Move, which we explore here.
 
-In Haneul, Move is used to define, create and manage programmable Haneul
-[objects](../objects.md) representing user-level assets.  Haneul
-imposes additional restrictions on the code that can be written in
-Move, effectively using a subset of Move (a.k.a. *Haneul Move*), which
+In Haneul, Move is used to define, create, and manage programmable [Haneul objects](../objects.md) representing user-level assets.  Haneul's object system is implemented by adding new functionality to Move while also imposing additional restrictions, creating a dialect of Move (a.k.a. *Haneul Move*) that
 makes certain parts of the original Move documentation not applicable
 to smart contract development in Haneul. Consequently, it's best to simply follow this tutorial
-and relevant Move documentation links provided in the tutorial.
+and the relevant Move documentation links within.
 
 Before we look at the Move code included with Haneul, let's talk briefly
 about Move code organization, which applies both to code included with
