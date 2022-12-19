@@ -6,6 +6,7 @@ import {
   Coin,
   getObjectId,
   LocalTxnDataSerializer,
+  normalizeHaneulObjectId,
   ObjectId,
   RawSigner,
   HaneulObjectInfo,
@@ -44,6 +45,39 @@ describe('Coin related API', () => {
       toolbox.address()
     );
     expect(coinsAfterSplit.length).toEqual(coins.length + SPLIT_AMOUNTS.length);
+  });
+
+  it('test Coin utility functions', async () => {
+    const coins = await toolbox.provider.getGasObjectsOwnedByAddress(
+      toolbox.address()
+    );
+    coins.forEach((c) => {
+      expect(Coin.isCoin(c)).toBeTruthy;
+      expect(Coin.isHANEUL(c)).toBeTruthy;
+    })
+  });
+
+  it('test getCoinStructTag', async () => {
+    const exampleStructTag = { 
+      address: normalizeHaneulObjectId('0x2'), 
+      module: 'haneul', 
+      name: 'HANEUL', 
+      typeParams: [] 
+    };
+    const coins = await toolbox.provider.getGasObjectsOwnedByAddress(
+      toolbox.address()
+    );
+    const coinTypeArg: string = Coin.getCoinTypeArg(coins[0])!;
+    expect(Coin.getCoinStructTag(coinTypeArg)).toStrictEqual(exampleStructTag);
+  });
+
+  it('test Coin balance functions', async () => {
+    const coins = 
+      await toolbox.provider.getCoinBalancesOwnedByAddress(
+        toolbox.address(),
+        '0x2::haneul::HANEUL'
+      );
+    expect(Coin.totalBalance(coins)).toBeGreaterThan(BigInt(0));
   });
 
   it('test selectCoinsWithBalanceGreaterThanOrEqual', async () => {
