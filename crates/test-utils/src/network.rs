@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::num::NonZeroUsize;
+use std::sync::Arc;
 
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::ws_client::WsClient;
@@ -25,7 +26,7 @@ use haneul_types::crypto::HaneulKeyPair;
 const NUM_VALIDAOTR: usize = 4;
 
 pub struct FullNodeHandle {
-    pub haneul_node: HaneulNode,
+    pub haneul_node: Arc<HaneulNode>,
     pub haneul_client: HaneulClient,
     pub rpc_client: HttpClient,
     pub rpc_url: String,

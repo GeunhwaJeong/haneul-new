@@ -43,29 +43,20 @@
 //! We can't prevent this completely, but we can at least make the right way the easy way.
 
 use super::HaneulNode;
-use anyhow::Result;
 use std::future::Future;
+use std::sync::Arc;
 
 /// Wrap HaneulNode to allow correct access to HaneulNode in simulator tests.
-pub struct HaneulNodeHandle(HaneulNode);
+pub struct HaneulNodeHandle(Arc<HaneulNode>);
 
 impl HaneulNodeHandle {
-    pub fn new(node: HaneulNode) -> Self {
+    pub fn new(node: Arc<HaneulNode>) -> Self {
         Self(node)
     }
 
     pub fn with<T>(&self, cb: impl FnOnce(&HaneulNode) -> T) -> T {
         let _guard = self.guard();
         cb(&self.0)
-    }
-
-    pub fn with_mut(&mut self, cb: impl FnOnce(&mut HaneulNode)) {
-        let _guard = self.guard();
-        cb(&mut self.0);
-    }
-
-    pub async fn wait(self) -> Result<()> {
-        self.0.monitor_reconfiguration().await
     }
 }
 
@@ -83,14 +74,6 @@ impl HaneulNodeHandle {
     {
         cb(&self.0).await
     }
-
-    pub async fn with_mut_async<'a, F, R, T>(&'a mut self, cb: F) -> T
-    where
-        F: FnOnce(&'a mut HaneulNode) -> R,
-        R: Future<Output = T>,
-    {
-        cb(&mut self.0).await
-    }
 }
 
 #[cfg(msim)]
@@ -107,20 +90,10 @@ impl HaneulNodeHandle {
         let fut = cb(&self.0);
         self.0.sim_node.await_future_in_node(fut).await
     }
-
-    pub async fn with_mut_async<'a, F, R, T>(&'a mut self, cb: F) -> T
-    where
-        F: FnOnce(&'a mut HaneulNode) -> R,
-        R: Future<Output = T>,
-    {
-        let node_clone = self.0.sim_node.clone();
-        let fut = cb(&mut self.0);
-        node_clone.await_future_in_node(fut).await
-    }
 }
 
-impl From<HaneulNode> for HaneulNodeHandle {
-    fn from(node: HaneulNode) -> Self {
+impl From<Arc<HaneulNode>> for HaneulNodeHandle {
+    fn from(node: Arc<HaneulNode>) -> Self {
         HaneulNodeHandle::new(node)
     }
 }
