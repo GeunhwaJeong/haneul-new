@@ -99,6 +99,10 @@ pub enum HaneulClientCommands {
         /// Object ID of the object to fetch
         #[clap(name = "object_id")]
         id: ObjectID,
+
+        /// Return the bcs serialized version of the object
+        #[clap(long)]
+        bcs: bool,
     },
 
     /// Publish Move modules
@@ -449,11 +453,11 @@ impl HaneulClientCommands {
                 HaneulClientCommandResult::Publish(response)
             }
 
-            HaneulClientCommands::Object { id } => {
+            HaneulClientCommands::Object { id, bcs } => {
                 // Fetch the object ref
                 let client = context.get_client().await?;
                 let object_read = client.read_api().get_parsed_object(id).await?;
-                HaneulClientCommandResult::Object(object_read)
+                HaneulClientCommandResult::Object(object_read, bcs)
             }
             HaneulClientCommands::Call {
                 package,
@@ -1099,8 +1103,18 @@ impl Display for HaneulClientCommandResult {
                     writeln!(writer, "{}", parsed_resp)?;
                 }
             }
-            HaneulClientCommandResult::Object(object_read) => {
-                let object = unwrap_err_to_string(|| Ok(object_read.object()?));
+            HaneulClientCommandResult::Object(object_read, bcs) => {
+                let object = if *bcs {
+                    match object_read.object() {
+                        Ok(v) => {
+                            let bcs_bytes = bcs::to_bytes(v).unwrap();
+                            format!("{:?}\nNumber of bytes: {}", bcs_bytes, bcs_bytes.len())
+                        }
+                        Err(err) => format!("{err}").red().to_string(),
+                    }
+                } else {
+                    unwrap_err_to_string(|| Ok(object_read.object()?))
+                };
                 writeln!(writer, "{}", object)?;
             }
             HaneulClientCommandResult::Call(cert, effects) => {
@@ -1312,9 +1326,13 @@ fn write_cert_and_effects(
 impl Debug for HaneulClientCommandResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let s = unwrap_err_to_string(|| match self {
-            HaneulClientCommandResult::Object(object_read) => {
+            HaneulClientCommandResult::Object(object_read, bcs) => {
                 let object = object_read.object()?;
-                Ok(serde_json::to_string_pretty(&object)?)
+                if *bcs {
+                    Ok(serde_json::to_string_pretty(&bcs::to_bytes(&object)?)?)
+                } else {
+                    Ok(serde_json::to_string_pretty(&object)?)
+                }
             }
             _ => Ok(serde_json::to_string_pretty(self)?),
         });
@@ -1349,7 +1367,7 @@ impl HaneulClientCommandResult {
 #[serde(untagged)]
 pub enum HaneulClientCommandResult {
     Publish(HaneulTransactionResponse),
-    Object(GetObjectDataResponse),
+    Object(GetObjectDataResponse, bool),
     Call(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Transfer(
         // Skipping serialisation for elapsed time.
