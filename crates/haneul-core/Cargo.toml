@@ -44,6 +44,7 @@ haneul-storage = { path = "../haneul-storage" }
 haneul-config = { path = "../haneul-config" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
+haneul-protocol-constants = { path = "../haneul-protocol-constants" }
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
