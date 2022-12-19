@@ -69,6 +69,7 @@ use haneul_core::checkpoints::{
 use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
 use haneul_core::consensus_handler::ConsensusHandler;
 use haneul_core::consensus_validator::HaneulTxValidator;
+use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::narwhal_manager::{run_narwhal_manager, NarwhalConfiguration, NarwhalManager};
 use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_types::error::{HaneulError, HaneulResult};

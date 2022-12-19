@@ -48,9 +48,8 @@ impl ReconfigState {
     }
 }
 
-#[async_trait::async_trait]
 pub trait ReconfigurationInitiator {
-    async fn close_epoch(&self) -> HaneulResult;
+    fn close_epoch(&self) -> HaneulResult;
 }
 
 /*
