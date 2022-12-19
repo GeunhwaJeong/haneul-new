@@ -6,11 +6,10 @@ use std::path::PathBuf;
 use haneul_storage::default_db_options;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::HaneulResult;
 use typed_store::rocks::{DBMap, DBOptions};
 use typed_store::traits::TypedStoreDebug;
 
-use haneul_types::fp_ensure;
 use typed_store::Map;
 use typed_store_derive::DBMapUtils;
 
@@ -54,11 +53,10 @@ impl CommitteeStore {
     }
 
     pub fn insert_new_committee(&self, new_committee: &Committee) -> HaneulResult {
-        let latest_committee = self.get_latest_committee();
-        fp_ensure!(
-            latest_committee.epoch + 1 == new_committee.epoch,
-            HaneulError::from("Unexpected new epoch number")
-        );
+        if let Some(old_committee) = self.get_committee(&new_committee.epoch)? {
+            // If somehow we already have this committee in the store, they must be the same.
+            assert_eq!(&old_committee, new_committee);
+        }
         self.committee_map
             .insert(&new_committee.epoch, new_committee)?;
         Ok(())
