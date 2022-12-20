@@ -15,13 +15,15 @@ use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
-use haneul_types::base_types::ObjectRef;
+use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair, AccountKeyPair, AuthorityPublicKeyBytes,
     NetworkKeyPair, HaneulKeyPair,
 };
+use haneul_types::messages::{TransactionData, VerifiedTransaction};
 use haneul_types::utils::create_fake_transaction;
+use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     base_types::{random_object_ref, AuthorityName, ExecutionDigests, TransactionDigest},
     committee::Committee,
@@ -35,6 +37,8 @@ use tokio::time::timeout;
 use tracing::{info, warn};
 
 const WAIT_FOR_TX_TIMEOUT: Duration = Duration::from_secs(15);
+/// The maximum gas per transaction.
+pub const MAX_GAS: u64 = 2_000;
 
 pub async fn wait_for_tx(digest: TransactionDigest, state: Arc<AuthorityState>) {
     match timeout(
@@ -230,4 +234,26 @@ pub async fn init_local_authorities_with_genesis(
         ),
         states,
     )
+}
+
+pub fn make_transfer_haneul_transaction(
+    gas_object: ObjectRef,
+    recipient: HaneulAddress,
+    amount: Option<u64>,
+    sender: HaneulAddress,
+    keypair: &AccountKeyPair,
+) -> VerifiedTransaction {
+    let data = TransactionData::new_transfer_haneul(recipient, sender, amount, gas_object, MAX_GAS);
+    to_sender_signed_transaction(data, keypair)
+}
+
+pub fn make_transfer_object_transaction(
+    object_ref: ObjectRef,
+    gas_object: ObjectRef,
+    sender: HaneulAddress,
+    keypair: &AccountKeyPair,
+    recipient: HaneulAddress,
+) -> VerifiedTransaction {
+    let data = TransactionData::new_transfer(recipient, object_ref, sender, gas_object, MAX_GAS);
+    to_sender_signed_transaction(data, keypair)
 }

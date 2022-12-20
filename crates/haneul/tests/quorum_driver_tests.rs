@@ -6,6 +6,7 @@ use std::time::Duration;
 use haneul_core::authority_aggregator::{AuthorityAggregator, AuthorityAggregatorBuilder};
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::quorum_driver::{QuorumDriverHandler, QuorumDriverMetrics};
+use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{deterministic_random_account_key, AccountKeyPair};
@@ -17,7 +18,6 @@ use haneul_types::object::{generate_test_gas_objects, Object};
 use test_utils::authority::{
     spawn_test_authorities, test_and_configure_authority_configs, test_authority_configs,
 };
-use test_utils::messages::make_transfer_haneul_transaction;
 
 async fn setup() -> (
     Vec<HaneulNodeHandle>,

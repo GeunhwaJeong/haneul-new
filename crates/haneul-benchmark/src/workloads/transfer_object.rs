@@ -13,9 +13,8 @@ use haneul_types::{
     object::Owner,
 };
 
-use test_utils::messages::make_transfer_object_transaction;
-
 use crate::ValidatorProxy;
+use haneul_core::test_utils::make_transfer_object_transaction;
 
 use super::workload::{
     transfer_haneul_for_testing, Gas, Payload, Workload, WorkloadType, MAX_GAS_FOR_TESTING,

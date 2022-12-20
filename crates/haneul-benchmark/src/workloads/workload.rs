@@ -11,8 +11,8 @@ use haneul_types::{
 };
 
 use futures::FutureExt;
+use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_types::{base_types::HaneulAddress, crypto::AccountKeyPair, messages::VerifiedTransaction};
-use test_utils::messages::make_transfer_haneul_transaction;
 use tracing::error;
 
 use rand::{prelude::*, rngs::OsRng};

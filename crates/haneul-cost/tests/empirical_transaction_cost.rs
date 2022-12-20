@@ -5,6 +5,8 @@ use insta::assert_json_snapshot;
 use std::{collections::BTreeMap, path::PathBuf};
 use haneul_config::NetworkConfig;
 use haneul_config::ValidatorInfo;
+use haneul_core::test_utils::make_transfer_object_transaction;
+use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_cost::estimator::estimate_transaction_computation_cost;
 use haneul_cost::estimator::CommonTransactionCosts;
 use haneul_types::base_types::HaneulAddress;
@@ -18,8 +20,6 @@ use haneul_types::{
     gas::GasCostSummary,
     messages::{CallArg, ExecutionStatus, ObjectArg},
 };
-use test_utils::messages::make_transfer_object_transaction;
-use test_utils::messages::make_transfer_haneul_transaction;
 use test_utils::messages::move_transaction_with_type_tags;
 use test_utils::transaction::get_framework_object;
 use test_utils::transaction::make_publish_package;

@@ -118,7 +118,8 @@ use haneul_types::messages_checkpoint::AuthenticatedCheckpoint;
 use haneul_types::object::Object;
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use test_utils::authority::{get_object, start_node, test_authority_configs};
-use test_utils::messages::{make_transfer_haneul_transaction, move_transaction};
+use test_utils::messages::move_transaction;
+use haneul_core::test_utils::make_transfer_haneul_transaction;
 use test_utils::objects::{generate_gas_object_with_balance, test_gas_objects};
 use test_utils::test_account_keys;
 use test_utils::transaction::{
