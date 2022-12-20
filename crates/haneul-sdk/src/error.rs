@@ -1,9 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_json_rpc_types::HaneulExecuteTransactionResponse;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::messages::ExecuteTransactionRequestType;
 use thiserror::Error;
 
 pub type HaneulRpcResult<T = ()> = Result<T, RpcError>;
@@ -14,8 +12,6 @@ pub enum RpcError {
     RpcError(#[from] jsonrpsee::core::Error),
     #[error("Subscription error : {0}")]
     Subscription(String),
-    #[error("Invalid response type {0:?} for request type: {1:?}")]
-    InvalidTransactionResponse(HaneulExecuteTransactionResponse, ExecuteTransactionRequestType),
     #[error("Encountered error when confirming tx status for {0:?}, err: {1:?}")]
     TransactionConfirmationError(TransactionDigest, jsonrpsee::core::Error),
     #[error("Failed to confirm tx status for {0:?} within {1} seconds.")]

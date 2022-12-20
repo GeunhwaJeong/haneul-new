@@ -398,12 +398,6 @@ impl Display for HaneulParsedTransactionResponse {
 #[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub enum HaneulExecuteTransactionResponse {
-    ImmediateReturn {
-        tx_digest: TransactionDigest,
-    },
-    TxCert {
-        certificate: HaneulCertifiedTransaction,
-    },
     // TODO: Change to CertifiedTransactionEffects eventually.
     EffectsCert {
         certificate: HaneulCertifiedTransaction,
@@ -417,18 +411,9 @@ pub enum HaneulExecuteTransactionResponse {
 impl HaneulExecuteTransactionResponse {
     pub fn from_execute_transaction_response(
         resp: ExecuteTransactionResponse,
-        tx_digest: TransactionDigest,
         resolver: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
         Ok(match resp {
-            ExecuteTransactionResponse::ImmediateReturn => {
-                HaneulExecuteTransactionResponse::ImmediateReturn { tx_digest }
-            }
-            ExecuteTransactionResponse::TxCert(certificate) => {
-                HaneulExecuteTransactionResponse::TxCert {
-                    certificate: (*certificate).try_into()?,
-                }
-            }
             ExecuteTransactionResponse::EffectsCert(cert) => {
                 let (certificate, effects, is_executed_locally) = *cert;
                 let certificate: HaneulCertifiedTransaction = certificate.try_into()?;
