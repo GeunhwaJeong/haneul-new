@@ -66,6 +66,7 @@ export const sendTokens = createAsyncThunk<
 type StakeTokensTXArgs = {
     tokenTypeArg: string;
     amount: bigint;
+    validatorAddress: HaneulAddress;
 };
 
 export const stakeTokens = createAsyncThunk<
@@ -75,7 +76,7 @@ export const stakeTokens = createAsyncThunk<
 >(
     'haneul-objects/stake',
     async (
-        { tokenTypeArg, amount },
+        { tokenTypeArg, amount, validatorAddress },
         { getState, extra: { api, keypairVault }, dispatch }
     ) => {
         const state = getState();
@@ -89,14 +90,6 @@ export const stakeTokens = createAsyncThunk<
             )
             .map(({ data }) => data as HaneulMoveObject);
 
-        // TODO: fetch the first active validator for now,
-        // repalce it with the user picked one
-        const activeValidators = await Coin.getActiveValidators(
-            api.instance.fullNode
-        );
-        const first_validator = activeValidators[0];
-        const metadata = (first_validator as HaneulMoveObject).fields.metadata;
-        const validatorAddress = (metadata as HaneulMoveObject).fields.haneul_address;
         const response = await Coin.stakeCoin(
             api.getSignerInstance(keypairVault.getKeypair()),
             coins,
