@@ -2,4 +2,57 @@
 title: Haneul Framework Reference Documentation
 ---
 
-The Haneul Framework includes the core on-chain libraries for Haneul Move developers. You can view the [Haneul Framework Reference docs](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/docs) in Markdown format in the Haneul GitHub repo. We'll publish these topics to the site soon.
+The Haneul Framework includes the core on-chain libraries for Haneul Move developers. You can view the [Haneul Framework Reference docs](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/docs) in Markdown format in the Haneul GitHub repo. 
+
+**Note:** The modules listed here may not include new modules that were recently added to the repository. Last update: 12/20/22
+
+**Modules:**
+ * [address](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/address.md)
+ * [bag](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/bag.md)
+ * [balance](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/balance.md)
+ * [bcs](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/bcs.md)
+ * [bls12381](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/bls12381.md)
+ * [bulletproofs](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/bulletproofs.md)
+ * [coin](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/coin.md)
+* [devnet_nft](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/devnet_nft.md)
+* [digest](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/digest.md)
+* [dynamic_field](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/dynamic_field.md)
+* [dynamic_object_field](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/dynamic_object_field.md)
+* [ecdsa](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/ecdsa.md)
+* [ecdsa_k1](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/ecdsa_k1.md)
+* [ed25519](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/ed25519.md)
+* [elliptic_curve](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/elliptic_curve.md)
+* [epoch_time_lock](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/epoch_time_lock.md)
+* [erc721_metadata](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/erc721_metadata.md)
+* [event](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/event.md)
+* [genesis](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/genesis.md)
+* [groth16](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/groth16.md)
+* [hex](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/hex.md)
+* [hmac](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/hmac.md)
+* [immutable_external_resource](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/immutable_external_resource.md)
+* [locked_coin](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/locked_coin.md)
+* [math](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/math.md)
+* [object](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/object.md)
+* [object_bag](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/object_bag.md)
+* [object_table](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/object_table.md)
+* [pay](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/pay.md)
+* [priority_queue](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/priority_queue.md)
+* [safe](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/safe.md)
+* [stake](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/stake.md)
+* [stake_subsidy](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/stake_subsidy.md)
+* [staking_pool](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/staking_pool.md)
+* [haneul](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/haneul.md)
+* [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/haneul_system.md)
+* [table](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/table.md)
+* [transfer](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/transfer.md)
+* [tx_context](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/tx_context.md)
+* [typed_id](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/typed_id.md)
+* [types](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/types.md)
+* [url](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/url.md)
+* [validator](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/validator.md)
+* [validator_set](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/validator_set.md)
+* [vec_map](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/vec_map.md)
+* [vec_set](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/vec_set.md)
+* [wallet](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/wallet.md)
+* [zkp](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/zkp.md)
+
