@@ -13,7 +13,7 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_storage::default_db_options;
 use haneul_storage::write_ahead_log::DBWriteAheadLogTables;
-use haneul_storage::{lock_service::LockServiceImpl, node_sync_store::NodeSyncStore, IndexStore};
+use haneul_storage::{lock_service::LockServiceImpl, IndexStore};
 use haneul_types::base_types::EpochId;
 use haneul_types::messages::{SignedTransactionEffects, TrustedCertificate};
 use haneul_types::temporary_store::InnerTemporaryStore;
@@ -23,7 +23,6 @@ pub enum StoreName {
     Validator,
     Index,
     LocksService,
-    NodeSync,
     Wal,
     Epoch,
     // TODO: Add the new checkpoint v2 tables.
@@ -76,9 +75,6 @@ pub fn table_summary(
         StoreName::LocksService => {
             LockServiceImpl::get_read_only_handle(db_path, None, None).table_summary(table_name)
         }
-        StoreName::NodeSync => {
-            NodeSyncStore::get_read_only_handle(db_path, None, None).table_summary(table_name)
-        }
         StoreName::Wal => DBWriteAheadLogTables::<
             TrustedCertificate,
             (InnerTemporaryStore, SignedTransactionEffects),
@@ -124,11 +120,6 @@ pub fn dump_table(
             page_number,
         ),
         StoreName::LocksService => LockServiceImpl::get_read_only_handle(db_path, None, None).dump(
-            table_name,
-            page_size,
-            page_number,
-        ),
-        StoreName::NodeSync => NodeSyncStore::get_read_only_handle(db_path, None, None).dump(
             table_name,
             page_size,
             page_number,
