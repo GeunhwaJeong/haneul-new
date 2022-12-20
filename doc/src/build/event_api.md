@@ -18,7 +18,7 @@ A Haneul node emits the following types of events:
 
 ## Move event
 
-Move calls emit Move events. You can [define custom events](https://examples.haneul.io/basics/events.html) in Move contracts.
+Move calls emit Move events. You can [define custom events](../explore/move-examples/basics.md#events) in Move contracts.
 
 ### Attributes
 

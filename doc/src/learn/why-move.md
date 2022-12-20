@@ -11,7 +11,7 @@ First, note Move is based upon the well-supported [Rust](https://www.rust-lang.o
 * [Haneul Move announcement](https://haneul.io/resources-move/why-we-created-haneul-move/)
 * [Haneul source code](https://github.com/GeunhwaJeong/haneul)
 * [`rustdoc` output](../build/install.md#rustdoc)
-* [Haneul Move by example](https://examples.haneul.io/)
+* [Haneul Move by Example](../explore/move-examples/index.md)
 
 ## Move resources
 
