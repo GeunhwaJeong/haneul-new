@@ -609,6 +609,7 @@ impl HaneulNode {
                 // TODO: (Laura) wait for stop complete signal
                 self.state
                     .reconfigure(new_committee.committee)
+                    .await
                     .expect("Reconfigure authority state cannot fail");
                 info!("Validator State has been reconfigured");
                 if self.state.is_validator() {
