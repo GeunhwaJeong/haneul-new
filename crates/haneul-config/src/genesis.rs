@@ -63,10 +63,10 @@ impl Genesis {
     }
 
     pub fn committee(&self) -> HaneulResult<Committee> {
-        Committee::new(
-            self.epoch(),
-            ValidatorInfo::voting_rights(self.validator_set()),
-        )
+        Ok(self
+            .haneul_system_object()
+            .get_current_epoch_committee()
+            .committee)
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
