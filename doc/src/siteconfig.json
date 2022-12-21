@@ -58,8 +58,8 @@
           "arrow": true
         },
         {
-          "title": "Haneul Blog (Medium)",
-          "link": "https://medium.com/haneullabs-labs",
+          "title": "Haneul Developer Forums",
+          "link": "https://forums.haneul.io/",
           "external": true,
           "arrow": true
         }
@@ -178,6 +178,11 @@
           {
             "name": "Haneul Resources",
             "url": "https://haneul.io/resources/",
+            "external": true
+          },
+          {
+            "name": "Haneul Partners",
+            "url": "https://haneul.io/ecosystem/",
             "external": true
           },
           {

@@ -4,6 +4,14 @@ title: Haneul Documentation Updates
 
 This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information. 
 
+## Week ending 12/25/22
+
+| Topic | Update | 
+| :------ | :------- |
+| [Haneul Move by Example](../explore/move-examples/index.md) | [Relocated this content](https://github.com/GeunhwaJeong/haneul/pull/6957) from examples.haneul.io to the Explore section of docs.haneul.io. |
+| [Haneul Framework Reference](../reference/framework/index.md) | [Added links to each module topic in the Framework Reference](https://github.com/GeunhwaJeong/haneul/pull/6958) folder in the repo until we can properly add them to the Docs site. |
+
+
 ## Week ending 12/17/22
 
 | Topic | Update | 
