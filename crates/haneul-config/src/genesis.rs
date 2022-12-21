@@ -566,8 +566,8 @@ pub fn generate_genesis_system_object(
     } in committee
     {
         pubkeys.push(validator.protocol_key());
-        network_pubkeys.push(validator.network_key());
-        worker_pubkeys.push(validator.worker_key());
+        network_pubkeys.push(validator.network_key().as_bytes().to_vec());
+        worker_pubkeys.push(validator.worker_key().as_bytes().to_vec());
         proof_of_possessions.push(proof_of_possession.as_ref().to_vec());
         haneul_addresses.push(validator.haneul_address());
         network_addresses.push(validator.network_address());
