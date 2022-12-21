@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::base_types::{AuthorityName, HaneulAddress};
+use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::chain_id::ChainId;
 use crate::collection_types::{VecMap, VecSet};
 use crate::committee::{Committee, CommitteeWithNetAddresses, StakeUnit};
@@ -97,6 +97,7 @@ impl Validator {
 pub struct PendingDelegationEntry {
     pub delegator: HaneulAddress,
     pub haneul_amount: u64,
+    pub staked_haneul_id: ObjectID,
 }
 
 /// Rust version of the Move haneul::staking_pool::PendingWithdrawEntry type.

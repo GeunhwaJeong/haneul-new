@@ -8,7 +8,7 @@ module haneul::staking_pool {
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
     use haneul::epoch_time_lock::{EpochTimeLock};
-    use haneul::object::{Self, UID};
+    use haneul::object::{Self, ID, UID};
     use haneul::locked_coin;
     use haneul::coin;
     use std::vector;
@@ -23,6 +23,7 @@ module haneul::staking_pool {
     const EINSUFFICIENT_REWARDS_POOL_BALANCE: u64 = 4;
     const EDESTROY_NON_ZERO_BALANCE: u64 = 5;
     const ETOKEN_TIME_LOCK_IS_SOME: u64 = 6;
+    const EWRONG_DELEGATION: u64 = 7;
 
     /// A staking pool embedded in each validator struct in the system state object.
     struct StakingPool has store {
@@ -61,6 +62,7 @@ module haneul::staking_pool {
     struct PendingDelegationEntry has store, drop {
         delegator: address, 
         haneul_amount: u64,
+        staked_haneul_id: ID,
     }
 
     /// Struct representing a pending delegation withdraw.
@@ -74,10 +76,8 @@ module haneul::staking_pool {
     /// has delegated to a staking pool.
     struct Delegation has key {
         id: UID,
-        /// The haneul address of the validator associated with the staking pool this object delgates to.
-        validator_address: address,
-        /// The epoch at which the staking pool started operating.
-        pool_starting_epoch: u64,
+        /// The ID of the corresponding `StakedHaneul` object.
+        staked_haneul_id: ID,
         /// The pool tokens representing the amount of rewards the delegator can get back when they withdraw
         /// from the pool.
         pool_tokens: Balance<DelegationToken>,
@@ -90,6 +90,8 @@ module haneul::staking_pool {
         id: UID,
         /// The validator we are staking with.
         validator_address: address,
+        /// The epoch at which the staking pool started operating.
+        pool_starting_epoch: u64,
         /// The epoch at which the delegation is requested.
         delegation_request_epoch: u64,
         /// The staked HANEUL tokens.
@@ -129,15 +131,19 @@ module haneul::staking_pool {
     ) {
         let haneul_amount = balance::value(&stake);
         assert!(haneul_amount > 0, 0);
-        // insert delegation info into the pendng_delegations vector.         
-        vector::push_back(&mut pool.pending_delegations, PendingDelegationEntry { delegator, haneul_amount });
         let staked_haneul = StakedHaneul {
             id: object::new(ctx),
             validator_address: pool.validator_address,
+            pool_starting_epoch: pool.starting_epoch,
             delegation_request_epoch: tx_context::epoch(ctx),
             principal: stake,
             haneul_token_lock,
         };
+        // insert delegation info into the pendng_delegations vector.
+        vector::push_back(
+            &mut pool.pending_delegations,
+            PendingDelegationEntry { delegator, haneul_amount, staked_haneul_id: object::id(&staked_haneul) }
+        );
         transfer::transfer(staked_haneul, delegator);
     }
 
@@ -182,11 +188,13 @@ module haneul::staking_pool {
         staked_haneul: &mut StakedHaneul,
         principal_withdraw_amount: u64,
     ) : (Balance<DelegationToken>, Balance<HANEUL>, Option<EpochTimeLock>) {
+        // Check that the delegation and staked haneul objects match.
+        assert!(object::id(staked_haneul) == delegation.staked_haneul_id, EWRONG_DELEGATION);
+
         // Check that the delegation information matches the pool. 
         assert!(
-            delegation.validator_address == pool.validator_address &&
-            delegation.validator_address == staked_haneul.validator_address &&
-            delegation.pool_starting_epoch == pool.starting_epoch,
+            staked_haneul.validator_address == pool.validator_address &&
+            staked_haneul.pool_starting_epoch == pool.starting_epoch,
             EWRONG_POOL
         );
 
@@ -238,8 +246,9 @@ module haneul::staking_pool {
     /// during the previous epoch.
     public(friend) fun process_pending_delegations(pool: &mut StakingPool, ctx: &mut TxContext) {
         while (!vector::is_empty(&pool.pending_delegations)) {
-            let PendingDelegationEntry { delegator, haneul_amount } = vector::pop_back(&mut pool.pending_delegations);
-            mint_delegation_tokens_to_delegator(pool, delegator, haneul_amount, ctx);
+            let PendingDelegationEntry { delegator, haneul_amount, staked_haneul_id } =
+                vector::pop_back(&mut pool.pending_delegations);
+            mint_delegation_tokens_to_delegator(pool, delegator, haneul_amount, staked_haneul_id, ctx);
             pool.haneul_balance = pool.haneul_balance + haneul_amount;
         };
     }
@@ -302,6 +311,7 @@ module haneul::staking_pool {
         pool: &mut StakingPool, 
         delegator: address, 
         haneul_amount: u64, 
+        staked_haneul_id: ID,
         ctx: &mut TxContext
     ) {
         let new_pool_token_amount = get_token_amount(pool, haneul_amount);   
@@ -311,8 +321,7 @@ module haneul::staking_pool {
 
         let delegation = Delegation {
             id: object::new(ctx),
-            validator_address: pool.validator_address,
-            pool_starting_epoch: pool.starting_epoch,
+            staked_haneul_id,
             pool_tokens,
             principal_haneul_amount: haneul_amount,
         };
@@ -367,8 +376,7 @@ module haneul::staking_pool {
     public entry fun destroy_empty_delegation(delegation: Delegation) {
         let Delegation {
             id,
-            validator_address: _,
-            pool_starting_epoch: _,
+            staked_haneul_id: _,
             pool_tokens,
             principal_haneul_amount,
         } = delegation;
@@ -383,6 +391,7 @@ module haneul::staking_pool {
         let StakedHaneul {
             id,
             validator_address: _,
+            pool_starting_epoch: _,
             delegation_request_epoch: _,
             principal,
             haneul_token_lock
@@ -399,7 +408,7 @@ module haneul::staking_pool {
 
     public fun haneul_balance(pool: &StakingPool) : u64 { pool.haneul_balance }
 
-    public fun validator_address(delegation: &Delegation) : address { delegation.validator_address }
+    public fun validator_address(staked_haneul: &StakedHaneul) : address { staked_haneul.validator_address }
 
     public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { balance::value(&staked_haneul.principal) }
 

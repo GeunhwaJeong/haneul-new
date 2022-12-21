@@ -4411,11 +4411,15 @@
         "type": "object",
         "required": [
           "delegator",
+          "staked_haneul_id",
           "haneul_amount"
         ],
         "properties": {
           "delegator": {
             "$ref": "#/components/schemas/HaneulAddress"
+          },
+          "staked_haneul_id": {
+            "$ref": "#/components/schemas/ObjectID"
           },
           "haneul_amount": {
             "type": "integer",
