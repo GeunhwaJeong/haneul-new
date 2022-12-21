@@ -470,7 +470,7 @@ impl TransactionCertifier for LocalTransactionCertifier {
         self_state: &AuthorityState,
         timeout: Duration,
     ) -> anyhow::Result<VerifiedCertificate> {
-        let haneul_system_state = self_state.get_haneul_system_state_object().await?;
+        let haneul_system_state = self_state.get_haneul_system_state_object()?;
         let committee = haneul_system_state.get_current_epoch_committee().committee;
         let clients: BTreeMap<_, _> = committee.names().map(|name|
             // unwrap is fine because LocalAuthorityClient is only used for testing.

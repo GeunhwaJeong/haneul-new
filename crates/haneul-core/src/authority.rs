@@ -1973,7 +1973,7 @@ impl AuthorityState {
             .compute_object_reference())
     }
 
-    pub async fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
+    pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
         self.database.get_haneul_system_state_object()
     }
 
