@@ -19,8 +19,9 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
-use haneul_types::batch::TxSequenceNumber;
+use haneul_types::base_types::{
+    ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
+};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::event::EventID;

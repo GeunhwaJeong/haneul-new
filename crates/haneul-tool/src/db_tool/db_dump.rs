@@ -13,7 +13,7 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_storage::default_db_options;
 use haneul_storage::write_ahead_log::DBWriteAheadLogTables;
-use haneul_storage::{lock_service::LockServiceImpl, IndexStore};
+use haneul_storage::{lock_service::LockServiceImpl, IndexStoreTables};
 use haneul_types::base_types::EpochId;
 use haneul_types::messages::{SignedTransactionEffects, TrustedCertificate};
 use haneul_types::temporary_store::InnerTemporaryStore;
@@ -70,7 +70,7 @@ pub fn table_summary(
             }
         }
         StoreName::Index => {
-            IndexStore::get_read_only_handle(db_path, None, None).table_summary(table_name)
+            IndexStoreTables::get_read_only_handle(db_path, None, None).table_summary(table_name)
         }
         StoreName::LocksService => {
             LockServiceImpl::get_read_only_handle(db_path, None, None).table_summary(table_name)
@@ -114,7 +114,7 @@ pub fn dump_table(
                 )
             }
         }
-        StoreName::Index => IndexStore::get_read_only_handle(db_path, None, None).dump(
+        StoreName::Index => IndexStoreTables::get_read_only_handle(db_path, None, None).dump(
             table_name,
             page_size,
             page_number,

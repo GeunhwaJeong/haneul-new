@@ -78,16 +78,6 @@ fn main() -> Result<()> {
         )
         .method(
             Method::builder()
-                .name("batch_info")
-                .route_name("FollowTxStream")
-                .input_type("haneul_types::messages::BatchInfoRequest")
-                .output_type("haneul_types::messages::BatchInfoResponseItem")
-                .server_streaming()
-                .codec_path(codec_path)
-                .build(),
-        )
-        .method(
-            Method::builder()
                 .name("committee_info")
                 .route_name("CommitteeInfo")
                 .input_type("haneul_types::messages::CommitteeInfoRequest")

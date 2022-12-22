@@ -23,8 +23,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
-use haneul_types::batch::TxSequenceNumber;
+use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest, TxSequenceNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::sha3_hash;
 use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse};
