@@ -1060,28 +1060,6 @@ impl AuthorityStore {
         )
     }
 
-    pub async fn record_end_of_publish(
-        &self,
-        authority: AuthorityName,
-        transaction: &ConsensusTransaction,
-        consensus_index: ExecutionIndicesWithHash,
-    ) -> HaneulResult {
-        self.epoch_store()
-            .record_end_of_publish(authority, transaction.key(), consensus_index)
-    }
-
-    pub async fn record_consensus_transaction_processed(
-        &self,
-        transaction: &ConsensusTransaction,
-        consensus_index: ExecutionIndicesWithHash,
-    ) -> Result<(), HaneulError> {
-        // user certificates need to use record_(shared|owned)_object_cert_from_consensus
-        assert!(!transaction.is_user_certificate());
-        let key = transaction.key();
-        self.epoch_store()
-            .finish_consensus_transaction_process(key, consensus_index)
-    }
-
     /// Return the latest consensus index. It is used to bootstrap the consensus client.
     pub fn last_consensus_index(&self) -> HaneulResult<ExecutionIndicesWithHash> {
         self.epoch_store().get_last_consensus_index()
