@@ -15,6 +15,7 @@ module haneul::validator_set {
     use haneul::priority_queue as pq;
     use haneul::vec_map::{Self, VecMap};
     use haneul::vec_set::VecSet;
+    use haneul::table_vec::{Self, TableVec};
 
     friend haneul::haneul_system;
 
@@ -51,7 +52,7 @@ module haneul::validator_set {
 
         /// Delegation switches requested during the current epoch, processed at epoch boundaries
         /// so that all the rewards with be added to the new delegation.
-        pending_delegation_switches: VecMap<ValidatorPair, vector<PendingWithdrawEntry>>,
+        pending_delegation_switches: VecMap<ValidatorPair, TableVec<PendingWithdrawEntry>>,
     }
 
     struct ValidatorPair has store, copy, drop {
@@ -225,10 +226,10 @@ module haneul::validator_set {
         let key = ValidatorPair { from: current_validator_address, to: new_validator_address };
         let entry = staking_pool::new_pending_withdraw_entry(delegator,principal_haneul_amount, current_validator_pool_token);
         if (!vec_map::contains(&self.pending_delegation_switches, &key)) {
-            vec_map::insert(&mut self.pending_delegation_switches, key, vector::singleton(entry));
+            vec_map::insert(&mut self.pending_delegation_switches, key, table_vec::singleton(entry, ctx));
         } else {
             let entries = vec_map::get_mut(&mut self.pending_delegation_switches, &key);
-            vector::push_back(entries, entry);
+            table_vec::push_back(entries, entry);
         };
 
         self.next_epoch_validators = derive_next_epoch_validators(self);
