@@ -79,7 +79,7 @@ use haneul_types::error::{HaneulError, HaneulResult};
 
 pub struct ValidatorComponents {
     _validator_server_handle: tokio::task::JoinHandle<Result<()>>,
-    narwhal_manager: NarwhalManager<ConsensusHandler>,
+    narwhal_manager: NarwhalManager<ConsensusHandler<Arc<AuthorityStore>>>,
     consensus_adapter: Arc<ConsensusAdapter>,
     checkpoint_service: Arc<CheckpointService>,
 }
@@ -455,7 +455,7 @@ impl HaneulNode {
         state: Arc<AuthorityState>,
         checkpoint_service: Arc<CheckpointService>,
         registry_service: RegistryService,
-    ) -> Result<NarwhalManager<ConsensusHandler>> {
+    ) -> Result<NarwhalManager<ConsensusHandler<Arc<AuthorityStore>>>> {
         let system_state = state
             .get_haneul_system_state_object()
             .expect("Reading Haneul system state object cannot fail");
@@ -467,7 +467,13 @@ impl HaneulNode {
             .ok_or_else(|| anyhow!("Validator is missing consensus config"))?
             .address;
         let worker_cache = system_state.get_current_epoch_narwhal_worker_cache(transactions_addr);
-        let consensus_handler = Arc::new(ConsensusHandler::new(state.clone(), checkpoint_service));
+        let consensus_handler = Arc::new(ConsensusHandler::new(
+            state.epoch_store().clone(),
+            checkpoint_service,
+            state.transaction_manager().clone(),
+            state.db(),
+            state.metrics.clone(),
+        ));
         let narwhal_config = NarwhalConfiguration {
             primary_keypair: config.protocol_key_pair().copy(),
             network_keypair: config.network_key_pair.copy(),
@@ -623,8 +629,11 @@ impl HaneulNode {
                     let worker_cache =
                         system_state.get_current_epoch_narwhal_worker_cache(transactions_addr);
                     let consensus_handler = Arc::new(ConsensusHandler::new(
-                        self.state.clone(),
+                        self.state.epoch_store().clone(),
                         validator_components.checkpoint_service.clone(),
+                        self.state.transaction_manager().clone(),
+                        self.state.db(),
+                        self.state.metrics.clone(),
                     ));
                     validator_components
                         .narwhal_manager
