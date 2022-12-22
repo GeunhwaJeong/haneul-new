@@ -104,4 +104,23 @@ module haneul::genesis {
             INIT_STAKE_SUBSIDY_AMOUNT,
         );
     }
+
+    #[test_only]
+    public fun create_for_testing(ctx: &mut TxContext) {
+        let chain_id = 1;
+        let validators = vector[];
+        let haneul_supply = haneul::new(ctx);
+        let storage_fund = balance::increase_supply(&mut haneul_supply, INIT_STORAGE_FUND);
+
+        haneul_system::create(
+            chain_id,
+            validators,
+            haneul_supply,
+            storage_fund,
+            INIT_MAX_VALIDATOR_COUNT,
+            INIT_MIN_VALIDATOR_STAKE,
+            INIT_STORAGE_GAS_PRICE,
+            INIT_STAKE_SUBSIDY_AMOUNT
+        )
+    }
 }
