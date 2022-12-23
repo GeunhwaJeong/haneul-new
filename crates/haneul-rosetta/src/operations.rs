@@ -341,6 +341,7 @@ fn parse_operations(
             HaneulTransactionKind::Pay(tx) => (OperationType::Pay, json!(tx)),
             HaneulTransactionKind::PayAllHaneul(tx) => (OperationType::PayAllHaneul, json!(tx)),
             HaneulTransactionKind::ChangeEpoch(tx) => (OperationType::EpochChange, json!(tx)),
+            HaneulTransactionKind::Genesis(tx) => (OperationType::Genesis, json!(tx)),
             HaneulTransactionKind::PayHaneul(_) => unreachable!(),
         };
         generic_operation(counter, type_, status, sender, metadata)

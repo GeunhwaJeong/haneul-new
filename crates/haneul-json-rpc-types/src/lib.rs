@@ -1554,6 +1554,11 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct HaneulGenesisTransaction {
+    pub objects: Vec<ObjectID>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "TransactionKind")]
 pub enum HaneulTransactionKind {
     /// Initiate an object transfer between addresses
@@ -1574,6 +1579,8 @@ pub enum HaneulTransactionKind {
     TransferHaneul(HaneulTransferHaneul),
     /// A system transaction that will update epoch information on-chain.
     ChangeEpoch(HaneulChangeEpoch),
+    /// A system transaction used for initializing the initial state of the chain.
+    Genesis(HaneulGenesisTransaction),
     // .. more transaction types go here
 }
 
@@ -1661,6 +1668,9 @@ impl Display for HaneulTransactionKind {
                 writeln!(writer, "Storage gas reward: {}", e.storage_charge)?;
                 writeln!(writer, "Computation gas reward: {}", e.computation_charge)?;
             }
+            Self::Genesis(_) => {
+                writeln!(writer, "Transaction Kind: Genesis Transaction")?;
+            }
         }
         write!(f, "{}", writer)
     }
@@ -1714,6 +1724,9 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                 epoch: e.epoch,
                 storage_charge: e.storage_charge,
                 computation_charge: e.computation_charge,
+            }),
+            SingleTransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
+                objects: g.objects.iter().map(Object::id).collect(),
             }),
         })
     }
