@@ -606,10 +606,7 @@ impl HaneulError {
         match self {
             HaneulError::QuorumFailedToProcessTransaction { errors, .. }
             | HaneulError::QuorumFailedToExecuteCertificate { errors, .. } => {
-                errors.iter().any(|err| {
-                    matches!(err, HaneulError::ValidatorHaltedAtEpochEnd)
-                        || matches!(self, HaneulError::MissingCommitteeAtEpoch(_))
-                })
+                errors.iter().any(|err| err.indicates_epoch_change())
             }
             HaneulError::ValidatorHaltedAtEpochEnd | HaneulError::MissingCommitteeAtEpoch(_) => true,
             _ => false,
