@@ -8,7 +8,7 @@ use move_binary_format::normalized::{Module as NormalizedModule, Type};
 use move_core_types::identifier::Identifier;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use haneul_types::intent::{Intent, IntentMessage};
+use haneul_types::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::TapFallible;
 
@@ -16,8 +16,8 @@ use fastcrypto::encoding::Base64;
 use jsonrpsee::RpcModule;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, GetObjectDataResponse, GetPastObjectDataResponse, MoveFunctionArgType,
-    ObjectValueKind, Page, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
+    DevInspectResults, DynamicFieldPage, GetObjectDataResponse, GetPastObjectDataResponse,
+    MoveFunctionArgType, ObjectValueKind, Page, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionAuthSignersResponse,
     HaneulTransactionEffects, HaneulTransactionResponse, TransactionsPage,
 };
@@ -26,7 +26,7 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest, TxSequenceNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::sha3_hash;
-use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse};
+use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse, TransactionData};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead};
 use haneul_types::query::TransactionQuery;
@@ -219,14 +219,19 @@ impl HaneulRpcModule for ReadApi {
 
 #[async_trait]
 impl RpcFullNodeReadApiServer for FullNodeApi {
-    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects> {
-        let tx_data =
-            bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
-        let intent_msg = IntentMessage::new(Intent::default(), tx_data);
-        let txn_digest = TransactionDigest::new(sha3_hash(&intent_msg.value));
+    async fn dev_inspect_transaction(&self, tx_bytes: Base64) -> RpcResult<DevInspectResults> {
+        let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
         Ok(self
             .state
-            .dry_exec_transaction(intent_msg.value, txn_digest)
+            .dev_inspect_transaction(txn_data, txn_digest)
+            .await?)
+    }
+
+    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects> {
+        let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
+        Ok(self
+            .state
+            .dry_exec_transaction(txn_data, txn_digest)
             .await?)
     }
 
@@ -427,4 +432,21 @@ pub async fn get_move_modules_by_package(
         },
         _ => Err(anyhow!("Package object does not exist with ID {}", package)),
     }?)
+}
+
+pub fn get_transaction_data_and_digest(
+    tx_bytes: Base64,
+) -> RpcResult<(TransactionData, TransactionDigest)> {
+    let tx_data =
+        bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
+    let intent_msg = IntentMessage::new(
+        Intent {
+            version: IntentVersion::V0,
+            scope: IntentScope::TransactionData,
+            app_id: AppId::Haneul,
+        },
+        tx_data,
+    );
+    let txn_digest = TransactionDigest::new(sha3_hash(&intent_msg.value));
+    Ok((intent_msg.value, txn_digest))
 }

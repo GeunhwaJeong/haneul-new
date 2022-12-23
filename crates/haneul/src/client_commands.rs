@@ -29,6 +29,7 @@ use tokio::sync::RwLock;
 use tracing::{info, warn};
 
 use crate::config::{Config, PersistedConfig, HaneulClientConfig, HaneulEnv};
+use haneul_adapter::execution_mode;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
@@ -1359,7 +1360,7 @@ pub async fn call_move(
     let client = context.get_client().await?;
     let data = client
         .transaction_builder()
-        .move_call(
+        .move_call::<execution_mode::Normal>(
             sender,
             package,
             module,

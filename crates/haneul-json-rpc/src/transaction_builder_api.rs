@@ -6,11 +6,18 @@ use crate::HaneulRpcModule;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use std::sync::Arc;
+use haneul_adapter::execution_mode;
 use haneul_core::authority::AuthorityState;
-use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo, HaneulTypeTag, TransactionBytes};
+use haneul_json_rpc_types::{
+    GetRawObjectDataResponse, HaneulObjectInfo, HaneulTransactionBuilderMode, HaneulTypeTag,
+    TransactionBytes,
+};
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::{
+    base_types::{ObjectID, HaneulAddress},
+    messages::TransactionData,
+};
 
 use fastcrypto::encoding::Base64;
 use jsonrpsee::RpcModule;
@@ -213,20 +220,39 @@ impl RpcTransactionBuilderServer for FullNodeTransactionBuilderApi {
         rpc_arguments: Vec<HaneulJsonValue>,
         gas: Option<ObjectID>,
         gas_budget: u64,
+        txn_builder_mode: Option<HaneulTransactionBuilderMode>,
     ) -> RpcResult<TransactionBytes> {
-        let data = self
-            .builder
-            .move_call(
-                signer,
-                package_object_id,
-                &module,
-                &function,
-                type_arguments,
-                rpc_arguments,
-                gas,
-                gas_budget,
-            )
-            .await?;
+        let mode = txn_builder_mode.unwrap_or(HaneulTransactionBuilderMode::Commit);
+        let data: TransactionData = match mode {
+            HaneulTransactionBuilderMode::DevInspect => {
+                self.builder
+                    .move_call::<execution_mode::DevInspect>(
+                        signer,
+                        package_object_id,
+                        &module,
+                        &function,
+                        type_arguments,
+                        rpc_arguments,
+                        gas,
+                        gas_budget,
+                    )
+                    .await?
+            }
+            HaneulTransactionBuilderMode::Commit => {
+                self.builder
+                    .move_call::<execution_mode::Normal>(
+                        signer,
+                        package_object_id,
+                        &module,
+                        &function,
+                        type_arguments,
+                        rpc_arguments,
+                        gas,
+                        gas_budget,
+                    )
+                    .await?
+            }
+        };
         Ok(TransactionBytes::from_data(data)?)
     }
 
@@ -236,11 +262,23 @@ impl RpcTransactionBuilderServer for FullNodeTransactionBuilderApi {
         params: Vec<RPCTransactionRequestParams>,
         gas: Option<ObjectID>,
         gas_budget: u64,
+        txn_builder_mode: Option<HaneulTransactionBuilderMode>,
     ) -> RpcResult<TransactionBytes> {
-        let data = self
-            .builder
-            .batch_transaction(signer, params, gas, gas_budget)
-            .await?;
+        let mode = txn_builder_mode.unwrap_or(HaneulTransactionBuilderMode::Commit);
+        let data = match mode {
+            HaneulTransactionBuilderMode::DevInspect => {
+                self.builder
+                    .batch_transaction::<execution_mode::DevInspect>(
+                        signer, params, gas, gas_budget,
+                    )
+                    .await?
+            }
+            HaneulTransactionBuilderMode::Commit => {
+                self.builder
+                    .batch_transaction::<execution_mode::Normal>(signer, params, gas, gas_budget)
+                    .await?
+            }
+        };
         Ok(TransactionBytes::from_data(data)?)
     }
 }

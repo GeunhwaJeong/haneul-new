@@ -19,6 +19,7 @@ rand = "0.8.5"
 bcs = "0.1.4"
 thiserror = "1.0.37"
 
+haneul-adapter = { path = "../haneul-adapter" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
