@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{TrustedTransction, VerifiedTransaction};
-use typed_store::traits::TypedStoreDebug;
+use typed_store::traits::{TableSummary, TypedStoreDebug};
 use typed_store::{rocks::DBMap, traits::Map};
 use typed_store_derive::DBMapUtils;
 

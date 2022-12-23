@@ -32,6 +32,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-network = { path = "../haneul-network" }
 
 telemetry-subscribers.workspace = true
+typed-store.workspace = true
 
 colored = "2.0.0"
 workspace-hack.workspace = true
