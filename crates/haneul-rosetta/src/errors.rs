@@ -20,6 +20,8 @@ use crate::types::{BlockHash, OperationType, PublicKey, HaneulEnv};
 use strum_macros::Display;
 use strum_macros::EnumDiscriminants;
 use thiserror::Error;
+use typed_store::rocks::TypedStoreError;
+
 /// Haneul-Rosetta specific error types.
 /// This contains all the errors returns by the haneul-rosetta server.
 #[derive(Debug, Error, EnumDiscriminants)]
@@ -68,6 +70,8 @@ pub enum Error {
     HaneulRpcError(#[from] haneul_sdk::error::RpcError),
     #[error(transparent)]
     EncodingError(#[from] eyre::Report),
+    #[error(transparent)]
+    DBError(#[from] TypedStoreError),
 }
 
 impl Serialize for ErrorType {
