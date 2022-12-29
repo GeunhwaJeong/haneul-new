@@ -83,6 +83,9 @@ impl SingleTxContext {
     pub fn gas(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("gas"), sender)
     }
+    pub fn genesis() -> Self {
+        Self::haneul_transaction(ident_str!("genesis"), HaneulAddress::ZERO)
+    }
     fn haneul_transaction(ident: &IdentStr, sender: HaneulAddress) -> Self {
         Self {
             package_id: HANEUL_FRAMEWORK_OBJECT_ID,

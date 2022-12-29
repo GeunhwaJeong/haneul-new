@@ -22,7 +22,7 @@ use haneul_types::id::UID;
 use haneul_types::messages::ExecutionFailureStatus;
 #[cfg(test)]
 use haneul_types::messages::InputObjects;
-use haneul_types::messages::{ObjectArg, Pay, PayAllHaneul, PayHaneul, TransactionKind};
+use haneul_types::messages::{GenesisTransaction, ObjectArg, Pay, PayAllHaneul, PayHaneul, TransactionKind};
 use haneul_types::object::{Data, MoveObject, Owner};
 use haneul_types::storage::SingleTxContext;
 use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKind};
@@ -325,8 +325,28 @@ fn execution_loop<
                     tx_ctx,
                 )?;
             }
-            SingleTransactionKind::Genesis(_) => {
-                panic!("BUG: genesis transactions cannot be executed")
+            SingleTransactionKind::Genesis(GenesisTransaction { objects }) => {
+                if tx_ctx.epoch() != 0 {
+                    panic!("BUG: Genesis Transactions can only be executed in epoch 0");
+                }
+
+                for genesis_object in objects {
+                    match genesis_object {
+                        haneul_types::messages::GenesisObject::RawObject { data, owner } => {
+                            let object = Object {
+                                data,
+                                owner,
+                                previous_transaction: tx_ctx.digest(),
+                                storage_rebate: 0,
+                            };
+                            temporary_store.write_object(
+                                &SingleTxContext::genesis(),
+                                object,
+                                WriteKind::Create,
+                            );
+                        }
+                    }
+                }
             }
         };
     }

@@ -46,8 +46,8 @@ use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     CallArg, CertifiedTransaction, CertifiedTransactionEffects, ExecuteTransactionResponse,
-    ExecutionStatus, InputObjectKind, MoveModulePublish, ObjectArg, Pay, PayAllHaneul, PayHaneul,
-    SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
+    ExecutionStatus, GenesisObject, InputObjectKind, MoveModulePublish, ObjectArg, Pay, PayAllHaneul,
+    PayHaneul, SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
     VerifiedCertificate,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -1726,7 +1726,7 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                 computation_charge: e.computation_charge,
             }),
             SingleTransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
-                objects: g.objects.iter().map(Object::id).collect(),
+                objects: g.objects.iter().map(GenesisObject::id).collect(),
             }),
         })
     }
