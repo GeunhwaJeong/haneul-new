@@ -20,10 +20,13 @@ use prometheus::Registry;
 use std::collections::HashMap;
 use std::sync::Arc;
 use haneul_config::{ConsensusConfig, NodeConfig};
-use haneul_core::authority_aggregator::{AuthorityAggregator, NetworkTransactionCertifier};
+use haneul_core::authority_aggregator::{
+    AuthAggMetrics, AuthorityAggregator, NetworkTransactionCertifier,
+};
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::epoch::committee_store::CommitteeStore;
+use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_core::storage::RocksDbStore;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_core::transaction_streamer::TransactionStreamer;
@@ -178,7 +181,8 @@ impl HaneulNode {
         let net = AuthorityAggregator::new_from_system_state(
             &store,
             &committee_store,
-            &prometheus_registry,
+            SafeClientMetricsBase::new(&prometheus_registry),
+            AuthAggMetrics::new(&prometheus_registry),
         )?;
 
         let transaction_streamer = if is_full_node {
