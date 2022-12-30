@@ -22,7 +22,7 @@ use haneul_types::{
     object::Object,
 };
 
-use crate::keytool::{
+use haneul_keys::keypair_file::{
     read_authority_keypair_from_file, read_keypair_from_file, read_network_keypair_from_file,
 };
 
@@ -269,9 +269,9 @@ pub fn run(cmd: Ceremony) -> Result<()> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::keytool::{write_authority_keypair_to_file, write_keypair_to_file};
     use anyhow::Result;
     use haneul_config::{utils, ValidatorInfo};
+    use haneul_keys::keypair_file::{write_authority_keypair_to_file, write_keypair_to_file};
     use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, HaneulKeyPair};
 
     #[test]

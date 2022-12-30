@@ -32,6 +32,7 @@ narwhal-crypto = { path = "../../narwhal/crypto" }
 haneul-framework = { path = "../haneul-framework" }
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-types = { path = "../haneul-types" }
+haneul-keys = { path = "../haneul-keys" }
 workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
