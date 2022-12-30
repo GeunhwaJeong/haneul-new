@@ -407,7 +407,7 @@ impl CheckpointExecutorEventLoop {
         checkpoint: VerifiedCheckpoint,
         pending: &mut CheckpointExecutionBuffer,
     ) -> HaneulResult {
-        info!(
+        debug!(
             "Scheduling checkpoint {:?} for execution",
             checkpoint.sequence_number()
         );
