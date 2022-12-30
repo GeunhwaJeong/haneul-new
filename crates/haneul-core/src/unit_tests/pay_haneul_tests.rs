@@ -8,12 +8,10 @@ use crate::authority::AuthorityState;
 use futures::future::join_all;
 use std::collections::HashMap;
 use haneul_types::crypto::AccountKeyPair;
+use haneul_types::messages::SignedTransactionEffects;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
-    base_types::dbg_addr,
-    crypto::get_key_pair,
-    error::HaneulError,
-    messages::{TransactionInfoResponse, TransactionKind},
+    base_types::dbg_addr, crypto::get_key_pair, error::HaneulError, messages::TransactionKind,
 };
 
 #[tokio::test]
@@ -23,7 +21,7 @@ async fn test_pay_haneul_failure_empty_recipients() {
 
     let res = execute_pay_haneul(vec![coin1], vec![], vec![], sender, sender_key, 1100).await;
 
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(
         effects.status,
         ExecutionStatus::new_failure(ExecutionFailureStatus::EmptyRecipients)
@@ -47,7 +45,7 @@ async fn test_pay_haneul_failure_arity_mismatch() {
     )
     .await;
 
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(
         effects.status,
         ExecutionStatus::new_failure(ExecutionFailureStatus::RecipientsAmountsArityMismatch)
@@ -196,7 +194,7 @@ async fn test_pay_haneul_success_one_input_coin() -> anyhow::Result<()> {
     )
     .await;
 
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(effects.status, ExecutionStatus::Success);
     // make sure each recipient receives the specified amount
     assert_eq!(effects.created.len(), 3);
@@ -275,7 +273,7 @@ async fn test_pay_haneul_success_multiple_input_coins() -> anyhow::Result<()> {
     .await;
     let recipient_amount_map: HashMap<_, u64> =
         HashMap::from([(recipient1, 500), (recipient2, 1500)]);
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(effects.status, ExecutionStatus::Success);
 
     // make sure each recipient receives the specified amount
@@ -370,7 +368,7 @@ async fn test_pay_all_haneul_success_one_input_coin() -> anyhow::Result<()> {
     let recipient = dbg_addr(2);
     let res = execute_pay_all_haneul(vec![&coin_obj], recipient, sender, sender_key, 1000).await;
 
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(effects.status, ExecutionStatus::Success);
 
     // make sure the first object now belongs to the recipient,
@@ -402,7 +400,7 @@ async fn test_pay_all_haneul_success_multiple_input_coins() -> anyhow::Result<()
     )
     .await;
 
-    let effects = res.txn_result.unwrap().signed_effects.unwrap().into_data();
+    let effects = res.txn_result.unwrap().into_data();
     assert_eq!(effects.status, ExecutionStatus::Success);
 
     // make sure the first object now belongs to the recipient,
@@ -419,7 +417,7 @@ async fn test_pay_all_haneul_success_multiple_input_coins() -> anyhow::Result<()
 
 struct PayHaneulTransactionExecutionResult {
     pub authority_state: Arc<AuthorityState>,
-    pub txn_result: Result<TransactionInfoResponse, HaneulError>,
+    pub txn_result: Result<SignedTransactionEffects, HaneulError>,
 }
 
 async fn execute_pay_haneul(
@@ -450,9 +448,7 @@ async fn execute_pay_haneul(
     }));
     let data = TransactionData::new_with_gas_price(kind, sender, gas_object_ref, gas_budget, 1);
     let tx = to_sender_signed_transaction(data, &sender_key);
-    let txn_result = send_and_confirm_transaction(&authority_state, tx)
-        .await
-        .map(|t| t.into());
+    let txn_result = send_and_confirm_transaction(&authority_state, tx).await;
 
     PayHaneulTransactionExecutionResult {
         authority_state,
@@ -484,9 +480,7 @@ async fn execute_pay_all_haneul(
     }));
     let data = TransactionData::new_with_gas_price(kind, sender, gas_object_ref, gas_budget, 1);
     let tx = to_sender_signed_transaction(data, &sender_key);
-    let txn_result = send_and_confirm_transaction(&authority_state, tx)
-        .await
-        .map(|t| t.into());
+    let txn_result = send_and_confirm_transaction(&authority_state, tx).await;
     PayHaneulTransactionExecutionResult {
         authority_state,
         txn_result,
