@@ -19,6 +19,7 @@ use haneul_types::object::Owner;
 use haneul_types::object::PACKAGE_VERSION;
 use haneul_types::storage::{ChildObjectResolver, ObjectKey};
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
+use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use tokio_retry::strategy::{jitter, ExponentialBackoff};
 use tracing::{debug, info, trace};
 use typed_store::rocks::DBBatch;
@@ -47,7 +48,15 @@ pub struct AuthorityStore {
     // Implementation detail to support notify_read_effects().
     pub(crate) effects_notify_read: NotifyRead<TransactionDigest, SignedTransactionEffects>,
     _store_pruner: AuthorityStorePruner,
+    /// This lock denotes current 'execution epoch'.
+    /// Execution acquires read lock, checks certificate epoch and holds it until all writes are complete.
+    /// Reconfiguration acquires write lock, changes the epoch and revert all transactions
+    /// from previous epoch that are executed but did not make into checkpoint.
+    execution_lock: RwLock<EpochId>,
 }
+
+pub type ExecutionLockReadGuard<'a> = RwLockReadGuard<'a, EpochId>;
+pub type ExecutionLockWriteGuard<'a> = RwLockWriteGuard<'a, EpochId>;
 
 impl AuthorityStore {
     /// Open an authority store by directory path.
@@ -115,6 +124,7 @@ impl AuthorityStore {
         committee: Committee,
         pruning_config: &AuthorityStorePruningConfig,
     ) -> HaneulResult<Self> {
+        let epoch = committee.epoch;
         let epoch_tables = Arc::new(AuthorityPerEpochStore::new(
             committee,
             path,
@@ -131,6 +141,7 @@ impl AuthorityStore {
             db_options,
             _store_pruner,
             effects_notify_read: NotifyRead::new(),
+            execution_lock: RwLock::new(epoch),
         };
         // Only initialize an empty database.
         if store
@@ -384,6 +395,28 @@ impl AuthorityStore {
         }
 
         Ok(missing)
+    }
+
+    /// Attempts to acquire execution lock for certificate
+    /// Returns the lock if certificate is matching current executed epoch
+    /// Returns None otherwise
+    pub async fn execution_lock_for_certificate(
+        &self,
+        certificate: &CertifiedTransaction,
+    ) -> HaneulResult<ExecutionLockReadGuard> {
+        let lock = self.execution_lock.read().await;
+        if *lock == certificate.epoch() {
+            Ok(lock)
+        } else {
+            Err(HaneulError::WrongEpoch {
+                expected_epoch: *lock,
+                actual_epoch: certificate.epoch(),
+            })
+        }
+    }
+
+    pub async fn execution_lock_for_reconfiguration(&self) -> ExecutionLockWriteGuard {
+        self.execution_lock.write().await
     }
 
     /// When making changes, please see if get_missing_input_objects() above needs
