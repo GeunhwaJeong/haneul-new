@@ -58,7 +58,7 @@ read -a tmparr <<< "$O_GAS_INFO"
 O_GAS_ID=`echo ${tmparr[0]} | xargs`
 
 # publish games
-certificate=$(haneul client publish --path ./haneul_programmability/examples/games --gas $ADMIN_GAS_ID --gas-budget 30000)
+certificate=$(haneul client publish ./haneul_programmability/examples/games --gas $ADMIN_GAS_ID --gas-budget 30000)
 
 package_id_identifier="The newly published package object ID:"
 res=$(echo $certificate | awk -v s="$package_id_identifier" 'index($0, s) == 1')
@@ -143,7 +143,7 @@ Find even more [examples](examples.md) in the Haneul repository. Of course, you 
 
 To publish the game, we run the publish command and specify the path to the source code of the game package:
 ```shell
-$ haneul client publish --path ./haneul/haneul_programmability/examples/games --gas $ADMIN_GAS --gas-budget 30000
+$ haneul client publish ./haneul/haneul_programmability/examples/games --gas $ADMIN_GAS --gas-budget 30000
 ```
 
 Which yields results resembling:

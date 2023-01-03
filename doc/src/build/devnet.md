@@ -142,7 +142,7 @@ https://explorer.haneul.io/objects/EC97467A40A1305FFDEF7019C3045FBC7AA31E29
 
 This section describes hwo to publish a sample Move package using code developed in the [Haneul Move tutorial](../build/move/write-package.md).  The instructions assume that you installed Haneul in the default location.
 ```shell
-haneul client publish --path <your-haneul-repo>/haneul_programmability/examples/move_tutorial --gas-budget 30000
+haneul client publish <your-haneul-repo>/haneul_programmability/examples/move_tutorial --gas-budget 30000
 ```
 
 The response resembles the following:

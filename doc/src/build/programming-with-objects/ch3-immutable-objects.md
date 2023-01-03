@@ -107,7 +107,7 @@ $ haneul client objects $ADDR
 
 Let's publish the `ColorObject` code on-chain using the Haneul CLI client:
 ```
-$ haneul client publish --path $ROOT/haneul_programmability/examples/objects_tutorial --gas-budget 10000
+$ haneul client publish $ROOT/haneul_programmability/examples/objects_tutorial --gas-budget 10000
 ```
 Set the package object ID to the `$PACKAGE` environment variable as we did in previous chapters.
 
