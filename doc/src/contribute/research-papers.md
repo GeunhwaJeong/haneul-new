@@ -5,7 +5,7 @@ title: Haneul-Related Research Papers
 This document contains a list of research papers that are relevant to Haneul and have been co-authored by at least one member of the team.
 Some of the ideas of these papers are currently being integrated into Haneul, others are in our roadmap, and others are not in our roadmap
 but could be integrated in the future. Start with the [Haneul Smart Contract Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper, which contains
-our latest design, inspired from previous works below.
+our latest design inspired by previous works below.
 
 ## FastPay: High-Performance Byzantine Fault Tolerant Settlement 
 
