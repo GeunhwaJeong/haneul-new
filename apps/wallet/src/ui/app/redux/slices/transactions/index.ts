@@ -3,7 +3,8 @@
 
 import {
     getTransactionDigest,
-    isHaneulMoveObject,
+    is,
+    HaneulMoveObject,
     Coin as CoinAPI,
 } from '@haneullabs/haneul.js';
 import {
@@ -19,11 +20,7 @@ import {
 } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 
-import type {
-    HaneulAddress,
-    HaneulMoveObject,
-    HaneulExecuteTransactionResponse,
-} from '@haneullabs/haneul.js';
+import type { HaneulAddress, HaneulExecuteTransactionResponse } from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
 
@@ -86,7 +83,8 @@ export const stakeTokens = createAsyncThunk<
             .selectAll(state)
             .filter(
                 (anObj) =>
-                    isHaneulMoveObject(anObj.data) && anObj.data.type === coinType
+                    is(anObj.data, HaneulMoveObject) &&
+                    anObj.data.type === coinType
             )
             .map(({ data }) => data as HaneulMoveObject);
 

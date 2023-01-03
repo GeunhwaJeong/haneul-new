@@ -1,152 +1,108 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ObjectOwner } from './common';
-import { TransactionDigest } from './common';
+import {
+  any,
+  array,
+  boolean,
+  Infer,
+  literal,
+  number,
+  object,
+  optional,
+  record,
+  string,
+  union,
+} from 'superstruct';
+import { ObjectId, ObjectOwner, TransactionDigest } from './common';
 
-export type HaneulObjectRef = {
+export const ObjectType = union([literal('moveObject'), literal('package')]);
+export type ObjectType = Infer<typeof ObjectType>;
+
+export const HaneulObjectRef = object({
   /** Base64 string representing the object digest */
-  digest: TransactionDigest;
+  digest: TransactionDigest,
   /** Hex code as string representing the object id */
-  objectId: string;
+  objectId: string(),
   /** Object version */
-  version: number;
-};
+  version: number(),
+});
+export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
 
-export type HaneulObjectInfo = HaneulObjectRef & {
-  type: string;
-  owner: ObjectOwner;
-  previousTransaction: TransactionDigest;
-};
+export const HaneulObjectInfo = object({
+  ...HaneulObjectRef.schema,
+  type: string(),
+  owner: ObjectOwner,
+  previousTransaction: TransactionDigest,
+});
+export type HaneulObjectInfo = Infer<typeof HaneulObjectInfo>;
 
-export type ObjectContentFields = Record<string, any>;
+export const ObjectContentFields = record(string(), any());
+export type ObjectContentFields = Infer<typeof ObjectContentFields>;
 
-export type MovePackageContent = Record<string, string>;
+export const MovePackageContent = record(string(), string());
+export type MovePackageContent = Infer<typeof MovePackageContent>;
 
-export type HaneulData = { dataType: ObjectType } & (
-  | HaneulMoveObject
-  | HaneulMovePackage
-);
-
-export type HaneulMoveObject = {
+export const HaneulMoveObject = object({
   /** Move type (e.g., "0x2::coin::Coin<0x2::haneul::HANEUL>") */
-  type: string;
+  type: string(),
   /** Fields and values stored inside the Move object */
-  fields: ObjectContentFields;
-  has_public_transfer?: boolean;
-};
+  fields: ObjectContentFields,
+  has_public_transfer: optional(boolean()),
+});
+export type HaneulMoveObject = Infer<typeof HaneulMoveObject>;
 
-export const GEUNHWA_PER_HANEUL: BigInt = BigInt(1000000000);
-
-export type HaneulMovePackage = {
+export const HaneulMovePackage = object({
   /** A mapping from module name to disassembled Move bytecode */
-  disassembled: MovePackageContent;
-};
+  disassembled: MovePackageContent,
+});
+export type HaneulMovePackage = Infer<typeof HaneulMovePackage>;
 
-export type HaneulMoveFunctionArgTypesResponse = HaneulMoveFunctionArgType[];
+export const HaneulData = union([
+  object({
+    dataType: ObjectType,
+    ...HaneulMoveObject.schema,
+  }),
+  object({ dataType: ObjectType, ...HaneulMovePackage.schema }),
+]);
+export type HaneulData = Infer<typeof HaneulData>;
 
-export type HaneulMoveFunctionArgType = string | { Object: string };
+export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
-export type HaneulMoveFunctionArgTypes = HaneulMoveFunctionArgType[];
-
-export type HaneulMoveNormalizedModules = Record<string, HaneulMoveNormalizedModule>;
-
-export type HaneulMoveNormalizedModule = {
-  file_format_version: number;
-  address: string;
-  name: string;
-  friends: HaneulMoveModuleId[];
-  structs: Record<string, HaneulMoveNormalizedStruct>;
-  exposed_functions: Record<string, HaneulMoveNormalizedFunction>;
-};
-
-export type HaneulMoveModuleId = {
-  address: string;
-  name: string;
-};
-
-export type HaneulMoveNormalizedStruct = {
-  abilities: HaneulMoveAbilitySet;
-  type_parameters: HaneulMoveStructTypeParameter[];
-  fields: HaneulMoveNormalizedField[];
-};
-
-export type HaneulMoveStructTypeParameter = {
-  constraints: HaneulMoveAbilitySet;
-  is_phantom: boolean;
-};
-
-export type HaneulMoveNormalizedField = {
-  name: string;
-  type_: HaneulMoveNormalizedType;
-};
-
-export type HaneulMoveNormalizedFunction = {
-  visibility: HaneulMoveVisibility;
-  is_entry: boolean;
-  type_parameters: HaneulMoveAbilitySet[];
-  parameters: HaneulMoveNormalizedType[];
-  return_: HaneulMoveNormalizedType[];
-};
-
-export type HaneulMoveVisibility = 'Private' | 'Public' | 'Friend';
-
-export type HaneulMoveTypeParameterIndex = number;
-
-export type HaneulMoveAbilitySet = {
-  abilities: string[];
-};
-
-export type HaneulMoveNormalizedType =
-  | string
-  | HaneulMoveNormalizedTypeParameterType
-  | { Reference: HaneulMoveNormalizedType }
-  | { MutableReference: HaneulMoveNormalizedType }
-  | { Vector: HaneulMoveNormalizedType }
-  | HaneulMoveNormalizedStructType;
-
-export type HaneulMoveNormalizedTypeParameterType = {
-  TypeParameter: HaneulMoveTypeParameterIndex;
-};
-
-export type HaneulMoveNormalizedStructType = {
-  Struct: {
-    address: string;
-    module: string;
-    name: string;
-    type_arguments: HaneulMoveNormalizedType[];
-  };
-};
-
-export type HaneulObject = {
+export const HaneulObject = object({
   /** The meat of the object */
-  data: HaneulData;
+  data: HaneulData,
   /** The owner of the object */
-  owner: ObjectOwner;
+  owner: ObjectOwner,
   /** The digest of the transaction that created or last mutated this object */
-  previousTransaction: TransactionDigest;
+  previousTransaction: TransactionDigest,
   /**
    * The amount of HANEUL we would rebate if this object gets deleted.
    * This number is re-calculated each time the object is mutated based on
    * the present storage gas price.
    */
-  storageRebate: number;
-  reference: HaneulObjectRef;
-};
+  storageRebate: number(),
+  reference: HaneulObjectRef,
+});
+export type HaneulObject = Infer<typeof HaneulObject>;
 
-export type ObjectStatus = 'Exists' | 'NotExists' | 'Deleted';
-export type ObjectType = 'moveObject' | 'package';
+export const ObjectStatus = union([
+  literal('Exists'),
+  literal('NotExists'),
+  literal('Deleted'),
+]);
+export type ObjectStatus = Infer<typeof ObjectStatus>;
 
-export type GetOwnedObjectsResponse = HaneulObjectInfo[];
+export const GetOwnedObjectsResponse = array(HaneulObjectInfo);
+export type GetOwnedObjectsResponse = Infer<typeof GetOwnedObjectsResponse>;
 
-export type GetObjectDataResponse = {
-  status: ObjectStatus;
-  details: HaneulObject | ObjectId | HaneulObjectRef;
-};
+export const GetObjectDataResponse = object({
+  status: ObjectStatus,
+  details: union([HaneulObject, ObjectId, HaneulObjectRef]),
+});
+export type GetObjectDataResponse = Infer<typeof GetObjectDataResponse>;
 
 export type ObjectDigest = string;
-export type ObjectId = string;
-export type SequenceNumber = number;
 export type Order = 'ascending' | 'descending';
 
 /* -------------------------------------------------------------------------- */
@@ -286,41 +242,4 @@ export function getMovePackageContent(
     return undefined;
   }
   return (haneulObject.data as HaneulMovePackage).disassembled;
-}
-
-export function extractMutableReference(
-  normalizedType: HaneulMoveNormalizedType
-): HaneulMoveNormalizedType | undefined {
-  return typeof normalizedType === 'object' &&
-    'MutableReference' in normalizedType
-    ? normalizedType.MutableReference
-    : undefined;
-}
-
-export function extractReference(
-  normalizedType: HaneulMoveNormalizedType
-): HaneulMoveNormalizedType | undefined {
-  return typeof normalizedType === 'object' && 'Reference' in normalizedType
-    ? normalizedType.Reference
-    : undefined;
-}
-
-export function extractStructTag(
-  normalizedType: HaneulMoveNormalizedType
-): HaneulMoveNormalizedStructType | undefined {
-  if (typeof normalizedType === 'object' && 'Struct' in normalizedType) {
-    return normalizedType;
-  }
-
-  const ref = extractReference(normalizedType);
-  const mutRef = extractMutableReference(normalizedType);
-
-  if (typeof ref === 'object' && 'Struct' in ref) {
-    return ref;
-  }
-
-  if (typeof mutRef === 'object' && 'Struct' in mutRef) {
-    return mutRef;
-  }
-  return undefined;
 }

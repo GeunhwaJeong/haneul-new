@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject } from '@haneullabs/haneul.js';
+import { is, HaneulMoveObject } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import type { HaneulData } from '@haneullabs/haneul.js';
@@ -29,7 +29,7 @@ function sortKeys(a: string, b: string) {
 }
 
 export default function useHaneulObjectFields(data: HaneulData) {
-    const { fields = null } = isHaneulMoveObject(data) ? data : {};
+    const { fields = null } = is(data, HaneulMoveObject) ? data : {};
     return useMemo(() => {
         const keys: string[] = [];
         const otherKeys: string[] = [];

@@ -1,43 +1,80 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ObjectOwner, HaneulAddress, TransactionDigest } from './common';
-import { isTransactionEffects } from './index.guard';
+import {
+  is,
+  array,
+  Infer,
+  literal,
+  number,
+  object,
+  optional,
+  string,
+  union,
+  unknown,
+  boolean,
+  tuple,
+} from 'superstruct';
 import { HaneulEvent } from './events';
-import { ObjectId, HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
+import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
+import {
+  ObjectId,
+  ObjectOwner,
+  HaneulAddress,
+  HaneulJsonValue,
+  TransactionDigest,
+} from './common';
 
-export type TransferObject = {
-  recipient: HaneulAddress;
-  objectRef: HaneulObjectRef;
-};
+// TODO: support u64
+export const EpochId = number();
 
-export type HaneulTransferHaneul = {
-  recipient: HaneulAddress;
-  amount: number | null;
-};
+export const TransferObject = object({
+  recipient: HaneulAddress,
+  objectRef: HaneulObjectRef,
+});
+export type TransferObject = Infer<typeof TransferObject>;
 
-export type HaneulChangeEpoch = {
-  epoch: EpochId;
-  storage_charge: number;
-  computation_charge: number;
-};
+export const HaneulTransferHaneul = object({
+  recipient: HaneulAddress,
+  amount: union([number(), literal(null)]),
+});
+export type HaneulTransferHaneul = Infer<typeof HaneulTransferHaneul>;
 
-export type Pay = {
-  coins: HaneulObjectRef[];
-  recipients: HaneulAddress[];
-  amounts: number[];
-};
+export const HaneulChangeEpoch = object({
+  epoch: EpochId,
+  storage_charge: number(),
+  computation_charge: number(),
+});
+export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
 
-export type PayHaneul = {
-  coins: HaneulObjectRef[];
-  recipients: HaneulAddress[];
-  amounts: number[];
-};
+export const Pay = object({
+  coins: array(HaneulObjectRef),
+  recipients: array(HaneulAddress),
+  amounts: array(number()),
+});
+export type Pay = Infer<typeof Pay>;
 
-export type PayAllHaneul = {
-  coins: HaneulObjectRef[];
-  recipient: HaneulAddress;
-};
+export const PayHaneul = object({
+  coins: array(HaneulObjectRef),
+  recipients: array(HaneulAddress),
+  amounts: array(number()),
+});
+export type PayHaneul = Infer<typeof PayHaneul>;
+
+export const PayAllHaneul = object({
+  coins: array(HaneulObjectRef),
+  recipient: HaneulAddress,
+});
+export type PayAllHaneul = Infer<typeof PayAllHaneul>;
+
+export const MoveCall = object({
+  package: HaneulObjectRef,
+  module: string(),
+  function: string(),
+  typeArguments: optional(array(string())),
+  arguments: array(HaneulJsonValue),
+});
+export type MoveCall = Infer<typeof MoveCall>;
 
 export type ExecuteTransactionRequestType =
   | 'WaitForEffectsCert'
@@ -53,144 +90,166 @@ export type TransactionKindName =
   | 'PayHaneul'
   | 'PayAllHaneul';
 
-export type HaneulTransactionKind =
-  | { TransferObject: TransferObject }
-  | { Publish: HaneulMovePackage }
-  | { Call: MoveCall }
-  | { TransferHaneul: HaneulTransferHaneul }
-  | { ChangeEpoch: HaneulChangeEpoch }
-  | { Pay: Pay }
-  | { PayHaneul: PayHaneul }
-  | { PayAllHaneul: PayAllHaneul };
-export type HaneulTransactionData = {
-  transactions: HaneulTransactionKind[];
-  sender: HaneulAddress;
-  gasPayment: HaneulObjectRef;
-  gasBudget: number;
-};
+export const HaneulTransactionKind = union([
+  object({ TransferObject: TransferObject }),
+  object({ Publish: HaneulMovePackage }),
+  object({ Call: MoveCall }),
+  object({ TransferHaneul: HaneulTransferHaneul }),
+  object({ ChangeEpoch: HaneulChangeEpoch }),
+  object({ Pay: Pay }),
+  object({ PayHaneul: PayHaneul }),
+  object({ PayAllHaneul: PayAllHaneul }),
+]);
+export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
-// TODO: support u64
-export type EpochId = number;
-export type GenericAuthoritySignature =
-  | AuthoritySignature[]
-  | AuthoritySignature;
+export const HaneulTransactionData = object({
+  transactions: array(HaneulTransactionKind),
+  sender: HaneulAddress,
+  gasPayment: HaneulObjectRef,
+  gasBudget: number(),
+});
+export type HaneulTransactionData = Infer<typeof HaneulTransactionData>;
 
-export type AuthorityQuorumSignInfo = {
-  epoch: EpochId;
-  signature: GenericAuthoritySignature;
-};
+export const AuthoritySignature = string();
+export const GenericAuthoritySignature = union([
+  AuthoritySignature,
+  array(AuthoritySignature),
+]);
 
-export type CertifiedTransaction = {
-  transactionDigest: TransactionDigest;
-  data: HaneulTransactionData;
-  txSignature: string;
-  authSignInfo: AuthorityQuorumSignInfo;
-};
+export const AuthorityQuorumSignInfo = object({
+  epoch: EpochId,
+  signature: GenericAuthoritySignature,
+  signers_map: array(number()),
+});
+export type AuthorityQuorumSignInfo = Infer<typeof AuthorityQuorumSignInfo>;
 
-export type GasCostSummary = {
-  computationCost: number;
-  storageCost: number;
-  storageRebate: number;
-};
+export const CertifiedTransaction = object({
+  transactionDigest: TransactionDigest,
+  data: HaneulTransactionData,
+  txSignature: string(),
+  authSignInfo: AuthorityQuorumSignInfo,
+});
+export type CertifiedTransaction = Infer<typeof CertifiedTransaction>;
 
-export type ExecutionStatusType = 'success' | 'failure';
-export type ExecutionStatus = {
-  status: ExecutionStatusType;
-  error?: string;
-};
+export const GasCostSummary = object({
+  computationCost: number(),
+  storageCost: number(),
+  storageRebate: number(),
+});
+export type GasCostSummary = Infer<typeof GasCostSummary>;
+
+export const ExecutionStatusType = union([
+  literal('success'),
+  literal('failure'),
+]);
+export type ExecutionStatusType = Infer<typeof ExecutionStatusType>;
+
+export const ExecutionStatus = object({
+  status: ExecutionStatusType,
+  error: optional(string()),
+});
+export type ExecutionStatus = Infer<typeof ExecutionStatus>;
 
 // TODO: change the tuple to struct from the server end
-export type OwnedObjectRef = {
-  owner: ObjectOwner;
-  reference: HaneulObjectRef;
-};
+export const OwnedObjectRef = object({
+  owner: ObjectOwner,
+  reference: HaneulObjectRef,
+});
+export type OwnedObjectRef = Infer<typeof OwnedObjectRef>;
 
-export type DevInspectResults = {
-  effects: TransactionEffects;
-  results: DevInspectResultsType;
-};
-
-export type DevInspectResultsType =
-  | { Ok: DevInspectResultTupleType[] }
-  | { Err: string };
-
-export type DevInspectResultTupleType = [number, ExecutionResultType];
-
-export type ExecutionResultType = {
-  mutableReferenceOutputs?: MutableReferenceOutputType[];
-  returnValues?: ReturnValueType[];
-};
-
-export type MutableReferenceOutputType = [number, number[], string];
-
-export type ReturnValueType = [number[], string];
-
-export type TransactionEffects = {
+export const TransactionEffects = object({
   /** The status of the execution */
-  status: ExecutionStatus;
-  gasUsed: GasCostSummary;
+  status: ExecutionStatus,
+  gasUsed: GasCostSummary,
   /** The object references of the shared objects used in this transaction. Empty if no shared objects were used. */
-  sharedObjects?: HaneulObjectRef[];
+  sharedObjects: optional(array(HaneulObjectRef)),
   /** The transaction digest */
-  transactionDigest: TransactionDigest;
+  transactionDigest: TransactionDigest,
   /** ObjectRef and owner of new objects created */
-  created?: OwnedObjectRef[];
+  created: optional(array(OwnedObjectRef)),
   /** ObjectRef and owner of mutated objects, including gas object */
-  mutated?: OwnedObjectRef[];
+  mutated: optional(array(OwnedObjectRef)),
   /**
    * ObjectRef and owner of objects that are unwrapped in this transaction.
    * Unwrapped objects are objects that were wrapped into other objects in the past,
    * and just got extracted out.
    */
-  unwrapped?: OwnedObjectRef[];
+  unwrapped: optional(array(OwnedObjectRef)),
   /** Object Refs of objects now deleted (the old refs) */
-  deleted?: HaneulObjectRef[];
+  deleted: optional(array(HaneulObjectRef)),
   /** Object refs of objects now wrapped in other objects */
-  wrapped?: HaneulObjectRef[];
+  wrapped: optional(array(HaneulObjectRef)),
   /**
    * The updated gas object reference. Have a dedicated field for convenient access.
    * It's also included in mutated.
    */
-  gasObject: OwnedObjectRef;
+  gasObject: OwnedObjectRef,
   /** The events emitted during execution. Note that only successful transactions emit events */
-  events?: HaneulEvent[];
+  events: optional(array(HaneulEvent)),
   /** The set of transaction digests this transaction depends on */
-  dependencies?: TransactionDigest[];
-};
+  dependencies: optional(array(TransactionDigest)),
+});
+export type TransactionEffects = Infer<typeof TransactionEffects>;
 
-export type HaneulTransactionResponse = {
-  certificate: CertifiedTransaction;
-  effects: TransactionEffects;
-  timestamp_ms: number | null;
-  parsed_data: HaneulParsedTransactionResponse | null;
-};
+const ReturnValueType = tuple([array(number()), string()]);
+const MutableReferenceOutputType = tuple([number(), array(number()), string()]);
+const ExecutionResultType = object({
+  mutableReferenceOutputs: optional(array(MutableReferenceOutputType)),
+  returnValues: optional(array(ReturnValueType)),
+});
+const DevInspectResultTupleType = tuple([number(), ExecutionResultType]);
 
-export type HaneulTransactionAuthSignersResponse = {
-  signers: AuthorityName[];
-};
+const DevInspectResultsType = union([
+  object({ Ok: array(DevInspectResultTupleType) }),
+  object({ Err: string() }),
+]);
+
+export const DevInspectResults = object({
+  effects: TransactionEffects,
+  results: DevInspectResultsType,
+});
+export type DevInspectResults = Infer<typeof DevInspectResults>;
+
+export const HaneulTransactionAuthSignersResponse = object({
+  signers: array(string()),
+});
+export type HaneulTransactionAuthSignersResponse = Infer<
+  typeof HaneulTransactionAuthSignersResponse
+>;
 
 // TODO: this is likely to go away after https://github.com/GeunhwaJeong/haneul/issues/4207
-export type HaneulCertifiedTransactionEffects = {
-  effects: TransactionEffects;
-};
+export const HaneulCertifiedTransactionEffects = object({
+  transactionEffectsDigest: string(),
+  authSignInfo: AuthorityQuorumSignInfo,
+  effects: TransactionEffects,
+});
 
-export type HaneulExecuteTransactionResponse =
-  | { TxCert: { certificate: CertifiedTransaction } }
-  | {
-      EffectsCert: {
-        certificate: CertifiedTransaction;
-        effects: HaneulCertifiedTransactionEffects;
-      };
-    };
+export const HaneulExecuteTransactionResponse = union([
+  object({ TxCert: object({ certificate: CertifiedTransaction }) }),
+  object({
+    EffectsCert: object({
+      certificate: CertifiedTransaction,
+      effects: HaneulCertifiedTransactionEffects,
+      confirmed_local_execution: boolean(),
+    }),
+  }),
+]);
+export type HaneulExecuteTransactionResponse = Infer<
+  typeof HaneulExecuteTransactionResponse
+>;
 
 export type GatewayTxSeqNumber = number;
 
-export type GetTxnDigestsResponse = TransactionDigest[];
+export const GetTxnDigestsResponse = array(TransactionDigest);
+export type GetTxnDigestsResponse = Infer<typeof GetTxnDigestsResponse>;
 
-export type PaginatedTransactionDigests = {
-  data: TransactionDigest[];
-  nextCursor: TransactionDigest | null;
-};
+export const PaginatedTransactionDigests = object({
+  data: array(TransactionDigest),
+  nextCursor: union([TransactionDigest, literal(null)]),
+});
+export type PaginatedTransactionDigests = Infer<
+  typeof PaginatedTransactionDigests
+>;
 
 export type TransactionQuery =
   | 'All'
@@ -206,59 +265,62 @@ export type TransactionQuery =
   | { FromAddress: HaneulAddress }
   | { ToAddress: HaneulAddress };
 
-export type MoveCall = {
-  package: HaneulObjectRef;
-  module: string;
-  function: string;
-  typeArguments?: string[];
-  arguments?: HaneulJsonValue[];
-};
-
-export type HaneulJsonValue = boolean | number | string | Array<HaneulJsonValue>;
-
 export type EmptySignInfo = object;
 export type AuthorityName = string;
-export type AuthoritySignature = string;
 
-export type TransactionBytes = {
-  txBytes: string;
-  gas: HaneulObjectRef;
-  // TODO: Add input_objects field
-};
+export const TransactionBytes = object({
+  txBytes: string(),
+  gas: HaneulObjectRef,
+  // TODO: Type input_objects field
+  inputObjects: unknown(),
+});
 
-export type HaneulParsedMergeCoinResponse = {
-  updatedCoin: HaneulObject;
-  updatedGas: HaneulObject;
-};
+export const HaneulParsedMergeCoinResponse = object({
+  updatedCoin: HaneulObject,
+  updatedGas: HaneulObject,
+});
+export type HaneulParsedMergeCoinResponse = Infer<
+  typeof HaneulParsedMergeCoinResponse
+>;
 
-export type HaneulParsedSplitCoinResponse = {
-  updatedCoin: HaneulObject;
-  newCoins: HaneulObject[];
-  updatedGas: HaneulObject;
-};
+export const HaneulParsedSplitCoinResponse = object({
+  updatedCoin: HaneulObject,
+  newCoins: array(HaneulObject),
+  updatedGas: HaneulObject,
+});
+export type HaneulParsedSplitCoinResponse = Infer<
+  typeof HaneulParsedSplitCoinResponse
+>;
 
-export type HaneulParsedPublishResponse = {
-  createdObjects: HaneulObject[];
-  package: HaneulPackage;
-  updatedGas: HaneulObject;
-};
+export const HaneulPackage = object({
+  digest: string(),
+  objectId: string(),
+  version: number(),
+});
 
-export type HaneulPackage = {
-  digest: string;
-  objectId: string;
-  version: number;
-};
+export const HaneulParsedPublishResponse = object({
+  createdObjects: array(HaneulObject),
+  package: HaneulPackage,
+  updatedGas: HaneulObject,
+});
+export type HaneulParsedPublishResponse = Infer<typeof HaneulParsedPublishResponse>;
 
-export type HaneulParsedTransactionResponse =
-  | {
-      SplitCoin: HaneulParsedSplitCoinResponse;
-    }
-  | {
-      MergeCoin: HaneulParsedMergeCoinResponse;
-    }
-  | {
-      Publish: HaneulParsedPublishResponse;
-    };
+export const HaneulParsedTransactionResponse = union([
+  object({ SplitCoin: HaneulParsedSplitCoinResponse }),
+  object({ MergeCoin: HaneulParsedMergeCoinResponse }),
+  object({ Publish: HaneulParsedPublishResponse }),
+]);
+export type HaneulParsedTransactionResponse = Infer<
+  typeof HaneulParsedTransactionResponse
+>;
+
+export const HaneulTransactionResponse = object({
+  certificate: CertifiedTransaction,
+  effects: TransactionEffects,
+  timestamp_ms: union([number(), literal(null)]),
+  parsed_data: union([HaneulParsedTransactionResponse, literal(null)]),
+});
+export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
 
 /* -------------------------------------------------------------------------- */
 /*                              Helper functions                              */
@@ -414,7 +476,7 @@ export function getExecutionStatusGasSummary(
     | HaneulExecuteTransactionResponse
     | TransactionEffects
 ): GasCostSummary | undefined {
-  if (isTransactionEffects(data)) {
+  if (is(data, TransactionEffects)) {
     return data.gasUsed;
   }
   return getTransactionEffects(data)?.gasUsed;

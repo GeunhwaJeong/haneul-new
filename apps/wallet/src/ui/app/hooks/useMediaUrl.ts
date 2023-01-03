@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject } from '@haneullabs/haneul.js';
+import { is, HaneulMoveObject } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import type { HaneulData } from '@haneullabs/haneul.js';
 
 export default function useMediaUrl(objData: HaneulData | null) {
-    const { fields } = (isHaneulMoveObject(objData) && objData) || {};
+    const { fields } = (is(objData, HaneulMoveObject) && objData) || {};
     return useMemo(() => {
         if (fields) {
             const mediaUrl = fields.url || fields.metadata?.fields.url;

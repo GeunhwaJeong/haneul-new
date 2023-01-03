@@ -9,15 +9,14 @@ import {
   HaneulObject,
   HaneulData,
   getMoveObjectType,
-  ObjectId,
   getObjectId,
 } from './objects';
-import { normalizeHaneulObjectId, HaneulAddress } from './common';
+import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from './common';
 
 import { getOption, Option } from './option';
 import { StructTag } from './haneul-bcs';
-import { isHaneulMoveObject } from './index.guard';
 import { UnserializedSignableTransaction } from '../signers/txn-data-serializers/txn-data-serializer';
+import { Infer, is, literal, number, object, string, union } from 'superstruct';
 
 export const HANEUL_FRAMEWORK_ADDRESS = '0x2';
 export const MOVE_STDLIB_ADDRESS = '0x1';
@@ -35,14 +34,16 @@ export const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 type ObjectData = ObjectDataFull | HaneulObjectInfo;
 type ObjectDataFull = GetObjectDataResponse | HaneulMoveObject;
 
-export type CoinMetadata = {
-  decimals: number;
-  name: string;
-  symbol: string;
-  description: string;
-  iconUrl: string | null;
-  id: ObjectId | null;
-};
+export const CoinMetadataStruct = object({
+  decimals: number(),
+  name: string(),
+  symbol: string(),
+  description: string(),
+  iconUrl: union([string(), literal(null)]),
+  id: union([ObjectId, literal(null)]),
+});
+
+export type CoinMetadata = Infer<typeof CoinMetadataStruct>;
 
 /**
  * Utility class for 0x2::coin
@@ -82,7 +83,7 @@ export class Coin {
   }
 
   public static getID(obj: ObjectData): ObjectId {
-    if (isHaneulMoveObject(obj)) {
+    if (is(obj, HaneulMoveObject)) {
       return obj.fields.id.id;
     }
     return getObjectId(obj);

@@ -3,8 +3,9 @@
 
 import {
     Base64DataBuffer,
-    isHaneulObject,
-    isHaneulMoveObject,
+    is,
+    HaneulObject,
+    HaneulMoveObject,
     HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 import BigNumber from 'bignumber.js';
@@ -222,7 +223,9 @@ export function TopValidatorsCard({ limit }: { limit?: number }) {
         useGetObject(VALIDATORS_OBJECT_ID);
 
     const validatorData =
-        data && isHaneulObject(data.details) && isHaneulMoveObject(data.details.data)
+        data &&
+        is(data.details, HaneulObject) &&
+        is(data.details.data, HaneulMoveObject)
             ? (data.details.data.fields as ValidatorState)
             : null;
 

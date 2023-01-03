@@ -15,7 +15,8 @@ import {
     getObjectId,
     getObjectFields,
     Coin,
-    isHaneulObject,
+    is,
+    HaneulObject,
     getPayHaneulTransaction,
     getPayTransaction,
 } from '@haneullabs/haneul.js';
@@ -241,11 +242,11 @@ export const getTransactionsByAddress = createAsyncThunk<
 
             const coinType =
                 txnObjects &&
-                isHaneulObject(details) &&
+                is(details, HaneulObject) &&
                 Coin.getCoinTypeArg(txnObjects);
 
             const fields =
-                txnObjects && isHaneulObject(details)
+                txnObjects && is(details, HaneulObject)
                     ? getObjectFields(txnObjects)
                     : null;
 

@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject, getObjectId, getObjectFields } from '@haneullabs/haneul.js';
+import {
+    is,
+    HaneulMoveObject,
+    getObjectId,
+    getObjectFields,
+} from '@haneullabs/haneul.js';
 
 import useFileExtensionType from './useFileExtensionType';
 import useMediaUrl from './useMediaUrl';
@@ -13,7 +18,7 @@ export default function useNFTBasicData(nftObj: HaneulObject | null) {
     const filePath = useMediaUrl(nftObj?.data || null);
     let objType = null;
     let nftFields = null;
-    if (nftObj && isHaneulMoveObject(nftObj.data)) {
+    if (nftObj && is(nftObj.data, HaneulMoveObject)) {
         objType = nftObj.data.type;
         nftFields = getObjectFields(nftObj.data);
     }

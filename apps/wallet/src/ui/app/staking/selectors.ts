@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject, Delegation } from '@haneullabs/haneul.js';
+import { is, HaneulMoveObject, Delegation } from '@haneullabs/haneul.js';
 import { createSelector } from '@reduxjs/toolkit';
 
 import { ownedObjects } from '_redux/slices/account';
 import { haneulSystemObjectSelector } from '_redux/slices/haneul-objects';
 
-import type { HaneulMoveObject, DelegationHaneulObject } from '@haneullabs/haneul.js';
+import type { DelegationHaneulObject } from '@haneullabs/haneul.js';
 
 export const delegationsSelector = createSelector(
     ownedObjects,
@@ -39,7 +39,7 @@ export const totalActiveStakedSelector = createSelector(
 export const epochSelector = createSelector(
     haneulSystemObjectSelector,
     (systemObj) =>
-        systemObj && isHaneulMoveObject(systemObj.data)
+        systemObj && is(systemObj.data, HaneulMoveObject)
             ? (systemObj.data.fields.epoch as number)
             : null
 );
@@ -48,7 +48,7 @@ export function getValidatorSelector(validatorAddress?: string) {
     // TODO this is limited only to the active and next set of validators. Is there a way to access the list of all validators?
     return createSelector(haneulSystemObjectSelector, (systemObj) => {
         const { data } = systemObj || {};
-        if (isHaneulMoveObject(data)) {
+        if (is(data, HaneulMoveObject)) {
             const { active_validators: active, next_epoch_validators: next } =
                 data.fields.validators.fields;
             const validator: HaneulMoveObject | undefined = [

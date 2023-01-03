@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulMoveObject, isHaneulMovePackage } from '@haneullabs/haneul.js';
+import { is, HaneulMoveObject, HaneulMovePackage } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -25,10 +25,10 @@ function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
     const { objectId } = obj.reference;
     const shortId = useMiddleEllipsis(objectId);
     const objType =
-        (isHaneulMoveObject(obj.data) && obj.data.type) || 'Move Package';
+        (is(obj.data, HaneulMoveObject) && obj.data.type) || 'Move Package';
     const imgUrl = useMediaUrl(obj.data);
     const { keys } = useHaneulObjectFields(obj.data);
-    const haneulMoveObjectFields = isHaneulMoveObject(obj.data)
+    const haneulMoveObjectFields = is(obj.data, HaneulMoveObject)
         ? obj.data.fields
         : null;
 
@@ -72,7 +72,7 @@ function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
                         </>
                     ) : null}
 
-                    {isHaneulMovePackage(obj.data) ? (
+                    {is(obj.data, HaneulMovePackage) ? (
                         <Field name="disassembled">
                             {JSON.stringify(obj.data.disassembled).substring(
                                 0,
