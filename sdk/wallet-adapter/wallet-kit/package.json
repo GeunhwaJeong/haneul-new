@@ -32,8 +32,9 @@
     "@headlessui/react": "^1.7.5",
     "@haneullabs/haneul.js": "workspace:*",
     "@haneullabs/wallet-adapter-base": "workspace:*",
-    "@haneullabs/wallet-adapter-react": "workspace:*",
     "@haneullabs/wallet-adapter-wallet-standard": "workspace:*",
+    "@haneullabs/wallet-adapter-unsafe-burner": "workspace:*",
+    "@haneullabs/wallet-kit-core": "workspace:*",
     "@stitches/react": "^1.2.8"
   },
   "devDependencies": {

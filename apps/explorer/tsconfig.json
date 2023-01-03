@@ -35,8 +35,8 @@
             "@haneullabs/wallet-adapter-wallet-standard": [
                 "../../sdk/wallet-adapter/adapters/wallet-standard-adapter/src/"
             ],
-            "@haneullabs/wallet-adapter-react": [
-                "../../sdk/wallet-adapter/react-providers/src/"
+            "@haneullabs/wallet-kit-core": [
+                "../../sdk/wallet-adapter/wallet-kit-core/src/"
             ],
             "@haneullabs/wallet-kit": ["../../sdk/wallet-adapter/wallet-kit/src/"]
         }

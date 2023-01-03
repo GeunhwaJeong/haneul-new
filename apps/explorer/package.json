@@ -34,7 +34,6 @@
         "@hookform/resolvers": "^2.9.10",
         "@haneullabs/core": "workspace:*",
         "@haneullabs/haneul.js": "workspace:*",
-        "@haneullabs/wallet-adapter-all-wallets": "workspace:*",
         "@haneullabs/wallet-kit": "workspace:*",
         "@sentry/react": "^7.24.2",
         "@sentry/tracing": "^7.24.2",

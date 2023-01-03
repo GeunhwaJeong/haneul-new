@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useWallet } from "@haneullabs/wallet-adapter-react";
 import { styled } from "./stitches";
 import { Title } from "./utils/Dialog";
 import { HaneulIcon } from "./utils/icons";
 import { Truncate, Panel } from "./utils/ui";
+import { useWalletKit } from "./WalletKitContext";
 
 const Container = styled(Panel, {
   background: "$background",
@@ -63,7 +63,7 @@ interface Props {
 export const SELECTED_GETTING_STARTED = "@@internal/getting-started";
 
 export function WalletList({ selected, onChange }: Props) {
-  const { wallets } = useWallet();
+  const { wallets } = useWalletKit();
 
   return (
     <Container>

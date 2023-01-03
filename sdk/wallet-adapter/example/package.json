@@ -7,7 +7,6 @@
     "@haneullabs/haneul.js": "workspace:*",
     "@haneullabs/wallet-adapter-all-wallets": "workspace:*",
     "@haneullabs/wallet-adapter-base": "workspace:*",
-    "@haneullabs/wallet-adapter-react": "workspace:*",
     "@haneullabs/wallet-adapter-wallet-standard": "workspace:*",
     "@haneullabs/wallet-kit": "workspace:*",
     "@testing-library/jest-dom": "^5.16.4",

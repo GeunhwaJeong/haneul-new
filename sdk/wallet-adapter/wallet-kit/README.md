@@ -39,13 +39,13 @@ function ConnectToWallet() {
 }
 ```
 
-To get access to the currently connected wallet, use the `useWallet()` hook to interact with the wallet, such as proposing transactions:
+To get access to the currently connected wallet, use the `useWalletKit()` hook to interact with the wallet, such as proposing transactions:
 
 ```tsx
-import { useWallet } from "@haneullabs/wallet-kit";
+import { useWalletKit } from "@haneullabs/wallet-kit";
 
 export function SendTransaction() {
-  const { connected, getAccounts, signAndExecuteTransaction } = useWallet();
+  const { signAndExecuteTransaction } = useWalletKit();
 
   const handleClick = async () => {
     await signAndExecuteTransaction({
