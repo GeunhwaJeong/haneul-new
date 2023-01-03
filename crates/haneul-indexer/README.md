@@ -22,7 +22,12 @@ diesel setup
 # and then run 
 diesel migration run
 ```
-2. cargo run under `/haneul-indexer`
+2. checkout the latest devnet commit by running commands below, otherwise API version mismatch could cause errors
+```sh
+git fetch upstream devnet
+git reset --hard upstream/devnet
+```
+3. Go to `haneul/crates/haneul-indexer` and run the following command:
 ```sh
 # DATABASE_URL should be the same value as above
 cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443"
