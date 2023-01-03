@@ -1186,7 +1186,7 @@ async fn test_immutable_gas() {
         .await;
     assert!(matches!(
         result.unwrap_err(),
-        HaneulError::InsufficientGas { .. }
+        HaneulError::GasObjectNotOwnedObject { .. }
     ));
 }
 
@@ -1215,7 +1215,7 @@ async fn test_objected_owned_gas() {
     let result = authority_state.handle_transaction(transaction).await;
     assert!(matches!(
         result.unwrap_err(),
-        HaneulError::InsufficientGas { .. }
+        HaneulError::GasObjectNotOwnedObject { .. }
     ));
 }
 
@@ -1641,7 +1641,7 @@ async fn test_handle_transfer_haneul_with_amount_insufficient_gas() {
     let result = authority_state.handle_transaction(transaction).await;
     assert!(matches!(
         result.unwrap_err(),
-        HaneulError::InsufficientGas { .. }
+        HaneulError::GasBalanceTooLowToCoverGasBudget { .. }
     ));
 }
 
