@@ -1,7 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use haneul_types::error::HaneulResult;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -49,7 +51,7 @@ impl ReconfigState {
 }
 
 pub trait ReconfigurationInitiator {
-    fn close_epoch(&self) -> HaneulResult;
+    fn close_epoch(&self, epoch_store: &Arc<AuthorityPerEpochStore>) -> HaneulResult;
 }
 
 /*
