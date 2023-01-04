@@ -13,7 +13,7 @@ use haneul_types::crypto::{
 use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
-    StakeSubsidy, StakingPool, HaneulSystemState, Validator, ValidatorMetadata, ValidatorSet,
+    StakeSubsidy, StakingPool, HaneulSystemState, TableVec, Validator, ValidatorMetadata, ValidatorSet,
 };
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
@@ -47,8 +47,8 @@ pub fn test_staking_pool(haneul_address: HaneulAddress, haneul_balance: u64) -> 
         haneul_balance,
         rewards_pool: Balance::new(0),
         delegation_token_supply: Supply { value: 0 },
-        pending_delegations: vec![],
-        pending_withdraws: vec![],
+        pending_delegations: TableVec::default(),
+        pending_withdraws: TableVec::default(),
     }
 }
 
