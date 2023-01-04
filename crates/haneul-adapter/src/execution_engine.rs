@@ -3,14 +3,14 @@
 
 use std::{collections::BTreeSet, sync::Arc};
 
+use crate::execution_mode::{self, ExecutionMode};
 use move_core_types::language_storage::{ModuleId, StructTag};
 use move_vm_runtime::{move_vm::MoveVM, native_functions::NativeFunctionTable};
-use haneul_adapter::execution_mode::{self, ExecutionMode};
 use haneul_types::base_types::{ObjectDigest, SequenceNumber};
 use haneul_types::crypto::sha3_hash;
 use tracing::{debug, instrument};
 
-use haneul_adapter::adapter;
+use crate::adapter;
 use haneul_protocol_constants::{MAX_TX_GAS, STORAGE_FUND_REINVEST_RATE};
 use haneul_types::coin::{transfer_coin, update_input_coins, Coin};
 use haneul_types::committee::EpochId;
@@ -45,11 +45,7 @@ use haneul_types::{
     MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
-use crate::authority::TemporaryStore;
-
-#[cfg(test)]
-#[path = "unit_tests/pay_haneul_tests.rs"]
-mod pay_haneul_tests;
+use haneul_types::temporary_store::TemporaryStore;
 
 #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
 pub fn execute_transaction_to_effects<
@@ -647,7 +643,7 @@ const FAKE_GAS_OBJECT: ObjectRef = (
     ObjectDigest::MIN,
 );
 
-pub(crate) fn manual_execute_move_call_fake_txn_digest(
+pub fn manual_execute_move_call_fake_txn_digest(
     sender: HaneulAddress,
     move_call: MoveCall,
 ) -> TransactionDigest {
@@ -660,7 +656,7 @@ pub(crate) fn manual_execute_move_call_fake_txn_digest(
     TransactionDigest::new(sha3_hash(&txn_data))
 }
 
-pub(crate) fn manual_execute_move_call<
+pub fn manual_execute_move_call<
     Mode: ExecutionMode,
     S: BackingPackageStore + ParentSync + ChildObjectResolver,
 >(
