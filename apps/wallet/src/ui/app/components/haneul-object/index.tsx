@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulMoveObject, HaneulMovePackage } from '@haneullabs/haneul.js';
+import { is, HaneulMovePackage } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -25,12 +25,11 @@ function HaneulObject({ obj, sendNFT }: HaneulObjectProps) {
     const { objectId } = obj.reference;
     const shortId = useMiddleEllipsis(objectId);
     const objType =
-        (is(obj.data, HaneulMoveObject) && obj.data.type) || 'Move Package';
+        (obj.data.dataType === 'moveObject' && obj.data.type) || 'Move Package';
     const imgUrl = useMediaUrl(obj.data);
     const { keys } = useHaneulObjectFields(obj.data);
-    const haneulMoveObjectFields = is(obj.data, HaneulMoveObject)
-        ? obj.data.fields
-        : null;
+    const haneulMoveObjectFields =
+        obj.data.dataType === 'moveObject' ? obj.data.fields : null;
 
     const sendUrl = useMemo(
         () => `/send-nft?${new URLSearchParams({ objectId }).toString()}`,

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulObject, HaneulMoveObject } from '@haneullabs/haneul.js';
+import { is, HaneulObject } from '@haneullabs/haneul.js';
 import { useState, useMemo } from 'react';
 
 import { getName, STATE_OBJECT } from '../usePendingDelegation';
@@ -28,7 +28,7 @@ export function SelectValidatorCard() {
     const validatorsData =
         data &&
         is(data.details, HaneulObject) &&
-        is(data.details.data, HaneulMoveObject)
+        data.details.data.dataType === 'moveObject'
             ? (data.details.data.fields as ValidatorState)
             : null;
 

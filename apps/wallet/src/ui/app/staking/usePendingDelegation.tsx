@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulMoveObject, HaneulObject, type HaneulAddress } from '@haneullabs/haneul.js';
+import { is, HaneulObject, type HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
@@ -79,7 +79,7 @@ export function usePendingDelegation(): [PendingDelegation[], UseQueryResult] {
             !address ||
             !data ||
             !is(data.details, HaneulObject) ||
-            !is(data.details.data, HaneulMoveObject)
+            data.details.data.dataType !== 'moveObject'
         ) {
             return [];
         }

@@ -4,6 +4,7 @@
 import {
   any,
   array,
+  assign,
   boolean,
   Infer,
   literal,
@@ -29,12 +30,14 @@ export const HaneulObjectRef = object({
 });
 export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
 
-export const HaneulObjectInfo = object({
-  ...HaneulObjectRef.schema,
-  type: string(),
-  owner: ObjectOwner,
-  previousTransaction: TransactionDigest,
-});
+export const HaneulObjectInfo = assign(
+  HaneulObjectRef,
+  object({
+    type: string(),
+    owner: ObjectOwner,
+    previousTransaction: TransactionDigest,
+  })
+);
 export type HaneulObjectInfo = Infer<typeof HaneulObjectInfo>;
 
 export const ObjectContentFields = record(string(), any());
@@ -59,11 +62,8 @@ export const HaneulMovePackage = object({
 export type HaneulMovePackage = Infer<typeof HaneulMovePackage>;
 
 export const HaneulData = union([
-  object({
-    dataType: ObjectType,
-    ...HaneulMoveObject.schema,
-  }),
-  object({ dataType: ObjectType, ...HaneulMovePackage.schema }),
+  assign(HaneulMoveObject, object({ dataType: literal('moveObject') })),
+  assign(HaneulMovePackage, object({ dataType: literal('package') })),
 ]);
 export type HaneulData = Infer<typeof HaneulData>;
 

@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    getTransactionDigest,
-    is,
-    HaneulMoveObject,
-    Coin as CoinAPI,
-} from '@haneullabs/haneul.js';
+import { getTransactionDigest, Coin as CoinAPI } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createEntityAdapter,
@@ -20,7 +15,11 @@ import {
 } from '_redux/slices/haneul-objects';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 
-import type { HaneulAddress, HaneulExecuteTransactionResponse } from '@haneullabs/haneul.js';
+import type {
+    HaneulAddress,
+    HaneulExecuteTransactionResponse,
+    HaneulMoveObject,
+} from '@haneullabs/haneul.js';
 import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
 
@@ -83,7 +82,7 @@ export const stakeTokens = createAsyncThunk<
             .selectAll(state)
             .filter(
                 (anObj) =>
-                    is(anObj.data, HaneulMoveObject) &&
+                    anObj.data.dataType === 'moveObject' &&
                     anObj.data.type === coinType
             )
             .map(({ data }) => data as HaneulMoveObject);

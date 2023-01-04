@@ -1,18 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    is,
-    HaneulMoveObject,
-    Coin as CoinAPI,
-    HANEUL_TYPE_ARG,
-} from '@haneullabs/haneul.js';
+import { Coin as CoinAPI, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
 import type {
     ObjectId,
     HaneulObject,
     RawSigner,
     HaneulAddress,
+    HaneulMoveObject,
     JsonRpcProvider,
     HaneulExecuteTransactionResponse,
 } from '@haneullabs/haneul.js';
@@ -32,7 +28,8 @@ export const HANEUL_SYSTEM_STATE_OBJECT_ID =
 export class Coin {
     public static isCoin(obj: HaneulObject) {
         return (
-            is(obj.data, HaneulMoveObject) && obj.data.type.startsWith(COIN_TYPE)
+            obj.data.dataType === 'moveObject' &&
+            obj.data.type.startsWith(COIN_TYPE)
         );
     }
 

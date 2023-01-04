@@ -7,7 +7,6 @@ import {
   HaneulMoveObject,
   HaneulObjectInfo,
   HaneulObject,
-  HaneulData,
   getMoveObjectType,
   getObjectId,
 } from './objects';
@@ -287,22 +286,22 @@ export class Coin {
   }
 }
 
-export type DelegationData = HaneulMoveObject &
-  Pick<HaneulData, 'dataType'> & {
-    type: '0x2::delegation::Delegation';
-    fields: {
-      active_delegation: Option<number>;
-      delegate_amount: number;
-      next_reward_unclaimed_epoch: number;
-      validator_address: HaneulAddress;
-      info: {
-        id: string;
-        version: number;
-      };
-      coin_locked_until_epoch: Option<HaneulMoveObject>;
-      ending_epoch: Option<number>;
+export type DelegationData = HaneulMoveObject & {
+  dataType: 'moveObject';
+  type: '0x2::delegation::Delegation';
+  fields: {
+    active_delegation: Option<number>;
+    delegate_amount: number;
+    next_reward_unclaimed_epoch: number;
+    validator_address: HaneulAddress;
+    info: {
+      id: string;
+      version: number;
     };
+    coin_locked_until_epoch: Option<HaneulMoveObject>;
+    ending_epoch: Option<number>;
   };
+};
 
 export type DelegationHaneulObject = Omit<HaneulObject, 'data'> & {
   data: DelegationData;

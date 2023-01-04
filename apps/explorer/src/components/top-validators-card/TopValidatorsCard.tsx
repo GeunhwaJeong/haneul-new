@@ -1,13 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    Base64DataBuffer,
-    is,
-    HaneulObject,
-    HaneulMoveObject,
-    HANEUL_TYPE_ARG,
-} from '@haneullabs/haneul.js';
+import { Base64DataBuffer, is, HaneulObject, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
 
@@ -225,7 +219,7 @@ export function TopValidatorsCard({ limit }: { limit?: number }) {
     const validatorData =
         data &&
         is(data.details, HaneulObject) &&
-        is(data.details.data, HaneulMoveObject)
+        data.details.data.dataType === 'moveObject'
             ? (data.details.data.fields as ValidatorState)
             : null;
 
