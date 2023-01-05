@@ -37,6 +37,7 @@ network = { path = "../network", package = "narwhal-network" }
 types = { path = "../types", package = "narwhal-types" }
 worker = { path = "../worker", package = "narwhal-worker" }
 storage = { path = "../storage", package = "narwhal-storage" }
+haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 store = { path = "../../crates/typed-store", package = "typed-store" }
 telemetry-subscribers = { path = "../../crates/telemetry-subscribers", package = "telemetry-subscribers" }
 haneullabs-network.workspace = true
