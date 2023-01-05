@@ -13,6 +13,7 @@ use std::path::Path;
 use std::sync::Arc;
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_storage::mutex_table::{LockGuard, MutexTable};
+use haneul_types::message_envelope::Message;
 use haneul_types::object::Owner;
 use haneul_types::object::PACKAGE_VERSION;
 use haneul_types::storage::{ChildObjectResolver, ObjectKey};
@@ -111,6 +112,25 @@ impl AuthorityStore {
                 .bulk_object_insert(&genesis.objects().iter().collect::<Vec<_>>())
                 .await
                 .expect("Cannot bulk insert genesis objects");
+
+            // insert txn and effects of genesis
+            let transaction = genesis
+                .transaction()
+                .clone()
+                .verify(&genesis.committee().unwrap())
+                .unwrap();
+
+            store
+                .perpetual_tables
+                .certificates
+                .insert(transaction.digest(), transaction.serializable_ref())
+                .unwrap();
+
+            store
+                .perpetual_tables
+                .effects
+                .insert(&genesis.effects().digest(), genesis.effects())
+                .unwrap();
         }
 
         Ok(store)
