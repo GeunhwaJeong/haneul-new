@@ -3,6 +3,7 @@
 
 use std::path::Path;
 
+#[cfg(not(msim))]
 use std::str::FromStr;
 
 use haneul_config::HANEUL_KEYSTORE_FILENAME;

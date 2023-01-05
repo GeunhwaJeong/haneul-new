@@ -2,15 +2,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::AuthorityState;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use fastcrypto::traits::ToFromBytes;
 use multiaddr::Multiaddr;
-use haneullabs_metrics::spawn_monitored_task;
 use haneullabs_network::config::Config;
 use std::collections::BTreeMap;
-use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
@@ -20,7 +17,6 @@ use haneul_types::committee::CommitteeWithNetAddresses;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{committee::Committee, crypto::AuthorityKeyPair, object::Object};
 use haneul_types::{error::HaneulError, messages::*};
 
 use haneul_network::tonic::transport::Channel;
@@ -253,169 +249,4 @@ pub fn make_authority_clients(
         authority_clients.insert(authority.protocol_key(), client);
     }
     authority_clients
-}
-
-#[derive(Clone, Copy, Default)]
-pub struct LocalAuthorityClientFaultConfig {
-    pub fail_before_handle_transaction: bool,
-    pub fail_after_handle_transaction: bool,
-    pub fail_before_handle_confirmation: bool,
-    pub fail_after_handle_confirmation: bool,
-}
-
-impl LocalAuthorityClientFaultConfig {
-    pub fn reset(&mut self) {
-        *self = Self::default();
-    }
-}
-
-#[derive(Clone)]
-pub struct LocalAuthorityClient {
-    pub state: Arc<AuthorityState>,
-    pub fault_config: LocalAuthorityClientFaultConfig,
-}
-
-#[async_trait]
-impl AuthorityAPI for LocalAuthorityClient {
-    async fn handle_transaction(
-        &self,
-        transaction: Transaction,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
-        if self.fault_config.fail_before_handle_transaction {
-            return Err(HaneulError::from("Mock error before handle_transaction"));
-        }
-        let state = self.state.clone();
-        let transaction = transaction.verify()?;
-        let result = state.handle_transaction(transaction).await;
-        if self.fault_config.fail_after_handle_transaction {
-            return Err(HaneulError::GenericAuthorityError {
-                error: "Mock error after handle_transaction".to_owned(),
-            });
-        }
-        result.map(|r| r.into())
-    }
-
-    async fn handle_certificate(
-        &self,
-        certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        let state = self.state.clone();
-        let fault_config = self.fault_config;
-        spawn_monitored_task!(Self::handle_certificate(state, certificate, fault_config))
-            .await
-            .unwrap()
-    }
-
-    async fn handle_account_info_request(
-        &self,
-        request: AccountInfoRequest,
-    ) -> Result<AccountInfoResponse, HaneulError> {
-        let state = self.state.clone();
-        state.handle_account_info_request(request).await
-    }
-
-    async fn handle_object_info_request(
-        &self,
-        request: ObjectInfoRequest,
-    ) -> Result<ObjectInfoResponse, HaneulError> {
-        let state = self.state.clone();
-        state
-            .handle_object_info_request(request)
-            .await
-            .map(|r| r.into())
-    }
-
-    /// Handle Object information requests for this account.
-    async fn handle_transaction_info_request(
-        &self,
-        request: TransactionInfoRequest,
-    ) -> Result<TransactionInfoResponse, HaneulError> {
-        let state = self.state.clone();
-        state
-            .handle_transaction_info_request(request)
-            .await
-            .map(|r| r.into())
-    }
-
-    async fn handle_checkpoint(
-        &self,
-        request: CheckpointRequest,
-    ) -> Result<CheckpointResponse, HaneulError> {
-        let state = self.state.clone();
-
-        state.handle_checkpoint_request(&request)
-    }
-
-    async fn handle_committee_info_request(
-        &self,
-        request: CommitteeInfoRequest,
-    ) -> Result<CommitteeInfoResponse, HaneulError> {
-        let state = self.state.clone();
-
-        state.handle_committee_info_request(&request)
-    }
-}
-
-impl LocalAuthorityClient {
-    pub async fn new(committee: Committee, secret: AuthorityKeyPair, genesis: &Genesis) -> Self {
-        let state = AuthorityState::new_for_testing(committee, &secret, None, Some(genesis)).await;
-        Self {
-            state,
-            fault_config: LocalAuthorityClientFaultConfig::default(),
-        }
-    }
-
-    pub async fn new_with_objects(
-        committee: Committee,
-        secret: AuthorityKeyPair,
-        objects: Vec<Object>,
-        genesis: &Genesis,
-    ) -> Self {
-        let client = Self::new(committee, secret, genesis).await;
-
-        for object in objects {
-            client.state.insert_genesis_object(object).await;
-        }
-
-        client
-    }
-
-    pub fn new_from_authority(state: Arc<AuthorityState>) -> Self {
-        Self {
-            state,
-            fault_config: LocalAuthorityClientFaultConfig::default(),
-        }
-    }
-
-    async fn handle_certificate(
-        state: Arc<AuthorityState>,
-        certificate: CertifiedTransaction,
-        fault_config: LocalAuthorityClientFaultConfig,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        if fault_config.fail_before_handle_confirmation {
-            return Err(HaneulError::GenericAuthorityError {
-                error: "Mock error before handle_confirmation_transaction".to_owned(),
-            });
-        }
-        // Check existing effects before verifying the cert to allow querying certs finalized
-        // from previous epochs.
-        let tx_digest = *certificate.digest();
-        let epoch_store = state.epoch_store();
-        let signed_effects =
-            match state.get_signed_effects_and_maybe_resign(epoch_store.epoch(), &tx_digest) {
-                Ok(Some(effects)) => effects,
-                _ => {
-                    let certificate = { certificate.verify(epoch_store.committee())? };
-                    state
-                        .try_execute_immediately(&certificate, &epoch_store)
-                        .await?
-                }
-            };
-        if fault_config.fail_after_handle_confirmation {
-            return Err(HaneulError::GenericAuthorityError {
-                error: "Mock error after handle_confirmation_transaction".to_owned(),
-            });
-        }
-        Ok(HandleCertificateResponse { signed_effects })
-    }
 }

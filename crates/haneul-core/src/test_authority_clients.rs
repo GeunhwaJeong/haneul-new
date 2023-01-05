@@ -1,0 +1,372 @@
+// Copyright (c) 2021, Facebook, Inc. and its affiliates
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
+
+use crate::{authority::AuthorityState, authority_client::AuthorityAPI};
+use async_trait::async_trait;
+use haneullabs_metrics::spawn_monitored_task;
+use haneul_config::genesis::Genesis;
+use haneul_types::{
+    committee::Committee,
+    crypto::AuthorityKeyPair,
+    error::HaneulError,
+    messages::{
+        AccountInfoRequest, AccountInfoResponse, CertifiedTransaction, CommitteeInfoRequest,
+        CommitteeInfoResponse, ObjectInfoRequest, ObjectInfoResponse, Transaction,
+        TransactionInfoRequest, TransactionInfoResponse,
+    },
+    messages_checkpoint::{CheckpointRequest, CheckpointResponse},
+    object::Object,
+};
+use haneul_types::{error::HaneulResult, messages::HandleCertificateResponse};
+
+#[derive(Clone, Copy, Default)]
+pub struct LocalAuthorityClientFaultConfig {
+    pub fail_before_handle_transaction: bool,
+    pub fail_after_handle_transaction: bool,
+    pub fail_before_handle_confirmation: bool,
+    pub fail_after_handle_confirmation: bool,
+}
+
+impl LocalAuthorityClientFaultConfig {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+}
+
+#[derive(Clone)]
+pub struct LocalAuthorityClient {
+    pub state: Arc<AuthorityState>,
+    pub fault_config: LocalAuthorityClientFaultConfig,
+}
+
+#[async_trait]
+impl AuthorityAPI for LocalAuthorityClient {
+    async fn handle_transaction(
+        &self,
+        transaction: Transaction,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        if self.fault_config.fail_before_handle_transaction {
+            return Err(HaneulError::from("Mock error before handle_transaction"));
+        }
+        let state = self.state.clone();
+        let transaction = transaction.verify()?;
+        let result = state.handle_transaction(transaction).await;
+        if self.fault_config.fail_after_handle_transaction {
+            return Err(HaneulError::GenericAuthorityError {
+                error: "Mock error after handle_transaction".to_owned(),
+            });
+        }
+        result.map(|r| r.into())
+    }
+
+    async fn handle_certificate(
+        &self,
+        certificate: CertifiedTransaction,
+    ) -> Result<HandleCertificateResponse, HaneulError> {
+        let state = self.state.clone();
+        let fault_config = self.fault_config;
+        spawn_monitored_task!(Self::handle_certificate(state, certificate, fault_config))
+            .await
+            .unwrap()
+    }
+
+    async fn handle_account_info_request(
+        &self,
+        request: AccountInfoRequest,
+    ) -> Result<AccountInfoResponse, HaneulError> {
+        let state = self.state.clone();
+        state.handle_account_info_request(request).await
+    }
+
+    async fn handle_object_info_request(
+        &self,
+        request: ObjectInfoRequest,
+    ) -> Result<ObjectInfoResponse, HaneulError> {
+        let state = self.state.clone();
+        state
+            .handle_object_info_request(request)
+            .await
+            .map(|r| r.into())
+    }
+
+    /// Handle Object information requests for this account.
+    async fn handle_transaction_info_request(
+        &self,
+        request: TransactionInfoRequest,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        let state = self.state.clone();
+        state
+            .handle_transaction_info_request(request)
+            .await
+            .map(|r| r.into())
+    }
+
+    async fn handle_checkpoint(
+        &self,
+        request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError> {
+        let state = self.state.clone();
+
+        state.handle_checkpoint_request(&request)
+    }
+
+    async fn handle_committee_info_request(
+        &self,
+        request: CommitteeInfoRequest,
+    ) -> Result<CommitteeInfoResponse, HaneulError> {
+        let state = self.state.clone();
+
+        state.handle_committee_info_request(&request)
+    }
+}
+
+impl LocalAuthorityClient {
+    pub async fn new(committee: Committee, secret: AuthorityKeyPair, genesis: &Genesis) -> Self {
+        let state = AuthorityState::new_for_testing(committee, &secret, None, Some(genesis)).await;
+        Self {
+            state,
+            fault_config: LocalAuthorityClientFaultConfig::default(),
+        }
+    }
+
+    pub async fn new_with_objects(
+        committee: Committee,
+        secret: AuthorityKeyPair,
+        objects: Vec<Object>,
+        genesis: &Genesis,
+    ) -> Self {
+        let client = Self::new(committee, secret, genesis).await;
+
+        for object in objects {
+            client.state.insert_genesis_object(object).await;
+        }
+
+        client
+    }
+
+    pub fn new_from_authority(state: Arc<AuthorityState>) -> Self {
+        Self {
+            state,
+            fault_config: LocalAuthorityClientFaultConfig::default(),
+        }
+    }
+
+    async fn handle_certificate(
+        state: Arc<AuthorityState>,
+        certificate: CertifiedTransaction,
+        fault_config: LocalAuthorityClientFaultConfig,
+    ) -> Result<HandleCertificateResponse, HaneulError> {
+        if fault_config.fail_before_handle_confirmation {
+            return Err(HaneulError::GenericAuthorityError {
+                error: "Mock error before handle_confirmation_transaction".to_owned(),
+            });
+        }
+        // Check existing effects before verifying the cert to allow querying certs finalized
+        // from previous epochs.
+        let tx_digest = *certificate.digest();
+        let epoch_store = state.epoch_store();
+        let signed_effects =
+            match state.get_signed_effects_and_maybe_resign(epoch_store.epoch(), &tx_digest) {
+                Ok(Some(effects)) => effects,
+                _ => {
+                    let certificate = { certificate.verify(epoch_store.committee())? };
+                    state
+                        .try_execute_immediately(&certificate, &epoch_store)
+                        .await?
+                }
+            };
+        if fault_config.fail_after_handle_confirmation {
+            return Err(HaneulError::GenericAuthorityError {
+                error: "Mock error after handle_confirmation_transaction".to_owned(),
+            });
+        }
+        Ok(HandleCertificateResponse { signed_effects })
+    }
+}
+
+#[derive(Clone)]
+pub struct MockAuthorityApi {
+    delay: Duration,
+    count: Arc<Mutex<u32>>,
+    handle_committee_info_request_result: Option<HaneulResult<CommitteeInfoResponse>>,
+    handle_object_info_request_result: Option<HaneulResult<ObjectInfoResponse>>,
+}
+
+impl MockAuthorityApi {
+    pub fn new(delay: Duration, count: Arc<Mutex<u32>>) -> Self {
+        MockAuthorityApi {
+            delay,
+            count,
+            handle_committee_info_request_result: None,
+            handle_object_info_request_result: None,
+        }
+    }
+    pub fn set_handle_committee_info_request_result(
+        &mut self,
+        result: HaneulResult<CommitteeInfoResponse>,
+    ) {
+        self.handle_committee_info_request_result = Some(result);
+    }
+
+    pub fn set_handle_object_info_request(&mut self, result: HaneulResult<ObjectInfoResponse>) {
+        self.handle_object_info_request_result = Some(result);
+    }
+}
+
+#[async_trait]
+impl AuthorityAPI for MockAuthorityApi {
+    /// Initiate a new transaction to a Haneul or Primary account.
+    async fn handle_transaction(
+        &self,
+        _transaction: Transaction,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        unreachable!();
+    }
+
+    /// Execute a certificate.
+    async fn handle_certificate(
+        &self,
+        _certificate: CertifiedTransaction,
+    ) -> Result<HandleCertificateResponse, HaneulError> {
+        unreachable!()
+    }
+
+    /// Handle Account information requests for this account.
+    async fn handle_account_info_request(
+        &self,
+        _request: AccountInfoRequest,
+    ) -> Result<AccountInfoResponse, HaneulError> {
+        unreachable!();
+    }
+
+    /// Handle Object information requests for this account.
+    async fn handle_object_info_request(
+        &self,
+        _request: ObjectInfoRequest,
+    ) -> Result<ObjectInfoResponse, HaneulError> {
+        self.handle_object_info_request_result.clone().unwrap()
+    }
+
+    /// Handle Object information requests for this account.
+    async fn handle_transaction_info_request(
+        &self,
+        _request: TransactionInfoRequest,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        let count = {
+            let mut count = self.count.lock().unwrap();
+            *count += 1;
+            *count
+        };
+
+        // timeout until the 15th request
+        if count < 15 {
+            tokio::time::sleep(self.delay).await;
+        }
+
+        let res = TransactionInfoResponse {
+            signed_transaction: None,
+            certified_transaction: None,
+            signed_effects: None,
+        };
+        Ok(res)
+    }
+
+    async fn handle_checkpoint(
+        &self,
+        _request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError> {
+        unreachable!();
+    }
+
+    async fn handle_committee_info_request(
+        &self,
+        _request: CommitteeInfoRequest,
+    ) -> Result<CommitteeInfoResponse, HaneulError> {
+        self.handle_committee_info_request_result.clone().unwrap()
+    }
+}
+
+#[derive(Clone)]
+pub struct HandleTransactionTestAuthorityClient {
+    pub tx_info_resp_to_return: TransactionInfoResponse,
+}
+
+#[async_trait]
+impl AuthorityAPI for HandleTransactionTestAuthorityClient {
+    async fn handle_transaction(
+        &self,
+        _transaction: Transaction,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        Ok(self.tx_info_resp_to_return.clone())
+    }
+
+    async fn handle_certificate(
+        &self,
+        _certificate: CertifiedTransaction,
+    ) -> Result<HandleCertificateResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_account_info_request(
+        &self,
+        _request: AccountInfoRequest,
+    ) -> Result<AccountInfoResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_object_info_request(
+        &self,
+        _request: ObjectInfoRequest,
+    ) -> Result<ObjectInfoResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_transaction_info_request(
+        &self,
+        _request: TransactionInfoRequest,
+    ) -> Result<TransactionInfoResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_checkpoint(
+        &self,
+        _request: CheckpointRequest,
+    ) -> Result<CheckpointResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_committee_info_request(
+        &self,
+        _request: CommitteeInfoRequest,
+    ) -> Result<CommitteeInfoResponse, HaneulError> {
+        unimplemented!()
+    }
+}
+
+impl HandleTransactionTestAuthorityClient {
+    pub fn new() -> Self {
+        Self {
+            tx_info_resp_to_return: TransactionInfoResponse {
+                signed_transaction: None,
+                certified_transaction: None,
+                signed_effects: None,
+            },
+        }
+    }
+
+    pub fn set_tx_info_response(&mut self, resp: TransactionInfoResponse) {
+        self.tx_info_resp_to_return = resp;
+    }
+}
+
+impl Default for HandleTransactionTestAuthorityClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
