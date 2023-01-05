@@ -40,7 +40,7 @@ use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, DevInspectResults, HaneulEvent, HaneulEventEnvelope,
     HaneulTransactionEffects,
 };
-use haneul_simulator::nondeterministic;
+use haneul_macros::nondeterministic;
 use haneul_storage::indexes::ObjectIndexChanges;
 use haneul_storage::write_ahead_log::WriteAheadLog;
 use haneul_storage::{
