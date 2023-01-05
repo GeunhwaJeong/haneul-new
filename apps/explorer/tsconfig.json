@@ -41,5 +41,5 @@
             "@haneullabs/wallet-kit": ["../../sdk/wallet-adapter/wallet-kit/src/"]
         }
     },
-    "include": ["src"]
+    "include": ["src", "tests"]
 }
