@@ -12,7 +12,6 @@ use haneul_adapter::execution_mode;
 use haneul_json::HaneulJsonValue;
 use haneul_transaction_builder::TransactionBuilder;
 use haneul_types::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
-use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::TapFallible;
 
 use fastcrypto::encoding::Base64;
@@ -27,9 +26,8 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest, TxSequenceNumber};
-use haneul_types::committee::EpochId;
 use haneul_types::crypto::sha3_hash;
-use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse, TransactionData};
+use haneul_types::messages::TransactionData;
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead};
 use haneul_types::query::TransactionQuery;
@@ -408,20 +406,6 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
             .await
             .map_err(|e| anyhow!("{e}"))?
             .try_into()?)
-    }
-
-    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<CommitteeInfoResponse> {
-        Ok(self
-            .state
-            .handle_committee_info_request(&CommitteeInfoRequest { epoch })
-            .map_err(|e| anyhow!("{e}"))?)
-    }
-
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState> {
-        Ok(self
-            .state
-            .get_haneul_system_state_object()
-            .map_err(|e| anyhow!("{e}"))?)
     }
 }
 

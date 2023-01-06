@@ -281,6 +281,70 @@ impl RpcTransactionBuilderServer for FullNodeTransactionBuilderApi {
         };
         Ok(TransactionBytes::from_data(data)?)
     }
+
+    async fn request_add_delegation(
+        &self,
+        signer: HaneulAddress,
+        coins: Vec<ObjectID>,
+        amount: Option<u64>,
+        validator: HaneulAddress,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        Ok(TransactionBytes::from_data(
+            self.builder
+                .request_add_delegation(signer, coins, amount, validator, gas, gas_budget)
+                .await?,
+        )?)
+    }
+
+    async fn request_withdraw_delegation(
+        &self,
+        signer: HaneulAddress,
+        delegation: ObjectID,
+        staked_haneul: ObjectID,
+        principal_withdraw_amount: u64,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        Ok(TransactionBytes::from_data(
+            self.builder
+                .request_withdraw_delegation(
+                    signer,
+                    delegation,
+                    staked_haneul,
+                    principal_withdraw_amount,
+                    gas,
+                    gas_budget,
+                )
+                .await?,
+        )?)
+    }
+
+    async fn request_switch_delegation(
+        &self,
+        signer: HaneulAddress,
+        delegation: ObjectID,
+        staked_haneul: ObjectID,
+        new_validator_address: HaneulAddress,
+        switch_pool_token_amount: u64,
+        gas: Option<ObjectID>,
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes> {
+        Ok(TransactionBytes::from_data(
+            self.builder
+                .request_switch_delegation(
+                    signer,
+                    delegation,
+                    staked_haneul,
+                    new_validator_address,
+                    switch_pool_token_amount,
+                    gas,
+                    gas_budget,
+                )
+                .await?,
+        )?)
+    }
 }
 
 impl HaneulRpcModule for FullNodeTransactionBuilderApi {

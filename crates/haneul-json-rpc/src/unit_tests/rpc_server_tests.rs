@@ -1,14 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-
+use crate::api::CoinReadApiClient;
+use crate::api::GovernanceReadApiClient;
+use crate::api::{RpcFullNodeReadApiClient, TransactionExecutionApiClient};
+use crate::api::{RpcReadApiClient, RpcTransactionBuilderClient};
 use std::path::Path;
 
 #[cfg(not(msim))]
 use std::str::FromStr;
-
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{
     Balance, CoinPage, GetObjectDataResponse, HaneulCoinMetadata, HaneulEvent,
     HaneulExecuteTransactionResponse, HaneulExecutionStatus, HaneulTransactionResponse, TransactionBytes,
@@ -17,20 +20,18 @@ use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
+use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME, LOCKED_COIN_MODULE_NAME};
 use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::haneul_system_state::ValidatorMetadata;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
 
-use crate::api::CoinReadApiClient;
-use crate::api::{RpcFullNodeReadApiClient, TransactionExecutionApiClient};
-use crate::api::{RpcReadApiClient, RpcTransactionBuilderClient};
-
 use haneul_macros::sim_test;
+use haneul_types::governance::{DelegatedStake, DelegationStatus};
 
 use tokio::time::{sleep, Duration};
 
@@ -733,6 +734,284 @@ async fn test_get_fullnode_events() -> Result<(), anyhow::Error> {
         .await
         .unwrap();
     assert_eq!(4, page.data.len());
+
+    Ok(())
+}
+
+#[sim_test]
+async fn test_locked_haneul() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new().build().await?;
+
+    let http_client = cluster.rpc_client();
+    let address = cluster.accounts.first().unwrap();
+
+    let objects = http_client.get_objects_owned_by_address(*address).await?;
+    assert_eq!(5, objects.len());
+    // verify coins and balance before test
+    let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;
+    let balance: Vec<Balance> = http_client.get_all_balances(*address).await?;
+
+    assert_eq!(5, coins.data.len());
+    for coin in &coins.data {
+        assert!(coin.locked_until_epoch.is_none());
+    }
+
+    assert_eq!(1, balance.len());
+    assert!(balance[0].locked_balance.is_empty());
+
+    // lock one coin
+    let transaction_bytes: TransactionBytes = http_client
+        .move_call(
+            *address,
+            HANEUL_FRAMEWORK_ADDRESS.into(),
+            LOCKED_COIN_MODULE_NAME.to_string(),
+            "lock_coin".to_string(),
+            vec![parse_haneul_type_tag("0x2::haneul::HANEUL")?.into()],
+            vec![
+                HaneulJsonValue::from_str(&coins.data[0].coin_object_id.to_string())?,
+                HaneulJsonValue::from_str(&format!("{address}"))?,
+                HaneulJsonValue::from_bcs_bytes(&bcs::to_bytes(&"20")?)?,
+            ],
+            None,
+            1000,
+            None,
+        )
+        .await?;
+    let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+    let (tx_bytes, signature_bytes) = tx.to_tx_bytes_and_signature();
+
+    http_client
+        .execute_transaction_serialized_sig(
+            tx_bytes,
+            signature_bytes,
+            ExecuteTransactionRequestType::WaitForLocalExecution,
+        )
+        .await?;
+
+    let balances: Vec<Balance> = http_client.get_all_balances(*address).await?;
+
+    assert_eq!(1, balance.len());
+
+    let balance = balances.first().unwrap();
+
+    assert_eq!(5, balance.coin_object_count);
+    assert_eq!(1, balance.locked_balance.len());
+    assert!(balance.locked_balance.contains_key(&20));
+
+    Ok(())
+}
+
+#[sim_test]
+async fn test_delegation() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new().build().await?;
+
+    let http_client = cluster.rpc_client();
+    let address = cluster.accounts.first().unwrap();
+
+    let objects: Vec<HaneulObjectInfo> = http_client.get_objects_owned_by_address(*address).await?;
+    assert_eq!(5, objects.len());
+
+    // Check StakedHaneul object before test
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
+    assert!(staked_haneul.is_empty());
+
+    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+
+    // Delegate some HANEUL
+    let transaction_bytes: TransactionBytes = http_client
+        .request_add_delegation(
+            *address,
+            vec![objects[0].object_id],
+            Some(1000000),
+            validators[0].haneul_address,
+            None,
+            10000,
+        )
+        .await?;
+    let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+    let (tx_bytes, signature_bytes) = tx.to_tx_bytes_and_signature();
+
+    http_client
+        .execute_transaction_serialized_sig(
+            tx_bytes,
+            signature_bytes,
+            ExecuteTransactionRequestType::WaitForLocalExecution,
+        )
+        .await?;
+
+    // Check DelegatedStake object
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
+    assert_eq!(1, staked_haneul.len());
+    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
+    assert!(staked_haneul[0].staked_haneul.haneul_token_lock().is_none());
+    assert!(matches!(
+        staked_haneul[0].delegation_status,
+        DelegationStatus::Pending
+    ));
+    Ok(())
+}
+
+#[sim_test]
+async fn test_delegation_multiple_coins() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new().build().await?;
+
+    let http_client = cluster.rpc_client();
+    let address = cluster.accounts.first().unwrap();
+
+    let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;
+    assert_eq!(5, coins.data.len());
+
+    let genesis_coin_amount = coins.data[0].balance;
+
+    // Check StakedHaneul object before test
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
+    assert!(staked_haneul.is_empty());
+
+    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+
+    // Delegate some HANEUL
+    let transaction_bytes: TransactionBytes = http_client
+        .request_add_delegation(
+            *address,
+            vec![
+                coins.data[0].coin_object_id,
+                coins.data[1].coin_object_id,
+                coins.data[2].coin_object_id,
+            ],
+            Some(1000000),
+            validators[0].haneul_address,
+            None,
+            10000,
+        )
+        .await?;
+    let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+    let (tx_bytes, signature_bytes) = tx.to_tx_bytes_and_signature();
+
+    http_client
+        .execute_transaction_serialized_sig(
+            tx_bytes,
+            signature_bytes,
+            ExecuteTransactionRequestType::WaitForLocalExecution,
+        )
+        .await?;
+
+    // Check DelegatedStake object
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
+    assert_eq!(1, staked_haneul.len());
+    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
+    assert!(staked_haneul[0].staked_haneul.haneul_token_lock().is_none());
+    assert!(matches!(
+        staked_haneul[0].delegation_status,
+        DelegationStatus::Pending
+    ));
+
+    // Coins should be merged into one and returned to the sender.
+    let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;
+    assert_eq!(3, coins.data.len());
+
+    // Find the new coin
+    let new_coin = coins
+        .data
+        .iter()
+        .find(|coin| coin.balance > genesis_coin_amount)
+        .unwrap();
+    assert_eq!((genesis_coin_amount * 3) - 1000000, new_coin.balance);
+
+    Ok(())
+}
+
+#[sim_test]
+async fn test_delegation_with_locked_haneul() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new().build().await?;
+
+    let http_client = cluster.rpc_client();
+    let address = cluster.accounts.first().unwrap();
+
+    let objects: Vec<HaneulObjectInfo> = http_client.get_objects_owned_by_address(*address).await?;
+    assert_eq!(5, objects.len());
+
+    // lock some HANEUL
+    let transaction_bytes: TransactionBytes = http_client
+        .move_call(
+            *address,
+            HANEUL_FRAMEWORK_ADDRESS.into(),
+            LOCKED_COIN_MODULE_NAME.to_string(),
+            "lock_coin".to_string(),
+            vec![parse_haneul_type_tag("0x2::haneul::HANEUL")?.into()],
+            vec![
+                HaneulJsonValue::from_str(&objects[0].object_id.to_string())?,
+                HaneulJsonValue::from_str(&format!("{address}"))?,
+                HaneulJsonValue::from_bcs_bytes(&bcs::to_bytes(&"20")?)?,
+            ],
+            None,
+            1000,
+            None,
+        )
+        .await?;
+    let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+    let (tx_bytes, signature_bytes) = tx.to_tx_bytes_and_signature();
+
+    http_client
+        .execute_transaction_serialized_sig(
+            tx_bytes,
+            signature_bytes,
+            ExecuteTransactionRequestType::WaitForLocalExecution,
+        )
+        .await?;
+
+    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+
+    // Delegate some locked HANEUL
+    let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;
+    let locked_haneul = coins
+        .data
+        .iter()
+        .find_map(|coin| coin.locked_until_epoch.map(|_| coin.coin_object_id))
+        .unwrap();
+
+    let transaction_bytes: TransactionBytes = http_client
+        .request_add_delegation(
+            *address,
+            vec![locked_haneul],
+            Some(1000000),
+            validators[0].haneul_address,
+            None,
+            10000,
+        )
+        .await?;
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+    let (tx_bytes, signature_bytes) = tx.to_tx_bytes_and_signature();
+
+    http_client
+        .execute_transaction_serialized_sig(
+            tx_bytes,
+            signature_bytes,
+            ExecuteTransactionRequestType::WaitForLocalExecution,
+        )
+        .await?;
+
+    // Check StakedHaneul object
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
+    assert_eq!(1, staked_haneul.len());
+    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
+    assert_eq!(Some(20), staked_haneul[0].staked_haneul.haneul_token_lock());
+
+    assert!(matches!(
+        staked_haneul[0].delegation_status,
+        DelegationStatus::Pending
+    ));
 
     Ok(())
 }

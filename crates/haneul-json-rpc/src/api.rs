@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::core::RpcResult;
-use jsonrpsee_proc_macros::rpc;
 use std::collections::BTreeMap;
-use haneul_types::haneul_system_state::HaneulSystemState;
 
 use fastcrypto::encoding::Base64;
+use jsonrpsee::core::RpcResult;
+use jsonrpsee_proc_macros::rpc;
+
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     Balance, CoinPage, DevInspectResults, DynamicFieldPage, EventPage, GetObjectDataResponse,
@@ -25,9 +25,11 @@ use haneul_types::base_types::{
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::event::EventID;
+use haneul_types::governance::DelegatedStake;
 use haneul_types::messages::CommitteeInfoResponse;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
 
 /// Maximum number of events returned in an event query.
 /// This is equivalent to EVENT_QUERY_MAX_LIMIT in `haneul-storage` crate.
@@ -279,8 +281,20 @@ pub trait RpcFullNodeReadApi {
         /// the version of the queried object. If None, default to the latest known version
         version: SequenceNumber,
     ) -> RpcResult<GetPastObjectDataResponse>;
+}
 
-    /// Return the committee information for the asked epoch
+#[open_rpc(namespace = "haneul", tag = "Governance Read API")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait GovernanceReadApi {
+    /// Return all [DelegatedStake].
+    #[method(name = "getDelegatedStakes")]
+    async fn get_delegated_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>>;
+
+    /// Return all validators available for stake delegation.
+    #[method(name = "getValidators")]
+    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadata>>;
+
+    /// Return the committee information for the asked `epoch`.
     #[method(name = "getCommitteeInfo")]
     async fn get_committee_info(
         &self,
@@ -288,7 +302,7 @@ pub trait RpcFullNodeReadApi {
         epoch: Option<EpochId>,
     ) -> RpcResult<CommitteeInfoResponse>;
 
-    /// Return HaneulSystemState
+    /// Return [HaneulSystemState]
     #[method(name = "getHaneulSystemState")]
     async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState>;
 }
@@ -494,6 +508,62 @@ pub trait RpcTransactionBuilder {
         gas_budget: u64,
         /// Whether this is a regular transaction or a Dev Inspect Transaction
         txn_builder_mode: Option<HaneulTransactionBuilderMode>,
+    ) -> RpcResult<TransactionBytes>;
+
+    /// Add delegated stake to a validator's staking pool using multiple coins and amount.
+    #[method(name = "requestAddDelegation")]
+    async fn request_add_delegation(
+        &self,
+        /// the transaction signer's Haneul address
+        signer: HaneulAddress,
+        /// Coin<HANEUL> or LockedCoin<HANEUL> object to delegate
+        coins: Vec<ObjectID>,
+        /// delegation amount
+        amount: Option<u64>,
+        /// the validator's Haneul address
+        validator: HaneulAddress,
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
+        gas: Option<ObjectID>,
+        /// the gas budget, the transaction will fail if the gas cost exceed the budget
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes>;
+
+    /// Withdraw some portion of a delegation from a validator's staking pool.
+    #[method(name = "requestWithdrawDelegation")]
+    async fn request_withdraw_delegation(
+        &self,
+        /// the transaction signer's Haneul address
+        signer: HaneulAddress,
+        /// Delegation object ID
+        delegation: ObjectID,
+        /// StakedHaneul object ID
+        staked_haneul: ObjectID,
+        /// Principal amount to withdraw
+        principal_withdraw_amount: u64,
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
+        gas: Option<ObjectID>,
+        /// the gas budget, the transaction will fail if the gas cost exceed the budget
+        gas_budget: u64,
+    ) -> RpcResult<TransactionBytes>;
+
+    /// Switch delegation from the current validator to a new one.
+    #[method(name = "requestSwitchDelegation")]
+    async fn request_switch_delegation(
+        &self,
+        /// the transaction signer's Haneul address
+        signer: HaneulAddress,
+        /// Delegation object ID
+        delegation: ObjectID,
+        /// StakedHaneul object ID
+        staked_haneul: ObjectID,
+        /// Validator to switch to
+        new_validator_address: HaneulAddress,
+        /// Switching stake amount
+        switch_pool_token_amount: u64,
+        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
+        gas: Option<ObjectID>,
+        /// the gas budget, the transaction will fail if the gas cost exceed the budget
+        gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;
 }
 

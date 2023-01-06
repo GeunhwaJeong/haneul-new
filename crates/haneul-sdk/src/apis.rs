@@ -9,6 +9,7 @@ use jsonrpsee::core::client::Subscription;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Coin, CoinPage, DynamicFieldPage, EventPage, GetObjectDataResponse,
     GetPastObjectDataResponse, GetRawObjectDataResponse, HaneulCoinMetadata, HaneulEventEnvelope,
@@ -26,13 +27,15 @@ use haneul_types::messages::{
     CommitteeInfoResponse, ExecuteTransactionRequestType, VerifiedTransaction,
 };
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{
     CoinReadApiClient, EventReadApiClient, EventStreamingApiClient, RpcBcsApiClient,
     RpcFullNodeReadApiClient, RpcReadApiClient, TransactionExecutionApiClient,
 };
+use haneul_types::governance::DelegatedStake;
+
 #[derive(Debug)]
 pub struct ReadApi {
     api: Arc<RpcClient>,
@@ -423,5 +426,43 @@ impl QuorumDriver {
                 ));
             }
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GovernanceApi {
+    api: Arc<RpcClient>,
+}
+
+impl GovernanceApi {
+    pub(crate) fn new(api: Arc<RpcClient>) -> Self {
+        Self { api }
+    }
+
+    /// Return all [DelegatedStake].
+    pub async fn get_delegated_stakes(
+        &self,
+        owner: HaneulAddress,
+    ) -> HaneulRpcResult<Vec<DelegatedStake>> {
+        Ok(self.api.http.get_delegated_stakes(owner).await?)
+    }
+
+    /// Return all validators available for stake delegation.
+    pub async fn get_validators(&self) -> HaneulRpcResult<Vec<ValidatorMetadata>> {
+        Ok(self.api.http.get_validators().await?)
+    }
+
+    /// Return the committee information for the asked `epoch`.
+    /// `epoch`: The epoch of interest. If None, default to the latest epoch
+    pub async fn get_committee_info(
+        &self,
+        epoch: Option<EpochId>,
+    ) -> HaneulRpcResult<CommitteeInfoResponse> {
+        Ok(self.api.http.get_committee_info(epoch).await?)
+    }
+
+    /// Return [HaneulSystemState]
+    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
+        Ok(self.api.http.get_haneul_system_state().await?)
     }
 }
