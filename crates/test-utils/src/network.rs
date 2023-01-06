@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use futures::future::join_all;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 
@@ -17,9 +18,11 @@ use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNode;
+use haneul_node::HaneulNodeHandle;
 use haneul_sdk::HaneulClient;
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
 
@@ -267,4 +270,23 @@ pub async fn start_fullnode_from_config(
         ws_client,
         ws_url,
     })
+}
+
+pub async fn wait_for_nodes_transition_to_epoch<'a>(
+    nodes: impl Iterator<Item = &'a HaneulNodeHandle>,
+    expected_epoch: EpochId,
+) {
+    let handles: Vec<_> = nodes
+        .map(|handle| {
+            handle.with_async(|node| async move {
+                let mut rx = node.subscribe_to_epoch_change().await;
+                let epoch = node.current_epoch();
+                if epoch != expected_epoch {
+                    let committee = rx.recv().await.unwrap();
+                    assert_eq!(committee.epoch, expected_epoch);
+                }
+            })
+        })
+        .collect();
+    join_all(handles).await;
 }
