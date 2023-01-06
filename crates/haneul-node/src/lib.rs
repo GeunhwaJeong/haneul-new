@@ -285,6 +285,7 @@ impl HaneulNode {
     }
 
     pub async fn close_epoch(&self) -> HaneulResult {
+        info!("close_epoch (current epoch = {})", self.state.epoch());
         self.validator_components
             .lock()
             .await
