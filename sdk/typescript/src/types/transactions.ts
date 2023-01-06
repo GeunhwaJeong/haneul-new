@@ -106,7 +106,8 @@ export const HaneulTransactionData = object({
   transactions: array(HaneulTransactionKind),
   sender: HaneulAddress,
   gasPayment: HaneulObjectRef,
-  gasPrice: number(),
+  // TODO: remove optional after 0.21.0 is released
+  gasPrice: optional(number()),
   gasBudget: number(),
 });
 export type HaneulTransactionData = Infer<typeof HaneulTransactionData>;
@@ -383,7 +384,7 @@ export function getTransactionGasObject(
   return tx.data.gasPayment;
 }
 
-export function getTransactionGasPrice(tx: CertifiedTransaction): number {
+export function getTransactionGasPrice(tx: CertifiedTransaction) {
   return tx.data.gasPrice;
 }
 
