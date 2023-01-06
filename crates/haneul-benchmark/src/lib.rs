@@ -6,7 +6,10 @@ use std::{collections::BTreeMap, sync::Arc};
 use haneul_core::{
     authority_aggregator::AuthorityAggregator,
     authority_client::NetworkAuthorityClient,
-    quorum_driver::{QuorumDriver, QuorumDriverHandler, QuorumDriverMetrics},
+    quorum_driver::reconfig_observer::DummyReconfigObserver,
+    quorum_driver::{
+        QuorumDriver, QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics,
+    },
 };
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulObjectRead, HaneulTransactionEffects};
 use haneul_network::default_haneullabs_network_config;
@@ -112,7 +115,10 @@ pub struct LocalValidatorAggregatorProxy {
 impl LocalValidatorAggregatorProxy {
     pub fn from_auth_agg(agg: Arc<AuthorityAggregator<NetworkAuthorityClient>>) -> Self {
         let qd_handler =
-            QuorumDriverHandler::new(agg, Arc::new(QuorumDriverMetrics::new_for_tests()));
+            QuorumDriverHandlerBuilder::new(agg, Arc::new(QuorumDriverMetrics::new_for_tests()))
+                // TODO: replace with a real reconfig observer
+                .with_reconfig_observer(Arc::new(DummyReconfigObserver {}))
+                .start();
         let qd = qd_handler.clone_quorum_driver();
         Self {
             _qd_handler: qd_handler,
