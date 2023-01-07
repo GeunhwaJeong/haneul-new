@@ -16,6 +16,7 @@ module haneul::validator_set {
     use haneul::vec_map::{Self, VecMap};
     use haneul::vec_set::VecSet;
     use haneul::table_vec::{Self, TableVec};
+    use haneul::event;
 
     friend haneul::haneul_system;
 
@@ -58,6 +59,14 @@ module haneul::validator_set {
     struct ValidatorPair has store, copy, drop {
         from: address,
         to: address,
+    }
+
+    /// Event emitted when a new delegation request is received.
+    struct DelegationRequestEvent has copy, drop {
+        validator_address: address,
+        delegator_address: address,
+        epoch: u64,
+        amount: u64,
     }
 
     const BASIS_POINT_DENOMINATOR: u128 = 10000;
@@ -162,8 +171,18 @@ module haneul::validator_set {
         ctx: &mut TxContext,
     ) {
         let validator = get_validator_mut(&mut self.active_validators, validator_address);
+        let delegator_address = tx_context::sender(ctx);
+        let amount = balance::value(&delegated_stake);
         validator::request_add_delegation(validator, delegated_stake, locking_period, tx_context::sender(ctx), ctx);
         self.next_epoch_validators = derive_next_epoch_validators(self);
+        event::emit(
+            DelegationRequestEvent {
+                validator_address,
+                delegator_address,
+                epoch: tx_context::epoch(ctx),
+                amount,
+            }
+        );
     }
     
     /// Called by `haneul_system`, to withdraw some share of a delegation from the validator. The share to withdraw 
