@@ -298,11 +298,13 @@ impl HaneulNode {
             .close_epoch(&self.state.epoch_store())
     }
 
-    pub fn tx_checkpointed_in_current_epoch(&self, digest: &TransactionDigest) -> HaneulResult<bool> {
-        Ok(self
-            .state
+    pub fn is_transaction_executed_in_checkpoint_this_epoch(
+        &self,
+        digest: &TransactionDigest,
+    ) -> HaneulResult<bool> {
+        self.state
             .epoch_store()
-            .tx_checkpointed_in_current_epoch(digest)?)
+            .is_transaction_executed_in_checkpoint(digest)
     }
 
     fn create_p2p_network(
