@@ -28,6 +28,9 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest, TxSequenceNumber};
 use haneul_types::crypto::sha3_hash;
 use haneul_types::messages::TransactionData;
+use haneul_types::messages_checkpoint::{
+    CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, CheckpointSummary,
+};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, ObjectRead};
 use haneul_types::query::TransactionQuery;
@@ -406,6 +409,46 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
             .await
             .map_err(|e| anyhow!("{e}"))?
             .try_into()?)
+    }
+
+    fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<CheckpointSequenceNumber> {
+        Ok(self
+            .state
+            .get_latest_checkpoint_sequence_number()
+            .map_err(|e| {
+                anyhow!("Latest checkpoint sequence number was not found with error :{e}")
+            })?)
+    }
+
+    fn get_checkpoint_summary(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> RpcResult<CheckpointSummary> {
+        Ok(self.state.get_checkpoint_summary(sequence_number)
+        .map_err(|e| anyhow!("Checkpoint summary based on sequence number: {sequence_number} was not found with error :{e}"))?)
+    }
+
+    fn get_checkpoint_contents(
+        &self,
+        digest: CheckpointContentsDigest,
+    ) -> RpcResult<CheckpointContents> {
+        Ok(self.state.get_checkpoint_contents(digest).map_err(|e| {
+            anyhow!(
+                "Checkpoint contents based on digest: {:?} were not found with error: {}",
+                digest,
+                e
+            )
+        })?)
+    }
+
+    fn get_checkpoint_contents_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> RpcResult<CheckpointContents> {
+        Ok(self
+            .state
+            .get_checkpoint_contents_by_sequence_number(sequence_number)
+            .map_err(|e| anyhow!("Checkpoint contents based on seq number: {sequence_number} were not found with error: {e}"))?)
     }
 }
 
