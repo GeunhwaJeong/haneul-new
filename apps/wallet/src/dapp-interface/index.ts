@@ -9,10 +9,16 @@ import { HaneulWallet } from './WalletStandardInterface';
 registerWallet(new HaneulWallet());
 
 try {
+    let lazyDappInterface: DAppInterface | null = null;
     Object.defineProperty(window, 'haneulWallet', {
         enumerable: false,
         configurable: false,
-        value: new DAppInterface(),
+        get() {
+            if (!lazyDappInterface) {
+                lazyDappInterface = new DAppInterface();
+            }
+            return lazyDappInterface;
+        },
     });
 } catch (e) {
     // eslint-disable-next-line no-console
