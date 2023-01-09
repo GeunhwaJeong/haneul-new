@@ -23,8 +23,7 @@ haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 haneullabs-network.workspace = true
 telemetry-subscribers.workspace = true
-
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }

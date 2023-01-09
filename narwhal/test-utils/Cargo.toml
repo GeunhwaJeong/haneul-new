@@ -41,7 +41,7 @@ haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 store = { path = "../../crates/typed-store", package = "typed-store" }
 telemetry-subscribers = { path = "../../crates/telemetry-subscribers", package = "telemetry-subscribers" }
 haneullabs-network.workspace = true
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../../crates/workspace-hack" }
 
 anemo.workspace = true
 tower = { version = "0.4.13", features = ["full"] }

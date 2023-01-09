@@ -26,4 +26,4 @@ move-bytecode-utils.workspace = true
 
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

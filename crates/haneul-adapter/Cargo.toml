@@ -27,7 +27,7 @@ haneul-verifier = { path = "../haneul-verifier" }
 haneul-types = { path = "../haneul-types" }
 haneul-cost-tables = { path = "../haneul-cost-tables"}
 haneul-protocol-constants = { path = "../haneul-protocol-constants" }
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
 move-package.workspace = true

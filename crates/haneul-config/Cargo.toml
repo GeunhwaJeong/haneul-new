@@ -33,7 +33,7 @@ haneul-framework = { path = "../haneul-framework" }
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-types = { path = "../haneul-types" }
 haneul-keys = { path = "../haneul-keys" }
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }

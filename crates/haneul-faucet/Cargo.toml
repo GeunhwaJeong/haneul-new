@@ -32,8 +32,7 @@ haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 telemetry-subscribers.workspace = true
-
-workspace-hack.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils" }
