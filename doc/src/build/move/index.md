@@ -180,8 +180,8 @@ to distinguish different types of coins from one another.
 
 Learn about Move type parameters known as
 [generics](https://github.com/move-language/move/blob/main/language/documentation/book/src/generics.md)
-and also about the optional
-[phantom keyword](https://github.com/move-language/move/blob/main/language/documentation/book/src/generics.md#phantom-type-parameters))
+and the optional
+[phantom keyword](https://github.com/move-language/move/blob/main/language/documentation/book/src/generics.md#phantom-type-parameters)
 at your leisure.
 
 In particular, one type of custom coin already defined in Haneul is
@@ -232,21 +232,14 @@ We will show how to call Move functions from other functions and how
 to define the new ones in the section describing how to
 [write a simple Move package](write-package.md).
 
-
-In addition to functions callable from other functions, however, the
-Haneul flavor of the Move language also defines so called _entry
-functions_ that can be called directly from Haneul (e.g., from a Haneul
-application that can be written in a different language) and
-must satisfy a certain set of properties.
+The Haneul flavor of the Move language also defines _entry functions_. These must satisfy a certain set of 
+properties and can be called directly from Haneul (e.g., from a Haneul application written in a different language).
 
 #### Entry functions
 
-One of the basic operations in Haneul is transfer of gas objects between
-[addresses](https://github.com/move-language/move/blob/main/language/documentation/book/src/address.md)
-representing individual users. And one of the
-simplest entry functions is defined in the
-[HANEUL module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/haneul.move)
-to implement gas object transfer:
+One of the basic operations in Haneul is a gas object transfer between [addresses](https://github.com/move-language/move/blob/main/language/documentation/book/src/address.md) representing individual users. 
+The gas object transfer implementation in the [HANEUL module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/haneul.move) 
+is also a simple example of the use of an entry function:
 
 ```rust
 public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address, _ctx: &mut TxContext) {
@@ -278,5 +271,4 @@ value, and has three parameters:
   in the function's body as indicated by its name starting with `_`)
   - Note that since it is unused, the parameter could be removed. The mutable reference to the `TxContext` is optional for entry functions.
 
-You can see how the `transfer` function is called from a Haneul
-CLI client in [Calling Move code](../cli-client.md#calling-move-code).
+[Calling Move code](../cli-client.md#calling-move-code) describes how to call the `transfer` function from the Haneul CLI client.
