@@ -1,5 +1,14 @@
 # haneul-explorer
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [a55236e48]
+- Updated dependencies [8ae226dae]
+  - @haneullabs/haneul.js@0.22.0
+  - @haneullabs/wallet-kit@0.2.1
+
 ## 0.1.1
 
 ### Patch Changes

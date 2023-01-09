@@ -1,5 +1,12 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.3.8
+
+### Patch Changes
+
+- @haneullabs/wallet-adapter-unsafe-burner@0.3.4
+- @haneullabs/wallet-adapter-wallet-standard@0.3.8
+
 ## 0.3.7
 
 ### Patch Changes
