@@ -83,7 +83,7 @@ haneul keytool sign --address <owner_address> --data <tx_bytes>
 The keytool creates a key and then returns the signature and public key information.
 
 
-#### Execute a transaction with a signature and a public key
+#### Execute a transaction with a serialized signature
 
 ```shell
 curl --location --request POST $HANEUL_RPC_HOST \
@@ -91,16 +91,15 @@ curl --location --request POST $HANEUL_RPC_HOST \
 --data-raw '{
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "haneul_executeTransaction",
+  "method": "haneul_executeTransactionSerializedSig",
   "params": [ 
     "{{tx_bytes}}",
-    "{{sig_scheme}}",
     "{{signature}}",
-    "{{pub_key}}",
     "{{request_type}}"
   ]
 }' | json_pp
 ```
+`signature` is a Base64 encoded `flag || signature || pubkey`. 
 
 Native transfer by `haneul_transferObject` supports any object that allows for public transfers. Some objects cannot be transferred natively and require a [Move call](#haneul_movecall). See [Transactions](../learn/transactions.md#native-transaction) for more information about native transfers.
 

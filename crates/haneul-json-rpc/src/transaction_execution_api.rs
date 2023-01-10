@@ -17,7 +17,6 @@ use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::HaneulExecuteTransactionResponse;
 use haneul_open_rpc::Module;
-use haneul_types::crypto::SignatureScheme;
 use haneul_types::intent::Intent;
 use haneul_types::messages::{ExecuteTransactionRequest, ExecuteTransactionRequestType};
 use haneul_types::{crypto, messages::Transaction};
@@ -43,23 +42,14 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
     async fn execute_transaction(
         &self,
         tx_bytes: Base64,
-        sig_scheme: SignatureScheme,
         signature: Base64,
-        pub_key: Base64,
         request_type: ExecuteTransactionRequestType,
     ) -> RpcResult<HaneulExecuteTransactionResponse> {
         let tx_data =
             bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
-        let flag = vec![sig_scheme.flag()];
-        let signature = crypto::Signature::from_bytes(
-            &[
-                &*flag,
-                &*signature.to_vec().map_err(|e| anyhow!(e))?,
-                &pub_key.to_vec().map_err(|e| anyhow!(e))?,
-            ]
-            .concat(),
-        )
-        .map_err(|e| anyhow!(e))?;
+        let signature = crypto::Signature::from_bytes(&signature.to_vec().map_err(|e| anyhow!(e))?)
+            .map_err(|e| anyhow!(e))?;
+
         let txn = Transaction::from_data(tx_data, Intent::default(), signature);
 
         let transaction_orchestrator = self.transaction_orchestrator.clone();

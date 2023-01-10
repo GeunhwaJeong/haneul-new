@@ -896,13 +896,10 @@ impl HaneulClientCommands {
                     .await?;
                 let data1 = data.clone();
                 let intent_msg = IntentMessage::new(Intent::default(), data);
-                info!(
-                    "Transaction bytes : {}",
-                    Base64::encode(&bcs::to_bytes(&data1).unwrap())
-                );
-                HaneulClientCommandResult::SerializeTransferHaneul(Base64::encode(
-                    bcs::to_bytes(&intent_msg)?.as_slice(),
-                ))
+                HaneulClientCommandResult::SerializeTransferHaneul(
+                    Base64::encode(bcs::to_bytes(&intent_msg)?.as_slice()),
+                    Base64::encode(&bcs::to_bytes(&data1).unwrap()),
+                )
             }
 
             HaneulClientCommands::ExecuteSignedTx {
@@ -1318,8 +1315,9 @@ impl Display for HaneulClientCommandResult {
                     writeln!(writer, "{}", parsed_resp)?;
                 }
             }
-            HaneulClientCommandResult::SerializeTransferHaneul(res) => {
-                write!(writer, "Data to sign: {}", res)?;
+            HaneulClientCommandResult::SerializeTransferHaneul(data_to_sign, data_to_execute) => {
+                writeln!(writer, "Intent message to sign: {}", data_to_sign)?;
+                writeln!(writer, "Raw transaction to execute: {}", data_to_execute)?;
             }
             HaneulClientCommandResult::ActiveEnv(env) => {
                 write!(writer, "{}", env.as_deref().unwrap_or("None"))?;
@@ -1478,7 +1476,7 @@ pub enum HaneulClientCommandResult {
     ActiveEnv(Option<String>),
     Envs(Vec<HaneulEnv>, Option<String>),
     CreateExampleNFT(GetObjectDataResponse),
-    SerializeTransferHaneul(String),
+    SerializeTransferHaneul(String, String),
     ExecuteSignedTx(HaneulTransactionResponse),
     NewEnv(HaneulEnv),
 }
