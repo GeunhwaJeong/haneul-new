@@ -19,7 +19,7 @@ use tracing::log::warn;
 use haneul_config::genesis::Genesis;
 use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
 use haneul_node::{metrics, HaneulNode};
-use haneul_rosetta::types::{AccountIdentifier, CurveType, PrefundedAccount, HaneulEnv};
+use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::HaneulAddress;
@@ -226,7 +226,7 @@ fn read_prefunded_account(path: &Path) -> Result<Vec<PrefundedAccount>, anyhow::
             };
             PrefundedAccount {
                 privkey,
-                account_identifier: AccountIdentifier { address },
+                account_identifier: address.into(),
                 curve_type,
                 currency: HANEUL.clone(),
             }
