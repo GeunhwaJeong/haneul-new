@@ -304,12 +304,12 @@ impl HaneulNode {
             .close_epoch(&self.state.epoch_store())
     }
 
-    pub fn is_transaction_executed_in_checkpoint_this_epoch(
+    pub fn is_transaction_executed_in_checkpoint(
         &self,
         digest: &TransactionDigest,
     ) -> HaneulResult<bool> {
         self.state
-            .epoch_store()
+            .database
             .is_transaction_executed_in_checkpoint(digest)
     }
 
