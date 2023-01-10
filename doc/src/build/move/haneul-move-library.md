@@ -3,6 +3,7 @@ title: Use Haneul Move Library
 ---
 
 Haneul provides a list of Move library functions that allows us to manipulate objects in Haneul.
+You can view source code for the implementation of the core Haneul Move framework in the [Haneul GitHub repo](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/sources).
 
 ## Object ownership
 Objects in Haneul can have different ownership types. Specifically, they are:
