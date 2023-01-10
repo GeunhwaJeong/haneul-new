@@ -69,6 +69,7 @@ use haneul_core::checkpoints::{
 use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
 use haneul_core::consensus_handler::ConsensusHandler;
 use haneul_core::consensus_validator::HaneulTxValidator;
+use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::narwhal_manager::{
     run_narwhal_manager, NarwhalConfiguration, NarwhalManager, NarwhalStartMessage,
@@ -150,8 +151,12 @@ impl HaneulNode {
         let committee = committee_store
             .get_committee(&cur_epoch)?
             .expect("Committee of the current epoch must exist");
-        let epoch_store =
-            AuthorityPerEpochStore::new(committee, &config.db_path().join("store"), None);
+        let epoch_store = AuthorityPerEpochStore::new(
+            committee,
+            &config.db_path().join("store"),
+            None,
+            EpochMetrics::new(&registry_service.default_registry()),
+        );
 
         let checkpoint_store = CheckpointStore::new(&config.db_path().join("checkpoints"));
         let state_sync_store = RocksDbStore::new(
