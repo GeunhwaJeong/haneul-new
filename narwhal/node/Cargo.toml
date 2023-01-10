@@ -39,6 +39,8 @@ storage = { path = "../storage", package = "narwhal-storage" }
 types = { path = "../types", package = "narwhal-types" }
 worker = { path = "../worker", package = "narwhal-worker" }
 eyre = "0.6.8"
+haneul-keys = { path = "../../crates/haneul-keys" }
+haneul-types = { path = "../../crates/haneul-types" }
 
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 store = { path = "../../crates/typed-store", package = "typed-store" }

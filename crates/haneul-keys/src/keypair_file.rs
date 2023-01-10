@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use fastcrypto::traits::EncodeDecodeBase64;
 use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair};
 
-/// Write Base64 encoded `flag || privkey || pubkey` to file
+/// Write Base64 encoded `flag || privkey` to file.
 pub fn write_keypair_to_file<P: AsRef<std::path::Path>>(
     keypair: &HaneulKeyPair,
     path: P,
@@ -15,7 +15,7 @@ pub fn write_keypair_to_file<P: AsRef<std::path::Path>>(
     Ok(())
 }
 
-/// Write Base64 encoded `privkey || pubkey` to file
+/// Write Base64 encoded `privkey` to file.
 pub fn write_authority_keypair_to_file<P: AsRef<std::path::Path>>(
     keypair: &AuthorityKeyPair,
     path: P,
@@ -25,7 +25,7 @@ pub fn write_authority_keypair_to_file<P: AsRef<std::path::Path>>(
     Ok(())
 }
 
-/// Read from file as Base64 encoded `privkey || pubkey` and return AuthorityKeyPair
+/// Read from file as Base64 encoded `privkey` and return a AuthorityKeyPair.
 pub fn read_authority_keypair_from_file<P: AsRef<std::path::Path>>(
     path: P,
 ) -> anyhow::Result<AuthorityKeyPair> {
@@ -33,13 +33,13 @@ pub fn read_authority_keypair_from_file<P: AsRef<std::path::Path>>(
     AuthorityKeyPair::decode_base64(contents.as_str().trim()).map_err(|e| anyhow!(e))
 }
 
-/// Read from file as Base64 encoded `flag || privkey || pubkey` and return HaneulKeyapir
+/// Read from file as Base64 encoded `flag || privkey` and return a HaneulKeypair.
 pub fn read_keypair_from_file<P: AsRef<std::path::Path>>(path: P) -> anyhow::Result<HaneulKeyPair> {
     let contents = std::fs::read_to_string(path)?;
     HaneulKeyPair::decode_base64(contents.as_str().trim()).map_err(|e| anyhow!(e))
 }
 
-/// Read from file as Base64 encoded `flag || privkey || pubkey` and return NetworkKeyPair using the HaneulKeyPair scheme enum.
+/// Read from file as Base64 encoded `flag || privkey` and return a NetworkKeyPair.
 pub fn read_network_keypair_from_file<P: AsRef<std::path::Path>>(
     path: P,
 ) -> anyhow::Result<NetworkKeyPair> {
