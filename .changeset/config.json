@@ -7,5 +7,6 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "minor",
-  "privatePackages": false
+  "privatePackages": false,
+  "ignore": ["haneul-wallet", "haneul-explorer", "@haneullabs/core", "haneul-wallet-adapter-demo"]
 }
