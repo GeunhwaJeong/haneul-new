@@ -10,6 +10,7 @@ use std::{
     time::Instant,
 };
 
+use crate::config::{Config, PersistedConfig, HaneulClientConfig, HaneulEnv};
 use anyhow::{anyhow, ensure};
 use bip32::DerivationPath;
 use clap::*;
@@ -20,25 +21,24 @@ use fastcrypto::{
 };
 use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig as MoveBuildConfig;
+use prettytable::Table;
+use prettytable::{row, table};
 use serde::Serialize;
 use serde_json::json;
-use haneul_framework::build_move_package;
-use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
-use haneul_types::error::HaneulError;
-use tokio::sync::RwLock;
-use tracing::{info, warn};
-
-use crate::config::{Config, PersistedConfig, HaneulClientConfig, HaneulEnv};
 use haneul_adapter::execution_mode;
+use haneul_framework::build_move_package;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
+    DynamicFieldPage, GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::TransactionExecutionResult;
+use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
+use haneul_types::dynamic_field::DynamicFieldType;
+use haneul_types::error::HaneulError;
 use haneul_types::intent::Intent;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -51,6 +51,8 @@ use haneul_types::{
     crypto::{Signature, SignatureScheme},
     intent::IntentMessage,
 };
+use tokio::sync::RwLock;
+use tracing::{info, warn};
 
 use haneul_sdk::HaneulClient;
 
@@ -337,6 +339,20 @@ pub enum HaneulClientCommands {
         address: Option<HaneulAddress>,
     },
 
+    /// Query a dynamic field by its address.
+    #[clap(name = "dynamic-field")]
+    DynamicFieldQuery {
+        ///The ID of the parent object
+        #[clap(name = "object_id")]
+        id: ObjectID,
+        /// Optional paging cursor
+        #[clap(long)]
+        cursor: Option<ObjectID>,
+        /// Maximum item returned per page
+        #[clap(long, default_value = "50")]
+        limit: usize,
+    },
+
     /// Split a coin object into multiple coins.
     #[clap(group(ArgGroup::new("split").required(true).args(&["amounts", "count"])))]
     SplitCoin {
@@ -504,6 +520,16 @@ impl HaneulClientCommands {
                 let object_read = client.read_api().get_parsed_object(id).await?;
                 HaneulClientCommandResult::Object(object_read, bcs)
             }
+
+            HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
+                let client = context.get_client().await?;
+                let df_read = client
+                    .read_api()
+                    .get_dynamic_fields(id, cursor, Some(limit))
+                    .await?;
+                HaneulClientCommandResult::DynamicFieldQuery(df_read)
+            }
+
             HaneulClientCommands::Call {
                 package,
                 module,
@@ -1248,6 +1274,35 @@ impl Display for HaneulClientCommandResult {
                 }
                 writeln!(writer, "Showing {} results.", object_refs.len())?;
             }
+            HaneulClientCommandResult::DynamicFieldQuery(df_refs) => {
+                let mut table: Table = table!([
+                    "Name",
+                    "Type",
+                    "Object Type",
+                    "Object Id",
+                    "Version",
+                    "Digest"
+                ]);
+                for df_ref in df_refs.data.iter() {
+                    let df_type = match df_ref.type_ {
+                        DynamicFieldType::DynamicField => "DynamicField",
+                        DynamicFieldType::DynamicObject => "DynamicObject",
+                    };
+                    table.add_row(row![
+                        df_ref.name,
+                        df_type,
+                        df_ref.object_type,
+                        df_ref.object_id,
+                        df_ref.version.value(),
+                        Base64::encode(df_ref.digest)
+                    ]);
+                }
+                write!(writer, "{table}")?;
+                writeln!(writer, "Showing {} results.", df_refs.data.len())?;
+                if let Some(cursor) = df_refs.next_cursor {
+                    writeln!(writer, "Next cursor: {cursor}")?;
+                }
+            }
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
             }
@@ -1466,6 +1521,7 @@ pub enum HaneulClientCommandResult {
     PayAllHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Addresses(Vec<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
+    DynamicFieldQuery(DynamicFieldPage),
     SyncClientState,
     NewAddress((HaneulAddress, String, SignatureScheme)),
     Gas(Vec<GasCoin>),
