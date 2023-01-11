@@ -16,7 +16,6 @@ use serde_json::{json, Value};
 use tracing::info;
 use tracing::log::warn;
 
-use haneul_config::genesis::Genesis;
 use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
 use haneul_node::{metrics, HaneulNode};
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
@@ -45,8 +44,6 @@ pub enum RosettaServerCommand {
         addr: SocketAddr,
         #[clap(long)]
         full_node_url: String,
-        #[clap(long, default_value = "genesis.blob")]
-        genesis_path: PathBuf,
         #[clap(long, default_value = "data")]
         data_path: PathBuf,
     },
@@ -138,19 +135,13 @@ impl RosettaServerCommand {
                 env,
                 addr,
                 full_node_url,
-                genesis_path,
                 data_path,
             } => {
                 info!(
                     "Starting Rosetta Online Server with remove Haneul full node [{full_node_url}]."
                 );
                 let haneul_client = wait_for_haneul_client(full_node_url).await;
-                let rosetta = RosettaOnlineServer::new(
-                    env,
-                    haneul_client,
-                    Genesis::load(&genesis_path)?,
-                    &data_path,
-                );
+                let rosetta = RosettaOnlineServer::new(env, haneul_client, &data_path);
                 rosetta.serve(addr).await??;
             }
 
@@ -171,11 +162,10 @@ impl RosettaServerCommand {
                 let registry_service = metrics::start_prometheus_server(config.metrics_address);
                 // Staring a full node for the rosetta server.
                 let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
-                let genesis = config.genesis.genesis()?.clone();
                 let _node = HaneulNode::start(&config, registry_service).await?;
 
                 let haneul_client = wait_for_haneul_client(rpc_address).await;
-                let rosetta = RosettaOnlineServer::new(env, haneul_client, genesis, &data_path);
+                let rosetta = RosettaOnlineServer::new(env, haneul_client, &data_path);
                 rosetta.serve(addr).await??;
             }
         };
