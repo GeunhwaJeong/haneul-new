@@ -25,8 +25,10 @@ use prettytable::Table;
 use prettytable::{row, table};
 use serde::Serialize;
 use serde_json::json;
-use haneul_adapter::execution_mode;
 use haneul_framework::build_move_package;
+use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
+use haneul_types::error::HaneulError;
+
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
@@ -36,9 +38,7 @@ use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::TransactionExecutionResult;
-use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 use haneul_types::dynamic_field::DynamicFieldType;
-use haneul_types::error::HaneulError;
 use haneul_types::intent::Intent;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -1413,7 +1413,7 @@ pub async fn call_move(
     let client = context.get_client().await?;
     let data = client
         .transaction_builder()
-        .move_call::<execution_mode::Normal>(
+        .move_call(
             sender,
             package,
             module,

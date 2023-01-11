@@ -15,6 +15,7 @@ use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 use crate::error::{RpcError, HaneulRpcResult};
 use rpc_types::{HaneulCertifiedTransaction, HaneulParsedTransactionResponse, HaneulTransactionEffects};
 use serde_json::Value;
+use haneul_adapter::execution_mode::Normal;
 pub use haneul_json as json;
 
 use crate::apis::{CoinReadApi, EventApi, GovernanceApi, QuorumDriver, ReadApi};
@@ -42,7 +43,7 @@ pub struct TransactionExecutionResult {
 #[derive(Clone)]
 pub struct HaneulClient {
     api: Arc<RpcClient>,
-    transaction_builder: TransactionBuilder,
+    transaction_builder: TransactionBuilder<Normal>,
     read_api: Arc<ReadApi>,
     coin_read_api: CoinReadApi,
     event_api: EventApi,
@@ -155,7 +156,7 @@ impl HaneulClient {
         let read_api = Arc::new(ReadApi::new(api.clone()));
         let quorum_driver = QuorumDriver::new(api.clone());
         let event_api = EventApi::new(api.clone());
-        let transaction_builder = TransactionBuilder(read_api.clone());
+        let transaction_builder = TransactionBuilder::new(read_api.clone());
         let coin_read_api = CoinReadApi::new(api.clone());
         let governance_api = GovernanceApi::new(api.clone());
 
@@ -196,7 +197,7 @@ impl HaneulClient {
 }
 
 impl HaneulClient {
-    pub fn transaction_builder(&self) -> &TransactionBuilder {
+    pub fn transaction_builder(&self) -> &TransactionBuilder<Normal> {
         &self.transaction_builder
     }
     pub fn read_api(&self) -> &ReadApi {

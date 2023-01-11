@@ -13,7 +13,6 @@ use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
 
-use haneul_adapter::execution_mode;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     json::HaneulJsonValue,
@@ -75,7 +74,7 @@ impl TicTacToe {
         let create_game_call = self
             .client
             .transaction_builder()
-            .move_call::<execution_mode::Normal>(
+            .move_call(
                 player_x,
                 self.game_package_id,
                 "shared_tic_tac_toe",
@@ -171,7 +170,7 @@ impl TicTacToe {
             let place_mark_call = self
                 .client
                 .transaction_builder()
-                .move_call::<execution_mode::Normal>(
+                .move_call(
                     my_identity,
                     self.game_package_id,
                     "shared_tic_tac_toe",
