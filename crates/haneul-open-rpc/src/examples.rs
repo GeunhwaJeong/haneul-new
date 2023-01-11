@@ -6,6 +6,7 @@ use std::ops::Range;
 use std::str::FromStr;
 
 use fastcrypto::encoding::Base64;
+use fastcrypto::traits::AggregateAuthenticator;
 use fastcrypto::traits::KeyPair;
 use move_core_types::identifier::Identifier;
 use rand::rngs::StdRng;
@@ -29,7 +30,8 @@ use haneul_types::base_types::{
 };
 use haneul_types::crypto::AuthorityQuorumSignInfo;
 use haneul_types::crypto::{
-    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes, Signature,
+    get_key_pair_from_rng, AccountKeyPair, AggregateAuthoritySignature, AuthorityKeyPair,
+    AuthorityPublicKeyBytes, AuthoritySignature, Signature, HaneulAuthorityStrongQuorumSignInfo,
 };
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
@@ -460,11 +462,16 @@ impl RpcExampleProvider {
                 transaction_digest: *tx_digest,
                 data: HaneulTransactionData::try_from(data1).unwrap(),
                 tx_signature: signature.clone(),
-                auth_sign_info: AuthorityQuorumSignInfo {
+                auth_sign_info: HaneulAuthorityStrongQuorumSignInfo::from(&AuthorityQuorumSignInfo {
                     epoch: 0,
-                    signature: Default::default(),
+                    // We create a dummy signature since there is no such thing as a default valid
+                    // signature.
+                    signature: AggregateAuthoritySignature::aggregate(&vec![
+                        AuthoritySignature::default(),
+                    ])
+                    .unwrap(),
                     signers_map: Default::default(),
-                },
+                }),
             },
             effects: HaneulTransactionEffects {
                 status: HaneulExecutionStatus::Success,

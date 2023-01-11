@@ -38,7 +38,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{AuthorityStrongQuorumSignInfo, Signature};
+use haneul_types::crypto::{Signature, HaneulAuthorityStrongQuorumSignInfo};
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::event::{BalanceChangeType, Event, EventID};
@@ -1779,7 +1779,7 @@ pub struct HaneulCertifiedTransaction {
     /// tx_signature is signed by the transaction sender, committing to the intent message containing the transaction data and intent.
     pub tx_signature: Signature,
     /// authority signature information, if available, is signed by an authority, applied on `data`.
-    pub auth_sign_info: AuthorityStrongQuorumSignInfo,
+    pub auth_sign_info: HaneulAuthorityStrongQuorumSignInfo,
 }
 
 impl Display for HaneulCertifiedTransaction {
@@ -1803,11 +1803,15 @@ impl TryFrom<CertifiedTransaction> for HaneulCertifiedTransaction {
     fn try_from(cert: CertifiedTransaction) -> Result<Self, Self::Error> {
         let digest = *cert.digest();
         let (data, sig) = cert.into_data_and_sig();
+        // We should always have a signature here.
+        if sig.signature.sig.is_none() {
+            return Err(anyhow::anyhow!("Certified transaction is not signed"));
+        }
         Ok(Self {
             transaction_digest: digest,
             data: data.intent_message.value.try_into()?,
             tx_signature: data.tx_signature,
-            auth_sign_info: sig,
+            auth_sign_info: HaneulAuthorityStrongQuorumSignInfo::from(&sig),
         })
     }
 }
@@ -1827,7 +1831,7 @@ pub struct HaneulCertifiedTransactionEffects {
     pub transaction_effects_digest: TransactionEffectsDigest,
     pub effects: HaneulTransactionEffects,
     /// authority signature information signed by the quorum of the validators.
-    pub auth_sign_info: AuthorityStrongQuorumSignInfo,
+    pub auth_sign_info: HaneulAuthorityStrongQuorumSignInfo,
 }
 
 impl Display for HaneulCertifiedTransactionEffects {
@@ -1855,10 +1859,14 @@ impl HaneulCertifiedTransactionEffects {
     ) -> Result<Self, anyhow::Error> {
         let digest = *cert.digest();
         let (effects, auth_sign_info) = cert.into_data_and_sig();
+        // We should always have a signature here.
+        if auth_sign_info.signature.sig.is_none() {
+            return Err(anyhow::anyhow!("No quorum signature."));
+        }
         Ok(Self {
             transaction_effects_digest: digest,
             effects: HaneulTransactionEffects::try_from(effects, resolver)?,
-            auth_sign_info,
+            auth_sign_info: HaneulAuthorityStrongQuorumSignInfo::from(&auth_sign_info),
         })
     }
 }
