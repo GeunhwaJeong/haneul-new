@@ -6,7 +6,7 @@ use std::fmt::Debug;
 use std::str::FromStr;
 
 use crate::errors::{Error, ErrorType};
-use crate::operations::{Operation, Operations};
+use crate::operations::Operations;
 use crate::HANEUL;
 use axum::response::{IntoResponse, Response};
 use fastcrypto::encoding::Hex;
@@ -20,6 +20,7 @@ use haneul_sdk::rpc_types::HaneulExecutionStatus;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
+use haneul_types::messages::{PayHaneul, SingleTransactionKind, TransactionData, TransactionKind};
 
 pub type BlockHeight = u64;
 
@@ -325,7 +326,6 @@ pub enum OperationType {
     HaneulBalanceChange,
     // haneul-rosetta supported operation type
     PayHaneul,
-    GasBudget,
     // All other Haneul transaction types, readonly
     TransferHANEUL,
     Pay,
@@ -446,13 +446,9 @@ pub struct TransactionIdentifier {
 #[derive(Deserialize)]
 pub struct ConstructionPreprocessRequest {
     pub network_identifier: NetworkIdentifier,
-    pub operations: Vec<Operation>,
+    pub operations: Operations,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Value>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub max_fee: Vec<Amount>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub suggested_fee_multiplier: Option<u64>,
 }
 
 #[derive(Serialize)]
@@ -465,8 +461,7 @@ pub struct ConstructionPreprocessResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct MetadataOptions {
-    pub sender: HaneulAddress,
-    pub amount: u128,
+    pub internal_operation: InternalOperation,
 }
 
 impl IntoResponse for ConstructionPreprocessResponse {
@@ -498,13 +493,20 @@ pub struct ConstructionMetadataResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct ConstructionMetadata {
-    pub sender_coins: Vec<ObjectRef>,
+    pub tx_metadata: TransactionMetadata,
+    pub sender: HaneulAddress,
+    pub gas: ObjectRef,
+    pub budget: u64,
 }
 
 impl IntoResponse for ConstructionMetadataResponse {
     fn into_response(self) -> Response {
         Json(self).into_response()
     }
+}
+#[derive(Serialize, Deserialize, Clone)]
+pub enum TransactionMetadata {
+    PayHaneul(Vec<ObjectRef>),
 }
 
 #[derive(Deserialize)]
@@ -740,4 +742,44 @@ pub struct PrefundedAccount {
     pub account_identifier: AccountIdentifier,
     pub curve_type: CurveType,
     pub currency: Currency,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum InternalOperation {
+    PayHaneul {
+        sender: HaneulAddress,
+        recipients: Vec<HaneulAddress>,
+        amounts: Vec<u64>,
+    },
+}
+
+impl InternalOperation {
+    pub fn sender(&self) -> HaneulAddress {
+        match self {
+            InternalOperation::PayHaneul { sender, .. } => *sender,
+        }
+    }
+
+    pub fn into_data(self, metadata: ConstructionMetadata) -> TransactionData {
+        let single_tx = match (self, metadata.tx_metadata) {
+            (
+                Self::PayHaneul {
+                    recipients,
+                    amounts,
+                    ..
+                },
+                TransactionMetadata::PayHaneul(coins),
+            ) => SingleTransactionKind::PayHaneul(PayHaneul {
+                coins,
+                recipients,
+                amounts,
+            }),
+        };
+        TransactionData::new(
+            TransactionKind::Single(single_tx),
+            metadata.sender,
+            metadata.gas,
+            metadata.budget,
+        )
+    }
 }

@@ -14,7 +14,6 @@ use serde_json::{json, Value};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::error::HaneulError;
 
 use crate::types::{BlockHash, OperationType, PublicKey, HaneulEnv};
@@ -56,8 +55,9 @@ pub enum Error {
     },
     #[error("Public key deserialization error: {0:?}")]
     PublicKeyDeserializationError(PublicKey),
-    #[error("Insufficient fund for address [{address}], requested amount: {amount}")]
-    InsufficientFund { address: HaneulAddress, amount: u128 },
+
+    #[error("Error executing transaction: {0}")]
+    TransactionExecutionError(String),
 
     #[error(transparent)]
     InternalError(#[from] anyhow::Error),
@@ -68,7 +68,7 @@ pub enum Error {
     #[error(transparent)]
     HaneulError(#[from] HaneulError),
     #[error(transparent)]
-    HaneulRpcError(#[from] haneul_sdk::error::RpcError),
+    HaneulRpcError(#[from] haneul_sdk::error::Error),
     #[error(transparent)]
     EncodingError(#[from] eyre::Report),
     #[error(transparent)]
