@@ -10,6 +10,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use haneul_json::HaneulJsonValue;
 use haneul_transaction_builder::TransactionBuilder;
+use haneul_types::committee::EpochId;
 use haneul_types::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use tap::TapFallible;
 
@@ -60,6 +61,14 @@ impl FullNodeApi {
             state,
             dev_inspect_builder: TransactionBuilder::new(reader),
         }
+    }
+
+    fn get_haneul_system_state_object_epoch(&self) -> RpcResult<EpochId> {
+        Ok(self
+            .state
+            .get_haneul_system_state_object()
+            .map_err(|e| anyhow!("Unable to retrieve haneul system state object: {e}"))?
+            .epoch)
     }
 }
 
@@ -229,11 +238,19 @@ impl HaneulRpcModule for ReadApi {
 
 #[async_trait]
 impl RpcFullNodeReadApiServer for FullNodeApi {
-    async fn dev_inspect_transaction(&self, tx_bytes: Base64) -> RpcResult<DevInspectResults> {
+    async fn dev_inspect_transaction(
+        &self,
+        tx_bytes: Base64,
+        epoch: Option<EpochId>,
+    ) -> RpcResult<DevInspectResults> {
+        let epoch = match epoch {
+            None => self.get_haneul_system_state_object_epoch()?,
+            Some(n) => n,
+        };
         let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
         Ok(self
             .state
-            .dev_inspect_transaction(txn_data, txn_digest)
+            .dev_inspect_transaction(txn_data, txn_digest, epoch)
             .await?)
     }
 
@@ -245,7 +262,12 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
         function: String,
         type_arguments: Vec<HaneulTypeTag>,
         arguments: Vec<HaneulJsonValue>,
+        epoch: Option<EpochId>,
     ) -> RpcResult<DevInspectResults> {
+        let epoch = match epoch {
+            None => self.get_haneul_system_state_object_epoch()?,
+            Some(n) => n,
+        };
         let move_call = self
             .dev_inspect_builder
             .single_move_call(
@@ -258,7 +280,7 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
             .await?;
         Ok(self
             .state
-            .dev_inspect_move_call(sender_address, move_call)
+            .dev_inspect_move_call(sender_address, move_call, epoch)
             .await?)
     }
 
