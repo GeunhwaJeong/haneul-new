@@ -12,7 +12,7 @@ struct Color {
 }
 ```
 The above `struct` defines a data structure that can represent RGB color. `struct`s like this can be used to organize data with complicated semantics. However, instances of `struct`s like `Color` are not Haneul objects yet.
-To define a struct that represents a Haneul object type, we must add a `key` capability to the definition, and the first field of the struct must be the `id` of the object with type `UID` from the [object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move):
+To define a struct that represents a Haneul object type, we must add a `key` capability to the definition, and the first field of the struct must be the `id` of the object with type `UID` from the [object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) - a module from the core [Haneul Framework](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/Move.toml).
 ```rust
 use haneul::object::UID;
 
@@ -26,7 +26,7 @@ struct ColorObject has key {
 Now `ColorObject` represents a Haneul object type and can be used to create Haneul objects that can be eventually stored on the Haneul chain.
 > :books: In both core Move and Haneul Move, the [key ability](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#key) denotes a type that can appear as a key in global storage. However, the structure of global storage is a bit different: core Move uses a (type, `address`)-indexed map, whereas Haneul Move uses a map keyed by object IDs.
 
-> :bulb: The `UID` type is internal to Haneul, and you most likely won't need to deal with it directly. For curious readers, it contains the "unique ID" that defines an object. It is unique in the sense that no two values of type `UID` will ever have the same underlying set of bytes.
+> :bulb: The `UID` type is internal to Haneul, and you most likely won't need to deal with it directly. For curious readers, it contains the "unique ID" that defines an object on the Haneul network. It is unique in the sense that no two values of type `UID` will ever have the same underlying set of bytes.
 
 ### Create Haneul object
 Now that we have learned how to define a Haneul object type, how do we create/instantiate a Haneul object? In order to create a new Haneul object from its type, we must assign an initial value to each of the fields, including `id`. The only way to create a new `UID` for a Haneul object is to call `object::new`. The `new` function takes the current transaction context as an argument to generate unique `ID`s. The transaction context is of type `&mut TxContext` and should be passed down from an [entry function](../move/index.md#entry-functions) (a function that can be called directly from a transaction). Let's look at how we may define a constructor for `ColorObject`:
@@ -35,7 +35,7 @@ Now that we have learned how to define a Haneul object type, how do we create/in
 // functions in the module, such as the `new` function, without fully
 // qualifying, e.g. `haneul::object::new`.
 use haneul::object;
-// tx_context::TxContext creates an alias to the the TxContext struct in tx_context module.
+// tx_context::TxContext creates an alias to the TxContext struct in the tx_context module.
 use haneul::tx_context::TxContext;
 
 
@@ -57,7 +57,7 @@ All of the APIs for adding objects to persistent storage live in the [`transfer`
 ```rust
 public fun transfer<T: key>(obj: T, recipient: address)
 ```
-This places `obj` in global storage along with metadata that records `recipient` as the owner of the object. In Haneul, every object must have an owner, which can be either an address, another object, or "shared"--see [object ownership](../objects.md#object-ownership) for more details.
+This places `obj` in global storage along with metadata that records `recipient` as the owner of the object. In Haneul, every object must have an owner, which can be either an address, another object, or "shared"--see [Object ownership](../learn/objects#object-ownership) for more details.
 
 > :bulb: In core Move, we would call `move_to<T>(a: address, t: T)` to add the entry `(a, T) -> t` to the global storage. But because (as explained above) the schema of Haneul Move's global storage is different, we use the `Transfer` APIs instead of `move_to` or the other [global storage operators](https://github.com/move-language/move/blob/main/language/documentation/book/src/global-storage-operators.md) in core Move. These operators cannot be used in Haneul Move.
 
