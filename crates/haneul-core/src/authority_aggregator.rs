@@ -30,10 +30,6 @@ use haneul_types::{
     committee::Committee,
     error::{HaneulError, HaneulResult},
     messages::*,
-    messages_checkpoint::{
-        AuthenticatedCheckpoint, CertifiedCheckpointSummary, CheckpointContents, CheckpointRequest,
-        CheckpointResponse,
-    },
 };
 use haneul_types::{fp_ensure, HANEUL_SYSTEM_STATE_OBJECT_ID};
 use tracing::{debug, error, info, trace, warn, Instrument};
@@ -51,7 +47,6 @@ use tokio::time::{sleep, timeout};
 
 use crate::authority::{AuthorityState, AuthorityStore};
 use crate::epoch::committee_store::CommitteeStore;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tap::TapFallible;
 
 pub const DEFAULT_RETRIES: usize = 4;
@@ -1597,61 +1592,6 @@ where
         }
 
         Ok(ObjectRead::NotExists(object_id))
-    }
-
-    pub async fn handle_checkpoint_request(
-        &self,
-        request: &CheckpointRequest,
-        // authorities known to have the checkpoint we are requesting.
-        authorities: &BTreeSet<AuthorityName>,
-        timeout_total: Option<Duration>,
-    ) -> HaneulResult<CheckpointResponse> {
-        self.quorum_once_with_timeout(
-            None,
-            Some(authorities),
-            |_, client| Box::pin(async move { client.handle_checkpoint(request.clone()).await }),
-            self.timeouts.serial_authority_request_timeout,
-            timeout_total,
-            "handle_checkpoint_request".to_string(),
-        )
-        .await
-    }
-
-    pub async fn get_certified_checkpoint(
-        &self,
-        sequence_number: CheckpointSequenceNumber,
-        request_contents: bool,
-        // authorities known to have the checkpoint we are requesting.
-        authorities: &BTreeSet<AuthorityName>,
-        timeout_total: Option<Duration>,
-    ) -> HaneulResult<(CertifiedCheckpointSummary, Option<CheckpointContents>)> {
-        let request = CheckpointRequest::authenticated(Some(sequence_number), request_contents);
-        self.quorum_once_with_timeout(
-            None,
-            Some(authorities),
-            |_, client| {
-                let r = request.clone();
-                Box::pin(async move {
-                    let resp = client.handle_checkpoint(r).await?;
-
-                    if let CheckpointResponse::AuthenticatedCheckpoint {
-                        checkpoint: Some(AuthenticatedCheckpoint::Certified(past)),
-                        contents,
-                    } = resp
-                    {
-                        Ok((past, contents))
-                    } else {
-                        Err(HaneulError::GenericAuthorityError {
-                            error: "expected Certified checkpoint".into(),
-                        })
-                    }
-                })
-            },
-            self.timeouts.serial_authority_request_timeout,
-            timeout_total,
-            "get_certified_checkpoint".to_string(),
-        )
-        .await
     }
 
     /// This function tries to fetch CertifiedTransaction from any validators.
