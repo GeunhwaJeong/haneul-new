@@ -83,9 +83,9 @@ public fun get_color(self: &ColorObject): (u8, u8, u8) {
 }
 ```
 
-Find the full code online in [color_object.move](https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/objects_tutorial/sources/color_object.move).
+Find the full code in the Haneul repo under `haneul_programmability/examples/objects_tutorial/sources/` in [color_object.move](https://github.com/GeunhwaJeong/haneul/blob/main/haneul_programmability/examples/objects_tutorial/sources/color_object.move).
 
-To compile the code, make sure you have [installed Haneul](../install.md) so that `haneul` is in `PATH`. In the code root directory (where `Move.toml` is), run:
+To compile the code, make sure you have [installed Haneul](../install.md) so that `haneul` is in `PATH`. In the code root directory `(../examples/objects_tutorial/)` (where `Move.toml` is), run:
 ```
 haneul move build
 ```
