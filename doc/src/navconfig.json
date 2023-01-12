@@ -8,7 +8,8 @@
       },
       {
         "label": "Haneul Releases",
-        "link": "https://github.com/GeunhwaJeong/haneul/releases"
+        "link": "https://github.com/GeunhwaJeong/haneul/releases",
+        "external": true
       },
       {
         "label": "Haneul Developer Forums",
@@ -218,7 +219,7 @@
         },
       {
           "label": "Haneul Framework Reference",
-          "fileName": "reference/framework"
+          "fileName": "reference/framework/index"
         }
     ],
     "explore": [
