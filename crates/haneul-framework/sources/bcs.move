@@ -47,9 +47,6 @@ module haneul::bcs {
     /// For when ULEB byte is out of range (or not found).
     const ELenOutOfRange: u64 = 2;
 
-    /// Address length in Haneul is 20 bytes.
-    const HANEUL_ADDRESS_LENGTH: u64 = 20;
-
     /// A helper struct that saves resources on operations. For better
     /// vector performance, it stores reversed bytes of the BCS and
     /// enables use of `vector::pop_back`.
@@ -80,7 +77,7 @@ module haneul::bcs {
 
     /// Read address from the bcs-serialized bytes.
     public fun peel_address(bcs: &mut BCS): address {
-        assert!(v::length(&bcs.bytes) >= HANEUL_ADDRESS_LENGTH, EOutOfRange);
+        assert!(v::length(&bcs.bytes) >= address::length(), EOutOfRange);
         let (addr_bytes, i) = (v::empty(), 0);
         while (i < 20) {
             v::push_back(&mut addr_bytes, v::pop_back(&mut bcs.bytes));
