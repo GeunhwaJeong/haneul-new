@@ -755,6 +755,13 @@ pub struct Ed25519HaneulSignature(
     [u8; Ed25519PublicKey::LENGTH + Ed25519Signature::LENGTH + 1],
 );
 
+// Implementation useful for simplify testing when mock signature is needed
+impl Default for Ed25519HaneulSignature {
+    fn default() -> Self {
+        Self([0; Ed25519PublicKey::LENGTH + Ed25519Signature::LENGTH + 1])
+    }
+}
+
 impl HaneulSignatureInner for Ed25519HaneulSignature {
     type Sig = Ed25519Signature;
     type PubKey = Ed25519PublicKey;
