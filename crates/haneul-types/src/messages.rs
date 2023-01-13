@@ -45,7 +45,7 @@ use tracing::debug;
 
 const DUMMY_GAS_PRICE: u64 = 1;
 
-const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 2] = [
+const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 3] = [
     (
         HANEUL_FRAMEWORK_OBJECT_ID,
         "haneul_system",
@@ -55,6 +55,11 @@ const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 2] = [
         HANEUL_FRAMEWORK_OBJECT_ID,
         "haneul_system",
         "request_remove_validator",
+    ),
+    (
+        HANEUL_FRAMEWORK_OBJECT_ID,
+        "haneul_system",
+        "request_set_commission_rate",
     ),
 ];
 
