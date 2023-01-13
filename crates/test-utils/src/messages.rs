@@ -3,7 +3,7 @@
 
 use move_core_types::account_address::AccountAddress;
 use move_core_types::ident_str;
-use move_core_types::language_storage::TypeTag;
+use move_core_types::language_storage::{StructTag, TypeTag};
 use std::path::PathBuf;
 use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
@@ -31,6 +31,7 @@ use haneul_types::messages::{
 use haneul_types::object::{
     generate_test_gas_objects, generate_test_gas_objects_with_owner_list, Object,
 };
+use haneul_types::parse_haneul_struct_tag;
 use haneul_types::utils::to_sender_signed_transaction;
 
 /// The maximum gas per transaction.
@@ -72,6 +73,22 @@ pub async fn get_gas_object_with_wallet_context(
     } else {
         Some(res.swap_remove(0).to_object_ref())
     }
+}
+
+/// get one available gas ObjectRef
+pub async fn get_haneul_gas_object_with_wallet_context(
+    context: &WalletContext,
+    address: &HaneulAddress,
+) -> Vec<(StructTag, ObjectRef)> {
+    let res = get_gas_objects_with_wallet_context(context, address).await;
+    res.iter()
+        .map(|obj| {
+            (
+                parse_haneul_struct_tag(&obj.type_).unwrap(),
+                obj.to_object_ref(),
+            )
+        })
+        .collect()
 }
 
 pub async fn get_gas_objects_with_wallet_context(
