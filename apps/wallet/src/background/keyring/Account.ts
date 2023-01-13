@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Keypair, HaneulAddress } from '@haneullabs/haneul.js';
+import type {
+    SignaturePubkeyPair,
+    Keypair,
+    HaneulAddress,
+    Base64DataBuffer,
+} from '@haneullabs/haneul.js';
 
 export type AccountType = 'derived' | 'imported';
 
@@ -25,5 +30,13 @@ export class Account {
 
     exportKeypair() {
         return this.#keypair.export();
+    }
+
+    async sign(data: Base64DataBuffer): Promise<SignaturePubkeyPair> {
+        return {
+            signatureScheme: this.#keypair.getKeyScheme(),
+            signature: this.#keypair.signData(data),
+            pubKey: this.#keypair.getPublicKey(),
+        };
     }
 }

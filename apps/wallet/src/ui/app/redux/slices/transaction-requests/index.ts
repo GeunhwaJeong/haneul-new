@@ -74,9 +74,12 @@ export const deserializeTxn = createAsyncThunk<
     AppThunkConfig
 >(
     'deserialize-transaction',
-    async (data, { dispatch, extra: { api, keypairVault } }) => {
+    async (data, { dispatch, extra: { api, keypairVault, background } }) => {
         const { id, serializedTxn } = data;
-        const signer = api.getSignerInstance(keypairVault.getKeypair());
+        const signer = api.getSignerInstance(
+            keypairVault.getKeypair().getPublicKey().toHaneulAddress(),
+            background
+        );
         const localSerializer = new LocalTxnDataSerializer(signer.provider);
         const txnBytes = new Base64DataBuffer(serializedTxn);
         const version = await api.instance.fullNode.getRpcApiVersion();
@@ -143,7 +146,10 @@ export const respondToTransactionRequest = createAsyncThunk<
         let txResult: HaneulTransactionResponse | undefined = undefined;
         let tsResultError: string | undefined;
         if (approved) {
-            const signer = api.getSignerInstance(keypairVault.getKeypair());
+            const signer = api.getSignerInstance(
+                keypairVault.getKeypair().getPublicKey().toHaneulAddress(),
+                background
+            );
             try {
                 let response: HaneulExecuteTransactionResponse;
                 if (

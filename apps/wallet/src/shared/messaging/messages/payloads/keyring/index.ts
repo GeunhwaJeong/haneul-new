@@ -3,7 +3,11 @@
 
 import { isBasePayload } from '_payloads';
 
-import type { ExportedKeypair } from '@haneullabs/haneul.js';
+import type {
+    ExportedKeypair,
+    SignatureScheme,
+    HaneulAddress,
+} from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 type MethodToPayloads = {
@@ -43,6 +47,14 @@ type MethodToPayloads = {
     setLockTimeout: {
         args: { timeout: number };
         return: never;
+    };
+    signData: {
+        args: { data: string; address: HaneulAddress };
+        return: {
+            signatureScheme: SignatureScheme;
+            signature: string;
+            pubKey: string;
+        };
     };
 };
 

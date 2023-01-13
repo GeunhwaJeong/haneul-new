@@ -6,11 +6,11 @@ import { Coin as CoinAPI, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import type {
     ObjectId,
     HaneulObject,
-    RawSigner,
     HaneulAddress,
     HaneulMoveObject,
     JsonRpcProvider,
     HaneulExecuteTransactionResponse,
+    SignerWithProvider,
 } from '@haneullabs/haneul.js';
 
 const COIN_TYPE = '0x2::coin::Coin';
@@ -85,7 +85,7 @@ export class Coin {
      * @param validator The haneul address of the chosen validator
      */
     public static async stakeCoin(
-        signer: RawSigner,
+        signer: SignerWithProvider,
         coins: HaneulMoveObject[],
         amount: bigint,
         validator: HaneulAddress
@@ -107,7 +107,7 @@ export class Coin {
     }
 
     private static async requestHaneulCoinWithExactAmount(
-        signer: RawSigner,
+        signer: SignerWithProvider,
         coins: HaneulMoveObject[],
         amount: bigint
     ): Promise<ObjectId> {
@@ -143,7 +143,7 @@ export class Coin {
     }
 
     private static async selectHaneulCoinWithExactAmount(
-        signer: RawSigner,
+        signer: SignerWithProvider,
         coins: HaneulMoveObject[],
         amount: bigint,
         refreshData = false
