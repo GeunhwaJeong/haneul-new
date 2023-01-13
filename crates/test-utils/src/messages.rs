@@ -32,7 +32,9 @@ use haneul_types::object::{
     generate_test_gas_objects, generate_test_gas_objects_with_owner_list, Object,
 };
 use haneul_types::parse_haneul_struct_tag;
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::utils::to_sender_signed_transaction;
+use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 
 /// The maximum gas per transaction.
 pub const MAX_GAS: u64 = 2_000;
@@ -364,6 +366,34 @@ pub fn make_counter_increment_transaction(
             id: counter_id,
             initial_shared_version: counter_initial_shared_version,
         })],
+        MAX_GAS,
+    );
+    to_sender_signed_transaction(data, keypair)
+}
+
+pub fn make_delegation_transaction(
+    gas_object: ObjectRef,
+    coin: ObjectRef,
+    system_package_ref: ObjectRef,
+    validator: HaneulAddress,
+    sender: HaneulAddress,
+    keypair: &AccountKeyPair,
+) -> VerifiedTransaction {
+    let data = TransactionData::new_move_call(
+        sender,
+        system_package_ref,
+        HANEUL_SYSTEM_MODULE_NAME.to_owned(),
+        "request_add_delegation".parse().unwrap(),
+        vec![],
+        gas_object,
+        vec![
+            CallArg::Object(ObjectArg::SharedObject {
+                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+            }),
+            CallArg::Object(ObjectArg::ImmOrOwnedObject(coin)),
+            CallArg::Pure(bcs::to_bytes(&validator).unwrap()),
+        ],
         MAX_GAS,
     );
     to_sender_signed_transaction(data, keypair)

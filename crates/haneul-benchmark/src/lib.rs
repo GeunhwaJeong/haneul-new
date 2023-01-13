@@ -17,11 +17,14 @@ use haneul_core::{
 };
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulObjectRead, HaneulTransactionEffects};
 use haneul_sdk::HaneulClient;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
     base_types::ObjectID,
     committee::{Committee, EpochId},
     messages::{CertifiedTransactionEffects, QuorumDriverResponse, Transaction},
     object::{Object, ObjectRead},
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use haneul_types::{
     base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo,
@@ -110,6 +113,8 @@ pub trait ValidatorProxy {
     fn get_current_epoch(&self) -> EpochId;
 
     fn clone_new(&self) -> Box<dyn ValidatorProxy + Send + Sync>;
+
+    async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error>;
 }
 
 pub struct LocalValidatorAggregatorProxy {
@@ -241,6 +246,18 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
             qd,
         })
     }
+
+    async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
+        let system_state = self.get_object(HANEUL_SYSTEM_STATE_OBJECT_ID).await?;
+        let move_obj = system_state.data.try_as_move().unwrap();
+        let result = bcs::from_bytes::<HaneulSystemState>(move_obj.contents())?;
+        Ok(result
+            .validators
+            .active_validators
+            .into_iter()
+            .map(|v| v.metadata.haneul_address)
+            .collect())
+    }
 }
 
 pub struct FullNodeProxy {
@@ -332,5 +349,10 @@ impl ValidatorProxy for FullNodeProxy {
             haneul_client: self.haneul_client.clone(),
             committee: self.clone_committee(),
         })
+    }
+
+    async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
+        let validators = self.haneul_client.governance_api().get_validators().await?;
+        Ok(validators.into_iter().map(|v| v.haneul_address).collect())
     }
 }
