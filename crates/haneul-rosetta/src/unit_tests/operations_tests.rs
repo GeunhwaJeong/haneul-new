@@ -17,7 +17,7 @@ async fn test_operation_data_parsing() -> Result<(), anyhow::Error> {
 
     let sender = HaneulAddress::random_for_testing_only();
 
-    let data = TransactionData::new_pay_haneul(
+    let data = TransactionData::new_pay_haneul_with_dummy_gas_price(
         sender,
         vec![gas],
         vec![HaneulAddress::random_for_testing_only()],

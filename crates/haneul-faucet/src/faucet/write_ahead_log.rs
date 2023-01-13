@@ -187,7 +187,14 @@ mod tests {
         let recv = HaneulAddress::random_for_testing_only();
         (
             recv,
-            TransactionData::new_pay_haneul(send, vec![coin], vec![recv], vec![1000], coin, 1000),
+            TransactionData::new_pay_haneul_with_dummy_gas_price(
+                send,
+                vec![coin],
+                vec![recv],
+                vec![1000],
+                coin,
+                1000,
+            ),
         )
     }
 }
