@@ -2,9 +2,9 @@
 title: Haneul Wallet
 ---
 
-This topic describes how to install and use the [Haneul Wallet Browser Extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). You can use the Haneul Wallet to create an address, complete transactions, mint NFTs, view or manage assets on the Haneul network, and connect with blockchain dApps on Web3.
+This topic describes how to install and use the [Haneul Wallet browser extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). You can use the Haneul Wallet to create an address, complete transactions, mint NFTs, view or manage assets on the Haneul network, and connect with blockchain dApps on Web3.
 
-The early versions of Haneul Wallet let you experiment with the Haneul network for testing. The Haneul network is still in development, and the tokens have no real value. Accounts reset with each deployment of a new version of the network. View the [devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) channel in Discord for updates about the network.
+The early versions of Haneul Wallet let you experiment with the Haneul network for testing. The Haneul network is still in development, and the tokens have no real value. Accounts reset with each deployment of a new version of the network, typically weekly. View the [devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) channel in Discord for updates about the network.
 
 To test more advanced features not available in Haneul Wallet, see [Haneul CLI client](../build/cli-client.md).
 
@@ -25,7 +25,7 @@ Note that in the current release, Haneul Wallet includes buttons to **Buy**, **S
 
 To use Haneul Wallet you must install a Chrome browser extension. You can use the extension with any browser that supports Chrome extensions from the Chrome Web Store.
 
-1. Open the [Haneul Wallet](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil) page on the Chrome Web Store.
+1. Using a chromium-based browser, open the [Haneul Wallet](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil) page on the Chrome Web Store.
 1. Click **Add to Chrome**.
 1. Acknowledge the message about permissions for the extension, and then click **Add Extension**.
 
@@ -35,15 +35,15 @@ If you don't yet have a Haneul Wallet, create a new one. To import an existing w
 
 1. Open the Haneul Wallet extension in your browser and then click **Get Started**.
 1. Click **Create a New Wallet**.
-1. Enter a password for your wallet.
-   This is not a global password for Haneul Wallet. It applies only to this installation.
-1. Enter the password again to confirm it.
+1. Under **Create Password**, enter a password for your wallet.
+   This is not a global password for Haneul Wallet. It applies only to this installation in this browser.
+1. Under **Confirm Password**, enter the same password to confirm it.
 1. Click the checkbox to accept the Terms of Service.
 1. Click **Create Wallet**.
 1. Copy the Recovery Phrase and store it in a safe location.
 1. Click **Open Haneul Wallet**.
 
-Haneul Wallet prompts you to enter your password when you open it.
+Haneul Wallet prompts you to enter your password when you open it after the first use.
 
 If you lose access to your wallet, you can recover it only with the recovery phrase. If you lose the recovery phrase, you lose access to your wallet and any coins or NFTs stored in it.
 
@@ -54,13 +54,33 @@ You can use your Haneul Wallet on multiple devices and browsers. After you creat
 1. Open the Haneul Wallet extension in your browser and then click **Get Started**.
 1. Click **Import an Existing Wallet**.
 1. Enter your 12-word recovery phrase, and then click **Continue**.
-1. Enter a password for your wallet.
-   This is not a global password for Haneul Wallet. It applies only to this installation.
-1. Enter the password again to confirm it.
+1. Under **Create Password**, enter a password for your wallet.
+   This is not a global password for Haneul Wallet. It applies only to this installation in this browser.
+1. Under **Confirm Password**, enter the same password to confirm it.
 1. Click **Import**.
 1. Click **Open Haneul Wallet**.
 
-Haneul Wallet prompts you to enter your password when you open it.
+Haneul Wallet prompts you to enter your password when you open it after the first use.
+
+## Add HANEUL tokens to your Haneul Wallet
+
+When you first open the wallet, you have no coins in it. You can add test HANEUL coins to your wallet directly from the wallet interface, or you can use the faucet in Discord. You need an active Discord account to access the Haneul channels.
+
+**To get HANEUL test coins from Haneul Wallet**
+If you have no coins in your wallet, click **Request Devnet HANEUL tokens** to add coins to your wallet. You can request coins 5 times every 60 minutes. After you request tokens the first time, the button moves to the menu so it doesn't take up space on your wallet interface.
+
+If you don't yet have coins in your wallet, click the menu in the top-right corner, and then click **Request Devnet HANEUL tokens**.
+
+**To get HANEUL test coins through Discord**
+1. Click **Coins**.
+1. Click the small clipboard icon next to your address to copy it.
+   It's near the top of the wallet and starts with 0x.
+1. Open the Haneul [devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel in Discord. You must have an active Discord account that has joined the Haneul Discord to access the channel.
+1. Use the `!faucet` command with your wallet address to request tokens:
+   `!faucet 0x6c04ed5110554acf59ff1b535129548dd9a0c741`
+   Replace the address in the command with your wallet address.
+
+The channel bot displays a message confirming your request.
 
 ## View Haneul Wallet details
 
@@ -82,42 +102,22 @@ You can lock your wallet to prevent unauthorized access. You must enter your pas
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Lock Wallet**.
 
-You can also set a timer to automatically lock your wallet after a period of idle time.
+You can also set a timer to automatically lock your wallet after a period of idle time, up to 30 minutes.
 
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Account**.
 1. In the field under **AUTO-LOCK TIMER**, enter the number of minutes to wait, up to 30, before the wallet locks, and then click **Save**.
 
-Haneul Wallet locks automatically if you change tabs in your browser.
+The wallet remains unlocked for the number of minutes you specify, even if you switch tabs in your browser.
 
 ## Change the active network
 
-You can change the active network for Haneul Wallet. Currently, Haneul Wallet supports only Devnet and Local. Use Devnet unless you have a local network for testing. To learn how to create a local network, see [Haneul Client CLI](../build/cli-client.md).
+You can change the active network for Haneul Wallet. Currently, Haneul Wallet supports **Haneul Devnet**, **Local**, and **Custom RPC URL**. Use Devnet unless you have a local network for testing. To learn how to create a local network, see [Create a Local Haneul Network](../build/haneul-local-network.md).
 
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
 1. Click **Network**.
 1. Click the network to use.
    A checkmark displays next to the active network.
-
-## Add HANEUL tokens to your Haneul Wallet
-
-When you first open the wallet, you have no coins in it. You can add test HANEUL coins to your wallet directly from the wallet interface, or you can use the faucet in Discord. You need an active Discord account to access the Haneul channels.
-
-**To get HANEUL test coins from Haneul Wallet**
-If you have no coins in your wallet, click **Request Devnet HANEUL tokens** to add coins to your wallet. You can request coins 5 times every 60 minutes. After you request tokens the first time, the button moves to the menu so it doesn't take up space on your wallet interface.
-
-If you don't yet have coins in your wallet, click the menu in the top-right corner, and then click **Request Devnet HANEUL tokens**.
-
-**To get HANEUL test coins through Discord**
-1. Click **Coins**.
-1. Click the small clipboard icon next to your address to copy it.
-It's near the top of the wallet and starts with 0x.
-1. Open the Haneul [devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel in Discord.
-1. Use the `!faucet` command with your wallet address to request tokens:
-   `!faucet 0x6c04ed5110554acf59ff1b535129548dd9a0c741`
-   Replace the address in the command with your wallet address.
-
-The channel bot displays a message that starts with "5 test HANEUL objects are heading to your wallet..."
 
 ## View your wallet balance
 
@@ -129,7 +129,7 @@ You can send coins from your wallet to another address.
 
 1. Open the Haneul Wallet extension in your browser.
 1. Click **Coins** and then click **Send**.
-1. In the **Amount** field, enter the number of HANEUL tokens to send, and then click **Continue**.
+1. In the **Amount** field, enter the number of HANEUL to send, and then click **Continue**.
 1. Enter the recipient's address, then click **Send Coins Now**.
 
 ## View recent transaction details
@@ -161,7 +161,7 @@ To mint a new NFT using the demo site
    You may need to enter your wallet password.
 1. Enter a **Name** and **Description** for your NFT, and then enter Image URL to the image to use.
 1. Click **Create**.
-1. Click **Approve** in your wallet to allow the site to add the NFT to your wallet.
+1. Click **Approve** in your wallet to allow the site to add the NFT to your wallet and withdraw gas fees from your HANEUL balance.
 
 After you successfully create a new NFT, you can transfer it to another wallet address. Enter the address to send it to in the **Recipient** field, then click **Transfer**. Click **Approve** in your wallet to allow the transfer.
 
