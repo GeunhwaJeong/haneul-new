@@ -62,6 +62,13 @@ export class VoidProvider extends Provider {
     throw this.newError('requestHaneulFromFaucet');
   }
 
+  // RPC Endpoint
+  call(
+    _endpoint: string, 
+    _params: any[]): Promise<any> {
+    throw this.newError('call');
+  }
+
   // Objects
   async getObjectsOwnedByAddress(_address: string): Promise<HaneulObjectInfo[]> {
     throw this.newError('getObjectsOwnedByAddress');
