@@ -17,7 +17,7 @@ import { HaneulIcons } from '_font-icons/output/haneul-icons';
 import { useAppSelector, useObjectsState } from '_hooks';
 import { accountAggregateBalancesSelector } from '_redux/slices/account';
 import { GAS_TYPE_ARG, Coin } from '_redux/slices/haneul-objects/Coin';
-import { FEATURES } from '_src/ui/app/experimentation/features';
+import { FEATURES } from '_src/shared/experimentation/features';
 
 import st from './TokensPage.module.scss';
 
