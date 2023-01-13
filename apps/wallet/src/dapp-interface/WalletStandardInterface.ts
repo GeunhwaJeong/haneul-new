@@ -27,7 +27,10 @@ import {
     type HasPermissionsResponse,
     ALL_PERMISSION_TYPES,
 } from '_payloads/permissions';
+import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
 
+import type { HaneulAddress } from '@haneullabs/haneul.js/src';
+import type { EventsChangeProperties } from '@haneullabs/wallet-standard';
 import type { GetAccount } from '_payloads/account/GetAccount';
 import type { GetAccountResponse } from '_payloads/account/GetAccountResponse';
 import type {
@@ -103,6 +106,20 @@ export class HaneulWallet implements Wallet {
         return this.#account ? [this.#account] : [];
     }
 
+    #setAccount(address: HaneulAddress | null) {
+        if (!address) {
+            this.#account = null;
+            return;
+        }
+        this.#account = new ReadonlyWalletAccount({
+            address,
+            // TODO: Expose public key instead of address:
+            publicKey: new Uint8Array(),
+            chains: HANEUL_CHAINS,
+            features: ['haneul:signAndExecuteTransaction'],
+        });
+    }
+
     constructor() {
         this.#events = mitt();
         this.#account = null;
@@ -110,7 +127,20 @@ export class HaneulWallet implements Wallet {
             'haneul_in-page',
             'haneul_content-script'
         );
-
+        this.#messagesStream.messages.subscribe(({ payload }) => {
+            if (isWalletStatusChangePayload(payload)) {
+                const { accounts } = payload;
+                let change: EventsChangeProperties = {};
+                if (accounts) {
+                    const [address = null] = accounts;
+                    if (address !== this.#account?.address) {
+                        this.#setAccount(address);
+                        change = { accounts: this.accounts };
+                    }
+                }
+                this.#events.emit('change', change);
+            }
+        });
         this.#connected();
     }
 
@@ -135,13 +165,7 @@ export class HaneulWallet implements Wallet {
         if (address) {
             const account = this.#account;
             if (!account || account.address !== address) {
-                this.#account = new ReadonlyWalletAccount({
-                    address,
-                    // TODO: Expose public key instead of address:
-                    publicKey: new Uint8Array(),
-                    chains: HANEUL_CHAINS,
-                    features: ['haneul:signAndExecuteTransaction'],
-                });
+                this.#setAccount(address);
                 this.#events.emit('change', { accounts: this.accounts });
             }
         }
