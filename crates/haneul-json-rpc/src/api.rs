@@ -339,6 +339,10 @@ pub trait GovernanceReadApi {
     /// Return [HaneulSystemState]
     #[method(name = "getHaneulSystemState")]
     async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState>;
+
+    /// Return the reference gas price for the network
+    #[method(name = "getReferenceGasPrice")]
+    async fn get_reference_gas_price(&self) -> RpcResult<u64>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]
