@@ -24,6 +24,10 @@ prometheus = "0.13.3"
 scopeguard = "1.1"
 tap = "1.0"
 
+eyre = "0.6.8"
+rocksdb = "0.19.0"
+tempfile = "3.3.0"
+
 haneul = { path = "../haneul" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
@@ -32,6 +36,9 @@ haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 telemetry-subscribers.workspace = true
+typed-store.workspace = true
+typed-store-derive.workspace = true
+
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
