@@ -453,8 +453,8 @@ impl RpcExampleProvider {
         };
         let events = vec![HaneulEventEnvelope {
             timestamp: std::time::Instant::now().elapsed().as_secs(),
-            tx_digest: Some(*tx_digest),
-            id: EventID::from((0, 0)),
+            tx_digest: *tx_digest,
+            id: EventID::from((*tx_digest, 0)),
             event: haneul_event.clone(),
         }];
         let result = HaneulTransactionResponse {
@@ -512,9 +512,11 @@ impl RpcExampleProvider {
 
     fn get_events(&mut self) -> Examples {
         let (_, _, _, _, result, events) = self.get_transfer_data_response();
+        let tx_dig =
+            TransactionDigest::from_str("11a72GCQ5hGNpWGh2QhQkkusTEGS6EDqifJqxr7nSYX").unwrap();
         let page = EventPage {
             data: events.clone(),
-            next_cursor: Some((1000, 5).into()),
+            next_cursor: Some((tx_dig, 5).into()),
         };
         Examples::new(
             "haneul_getEvents",
@@ -531,7 +533,7 @@ impl RpcExampleProvider {
                         "cursor",
                         json!(EventID {
                             event_seq: 10,
-                            tx_seq: 500
+                            tx_digest: result.certificate.transaction_digest
                         }),
                     ),
                     ("limit", json!(events.len())),
