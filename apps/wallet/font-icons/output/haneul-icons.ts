@@ -10,6 +10,7 @@ export enum HaneulIcons {
   ThumbsUp = "haneul-icons-ThumbsUp",
   Union = "haneul-icons-Union",
   Activity = "haneul-icons-activity",
+  Add = "haneul-icons-add",
   Apps = "haneul-icons-apps",
   ArrowDown = "haneul-icons-arrow-down",
   ArrowLeft = "haneul-icons-arrow-left",
@@ -33,6 +34,7 @@ export enum HaneulIcons {
   Nfts = "haneul-icons-nfts",
   PercentagePolygon = "haneul-icons-percentage-polygon",
   Person = "haneul-icons-person",
+  Remove = "haneul-icons-remove",
   Search = "haneul-icons-search",
   HaneulChevronRight = "haneul-icons-haneul-chevron-right",
   HaneulLogoIcon = "haneul-icons-haneul-logo-icon",
@@ -44,6 +46,6 @@ export enum HaneulIcons {
   VersionIcon = "haneul-icons-version-icon"
 }
 
-export type HaneulIconsClassname = "haneul-icons-Buy" | "haneul-icons-Download" | "haneul-icons-Info" | "haneul-icons-Plus" | "haneul-icons-Preview" | "haneul-icons-ThumbsUp" | "haneul-icons-Union" | "haneul-icons-activity" | "haneul-icons-apps" | "haneul-icons-arrow-down" | "haneul-icons-arrow-left" | "haneul-icons-arrow-right" | "haneul-icons-check-fill" | "haneul-icons-check" | "haneul-icons-checkmark" | "haneul-icons-chevron-down" | "haneul-icons-clipboard" | "haneul-icons-close-fill" | "haneul-icons-close" | "haneul-icons-coins" | "haneul-icons-copy-fill" | "haneul-icons-copy" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-lock" | "haneul-icons-logout" | "haneul-icons-nft-type-image" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-search" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-swap" | "haneul-icons-tokens" | "haneul-icons-unlocked" | "haneul-icons-up-right" | "haneul-icons-version-icon"
-export type HaneulIconsIcon = "Buy" | "Download" | "Info" | "Plus" | "Preview" | "ThumbsUp" | "Union" | "activity" | "apps" | "arrow-down" | "arrow-left" | "arrow-right" | "check-fill" | "check" | "checkmark" | "chevron-down" | "clipboard" | "close-fill" | "close" | "coins" | "copy-fill" | "copy" | "globe" | "hand-coins" | "history" | "lock" | "logout" | "nft-type-image" | "nfts" | "percentage-polygon" | "person" | "search" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "swap" | "tokens" | "unlocked" | "up-right" | "version-icon"
+export type HaneulIconsClassname = "haneul-icons-Buy" | "haneul-icons-Download" | "haneul-icons-Info" | "haneul-icons-Plus" | "haneul-icons-Preview" | "haneul-icons-ThumbsUp" | "haneul-icons-Union" | "haneul-icons-activity" | "haneul-icons-add" | "haneul-icons-apps" | "haneul-icons-arrow-down" | "haneul-icons-arrow-left" | "haneul-icons-arrow-right" | "haneul-icons-check-fill" | "haneul-icons-check" | "haneul-icons-checkmark" | "haneul-icons-chevron-down" | "haneul-icons-clipboard" | "haneul-icons-close-fill" | "haneul-icons-close" | "haneul-icons-coins" | "haneul-icons-copy-fill" | "haneul-icons-copy" | "haneul-icons-globe" | "haneul-icons-hand-coins" | "haneul-icons-history" | "haneul-icons-lock" | "haneul-icons-logout" | "haneul-icons-nft-type-image" | "haneul-icons-nfts" | "haneul-icons-percentage-polygon" | "haneul-icons-person" | "haneul-icons-remove" | "haneul-icons-search" | "haneul-icons-haneul-chevron-right" | "haneul-icons-haneul-logo-icon" | "haneul-icons-haneul-logo-txt" | "haneul-icons-swap" | "haneul-icons-tokens" | "haneul-icons-unlocked" | "haneul-icons-up-right" | "haneul-icons-version-icon"
+export type HaneulIconsIcon = "Buy" | "Download" | "Info" | "Plus" | "Preview" | "ThumbsUp" | "Union" | "activity" | "add" | "apps" | "arrow-down" | "arrow-left" | "arrow-right" | "check-fill" | "check" | "checkmark" | "chevron-down" | "clipboard" | "close-fill" | "close" | "coins" | "copy-fill" | "copy" | "globe" | "hand-coins" | "history" | "lock" | "logout" | "nft-type-image" | "nfts" | "percentage-polygon" | "person" | "remove" | "search" | "haneul-chevron-right" | "haneul-logo-icon" | "haneul-logo-txt" | "swap" | "tokens" | "unlocked" | "up-right" | "version-icon"
 export const HaneulIconsPrefix = "haneul-icons-"

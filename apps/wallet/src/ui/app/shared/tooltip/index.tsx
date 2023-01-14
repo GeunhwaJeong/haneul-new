@@ -155,7 +155,7 @@ export type IconTooltipProps = Omit<TooltipProps, 'children'>;
 export function IconTooltip(props: IconTooltipProps) {
     return (
         <Tooltip {...props}>
-            <Icon icon={HaneulIcons.Info} />
+            <Icon icon={HaneulIcons.Info} className="font-normal" />
         </Tooltip>
     );
 }

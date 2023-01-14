@@ -28,9 +28,14 @@
 
     &.outline {
         background: none;
-        color: colors.$cta-blue;
+        color: colors.$haneul-steel-blue;
         border: 1px solid colors.$haneul-steel-blue;
         border-radius: 12px;
+    }
+
+    &.outline:hover {
+        border-color: colors.$haneul-blue-steel-dark;
+        color: colors.$haneul-blue-steel-dark;
     }
 
     &.secondary {
