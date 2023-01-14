@@ -904,7 +904,10 @@ impl TransactionData {
     }
 
     pub fn input_objects(&self) -> HaneulResult<Vec<InputObjectKind>> {
-        let mut inputs = self.kind.input_objects()?;
+        let mut inputs = self
+            .kind
+            .input_objects()
+            .map_err(HaneulError::into_transaction_input_error)?;
 
         if !self.kind.is_system_tx() && !self.kind.is_pay_haneul_tx() {
             inputs.push(InputObjectKind::ImmOrOwnedMoveObject(
