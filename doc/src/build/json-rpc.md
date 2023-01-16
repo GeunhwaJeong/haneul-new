@@ -2,7 +2,7 @@
 title: JSON-RPC API Quick Start
 ---
 
-Welcome to the guide for making remote procedure calls (RPC) to the Haneul network. This document walks you through connecting to Haneul and how to the Haneul JSON-RPC API to interact with the Haneul network. Use the RPC layer to send your dApp transactions to [Haneul validators](../learn/architecture/validators.md) for verification.
+Welcome to the guide for making remote procedure calls (RPC) to the Haneul network. This document walks you through how to connect and interact with the Haneul network using the Haneul JSON-RPC API. Use the RPC layer to send your dApp transactions to [Haneul validators](../learn/architecture/validators.md) for verification.
 
 This guide is useful for developers interested in Haneul network interactions via API and should be used in conjunction with the [HaneulJSON format](haneul-json.md) for aligning JSON inputs with Move Call arguments.
 
