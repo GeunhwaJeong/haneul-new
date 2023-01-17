@@ -47,8 +47,6 @@ module haneul::haneul_system {
     /// The top-level object containing all information of the Haneul system.
     struct HaneulSystemState has key {
         id: UID,
-        /// Id of the chain, value in the range [1, 127].
-        chain_id: u8,
         /// The current epoch ID, starting from 0.
         epoch: u64,
         /// Contains all information about the validators.
@@ -100,7 +98,6 @@ module haneul::haneul_system {
     /// Create a new HaneulSystemState object and make it shared.
     /// This function will be called only once in genesis.
     public(friend) fun create(
-        chain_id: u8,
         validators: vector<Validator>,
         haneul_supply: Supply<HANEUL>,
         storage_fund: Balance<HANEUL>,
@@ -109,13 +106,11 @@ module haneul::haneul_system {
         storage_gas_price: u64,
         initial_stake_subsidy_amount: u64,
     ) {
-        assert!(chain_id >= 1 && chain_id <= 127, 1);
         let validators = validator_set::new(validators);
         let reference_gas_price = validator_set::derive_reference_gas_price(&validators);
         let state = HaneulSystemState {
             // Use a hardcoded ID.
             id: object::haneul_system_state(),
-            chain_id,
             epoch: 0,
             validators,
             haneul_supply,

@@ -4,7 +4,6 @@
 use bcs::to_bytes;
 use haneul_types::balance::{Balance, Supply};
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::chain_id::ChainId;
 use haneul_types::collection_types::VecMap;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{
@@ -88,7 +87,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
     };
     HaneulSystemState {
         info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),
-        chain_id: ChainId::TESTING,
         epoch,
         validators: validator_set,
         treasury_cap: Supply { value: 0 },
