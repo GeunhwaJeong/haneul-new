@@ -12,7 +12,7 @@ module haneul::delegation_tests {
     use haneul::governance_test_utils::{
         Self,
         create_validator_for_testing,
-        create_haneul_system_state_for_testing
+        create_haneul_system_state_for_testing,
     };
 
     const VALIDATOR_ADDR_1: address = @0x1;
@@ -165,8 +165,7 @@ module haneul::delegation_tests {
         governance_test_utils::advance_epoch(scenario);
         // Advance epoch one more time to distribute some rewards.
         // The delegator should get 7 HANEUL of rewards.
-        governance_test_utils::advance_epoch_with_reward_amounts(0, 50, scenario);
-
+        governance_test_utils::advance_epoch_with_reward_amounts(0, 49, scenario);
         test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
         {
             
@@ -185,7 +184,7 @@ module haneul::delegation_tests {
             test_scenario::return_to_sender(scenario, delegation);
             test_scenario::return_shared(system_state);
         };
-        // The delegator should get another 8 HANEUL of rewards.
+        // The delegator should get another 9 HANEUL of rewards.
         governance_test_utils::advance_epoch_with_reward_amounts(0, 57, scenario);
         test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
         {
@@ -196,7 +195,7 @@ module haneul::delegation_tests {
             let staked_haneul_1 = test_scenario::take_from_sender_by_id(scenario, *vector::borrow(&staked_haneul_ids, 1));
             assert!(staking_pool::staked_haneul_amount(&staked_haneul_1) == 30, 106); // 60% of the principal with the old validator
             let staked_haneul_2 = test_scenario::take_from_sender_by_id(scenario, *vector::borrow(&staked_haneul_ids, 2));
-            assert!(staking_pool::staked_haneul_amount(&staked_haneul_2) == 6, 106); // 40% of the rewards (15 HANEUL) with the new validator
+            assert!(staking_pool::staked_haneul_amount(&staked_haneul_2) == 6, 106); // 40% of the rewards (16 HANEUL) with the new validator
             test_scenario::return_to_sender(scenario, staked_haneul_0);
             test_scenario::return_to_sender(scenario, staked_haneul_1);
             test_scenario::return_to_sender(scenario, staked_haneul_2);
@@ -208,7 +207,7 @@ module haneul::delegation_tests {
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
             // Check that the delegate amounts have been changed successfully.
-            assert!(haneul_system::validator_delegate_amount(&system_state, VALIDATOR_ADDR_1) == 39, 107);
+            assert!(haneul_system::validator_delegate_amount(&system_state, VALIDATOR_ADDR_1) == 40, 107);
             assert!(haneul_system::validator_delegate_amount(&system_state, VALIDATOR_ADDR_2) == 26, 107);
             test_scenario::return_shared(system_state);
         };
