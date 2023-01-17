@@ -6,6 +6,7 @@ use haneullabs_metrics::monitored_scope;
 use prometheus::{register_int_counter_with_registry, IntCounter, Registry};
 use std::sync::Arc;
 
+use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use narwhal_worker::TransactionValidator;
 use haneul_types::message_envelope::Message;
 use haneul_types::{
@@ -13,22 +14,21 @@ use haneul_types::{
     messages::{ConsensusTransaction, ConsensusTransactionKind},
 };
 
-use crate::authority::AuthorityState;
-
 /// Allows verifying the validity of transactions
 #[derive(Clone)]
 pub struct HaneulTxValidator {
-    // a pointer to the Authority state, mostly in order to get access to consensus
-    // todo - change it to AuthorityPerEpochStore to avoid race conditions
-    state: Arc<AuthorityState>,
+    epoch_store: Arc<AuthorityPerEpochStore>,
     metrics: Arc<HaneulTxValidatorMetrics>,
 }
 
 impl HaneulTxValidator {
-    pub fn new(state: Arc<AuthorityState>, registry: &Registry) -> Self {
+    pub fn new(epoch_store: Arc<AuthorityPerEpochStore>, registry: &Registry) -> Self {
         let metrics = HaneulTxValidatorMetrics::new(registry);
         let metrics = Arc::new(metrics);
-        Self { state, metrics }
+        Self {
+            epoch_store,
+            metrics,
+        }
     }
 }
 
@@ -52,7 +52,6 @@ impl TransactionValidator for HaneulTxValidator {
             .iter()
             .map(|tx| tx_from_bytes(tx))
             .collect::<Result<Vec<_>, _>>()?;
-        let epoch_store = self.state.epoch_store();
 
         let mut obligation = VerificationObligation::default();
         for tx in txs.into_iter() {
@@ -62,7 +61,7 @@ impl TransactionValidator for HaneulTxValidator {
                     certificate.data().verify()?;
                     let idx = obligation.add_message(certificate.data(), certificate.epoch());
                     certificate.auth_sig().add_to_verification_obligation(
-                        epoch_store.committee(),
+                        self.epoch_store.committee(),
                         &mut obligation,
                         idx,
                     )?;
@@ -75,7 +74,7 @@ impl TransactionValidator for HaneulTxValidator {
                         .summary
                         .auth_signature
                         .add_to_verification_obligation(
-                            epoch_store.committee(),
+                            self.epoch_store.committee(),
                             &mut obligation,
                             idx,
                         )?;
@@ -157,7 +156,7 @@ mod tests {
         )
         .unwrap();
 
-        let validator = HaneulTxValidator::new(state, &Default::default());
+        let validator = HaneulTxValidator::new(state.epoch_store().clone(), &Default::default());
         let res = validator.validate(&first_transaction_bytes);
         assert!(res.is_ok(), "{res:?}");
 
