@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { is, HaneulObject, type ValidatorsFields } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { calculateAPY } from '../calculateAPY';
 import { StakeAmount } from '../home/StakeAmount';
@@ -27,6 +28,9 @@ export function ValidatorFormDetail({
     stakedId,
 }: ValidatorFormDetailProps) {
     const accountAddress = useAppSelector(({ account }) => account.address);
+
+    const [searchParams] = useSearchParams();
+    const stakeIdParams = searchParams.get('staked');
     const {
         data: validatetors,
         isLoading: loadingValidators,
@@ -69,13 +73,22 @@ export function ValidatorFormDetail({
     const totalStake = useMemo(() => {
         if (!allDelegation) return 0n;
         let totalActiveStake = 0n;
+
+        if (stakeIdParams) {
+            const balance =
+                allDelegation.find(
+                    ({ staked_haneul }) => staked_haneul.id.id === stakeIdParams
+                )?.staked_haneul.principal.value || 0;
+            return BigInt(balance);
+        }
+
         allDelegation.forEach((event) => {
             if (event.staked_haneul.validator_address === validatorAddress) {
                 totalActiveStake += BigInt(event.staked_haneul.principal.value);
             }
         });
         return totalActiveStake;
-    }, [allDelegation, validatorAddress]);
+    }, [allDelegation, validatorAddress, stakeIdParams]);
 
     const apy = useMemo(() => {
         if (!validatorData || !validatorsData) return 0;

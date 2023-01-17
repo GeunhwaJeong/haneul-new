@@ -106,6 +106,28 @@ export class Coin {
         return await signer.executeMoveCall(txn);
     }
 
+    public static async unStakeCoin(
+        signer: SignerWithProvider,
+        delegation: ObjectId,
+        stakedHaneulId: ObjectId,
+        principalWithdrawAmount: string
+    ): Promise<HaneulExecuteTransactionResponse> {
+        const txn = {
+            packageObjectId: '0x2',
+            module: 'haneul_system',
+            function: 'request_withdraw_delegation',
+            typeArguments: [],
+            arguments: [
+                HANEUL_SYSTEM_STATE_OBJECT_ID,
+                delegation,
+                stakedHaneulId,
+                principalWithdrawAmount,
+            ],
+            gasBudget: DEFAULT_GAS_BUDGET_FOR_STAKE,
+        };
+        return signer.executeMoveCall(txn);
+    }
+
     private static async requestHaneulCoinWithExactAmount(
         signer: SignerWithProvider,
         coins: HaneulMoveObject[],
