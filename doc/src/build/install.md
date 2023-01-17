@@ -278,11 +278,12 @@ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
 ```
 
 The following primary directories offer a good starting point for exploring Haneul's source code:
-* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - the Haneul CLI binary
-* [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul's Move language integration also including games and other Move code examples for testing and reuse
+* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - Haneul CLI binary
+* [haneul_framework](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/sources) - Haneul Move core smart contracts (e.g., coin.move, object.move, test_scenario.move, ...)
+* [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul Move code examples (games, defi, nfts, ...)
 * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - authority server and Haneul Gateway
 * [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - coins, gas, and other object types
-* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) - object explorer for the Haneul network
+* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) - browser-based object explorer for the Haneul network
 * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
 
 ## Rustdoc
