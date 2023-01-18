@@ -129,7 +129,7 @@ Use the following command to install `libclang-dev`:
 sudo apt-get install libclang-dev
 ```
 
-Proceed to [Install Haneul binaries](#binaries) to continue installing Haneul.
+Proceed to [Install Haneul binaries](#install-haneul-binaries) to continue installing Haneul.
 
 
 ## macOS prerequisites
