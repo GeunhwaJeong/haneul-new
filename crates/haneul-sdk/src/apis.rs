@@ -28,6 +28,7 @@ use haneul_types::event::EventID;
 use haneul_types::messages::{
     CommitteeInfoResponse, ExecuteTransactionRequestType, TransactionData, VerifiedTransaction,
 };
+use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
 
@@ -136,6 +137,13 @@ impl ReadApi {
             .http
             .get_transactions(query, cursor, limit, Some(descending_order))
             .await?)
+    }
+
+    pub async fn get_checkpoint_summary(
+        &self,
+        seq_number: CheckpointSequenceNumber,
+    ) -> HaneulRpcResult<CheckpointSummary> {
+        Ok(self.api.http.get_checkpoint_summary(seq_number).await?)
     }
 
     pub fn get_transactions_stream(
