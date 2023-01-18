@@ -1,25 +1,33 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use anyhow::anyhow;
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::vec;
 
 use serde::Deserialize;
 use serde::Serialize;
-use serde_json::{json, Value};
 use haneul_sdk::rpc_types::{
-    HaneulEvent, HaneulTransactionData, HaneulTransactionKind, HaneulTransactionResponse,
+    HaneulEvent, HaneulMoveCall, HaneulPayHaneul, HaneulTransactionData, HaneulTransactionKind,
+    HaneulTransactionResponse,
 };
 
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
+use haneul_types::committee::EpochId;
 use haneul_types::event::BalanceChangeType;
 use haneul_types::gas_coin::{GasCoin, GAS};
+use haneul_types::governance::{
+    ADD_DELEGATION_LOCKED_COIN_FUN_NAME, ADD_DELEGATION_MUL_COIN_FUN_NAME,
+};
 use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
 use crate::types::{
     AccountIdentifier, Amount, CoinAction, CoinChange, CoinID, CoinIdentifier, InternalOperation,
-    OperationIdentifier, OperationStatus, OperationType,
+    OperationIdentifier, OperationStatus, OperationType, PreprocessMetadata,
 };
 use crate::Error;
 
@@ -70,13 +78,22 @@ impl Operations {
     }
 
     /// Parse operation input from rosetta to Haneul transaction
-    pub fn into_internal(self) -> Result<InternalOperation, Error> {
-        match self
-            .type_()
-            .ok_or_else(|| Error::MissingInput("Operation type".into()))?
-        {
-            OperationType::PayHaneul => self.pay_haneul_ops_to_internal(),
-            op => Err(Error::UnsupportedOperation(op)),
+    pub fn into_internal(
+        self,
+        metadata: Option<PreprocessMetadata>,
+    ) -> Result<InternalOperation, Error> {
+        match (
+            self.type_()
+                .ok_or_else(|| Error::MissingInput("Operation type".into()))?,
+            metadata,
+        ) {
+            (OperationType::PayHaneul, _) => self.pay_haneul_ops_to_internal(),
+            (
+                OperationType::Delegation,
+                Some(PreprocessMetadata::Delegation { locked_until_epoch }),
+            ) => self.delegation_ops_to_internal(locked_until_epoch),
+            (OperationType::Delegation, _) => self.delegation_ops_to_internal(None),
+            (op, _) => Err(Error::UnsupportedOperation(op)),
         }
     }
 
@@ -108,43 +125,129 @@ impl Operations {
         })
     }
 
+    fn delegation_ops_to_internal(
+        self,
+        locked_until_epoch: Option<EpochId>,
+    ) -> Result<InternalOperation, Error> {
+        if self.0.len() != 1 {
+            return Err(Error::MalformedOperationError(
+                "Delegation should only have one operation.".into(),
+            ));
+        }
+        // Checked above, safe to unwrap.
+        let op = self.into_iter().next().unwrap();
+        let sender = op
+            .account
+            .ok_or_else(|| Error::MissingInput("Sender address".to_string()))?
+            .address;
+        let metadata = op
+            .metadata
+            .ok_or_else(|| Error::MissingInput("Delegation metadata".to_string()))?;
+
+        let amount = op
+            .amount
+            .ok_or_else(|| Error::MissingInput("Amount".to_string()))?
+            .value
+            .unsigned_abs();
+
+        let OperationMetadata::Delegation {  validator } = metadata else {
+            return Err(Error::InvalidInput("Cannot find delegation info from metadata.".into()))
+        };
+
+        Ok(InternalOperation::Delegation {
+            sender,
+            validator,
+            amount,
+            locked_until_epoch,
+        })
+    }
+
     fn from_transaction(
-        tx: &HaneulTransactionKind,
+        tx: HaneulTransactionKind,
         sender: HaneulAddress,
         status: Option<OperationStatus>,
     ) -> Result<Vec<Operation>, Error> {
-        let operations = if let HaneulTransactionKind::PayHaneul(tx) = tx {
-            let recipients = tx.recipients.iter().zip(&tx.amounts);
-            let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
+        Ok(match tx {
+            HaneulTransactionKind::PayHaneul(tx) => Self::parse_pay_haneul_operations(sender, tx, status),
+            HaneulTransactionKind::Call(tx) => Self::parse_call_operations(sender, status, tx)?,
+            _ => vec![Operation::generic_op(status, sender, tx)],
+        })
+    }
 
-            for (recipient, amount) in recipients {
-                *aggregated_recipients.entry(*recipient).or_default() += *amount
-            }
-
-            let mut pay_operations = aggregated_recipients
-                .into_iter()
-                .map(|(recipient, amount)| Operation::pay_haneul(status, recipient, amount.into()))
-                .collect::<Vec<_>>();
-            let total_paid = tx.amounts.iter().sum::<u64>();
-            pay_operations.push(Operation::pay_haneul(status, sender, -(total_paid as i128)));
-            pay_operations
-        } else {
-            let (type_, metadata) = match tx {
-                HaneulTransactionKind::TransferObject(tx) => {
-                    (OperationType::TransferObject, json!(tx))
-                }
-                HaneulTransactionKind::Publish(tx) => (OperationType::Publish, json!(tx.disassembled)),
-                HaneulTransactionKind::Call(tx) => (OperationType::MoveCall, json!(tx)),
-                HaneulTransactionKind::TransferHaneul(tx) => (OperationType::TransferHANEUL, json!(tx)),
-                HaneulTransactionKind::Pay(tx) => (OperationType::Pay, json!(tx)),
-                HaneulTransactionKind::PayAllHaneul(tx) => (OperationType::PayAllHaneul, json!(tx)),
-                HaneulTransactionKind::ChangeEpoch(tx) => (OperationType::EpochChange, json!(tx)),
-                HaneulTransactionKind::Genesis(tx) => (OperationType::Genesis, json!(tx)),
-                HaneulTransactionKind::PayHaneul(_) => unreachable!(),
+    fn parse_call_operations(
+        sender: HaneulAddress,
+        status: Option<OperationStatus>,
+        tx: HaneulMoveCall,
+    ) -> Result<Vec<Operation>, Error> {
+        if Self::is_delegation_call(&tx) {
+            let (amount, validator) = match &tx.arguments[..] {
+                [_, _, amount, validator] => {
+                    let amount = amount.to_json_value().as_array().map(|v| {
+                        // value is a byte array
+                        let bytes = v.iter().flat_map(|v| v.as_u64().map(|n| n as u8)).collect::<Vec<_>>();
+                        let option: Vec<u64> = bcs::from_bytes(&bytes)?;
+                        if let Some(amount) = option.first() {
+                            Ok(*amount as u128)
+                        } else {
+                            Err(Error::InternalError(anyhow!("Cannot extract delegation amount from move call.")))
+                        }
+                    }).transpose()?;
+                    let validator = validator
+                        .to_json_value()
+                        .as_str()
+                        .map(HaneulAddress::from_str)
+                        .transpose()?
+                        .ok_or_else(|| Error::InternalError(anyhow!("Error parsing Validator address from call arg.")))?;
+                    (amount, validator)
+                },
+                _ => return Err(Error::InternalError(anyhow!("Error encountered when extracting arguments from move call, expecting 4 elements, got {}", tx.arguments.len()))),
             };
-            vec![Operation::generic_op(type_, status, sender, metadata)]
-        };
-        Ok(operations)
+
+            let amount = amount.map(|amount| Amount::new(-(amount as i128)));
+
+            return Ok(vec![Operation {
+                operation_identifier: Default::default(),
+                type_: OperationType::Delegation,
+                status,
+                account: Some(sender.into()),
+                amount,
+                coin_change: None,
+                metadata: Some(OperationMetadata::Delegation { validator }),
+            }]);
+        }
+        Ok(vec![Operation::generic_op(
+            status,
+            sender,
+            HaneulTransactionKind::Call(tx),
+        )])
+    }
+
+    fn is_delegation_call(tx: &HaneulMoveCall) -> bool {
+        tx.package.object_id == HANEUL_FRAMEWORK_OBJECT_ID
+            && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
+            && (tx.function == ADD_DELEGATION_LOCKED_COIN_FUN_NAME.as_str()
+                || tx.function == ADD_DELEGATION_MUL_COIN_FUN_NAME.as_str())
+    }
+
+    fn parse_pay_haneul_operations(
+        sender: HaneulAddress,
+        tx: HaneulPayHaneul,
+        status: Option<OperationStatus>,
+    ) -> Vec<Operation> {
+        let recipients = tx.recipients.iter().zip(&tx.amounts);
+        let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
+
+        for (recipient, amount) in recipients {
+            *aggregated_recipients.entry(*recipient).or_default() += *amount
+        }
+
+        let mut pay_operations = aggregated_recipients
+            .into_iter()
+            .map(|(recipient, amount)| Operation::pay_haneul(status, recipient, amount.into()))
+            .collect::<Vec<_>>();
+        let total_paid = tx.amounts.iter().sum::<u64>();
+        pay_operations.push(Operation::pay_haneul(status, sender, -(total_paid as i128)));
+        pay_operations
     }
 
     fn get_balance_operation_from_events(
@@ -200,11 +303,10 @@ impl Operations {
 
 impl TryFrom<HaneulTransactionData> for Operations {
     type Error = Error;
-
     fn try_from(data: HaneulTransactionData) -> Result<Self, Self::Error> {
         let sender = data.sender;
         data.transactions
-            .iter()
+            .into_iter()
             .map(|tx| Self::from_transaction(tx, sender, None))
             .collect()
     }
@@ -217,31 +319,26 @@ impl TryFrom<HaneulTransactionResponse> for Operations {
         let ops: Operations = response.certificate.data.try_into()?;
         let ops = ops.set_status(status).into_iter();
 
-        // We will need to subtract the PayHaneul operation amounts from the actual balance
+        // We will need to subtract the operation amounts from the actual balance
         // change amount extracted from event to prevent double counting.
-        let mut pay_haneul_balances = HashMap::new();
-
-        let pay_haneul_ops =
-            ops.as_ref()
-                .iter()
-                .filter_map(|op| match (op.type_, &op.account, &op.amount) {
-                    (OperationType::PayHaneul, Some(acc), Some(amount)) => {
-                        Some((acc.address, -amount.value))
-                    }
-                    _ => None,
-                });
-
-        for (addr, amount) in pay_haneul_ops {
-            *pay_haneul_balances.entry(addr).or_default() += amount
-        }
+        let accounted_balances = ops
+            .as_ref()
+            .iter()
+            .filter_map(|op| match (&op.account, &op.amount) {
+                (Some(acc), Some(amount)) => Some((acc.address, -amount.value)),
+                _ => None,
+            })
+            .fold(HashMap::new(), |mut balances, (addr, amount)| {
+                *balances.entry(addr).or_default() += amount;
+                balances
+            });
 
         // Extract coin change operations from events
         let coin_change_operations = Self::get_balance_operation_from_events(
             &response.effects.events,
             status,
-            pay_haneul_balances,
+            accounted_balances,
         );
-
         Ok(ops.into_iter().chain(coin_change_operations).collect())
     }
 }
@@ -267,24 +364,29 @@ pub struct Operation {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub coin_change: Option<CoinChange>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
+    pub metadata: Option<OperationMetadata>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub enum OperationMetadata {
+    GenericTransaction(HaneulTransactionKind),
+    Delegation { validator: HaneulAddress },
 }
 
 impl Operation {
     fn generic_op(
-        type_: OperationType,
         status: Option<OperationStatus>,
         sender: HaneulAddress,
-        metadata: Value,
+        tx: HaneulTransactionKind,
     ) -> Self {
         Operation {
             operation_identifier: Default::default(),
-            type_,
+            type_: (&tx).into(),
             status,
             account: Some(sender.into()),
             amount: None,
             coin_change: None,
-            metadata: Some(metadata),
+            metadata: Some(OperationMetadata::GenericTransaction(tx)),
         }
     }
 
