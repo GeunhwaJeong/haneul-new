@@ -21,6 +21,7 @@ module haneul::validator {
     friend haneul::genesis;
     friend haneul::haneul_system;
     friend haneul::validator_set;
+    friend haneul::voting_power;
 
     #[test_only]
     friend haneul::validator_tests;

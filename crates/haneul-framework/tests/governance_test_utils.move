@@ -3,6 +3,7 @@
 
 #[test_only]
 module haneul::governance_test_utils {
+    use haneul::address;
     use haneul::balance;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
@@ -37,6 +38,18 @@ module haneul::governance_test_utils {
             0,
             ctx
         )
+    }
+
+    /// Create a validator set with the given stake amounts
+    public fun create_validators_with_stakes(stakes: vector<u64>, ctx: &mut TxContext): vector<Validator> {
+        let i = 0;
+        let validators = vector[];
+        while (i < vector::length(&stakes)) {
+            let validator = create_validator_for_testing(address::from_u256((i as u256)), *vector::borrow(&stakes, i), ctx);
+            vector::push_back(&mut validators, validator);
+            i = i + 1
+        };
+        validators
     }
 
     public fun create_haneul_system_state_for_testing(
