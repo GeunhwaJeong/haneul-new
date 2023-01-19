@@ -219,19 +219,18 @@ module haneul::validator_set {
     /// of the epoch.
     public(friend) fun request_withdraw_delegation(
         self: &mut ValidatorSet,
-        delegation: &mut Delegation,
-        staked_haneul: &mut StakedHaneul,
-        principal_withdraw_amount: u64,
+        delegation: Delegation,
+        staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
-        let validator_address = staking_pool::validator_address(staked_haneul);
+        let validator_address = staking_pool::validator_address(&staked_haneul);
         let validator_index_opt = find_validator(&self.active_validators, validator_address);
 
         assert!(option::is_some(&validator_index_opt), 0);
 
         let validator_index = option::extract(&mut validator_index_opt);
         let validator = vector::borrow_mut(&mut self.active_validators, validator_index);
-        validator::request_withdraw_delegation(validator, delegation, staked_haneul, principal_withdraw_amount, ctx);
+        validator::request_withdraw_delegation(validator, delegation, staked_haneul, ctx);
         self.next_epoch_validators = derive_next_epoch_validators(self);
     }
 
@@ -245,13 +244,12 @@ module haneul::validator_set {
     /// process them in `advance_epoch` by calling `process_pending_delegation_switches` at epoch changes.
     public(friend) fun request_switch_delegation(
         self: &mut ValidatorSet,
-        delegation: &mut Delegation,
-        staked_haneul: &mut StakedHaneul,
+        delegation: Delegation,
+        staked_haneul: StakedHaneul,
         new_validator_address: address,
-        switch_pool_token_amount: u64,
         ctx: &mut TxContext,
     ) {
-        let current_validator_address = staking_pool::validator_address(staked_haneul);
+        let current_validator_address = staking_pool::validator_address(&staked_haneul);
 
         // check that the validators are not the same and they are both active.
         assert!(current_validator_address != new_validator_address, 0);
@@ -260,7 +258,7 @@ module haneul::validator_set {
         // withdraw principal from the current validator's pool
         let current_validator = get_validator_mut(&mut self.active_validators, current_validator_address);
         let (current_validator_pool_token, principal_stake, time_lock) =
-            staking_pool::withdraw_from_principal(validator::get_staking_pool_mut_ref(current_validator), delegation, staked_haneul, switch_pool_token_amount);
+            staking_pool::withdraw_from_principal(validator::get_staking_pool_mut_ref(current_validator), delegation, staked_haneul);
         let principal_haneul_amount = balance::value(&principal_stake);
         validator::decrease_next_epoch_delegation(current_validator, principal_haneul_amount);
 

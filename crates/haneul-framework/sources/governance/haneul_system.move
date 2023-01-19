@@ -338,16 +338,14 @@ module haneul::haneul_system {
     /// Withdraw some portion of a delegation from a validator's staking pool.
     public entry fun request_withdraw_delegation(
         self: &mut HaneulSystemState,
-        delegation: &mut Delegation,
-        staked_haneul: &mut StakedHaneul,
-        principal_withdraw_amount: u64,
+        delegation: Delegation,
+        staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
         validator_set::request_withdraw_delegation(
             &mut self.validators,
             delegation,
             staked_haneul,
-            principal_withdraw_amount,
             ctx,
         );
     }
@@ -355,14 +353,13 @@ module haneul::haneul_system {
     // Switch delegation from the current validator to a new one.
     public entry fun request_switch_delegation(
         self: &mut HaneulSystemState,
-        delegation: &mut Delegation,
-        staked_haneul: &mut StakedHaneul,
+        delegation: Delegation,
+        staked_haneul: StakedHaneul,
         new_validator_address: address,
-        switch_pool_token_amount: u64,
         ctx: &mut TxContext,
     ) {
         validator_set::request_switch_delegation(
-            &mut self.validators, delegation, staked_haneul, new_validator_address, switch_pool_token_amount, ctx
+            &mut self.validators, delegation, staked_haneul, new_validator_address, ctx
         );
     }
 

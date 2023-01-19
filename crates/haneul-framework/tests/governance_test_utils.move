@@ -130,7 +130,7 @@ module haneul::governance_test_utils {
     }
 
     public fun undelegate(
-        delegator: address, staked_haneul_idx: u64, delegation_obj_idx: u64, pool_token_amount: u64, scenario: &mut Scenario
+        delegator: address, staked_haneul_idx: u64, delegation_obj_idx: u64, scenario: &mut Scenario
     ) {
         test_scenario::next_tx(scenario, delegator);
         let stake_haneul_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
@@ -140,10 +140,7 @@ module haneul::governance_test_utils {
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         let ctx = test_scenario::ctx(scenario);
-        haneul_system::request_withdraw_delegation(&mut system_state, &mut delegation, &mut staked_haneul, pool_token_amount, ctx);
-
-        test_scenario::return_to_sender(scenario, staked_haneul);
-        test_scenario::return_to_sender(scenario, delegation);
+        haneul_system::request_withdraw_delegation(&mut system_state, delegation, staked_haneul, ctx);
         test_scenario::return_shared(system_state);
     }
 
