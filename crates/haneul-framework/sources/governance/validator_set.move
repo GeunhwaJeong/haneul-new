@@ -179,7 +179,6 @@ module haneul::validator_set {
     /// Called by `haneul_system`, to add a new delegation to the validator.
     /// This request is added to the validator's staking pool's pending delegation entries, processed at the end
     /// of the epoch.
-    /// TODO: impl max stake requirement.
     public(friend) fun request_add_delegation(
         self: &mut ValidatorSet,
         validator_address: address,
@@ -200,6 +199,16 @@ module haneul::validator_set {
                 amount,
             }
         );
+    }
+
+    public (friend) fun cancel_delegation_request(
+        self: &mut ValidatorSet,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ) {
+        let validator_address = staking_pool::validator_address(&staked_haneul);
+        let validator = get_validator_mut(&mut self.active_validators, validator_address);
+        validator::cancel_delegation_request(validator, staked_haneul, ctx);
     }
 
     /// Called by `haneul_system`, to withdraw some share of a delegation from the validator. The share to withdraw

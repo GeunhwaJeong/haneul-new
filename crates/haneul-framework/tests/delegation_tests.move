@@ -3,7 +3,8 @@
 
 #[test_only]
 module haneul::delegation_tests {
-    use haneul::coin;
+    use haneul::coin::{Self, Coin};
+    use haneul::haneul::HANEUL;
     use haneul::test_scenario::{Self, Scenario};
     use haneul::haneul_system::{Self, HaneulSystemState};
     use haneul::staking_pool::{Self, Delegation, StakedHaneul};
@@ -147,6 +148,112 @@ module haneul::delegation_tests {
             assert!(haneul_system::validator_delegate_amount(&system_state, VALIDATOR_ADDR_2) == 66, 107);
             test_scenario::return_shared(system_state);
         };
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    fun test_cancel_delegation_request() {
+        let scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
+        let scenario = &mut scenario_val;
+        set_up_haneul_system_state(scenario);
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+
+            // Create a delegation to VALIDATOR_ADDR_1.
+            haneul_system::request_add_delegation(
+                &mut system_state, coin::mint_for_testing(40, ctx), VALIDATOR_ADDR_1, ctx);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_2);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+
+            // Create another delegation to VALIDATOR_ADDR_1.
+            haneul_system::request_add_delegation(
+                &mut system_state, coin::mint_for_testing(60, ctx), VALIDATOR_ADDR_1, ctx);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+
+            // Now cancel the first one.
+            haneul_system::cancel_delegation_request(
+                &mut system_state, staked_haneul, ctx);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let coin = test_scenario::take_from_sender<Coin<HANEUL>>(scenario);
+            // Check that we have the coin back.
+            assert!(coin::value(&coin) == 40, 100);
+            test_scenario::return_to_sender(scenario, coin);
+        };
+
+        governance_test_utils::advance_epoch(scenario);
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+
+            // Check that the delegate amounts have been changed successfully.
+            assert!(haneul_system::validator_delegate_amount(&system_state, VALIDATOR_ADDR_1) == 60, 101);
+            test_scenario::return_shared(system_state);
+        };
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    #[expected_failure(abort_code = haneul::haneul_system::ESTAKED_HANEUL_FROM_WRONG_EPOCH)]
+    fun test_cancel_delegation_abort() {
+        let scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
+        let scenario = &mut scenario_val;
+        set_up_haneul_system_state(scenario);
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+
+            // Create a delegation to VALIDATOR_ADDR_1.
+            haneul_system::request_add_delegation(
+                &mut system_state, coin::mint_for_testing(40, ctx), VALIDATOR_ADDR_1, ctx);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        // advance the epoch
+        governance_test_utils::advance_epoch(scenario);
+
+        test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
+        {
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
+
+            let ctx = test_scenario::ctx(scenario);
+
+            // Cancellation should fail since we are no longer in the same epoch.
+            haneul_system::cancel_delegation_request(
+                &mut system_state, staked_haneul, ctx);
+
+            test_scenario::return_shared(system_state);
+        };
+
         test_scenario::end(scenario_val);
     }
 
