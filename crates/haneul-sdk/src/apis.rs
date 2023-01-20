@@ -28,7 +28,10 @@ use haneul_types::event::EventID;
 use haneul_types::messages::{
     CommitteeInfoResponse, ExecuteTransactionRequestType, TransactionData, VerifiedTransaction,
 };
-use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
+use haneul_types::messages_checkpoint::{
+    CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
+    CheckpointSummary,
+};
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
 
@@ -139,11 +142,81 @@ impl ReadApi {
             .await?)
     }
 
+    /// Return a checkpoint summary based on a checkpoint sequence number
+    pub async fn get_checkpoint(
+        &self,
+        seq_number: CheckpointSequenceNumber,
+    ) -> HaneulRpcResult<Checkpoint> {
+        let summary = self.get_checkpoint_summary(seq_number).await?;
+        let content = self.get_checkpoint_contents(seq_number).await?;
+        Ok(Checkpoint { summary, content })
+    }
+
+    /// Return a checkpoint summary based on a checkpoint digest
+    pub async fn get_checkpoint_by_digest(
+        &self,
+        digest: CheckpointDigest,
+    ) -> HaneulRpcResult<Checkpoint> {
+        let summary = self.get_checkpoint_summary_by_digest(digest).await?;
+        let content = self
+            .get_checkpoint_contents_by_digest(summary.content_digest)
+            .await?;
+        Ok(Checkpoint { summary, content })
+    }
+
+    /// Return a checkpoint summary based on checkpoint digest
+    pub async fn get_checkpoint_summary_by_digest(
+        &self,
+        digest: CheckpointDigest,
+    ) -> HaneulRpcResult<CheckpointSummary> {
+        Ok(self
+            .api
+            .http
+            .get_checkpoint_summary_by_digest(digest)
+            .await?)
+    }
+
+    /// Return a checkpoint summary based on a checkpoint sequence number
     pub async fn get_checkpoint_summary(
         &self,
         seq_number: CheckpointSequenceNumber,
     ) -> HaneulRpcResult<CheckpointSummary> {
         Ok(self.api.http.get_checkpoint_summary(seq_number).await?)
+    }
+
+    /// Return the sequence number of the latest checkpoint that has been executed
+    pub async fn get_latest_checkpoint_sequence_number(
+        &self,
+    ) -> HaneulRpcResult<CheckpointSequenceNumber> {
+        Ok(self
+            .api
+            .http
+            .get_latest_checkpoint_sequence_number()
+            .await?)
+    }
+
+    /// Return contents of a checkpoint, namely a list of execution digests
+    pub async fn get_checkpoint_contents_by_digest(
+        &self,
+        digest: CheckpointContentsDigest,
+    ) -> HaneulRpcResult<CheckpointContents> {
+        Ok(self
+            .api
+            .http
+            .get_checkpoint_contents_by_digest(digest)
+            .await?)
+    }
+
+    /// Return contents of a checkpoint based on its sequence number
+    pub async fn get_checkpoint_contents(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> HaneulRpcResult<CheckpointContents> {
+        Ok(self
+            .api
+            .http
+            .get_checkpoint_contents(sequence_number)
+            .await?)
     }
 
     pub fn get_transactions_stream(
@@ -519,4 +592,10 @@ impl GovernanceApi {
     pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
         Ok(self.api.http.get_haneul_system_state().await?)
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct Checkpoint {
+    pub summary: CheckpointSummary,
+    pub content: CheckpointContents,
 }

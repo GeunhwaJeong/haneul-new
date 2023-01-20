@@ -28,6 +28,7 @@ use haneul_types::governance::{
 use haneul_types::messages::{
     CallArg, MoveCall, ObjectArg, PayHaneul, SingleTransactionKind, TransactionData, TransactionKind,
 };
+use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 
@@ -129,7 +130,7 @@ pub struct BlockIdentifier {
     pub hash: BlockHash,
 }
 
-pub type BlockHash = TransactionDigest;
+pub type BlockHash = CheckpointDigest;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Amount {
