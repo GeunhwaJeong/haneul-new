@@ -9231,6 +9231,7 @@ name = "haneul-source-validation"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "futures",
  "move-binary-format",
  "move-bytecode-utils",
  "move-bytecode-verifier",
