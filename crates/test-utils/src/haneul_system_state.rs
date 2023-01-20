@@ -92,7 +92,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
         parameters: SystemParameters {
             min_validator_stake: 1,
             max_validator_candidate_count: 100,
-            storage_gas_price: 1,
         },
         reference_gas_price: 1,
         validator_report_records: VecMap { contents: vec![] },
