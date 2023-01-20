@@ -68,7 +68,7 @@ use haneul_core::checkpoints::{
 };
 use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
 use haneul_core::consensus_handler::ConsensusHandler;
-use haneul_core::consensus_validator::HaneulTxValidator;
+use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics};
 use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager};
@@ -78,13 +78,14 @@ use haneul_types::error::{HaneulError, HaneulResult};
 
 pub struct ValidatorComponents {
     validator_server_handle: tokio::task::JoinHandle<Result<()>>,
-    narwhal_manager: NarwhalManager<HaneulTxValidator>,
+    narwhal_manager: NarwhalManager,
     consensus_adapter: Arc<ConsensusAdapter>,
     // dropping this will eventually stop checkpoint tasks. The receiver side of this channel
     // is copied into each checkpoint service task, and they are listening to any change to this
     // channel. When the sender is dropped, a change is triggered and those tasks will exit.
     checkpoint_service_exit: watch::Sender<()>,
     checkpoint_metrics: Arc<CheckpointMetrics>,
+    haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
 }
 use haneul_json_rpc::governance_api::GovernanceReadApi;
 
@@ -299,7 +300,7 @@ impl HaneulNode {
         Ok(node)
     }
 
-    pub async fn subscribe_to_epoch_change(&self) -> tokio::sync::broadcast::Receiver<Committee> {
+    pub fn subscribe_to_epoch_change(&self) -> tokio::sync::broadcast::Receiver<Committee> {
         self.end_of_epoch_channel.subscribe()
     }
 
@@ -453,14 +454,12 @@ impl HaneulNode {
         )
         .await?;
 
-        let narwhal_manager = Self::construct_narwhal_manager(
-            config,
-            consensus_config,
-            epoch_store.clone(),
-            registry_service,
-        )?;
+        let narwhal_manager =
+            Self::construct_narwhal_manager(config, consensus_config, registry_service)?;
 
         let checkpoint_metrics = CheckpointMetrics::new(&registry_service.default_registry());
+        let haneul_tx_validator_metrics =
+            HaneulTxValidatorMetrics::new(&registry_service.default_registry());
         Self::start_epoch_specific_validator_components(
             config,
             state.clone(),
@@ -471,6 +470,7 @@ impl HaneulNode {
             narwhal_manager,
             validator_server_handle,
             checkpoint_metrics,
+            haneul_tx_validator_metrics,
         )
         .await
     }
@@ -482,9 +482,10 @@ impl HaneulNode {
         checkpoint_store: Arc<CheckpointStore>,
         epoch_store: Arc<AuthorityPerEpochStore>,
         state_sync_handle: state_sync::Handle,
-        narwhal_manager: NarwhalManager<HaneulTxValidator>,
+        narwhal_manager: NarwhalManager,
         validator_server_handle: JoinHandle<Result<()>>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
+        haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
     ) -> Result<ValidatorComponents> {
         let (checkpoint_service, checkpoint_service_exit) = Self::start_checkpoint_service(
             config,
@@ -525,6 +526,7 @@ impl HaneulNode {
                     committee.clone(),
                     SharedWorkerCache::from(worker_cache),
                     consensus_handler,
+                    HaneulTxValidator::new(epoch_store, haneul_tx_validator_metrics.clone()),
                 )
                 .await;
         } else {
@@ -539,6 +541,7 @@ impl HaneulNode {
             consensus_adapter,
             checkpoint_service_exit,
             checkpoint_metrics,
+            haneul_tx_validator_metrics,
         })
     }
 
@@ -581,16 +584,14 @@ impl HaneulNode {
     fn construct_narwhal_manager(
         config: &NodeConfig,
         consensus_config: &ConsensusConfig,
-        epoch_store: Arc<AuthorityPerEpochStore>,
         registry_service: &RegistryService,
-    ) -> Result<NarwhalManager<HaneulTxValidator>> {
+    ) -> Result<NarwhalManager> {
         let narwhal_config = NarwhalConfiguration {
             primary_keypair: config.protocol_key_pair().copy(),
             network_keypair: config.network_key_pair().copy(),
             worker_ids_and_keypairs: vec![(0, config.worker_key_pair().copy())],
             storage_base_path: consensus_config.db_path().to_path_buf(),
             parameters: consensus_config.narwhal_config().to_owned(),
-            tx_validator: HaneulTxValidator::new(epoch_store, &registry_service.default_registry()),
             registry_service: registry_service.clone(),
         };
 
@@ -725,6 +726,7 @@ impl HaneulNode {
                 consensus_adapter,
                 checkpoint_service_exit,
                 checkpoint_metrics,
+                haneul_tx_validator_metrics,
             }) = self.validator_components.lock().await.take()
             {
                 info!("Reconfiguring the validator.");
@@ -748,6 +750,7 @@ impl HaneulNode {
                             narwhal_manager,
                             validator_server_handle,
                             checkpoint_metrics,
+                            haneul_tx_validator_metrics,
                         )
                         .await?,
                     )
