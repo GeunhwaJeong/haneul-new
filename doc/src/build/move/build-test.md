@@ -198,7 +198,7 @@ transactions within a single test (e.g. one transaction creating an
 object and the other one transferring it).
 
 Haneul-specific testing is supported via the
-[test_scenario module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/test_scenario.move)
+[test_scenario module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/test/test_scenario.move)
 that provides Haneul-related testing functionality otherwise unavailable
 in *pure Move* and its
 [testing framework](https://github.com/move-language/move/blob/main/language/documentation/book/src/unit-testing.md).
