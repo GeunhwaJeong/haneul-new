@@ -1,9 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider, Network } from "@haneullabs/haneul.js";
+import { JsonRpcProvider } from "@haneullabs/haneul.js";
 
-const rpc: string | Network = import.meta.env.VITE_RPC || Network.LOCAL;
-const provider = new JsonRpcProvider(rpc);
+import { config } from "../config";
+
+const provider = new JsonRpcProvider(config.VITE_NETWORK);
 
 export default provider;
