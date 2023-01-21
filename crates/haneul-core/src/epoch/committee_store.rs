@@ -7,7 +7,7 @@ use haneul_storage::default_db_options;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
 use haneul_types::error::HaneulResult;
-use typed_store::rocks::{DBMap, DBOptions};
+use typed_store::rocks::{DBMap, DBOptions, MetricConf};
 use typed_store::traits::{TableSummary, TypedStoreDebug};
 
 use typed_store::Map;
@@ -29,7 +29,8 @@ fn committee_table_default_config() -> DBOptions {
 
 impl CommitteeStore {
     pub fn new(path: PathBuf, genesis_committee: &Committee, db_options: Option<Options>) -> Self {
-        let committee_store = Self::open_tables_read_write(path, db_options, None);
+        let committee_store =
+            Self::open_tables_read_write(path, MetricConf::default(), db_options, None);
         if committee_store.database_is_empty() {
             committee_store
                 .init_genesis_committee(genesis_committee.clone())
