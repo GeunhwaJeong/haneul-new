@@ -101,5 +101,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
             balance: Balance::new(0),
             current_epoch_amount: 0,
         },
+        safe_mode: false,
     }
 }
