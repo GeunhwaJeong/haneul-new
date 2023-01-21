@@ -34,7 +34,7 @@ module haneul::object {
 
     /// Globally unique IDs that define an object's ID in storage. Any Haneul Object, that is a struct
     /// with the `key` ability, must have `id: UID` as its first field.
-    /// These are globaly unique in the sense that no two values of type `UID` are ever equal, in
+    /// These are globally unique in the sense that no two values of type `UID` are ever equal, in
     /// other words for any two values `id1: UID` and `id2: UID`, `id1` != `id2`.
     /// This is a privileged type that can only be derived from a `TxContext`.
     /// `UID` doesn't have the `drop` ability, so deleting a `UID` requires a call to `delete`.
@@ -137,7 +137,7 @@ module haneul::object {
     /// Get the `UID` for `obj`.
     /// Safe because Haneul has an extra bytecode verifier pass that forces every struct with
     /// the `key` ability to have a distinguished `UID` field.
-    /// Cannot be made public as the access to `UID` for a given object must be privledged, and
+    /// Cannot be made public as the access to `UID` for a given object must be privileged, and
     /// restrictable in the object's module.
     native fun borrow_uid<T: key>(obj: &T): &UID;
 

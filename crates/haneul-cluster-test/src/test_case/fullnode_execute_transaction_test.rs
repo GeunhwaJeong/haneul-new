@@ -64,7 +64,7 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
         let effects = response.effects.unwrap();
         if !matches!(effects.status, HaneulExecutionStatus::Success { .. }) {
             panic!(
-                "Failed to execute transfer tranasction {:?}: {:?}",
+                "Failed to execute transfer transaction {:?}: {:?}",
                 txn_digest, effects.status
             )
         }
@@ -89,7 +89,7 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
         let effects = response.effects.unwrap();
         if !matches!(effects.status, HaneulExecutionStatus::Success { .. }) {
             panic!(
-                "Failed to execute transfer tranasction {:?}: {:?}",
+                "Failed to execute transfer transaction {:?}: {:?}",
                 txn_digest, effects.status
             )
         }
