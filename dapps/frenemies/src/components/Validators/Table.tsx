@@ -3,7 +3,11 @@
 
 import clsx from "clsx";
 import { ReactNode } from "react";
+import { ObjectData } from "../../network/rawObject";
+import { Assignment, StakedHaneul, Validator } from "../../network/types";
+import { formatAddress } from "../../utils/format";
 import { Stake } from "./Stake";
+import { Target } from "./Target";
 
 function Header({ children }: { children: ReactNode }) {
   return (
@@ -11,6 +15,15 @@ function Header({ children }: { children: ReactNode }) {
       {children}
     </div>
   );
+}
+
+interface Props {
+  /** Set of 40 currently active validators */
+  validators: Validator[];
+  /** My assignment */
+  assignment: Assignment;
+  /** Currently staked Haneul */
+  stakes: ObjectData<StakedHaneul>[];
 }
 
 function GridItem({
@@ -25,7 +38,7 @@ function GridItem({
       className={clsx("grid", className)}
       style={{
         gridTemplateColumns:
-          "minmax(100px, 1fr) minmax(100px, 2fr) minmax(150px, 5fr)",
+          "minmax(100px, 1fr) minmax(100px, 2fr) minmax(min-content, 5fr) minmax(min-content, 2fr)",
       }}
     >
       {children}
@@ -33,7 +46,16 @@ function GridItem({
   );
 }
 
-export function Table() {
+export function Table({ validators, assignment, stakes }: Props) {
+  // sort validators by their voting power in DESC order (not by stake - these are different)
+  const sorted = validators.sort((a, b) =>
+    Number(b.votingPower - a.votingPower)
+  );
+
+  const stakeByValidator: { [key: string]: ObjectData<StakedHaneul> } = stakes.reduce((acc, stake) => Object.assign(acc, {
+    [stake.data.validatorAddress]: stake
+  }), {});
+
   return (
     <>
       <GridItem className="px-5 py-4">
@@ -41,13 +63,23 @@ export function Table() {
         <Header>Validator</Header>
         <Header>Your Haneul Stake</Header>
       </GridItem>
-      <GridItem className="px-5 py-2 rounded-xl bg-[#F5FAFA] text-steel-dark items-center">
-        <div>1</div>
-        <div>0xABCD...EFGH</div>
-        <div>
-          <Stake />
-        </div>
-      </GridItem>
+      {sorted.map((validator, index) => {
+        return (
+          <GridItem
+            key={validator.metadata.haneulAddress}
+            className="px-5 py-2 rounded-xl bg-[#F5FAFA] text-steel-dark items-center"
+          >
+            <div>{index + 1 + ` (${validator.votingPower})`}</div>
+            <div>{formatAddress(validator.metadata.haneulAddress)}</div>
+            <div>
+              <Stake stake={stakeByValidator[validator.metadata.haneulAddress] || null} />
+            </div>
+            {validator.metadata.haneulAddress == assignment.validator && (
+              <Target goal={assignment.goal} />
+            )}
+          </GridItem>
+        );
+      })}
     </>
   );
 }
