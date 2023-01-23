@@ -50,5 +50,5 @@ Now, once this is done Haneul can execute all certificates that had their locks 
 
 ## Further reading
 
-* Transactions take objects as input and produce objects as output&mdash;check out the [objects](../../build/objects.md) section to learn more about the structure and attributes of objects.
-* Haneul supports several different transaction types&mdash;see the [transactions](../../build/transactions.md) section for full details.
+* Transactions take objects as input and produce objects as output&mdash;check out the [objects](../../learn/objects.md) section to learn more about the structure and attributes of objects.
+* Haneul supports several different transaction types&mdash;see the [transactions](../../learn/transactions.md) section for full details.
