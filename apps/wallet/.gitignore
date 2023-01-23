@@ -1,7 +1,3 @@
-*.log
-.DS_Store
-node_modules
-dist
 configs/environment/.env
 font-icons/output/*
 !font-icons/output/haneul-icons.eot
@@ -12,6 +8,3 @@ font-icons/output/*
 !font-icons/output/haneul-icons.woff2
 !font-icons/output/haneul-icons.svg
 web-ext-artifacts
-/test-results/
-/playwright-report/
-/playwright/.cache/
