@@ -14,6 +14,7 @@ module haneul::staking_pool {
     use std::vector;
     use haneul::table_vec::{Self, TableVec};
     use haneul::linked_table::{Self, LinkedTable};
+    use haneul::math;
 
     friend haneul::validator;
     friend haneul::validator_set;
@@ -352,6 +353,10 @@ module haneul::staking_pool {
             if (total_haneul_withdraw_amount >= principal_withdraw_amount)
                 total_haneul_withdraw_amount - principal_withdraw_amount
             else 0;
+        // This may happen when we are withdrawing everything from the pool and
+        // the rewards pool balance may be less than reward_withdraw_amount.
+        // TODO: FIGURE OUT EXACTLY WHY THIS CAN HAPPEN.
+        reward_withdraw_amount = math::min(reward_withdraw_amount, balance::value(&pool.rewards_pool));
         balance::decrease_supply(
             &mut pool.delegation_token_supply, 
             withdrawn_pool_tokens
