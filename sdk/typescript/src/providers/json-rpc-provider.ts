@@ -45,10 +45,13 @@ import {
   normalizeHaneulObjectId,
   HaneulTransactionAuthSignersResponse,
   CoinMetadataStruct,
+  PaginatedCoins,
   GetObjectDataResponse,
   GetOwnedObjectsResponse,
   DelegatedStake,
   ValidatorMetaData,
+  CoinBalance,
+  CoinSupply,
 } from '../types';
 import { DynamicFieldPage } from '../types/dynamic_fields'
 import {
@@ -169,6 +172,103 @@ export class JsonRpcProvider extends Provider {
     return undefined;
   }
 
+  async requestHaneulFromFaucet(
+    recipient: HaneulAddress,
+    httpHeaders?: HttpHeaders
+  ): Promise<FaucetResponse> {
+    if (!this.endpoints.faucet) {
+      throw new Error('Faucet URL is not specified');
+    }
+    return requestHaneulFromFaucet(this.endpoints.faucet, recipient, httpHeaders);
+  }
+
+  // Coins
+  async getCoins(
+    owner: HaneulAddress,
+    coinType: String | null = null,
+    cursor: ObjectId | null = null,
+    limit: number | null = null
+  ) : Promise<PaginatedCoins> {
+    try {
+      if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
+        throw new Error('Invalid Haneul address');
+      }
+      return await this.client.requestWithType(
+        'haneul_getCoins',
+        [owner, coinType, cursor, limit],
+        PaginatedCoins,
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting coins for owner ${owner}: ${err}`
+      );
+    }
+  }
+
+  async getAllCoins(
+    owner: HaneulAddress,
+    cursor: ObjectId | null = null,
+    limit: number | null = null
+  ) : Promise<PaginatedCoins> {
+    try {
+      if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
+        throw new Error('Invalid Haneul address');
+      }
+      return await this.client.requestWithType(
+        'haneul_getAllCoins',
+        [owner, cursor, limit],
+        PaginatedCoins,
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting all coins for owner ${owner}: ${err}`
+      )
+    }
+  }
+
+  async getBalance(
+    owner: HaneulAddress,
+    coinType: String | null = null,
+  ) : Promise<CoinBalance> {
+    try {
+      if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
+        throw new Error('Invalid Haneul address');
+      }
+      return await this.client.requestWithType(
+        'haneul_getBalance',
+        [owner, coinType],
+        CoinBalance,
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting balance for coin type ${coinType} for owner ${owner}: ${err}`
+      )
+    }
+  }
+
+  async getAllBalances(
+    owner: HaneulAddress
+  ) : Promise<CoinBalance[]> {
+    try {
+      if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
+        throw new Error('Invalid Haneul address');
+      }
+      return await this.client.requestWithType(
+        'haneul_getAllBalances',
+        [owner],
+        array(CoinBalance),
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error getting all balances for owner ${owner}: ${err}`
+      )
+    }
+  }
+
   async getCoinMetadata(coinType: string): Promise<CoinMetadata> {
     try {
       return await this.client.requestWithType(
@@ -182,14 +282,21 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async requestHaneulFromFaucet(
-    recipient: HaneulAddress,
-    httpHeaders?: HttpHeaders
-  ): Promise<FaucetResponse> {
-    if (!this.endpoints.faucet) {
-      throw new Error('Faucet URL is not specified');
+  async getTotalSupply(
+    coinType: String
+  ) : Promise<CoinSupply> {
+    try {
+      return await this.client.requestWithType(
+        'haneul_getTotalSupply',
+        [coinType],
+        CoinSupply,
+        this.options.skipDataValidation
+      );
+    } catch (err) {
+      throw new Error(
+        `Error fetching total supply for Coin type ${coinType}: ${err}`
+      );
     }
-    return requestHaneulFromFaucet(this.endpoints.faucet, recipient, httpHeaders);
   }
 
   // RPC endpoint
@@ -337,6 +444,9 @@ export class JsonRpcProvider extends Provider {
     return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
   }
 
+  /**
+   * @deprecated The method should not be used
+   */
   async getCoinBalancesOwnedByAddress(
     address: HaneulAddress,
     typeArg?: string
@@ -359,7 +469,9 @@ export class JsonRpcProvider extends Provider {
     typeArg: string = HANEUL_TYPE_ARG,
     exclude: ObjectId[] = []
   ): Promise<GetObjectDataResponse[]> {
-    const coins = await this.getCoinBalancesOwnedByAddress(address, typeArg);
+    const coinsStruct = await this.getCoins(address, typeArg);
+    const coinIds = coinsStruct.data.map((c) => c.coinObjectId);
+    const coins = await this.getObjectBatch(coinIds);
     return (await Coin.selectCoinsWithBalanceGreaterThanOrEqual(
       coins,
       amount,
@@ -373,7 +485,9 @@ export class JsonRpcProvider extends Provider {
     typeArg: string = HANEUL_TYPE_ARG,
     exclude: ObjectId[] = []
   ): Promise<GetObjectDataResponse[]> {
-    const coins = await this.getCoinBalancesOwnedByAddress(address, typeArg);
+    const coinsStruct = await this.getCoins(address, typeArg);
+    const coinIds = coinsStruct.data.map((c) => c.coinObjectId);
+    const coins = await this.getObjectBatch(coinIds);
     return (await Coin.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
       coins,
       amount,
