@@ -3,23 +3,30 @@
 
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
-import { useFormatCoin } from '~/hooks/useFormatCoin';
+import { useFormatCoin, CoinFormat } from '~/hooks/useFormatCoin';
 import { Text } from '~/ui/Text';
 
 type StakeColumnProps = {
     stake: bigint | number | string;
+    hideCoinSymbol?: boolean;
 };
 
-export function StakeColumn({ stake }: StakeColumnProps) {
-    const [amount, symbol] = useFormatCoin(stake, HANEUL_TYPE_ARG);
+export function StakeColumn({ stake, hideCoinSymbol }: StakeColumnProps) {
+    const [amount, symbol] = useFormatCoin(
+        stake,
+        HANEUL_TYPE_ARG,
+        hideCoinSymbol ? CoinFormat.FULL : CoinFormat.ROUNDED
+    );
     return (
         <div className="flex items-end gap-0.5">
             <Text variant="bodySmall/medium" color="steel-darker">
                 {amount}
             </Text>
-            <Text variant="captionSmall/medium" color="steel-dark">
-                {symbol}
-            </Text>
+            {!hideCoinSymbol && (
+                <Text variant="captionSmall/medium" color="steel-dark">
+                    {symbol}
+                </Text>
+            )}
         </div>
     );
 }
