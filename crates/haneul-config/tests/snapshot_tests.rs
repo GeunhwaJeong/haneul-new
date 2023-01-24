@@ -21,6 +21,7 @@ use insta::assert_yaml_snapshot;
 use multiaddr::Multiaddr;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
+use haneul_config::genesis::GenesisChainParameters;
 use haneul_config::ValidatorInfo;
 use haneul_config::{genesis::Builder, genesis_config::GenesisConfig};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -81,6 +82,7 @@ fn populated_genesis_snapshot_matches() {
     let genesis = Builder::new()
         .add_objects(objects)
         .add_validator(validator, pop)
+        .with_parameters(GenesisChainParameters { timestamp_ms: 10 })
         .add_validator_signature(&key)
         .build();
     assert_yaml_snapshot!(genesis.validator_set());

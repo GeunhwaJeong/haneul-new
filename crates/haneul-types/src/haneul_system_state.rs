@@ -202,6 +202,7 @@ pub struct HaneulSystemState {
     pub validator_report_records: VecMap<HaneulAddress, VecSet<HaneulAddress>>,
     pub stake_subsidy: StakeSubsidy,
     pub safe_mode: bool,
+    pub epoch_start_timestamp_ms: u64,
     // TODO: Use getters instead of all pub.
 }
 
