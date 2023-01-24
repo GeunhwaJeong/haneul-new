@@ -2,28 +2,28 @@
 title: Haneul’s Delegated Proof-of-Stake System
 ---
 
-The Haneul platform relies on delegated proof-of-stake to determine the set of validators who process transactions. 
+The Haneul platform relies on delegated proof-of-stake to determine the set of validators that process transactions. 
 
 ## HANEUL token delegation
 
-Within each epoch, operations are processed by a fixed set of validators, each with a specific amount of stake delegated from HANEUL token holders. A validator's share of total stake is relevant in that it determines each validator’s share of voting power for processing transactions. Delegating HANEUL implies the HANEUL tokens are locked for the entire epoch. HANEUL token holders are free to unstake their HANEUL or to change their delegate validator when the epoch changes.
+Within each epoch, a fixed set of validators process transactions, each with a specific amount of stake delegated from HANEUL token holders. A validator's share of the total stake is relevant because it determines each validator’s share of voting power for processing transactions. Delegating HANEUL implies the HANEUL tokens are locked for the entire epoch. HANEUL token holders are free to unstake their HANEUL or to change their delegate validator when the epoch changes.
 
 ## Economic model
 
-We now discuss how the different components of the Haneul economy interact with each other in order to introduce Haneul’s delegated proof-of-stake system. As a complementary reference, see the staking and tokenomics diagram in the [Haneul Tokenomics](index.md) overview.
+We now discuss how the different components of the Haneul economy interact with each other in order to introduce Haneul’s delegated proof-of-stake system. As a complementary reference, see the staking and tokenomics diagram in the [Haneul Tokenomics](../learn/index.md) overview.
 
 The Haneul economic model works as follows:
 
-At the beginning of each epoch: Three important things happen:
-  * HANEUL holders delegate (some) of their tokens to validators and a new [committee](../architecture/validators#committees ) is formed. 
+At the beginning of each epoch, three important things happen:
+  * HANEUL holders delegate (some) of their tokens to validators and a new [committee](../architecture/validators#committees) is formed. 
   * The reference gas prices are set as described in Haneul’s [gas price mechanism](gas-pricing.md)
-  *  The [storage fund’s](storage-fund.md) size is adjusted using the previous epoch’s net inflow.
+  * The [storage fund’s](storage-fund.md) size is adjusted using the previous epoch’s net inflow.
   
 Following these actions, the protocol computes the total amount of stake as the sum of delegated stake plus the storage fund. Call the share of delegated stake $\alpha$.
 
-During each epoch: Users submit transactions to the Haneul platform and validators process them. For each transaction, users pay the associated computation and storage gas fees. In cases where users delete previous transaction data, users obtain a partial rebate of their storage fees. Validators observe the behavior of other validators and evaluate each other’s performance.
+During each epoch, users submit transactions to the Haneul platform and validators process them. For each transaction, users pay the associated computation and storage gas fees. In cases where users delete previous transaction data, they obtain a partial rebate of their storage fees. Validators observe the behavior of other validators and evaluate each other’s performance.
 
-At the end of each epoch: The protocol distributes stake rewards to participants of the proof-of-stake mechanism. This occurs through two main steps:
+At the end of each epoch, the protocol distributes stake rewards to participants of the proof-of-stake mechanism. This occurs through two main steps:
   *  The total amount of stake rewards is calculated as the sum of computation fees accrued throughout the epoch plus the epoch’s stake reward subsidies. The latter component is optional in that it will disappear in the long run as the amount of HANEUL in circulation reaches its total supply.
   *  The total amount of stake rewards is distributed across various entities. Importantly, remember that the storage fund is taken into account in the calculation of the epoch’s total stake. However, the storage fund is not owned by any entities in the way that delegated HANEUL is. Instead, Haneul’s economic model distributes the stake rewards accruing to the storage fund  – a share $(1-\alpha)$ of the total stake rewards – to validators in order to compensate them for their storage costs. Of these rewards, a share $\gamma$ is paid out to validators while the remaining $(1-\gamma)$ is used to reinvest in the fund’s capital. Finally, assume that validators charge a commission $\delta\\%$ on HANEUL token holders as a fee for delegation. The split of stake rewards across participants is given by: 
 
