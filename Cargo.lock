@@ -9094,6 +9094,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "haneul-json-rpc-types",
+ "haneul-simulator",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
