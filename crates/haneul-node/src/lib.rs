@@ -48,7 +48,7 @@ use haneul_storage::{
 };
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
-use haneul_types::messages::QuorumDriverResponse;
+use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use tokio::sync::broadcast;
 use tokio::sync::{watch, Mutex};
 use tokio::task::JoinHandle;
@@ -693,7 +693,7 @@ impl HaneulNode {
 
     pub fn subscribe_to_transaction_orchestrator_effects(
         &self,
-    ) -> Result<tokio::sync::broadcast::Receiver<QuorumDriverResponse>> {
+    ) -> Result<tokio::sync::broadcast::Receiver<QuorumDriverEffectsQueueResult>> {
         self.transaction_orchestrator
             .as_ref()
             .map(|to| to.subscribe_to_effects_queue())
