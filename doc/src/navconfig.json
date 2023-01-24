@@ -121,6 +121,10 @@
         "fileName": "build/cli-client"
       },
       {
+        "label": "Haneul Faucet",
+        "fileName": "build/faucet"
+      },
+      {
         "label": "Haneul Local Network",
         "fileName": "build/haneul-local-network"
       },      
