@@ -74,6 +74,7 @@ use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager};
 use haneul_json_rpc::coin_api::CoinReadApi;
+use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::error::{HaneulError, HaneulResult};
 
@@ -833,6 +834,7 @@ pub async fn build_server(
     server.register_module(CoinReadApi::new(state.clone()))?;
     server.register_module(FullNodeApi::new(state.clone()))?;
     server.register_module(BcsApiImpl::new(state.clone()))?;
+    server.register_module(ThresholdBlsApi::new(state.clone()))?;
     server.register_module(FullNodeTransactionBuilderApi::new(state.clone()))?;
     server.register_module(GovernanceReadApi::new(state.clone()))?;
 

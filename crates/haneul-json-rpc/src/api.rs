@@ -13,7 +13,8 @@ use haneul_json_rpc_types::{
     GetPastObjectDataResponse, GetRawObjectDataResponse, MoveFunctionArgType,
     RPCTransactionRequestParams, HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter,
     HaneulExecuteTransactionResponse, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTransactionAuthSignersResponse,
+    HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTBlsSignObjectCommitmentType,
+    HaneulTBlsSignRandomnessObjectResponse, HaneulTransactionAuthSignersResponse,
     HaneulTransactionBuilderMode, HaneulTransactionEffects, HaneulTransactionFilter, HaneulTransactionResponse,
     HaneulTypeTag, TransactionBytes, TransactionsPage,
 };
@@ -661,6 +662,20 @@ pub trait EventReadApi {
         /// query result ordering, default to false (ascending order), oldest record first.
         descending_order: Option<bool>,
     ) -> RpcResult<EventPage>;
+}
+
+#[open_rpc(namespace = "haneul", tag = "Threshold BLS APIs")]
+#[rpc(server, client, namespace = "haneul")]
+pub trait ThresholdBlsApi {
+    /// Sign an a Randomness object with threshold BLS.
+    #[method(name = "tblsSignRandomnessObject")]
+    async fn tbls_sign_randomness_object(
+        &self,
+        /// The object ID.
+        object_id: ObjectID,
+        /// The way in which the commitment on the object creation should be verified.
+        commitment_type: HaneulTBlsSignObjectCommitmentType,
+    ) -> RpcResult<HaneulTBlsSignRandomnessObjectResponse>;
 }
 
 #[open_rpc(namespace = "haneul", tag = "APIs to execute transactions.")]
