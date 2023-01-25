@@ -88,7 +88,8 @@ export type TransactionKindName =
   | 'ChangeEpoch'
   | 'Pay'
   | 'PayHaneul'
-  | 'PayAllHaneul';
+  | 'PayAllHaneul'
+  | 'Genesis';
 
 export const HaneulTransactionKind = union([
   object({ TransferObject: TransferObject }),
