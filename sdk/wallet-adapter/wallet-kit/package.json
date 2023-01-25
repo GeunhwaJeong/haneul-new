@@ -36,6 +36,7 @@
     "@haneullabs/wallet-adapter-unsafe-burner": "workspace:*",
     "@haneullabs/wallet-adapter-wallet-standard": "workspace:*",
     "@haneullabs/wallet-kit-core": "workspace:*",
+    "@haneullabs/wallet-standard": "workspace:*",
     "@stitches/react": "^1.2.8"
   },
   "devDependencies": {
