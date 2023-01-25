@@ -64,7 +64,6 @@ export function DelegationDetailCard({
 
     const totalStake = delegationData?.staked_haneul.principal.value || 0n;
 
-    // Stake earned by ratio * pending_reward
     const haneulEarned = useMemo(() => {
         if (!validatorsData || !delegationData) return 0n;
         return getStakingRewards(
