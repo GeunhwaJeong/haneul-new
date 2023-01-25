@@ -8,14 +8,16 @@ use haneul_sdk::{
         base_types::{ObjectID, HaneulAddress},
         messages::Transaction,
     },
-    HaneulClient,
+    HaneulClientBuilder,
 };
 use haneul_types::intent::Intent;
 use haneul_types::messages::ExecuteTransactionRequestType;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
+    let haneul = HaneulClientBuilder::default()
+        .build("https://fullnode.devnet.haneul.io:443")
+        .await?;
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),

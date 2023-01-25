@@ -6,7 +6,7 @@ use crate::cluster::new_wallet_context_from_cluster;
 use super::Cluster;
 use haneul::client_commands::WalletContext;
 use haneul_keys::keystore::AccountKeystore;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, Signature};
 use haneul_types::intent::Intent;
@@ -30,7 +30,7 @@ impl WalletClient {
 
         let rpc_url = String::from(cluster.fullnode_url());
         info!("Use fullnode rpc: {}", &rpc_url);
-        let fullnode_client = HaneulClient::new(&rpc_url, None, None).await.unwrap();
+        let fullnode_client = HaneulClientBuilder::default().build(rpc_url).await.unwrap();
 
         Self {
             wallet_context,

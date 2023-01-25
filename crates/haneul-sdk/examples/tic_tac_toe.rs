@@ -22,7 +22,7 @@ use haneul_sdk::{
         id::UID,
         messages::Transaction,
     },
-    HaneulClient,
+    HaneulClient, HaneulClientBuilder,
 };
 use haneul_types::intent::Intent;
 use haneul_types::messages::ExecuteTransactionRequestType;
@@ -35,7 +35,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let game = TicTacToe {
         game_package_id: opts.game_package_id,
-        client: HaneulClient::new(&opts.rpc_server_url, None, None).await?,
+        client: HaneulClientBuilder::default()
+            .build(opts.rpc_server_url)
+            .await?,
         keystore,
     };
 

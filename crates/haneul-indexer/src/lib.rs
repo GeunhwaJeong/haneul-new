@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::sync::Arc;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
 use backoff::retry;
 use backoff::ExponentialBackoff;
@@ -24,7 +24,8 @@ use errors::IndexerError;
 
 pub async fn new_rpc_client(http_url: String) -> Result<HaneulClient, IndexerError> {
     info!("Getting new RPC client...");
-    HaneulClient::new(http_url.as_str(), None, None)
+    HaneulClientBuilder::default()
+        .build(http_url)
         .await
         .map_err(|e| {
             warn!("Failed to get new RPC client with error: {:?}", e);

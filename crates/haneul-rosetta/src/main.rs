@@ -20,7 +20,7 @@ use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFI
 use haneul_node::{metrics, HaneulNode};
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, HaneulKeyPair, ToFromBytes};
 
@@ -175,7 +175,11 @@ impl RosettaServerCommand {
 
 async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
     loop {
-        match HaneulClient::new(&rpc_address, None, None).await {
+        match HaneulClientBuilder::default()
+            .max_concurrent_requests(usize::MAX)
+            .build(&rpc_address)
+            .await
+        {
             Ok(client) => return client,
             Err(e) => {
                 warn!("Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds.");

@@ -14,7 +14,7 @@ pub use haneul_config::PersistedConfig;
 use haneul_config::HANEUL_DEV_NET_URL;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::*;
 
 #[serde_as]
@@ -76,7 +76,14 @@ impl HaneulEnv {
         &self,
         request_timeout: Option<std::time::Duration>,
     ) -> Result<HaneulClient, anyhow::Error> {
-        Ok(HaneulClient::new(&self.rpc, self.ws.as_deref(), request_timeout).await?)
+        let mut builder = HaneulClientBuilder::default();
+        if let Some(request_timeout) = request_timeout {
+            builder = builder.request_timeout(request_timeout);
+        }
+        if let Some(ws_url) = &self.ws {
+            builder = builder.ws_url(ws_url);
+        }
+        Ok(builder.build(&self.rpc).await?)
     }
 
     pub fn devnet() -> Self {

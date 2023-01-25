@@ -23,7 +23,7 @@ use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_K
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNode;
 use haneul_node::HaneulNodeHandle;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::EpochId;
@@ -321,7 +321,10 @@ pub async fn start_fullnode_from_config(
 
     let ws_url = format!("ws://{}", config.json_rpc_address);
     let ws_client = WsClientBuilder::default().build(&ws_url).await?;
-    let haneul_client = HaneulClient::new(&rpc_url, Some(&ws_url), None).await?;
+    let haneul_client = HaneulClientBuilder::default()
+        .ws_url(&ws_url)
+        .build(&rpc_url)
+        .await?;
 
     Ok(FullNodeHandle {
         haneul_node,

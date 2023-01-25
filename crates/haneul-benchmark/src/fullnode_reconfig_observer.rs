@@ -11,7 +11,7 @@ use haneul_core::{
     quorum_driver::{reconfig_observer::ReconfigObserver, QuorumDriver},
     safe_client::SafeClientMetricsBase,
 };
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::committee::Committee;
 use tracing::{debug, error, trace};
 
@@ -36,7 +36,8 @@ impl FullNodeReconfigObserver {
         auth_agg_metrics: AuthAggMetrics,
     ) -> Self {
         Self {
-            fullnode_client: HaneulClient::new(fullnode_rpc_url, None, None)
+            fullnode_client: HaneulClientBuilder::default()
+                .build(fullnode_rpc_url)
                 .await
                 .unwrap_or_else(|e| {
                     panic!(

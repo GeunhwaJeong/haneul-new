@@ -16,7 +16,7 @@ use haneul_core::{
     },
 };
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulObjectRead, HaneulTransactionEffects};
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
@@ -268,7 +268,7 @@ pub struct FullNodeProxy {
 impl FullNodeProxy {
     pub async fn from_url(http_url: &str) -> Result<Self, anyhow::Error> {
         // Each request times out after 60s (default value)
-        let haneul_client = HaneulClient::new(http_url, None, None).await?;
+        let haneul_client = HaneulClientBuilder::default().build(http_url).await?;
 
         let resp = haneul_client.read_api().get_committee_info(None).await?;
         let epoch = resp.epoch;
