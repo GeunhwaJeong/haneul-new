@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import BigNumber from 'bignumber.js';
 import { HANEUL_TYPE_ARG } from "@haneullabs/haneul.js";
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useQuery } from "@tanstack/react-query";
+import { formatBalance } from "../../utils/format";
 import provider from "../../network/provider";
 
 export function Balance() {
@@ -12,9 +12,15 @@ export function Balance() {
   const { data } = useQuery(
     ["account", "balance"],
     async () => {
-      const { decimals }= await provider.getCoinMetadata(HANEUL_TYPE_ARG);
-      const { totalBalance } = await provider.getBalance(currentAccount!, HANEUL_TYPE_ARG);
-      return new BigNumber(totalBalance).shiftedBy(-1 * decimals).toFormat();
+      const [{ decimals }, { totalBalance }] = await Promise.all([
+        provider.getCoinMetadata(HANEUL_TYPE_ARG),
+        provider.getBalance(currentAccount!, HANEUL_TYPE_ARG),
+      ]);
+
+      return {
+        balance: BigInt(totalBalance),
+        decimals,
+      };
     },
     {
       enabled: !!currentAccount,
@@ -28,7 +34,10 @@ export function Balance() {
           In your wallet
         </div>
         <div className="text-steel-dark">
-          <span className="font-semibold">{data ?? '--'}</span> HANEUL
+          <span className="font-semibold">
+            {(data && formatBalance(data.balance, data.decimals)) || "--"}
+          </span>{" "}
+          HANEUL
         </div>
       </div>
       <div>

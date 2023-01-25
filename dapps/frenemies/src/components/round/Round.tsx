@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { config } from "../../config";
-import { useLeaderboard } from "../../network/queries/leaderboard";
 import { useHaneulSystem } from "../../network/queries/haneul-system";
+import { useRawObject } from "../../network/queries/use-raw";
+import { LEADERBOARD, Leaderboard } from "../../network/types";
 
 /**
  * Round number.
@@ -13,7 +14,10 @@ import { useHaneulSystem } from "../../network/queries/haneul-system";
  */
 export function Round() {
   const { data: system } = useHaneulSystem();
-  const { data: leaderboard } = useLeaderboard(config.VITE_LEADERBOARD);
+  const { data: leaderboard } = useRawObject<Leaderboard>(
+    config.VITE_LEADERBOARD,
+    LEADERBOARD
+  );
 
   if (!system || !leaderboard) {
     return null;
