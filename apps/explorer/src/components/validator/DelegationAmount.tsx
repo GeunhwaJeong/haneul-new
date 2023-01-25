@@ -3,7 +3,7 @@
 
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
-import { CoinFormat, useFormatCoin } from '~/hooks/useFormatCoin';
+import { useFormatCoin } from '~/hooks/useFormatCoin';
 import { Heading } from '~/ui/Heading';
 import { Text } from '~/ui/Text';
 
@@ -13,11 +13,7 @@ type DelegationAmountProps = {
 };
 
 export function DelegationAmount({ amount, isStats }: DelegationAmountProps) {
-    const [formattedAmount, symbol] = useFormatCoin(
-        amount,
-        HANEUL_TYPE_ARG,
-        CoinFormat.FULL
-    );
+    const [formattedAmount, symbol] = useFormatCoin(amount, HANEUL_TYPE_ARG);
 
     return isStats ? (
         <div className="break-all">
