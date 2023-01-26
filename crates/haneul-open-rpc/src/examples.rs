@@ -39,7 +39,7 @@ use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, TransactionData,
     TransactionKind, TransferObject,
 };
-use haneul_types::object::{Owner, PACKAGE_VERSION};
+use haneul_types::object::Owner;
 use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -117,11 +117,7 @@ impl RpcExampleProvider {
         let data = TransactionData::new_with_dummy_gas_price(
             TransactionKind::Batch(vec![
                 SingleTransactionKind::Call(MoveCall {
-                    package: (
-                        HANEUL_FRAMEWORK_OBJECT_ID,
-                        PACKAGE_VERSION,
-                        ObjectDigest::new(self.rng.gen()),
-                    ),
+                    package: HANEUL_FRAMEWORK_OBJECT_ID,
                     module: Identifier::from_str("devnet_nft").unwrap(),
                     function: Identifier::from_str("mint").unwrap(),
                     type_arguments: vec![],

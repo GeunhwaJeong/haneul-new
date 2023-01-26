@@ -68,7 +68,8 @@ export const PayAllHaneul = object({
 export type PayAllHaneul = Infer<typeof PayAllHaneul>;
 
 export const MoveCall = object({
-  package: HaneulObjectRef,
+  // TODO: Simplify once 0.24.0 lands
+  package: union([string(), HaneulObjectRef]),
   module: string(),
   function: string(),
   typeArguments: optional(array(string())),

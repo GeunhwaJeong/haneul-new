@@ -30,7 +30,9 @@ use haneul_types::messages::{
 };
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
-use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
+use haneul_types::{
+    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+};
 
 pub type BlockHeight = u64;
 
@@ -591,7 +593,6 @@ impl IntoResponse for ConstructionMetadataResponse {
 pub enum TransactionMetadata {
     PayHaneul(Vec<ObjectRef>),
     Delegation {
-        haneul_framework: ObjectRef,
         coins: Vec<ObjectRef>,
         locked_until_epoch: Option<EpochId>,
     },
@@ -876,11 +877,7 @@ impl InternalOperation {
                     locked_until_epoch,
                     ..
                 },
-                TransactionMetadata::Delegation {
-                    haneul_framework,
-                    coins,
-                    ..
-                },
+                TransactionMetadata::Delegation { coins, .. },
             ) => {
                 let function = if locked_until_epoch.is_some() {
                     ADD_DELEGATION_LOCKED_COIN_FUN_NAME.to_owned()
@@ -888,7 +885,7 @@ impl InternalOperation {
                     ADD_DELEGATION_MUL_COIN_FUN_NAME.to_owned()
                 };
                 SingleTransactionKind::Call(MoveCall {
-                    package: haneul_framework,
+                    package: HANEUL_FRAMEWORK_OBJECT_ID,
                     module: HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                     function,
                     type_arguments: vec![],

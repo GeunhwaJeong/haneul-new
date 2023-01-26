@@ -6,10 +6,7 @@ use fastcrypto::encoding::{Encoding, Hex};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
-use haneul_types::messages::{
-    ExecuteTransactionRequestType, SingleTransactionKind, Transaction, TransactionData,
-    TransactionKind,
-};
+use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
 
 use crate::errors::Error;
 use crate::types::{
@@ -238,19 +235,12 @@ pub async fn metadata(
                 )
                 .await?;
 
-            let gas = data.gas();
-            let TransactionKind::Single(SingleTransactionKind::Call(call)) = data.kind else{
-                // This will not happen because `request_add_delegation` call creates a move call transaction.
-                panic!("Malformed transaction received from TransactionBuilder.")
-            };
-
             (
                 TransactionMetadata::Delegation {
-                    haneul_framework: call.package,
                     coins,
                     locked_until_epoch: *locked_until_epoch,
                 },
-                gas,
+                data.gas(),
             )
         }
     };
