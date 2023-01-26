@@ -15,6 +15,7 @@ import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { HaneulIcons } from '_font-icons/output/haneul-icons';
 import { useFormatCoin } from '_hooks';
 import { FEATURES } from '_src/shared/experimentation/features';
+import { trackEvent } from '_src/shared/plausible';
 
 export function TokenIconLink({
     accountAddress,
@@ -48,6 +49,9 @@ export function TokenIconLink({
     return (
         <Link
             to="/stake"
+            onClick={() => {
+                trackEvent('StakingFromHome');
+            }}
             className={cl(
                 !stakingEnabled && '!bg-gray-40',
                 'flex mb-5 rounded-2xl w-full p-3.75 justify-between no-underline bg-haneul/10 '
