@@ -8,7 +8,6 @@ export { default as useFullscreenGuard } from './useFullscreenGuard';
 export { default as useMiddleEllipsis } from './useMiddleEllipsis';
 export { default as useMediaUrl, parseIpfsUrl } from './useMediaUrl';
 export { default as useHaneulObjectFields } from './useHaneulObjectFields';
-export { default as useNumberDelimiters } from './useNumberDelimiters';
 export { default as useOnClickOutside } from './useOnClickOutside';
 export { default as useOnKeyboardEvent } from './useOnKeyboardEvent';
 export { default as useFileExtensionType } from './useFileExtensionType';
