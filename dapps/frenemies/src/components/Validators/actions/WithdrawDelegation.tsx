@@ -8,6 +8,8 @@ import { HANEUL_SYSTEM_ID } from "../../../network/queries/haneul-system";
 import { useMyType } from "../../../network/queries/use-raw";
 import { ObjectData } from "../../../network/rawObject";
 import { Coin, Delegation, StakedHaneul, HANEUL_COIN } from "../../../network/types";
+import { getGas } from "../../../utils/coins";
+import provider from "../../../network/provider";
 
 interface Props {
   stake: ObjectData<StakedHaneul>;
@@ -26,6 +28,8 @@ interface WithdrawDelegationTx {
   coins: ObjectData<Coin>[] | null | undefined;
 }
 
+const GAS_BUDGET = 10000n;
+
 /**
  * Request delegation withdrawal.
  * Can only be called if the Delegation and StakedHaneul objects are present.
@@ -37,7 +41,15 @@ export function WithdrawDelegation({ stake, delegation }: Props) {
   const withdrawDelegation = useMutation(
     ["unstake-validator"],
     async ({ stake, delegation, coins }: WithdrawDelegationTx) => {
-      if (!coins || coins.length == 0) {
+      if (!coins || !coins.length) {
+        return null;
+      }
+
+      const gasPrice = await provider.getReferenceGasPrice();
+      const gasRequred = GAS_BUDGET * BigInt(gasPrice);
+      const { gas } = getGas(coins, gasRequred);
+
+      if (!gas) {
         return null;
       }
 
@@ -49,7 +61,7 @@ export function WithdrawDelegation({ stake, delegation }: Props) {
           function: "request_withdraw_delegation",
           gasBudget: 10000,
           typeArguments: [],
-          gasPayment: normalizeHaneulAddress(coins.pop()!.reference.objectId),
+          gasPayment: normalizeHaneulAddress(gas.reference.objectId),
           arguments: [
             HANEUL_SYSTEM_ID,
             normalizeHaneulAddress(delegation.reference.objectId),

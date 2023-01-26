@@ -88,7 +88,7 @@ export type ScorecardUpdatedEvent = {
     epochScore: number;
 };
 
-export const SCORECARD_UPDATED = `${PKG}::frenemies::ScorecardUpdatedEvent`;
+export const SCORECARD_UPDATED = `${PKG}::frenemies::ScorecardUpdateEvent`;
 
 /**
  * Leaderboard object holding information about top X (1000) participants.
@@ -133,6 +133,25 @@ export type HaneulSystem = {
 };
 
 export const HANEUL_SYSTEM = "0x2::haneul_system::HaneulSystem";
+
+/**
+ * Event emitted when epoch is advancing.
+ * Can be used to get information about current epoch
+ * + track next epoch.
+ */
+export type SystemEpochInfo = {
+    epoch: bigint,
+    referenceGasPrice: bigint,
+    totalStake: bigint,
+    storageFundInflows: bigint,
+    storageFundOutflows: bigint,
+    storageFundBalance: bigint,
+    stakeSubsidyAmount: bigint,
+    totalGasFees: bigint,
+    totalStakeRewards: bigint,
+};
+
+export const SYSTEM_EPOCH_INFO = "0x2::haneul_system::SystemEpochInfo";
 
 export type ValidatorSet = {
     /** Total amount of stake from all active validators (not including delegation), at the beginning of the epoch. */

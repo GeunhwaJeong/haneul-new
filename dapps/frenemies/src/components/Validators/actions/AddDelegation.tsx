@@ -8,10 +8,12 @@ import {
 } from "@haneullabs/haneul.js";
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useMutation } from "@tanstack/react-query";
+import provider from "../../../network/provider";
 import { HANEUL_SYSTEM_ID } from "../../../network/queries/haneul-system";
 import { useMyType } from "../../../network/queries/use-raw";
 import { ObjectData } from "../../../network/rawObject";
 import { Coin, HANEUL_COIN } from "../../../network/types";
+import { getGas } from "../../../utils/coins";
 
 interface Props {
   validator: HaneulAddress;
@@ -31,6 +33,8 @@ interface AddDelegationTx {
   coins?: ObjectData<Coin>[] | null;
 }
 
+const GAS_BUDGET = 10000n;
+
 /**
  * Requests Delegation object for a Validator.
  * Can only be performed if there's no `StakedHaneul` (hence no `Delegation`) object.
@@ -42,14 +46,22 @@ export function AddDelegation({ validator, amount }: Props) {
   const stakeFor = useMutation(
     ["stake-for-validator"],
     async ({ validator, amount, coins }: AddDelegationTx) => {
-      if (!coins || coins.length < 2) {
+      if (!coins || !coins.length) {
         return null;
       }
 
-      // using the smallest coin as the Gas payment (DESC order, last element popped)
-      const [gas, ...restCoins] = [...coins].sort((a, b) =>
-        Number(b.data.value - a.data.value)
-      );
+      const gasPrice = await provider.getReferenceGasPrice();
+      const gasRequred = GAS_BUDGET * BigInt(gasPrice);
+      const { gas, coins: available, max } = getGas(coins, gasRequred);
+
+      if (BigInt(amount) > max) {
+        console.log('Requested amt %d is bigger than max %d', amount, max);
+        return null;
+      }
+
+      if (gas == null) {
+        return null;
+      }
 
       await signAndExecuteTransaction({
         kind: "moveCall",
@@ -62,12 +74,12 @@ export function AddDelegation({ validator, amount }: Props) {
           gasBudget: 10000,
           arguments: [
             HANEUL_SYSTEM_ID,
-            restCoins.map((c) => normalizeHaneulAddress(c.reference.objectId)),
-            [amount], // Option<u64> // [amt] = Some(amt)
+            available.map((c) => normalizeHaneulAddress(c.reference.objectId)),
+            [max.toString()], // Option<u64> // [amt] = Some(amt)
             normalizeHaneulAddress(validator),
           ],
         },
-      });
+      }).catch(console.log).then(console.log);
     }
   );
 
