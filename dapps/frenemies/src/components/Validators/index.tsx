@@ -4,9 +4,8 @@
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useScorecard } from "../../network/queries/scorecard";
 import { useHaneulSystem } from "../../network/queries/haneul-system";
-import { useMyType } from "../../network/queries/use-raw";
-import { Goal, StakedHaneul, STAKED_HANEUL } from "../../network/types";
 import { formatGoal } from "../../utils/format";
+import { Goal } from "../../network/types";
 import { Card } from "../Card";
 import { Balance } from "./Balance";
 import { Table } from "./Table";
@@ -15,14 +14,13 @@ export function Validators() {
   const { currentAccount } = useWalletKit();
   const { data: system } = useHaneulSystem();
   const { data: scorecard } = useScorecard(currentAccount);
-  const { data: stakes } = useMyType<StakedHaneul>(STAKED_HANEUL, currentAccount);
 
   // At this point there's no way it errors out.
-  if (!system || !scorecard || !stakes || !currentAccount) {
+  if (!system || !scorecard || !currentAccount) {
     return null;
   }
 
-  const validators = system.data.validators.activeValidators;
+  const validators = system.validators.fields.active_validators;
   const assignment = scorecard.data.assignment;
 
   return (
@@ -36,7 +34,7 @@ export function Validators() {
 
         <Balance />
       </div>
-      <Table validators={validators} assignment={assignment} stakes={stakes} />
+      <Table validators={validators} />
     </Card>
   );
 }
