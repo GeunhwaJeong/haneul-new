@@ -45,6 +45,7 @@ fn make_tx(gas: &Object, sender: HaneulAddress, keypair: &AccountKeyPair) -> Ver
         None,
         sender,
         keypair,
+        None,
     )
 }
 

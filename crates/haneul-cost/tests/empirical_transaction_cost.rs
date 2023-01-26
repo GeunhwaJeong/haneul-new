@@ -127,6 +127,7 @@ async fn create_txes(
         None,
         sender,
         keypair,
+        None,
     );
     let partial_haneul_coin_tx = make_transfer_haneul_transaction(
         gas_objects.pop().unwrap().compute_object_reference(),
@@ -134,6 +135,7 @@ async fn create_txes(
         Some(100),
         sender,
         keypair,
+        None,
     );
     ret.insert(
         CommonTransactionCosts::TransferWholeHaneulCoin,
@@ -153,6 +155,7 @@ async fn create_txes(
         sender,
         keypair,
         HaneulAddress::default(),
+        None,
     );
 
     ret.insert(CommonTransactionCosts::TransferWholeCoin, whole_coin_tx);
