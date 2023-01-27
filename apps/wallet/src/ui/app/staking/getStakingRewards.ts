@@ -41,6 +41,6 @@ export function getStakingRewards(
         .multipliedBy(haneulBalance)
         .dividedBy(delegationTokenSupply);
 
-    const earnToken = currentHaneulWorth.decimalPlaces(0, 1).minus(pricipalAmout);
-    return earnToken.toNumber();
+    const earnToken = currentHaneulWorth.minus(pricipalAmout);
+    return earnToken.decimalPlaces(0, BigNumber.ROUND_DOWN).toNumber();
 }
