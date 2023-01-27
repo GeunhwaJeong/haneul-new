@@ -4,10 +4,8 @@ extern crate core;
 
 use clap::*;
 use colored::Colorize;
+use haneul_tool::commands::ToolCommand;
 use haneul_types::exit_main;
-
-mod commands;
-use commands::ToolCommand;
 
 #[tokio::main]
 async fn main() {
