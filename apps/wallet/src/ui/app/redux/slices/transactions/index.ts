@@ -8,7 +8,10 @@ import {
     createSlice,
 } from '@reduxjs/toolkit';
 
-import { accountCoinsSelector } from '_redux/slices/account';
+import {
+    accountCoinsSelector,
+    activeAccountSelector,
+} from '_redux/slices/account';
 import { fetchAllOwnedAndRequiredObjects } from '_redux/slices/haneul-objects';
 
 import type {
@@ -35,14 +38,15 @@ export const sendTokens = createAsyncThunk<
     'haneul-objects/send-tokens',
     async (
         { tokenTypeArg, amount, recipientAddress, gasBudget },
-        { getState, extra: { api, keypairVault, background }, dispatch }
+        { getState, extra: { api, background }, dispatch }
     ) => {
         const state = getState();
+        const activeAddress = activeAccountSelector(state);
+        if (!activeAddress) {
+            throw new Error('Error, active address is not defined');
+        }
         const coins: HaneulMoveObject[] = accountCoinsSelector(state);
-        const signer = api.getSignerInstance(
-            keypairVault.getKeypair().getPublicKey().toHaneulAddress(),
-            background
-        );
+        const signer = api.getSignerInstance(activeAddress, background);
         const response = await signer.signAndExecuteTransaction(
             await CoinAPI.newPayTransaction(
                 coins,

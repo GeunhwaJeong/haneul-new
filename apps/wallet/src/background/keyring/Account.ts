@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js';
+
 import type {
     SignaturePubkeyPair,
     Keypair,
@@ -9,6 +11,11 @@ import type {
 } from '@haneullabs/haneul.js';
 
 export type AccountType = 'derived' | 'imported';
+export type AccountSerialized = {
+    type: AccountType;
+    address: HaneulAddress;
+    derivationPath: string | null;
+};
 
 export class Account {
     #keypair: Keypair;
@@ -25,7 +32,9 @@ export class Account {
         this.derivationPath =
             options.type === 'derived' ? options.derivationPath : null;
         this.#keypair = options.keypair;
-        this.address = this.#keypair.getPublicKey().toHaneulAddress();
+        this.address = normalizeHaneulAddress(
+            this.#keypair.getPublicKey().toHaneulAddress()
+        );
     }
 
     exportKeypair() {
@@ -37,6 +46,14 @@ export class Account {
             signatureScheme: this.#keypair.getKeyScheme(),
             signature: this.#keypair.signData(data),
             pubKey: this.#keypair.getPublicKey(),
+        };
+    }
+
+    toJSON(): AccountSerialized {
+        return {
+            type: this.type,
+            address: this.address,
+            derivationPath: this.derivationPath,
         };
     }
 }
