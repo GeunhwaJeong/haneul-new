@@ -22,10 +22,22 @@ describe('Invoke any RPC endpoint', () => {
         expect(gasObjects).toStrictEqual(gasObjectsExpected);
     });
 
-    it('haneul_getObjectOwnedByAddress Error', async () => {
+  it('haneul_getObjectOwnedByAddress Error', async () => {
         expect(toolbox.provider.call(
             'haneul_getObjectsOwnedByAddress',
             [],
         )).rejects.toThrowError();
     })
+
+    it('haneul_getCommitteeInfo', async () => {
+      const committeeInfoExpected = await toolbox.provider.getCommitteeInfo();
+
+      const committeeInfo = await toolbox.provider.call(
+        'haneul_getCommitteeInfo',
+        []
+      );
+
+      expect(committeeInfo).toStrictEqual(committeeInfoExpected);
+    });
+
 });

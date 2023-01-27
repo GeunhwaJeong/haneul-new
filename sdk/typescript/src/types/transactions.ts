@@ -270,7 +270,8 @@ export type TransactionQuery =
   | { ToAddress: HaneulAddress };
 
 export type EmptySignInfo = object;
-export type AuthorityName = string;
+export type AuthorityName = Infer<typeof AuthorityName>;
+export const AuthorityName = string();
 
 export const TransactionBytes = object({
   txBytes: string(),
