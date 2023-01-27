@@ -341,6 +341,7 @@ fn advance_epoch<S: BackingPackageStore + ParentSync + ChildObjectResolver>(
     let system_object_arg = CallArg::Object(ObjectArg::SharedObject {
         id: HANEUL_SYSTEM_STATE_OBJECT_ID,
         initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+        mutable: true,
     });
     let result = adapter::execute::<execution_mode::Normal, _, _>(
         move_vm,
@@ -810,6 +811,36 @@ fn get_coin_balance(store: &InnerTemporaryStore, id: &ObjectID) -> u64 {
         .unwrap()
 }
 
+#[cfg(test)]
+fn input_object_kind(object: &Object) -> haneul_types::messages::InputObjectKind {
+    match &object.owner {
+        Owner::Shared {
+            initial_shared_version,
+            ..
+        } => haneul_types::messages::InputObjectKind::SharedMoveObject {
+            id: object.id(),
+            initial_shared_version: *initial_shared_version,
+            mutable: true,
+        },
+        Owner::ObjectOwner(_) | Owner::AddressOwner(_) | Owner::Immutable => {
+            haneul_types::messages::InputObjectKind::ImmOrOwnedMoveObject(
+                object.compute_object_reference(),
+            )
+        }
+    }
+}
+
+#[cfg(test)]
+/// Test only method that return mutable InputObjects from given objects
+fn input_objects_from_objects(objects: Vec<Object>) -> InputObjects {
+    InputObjects::new(
+        objects
+            .into_iter()
+            .map(|o| (input_object_kind(&o), o))
+            .collect(),
+    )
+}
+
 #[test]
 fn test_pay_success_without_delete() {
     // supplied one coin and only needed to use part of it. should
@@ -822,8 +853,9 @@ fn test_pay_success_without_delete() {
     let recipient2 = HaneulAddress::random_for_testing_only();
     let recipients = vec![recipient1, recipient2];
     let amounts = vec![6, 3];
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     let mut ctx = TxContext::with_sender_for_testing_only(&sender);
 
     assert!(pay(&mut store, coin_objects, recipients, amounts, &mut ctx).is_ok());
@@ -858,8 +890,9 @@ fn test_pay_success_delete_one() {
     let recipient = HaneulAddress::random_for_testing_only();
     let recipients = vec![recipient];
     let amounts = vec![11];
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     let mut ctx = TxContext::random_for_testing_only();
 
     assert!(pay(&mut store, coin_objects, recipients, amounts, &mut ctx).is_ok());
@@ -893,8 +926,9 @@ fn test_pay_success_delete_all() {
     let recipient2 = HaneulAddress::random_for_testing_only();
     let recipients = vec![recipient1, recipient2];
     let amounts = vec![4, 11];
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     let mut ctx = TxContext::with_sender_for_testing_only(&sender);
 
     assert!(pay(&mut store, coin_objects, recipients, amounts, &mut ctx).is_ok());
@@ -928,8 +962,9 @@ fn test_pay_haneul_success_one_input_coin() {
     let recipients = vec![recipient1, recipient2];
     let amounts = vec![8, 6];
 
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     let mut ctx = TxContext::with_sender_for_testing_only(&sender);
     assert!(pay_haneul(&mut store, &mut coin_objects, recipients, amounts, &mut ctx).is_ok());
     let (store, _events) = store.into_inner();
@@ -966,8 +1001,9 @@ fn test_pay_haneul_success_multiple_input_coins() {
     let recipients = vec![recipient1, recipient2, recipient3];
     let amounts = vec![5, 15, 25];
 
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     let mut ctx = TxContext::with_sender_for_testing_only(&sender);
     assert!(pay_haneul(&mut store, &mut coin_objects, recipients, amounts, &mut ctx).is_ok());
     let (store, _events) = store.into_inner();
@@ -1005,8 +1041,9 @@ fn test_pay_all_haneul_success_multiple_input_coins() {
 
     let recipient = HaneulAddress::random_for_testing_only();
 
-    let mut store: TemporaryStore<()> =
-        temporary_store::with_input_objects_for_testing(InputObjects::from(coin_objects.clone()));
+    let mut store: TemporaryStore<()> = temporary_store::with_input_objects_for_testing(
+        input_objects_from_objects(coin_objects.clone()),
+    );
     assert!(pay_all_haneul(sender, &mut store, &mut coin_objects, recipient).is_ok());
     let (store, _events) = store.into_inner();
 

@@ -893,6 +893,7 @@ impl InternalOperation {
                         CallArg::Object(ObjectArg::SharedObject {
                             id: HANEUL_SYSTEM_STATE_OBJECT_ID,
                             initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                            mutable: true,
                         }),
                         CallArg::ObjVec(
                             coins.into_iter().map(ObjectArg::ImmOrOwnedObject).collect(),
