@@ -4,9 +4,10 @@
 #[cfg(msim)]
 mod test {
 
+    use rand::{thread_rng, Rng};
     use std::str::FromStr;
-    use std::sync::Arc;
-    use std::time::Duration;
+    use std::sync::{Arc, Mutex};
+    use std::time::{Duration, Instant};
     use haneul_benchmark::system_state_observer::SystemStateObserver;
     use haneul_benchmark::util::generate_all_gas_for_test;
     use haneul_benchmark::workloads::delegation::DelegationWorkload;
@@ -20,7 +21,7 @@ mod test {
         LocalValidatorAggregatorProxy, ValidatorProxy,
     };
     use haneul_config::HANEUL_KEYSTORE_FILENAME;
-    use haneul_macros::sim_test;
+    use haneul_macros::{register_fail_points, sim_test};
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_types::object::Owner;
     use test_utils::messages::get_haneul_gas_object_with_wallet_context;
@@ -84,6 +85,57 @@ mod test {
             .with_kill_interval_secs(5, 15)
             .with_restart_delay_secs(1, 10);
         node_restarter.run();
+        test_simulated_load(test_cluster, 120).await;
+    }
+
+    #[sim_test(config = "test_config()")]
+    async fn test_simulated_load_reconfig_crashes() {
+        let test_cluster = build_test_cluster(4, 10).await;
+
+        struct DeadValidator {
+            node_id: haneul_simulator::task::NodeId,
+            dead_until: std::time::Instant,
+        }
+        let dead_validator: Arc<Mutex<Option<DeadValidator>>> = Default::default();
+
+        let client_node = haneul_simulator::runtime::NodeHandle::current().id();
+        register_fail_points(
+            &["batch-write", "transaction-commit", "put-cf"],
+            move || {
+                let mut dead_validator = dead_validator.lock().unwrap();
+                let cur_node = haneul_simulator::runtime::NodeHandle::current().id();
+
+                // never kill the client node (which is running the test)
+                if cur_node == client_node {
+                    return;
+                }
+
+                // do not fail multiple nodes at a time.
+                if let Some(dead) = &*dead_validator {
+                    if dead.node_id != cur_node && dead.dead_until > Instant::now() {
+                        return;
+                    }
+                }
+
+                // otherwise, possibly fail the current node
+                let mut rng = thread_rng();
+                if rng.gen_range(0.0..1.0) < 0.01 {
+                    let restart_after = Duration::from_millis(rng.gen_range(10000..20000));
+
+                    *dead_validator = Some(DeadValidator {
+                        node_id: cur_node,
+                        dead_until: Instant::now() + restart_after,
+                    });
+
+                    // must manually release lock before calling kill_current_node, which panics
+                    // and would poison the lock.
+                    drop(dead_validator);
+
+                    haneul_simulator::task::kill_current_node(Some(restart_after));
+                }
+            },
+        );
+
         test_simulated_load(test_cluster, 120).await;
     }
 
@@ -221,5 +273,7 @@ mod test {
             .unwrap();
 
         assert_eq!(benchmark_stats.num_error, 0);
+
+        tracing::info!("end of test {:?}", benchmark_stats);
     }
 }

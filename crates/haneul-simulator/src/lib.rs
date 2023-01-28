@@ -10,8 +10,10 @@ pub use anemo_tower;
 pub use fastcrypto;
 pub use narwhal_network;
 pub use haneul_framework;
+pub use haneul_framework_build;
 pub use haneul_types;
 pub use telemetry_subscribers;
+pub use tempfile;
 pub use tower;
 
 #[cfg(msim)]
