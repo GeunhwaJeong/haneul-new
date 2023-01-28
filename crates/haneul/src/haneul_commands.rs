@@ -31,13 +31,7 @@ use crate::haneul_move::{self, execute_move_command};
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Parser)]
-#[clap(
-    name = "haneul",
-    about = "A Byzantine fault tolerant chain with low-latency finality and high throughput",
-    rename_all = "kebab-case",
-    author,
-    version
-)]
+#[clap(rename_all = "kebab-case")]
 pub enum HaneulCommand {
     /// Start haneul network.
     #[clap(name = "start")]
