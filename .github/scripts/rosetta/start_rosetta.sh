@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 echo "Start Rosetta online server"
-cargo run --bin haneul-rosetta start-online-server &
+haneul-rosetta start-online-server &
 
 echo "Start Rosetta offline server"
-cargo run --bin haneul-rosetta start-offline-server &
+haneul-rosetta start-offline-server &

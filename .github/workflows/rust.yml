@@ -161,7 +161,7 @@ jobs:
 
       - name: Start local Haneul network
         run: |
-          cargo run --bin haneul start --no-full-node &
+          haneul start --no-full-node &
         shell: bash
 
       - name: Start Rosetta servers
