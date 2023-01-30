@@ -2,7 +2,7 @@
 title: Learn about Haneul
 ---
 
-Haneul *(swē)* is the water element in Japanese philosophy. The power of the haneul element lies in its fluidity---its ability to easily adapt to and transform any environment. Similarly, the Haneul platform seeks to provide a flexible network that you can leverage to shape the web3 landscape. 
+Haneul *(swē)* is the water element in Japanese philosophy. The power of the haneul element lies in its fluidity&mdash;its ability to easily adapt to and transform any environment. Similarly, the Haneul platform seeks to provide a flexible network that you can leverage to shape the web3 landscape. 
 
 The Haneul platform is built on Haneul Move, which is derived from the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language. This documentation assumes that you have a basic working knowledge of Move. To learn more about the differences between core Move and Haneul Move, see [How Haneul Move differs from core Move](../learn/haneul-move-diffs.md).
 
