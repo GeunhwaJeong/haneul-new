@@ -50,7 +50,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionEffects,
 };
 use haneul_macros::nondeterministic;
-use haneul_storage::indexes::ObjectIndexChanges;
+use haneul_storage::indexes::{ObjectIndexChanges, MAX_GET_OWNED_OBJECT_SIZE};
 use haneul_storage::write_ahead_log::WriteAheadLog;
 use haneul_storage::{
     event_store::{EventStore, EventStoreType, StoredEvent},
@@ -2023,7 +2023,7 @@ impl AuthorityState {
         owner: HaneulAddress,
     ) -> HaneulResult<impl Iterator<Item = ObjectInfo> + '_> {
         if let Some(indexes) = &self.indexes {
-            indexes.get_owner_objects_iterator(owner)
+            indexes.get_owner_objects_iterator(owner, ObjectID::ZERO, MAX_GET_OWNED_OBJECT_SIZE)
         } else {
             Err(HaneulError::IndexStoreNotAvailable)
         }
