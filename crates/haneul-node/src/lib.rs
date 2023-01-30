@@ -73,7 +73,7 @@ use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetri
 use haneul_core::epoch::data_removal::EpochDataRemover;
 use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
-use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager};
+use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager, NarwhalManagerMetrics};
 use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
@@ -608,7 +608,9 @@ impl HaneulNode {
             registry_service: registry_service.clone(),
         };
 
-        Ok(NarwhalManager::new(narwhal_config))
+        let metrics = NarwhalManagerMetrics::new(&registry_service.default_registry());
+
+        Ok(NarwhalManager::new(narwhal_config, metrics))
     }
 
     fn construct_consensus_adapter(
