@@ -5,12 +5,11 @@ import cl from 'classnames';
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
+import { type TxResultState } from '../../hooks/useRecentTransactions';
 import Icon, { HaneulIcons } from '_components/icon';
 import { formatDate } from '_helpers';
 import { useMiddleEllipsis, useFormatCoin } from '_hooks';
 import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
-
-import type { TxResultState } from '_redux/slices/txresults';
 
 import st from './TransactionsCard.module.scss';
 

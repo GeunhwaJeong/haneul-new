@@ -11,7 +11,6 @@ import {
     generateActiveNetworkList,
 } from '_app/ApiProvider';
 import { fetchAllOwnedAndRequiredObjects } from '_redux/slices/haneul-objects';
-import { getTransactionsByAddress } from '_redux/slices/txresults';
 
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '_redux/RootReducer';
@@ -48,7 +47,6 @@ export const changeRPCNetwork = createAsyncThunk<void, API_ENV, AppThunkConfig>(
         // don't switch if customRPC and empty input //handle default
         dispatch(setApiEnv(networkName));
         api.setNewJsonRpcProvider(networkName, customRPCURL);
-        dispatch(getTransactionsByAddress());
         dispatch(fetchAllOwnedAndRequiredObjects());
         // Set persistent network state
         Browser.storage.local.set({ haneul_Env: networkName });
