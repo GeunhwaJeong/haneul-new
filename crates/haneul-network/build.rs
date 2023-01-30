@@ -42,15 +42,6 @@ fn main() -> Result<()> {
         )
         .method(
             Method::builder()
-                .name("account_info")
-                .route_name("AccountInfo")
-                .input_type("haneul_types::messages::AccountInfoRequest")
-                .output_type("haneul_types::messages::AccountInfoResponse")
-                .codec_path(codec_path)
-                .build(),
-        )
-        .method(
-            Method::builder()
                 .name("object_info")
                 .route_name("ObjectInfo")
                 .input_type("haneul_types::messages::ObjectInfoRequest")
