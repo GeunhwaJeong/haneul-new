@@ -3,11 +3,7 @@
 
 import * as Yup from 'yup';
 
-import {
-    GAS_TYPE_ARG,
-    GAS_SYMBOL,
-    DEFAULT_GAS_BUDGET_FOR_STAKE,
-} from '_redux/slices/haneul-objects/Coin';
+import { GAS_TYPE_ARG, GAS_SYMBOL } from '_redux/slices/haneul-objects/Coin';
 import { createTokenValidation } from '_src/shared/validation';
 
 export function createValidationSchema(
@@ -18,6 +14,7 @@ export function createValidationSchema(
     totalGasCoins: number,
     decimals: number,
     gasDecimals: number,
+    gasBudget: number,
     maxHaneulSingleCoinBalance: bigint
 ) {
     return Yup.object({
@@ -28,7 +25,7 @@ export function createValidationSchema(
             gasBalance,
             decimals,
             gasDecimals,
-            DEFAULT_GAS_BUDGET_FOR_STAKE,
+            gasBudget,
             maxHaneulSingleCoinBalance
         ).test(
             'num-gas-coins-check',
