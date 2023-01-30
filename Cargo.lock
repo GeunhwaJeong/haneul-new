@@ -8774,6 +8774,7 @@ dependencies = [
  "serde-reflection",
  "haneul-types",
  "haneul-verifier",
+ "tempfile",
  "workspace-hack",
 ]
 
