@@ -5,8 +5,10 @@ import { isBasePayload } from '_payloads';
 
 import type { HaneulAddress } from '@haneullabs/haneul.js/src';
 import type { BasePayload, Payload } from '_payloads';
+import type { NetworkEnvType } from '_src/background/NetworkEnv';
 
 export type WalletStatusChange = {
+    network?: NetworkEnvType;
     accounts?: HaneulAddress[];
 };
 
