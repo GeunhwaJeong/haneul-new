@@ -10,5 +10,6 @@ The pages in this section provide various options for communicating with Haneul:
 * Sign transactions and interact with the Haneul network using the [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) built on the Haneul JSON RPC API.
 * Run a [Haneul Full node](fullnode.md) yourself to store the full Haneul blockchain state and history.
 * Filter and subscribe to a [real-time event stream](event_api.md#subscribe-to-haneul-events) on your Haneul Full node using the WebSocket API.
+* Find SDKs for other languages provided by the community in the [awesome-move](https://github.com/GeunhwaJeong/awesome-move#sdks) overview.
 
 See the [Haneul Reference Documentation](../reference/index.md) for information on the Haneul API and HaneulJSON format.
