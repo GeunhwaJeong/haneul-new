@@ -1,0 +1,62 @@
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+import mitt from 'mitt';
+import Browser from 'webextension-polyfill';
+
+import FeatureGating from './FeatureGating';
+import { API_ENV, API_ENV_TO_INFO, DEFAULT_API_ENV } from '_app/ApiProvider';
+import { FEATURES } from '_src/shared/experimentation/features';
+import { isValidUrl } from '_src/shared/utils';
+
+export type NetworkEnvType =
+    | { env: Exclude<API_ENV, API_ENV.customRPC>; customRpcUrl: null }
+    | { env: API_ENV.customRPC; customRpcUrl: string };
+
+class NetworkEnv {
+    #events = mitt<{ changed: NetworkEnvType }>();
+
+    async getActiveNetwork(): Promise<NetworkEnvType> {
+        const { haneul_Env, haneul_Env_RPC } = await Browser.storage.local.get({
+            haneul_Env: DEFAULT_API_ENV,
+            haneul_Env_RPC: null,
+        });
+        const adjEnv = (await this.#isNetworkAvailable(haneul_Env))
+            ? haneul_Env
+            : DEFAULT_API_ENV;
+        const adjCustomUrl = adjEnv === API_ENV.customRPC ? haneul_Env_RPC : null;
+        return { env: adjEnv, customRpcUrl: adjCustomUrl };
+    }
+
+    async setActiveNetwork(network: NetworkEnvType) {
+        const { env, customRpcUrl } = network;
+        if (!(await this.#isNetworkAvailable(env))) {
+            throw new Error(
+                `Error changing network, ${API_ENV_TO_INFO[env].name} is not available.`
+            );
+        }
+        if (env === API_ENV.customRPC && !isValidUrl(customRpcUrl)) {
+            throw new Error(`Invalid custom RPC url ${customRpcUrl}`);
+        }
+        await Browser.storage.local.set({
+            haneul_Env: env,
+            haneul_Env_RPC: customRpcUrl,
+        });
+        this.#events.emit('changed', network);
+    }
+
+    on = this.#events.on;
+
+    off = this.#events.off;
+
+    async #isNetworkAvailable(apiEnv: API_ENV) {
+        const growthBook = await FeatureGating.getGrowthBook();
+        return (
+            (apiEnv === API_ENV.testNet &&
+                growthBook.isOn(FEATURES.USE_TEST_NET_ENDPOINT)) ||
+            apiEnv !== API_ENV.testNet
+        );
+    }
+}
+
+export default new NetworkEnv();
