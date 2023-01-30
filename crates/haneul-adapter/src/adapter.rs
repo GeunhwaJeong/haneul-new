@@ -504,7 +504,7 @@ pub fn verify_and_link<
     // run the Haneul verifier
     for module in modules.iter() {
         // Run Haneul bytecode verifier, which runs some additional checks that assume the Move bytecode verifier has passed.
-        verifier::verify_module(module)?;
+        verifier::verify_module(module, &BTreeMap::new())?;
     }
     Ok(vm)
 }
