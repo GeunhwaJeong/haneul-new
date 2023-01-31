@@ -28,7 +28,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 pub mod apis;
 pub mod error;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
-const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 10;
+const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 60;
 
 #[derive(Debug)]
 pub struct TransactionExecutionResult {
