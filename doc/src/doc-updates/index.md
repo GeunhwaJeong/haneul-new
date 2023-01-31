@@ -2,7 +2,13 @@
 title: Haneul Documentation Updates
 ---
 
-This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information. 
+This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information.
+
+## Week ending 02/03/23
+
+| Topic | Update | 
+| :------ | :------- |
+| [Haneul Client CLI](../build/cli-client.md) | [Updated content around haneul client publish change](https://github.com/GeunhwaJeong/haneul/pull/7632) where verifying dependencies is now the default and an optional flag allows for skipping the verification. |
 
 ## Week ending 12/25/22
 
