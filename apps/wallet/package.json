@@ -117,6 +117,7 @@
         "@growthbook/growthbook-react": "^0.10.1",
         "@metamask/browser-passworder": "^4.0.2",
         "@haneullabs/core": "workspace:*",
+        "@haneullabs/icons": "workspace:*",
         "@haneullabs/haneul.js": "workspace:*",
         "@haneullabs/wallet-standard": "workspace:*",
         "@noble/hashes": "^1.1.5",
