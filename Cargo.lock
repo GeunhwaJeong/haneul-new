@@ -8986,6 +8986,7 @@ dependencies = [
  "haneul-core",
  "haneul-json-rpc",
  "haneul-network",
+ "haneul-protocol-constants",
  "haneul-simulator",
  "haneul-storage",
  "haneul-telemetry",

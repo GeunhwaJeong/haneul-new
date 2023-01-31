@@ -29,6 +29,7 @@ haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-network = { path = "../haneul-network" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-protocol-constants = { path = "../haneul-protocol-constants" }
 haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
