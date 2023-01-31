@@ -132,7 +132,7 @@ async fn test_tbls_sign_randomness_object() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let HaneulExecuteTransactionResponse::EffectsCert { effects, .. } = tx_response;
+    let HaneulExecuteTransactionResponse { effects, .. } = tx_response;
     assert_eq!(HaneulExecutionStatus::Success, effects.effects.status);
 
     let package_id = effects
@@ -176,7 +176,7 @@ async fn test_tbls_sign_randomness_object() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let HaneulExecuteTransactionResponse::EffectsCert { effects, .. } = tx_response;
+    let HaneulExecuteTransactionResponse { effects, .. } = tx_response;
     assert_eq!(HaneulExecutionStatus::Success, effects.effects.status);
 
     let randomness_object_id = effects
@@ -234,7 +234,7 @@ async fn test_tbls_sign_randomness_object() -> Result<(), anyhow::Error> {
             ExecuteTransactionRequestType::WaitForEffectsCert,
         )
         .await?;
-    let HaneulExecuteTransactionResponse::EffectsCert { effects, .. } = tx_response;
+    let HaneulExecuteTransactionResponse { effects, .. } = tx_response;
     assert_eq!(HaneulExecutionStatus::Success, effects.effects.status);
 
     Ok(())
