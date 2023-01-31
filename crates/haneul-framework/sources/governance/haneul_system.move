@@ -541,12 +541,6 @@ module haneul::haneul_system {
         self.safe_mode = false;
     }
 
-    spec advance_epoch {
-        /// Total supply of HANEUL increases by the amount of stake subsidy we minted.
-        ensures balance::supply_value(self.haneul_supply)
-            == old(balance::supply_value(self.haneul_supply)) + old(stake_subsidy::current_epoch_subsidy_amount(self.stake_subsidy));
-    }
-
     /// An extremely simple version of advance_epoch.
     /// This is only called when the call to advance_epoch failed due to a bug, and we want to be able to keep the system
     /// running and continue making epoch changes.
