@@ -18,7 +18,7 @@ import {
   HaneulObjectRef,
   HANEUL_FRAMEWORK_ADDRESS,
 } from '../../types';
-import { bcsForVersion, CallArg, MoveCallTx, ObjectArg } from '../../types/haneul-bcs';
+import { bcsForVersion, CallArg, isPureArg, MoveCallTx, ObjectArg, PureArg } from '../../types/haneul-bcs';
 import { MoveCallTransaction } from './txn-data-serializer';
 
 const MOVE_CALL_SER_ERROR = 'Move call argument serialization error:';
@@ -152,8 +152,11 @@ export class CallArgSerializer {
 
   private async newCallArg(
     expectedType: HaneulMoveNormalizedType,
-    argVal: HaneulJsonValue
+    argVal: HaneulJsonValue | PureArg
   ): Promise<CallArg> {
+    if (isPureArg(argVal)) {
+      return argVal;
+    }
     const serType = this.getPureSerializationType(expectedType, argVal);
     const version = await this.provider.getRpcApiVersion();
     if (serType !== undefined) {
