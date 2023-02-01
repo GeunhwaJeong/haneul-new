@@ -16,7 +16,7 @@ interface Props {
   stake: ObjectData<StakedHaneul>;
 }
 
-const GAS_BUDGET = 10000n;
+const GAS_BUDGET = 100000n;
 
 /**
  * Request delegation withdrawal.
@@ -46,7 +46,7 @@ export function CancelDelegation({ stake }: Props) {
           packageObjectId: HANEUL_FRAMEWORK_ADDRESS,
           module: "haneul_system",
           function: "cancel_delegation_request",
-          gasBudget: 10000,
+          gasBudget: Number(GAS_BUDGET),
           typeArguments: [],
           gasPayment: normalizeHaneulAddress(gas.reference.objectId),
           arguments: [

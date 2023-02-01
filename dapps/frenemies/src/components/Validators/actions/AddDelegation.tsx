@@ -13,7 +13,7 @@ import provider from "../../../network/provider";
 import { HANEUL_SYSTEM_ID } from "../../../network/queries/haneul-system";
 import { useMyType } from "../../../network/queries/use-raw";
 import { Coin, HANEUL_COIN } from "../../../network/types";
-import { getCoins, getGas, useManageCoin } from "../../../utils/coins";
+import { getGas, useManageCoin } from "../../../utils/coins";
 import { StakeButton } from "../../StakeButton";
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 }
 
 const HANEUL_DECIMALS = 9;
-const GAS_BUDGET = 10000n;
+const GAS_BUDGET = 100000n;
 
 function toMist(haneul: string) {
   return BigInt(new BigNumber(haneul).shiftedBy(HANEUL_DECIMALS).toString());
