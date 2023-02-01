@@ -39,21 +39,26 @@ export function CancelDelegation({ stake }: Props) {
       return null;
     }
 
-    await signAndExecuteTransaction({
-      kind: "moveCall",
-      data: {
-        packageObjectId: HANEUL_FRAMEWORK_ADDRESS,
-        module: "haneul_system",
-        function: "cancel_delegation_request",
-        gasBudget: 10000,
-        typeArguments: [],
-        gasPayment: normalizeHaneulAddress(gas.reference.objectId),
-        arguments: [
-          HANEUL_SYSTEM_ID,
-          normalizeHaneulAddress(stake.reference.objectId),
-        ],
+    await signAndExecuteTransaction(
+      {
+        kind: "moveCall",
+        data: {
+          packageObjectId: HANEUL_FRAMEWORK_ADDRESS,
+          module: "haneul_system",
+          function: "cancel_delegation_request",
+          gasBudget: 10000,
+          typeArguments: [],
+          gasPayment: normalizeHaneulAddress(gas.reference.objectId),
+          arguments: [
+            HANEUL_SYSTEM_ID,
+            normalizeHaneulAddress(stake.reference.objectId),
+          ],
+        },
       },
-    });
+      {
+        requestType: "WaitForEffectsCert",
+      }
+    );
   });
 
   return (
