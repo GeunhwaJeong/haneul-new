@@ -9,7 +9,7 @@ Before you install Haneul, you need to install some prerequisite tools and confi
 The steps to install Haneul include:
 
 1. Install [prerequisites](#prerequisites) for your operating system.
-1. Install the [Haneul binaries](#install-haneul-binaries).
+1. Install the [Haneul binaries](#install-or-update-haneul-binaries).
 1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
 1. Request [HANEUL tokens](#haneul-tokens) to evaluate Devnet and Haneul Wallet.
 1. Optionally, download the [source code](#source-code) to have local
@@ -143,7 +143,7 @@ Use the following command to install `libclang-dev`:
 sudo apt-get install libclang-dev
 ```
 
-Proceed to [Install Haneul binaries](#install-haneul-binaries) to continue installing Haneul.
+Proceed to [Install Haneul binaries](#install-or-update-haneul-binaries) to continue installing Haneul.
 
 
 ## macOS prerequisites
@@ -180,7 +180,7 @@ brew install git
 
 After installing Git, download and install the [Git command line interface](https://git-scm.com/download/).
 
-Proceed to [Install Haneul binaries](#install-haneul-binaries) to continue installing Haneul.
+Proceed to [Install Haneul binaries](#install-or-update-haneul-binaries) to continue installing Haneul.
 
 ## Windows prerequisites
 
