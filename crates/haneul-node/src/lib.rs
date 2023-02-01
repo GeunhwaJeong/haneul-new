@@ -450,7 +450,8 @@ impl HaneulNode {
                 narwhal_network::connectivity::ConnectionMonitor::spawn(
                     network.downgrade(),
                     network_connection_metrics,
-                    HashMap::default(),
+                    HashMap::default(), // TODO populate this with peers
+                    None,
                 );
 
             network
