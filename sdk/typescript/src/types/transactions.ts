@@ -238,7 +238,7 @@ export const HaneulExecuteTransactionResponse = union([
     }),
   }),
   object({
-    certificate: CertifiedTransaction,
+    certificate: optional(CertifiedTransaction),
     effects: HaneulCertifiedTransactionEffects,
     confirmed_local_execution: boolean(),
   }),

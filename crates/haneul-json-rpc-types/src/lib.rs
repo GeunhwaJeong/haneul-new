@@ -413,7 +413,9 @@ pub struct HaneulTBlsSignRandomnessObjectResponse {
 #[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub struct HaneulExecuteTransactionResponse {
-    pub certificate: HaneulCertifiedTransaction,
+    // If this transaction was already finalized previously, there is no guarantee that a
+    // certificate is still available.
+    pub certificate: Option<HaneulCertifiedTransaction>,
     pub effects: HaneulCertifiedTransactionEffects,
     // If the transaction is confirmed to be executed locally
     // before this response.
@@ -428,7 +430,10 @@ impl HaneulExecuteTransactionResponse {
         Ok(match resp {
             ExecuteTransactionResponse::EffectsCert(cert) => {
                 let (certificate, effects, is_executed_locally) = *cert;
-                let certificate: HaneulCertifiedTransaction = certificate.try_into()?;
+                let certificate: Option<HaneulCertifiedTransaction> = match certificate {
+                    Some(c) => Some(c.try_into()?),
+                    None => None,
+                };
                 let effects: HaneulCertifiedTransactionEffects =
                     HaneulCertifiedTransactionEffects::try_from(effects, resolver)?;
                 HaneulExecuteTransactionResponse {
