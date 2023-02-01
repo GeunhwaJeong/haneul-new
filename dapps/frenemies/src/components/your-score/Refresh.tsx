@@ -48,7 +48,7 @@ export function Refresh({ scorecard, round, leaderboardID }: Props) {
         function: "update",
         gasPayment: normalizeHaneulAddress(gas.reference.objectId),
         typeArguments: [],
-        gasBudget: 1000000,
+        gasBudget: Number(GAS_BUDGET),
         arguments: [
           normalizeHaneulAddress(scorecard.reference.objectId),
           HANEUL_SYSTEM_ID,
