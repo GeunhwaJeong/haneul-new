@@ -21,7 +21,7 @@ use multiaddr::Multiaddr;
 use narwhal_config::{Committee as NarwhalCommittee, WorkerCache, WorkerIndex};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
@@ -375,6 +375,11 @@ impl HaneulSystemState {
             authorities: narwhal_committee,
             epoch: self.epoch as narwhal_config::Epoch,
         }
+    }
+
+    #[allow(clippy::mutable_key_type)]
+    pub fn get_current_epoch_peer_ids(&self) -> HashMap<anemo::PeerId, String> {
+        todo!();
     }
 
     #[allow(clippy::mutable_key_type)]
