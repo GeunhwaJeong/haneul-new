@@ -87,7 +87,7 @@ The process of submitting a Haneul transaction is thus a bit more involved than 
 1. The sender collects a Byzantine-resistant-majority of these votes into a _certificate_ and broadcasts that back to all Haneul validators. This settles the transaction, ensuring _finality_ that the transaction will not be dropped (revoked).
 1. Optionally, the sender collects a certificate detailing the effects of the transaction.
 
-While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide [Haneul Gateway services](#haneul-gateway-services).
+While those steps demand more of the sender, performing them efficiently can still yield a cryptographic proof of finality with minimum latency. Aside from crafting the original transaction itself, the session management for a transaction does not require access to any private keys and can be delegated to a third party. Haneul takes advantage of this observation to provide Haneul Gateway services.
 
 
 ## Complex contracts
