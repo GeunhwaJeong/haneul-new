@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
+  ExecuteTransactionRequestType,
   SignableTransaction,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
 
 /** The latest API version of the signAndExecuteTransaction API. */
-export type HaneulSignAndExecuteTransactionVersion = "1.0.0";
+export type HaneulSignAndExecuteTransactionVersion = "1.1.0";
 
 /**
  * A Wallet Standard feature for signing a transaction, and submitting it to the
@@ -38,4 +39,6 @@ export interface HaneulSignAndExecuteTransactionOutput
   extends HaneulTransactionResponse {}
 
 /** Options for signing and sending transactions. */
-export interface HaneulSignAndExecuteTransactionOptions {}
+export interface HaneulSignAndExecuteTransactionOptions {
+  requestType?: ExecuteTransactionRequestType;
+}

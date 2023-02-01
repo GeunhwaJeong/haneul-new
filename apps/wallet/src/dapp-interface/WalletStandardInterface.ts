@@ -107,7 +107,7 @@ export class HaneulWallet implements Wallet {
                 on: this.#on,
             },
             'haneul:signAndExecuteTransaction': {
-                version: '1.0.0',
+                version: '1.1.0',
                 signAndExecuteTransaction: this.#signAndExecuteTransaction,
             },
             'haneulWallet:stake': {
@@ -216,6 +216,7 @@ export class HaneulWallet implements Wallet {
                 transaction: {
                     type: 'v2',
                     data: input.transaction,
+                    options: input.options,
                 },
             }),
             (response) => response.result
