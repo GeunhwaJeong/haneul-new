@@ -185,7 +185,7 @@ mod tests {
 
         let metrics = HaneulTxValidatorMetrics::new(&Default::default());
         let validator = HaneulTxValidator::new(
-            state.epoch_store().clone(),
+            state.epoch_store_for_testing(),
             state.transaction_manager().clone(),
             metrics,
         );
