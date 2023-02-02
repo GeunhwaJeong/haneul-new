@@ -30,13 +30,13 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_types::base_types::{EpochId, TransactionDigest};
 use haneul_types::crypto::{AuthoritySignInfo, AuthorityWeakQuorumSignInfo};
+use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages::{TransactionEffects, VerifiedSignedTransactionEffects};
 use haneul_types::messages_checkpoint::{
-    CertifiedCheckpointSummary, CheckpointContents, CheckpointContentsDigest, CheckpointDigest,
-    CheckpointSequenceNumber, CheckpointSignatureMessage, CheckpointSummary, CheckpointTimestamp,
-    VerifiedCheckpoint,
+    CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
+    CheckpointSignatureMessage, CheckpointSummary, CheckpointTimestamp, VerifiedCheckpoint,
 };
 use tokio::sync::{mpsc, watch, Notify};
 use tokio::time::Instant;
