@@ -77,6 +77,11 @@ export const MoveCall = object({
 });
 export type MoveCall = Infer<typeof MoveCall>;
 
+export const Genesis = object( {
+  objects: array(ObjectId),
+});
+export type Genesis = Infer<typeof Genesis>;
+
 export type ExecuteTransactionRequestType =
   | 'WaitForEffectsCert'
   | 'WaitForLocalExecution';
@@ -101,6 +106,7 @@ export const HaneulTransactionKind = union([
   object({ Pay: Pay }),
   object({ PayHaneul: PayHaneul }),
   object({ PayAllHaneul: PayAllHaneul }),
+  object({ Genesis: Genesis}),
 ]);
 export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
