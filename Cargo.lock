@@ -9276,6 +9276,7 @@ dependencies = [
 name = "haneul-tool"
 version = "0.25.0"
 dependencies = [
+ "anemo",
  "anyhow",
  "clap 3.2.23",
  "colored",
