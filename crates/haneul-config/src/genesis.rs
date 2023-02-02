@@ -22,7 +22,7 @@ use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
-    AuthorityWeakQuorumSignInfo, HaneulAuthoritySignature, ToFromBytes,
+    AuthorityStrongQuorumSignInfo, HaneulAuthoritySignature, ToFromBytes,
 };
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
@@ -464,7 +464,7 @@ impl Builder {
 
             CertifiedCheckpointSummary {
                 summary: checkpoint,
-                auth_signature: AuthorityWeakQuorumSignInfo::new_from_auth_sign_infos(
+                auth_signature: AuthorityStrongQuorumSignInfo::new_from_auth_sign_infos(
                     signatures, &committee,
                 )
                 .unwrap(),

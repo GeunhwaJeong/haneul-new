@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::HashMap;
+use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::{
     base_types::AuthorityName,
     committee::{Committee, EpochId, StakeUnit},
     crypto::{
         AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
-        AuthorityWeakQuorumSignInfo, KeypairTraits, HaneulAuthoritySignature,
+        KeypairTraits, HaneulAuthoritySignature,
     },
     messages_checkpoint::{
         CertifiedCheckpointSummary, CheckpointContents, CheckpointDigest, CheckpointSequenceNumber,
@@ -84,7 +85,7 @@ impl CommitteeFixture {
 
         let checkpoint = CertifiedCheckpointSummary {
             summary: checkpoint,
-            auth_signature: AuthorityWeakQuorumSignInfo::new_from_auth_sign_infos(
+            auth_signature: AuthorityStrongQuorumSignInfo::new_from_auth_sign_infos(
                 signatures,
                 self.committee(),
             )
