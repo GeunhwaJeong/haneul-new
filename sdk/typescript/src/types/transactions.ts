@@ -228,6 +228,19 @@ export const HaneulCertifiedTransactionEffects = object({
   effects: TransactionEffects,
 });
 
+export const HaneulEffectsFinalityInfo = union([
+  object({ certified: AuthorityQuorumSignInfo }),
+  object({ checkpointed: tuple([number(), number()]) }),
+]);
+export type HaneulEffectsFinalityInfo = Infer<typeof HaneulEffectsFinalityInfo>;
+
+export const HaneulFinalizedEffects = object({
+  transactionEffectsDigest: string(),
+  effects: TransactionEffects,
+  finalityInfo: HaneulEffectsFinalityInfo,
+});
+export type HaneulFinalizedEffects = Infer<typeof HaneulFinalizedEffects>;
+
 export const HaneulExecuteTransactionResponse = union([
   // TODO: remove after devnet 0.25.0(or 0.24.0) is released
   object({
@@ -239,7 +252,7 @@ export const HaneulExecuteTransactionResponse = union([
   }),
   object({
     certificate: optional(CertifiedTransaction),
-    effects: HaneulCertifiedTransactionEffects,
+    effects: HaneulFinalizedEffects,
     confirmed_local_execution: boolean(),
   }),
 ]);
@@ -516,11 +529,9 @@ export function getTotalGasUsedUpperBound(
 ): number | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
-    ? gasSummary.computationCost +
-        gasSummary.storageCost
+    ? gasSummary.computationCost + gasSummary.storageCost
     : undefined;
 }
-
 
 export function getTransactionEffects(
   data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
@@ -618,7 +629,8 @@ export function getNewlyCreatedCoinRefsAfterSplit(
     return effects.created?.map((c) => c.reference);
   }
   if ('effects' in data) {
-    const effects = ('effects' in data.effects ? data.effects.effects : data.effects);
+    const effects =
+      'effects' in data.effects ? data.effects.effects : data.effects;
     return effects.created?.map((c) => c.reference);
   }
   return undefined;

@@ -43,11 +43,12 @@ use haneul_types::event::{EventEnvelope, EventType};
 use haneul_types::filter::{EventFilter, TransactionFilter};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
-    CallArg, CertifiedTransaction, CertifiedTransactionEffects, ExecuteTransactionResponse,
-    ExecutionStatus, GenesisObject, InputObjectKind, MoveModulePublish, ObjectArg, Pay, PayAllHaneul,
-    PayHaneul, SingleTransactionKind, TransactionData, TransactionEffects, TransactionKind,
-    VerifiedCertificate,
+    CallArg, CertifiedTransaction, EffectsFinalityInfo, ExecuteTransactionResponse,
+    ExecutionStatus, FinalizedEffects, GenesisObject, InputObjectKind, MoveModulePublish,
+    ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind, TransactionData, TransactionEffects,
+    TransactionKind, VerifiedCertificate,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{disassemble_modules, MovePackage};
@@ -402,7 +403,7 @@ pub enum HaneulTBlsSignObjectCommitmentType {
     /// Check that the object is committed by the consensus.
     ConsensusCommitted,
     /// Check that the object is committed using the effects certificate.
-    FastPathCommitted(HaneulCertifiedTransactionEffects),
+    FastPathCommitted(HaneulFinalizedEffects),
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
@@ -416,7 +417,7 @@ pub struct HaneulExecuteTransactionResponse {
     // If this transaction was already finalized previously, there is no guarantee that a
     // certificate is still available.
     pub certificate: Option<HaneulCertifiedTransaction>,
-    pub effects: HaneulCertifiedTransactionEffects,
+    pub effects: HaneulFinalizedEffects,
     // If the transaction is confirmed to be executed locally
     // before this response.
     pub confirmed_local_execution: bool,
@@ -434,8 +435,8 @@ impl HaneulExecuteTransactionResponse {
                     Some(c) => Some(c.try_into()?),
                     None => None,
                 };
-                let effects: HaneulCertifiedTransactionEffects =
-                    HaneulCertifiedTransactionEffects::try_from(effects, resolver)?;
+                let effects: HaneulFinalizedEffects =
+                    HaneulFinalizedEffects::try_from(effects, resolver)?;
                 HaneulExecuteTransactionResponse {
                     certificate,
                     effects,
@@ -1833,17 +1834,35 @@ impl TryFrom<VerifiedCertificate> for HaneulCertifiedTransaction {
     }
 }
 
-/// The certified Transaction Effects which has signatures from >= 2/3 of validators
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "CertifiedTransactionEffects", rename_all = "camelCase")]
-pub struct HaneulCertifiedTransactionEffects {
-    pub transaction_effects_digest: TransactionEffectsDigest,
-    pub effects: HaneulTransactionEffects,
-    /// authority signature information signed by the quorum of the validators.
-    pub auth_sign_info: HaneulAuthorityStrongQuorumSignInfo,
+#[serde(rename = "EffectsFinalityInfo", rename_all = "camelCase")]
+pub enum HaneulEffectsFinalityInfo {
+    Certified(HaneulAuthorityStrongQuorumSignInfo),
+    Checkpointed(EpochId, CheckpointSequenceNumber),
 }
 
-impl Display for HaneulCertifiedTransactionEffects {
+impl From<EffectsFinalityInfo> for HaneulEffectsFinalityInfo {
+    fn from(info: EffectsFinalityInfo) -> Self {
+        match info {
+            EffectsFinalityInfo::Certified(cert) => {
+                Self::Certified(HaneulAuthorityStrongQuorumSignInfo::from(&cert))
+            }
+            EffectsFinalityInfo::Checkpointed(epoch, checkpoint) => {
+                Self::Checkpointed(epoch, checkpoint)
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "FinalizedEffects", rename_all = "camelCase")]
+pub struct HaneulFinalizedEffects {
+    pub transaction_effects_digest: TransactionEffectsDigest,
+    pub effects: HaneulTransactionEffects,
+    pub finality_info: HaneulEffectsFinalityInfo,
+}
+
+impl Display for HaneulFinalizedEffects {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(
@@ -1852,30 +1871,34 @@ impl Display for HaneulCertifiedTransactionEffects {
             self.transaction_effects_digest
         )?;
         writeln!(writer, "Transaction Effects: {:?}", self.effects)?;
-        writeln!(
-            writer,
-            "Signed Authorities Bitmap: {:?}",
-            self.auth_sign_info.signers_map
-        )?;
+        match &self.finality_info {
+            HaneulEffectsFinalityInfo::Certified(cert) => {
+                writeln!(writer, "Signed Authorities Bitmap: {:?}", cert.signers_map)?;
+            }
+            HaneulEffectsFinalityInfo::Checkpointed(epoch, checkpoint) => {
+                writeln!(
+                    writer,
+                    "Finalized at epoch {:?}, checkpoint {:?}",
+                    epoch, checkpoint
+                )?;
+            }
+        }
+
         write!(f, "{}", writer)
     }
 }
 
-impl HaneulCertifiedTransactionEffects {
+impl HaneulFinalizedEffects {
     fn try_from(
-        cert: CertifiedTransactionEffects,
+        effects: FinalizedEffects,
         resolver: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
-        let digest = *cert.digest();
-        let (effects, auth_sign_info) = cert.into_data_and_sig();
+        let digest = effects.effects.digest();
         // We should always have a signature here.
-        if auth_sign_info.signature.sig.is_none() {
-            return Err(anyhow::anyhow!("No quorum signature."));
-        }
         Ok(Self {
             transaction_effects_digest: digest,
-            effects: HaneulTransactionEffects::try_from(effects, resolver)?,
-            auth_sign_info: HaneulAuthorityStrongQuorumSignInfo::from(&auth_sign_info),
+            effects: HaneulTransactionEffects::try_from(effects.effects, resolver)?,
+            finality_info: effects.finality_info.into(),
         })
     }
 }

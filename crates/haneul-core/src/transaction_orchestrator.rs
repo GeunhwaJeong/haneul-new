@@ -29,7 +29,8 @@ use haneul_types::committee::Committee;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
-    QuorumDriverResponse, VerifiedCertificate, VerifiedCertifiedTransactionEffects,
+    FinalizedEffects, QuorumDriverResponse, VerifiedCertificate,
+    VerifiedCertifiedTransactionEffects,
 };
 use haneul_types::quorum_driver_types::{
     QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResult,
@@ -193,7 +194,7 @@ where
                 if !wait_for_local_execution {
                     return Ok(ExecuteTransactionResponse::EffectsCert(Box::new((
                         Some(tx_cert.into()),
-                        effects_cert.into(),
+                        FinalizedEffects::new_from_effects_cert(effects_cert.into()),
                         false,
                     ))));
                 }
@@ -207,12 +208,12 @@ where
                 {
                     Ok(_) => Ok(ExecuteTransactionResponse::EffectsCert(Box::new((
                         Some(tx_cert.into()),
-                        effects_cert.into(),
+                        FinalizedEffects::new_from_effects_cert(effects_cert.into()),
                         true,
                     )))),
                     Err(_) => Ok(ExecuteTransactionResponse::EffectsCert(Box::new((
                         Some(tx_cert.into()),
-                        effects_cert.into(),
+                        FinalizedEffects::new_from_effects_cert(effects_cert.into()),
                         false,
                     )))),
                 }

@@ -14,7 +14,7 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::HaneulTBlsSignObjectCommitmentType::{ConsensusCommitted, FastPathCommitted};
 use haneul_json_rpc_types::{
-    HaneulCertifiedTransactionEffects, HaneulTBlsSignObjectCommitmentType,
+    HaneulEffectsFinalityInfo, HaneulFinalizedEffects, HaneulTBlsSignObjectCommitmentType,
     HaneulTBlsSignRandomnessObjectResponse,
 };
 use haneul_open_rpc::Module;
@@ -63,44 +63,53 @@ impl ThresholdBlsApi {
         Ok(())
     }
 
-    async fn verify_effects_cert(
+    async fn verify_finalized_effects(
         &self,
         object_id: ObjectID,
-        effects_cert: &HaneulCertifiedTransactionEffects,
+        finalized_effects: &HaneulFinalizedEffects,
     ) -> Result<(), Error> {
-        if effects_cert.auth_sign_info.epoch != self.state.epoch() {
-            Err(anyhow!(
-                "Old effects certificate, check instead if committed by consensus"
-            ))?
+        match &finalized_effects.finality_info {
+            HaneulEffectsFinalityInfo::Certified(cert) => {
+                let epoch_store = self.state.epoch_store();
+                if cert.epoch != epoch_store.epoch() {
+                    Err(anyhow!(
+                        "Old effects certificate, check instead if committed by consensus"
+                    ))?
+                }
+                // Check the certificate.
+                let _committee = epoch_store.committee();
+
+                // TODO: convert HaneulTransactionEffects to TransactionEffects before the next line.
+                // effects_cert
+                //     .auth_sign_info
+                //     .verify(&effects_cert.effects, &committee)
+                //     .map_err(|e| anyhow!(e))?;
+
+                // Check that the object is indeed in the effects.
+                finalized_effects
+                    .effects
+                    .created
+                    .iter()
+                    .chain(finalized_effects.effects.mutated.iter())
+                    .find(|owned_obj_ref| owned_obj_ref.reference.object_id == object_id)
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Object was not created/mutated in the provided effects certificate"
+                        )
+                    })?;
+
+                // Check that the object is indeed a Randomness object.
+                let _obj = self.get_randomness_object(object_id).await?;
+                Ok(())
+            }
+            HaneulEffectsFinalityInfo::Checkpointed(_epoch, _checkpoint) => {
+                // TODO: Properly verify this.
+                Err(HaneulError::UnsupportedFeatureError {
+                    error: "Checkpointed effects not supported yet".to_string(),
+                }
+                .into())
+            }
         }
-        // Check the certificate.
-        let _committee = self
-            .state
-            .committee_store()
-            .get_committee(&self.state.epoch())?
-            .ok_or_else(|| Error::InternalError(anyhow!("Committee not available")))?;
-
-        // TODO: convert HaneulTransactionEffects to TransactionEffects before the next line.
-        // effects_cert
-        //     .auth_sign_info
-        //     .verify(&effects_cert.effects, &committee)
-        //     .map_err(|e| anyhow!(e))?;
-
-        // Check that the object is indeed in the effects.
-        effects_cert
-            .effects
-            .created
-            .iter()
-            .chain(effects_cert.effects.mutated.iter())
-            .find(|owned_obj_ref| owned_obj_ref.reference.object_id == object_id)
-            .ok_or_else(|| {
-                anyhow!("Object was not created/mutated in the provided effects certificate")
-            })?;
-
-        // Check that the object is indeed a Randomness object.
-        let _obj = self.get_randomness_object(object_id).await?;
-
-        Ok(())
     }
 }
 
@@ -117,8 +126,9 @@ impl ThresholdBlsApiServer for ThresholdBlsApi {
     ) -> RpcResult<HaneulTBlsSignRandomnessObjectResponse> {
         match commitment_type {
             ConsensusCommitted => self.verify_object_alive_and_committed(object_id).await?,
-            FastPathCommitted(effects_cert) => {
-                self.verify_effects_cert(object_id, &effects_cert).await?
+            FastPathCommitted(finalized_effects) => {
+                self.verify_finalized_effects(object_id, &finalized_effects)
+                    .await?
             }
         };
         // Construct the message to be signed, as done in the Move code of the Randomness object.
