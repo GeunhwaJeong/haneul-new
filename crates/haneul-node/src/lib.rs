@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::metrics::GrpcMetrics;
-use anemo::Network;
+use anemo::{Network, PeerId};
 use anemo_tower::callback::CallbackLayer;
 use anemo_tower::trace::DefaultMakeSpan;
 use anemo_tower::trace::DefaultOnFailure;
@@ -39,6 +39,7 @@ use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
+use tokio::sync::mpsc::Receiver;
 use tracing::debug;
 
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
@@ -60,7 +61,9 @@ pub mod admin;
 mod handle;
 pub mod metrics;
 pub use handle::HaneulNodeHandle;
+use haneullabs_network::client::connect;
 use narwhal_config::SharedWorkerCache;
+use narwhal_network::connectivity::ConnectionStatus;
 use narwhal_types::TransactionsClient;
 use haneul_core::authority::authority_per_epoch_store::{
     AuthorityPerEpochStore, EpochStartConfiguration,
@@ -69,7 +72,9 @@ use haneul_core::checkpoints::{
     CheckpointMetrics, CheckpointService, CheckpointStore, SendCheckpointToStateSync,
     SubmitCheckpointToConsensus,
 };
-use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
+use haneul_core::consensus_adapter::{
+    ConnectionMonitorListener, ConsensusAdapter, ConsensusAdapterMetrics,
+};
 use haneul_core::consensus_handler::ConsensusHandler;
 use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics};
 use haneul_core::epoch::data_removal::EpochDataRemover;
@@ -82,6 +87,8 @@ use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{AuthorityCapabilities, ConsensusTransaction};
+
+pub const DEFAULT_CHANNEL_SIZE: usize = 1_000;
 
 pub struct ValidatorComponents {
     validator_server_handle: tokio::task::JoinHandle<Result<()>>,
@@ -106,7 +113,7 @@ pub struct HaneulNode {
     transaction_orchestrator: Option<Arc<TransactiondOrchestrator<NetworkAuthorityClient>>>,
     registry_service: RegistryService,
 
-    _p2p_network: Network,
+    p2p_network: Network,
     _discovery: discovery::Handle,
     state_sync: state_sync::Handle,
     checkpoint_store: Arc<CheckpointStore>,
@@ -221,9 +228,11 @@ impl HaneulNode {
             None
         };
 
+        // Create network
         let (p2p_network, discovery_handle, state_sync_handle) =
             Self::create_p2p_network(&config, state_sync_store, &prometheus_registry)?;
 
+        // Create Authority State
         let state = AuthorityState::new(
             config.protocol_public_key(),
             secret,
@@ -293,6 +302,7 @@ impl HaneulNode {
                 checkpoint_store.clone(),
                 state_sync_handle.clone(),
                 accumulator.clone(),
+                p2p_network.clone(),
                 &registry_service,
             )
             .await?;
@@ -312,7 +322,7 @@ impl HaneulNode {
             transaction_orchestrator,
             registry_service,
 
-            _p2p_network: p2p_network,
+            p2p_network,
             _discovery: discovery_handle,
             state_sync: state_sync_handle,
             checkpoint_store,
@@ -406,8 +416,6 @@ impl HaneulNode {
                 NetworkMetrics::new("haneul", "inbound", prometheus_registry);
             let outbound_network_metrics =
                 NetworkMetrics::new("haneul", "outbound", prometheus_registry);
-            let network_connection_metrics =
-                NetworkConnectionMetrics::new("haneul", prometheus_registry);
 
             let service = ServiceBuilder::new()
                 .layer(
@@ -446,14 +454,6 @@ impl HaneulNode {
                 .start(service)?;
             info!("P2p network started on {}", network.local_addr());
 
-            let _connection_monitor_handle =
-                narwhal_network::connectivity::ConnectionMonitor::spawn(
-                    network.downgrade(),
-                    network_connection_metrics,
-                    HashMap::default(),
-                    None,
-                );
-
             network
         };
 
@@ -469,8 +469,30 @@ impl HaneulNode {
         checkpoint_store: Arc<CheckpointStore>,
         state_sync_handle: state_sync::Handle,
         accumulator: Arc<StateAccumulator>,
+        p2p_network: Network,
         registry_service: &RegistryService,
     ) -> Result<ValidatorComponents> {
+        let system_state = state
+            .get_haneul_system_state_object()
+            .expect("Reading Haneul system state object cannot fail");
+        // Spawn connectivity monitor for network
+
+        let peer_ids = system_state.get_current_epoch_peer_ids();
+
+        let peer_ids_to_authority_names =
+            system_state.get_current_epoch_peer_id_to_authority_names();
+
+        let (connection_status_sender, connection_status_receiver) = channel(DEFAULT_CHANNEL_SIZE);
+
+        let network_connection_metrics =
+            NetworkConnectionMetrics::new("haneul", &registry_service.default_registry());
+        let _connection_monitor_handle = narwhal_network::connectivity::ConnectionMonitor::spawn(
+            p2p_network.downgrade(),
+            network_connection_metrics,
+            peer_ids,
+            Some(connection_status_sender),
+        );
+
         let consensus_config = config
             .consensus_config()
             .ok_or_else(|| anyhow!("Validator is missing consensus config"))?;
@@ -478,8 +500,11 @@ impl HaneulNode {
         let consensus_adapter = Self::construct_consensus_adapter(
             consensus_config,
             state.name,
+            connection_status_receiver,
+            peer_ids_to_authority_names,
             &registry_service.default_registry(),
-        );
+        )
+        .await;
 
         let validator_server_handle = Self::start_grpc_validator_service(
             config,
@@ -651,9 +676,11 @@ impl HaneulNode {
         Ok(NarwhalManager::new(narwhal_config, metrics))
     }
 
-    fn construct_consensus_adapter(
+    async fn construct_consensus_adapter(
         consensus_config: &ConsensusConfig,
         authority: AuthorityName,
+        connection_status_receiver: Receiver<(PeerId, ConnectionStatus)>,
+        peer_id_to_authority_names: HashMap<PeerId, AuthorityName>,
         prometheus_registry: &Registry,
     ) -> Arc<ConsensusAdapter> {
         const REQUEST_TIMEOUT: Duration = Duration::from_secs(20);
@@ -675,7 +702,18 @@ impl HaneulNode {
         let ca_metrics = ConsensusAdapterMetrics::new(prometheus_registry);
         // The consensus adapter allows the authority to send user certificates through consensus.
 
-        ConsensusAdapter::new(Box::new(consensus_client), authority, ca_metrics)
+        let connection_monitor_status = ConnectionMonitorListener::spawn(
+            connection_status_receiver,
+            peer_id_to_authority_names,
+        )
+        .await;
+
+        ConsensusAdapter::new(
+            Box::new(consensus_client),
+            authority,
+            Box::new(connection_monitor_status),
+            ca_metrics,
+        )
     }
 
     async fn start_grpc_validator_service(
@@ -869,6 +907,7 @@ impl HaneulNode {
                             self.checkpoint_store.clone(),
                             self.state_sync.clone(),
                             self.accumulator.clone(),
+                            self.p2p_network.clone(),
                             &self.registry_service,
                         )
                         .await?,
