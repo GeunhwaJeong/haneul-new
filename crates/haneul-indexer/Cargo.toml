@@ -26,7 +26,6 @@ tracing = "0.1.36"
 tokio = { workspace = true, features = ["full"] }
 
 narwhal-network = { path = "../../narwhal/network" }
-haneul = { path = "../haneul" }
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
