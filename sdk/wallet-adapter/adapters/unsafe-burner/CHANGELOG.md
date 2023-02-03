@@ -1,5 +1,25 @@
 # @haneullabs/wallet-adapter-unsafe-burner
 
+## 0.5.0
+
+### Minor Changes
+
+- 96e883fc1: Update wallet adapter and wallet standard to support passing through the desired request type.
+
+### Patch Changes
+
+- a8746d4e9: update HaneulExecuteTransactionResponse
+- Updated dependencies [034158656]
+- Updated dependencies [96e883fc1]
+- Updated dependencies [a8746d4e9]
+- Updated dependencies [57fc4dedd]
+- Updated dependencies [e6a71882f]
+- Updated dependencies [e6a71882f]
+- Updated dependencies [21781ba52]
+- Updated dependencies [b3ba6dfbc]
+  - @haneullabs/haneul.js@0.26.0
+  - @haneullabs/wallet-adapter-base@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.3.12
+
+### Patch Changes
+
+- a8746d4e9: update HaneulExecuteTransactionResponse
+- Updated dependencies [96e883fc1]
+- Updated dependencies [a8746d4e9]
+  - @haneullabs/wallet-adapter-wallet-standard@0.5.0
+  - @haneullabs/wallet-adapter-unsafe-burner@0.5.0
+
 ## 0.3.11
 
 ### Patch Changes
