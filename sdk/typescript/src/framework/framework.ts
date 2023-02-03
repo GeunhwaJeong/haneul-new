@@ -9,11 +9,11 @@ import {
   HaneulObject,
   getMoveObjectType,
   getObjectId,
-} from './objects';
-import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from './common';
+} from '../types/objects';
+import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from '../types/common';
 
-import { getOption, Option } from './option';
-import { StructTag } from './haneul-bcs';
+import { getOption, Option } from '../types/option';
+import { StructTag } from '../types/haneul-bcs';
 import { UnserializedSignableTransaction } from '../signers/txn-data-serializers/txn-data-serializer';
 import { Infer, literal, number, object, string, union } from 'superstruct';
 

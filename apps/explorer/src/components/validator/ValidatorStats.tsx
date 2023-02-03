@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type ActiveValidator } from '@haneullabs/haneul.js';
+import { type MoveActiveValidator } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { DelegationAmount } from './DelegationAmount';
@@ -13,7 +13,7 @@ import { Stats } from '~/ui/Stats';
 import { getStakedPercent } from '~/utils/getStakedPercent';
 
 type StatsCardProps = {
-    validatorData: ActiveValidator;
+    validatorData: MoveActiveValidator;
     totalValidatorStake: string;
     epoch: number | string;
 };

@@ -50,6 +50,7 @@ import {
   GetOwnedObjectsResponse,
   DelegatedStake,
   ValidatorMetaData,
+  HaneulSystemState,
   CoinBalance,
   CoinSupply,
   CheckpointSummary,
@@ -194,7 +195,7 @@ export class JsonRpcProvider extends Provider {
     coinType: String | null = null,
     cursor: ObjectId | null = null,
     limit: number | null = null
-  ) : Promise<PaginatedCoins> {
+  ): Promise<PaginatedCoins> {
     try {
       if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
         throw new Error('Invalid Haneul address');
@@ -206,9 +207,7 @@ export class JsonRpcProvider extends Provider {
         this.options.skipDataValidation
       );
     } catch (err) {
-      throw new Error(
-        `Error getting coins for owner ${owner}: ${err}`
-      );
+      throw new Error(`Error getting coins for owner ${owner}: ${err}`);
     }
   }
 
@@ -216,7 +215,7 @@ export class JsonRpcProvider extends Provider {
     owner: HaneulAddress,
     cursor: ObjectId | null = null,
     limit: number | null = null
-  ) : Promise<PaginatedCoins> {
+  ): Promise<PaginatedCoins> {
     try {
       if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
         throw new Error('Invalid Haneul address');
@@ -228,16 +227,14 @@ export class JsonRpcProvider extends Provider {
         this.options.skipDataValidation
       );
     } catch (err) {
-      throw new Error(
-        `Error getting all coins for owner ${owner}: ${err}`
-      )
+      throw new Error(`Error getting all coins for owner ${owner}: ${err}`);
     }
   }
 
   async getBalance(
     owner: HaneulAddress,
-    coinType: String | null = null,
-  ) : Promise<CoinBalance> {
+    coinType: String | null = null
+  ): Promise<CoinBalance> {
     try {
       if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
         throw new Error('Invalid Haneul address');
@@ -251,13 +248,11 @@ export class JsonRpcProvider extends Provider {
     } catch (err) {
       throw new Error(
         `Error getting balance for coin type ${coinType} for owner ${owner}: ${err}`
-      )
+      );
     }
   }
 
-  async getAllBalances(
-    owner: HaneulAddress
-  ) : Promise<CoinBalance[]> {
+  async getAllBalances(owner: HaneulAddress): Promise<CoinBalance[]> {
     try {
       if (!owner || !isValidHaneulAddress(normalizeHaneulAddress(owner))) {
         throw new Error('Invalid Haneul address');
@@ -269,9 +264,7 @@ export class JsonRpcProvider extends Provider {
         this.options.skipDataValidation
       );
     } catch (err) {
-      throw new Error(
-        `Error getting all balances for owner ${owner}: ${err}`
-      )
+      throw new Error(`Error getting all balances for owner ${owner}: ${err}`);
     }
   }
 
@@ -288,9 +281,7 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getTotalSupply(
-    coinType: String
-  ) : Promise<CoinSupply> {
+  async getTotalSupply(coinType: String): Promise<CoinSupply> {
     try {
       return await this.client.requestWithType(
         'haneul_getTotalSupply',
@@ -786,6 +777,51 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
+  async getDelegatedStakes(address: HaneulAddress): Promise<DelegatedStake[]> {
+    try {
+      if (!address || !isValidHaneulAddress(normalizeHaneulAddress(address))) {
+        throw new Error('Invalid Haneul address');
+      }
+      const resp = await this.client.requestWithType(
+        'haneul_getDelegatedStakes',
+        [address],
+        array(DelegatedStake),
+        this.options.skipDataValidation
+      );
+      return resp;
+    } catch (err) {
+      throw new Error(`Error in getDelegatedStake: ${err}`);
+    }
+  }
+
+  async getValidators(): Promise<ValidatorMetaData[]> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_getValidators',
+        [],
+        array(ValidatorMetaData),
+        this.options.skipDataValidation
+      );
+      return resp;
+    } catch (err) {
+      throw new Error(`Error in getValidators: ${err}`);
+    }
+  }
+
+  async getHaneulSystemState(): Promise<HaneulSystemState> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_getHaneulSystemState',
+        [],
+        HaneulSystemState,
+        this.options.skipDataValidation
+      );
+      return resp;
+    } catch (err) {
+      throw new Error(`Error in getHaneulSystemState: ${err}`);
+    }
+  }
+
   // Events
   async getEvents(
     query: EventQuery,
@@ -957,37 +993,6 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getDelegatedStake(address: HaneulAddress): Promise<DelegatedStake[]> {
-    try {
-      if (!address || !isValidHaneulAddress(normalizeHaneulAddress(address))) {
-        throw new Error('Invalid Haneul address');
-      }
-      const resp = await this.client.requestWithType(
-        'haneul_getDelegatedStakes',
-        [address],
-        array(DelegatedStake),
-        this.options.skipDataValidation
-      );
-      return resp;
-    } catch (err) {
-      throw new Error(`Error in getDelegatedStake: ${err}`);
-    }
-  }
-
-  async getValidators(): Promise<ValidatorMetaData[]> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_getValidators',
-        [],
-        array(ValidatorMetaData),
-        this.options.skipDataValidation
-      );
-      return resp;
-    } catch (err) {
-      throw new Error(`Error in getValidators: ${err}`);
-    }
-  }
-
   // Checkpoints
   async getLatestCheckpointSequenceNumber(): Promise<number> {
     try {
@@ -999,12 +1004,14 @@ export class JsonRpcProvider extends Provider {
       );
       return resp;
     } catch (err) {
-      throw new Error(`Error fetching latest checkpoint sequence number: ${err}`);
+      throw new Error(
+        `Error fetching latest checkpoint sequence number: ${err}`
+      );
     }
   }
 
   async getCheckpointSummary(
-    sequence_number: number,
+    sequence_number: number
   ): Promise<CheckpointSummary> {
     try {
       const resp = await this.client.requestWithType(
@@ -1022,7 +1029,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getCheckpointSummaryByDigest(
-    digest: CheckpointDigest,
+    digest: CheckpointDigest
   ): Promise<CheckpointSummary> {
     try {
       const resp = await this.client.requestWithType(
@@ -1040,7 +1047,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getCheckpointContents(
-    sequence_number: number,
+    sequence_number: number
   ): Promise<CheckpointContents> {
     try {
       const resp = await this.client.requestWithType(
@@ -1058,7 +1065,7 @@ export class JsonRpcProvider extends Provider {
   }
 
   async getCheckpointContentsByDigest(
-    digest: CheckPointContentsDigest,
+    digest: CheckPointContentsDigest
   ): Promise<CheckpointContents> {
     try {
       const resp = await this.client.requestWithType(

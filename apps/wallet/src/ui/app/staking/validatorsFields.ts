@@ -4,16 +4,16 @@
 import {
     is,
     HaneulObject,
-    type ValidatorsFields,
+    type MoveHaneulSystemObjectFields,
     type GetObjectDataResponse,
 } from '@haneullabs/haneul.js';
 
 export function validatorsFields(
     data?: GetObjectDataResponse
-): ValidatorsFields | null {
+): MoveHaneulSystemObjectFields | null {
     return data &&
         is(data.details, HaneulObject) &&
         data.details.data.dataType === 'moveObject'
-        ? (data.details.data.fields as ValidatorsFields)
+        ? (data.details.data.fields as MoveHaneulSystemObjectFields)
         : null;
 }

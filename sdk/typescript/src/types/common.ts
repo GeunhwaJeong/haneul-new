@@ -11,7 +11,7 @@ import {
   unknown,
 } from 'superstruct';
 import { Base58DataBuffer } from '../serialization/base58';
-import { TransactionData } from './haneul-bcs';
+import { CallArg, TransactionData } from './haneul-bcs';
 import {
   PublicKey,
   PublicKeyInitData,
@@ -57,7 +57,12 @@ export type ObjectOwner = Infer<typeof ObjectOwner>;
 
 // TODO: Figure out if we actually should have validaton on this:
 export const HaneulJsonValue = unknown();
-export type HaneulJsonValue = boolean | number | string | Array<HaneulJsonValue>;
+export type HaneulJsonValue =
+  | boolean
+  | number
+  | string
+  | CallArg
+  | Array<HaneulJsonValue>;
 
 // source of truth is
 // https://github.com/GeunhwaJeong/haneul/blob/acb2b97ae21f47600e05b0d28127d88d0725561d/crates/haneul-types/src/base_types.rs#L171

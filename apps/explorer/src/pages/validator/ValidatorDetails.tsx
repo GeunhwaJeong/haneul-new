@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulObject, type ValidatorsFields } from '@haneullabs/haneul.js';
+import { is, HaneulObject, type MoveHaneulSystemObjectFields } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ function ValidatorDetails() {
         data &&
         is(data.details, HaneulObject) &&
         data.details.data.dataType === 'moveObject'
-            ? (data.details.data.fields as ValidatorsFields)
+            ? (data.details.data.fields as MoveHaneulSystemObjectFields)
             : null;
 
     const validatorData = useMemo(() => {

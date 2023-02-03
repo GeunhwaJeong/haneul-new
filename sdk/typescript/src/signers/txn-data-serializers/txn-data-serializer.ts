@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Base64DataBuffer } from '../../serialization/base64';
-import { ObjectId, PureArg, HaneulAddress, HaneulJsonValue, TypeTag } from '../../types';
+import {
+  ObjectId,
+  PureArg,
+  HaneulAddress,
+  HaneulJsonValue,
+  TypeTag,
+} from '../../types';
 
 ///////////////////////////////
 // Exported Types
@@ -92,6 +98,14 @@ export interface MoveCallTransaction extends TransactionCommon {
   typeArguments: string[] | TypeTag[];
   arguments: (HaneulJsonValue | PureArg)[];
   gasPayment?: ObjectId;
+}
+
+export interface RawMoveCall {
+  packageObjectId: ObjectId;
+  module: string;
+  function: string;
+  typeArguments: string[];
+  arguments: HaneulJsonValue[];
 }
 
 export type UnserializedSignableTransaction =

@@ -18,7 +18,14 @@ import {
   HaneulObjectRef,
   HANEUL_FRAMEWORK_ADDRESS,
 } from '../../types';
-import { bcsForVersion, CallArg, isPureArg, MoveCallTx, ObjectArg, PureArg } from '../../types/haneul-bcs';
+import {
+  bcsForVersion,
+  CallArg,
+  isPureArg,
+  MoveCallTx,
+  ObjectArg,
+  PureArg,
+} from '../../types/haneul-bcs';
 import { MoveCallTransaction } from './txn-data-serializer';
 
 const MOVE_CALL_SER_ERROR = 'Move call argument serialization error:';
@@ -125,9 +132,7 @@ export class CallArgSerializer {
   ) {
     const normalized = await this.provider.getNormalizedMoveFunction(
       normalizeHaneulObjectId(
-        typeof packageId === "string"
-          ? packageId
-          : packageId.objectId
+        typeof packageId === 'string' ? packageId : packageId.objectId
       ),
       module,
       functionName

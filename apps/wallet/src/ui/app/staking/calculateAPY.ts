@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type ActiveValidator } from '@haneullabs/haneul.js';
+import { type MoveActiveValidator } from '@haneullabs/haneul.js';
 
 import { roundFloat } from '_helpers';
 
 const APY_DECIMALS = 4;
 
-export function calculateAPY(validators: ActiveValidator, epoch: number) {
+export function calculateAPY(validators: MoveActiveValidator, epoch: number) {
     const { haneul_balance, starting_epoch, delegation_token_supply } =
         validators.fields.delegation_staking_pool.fields;
 

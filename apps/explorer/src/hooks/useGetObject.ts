@@ -6,7 +6,7 @@ import {
     HaneulObject,
     type GetObjectDataResponse,
     normalizeHaneulAddress,
-    type ValidatorsFields,
+    type MoveHaneulSystemObjectFields,
 } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
@@ -20,7 +20,7 @@ export function useGetSystemObject() {
         data &&
         is(data.details, HaneulObject) &&
         data.details.data.dataType === 'moveObject'
-            ? (data.details.data.fields as ValidatorsFields)
+            ? (data.details.data.fields as MoveHaneulSystemObjectFields)
             : null;
 
     return {

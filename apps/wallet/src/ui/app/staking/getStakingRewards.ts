@@ -3,10 +3,10 @@
 
 import BigNumber from 'bignumber.js';
 
-import type { ActiveValidator, DelegatedStake } from '@haneullabs/haneul.js';
+import type { MoveActiveValidator, DelegatedStake } from '@haneullabs/haneul.js';
 
 export function getStakingRewards(
-    activeValidators: ActiveValidator[],
+    activeValidators: MoveActiveValidator[],
     delegation: DelegatedStake
 ) {
     if (

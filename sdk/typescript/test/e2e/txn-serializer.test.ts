@@ -11,6 +11,7 @@ import {
   RawSigner,
   RpcTxnDataSerializer,
   HaneulMoveObject,
+  HANEUL_SYSTEM_STATE_OBJECT_ID,
   UnserializedSignableTransaction,
 } from '../../src';
 import { CallArgSerializer } from '../../src/signers/txn-data-serializers/call-arg-serializer';
@@ -18,7 +19,6 @@ import {
   DEFAULT_GAS_BUDGET,
   publishPackage,
   setup,
-  HANEUL_SYSTEM_STATE_OBJECT_ID,
   TestToolbox,
 } from './utils/setup';
 

@@ -11,11 +11,11 @@ import {
   RawSigner,
   SignableTransaction,
   HaneulMoveObject,
+  HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from '../../src';
 import {
   DEFAULT_RECIPIENT,
   DEFAULT_GAS_BUDGET,
-  HANEUL_SYSTEM_STATE_OBJECT_ID,
   setup,
   TestToolbox,
   DEFAULT_RECIPIENT_2,
