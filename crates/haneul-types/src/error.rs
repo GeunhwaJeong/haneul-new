@@ -650,6 +650,35 @@ impl HaneulError {
             errors: vec![error],
         }
     }
+
+    /// Returns if the error is retryable and if the error's retryability is
+    /// explicitly categorized.
+    /// There should be only a handful of retryable errors. For now we list common
+    /// non-retryable error below to help us find more retryable errors in logs.
+    pub fn is_retryable(&self) -> (bool, bool) {
+        match self {
+            // Network error
+            HaneulError::RpcError { .. } => (true, true),
+
+            // Reconfig error
+            HaneulError::ValidatorHaltedAtEpochEnd => (true, true),
+            HaneulError::MissingCommitteeAtEpoch(..) => (true, true),
+            HaneulError::WrongEpoch { .. } => (true, true),
+
+            // Non retryable error
+            HaneulError::TransactionInputObjectsErrors { .. } => (false, true),
+            HaneulError::ExecutionError(..) => (false, true),
+            HaneulError::ByzantineAuthoritySuspicion { .. } => (false, true),
+            HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
+                (false, true)
+            }
+            HaneulError::ObjectVersionUnavailableForConsumption { .. } => (false, true),
+            HaneulError::GasBudgetTooHigh { .. } => (false, true),
+            HaneulError::GasBudgetTooLow { .. } => (false, true),
+            HaneulError::GasBalanceTooLowToCoverGasBudget { .. } => (false, true),
+            _ => (false, false),
+        }
+    }
 }
 
 type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;

@@ -205,7 +205,7 @@ impl<A> QuorumDriver<A> {
             }
             Err(err) => {
                 self.metrics
-                    .total_err_responses_by_err
+                    .total_err_responses
                     .with_label_values(&[err.as_ref()])
                     .inc();
                 Err((*tx_digest, err.clone()))
@@ -756,12 +756,9 @@ where
     ) {
         let tx_digest = *transaction.digest();
         debug!(?tx_digest, "Failed to {action}: {}", err);
-        if let Some(qd_error) = Self::convert_to_quorum_driver_error_if_non_retryable(
-            &quorum_driver,
-            err,
-            &tx_digest,
-            action,
-        ) {
+        if let Some(qd_error) =
+            convert_to_quorum_driver_error_if_non_retryable(&quorum_driver, err, &tx_digest, action)
+        {
             // If non-retryable failure, this task reaches terminal state for now, notify waiter.
             quorum_driver.notify(&tx_digest, &Err(qd_error), old_retry_times + 1);
         } else {
@@ -834,12 +831,13 @@ fn convert_to_quorum_driver_error_if_non_retryable<A>(
             let threshold = validity_threshold(total_stake);
             let mut non_recoverable_errors = HashMap::new();
             for (error, mut validators, stake) in errors {
-                quorum_driver
-                    .metrics
-                    .total_validator_returned_err_by_err
-                    .with_label_values(&[error.as_ref()])
-                    .inc();
-                if !is_error_retryable(&error, tx_digest) {
+                let (retryable, categorized) = error.is_retryable();
+                if !categorized {
+                    // we should minimize possible uncategorized errors here
+                    // use ERROR for now to make them easier to spot.
+                    error!(?tx_digest, "uncategorized tx error: {error}");
+                }
+                if !retryable {
                     non_recoverable_bad_stake += stake;
                     let (stakes_entry, validators_entry) = non_recoverable_errors
                         .entry(error.clone())
@@ -851,13 +849,31 @@ fn convert_to_quorum_driver_error_if_non_retryable<A>(
                     }
                 }
             }
-            if non_recoverable_bad_stake < threshold {
-                debug!(?tx_digest, "Non retryable error stake < threshold when {action}: {non_recoverable_errors:?}");
+
+            let is_tx_recoverable = non_recoverable_bad_stake < threshold;
+            // record non-retryable errors
+            for haneul_err in non_recoverable_errors.keys() {
+                quorum_driver
+                    .metrics
+                    .total_aggregated_non_recoverable_err
+                    .with_label_values(&[
+                        haneul_err.as_ref(),
+                        if is_tx_recoverable {
+                            "recoverable"
+                        } else {
+                            "non-recoverable"
+                        },
+                    ])
+                    .inc();
+            }
+
+            if is_tx_recoverable {
+                debug!(?tx_digest, "Non recoverable error stake < threshold when {action}: {non_recoverable_errors:?}");
                 return None;
             }
             debug!(
                 ?tx_digest,
-                "Non retryable error stake >= threshold when {action}: {non_recoverable_errors:?}"
+                "Non recoverable error stake >= threshold when {action}: {non_recoverable_errors:?}"
             );
             Some(QuorumDriverError::NonRecoverableTransactionError {
                 errors: Vec::from_iter(
@@ -866,33 +882,6 @@ fn convert_to_quorum_driver_error_if_non_retryable<A>(
                         .map(|(err, (stake, validators))| (err, validators, stake)),
                 ),
             })
-        }
-    }
-}
-
-fn is_error_retryable(error: &HaneulError, tx_digest: &TransactionDigest) -> bool {
-    match error {
-        // Network error
-        HaneulError::RpcError { .. } => true,
-
-        // Reconfig error
-        HaneulError::ValidatorHaltedAtEpochEnd => true,
-        HaneulError::MissingCommitteeAtEpoch(..) => true,
-        HaneulError::WrongEpoch { .. } => true,
-
-        // Non retryable error
-        HaneulError::TransactionInputObjectsErrors { .. } => false,
-        HaneulError::ExecutionError(..) => false,
-        HaneulError::ByzantineAuthoritySuspicion { .. } => false,
-        HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => false,
-        HaneulError::ObjectVersionUnavailableForConsumption { .. } => false,
-        HaneulError::GasBudgetTooHigh { .. } => false,
-        HaneulError::GasBudgetTooLow { .. } => false,
-        other => {
-            // we should maximize possible uncategorized errors here
-            // use ERROR for now to make them easier to spot
-            error!(?tx_digest, "uncategorized tx error: {other}");
-            false
         }
     }
 }
