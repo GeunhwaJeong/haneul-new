@@ -42,6 +42,7 @@ haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-storage = { path = "../haneul-storage" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
+chrono = "0.4.23"
 
 move-core-types.workspace = true
 
