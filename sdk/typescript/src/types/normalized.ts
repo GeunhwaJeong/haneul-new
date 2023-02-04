@@ -69,7 +69,7 @@ export type HaneulMoveNormalizedType =
   | HaneulMoveNormalizedStructType;
 
 function isHaneulMoveNormalizedType(
-  value: unknown
+  value: unknown,
 ): value is HaneulMoveNormalizedType {
   if (!value) return false;
   if (typeof value === 'string') return true;
@@ -86,7 +86,7 @@ function isHaneulMoveNormalizedType(
 
 export const HaneulMoveNormalizedType = define<HaneulMoveNormalizedType>(
   'HaneulMoveNormalizedType',
-  isHaneulMoveNormalizedType
+  isHaneulMoveNormalizedType,
 );
 
 export type HaneulMoveNormalizedStructType = {
@@ -99,7 +99,7 @@ export type HaneulMoveNormalizedStructType = {
 };
 
 function isHaneulMoveNormalizedStructType(
-  value: unknown
+  value: unknown,
 ): value is HaneulMoveNormalizedStructType {
   if (!value || typeof value !== 'object') return false;
 
@@ -114,7 +114,7 @@ function isHaneulMoveNormalizedStructType(
     typeof structProperties.name !== 'string' ||
     !Array.isArray(structProperties.type_arguments) ||
     !structProperties.type_arguments.every((value) =>
-      isHaneulMoveNormalizedType(value)
+      isHaneulMoveNormalizedType(value),
     )
   ) {
     return false;
@@ -126,7 +126,7 @@ function isHaneulMoveNormalizedStructType(
 // NOTE: This type is recursive, so we need to manually implement it:
 export const HaneulMoveNormalizedStructType = define<HaneulMoveNormalizedStructType>(
   'HaneulMoveNormalizedStructType',
-  isHaneulMoveNormalizedStructType
+  isHaneulMoveNormalizedStructType,
 );
 
 export const HaneulMoveNormalizedFunction = object({
@@ -163,12 +163,12 @@ export type HaneulMoveNormalizedModule = Infer<typeof HaneulMoveNormalizedModule
 
 export const HaneulMoveNormalizedModules = record(
   string(),
-  HaneulMoveNormalizedModule
+  HaneulMoveNormalizedModule,
 );
 export type HaneulMoveNormalizedModules = Infer<typeof HaneulMoveNormalizedModules>;
 
 export function extractMutableReference(
-  normalizedType: HaneulMoveNormalizedType
+  normalizedType: HaneulMoveNormalizedType,
 ): HaneulMoveNormalizedType | undefined {
   return typeof normalizedType === 'object' &&
     'MutableReference' in normalizedType
@@ -177,7 +177,7 @@ export function extractMutableReference(
 }
 
 export function extractReference(
-  normalizedType: HaneulMoveNormalizedType
+  normalizedType: HaneulMoveNormalizedType,
 ): HaneulMoveNormalizedType | undefined {
   return typeof normalizedType === 'object' && 'Reference' in normalizedType
     ? normalizedType.Reference
@@ -185,7 +185,7 @@ export function extractReference(
 }
 
 export function extractStructTag(
-  normalizedType: HaneulMoveNormalizedType
+  normalizedType: HaneulMoveNormalizedType,
 ): HaneulMoveNormalizedStructType | undefined {
   if (typeof normalizedType === 'object' && 'Struct' in normalizedType) {
     return normalizedType;

@@ -36,7 +36,7 @@ export const HaneulObjectInfo = assign(
     type: string(),
     owner: ObjectOwner,
     previousTransaction: TransactionDigest,
-  })
+  }),
 );
 export type HaneulObjectInfo = Infer<typeof HaneulObjectInfo>;
 
@@ -112,25 +112,25 @@ export type Order = 'ascending' | 'descending';
 /* -------------------------- GetObjectDataResponse ------------------------- */
 
 export function getObjectExistsResponse(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): HaneulObject | undefined {
   return resp.status !== 'Exists' ? undefined : (resp.details as HaneulObject);
 }
 
 export function getObjectDeletedResponse(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): HaneulObjectRef | undefined {
   return resp.status !== 'Deleted' ? undefined : (resp.details as HaneulObjectRef);
 }
 
 export function getObjectNotExistsResponse(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): ObjectId | undefined {
   return resp.status !== 'NotExists' ? undefined : (resp.details as ObjectId);
 }
 
 export function getObjectReference(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): HaneulObjectRef | undefined {
   return (
     getObjectExistsResponse(resp)?.reference || getObjectDeletedResponse(resp)
@@ -140,7 +140,7 @@ export function getObjectReference(
 /* ------------------------------ HaneulObjectRef ------------------------------ */
 
 export function getObjectId(
-  data: GetObjectDataResponse | HaneulObjectRef
+  data: GetObjectDataResponse | HaneulObjectRef,
 ): ObjectId {
   if ('objectId' in data) {
     return data.objectId;
@@ -151,7 +151,7 @@ export function getObjectId(
 }
 
 export function getObjectVersion(
-  data: GetObjectDataResponse | HaneulObjectRef
+  data: GetObjectDataResponse | HaneulObjectRef,
 ): number | undefined {
   if ('version' in data) {
     return data.version;
@@ -162,25 +162,25 @@ export function getObjectVersion(
 /* -------------------------------- HaneulObject ------------------------------- */
 
 export function getObjectType(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): ObjectType | undefined {
   return getObjectExistsResponse(resp)?.data.dataType;
 }
 
 export function getObjectPreviousTransactionDigest(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): TransactionDigest | undefined {
   return getObjectExistsResponse(resp)?.previousTransaction;
 }
 
 export function getObjectOwner(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): ObjectOwner | undefined {
   return getObjectExistsResponse(resp)?.owner;
 }
 
 export function getSharedObjectInitialVersion(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): number | undefined {
   const owner = getObjectOwner(resp);
   if (typeof owner === 'object' && 'Shared' in owner) {
@@ -201,13 +201,13 @@ export function isImmutableObject(resp: GetObjectDataResponse): boolean {
 }
 
 export function getMoveObjectType(
-  resp: GetObjectDataResponse
+  resp: GetObjectDataResponse,
 ): string | undefined {
   return getMoveObject(resp)?.type;
 }
 
 export function getObjectFields(
-  resp: GetObjectDataResponse | HaneulMoveObject
+  resp: GetObjectDataResponse | HaneulMoveObject,
 ): ObjectContentFields | undefined {
   if ('fields' in resp) {
     return resp.fields;
@@ -216,7 +216,7 @@ export function getObjectFields(
 }
 
 export function getMoveObject(
-  data: GetObjectDataResponse | HaneulObject
+  data: GetObjectDataResponse | HaneulObject,
 ): HaneulMoveObject | undefined {
   const haneulObject = 'data' in data ? data : getObjectExistsResponse(data);
   if (haneulObject?.data.dataType !== 'moveObject') {
@@ -226,13 +226,13 @@ export function getMoveObject(
 }
 
 export function hasPublicTransfer(
-  data: GetObjectDataResponse | HaneulObject
+  data: GetObjectDataResponse | HaneulObject,
 ): boolean {
   return getMoveObject(data)?.has_public_transfer ?? false;
 }
 
 export function getMovePackageContent(
-  data: GetObjectDataResponse | HaneulMovePackage
+  data: GetObjectDataResponse | HaneulMovePackage,
 ): MovePackageContent | undefined {
   if ('disassembled' in data) {
     return data.disassembled;

@@ -77,7 +77,7 @@ export const MoveCall = object({
 });
 export type MoveCall = Infer<typeof MoveCall>;
 
-export const Genesis = object( {
+export const Genesis = object({
   objects: array(ObjectId),
 });
 export type Genesis = Infer<typeof Genesis>;
@@ -106,7 +106,7 @@ export const HaneulTransactionKind = union([
   object({ Pay: Pay }),
   object({ PayHaneul: PayHaneul }),
   object({ PayAllHaneul: PayAllHaneul }),
-  object({ Genesis: Genesis}),
+  object({ Genesis: Genesis }),
 ]);
 export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
@@ -358,7 +358,7 @@ export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
 /* ---------------------------------- CertifiedTransaction --------------------------------- */
 
 export function getCertifiedTransaction(
-  tx: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+  tx: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
 ): CertifiedTransaction | undefined {
   if ('certificate' in tx) {
     return tx.certificate;
@@ -372,7 +372,7 @@ export function getTransactionDigest(
   tx:
     | CertifiedTransaction
     | HaneulTransactionResponse
-    | HaneulExecuteTransactionResponse
+    | HaneulExecuteTransactionResponse,
 ): TransactionDigest {
   if ('transactionDigest' in tx) {
     return tx.transactionDigest;
@@ -386,13 +386,13 @@ export function getTransactionSignature(tx: CertifiedTransaction): string {
 }
 
 export function getTransactionAuthorityQuorumSignInfo(
-  tx: CertifiedTransaction
+  tx: CertifiedTransaction,
 ): AuthorityQuorumSignInfo {
   return tx.authSignInfo;
 }
 
 export function getTransactionData(
-  tx: CertifiedTransaction
+  tx: CertifiedTransaction,
 ): HaneulTransactionData {
   return tx.data;
 }
@@ -404,7 +404,7 @@ export function getTransactionSender(tx: CertifiedTransaction): HaneulAddress {
 }
 
 export function getTransactionGasObject(
-  tx: CertifiedTransaction
+  tx: CertifiedTransaction,
 ): HaneulObjectRef {
   return tx.data.gasPayment;
 }
@@ -418,25 +418,25 @@ export function getTransactionGasBudget(tx: CertifiedTransaction): number {
 }
 
 export function getTransferObjectTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): TransferObject | undefined {
   return 'TransferObject' in data ? data.TransferObject : undefined;
 }
 
 export function getPublishTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): HaneulMovePackage | undefined {
   return 'Publish' in data ? data.Publish : undefined;
 }
 
 export function getMoveCallTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): MoveCall | undefined {
   return 'Call' in data ? data.Call : undefined;
 }
 
 export function getTransferHaneulTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): HaneulTransferHaneul | undefined {
   return 'TransferHaneul' in data ? data.TransferHaneul : undefined;
 }
@@ -446,25 +446,25 @@ export function getPayTransaction(data: HaneulTransactionKind): Pay | undefined 
 }
 
 export function getPayHaneulTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): PayHaneul | undefined {
   return 'PayHaneul' in data ? data.PayHaneul : undefined;
 }
 
 export function getPayAllHaneulTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): PayAllHaneul | undefined {
   return 'PayAllHaneul' in data ? data.PayAllHaneul : undefined;
 }
 
 export function getChangeEpochTransaction(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): HaneulChangeEpoch | undefined {
   return 'ChangeEpoch' in data ? data.ChangeEpoch : undefined;
 }
 
 export function getTransactions(
-  data: CertifiedTransaction
+  data: CertifiedTransaction,
 ): HaneulTransactionKind[] {
   return data.data.transactions;
 }
@@ -476,7 +476,7 @@ export function getTransferHaneulAmount(data: HaneulTransactionKind): bigint | n
 }
 
 export function getTransactionKindName(
-  data: HaneulTransactionKind
+  data: HaneulTransactionKind,
 ): TransactionKindName {
   return Object.keys(data)[0] as TransactionKindName;
 }
@@ -484,19 +484,19 @@ export function getTransactionKindName(
 /* ----------------------------- ExecutionStatus ---------------------------- */
 
 export function getExecutionStatusType(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
 ): ExecutionStatusType | undefined {
   return getExecutionStatus(data)?.status;
 }
 
 export function getExecutionStatus(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
 ): ExecutionStatus | undefined {
   return getTransactionEffects(data)?.status;
 }
 
 export function getExecutionStatusError(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
 ): string | undefined {
   return getExecutionStatus(data)?.error;
 }
@@ -505,7 +505,7 @@ export function getExecutionStatusGasSummary(
   data:
     | HaneulTransactionResponse
     | HaneulExecuteTransactionResponse
-    | TransactionEffects
+    | TransactionEffects,
 ): GasCostSummary | undefined {
   if (is(data, TransactionEffects)) {
     return data.gasUsed;
@@ -517,7 +517,7 @@ export function getTotalGasUsed(
   data:
     | HaneulTransactionResponse
     | HaneulExecuteTransactionResponse
-    | TransactionEffects
+    | TransactionEffects,
 ): number | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
@@ -531,7 +531,7 @@ export function getTotalGasUsedUpperBound(
   data:
     | HaneulTransactionResponse
     | HaneulExecuteTransactionResponse
-    | TransactionEffects
+    | TransactionEffects,
 ): number | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
@@ -540,7 +540,7 @@ export function getTotalGasUsedUpperBound(
 }
 
 export function getTransactionEffects(
-  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse,
 ): TransactionEffects | undefined {
   if ('effects' in data) {
     return `effects` in data.effects ? data.effects.effects : data.effects;
@@ -551,13 +551,13 @@ export function getTransactionEffects(
 /* ---------------------------- Transaction Effects --------------------------- */
 
 export function getEvents(
-  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse,
 ): HaneulEvent[] | undefined {
   return getTransactionEffects(data)?.events;
 }
 
 export function getCreatedObjects(
-  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse,
 ): OwnedObjectRef[] | undefined {
   return getTransactionEffects(data)?.created;
 }
@@ -565,27 +565,27 @@ export function getCreatedObjects(
 /* --------------------------- TransactionResponse -------------------------- */
 
 export function getTimestampFromTransactionResponse(
-  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse
+  data: HaneulExecuteTransactionResponse | HaneulTransactionResponse,
 ): number | undefined {
   return 'timestamp_ms' in data ? data.timestamp_ms ?? undefined : undefined;
 }
 
 export function getParsedSplitCoinResponse(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulParsedSplitCoinResponse | undefined {
   const parsed = data.parsed_data;
   return parsed && 'SplitCoin' in parsed ? parsed.SplitCoin : undefined;
 }
 
 export function getParsedMergeCoinResponse(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulParsedMergeCoinResponse | undefined {
   const parsed = data.parsed_data;
   return parsed && 'MergeCoin' in parsed ? parsed.MergeCoin : undefined;
 }
 
 export function getParsedPublishResponse(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulParsedPublishResponse | undefined {
   const parsed = data.parsed_data;
   return parsed && 'Publish' in parsed ? parsed.Publish : undefined;
@@ -597,7 +597,7 @@ export function getParsedPublishResponse(
  * @returns the updated state of the primary coin after the merge
  */
 export function getCoinAfterMerge(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulObject | undefined {
   return getParsedMergeCoinResponse(data)?.updatedCoin;
 }
@@ -608,7 +608,7 @@ export function getCoinAfterMerge(
  * @returns the updated state of the original coin object used for the split
  */
 export function getCoinAfterSplit(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulObject | undefined {
   return getParsedSplitCoinResponse(data)?.updatedCoin;
 }
@@ -619,7 +619,7 @@ export function getCoinAfterSplit(
  * @returns the updated state of the original coin object used for the split
  */
 export function getNewlyCreatedCoinsAfterSplit(
-  data: HaneulTransactionResponse
+  data: HaneulTransactionResponse,
 ): HaneulObject[] | undefined {
   return getParsedSplitCoinResponse(data)?.newCoins;
 }
@@ -628,7 +628,7 @@ export function getNewlyCreatedCoinsAfterSplit(
  * Get the newly created coin refs after a split.
  */
 export function getNewlyCreatedCoinRefsAfterSplit(
-  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse
+  data: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
 ): HaneulObjectRef[] | undefined {
   if ('EffectsCert' in data) {
     const effects = data.EffectsCert.effects.effects;

@@ -194,6 +194,6 @@ export interface TxnDataSerializer {
   serializeToBytes(
     signerAddress: HaneulAddress,
     txn: UnserializedSignableTransaction,
-    mode: TransactionBuilderMode
+    mode: TransactionBuilderMode,
   ): Promise<Base64DataBuffer>;
 }

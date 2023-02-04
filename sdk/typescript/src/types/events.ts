@@ -181,7 +181,7 @@ export type HaneulEventFilter =
 export const HaneulEventEnvelope = object({
   timestamp: number(),
   txDigest: TransactionDigest,
-  id: EventId,  // tx_digest:event_seq
+  id: EventId, // tx_digest:event_seq
   event: HaneulEvent,
 });
 

@@ -40,7 +40,7 @@ export class HaneulSystemStateUtil {
     validatorAddress: HaneulAddress,
     gasBudget?: number,
     gasPayment?: ObjectId,
-    gasPrice?: number
+    gasPrice?: number,
   ): Promise<UnserializedSignableTransaction> {
     // TODO: validate coin types and handle locked coins
     return {
@@ -76,7 +76,7 @@ export class HaneulSystemStateUtil {
     stakedCoinId: ObjectId,
     gasBudget?: number,
     gasPayment?: ObjectId,
-    gasPrice?: number
+    gasPrice?: number,
   ): Promise<UnserializedSignableTransaction> {
     return {
       kind: 'moveCall',
@@ -107,7 +107,7 @@ export class HaneulSystemStateUtil {
     newValidatorAddress: HaneulAddress,
     gasBudget?: number,
     gasPayment?: ObjectId,
-    gasPrice?: number
+    gasPrice?: number,
   ): Promise<UnserializedSignableTransaction> {
     return {
       kind: 'moveCall',
