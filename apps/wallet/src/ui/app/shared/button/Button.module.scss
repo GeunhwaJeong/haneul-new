@@ -40,9 +40,14 @@
 
     &.secondary {
         background: none;
-        color: colors.$haneul-blue-steel-dark;
-        border: 1px solid colors.$gray-55;
+        color: colors.$haneul-steel-blue;
+        border: 1px solid colors.$haneul-steel-blue;
         border-radius: 12px;
+    }
+
+    &.secondary:hover {
+        border-color: colors.$haneul-blue-steel-dark;
+        color: colors.$haneul-blue-steel-dark;
     }
 
     &.primary {
@@ -74,7 +79,7 @@
     }
 
     &.large {
-        padding: 12px 20px;
+        padding: 13px 20px;
         border-radius: 12px;
         gap: 8px;
 
