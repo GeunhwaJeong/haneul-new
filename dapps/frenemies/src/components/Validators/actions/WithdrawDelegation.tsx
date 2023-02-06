@@ -5,11 +5,8 @@ import { normalizeHaneulAddress, HANEUL_FRAMEWORK_ADDRESS } from "@haneullabs/ha
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useMutation } from "@tanstack/react-query";
 import { HANEUL_SYSTEM_ID } from "../../../network/queries/haneul-system";
-import { useMyType } from "../../../network/queries/use-raw";
 import { ObjectData } from "../../../network/rawObject";
-import { Coin, Delegation, StakedHaneul, HANEUL_COIN } from "../../../network/types";
-import { getGas } from "../../../utils/coins";
-import provider from "../../../network/provider";
+import { Delegation, StakedHaneul } from "../../../network/types";
 import { StakeButton } from "../../StakeButton";
 
 interface Props {
@@ -25,21 +22,8 @@ const GAS_BUDGET = 100000n;
  */
 export function WithdrawDelegation({ stake, delegation }: Props) {
   const { currentAccount, signAndExecuteTransaction } = useWalletKit();
-  const { data: coins } = useMyType<Coin>(HANEUL_COIN, currentAccount);
 
   const withdrawDelegation = useMutation(["unstake-validator"], async () => {
-    if (!coins || !coins.length) {
-      return null;
-    }
-
-    const gasPrice = await provider.getReferenceGasPrice();
-    const gasRequred = GAS_BUDGET * BigInt(gasPrice);
-    const { gas } = getGas(coins, gasRequred);
-
-    if (!gas) {
-      return null;
-    }
-
     await signAndExecuteTransaction(
       {
         kind: "moveCall",
@@ -49,7 +33,6 @@ export function WithdrawDelegation({ stake, delegation }: Props) {
           function: "request_withdraw_delegation",
           gasBudget: Number(GAS_BUDGET),
           typeArguments: [],
-          gasPayment: normalizeHaneulAddress(gas.reference.objectId),
           arguments: [
             HANEUL_SYSTEM_ID,
             normalizeHaneulAddress(delegation.reference.objectId),
@@ -64,10 +47,7 @@ export function WithdrawDelegation({ stake, delegation }: Props) {
   });
 
   return (
-    <StakeButton
-      disabled={!coins?.length}
-      onClick={() => withdrawDelegation.mutate()}
-    >
+    <StakeButton onClick={() => withdrawDelegation.mutate()}>
       Unstake
     </StakeButton>
   );

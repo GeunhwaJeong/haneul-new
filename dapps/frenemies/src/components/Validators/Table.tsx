@@ -3,7 +3,12 @@
 
 import { ReactNode } from "react";
 import { ObjectData } from "../../network/rawObject";
-import { DELEGATION, Delegation, StakedHaneul, STAKED_HANEUL } from "../../network/types";
+import {
+  DELEGATION,
+  Delegation,
+  StakedHaneul,
+  STAKED_HANEUL,
+} from "../../network/types";
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useMyType } from "../../network/queries/use-raw";
 import { GridItem } from "./GridItem";
@@ -34,10 +39,15 @@ export function Table({ validators }: Props) {
   // sort validators by their voting power in DESC order (not by stake - these are different)
   // TODO: using `OR "0"` since voting power is an optional field;
   const sorted = [...validators].sort((a, b) =>
-    Number(BigInt(b.fields.voting_power || "0") - BigInt(a.fields.voting_power || "0"))
+    Number(
+      BigInt(b.fields.voting_power || "0") -
+        BigInt(a.fields.voting_power || "0")
+    )
   );
 
-  const stakeByValidator: Record<string, ObjectData<StakedHaneul>> = (stakes || []).reduce(
+  const stakeByValidator: Record<string, ObjectData<StakedHaneul>> = (
+    stakes || []
+  ).reduce(
     (acc, stake) =>
       Object.assign(acc, {
         [normalizeHaneulAddress(stake.data.validatorAddress)]: stake,

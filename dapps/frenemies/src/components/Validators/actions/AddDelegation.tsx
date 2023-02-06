@@ -11,9 +11,8 @@ import { useMutation } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import provider from "../../../network/provider";
 import { HANEUL_SYSTEM_ID } from "../../../network/queries/haneul-system";
-import { useMyType } from "../../../network/queries/use-raw";
-import { Coin, HANEUL_COIN } from "../../../network/types";
-import { getGas, useManageCoin } from "../../../utils/coins";
+import { useGetLatestCoins, useManageCoin } from "../../../utils/coins";
+import { formatBalance } from "../../../utils/format";
 import { StakeButton } from "../../StakeButton";
 
 interface Props {
@@ -35,27 +34,33 @@ function toMist(haneul: string) {
  */
 export function AddDelegation({ validator, amount }: Props) {
   const manageCoins = useManageCoin();
-  const { currentAccount, signAndExecuteTransaction } = useWalletKit();
-  const { data: coins } = useMyType<Coin>(HANEUL_COIN, currentAccount);
+  const { signAndExecuteTransaction } = useWalletKit();
+  const getLatestCoins = useGetLatestCoins();
 
   const stake = useMutation(["stake-for-validator"], async () => {
+    const coins = await getLatestCoins();
+
     if (!coins || !coins.length) {
       throw new Error("No coins found.");
     }
+
+    const totalBalance = coins.reduce((acc, coin) => (acc += BigInt(coin.balance)), 0n);
 
     const geunhwaAmount = toMist(amount);
 
     const gasPrice = await provider.getReferenceGasPrice();
     const gasRequired = GAS_BUDGET * BigInt(gasPrice);
-    const { max } = getGas(coins, gasRequired);
 
-    if (geunhwaAmount > max) {
+    if (geunhwaAmount > totalBalance) {
       throw new Error(
-        `Requested amount ${geunhwaAmount} is bigger than max ${max}`
+        `Requested amount ${formatBalance(
+          geunhwaAmount,
+          HANEUL_DECIMALS
+        )} is bigger than max ${formatBalance(totalBalance, HANEUL_DECIMALS)}`
       );
     }
 
-    const stakeCoin = await manageCoins(geunhwaAmount, gasRequired);
+    const stakeCoin = await manageCoins(coins, geunhwaAmount, gasRequired);
 
     await signAndExecuteTransaction(
       {
@@ -82,7 +87,7 @@ export function AddDelegation({ validator, amount }: Props) {
 
   return (
     <StakeButton
-      disabled={!amount || !coins?.length || stake.isLoading}
+      disabled={!amount || stake.isLoading}
       onClick={() => stake.mutate()}
     >
       Stake
