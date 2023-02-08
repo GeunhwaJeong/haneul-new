@@ -116,14 +116,6 @@ pub trait RpcReadApi {
         address: HaneulAddress,
     ) -> RpcResult<Vec<HaneulObjectInfo>>;
 
-    /// Return the list of objects owned by an object.
-    #[method(name = "getObjectsOwnedByObject")]
-    async fn get_objects_owned_by_object(
-        &self,
-        /// the ID of the owner object
-        object_id: ObjectID,
-    ) -> RpcResult<Vec<HaneulObjectInfo>>;
-
     /// Return the list of dynamic field objects owned by an object.
     #[method(name = "getDynamicFields")]
     async fn get_dynamic_fields(

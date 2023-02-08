@@ -484,24 +484,6 @@ export class JsonRpcProvider extends Provider {
     )) as GetObjectDataResponse[];
   }
 
-  async getObjectsOwnedByObject(objectId: ObjectId): Promise<HaneulObjectInfo[]> {
-    try {
-      if (!objectId || !isValidHaneulObjectId(normalizeHaneulObjectId(objectId))) {
-        throw new Error('Invalid Haneul Object id');
-      }
-      return await this.client.requestWithType(
-        'haneul_getObjectsOwnedByObject',
-        [objectId],
-        GetOwnedObjectsResponse,
-        this.options.skipDataValidation,
-      );
-    } catch (err) {
-      throw new Error(
-        `Error fetching owned object: ${err} for objectId ${objectId}`,
-      );
-    }
-  }
-
   async getObject(objectId: ObjectId): Promise<GetObjectDataResponse> {
     try {
       if (!objectId || !isValidHaneulObjectId(normalizeHaneulObjectId(objectId))) {
@@ -960,6 +942,12 @@ export class JsonRpcProvider extends Provider {
     limit: number | null = null,
   ): Promise<DynamicFieldPage> {
     try {
+      if (
+        !parent_object_id ||
+        !isValidHaneulObjectId(normalizeHaneulObjectId(parent_object_id))
+      ) {
+        throw new Error('Invalid Haneul Object id');
+      }
       const resp = await this.client.requestWithType(
         'haneul_getDynamicFields',
         [parent_object_id, cursor, limit],
