@@ -55,6 +55,7 @@ sysinfo = "0.27.5"
 [target.'cfg(msim)'.dependencies]
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
+typed-store = { path = "../typed-store" }
 
 [features]
 benchmark = ["narwhal-node/benchmark"]
