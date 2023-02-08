@@ -35,7 +35,6 @@ export function useHaneulSystem() {
     },
     {
       refetchInterval: 60 * 1000,
-      refetchOnWindowFocus: false,
     }
   );
 
