@@ -30,10 +30,6 @@
     &.loading {
         background-color: colors.$haneul-steel-blue;
         color: colors.$white;
-
-        > .loader {
-            border-color: colors.$white;
-        }
     }
 }
 
