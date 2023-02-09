@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  is,
-  normalizeHaneulAddress,
-  HaneulObject,
-  MoveHaneulSystemObjectFields,
-} from "@haneullabs/haneul.js";
+import { normalizeHaneulAddress } from "@haneullabs/haneul.js";
 import { useQuery } from "@tanstack/react-query";
 import provider from "../provider";
 
@@ -16,28 +11,19 @@ import provider from "../provider";
  */
 export const HANEUL_SYSTEM_ID: string = normalizeHaneulAddress("0x5");
 
-/**
- * Read the HaneulSystem object.
- */
-export function useHaneulSystem() {
-  return useQuery(
-    ["object", HANEUL_SYSTEM_ID],
-    async () => {
-      const data = await provider.getObject(HANEUL_SYSTEM_ID);
-      const systemObject =
-        data &&
-        is(data.details, HaneulObject) &&
-        data.details.data.dataType === "moveObject"
-          ? (data.details.data.fields as MoveHaneulSystemObjectFields)
-          : null;
+export function convertToString(raw?: number[] | null) {
+  if (!raw) return null;
+  return String.fromCharCode(...raw);
+}
 
-      return systemObject;
+export function useValidators() {
+  return useQuery(
+    ["validators"],
+    async () => {
+      return provider.getValidators();
     },
     {
       refetchInterval: 60 * 1000,
     }
   );
-
-  // TODO: Fix raw version when there is delegated stake:
-  // return useRawObject<HaneulSystem>(HANEUL_SYSTEM_ID, HANEUL_SYSTEM_TYPE);
 }

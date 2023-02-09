@@ -3,7 +3,6 @@
 
 import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useScorecard } from "../../network/queries/scorecard";
-import { useHaneulSystem } from "../../network/queries/haneul-system";
 import { formatGoal } from "../../utils/format";
 import { Goal } from "../../network/types";
 import { Balance } from "./Balance";
@@ -12,15 +11,13 @@ import { Card } from "../Card";
 
 export function Validators({ hasAssignment }: { hasAssignment: boolean }) {
   const { currentAccount } = useWalletKit();
-  const { data: system } = useHaneulSystem();
   const { data: scorecard } = useScorecard(currentAccount);
 
   // At this point there's no way it errors out.
-  if (!system || !currentAccount) {
+  if (!currentAccount) {
     return null;
   }
 
-  const validators = system.validators.fields.active_validators;
   const assignment = scorecard?.data.assignment;
 
   return (
@@ -32,11 +29,13 @@ export function Validators({ hasAssignment }: { hasAssignment: boolean }) {
             {assignment.goal === Goal.Enemy ? "an " : "a "}
             <span className="font-bold">{formatGoal(assignment.goal)}</span>.
           </h2>
-        ): <div />}
+        ) : (
+          <div />
+        )}
 
         <Balance />
       </div>
-      <Table validators={validators} />
+      <Table />
     </Card>
   );
 }

@@ -13,7 +13,8 @@ import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useMyType } from "../../network/queries/use-raw";
 import { GridItem } from "./GridItem";
 import { ValidatorItem } from "./Validator";
-import { MoveActiveValidator, normalizeHaneulAddress } from "@haneullabs/haneul.js";
+import { normalizeHaneulAddress } from "@haneullabs/haneul.js";
+import { useValidators } from "../../network/queries/haneul-system";
 
 function Header({ children }: { children: ReactNode }) {
   return (
@@ -23,12 +24,7 @@ function Header({ children }: { children: ReactNode }) {
   );
 }
 
-interface Props {
-  /** Set of 40 currently active validators */
-  validators: MoveActiveValidator[];
-}
-
-export function Table({ validators }: Props) {
+export function Table() {
   const { currentAccount } = useWalletKit();
   const { data: stakes } = useMyType<StakedHaneul>(STAKED_HANEUL, currentAccount);
   const { data: delegations } = useMyType<Delegation>(
@@ -36,13 +32,14 @@ export function Table({ validators }: Props) {
     currentAccount
   );
 
+  const { data: validators } = useValidators();
+
   // sort validators by their live stake info in DESC order
-  const sorted = [...validators].sort((a, b) =>
+  const sorted = [...(validators || [])].sort((a, b) =>
     Number(
-      BigInt(b.fields.metadata.fields.next_epoch_stake) +
-        BigInt(b.fields.metadata.fields.next_epoch_delegation) -
-        (BigInt(a.fields.metadata.fields.next_epoch_stake) +
-          BigInt(a.fields.metadata.fields.next_epoch_delegation))
+      BigInt(b.next_epoch_stake) +
+        BigInt(b.next_epoch_delegation) -
+        (BigInt(a.next_epoch_stake) + BigInt(a.next_epoch_delegation))
     )
   );
 
@@ -69,13 +66,13 @@ export function Table({ validators }: Props) {
       <GridItem className="px-5 py-4">
         <Header>Rank</Header>
         <Header>Validator</Header>
-        <Header>Your Haneul Stake</Header>
+        <Header>Your HANEUL Stake</Header>
       </GridItem>
 
       <div className="flex flex-col gap-1">
         {sorted.map((validator, index) => {
           const address = normalizeHaneulAddress(
-            validator.fields.metadata.fields.haneul_address
+            validator.haneul_address
           );
 
           return (
