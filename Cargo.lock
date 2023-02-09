@@ -8477,6 +8477,7 @@ dependencies = [
  "haneul-macros",
  "haneul-network",
  "haneul-node",
+ "haneul-protocol-constants",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-types",
