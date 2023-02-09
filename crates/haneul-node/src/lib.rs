@@ -550,7 +550,11 @@ impl HaneulNode {
                     committee.clone(),
                     SharedWorkerCache::from(worker_cache),
                     consensus_handler,
-                    HaneulTxValidator::new(epoch_store, haneul_tx_validator_metrics.clone()),
+                    HaneulTxValidator::new(
+                        epoch_store,
+                        state.transaction_manager().clone(),
+                        haneul_tx_validator_metrics.clone(),
+                    ),
                 )
                 .await;
         } else {
