@@ -3,9 +3,9 @@ name = "frenemies"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../crates/haneul-framework" }
 old-frenemies = { local = "../old-frenemies", addr_subst = { old_frenemies = "frenemies" } }
+Haneul = { local = "../../../crates/haneul-framework" }
 #Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework", rev = "devnet" }
 
 [addresses]
-frenemies =  "0x0"
+frenemies = "0x0"
