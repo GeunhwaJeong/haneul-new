@@ -17,6 +17,7 @@ use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_core::test_utils::{init_local_authorities, make_transfer_haneul_transaction};
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
+use haneul_types::committee::ProtocolVersion;
 use haneul_types::crypto::get_account_key_pair;
 use haneul_types::error::HaneulError;
 use haneul_types::gas::GasCostSummary;
@@ -40,7 +41,7 @@ async fn local_advance_epoch_tx_test() {
     let (net, states, _, _) = init_local_authorities(4, vec![]).await;
 
     // Make sure that validators do not accept advance epoch sent externally.
-    let tx = VerifiedTransaction::new_change_epoch(1, 0, 0, 0, 0);
+    let tx = VerifiedTransaction::new_change_epoch(1, ProtocolVersion::MIN, 0, 0, 0, 0);
     let client0 = net.get_client(&states[0].name).unwrap().authority_client();
     assert!(matches!(
         client0.handle_transaction(tx.into_inner()).await,

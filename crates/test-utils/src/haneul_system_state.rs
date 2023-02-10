@@ -5,7 +5,7 @@ use bcs::to_bytes;
 use haneul_types::balance::{Balance, Supply};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::collection_types::VecMap;
-use haneul_types::committee::EpochId;
+use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{
     get_key_pair, AuthorityPublicKeyBytes, KeypairTraits, NetworkKeyPair, ToFromBytes,
 };
@@ -87,6 +87,7 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
     HaneulSystemState {
         info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),
         epoch,
+        protocol_version: ProtocolVersion::MIN.0,
         validators: validator_set,
         treasury_cap: Supply { value: 0 },
         storage_fund: Balance::new(0),

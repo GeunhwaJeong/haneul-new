@@ -508,19 +508,11 @@ where
         requested_epoch: Option<EpochId>,
         committee_info: &CommitteeInfoResponse,
     ) -> HaneulResult {
-        match requested_epoch {
-            Some(epoch) => {
-                fp_ensure!(
-                    committee_info.epoch == epoch,
-                    HaneulError::from("Committee info response epoch doesn't match requested epoch")
-                );
-            }
-            None => {
-                fp_ensure!(
-                    committee_info.committee_info.is_some(),
-                    HaneulError::from("A valid latest committee must exist")
-                );
-            }
+        if let Some(epoch) = requested_epoch {
+            fp_ensure!(
+                committee_info.epoch == epoch,
+                HaneulError::from("Committee info response epoch doesn't match requested epoch")
+            );
         }
         Ok(())
     }
