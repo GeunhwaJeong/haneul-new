@@ -9,7 +9,6 @@ import {
   StakedHaneul,
   STAKED_HANEUL,
 } from "../../network/types";
-import { useWalletKit } from "@haneullabs/wallet-kit";
 import { useMyType } from "../../network/queries/use-raw";
 import { GridItem } from "./GridItem";
 import { ValidatorItem } from "./Validator";
@@ -25,12 +24,8 @@ function Header({ children }: { children: ReactNode }) {
 }
 
 export function Table() {
-  const { currentAccount } = useWalletKit();
-  const { data: stakes } = useMyType<StakedHaneul>(STAKED_HANEUL, currentAccount);
-  const { data: delegations } = useMyType<Delegation>(
-    DELEGATION,
-    currentAccount
-  );
+  const { data: stakes } = useMyType<StakedHaneul>(STAKED_HANEUL);
+  const { data: delegations } = useMyType<Delegation>(DELEGATION);
 
   const { data: validators } = useValidators();
 
@@ -71,9 +66,7 @@ export function Table() {
 
       <div className="flex flex-col gap-1">
         {sorted.map((validator, index) => {
-          const address = normalizeHaneulAddress(
-            validator.haneul_address
-          );
+          const address = normalizeHaneulAddress(validator.haneul_address);
 
           return (
             <ValidatorItem
