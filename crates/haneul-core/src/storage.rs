@@ -4,9 +4,9 @@
 use std::sync::Arc;
 
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::base_types::TransactionEffectsDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
+use haneul_types::digests::TransactionEffectsDigest;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::TransactionEffects;
 use haneul_types::messages::VerifiedCertificate;
