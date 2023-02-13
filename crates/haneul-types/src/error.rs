@@ -9,6 +9,7 @@ use crate::{
     messages_checkpoint::CheckpointSequenceNumber,
     object::Owner,
 };
+use fastcrypto::error::FastCryptoError;
 use move_binary_format::access::ModuleAccess;
 use move_binary_format::{
     errors::{Location, PartialVMError, VMError},
@@ -617,6 +618,17 @@ impl From<&str> for HaneulError {
     fn from(error: &str) -> Self {
         HaneulError::GenericAuthorityError {
             error: error.to_string(),
+        }
+    }
+}
+
+impl From<FastCryptoError> for HaneulError {
+    fn from(kind: FastCryptoError) -> Self {
+        match kind {
+            FastCryptoError::InvalidSignature => HaneulError::InvalidSignature {
+                error: "Invalid signature".to_string(),
+            },
+            _ => HaneulError::Unknown("Unknown cryptography error".to_string()),
         }
     }
 }

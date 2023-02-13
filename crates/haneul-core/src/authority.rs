@@ -58,7 +58,7 @@ use haneul_storage::{
     IndexStore,
 };
 use haneul_types::committee::{EpochId, ProtocolVersion};
-use haneul_types::crypto::{sha3_hash, AuthorityKeyPair, NetworkKeyPair};
+use haneul_types::crypto::{sha3_hash, AuthorityKeyPair, NetworkKeyPair, Signer};
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldType};
 use haneul_types::event::{Event, EventID};
 use haneul_types::gas::{GasCostSummary, GasPrice, HaneulGasStatus};
@@ -390,14 +390,13 @@ impl AuthorityMetrics {
     }
 }
 
-/// a Trait object for `signature::Signer` that is:
+/// a Trait object for `Signer` that is:
 /// - Pin, i.e. confined to one place in memory (we don't want to copy private keys).
 /// - Sync, i.e. can be safely shared between threads.
 ///
 /// Typically instantiated with Box::pin(keypair) where keypair is a `KeyPair`
 ///
-pub type StableSyncAuthoritySigner =
-    Pin<Arc<dyn signature::Signer<AuthoritySignature> + Send + Sync>>;
+pub type StableSyncAuthoritySigner = Pin<Arc<dyn Signer<AuthoritySignature> + Send + Sync>>;
 
 pub struct AuthorityState {
     // Fixed size, static, identity of the authority

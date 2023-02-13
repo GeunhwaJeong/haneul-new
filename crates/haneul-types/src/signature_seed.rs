@@ -8,7 +8,7 @@ use fastcrypto::{hash::Sha3_256, hmac::hkdf_generate_from_ikm, traits::KeyPair a
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 use crate::base_types::HaneulAddress;
-use crate::crypto::{Signable, Signature, HaneulPublicKey};
+use crate::crypto::{Signable, Signature, Signer, HaneulPublicKey};
 use crate::error::HaneulError;
 
 #[cfg(test)]
@@ -214,7 +214,7 @@ impl SignatureSeed {
     ///
     /// A `Result` whose okay value is a `Signature` or whose error value
     /// is a `signature::Error` wrapping the internal error that occurred.
-    pub fn sign<T, K: KeypairTraits + signature::Signer<Signature>>(
+    pub fn sign<T, K: KeypairTraits + Signer<Signature>>(
         &self,
         id: &[u8],
         domain: Option<&[u8]>,
