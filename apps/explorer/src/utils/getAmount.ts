@@ -7,11 +7,15 @@ import {
     getTransferHaneulTransaction,
     getTransferObjectTransaction,
     getTransactionKindName,
+    getTransactionSender,
+    getTransactions,
+    HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 
 import type {
     HaneulTransactionKind,
     TransactionEffects,
+    HaneulTransactionResponse,
     HaneulEvent,
 } from '@haneullabs/haneul.js';
 
@@ -32,23 +36,23 @@ const getCoinType = (
 };
 
 type FormattedBalance = {
-    amount?: number | bigint | null;
+    amount?: number | null;
     coinType?: string | null;
-    isCoin?: boolean;
-    recipientAddress: string;
-}[];
+    address: string;
+};
 
-export function getAmount(
+// For TransferObject, TransferHaneul, Pay, PayHaneul, transactions get the amount from the transfer data
+export function getTransfersAmount(
     txnData: HaneulTransactionKind,
     txnEffect?: TransactionEffects
-): FormattedBalance | null {
+): FormattedBalance[] | null {
     const txKindName = getTransactionKindName(txnData);
     if (txKindName === 'TransferObject') {
         const txn = getTransferObjectTransaction(txnData);
         return txn?.recipient
             ? [
                   {
-                      recipientAddress: txn?.recipient,
+                      address: txn?.recipient,
                   },
               ]
             : null;
@@ -59,11 +63,10 @@ export function getAmount(
         return txn?.recipient
             ? [
                   {
-                      recipientAddress: txn.recipient,
+                      address: txn.recipient,
                       amount: txn?.amount,
                       coinType:
                           txnEffect && getCoinType(txnEffect, txn.recipient),
-                      isCoin: true,
                   },
               ]
             : null;
@@ -87,10 +90,9 @@ export function getAmount(
                                   payHaneulData.recipients[0]
                           )
                         : null,
-                    recipientAddress:
+                    address:
                         payHaneulData.recipients[index] ||
                         payHaneulData.recipients[0],
-                    isCoin: true,
                 },
             };
         },
@@ -98,10 +100,64 @@ export function getAmount(
             [key: string]: {
                 amount: number;
                 coinType: string | null;
-                recipientAddress: string;
+                address: string;
             };
         }
     );
-
     return amountByRecipient ? Object.values(amountByRecipient) : null;
+}
+
+// Get transaction amount from coinBalanceChange event for Call Txn
+// Aggregate coinBalanceChange by coinType and address
+function getTxnAmountFromCoinBalanceEvent(
+    txEffects: TransactionEffects,
+    address: string
+): FormattedBalance[] {
+    const events = txEffects?.events || [];
+    const coinsMeta = {} as { [coinType: string]: FormattedBalance };
+
+    events.forEach((event) => {
+        if (
+            'coinBalanceChange' in event &&
+            event?.coinBalanceChange?.changeType &&
+            ['Receive', 'Pay'].includes(event?.coinBalanceChange?.changeType) &&
+            event?.coinBalanceChange?.transactionModule !== 'gas'
+        ) {
+            const { coinBalanceChange } = event;
+            const { coinType, amount, owner, sender } = coinBalanceChange;
+            const { AddressOwner } = owner as { AddressOwner: string };
+            if (AddressOwner === address || address === sender) {
+                coinsMeta[`${AddressOwner}${coinType}`] = {
+                    amount:
+                        (coinsMeta[`${AddressOwner}${coinType}`]?.amount || 0) +
+                        amount,
+                    coinType: coinType,
+                    address: AddressOwner,
+                };
+            }
+        }
+    });
+    return Object.values(coinsMeta);
+}
+
+// Get the amount from events and transfer data
+// optional flag to get only HANEUL coin type for table view
+export function getAmount({
+    txnData,
+    haneulCoinOnly = false,
+}: {
+    txnData: HaneulTransactionResponse;
+    haneulCoinOnly?: boolean;
+}) {
+    const { effects, certificate } = txnData;
+    const txnDetails = getTransactions(certificate)[0];
+    const sender = getTransactionSender(certificate);
+    const haneulTransfer = getTransfersAmount(txnDetails, effects);
+    const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(effects, sender);
+    const transfers = haneulTransfer || coinBalanceChange;
+    if (haneulCoinOnly) {
+        return transfers?.filter(({ coinType }) => coinType === HANEUL_TYPE_ARG);
+    }
+
+    return transfers;
 }

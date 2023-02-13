@@ -54,10 +54,10 @@ export function HaneulAmount({
 }: {
     amount: bigint | number | string | undefined | null;
 }) {
-    const [formattedAmount] = useFormatCoin(amount, HANEUL_TYPE_ARG);
+    const [formattedAmount, coinType] = useFormatCoin(amount, HANEUL_TYPE_ARG);
 
     if (amount) {
-        const HaneulSuffix = <abbr className={styles.haneulsuffix}>HANEUL</abbr>;
+        const HaneulSuffix = <abbr className={styles.haneulsuffix}>{coinType}</abbr>;
 
         return (
             <section>
@@ -201,14 +201,22 @@ export const getDataOnTxDigests = (
                         getTransferObjectTransaction(txn)?.recipient ||
                         getTransferHaneulTransaction(txn)?.recipient;
 
-                    const txnTransfer = getAmount(txn, txEff.effects)?.[0];
+                    const transfer = getAmount({
+                        txnData: txEff,
+                        haneulCoinOnly: true,
+                    })[0];
+
+                    // use only absolute value of haneul amount
+                    const haneulAmount = transfer?.amount
+                        ? Math.abs(transfer.amount)
+                        : null;
 
                     return {
                         txId: digest,
                         status: getExecutionStatusType(txEff)!,
                         txGas: getTotalGasUsed(txEff),
-                        haneulAmount: txnTransfer?.amount || null,
-                        coinType: txnTransfer?.coinType || null,
+                        haneulAmount,
+                        coinType: transfer?.coinType || null,
                         kind: txKind,
                         From: res.data.sender,
                         timestamp_ms: txEff.timestamp_ms,
