@@ -15,8 +15,8 @@ use haneul_json_rpc_types::{
     HaneulExecuteTransactionResponse, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct, HaneulObjectInfo, HaneulTBlsSignObjectCommitmentType,
     HaneulTBlsSignRandomnessObjectResponse, HaneulTransactionAuthSignersResponse,
-    HaneulTransactionBuilderMode, HaneulTransactionEffects, HaneulTransactionFilter, HaneulTransactionResponse,
-    HaneulTypeTag, TransactionBytes, TransactionsPage,
+    HaneulTransactionBuilderMode, HaneulTransactionEffects, HaneulTransactionResponse, HaneulTypeTag,
+    TransactionBytes, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
@@ -180,7 +180,7 @@ pub trait RpcReadApi {
 #[open_rpc(namespace = "haneul", tag = "Full Node API")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait RpcFullNodeReadApi {
-    /// Runs the transaction in dev-inpsect mode. Which allows for nearly any
+    /// Runs the transaction in dev-inspect mode. Which allows for nearly any
     /// transaction (or Move call) with any arguments. Detailed results are
     /// provided, including both the transaction effects and any return values.
     #[method(name = "devInspectTransaction")]
@@ -597,18 +597,6 @@ pub trait RpcBcsApi {
         /// the id of the object
         object_id: ObjectID,
     ) -> RpcResult<GetRawObjectDataResponse>;
-}
-
-#[open_rpc(namespace = "haneul", tag = "Transaction Subscription")]
-#[rpc(server, client, namespace = "haneul")]
-pub trait TransactionStreamingApi {
-    /// Subscribe to a stream of Haneul event
-    #[subscription(name = "subscribeTransaction", item = HaneulTransactionResponse)]
-    fn subscribe_transaction(
-        &self,
-        /// the filter criteria of the transaction stream.
-        filter: HaneulTransactionFilter,
-    );
 }
 
 #[open_rpc(namespace = "haneul", tag = "Event Subscription")]

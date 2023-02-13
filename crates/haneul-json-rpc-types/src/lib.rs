@@ -40,7 +40,7 @@ use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::event::{BalanceChangeType, Event, EventID};
 use haneul_types::event::{EventEnvelope, EventType};
-use haneul_types::filter::{EventFilter, TransactionFilter};
+use haneul_types::filter::EventFilter;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::message_envelope::Message;
@@ -2888,21 +2888,6 @@ pub struct MoveCallParams {
     #[serde(default)]
     pub type_arguments: Vec<HaneulTypeTag>,
     pub arguments: Vec<HaneulJsonValue>,
-}
-
-#[derive(Serialize, Deserialize, JsonSchema, Debug)]
-#[serde(rename = "HaneulTransactionFilter")]
-pub enum HaneulTransactionFilter {
-    Any,
-}
-
-impl From<HaneulTransactionFilter> for TransactionFilter {
-    fn from(filter: HaneulTransactionFilter) -> Self {
-        use HaneulTransactionFilter::*;
-        match filter {
-            Any => TransactionFilter::Any,
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug)]

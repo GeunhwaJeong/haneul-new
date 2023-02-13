@@ -26,7 +26,6 @@ use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_core::storage::RocksDbStore;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
-use haneul_core::transaction_streamer::TransactionStreamer;
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
     authority_client::NetworkAuthorityClient,
@@ -36,7 +35,6 @@ use haneul_json_rpc::event_api::EventReadApiImpl;
 use haneul_json_rpc::event_api::EventStreamingApiImpl;
 use haneul_json_rpc::read_api::FullNodeApi;
 use haneul_json_rpc::read_api::ReadApi;
-use haneul_json_rpc::streaming_api::TransactionStreamingApiImpl;
 use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
@@ -208,12 +206,6 @@ impl HaneulNode {
         let (p2p_network, discovery_handle, state_sync_handle) =
             Self::create_p2p_network(config, state_sync_store, &prometheus_registry)?;
 
-        let transaction_streamer = if is_full_node {
-            Some(Arc::new(TransactionStreamer::new()))
-        } else {
-            None
-        };
-
         let state = AuthorityState::new(
             config.protocol_public_key(),
             secret,
@@ -222,7 +214,6 @@ impl HaneulNode {
             committee_store.clone(),
             index_store.clone(),
             event_store,
-            transaction_streamer,
             checkpoint_store.clone(),
             &prometheus_registry,
             &config.authority_store_pruning_config,
@@ -909,10 +900,6 @@ pub async fn build_server(
 
     if let Some(event_handler) = state.event_handler.clone() {
         server.register_module(EventReadApiImpl::new(state.clone(), event_handler))?;
-    }
-
-    if let Some(tx_streamer) = state.transaction_streamer.clone() {
-        server.register_module(TransactionStreamingApiImpl::new(state.clone(), tx_streamer))?;
     }
 
     if let Some(event_handler) = state.event_handler.clone() {
