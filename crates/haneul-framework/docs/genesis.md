@@ -11,6 +11,7 @@
 
 <pre><code><b>use</b> <a href="">0x1::option</a>;
 <b>use</b> <a href="balance.md#0x2_balance">0x2::balance</a>;
+<b>use</b> <a href="clock.md#0x2_clock">0x2::clock</a>;
 <b>use</b> <a href="epoch_time_lock.md#0x2_epoch_time_lock">0x2::epoch_time_lock</a>;
 <b>use</b> <a href="haneul.md#0x2_haneul">0x2::haneul</a>;
 <b>use</b> <a href="haneul_system.md#0x2_haneul_system">0x2::haneul_system</a>;
@@ -160,6 +161,7 @@ all the information we need in the system.
         ));
         i = i + 1;
     };
+
     <a href="haneul_system.md#0x2_haneul_system_create">haneul_system::create</a>(
         validators,
         haneul_supply,
@@ -170,6 +172,8 @@ all the information we need in the system.
         protocol_version,
         epoch_start_timestamp_ms,
     );
+
+    <a href="clock.md#0x2_clock_create">clock::create</a>();
 }
 </code></pre>
 

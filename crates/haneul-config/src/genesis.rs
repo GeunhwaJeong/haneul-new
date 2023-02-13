@@ -20,6 +20,7 @@ use haneul_adapter::adapter::MoveVM;
 use haneul_adapter::{adapter, execution_mode};
 use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::clock::Clock;
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
     AuthorityStrongQuorumSignInfo, HaneulAuthoritySignature, ToFromBytes,
@@ -134,6 +135,19 @@ impl Genesis {
         let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
             .expect("Haneul System State object deserialization cannot fail");
         result
+    }
+
+    pub fn clock(&self) -> Clock {
+        let clock = self
+            .objects()
+            .iter()
+            .find(|o| o.id() == haneul_types::HANEUL_CLOCK_OBJECT_ID)
+            .expect("Clock must always exist")
+            .data
+            .try_as_move()
+            .expect("Clock must be a Move object");
+        bcs::from_bytes::<Clock>(clock.contents())
+            .expect("Clock object deserialization cannot fail")
     }
 
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, anyhow::Error> {

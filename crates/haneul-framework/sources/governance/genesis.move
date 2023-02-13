@@ -5,6 +5,7 @@ module haneul::genesis {
     use std::vector;
 
     use haneul::balance;
+    use haneul::clock;
     use haneul::haneul;
     use haneul::haneul_system;
     use haneul::tx_context::TxContext;
@@ -103,6 +104,7 @@ module haneul::genesis {
             ));
             i = i + 1;
         };
+
         haneul_system::create(
             validators,
             haneul_supply,
@@ -113,5 +115,7 @@ module haneul::genesis {
             protocol_version,
             epoch_start_timestamp_ms,
         );
+
+        clock::create();
     }
 }

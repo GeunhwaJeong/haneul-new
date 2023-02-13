@@ -14,6 +14,7 @@ use haneul_types::{
         STD_OPTION_STRUCT_NAME, STD_UTF8_MODULE_NAME, STD_UTF8_STRUCT_NAME, TX_CONTEXT_MODULE_NAME,
         TX_CONTEXT_STRUCT_NAME,
     },
+    clock::{CLOCK_MODULE_NAME, CLOCK_STRUCT_NAME},
     error::ExecutionError,
     id::{ID_STRUCT_NAME, OBJECT_MODULE_NAME},
     move_package::FnInfoMap,
@@ -199,6 +200,14 @@ fn verify_param_type(
     function_type_args: &[AbilitySet],
     param: &SignatureToken,
 ) -> Result<(), String> {
+    if is_mutable_clock(view, param) {
+        return Err(format!(
+            "Invalid entry point parameter type. Clock must be passed by immutable reference. got: \
+             {}",
+            format_signature_token(view, param),
+        ));
+    }
+
     if is_primitive(view, function_type_args, param)
         || is_object(view, function_type_args, param)?
         || is_object_vector(view, function_type_args, param)?
@@ -214,6 +223,8 @@ fn verify_param_type(
 
 pub const RESOLVED_HANEUL_ID: (&AccountAddress, &IdentStr, &IdentStr) =
     (&HANEUL_FRAMEWORK_ADDRESS, OBJECT_MODULE_NAME, ID_STRUCT_NAME);
+pub const RESOLVED_HANEUL_CLOCK: (&AccountAddress, &IdentStr, &IdentStr) =
+    (&HANEUL_FRAMEWORK_ADDRESS, CLOCK_MODULE_NAME, CLOCK_STRUCT_NAME);
 pub const RESOLVED_STD_OPTION: (&AccountAddress, &IdentStr, &IdentStr) = (
     &MOVE_STDLIB_ADDRESS,
     STD_OPTION_MODULE_NAME,
@@ -302,6 +313,16 @@ pub fn is_tx_context(view: &BinaryIndexedView, p: &SignatureToken) -> TxContextK
             _ => TxContextKind::None,
         },
         _ => TxContextKind::None,
+    }
+}
+
+/// Detects a `&mut haneul::clock::Clock` or `haneul::clock::Clock` in the signature.
+pub fn is_mutable_clock(view: &BinaryIndexedView, t: &SignatureToken) -> bool {
+    use SignatureToken as S;
+    match t {
+        S::MutableReference(inner) => is_mutable_clock(view, inner),
+        S::Struct(idx) => resolve_struct(view, *idx) == RESOLVED_HANEUL_CLOCK,
+        _ => false,
     }
 }
 
