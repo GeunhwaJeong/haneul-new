@@ -4,7 +4,7 @@ title: Build and Test the Haneul Move Package
 
 ## Building a package
 
-Ensure you are in the `my_move_package` directory that contains your package, and then use the following command to build it:
+Ensure you are in the `my_first_package` directory that contains your package, and then use the following command to build it:
 
 ``` shell
 $ haneul move build
@@ -13,8 +13,12 @@ $ haneul move build
 A successful build returns a response similar to the following:
 
 ```shell
-Build Successful
-Artifacts path: "./build"
+UPDATING GIT DEPENDENCY https://github.com/GeunhwaJeong/haneul.git
+UPDATING GIT DEPENDENCY https://github.com/GeunhwaJeong/haneul.git
+UPDATING GIT DEPENDENCY https://github.com/GeunhwaJeong/haneul.git
+INCLUDING DEPENDENCY MoveStdlib
+INCLUDING DEPENDENCY Haneul
+BUILDING my_first_package
 ```
 
 If the build fails, you can use the verbose error messaging in output to troubleshoot and resolve root issues.
