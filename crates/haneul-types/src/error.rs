@@ -116,6 +116,15 @@ pub enum HaneulError {
         index: Option<u32>,
         committee: Committee,
     },
+    #[error(
+        "Validator {:?} sent multiple signatures for the same message, conflicting: {:?}",
+        signer,
+        conflicting_sig
+    )]
+    StakeAggregatorRepeatedSigner {
+        signer: AuthorityName,
+        conflicting_sig: bool,
+    },
 
     // Certificate verification and execution
     #[error(
