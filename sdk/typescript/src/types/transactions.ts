@@ -44,8 +44,18 @@ export const HaneulChangeEpoch = object({
   epoch: EpochId,
   storage_charge: number(),
   computation_charge: number(),
+  // TODO: Make non-optional after v0.26.0 lands everywhere
+  storage_rebate: optional(number()),
+  epoch_start_timestamp_ms: optional(number()),
 });
 export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
+
+export const HaneulConsensusCommitPrologue = object({
+  checkpoint_start_timestamp_ms: number(),
+});
+export type HaneulConsensusCommitPrologue = Infer<
+  typeof HaneulConsensusCommitPrologue
+>;
 
 export const Pay = object({
   coins: array(HaneulObjectRef),
@@ -92,6 +102,7 @@ export type TransactionKindName =
   | 'Call'
   | 'TransferHaneul'
   | 'ChangeEpoch'
+  | 'ConsensusCommitPrologue'
   | 'Pay'
   | 'PayHaneul'
   | 'PayAllHaneul'
@@ -103,6 +114,7 @@ export const HaneulTransactionKind = union([
   object({ Call: MoveCall }),
   object({ TransferHaneul: HaneulTransferHaneul }),
   object({ ChangeEpoch: HaneulChangeEpoch }),
+  object({ ConsensusCommitPrologue: HaneulConsensusCommitPrologue }),
   object({ Pay: Pay }),
   object({ PayHaneul: PayHaneul }),
   object({ PayAllHaneul: PayAllHaneul }),
@@ -461,6 +473,14 @@ export function getChangeEpochTransaction(
   data: HaneulTransactionKind,
 ): HaneulChangeEpoch | undefined {
   return 'ChangeEpoch' in data ? data.ChangeEpoch : undefined;
+}
+
+export function getConsensusCommitPrologueTransaction(
+  data: HaneulTransactionKind,
+): HaneulConsensusCommitPrologue | undefined {
+  return 'ConsensusCommitPrologue' in data
+    ? data.ConsensusCommitPrologue
+    : undefined;
 }
 
 export function getTransactions(

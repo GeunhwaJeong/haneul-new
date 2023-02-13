@@ -1592,6 +1592,11 @@ pub struct HaneulGenesisTransaction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct HaneulConsensusCommitPrologue {
+    pub checkpoint_start_timestamp_ms: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "TransactionKind")]
 pub enum HaneulTransactionKind {
     /// Initiate an object transfer between addresses
@@ -1614,6 +1619,9 @@ pub enum HaneulTransactionKind {
     ChangeEpoch(HaneulChangeEpoch),
     /// A system transaction used for initializing the initial state of the chain.
     Genesis(HaneulGenesisTransaction),
+    /// A system transaction marking the start of a series of transactions scheduled as part of a
+    /// checkpoint
+    ConsensusCommitPrologue(HaneulConsensusCommitPrologue),
     // .. more transaction types go here
 }
 
@@ -1692,13 +1700,19 @@ impl Display for HaneulTransactionKind {
                 write!(writer, "Type Arguments : {:?}", c.type_arguments)?;
             }
             Self::ChangeEpoch(e) => {
-                writeln!(writer, "Transaction Kind: Epoch Change")?;
-                writeln!(writer, "New epoch ID: {}", e.epoch)?;
-                writeln!(writer, "Storage gas reward: {}", e.storage_charge)?;
-                writeln!(writer, "Computation gas reward: {}", e.computation_charge)?;
+                writeln!(writer, "Transaction Kind : Epoch Change")?;
+                writeln!(writer, "New epoch ID : {}", e.epoch)?;
+                writeln!(writer, "Storage gas reward : {}", e.storage_charge)?;
+                writeln!(writer, "Computation gas reward : {}", e.computation_charge)?;
+                writeln!(writer, "Storage rebate : {}", e.storage_rebate)?;
+                writeln!(writer, "Timestamp : {}", e.epoch_start_timestamp_ms)?;
             }
             Self::Genesis(_) => {
-                writeln!(writer, "Transaction Kind: Genesis Transaction")?;
+                writeln!(writer, "Transaction Kind : Genesis Transaction")?;
+            }
+            Self::ConsensusCommitPrologue(p) => {
+                writeln!(writer, "Transaction Kind : Consensus Commit Prologue")?;
+                writeln!(writer, "Timestamp : {}", p.checkpoint_start_timestamp_ms)?;
             }
         }
         write!(f, "{}", writer)
@@ -1753,10 +1767,17 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
                 epoch: e.epoch,
                 storage_charge: e.storage_charge,
                 computation_charge: e.computation_charge,
+                storage_rebate: e.storage_rebate,
+                epoch_start_timestamp_ms: e.epoch_start_timestamp_ms,
             }),
             SingleTransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
                 objects: g.objects.iter().map(GenesisObject::id).collect(),
             }),
+            SingleTransactionKind::ConsensusCommitPrologue(p) => {
+                Self::ConsensusCommitPrologue(HaneulConsensusCommitPrologue {
+                    checkpoint_start_timestamp_ms: p.checkpoint_start_timestamp_ms,
+                })
+            }
         })
     }
 }
@@ -1778,7 +1799,8 @@ pub struct HaneulChangeEpoch {
     pub epoch: EpochId,
     pub storage_charge: u64,
     pub computation_charge: u64,
-    // TODO: add storage rebate here
+    pub storage_rebate: u64,
+    pub epoch_start_timestamp_ms: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

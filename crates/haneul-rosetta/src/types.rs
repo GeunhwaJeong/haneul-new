@@ -388,6 +388,7 @@ pub enum OperationType {
     MoveCall,
     EpochChange,
     Genesis,
+    ConsensusCommitPrologue,
 }
 
 impl From<&HaneulTransactionKind> for OperationType {
@@ -402,6 +403,9 @@ impl From<&HaneulTransactionKind> for OperationType {
             HaneulTransactionKind::TransferHaneul(_) => OperationType::TransferHANEUL,
             HaneulTransactionKind::ChangeEpoch(_) => OperationType::EpochChange,
             HaneulTransactionKind::Genesis(_) => OperationType::Genesis,
+            HaneulTransactionKind::ConsensusCommitPrologue(_) => {
+                OperationType::ConsensusCommitPrologue
+            }
         }
     }
 }

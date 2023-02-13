@@ -23,11 +23,15 @@ use haneul_types::id::UID;
 use haneul_types::messages::ExecutionFailureStatus;
 #[cfg(test)]
 use haneul_types::messages::InputObjects;
-use haneul_types::messages::{GenesisTransaction, ObjectArg, Pay, PayAllHaneul, PayHaneul, TransactionKind};
+use haneul_types::messages::{
+    ConsensusCommitPrologue, GenesisTransaction, ObjectArg, Pay, PayAllHaneul, PayHaneul, TransactionKind,
+};
 use haneul_types::object::{Data, MoveObject, Owner};
 use haneul_types::storage::SingleTxContext;
 use haneul_types::storage::{ChildObjectResolver, DeleteKind, ParentSync, WriteKind};
-use haneul_types::haneul_system_state::ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME;
+use haneul_types::haneul_system_state::{
+    ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME, CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME,
+};
 #[cfg(test)]
 use haneul_types::temporary_store;
 use haneul_types::temporary_store::InnerTemporaryStore;
@@ -44,7 +48,8 @@ use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use haneul_types::{
-    MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    MOVE_STDLIB_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
 use haneul_types::temporary_store::TemporaryStore;
@@ -325,6 +330,9 @@ fn execution_loop<
                     }
                 }
             }
+            SingleTransactionKind::ConsensusCommitPrologue(prologue) => {
+                setup_consensus_commit(prologue, temporary_store, tx_ctx, move_vm, gas_status)?
+            }
         };
     }
     Ok(results)
@@ -389,6 +397,38 @@ fn advance_epoch<S: BackingPackageStore + ParentSync + ChildObjectResolver>(
             tx_ctx,
         )?;
     }
+    Ok(())
+}
+
+/// Perform metadata updates in preparation for the transactions in the upcoming checkpoint:
+///
+/// - Set the timestamp for the `Clock` shared object from the timestamp in the header from
+///   consensus.
+fn setup_consensus_commit<S: BackingPackageStore + ParentSync + ChildObjectResolver>(
+    prologue: ConsensusCommitPrologue,
+    temporary_store: &mut TemporaryStore<S>,
+    tx_ctx: &mut TxContext,
+    move_vm: &Arc<MoveVM>,
+    gas_status: &mut HaneulGasStatus,
+) -> Result<(), ExecutionError> {
+    adapter::execute::<execution_mode::Normal, _, _>(
+        move_vm,
+        temporary_store,
+        ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_MODULE_NAME.to_owned()),
+        &CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME.to_owned(),
+        vec![],
+        vec![
+            CallArg::Object(ObjectArg::SharedObject {
+                id: HANEUL_CLOCK_OBJECT_ID,
+                initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+                mutable: true,
+            }),
+            CallArg::Pure(bcs::to_bytes(&prologue.checkpoint_start_timestamp_ms).unwrap()),
+        ],
+        gas_status.create_move_gas_status(),
+        tx_ctx,
+    )?;
+
     Ok(())
 }
 

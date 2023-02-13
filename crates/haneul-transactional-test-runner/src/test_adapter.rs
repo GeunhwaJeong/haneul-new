@@ -40,7 +40,6 @@ use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter::new_move_vm, execution_mode, genesis};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_types::in_memory_storage::InMemoryStorage;
-use haneul_types::temporary_store::TemporaryStore;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
@@ -53,6 +52,7 @@ use haneul_types::{
     object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
+use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 pub(crate) type FakeID = u64;
 
 // initial value for fake object ID mapping
@@ -417,6 +417,14 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 let output = self.object_summary_output(&summary, false);
                 Ok(output)
             }
+            HaneulSubcommand::ConsensusCommitPrologue(ConsensusCommitPrologueCommand {
+                timestamp_ms,
+            }) => {
+                let transaction = VerifiedTransaction::new_consensus_commit_prologue(timestamp_ms);
+                let summary = self.execute_txn(transaction, GAS_VALUE_FOR_TESTING)?;
+                let output = self.object_summary_output(&summary, false);
+                Ok(output)
+            }
         }
     }
 }
@@ -455,7 +463,12 @@ impl<'a> HaneulTestAdapter<'a> {
         transaction: VerifiedTransaction,
         gas_budget: u64,
     ) -> anyhow::Result<TxnSummary> {
-        let gas_status = gas::start_gas_metering(gas_budget, 1, 1).unwrap();
+        let gas_status = if transaction.inner().is_system_tx() {
+            HaneulGasStatus::new_unmetered()
+        } else {
+            gas::start_gas_metering(gas_budget, 1, 1).unwrap()
+        };
+
         let transaction_digest = TransactionDigest::new(self.rng.gen());
         let objects_by_kind = transaction
             .data()
