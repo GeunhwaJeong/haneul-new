@@ -227,7 +227,7 @@ If the progress appears to freeze, press **Enter** in the command prompt to fix 
 
 **Known issue** - The `haneul console` command does not work in PowerShell.
 
-## Install (or update) Haneul binaries
+## Install (or update) Haneul binaries <a name="binaries"></a>
 
 With Cargo installed, use the following command to install or update the haneul executable:
 
