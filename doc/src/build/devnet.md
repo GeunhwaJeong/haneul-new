@@ -27,7 +27,7 @@ Haneul provides the following tools to interact with Haneul Devnet:
 
 ## Environment set up
 
-First, [Install Haneul](../build/install.md#haneul-tokens). After you install Haneul, [request HANEUL test tokens](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
+First, [Install Haneul](../build/install.md#install-or-update-haneul-binaries). After you install Haneul, [request HANEUL test tokens](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 
 To check whether Haneul is already installed, run the following command:
 
@@ -81,7 +81,7 @@ To switch the active network, run the following command:
 haneul client switch --env <ALIAS>
 ```
 
-If you encounter an issue, delete the Haneul configuration directory (`~/.haneul/haneul_config`) and reinstall the latest [Haneul binaries](../build/install.md#binaries).
+If you encounter an issue, delete the Haneul configuration directory (`~/.haneul/haneul_config`) and reinstall the latest [Haneul binaries](../build/install.md#install-or-update-haneul-binaries).
 
 ## Validating
 
@@ -116,7 +116,7 @@ Owner: Account Address ( 9E9A9D406961E478AA80F4A6B2B167673F3DF8BA )
 Type: 0x2::devnet_nft::DevNetNFT
 ```
 
-The preceding command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Use the Haneul Client CLI to [view objects owned by the address](../build/cli-client.md#view-objects-owned-by-the-address).
+The preceding command created an object with ID `ED883F6812AF447B9B0CE220DA5EA9E0F58012FE`. Use the Haneul Client CLI to [view objects owned by the address](../build/cli-client.md#view-objects-an-address-owns).
 
 To view the created object in [Haneul Explorer](https://explorer.haneul.io), append the object ID to the following URL https://explorer.haneul.io/objects/.
 

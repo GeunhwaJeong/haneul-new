@@ -16,7 +16,7 @@ Understand:
 - [Haneul Objects](../../learn/objects.md)
 
 Install:
-- [Haneul binaries](../install.md#binaries)
+- [Haneul binaries](../install.md#install-or-update-haneul-binaries)
 - [Haneul source code](../install.md#source-code)
 
 ## Chapters
