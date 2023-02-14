@@ -17,6 +17,7 @@ use haneul_types::{
     },
     object::{Object, Owner},
 };
+use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 use tracing::instrument;
 
 async fn get_gas_status(
@@ -342,6 +343,15 @@ fn check_one_object(
                     return Err(HaneulError::NotSharedObjectError);
                 }
             };
+        }
+        InputObjectKind::SharedMoveObject {
+            id: HANEUL_CLOCK_OBJECT_ID,
+            initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+            mutable: true,
+        } => {
+            // Only system transactions (which don't perform input checks) can accept the Clock
+            // object as a mutable parameter.
+            return Err(HaneulError::ImmutableParameterExpectedError);
         }
         InputObjectKind::SharedMoveObject {
             initial_shared_version: input_initial_shared_version,
