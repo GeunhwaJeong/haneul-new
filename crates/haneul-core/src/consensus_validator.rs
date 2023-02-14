@@ -142,20 +142,21 @@ impl HaneulTxValidatorMetrics {
 
 #[cfg(test)]
 mod tests {
-    use fastcrypto::traits::KeyPair;
-    use narwhal_types::Batch;
-    use narwhal_worker::TransactionValidator;
-    use haneul_types::{base_types::AuthorityName, messages::ConsensusTransaction};
-
-    use super::*;
     use crate::{
         authority::authority_tests::init_state_with_objects_and_committee,
         consensus_adapter::consensus_tests::{test_certificates, test_gas_objects},
+        consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics},
+    };
+    use fastcrypto::traits::KeyPair;
+    use narwhal_types::Batch;
+    use narwhal_worker::TransactionValidator;
+    use haneul_types::{
+        base_types::AuthorityName, messages::ConsensusTransaction, signature::GenericSignature,
     };
 
     use haneul_macros::sim_test;
+    use haneul_types::crypto::Ed25519HaneulSignature;
     use haneul_types::object::Object;
-
     #[sim_test]
     async fn accept_valid_transaction() {
         // Initialize an authority with a (owned) gas object and a shared object; then
@@ -208,7 +209,11 @@ mod tests {
         let bogus_transaction_bytes: Vec<_> = certificates
             .into_iter()
             .map(|mut cert| {
-                cert.tx_signature.as_mut()[2] = cert.tx_signature.as_mut()[2].wrapping_add(1);
+                // set it to an all-zero user signature
+                cert.tx_signature =
+                    GenericSignature::Signature(haneul_types::crypto::Signature::Ed25519HaneulSignature(
+                        Ed25519HaneulSignature::default(),
+                    ));
                 bincode::serialize(&ConsensusTransaction::new_certificate_message(&name1, cert))
                     .unwrap()
             })

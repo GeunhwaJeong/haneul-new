@@ -35,7 +35,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{Signature, HaneulAuthorityStrongQuorumSignInfo};
+use haneul_types::crypto::HaneulAuthorityStrongQuorumSignInfo;
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::event::{BalanceChangeType, Event, EventID};
@@ -55,6 +55,7 @@ use haneul_types::move_package::{disassemble_modules, MovePackage};
 use haneul_types::object::{
     Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner, PastObjectRead,
 };
+use haneul_types::signature::GenericSignature;
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag};
 use tracing::warn;
 
@@ -1809,7 +1810,7 @@ pub struct HaneulCertifiedTransaction {
     pub transaction_digest: TransactionDigest,
     pub data: HaneulTransactionData,
     /// tx_signature is signed by the transaction sender, committing to the intent message containing the transaction data and intent.
-    pub tx_signature: Signature,
+    pub tx_signature: GenericSignature,
     /// authority signature information, if available, is signed by an authority, applied on `data`.
     pub auth_sign_info: HaneulAuthorityStrongQuorumSignInfo,
 }

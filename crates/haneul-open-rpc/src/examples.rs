@@ -5,8 +5,8 @@ use std::collections::BTreeMap;
 use std::ops::Range;
 use std::str::FromStr;
 
-use fastcrypto::encoding::Base64;
 use fastcrypto::traits::AggregateAuthenticator;
+use fastcrypto::traits::EncodeDecodeBase64;
 use fastcrypto::traits::KeyPair;
 use move_core_types::identifier::Identifier;
 use rand::rngs::StdRng;
@@ -31,7 +31,7 @@ use haneul_types::base_types::{
 use haneul_types::crypto::AuthorityQuorumSignInfo;
 use haneul_types::crypto::{
     get_key_pair_from_rng, AccountKeyPair, AggregateAuthoritySignature, AuthorityKeyPair,
-    AuthorityPublicKeyBytes, AuthoritySignature, Signature, HaneulAuthorityStrongQuorumSignInfo,
+    AuthorityPublicKeyBytes, AuthoritySignature, HaneulAuthorityStrongQuorumSignInfo,
 };
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
@@ -42,6 +42,7 @@ use haneul_types::messages::{
 use haneul_types::object::Owner;
 use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
+use haneul_types::signature::GenericSignature;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
@@ -172,7 +173,7 @@ impl RpcExampleProvider {
                 "Execute an transaction with serialized signature",
                 vec![
                     ("tx_bytes", json!(tx_bytes.tx_bytes)),
-                    ("signature", json!(Base64::from_bytes(signature.as_ref()))),
+                    ("signature", json!(signature.encode_base64())),
                     (
                         "request_type",
                         json!(ExecuteTransactionRequestType::WaitForLocalExecution),
@@ -386,7 +387,7 @@ impl RpcExampleProvider {
         &mut self,
     ) -> (
         TransactionData,
-        Signature,
+        GenericSignature,
         HaneulAddress,
         ObjectID,
         HaneulTransactionResponse,

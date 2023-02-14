@@ -37,9 +37,11 @@ use haneul_json_rpc_types::{
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_keys::keystore::AccountKeystore;
+use haneul_sdk::HaneulClient;
 use haneul_sdk::TransactionExecutionResult;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::intent::Intent;
+use haneul_types::signature::GenericSignature;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
@@ -47,14 +49,9 @@ use haneul_types::{
     object::Owner,
     parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
 };
-use haneul_types::{
-    crypto::{Signature, SignatureScheme},
-    intent::IntentMessage,
-};
+use haneul_types::{crypto::SignatureScheme, intent::IntentMessage};
 use tokio::sync::RwLock;
 use tracing::{info, warn};
-
-use haneul_sdk::HaneulClient;
 
 pub const EXAMPLE_NFT_NAME: &str = "Example NFT";
 pub const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the Haneul Command Line Tool";
@@ -952,15 +949,14 @@ impl HaneulClientCommands {
                         .to_vec()
                         .map_err(|e| anyhow!(e))?,
                 )?;
-                let signature = Signature::from_bytes(
-                    &Base64::try_from(signature)
-                        .map_err(|e| anyhow!(e))?
-                        .to_vec()
-                        .map_err(|e| anyhow!(e))?,
-                )?;
-                let verified =
-                    Transaction::from_data(data, Intent::default(), signature).verify()?;
+                let bytes = &Base64::try_from(signature)
+                    .map_err(|e| anyhow!(e))?
+                    .to_vec()
+                    .map_err(|e| anyhow!(e))?;
 
+                let sig = GenericSignature::from_bytes(bytes)?;
+                let verified =
+                    Transaction::from_generic_sig_data(data, Intent::default(), sig).verify()?;
                 let response = context.execute_transaction(verified).await?;
                 HaneulClientCommandResult::ExecuteSignedTx(response)
             }

@@ -4,9 +4,9 @@
 use axum::{Extension, Json};
 use fastcrypto::encoding::{Encoding, Hex};
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
 use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
+use haneul_types::signature::GenericSignature;
 
 use crate::errors::Error;
 use crate::types::{
@@ -93,10 +93,10 @@ pub async fn combine(
     }
     .flag()];
 
-    let signed_tx = Transaction::from_data(
+    let signed_tx = Transaction::from_generic_sig_data(
         intent_msg.value,
         Intent::default(),
-        crypto::Signature::from_bytes(&[&*flag, &*sig_bytes, &*pub_key].concat())?,
+        GenericSignature::from_bytes(&[&*flag, &*sig_bytes, &*pub_key].concat())?,
     );
     signed_tx.verify_signature()?;
     let signed_tx_bytes = bcs::to_bytes(&signed_tx)?;
