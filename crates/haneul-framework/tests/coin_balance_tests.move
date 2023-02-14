@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::test_coin {
+module haneul::coin_balance_tests {
     use haneul::test_scenario::{Self, ctx};
     use haneul::pay;
     use haneul::coin;
