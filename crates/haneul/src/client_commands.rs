@@ -763,9 +763,10 @@ impl HaneulClientCommands {
                 HaneulClientCommandResult::PayAllHaneul(cert, effects)
             }
 
-            HaneulClientCommands::Addresses => {
-                HaneulClientCommandResult::Addresses(context.config.keystore.addresses())
-            }
+            HaneulClientCommands::Addresses => HaneulClientCommandResult::Addresses(
+                context.config.keystore.addresses(),
+                context.active_address().ok(),
+            ),
 
             HaneulClientCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -1255,10 +1256,14 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::PayAllHaneul(cert, effects) => {
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
             }
-            HaneulClientCommandResult::Addresses(addresses) => {
+            HaneulClientCommandResult::Addresses(addresses, active_address) => {
                 writeln!(writer, "Showing {} results.", addresses.len())?;
                 for address in addresses {
-                    writeln!(writer, "{}", address)?;
+                    if *active_address == Some(*address) {
+                        writeln!(writer, "{} <=", address)?;
+                    } else {
+                        writeln!(writer, "{}", address)?;
+                    }
                 }
             }
             HaneulClientCommandResult::Objects(object_refs) => {
@@ -1552,7 +1557,7 @@ pub enum HaneulClientCommandResult {
     Pay(HaneulCertifiedTransaction, HaneulTransactionEffects),
     PayHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
     PayAllHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
-    Addresses(Vec<HaneulAddress>),
+    Addresses(Vec<HaneulAddress>, Option<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     DynamicFieldQuery(DynamicFieldPage),
     SyncClientState,
