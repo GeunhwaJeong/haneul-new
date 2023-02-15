@@ -3,12 +3,7 @@
 
 import { normalizeHaneulAddress } from '@haneullabs/haneul.js';
 
-import type {
-    SignaturePubkeyPair,
-    Keypair,
-    HaneulAddress,
-    Base64DataBuffer,
-} from '@haneullabs/haneul.js';
+import type { SignaturePubkeyPair, Keypair, HaneulAddress } from '@haneullabs/haneul.js';
 
 export type AccountType = 'derived' | 'imported';
 export type AccountSerialized = {
@@ -41,7 +36,7 @@ export class Account {
         return this.#keypair.export();
     }
 
-    async sign(data: Base64DataBuffer): Promise<SignaturePubkeyPair> {
+    async sign(data: Uint8Array): Promise<SignaturePubkeyPair> {
         return {
             signatureScheme: this.#keypair.getKeyScheme(),
             // TODO(joyqvq): Remove once 0.25.0 is released.

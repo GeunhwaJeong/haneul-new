@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    is,
-    HaneulObject,
-    type HaneulAddress,
-    Base64DataBuffer,
-} from '@haneullabs/haneul.js';
+import { fromB64, is, HaneulObject, type HaneulAddress } from '@haneullabs/haneul.js';
 import { type UseQueryResult } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
@@ -55,7 +50,7 @@ export function getName(rawName: string | number[]) {
     if (Array.isArray(rawName)) {
         name = String.fromCharCode(...rawName);
     } else {
-        name = textDecoder.decode(new Base64DataBuffer(rawName).getData());
+        name = textDecoder.decode(fromB64(rawName));
         if (!VALDIATOR_NAME.test(name)) {
             name = rawName;
         }
