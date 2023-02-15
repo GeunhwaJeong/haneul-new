@@ -3,7 +3,7 @@
 
 import { isBasePayload } from '_payloads';
 
-import type { SignatureScheme, HaneulAddress } from '@haneullabs/haneul.js';
+import type { SerializedSignature, HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 import type { AccountSerialized } from '_src/background/keyring/Account';
 
@@ -47,11 +47,7 @@ type MethodToPayloads = {
     };
     signData: {
         args: { data: string; address: HaneulAddress };
-        return: {
-            signatureScheme: SignatureScheme;
-            signature: string;
-            pubKey: string;
-        };
+        return: SerializedSignature;
     };
     switchAccount: {
         args: { address: HaneulAddress };
