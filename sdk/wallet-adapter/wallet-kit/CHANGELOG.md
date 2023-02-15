@@ -1,5 +1,30 @@
 # @haneullabs/wallet-kit
 
+## 0.3.0
+
+### Minor Changes
+
+- 473005d8f: Add protocol_version to CheckpointSummary and HaneulSystemObject. Consolidate end-of-epoch information in CheckpointSummary.
+
+### Patch Changes
+
+- fcba70206: Add basic formatting utilities
+- c3b63f9e2: Add ability to autoconnect to the recently used wallet.
+- Updated dependencies [473005d8f]
+- Updated dependencies [fcba70206]
+- Updated dependencies [59641dc29]
+- Updated dependencies [ebe6c3945]
+- Updated dependencies [c3b63f9e2]
+- Updated dependencies [629804d26]
+- Updated dependencies [f51c85e85]
+- Updated dependencies [e630f6832]
+  - @haneullabs/wallet-adapter-wallet-standard@0.6.0
+  - @haneullabs/wallet-adapter-unsafe-burner@0.6.0
+  - @haneullabs/wallet-adapter-base@0.6.0
+  - @haneullabs/wallet-kit-core@0.3.0
+  - @haneullabs/wallet-standard@0.4.0
+  - @haneullabs/haneul.js@0.27.0
+
 ## 0.2.6
 
 ### Patch Changes

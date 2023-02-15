@@ -1,5 +1,17 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.4.0
+
+### Minor Changes
+
+- 473005d8f: Add protocol_version to CheckpointSummary and HaneulSystemObject. Consolidate end-of-epoch information in CheckpointSummary.
+
+### Patch Changes
+
+- Updated dependencies [473005d8f]
+  - @haneullabs/wallet-adapter-wallet-standard@0.6.0
+  - @haneullabs/wallet-adapter-unsafe-burner@0.6.0
+
 ## 0.3.13
 
 ### Patch Changes
