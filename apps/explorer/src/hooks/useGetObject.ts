@@ -36,9 +36,7 @@ export function useGetObject(
     const normalizedObjId = normalizeHaneulAddress(objectId);
     const response = useQuery(
         ['object', normalizedObjId],
-        async () => {
-            return rpc.getObject(normalizedObjId);
-        },
+        async () => rpc.getObject(normalizedObjId),
         { enabled: !!objectId }
     );
 

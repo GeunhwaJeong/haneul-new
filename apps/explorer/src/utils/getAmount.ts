@@ -76,26 +76,23 @@ export function getTransfersAmount(
         getPayHaneulTransaction(txnData) ?? getPayTransaction(txnData);
 
     const amountByRecipient = payHaneulData?.recipients.reduce(
-        (acc, value, index) => {
-            return {
-                ...acc,
-                [value]: {
-                    amount:
-                        payHaneulData.amounts[index] +
-                        (value in acc ? acc[value].amount : 0),
-                    coinType: txnEffect
-                        ? getCoinType(
-                              txnEffect,
-                              payHaneulData.recipients[index] ||
-                                  payHaneulData.recipients[0]
-                          )
-                        : null,
-                    address:
-                        payHaneulData.recipients[index] ||
-                        payHaneulData.recipients[0],
-                },
-            };
-        },
+        (acc, value, index) => ({
+            ...acc,
+            [value]: {
+                amount:
+                    payHaneulData.amounts[index] +
+                    (value in acc ? acc[value].amount : 0),
+                coinType: txnEffect
+                    ? getCoinType(
+                          txnEffect,
+                          payHaneulData.recipients[index] ||
+                              payHaneulData.recipients[0]
+                      )
+                    : null,
+                address:
+                    payHaneulData.recipients[index] || payHaneulData.recipients[0],
+            },
+        }),
         {} as {
             [key: string]: {
                 amount: number;
