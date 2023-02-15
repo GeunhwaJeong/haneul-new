@@ -10,6 +10,8 @@ use haneul_types::committee::{Committee, StakeUnit};
 use haneul_types::crypto::{AuthorityQuorumSignInfo, AuthoritySignInfo};
 use haneul_types::error::HaneulError;
 
+/// StakeAggregator allows us to keep track of the total stake of a set of validators.
+/// STRENGTH indicates whether we want a strong quorum (2f+1) or a weak quorum (f+1).
 #[derive(Debug)]
 pub struct StakeAggregator<S, const STRENGTH: bool> {
     data: HashMap<AuthorityName, S>,

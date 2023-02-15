@@ -20,6 +20,7 @@ use haneul_network::{
     default_haneullabs_network_config, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC,
 };
 use haneul_types::crypto::{AuthorityPublicKeyBytes, AuthoritySignInfo};
+use haneul_types::message_envelope::Message;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
@@ -195,8 +196,7 @@ pub struct QuorumSignTransactionError {
 struct ProcessTransactionState {
     // The list of signatures gathered at any point
     tx_signatures: StakeAggregator<AuthoritySignInfo, true>,
-    effects_map:
-        MultiStakeAggregator<(EpochId, TransactionEffectsDigest), TransactionEffects, true>,
+    effects_map: MultiStakeAggregator<TransactionEffectsDigest, TransactionEffects, true>,
     // The list of errors gathered at any point
     errors: Vec<(HaneulError, Vec<AuthorityName>, StakeUnit)>,
     bad_stake: StakeUnit,
@@ -1024,6 +1024,7 @@ where
         tx_digest: &TransactionDigest,
         state: &ProcessTransactionState,
     ) {
+        // TODO: Revisit whether we need these metrics.
         let num_signatures = state.tx_signatures.validator_sig_count();
         self.metrics.num_signatures.observe(num_signatures as f64);
         let good_stake = state.good_stake();
@@ -1122,9 +1123,8 @@ where
             // If we get 2f+1 effects, it's an proof that the transaction
             // has already been finalized. This works because validators would re-sign effects for transactions
             // that were finalized in previous epochs.
-            let key = (signed_effects.epoch(), *signed_effects.digest());
             let (effects, sig) = signed_effects.into_inner().into_data_and_sig();
-            match state.effects_map.insert(key, &effects, sig) {
+            match state.effects_map.insert(effects.digest(), &effects, sig) {
                 InsertResult::NotEnoughVotes => Ok(None),
                 InsertResult::Failed { error } => Err(error),
                 InsertResult::QuorumReached(cert_sig) => {
@@ -1157,7 +1157,7 @@ where
                 total_stake += stake;
             }
             // TODO: Instead of pushing a new error, we should add more information about the non-quorum effects
-            // in the first error.
+            // in the final error.
             state.errors.push((
                 HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction {
                     effects_map: non_quorum_effects,
@@ -1278,13 +1278,10 @@ where
                             signed_effects.into_data(),
                             cert_sig,
                         );
-                        match ct.verify(&self.committee) {
-                            Ok(ct) => {
-                                debug!(?tx_digest, "Got quorum for validators handle_certificate.");
-                                Ok(Some(ct))
-                            }
-                            Err(err) => Err(err),
-                        }
+                        ct.verify(&self.committee).map(|ct| {
+                            debug!(?tx_digest, "Got quorum for validators handle_certificate.");
+                            Some(ct)
+                        })
                     }
                 }
             }
