@@ -451,6 +451,7 @@ impl RpcExampleProvider {
             },
             effects: HaneulTransactionEffects {
                 status: HaneulExecutionStatus::Success,
+                executed_epoch: 0,
                 gas_used: HaneulGasCostSummary {
                     computation_cost: 100,
                     storage_cost: 100,
