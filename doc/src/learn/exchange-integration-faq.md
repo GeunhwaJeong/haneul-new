@@ -6,15 +6,79 @@ The Haneul blockchain is still in its development stages, therefore many of the 
 
 ## Where are the Haneul Developer Docs?
 
-- Haneul Documentation Portal: [https://docs.haneul.io/](https://docs.haneul.io/)
-- Haneul REST API's: [https://docs.haneul.io/haneul-jsonrpc](https://docs.haneul.io/haneul-jsonrpc)
-- Run a Full node: [https://docs.haneul.io/devnet/build/fullnode](https://docs.haneul.io/devnet/build/fullnode)
+* Haneul Documentation Portal: [https://docs.haneul.io/](https://docs.haneul.io/)
+* Haneul REST API's: [https://docs.haneul.io/haneul-jsonrpc](https://docs.haneul.io/haneul-jsonrpc)
+* Run a Full node: [https://docs.haneul.io/devnet/build/fullnode](https://docs.haneul.io/devnet/build/fullnode)
 
 ## When will Testnet be live?
 
-Testnet Wave 1 ended on 12/01/22. Information about subsequent Testnet waves will be provided when available.
+Testnet Wave 2 ended on 02/15/23. Information about subsequent Testnet waves will be provided when available.
 
-## How will HANEUL staking work?
+## General questions about Haneul
+
+This section includes general questions about the Haneul platform.
+
+### What is the difference between the devnet branch and the main branch of the Haneul repo?
+
+The main branch contains all the latest changes. The `devnet` branch reflects the binary that is currently running on the Devnet network.
+
+### Can I get contract information through the RPC API?
+
+Yes, contracts are also stored in objects. You can use the haneul_getObject to fetch the object. Example: [https://explorer.haneul.io/objects/0xe70628039d00d9779829bb79d6397ea4ecff5686?p=31](https://explorer.haneul.io/objects/0xe70628039d00d9779829bb79d6397ea4ecff5686?p=31)
+
+**Note:** You can see only the deserialized bytecode (as opposed to Source code).
+
+### Can I get the information in the contract, such as the total amount of the currency issued and the number of decimal places?
+    
+There's no contract-level storage in Haneul. In general, this contract-level information is usually stored in an object or event. For example, we store decimals in this object [https://github.com/GeunhwaJeong/haneul/blob/1aca0465275496e40f02a674938def962126412b/crates/haneul-framework/sources/coin.move#L36](https://github.com/GeunhwaJeong/haneul/blob/1aca0465275496e40f02a674938def962126412b/crates/haneul-framework/sources/coin.move#L36). And in this case we provide an convenience [RPC endpoint](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-json-rpc/src/api.rs#L91-L97).
+
+### Is the gas price dynamic? Is it available through JSON-RPC?
+
+Yes, the gas price is dynamic and exposed via the [haneul_getReferenceGasPrice](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-json-rpc/src/api.rs#L337-L339) endpoint.
+
+### How can I delete an object within Haneul?
+
+You can delete objects (in most cases) only if the Move module that defines the object type includes a Move function that can delete the object, such as when a Move contract writer explicitly wants the object to be deletable).[https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object](https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object)
+
+If the delete function is defined in the Move module, you can delete the object by invoking the Move call using CLI or wallet. Here’s an example:
+
+ 1. Create an example NFT using the Haneul Client CLI: [https://docs.haneul.io/devnet/build/cli-client#create-an-example-nft](https://docs.haneul.io/devnet/build/cli-client#create-an-example-nft).
+
+ 2. Call this Move [function](https://github.com/GeunhwaJeong/haneul/blob/21c26ce6a5d4e3448abd74323e3164286d3deba6/crates/haneul-framework/sources/devnet_nft.move#L69-L72) with the CLI by following [https://docs.haneul.io/devnet/build/cli-client#calling-move-code](https://docs.haneul.io/devnet/build/cli-client#calling-move-code).
+
+### What is the denomination of Haneul？
+
+GEUNHWA is the smallest unit of a HANEUL Coin. 1 HANEUL equals 1 billion GEUNHWA, and 1 GEUNHWA equals 10^-9 of a HANEUL.
+
+## Transactions
+
+Questions about transaction in Haneul. 
+
+### How can we subscribe to transaction events?
+
+There are "Move events" that are emitted by Move code, and "transaction events" such as object transfers, creations, and deletions. [https://docs.haneul.io/build/pubsub#events](https://docs.haneul.io/build/pubsub#events) has a list of all the events you can subscribe to via the pub/sub API and their structure.
+
+### Can I get the corresponding transaction serial number through TransactionDigest?
+
+As a best practive, don't rely on the transaction serial number because there's no total ordering of transactions on Haneul. The transaction serial numbers differ between different Full nodes.
+    
+### Is the paged transaction data obtained by different nodes the same?
+
+No, the ordering will be different on different nodes for now, while we are still working on checkpoints. After checkpoint process is complete, the ordering will be the same on all nodes
+    
+### Is there a nonce or timestamp mechanism for transactions?
+
+There are no nonce or timestamps in our transaction data structure at the moment
+
+### What is the transaction expiry window?
+
+Transactions don't expire.
+
+## Staking and delegation
+
+The following questions are related to staking on the Haneul network.
+
+### How does HANEUL staking work?
 
 Sample staking implementation:
 
@@ -29,7 +93,7 @@ The entry functions for staking are defined in [this module](https://github.com/
 
 The first three functions are for validator staking for themselves while the rest are for delegated staking.
 
-### How many validators will Haneul have at genesis?
+### How many validators will Haneul have at Mainnet genesis?
 
 The number is still under consideration. The validator set is not fixed, but validators must apply and then be approved through our validator application process.
 
@@ -63,11 +127,11 @@ Yes, use the `request_switch_delegation` method to change the validator while a 
 
 ### Does Haneul require a bonding / warm-up period?
 
-Yes, but the specifics are still under consideration. We expect a period of only a few days maximum.
+Yes, the specifics are still under consideration.
 
-### Does Haneul require an un-bonding period?
+### Does Haneul require an un-bonding / cool-down period?
 
-The current un-bonding period is one week, this may change prior to Mainnet launch.
+Yes, the current un-bonding period under consideration.
 
 ### Are staking rewards auto-compounded?
 
@@ -98,7 +162,7 @@ There will not be slashing for the principal stake allocated. Instead, validator
 
 On-chain governance is not implemented for Haneul. There is no plan to add it in the near future.
 
-## Where can I find block details?
+### Where can I find block details?
 
 Answers to the following questions address specific details around surfacing block details.
 
@@ -154,7 +218,7 @@ A significant amount of the performance benefits of Haneul comes from carefully 
 
 Validators form a certificate (a quorum of signatures) for each transaction, and then propose checkpoints consisting of certificates since the last checkpoint. You can read more in section 4.3 [here](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf).
 
-### How do I get Devnet coins?
+### How do I get test Devnet coins?
 
 - You can find our [faucet in Discord](https://discord.com/channels/916379725201563759/971488439931392130).
 
