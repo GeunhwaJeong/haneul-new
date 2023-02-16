@@ -46,6 +46,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-protocol-constants = { path = "../haneul-protocol-constants" }
 telemetry-subscribers.workspace = true
+roaring = "0.10.1"
 
 move-core-types.workspace = true
 narwhal-node = { path = "../../narwhal/node" }
