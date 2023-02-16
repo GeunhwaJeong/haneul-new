@@ -44,7 +44,6 @@ use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
     error::HaneulResult,
     object::Object,
-    haneul_serde::AuthSignature,
 };
 use tracing::trace;
 
@@ -268,7 +267,6 @@ impl<'de> Deserialize<'de> for Genesis {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GenesisValidatorInfo {
     pub info: ValidatorInfo,
-    #[serde_as(as = "AuthSignature")]
     pub proof_of_possession: AuthoritySignature,
 }
 

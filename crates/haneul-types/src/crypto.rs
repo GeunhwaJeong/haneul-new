@@ -32,7 +32,7 @@ use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::committee::{Committee, EpochId, StakeUnit};
 use crate::error::{HaneulError, HaneulResult};
 use crate::intent::IntentMessage;
-use crate::haneul_serde::{AggrAuthSignature, Readable, HaneulBitmap};
+use crate::haneul_serde::{Readable, HaneulBitmap};
 use fastcrypto::encoding::{Base64, Encoding, Hex};
 use fastcrypto::hash::{HashFunction, Sha3_256};
 use std::fmt::Debug;
@@ -1230,7 +1230,6 @@ impl PartialEq for AuthoritySignInfo {
 pub struct AuthorityQuorumSignInfo<const STRONG_THRESHOLD: bool> {
     pub epoch: EpochId,
     #[schemars(with = "Base64")]
-    #[serde_as(as = "AggrAuthSignature")]
     pub signature: AggregateAuthoritySignature,
     #[schemars(with = "Base64")]
     #[serde_as(as = "HaneulBitmap")]
