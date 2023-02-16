@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/component",
     "crates/haneullabs-metrics",
     "crates/haneullabs-network",
     "crates/haneullabs-util-mem",
