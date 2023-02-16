@@ -3,7 +3,9 @@
 
 spec haneul::ed25519 {
     spec ed25519_verify {
-        // TODO: temporary mockup.
         pragma opaque;
+        // TODO: stub to be replaced by actual abort conditions if any
+        aborts_if [abstract] true;
+        // TODO: specify actual function behavior
     }
 }

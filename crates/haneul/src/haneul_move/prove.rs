@@ -68,6 +68,10 @@ impl Prove {
                             haneul_framework_address_concat_string("::dynamic_field"),
                             "dynamic_field_instances".to_string(),
                         ),
+                        (
+                            haneul_framework_address_concat_string("::prover"),
+                            "prover_instances".to_string(),
+                        ),
                     ],
                 });
         }
