@@ -39,6 +39,7 @@ use std::{
 use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter::new_move_vm, execution_mode, genesis};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
+use haneul_types::epoch_data::EpochData;
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -53,6 +54,7 @@ use haneul_types::{
     MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
+
 pub(crate) type FakeID = u64;
 
 // initial value for fake object ID mapping
@@ -519,7 +521,7 @@ impl<'a> HaneulTestAdapter<'a> {
             &self.native_functions,
             gas_status,
             // TODO: Support different epochs in transactional tests.
-            0,
+            &EpochData::genesis(),
         );
 
         let mut created_ids: Vec<_> = created.iter().map(|((id, _, _), _)| *id).collect();

@@ -25,6 +25,7 @@ use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
     AuthorityStrongQuorumSignInfo, HaneulAuthoritySignature, ToFromBytes,
 };
+use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::message_envelope::Message;
@@ -818,7 +819,7 @@ fn create_genesis_transaction(
                 &move_vm,
                 &native_functions,
                 HaneulGasStatus::new_unmetered(),
-                0,
+                &EpochData::genesis(),
             );
         assert!(inner_temp_store.objects.is_empty());
         assert!(inner_temp_store.mutable_inputs.is_empty());
@@ -1148,7 +1149,7 @@ mod test {
                 &move_vm,
                 &native_functions,
                 HaneulGasStatus::new_unmetered(),
-                0,
+                &EpochData::genesis(),
             );
 
         assert_eq!(effects, genesis.effects);

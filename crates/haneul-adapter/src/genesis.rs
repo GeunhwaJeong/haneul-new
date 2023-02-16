@@ -5,6 +5,7 @@ use move_binary_format::CompiledModule;
 use once_cell::sync::Lazy;
 use haneul_types::base_types::{ObjectRef, HaneulAddress, TxContext};
 use haneul_types::clock::Clock;
+use haneul_types::epoch_data::EpochData;
 use haneul_types::id::UID;
 use haneul_types::object::{MoveObject, Owner};
 use haneul_types::{base_types::TransactionDigest, object::Object};
@@ -40,7 +41,11 @@ pub fn get_framework_object_ref() -> ObjectRef {
 }
 
 pub fn get_genesis_context() -> TxContext {
-    TxContext::new(&HaneulAddress::default(), &TransactionDigest::genesis(), 0)
+    TxContext::new(
+        &HaneulAddress::default(),
+        &TransactionDigest::genesis(),
+        &EpochData::genesis(),
+    )
 }
 
 /// Create and return objects wrapping the genesis modules for haneul
