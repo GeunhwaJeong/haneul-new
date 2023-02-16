@@ -406,6 +406,8 @@ export const HaneulTransactionResponse = object({
   certificate: union([CertifiedTransaction, CertifiedTransaction_v26]),
   effects: TransactionEffects,
   timestamp_ms: union([number(), literal(null)]),
+  // TODO: remove optional after 0.27.0 is released
+  checkpoint: optional(union([number(), literal(null)])),
   parsed_data: union([HaneulParsedTransactionResponse, literal(null)]),
 });
 export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
