@@ -41,6 +41,7 @@ members = [
     "crates/haneul-swarm",
     "crates/haneul-telemetry",
     "crates/haneul-test-validator",
+    "crates/haneul-tls",
     "crates/haneul-tool",
     "crates/haneul-transaction-builder",
     "crates/haneul-transactional-test-runner",
