@@ -7,7 +7,6 @@ members = [
     "crates/haneullabs-util-mem",
     "crates/haneullabs-util-mem-derive",
     "crates/prometheus-closure-metric",
-    "crates/rccheck",
     "crates/haneul",
     "crates/haneul-adapter",
     "crates/haneul-adapter-transactional-tests",
