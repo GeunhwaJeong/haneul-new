@@ -29,6 +29,7 @@ use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
 use haneul_json::HaneulJsonValue;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
     AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
     TransactionDigest, TransactionEffectsDigest,
@@ -576,6 +577,7 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
                         o.has_public_transfer,
                         o.version,
                         o.bcs_bytes,
+                        ProtocolConfig::get_for_min_version(),
                     )?
                 })
             }

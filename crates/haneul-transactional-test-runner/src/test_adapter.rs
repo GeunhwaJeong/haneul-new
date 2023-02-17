@@ -37,9 +37,13 @@ use std::{
     sync::Arc,
 };
 use haneul_adapter::execution_engine;
-use haneul_adapter::{adapter::new_move_vm, execution_mode, genesis};
+use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
+use haneul_protocol_config::ProtocolConfig;
+use haneul_types::clock::Clock;
 use haneul_types::epoch_data::EpochData;
+use haneul_types::gas::HaneulCostTable;
+use haneul_types::id::UID;
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -51,7 +55,9 @@ use haneul_types::{
         ExecutionStatus, InputObjects, TransactionData, TransactionEffects, VerifiedTransaction,
     },
     object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
+    object::{MoveObject, Owner},
+    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_ADDRESS,
 };
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 
@@ -82,6 +88,86 @@ struct TxnSummary {
     written: Vec<ObjectID>,
     deleted: Vec<ObjectID>,
     events: Vec<Event>,
+}
+
+static GENESIS: Lazy<Genesis> = Lazy::new(create_genesis_module_objects);
+static PROTOCOL_CONSTANTS: Lazy<&'static ProtocolConfig> =
+    Lazy::new(ProtocolConfig::get_for_max_version);
+
+struct Genesis {
+    pub objects: Vec<Object>,
+    pub packages: Vec<Object>,
+    pub modules: Vec<Vec<CompiledModule>>,
+}
+
+pub fn clone_genesis_compiled_modules() -> Vec<Vec<CompiledModule>> {
+    GENESIS.modules.clone()
+}
+
+pub fn clone_genesis_packages() -> Vec<Object> {
+    GENESIS.packages.clone()
+}
+
+pub fn clone_genesis_objects() -> Vec<Object> {
+    GENESIS.objects.clone()
+}
+
+pub fn get_framework_object_ref() -> ObjectRef {
+    GENESIS
+        .packages
+        .iter()
+        .find(|o| o.id() == HANEUL_FRAMEWORK_ADDRESS.into())
+        .unwrap()
+        .compute_object_reference()
+}
+
+/// Create and return objects wrapping the genesis modules for haneul
+fn create_genesis_module_objects() -> Genesis {
+    let haneul_modules = haneul_framework::get_haneul_framework();
+    let std_modules = haneul_framework::get_move_stdlib();
+    let objects = vec![create_clock()];
+    // SAFETY: unwraps safe because genesis packages should never exceed max size
+    let packages = vec![
+        Object::new_package(std_modules.clone(), TransactionDigest::genesis()).unwrap(),
+        Object::new_package(haneul_modules.clone(), TransactionDigest::genesis()).unwrap(),
+    ];
+    let modules = vec![std_modules, haneul_modules];
+    Genesis {
+        objects,
+        packages,
+        modules,
+    }
+}
+
+fn create_clock() -> Object {
+    // SAFETY: unwrap safe because genesis objects should be serializable
+    let contents = bcs::to_bytes(&Clock {
+        id: UID::new(HANEUL_CLOCK_OBJECT_ID),
+        timestamp_ms: 0,
+    })
+    .unwrap();
+
+    // SAFETY: Whether `Clock` has public transfer or not is statically known, and unwrap safe
+    // because genesis objects should never exceed max size
+    let move_object = unsafe {
+        let has_public_transfer = false;
+        MoveObject::new_from_execution(
+            Clock::type_(),
+            has_public_transfer,
+            HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+            contents,
+            &PROTOCOL_CONSTANTS,
+        )
+        .unwrap()
+    };
+
+    Object::new_move(
+        move_object,
+        Owner::Shared {
+            initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        },
+        TransactionDigest::genesis(),
+    )
 }
 
 impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
@@ -145,8 +231,8 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
 
         let native_functions =
             haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
-        let mut objects = genesis::clone_genesis_packages();
-        objects.extend(genesis::clone_genesis_objects());
+        let mut objects = clone_genesis_packages();
+        objects.extend(clone_genesis_objects());
         let mut account_objects = BTreeMap::new();
         for (account, (addr, _)) in &accounts {
             let obj = Object::with_id_owner_for_testing(ObjectID::new(rng.gen()), *addr);
@@ -155,7 +241,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         }
 
         let mut test_adapter = Self {
-            vm: Arc::new(new_move_vm(native_functions.clone()).unwrap()),
+            vm: Arc::new(new_move_vm(native_functions.clone(), &PROTOCOL_CONSTANTS).unwrap()),
             storage: Arc::new(InMemoryStorage::new(objects)),
             native_functions,
             compiled_state: CompiledState::new(
@@ -468,7 +554,8 @@ impl<'a> HaneulTestAdapter<'a> {
         let gas_status = if transaction.inner().is_system_tx() {
             HaneulGasStatus::new_unmetered()
         } else {
-            gas::start_gas_metering(gas_budget, 1, 1).unwrap()
+            gas::start_gas_metering(gas_budget, 1, 1, HaneulCostTable::new(&PROTOCOL_CONSTANTS))
+                .unwrap()
         };
 
         let transaction_digest = TransactionDigest::new(self.rng.gen());
@@ -488,8 +575,12 @@ impl<'a> HaneulTestAdapter<'a> {
         let input_objects = InputObjects::new(objects_by_kind);
         let transaction_dependencies = input_objects.transaction_dependencies();
         let shared_object_refs: Vec<_> = input_objects.filter_shared_objects();
-        let temporary_store =
-            TemporaryStore::new(self.storage.clone(), input_objects, transaction_digest);
+        let temporary_store = TemporaryStore::new(
+            self.storage.clone(),
+            input_objects,
+            transaction_digest,
+            &PROTOCOL_CONSTANTS,
+        );
         let transaction_data = transaction.into_inner().into_data().intent_message.value;
         let signer = transaction_data.signer();
         let gas = transaction_data.gas();
@@ -522,6 +613,7 @@ impl<'a> HaneulTestAdapter<'a> {
             gas_status,
             // TODO: Support different epochs in transactional tests.
             &EpochData::genesis(),
+            &PROTOCOL_CONSTANTS,
         );
 
         let mut created_ids: Vec<_> = created.iter().map(|((id, _, _), _)| *id).collect();

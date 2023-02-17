@@ -42,10 +42,7 @@ use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
 
-#[cfg(not(test))]
-use haneul_protocol_constants::MAX_TRANSACTIONS_PER_CHECKPOINT;
-#[cfg(test)]
-use haneul_protocol_constants::MAX_TRANSACTIONS_PER_CHECKPOINT_FOR_TESTING;
+use haneul_protocol_config::ProtocolConfig;
 
 use haneul_storage::{
     event_store::{EventStoreType, SqlEventStore},
@@ -601,10 +598,7 @@ impl HaneulNode {
         });
 
         let certified_checkpoint_output = SendCheckpointToStateSync::new(state_sync_handle);
-        #[cfg(test)]
-        let max_tx_per_checkpoint = MAX_TRANSACTIONS_PER_CHECKPOINT_FOR_TESTING;
-        #[cfg(not(test))]
-        let max_tx_per_checkpoint = MAX_TRANSACTIONS_PER_CHECKPOINT;
+        let max_tx_per_checkpoint = max_tx_per_checkpoint(epoch_store.protocol_config());
 
         CheckpointService::spawn(
             state.clone(),
@@ -922,4 +916,14 @@ pub async fn build_server(
     let rpc_server_handle = server.start(config.json_rpc_address).await?;
 
     Ok(Some(rpc_server_handle))
+}
+
+#[cfg(test)]
+fn max_tx_per_checkpoint(protocol_config: &ProtocolConfig) -> usize {
+    protocol_config.max_transactions_per_checkpoint()
+}
+
+#[cfg(not(test))]
+fn max_tx_per_checkpoint(_: &ProtocolConfig) -> usize {
+    2
 }

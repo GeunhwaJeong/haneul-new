@@ -38,9 +38,8 @@ use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, H
 
 use crate::epoch::epoch_metrics::EpochMetrics;
 use std::{convert::TryInto, env};
-use haneul_adapter::genesis;
 use haneul_macros::sim_test;
-use haneul_protocol_constants::MAX_MOVE_PACKAGE_SIZE;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::object::Data;
 use haneul_types::{
@@ -192,6 +191,15 @@ async fn construct_shared_object_transaction_with_sequence_number(
         gas_object_id,
         shared_object_id,
     )
+}
+
+pub fn create_genesis_module_packages() -> Vec<Object> {
+    let haneul_modules = haneul_framework::get_haneul_framework();
+    let std_modules = haneul_framework::get_move_stdlib();
+    vec![
+        Object::new_package(std_modules, TransactionDigest::genesis()).unwrap(),
+        Object::new_package(haneul_modules, TransactionDigest::genesis()).unwrap(),
+    ]
 }
 
 #[tokio::test]
@@ -1227,7 +1235,7 @@ async fn test_publish_dependent_module_ok() {
     let gas_payment_object = Object::with_id_owner_for_testing(gas_payment_object_id, sender);
     let gas_payment_object_ref = gas_payment_object.compute_object_reference();
     // create a genesis state that contains the gas object and genesis modules
-    let genesis_module_objects = genesis::clone_genesis_packages();
+    let genesis_module_objects = create_genesis_module_packages();
     let genesis_module = match &genesis_module_objects[0].data {
         Data::Package(m) => {
             CompiledModule::deserialize(m.serialized_module_map().values().next().unwrap()).unwrap()
@@ -1308,7 +1316,7 @@ async fn test_publish_non_existing_dependent_module() {
     let gas_payment_object = Object::with_id_owner_for_testing(gas_payment_object_id, sender);
     let gas_payment_object_ref = gas_payment_object.compute_object_reference();
     // create a genesis state that contains the gas object and genesis modules
-    let genesis_module_objects = genesis::clone_genesis_packages();
+    let genesis_module_objects = create_genesis_module_packages();
     let genesis_module = match &genesis_module_objects[0].data {
         Data::Package(m) => {
             CompiledModule::deserialize(m.serialized_module_map().values().next().unwrap()).unwrap()
@@ -1365,7 +1373,8 @@ async fn test_package_size_limit() {
     let mut package = Vec::new();
     let mut package_size = 0;
     // create a package larger than the max size
-    while package_size <= MAX_MOVE_PACKAGE_SIZE {
+    let max_move_package_size = ProtocolConfig::get_for_min_version().max_move_package_size();
+    while package_size <= max_move_package_size {
         let mut module = file_format::empty_module();
         // generate unique name
         module.identifiers[0] = Identifier::new(format!("TestModule{:?}", package_size)).unwrap();
@@ -1394,7 +1403,7 @@ async fn test_package_size_limit() {
         ExecutionStatus::Failure {
             error: ExecutionFailureStatus::MovePackageTooBig {
                 object_size: package_size,
-                max_object_size: MAX_MOVE_PACKAGE_SIZE
+                max_object_size: max_move_package_size
             }
         }
     )

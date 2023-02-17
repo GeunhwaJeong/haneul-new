@@ -12,6 +12,7 @@ use natives::object_runtime::ObjectRuntime;
 use once_cell::sync::Lazy;
 use std::{collections::BTreeMap, path::Path};
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::TransactionDigest, error::HaneulResult, in_memory_storage::InMemoryStorage,
     messages::InputObjects, temporary_store::TemporaryStore, MOVE_STDLIB_ADDRESS,
@@ -78,11 +79,13 @@ fn new_testing_object_runtime(ext: &mut NativeContextExtensions) {
         store,
         InputObjects::new(vec![]),
         TransactionDigest::random(),
+        ProtocolConfig::get_for_min_version(),
     );
     ext.add(ObjectRuntime::new(
         Box::new(state_view),
         BTreeMap::new(),
         false,
+        ProtocolConfig::get_for_min_version(),
     ))
 }
 

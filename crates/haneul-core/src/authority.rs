@@ -29,7 +29,6 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::{collections::HashMap, pin::Pin};
 use haneul_config::node::AuthorityStorePruningConfig;
-use haneul_protocol_constants::{MAX_TX_GAS, STORAGE_GAS_PRICE};
 use haneul_types::message_envelope::Message;
 use haneul_types::parse_haneul_struct_tag;
 use tap::TapFallible;
@@ -62,7 +61,7 @@ use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{sha3_hash, AuthorityKeyPair, NetworkKeyPair, Signer};
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldType};
 use haneul_types::event::{Event, EventID};
-use haneul_types::gas::{GasCostSummary, GasPrice, HaneulGasStatus};
+use haneul_types::gas::{GasCostSummary, GasPrice, HaneulCostTable, HaneulGasStatus};
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
     CheckpointSummary, CheckpointTimestamp,
@@ -461,6 +460,7 @@ impl AuthorityState {
     ) -> Result<VerifiedSignedTransaction, HaneulError> {
         let (_gas_status, input_objects) = transaction_input_checker::check_transaction_input(
             &self.database,
+            epoch_store.as_ref(),
             &transaction.data().intent_message.value,
         )
         .await?;
@@ -916,8 +916,12 @@ impl AuthorityState {
 
         let shared_object_refs = input_objects.filter_shared_objects();
         let transaction_dependencies = input_objects.transaction_dependencies();
-        let temporary_store =
-            TemporaryStore::new(self.database.clone(), input_objects, *certificate.digest());
+        let temporary_store = TemporaryStore::new(
+            self.database.clone(),
+            input_objects,
+            *certificate.digest(),
+            epoch_store.protocol_config(),
+        );
         let transaction_data = certificate.data().intent_message.value.clone();
         let signer = transaction_data.signer();
         let gas = transaction_data.gas();
@@ -934,6 +938,7 @@ impl AuthorityState {
                 &self._native_functions,
                 gas_status,
                 &epoch_store.epoch_start_configuration().epoch_data(),
+                epoch_store.protocol_config(),
             );
 
         let signed_effects = VerifiedSignedTransactionEffects::new_unchecked(
@@ -962,14 +967,21 @@ impl AuthorityState {
             return Err(anyhow!("dry-exec is only support on fullnodes"));
         }
 
-        let (gas_status, input_objects) =
-            transaction_input_checker::check_transaction_input(&self.database, &transaction)
-                .await?;
+        let (gas_status, input_objects) = transaction_input_checker::check_transaction_input(
+            &self.database,
+            epoch_store.as_ref(),
+            &transaction,
+        )
+        .await?;
         let shared_object_refs = input_objects.filter_shared_objects();
 
         let transaction_dependencies = input_objects.transaction_dependencies();
-        let temporary_store =
-            TemporaryStore::new(self.database.clone(), input_objects, transaction_digest);
+        let temporary_store = TemporaryStore::new(
+            self.database.clone(),
+            input_objects,
+            transaction_digest,
+            epoch_store.protocol_config(),
+        );
         let signer = transaction.signer();
         let gas = transaction.gas();
         let (_inner_temp_store, effects, _execution_error) =
@@ -985,6 +997,7 @@ impl AuthorityState {
                 &self._native_functions,
                 gas_status,
                 &epoch_store.epoch_start_configuration().epoch_data(),
+                epoch_store.protocol_config(),
             );
         HaneulTransactionEffects::try_from(effects, self.module_cache.as_ref())
     }
@@ -1002,9 +1015,14 @@ impl AuthorityState {
             return Err(anyhow!("dev-inspect is only supported on fullnodes"));
         }
 
+        let protocol_config = epoch_store.protocol_config();
+
+        let max_tx_gas = protocol_config.max_tx_gas();
+        let storage_gas_price = protocol_config.storage_gas_price();
+
         let gas_object_id = ObjectID::random();
         let gas_object = Object::new_move(
-            MoveObject::new_gas_coin(SequenceNumber::new(), gas_object_id, MAX_TX_GAS),
+            MoveObject::new_gas_coin(SequenceNumber::new(), gas_object_id, max_tx_gas),
             Owner::AddressOwner(sender),
             TransactionDigest::genesis(),
         );
@@ -1018,7 +1036,7 @@ impl AuthorityState {
 
         // TODO should we error instead for 0?
         let gas_price = std::cmp::max(gas_price, 1);
-        let gas_budget = MAX_TX_GAS;
+        let gas_budget = max_tx_gas;
         let data = TransactionData::new(
             transaction_kind,
             sender,
@@ -1029,12 +1047,17 @@ impl AuthorityState {
         let transaction_digest = TransactionDigest::new(sha3_hash(&data));
         let transaction_kind = data.kind;
         let transaction_dependencies = input_objects.transaction_dependencies();
-        let temporary_store =
-            TemporaryStore::new(self.database.clone(), input_objects, transaction_digest);
+        let temporary_store = TemporaryStore::new(
+            self.database.clone(),
+            input_objects,
+            transaction_digest,
+            protocol_config,
+        );
         let mut gas_status = HaneulGasStatus::new_with_budget(
-            MAX_TX_GAS,
+            max_tx_gas,
             GasPrice::from(gas_price),
-            STORAGE_GAS_PRICE.into(),
+            storage_gas_price.into(),
+            HaneulCostTable::new(protocol_config),
         );
         gas_status.charge_min_tx_gas()?;
         let (_inner_temp_store, effects, execution_result) =
@@ -1050,6 +1073,7 @@ impl AuthorityState {
                 &self._native_functions,
                 gas_status,
                 &EpochData::new(epoch), /* TODO(epoch_data): this needs to be figured out */
+                protocol_config,
             );
         DevInspectResults::new(effects, execution_result, self.module_cache.as_ref())
     }
@@ -1432,7 +1456,7 @@ impl AuthorityState {
         let native_functions =
             haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
         let move_vm = Arc::new(
-            adapter::new_move_vm(native_functions.clone())
+            adapter::new_move_vm(native_functions.clone(), epoch_store.protocol_config())
                 .expect("We defined natives to not fail here"),
         );
         let module_cache = Arc::new(SyncModuleCache::new(ResolverWrapper(store.clone())));

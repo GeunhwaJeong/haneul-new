@@ -39,7 +39,7 @@ haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
-haneul-protocol-constants = { path = "../haneul-protocol-constants" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 

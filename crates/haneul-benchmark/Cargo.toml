@@ -44,7 +44,7 @@ haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-haneul-protocol-constants = { path = "../haneul-protocol-constants" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 telemetry-subscribers.workspace = true
 roaring = "0.10.1"
 

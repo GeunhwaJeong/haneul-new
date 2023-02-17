@@ -86,7 +86,7 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
     HaneulSystemState {
         info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),
         epoch,
-        protocol_version: ProtocolVersion::MIN.0,
+        protocol_version: ProtocolVersion::MAX.as_u64(),
         validators: validator_set,
         treasury_cap: Supply { value: 0 },
         storage_fund: Balance::new(0),

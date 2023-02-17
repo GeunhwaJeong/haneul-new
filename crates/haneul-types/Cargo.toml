@@ -47,7 +47,7 @@ move-vm-types.workspace = true
 narwhal-config = { path = "../../narwhal/config" }
 narwhal-crypto = { path = "../../narwhal/crypto" }
 haneul-cost-tables = { path = "../haneul-cost-tables"}
-haneul-protocol-constants = { path = "../haneul-protocol-constants" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
 
