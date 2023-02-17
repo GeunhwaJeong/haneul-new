@@ -29,6 +29,8 @@ use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::intent::Intent;
+use haneul_types::messages::TransactionData;
 
 const NUM_VALIDAOTR: usize = 4;
 
@@ -51,6 +53,10 @@ pub struct TestCluster {
 impl TestCluster {
     pub fn rpc_client(&self) -> &HttpClient {
         &self.fullnode_handle.rpc_client
+    }
+
+    pub fn haneul_client(&self) -> &HaneulClient {
+        &self.fullnode_handle.haneul_client
     }
 
     pub fn rpc_url(&self) -> &str {
@@ -80,6 +86,30 @@ impl TestCluster {
             .addresses()
             .get(1)
             .cloned()
+            .unwrap()
+    }
+
+    // Helper function to get the 2nd address in WalletContext
+    pub fn get_address_2(&self) -> HaneulAddress {
+        self.wallet
+            .config
+            .keystore
+            .addresses()
+            .get(2)
+            .cloned()
+            .unwrap()
+    }
+
+    // Sign a transaction with a key currently managed by the WalletContext
+    pub fn sign_transaction(
+        &self,
+        signer_address: &HaneulAddress,
+        data: &TransactionData,
+    ) -> haneul_types::crypto::Signature {
+        self.wallet
+            .config
+            .keystore
+            .sign_secure(signer_address, data, Intent::default())
             .unwrap()
     }
 

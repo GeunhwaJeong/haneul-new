@@ -20,16 +20,17 @@ use std::str::FromStr;
 pub use crate::committee::EpochId;
 use crate::crypto::{
     AuthorityPublicKey, AuthorityPublicKeyBytes, KeypairTraits, PublicKey, SignatureScheme,
-    HaneulPublicKey,
+    HaneulPublicKey, HaneulSignature,
 };
 pub use crate::digests::{ObjectDigest, TransactionDigest, TransactionEffectsDigest};
 use crate::epoch_data::EpochData;
-use crate::error::ExecutionError;
 use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
+use crate::error::{ExecutionError, HaneulResult};
 use crate::gas_coin::GasCoin;
 use crate::multisig::MultiSigPublicKey;
 use crate::object::{Object, Owner};
+use crate::signature::GenericSignature;
 use crate::haneul_serde::Readable;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::hash::{HashFunction, Sha3_256};
@@ -280,6 +281,25 @@ impl From<MultiSigPublicKey> for HaneulAddress {
         // OK to access slice because Sha3_256 should never be shorter than HANEUL_ADDRESS_LENGTH.
         res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
         HaneulAddress(res)
+    }
+}
+
+impl TryFrom<&GenericSignature> for HaneulAddress {
+    type Error = HaneulError;
+    fn try_from(sig: &GenericSignature) -> HaneulResult<Self> {
+        Ok(match sig {
+            GenericSignature::Signature(sig) => {
+                let scheme = sig.scheme();
+                let pub_key_bytes = sig.public_key_bytes();
+                let pub_key = PublicKey::try_from_bytes(scheme, pub_key_bytes).map_err(|e| {
+                    HaneulError::InvalidSignature {
+                        error: e.to_string(),
+                    }
+                })?;
+                HaneulAddress::from(&pub_key)
+            }
+            GenericSignature::MultiSig(ms) => ms.multisig_pk.clone().into(),
+        })
     }
 }
 

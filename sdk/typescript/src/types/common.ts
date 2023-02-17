@@ -11,7 +11,7 @@ import {
   unknown,
 } from 'superstruct';
 import bs58 from 'bs58';
-import { CallArg, TransactionData } from './haneul-bcs';
+import { CallArg, TransactionData, TransactionData_v26 } from './haneul-bcs';
 import { sha256Hash } from '../cryptography/hash';
 import { BCS } from '@haneullabs/bcs';
 
@@ -124,7 +124,7 @@ export function normalizeHaneulObjectId(
  * @param publicKey public key
  */
 export function generateTransactionDigest(
-  data: TransactionData,
+  data: TransactionData | TransactionData_v26,
   bcs: BCS,
 ): string {
   const txBytes = bcs.ser('TransactionData', data).toBytes();

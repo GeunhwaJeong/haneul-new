@@ -16,6 +16,7 @@ import {
   HaneulEventEnvelope,
   HaneulEventFilter,
   HaneulExecuteTransactionResponse,
+  HaneulExecuteTransactionResponse_v26,
   HaneulMoveFunctionArgTypes,
   HaneulMoveNormalizedFunction,
   HaneulMoveNormalizedModule,
@@ -38,6 +39,7 @@ import {
   DevInspectResults,
   CoinMetadata,
   versionToString,
+  toHaneulTransactionData,
   isValidTransactionDigest,
   isValidHaneulAddress,
   isValidHaneulObjectId,
@@ -661,6 +663,38 @@ export class JsonRpcProvider extends Provider {
     signature: SerializedSignature,
     requestType: ExecuteTransactionRequestType = 'WaitForEffectsCert',
   ): Promise<HaneulExecuteTransactionResponse> {
+    const version = this.rpcApiVersion;
+    if (version?.major === 0 && version?.minor <= 26) {
+      try {
+        let resp = await this.client.requestWithType(
+          'haneul_executeTransactionSerializedSig',
+          [
+            typeof txnBytes === 'string' ? txnBytes : toB64(txnBytes),
+            signature,
+            requestType,
+          ],
+          HaneulExecuteTransactionResponse_v26,
+          this.options.skipDataValidation,
+        );
+        let certificate = resp.certificate
+          ? {
+              transactionDigest: resp.certificate!.transactionDigest,
+              data: toHaneulTransactionData(resp.certificate!.data),
+              txSignatures: [resp.certificate!.txSignature],
+              authSignInfo: resp.certificate!.authSignInfo,
+            }
+          : undefined;
+        return {
+          certificate: certificate,
+          effects: resp.effects,
+          confirmed_local_execution: resp.confirmed_local_execution,
+        };
+      } catch (err) {
+        throw new Error(
+          `Error executing transaction with request type: ${err}`,
+        );
+      }
+    }
     try {
       return await this.client.requestWithType(
         'haneul_executeTransactionSerializedSig',

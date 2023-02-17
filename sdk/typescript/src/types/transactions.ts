@@ -16,7 +16,7 @@ import {
   tuple,
 } from 'superstruct';
 import { HaneulEvent } from './events';
-import { HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
+import { HaneulGasData, HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
 import {
   ObjectId,
   ObjectOwner,
@@ -125,10 +125,7 @@ export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 export const HaneulTransactionData = object({
   transactions: array(HaneulTransactionKind),
   sender: HaneulAddress,
-  gasPayment: HaneulObjectRef,
-  // TODO: remove optional after 0.21.0 is released
-  gasPrice: optional(number()),
-  gasBudget: number(),
+  gasData: HaneulGasData,
 });
 export type HaneulTransactionData = Infer<typeof HaneulTransactionData>;
 
@@ -148,7 +145,7 @@ export type AuthorityQuorumSignInfo = Infer<typeof AuthorityQuorumSignInfo>;
 export const CertifiedTransaction = object({
   transactionDigest: TransactionDigest,
   data: HaneulTransactionData,
-  txSignature: string(),
+  txSignatures: array(string()),
   authSignInfo: AuthorityQuorumSignInfo,
 });
 export type CertifiedTransaction = Infer<typeof CertifiedTransaction>;
@@ -264,6 +261,49 @@ export const HaneulFinalizedEffects = object({
 });
 export type HaneulFinalizedEffects = Infer<typeof HaneulFinalizedEffects>;
 
+export const HaneulTransactionData_v26 = object({
+  transactions: array(HaneulTransactionKind),
+  sender: HaneulAddress,
+  gasPayment: HaneulObjectRef,
+  // TODO: remove optional after 0.21.0 is released
+  gasPrice: optional(number()),
+  gasBudget: number(),
+});
+export type HaneulTransactionData_v26 = Infer<typeof HaneulTransactionData_v26>;
+
+export function toHaneulTransactionData(
+  tx_data: HaneulTransactionData_v26,
+): HaneulTransactionData {
+  return {
+    transactions: tx_data.transactions,
+    sender: tx_data.sender,
+    gasData: {
+      payment: tx_data.gasPayment,
+      owner: tx_data.sender,
+      budget: tx_data.gasBudget,
+      price: tx_data.gasPrice!,
+    },
+  };
+}
+
+export const CertifiedTransaction_v26 = object({
+  transactionDigest: TransactionDigest,
+  data: HaneulTransactionData_v26,
+  txSignature: string(),
+  authSignInfo: AuthorityQuorumSignInfo,
+});
+export type CertifiedTransaction_v26 = Infer<typeof CertifiedTransaction_v26>;
+
+export const HaneulExecuteTransactionResponse_v26 = object({
+  certificate: optional(CertifiedTransaction_v26),
+  effects: HaneulFinalizedEffects,
+  confirmed_local_execution: boolean(),
+});
+
+export type HaneulExecuteTransactionResponse_v26 = Infer<
+  typeof HaneulExecuteTransactionResponse_v26
+>;
+
 export const HaneulExecuteTransactionResponse = union([
   // TODO: remove after devnet 0.25.0(or 0.24.0) is released
   object({
@@ -361,7 +401,7 @@ export type HaneulParsedTransactionResponse = Infer<
 >;
 
 export const HaneulTransactionResponse = object({
-  certificate: CertifiedTransaction,
+  certificate: union([CertifiedTransaction, CertifiedTransaction_v26]),
   effects: TransactionEffects,
   timestamp_ms: union([number(), literal(null)]),
   parsed_data: union([HaneulParsedTransactionResponse, literal(null)]),
@@ -376,7 +416,7 @@ export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
 
 export function getCertifiedTransaction(
   tx: HaneulTransactionResponse | HaneulExecuteTransactionResponse,
-): CertifiedTransaction | undefined {
+): CertifiedTransaction | CertifiedTransaction_v26 | undefined {
   if ('certificate' in tx) {
     return tx.certificate;
   } else if ('EffectsCert' in tx) {
@@ -388,6 +428,7 @@ export function getCertifiedTransaction(
 export function getTransactionDigest(
   tx:
     | CertifiedTransaction
+    | CertifiedTransaction_v26
     | HaneulTransactionResponse
     | HaneulExecuteTransactionResponse,
 ): TransactionDigest {
@@ -398,8 +439,13 @@ export function getTransactionDigest(
   return effects.transactionDigest;
 }
 
-export function getTransactionSignature(tx: CertifiedTransaction): string {
-  return tx.txSignature;
+export function getTransactionSignature(
+  tx: CertifiedTransaction | CertifiedTransaction_v26,
+): string[] {
+  if ('txSignatures' in tx) {
+    return tx.txSignatures;
+  }
+  return [tx.txSignature];
 }
 
 export function getTransactionAuthorityQuorumSignInfo(
@@ -416,22 +462,24 @@ export function getTransactionData(
 
 /* ----------------------------- TransactionData ---------------------------- */
 
-export function getTransactionSender(tx: CertifiedTransaction): HaneulAddress {
+export function getTransactionSender(
+  tx: CertifiedTransaction | CertifiedTransaction_v26,
+): HaneulAddress {
   return tx.data.sender;
 }
 
 export function getTransactionGasObject(
   tx: CertifiedTransaction,
 ): HaneulObjectRef {
-  return tx.data.gasPayment;
+  return tx.data.gasData.payment;
 }
 
 export function getTransactionGasPrice(tx: CertifiedTransaction) {
-  return tx.data.gasPrice;
+  return tx.data.gasData.price;
 }
 
 export function getTransactionGasBudget(tx: CertifiedTransaction): number {
-  return tx.data.gasBudget;
+  return tx.data.gasData.budget;
 }
 
 export function getTransferObjectTransaction(
@@ -489,7 +537,7 @@ export function getConsensusCommitPrologueTransaction(
 }
 
 export function getTransactions(
-  data: CertifiedTransaction,
+  data: CertifiedTransaction | CertifiedTransaction_v26,
 ): HaneulTransactionKind[] {
   return data.data.transactions;
 }

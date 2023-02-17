@@ -23,6 +23,7 @@ export interface TransferObjectTransaction extends TransactionCommon {
   objectId: ObjectId;
   recipient: HaneulAddress;
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 export interface TransferHaneulTransaction extends TransactionCommon {
@@ -45,6 +46,7 @@ export interface PayTransaction extends TransactionCommon {
   recipients: HaneulAddress[];
   amounts: number[];
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 /// Send HANEUL coins to a list of addresses, following a list of amounts.
@@ -83,12 +85,14 @@ export interface MergeCoinTransaction extends TransactionCommon {
   primaryCoin: ObjectId;
   coinToMerge: ObjectId;
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 export interface SplitCoinTransaction extends TransactionCommon {
   coinObjectId: ObjectId;
   splitAmounts: number[];
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 export interface MoveCallTransaction extends TransactionCommon {
@@ -98,6 +102,7 @@ export interface MoveCallTransaction extends TransactionCommon {
   typeArguments: string[] | TypeTag[];
   arguments: (HaneulJsonValue | PureArg)[];
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 export interface RawMoveCall {
@@ -186,6 +191,7 @@ export type SignableTransactionData = SignableTransaction['data'];
 export interface PublishTransaction extends TransactionCommon {
   compiledModules: ArrayLike<string> | ArrayLike<ArrayLike<number>>;
   gasPayment?: ObjectId;
+  gasOwner?: HaneulAddress;
 }
 
 export type TransactionBuilderMode = 'Commit' | 'DevInspect';
