@@ -20,9 +20,11 @@ import type {
 } from '@haneullabs/haneul.js';
 
 const getCoinType = (
-    txEffects: TransactionEffects,
+    txEffects: TransactionEffects | null,
     address: string
 ): string | null => {
+    if (!txEffects) return null;
+
     const events = txEffects?.events || [];
     const coinType = events
         ?.map((event: HaneulEvent) => {
@@ -72,25 +74,22 @@ export function getTransfersAmount(
             : null;
     }
 
-    const payHaneulData =
-        getPayHaneulTransaction(txnData) ?? getPayTransaction(txnData);
+    const payData = getPayHaneulTransaction(txnData) ?? getPayTransaction(txnData);
 
-    const amountByRecipient = payHaneulData?.recipients.reduce(
-        (acc, value, index) => ({
+    const amountByRecipient = payData?.recipients.reduce(
+        (acc, recipient, index) => ({
             ...acc,
-            [value]: {
+            [recipient]: {
                 amount:
-                    payHaneulData.amounts[index] +
-                    (value in acc ? acc[value].amount : 0),
-                coinType: txnEffect
-                    ? getCoinType(
-                          txnEffect,
-                          payHaneulData.recipients[index] ||
-                              payHaneulData.recipients[0]
-                      )
-                    : null,
-                address:
-                    payHaneulData.recipients[index] || payHaneulData.recipients[0],
+                    payData.amounts[index] +
+                    (recipient in acc ? acc[recipient].amount : 0),
+
+                // for PayHaneulTransaction the coinType is HANEUL
+                coinType:
+                    txKindName === 'PayHaneul'
+                        ? HANEUL_TYPE_ARG
+                        : getCoinType(txnEffect || null, recipient),
+                address: recipient,
             },
         }),
         {} as {

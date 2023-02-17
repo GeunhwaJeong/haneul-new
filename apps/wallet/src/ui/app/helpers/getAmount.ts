@@ -7,6 +7,7 @@ import {
     getTransferHaneulTransaction,
     getTransferObjectTransaction,
     getTransactionKindName,
+    HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 
 import type {
@@ -71,23 +72,19 @@ export function getAmount(
         getPayHaneulTransaction(txnData) ?? getPayTransaction(txnData);
 
     const amountByRecipient = payHaneulData?.recipients.reduce(
-        (acc, value, index) => {
+        (acc, recipient, index) => {
+            const coinType =
+                txKindName === 'PayHaneul'
+                    ? HANEUL_TYPE_ARG
+                    : getCoinType(txnEffect, recipient);
             return {
                 ...acc,
-                [value]: {
+                [recipient]: {
                     amount:
                         payHaneulData.amounts[index] +
-                        (value in acc ? acc[value].amount : 0),
-                    coinType: txnEffect
-                        ? getCoinType(
-                              txnEffect,
-                              payHaneulData.recipients[index] ||
-                                  payHaneulData.recipients[0]
-                          )
-                        : null,
-                    recipientAddress:
-                        payHaneulData.recipients[index] ||
-                        payHaneulData.recipients[0],
+                        (recipient in acc ? acc[recipient].amount : 0),
+                    coinType,
+                    recipientAddress: recipient,
                 },
             };
         },
