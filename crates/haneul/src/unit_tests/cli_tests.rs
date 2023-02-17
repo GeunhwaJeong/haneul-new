@@ -596,15 +596,12 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     }
     .execute(context)
     .await?;
-    let mut_obj1 = if let HaneulClientCommandResult::Object(
-        GetObjectDataResponse::Exists(object),
-        false,
-    ) = resp
-    {
-        object
-    } else {
-        panic!()
-    };
+    let mut_obj1 =
+        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
+            object
+        } else {
+            panic!()
+        };
 
     let resp = HaneulClientCommands::Object {
         id: mut_obj2,
@@ -612,15 +609,12 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     }
     .execute(context)
     .await?;
-    let mut_obj2 = if let HaneulClientCommandResult::Object(
-        GetObjectDataResponse::Exists(object),
-        false,
-    ) = resp
-    {
-        object
-    } else {
-        panic!()
-    };
+    let mut_obj2 =
+        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
+            object
+        } else {
+            panic!()
+        };
 
     let (gas, obj) = if mut_obj1.owner.get_owner_address().unwrap() == address {
         (mut_obj1, mut_obj2)
@@ -669,8 +663,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
 #[test]
 // Test for issue https://github.com/GeunhwaJeong/haneul/issues/1078
 fn test_bug_1078() {
-    let read =
-        HaneulClientCommandResult::Object(GetObjectDataResponse::NotExists(ObjectID::random()), false);
+    let read = HaneulClientCommandResult::Object(GetObjectDataResponse::NotExists(ObjectID::random()));
     let mut writer = String::new();
     // fmt ObjectRead should not fail.
     write!(writer, "{}", read).unwrap();

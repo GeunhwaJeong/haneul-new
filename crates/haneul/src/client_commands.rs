@@ -32,7 +32,8 @@ use haneul_types::error::HaneulError;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulTransactionResponse,
+    DynamicFieldPage, GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulRawData,
+    HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
@@ -527,8 +528,13 @@ impl HaneulClientCommands {
             HaneulClientCommands::Object { id, bcs } => {
                 // Fetch the object ref
                 let client = context.get_client().await?;
-                let object_read = client.read_api().get_parsed_object(id).await?;
-                HaneulClientCommandResult::Object(object_read, bcs)
+                if !bcs {
+                    let object_read = client.read_api().get_parsed_object(id).await?;
+                    HaneulClientCommandResult::Object(object_read)
+                } else {
+                    let raw_object_read = client.read_api().get_object(id).await?;
+                    HaneulClientCommandResult::RawObject(raw_object_read)
+                }
             }
 
             HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
@@ -1219,19 +1225,29 @@ impl Display for HaneulClientCommandResult {
                     writeln!(writer, "{}", parsed_resp)?;
                 }
             }
-            HaneulClientCommandResult::Object(object_read, bcs) => {
-                let object = if *bcs {
-                    match object_read.object() {
-                        Ok(v) => {
-                            let bcs_bytes = bcs::to_bytes(v).unwrap();
-                            format!("{:?}\nNumber of bytes: {}", bcs_bytes, bcs_bytes.len())
-                        }
-                        Err(err) => format!("{err}").red().to_string(),
-                    }
-                } else {
-                    unwrap_err_to_string(|| Ok(object_read.object()?))
-                };
+            HaneulClientCommandResult::Object(object_read) => {
+                let object = unwrap_err_to_string(|| Ok(object_read.object()?));
                 writeln!(writer, "{}", object)?;
+            }
+            HaneulClientCommandResult::RawObject(raw_object_read) => {
+                let raw_object = match raw_object_read.object() {
+                    Ok(v) => match &v.data {
+                        HaneulRawData::MoveObject(o) => {
+                            format!("{:?}\nNumber of bytes: {}", o.bcs_bytes, o.bcs_bytes.len())
+                        }
+                        HaneulRawData::Package(p) => {
+                            let mut temp = String::new();
+                            let mut bcs_bytes = 0usize;
+                            for m in &p.module_map {
+                                temp.push_str(&format!("{:?}\n", m));
+                                bcs_bytes += m.1.len()
+                            }
+                            format!("{}Number of bytes: {}", temp, bcs_bytes)
+                        }
+                    },
+                    Err(err) => format!("{err}").red().to_string(),
+                };
+                writeln!(writer, "{}", raw_object)?;
             }
             HaneulClientCommandResult::Call(cert, effects) => {
                 write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
@@ -1499,13 +1515,13 @@ fn write_cert_and_effects(
 impl Debug for HaneulClientCommandResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let s = unwrap_err_to_string(|| match self {
-            HaneulClientCommandResult::Object(object_read, bcs) => {
+            HaneulClientCommandResult::Object(object_read) => {
                 let object = object_read.object()?;
-                if *bcs {
-                    Ok(serde_json::to_string_pretty(&bcs::to_bytes(&object)?)?)
-                } else {
-                    Ok(serde_json::to_string_pretty(&object)?)
-                }
+                Ok(serde_json::to_string_pretty(&object)?)
+            }
+            HaneulClientCommandResult::RawObject(raw_object_read) => {
+                let raw_object = raw_object_read.object()?;
+                Ok(serde_json::to_string_pretty(&raw_object)?)
             }
             _ => Ok(serde_json::to_string_pretty(self)?),
         });
@@ -1541,7 +1557,8 @@ impl HaneulClientCommandResult {
 pub enum HaneulClientCommandResult {
     Publish(HaneulTransactionResponse),
     VerifySource,
-    Object(GetObjectDataResponse, bool),
+    Object(GetObjectDataResponse),
+    RawObject(GetRawObjectDataResponse),
     Call(HaneulCertifiedTransaction, HaneulTransactionEffects),
     Transfer(
         // Skipping serialisation for elapsed time.
