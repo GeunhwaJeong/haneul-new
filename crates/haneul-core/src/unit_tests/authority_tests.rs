@@ -40,7 +40,7 @@ use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, H
 use crate::epoch::epoch_metrics::EpochMetrics;
 use std::{convert::TryInto, env};
 use haneul_macros::sim_test;
-use haneul_protocol_config::ProtocolConfig;
+use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::object::Data;
 use haneul_types::{
@@ -2660,6 +2660,7 @@ async fn test_authority_persist() {
         AuthorityState::new(
             name,
             secrete,
+            SupportedProtocolVersions::SYSTEM_DEFAULT,
             store,
             epoch_store,
             committee_store,

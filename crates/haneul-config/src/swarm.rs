@@ -16,6 +16,7 @@ use serde_with::serde_as;
 use std::net::{IpAddr, SocketAddr};
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
+use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{
     get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair,
@@ -239,6 +240,7 @@ impl<'a> FullnodeConfigBuilder<'a> {
             end_of_epoch_broadcast_channel_capacity:
                 default_end_of_epoch_broadcast_channel_capacity(),
             checkpoint_executor_config: Default::default(),
+            supported_protocol_versions: Some(SupportedProtocolVersions::SYSTEM_DEFAULT),
         })
     }
 }

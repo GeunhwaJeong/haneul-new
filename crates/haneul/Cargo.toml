@@ -35,6 +35,7 @@ haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-source-validation = { path = "../haneul-source-validation" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 
 fastcrypto.workspace = true
 
