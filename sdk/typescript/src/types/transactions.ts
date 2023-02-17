@@ -201,6 +201,8 @@ export const TransactionEffects = object({
   unwrapped: optional(array(OwnedObjectRef)),
   /** Object Refs of objects now deleted (the old refs) */
   deleted: optional(array(HaneulObjectRef)),
+  /** Object Refs of objects now deleted (the old refs) */
+  unwrapped_then_deleted: optional(array(HaneulObjectRef)),
   /** Object refs of objects now wrapped in other objects */
   wrapped: optional(array(HaneulObjectRef)),
   /**

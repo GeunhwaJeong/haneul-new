@@ -1967,6 +1967,9 @@ pub struct HaneulTransactionEffects {
     // Object Refs of objects now deleted (the old refs).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub deleted: Vec<HaneulObjectRef>,
+    /// Object refs of objects previously wrapped in other objects but now deleted.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub unwrapped_then_deleted: Vec<HaneulObjectRef>,
     // Object refs of objects now wrapped in other objects.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub wrapped: Vec<HaneulObjectRef>,
@@ -2001,6 +2004,7 @@ impl HaneulTransactionEffects {
             mutated: to_owned_ref(effect.mutated),
             unwrapped: to_owned_ref(effect.unwrapped),
             deleted: to_haneul_object_ref(effect.deleted),
+            unwrapped_then_deleted: to_haneul_object_ref(effect.unwrapped_then_deleted),
             wrapped: to_haneul_object_ref(effect.wrapped),
             gas_object: OwnedObjectRef {
                 owner: effect.gas_object.1,
