@@ -59,11 +59,9 @@ pub struct SingleTxContext {
 }
 
 impl SingleTxContext {
+    // legacy
     pub fn transfer_haneul(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("transfer_haneul"), sender)
-    }
-    pub fn transfer_object(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("transfer_object"), sender)
     }
     pub fn pay(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("pay"), sender)
@@ -74,12 +72,21 @@ impl SingleTxContext {
     pub fn pay_all_haneul(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("pay_all_haneul"), sender)
     }
+    // programmable transactions
+    pub fn split_coin(sender: HaneulAddress) -> Self {
+        Self::haneul_transaction(ident_str!("split_coin"), sender)
+    }
+    // common to legacy and programmable transactions
+    pub fn transfer_object(sender: HaneulAddress) -> Self {
+        Self::haneul_transaction(ident_str!("transfer_object"), sender)
+    }
     pub fn unused_input(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("unused_input_object"), sender)
     }
     pub fn publish(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("publish"), sender)
     }
+    // system
     pub fn gas(sender: HaneulAddress) -> Self {
         Self::haneul_transaction(ident_str!("gas"), sender)
     }

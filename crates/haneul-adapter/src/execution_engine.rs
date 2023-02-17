@@ -666,7 +666,7 @@ fn pay_haneul<S>(
     let (total_coins, total_amount) = check_total_coins(&coins, &amounts)?;
 
     let mut merged_coin = coins.swap_remove(0);
-    merged_coin.merge_coins(&mut coins);
+    merged_coin.merge_coins(&mut coins)?;
 
     let ctx = SingleTxContext::pay_haneul(tx_ctx.sender());
 
@@ -700,7 +700,7 @@ fn pay_all_haneul<S>(
     let total_coins = coins.iter().fold(0, |acc, c| acc + c.value());
 
     let mut merged_coin = coins.swap_remove(0);
-    merged_coin.merge_coins(&mut coins);
+    merged_coin.merge_coins(&mut coins)?;
     let ctx = SingleTxContext::pay_all_haneul(sender);
     update_input_coins(
         &ctx,
