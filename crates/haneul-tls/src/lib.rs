@@ -7,7 +7,7 @@ mod verifier;
 pub const HANEUL_VALIDATOR_SERVER_NAME: &str = "haneul";
 
 pub use certgen::SelfSignedCertificate;
-pub use verifier::ValidatorCertVerifier;
+pub use verifier::{ValidatorAllowlist, ValidatorCertVerifier};
 
 pub use rustls;
 
