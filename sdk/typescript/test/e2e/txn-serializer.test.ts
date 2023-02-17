@@ -7,16 +7,26 @@ import {
   deserializeTransactionBytesToTransactionData,
   LocalTxnDataSerializer,
   MoveCallTransaction,
+  PayHaneulTx,
   PureArg,
   RawSigner,
   RpcTxnDataSerializer,
   HaneulMoveObject,
   HANEUL_SYSTEM_STATE_OBJECT_ID,
   UnserializedSignableTransaction,
+  getObjectReference,
+  TransactionData,
+  TransactionKind,
+  PayHaneulTransaction,
+  getObjectId,
+  PayAllHaneulTx,
+  PayAllHaneulTransaction,
 } from '../../src';
 import { CallArgSerializer } from '../../src/signers/txn-data-serializers/call-arg-serializer';
 import {
   DEFAULT_GAS_BUDGET,
+  DEFAULT_RECIPIENT,
+  DEFAULT_RECIPIENT_2,
   publishPackage,
   setup,
   TestToolbox,
@@ -191,5 +201,91 @@ describe('Transaction Serialization and deserialization', () => {
       toolbox.provider,
     ).serializeMoveCallArguments(moveCall);
     expect(serArgs).toEqual(serArgsExpected);
+  });
+
+  it('Serialize and deserialize payHaneul', async () => {
+    const gasBudget = 1000;
+    const coins =
+      await toolbox.provider.selectCoinsWithBalanceGreaterThanOrEqual(
+        toolbox.address(),
+        BigInt(DEFAULT_GAS_BUDGET),
+      );
+
+    const payHaneulTx = {
+      PayHaneul: {
+        coins: [getObjectReference(coins[0])],
+        recipients: [DEFAULT_RECIPIENT],
+        amounts: [100],
+      },
+    } as PayHaneulTx;
+
+    const tx_data = {
+      sender: DEFAULT_RECIPIENT_2,
+      gasBudget: gasBudget,
+      gasPrice: 100,
+      kind: { Single: payHaneulTx } as TransactionKind,
+      gasPayment: getObjectReference(coins[1]),
+    } as TransactionData;
+
+    const serializedData = await localSerializer.serializeTransactionData(
+      tx_data,
+    );
+
+    const deserialized =
+      await localSerializer.deserializeTransactionBytesToSignableTransaction(
+        serializedData,
+      );
+
+    const expectedTx = {
+      kind: 'payHaneul',
+      data: {
+        inputCoins: [getObjectId(coins[0]).substring(2)],
+        recipients: [DEFAULT_RECIPIENT.substring(2)],
+        amounts: [BigInt(100)] as unknown as number[],
+      } as PayHaneulTransaction,
+    } as UnserializedSignableTransaction;
+    expect(expectedTx).toEqual(deserialized);
+  });
+
+  it('Serialize and deserialize payAllHaneul', async () => {
+    const gasBudget = 1000;
+    const coins =
+      await toolbox.provider.selectCoinsWithBalanceGreaterThanOrEqual(
+        toolbox.address(),
+        BigInt(DEFAULT_GAS_BUDGET),
+      );
+
+    const payAllHaneul = {
+      PayAllHaneul: {
+        coins: [getObjectReference(coins[0])],
+        recipient: DEFAULT_RECIPIENT,
+      },
+    } as PayAllHaneulTx;
+
+    const tx_data = {
+      sender: DEFAULT_RECIPIENT_2,
+      gasBudget: gasBudget,
+      gasPrice: 100,
+      kind: { Single: payAllHaneul } as TransactionKind,
+      gasPayment: getObjectReference(coins[1]),
+    } as TransactionData;
+
+    const serializedData = await localSerializer.serializeTransactionData(
+      tx_data,
+    );
+
+    const deserialized =
+      await localSerializer.deserializeTransactionBytesToSignableTransaction(
+        serializedData,
+      );
+
+    const expectedTx = {
+      kind: 'payAllHaneul',
+      data: {
+        inputCoins: [getObjectId(coins[0]).substring(2)],
+        recipient: DEFAULT_RECIPIENT.substring(2),
+      } as PayAllHaneulTransaction,
+    } as UnserializedSignableTransaction;
+    expect(expectedTx).toEqual(deserialized);
   });
 });
