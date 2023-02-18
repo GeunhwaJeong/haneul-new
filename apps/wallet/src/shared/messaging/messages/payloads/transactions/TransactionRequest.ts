@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
+    SignedTransaction,
     HaneulMoveNormalizedFunction,
     HaneulTransactionResponse,
     UnserializedSignableTransaction,
@@ -15,6 +16,7 @@ export type TransactionRequest = {
     originFavIcon?: string;
     txResult?: HaneulTransactionResponse;
     txResultError?: string;
+    txSigned?: SignedTransaction;
     metadata?: HaneulMoveNormalizedFunction;
     createdDate: string;
     tx: TransactionDataType;

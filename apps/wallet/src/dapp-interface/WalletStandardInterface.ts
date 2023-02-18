@@ -4,7 +4,10 @@
 import {
     HANEUL_CHAINS,
     ReadonlyWalletAccount,
-    type HaneulSignAndExecuteTransactionFeature,
+    HANEUL_DEVNET_CHAIN,
+    HANEUL_TESTNET_CHAIN,
+    HANEUL_LOCALNET_CHAIN,
+    type HaneulFeatures,
     type HaneulSignAndExecuteTransactionMethod,
     type ConnectFeature,
     type ConnectMethod,
@@ -12,9 +15,7 @@ import {
     type EventsFeature,
     type EventsOnMethod,
     type EventsListeners,
-    HANEUL_DEVNET_CHAIN,
-    HANEUL_TESTNET_CHAIN,
-    HANEUL_LOCALNET_CHAIN,
+    type HaneulSignTransactionMethod,
 } from '@haneullabs/wallet-standard';
 import mitt, { type Emitter } from 'mitt';
 import { filter, map, type Observable } from 'rxjs';
@@ -41,6 +42,8 @@ import type {
     StakeRequest,
     ExecuteTransactionRequest,
     ExecuteTransactionResponse,
+    SignTransactionRequest,
+    SignTransactionResponse,
 } from '_payloads/transactions';
 import type { NetworkEnvType } from '_src/background/NetworkEnv';
 
@@ -95,7 +98,7 @@ export class HaneulWallet implements Wallet {
 
     get features(): ConnectFeature &
         EventsFeature &
-        HaneulSignAndExecuteTransactionFeature &
+        HaneulFeatures &
         HaneulWalletStakeFeature {
         return {
             'standard:connect': {
@@ -105,6 +108,10 @@ export class HaneulWallet implements Wallet {
             'standard:events': {
                 version: '1.0.0',
                 on: this.#on,
+            },
+            'haneul:signTransaction': {
+                version: '1.0.0',
+                signTransaction: this.#signTransaction,
             },
             'haneul:signAndExecuteTransaction': {
                 version: '1.1.0',
@@ -205,6 +212,16 @@ export class HaneulWallet implements Wallet {
         await this.#connected();
 
         return { accounts: this.accounts };
+    };
+
+    #signTransaction: HaneulSignTransactionMethod = async (input) => {
+        return mapToPromise(
+            this.#send<SignTransactionRequest, SignTransactionResponse>({
+                type: 'sign-transaction-request',
+                transaction: input,
+            }),
+            (response) => response.result
+        );
     };
 
     #signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (
