@@ -19,6 +19,7 @@ use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue
 use haneul_json_rpc_types::GetRawObjectDataResponse;
 use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulData, HaneulTypeTag};
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
 use haneul_types::coin::{Coin, LockedCoin};
 use haneul_types::error::HaneulError;
@@ -353,7 +354,11 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .try_as_package()
             .cloned()
             .ok_or_else(|| anyhow!("Object [{}] is not a move package.", package_id))?;
-        let package: MovePackage = MovePackage::new(package.id, &package.module_map)?;
+        let package: MovePackage = MovePackage::new(
+            package.id,
+            &package.module_map,
+            ProtocolConfig::get_for_min_version().max_move_package_size(),
+        )?;
 
         let json_args = resolve_move_function_args(
             &package,

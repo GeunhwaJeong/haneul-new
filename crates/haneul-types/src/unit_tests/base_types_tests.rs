@@ -16,6 +16,7 @@ use crate::crypto::{
     Signature, HaneulAuthoritySignature, HaneulSignature,
 };
 use crate::{gas_coin::GasCoin, object::Object, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_protocol_config::ProtocolConfig;
 
 use super::*;
 
@@ -342,7 +343,12 @@ fn test_move_object_size_for_gas_metering() {
 #[test]
 fn test_move_package_size_for_gas_metering() {
     let module = file_format::empty_module();
-    let package = Object::new_package(vec![module], TransactionDigest::genesis()).unwrap();
+    let package = Object::new_package(
+        vec![module],
+        TransactionDigest::genesis(),
+        ProtocolConfig::get_for_max_version().max_move_package_size(),
+    )
+    .unwrap();
     let size = package.object_size_for_gas_metering();
     let serialized = bcs::to_bytes(&package).unwrap();
     // If the following assertion breaks, it's likely you have changed MovePackage's fields.

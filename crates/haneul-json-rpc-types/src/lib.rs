@@ -571,6 +571,7 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
     type Error = anyhow::Error;
 
     fn try_into(self) -> Result<Object, Self::Error> {
+        let protocol_config = ProtocolConfig::get_for_min_version();
         let data = match self.data {
             HaneulRawData::MoveObject(o) => {
                 let struct_tag = parse_haneul_struct_tag(o.type_())?;
@@ -580,11 +581,15 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
                         o.has_public_transfer,
                         o.version,
                         o.bcs_bytes,
-                        ProtocolConfig::get_for_min_version(),
+                        protocol_config,
                     )?
                 })
             }
-            HaneulRawData::Package(p) => Data::Package(MovePackage::new(p.id, &p.module_map)?),
+            HaneulRawData::Package(p) => Data::Package(MovePackage::new(
+                p.id,
+                &p.module_map,
+                protocol_config.max_move_package_size(),
+            )?),
         };
         Ok(Object {
             data,

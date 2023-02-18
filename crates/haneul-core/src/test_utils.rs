@@ -14,6 +14,7 @@ use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair, AccountKeyPair, AuthorityPublicKeyBytes,
@@ -150,7 +151,12 @@ async fn init_genesis(
         .into_iter()
         .cloned()
         .collect();
-    let pkg = Object::new_package(modules, TransactionDigest::genesis()).unwrap();
+    let pkg = Object::new_package(
+        modules,
+        TransactionDigest::genesis(),
+        ProtocolConfig::get_for_max_version().max_move_package_size(),
+    )
+    .unwrap();
     let pkg_id = pkg.id();
     genesis_objects.push(pkg);
 

@@ -9321,6 +9321,7 @@ dependencies = [
  "haneul-adapter",
  "haneul-json",
  "haneul-json-rpc-types",
+ "haneul-protocol-config",
  "haneul-types",
  "workspace-hack",
 ]
