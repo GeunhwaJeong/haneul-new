@@ -17,12 +17,12 @@ use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    EventPage, MoveCallParams, OwnedObjectRef, RPCTransactionRequestParams,
-    HaneulCertifiedTransaction, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
-    HaneulGasCostSummary, HaneulObject, HaneulObjectInfo, HaneulObjectRead, HaneulObjectRef, HaneulParsedData,
-    HaneulPastObjectRead, HaneulRawData, HaneulRawMoveObject, HaneulTransactionAuthSignersResponse,
-    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes,
-    TransactionsPage, TransferObjectParams,
+    Checkpoint, CheckpointId, EventPage, MoveCallParams, OwnedObjectRef,
+    RPCTransactionRequestParams, HaneulCertifiedTransaction, HaneulData, HaneulEvent, HaneulEventEnvelope,
+    HaneulExecutionStatus, HaneulGasCostSummary, HaneulObject, HaneulObjectInfo, HaneulObjectRead, HaneulObjectRef,
+    HaneulParsedData, HaneulPastObjectRead, HaneulRawData, HaneulRawMoveObject,
+    HaneulTransactionAuthSignersResponse, HaneulTransactionData, HaneulTransactionEffects,
+    HaneulTransactionResponse, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -39,6 +39,7 @@ use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, MoveCall, SingleTransactionKind, TransactionData,
     TransactionKind, TransferObject,
 };
+use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Owner;
 use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionQuery;
@@ -85,6 +86,7 @@ impl RpcExampleProvider {
             self.get_events(),
             self.execute_transaction_example(),
             self.submit_transaction_example(),
+            self.get_checkpoint_example(),
         ]
         .into_iter()
         .map(|example| (example.function_name, example.examples))
@@ -269,6 +271,29 @@ impl RpcExampleProvider {
             vec![ExamplePairing::new(
                 "Get Past Object data",
                 vec![("object_id", json!(object_id)), ("version", json!(4))],
+                json!(result),
+            )],
+        )
+    }
+
+    fn get_checkpoint_example(&mut self) -> Examples {
+        let result = Checkpoint {
+            epoch: 5000,
+            sequence_number: 1000,
+            digest: CheckpointDigest::new(self.rng.gen()),
+            network_total_transactions: 792385,
+            previous_digest: Some(CheckpointDigest::new(self.rng.gen())),
+            epoch_rolling_gas_cost_summary: Default::default(),
+            timestamp_ms: 1676911928,
+            end_of_epoch_data: None,
+            transactions: vec![TransactionDigest::new(self.rng.gen())],
+        };
+
+        Examples::new(
+            "haneul_getCheckpoint",
+            vec![ExamplePairing::new(
+                "Get checkpoint",
+                vec![("id", json!(CheckpointId::SequenceNumber(1000)))],
                 json!(result),
             )],
         )
