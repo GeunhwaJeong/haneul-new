@@ -1,5 +1,16 @@
 # @haneullabs/wallet-kit-core
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [a67cc044b]
+- Updated dependencies [24bdb66c6]
+- Updated dependencies [a67cc044b]
+- Updated dependencies [a67cc044b]
+  - @haneullabs/haneul.js@0.28.0
+  - @haneullabs/wallet-adapter-base@0.6.1
+
 ## 0.3.0
 
 ### Minor Changes
