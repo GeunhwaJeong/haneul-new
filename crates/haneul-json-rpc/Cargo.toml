@@ -52,3 +52,4 @@ haneul-sdk = { path = "../haneul-sdk" }
 rand = "0.8.5"
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
+reqwest = { version = "0.11.13", default_features = false, features = ["rustls-tls"] }
