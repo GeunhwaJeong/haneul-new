@@ -1,11 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    Coin as CoinAPI,
-    getTransactionEffects,
-    HANEUL_TYPE_ARG,
-} from '@haneullabs/haneul.js';
+import { Coin as CoinAPI, getTransactionEffects } from '@haneullabs/haneul.js';
+import * as Sentry from '@sentry/react';
 
 import type {
     ObjectId,
@@ -95,26 +92,38 @@ export class Coin {
         validator: HaneulAddress,
         gasPrice: number
     ): Promise<HaneulExecuteTransactionResponse> {
+        const transaction = Sentry.startTransaction({ name: 'stake' });
         const stakeCoin = await this.coinManageForStake(
             signer,
             coins,
             amount,
-            BigInt(gasPrice * DEFAULT_GAS_BUDGET_FOR_STAKE)
+            BigInt(gasPrice * DEFAULT_GAS_BUDGET_FOR_STAKE),
+            transaction
         );
 
-        return await signer.executeMoveCall({
-            packageObjectId: '0x2',
-            module: 'haneul_system',
-            function: 'request_add_delegation_mul_coin',
-            typeArguments: [],
-            arguments: [
-                HANEUL_SYSTEM_STATE_OBJECT_ID,
-                [stakeCoin],
-                [String(amount)],
-                validator,
-            ],
-            gasBudget: DEFAULT_GAS_BUDGET_FOR_STAKE,
+        const span = transaction.startChild({
+            op: 'request-add-delegation',
+            description: 'Staking move call',
         });
+
+        try {
+            return await signer.executeMoveCall({
+                packageObjectId: '0x2',
+                module: 'haneul_system',
+                function: 'request_add_delegation_mul_coin',
+                typeArguments: [],
+                arguments: [
+                    HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    [stakeCoin],
+                    [String(amount)],
+                    validator,
+                ],
+                gasBudget: DEFAULT_GAS_BUDGET_FOR_STAKE,
+            });
+        } finally {
+            span.finish();
+            transaction.finish();
+        }
     }
 
     public static async unStakeCoin(
@@ -122,80 +131,23 @@ export class Coin {
         delegation: ObjectId,
         stakedHaneulId: ObjectId
     ): Promise<HaneulExecuteTransactionResponse> {
-        const txn = {
-            packageObjectId: '0x2',
-            module: 'haneul_system',
-            function: 'request_withdraw_delegation',
-            typeArguments: [],
-            arguments: [HANEUL_SYSTEM_STATE_OBJECT_ID, delegation, stakedHaneulId],
-            gasBudget: DEFAULT_GAS_BUDGET_FOR_STAKE,
-        };
-        return signer.executeMoveCall(txn);
-    }
-
-    private static async requestHaneulCoinWithExactAmount(
-        signer: SignerWithProvider,
-        coins: HaneulMoveObject[],
-        amount: bigint
-    ): Promise<ObjectId> {
-        const coinWithExactAmount = await Coin.selectHaneulCoinWithExactAmount(
-            signer,
-            coins,
-            amount
-        );
-        if (coinWithExactAmount) {
-            return coinWithExactAmount;
+        const transaction = Sentry.startTransaction({ name: 'unstake' });
+        try {
+            return await signer.executeMoveCall({
+                packageObjectId: '0x2',
+                module: 'haneul_system',
+                function: 'request_withdraw_delegation',
+                typeArguments: [],
+                arguments: [
+                    HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    delegation,
+                    stakedHaneulId,
+                ],
+                gasBudget: DEFAULT_GAS_BUDGET_FOR_STAKE,
+            });
+        } finally {
+            transaction.finish();
         }
-        // use transferHaneul API to get a coin with the exact amount
-        await signer.signAndExecuteTransaction(
-            await CoinAPI.newPayTransaction(
-                coins,
-                HANEUL_TYPE_ARG,
-                amount,
-                await signer.getAddress(),
-                Coin.computeGasBudgetForPay(coins, amount)
-            )
-        );
-
-        const coinWithExactAmount2 = await Coin.selectHaneulCoinWithExactAmount(
-            signer,
-            coins,
-            amount,
-            true
-        );
-        if (!coinWithExactAmount2) {
-            throw new Error(`requestCoinWithExactAmount failed unexpectedly`);
-        }
-        return coinWithExactAmount2;
-    }
-
-    private static async selectHaneulCoinWithExactAmount(
-        signer: SignerWithProvider,
-        coins: HaneulMoveObject[],
-        amount: bigint,
-        refreshData = false
-    ): Promise<ObjectId | undefined> {
-        const coinsWithSufficientAmount = refreshData
-            ? await signer.provider.selectCoinsWithBalanceGreaterThanOrEqual(
-                  await signer.getAddress(),
-                  amount,
-                  HANEUL_TYPE_ARG,
-                  []
-              )
-            : await CoinAPI.selectCoinsWithBalanceGreaterThanOrEqual(
-                  coins,
-                  amount
-              );
-
-        if (
-            coinsWithSufficientAmount.length > 0 &&
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            CoinAPI.getBalance(coinsWithSufficientAmount[0])! === amount
-        ) {
-            return CoinAPI.getID(coinsWithSufficientAmount[0]);
-        }
-
-        return undefined;
     }
 
     public static async getActiveValidators(
@@ -213,48 +165,58 @@ export class Coin {
         signer: SignerWithProvider,
         coins: HaneulMoveObject[],
         amount: bigint,
-        gasFee: bigint
+        gasFee: bigint,
+        transaction: ReturnType<typeof Sentry['startTransaction']>
     ) {
-        const totalAmount = amount + gasFee;
-        const gasBudget = Coin.computeGasBudgetForPay(coins, totalAmount);
-        const inputCoins =
-            CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-                coins,
-                totalAmount + BigInt(gasBudget)
-            );
-
-        const address = await signer.getAddress();
-
-        const result = await signer.payHaneul({
-            // NOTE: We reverse the order here so that the highest coin is in the front
-            // so that it is used as the gas coin.
-            inputCoins: [...inputCoins]
-                .reverse()
-                .map((coin) => Coin.getID(coin as HaneulMoveObject)),
-            recipients: [address, address],
-            // TODO: Update SDK to accept bigint
-            amounts: [Number(amount), Number(gasFee)],
-            gasBudget,
+        const span = transaction.startChild({
+            op: 'coin-manage',
+            description: 'Coin management for staking',
         });
 
-        const effects = getTransactionEffects(result);
+        try {
+            const totalAmount = amount + gasFee;
+            const gasBudget = Coin.computeGasBudgetForPay(coins, totalAmount);
+            const inputCoins =
+                CoinAPI.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
+                    coins,
+                    totalAmount + BigInt(gasBudget)
+                );
 
-        if (!effects || !effects.events) {
-            throw new Error('Missing effects or events');
-        }
+            const address = await signer.getAddress();
 
-        const changeEvent = effects.events.find((event) => {
-            if ('coinBalanceChange' in event) {
-                return event.coinBalanceChange.amount === Number(amount);
+            const result = await signer.payHaneul({
+                // NOTE: We reverse the order here so that the highest coin is in the front
+                // so that it is used as the gas coin.
+                inputCoins: [...inputCoins]
+                    .reverse()
+                    .map((coin) => Coin.getID(coin as HaneulMoveObject)),
+                recipients: [address, address],
+                // TODO: Update SDK to accept bigint
+                amounts: [Number(amount), Number(gasFee)],
+                gasBudget,
+            });
+
+            const effects = getTransactionEffects(result);
+
+            if (!effects || !effects.events) {
+                throw new Error('Missing effects or events');
             }
 
-            return false;
-        });
+            const changeEvent = effects.events.find((event) => {
+                if ('coinBalanceChange' in event) {
+                    return event.coinBalanceChange.amount === Number(amount);
+                }
 
-        if (!changeEvent || !('coinBalanceChange' in changeEvent)) {
-            throw new Error('Missing coin balance event');
+                return false;
+            });
+
+            if (!changeEvent || !('coinBalanceChange' in changeEvent)) {
+                throw new Error('Missing coin balance event');
+            }
+
+            return changeEvent.coinBalanceChange.coinObjectId;
+        } finally {
+            span.finish();
         }
-
-        return changeEvent.coinBalanceChange.coinObjectId;
     }
 }
