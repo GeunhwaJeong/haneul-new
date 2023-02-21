@@ -8381,6 +8381,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-keys",
  "haneul-macros",
+ "haneul-move",
  "haneul-node",
  "haneul-protocol-config",
  "haneul-sdk",
@@ -8917,6 +8918,48 @@ version = "0.7.0"
 dependencies = [
  "once_cell",
  "haneul-proc-macros",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-move"
+version = "0.27.0"
+dependencies = [
+ "anyhow",
+ "assert_cmd",
+ "clap 3.2.23",
+ "colored",
+ "const-str",
+ "fastcrypto",
+ "futures",
+ "git-version",
+ "jemalloc-ctl",
+ "jsonrpsee",
+ "move-cli",
+ "move-core-types",
+ "move-package",
+ "move-prover",
+ "move-prover-boogie-backend",
+ "move-stackless-bytecode",
+ "move-unit-test",
+ "haneullabs-metrics",
+ "prometheus",
+ "rand 0.8.5",
+ "serde 1.0.152",
+ "serde_json",
+ "serde_yaml",
+ "haneul-core",
+ "haneul-framework",
+ "haneul-framework-build",
+ "haneul-macros",
+ "haneul-node",
+ "haneul-simulator",
+ "haneul-types",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-utils",
+ "tokio",
+ "tracing",
  "workspace-hack",
 ]
 
