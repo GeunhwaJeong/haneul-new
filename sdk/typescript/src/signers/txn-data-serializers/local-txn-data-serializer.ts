@@ -181,13 +181,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
         break;
       case 'moveCall':
         const moveCall = unserializedTxn.data as MoveCallTransaction;
-        const api = await this.provider.getRpcApiVersion();
-
-        // TODO: remove after 0.24.0 is deployed for devnet and testnet
-        const pkg =
-          api?.major === 0 && api?.minor < 24
-            ? (await this.provider.getObjectRef(moveCall.packageObjectId))!
-            : normalizeHaneulObjectId(moveCall.packageObjectId);
+        const pkg = normalizeHaneulObjectId(moveCall.packageObjectId);
 
         tx = {
           Call: {
