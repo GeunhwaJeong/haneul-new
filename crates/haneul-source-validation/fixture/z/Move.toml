@@ -1,0 +1,6 @@
+[package]
+name = "z"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "$REPO_ROOT/crates/haneul-framework" }
