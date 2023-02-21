@@ -18,6 +18,8 @@ chrono = { version = "0.4.23", features = [
 clap = { version = "3.2.17", features = ["derive"] }
 diesel = { version = "2.0.0", features = ["chrono", "postgres", "r2d2", "serde_json"] }
 futures = "0.3.23"
+jsonrpsee = { version = "0.16.2", features = ["full"] }
+jsonrpsee-proc-macros = "0.16.2"
 serde = { version = "1.0.144", features = ["derive"] }
 prometheus = "0.13.3"
 serde_json = "1.0.83"
@@ -25,16 +27,19 @@ thiserror = "1.0.34"
 tracing = "0.1.36"
 tokio = { workspace = true, features = ["full"] }
 
+haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-network = { path = "../../narwhal/network" }
-haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
-haneul-types = { path = "../haneul-types" }
+haneul-core = { path = "../haneul-core" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
-haneul-node = { path = "../haneul-node" }
 haneul-keys = { path = "../haneul-keys" }
+haneul-node = { path = "../haneul-node" }
+haneul-open-rpc = { path = "../haneul-open-rpc" }
+haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-sdk = { path = "../haneul-sdk" }
+haneul-types = { path = "../haneul-types" }
 telemetry-subscribers.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
