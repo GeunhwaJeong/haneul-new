@@ -52,6 +52,7 @@ jobs:
           echo BIN_HANEUL_NODE="target/release/haneul-node" >> $GITHUB_OUTPUT
           echo BIN_HANEUL_TOOL="target/release/haneul-tool" >> $GITHUB_OUTPUT
           echo BIN_HANEUL_FAUCET="target/release/haneul-faucet" >> $GITHUB_OUTPUT
+          echo BIN_HANEUL_TEST_VALIDATOR="target/release/haneul-test-validator" >> $GITHUB_OUTPUT
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v3
@@ -62,6 +63,7 @@ jobs:
             ${{ steps.build.outputs.BIN_HANEUL_NODE }}
             ${{ steps.build.outputs.BIN_HANEUL_TOOL }}
             ${{ steps.build.outputs.BIN_HANEUL_FAUCET }}
+            ${{ steps.build.outputs.BIN_HANEUL_TEST_VALIDATOR }}
 
       - name: Publish binaries
         uses: softprops/action-gh-release@v1
@@ -72,5 +74,6 @@ jobs:
             ${{ steps.build.outputs.BIN_HANEUL_NODE }}
             ${{ steps.build.outputs.BIN_HANEUL_TOOL }}
             ${{ steps.build.outputs.BIN_HANEUL_FAUCET }}
+            ${{ steps.build.outputs.BIN_HANEUL_TEST_VALIDATOR }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
