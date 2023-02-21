@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::{ConsensusConfig, NodeConfig};
-use haneul_core::authority_aggregator::{AuthorityAggregator, NetworkTransactionCertifier};
+use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_server::ValidatorService;
 use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::epoch::committee_store::CommitteeStore;
@@ -621,7 +621,6 @@ impl HaneulNode {
             accumulator,
             checkpoint_output,
             Box::new(certified_checkpoint_output),
-            Box::<NetworkTransactionCertifier>::default(),
             checkpoint_metrics,
             max_tx_per_checkpoint,
         )

@@ -147,9 +147,9 @@ impl ReadApiServer for ReadApi {
         &self,
         digest: TransactionDigest,
     ) -> RpcResult<HaneulTransactionResponse> {
-        let (cert, effects) = self
+        let (transaction, effects) = self
             .state
-            .get_transaction(digest)
+            .get_transaction_and_effects(digest)
             .await
             .tap_err(|err| debug!(tx_digest=?digest, "Failed to get transaction: {:?}", err))?;
         let checkpoint = self
@@ -158,7 +158,7 @@ impl ReadApiServer for ReadApi {
             .get_transaction_checkpoint(&digest)
             .map_err(|e| anyhow!("{e}"))?;
         Ok(HaneulTransactionResponse {
-            transaction: cert.data().clone().try_into()?,
+            transaction: transaction.into_message().try_into()?,
             effects: HaneulTransactionEffects::try_from(effects, self.state.module_cache.as_ref())?,
             timestamp_ms: self.state.get_timestamp_ms(&digest).await?,
             confirmed_local_execution: None,
