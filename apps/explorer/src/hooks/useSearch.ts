@@ -9,6 +9,7 @@ import {
     is,
     HaneulObject,
     type JsonRpcProvider,
+    getTransactionDigest,
 } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
@@ -31,8 +32,8 @@ const getResultsForTransaction = async (
         label: 'transaction',
         results: [
             {
-                id: txdata.certificate.transactionDigest,
-                label: txdata.certificate.transactionDigest,
+                id: getTransactionDigest(txdata),
+                label: getTransactionDigest(txdata),
                 type: 'transaction',
             },
         ],

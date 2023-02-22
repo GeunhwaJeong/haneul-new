@@ -12,9 +12,7 @@ use jsonrpsee::{core::client::ClientT, http_client::HttpClientBuilder};
 use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul_faucet::CoinInfo;
-use haneul_json_rpc_types::{
-    HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects, TransactionBytes,
-};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionResponse, TransactionBytes};
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
@@ -128,7 +126,7 @@ impl TestContext {
         &self,
         txn_data: TransactionData,
         desc: &str,
-    ) -> (HaneulCertifiedTransaction, HaneulTransactionEffects) {
+    ) -> HaneulTransactionResponse {
         let signature = self.get_context().sign(&txn_data, desc);
         let resp = self
             .get_fullnode_client()
@@ -141,9 +139,8 @@ impl TestContext {
             )
             .await
             .unwrap_or_else(|e| panic!("Failed to execute transaction for {}. {}", desc, e));
-        let (tx_cert, effects) = (resp.tx_cert.unwrap(), resp.effects.unwrap());
-        assert!(matches!(effects.status, HaneulExecutionStatus::Success));
-        (tx_cert, effects)
+        assert!(matches!(resp.effects.status, HaneulExecutionStatus::Success));
+        resp
     }
 
     pub async fn setup(options: ClusterTestOpt) -> Result<Self, anyhow::Error> {

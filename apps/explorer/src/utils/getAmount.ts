@@ -145,9 +145,9 @@ export function getAmount({
     txnData: HaneulTransactionResponse;
     haneulCoinOnly?: boolean;
 }) {
-    const { effects, certificate } = txnData;
-    const txnDetails = getTransactions(certificate)[0];
-    const sender = getTransactionSender(certificate);
+    const { effects } = txnData;
+    const txnDetails = getTransactions(txnData)[0];
+    const sender = getTransactionSender(txnData);
     const haneulTransfer = getTransfersAmount(txnDetails, effects);
     const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(effects, sender);
     const transfers = haneulTransfer || coinBalanceChange;

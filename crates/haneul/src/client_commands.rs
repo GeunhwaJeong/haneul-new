@@ -31,15 +31,14 @@ use haneul_types::error::HaneulError;
 
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_json_rpc_types::{
     DynamicFieldPage, GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulRawData,
     HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
-use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulExecutionStatus, HaneulTransactionEffects};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::HaneulClient;
-use haneul_sdk::TransactionExecutionResult;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::intent::Intent;
 use haneul_types::signature::GenericSignature;
@@ -556,11 +555,11 @@ impl HaneulClientCommands {
                 gas_budget,
                 args,
             } => {
-                let (cert, effects) = call_move(
+                let response = call_move(
                     package, &module, &function, type_args, gas, gas_budget, args, context,
                 )
                 .await?;
-                HaneulClientCommandResult::Call(cert, effects)
+                HaneulClientCommandResult::Call(response)
             }
 
             HaneulClientCommands::Transfer {
@@ -588,14 +587,12 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let cert = response.certificate;
-                let effects = response.effects;
-
+                let effects = &response.effects;
                 let time_total = time_start.elapsed().as_micros();
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring object: {:#?}", effects.status));
                 }
-                HaneulClientCommandResult::Transfer(time_total, cert, effects)
+                HaneulClientCommandResult::Transfer(time_total, response)
             }
 
             HaneulClientCommands::TransferHaneul {
@@ -622,13 +619,11 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let cert = response.certificate;
-                let effects = response.effects;
-
+                let effects = &response.effects;
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status));
                 }
-                HaneulClientCommandResult::TransferHaneul(cert, effects)
+                HaneulClientCommandResult::TransferHaneul(response)
             }
 
             HaneulClientCommands::Pay {
@@ -671,15 +666,14 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let cert = response.certificate;
-                let effects = response.effects;
+                let effects = &response.effects;
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing Pay transaction: {:#?}",
                         effects.status
                     ));
                 }
-                HaneulClientCommandResult::Pay(cert, effects)
+                HaneulClientCommandResult::Pay(response)
             }
 
             HaneulClientCommands::PayHaneul {
@@ -721,16 +715,14 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-
-                let cert = response.certificate;
-                let effects = response.effects;
+                let effects = &response.effects;
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayHaneul transaction: {:#?}",
                         effects.status
                     ));
                 }
-                HaneulClientCommandResult::PayHaneul(cert, effects)
+                HaneulClientCommandResult::PayHaneul(response)
             }
 
             HaneulClientCommands::PayAllHaneul {
@@ -760,16 +752,14 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-
-                let cert = response.certificate;
-                let effects = response.effects;
+                let effects = &response.effects;
                 if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayAllHaneul transaction: {:#?}",
                         effects.status
                     ));
                 }
-                HaneulClientCommandResult::PayAllHaneul(cert, effects)
+                HaneulClientCommandResult::PayAllHaneul(response)
             }
 
             HaneulClientCommands::Addresses => HaneulClientCommandResult::Addresses(
@@ -911,7 +901,7 @@ impl HaneulClientCommands {
                 for a in args_json.as_array().unwrap() {
                     args.push(HaneulJsonValue::new(a.clone()).unwrap());
                 }
-                let (_, effects) = call_move(
+                let response = call_move(
                     ObjectID::from(HANEUL_FRAMEWORK_ADDRESS),
                     "devnet_nft",
                     "mint",
@@ -922,7 +912,8 @@ impl HaneulClientCommands {
                     context,
                 )
                 .await?;
-                let nft_id = effects
+                let nft_id = response
+                    .effects
                     .created
                     .first()
                     .ok_or_else(|| anyhow!("Failed to create NFT"))?
@@ -1196,35 +1187,14 @@ impl WalletContext {
         &self,
         tx: VerifiedTransaction,
     ) -> anyhow::Result<HaneulTransactionResponse> {
-        let tx_digest = *tx.digest();
-
         let client = self.get_client().await?;
-        let result = client
+        Ok(client
             .quorum_driver()
             .execute_transaction(
                 tx,
                 Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
             )
-            .await;
-        match result {
-            Ok(TransactionExecutionResult {
-                tx_digest: _,
-                tx_cert,
-                effects,
-                confirmed_local_execution: _,
-                timestamp_ms,
-                parsed_data,
-            }) => Ok(HaneulTransactionResponse {
-                certificate: tx_cert.unwrap(), // check is done in execute_transaction, safe to unwrap
-                effects: effects.unwrap(), // check is done in execute_transaction, safe to unwrap
-                timestamp_ms,
-                checkpoint: None,
-                parsed_data,
-            }),
-            Err(err) => Err(anyhow!(
-                "Failed to execute transaction {tx_digest:?} with error {err:?}"
-            )),
-        }
+            .await?)
     }
 }
 
@@ -1233,14 +1203,7 @@ impl Display for HaneulClientCommandResult {
         let mut writer = String::new();
         match self {
             HaneulClientCommandResult::Publish(response) => {
-                write!(
-                    writer,
-                    "{}",
-                    write_cert_and_effects(&response.certificate, &response.effects)?
-                )?;
-                if let Some(parsed_resp) = &response.parsed_data {
-                    writeln!(writer, "{}", parsed_resp)?;
-                }
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
             HaneulClientCommandResult::Object(object_read) => {
                 let object = unwrap_err_to_string(|| Ok(object_read.object()?));
@@ -1266,24 +1229,24 @@ impl Display for HaneulClientCommandResult {
                 };
                 writeln!(writer, "{}", raw_object)?;
             }
-            HaneulClientCommandResult::Call(cert, effects) => {
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            HaneulClientCommandResult::Call(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::Transfer(time_elapsed, cert, effects) => {
+            HaneulClientCommandResult::Transfer(time_elapsed, response) => {
                 writeln!(writer, "Transfer confirmed after {} us", time_elapsed)?;
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::TransferHaneul(cert, effects) => {
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            HaneulClientCommandResult::TransferHaneul(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::Pay(cert, effects) => {
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            HaneulClientCommandResult::Pay(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::PayHaneul(cert, effects) => {
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            HaneulClientCommandResult::PayHaneul(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::PayAllHaneul(cert, effects) => {
-                write!(writer, "{}", write_cert_and_effects(cert, effects)?)?;
+            HaneulClientCommandResult::PayAllHaneul(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
             HaneulClientCommandResult::Addresses(addresses, active_address) => {
                 writeln!(writer, "Showing {} results.", addresses.len())?;
@@ -1374,24 +1337,10 @@ impl Display for HaneulClientCommandResult {
                 }
             }
             HaneulClientCommandResult::SplitCoin(response) => {
-                write!(
-                    writer,
-                    "{}",
-                    write_cert_and_effects(&response.certificate, &response.effects)?
-                )?;
-                if let Some(parsed_resp) = &response.parsed_data {
-                    writeln!(writer, "{}", parsed_resp)?;
-                }
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
             HaneulClientCommandResult::MergeCoin(response) => {
-                write!(
-                    writer,
-                    "{}",
-                    write_cert_and_effects(&response.certificate, &response.effects)?
-                )?;
-                if let Some(parsed_resp) = &response.parsed_data {
-                    writeln!(writer, "{}", parsed_resp)?;
-                }
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
             HaneulClientCommandResult::Switch(response) => {
                 write!(writer, "{}", response)?;
@@ -1409,14 +1358,7 @@ impl Display for HaneulClientCommandResult {
                 writeln!(writer, "{}", object)?;
             }
             HaneulClientCommandResult::ExecuteSignedTx(response) => {
-                write!(
-                    writer,
-                    "{}",
-                    write_cert_and_effects(&response.certificate, &response.effects)?
-                )?;
-                if let Some(parsed_resp) = &response.parsed_data {
-                    writeln!(writer, "{}", parsed_resp)?;
-                }
+                write!(writer, "{}", write_transaction_response(response)?)?;
             }
             HaneulClientCommandResult::SerializeTransferHaneul(data_to_sign, data_to_execute) => {
                 writeln!(writer, "Intent message to sign: {}", data_to_sign)?;
@@ -1454,7 +1396,7 @@ pub async fn call_move(
     gas_budget: u64,
     args: Vec<HaneulJsonValue>,
     context: &mut WalletContext,
-) -> Result<(HaneulCertifiedTransaction, HaneulTransactionEffects), anyhow::Error> {
+) -> Result<HaneulTransactionResponse, anyhow::Error> {
     // Convert all numeric input to String, this will allow number input from the CLI without failing HaneulJSON's checks.
     let args = args
         .into_iter()
@@ -1488,13 +1430,11 @@ pub async fn call_move(
     let transaction = Transaction::from_data(data, Intent::default(), vec![signature]).verify()?;
 
     let response = context.execute_transaction(transaction).await?;
-    let cert = response.certificate;
-    let effects = response.effects;
-
+    let effects = &response.effects;
     if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
         return Err(anyhow!("Error calling module: {:#?}", effects.status));
     }
-    Ok((cert, effects))
+    Ok(response)
 }
 
 fn convert_number_to_string(value: Value) -> Value {
@@ -1517,15 +1457,12 @@ fn unwrap_or<'a>(val: &'a Option<String>, default: &'a str) -> &'a str {
     }
 }
 
-fn write_cert_and_effects(
-    cert: &HaneulCertifiedTransaction,
-    effects: &HaneulTransactionEffects,
-) -> Result<String, fmt::Error> {
+fn write_transaction_response(response: &HaneulTransactionResponse) -> Result<String, fmt::Error> {
     let mut writer = String::new();
-    writeln!(writer, "{}", "----- Certificate ----".bold())?;
-    write!(writer, "{}", cert)?;
+    writeln!(writer, "{}", "----- Transaction Data ----".bold())?;
+    write!(writer, "{}", response.transaction)?;
     writeln!(writer, "{}", "----- Transaction Effects ----".bold())?;
-    write!(writer, "{}", effects)?;
+    write!(writer, "{}", response.effects)?;
     Ok(writer)
 }
 
@@ -1576,17 +1513,16 @@ pub enum HaneulClientCommandResult {
     VerifySource,
     Object(GetObjectDataResponse),
     RawObject(GetRawObjectDataResponse),
-    Call(HaneulCertifiedTransaction, HaneulTransactionEffects),
+    Call(HaneulTransactionResponse),
     Transfer(
         // Skipping serialisation for elapsed time.
         #[serde(skip)] u128,
-        HaneulCertifiedTransaction,
-        HaneulTransactionEffects,
+        HaneulTransactionResponse,
     ),
-    TransferHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
-    Pay(HaneulCertifiedTransaction, HaneulTransactionEffects),
-    PayHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
-    PayAllHaneul(HaneulCertifiedTransaction, HaneulTransactionEffects),
+    TransferHaneul(HaneulTransactionResponse),
+    Pay(HaneulTransactionResponse),
+    PayHaneul(HaneulTransactionResponse),
+    PayAllHaneul(HaneulTransactionResponse),
     Addresses(Vec<HaneulAddress>, Option<HaneulAddress>),
     Objects(Vec<HaneulObjectInfo>),
     DynamicFieldQuery(DynamicFieldPage),

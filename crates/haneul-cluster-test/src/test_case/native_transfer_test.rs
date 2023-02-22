@@ -7,7 +7,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use jsonrpsee::rpc_params;
-use haneul_json_rpc_types::{HaneulCertifiedTransaction, HaneulTransactionEffects};
+use haneul_json_rpc_types::HaneulTransactionResponse;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
@@ -47,12 +47,11 @@ impl TestCaseImpl for NativeTransferTest {
         let data = ctx
             .build_transaction_remotely("haneul_transferObject", params)
             .await?;
-        let (tx_cert, effects) = ctx.sign_and_execute(data, "coin transfer").await;
+        let mut response = ctx.sign_and_execute(data, "coin transfer").await;
 
         Self::examine_response(
             ctx,
-            tx_cert,
-            effects,
+            &mut response,
             signer,
             recipient_addr,
             obj_to_transfer,
@@ -66,12 +65,11 @@ impl TestCaseImpl for NativeTransferTest {
         let data = ctx
             .build_transaction_remotely("haneul_transferHaneul", params)
             .await?;
-        let (tx_cert, effects) = ctx.sign_and_execute(data, "coin transfer").await;
+        let mut response = ctx.sign_and_execute(data, "coin transfer").await;
 
         Self::examine_response(
             ctx,
-            tx_cert,
-            effects,
+            &mut response,
             signer,
             recipient_addr,
             obj_to_transfer,
@@ -85,14 +83,13 @@ impl TestCaseImpl for NativeTransferTest {
 impl NativeTransferTest {
     async fn examine_response(
         ctx: &TestContext,
-        tx_cert: HaneulCertifiedTransaction,
-        mut effects: HaneulTransactionEffects,
+        response: &mut HaneulTransactionResponse,
         signer: HaneulAddress,
         recipient: HaneulAddress,
         obj_to_transfer_id: ObjectID,
         method: &str,
     ) {
-        let events = &mut effects.events;
+        let events = &mut response.effects.events;
         assert_eq!(
             events.len(),
             3,
@@ -124,7 +121,7 @@ impl NativeTransferTest {
             .check(&events.remove(0));
 
         // Verify fullnode observes the txn
-        ctx.let_fullnode_sync(vec![tx_cert.transaction_digest], 5)
+        ctx.let_fullnode_sync(vec![response.effects.transaction_digest], 5)
             .await;
 
         let _ = ObjectChecker::new(obj_to_transfer_id)

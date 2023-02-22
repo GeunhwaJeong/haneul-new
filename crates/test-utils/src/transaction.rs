@@ -11,9 +11,7 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{compile_basics_package, wait_for_all_txes, wait_for_tx};
-use haneul_json_rpc_types::HaneulCertifiedTransaction;
-use haneul_json_rpc_types::HaneulObjectRead;
-use haneul_json_rpc_types::HaneulTransactionEffects;
+use haneul_json_rpc_types::{HaneulObjectRead, HaneulTransactionResponse};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
@@ -118,9 +116,8 @@ pub async fn publish_package_with_wallet(
         .await
         .unwrap();
 
-    assert!(resp.confirmed_local_execution);
+    assert!(resp.confirmed_local_execution.unwrap());
     resp.effects
-        .unwrap()
         .created
         .iter()
         .find(|obj_ref| obj_ref.owner == Owner::Immutable)
@@ -138,7 +135,7 @@ pub async fn submit_move_transaction(
     arguments: Vec<HaneulJsonValue>,
     sender: HaneulAddress,
     gas_object: Option<ObjectID>,
-) -> (HaneulCertifiedTransaction, HaneulTransactionEffects) {
+) -> HaneulTransactionResponse {
     debug!(?package_id, ?arguments, "move_transaction");
     let client = context.get_client().await.unwrap();
     let data = client
@@ -176,8 +173,8 @@ pub async fn submit_move_transaction(
         )
         .await
         .unwrap();
-    assert!(resp.confirmed_local_execution);
-    (resp.tx_cert.unwrap(), resp.effects.unwrap())
+    assert!(resp.confirmed_local_execution.unwrap());
+    resp
 }
 
 /// A helper function to publish the basics package and make counter objects
@@ -189,7 +186,7 @@ pub async fn publish_basics_package_and_make_counter(
 
     debug!(?package_ref);
 
-    let (_tx_cert, effects) = submit_move_transaction(
+    let response = submit_move_transaction(
         context,
         "counter",
         "create",
@@ -200,7 +197,8 @@ pub async fn publish_basics_package_and_make_counter(
     )
     .await;
 
-    let counter_ref = effects
+    let counter_ref = response
+        .effects
         .created
         .iter()
         .find(|obj_ref| matches!(obj_ref.owner, Owner::Shared { .. }))
@@ -217,7 +215,7 @@ pub async fn increment_counter(
     gas_object: Option<ObjectID>,
     package_id: ObjectID,
     counter_id: ObjectID,
-) -> (HaneulCertifiedTransaction, HaneulTransactionEffects) {
+) -> HaneulTransactionResponse {
     submit_move_transaction(
         context,
         "counter",
@@ -284,8 +282,8 @@ pub async fn transfer_haneul(
     .execute(context)
     .await?;
 
-    let digest = if let HaneulClientCommandResult::TransferHaneul(tx_cert, _effects) = res {
-        tx_cert.transaction_digest
+    let digest = if let HaneulClientCommandResult::TransferHaneul(response) = res {
+        response.effects.transaction_digest
     } else {
         panic!("transfer command did not return WalletCommandResult::TransferHaneul");
     };
@@ -329,12 +327,12 @@ pub async fn transfer_coin(
     .execute(context)
     .await?;
 
-    let (digest, gas, gas_used) = if let HaneulClientCommandResult::Transfer(_, cert, effect) = res {
+    let (digest, gas, gas_used) = if let HaneulClientCommandResult::Transfer(_, response) = res {
         (
-            cert.transaction_digest,
-            cert.data.gas_data.payment,
-            effect.gas_used.computation_cost + effect.gas_used.storage_cost
-                - effect.gas_used.storage_rebate,
+            response.effects.transaction_digest,
+            response.transaction.data.gas_data.payment,
+            response.effects.gas_used.computation_cost + response.effects.gas_used.storage_cost
+                - response.effects.gas_used.storage_rebate,
         )
     } else {
         panic!("transfer command did not return WalletCommandResult::Transfer");
@@ -367,7 +365,7 @@ pub async fn delete_devnet_nft(
     context: &mut WalletContext,
     sender: &HaneulAddress,
     nft_to_delete: ObjectRef,
-) -> (HaneulCertifiedTransaction, HaneulTransactionEffects) {
+) -> HaneulTransactionResponse {
     let gas = get_gas_object_with_wallet_context(context, sender)
         .await
         .unwrap_or_else(|| panic!("Expect {sender} to have at least one gas object"));
@@ -401,8 +399,8 @@ pub async fn delete_devnet_nft(
         .await
         .unwrap();
 
-    assert!(resp.confirmed_local_execution);
-    (resp.tx_cert.unwrap(), resp.effects.unwrap())
+    assert!(resp.confirmed_local_execution.unwrap());
+    resp
 }
 
 /// Submit a certificate containing only owned-objects to all authorities.

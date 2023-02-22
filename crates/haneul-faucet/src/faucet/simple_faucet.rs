@@ -3,7 +3,6 @@
 
 use crate::faucet::write_ahead_log;
 use crate::metrics::FaucetMetrics;
-use anyhow::anyhow;
 use async_trait::async_trait;
 use prometheus::Registry;
 use tap::tap::TapFallible;
@@ -13,9 +12,7 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use haneul::client_commands::WalletContext;
-use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulObjectRead, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse,
-};
+use haneul_json_rpc_types::{HaneulObjectRead, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
 use haneul_types::{
@@ -388,7 +385,7 @@ impl SimpleFaucet {
 
         let tx_digest = tx.digest();
         let client = self.wallet.get_client().await?;
-        let response = client
+        Ok(client
             .quorum_driver()
             .execute_transaction(
                 tx.clone(),
@@ -404,24 +401,7 @@ impl SimpleFaucet {
                     "Transfer Transaction failed: {:?}",
                     e
                 )
-            })?;
-        let tx_cert = response
-            .tx_cert
-            .ok_or_else(|| anyhow!("Expect Some(tx_cert)"))?;
-        let effects = response
-            .effects
-            .ok_or_else(|| anyhow!("Expect Some(effects)"))?;
-        if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
-            return Err(anyhow!("Error transferring object: {:#?}", effects.status));
-        }
-
-        Ok(HaneulTransactionResponse {
-            certificate: tx_cert,
-            effects,
-            timestamp_ms: None,
-            checkpoint: None,
-            parsed_data: None,
-        })
+            })?)
     }
 
     async fn build_pay_haneul_txn(
@@ -454,7 +434,7 @@ impl SimpleFaucet {
         number_of_coins: usize,
         recipient: &HaneulAddress,
     ) -> Result<(TransactionDigest, Vec<ObjectID>, Vec<u64>), FaucetError> {
-        let txns = res.certificate.data.transactions;
+        let txns = res.transaction.data.transactions;
         if txns.len() != 1 {
             panic!(
                 "PayHaneul Transaction should create one and exactly one txn, but got {:?}",
@@ -483,11 +463,7 @@ impl SimpleFaucet {
                 .iter()
                 .map(|created_coin_owner_ref| created_coin_owner_ref.reference.object_id)
                 .collect();
-            Ok((
-                res.certificate.transaction_digest,
-                coin_ids,
-                amounts.clone(),
-            ))
+            Ok((res.effects.transaction_digest, coin_ids, amounts.clone()))
         } else {
             panic!("Expect HaneulTransactionKind::PayHaneul(HaneulPayHaneul) to send coins to address {} but got txn {:?}", recipient, txn);
         }
@@ -557,6 +533,7 @@ impl Faucet for SimpleFaucet {
 #[cfg(test)]
 mod tests {
     use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
+    use haneul_json_rpc_types::HaneulExecutionStatus;
     use test_utils::network::TestClusterBuilder;
 
     use super::*;
@@ -676,8 +653,11 @@ mod tests {
         .await
         .unwrap();
 
-        if let HaneulClientCommandResult::PayAllHaneul(_tx_cert, effects) = res {
-            assert!(matches!(effects.status, HaneulExecutionStatus::Success));
+        if let HaneulClientCommandResult::PayAllHaneul(response) = res {
+            assert!(matches!(
+                response.effects.status,
+                HaneulExecutionStatus::Success
+            ));
         } else {
             panic!("PayAllHaneul command did not return HaneulClientCommandResult::PayAllHaneul");
         };

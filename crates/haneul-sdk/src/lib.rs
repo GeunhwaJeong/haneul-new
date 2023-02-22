@@ -13,7 +13,6 @@ use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 
 use crate::error::{Error, HaneulRpcResult};
-use rpc_types::{HaneulCertifiedTransaction, HaneulParsedTransactionResponse, HaneulTransactionEffects};
 use serde_json::Value;
 use haneul_adapter::execution_mode::Normal;
 pub use haneul_json as json;
@@ -26,22 +25,12 @@ pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo};
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
-use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 
 pub mod apis;
 pub mod error;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
 const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 60;
-
-#[derive(Debug)]
-pub struct TransactionExecutionResult {
-    pub tx_digest: TransactionDigest,
-    pub tx_cert: Option<HaneulCertifiedTransaction>,
-    pub effects: Option<HaneulTransactionEffects>,
-    pub confirmed_local_execution: bool,
-    pub timestamp_ms: Option<u64>,
-    pub parsed_data: Option<HaneulParsedTransactionResponse>,
-}
 
 pub struct HaneulClientBuilder {
     request_timeout: Duration,

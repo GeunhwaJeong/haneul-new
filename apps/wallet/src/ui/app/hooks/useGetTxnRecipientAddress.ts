@@ -1,11 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import {
+    type HaneulTransactionResponse,
+    type HaneulAddress,
+    getTransactions,
+    getTransactionSender,
+} from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { getEventsSummary, getAmount } from '_helpers';
-
-import type { HaneulTransactionResponse, HaneulAddress } from '@haneullabs/haneul.js';
 
 type Props = {
     txn: HaneulTransactionResponse;
@@ -13,17 +17,15 @@ type Props = {
 };
 
 export function useGetTxnRecipientAddress({ txn, address }: Props) {
-    const { certificate, effects } = txn;
+    const { effects } = txn;
 
     const eventsSummary = useMemo(() => {
         const { coins } = getEventsSummary(effects, address);
         return coins;
     }, [effects, address]);
 
-    const amountByRecipient = getAmount(
-        certificate.data.transactions[0],
-        txn.effects
-    );
+    const [transaction] = getTransactions(txn);
+    const amountByRecipient = getAmount(transaction, txn.effects);
 
     const recipientAddress = useMemo(() => {
         const transferObjectRecipientAddress =
@@ -40,9 +42,9 @@ export function useGetTxnRecipientAddress({ txn, address }: Props) {
         return (
             receiverAddr ??
             transferObjectRecipientAddress ??
-            certificate.data.sender
+            getTransactionSender(txn)
         );
-    }, [address, amountByRecipient, certificate.data.sender, eventsSummary]);
+    }, [address, amountByRecipient, eventsSummary, txn]);
 
     return recipientAddress;
 }

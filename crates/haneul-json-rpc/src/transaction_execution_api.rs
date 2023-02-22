@@ -15,11 +15,11 @@ use std::sync::Arc;
 use haneul_core::authority::{AuthorityStore, ResolverWrapper};
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
-use haneul_json_rpc_types::HaneulExecuteTransactionResponse;
+use haneul_json_rpc_types::{HaneulTransactionEffects, HaneulTransactionResponse};
 use haneul_open_rpc::Module;
 use haneul_types::intent::Intent;
-use haneul_types::messages::Transaction;
 use haneul_types::messages::{ExecuteTransactionRequest, ExecuteTransactionRequestType};
+use haneul_types::messages::{ExecuteTransactionResponse, Transaction};
 use haneul_types::signature::GenericSignature;
 pub struct FullNodeTransactionExecutionApi {
     pub transaction_orchestrator: Arc<TransactiondOrchestrator<NetworkAuthorityClient>>,
@@ -45,35 +45,9 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         tx_bytes: Base64,
         signature: Base64,
         request_type: ExecuteTransactionRequestType,
-    ) -> RpcResult<HaneulExecuteTransactionResponse> {
-        let tx_data =
-            bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
-
-        let txn = Transaction::from_generic_sig_data(
-            tx_data,
-            Intent::default(),
-            vec![
-                GenericSignature::from_bytes(&signature.to_vec().map_err(|e| anyhow!(e))?)
-                    .map_err(|e| anyhow!(e))?,
-            ],
-        );
-
-        let transaction_orchestrator = self.transaction_orchestrator.clone();
-        let response = spawn_monitored_task!(transaction_orchestrator.execute_transaction(
-            ExecuteTransactionRequest {
-                transaction: txn,
-                request_type,
-            }
-        ))
-        .await
-        .map_err(|e| anyhow!(e))? // for JoinError
-        .map_err(|e| anyhow!(e))?; // For Haneul transaction execution error (HaneulResult<ExecuteTransactionResponse>)
-
-        HaneulExecuteTransactionResponse::from_execute_transaction_response(
-            response,
-            self.module_cache.as_ref(),
-        )
-        .map_err(jsonrpsee::core::Error::from)
+    ) -> RpcResult<HaneulTransactionResponse> {
+        self.submit_transaction(tx_bytes, vec![signature], request_type)
+            .await
     }
 
     // TODO: remove this or execute_transaction
@@ -82,35 +56,9 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         tx_bytes: Base64,
         signature: Base64,
         request_type: ExecuteTransactionRequestType,
-    ) -> RpcResult<HaneulExecuteTransactionResponse> {
-        let tx_data =
-            bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
-
-        let txn = Transaction::from_generic_sig_data(
-            tx_data,
-            Intent::default(),
-            vec![
-                GenericSignature::from_bytes(&signature.to_vec().map_err(|e| anyhow!(e))?)
-                    .map_err(|e| anyhow!(e))?,
-            ],
-        );
-
-        let transaction_orchestrator = self.transaction_orchestrator.clone();
-        let response = spawn_monitored_task!(transaction_orchestrator.execute_transaction(
-            ExecuteTransactionRequest {
-                transaction: txn,
-                request_type,
-            }
-        ))
-        .await
-        .map_err(|e| anyhow!(e))? // for JoinError
-        .map_err(|e| anyhow!(e))?; // For Haneul transaction execution error (HaneulResult<ExecuteTransactionResponse>)
-
-        HaneulExecuteTransactionResponse::from_execute_transaction_response(
-            response,
-            self.module_cache.as_ref(),
-        )
-        .map_err(jsonrpsee::core::Error::from)
+    ) -> RpcResult<HaneulTransactionResponse> {
+        self.execute_transaction(tx_bytes, signature, request_type)
+            .await
     }
 
     async fn submit_transaction(
@@ -118,7 +66,7 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         tx_bytes: Base64,
         signatures: Vec<Base64>,
         request_type: ExecuteTransactionRequestType,
-    ) -> RpcResult<HaneulExecuteTransactionResponse> {
+    ) -> RpcResult<HaneulTransactionResponse> {
         let tx_data =
             bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
 
@@ -131,6 +79,7 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         }
 
         let txn = Transaction::from_generic_sig_data(tx_data, Intent::default(), sigs);
+        let tx = txn.data().clone().try_into()?;
 
         let transaction_orchestrator = self.transaction_orchestrator.clone();
         let response = spawn_monitored_task!(transaction_orchestrator.execute_transaction(
@@ -143,11 +92,21 @@ impl TransactionExecutionApiServer for FullNodeTransactionExecutionApi {
         .map_err(|e| anyhow!(e))? // for JoinError
         .map_err(|e| anyhow!(e))?; // For Haneul transaction execution error (HaneulResult<ExecuteTransactionResponse>)
 
-        HaneulExecuteTransactionResponse::from_execute_transaction_response(
-            response,
-            self.module_cache.as_ref(),
-        )
-        .map_err(jsonrpsee::core::Error::from)
+        match response {
+            ExecuteTransactionResponse::EffectsCert(cert) => {
+                let (_, effects, is_executed_locally) = *cert;
+                Ok(HaneulTransactionResponse {
+                    transaction: tx,
+                    effects: HaneulTransactionEffects::try_from(
+                        effects.effects,
+                        self.module_cache.as_ref(),
+                    )?,
+                    timestamp_ms: None,
+                    confirmed_local_execution: Some(is_executed_locally),
+                    checkpoint: None,
+                })
+            }
+        }
     }
 }
 
