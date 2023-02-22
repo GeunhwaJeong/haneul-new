@@ -549,7 +549,7 @@ impl HaneulNode {
         let system_state = state
             .get_haneul_system_state_object()
             .expect("Reading Haneul system state object cannot fail");
-        let committee = Arc::new(system_state.get_current_epoch_narwhal_committee());
+        let committee = system_state.get_current_epoch_narwhal_committee();
 
         let transactions_addr = &config
             .consensus_config
