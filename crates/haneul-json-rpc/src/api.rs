@@ -23,6 +23,7 @@ use haneul_types::base_types::{
     ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
 };
 use haneul_types::committee::EpochId;
+use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::event::EventID;
 use haneul_types::governance::DelegatedStake;
 use haneul_types::messages::CommitteeInfoResponse;
@@ -164,7 +165,7 @@ pub trait RpcReadApi {
         /// The ID of the queried parent object
         parent_object_id: ObjectID,
         /// The Name of the dynamic field
-        name: String,
+        name: DynamicFieldName,
     ) -> RpcResult<GetObjectDataResponse>;
 }
 

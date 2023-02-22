@@ -46,7 +46,7 @@ use narwhal_config::{
 use haneul_adapter::{adapter, execution_mode};
 use haneul_config::genesis::Genesis;
 use haneul_json_rpc_types::{
-    type_and_fields_from_move_struct, DevInspectResults, HaneulEvent, HaneulEventEnvelope,
+    type_and_fields_from_move_struct, DevInspectResults, HaneulEvent, HaneulEventEnvelope, HaneulMoveValue,
     HaneulTransactionEffects,
 };
 use haneul_macros::nondeterministic;
@@ -60,7 +60,7 @@ use haneul_storage::{
 };
 use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{sha3_hash, AuthorityKeyPair, NetworkKeyPair, Signer};
-use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldType};
+use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType};
 use haneul_types::event::{Event, EventID};
 use haneul_types::gas::{GasCostSummary, GasPrice, HaneulCostTable, HaneulGasStatus};
 use haneul_types::messages_checkpoint::{
@@ -1273,8 +1273,15 @@ impl AuthorityState {
             self.module_cache.as_ref(),
         )?;
 
-        let (name, type_, object_id) =
+        let (name_value, type_, object_id) =
             DynamicFieldInfo::parse_move_object(&move_struct).tap_err(|e| warn!("{e}"))?;
+
+        let name_type = DynamicFieldInfo::try_extract_field_name(&move_object.type_, &type_)?;
+
+        let name = DynamicFieldName {
+            type_: name_type,
+            value: HaneulMoveValue::from(name_value).to_json_value(),
+        };
 
         Ok(Some(match type_ {
             DynamicFieldType::DynamicObject => {
@@ -2019,7 +2026,7 @@ impl AuthorityState {
     pub fn get_dynamic_field_object_id(
         &self,
         owner: ObjectID,
-        name: &str,
+        name: &DynamicFieldName,
     ) -> HaneulResult<Option<ObjectID>> {
         if let Some(indexes) = &self.indexes {
             indexes.get_dynamic_field_object_id(owner, name)

@@ -26,7 +26,7 @@ use schemars::JsonSchema;
 use serde::ser::Error;
 use serde::Deserialize;
 use serde::Serialize;
-use serde_json::Value;
+use serde_json::{json, Value};
 use serde_with::serde_as;
 use haneul_json::HaneulJsonValue;
 use haneul_protocol_config::ProtocolConfig;
@@ -1185,6 +1185,22 @@ pub enum HaneulMoveValue {
     Option(Box<Option<HaneulMoveValue>>),
 }
 
+impl HaneulMoveValue {
+    /// Extract values from MoveValue without type information in json format
+    pub fn to_json_value(self) -> Value {
+        match self {
+            HaneulMoveValue::Struct(move_struct) => move_struct.to_json_value(),
+            HaneulMoveValue::Vector(values) => HaneulMoveStruct::Runtime(values).to_json_value(),
+            HaneulMoveValue::Number(v) => json!(v),
+            HaneulMoveValue::Bool(v) => json!(v),
+            HaneulMoveValue::Address(v) => json!(v),
+            HaneulMoveValue::String(v) => json!(v),
+            HaneulMoveValue::UID { id } => json!({ "id": id }),
+            HaneulMoveValue::Option(v) => json!(v),
+        }
+    }
+}
+
 impl Display for HaneulMoveValue {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
@@ -1268,41 +1284,26 @@ pub enum HaneulMoveStruct {
 }
 
 impl HaneulMoveStruct {
-    pub fn to_json_value(self) -> Result<Value, serde_json::Error> {
+    /// Extract values from MoveStruct without type information in json format
+    pub fn to_json_value(self) -> Value {
         // Unwrap MoveStructs
-        let unwrapped = match self {
+        match self {
             HaneulMoveStruct::Runtime(values) => {
                 let values = values
                     .into_iter()
-                    .map(|value| match value {
-                        HaneulMoveValue::Struct(move_struct) => move_struct.to_json_value(),
-                        HaneulMoveValue::Vector(values) => {
-                            HaneulMoveStruct::Runtime(values).to_json_value()
-                        }
-                        _ => serde_json::to_value(&value),
-                    })
-                    .collect::<Result<Vec<_>, _>>()?;
-                serde_json::to_value(&values)
+                    .map(|value| value.to_json_value())
+                    .collect::<Vec<_>>();
+                json!(values)
             }
             // We only care about values here, assuming struct type information is known at the client side.
             HaneulMoveStruct::WithTypes { type_: _, fields } | HaneulMoveStruct::WithFields(fields) => {
                 let fields = fields
                     .into_iter()
-                    .map(|(key, value)| {
-                        let value = match value {
-                            HaneulMoveValue::Struct(move_struct) => move_struct.to_json_value(),
-                            HaneulMoveValue::Vector(values) => {
-                                HaneulMoveStruct::Runtime(values).to_json_value()
-                            }
-                            _ => serde_json::to_value(&value),
-                        };
-                        value.map(|value| (key, value))
-                    })
-                    .collect::<Result<BTreeMap<_, _>, _>>()?;
-                serde_json::to_value(&fields)
+                    .map(|(key, value)| (key, value.to_json_value()))
+                    .collect::<BTreeMap<_, _>>();
+                json!(fields)
             }
-        }?;
-        serde_json::to_value(&unwrapped)
+        }
     }
 }
 
