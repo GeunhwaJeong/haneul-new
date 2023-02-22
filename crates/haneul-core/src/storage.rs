@@ -7,7 +7,6 @@ use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::TransactionEffectsDigest;
-use haneul_types::message_envelope::Message;
 use haneul_types::messages::TransactionEffects;
 use haneul_types::messages::VerifiedTransaction;
 use haneul_types::messages_checkpoint::CheckpointContents;
@@ -147,17 +146,12 @@ impl WriteStore for RocksDbStore {
         Ok(())
     }
 
-    fn insert_transaction(&self, transaction: VerifiedTransaction) -> Result<(), Self::Error> {
-        self.authority_store.insert_transaction(&transaction)
-    }
-
-    fn insert_transaction_effects(
+    fn insert_transaction_and_effects(
         &self,
+        transaction: VerifiedTransaction,
         transaction_effects: TransactionEffects,
     ) -> Result<(), Self::Error> {
         self.authority_store
-            .perpetual_tables
-            .effects
-            .insert(&transaction_effects.digest(), &transaction_effects)
+            .insert_transaction_and_effects(&transaction, &transaction_effects)
     }
 }
