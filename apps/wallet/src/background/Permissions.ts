@@ -22,7 +22,7 @@ import {
 } from '_payloads/permissions';
 
 import type { ContentScriptConnection } from './connections/ContentScriptConnection';
-import type { HaneulAddress } from '@haneullabs/haneul.js/src';
+import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type {
     Permission,
     PermissionResponse,

@@ -15,10 +15,10 @@ import {
     type HaneulEvent,
     type HaneulAddress,
     type ObjectId,
+    formatAddress,
 } from '@haneullabs/haneul.js';
 
 import { getOwnerStr } from '../../utils/objectUtils';
-import { truncate } from '../../utils/stringUtils';
 
 import type { Category } from '../../pages/transaction-result/TransactionResultType';
 import type { LinkObj } from '../transaction-card/TxCardUtils';
@@ -193,7 +193,7 @@ export function getAddressesLinks(item: ContentItem[]): LinkObj[] {
             (content) =>
                 ({
                     url: content.value,
-                    name: truncate(content.value, 20),
+                    name: formatAddress(content.value),
                     category: content.category,
                 } as LinkObj)
         );

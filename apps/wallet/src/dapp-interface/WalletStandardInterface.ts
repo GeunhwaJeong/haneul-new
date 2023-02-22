@@ -33,7 +33,7 @@ import {
 import { API_ENV } from '_src/shared/api-env';
 import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js/src';
+import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 import type { GetAccount } from '_payloads/account/GetAccount';
 import type { GetAccountResponse } from '_payloads/account/GetAccountResponse';
