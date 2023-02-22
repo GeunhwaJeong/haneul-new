@@ -17,6 +17,8 @@ use crate::coin::Coin;
 use crate::committee::EpochId;
 use crate::event::BalanceChangeType;
 use crate::storage::SingleTxContext;
+use crate::haneul_system_state::HaneulSystemState;
+use crate::HANEUL_SYSTEM_STATE_OBJECT_ID;
 use crate::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -77,6 +79,17 @@ impl InnerTemporaryStore {
                 }
             })
             .collect()
+    }
+
+    pub fn get_haneul_system_state_object(&self) -> Option<HaneulSystemState> {
+        let haneul_system_object = self.get_written_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?;
+        let move_object = haneul_system_object
+            .data
+            .try_as_move()
+            .expect("Haneul System State object must be a Move object");
+        let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
+            .expect("Haneul System State object deserialization cannot fail");
+        Some(result)
     }
 }
 
