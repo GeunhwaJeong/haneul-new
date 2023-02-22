@@ -21,7 +21,6 @@ import {
   getObjectId,
   PayAllHaneulTx,
   PayAllHaneulTransaction,
-  TransactionData_v26,
 } from '../../src';
 import { CallArgSerializer } from '../../src/signers/txn-data-serializers/call-arg-serializer';
 import {
@@ -222,27 +221,17 @@ describe('Transaction Serialization and deserialization', () => {
       },
     } as PayHaneulTx;
 
-    const version = await localSerializer.getRpcApiVersion();
-    const tx_data =
-      version?.major === 0 && version?.minor <= 26
-        ? ({
-            sender: DEFAULT_RECIPIENT_2,
-            gasBudget: gasBudget,
-            gasPrice: 100,
-            kind: { Single: payHaneulTx } as TransactionKind,
-            gasPayment: getObjectReference(coins[1]),
-          } as TransactionData_v26)
-        : ({
-            sender: DEFAULT_RECIPIENT_2,
-            kind: { Single: payHaneulTx } as TransactionKind,
-            gasData: {
-              owner: DEFAULT_RECIPIENT_2,
-              budget: gasBudget,
-              price: 100,
-              payment: getObjectReference(coins[1]),
-            },
-            expiration: { None: null },
-          } as TransactionData);
+    const tx_data = {
+      sender: DEFAULT_RECIPIENT_2,
+      kind: { Single: payHaneulTx } as TransactionKind,
+      gasData: {
+        owner: DEFAULT_RECIPIENT_2,
+        budget: gasBudget,
+        price: 100,
+        payment: getObjectReference(coins[1]),
+      },
+      expiration: { None: null },
+    } as TransactionData;
 
     const serializedData = await localSerializer.serializeTransactionData(
       tx_data,
@@ -278,28 +267,17 @@ describe('Transaction Serialization and deserialization', () => {
         recipient: DEFAULT_RECIPIENT,
       },
     } as PayAllHaneulTx;
-
-    const version = await localSerializer.getRpcApiVersion();
-    const tx_data =
-      version?.major === 0 && version?.minor <= 26
-        ? ({
-            sender: DEFAULT_RECIPIENT_2,
-            gasBudget: gasBudget,
-            gasPrice: 100,
-            kind: { Single: payAllHaneul } as TransactionKind,
-            gasPayment: getObjectReference(coins[1]),
-          } as TransactionData_v26)
-        : ({
-            sender: DEFAULT_RECIPIENT_2,
-            kind: { Single: payAllHaneul } as TransactionKind,
-            gasData: {
-              owner: DEFAULT_RECIPIENT_2,
-              budget: gasBudget,
-              price: 100,
-              payment: getObjectReference(coins[1]),
-            },
-            expiration: { None: null },
-          } as TransactionData);
+    const tx_data = {
+      sender: DEFAULT_RECIPIENT_2,
+      kind: { Single: payAllHaneul } as TransactionKind,
+      gasData: {
+        owner: DEFAULT_RECIPIENT_2,
+        budget: gasBudget,
+        price: 100,
+        payment: getObjectReference(coins[1]),
+      },
+      expiration: { None: null },
+    } as TransactionData;
 
     const serializedData = await localSerializer.serializeTransactionData(
       tx_data,
