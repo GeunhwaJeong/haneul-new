@@ -167,6 +167,7 @@ impl HaneulNode {
         let epoch_start_configuration = if cur_epoch == genesis.epoch() {
             Some(EpochStartConfiguration {
                 system_state: genesis.haneul_system_object(),
+                epoch_digest: genesis.checkpoint().digest(),
             })
         } else {
             None

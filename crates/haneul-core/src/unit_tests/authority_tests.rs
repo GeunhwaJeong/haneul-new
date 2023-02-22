@@ -45,6 +45,7 @@ use std::{convert::TryInto, env};
 use haneul_macros::sim_test;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
+use haneul_types::epoch_data::EpochData;
 use haneul_types::object::Data;
 use haneul_types::{
     base_types::dbg_addr,
@@ -727,9 +728,7 @@ async fn test_dev_inspect_uses_unbound_object() {
         ))],
     }));
 
-    let result = fullnode
-        .dev_inspect_transaction(sender, kind, 1, fullnode.current_epoch_for_testing())
-        .await;
+    let result = fullnode.dev_inspect_transaction(sender, kind, 1).await;
     let Err(err) = result else { panic!() };
     assert!(err
         .to_string()
@@ -1395,7 +1394,7 @@ async fn test_publish_dependent_module_ok() {
     let transaction = to_sender_signed_transaction(data, &sender_key);
 
     let dependent_module_id =
-        TxContext::new(&sender, transaction.digest(), &EpochData::genesis()).fresh_id();
+        TxContext::new(&sender, transaction.digest(), &EpochData::new_test()).fresh_id();
 
     // Object does not exist
     assert!(authority
@@ -1436,7 +1435,7 @@ async fn test_publish_module_no_dependencies_ok() {
     );
     let transaction = to_sender_signed_transaction(data, &sender_key);
     let _module_object_id =
-        TxContext::new(&sender, transaction.digest(), &EpochData::genesis()).fresh_id();
+        TxContext::new(&sender, transaction.digest(), &EpochData::new_test()).fresh_id();
     let signed_effects = send_and_confirm_transaction(&authority, transaction)
         .await
         .unwrap()
@@ -4172,9 +4171,7 @@ pub async fn call_dev_inspect(
         type_arguments,
         arguments,
     }));
-    authority
-        .dev_inspect_transaction(*sender, kind, 1, authority.current_epoch_for_testing())
-        .await
+    authority.dev_inspect_transaction(*sender, kind, 1).await
 }
 
 #[cfg(test)]
