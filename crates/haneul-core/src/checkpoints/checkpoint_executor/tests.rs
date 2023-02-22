@@ -18,6 +18,7 @@ use crate::{
     authority::AuthorityState, checkpoints::CheckpointStore, state_accumulator::StateAccumulator,
 };
 
+use crate::authority::authority_per_epoch_store::EpochStartConfiguration;
 use haneul_network::state_sync::test_utils::{empty_contents, CommitteeFixture};
 use haneul_types::haneul_system_state::HaneulSystemState;
 
@@ -223,7 +224,7 @@ pub async fn test_checkpoint_executor_cross_epoch() {
         .contains_key(&first_epoch)
         .unwrap());
 
-    let haneul_system_state = HaneulSystemState {
+    let system_state = HaneulSystemState {
         epoch: 1,
         ..Default::default()
     };
@@ -233,7 +234,10 @@ pub async fn test_checkpoint_executor_cross_epoch() {
             &authority_state.epoch_store_for_testing(),
             SupportedProtocolVersions::SYSTEM_DEFAULT,
             second_committee.committee().clone(),
-            haneul_system_state,
+            EpochStartConfiguration {
+                system_state,
+                ..Default::default()
+            },
         )
         .await
         .unwrap();
