@@ -1,11 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider } from '@haneullabs/haneul.js';
+import {
+    JsonRpcProvider,
+    Connection,
+    devnetConnection,
+    localnetConnection,
+} from '@haneullabs/haneul.js';
 
-import { getEndpoint, Network } from './rpcSetting';
+export enum Network {
+    LOCAL = 'LOCAL',
+    DEVNET = 'DEVNET',
+    TESTNET = 'TESTNET',
+}
 
-export { Network, getEndpoint };
+const CONNECTIONS: Record<Network, Connection> = {
+    [Network.LOCAL]: localnetConnection,
+    [Network.DEVNET]: devnetConnection,
+    [Network.TESTNET]: new Connection({
+        fullnode: 'https://fullnode-explorer.testnet.haneul.io:443',
+    }),
+};
 
 const defaultRpcMap: Map<Network | string, JsonRpcProvider> = new Map();
 /** @deprecated This shouldn't be directly used, and instead should be used through `useRpc()`. */
@@ -13,7 +28,12 @@ export const DefaultRpcClient = (network: Network | string) => {
     const existingClient = defaultRpcMap.get(network);
     if (existingClient) return existingClient;
 
-    const provider = new JsonRpcProvider(getEndpoint(network));
+    const connection =
+        network in Network
+            ? CONNECTIONS[network as Network]
+            : new Connection({ fullnode: network });
+
+    const provider = new JsonRpcProvider(connection);
     defaultRpcMap.set(network, provider);
     return provider;
 };
