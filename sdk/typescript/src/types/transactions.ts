@@ -236,13 +236,6 @@ export const DevInspectResults = object({
 });
 export type DevInspectResults = Infer<typeof DevInspectResults>;
 
-export const HaneulTransactionAuthSignersResponse = object({
-  signers: array(string()),
-});
-export type HaneulTransactionAuthSignersResponse = Infer<
-  typeof HaneulTransactionAuthSignersResponse
->;
-
 // TODO: this is likely to go away after https://github.com/GeunhwaJeong/haneul/issues/4207
 export const HaneulCertifiedTransactionEffects = object({
   transactionEffectsDigest: string(),
@@ -401,11 +394,11 @@ export const HaneulTransactionResponse = object({
   effects: TransactionEffects,
   // TODO: Remove after devnet 0.28.0
   timestamp_ms: optional(union([number(), literal(null)])),
-  // TODO: Remove optioanl after devnet 0.28.0
+  // TODO: Remove optional after devnet 0.28.0
   timestampMs: optional(union([number(), literal(null)])),
   // TODO: remove optional after 0.27.0 is released
   checkpoint: optional(union([number(), literal(null)])),
-  // TODO: Remove optioanl after devnet 0.28.0
+  // TODO: Remove optional after devnet 0.28.0
   confirmedLocalExecution: optional(boolean()),
   // TODO: Remove after devnet 0.28.0
   parsed_data: optional(union([HaneulParsedTransactionResponse, literal(null)])),

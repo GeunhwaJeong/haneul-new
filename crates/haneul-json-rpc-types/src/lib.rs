@@ -31,8 +31,8 @@ use serde_with::serde_as;
 use haneul_json::HaneulJsonValue;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
-    AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
-    TransactionDigest, TransactionEffectsDigest,
+    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
+    TransactionEffectsDigest,
 };
 use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
@@ -360,11 +360,6 @@ pub struct HaneulTransactionResponse {
     /// The checkpoint number when this transaction was included and hence finalized.
     /// This is only returned in the read api, not in the transaction execution api.
     pub checkpoint: Option<CheckpointSequenceNumber>,
-}
-
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
-pub struct HaneulTransactionAuthSignersResponse {
-    pub signers: Vec<AuthorityName>,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]

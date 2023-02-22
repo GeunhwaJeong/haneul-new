@@ -19,8 +19,7 @@ use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DevInspectResults, DynamicFieldPage, GetObjectDataResponse,
     GetPastObjectDataResponse, MoveFunctionArgType, ObjectValueKind, Page,
     HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectInfo,
-    HaneulTransactionAuthSignersResponse, HaneulTransactionEffects, HaneulTransactionResponse,
-    TransactionsPage,
+    HaneulTransactionEffects, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::SequenceNumber;
@@ -183,30 +182,6 @@ impl RpcReadApiServer for ReadApi {
             confirmed_local_execution: None,
             checkpoint: checkpoint.map(|(_epoch, checkpoint)| checkpoint),
         })
-    }
-
-    async fn get_transaction_auth_signers(
-        &self,
-        digest: TransactionDigest,
-    ) -> RpcResult<HaneulTransactionAuthSignersResponse> {
-        let epoch_store = self.state.load_epoch_store_one_call_per_task();
-
-        let (cert, _effects) = self
-            .state
-            .get_transaction(digest)
-            .await
-            .tap_err(|err| debug!(tx_digest=?digest, "Failed to get transaction: {:?}", err))?;
-
-        let mut signers = Vec::new();
-        for authority_index in cert.auth_sig().signers_map.iter() {
-            let authority = epoch_store
-                .committee()
-                .authority_by_index(authority_index)
-                .ok_or_else(|| anyhow!("Failed to get authority"))?;
-            signers.push(*authority);
-        }
-
-        Ok(HaneulTransactionAuthSignersResponse { signers })
     }
 }
 

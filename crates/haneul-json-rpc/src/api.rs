@@ -14,8 +14,8 @@ use haneul_json_rpc_types::{
     MoveFunctionArgType, RPCTransactionRequestParams, HaneulCoinMetadata, HaneulEventEnvelope,
     HaneulEventFilter, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulObjectInfo, HaneulTBlsSignObjectCommitmentType, HaneulTBlsSignRandomnessObjectResponse,
-    HaneulTransactionAuthSignersResponse, HaneulTransactionBuilderMode, HaneulTransactionEffects,
-    HaneulTransactionResponse, HaneulTypeTag, TransactionBytes, TransactionsPage,
+    HaneulTransactionBuilderMode, HaneulTransactionEffects, HaneulTransactionResponse, HaneulTypeTag,
+    TransactionBytes, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
@@ -148,14 +148,6 @@ pub trait RpcReadApi {
         /// the digest of the queried transaction
         digest: TransactionDigest,
     ) -> RpcResult<HaneulTransactionResponse>;
-
-    /// Return the authority public keys that commits to the authority signature of the transaction.
-    #[method(name = "getTransactionAuthSigners")]
-    async fn get_transaction_auth_signers(
-        &self,
-        /// the digest of the queried transaction
-        digest: TransactionDigest,
-    ) -> RpcResult<HaneulTransactionAuthSignersResponse>;
 
     /// Return the object information for a specified object
     #[method(name = "getObject")]
