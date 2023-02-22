@@ -1844,6 +1844,8 @@ impl AuthorityState {
     }
 
     /// This function should be called once and exactly once during reconfiguration.
+    /// Instead of this function use AuthorityEpochStore::epoch_start_configuration() to access this object everywhere
+    /// besides when we are reading fields for the current epoch
     pub fn get_haneul_system_state_object_during_reconfig(&self) -> HaneulResult<HaneulSystemState> {
         self.database.get_haneul_system_state_object()
     }
