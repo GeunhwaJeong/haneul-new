@@ -684,7 +684,7 @@ pub trait HaneulData: Sized {
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
-#[serde(tag = "dataType", rename_all = "camelCase", rename = "Data")]
+#[serde(tag = "dataType", rename_all = "camelCase", rename = "RawData")]
 pub enum HaneulRawData {
     // Manually handle generic schema generation
     MoveObject(HaneulRawMoveObject),

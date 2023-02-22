@@ -9,16 +9,14 @@ use clap::Parser;
 use pretty_assertions::assert_str_eq;
 use haneul_core::HANEUL_CORE_VERSION;
 
-use haneul_json_rpc::api::EventReadApiOpenRpc;
-use haneul_json_rpc::api::EventStreamingApiOpenRpc;
-use haneul_json_rpc::bcs_api::BcsApiImpl;
 use haneul_json_rpc::coin_api::CoinReadApi;
+use haneul_json_rpc::event_api::EventReadApi;
 use haneul_json_rpc::governance_api::GovernanceReadApi;
-use haneul_json_rpc::read_api::{FullNodeApi, ReadApi};
+use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::haneul_rpc_doc;
 use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
-use haneul_json_rpc::transaction_builder_api::FullNodeTransactionBuilderApi;
-use haneul_json_rpc::transaction_execution_api::FullNodeTransactionExecutionApi;
+use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
+use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
 use haneul_json_rpc::HaneulRpcModule;
 
 use crate::examples::RpcExampleProvider;
@@ -51,12 +49,9 @@ async fn main() {
     let mut open_rpc = haneul_rpc_doc(HANEUL_CORE_VERSION);
     open_rpc.add_module(ReadApi::rpc_doc_module());
     open_rpc.add_module(CoinReadApi::rpc_doc_module());
-    open_rpc.add_module(FullNodeApi::rpc_doc_module());
-    open_rpc.add_module(BcsApiImpl::rpc_doc_module());
-    open_rpc.add_module(EventStreamingApiOpenRpc::module_doc());
-    open_rpc.add_module(EventReadApiOpenRpc::module_doc());
-    open_rpc.add_module(FullNodeTransactionExecutionApi::rpc_doc_module());
-    open_rpc.add_module(FullNodeTransactionBuilderApi::rpc_doc_module());
+    open_rpc.add_module(EventReadApi::rpc_doc_module());
+    open_rpc.add_module(TransactionExecutionApi::rpc_doc_module());
+    open_rpc.add_module(TransactionBuilderApi::rpc_doc_module());
     open_rpc.add_module(GovernanceReadApi::rpc_doc_module());
     open_rpc.add_module(ThresholdBlsApi::rpc_doc_module());
 
