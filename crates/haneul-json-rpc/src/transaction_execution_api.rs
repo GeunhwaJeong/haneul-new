@@ -110,7 +110,7 @@ impl WriteApiServer for TransactionExecutionApi {
 
         match response {
             ExecuteTransactionResponse::EffectsCert(cert) => {
-                let (_, effects, is_executed_locally) = *cert;
+                let (effects, is_executed_locally) = *cert;
                 Ok(HaneulTransactionResponse {
                     transaction: tx,
                     effects: HaneulTransactionEffects::try_from(
