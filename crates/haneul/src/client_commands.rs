@@ -39,6 +39,7 @@ use haneul_json_rpc_types::{
 use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::HaneulClient;
+use haneul_types::crypto::SignatureScheme;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::intent::Intent;
 use haneul_types::signature::GenericSignature;
@@ -49,7 +50,6 @@ use haneul_types::{
     object::Owner,
     parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
 };
-use haneul_types::{crypto::SignatureScheme, intent::IntentMessage};
 use tokio::sync::RwLock;
 use tracing::{info, warn};
 
@@ -936,12 +936,9 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .transfer_haneul(from, object_id, gas_budget, to, amount)
                     .await?;
-                let data1 = data.clone();
-                let intent_msg = IntentMessage::new(Intent::default(), data);
-                HaneulClientCommandResult::SerializeTransferHaneul(
-                    Base64::encode(bcs::to_bytes(&intent_msg)?.as_slice()),
-                    Base64::encode(bcs::to_bytes(&data1).unwrap()),
-                )
+                HaneulClientCommandResult::SerializeTransferHaneul(Base64::encode(
+                    bcs::to_bytes(&data).unwrap(),
+                ))
             }
 
             HaneulClientCommands::ExecuteSignedTx {
@@ -1360,9 +1357,8 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::ExecuteSignedTx(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::SerializeTransferHaneul(data_to_sign, data_to_execute) => {
-                writeln!(writer, "Intent message to sign: {}", data_to_sign)?;
-                writeln!(writer, "Raw transaction to execute: {}", data_to_execute)?;
+            HaneulClientCommandResult::SerializeTransferHaneul(data) => {
+                writeln!(writer, "Raw tx_bytes to execute: {}", data)?;
             }
             HaneulClientCommandResult::ActiveEnv(env) => {
                 write!(writer, "{}", env.as_deref().unwrap_or("None"))?;
@@ -1536,7 +1532,7 @@ pub enum HaneulClientCommandResult {
     ActiveEnv(Option<String>),
     Envs(Vec<HaneulEnv>, Option<String>),
     CreateExampleNFT(GetObjectDataResponse),
-    SerializeTransferHaneul(String, String),
+    SerializeTransferHaneul(String),
     ExecuteSignedTx(HaneulTransactionResponse),
     NewEnv(HaneulEnv),
 }
