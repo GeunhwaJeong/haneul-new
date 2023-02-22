@@ -5,7 +5,7 @@
 module haneul::safe_tests {
     use haneul::safe::{Self, Safe, TransferCapability, OwnerCapability};
     use haneul::test_scenario::{Self as ts, Scenario, ctx};
-    use haneul::coin;
+    use haneul::coin::{Self, Coin};
     use haneul::object::{Self, ID};
     use haneul::balance;
     use haneul::haneul::HANEUL;
@@ -72,9 +72,12 @@ module haneul::safe_tests {
         let safe = ts::take_shared<Safe<HANEUL>>(scenario);
         let cap = ts::take_from_sender<OwnerCapability<HANEUL>>(scenario);
 
-        let balance = safe::withdraw_(&mut safe, &cap, initial_funds);
-        balance::destroy_for_testing(balance);
+        safe::withdraw(&mut safe, &cap, initial_funds, ts::ctx(scenario));
+        ts::next_tx(scenario, owner);
+        let withdrawn_coin = ts::take_from_sender<Coin<HANEUL>>(scenario);
+        assert!(coin::value(&withdrawn_coin) == initial_funds, 0);
 
+        coin::destroy_for_testing(withdrawn_coin);
         ts::return_to_sender(scenario, cap);
         ts::return_shared(safe);
 
@@ -142,6 +145,37 @@ module haneul::safe_tests {
         // Withdraw funds
         withdraw_as_delegatee(scenario, delegatee, delegated_funds);
 
+        ts::end(scenario_val);
+    }
+
+    #[test]
+    #[expected_failure(abort_code = safe::TRANSFER_CAPABILITY_REVOKED)]
+    /// Ensure owner cannot withdraw funds after revoking itself.
+    fun test_safe_withdraw_self_revoked() {
+        let owner = TEST_OWNER_ADDR;
+        let scenario_val = ts::begin(owner);
+        let scenario = &mut scenario_val;
+
+        let initial_funds = 1000u64;
+        create_safe(scenario, owner, initial_funds);
+
+        ts::next_tx(scenario, owner);
+        let cap = ts::take_from_sender<OwnerCapability<HANEUL>>(scenario);
+        let safe = ts::take_shared<Safe<HANEUL>>(scenario);
+        let transfer_capability = safe::create_transfer_capability(&mut safe, &cap, initial_funds, ctx(scenario));
+        // Function under test
+        safe::self_revoke_transfer_capability(&mut safe, &transfer_capability);
+        ts::return_shared(safe);
+
+        // Try withdraw funds with transfer capability.
+        ts::next_tx(scenario, owner);
+        let safe = ts::take_shared<Safe<HANEUL>>(scenario);
+        let balance = safe::debit(&mut safe, &mut transfer_capability, 1000u64);
+        balance::destroy_for_testing(balance);
+
+        ts::return_shared(safe);
+        ts::return_to_sender(scenario, cap);
+        ts::return_to_sender(scenario, transfer_capability);
         ts::end(scenario_val);
     }
 }
