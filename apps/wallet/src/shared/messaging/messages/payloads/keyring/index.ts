@@ -3,7 +3,11 @@
 
 import { isBasePayload } from '_payloads';
 
-import type { SerializedSignature, HaneulAddress } from '@haneullabs/haneul.js';
+import type {
+    ExportedKeypair,
+    SerializedSignature,
+    HaneulAddress,
+} from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 import type { AccountSerialized } from '_src/background/keyring/Account';
 
@@ -56,6 +60,14 @@ type MethodToPayloads = {
     deriveNextAccount: {
         args: void;
         return: void;
+    };
+    verifyPassword: {
+        args: { password: string };
+        return: void;
+    };
+    exportAccount: {
+        args: { password: string; accountAddress: HaneulAddress };
+        return: { keyPair: ExportedKeypair };
     };
 };
 
