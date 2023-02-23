@@ -157,6 +157,13 @@ Use the following command to install `libpq-dev`:
 sudo apt-get install libpq-dev
 ```
 
+### build-essential
+Use the following command to install `build-essential`"
+
+```shell
+sudo apt-get install build-essential
+```
+
 Proceed to [Install Haneul binaries](#install-haneul-binaries) to continue installing Haneul.
 
 ## macOS prerequisites
