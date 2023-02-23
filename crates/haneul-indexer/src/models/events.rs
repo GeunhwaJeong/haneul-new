@@ -231,19 +231,17 @@ pub fn events_to_haneul_events(
         .into_iter()
         .filter_map(|event| {
             let haneul_event_str = event.event_content.as_str();
-            let haneul_event: Result<HaneulEvent, IndexerError> = serde_json::from_str(haneul_event_str)
-                .map_err(|e| {
-                    IndexerError::EventDeserializationError(format!(
+            match serde_json::from_str(haneul_event_str) {
+                Ok(event) => Some(event),
+                Err(e) => {
+                    let error = IndexerError::EventDeserializationError(format!(
                         "Failed deserializing event {:?} with error: {:?}",
                         event.event_content, e
-                    ))
-                });
-            haneul_event
-                .map_err(|e| {
-                    errors.push(e.clone());
-                    e
-                })
-                .ok()
+                    ));
+                    errors.push(error);
+                    None
+                }
+            }
         })
         .collect();
 
