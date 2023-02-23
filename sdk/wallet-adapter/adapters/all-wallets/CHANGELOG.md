@@ -1,5 +1,15 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.4.2
+
+### Patch Changes
+
+- 0e202a543: Remove pending delegation switches.
+- Updated dependencies [0e202a543]
+- Updated dependencies [aa650aa3b]
+  - @haneullabs/wallet-adapter-wallet-standard@0.6.2
+  - @haneullabs/wallet-adapter-unsafe-burner@0.7.0
+
 ## 0.4.1
 
 ### Patch Changes
