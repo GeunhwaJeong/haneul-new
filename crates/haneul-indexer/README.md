@@ -1,7 +1,8 @@
 Haneul indexer is an off-fullnode service to serve data from Haneul protocol, including both data directly generated from chain and derivative data.
 
-## Current architecture Dec 2022 (will change soon)
-![indexer_simple](https://user-images.githubusercontent.com/106119108/209000367-4c7d23d8-fef2-4485-8472-89c31f0e2d62.png)
+## Architecture 
+![enhanced_FN](https://user-images.githubusercontent.com/106119108/221022505-a1d873c6-60e2-45f1-b2aa-e50192c4dfbb.png)
+
 
 ## Steps to run locally
 ### Prerequisites
@@ -10,29 +11,22 @@ Haneul indexer is an off-fullnode service to serve data from Haneul protocol, in
 - [optional but handy] Postgres client like [Postico](https://eggerapps.at/postico2/), for local check, query execution etc.
 
 ### Steps
-1. DB setup
+1. DB setup, under `haneul/crates/haneul-indexer` run:
 ```sh
-# DB setup, run the following commands from the /haneul-indexer folder
-# .env file under /haneul-indexer is required for diesel cmds
-# in .env file, DATABASE_URL should point to your local PG server
-# an example is:
-# DATABASE_URL="postgres://postgres:postgres@localhost/gegao"
-diesel setup
-
-# and then run 
-diesel migration run
+# an example DATABASE_URL is "postgres://postgres:postgres@localhost/gegao"
+diesel setup --database-url="<DATABASE_URL>"
+diesel migration run --database-url="<DATABASE_URL>"
 ```
-2. checkout the latest devnet commit by running commands below, otherwise API version mismatch could cause errors
+2. Checkout devnet
 ```sh
-git fetch upstream devnet
-git reset --hard upstream/devnet
+git fetch upstream devnet && git reset --hard upstream/devnet
 ```
-3. Go to `haneul/crates/haneul-indexer` and run the following command:
+3. Start indexer binary, under `haneul/crates/haneul-indexer` run:
 ```sh
-# DATABASE_URL should be the same value as above
+# Change the RPC_CLIENT_URL to http://0.0.0.0:9000 to run indexer against local validator & fullnode
 cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443"
 ```
-  
-### Clean up and re-run
-- Run `diesel migration revert` under `/haneul-indexer` until no more tables are deleted;
-- Also delete `__diesel_schema_migrations`, you can do this via Postico client
+### DB reset in case of restarting indexer
+```sh
+diesel database reset --database-url="<DATABASE_URL>"
+```
