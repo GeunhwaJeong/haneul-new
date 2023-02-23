@@ -54,7 +54,7 @@ use tokio::sync::broadcast;
 use tokio::sync::{watch, Mutex};
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
-use tracing::{error_span, info, warn, Instrument};
+use tracing::{error_span, info, Instrument};
 use typed_store::DBMetrics;
 pub mod admin;
 mod handle;
@@ -550,9 +550,7 @@ impl HaneulNode {
         // TODO: The following is a bug and could potentially lead to data races.
         // We need to put the narwhal committee in the epoch store, so that we could read it here,
         // instead of reading from the system state.
-        let system_state = state
-            .get_haneul_system_state_object()
-            .expect("Reading Haneul system state object cannot fail");
+        let system_state = epoch_store.system_state_object();
         let committee = system_state.get_current_epoch_narwhal_committee();
 
         let transactions_addr = &config
@@ -562,24 +560,18 @@ impl HaneulNode {
             .address;
         let worker_cache = system_state.get_current_epoch_narwhal_worker_cache(transactions_addr);
 
-        if committee.epoch == epoch_store.epoch() {
-            narwhal_manager
-                .start(
-                    committee.clone(),
-                    SharedWorkerCache::from(worker_cache),
-                    consensus_handler,
-                    HaneulTxValidator::new(
-                        epoch_store,
-                        state.transaction_manager().clone(),
-                        haneul_tx_validator_metrics.clone(),
-                    ),
-                )
-                .await;
-        } else {
-            warn!(
-                "Current Haneul epoch doesn't match the system state epoch. Not starting Narwhal yet"
-            );
-        }
+        narwhal_manager
+            .start(
+                committee.clone(),
+                SharedWorkerCache::from(worker_cache),
+                consensus_handler,
+                HaneulTxValidator::new(
+                    epoch_store,
+                    state.transaction_manager().clone(),
+                    haneul_tx_validator_metrics.clone(),
+                ),
+            )
+            .await;
 
         Ok(ValidatorComponents {
             validator_server_handle,
@@ -790,7 +782,7 @@ impl HaneulNode {
             assert_eq!(cur_epoch_store.epoch() + 1, next_epoch);
             let system_state = self
                 .state
-                .get_haneul_system_state_object()
+                .get_haneul_system_state_object_during_reconfig()
                 .expect("Read Haneul System State object cannot fail");
             // Double check that the committee in the last checkpoint is identical to what's on-chain.
             assert_eq!(

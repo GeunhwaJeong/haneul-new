@@ -1151,6 +1151,7 @@ impl AuthorityStore {
             .map(|v| v.map(|v| v.into()))
     }
 
+    // TODO: Transaction Orchestrator also calls this, which is not ideal.
     pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
         self.perpetual_tables.get_haneul_system_state_object()
     }
