@@ -81,7 +81,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
         pending_validators: vec![],
         pending_removals: vec![],
         next_epoch_validators: vec![],
-        pending_delegation_switches: VecMap { contents: vec![] },
     };
     HaneulSystemState {
         info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),

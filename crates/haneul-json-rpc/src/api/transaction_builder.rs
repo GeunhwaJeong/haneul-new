@@ -249,22 +249,4 @@ pub trait TransactionBuilder {
         /// the gas budget, the transaction will fail if the gas cost exceed the budget
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;
-
-    /// Switch delegation from the current validator to a new one.
-    #[method(name = "requestSwitchDelegation")]
-    async fn request_switch_delegation(
-        &self,
-        /// the transaction signer's Haneul address
-        signer: HaneulAddress,
-        /// Delegation object ID
-        delegation: ObjectID,
-        /// StakedHaneul object ID
-        staked_haneul: ObjectID,
-        /// Validator to switch to
-        new_validator_address: HaneulAddress,
-        /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided
-        gas: Option<ObjectID>,
-        /// the gas budget, the transaction will fail if the gas cost exceed the budget
-        gas_budget: u64,
-    ) -> RpcResult<TransactionBytes>;
 }

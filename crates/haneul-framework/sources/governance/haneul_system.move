@@ -23,7 +23,6 @@ module haneul::haneul_system {
     use haneul::epoch_time_lock;
     use haneul::pay;
     use haneul::event;
-    use haneul::staking_pool;
 
     friend haneul::genesis;
 
@@ -365,33 +364,6 @@ module haneul::haneul_system {
             ctx,
         );
     }
-
-    // Switch delegation from the current validator to a new one.
-    public entry fun request_switch_delegation(
-        self: &mut HaneulSystemState,
-        delegation: Delegation,
-        staked_haneul: StakedHaneul,
-        new_validator_address: address,
-        ctx: &mut TxContext,
-    ) {
-        validator_set::request_switch_delegation(
-            &mut self.validators, delegation, staked_haneul, new_validator_address, ctx
-        );
-    }
-
-    /// Cancel a delegation requests sent during the current epoch.
-    public entry fun cancel_delegation_request(
-        self: &mut HaneulSystemState,
-        staked_haneul: StakedHaneul,
-        ctx: &mut TxContext,
-    ) {
-        // The delegation request has to have happened within the current epoch.
-        assert!(staking_pool::delegation_request_epoch(&staked_haneul) == self.epoch, ESTAKED_HANEUL_FROM_WRONG_EPOCH);
-        validator_set::cancel_delegation_request(
-            &mut self.validators, staked_haneul, ctx
-        );
-    }
-
 
     /// Report a validator as a bad or non-performant actor in the system.
     /// Succeeds iff both the sender and the input `validator_addr` are active validators

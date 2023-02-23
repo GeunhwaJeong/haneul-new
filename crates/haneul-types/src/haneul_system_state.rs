@@ -188,7 +188,6 @@ pub struct ValidatorSet {
     pub pending_validators: Vec<Validator>,
     pub pending_removals: Vec<u64>,
     pub next_epoch_validators: Vec<ValidatorMetadata>,
-    pub pending_delegation_switches: VecMap<ValidatorPair, TableVec>,
 }
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
@@ -326,7 +325,6 @@ impl Default for HaneulSystemState {
             pending_validators: vec![],
             pending_removals: vec![],
             next_epoch_validators: vec![],
-            pending_delegation_switches: VecMap { contents: vec![] },
         };
         HaneulSystemState {
             info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),

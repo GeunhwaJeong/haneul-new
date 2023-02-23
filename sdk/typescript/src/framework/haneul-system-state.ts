@@ -21,7 +21,6 @@ export const ADD_DELEGATION_MUL_COIN_FUN_NAME =
 export const ADD_DELEGATION_LOCKED_COIN_FUN_NAME =
   'request_add_delegation_mul_locked_coin';
 export const WITHDRAW_DELEGATION_FUN_NAME = 'request_withdraw_delegation';
-export const SWITCH_DELEGATION_FUN_NAME = 'request_switch_delegation';
 
 /**
  * Utility class for `0x5` object
@@ -86,42 +85,6 @@ export class HaneulSystemStateUtil {
         function: WITHDRAW_DELEGATION_FUN_NAME,
         typeArguments: [],
         arguments: [HANEUL_SYSTEM_STATE_OBJECT_ID, delegation, stakedCoinId],
-        gasBudget,
-        gasPayment,
-        gasPrice,
-      },
-    };
-  }
-
-  /**
-   * Create a new transaction for switching delegation ready to be signed and
-   * executed with `signer-and-provider`.
-   *
-   * @param delegation the delegation object created in the requestAddDelegation txn
-   * @param stakedCoinId the coins to withdraw
-   * @param gasBudget omittable only for DevInspect mode
-   */
-  public static async newRequestSwitchlDelegationTxn(
-    delegationId: ObjectId,
-    stakedCoinId: ObjectId,
-    newValidatorAddress: HaneulAddress,
-    gasBudget?: number,
-    gasPayment?: ObjectId,
-    gasPrice?: number,
-  ): Promise<UnserializedSignableTransaction> {
-    return {
-      kind: 'moveCall',
-      data: {
-        packageObjectId: HANEUL_FRAMEWORK_ADDRESS,
-        module: HANEUL_SYSTEM_MODULE_NAME,
-        function: SWITCH_DELEGATION_FUN_NAME,
-        typeArguments: [],
-        arguments: [
-          HANEUL_SYSTEM_STATE_OBJECT_ID,
-          delegationId,
-          stakedCoinId,
-          newValidatorAddress,
-        ],
         gasBudget,
         gasPayment,
         gasPrice,
