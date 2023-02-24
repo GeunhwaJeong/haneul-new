@@ -39,6 +39,7 @@ use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
+use tracing::debug;
 
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 
@@ -601,6 +602,15 @@ impl HaneulNode {
         accumulator: Arc<StateAccumulator>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
     ) -> (Arc<CheckpointService>, watch::Sender<()>) {
+        debug!(
+            "Starting checkpoint service with epoch start timestamp {}
+            and epoch duration {}",
+            epoch_store
+                .epoch_start_configuration()
+                .epoch_start_timestamp_ms(),
+            config.epoch_duration_ms
+        );
+
         let checkpoint_output = Box::new(SubmitCheckpointToConsensus {
             sender: consensus_adapter,
             signer: state.secret.clone(),
