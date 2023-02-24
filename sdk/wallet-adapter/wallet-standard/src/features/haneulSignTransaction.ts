@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SignableTransaction, SignedTransaction } from "@haneullabs/haneul.js";
+import type { IdentifierString, WalletAccount } from "@wallet-standard/core";
 
 /** The latest API version of the signTransaction API. */
-export type HaneulSignTransactionVersion = "1.0.0";
+export type HaneulSignTransactionVersion = "2.0.0";
 
 /**
  * A Wallet Standard feature for signing a transaction, and returning the
@@ -27,6 +28,8 @@ export type HaneulSignTransactionMethod = (
 export interface HaneulSignTransactionInput {
   transaction: SignableTransaction;
   options?: HaneulSignTransactionOptions;
+  account: WalletAccount;
+  chain: IdentifierString;
 }
 
 /** Output of signing transactions. */

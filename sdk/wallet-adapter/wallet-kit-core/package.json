@@ -27,7 +27,8 @@
   },
   "dependencies": {
     "@haneullabs/haneul.js": "workspace:*",
-    "@haneullabs/wallet-adapter-base": "workspace:*"
+    "@haneullabs/wallet-adapter-base": "workspace:*",
+    "@haneullabs/wallet-standard": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^6.2.2",

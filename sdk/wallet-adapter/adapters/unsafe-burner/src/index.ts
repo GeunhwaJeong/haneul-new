@@ -3,13 +3,11 @@
 
 import {
   Ed25519Keypair,
-  ExecuteTransactionRequestType,
   getCertifiedTransaction,
   getTransactionEffects,
   JsonRpcProvider,
   LocalTxnDataSerializer,
   RawSigner,
-  SignableTransaction,
   Connection,
   devnetConnection,
 } from "@haneullabs/haneul.js";
@@ -17,6 +15,7 @@ import {
   WalletAdapter,
   WalletAdapterEvents,
 } from "@haneullabs/wallet-adapter-base";
+import { ReadonlyWalletAccount } from "@haneullabs/wallet-standard";
 
 export class UnsafeBurnerWalletAdapter implements WalletAdapter {
   name = "Unsafe Burner Wallet";
@@ -29,10 +28,17 @@ export class UnsafeBurnerWalletAdapter implements WalletAdapter {
   #provider: JsonRpcProvider;
   #keypair: Ed25519Keypair;
   #signer: RawSigner;
+  #account: ReadonlyWalletAccount;
 
   constructor(network: Connection = devnetConnection) {
     this.#keypair = new Ed25519Keypair();
     this.#provider = new JsonRpcProvider(network);
+    this.#account = new ReadonlyWalletAccount({
+      address: this.#keypair.getPublicKey().toHaneulAddress(),
+      chains: ["haneul:unknown"],
+      features: ["haneul:signAndExecuteTransaction", "haneul:signTransaction"],
+      publicKey: this.#keypair.getPublicKey().toBytes(),
+    });
     this.#signer = new RawSigner(
       this.#keypair,
       this.#provider,
@@ -47,29 +53,29 @@ export class UnsafeBurnerWalletAdapter implements WalletAdapter {
   }
 
   async getAccounts() {
-    return [this.#keypair.getPublicKey().toHaneulAddress()];
+    return [this.#account];
   }
 
-  async signTransaction(transaction: SignableTransaction) {
-    return this.#signer.signTransaction(transaction);
-  }
+  signTransaction: WalletAdapter["signTransaction"] = async (
+    transactionInput
+  ) => {
+    return this.#signer.signTransaction(transactionInput.transaction);
+  };
 
-  async signAndExecuteTransaction(
-    transaction: SignableTransaction,
-    options?: { requestType?: ExecuteTransactionRequestType }
-  ) {
-    const response = await this.#signer.signAndExecuteTransaction(
-      transaction,
-      options?.requestType
-    );
+  signAndExecuteTransaction: WalletAdapter["signAndExecuteTransaction"] =
+    async (transactionInput) => {
+      const response = await this.#signer.signAndExecuteTransaction(
+        transactionInput.transaction,
+        transactionInput.options?.requestType
+      );
 
-    return {
-      certificate: getCertifiedTransaction(response)!,
-      effects: getTransactionEffects(response)!,
-      timestamp_ms: null,
-      parsed_data: null,
+      return {
+        certificate: getCertifiedTransaction(response)!,
+        effects: getTransactionEffects(response)!,
+        timestamp_ms: null,
+        parsed_data: null,
+      };
     };
-  }
 
   async connect() {
     this.connecting = true;

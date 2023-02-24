@@ -48,18 +48,20 @@ export function useRefreshScorecard() {
     if (!leaderboard) throw new Error("Missing leaderboard");
 
     await signAndExecuteTransaction({
-      kind: "moveCall",
-      data: {
-        packageObjectId: config.VITE_PKG,
-        module: "frenemies",
-        function: "update",
-        typeArguments: [],
-        gasBudget: Number(GAS_BUDGET),
-        arguments: [
-          normalizeHaneulAddress(scorecard.reference.objectId),
-          HANEUL_SYSTEM_ID,
-          normalizeHaneulAddress(leaderboard.reference.objectId),
-        ],
+      transaction: {
+        kind: "moveCall",
+        data: {
+          packageObjectId: config.VITE_PKG,
+          module: "frenemies",
+          function: "update",
+          typeArguments: [],
+          gasBudget: Number(GAS_BUDGET),
+          arguments: [
+            normalizeHaneulAddress(scorecard.reference.objectId),
+            HANEUL_SYSTEM_ID,
+            normalizeHaneulAddress(leaderboard.reference.objectId),
+          ],
+        },
       },
     });
   });

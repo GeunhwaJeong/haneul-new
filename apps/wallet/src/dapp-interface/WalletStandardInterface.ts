@@ -110,11 +110,11 @@ export class HaneulWallet implements Wallet {
                 on: this.#on,
             },
             'haneul:signTransaction': {
-                version: '1.0.0',
+                version: '2.0.0',
                 signTransaction: this.#signTransaction,
             },
             'haneul:signAndExecuteTransaction': {
-                version: '1.1.0',
+                version: '2.0.0',
                 signAndExecuteTransaction: this.#signAndExecuteTransaction,
             },
             'haneulWallet:stake': {

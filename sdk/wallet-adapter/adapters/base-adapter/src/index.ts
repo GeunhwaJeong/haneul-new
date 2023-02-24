@@ -1,16 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { SignedTransaction, HaneulTransactionResponse } from "@haneullabs/haneul.js";
 import {
-  ExecuteTransactionRequestType,
-  SignableTransaction,
-  SignedTransaction,
-  HaneulAddress,
-  HaneulTransactionResponse,
-} from "@haneullabs/haneul.js";
+  HaneulSignTransactionInput,
+  HaneulSignAndExecuteTransactionInput,
+  WalletAccount,
+} from "@haneullabs/wallet-standard";
 
 export interface WalletAdapterEvents {
-  change(changes: { connected?: boolean; accounts?: HaneulAddress[] }): void;
+  change(changes: {
+    connected?: boolean;
+    accounts?: readonly WalletAccount[];
+  }): void;
 }
 
 export interface WalletAdapter {
@@ -27,18 +29,17 @@ export interface WalletAdapter {
     event: E,
     callback: WalletAdapterEvents[E]
   ) => () => void;
-  signTransaction(transaction: SignableTransaction): Promise<SignedTransaction>;
+  signTransaction(
+    transactionInput: HaneulSignTransactionInput
+  ): Promise<SignedTransaction>;
   /**
    * Suggest a transaction for the user to sign. Supports all valid transaction types.
    */
   signAndExecuteTransaction(
-    transaction: SignableTransaction,
-    options?: {
-      requestType?: ExecuteTransactionRequestType;
-    }
+    transactionInput: HaneulSignAndExecuteTransactionInput
   ): Promise<HaneulTransactionResponse>;
 
-  getAccounts: () => Promise<HaneulAddress[]>;
+  getAccounts: () => Promise<readonly WalletAccount[]>;
 }
 
 type WalletAdapterProviderUnsubscribe = () => void;

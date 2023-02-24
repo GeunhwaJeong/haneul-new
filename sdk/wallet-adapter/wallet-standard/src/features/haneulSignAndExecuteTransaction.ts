@@ -3,12 +3,12 @@
 
 import type {
   ExecuteTransactionRequestType,
-  SignableTransaction,
   HaneulTransactionResponse,
 } from "@haneullabs/haneul.js";
+import type { HaneulSignTransactionInput } from "./haneulSignTransaction";
 
 /** The latest API version of the signAndExecuteTransaction API. */
-export type HaneulSignAndExecuteTransactionVersion = "1.1.0";
+export type HaneulSignAndExecuteTransactionVersion = "2.0.0";
 
 /**
  * A Wallet Standard feature for signing a transaction, and submitting it to the
@@ -29,8 +29,8 @@ export type HaneulSignAndExecuteTransactionMethod = (
 ) => Promise<HaneulSignAndExecuteTransactionOutput>;
 
 /** Input for signing and sending transactions. */
-export interface HaneulSignAndExecuteTransactionInput {
-  transaction: SignableTransaction;
+export interface HaneulSignAndExecuteTransactionInput
+  extends HaneulSignTransactionInput {
   options?: HaneulSignAndExecuteTransactionOptions;
 }
 

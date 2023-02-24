@@ -14,7 +14,7 @@ export function useGetLatestCoins() {
   return async () => {
     if (!currentAccount) throw new Error("Wallet not connected");
     const { data } = await provider.getCoins(
-      currentAccount,
+      currentAccount.address,
       HANEUL_TYPE_ARG,
       undefined,
       1000
@@ -59,13 +59,15 @@ export function useManageCoin() {
     const inputCoins = getCoins(coins, totalAmount);
 
     const result = await signAndExecuteTransaction({
-      kind: "payHaneul",
-      data: {
-        inputCoins: inputCoins.map((coin) => coin.coinObjectId),
-        recipients: [currentAccount, currentAccount],
-        // TODO: Update SDK to accept bigint
-        amounts: [Number(amount), Number(gasFee)],
-        gasBudget: computeGasBudgetForPay(inputCoins.length),
+      transaction: {
+        kind: "payHaneul",
+        data: {
+          inputCoins: inputCoins.map((coin) => coin.coinObjectId),
+          recipients: [currentAccount.address, currentAccount.address],
+          // TODO: Update SDK to accept bigint
+          amounts: [Number(amount), Number(gasFee)],
+          gasBudget: computeGasBudgetForPay(inputCoins.length),
+        },
       },
     });
 
