@@ -4502,7 +4502,7 @@ async fn test_blocked_move_calls() {
             sender,
             HANEUL_FRAMEWORK_OBJECT_ID,
             ident_str!("haneul_system").to_owned(),
-            ident_str!("request_remove_validator").to_owned(),
+            ident_str!("request_set_commission_rate").to_owned(),
             vec![],
             authority_state
                 .get_object(&gas_object_id)
@@ -4510,11 +4510,14 @@ async fn test_blocked_move_calls() {
                 .unwrap()
                 .unwrap()
                 .compute_object_reference(),
-            vec![CallArg::Object(ObjectArg::SharedObject {
-                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                mutable: true,
-            })],
+            vec![
+                CallArg::Object(ObjectArg::SharedObject {
+                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                    mutable: true,
+                }),
+                CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            ],
             MAX_GAS,
         ),
         &sender_key,
