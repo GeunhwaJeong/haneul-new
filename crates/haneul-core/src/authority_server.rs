@@ -16,8 +16,11 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
-use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::{error::*, messages::*};
+use haneul_types::{
+    messages_checkpoint::{CheckpointRequest, CheckpointResponse},
+    haneul_system_state::HaneulSystemState,
+};
 use tap::TapFallible;
 use tokio::task::JoinHandle;
 use tracing::{error_span, info, Instrument};
@@ -464,6 +467,16 @@ impl Validator for ValidatorService {
         let request = request.into_inner();
 
         let response = self.state.handle_committee_info_request(&request)?;
+
+        return Ok(tonic::Response::new(response));
+    }
+
+    async fn get_system_state_object(
+        &self,
+        _request: tonic::Request<SystemStateRequest>,
+    ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
+        let epoch_store = self.state.load_epoch_store_one_call_per_task();
+        let response = epoch_store.system_state_object().clone();
 
         return Ok(tonic::Response::new(response));
     }

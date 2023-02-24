@@ -8,6 +8,7 @@ use std::path::Path;
 use haneul_storage::default_db_options;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::SequenceNumber;
+use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 use typed_store::metrics::SamplingInterval;
 use typed_store::rocks::{DBMap, DBOptions, MetricConf, ReadWriteOptions};
 use typed_store::traits::{Map, TableSummary, TypedStoreDebug};

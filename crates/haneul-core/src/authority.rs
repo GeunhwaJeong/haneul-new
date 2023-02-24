@@ -84,7 +84,7 @@ use haneul_types::{
     fp_ensure,
     messages::*,
     object::{Object, ObjectFormatOptions, ObjectRead},
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 
 use crate::authority::authority_per_epoch_store::{
