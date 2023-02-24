@@ -550,6 +550,7 @@ impl TryInto<Object> for HaneulObject<HaneulRawData> {
             }
             HaneulRawData::Package(p) => Data::Package(MovePackage::new(
                 p.id,
+                self.reference.version,
                 &p.module_map,
                 protocol_config.max_move_package_size(),
             )?),

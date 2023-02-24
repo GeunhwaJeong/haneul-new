@@ -17,7 +17,6 @@ use haneul_storage::mutex_table::{LockGuard, MutexTable};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Owner;
-use haneul_types::object::PACKAGE_VERSION;
 use haneul_types::storage::{BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey};
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -345,7 +344,7 @@ impl AuthorityStore {
         digest: &TransactionDigest,
         objects: &[InputObjectKind],
         epoch_store: &AuthorityPerEpochStore,
-    ) -> Result<Vec<ObjectKey>, HaneulError> {
+    ) -> Result<Vec<InputKey>, HaneulError> {
         let shared_locks_cell: OnceCell<HashMap<_, _>> = OnceCell::new();
 
         let mut missing = Vec::new();
@@ -360,26 +359,28 @@ impl AuthorityStore {
                     // If we can't find the locked version, it means
                     // 1. either we have a bug that skips shared object version assignment
                     // 2. or we have some DB corruption
-                    let version = shared_locks.get(id).unwrap_or_else(|| {
+                    let Some(version) = shared_locks.get(id) else {
                         panic!(
-                        "Shared object locks should have been set. tx_digset: {:?}, obj id: {:?}",
-                        digest, id
-                    )
-                    });
+                            "Shared object locks should have been set. tx_digset: {digest:?}, obj \
+                             id: {id:?}",
+                        )
+                    };
+
                     if !self.object_version_exists(id, *version)? {
-                        // When this happens, other transactions that use smaller versions of
-                        // this shared object haven't finished execution.
-                        missing.push(ObjectKey(*id, *version));
+                        // When this happens, other transactions that use smaller versions of this
+                        // shared object haven't finished execution.
+                        missing.push(InputKey(*id, Some(*version)));
                     }
                 }
                 InputObjectKind::MovePackage(id) => {
-                    if !self.object_version_exists(id, PACKAGE_VERSION)? {
-                        missing.push(ObjectKey(*id, PACKAGE_VERSION));
+                    if !self.object_exists(*id)? {
+                        // The cert cannot have been formed if the package was missing.
+                        missing.push(InputKey(*id, None));
                     }
                 }
                 InputObjectKind::ImmOrOwnedMoveObject(objref) => {
                     if self.get_object_by_key(&objref.0, objref.1)?.is_none() {
-                        missing.push(ObjectKey::from(objref));
+                        missing.push(InputKey(objref.0, Some(objref.1)));
                     }
                 }
             };
@@ -1252,3 +1253,7 @@ pub struct LockDetails {
     pub epoch: EpochId,
     pub tx_digest: TransactionDigest,
 }
+
+/// A potential input to a transaction.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct InputKey(pub ObjectID, pub Option<SequenceNumber>);

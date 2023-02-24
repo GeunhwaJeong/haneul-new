@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::event::{Event, EventEnvelope};
 use haneul_types::gas_coin::GAS;
-use haneul_types::object::{Owner, PACKAGE_VERSION};
+use haneul_types::object::{Owner, OBJECT_START_VERSION};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use super::*;
@@ -63,7 +63,7 @@ pub fn new_test_publish_event(
         Event::Publish {
             sender: sender.unwrap_or_else(HaneulAddress::random_for_testing_only),
             package_id: ObjectID::random(),
-            version: PACKAGE_VERSION,
+            version: OBJECT_START_VERSION,
             digest: ObjectDigest::random(),
         },
         None,
