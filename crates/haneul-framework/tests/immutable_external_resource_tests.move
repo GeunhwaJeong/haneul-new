@@ -8,8 +8,8 @@ module haneul::immutable_external_resource_tests {
     use std::ascii::Self;
     use haneul::digest;
 
-    const EHASH_LENGTH_MISMATCH: u64 = 0;
-    const URL_STRING_MISMATCH: u64 = 1;
+    const EHashLengthMisMatch: u64 = 0;
+    const EUrlStringMisMatch: u64 = 1;
 
     #[test]
     fun test_init() {

@@ -18,15 +18,15 @@ module haneul::staking_pool {
     friend haneul::validator;
     friend haneul::validator_set;
     
-    const EINSUFFICIENT_POOL_TOKEN_BALANCE: u64 = 0;
-    const EWRONG_POOL: u64 = 1;
-    const EWITHDRAW_AMOUNT_CANNOT_BE_ZERO: u64 = 2;
-    const EINSUFFICIENT_HANEUL_TOKEN_BALANCE: u64 = 3;
-    const EINSUFFICIENT_REWARDS_POOL_BALANCE: u64 = 4;
-    const EDESTROY_NON_ZERO_BALANCE: u64 = 5;
-    const ETOKEN_TIME_LOCK_IS_SOME: u64 = 6;
-    const EWRONG_DELEGATION: u64 = 7;
-    const EPENDING_DELEGATION_DOES_NOT_EXIST: u64 = 8;
+    const EInsufficientPoolTokenBalance: u64 = 0;
+    const EWrongPool: u64 = 1;
+    const EWithdrawAmountCannotBeZero: u64 = 2;
+    const EInsufficientHaneulTokenBalance: u64 = 3;
+    const EInsufficientRewardsPoolBalance: u64 = 4;
+    const EDestroyNonzeroBalance: u64 = 5;
+    const ETokenTimeLockIsSome: u64 = 6;
+    const EWrongDelegation: u64 = 7;
+    const EPendingDelegationDoesNotExist: u64 = 8;
 
     /// A staking pool embedded in each validator struct in the system state object.
     struct StakingPool has store {
@@ -198,16 +198,16 @@ module haneul::staking_pool {
         staked_haneul: StakedHaneul,
     ) : (Balance<DelegationToken>, Balance<HANEUL>, Option<EpochTimeLock>) {
         // Check that the delegation and staked haneul objects match.
-        assert!(object::id(&staked_haneul) == delegation.staked_haneul_id, EWRONG_DELEGATION);
+        assert!(object::id(&staked_haneul) == delegation.staked_haneul_id, EWrongDelegation);
 
         // Check that the delegation information matches the pool. 
         assert!(
             staked_haneul.validator_address == pool.validator_address &&
             staked_haneul.pool_starting_epoch == pool.starting_epoch,
-            EWRONG_POOL
+            EWrongPool
         );
 
-        assert!(delegation.principal_haneul_amount == balance::value(&staked_haneul.principal), EINSUFFICIENT_HANEUL_TOKEN_BALANCE);
+        assert!(delegation.principal_haneul_amount == balance::value(&staked_haneul.principal), EInsufficientHaneulTokenBalance);
 
         let pool_tokens = destroy_delegation_and_return_pool_tokens(delegation);
         let (principal_withdraw, time_lock) = unwrap_staked_haneul(staked_haneul);
@@ -381,8 +381,8 @@ module haneul::staking_pool {
             principal_haneul_amount,
         } = delegation;
         object::delete(id);
-        assert!(balance::value(&pool_tokens) == 0, EDESTROY_NON_ZERO_BALANCE);
-        assert!(principal_haneul_amount == 0, EDESTROY_NON_ZERO_BALANCE);
+        assert!(balance::value(&pool_tokens) == 0, EDestroyNonzeroBalance);
+        assert!(principal_haneul_amount == 0, EDestroyNonzeroBalance);
         balance::destroy_zero(pool_tokens);
     }
 
@@ -397,9 +397,9 @@ module haneul::staking_pool {
             haneul_token_lock
         } = staked_haneul;
         object::delete(id);
-        assert!(balance::value(&principal) == 0, EDESTROY_NON_ZERO_BALANCE);
+        assert!(balance::value(&principal) == 0, EDestroyNonzeroBalance);
         balance::destroy_zero(principal);
-        assert!(option::is_none(&haneul_token_lock), ETOKEN_TIME_LOCK_IS_SOME);
+        assert!(option::is_none(&haneul_token_lock), ETokenTimeLockIsSome);
         option::destroy_none(haneul_token_lock);
     }
 

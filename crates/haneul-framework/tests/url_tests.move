@@ -6,7 +6,7 @@ module haneul::url_tests {
     use haneul::url;
     use std::ascii::Self;
 
-    const URL_STRING_MISMATCH: u64 = 1;
+    const EUrlStringMismatch: u64 = 1;
 
     #[test]
     fun test_basic_url() {
@@ -14,6 +14,6 @@ module haneul::url_tests {
         let url_str = ascii::string(x"414243454647");
 
         let url = url::new_unsafe(url_str);
-        assert!(url::inner_url(&url) == url_str, URL_STRING_MISMATCH);
+        assert!(url::inner_url(&url) == url_str, EUrlStringMismatch);
     }
 }
