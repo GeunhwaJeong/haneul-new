@@ -6,6 +6,7 @@ use futures::future;
 use move_binary_format::access::ModuleAccess;
 use move_binary_format::CompiledModule;
 use std::{collections::HashMap, fmt::Debug};
+use haneul_types::error::UserInputError;
 use thiserror::Error;
 
 use move_compiler::compiled_unit::{CompiledUnitEnum, NamedCompiledModule};
@@ -16,7 +17,7 @@ use haneul_sdk::apis::ReadApi;
 use haneul_sdk::error::Error;
 
 use haneul_sdk::rpc_types::{HaneulRawData, HaneulRawMoveObject, HaneulRawMovePackage};
-use haneul_types::{base_types::ObjectID, error::HaneulError};
+use haneul_types::base_types::ObjectID;
 
 #[cfg(test)]
 mod tests;
@@ -27,7 +28,7 @@ pub enum SourceVerificationError {
     DependencyObjectReadFailure(Error),
 
     #[error("Dependency object does not exist or was deleted: {0:?}")]
-    HaneulObjectRefFailure(HaneulError),
+    HaneulObjectRefFailure(UserInputError),
 
     #[error("Dependency ID contains a Haneul object, not a Move package: {0}")]
     ObjectFoundWhenPackageExpected(ObjectID, HaneulRawMoveObject),

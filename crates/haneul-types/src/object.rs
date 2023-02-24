@@ -18,7 +18,7 @@ use serde_with::Bytes;
 
 use crate::base_types::ObjectIDParseError;
 use crate::crypto::{deterministic_random_account_key, sha3_hash};
-use crate::error::{ExecutionError, ExecutionErrorKind};
+use crate::error::{ExecutionError, ExecutionErrorKind, UserInputError, UserInputResult};
 use crate::error::{HaneulError, HaneulResult};
 use crate::move_package::MovePackage;
 use crate::{
@@ -761,10 +761,10 @@ pub enum ObjectRead {
 impl ObjectRead {
     /// Returns the object value if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn into_object(self) -> Result<Object, HaneulError> {
+    pub fn into_object(self) -> UserInputResult<Object> {
         match self {
-            Self::Deleted(oref) => Err(HaneulError::ObjectDeleted { object_ref: oref }),
-            Self::NotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::Deleted(oref) => Err(UserInputError::ObjectDeleted { object_ref: oref }),
+            Self::NotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: id,
                 version: None,
             }),
@@ -819,15 +819,15 @@ pub enum PastObjectRead {
 
 impl PastObjectRead {
     /// Returns the object value if there is any, otherwise an Err
-    pub fn into_object(self) -> Result<Object, HaneulError> {
+    pub fn into_object(self) -> UserInputResult<Object> {
         match self {
-            Self::ObjectDeleted(oref) => Err(HaneulError::ObjectDeleted { object_ref: oref }),
-            Self::ObjectNotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::ObjectDeleted(oref) => Err(UserInputError::ObjectDeleted { object_ref: oref }),
+            Self::ObjectNotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: id,
                 version: None,
             }),
             Self::VersionFound(_, o, _) => Ok(o),
-            Self::VersionNotFound(object_id, version) => Err(HaneulError::ObjectNotFound {
+            Self::VersionNotFound(object_id, version) => Err(UserInputError::ObjectNotFound {
                 object_id,
                 version: Some(version),
             }),
@@ -835,7 +835,7 @@ impl PastObjectRead {
                 object_id,
                 asked_version,
                 latest_version,
-            } => Err(HaneulError::ObjectSequenceNumberTooHigh {
+            } => Err(UserInputError::ObjectSequenceNumberTooHigh {
                 object_id,
                 asked_version,
                 latest_version,

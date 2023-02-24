@@ -21,7 +21,7 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::construct_tbls_randomness_object_message;
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::object::{Object, ObjectRead};
 
 pub struct ThresholdBlsApi {
@@ -44,7 +44,7 @@ impl ThresholdBlsApi {
     async fn get_randomness_object(&self, object_id: ObjectID) -> Result<Object, Error> {
         let obj_read = self.state.get_object_read(&object_id).await?;
         let ObjectRead::Exists(_obj_ref, obj, layout) = obj_read else {
-            Err(Error::HaneulError(HaneulError::ObjectNotFound{ object_id, version: None }))? };
+            Err(Error::HaneulError(UserInputError::ObjectNotFound{ object_id, version: None }.into()))? };
         let Some(layout) = layout else {
             Err(Error::InternalError(anyhow!("Object does not have a layout")))?};
         if !Self::is_randomness_object(&layout) {

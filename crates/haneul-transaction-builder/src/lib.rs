@@ -22,7 +22,7 @@ use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulData, HaneulTypeT
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
 use haneul_types::coin::{Coin, LockedCoin};
-use haneul_types::error::HaneulError;
+use haneul_types::error::UserInputError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     CallArg, InputObjectKind, MoveCall, ObjectArg, SingleTransactionKind, TransactionData,
@@ -194,7 +194,10 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         amounts: Vec<u64>,
         gas_budget: u64,
     ) -> anyhow::Result<TransactionData> {
-        fp_ensure!(!input_coins.is_empty(), HaneulError::EmptyInputCoins.into());
+        fp_ensure!(
+            !input_coins.is_empty(),
+            UserInputError::EmptyInputCoins.into()
+        );
 
         let handles: Vec<_> = input_coins
             .into_iter()
@@ -225,7 +228,10 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         recipient: HaneulAddress,
         gas_budget: u64,
     ) -> anyhow::Result<TransactionData> {
-        fp_ensure!(!input_coins.is_empty(), HaneulError::EmptyInputCoins.into());
+        fp_ensure!(
+            !input_coins.is_empty(),
+            UserInputError::EmptyInputCoins.into()
+        );
 
         let handles: Vec<_> = input_coins
             .into_iter()
@@ -539,7 +545,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> anyhow::Result<TransactionData> {
         fp_ensure!(
             !single_transaction_params.is_empty(),
-            HaneulError::InvalidBatchTransaction {
+            UserInputError::InvalidBatchTransaction {
                 error: "Batch Transaction cannot be empty".to_owned(),
             }
             .into()

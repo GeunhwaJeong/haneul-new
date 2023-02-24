@@ -18,6 +18,7 @@ use haneul_network::{
     default_haneullabs_network_config, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC,
 };
 use haneul_types::crypto::{AuthorityPublicKeyBytes, AuthoritySignInfo};
+use haneul_types::error::UserInputError;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -820,10 +821,10 @@ where
                 // A long timeout before we hear back from a quorum
                 self.timeouts.pre_quorum_timeout,
             )
-            .await.map_err(|_state| HaneulError::ObjectNotFound {
+            .await.map_err(|_state| UserInputError::ObjectNotFound {
                 object_id,
                 version: None,
-            })
+            }.into())
     }
 
     /// Get the latest system state object from the authorities.
@@ -839,7 +840,7 @@ where
             object
                 .data
                 .try_as_move()
-                .ok_or(HaneulError::MovePackageAsObject {
+                .ok_or(UserInputError::MovePackageAsObject {
                     object_id: object.id(),
                 })?
                 .contents(),

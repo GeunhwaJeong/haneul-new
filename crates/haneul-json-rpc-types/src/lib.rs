@@ -38,7 +38,7 @@ use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::HaneulAuthorityStrongQuorumSignInfo;
 use haneul_types::dynamic_field::DynamicFieldInfo;
-use haneul_types::error::{ExecutionError, HaneulError};
+use haneul_types::error::{ExecutionError, HaneulError, UserInputError, UserInputResult};
 use haneul_types::event::{BalanceChangeType, Event, EventID};
 use haneul_types::event::{EventEnvelope, EventType};
 use haneul_types::filter::EventFilter;
@@ -1025,12 +1025,12 @@ pub enum HaneulObjectRead<T: HaneulData> {
 impl<T: HaneulData> HaneulObjectRead<T> {
     /// Returns a reference to the object if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn object(&self) -> Result<&HaneulObject<T>, HaneulError> {
+    pub fn object(&self) -> UserInputResult<&HaneulObject<T>> {
         match &self {
-            Self::Deleted(oref) => Err(HaneulError::ObjectDeleted {
+            Self::Deleted(oref) => Err(UserInputError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
             }),
-            Self::NotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::NotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: *id,
                 version: None,
             }),
@@ -1040,12 +1040,12 @@ impl<T: HaneulData> HaneulObjectRead<T> {
 
     /// Returns the object value if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn into_object(self) -> Result<HaneulObject<T>, HaneulError> {
+    pub fn into_object(self) -> UserInputResult<HaneulObject<T>> {
         match self {
-            Self::Deleted(oref) => Err(HaneulError::ObjectDeleted {
+            Self::Deleted(oref) => Err(UserInputError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
             }),
-            Self::NotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::NotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: id,
                 version: None,
             }),
@@ -1091,17 +1091,17 @@ pub enum HaneulPastObjectRead<T: HaneulData> {
 
 impl<T: HaneulData> HaneulPastObjectRead<T> {
     /// Returns a reference to the object if there is any, otherwise an Err
-    pub fn object(&self) -> Result<&HaneulObject<T>, HaneulError> {
+    pub fn object(&self) -> UserInputResult<&HaneulObject<T>> {
         match &self {
-            Self::ObjectDeleted(oref) => Err(HaneulError::ObjectDeleted {
+            Self::ObjectDeleted(oref) => Err(UserInputError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
             }),
-            Self::ObjectNotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::ObjectNotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: *id,
                 version: None,
             }),
             Self::VersionFound(o) => Ok(o),
-            Self::VersionNotFound(id, seq_num) => Err(HaneulError::ObjectNotFound {
+            Self::VersionNotFound(id, seq_num) => Err(UserInputError::ObjectNotFound {
                 object_id: *id,
                 version: Some(*seq_num),
             }),
@@ -1109,7 +1109,7 @@ impl<T: HaneulData> HaneulPastObjectRead<T> {
                 object_id,
                 asked_version,
                 latest_version,
-            } => Err(HaneulError::ObjectSequenceNumberTooHigh {
+            } => Err(UserInputError::ObjectSequenceNumberTooHigh {
                 object_id: *object_id,
                 asked_version: *asked_version,
                 latest_version: *latest_version,
@@ -1118,17 +1118,17 @@ impl<T: HaneulData> HaneulPastObjectRead<T> {
     }
 
     /// Returns the object value if there is any, otherwise an Err
-    pub fn into_object(self) -> Result<HaneulObject<T>, HaneulError> {
+    pub fn into_object(self) -> UserInputResult<HaneulObject<T>> {
         match self {
-            Self::ObjectDeleted(oref) => Err(HaneulError::ObjectDeleted {
+            Self::ObjectDeleted(oref) => Err(UserInputError::ObjectDeleted {
                 object_ref: oref.to_object_ref(),
             }),
-            Self::ObjectNotExists(id) => Err(HaneulError::ObjectNotFound {
+            Self::ObjectNotExists(id) => Err(UserInputError::ObjectNotFound {
                 object_id: id,
                 version: None,
             }),
             Self::VersionFound(o) => Ok(o),
-            Self::VersionNotFound(object_id, version) => Err(HaneulError::ObjectNotFound {
+            Self::VersionNotFound(object_id, version) => Err(UserInputError::ObjectNotFound {
                 object_id,
                 version: Some(version),
             }),
@@ -1136,7 +1136,7 @@ impl<T: HaneulData> HaneulPastObjectRead<T> {
                 object_id,
                 asked_version,
                 latest_version,
-            } => Err(HaneulError::ObjectSequenceNumberTooHigh {
+            } => Err(UserInputError::ObjectSequenceNumberTooHigh {
                 object_id,
                 asked_version,
                 latest_version,

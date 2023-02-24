@@ -59,34 +59,32 @@ macro_rules! exit_main {
     };
 }
 
-/// Custom error type for Haneul.
 #[derive(
     Eq, PartialEq, Clone, Debug, Serialize, Deserialize, Error, Hash, AsRefStr, IntoStaticStr,
 )]
-pub enum HaneulError {
-    // Object misuse issues
-    #[error("Error checking transaction input objects: {:?}", errors)]
-    TransactionInputObjectsErrors { errors: Vec<HaneulError> },
-    #[error("Attempt to transfer an object that's not owned.")]
-    TransferUnownedError,
-    #[error("Attempt to transfer an object that does not have public transfer. Object transfer must be done instead using a distinct Move function call.")]
-    TransferObjectWithoutPublicTransferError,
-    #[error("A move package is expected, instead a move object is passed: {object_id}")]
-    MoveObjectAsPackage { object_id: ObjectID },
-    #[error("The HANEUL coin to be transferred has balance {balance}, which is not enough to cover the transfer amount {required}")]
-    TransferInsufficientBalance { balance: u64, required: u64 },
-    #[error("A move object is expected, instead a move package is passed: {object_id}")]
-    MovePackageAsObject { object_id: ObjectID },
-    #[error("Expecting a singler owner, shared ownership found")]
-    UnexpectedOwnerType,
-    #[error("Shared object not yet supported")]
-    UnsupportedSharedObjectError,
-    #[error("Object used as shared is not shared.")]
-    NotSharedObjectError,
-    #[error("An object that's owned by another object cannot be deleted or wrapped. It must be transferred to an account address first before deletion")]
-    DeleteObjectOwnedObject,
-    #[error("Invalid Batch Transaction: {}", error)]
-    InvalidBatchTransaction { error: String },
+pub enum UserInputError {
+    #[error("Mutable object {object_id} cannot appear more than one in one transaction.")]
+    MutableObjectUsedMoreThanOnce { object_id: ObjectID },
+    #[error("Wrong number of parameters for the transaction.")]
+    ObjectInputArityViolation,
+    #[error(
+        "Could not find the referenced object {:?} at version {:?}.",
+        object_id,
+        version
+    )]
+    ObjectNotFound {
+        object_id: ObjectID,
+        version: Option<SequenceNumber>,
+    },
+    #[error("Object {provided_obj_ref:?} is not available for consumption, its current version: {current_version:?}.")]
+    ObjectVersionUnavailableForConsumption {
+        provided_obj_ref: ObjectRef,
+        current_version: SequenceNumber,
+    },
+    #[error("Dependent package not found on-chain: {package_id:?}")]
+    DependentPackageNotFound { package_id: ObjectID },
+    #[error("Mutable parameter provided, immutable parameter expected.")]
+    ImmutableParameterExpectedError { object_id: ObjectID },
     #[error(
         "Object {child_id:?} is owned by object {parent_id:?}. \
         Objects owned by other objects cannot be used as input arguments."
@@ -95,6 +93,108 @@ pub enum HaneulError {
         child_id: ObjectID,
         parent_id: ObjectID,
     },
+    #[error(
+        "Invalid Object digest for object {object_id:?}. Expected digest : {expected_digest:?}."
+    )]
+    InvalidObjectDigest {
+        object_id: ObjectID,
+        expected_digest: ObjectDigest,
+    },
+    #[error("Sequence numbers above the maximal value are not usable for transfers.")]
+    InvalidSequenceNumber,
+    #[error("A move object is expected, instead a move package is passed: {object_id}")]
+    MovePackageAsObject { object_id: ObjectID },
+    #[error("A move package is expected, instead a move object is passed: {object_id}")]
+    MoveObjectAsPackage { object_id: ObjectID },
+    #[error("Transaction was not signed by the correct sender: {}", error)]
+    IncorrectUserSignature { error: String },
+
+    #[error("Object used as shared is not shared.")]
+    NotSharedObjectError,
+    #[error("The transaction inputs contain duplicated ObjectRef's")]
+    DuplicateObjectRefInput,
+
+    // Gas related errors
+    #[error("Gas object is not an owned object with owner: {:?}.", owner)]
+    GasObjectNotOwnedObject { owner: Owner },
+    #[error("Gas budget: {:?} is higher than max: {:?}.", gas_budget, max_budget)]
+    GasBudgetTooHigh { gas_budget: u64, max_budget: u64 },
+    #[error("Gas budget: {:?} is lower than min: {:?}.", gas_budget, min_budget)]
+    GasBudgetTooLow { gas_budget: u64, min_budget: u64 },
+    #[error(
+        "Balance of gas object {:?} is lower than gas budget: {:?}, with gas price: {:?}.",
+        gas_balance,
+        gas_budget,
+        gas_price
+    )]
+    GasBalanceTooLowToCoverGasBudget {
+        gas_balance: u128,
+        gas_budget: u128,
+        gas_price: u64,
+    },
+    #[error("Transaction kind does not support Sponsored Transaction")]
+    UnsupportedSponsoredTransactionKind,
+    #[error(
+        "Gas price {:?} under reference gas price (RGP) {:?}",
+        gas_price,
+        reference_gas_price
+    )]
+    GasPriceUnderRGP {
+        gas_price: u64,
+        reference_gas_price: u64,
+    },
+    #[error("Object {object_id} is not a gas object")]
+    InvalidGasObject { object_id: ObjectID },
+    #[error("Gas object does not have enough balance to cover minimal gas spend")]
+    InsufficientBalanceToCoverMinimalGas,
+
+    #[error("Could not find the referenced object {:?} as the asked version {:?} is higher than the latest {:?}", object_id, asked_version, latest_version)]
+    ObjectSequenceNumberTooHigh {
+        object_id: ObjectID,
+        asked_version: SequenceNumber,
+        latest_version: SequenceNumber,
+    },
+    #[error("Object deleted at reference {:?}.", object_ref)]
+    ObjectDeleted { object_ref: ObjectRef },
+    #[error("Invalid Batch Transaction: {}", error)]
+    InvalidBatchTransaction { error: String },
+    #[error("This Move function is currently disabled and not available for call")]
+    BlockedMoveFunction,
+    #[error("Empty input coins for Pay related transaction")]
+    EmptyInputCoins,
+
+    #[error("HANEUL payment transactions use first input coin for gas payment, but found a different gas object.")]
+    UnexpectedGasPaymentObject,
+
+    #[error("Wrong initial version given for shared object")]
+    SharedObjectStartingVersionMismatch,
+
+    #[error("Attempt to transfer object {object_id} that does not have public transfer. Object transfer must be done instead using a distinct Move function call.")]
+    TransferObjectWithoutPublicTransferError { object_id: ObjectID },
+
+    #[error("Feature is not yet supported: {0}")]
+    Unsupported(String),
+}
+
+/// Custom error type for Haneul.
+#[derive(
+    Eq, PartialEq, Clone, Debug, Serialize, Deserialize, Error, Hash, AsRefStr, IntoStaticStr,
+)]
+pub enum HaneulError {
+    #[error("Error checking transaction input objects: {:?}", error)]
+    UserInputError { error: UserInputError },
+    #[error("Attempt to transfer an object that's not owned.")]
+    TransferUnownedError,
+    #[error("The HANEUL coin to be transferred has balance {balance}, which is not enough to cover the transfer amount {required}")]
+    TransferInsufficientBalance { balance: u64, required: u64 },
+
+    #[error("Expecting a singler owner, shared ownership found")]
+    UnexpectedOwnerType,
+    #[error("Shared object not yet supported")]
+    UnsupportedSharedObjectError,
+    #[error("An object that's owned by another object cannot be deleted or wrapped. It must be transferred to an account address first before deletion")]
+    DeleteObjectOwnedObject,
+
     #[error("Input {object_id} already has {queue_len} transactions pending, above threshold of {threshold}")]
     TooManyTransactionsPendingOnObject {
         object_id: ObjectID,
@@ -196,8 +296,6 @@ pub enum HaneulError {
     UnknownSenderAccount,
     #[error("Signatures in a certificate must be from different authorities.")]
     CertificateAuthorityReuse,
-    #[error("Sequence numbers above the maximal value are not usable for transfers.")]
-    InvalidSequenceNumber,
     #[error("Sequence number overflow.")]
     SequenceOverflow,
     #[error("Sequence number underflow.")]
@@ -212,27 +310,15 @@ pub enum HaneulError {
     InvalidAddress,
     #[error("Invalid transaction digest.")]
     InvalidTransactionDigest,
-    #[error(
-        "Invalid Object digest for object {object_id:?}. Expected digest : {expected_digest:?}."
-    )]
-    InvalidObjectDigest {
-        object_id: ObjectID,
-        expected_digest: ObjectDigest,
-    },
+
     #[error("Cannot deserialize.")]
     InvalidDecoding,
     #[error("Unexpected message.")]
     UnexpectedMessage,
-    #[error("The transaction inputs contain duplicated ObjectRef's")]
-    DuplicateObjectRefInput,
     #[error("Network error while querying service: {:?}.", error)]
     ClientIoError { error: String },
     #[error("Cannot transfer immutable object.")]
     TransferImmutableError,
-    #[error("Wrong initial version given for shared object")]
-    SharedObjectStartingVersionMismatch,
-    #[error("Mutable parameter provided, immutable parameter expected.")]
-    ImmutableParameterExpectedError,
 
     // Errors related to batches
     #[error("The range specified is invalid.")]
@@ -274,8 +360,6 @@ pub enum HaneulError {
     ModulePublishFailure { error: String },
     #[error("Failed to build Move modules: {error}.")]
     ModuleBuildFailure { error: String },
-    #[error("Dependent package not found on-chain: {package_id:?}")]
-    DependentPackageNotFound { package_id: ObjectID },
     #[error("Move unit tests failed: {error:?}")]
     MoveUnitTestFailure { error: String },
 
@@ -309,46 +393,11 @@ pub enum HaneulError {
         current_module: String,
     },
 
-    // Gas related errors
-    #[error("Gas object is not an owned object with owner: {:?}.", owner)]
-    GasObjectNotOwnedObject { owner: Owner },
-    #[error("Gas budget: {:?} is higher than max: {:?}.", gas_budget, max_budget)]
-    GasBudgetTooHigh { gas_budget: u64, max_budget: u64 },
-    #[error("Gas budget: {:?} is lower than min: {:?}.", gas_budget, min_budget)]
-    GasBudgetTooLow { gas_budget: u64, min_budget: u64 },
-    #[error(
-        "Balance of gas object {:?} is lower than gas budget: {:?}, with gas price: {:?}.",
-        gas_balance,
-        gas_budget,
-        gas_price
-    )]
-    GasBalanceTooLowToCoverGasBudget {
-        gas_balance: u128,
-        gas_budget: u128,
-        gas_price: u64,
-    },
-    #[error("Transaction kind does not support Sponsored Transaction")]
-    UnsupportedSponsoredTransactionKind,
-    #[error(
-        "Gas price {:?} under reference gas price (RGP) {:?}",
-        gas_price,
-        reference_gas_price
-    )]
-    GasPriceUnderRGP {
-        gas_price: u64,
-        reference_gas_price: u64,
-    },
-
     // Internal state errors
     #[error("Attempt to update state of TxContext from a different instance than original.")]
     InvalidTxUpdate,
     #[error("Attempt to re-initialize a transaction lock for objects {:?}.", refs)]
     ObjectLockAlreadyInitialized { refs: Vec<ObjectRef> },
-    #[error("Object {provided_obj_ref:?} is not available for consumption, its current version: {current_version:?}.")]
-    ObjectVersionUnavailableForConsumption {
-        provided_obj_ref: ObjectRef,
-        current_version: SequenceNumber,
-    },
     #[error(
         "Object {obj_ref:?} already locked by a different transaction: {pending_transaction:?}"
     )]
@@ -370,29 +419,11 @@ pub enum HaneulError {
         digest
     )]
     TransactionAlreadyExecuted { digest: TransactionDigest },
-    #[error(
-        "Could not find the referenced object {:?} at version {:?}.",
-        object_id,
-        version
-    )]
-    ObjectNotFound {
-        object_id: ObjectID,
-        version: Option<SequenceNumber>,
-    },
-    #[error("Could not find the referenced object {:?} as the asked version {:?} is higher than the latest {:?}", object_id, asked_version, latest_version)]
-    ObjectSequenceNumberTooHigh {
-        object_id: ObjectID,
-        asked_version: SequenceNumber,
-        latest_version: SequenceNumber,
-    },
-    #[error("Object deleted at reference {:?}.", object_ref)]
-    ObjectDeleted { object_ref: ObjectRef },
     #[error("Object ID did not have the expected type")]
     BadObjectType { error: String },
     #[error("Move Execution failed")]
     MoveExecutionFailure,
-    #[error("Wrong number of parameters for the transaction.")]
-    ObjectInputArityViolation,
+
     #[error("Execution invariant violated")]
     ExecutionInvariantViolation,
     #[error("Authority did not return the information it is expected to have.")]
@@ -534,17 +565,8 @@ pub enum HaneulError {
     #[error("Failed to get supermajority's consensus on committee information for minimal epoch: {minimal_epoch}")]
     FailedToGetAgreedCommitteeFromMajority { minimal_epoch: EpochId },
 
-    #[error("Empty input coins for Pay related transaction")]
-    EmptyInputCoins,
-
-    #[error("HANEUL payment transactions use first input coin for gas payment, but found a different gas object.")]
-    UnexpectedGasPaymentObject,
-
     #[error("Index store not available on this Fullnode.")]
     IndexStoreNotAvailable,
-
-    #[error("This Move function is currently disabled and not available for call")]
-    BlockedMoveFunction,
 
     #[error("unknown error: {0}")]
     Unknown(String),
@@ -563,6 +585,7 @@ pub enum VMMemoryLimitExceededSubStatusCode {
 }
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
+pub type UserInputResult<T = ()> = Result<T, UserInputError>;
 
 // TODO these are both horribly wrong, categorization needs to be considered
 impl From<PartialVMError> for HaneulError {
@@ -633,34 +656,29 @@ impl From<FastCryptoError> for HaneulError {
     }
 }
 
+impl TryFrom<HaneulError> for UserInputError {
+    type Error = anyhow::Error;
+
+    fn try_from(err: HaneulError) -> Result<Self, Self::Error> {
+        match err {
+            HaneulError::UserInputError { error } => Ok(error),
+            other => anyhow::bail!("error {:?} is not UserInputError", other),
+        }
+    }
+}
+
+impl From<UserInputError> for HaneulError {
+    fn from(error: UserInputError) -> Self {
+        HaneulError::UserInputError { error }
+    }
+}
+
 impl HaneulError {
     pub fn individual_error_indicates_epoch_change(&self) -> bool {
         matches!(
             self,
             HaneulError::ValidatorHaltedAtEpochEnd | HaneulError::MissingCommitteeAtEpoch(_)
         )
-    }
-
-    // Collapse TransactionInputObjectsErrors into a single HaneulError
-    // if there's exactly one error.
-    pub fn collapse_if_single_transaction_input_error(&self) -> Option<&HaneulError> {
-        match self {
-            HaneulError::TransactionInputObjectsErrors { errors } => {
-                if errors.len() != 1 {
-                    None
-                } else {
-                    // Safe to unwrap, length is checked above
-                    Some(errors.get(0).unwrap())
-                }
-            }
-            _ => None,
-        }
-    }
-
-    pub fn into_transaction_input_error(error: HaneulError) -> HaneulError {
-        HaneulError::TransactionInputObjectsErrors {
-            errors: vec![error],
-        }
     }
 
     /// Returns if the error is retryable and if the error's retryability is
@@ -677,18 +695,21 @@ impl HaneulError {
             HaneulError::MissingCommitteeAtEpoch(..) => (true, true),
             HaneulError::WrongEpoch { .. } => (true, true),
 
+            HaneulError::UserInputError { error } => {
+                match error {
+                    // Only ObjectNotFound and DependentPackageNotFound is potentially retryable
+                    UserInputError::ObjectNotFound { .. } => (true, true),
+                    UserInputError::DependentPackageNotFound { .. } => (true, true),
+                    _ => (false, true),
+                }
+            }
+
             // Non retryable error
-            HaneulError::TransactionInputObjectsErrors { .. } => (false, true),
             HaneulError::ExecutionError(..) => (false, true),
             HaneulError::ByzantineAuthoritySuspicion { .. } => (false, true),
             HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
                 (false, true)
             }
-            HaneulError::ObjectVersionUnavailableForConsumption { .. } => (false, true),
-            HaneulError::GasBudgetTooHigh { .. } => (false, true),
-            HaneulError::GasBudgetTooLow { .. } => (false, true),
-            HaneulError::GasBalanceTooLowToCoverGasBudget { .. } => (false, true),
-            HaneulError::GasPriceUnderRGP { .. } => (false, true),
             _ => (false, false),
         }
     }

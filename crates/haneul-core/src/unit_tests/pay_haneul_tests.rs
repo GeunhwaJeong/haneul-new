@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::AccountKeyPair;
+use haneul_types::error::UserInputError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
     ExecutionFailureStatus, ExecutionStatus, PayAllHaneul, PayHaneul, SignedTransactionEffects,
@@ -77,11 +78,8 @@ async fn test_pay_haneul_failure_insufficient_gas_balance_one_input_coin() {
     .await;
 
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 1000,
             gas_budget: 1200,
             gas_price: 1
@@ -107,11 +105,8 @@ async fn test_pay_haneul_failure_insufficient_total_balance_one_input_coin() {
     .await;
 
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 1000,
             gas_budget: 100 + 100 + 900,
             gas_price: 1
@@ -138,11 +133,8 @@ async fn test_pay_haneul_failure_insufficient_gas_balance_multiple_input_coins()
     .await;
 
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 400,
             gas_budget: 801,
             gas_price: 1
@@ -168,11 +160,8 @@ async fn test_pay_haneul_failure_insufficient_total_balance_multiple_input_coins
     )
     .await;
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 400 + 600,
             gas_budget: 400 + 400 + 201,
             gas_price: 1
@@ -335,11 +324,8 @@ async fn test_pay_all_haneul_failure_insufficient_gas_one_input_coin() {
     let res = execute_pay_all_haneul(vec![&coin1], recipient, sender, sender_key, 2000).await;
 
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 1000,
             gas_budget: 2000,
             gas_price: 1
@@ -356,11 +342,8 @@ async fn test_pay_all_haneul_failure_insufficient_gas_budget_multiple_input_coin
     let res = execute_pay_all_haneul(vec![&coin1, &coin2], recipient, sender, sender_key, 2500).await;
 
     assert_eq!(
-        res.txn_result
-            .unwrap_err()
-            .collapse_if_single_transaction_input_error()
-            .unwrap(),
-        &HaneulError::GasBalanceTooLowToCoverGasBudget {
+        UserInputError::try_from(res.txn_result.unwrap_err()).unwrap(),
+        UserInputError::GasBalanceTooLowToCoverGasBudget {
             gas_balance: 1000,
             gas_budget: 2500,
             gas_price: 1
