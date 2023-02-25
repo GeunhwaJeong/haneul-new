@@ -409,6 +409,9 @@ pub enum HaneulError {
     #[error("Index store not available on this Fullnode.")]
     IndexStoreNotAvailable,
 
+    #[error("Failed to get the system state object content")]
+    HaneulSystemStateNotFound,
+
     #[error("unknown error: {0}")]
     Unknown(String),
 }

@@ -18,7 +18,10 @@ use haneul_types::accumulator::Accumulator;
 use haneul_types::error::UserInputError;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Owner;
-use haneul_types::storage::{BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey};
+use haneul_types::storage::{
+    BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey, ObjectStore,
+};
+use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use tracing::{debug, info, trace};
@@ -298,7 +301,7 @@ impl AuthorityStore {
 
     /// Read an object and return it, or Ok(None) if the object was not found.
     pub fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
-        self.perpetual_tables.get_object(object_id)
+        self.perpetual_tables.as_ref().get_object(object_id)
     }
 
     /// Get many objects
@@ -1149,7 +1152,7 @@ impl AuthorityStore {
 
     // TODO: Transaction Orchestrator also calls this, which is not ideal.
     pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
-        self.perpetual_tables.get_haneul_system_state_object()
+        get_haneul_system_state(self.perpetual_tables.as_ref())
     }
 
     pub fn iter_live_object_set(&self) -> impl Iterator<Item = ObjectRef> + '_ {

@@ -36,7 +36,7 @@ use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };
 use haneul_types::object::Owner;
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -132,18 +132,7 @@ impl Genesis {
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
-        let haneul_system_object = self
-            .objects()
-            .iter()
-            .find(|o| o.id() == haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID)
-            .expect("Haneul System State object must always exist");
-        let move_object = haneul_system_object
-            .data
-            .try_as_move()
-            .expect("Haneul System State object must be a Move object");
-        let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
-            .expect("Haneul System State object deserialization cannot fail");
-        result
+        get_haneul_system_state(self.objects()).expect("Haneul System State object must always exist")
     }
 
     pub fn clock(&self) -> Clock {
@@ -429,17 +418,9 @@ impl Builder {
     }
 
     fn committee(objects: &[Object]) -> Committee {
-        let haneul_system_object = objects
-            .iter()
-            .find(|o| o.id() == haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID)
-            .expect("Haneul System State object must always exist");
-        let move_object = haneul_system_object
-            .data
-            .try_as_move()
-            .expect("Haneul System State object must be a Move object");
-        let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
-            .expect("Haneul System State object deserialization cannot fail");
-        result.get_current_epoch_committee().committee
+        let haneul_system_object =
+            get_haneul_system_state(objects).expect("Haneul System State object must always exist");
+        haneul_system_object.get_current_epoch_committee().committee
     }
 
     pub fn protocol_version(&self) -> ProtocolVersion {

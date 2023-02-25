@@ -5,6 +5,8 @@ use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::collection_types::{VecMap, VecSet};
 use crate::committee::{Committee, CommitteeWithNetAddresses, ProtocolVersion, StakeUnit};
 use crate::crypto::{AuthorityPublicKeyBytes, NetworkPublicKey};
+use crate::error::HaneulError;
+use crate::storage::ObjectStore;
 use crate::{
     balance::{Balance, Supply},
     id::UID,
@@ -348,4 +350,20 @@ impl Default for HaneulSystemState {
             epoch_start_timestamp_ms: 0,
         }
     }
+}
+
+pub fn get_haneul_system_state<S>(object_store: S) -> Result<HaneulSystemState, HaneulError>
+where
+    S: ObjectStore,
+{
+    let haneul_system_object = object_store
+        .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?
+        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
+    let move_object = haneul_system_object
+        .data
+        .try_as_move()
+        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
+    let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
+        .expect("Haneul System State object deserialization cannot fail");
+    Ok(result)
 }
