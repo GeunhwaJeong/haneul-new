@@ -32,7 +32,7 @@ use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress, TransactionDigest},
+    base_types::{ObjectID, HaneulAddress},
     messages::TransactionInfoRequest,
 };
 use haneul_types::{haneul_framework_address_concat_string, HANEUL_FRAMEWORK_OBJECT_ID};
@@ -919,14 +919,13 @@ async fn test_full_node_event_read_api_ok() {
     // genesis txn
     // The first txn emits TransferObject(sender), TransferObject(recipient), Gas
     // The second txn emits MoveEvent, NewObject and Gas
-    let tx_digests: Vec<TransactionDigest> = all_events
-        .data
-        .iter()
-        .map(|envelope| envelope.tx_digest)
-        .collect();
+    let tx_digests = all_events.data.iter().map(|envelope| envelope.tx_digest);
     // Sorted in ascending time
+    let tx_digests: Vec<_> = tx_digests
+        .filter(|d| *d == digest || *d == digest2)
+        .collect();
     assert_eq!(
-        tx_digests[tx_digests.len() - 6..],
+        tx_digests,
         vec![digest, digest, digest, digest2, digest2, digest2]
     );
 }

@@ -67,7 +67,7 @@ use haneul_types::event::{Event, EventID};
 use haneul_types::gas::{GasCostSummary, GasPrice, HaneulCostTable, HaneulGasStatus};
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
-    CheckpointSummary, CheckpointTimestamp,
+    CheckpointSummary, CheckpointTimestamp, VerifiedCheckpoint,
 };
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::object::{MoveObject, Owner, PastObjectRead};
@@ -1836,6 +1836,18 @@ impl AuthorityState {
     #[cfg(test)]
     pub fn get_haneul_system_state_object_for_testing(&self) -> HaneulResult<HaneulSystemState> {
         self.database.get_haneul_system_state_object()
+    }
+
+    pub fn get_transaction_checkpoint(
+        &self,
+        digest: &TransactionDigest,
+    ) -> HaneulResult<Option<VerifiedCheckpoint>> {
+        let checkpoint = self.database.get_transaction_checkpoint(digest)?;
+        let Some((_, checkpoint)) = checkpoint else { return Ok(None); };
+        let checkpoint = self
+            .checkpoint_store
+            .get_checkpoint_by_sequence_number(checkpoint)?;
+        Ok(checkpoint)
     }
 
     pub async fn get_object_read(&self, object_id: &ObjectID) -> Result<ObjectRead, HaneulError> {

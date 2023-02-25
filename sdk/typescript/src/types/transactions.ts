@@ -51,7 +51,9 @@ export const HaneulChangeEpoch = object({
 export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
 
 export const HaneulConsensusCommitPrologue = object({
-  checkpoint_start_timestamp_ms: number(),
+  epoch: number(),
+  round: number(),
+  commit_timestamp_ms: number(),
 });
 export type HaneulConsensusCommitPrologue = Infer<
   typeof HaneulConsensusCommitPrologue
