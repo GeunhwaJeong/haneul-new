@@ -6,7 +6,7 @@ module haneul::haneul_system {
     use haneul::clock::{Self, Clock};
     use haneul::coin::{Self, Coin};
     use haneul::staking_pool::{Delegation, StakedHaneul};
-    use haneul::object::{Self, UID};
+    use haneul::object::{Self, ID, UID};
     use haneul::locked_coin::{Self, LockedCoin};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -23,6 +23,7 @@ module haneul::haneul_system {
     use haneul::epoch_time_lock;
     use haneul::pay;
     use haneul::event;
+    use haneul::table::Table;
 
     friend haneul::genesis;
 
@@ -118,8 +119,9 @@ module haneul::haneul_system {
         initial_stake_subsidy_amount: u64,
         protocol_version: u64,
         epoch_start_timestamp_ms: u64,
+        ctx: &mut TxContext,
     ) {
-        let validators = validator_set::new(validators);
+        let validators = validator_set::new(validators, ctx);
         let reference_gas_price = validator_set::derive_reference_gas_price(&validators);
         let state = HaneulSystemState {
             // Use a hardcoded ID.
@@ -576,6 +578,17 @@ module haneul::haneul_system {
     /// Aborts if `validator_addr` is not an active validator.
     public fun validator_stake_amount(self: &HaneulSystemState, validator_addr: address): u64 {
         validator_set::validator_stake_amount(&self.validators, validator_addr)
+    }
+
+    /// Returns the staking pool id of a given validator.
+    /// Aborts if `validator_addr` is not an active validator.
+    public fun validator_staking_pool_id(self: &HaneulSystemState, validator_addr: address): ID {
+        validator_set::validator_staking_pool_id(&self.validators, validator_addr)
+    }
+
+    /// Returns reference to the staking pool mappings that map pool ids to active validator addresses
+    public fun validator_staking_pool_mappings(self: &HaneulSystemState): &Table<ID, address> {
+        validator_set::staking_pool_mappings(&self.validators)
     }
 
     /// Returns all the validators who have reported `addr` this epoch.

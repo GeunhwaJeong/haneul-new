@@ -89,6 +89,6 @@ module haneul::delegation_tests {
             create_validator_for_testing(VALIDATOR_ADDR_1, 100, ctx),
             create_validator_for_testing(VALIDATOR_ADDR_2, 100, ctx)
         ];
-        create_haneul_system_state_for_testing(validators, 300, 100);
+        create_haneul_system_state_for_testing(validators, 300, 100, ctx);
     }
 }

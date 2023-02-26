@@ -29,9 +29,8 @@ module haneul::staking_pool {
     const EPendingDelegationDoesNotExist: u64 = 8;
 
     /// A staking pool embedded in each validator struct in the system state object.
-    struct StakingPool has store {
-        /// The haneul address of the validator associated with this pool.
-        validator_address: address,
+    struct StakingPool has key, store {
+        id: UID,
         /// The epoch at which this pool started operating. Should be the epoch at which the validator became active.
         starting_epoch: u64,
         /// The total number of HANEUL tokens in this pool, including the HANEUL in the rewards_pool, as well as in all the principal
@@ -96,10 +95,10 @@ module haneul::staking_pool {
     /// A self-custodial object holding the staked HANEUL tokens.
     struct StakedHaneul has key {
         id: UID,
-        /// The validator we are staking with.
+        /// ID of the staking pool we are staking with.
+        pool_id: ID,
+        // TODO: keeping this field here because the apps depend on it. consider removing it.
         validator_address: address,
-        /// The epoch at which the staking pool started operating.
-        pool_starting_epoch: u64,
         /// The epoch at which the delegation is requested.
         delegation_request_epoch: u64,
         /// The staked HANEUL tokens.
@@ -112,10 +111,10 @@ module haneul::staking_pool {
     // ==== initializer ====
 
     /// Create a new, empty staking pool.
-    public(friend) fun new(validator_address: address, starting_epoch: u64, ctx: &mut TxContext) : StakingPool {
+    public(friend) fun new(ctx: &mut TxContext) : StakingPool {
         StakingPool {
-            validator_address,
-            starting_epoch,
+            id: object::new(ctx),
+            starting_epoch: tx_context::epoch(ctx) + 1, // active beginning next epoch
             haneul_balance: 0,
             rewards_pool: balance::zero(),
             delegation_token_supply: balance::create_supply(DelegationToken {}),
@@ -134,6 +133,7 @@ module haneul::staking_pool {
         pool: &mut StakingPool, 
         stake: Balance<HANEUL>, 
         haneul_token_lock: Option<EpochTimeLock>,
+        validator_address: address,
         delegator: address,
         ctx: &mut TxContext
     ) {
@@ -141,8 +141,8 @@ module haneul::staking_pool {
         assert!(haneul_amount > 0, 0);
         let staked_haneul = StakedHaneul {
             id: object::new(ctx),
-            validator_address: pool.validator_address,
-            pool_starting_epoch: pool.starting_epoch,
+            pool_id: object::id(pool),
+            validator_address,
             delegation_request_epoch: tx_context::epoch(ctx),
             principal: stake,
             haneul_token_lock,
@@ -201,11 +201,7 @@ module haneul::staking_pool {
         assert!(object::id(&staked_haneul) == delegation.staked_haneul_id, EWrongDelegation);
 
         // Check that the delegation information matches the pool. 
-        assert!(
-            staked_haneul.validator_address == pool.validator_address &&
-            staked_haneul.pool_starting_epoch == pool.starting_epoch,
-            EWrongPool
-        );
+        assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
 
         assert!(delegation.principal_haneul_amount == balance::value(&staked_haneul.principal), EInsufficientHaneulTokenBalance);
 
@@ -228,8 +224,8 @@ module haneul::staking_pool {
     fun unwrap_staked_haneul(staked_haneul: StakedHaneul): (Balance<HANEUL>, Option<EpochTimeLock>) {
         let StakedHaneul { 
             id,
+            pool_id: _,
             validator_address: _,
-            pool_starting_epoch: _,
             delegation_request_epoch: _,
             principal,
             haneul_token_lock
@@ -390,8 +386,8 @@ module haneul::staking_pool {
     public entry fun destroy_empty_staked_haneul(staked_haneul: StakedHaneul) {
         let StakedHaneul {
             id,
+            pool_id: _,
             validator_address: _,
-            pool_starting_epoch: _,
             delegation_request_epoch: _,
             principal,
             haneul_token_lock
@@ -408,7 +404,7 @@ module haneul::staking_pool {
 
     public fun haneul_balance(pool: &StakingPool) : u64 { pool.haneul_balance }
 
-    public fun validator_address(staked_haneul: &StakedHaneul) : address { staked_haneul.validator_address }
+    public fun pool_id(staked_haneul: &StakedHaneul) : ID { staked_haneul.pool_id }
 
     public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { balance::value(&staked_haneul.principal) }
 

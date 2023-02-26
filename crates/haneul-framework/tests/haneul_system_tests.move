@@ -8,9 +8,11 @@
 #[test_only]
 module haneul::haneul_system_tests {
     use haneul::test_scenario::{Self, Scenario};
-    use haneul::governance_test_utils::{advance_epoch, set_up_haneul_system_state};
+    use haneul::governance_test_utils::{add_validator, advance_epoch, remove_validator, set_up_haneul_system_state};
     use haneul::haneul_system::{Self, HaneulSystemState};
     use haneul::vec_set;
+    use haneul::table;
+    use haneul::test_utils::assert_eq;
 
     #[test]
     fun test_report_validator() {
@@ -70,6 +72,61 @@ module haneul::haneul_system_tests {
 
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3], scenario);
         report_helper(@0x2, @0x1, true, scenario);
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    fun test_staking_pool_mappings() {
+        let scenario_val = test_scenario::begin(@0x0);
+        let scenario = &mut scenario_val;
+
+        set_up_haneul_system_state(vector[@0x1, @0x2, @0x3], scenario);
+        test_scenario::next_tx(scenario, @0x1);
+        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let pool_id_1 = haneul_system::validator_staking_pool_id(&system_state, @0x1);
+        let pool_id_2 = haneul_system::validator_staking_pool_id(&system_state, @0x2);
+        let pool_id_3 = haneul_system::validator_staking_pool_id(&system_state, @0x3);
+        let pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        assert_eq(table::length(pool_mappings), 3);
+        assert_eq(*table::borrow(pool_mappings, pool_id_1), @0x1);
+        assert_eq(*table::borrow(pool_mappings, pool_id_2), @0x2);
+        assert_eq(*table::borrow(pool_mappings, pool_id_3), @0x3);
+        test_scenario::return_shared(system_state);
+
+        let new_validator_addr = @0x8feebb589ffa14667ff721b7cfb186cfad6530fc;
+        test_scenario::next_tx(scenario, new_validator_addr);
+
+        // Add a validator
+        add_validator(new_validator_addr, 100, scenario);
+        advance_epoch(scenario);
+
+        test_scenario::next_tx(scenario, @0x1);
+        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let pool_id_4 = haneul_system::validator_staking_pool_id(&system_state, new_validator_addr);
+        pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        // Check that the previous mappings didn't change as well.
+        assert_eq(table::length(pool_mappings), 4);
+        assert_eq(*table::borrow(pool_mappings, pool_id_1), @0x1);
+        assert_eq(*table::borrow(pool_mappings, pool_id_2), @0x2);
+        assert_eq(*table::borrow(pool_mappings, pool_id_3), @0x3);
+        assert_eq(*table::borrow(pool_mappings, pool_id_4), new_validator_addr);
+        test_scenario::return_shared(system_state);
+
+        // Remove one of the original validators.
+        remove_validator(@0x1, scenario);
+        advance_epoch(scenario);
+
+        test_scenario::next_tx(scenario, @0x1);
+        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        // Check that the previous mappings didn't change as well.
+        assert_eq(table::length(pool_mappings), 3);
+        assert_eq(table::contains(pool_mappings, pool_id_1), false);
+        assert_eq(*table::borrow(pool_mappings, pool_id_2), @0x2);
+        assert_eq(*table::borrow(pool_mappings, pool_id_3), @0x3);
+        assert_eq(*table::borrow(pool_mappings, pool_id_4), new_validator_addr);
+        test_scenario::return_shared(system_state);
+
         test_scenario::end(scenario_val);
     }
 

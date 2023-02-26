@@ -114,6 +114,7 @@ module haneul::genesis {
             INIT_STAKE_SUBSIDY_AMOUNT,
             protocol_version,
             epoch_start_timestamp_ms,
+            ctx,
         );
 
         clock::create();

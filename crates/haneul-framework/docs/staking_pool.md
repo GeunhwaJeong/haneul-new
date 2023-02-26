@@ -5,7 +5,7 @@
 
 
 
--  [Struct `StakingPool`](#0x2_staking_pool_StakingPool)
+-  [Resource `StakingPool`](#0x2_staking_pool_StakingPool)
 -  [Struct `PoolTokenExchangeRate`](#0x2_staking_pool_PoolTokenExchangeRate)
 -  [Resource `InactiveStakingPool`](#0x2_staking_pool_InactiveStakingPool)
 -  [Struct `DelegationToken`](#0x2_staking_pool_DelegationToken)
@@ -30,7 +30,7 @@
 -  [Function `destroy_empty_delegation`](#0x2_staking_pool_destroy_empty_delegation)
 -  [Function `destroy_empty_staked_haneul`](#0x2_staking_pool_destroy_empty_staked_haneul)
 -  [Function `haneul_balance`](#0x2_staking_pool_haneul_balance)
--  [Function `validator_address`](#0x2_staking_pool_validator_address)
+-  [Function `pool_id`](#0x2_staking_pool_pool_id)
 -  [Function `staked_haneul_amount`](#0x2_staking_pool_staked_haneul_amount)
 -  [Function `delegation_request_epoch`](#0x2_staking_pool_delegation_request_epoch)
 -  [Function `delegation_token_amount`](#0x2_staking_pool_delegation_token_amount)
@@ -58,12 +58,12 @@
 
 <a name="0x2_staking_pool_StakingPool"></a>
 
-## Struct `StakingPool`
+## Resource `StakingPool`
 
 A staking pool embedded in each validator struct in the system state object.
 
 
-<pre><code><b>struct</b> <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a> <b>has</b> store
+<pre><code><b>struct</b> <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a> <b>has</b> store, key
 </code></pre>
 
 
@@ -74,10 +74,10 @@ A staking pool embedded in each validator struct in the system state object.
 
 <dl>
 <dt>
-<code>validator_address: <b>address</b></code>
+<code>id: <a href="object.md#0x2_object_UID">object::UID</a></code>
 </dt>
 <dd>
- The haneul address of the validator associated with this pool.
+
 </dd>
 <dt>
 <code>starting_epoch: u64</code>
@@ -368,16 +368,16 @@ A self-custodial object holding the staked HANEUL tokens.
 
 </dd>
 <dt>
+<code>pool_id: <a href="object.md#0x2_object_ID">object::ID</a></code>
+</dt>
+<dd>
+ ID of the staking pool we are staking with.
+</dd>
+<dt>
 <code>validator_address: <b>address</b></code>
 </dt>
 <dd>
- The validator we are staking with.
-</dd>
-<dt>
-<code>pool_starting_epoch: u64</code>
-</dt>
-<dd>
- The epoch at which the staking pool started operating.
+
 </dd>
 <dt>
 <code>delegation_request_epoch: u64</code>
@@ -496,7 +496,7 @@ A self-custodial object holding the staked HANEUL tokens.
 Create a new, empty staking pool.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_new">new</a>(validator_address: <b>address</b>, starting_epoch: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x2_staking_pool_StakingPool">staking_pool::StakingPool</a>
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_new">new</a>(ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x2_staking_pool_StakingPool">staking_pool::StakingPool</a>
 </code></pre>
 
 
@@ -505,10 +505,10 @@ Create a new, empty staking pool.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_new">new</a>(validator_address: <b>address</b>, starting_epoch: u64, ctx: &<b>mut</b> TxContext) : <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a> {
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_new">new</a>(ctx: &<b>mut</b> TxContext) : <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a> {
     <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a> {
-        validator_address,
-        starting_epoch,
+        id: <a href="object.md#0x2_object_new">object::new</a>(ctx),
+        starting_epoch: <a href="tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx) + 1, // active beginning next epoch
         haneul_balance: 0,
         rewards_pool: <a href="balance.md#0x2_balance_zero">balance::zero</a>(),
         delegation_token_supply: <a href="balance.md#0x2_balance_create_supply">balance::create_supply</a>(<a href="staking_pool.md#0x2_staking_pool_DelegationToken">DelegationToken</a> {}),
@@ -530,7 +530,7 @@ Request to delegate to a staking pool. The delegation gets counted at the beginn
 when the delegation object containing the pool tokens is distributed to the delegator.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_request_add_delegation">request_add_delegation</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakingPool">staking_pool::StakingPool</a>, <a href="stake.md#0x2_stake">stake</a>: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, haneul_token_lock: <a href="_Option">option::Option</a>&lt;<a href="epoch_time_lock.md#0x2_epoch_time_lock_EpochTimeLock">epoch_time_lock::EpochTimeLock</a>&gt;, delegator: <b>address</b>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_request_add_delegation">request_add_delegation</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakingPool">staking_pool::StakingPool</a>, <a href="stake.md#0x2_stake">stake</a>: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, haneul_token_lock: <a href="_Option">option::Option</a>&lt;<a href="epoch_time_lock.md#0x2_epoch_time_lock_EpochTimeLock">epoch_time_lock::EpochTimeLock</a>&gt;, validator_address: <b>address</b>, delegator: <b>address</b>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -543,6 +543,7 @@ when the delegation object containing the pool tokens is distributed to the dele
     pool: &<b>mut</b> <a href="staking_pool.md#0x2_staking_pool_StakingPool">StakingPool</a>,
     <a href="stake.md#0x2_stake">stake</a>: Balance&lt;HANEUL&gt;,
     haneul_token_lock: Option&lt;EpochTimeLock&gt;,
+    validator_address: <b>address</b>,
     delegator: <b>address</b>,
     ctx: &<b>mut</b> TxContext
 ) {
@@ -550,8 +551,8 @@ when the delegation object containing the pool tokens is distributed to the dele
     <b>assert</b>!(haneul_amount &gt; 0, 0);
     <b>let</b> staked_haneul = <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a> {
         id: <a href="object.md#0x2_object_new">object::new</a>(ctx),
-        validator_address: pool.validator_address,
-        pool_starting_epoch: pool.starting_epoch,
+        pool_id: <a href="object.md#0x2_object_id">object::id</a>(pool),
+        validator_address,
         delegation_request_epoch: <a href="tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx),
         principal: <a href="stake.md#0x2_stake">stake</a>,
         haneul_token_lock,
@@ -650,11 +651,7 @@ time lock if applicable.
     <b>assert</b>!(<a href="object.md#0x2_object_id">object::id</a>(&staked_haneul) == delegation.staked_haneul_id, <a href="staking_pool.md#0x2_staking_pool_EWrongDelegation">EWrongDelegation</a>);
 
     // Check that the delegation information matches the pool.
-    <b>assert</b>!(
-        staked_haneul.validator_address == pool.validator_address &&
-        staked_haneul.pool_starting_epoch == pool.starting_epoch,
-        <a href="staking_pool.md#0x2_staking_pool_EWrongPool">EWrongPool</a>
-    );
+    <b>assert</b>!(staked_haneul.pool_id == <a href="object.md#0x2_object_id">object::id</a>(pool), <a href="staking_pool.md#0x2_staking_pool_EWrongPool">EWrongPool</a>);
 
     <b>assert</b>!(delegation.principal_haneul_amount == <a href="balance.md#0x2_balance_value">balance::value</a>(&staked_haneul.principal), <a href="staking_pool.md#0x2_staking_pool_EInsufficientHaneulTokenBalance">EInsufficientHaneulTokenBalance</a>);
 
@@ -717,8 +714,8 @@ time lock if applicable.
 <pre><code><b>fun</b> <a href="staking_pool.md#0x2_staking_pool_unwrap_staked_haneul">unwrap_staked_haneul</a>(staked_haneul: <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a>): (Balance&lt;HANEUL&gt;, Option&lt;EpochTimeLock&gt;) {
     <b>let</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a> {
         id,
+        pool_id: _,
         validator_address: _,
-        pool_starting_epoch: _,
         delegation_request_epoch: _,
         principal,
         haneul_token_lock
@@ -1051,8 +1048,8 @@ Destroy an empty delegation that no longer contains any HANEUL or pool tokens.
 <pre><code><b>public</b> entry <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_destroy_empty_staked_haneul">destroy_empty_staked_haneul</a>(staked_haneul: <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a>) {
     <b>let</b> <a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a> {
         id,
+        pool_id: _,
         validator_address: _,
-        pool_starting_epoch: _,
         delegation_request_epoch: _,
         principal,
         haneul_token_lock
@@ -1091,13 +1088,13 @@ Destroy an empty delegation that no longer contains any HANEUL or pool tokens.
 
 </details>
 
-<a name="0x2_staking_pool_validator_address"></a>
+<a name="0x2_staking_pool_pool_id"></a>
 
-## Function `validator_address`
+## Function `pool_id`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_validator_address">validator_address</a>(staked_haneul: &<a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>): <b>address</b>
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_pool_id">pool_id</a>(staked_haneul: &<a href="staking_pool.md#0x2_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>): <a href="object.md#0x2_object_ID">object::ID</a>
 </code></pre>
 
 
@@ -1106,7 +1103,7 @@ Destroy an empty delegation that no longer contains any HANEUL or pool tokens.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_validator_address">validator_address</a>(staked_haneul: &<a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a>) : <b>address</b> { staked_haneul.validator_address }
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x2_staking_pool_pool_id">pool_id</a>(staked_haneul: &<a href="staking_pool.md#0x2_staking_pool_StakedHaneul">StakedHaneul</a>) : ID { staked_haneul.pool_id }
 </code></pre>
 
 

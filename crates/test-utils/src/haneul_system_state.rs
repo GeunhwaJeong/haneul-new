@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_types::balance::{Balance, Supply};
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::collection_types::VecMap;
 use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{
@@ -11,8 +11,8 @@ use haneul_types::crypto::{
 use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
-    LinkedTable, StakeSubsidy, StakingPool, HaneulSystemState, TableVec, Validator, ValidatorMetadata,
-    ValidatorSet,
+    LinkedTable, StakeSubsidy, StakingPool, HaneulSystemState, Table, TableVec, Validator,
+    ValidatorMetadata, ValidatorSet,
 };
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
@@ -42,9 +42,9 @@ pub fn test_validatdor_metadata(
     }
 }
 
-pub fn test_staking_pool(haneul_address: HaneulAddress, haneul_balance: u64) -> StakingPool {
+pub fn test_staking_pool(haneul_balance: u64) -> StakingPool {
     StakingPool {
-        validator_address: haneul_address,
+        id: ObjectID::from(HaneulAddress::ZERO),
         starting_epoch: 0,
         haneul_balance,
         rewards_pool: Balance::new(0),
@@ -68,7 +68,7 @@ pub fn test_validator(
         pending_stake: 1,
         pending_withdraw: 1,
         gas_price: 1,
-        delegation_staking_pool: test_staking_pool(haneul_address, delegated_amount),
+        delegation_staking_pool: test_staking_pool(delegated_amount),
         commission_rate: 0,
     }
 }
@@ -81,6 +81,7 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
         pending_validators: vec![],
         pending_removals: vec![],
         next_epoch_validators: vec![],
+        staking_pool_mappings: Table::default(),
     };
     HaneulSystemState {
         info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),

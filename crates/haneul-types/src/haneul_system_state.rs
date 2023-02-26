@@ -141,6 +141,15 @@ pub struct Table {
     pub size: u64,
 }
 
+impl Default for Table {
+    fn default() -> Self {
+        Table {
+            id: ObjectID::from(HaneulAddress::ZERO),
+            size: 0,
+        }
+    }
+}
+
 /// Rust version of the Move haneul::linked_table::LinkedTable type. Putting it here since
 /// we only use it in haneul_system in the framework.
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
@@ -165,7 +174,7 @@ impl<K> Default for LinkedTable<K> {
 /// Rust version of the Move haneul::staking_pool::StakingPool type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct StakingPool {
-    pub validator_address: HaneulAddress,
+    pub id: ObjectID,
     pub starting_epoch: u64,
     pub haneul_balance: u64,
     pub rewards_pool: Balance,
@@ -190,6 +199,7 @@ pub struct ValidatorSet {
     pub pending_validators: Vec<Validator>,
     pub pending_removals: Vec<u64>,
     pub next_epoch_validators: Vec<ValidatorMetadata>,
+    pub staking_pool_mappings: Table,
 }
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
@@ -327,6 +337,7 @@ impl Default for HaneulSystemState {
             pending_validators: vec![],
             pending_removals: vec![],
             next_epoch_validators: vec![],
+            staking_pool_mappings: Table::default(),
         };
         HaneulSystemState {
             info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),

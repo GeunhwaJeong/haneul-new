@@ -47,8 +47,8 @@ impl Delegation {
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct StakedHaneul {
     id: UID,
+    pool_id: ID,
     validator_address: HaneulAddress,
-    pool_starting_epoch: u64,
     delegation_request_epoch: u64,
     principal: Balance,
     haneul_token_lock: Option<EpochId>,
