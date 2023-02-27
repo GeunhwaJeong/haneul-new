@@ -10,7 +10,6 @@ import {
   LocalTxnDataSerializer,
   RawSigner,
   SignableTransaction,
-  HaneulMoveObject,
   HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from '../../src';
 import {
