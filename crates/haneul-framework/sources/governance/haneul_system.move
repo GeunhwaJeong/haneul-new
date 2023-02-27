@@ -23,6 +23,7 @@ module haneul::haneul_system {
     use haneul::pay;
     use haneul::event;
     use haneul::table::Table;
+    use haneul::dynamic_field;
 
     friend haneul::genesis;
 
@@ -44,8 +45,7 @@ module haneul::haneul_system {
     }
 
     /// The top-level object containing all information of the Haneul system.
-    struct HaneulSystemStateInner has key, store {
-        id: UID,
+    struct HaneulSystemStateInner has store {
         /// The current epoch ID, starting from 0.
         epoch: u64,
         /// The current protocol version, starting from 1.
@@ -80,8 +80,6 @@ module haneul::haneul_system {
     struct HaneulSystemState has key {
         id: UID,
         version: u64,
-        // TODO: Make it a dynamic object field
-        system_state: HaneulSystemStateInner,
     }
 
     /// Event containing system-level epoch information, emitted during
@@ -128,7 +126,6 @@ module haneul::haneul_system {
         let validators = validator_set::new(validators, ctx);
         let reference_gas_price = validator_set::derive_reference_gas_price(&validators);
         let system_state = HaneulSystemStateInner {
-            id: object::new(ctx),
             epoch: 0,
             protocol_version,
             validators,
@@ -147,9 +144,8 @@ module haneul::haneul_system {
             // Use a hardcoded ID.
             id: object::haneul_system_state(),
             version: protocol_version,
-            system_state,
         };
-        // dynamic_object_field::add(&mut self.id, self.version, system_state);
+        dynamic_field::add(&mut self.id, protocol_version, system_state);
         transfer::share_object(self);
     }
 
@@ -522,16 +518,6 @@ module haneul::haneul_system {
         clock::set_timestamp(clock, timestamp_ms);
     }
 
-    public fun load_system_state(self: &HaneulSystemState): &HaneulSystemStateInner {
-        &self.system_state
-        // dynamic_object_field::borrow(&self.id, self.version)
-    }
-
-    public fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {
-        &mut self.system_state
-        // dynamic_object_field::borrow_mut(&mut self.id, self.version)
-    }
-
     /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,
     /// since epochs are ever-increasing and epoch changes are intended to happen every 24 hours.
     public fun epoch(wrapper: &HaneulSystemState): u64 {
@@ -573,6 +559,14 @@ module haneul::haneul_system {
         } else {
             vec_set::empty()
         }
+    }
+
+    fun load_system_state(self: &HaneulSystemState): &HaneulSystemStateInner {
+        dynamic_field::borrow(&self.id, self.version)
+    }
+
+    fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {
+        dynamic_field::borrow_mut(&mut self.id, self.version)
     }
 
     /// Extract required Balance from vector of Coin<HANEUL>, transfer the remainder back to sender.

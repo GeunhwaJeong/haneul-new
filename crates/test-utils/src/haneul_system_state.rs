@@ -8,13 +8,11 @@ use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{
     get_key_pair, AuthorityPublicKeyBytes, KeypairTraits, NetworkKeyPair, ToFromBytes,
 };
-use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
     StakeSubsidy, StakingPool, HaneulSystemState, Table, TableVec, Validator, ValidatorMetadata,
     ValidatorSet,
 };
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
 pub fn test_validatdor_metadata(
     haneul_address: HaneulAddress,
@@ -81,7 +79,6 @@ pub fn test_haneul_system_state(epoch: EpochId, validators: Vec<Validator>) -> H
         staking_pool_mappings: Table::default(),
     };
     HaneulSystemState {
-        info: UID::new(HANEUL_SYSTEM_STATE_OBJECT_ID),
         epoch,
         protocol_version: ProtocolVersion::MAX.as_u64(),
         validators: validator_set,

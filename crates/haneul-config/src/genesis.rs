@@ -159,7 +159,7 @@ impl Genesis {
     }
 
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {
-        get_haneul_system_state_wrapper(self.objects())
+        get_haneul_system_state_wrapper(&self.objects())
             .expect("Haneul System State Wrapper object must always exist")
     }
 
