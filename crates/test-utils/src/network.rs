@@ -33,6 +33,7 @@ use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::intent::Intent;
 use haneul_types::messages::TransactionData;
+use haneul_types::object::Object;
 
 const NUM_VALIDAOTR: usize = 4;
 
@@ -201,6 +202,7 @@ impl RandomNodeRestarter {
 
 pub struct TestClusterBuilder {
     genesis_config: Option<GenesisConfig>,
+    additional_objects: Vec<Object>,
     num_validators: Option<usize>,
     fullnode_rpc_port: Option<u16>,
     enable_fullnode_events: bool,
@@ -212,6 +214,7 @@ impl TestClusterBuilder {
     pub fn new() -> Self {
         TestClusterBuilder {
             genesis_config: None,
+            additional_objects: vec![],
             fullnode_rpc_port: None,
             num_validators: None,
             enable_fullnode_events: false,
@@ -227,6 +230,11 @@ impl TestClusterBuilder {
 
     pub fn set_genesis_config(mut self, genesis_config: GenesisConfig) -> Self {
         self.genesis_config = Some(genesis_config);
+        self
+    }
+
+    pub fn with_objects<I: IntoIterator<Item = Object>>(mut self, objects: I) -> Self {
+        self.additional_objects.extend(objects);
         self
     }
 
@@ -315,6 +323,7 @@ impl TestClusterBuilder {
             .committee_size(
                 NonZeroUsize::new(self.num_validators.unwrap_or(NUM_VALIDAOTR)).unwrap(),
             )
+            .with_objects(self.additional_objects.clone())
             .with_supported_protocol_versions_config(
                 self.supported_protocol_versions_config.clone(),
             );
