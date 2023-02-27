@@ -4,6 +4,13 @@ title: Haneul Documentation Updates
 
 This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information.
 
+## Week ending 02/23/23
+
+| Topic | Update | 
+| :------ | :------- |
+| [Sponsored Transactions](../learn/sponsored-transactions.md) | New topic for a new feature on Haneul. |
+
+
 ## Week ending 02/03/23
 
 | Topic | Update | 
