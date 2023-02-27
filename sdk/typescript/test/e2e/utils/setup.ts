@@ -9,12 +9,9 @@ import {
   JsonRpcProvider,
   ObjectId,
   RawSigner,
-  HANEUL_SYSTEM_STATE_OBJECT_ID,
   fromB64,
   localnetConnection,
   Connection,
-  HaneulMoveObject,
-  HaneulObject,
 } from '../../../src';
 import { retry } from 'ts-retry-promise';
 import { FaucetRateLimitError } from '../../../src/rpc/faucet-client';
@@ -40,14 +37,8 @@ export class TestToolbox {
     return this.keypair.getPublicKey().toHaneulAddress();
   }
 
-  // TODO: clean this up using `provider.getValidators()` method
-  public async getActiveValidators(): Promise<Array<HaneulMoveObject>> {
-    const contents = await this.provider.getObject(HANEUL_SYSTEM_STATE_OBJECT_ID);
-    const data = (contents.details as HaneulObject).data;
-    const validators = (data as HaneulMoveObject).fields.validators;
-    const active_validators = (validators as HaneulMoveObject).fields
-      .active_validators;
-    return active_validators as Array<HaneulMoveObject>;
+  public async getActiveValidators() {
+    return this.provider.getValidators();
   }
 }
 

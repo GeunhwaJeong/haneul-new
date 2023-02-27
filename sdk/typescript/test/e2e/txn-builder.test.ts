@@ -93,11 +93,8 @@ describe.each([{ useLocalTxnBuilder: true }, { useLocalTxnBuilder: false }])(
         toolbox.address(),
       );
 
-      const validators = await toolbox.getActiveValidators();
-      const validator_metadata = (validators[0] as HaneulMoveObject).fields
-        .metadata;
-      const validator_address = (validator_metadata as HaneulMoveObject).fields
-        .haneul_address;
+      const [{ haneul_address: validator_address }] =
+        await toolbox.getActiveValidators();
 
       await validateTransaction(signer, {
         kind: 'moveCall',
