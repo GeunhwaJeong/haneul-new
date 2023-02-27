@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul::haneul_system {
-    use haneul::balance::{Self, Balance, Supply};
+    use haneul::balance::{Self, Balance};
     use haneul::clock::{Self, Clock};
     use haneul::coin::{Self, Coin};
     use haneul::staking_pool::{Delegation, StakedHaneul};
@@ -53,8 +53,6 @@ module haneul::haneul_system {
         protocol_version: u64,
         /// Contains all information about the validators.
         validators: ValidatorSet,
-        /// The HANEUL treasury capability needed to mint HANEUL.
-        haneul_supply: Supply<HANEUL>,
         /// The storage fund.
         storage_fund: Balance<HANEUL>,
         /// A list of system config parameters.
@@ -112,7 +110,7 @@ module haneul::haneul_system {
     /// This function will be called only once in genesis.
     public(friend) fun create(
         validators: vector<Validator>,
-        haneul_supply: Supply<HANEUL>,
+        stake_subsidy_fund: Balance<HANEUL>,
         storage_fund: Balance<HANEUL>,
         max_validator_candidate_count: u64,
         min_validator_stake: u64,
@@ -129,7 +127,6 @@ module haneul::haneul_system {
             epoch: 0,
             protocol_version,
             validators,
-            haneul_supply,
             storage_fund,
             parameters: SystemParameters {
                 min_validator_stake,
@@ -137,7 +134,7 @@ module haneul::haneul_system {
             },
             reference_gas_price,
             validator_report_records: vec_map::empty(),
-            stake_subsidy: stake_subsidy::create(initial_stake_subsidy_amount),
+            stake_subsidy: stake_subsidy::create(stake_subsidy_fund, initial_stake_subsidy_amount),
             safe_mode: false,
             epoch_start_timestamp_ms,
         };

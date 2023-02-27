@@ -5,19 +5,33 @@
 /// It has 9 decimals, and the smallest unit (10^-9) is called "geunhwa".
 module haneul::haneul {
     use std::option;
-    use haneul::tx_context::TxContext;
-    use haneul::balance::Supply;
+    use haneul::tx_context::{Self, TxContext};
+    use haneul::balance::{Self, Balance};
     use haneul::transfer;
     use haneul::coin;
 
     friend haneul::genesis;
+
+    const EAlreadyMinted: u64 = 0;
+
+    /// The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
+    /// 10^-9 of a Haneul token
+    const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
+
+    /// The total supply of Haneul denominated in whole Haneul tokens (10 Billion)
+    const TOTAL_SUPPLY_HANEUL: u64 = 10_000_000_000;
+
+    /// The total supply of Haneul denominated in Geunhwa (10 Billion * 10^9)
+    const TOTAL_SUPPLY_GEUNHWA: u64 = 10_000_000_000_000_000_000;
 
     /// Name of the coin
     struct HANEUL has drop {}
 
     /// Register the `HANEUL` Coin to acquire its `Supply`.
     /// This should be called only once during genesis creation.
-    public(friend) fun new(ctx: &mut TxContext): Supply<HANEUL> {
+    public(friend) fun new(ctx: &mut TxContext): Balance<HANEUL> {
+        assert!(tx_context::epoch(ctx) == 0, EAlreadyMinted);
+
         let (treasury, metadata) = coin::create_currency(
             HANEUL {}, 
             9,
@@ -29,7 +43,10 @@ module haneul::haneul {
             ctx
         );
         transfer::freeze_object(metadata);
-        coin::treasury_into_supply(treasury)
+        let supply = coin::treasury_into_supply(treasury);
+        let total_haneul = balance::increase_supply(&mut supply, TOTAL_SUPPLY_GEUNHWA);
+        balance::destroy_supply(supply);
+        total_haneul
     }
 
     public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address) {

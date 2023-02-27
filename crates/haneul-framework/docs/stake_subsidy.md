@@ -46,7 +46,7 @@
 <code><a href="balance.md#0x2_balance">balance</a>: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;</code>
 </dt>
 <dd>
- Balance of Haneul set asside for Staking subsidies that will be drawn down over time.
+ Balance of HANEUL set aside for stake subsidies that will be drawn down over time.
 </dd>
 <dt>
 <code>current_epoch_amount: u64</code>
@@ -98,7 +98,7 @@
 
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="stake_subsidy.md#0x2_stake_subsidy_create">create</a>(initial_stake_subsidy_amount: u64): <a href="stake_subsidy.md#0x2_stake_subsidy_StakeSubsidy">stake_subsidy::StakeSubsidy</a>
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="stake_subsidy.md#0x2_stake_subsidy_create">create</a>(<a href="balance.md#0x2_balance">balance</a>: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, initial_stake_subsidy_amount: u64): <a href="stake_subsidy.md#0x2_stake_subsidy_StakeSubsidy">stake_subsidy::StakeSubsidy</a>
 </code></pre>
 
 
@@ -107,10 +107,10 @@
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="stake_subsidy.md#0x2_stake_subsidy_create">create</a>(initial_stake_subsidy_amount: u64): <a href="stake_subsidy.md#0x2_stake_subsidy_StakeSubsidy">StakeSubsidy</a> {
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="stake_subsidy.md#0x2_stake_subsidy_create">create</a>(<a href="balance.md#0x2_balance">balance</a>: Balance&lt;HANEUL&gt;, initial_stake_subsidy_amount: u64): <a href="stake_subsidy.md#0x2_stake_subsidy_StakeSubsidy">StakeSubsidy</a> {
     <a href="stake_subsidy.md#0x2_stake_subsidy_StakeSubsidy">StakeSubsidy</a> {
         epoch_counter: 0,
-        <a href="balance.md#0x2_balance">balance</a>: <a href="balance.md#0x2_balance_zero">balance::zero</a>(),
+        <a href="balance.md#0x2_balance">balance</a>,
         current_epoch_amount: initial_stake_subsidy_amount,
     }
 }

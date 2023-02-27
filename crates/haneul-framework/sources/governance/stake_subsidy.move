@@ -12,7 +12,7 @@ module haneul::stake_subsidy {
         /// This counter may be different from the current epoch number if
         /// in some epochs we decide to skip the subsidy. 
         epoch_counter: u64,
-        /// Balance of Haneul set asside for Staking subsidies that will be drawn down over time.
+        /// Balance of HANEUL set aside for stake subsidies that will be drawn down over time.
         balance: Balance<HANEUL>,
         /// The amount of stake subsidy to be drawn down per epoch.
         /// This amount decays and decreases over time.
@@ -25,10 +25,10 @@ module haneul::stake_subsidy {
     const STAKE_SUBSIDY_DECREASE_RATE: u128 = 1000; // in basis point
     const STAKE_SUBSIDY_PERIOD_LENGTH: u64 = 30; // in number of epochs
 
-    public(friend) fun create(initial_stake_subsidy_amount: u64): StakeSubsidy {
+    public(friend) fun create(balance: Balance<HANEUL>, initial_stake_subsidy_amount: u64): StakeSubsidy {
         StakeSubsidy {
             epoch_counter: 0,
-            balance: balance::zero(),
+            balance,
             current_epoch_amount: initial_stake_subsidy_amount,
         }
     }

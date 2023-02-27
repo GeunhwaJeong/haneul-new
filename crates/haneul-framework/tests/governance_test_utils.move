@@ -58,7 +58,7 @@ module haneul::governance_test_utils {
     ) {
         haneul_system::create(
             validators,
-            balance::create_supply_for_testing(haneul_supply_amount), // haneul_supply
+            balance::create_for_testing<HANEUL>(haneul_supply_amount), // haneul_supply
             balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
             1024, // max_validator_candidate_count
             0, // min_validator_stake

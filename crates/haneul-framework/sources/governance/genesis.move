@@ -50,7 +50,7 @@ module haneul::genesis {
         ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new(ctx);
-        let storage_fund = balance::increase_supply(&mut haneul_supply, INIT_STORAGE_FUND);
+        let storage_fund = balance::split(&mut haneul_supply, INIT_STORAGE_FUND);
         let validators = vector::empty();
         let count = vector::length(&validator_pubkeys);
         assert!(
@@ -100,7 +100,7 @@ module haneul::genesis {
                 p2p_address,
                 consensus_address,
                 worker_address,
-                balance::increase_supply(&mut haneul_supply, stake),
+                balance::split(&mut haneul_supply, stake),
                 option::none(),
                 gas_price,
                 commission_rate,
