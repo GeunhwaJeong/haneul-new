@@ -20,7 +20,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-const HANEUL_SYSTEM_STATE_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
+const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch_safe_mode");
@@ -203,7 +203,8 @@ pub struct ValidatorSet {
     pub staking_pool_mappings: Table,
 }
 
-/// Rust version of the Move haneul::haneul_system::HaneulSystemState type
+/// Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type
+/// We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct HaneulSystemState {
     pub info: UID,
@@ -220,6 +221,25 @@ pub struct HaneulSystemState {
     // TODO: Use getters instead of all pub.
 }
 
+/// Rust version of the Move haneul::haneul_system::HaneulSystemState type
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HaneulSystemStateWrapper {
+    pub info: UID,
+    pub version: u64,
+    pub system_state: HaneulSystemState,
+}
+
+impl HaneulSystemStateWrapper {
+    pub fn type_() -> StructTag {
+        StructTag {
+            address: HANEUL_FRAMEWORK_ADDRESS,
+            name: HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME.to_owned(),
+            module: HANEUL_SYSTEM_MODULE_NAME.to_owned(),
+            type_params: vec![],
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 pub struct StakeSubsidy {
     pub epoch_counter: u64,
@@ -228,15 +248,6 @@ pub struct StakeSubsidy {
 }
 
 impl HaneulSystemState {
-    pub fn type_() -> StructTag {
-        StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
-            name: HANEUL_SYSTEM_STATE_STRUCT_NAME.to_owned(),
-            module: HANEUL_SYSTEM_MODULE_NAME.to_owned(),
-            type_params: vec![],
-        }
-    }
-
     pub fn get_current_epoch_committee(&self) -> CommitteeWithNetAddresses {
         let mut voting_rights = BTreeMap::new();
         let mut net_addresses = BTreeMap::new();
@@ -362,7 +373,7 @@ impl Default for HaneulSystemState {
     }
 }
 
-pub fn get_haneul_system_state<S>(object_store: S) -> Result<HaneulSystemState, HaneulError>
+pub fn get_haneul_system_state_wrapper<S>(object_store: S) -> Result<HaneulSystemStateWrapper, HaneulError>
 where
     S: ObjectStore,
 {
@@ -373,7 +384,15 @@ where
         .data
         .try_as_move()
         .ok_or(HaneulError::HaneulSystemStateNotFound)?;
-    let result = bcs::from_bytes::<HaneulSystemState>(move_object.contents())
+    let result = bcs::from_bytes::<HaneulSystemStateWrapper>(move_object.contents())
         .expect("Haneul System State object deserialization cannot fail");
     Ok(result)
+}
+
+pub fn get_haneul_system_state<S>(object_store: S) -> Result<HaneulSystemState, HaneulError>
+where
+    S: ObjectStore,
+{
+    let wrapper = get_haneul_system_state_wrapper(object_store)?;
+    Ok(wrapper.system_state)
 }

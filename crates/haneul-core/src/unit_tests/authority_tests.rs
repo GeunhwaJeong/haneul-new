@@ -48,6 +48,7 @@ use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::object::Data;
+use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
@@ -2935,8 +2936,9 @@ async fn test_genesis_haneul_system_state_object() {
         .unwrap();
     assert_eq!(haneul_system_object.version(), SequenceNumber::from(1));
     let move_object = haneul_system_object.data.try_as_move().unwrap();
-    let _haneul_system_state = bcs::from_bytes::<HaneulSystemState>(move_object.contents()).unwrap();
-    assert_eq!(move_object.type_, HaneulSystemState::type_());
+    let _haneul_system_state =
+        bcs::from_bytes::<HaneulSystemStateWrapper>(move_object.contents()).unwrap();
+    assert_eq!(move_object.type_, HaneulSystemStateWrapper::type_());
 }
 
 #[tokio::test]

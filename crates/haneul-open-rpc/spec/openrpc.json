@@ -6043,7 +6043,7 @@
         ]
       },
       "HaneulSystemState": {
-        "description": "Rust version of the Move haneul::haneul_system::HaneulSystemState type",
+        "description": "Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.",
         "type": "object",
         "required": [
           "epoch",

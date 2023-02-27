@@ -44,7 +44,7 @@ module haneul::delegation_tests {
         };
 
         governance_test_utils::advance_epoch(scenario);
-        
+
         test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
         {
 
@@ -67,7 +67,7 @@ module haneul::delegation_tests {
             haneul_system::request_withdraw_delegation(
                 system_state_mut_ref, delegation, staked_haneul, ctx);
 
-            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 60, 107);            
+            assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 60, 107);
             test_scenario::return_shared(system_state);
         };
 

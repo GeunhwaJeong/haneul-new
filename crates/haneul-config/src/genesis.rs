@@ -37,7 +37,9 @@ use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };
 use haneul_types::object::Owner;
-use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
+use haneul_types::haneul_system_state::{
+    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateWrapper,
+};
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -130,6 +132,11 @@ impl Genesis {
             .haneul_system_object()
             .get_current_epoch_committee()
             .committee)
+    }
+
+    pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {
+        get_haneul_system_state_wrapper(self.objects())
+            .expect("Haneul System State Wrapper object must always exist")
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
