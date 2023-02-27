@@ -21,6 +21,7 @@ use haneul_types::crypto::{
     NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::crypto::{AuthorityKeyPair, Signer};
+use haneul_types::intent::{Intent, IntentScope};
 use haneul_types::messages::{TransactionData, VerifiedTransaction, DUMMY_GAS_PRICE};
 use haneul_types::utils::create_fake_transaction;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -105,7 +106,13 @@ pub fn create_fake_cert_and_effect_digest<'a>(
         transaction.data().clone(),
         signers
             .map(|(name, signer)| {
-                AuthoritySignInfo::new(committee.epoch, transaction.data(), *name, signer)
+                AuthoritySignInfo::new(
+                    committee.epoch,
+                    transaction.data(),
+                    Intent::default().with_scope(IntentScope::SenderSignedTransaction),
+                    *name,
+                    signer,
+                )
             })
             .collect(),
         committee,

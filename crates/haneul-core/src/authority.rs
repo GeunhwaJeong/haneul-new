@@ -31,6 +31,8 @@ use std::{collections::HashMap, pin::Pin};
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_types::crypto::AuthoritySignInfo;
 use haneul_types::error::UserInputError;
+use haneul_types::intent::Intent;
+use haneul_types::intent::IntentScope;
 use haneul_types::message_envelope::Message;
 use haneul_types::parse_haneul_struct_tag;
 use tap::TapFallible;
@@ -2462,6 +2464,7 @@ impl AuthorityState {
             Some(AuthoritySignInfo::new(
                 epoch_store.epoch(),
                 effects,
+                Intent::default().with_scope(IntentScope::TransactionEffects),
                 self.name,
                 &*self.secret,
             ))

@@ -28,6 +28,7 @@ use haneul_types::crypto::{
 use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
+use haneul_types::intent::{Intent, IntentMessage, IntentScope};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::{CallArg, TransactionEffects};
 use haneul_types::messages::{CertifiedTransaction, Transaction};
@@ -377,7 +378,11 @@ impl Builder {
             "provided keypair does not correspond to a validator in the validator set"
         );
         let checkpoint_signature = {
-            let signature = AuthoritySignature::new(&checkpoint, checkpoint.epoch, keypair);
+            let intent_msg = IntentMessage::new(
+                Intent::default().with_scope(IntentScope::CheckpointSummary),
+                checkpoint.clone(),
+            );
+            let signature = AuthoritySignature::new_secure(&intent_msg, &checkpoint.epoch, keypair);
             AuthoritySignInfo {
                 epoch: checkpoint.epoch,
                 authority: name,
