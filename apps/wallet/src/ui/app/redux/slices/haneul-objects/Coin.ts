@@ -9,7 +9,6 @@ import type {
     HaneulObject,
     HaneulAddress,
     HaneulMoveObject,
-    JsonRpcProvider,
     HaneulExecuteTransactionResponse,
     SignerWithProvider,
 } from '@haneullabs/haneul.js';
@@ -148,17 +147,6 @@ export class Coin {
         } finally {
             transaction.finish();
         }
-    }
-
-    public static async getActiveValidators(
-        provider: JsonRpcProvider
-    ): Promise<Array<HaneulMoveObject>> {
-        const contents = await provider.getObject(HANEUL_SYSTEM_STATE_OBJECT_ID);
-        const data = (contents.details as HaneulObject).data;
-        const validators = (data as HaneulMoveObject).fields.validators;
-        const active_validators = (validators as HaneulMoveObject).fields
-            .active_validators;
-        return active_validators as Array<HaneulMoveObject>;
     }
 
     private static async coinManageForStake(

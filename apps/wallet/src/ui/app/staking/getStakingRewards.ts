@@ -3,10 +3,10 @@
 
 import BigNumber from 'bignumber.js';
 
-import type { MoveActiveValidator, DelegatedStake } from '@haneullabs/haneul.js';
+import type { Validator, DelegatedStake } from '@haneullabs/haneul.js';
 
 export function getStakingRewards(
-    activeValidators: MoveActiveValidator[],
+    activeValidators: Validator[],
     delegation: DelegatedStake
 ) {
     if (
@@ -17,20 +17,19 @@ export function getStakingRewards(
         return 0;
     const pool_id = delegation.staked_haneul.pool_id;
     const validator = activeValidators.find(
-        ({ fields }) => fields.delegation_staking_pool.fields.id.id === pool_id
+        (validator) => validator.delegation_staking_pool.id === pool_id
     );
 
     if (!validator) return 0;
-    const { fields: validatorFields } = validator;
 
     const poolTokens = new BigNumber(
         delegation.delegation_status.Active.pool_tokens.value
     );
     const delegationTokenSupply = new BigNumber(
-        validatorFields.delegation_staking_pool.fields.delegation_token_supply.fields.value
+        validator.delegation_staking_pool.delegation_token_supply.value
     );
     const haneulBalance = new BigNumber(
-        validatorFields.delegation_staking_pool.fields.haneul_balance
+        validator.delegation_staking_pool.haneul_balance
     );
     const pricipalAmout = new BigNumber(
         delegation.delegation_status.Active.principal_haneul_amount

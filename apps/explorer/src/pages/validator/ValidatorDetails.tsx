@@ -1,44 +1,33 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulObject, type MoveHaneulSystemObjectFields } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { ValidatorMeta } from '~/components/validator/ValidatorMeta';
 import { ValidatorStats } from '~/components/validator/ValidatorStats';
-import { useGetObject } from '~/hooks/useGetObject';
+import { useGetSystemObject } from '~/hooks/useGetObject';
 import { useGetValidatorsEvents } from '~/hooks/useGetValidatorsEvents';
-import { VALIDATORS_OBJECT_ID } from '~/pages/validator/ValidatorDataTypes';
 import { Banner } from '~/ui/Banner';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { getValidatorMoveEvent } from '~/utils/getValidatorMoveEvent';
 
 function ValidatorDetails() {
     const { id } = useParams();
-    const { data, isLoading } = useGetObject(VALIDATORS_OBJECT_ID);
-
-    const validatorsData =
-        data &&
-        is(data.details, HaneulObject) &&
-        data.details.data.dataType === 'moveObject'
-            ? (data.details.data.fields as MoveHaneulSystemObjectFields)
-            : null;
+    // TODO: Use `getValidators` once that API returns more data:
+    const { data, isLoading } = useGetSystemObject();
 
     const validatorData = useMemo(() => {
-        if (!validatorsData) return null;
+        if (!data) return null;
         return (
-            validatorsData.validators.fields.active_validators.find(
-                (av) => av.fields.metadata.fields.haneul_address === id
+            data.validators.active_validators.find(
+                (av) => av.metadata.haneul_address === id
             ) || null
         );
-    }, [id, validatorsData]);
+    }, [id, data]);
 
-    const numberOfValidators = useMemo(
-        () =>
-            validatorsData?.validators.fields.active_validators.length || null,
-        [validatorsData]
-    );
+    const numberOfValidators =
+        data?.validators.active_validators.length ?? null;
 
     const { data: validatorEvents, isLoading: validatorsEventsLoading } =
         useGetValidatorsEvents({
@@ -62,7 +51,7 @@ function ValidatorDetails() {
         );
     }
 
-    if (!validatorData || !validatorsData || !validatorEvents) {
+    if (!validatorData || !data || !validatorEvents) {
         return (
             <div className="mt-5 mb-10 flex items-center justify-center">
                 <Banner variant="error" spacing="lg" fullWidth>
@@ -80,7 +69,7 @@ function ValidatorDetails() {
             <div className="mt-5 md:mt-8">
                 <ValidatorStats
                     validatorData={validatorData}
-                    epoch={validatorsData.epoch}
+                    epoch={data.epoch}
                     epochRewards={validatorRewards}
                 />
             </div>

@@ -1,22 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MoveActiveValidator } from '@haneullabs/haneul.js';
+import type { Validator } from '@haneullabs/haneul.js';
 
 import { roundFloat } from '~/utils/roundFloat';
 
 const APY_DECIMALS = 4;
 
-export function calculateAPY(validators: MoveActiveValidator, epoch: number) {
+export function calculateAPY(validator: Validator, epoch: number) {
     const { haneul_balance, starting_epoch, delegation_token_supply } =
-        validators.fields.delegation_staking_pool.fields;
+        validator.delegation_staking_pool;
 
     const num_epochs_participated = +epoch - +starting_epoch;
     const apy =
         Math.pow(
             1 +
-                (+haneul_balance - +delegation_token_supply.fields.value) /
-                    +delegation_token_supply.fields.value,
+                (+haneul_balance - +delegation_token_supply.value) /
+                    +delegation_token_supply.value,
             365 / num_epochs_participated
         ) - 1;
 

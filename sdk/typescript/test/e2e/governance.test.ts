@@ -7,10 +7,6 @@ import {
   getExecutionStatusType,
   HaneulSystemStateUtil,
   LocalTxnDataSerializer,
-  HANEUL_SYSTEM_STATE_OBJECT_ID,
-  assert as superStructAssert,
-  getMoveObject,
-  MoveHaneulSystemObjectFields,
 } from '../../src';
 import { DEFAULT_GAS_BUDGET, setup, TestToolbox } from './utils/setup';
 
@@ -65,12 +61,6 @@ describe.each([{ useLocalTxnBuilder: true }, { useLocalTxnBuilder: false }])(
 
     it('test getHaneulSystemState', async () => {
       await toolbox.provider.getHaneulSystemState();
-    });
-
-    it('test Validator definition', async () => {
-      const data = await toolbox.provider.getObject(HANEUL_SYSTEM_STATE_OBJECT_ID);
-      const moveObject = getMoveObject(data);
-      superStructAssert(moveObject!.fields, MoveHaneulSystemObjectFields);
     });
   },
 );
