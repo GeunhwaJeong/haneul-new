@@ -18,8 +18,8 @@ use crate::object::{MoveObject, Object, ObjectFormatOptions, Owner};
 use crate::signature::{AuthenticatorTrait, GenericSignature};
 use crate::storage::{DeleteKind, WriteKind};
 use crate::{
-    HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 use byteorder::{BigEndian, ReadBytesExt};
 use fastcrypto::encoding::Base64;
@@ -51,11 +51,7 @@ use tracing::debug;
 
 pub const DUMMY_GAS_PRICE: u64 = 1;
 
-const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 1] = [(
-    HANEUL_FRAMEWORK_OBJECT_ID,
-    "haneul_system",
-    "request_set_commission_rate",
-)];
+const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 0] = [];
 
 #[cfg(test)]
 #[path = "unit_tests/messages_tests.rs"]
