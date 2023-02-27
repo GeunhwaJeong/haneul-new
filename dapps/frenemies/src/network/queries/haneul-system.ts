@@ -11,12 +11,6 @@ import provider from "../provider";
  */
 export const HANEUL_SYSTEM_ID: string = normalizeHaneulAddress("0x5");
 
-export function convertToString(raw?: string | number[] | null) {
-  if (!raw) return null;
-  if (typeof raw === 'string') return raw;
-  return String.fromCharCode(...raw);
-}
-
 export function useValidators() {
   return useQuery(
     ["validators"],
