@@ -5,6 +5,7 @@ module haneul::genesis {
     use std::vector;
 
     use haneul::balance;
+    use haneul::coin;
     use haneul::clock;
     use haneul::haneul;
     use haneul::haneul_system;
@@ -24,6 +25,9 @@ module haneul::genesis {
 
     /// Stake subisidy to be given out in the very first epoch. Placeholder value.
     const INIT_STAKE_SUBSIDY_AMOUNT: u64 = 1000000;
+
+    /// The initial balance of the Subsidy fund in Geunhwa (1 Billion * 10^9)
+    const INIT_STAKE_SUBSIDY_FUND_BALANCE: u64 = 1_000_000_000_000_000_000;
 
     /// This function will be explicitly called once at genesis.
     /// It will create a singleton HaneulSystemState object, which contains
@@ -50,6 +54,7 @@ module haneul::genesis {
         ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new(ctx);
+        let subsidy_fund = balance::split(&mut haneul_supply, INIT_STAKE_SUBSIDY_FUND_BALANCE);
         let storage_fund = balance::split(&mut haneul_supply, INIT_STORAGE_FUND);
         let validators = vector::empty();
         let count = vector::length(&validator_pubkeys);
@@ -111,7 +116,7 @@ module haneul::genesis {
 
         haneul_system::create(
             validators,
-            haneul_supply,
+            subsidy_fund,
             storage_fund,
             INIT_MAX_VALIDATOR_COUNT,
             INIT_MIN_VALIDATOR_STAKE,
@@ -122,5 +127,10 @@ module haneul::genesis {
         );
 
         clock::create();
+
+        // Transfer the remaining balance of haneul's supply to the initial account
+        // TODO pass in the account that should recieve the initial
+        // distribution of Haneul instead of sending it to address 0x0
+        haneul::transfer(coin::from_balance(haneul_supply, ctx), @0x0);
     }
 }
