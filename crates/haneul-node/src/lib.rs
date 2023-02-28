@@ -245,15 +245,14 @@ impl HaneulNode {
         if epoch_store.epoch() == 0 {
             let txn = &genesis.transaction();
             let span = error_span!("genesis_txn", tx_digest = ?txn.digest());
+            let transaction = haneul_types::messages::VerifiedExecutableTransaction::new_unchecked(
+                haneul_types::messages::ExecutableTransaction::new_from_data_and_sig(
+                    genesis.transaction().data().clone(),
+                    haneul_types::certificate_proof::CertificateProof::Checkpoint(0, 0),
+                ),
+            );
             state
-                .execute_certificate(
-                    &genesis
-                        .transaction()
-                        .clone()
-                        .verify(epoch_store.committee())
-                        .unwrap(),
-                    &epoch_store,
-                )
+                .try_execute_immediately(&transaction, &epoch_store)
                 .instrument(span)
                 .await
                 .unwrap();
