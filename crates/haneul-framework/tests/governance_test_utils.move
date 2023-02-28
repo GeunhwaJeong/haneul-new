@@ -8,7 +8,7 @@ module haneul::governance_test_utils {
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
     use haneul::stake::{Self, Stake};
-    use haneul::staking_pool::{StakedHaneul, Delegation};
+    use haneul::staking_pool::StakedHaneul;
     use haneul::tx_context::{Self, TxContext};
     use haneul::validator::{Self, Validator};
     use haneul::haneul_system::{Self, HaneulSystemState};
@@ -36,6 +36,7 @@ module haneul::governance_test_utils {
             balance::create_for_testing<HANEUL>(init_stake_amount),
             option::none(),
             1,
+            0,
             0,
             ctx
         )
@@ -90,14 +91,15 @@ module haneul::governance_test_utils {
     public fun advance_epoch_with_reward_amounts(
         storage_charge: u64, computation_charge: u64, scenario: &mut Scenario
     ) {
-        test_scenario::next_epoch(scenario, @0x0);
-        let new_epoch = tx_context::epoch(test_scenario::ctx(scenario));
+        test_scenario::next_tx(scenario, @0x0);
+        let new_epoch = tx_context::epoch(test_scenario::ctx(scenario)) + 1;
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         let ctx = test_scenario::ctx(scenario);
 
         haneul_system::advance_epoch(&mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, 0, 0,  ctx);
         test_scenario::return_shared(system_state);
+        test_scenario::next_epoch(scenario, @0x0);
     }
 
     public fun advance_epoch_with_reward_amounts_and_slashing_rates(
@@ -106,8 +108,8 @@ module haneul::governance_test_utils {
         reward_slashing_rate: u64,
         scenario: &mut Scenario
     ) {
-        test_scenario::next_epoch(scenario, @0x0);
-        let new_epoch = tx_context::epoch(test_scenario::ctx(scenario));
+        test_scenario::next_tx(scenario, @0x0);
+        let new_epoch = tx_context::epoch(test_scenario::ctx(scenario)) + 1;
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         let ctx = test_scenario::ctx(scenario);
@@ -116,6 +118,7 @@ module haneul::governance_test_utils {
             &mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, reward_slashing_rate, 0, ctx
         );
         test_scenario::return_shared(system_state);
+        test_scenario::next_epoch(scenario, @0x0);
     }
 
     public fun delegate_to(
@@ -131,17 +134,15 @@ module haneul::governance_test_utils {
     }
 
     public fun undelegate(
-        delegator: address, staked_haneul_idx: u64, delegation_obj_idx: u64, scenario: &mut Scenario
+        delegator: address, staked_haneul_idx: u64, scenario: &mut Scenario
     ) {
         test_scenario::next_tx(scenario, delegator);
         let stake_haneul_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
         let staked_haneul = test_scenario::take_from_sender_by_id(scenario, *vector::borrow(&stake_haneul_ids, staked_haneul_idx));
-        let delegation_ids = test_scenario::ids_for_sender<Delegation>(scenario);
-        let delegation = test_scenario::take_from_sender_by_id(scenario, *vector::borrow(&delegation_ids, delegation_obj_idx));
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         let ctx = test_scenario::ctx(scenario);
-        haneul_system::request_withdraw_delegation(&mut system_state, delegation, staked_haneul, ctx);
+        haneul_system::request_withdraw_delegation(&mut system_state, staked_haneul, ctx);
         test_scenario::return_shared(system_state);
     }
 

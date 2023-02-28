@@ -669,12 +669,11 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     pub async fn request_withdraw_delegation(
         &self,
         signer: HaneulAddress,
-        delegation: ObjectID,
+        _delegation: ObjectID,
         staked_haneul: ObjectID,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> anyhow::Result<TransactionData> {
-        let delegation = self.get_object_ref(delegation).await?;
         let staked_haneul = self.get_object_ref(staked_haneul).await?;
         let gas_price = self.0.get_reference_gas_price().await?;
         let gas = self
@@ -693,7 +692,6 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
                     initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
                     mutable: true,
                 }),
-                CallArg::Object(ObjectArg::ImmOrOwnedObject(delegation)),
                 CallArg::Object(ObjectArg::ImmOrOwnedObject(staked_haneul)),
             ],
             gas_budget,

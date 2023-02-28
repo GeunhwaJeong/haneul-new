@@ -5,8 +5,8 @@ module haneul::haneul_system {
     use haneul::balance::{Self, Balance};
     use haneul::clock::{Self, Clock};
     use haneul::coin::{Self, Coin};
-    use haneul::staking_pool::{Delegation, StakedHaneul};
     use haneul::object::{Self, ID, UID};
+    use haneul::staking_pool::StakedHaneul;
     use haneul::locked_coin::{Self, LockedCoin};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -208,6 +208,7 @@ module haneul::haneul_system {
             option::none(),
             gas_price,
             commission_rate,
+            tx_context::epoch(ctx) + 1, // starting next epoch
             ctx
         );
 
@@ -378,16 +379,12 @@ module haneul::haneul_system {
     /// Withdraw some portion of a delegation from a validator's staking pool.
     public entry fun request_withdraw_delegation(
         wrapper: &mut HaneulSystemState,
-        delegation: Delegation,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
         let self = load_system_state_mut(wrapper);
         validator_set::request_withdraw_delegation(
-            &mut self.validators,
-            delegation,
-            staked_haneul,
-            ctx,
+            &mut self.validators, staked_haneul, ctx,
         );
     }
 
@@ -501,7 +498,6 @@ module haneul::haneul_system {
             balance::value(&computation_reward)+ balance::value(&storage_fund_reward);
 
         validator_set::advance_epoch(
-            new_epoch,
             &mut self.validators,
             &mut computation_reward,
             &mut storage_fund_reward,

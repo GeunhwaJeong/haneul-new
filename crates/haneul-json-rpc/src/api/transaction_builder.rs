@@ -240,6 +240,7 @@ pub trait TransactionBuilder {
         &self,
         /// the transaction signer's Haneul address
         signer: HaneulAddress,
+        // TODO: remove this parameter
         /// Delegation object ID
         delegation: ObjectID,
         /// StakedHaneul object ID

@@ -8,14 +8,14 @@ module haneul::validator {
 
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
-    use haneul::tx_context::TxContext;
+    use haneul::tx_context::{Self, TxContext};
     use haneul::stake;
     use haneul::stake::Stake;
     use haneul::epoch_time_lock::EpochTimeLock;
     use haneul::object::{Self, ID};
     use std::option::Option;
     use haneul::bls12381::bls12381_min_sig_verify_with_domain;
-    use haneul::staking_pool::{Self, Delegation, PoolTokenExchangeRate, StakedHaneul, StakingPool};
+    use haneul::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
     use std::string::{Self, String};
     use haneul::url::Url;
     use haneul::url;
@@ -126,6 +126,7 @@ module haneul::validator {
         coin_locked_until_epoch: Option<EpochTimeLock>,
         gas_price: u64,
         commission_rate: u64,
+        starting_epoch: u64,
         ctx: &mut TxContext
     ): Validator {
         assert!(
@@ -168,7 +169,7 @@ module haneul::validator {
             pending_stake: 0,
             pending_withdraw: 0,
             gas_price,
-            delegation_staking_pool: staking_pool::new(ctx),
+            delegation_staking_pool: staking_pool::new(starting_epoch, ctx),
             commission_rate,
             next_epoch_stake: stake_amount,
             next_epoch_delegation: 0,
@@ -255,12 +256,11 @@ module haneul::validator {
     /// Request to withdraw delegation from the validator's staking pool, processed at the end of the epoch.
     public(friend) fun request_withdraw_delegation(
         self: &mut Validator,
-        delegation: Delegation,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
         let principal_withdraw_amount = staking_pool::request_withdraw_delegation(
-                &mut self.delegation_staking_pool, delegation, staked_haneul, ctx);
+                &mut self.delegation_staking_pool, staked_haneul, ctx);
         decrease_next_epoch_delegation(self, principal_withdraw_amount);
     }
 
@@ -279,17 +279,18 @@ module haneul::validator {
     }
 
     /// Deposit delegations rewards into the validator's staking pool, called at the end of the epoch.
-    public(friend) fun deposit_delegation_rewards(self: &mut Validator, reward: Balance<HANEUL>) {
+    public(friend) fun deposit_delegation_rewards(self: &mut Validator, reward: Balance<HANEUL>, new_epoch: u64) {
         self.next_epoch_delegation = self.next_epoch_delegation + balance::value(&reward);
-        staking_pool::deposit_rewards(&mut self.delegation_staking_pool, reward);
+        staking_pool::deposit_rewards(&mut self.delegation_staking_pool, reward, new_epoch);
     }
 
     /// Process pending delegations and withdraws, called at the end of the epoch.
     public(friend) fun process_pending_delegations_and_withdraws(self: &mut Validator, ctx: &mut TxContext) {
+        let new_epoch = tx_context::epoch(ctx) + 1;
         let reward_withdraw_amount = staking_pool::process_pending_delegation_withdraws(
             &mut self.delegation_staking_pool, ctx);
         self.next_epoch_delegation = self.next_epoch_delegation - reward_withdraw_amount;
-        staking_pool::process_pending_delegations(&mut self.delegation_staking_pool, ctx);
+        staking_pool::process_pending_delegation(&mut self.delegation_staking_pool, new_epoch);
         // TODO: consider bringing this assert back when we are more confident.
         // assert!(delegate_amount(self) == self.metadata.next_epoch_delegation, 0);
     }
@@ -358,8 +359,8 @@ module haneul::validator {
         self.commission_rate
     }
 
-    public fun pool_token_exchange_rate(self: &Validator): PoolTokenExchangeRate {
-        staking_pool::pool_token_exchange_rate(&self.delegation_staking_pool)
+    public fun pool_token_exchange_rate_at_epoch(self: &Validator, epoch: u64): PoolTokenExchangeRate {
+        staking_pool::pool_token_exchange_rate_at_epoch(&self.delegation_staking_pool, epoch)
     }
 
     public fun staking_pool_id(self: &Validator): ID {
@@ -396,6 +397,7 @@ module haneul::validator {
         coin_locked_until_epoch: Option<EpochTimeLock>,
         gas_price: u64,
         commission_rate: u64,
+        starting_epoch: u64,
         ctx: &mut TxContext
     ): Validator {
         assert!(
@@ -430,7 +432,7 @@ module haneul::validator {
             pending_stake: 0,
             pending_withdraw: 0,
             gas_price,
-            delegation_staking_pool: staking_pool::new(ctx),
+            delegation_staking_pool: staking_pool::new(starting_epoch, ctx),
             commission_rate,
             next_epoch_stake: stake_amount,
             next_epoch_delegation: 0,

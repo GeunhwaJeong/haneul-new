@@ -6,7 +6,8 @@ module haneul::delegation_tests {
     use haneul::coin;
     use haneul::test_scenario::{Self, Scenario};
     use haneul::haneul_system::{Self, HaneulSystemState};
-    use haneul::staking_pool::{Self, Delegation, StakedHaneul};
+    use haneul::staking_pool::{Self, StakedHaneul};
+
 
     use haneul::governance_test_utils::{
         Self,
@@ -48,9 +49,6 @@ module haneul::delegation_tests {
         test_scenario::next_tx(scenario, DELEGATOR_ADDR_1);
         {
 
-            let delegation = test_scenario::take_from_sender<Delegation>(scenario);
-            assert!(staking_pool::delegation_token_amount(&delegation) == 60, 105);
-
             let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
             assert!(staking_pool::staked_haneul_amount(&staked_haneul) == 60, 105);
 
@@ -64,8 +62,7 @@ module haneul::delegation_tests {
             let ctx = test_scenario::ctx(scenario);
 
             // Undelegate from VALIDATOR_ADDR_1
-            haneul_system::request_withdraw_delegation(
-                system_state_mut_ref, delegation, staked_haneul, ctx);
+            haneul_system::request_withdraw_delegation(system_state_mut_ref, staked_haneul, ctx);
 
             assert!(haneul_system::validator_delegate_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 60, 107);
             test_scenario::return_shared(system_state);

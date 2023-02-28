@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_types::balance::{Balance, Supply};
+use haneul_types::balance::Balance;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::collection_types::VecMap;
 use haneul_types::committee::{EpochId, ProtocolVersion};
@@ -11,8 +11,8 @@ use haneul_types::crypto::{
 use haneul_types::id::UID;
 use haneul_types::haneul_system_state::SystemParameters;
 use haneul_types::haneul_system_state::{
-    LinkedTable, StakeSubsidy, StakingPool, HaneulSystemState, Table, TableVec, Validator,
-    ValidatorMetadata, ValidatorSet,
+    StakeSubsidy, StakingPool, HaneulSystemState, Table, TableVec, Validator, ValidatorMetadata,
+    ValidatorSet,
 };
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 
@@ -45,8 +45,9 @@ pub fn test_staking_pool(haneul_balance: u64) -> StakingPool {
         starting_epoch: 0,
         haneul_balance,
         rewards_pool: Balance::new(0),
-        delegation_token_supply: Supply { value: 0 },
-        pending_delegations: LinkedTable::default(),
+        pool_token_balance: 0,
+        exchange_rates: Table::default(),
+        pending_delegation: 0,
         pending_withdraws: TableVec::default(),
     }
 }

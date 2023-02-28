@@ -26,7 +26,7 @@ export function getStakingRewards(
         delegation.delegation_status.Active.pool_tokens.value
     );
     const delegationTokenSupply = new BigNumber(
-        validator.delegation_staking_pool.delegation_token_supply.value
+        validator.delegation_staking_pool.pool_token_balance
     );
     const haneulBalance = new BigNumber(
         validator.delegation_staking_pool.haneul_balance

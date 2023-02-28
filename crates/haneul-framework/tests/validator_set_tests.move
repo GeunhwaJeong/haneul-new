@@ -5,7 +5,7 @@
 module haneul::validator_set_tests {
     use haneul::balance;
     use haneul::coin;
-    use haneul::tx_context::TxContext;
+    use haneul::tx_context::{Self, TxContext};
     use haneul::validator::{Self, Validator};
     use haneul::validator_set::{Self, ValidatorSet};
     use haneul::test_scenario;
@@ -178,6 +178,7 @@ module haneul::validator_set_tests {
             option::none(),
             1,
             0,
+            0,
             ctx
         )
     }
@@ -205,6 +206,7 @@ module haneul::validator_set_tests {
             option::none(),
             gas_price,
             0,
+            0,
             ctx
         )
     }
@@ -218,8 +220,9 @@ module haneul::validator_set_tests {
         let dummy_computation_reward = balance::zero();
         let dummy_storage_fund_reward = balance::zero();
 
+        tx_context::increment_epoch_number(ctx);
+
         validator_set::advance_epoch(
-            1, // dummy new epoch number
             validator_set,
             &mut dummy_computation_reward,
             &mut dummy_storage_fund_reward,
