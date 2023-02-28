@@ -98,7 +98,8 @@ export class HaneulWallet implements Wallet {
 
     get features(): ConnectFeature &
         EventsFeature &
-        HaneulFeatures &
+        // TODO: Support SignMessage:
+        Omit<HaneulFeatures, 'haneul:signMessage'> &
         HaneulWalletStakeFeature {
         return {
             'standard:connect': {

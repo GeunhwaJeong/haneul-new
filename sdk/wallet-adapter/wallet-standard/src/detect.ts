@@ -27,6 +27,8 @@ export function isStandardWalletAdapterCompatibleWallet(
     "standard:events" in wallet.features &&
     // TODO: Enable once ecosystem wallets adopt this:
     // "haneul:signTransaction" in wallet.features &&
+    // TODO: Enable once ecosystem wallets adopt this
+    // "haneul:signMessage" in wallet.features &&
     "haneul:signAndExecuteTransaction" in wallet.features
   );
 }

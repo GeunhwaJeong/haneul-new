@@ -99,6 +99,10 @@ export class StandardWalletAdapter implements WalletAdapter {
     }
   }
 
+  signMessage: WalletAdapter["signMessage"] = (messageInput) => {
+    return this.#wallet.features["haneul:signMessage"].signMessage(messageInput);
+  };
+
   signTransaction: WalletAdapter["signTransaction"] = (transactionInput) => {
     const version = this.#wallet.features["haneul:signTransaction"].version;
     if (!isFeatureCompatible(version, haneulSignTransactionLatestVersion)) {

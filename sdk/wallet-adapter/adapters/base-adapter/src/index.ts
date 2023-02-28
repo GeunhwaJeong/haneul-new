@@ -1,11 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransaction, HaneulTransactionResponse } from "@haneullabs/haneul.js";
+import {
+  SignedTransaction,
+  HaneulTransactionResponse,
+  SignedMessage,
+} from "@haneullabs/haneul.js";
 import {
   HaneulSignTransactionInput,
   HaneulSignAndExecuteTransactionInput,
   WalletAccount,
+  HaneulSignMessageInput,
 } from "@haneullabs/wallet-standard";
 
 export interface WalletAdapterEvents {
@@ -29,6 +34,7 @@ export interface WalletAdapter {
     event: E,
     callback: WalletAdapterEvents[E]
   ) => () => void;
+  signMessage(messageInput: HaneulSignMessageInput): Promise<SignedMessage>;
   signTransaction(
     transactionInput: HaneulSignTransactionInput
   ): Promise<SignedTransaction>;
