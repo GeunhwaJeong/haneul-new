@@ -75,6 +75,7 @@ use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetri
 use haneul_core::epoch::data_removal::EpochDataRemover;
 use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
+use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager, NarwhalManagerMetrics};
 use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
@@ -174,6 +175,7 @@ impl HaneulNode {
         } else {
             None
         };
+        let cache_metrics = Arc::new(ResolverMetrics::new(&prometheus_registry));
         let epoch_store = AuthorityPerEpochStore::new(
             config.protocol_public_key(),
             committee,
@@ -181,6 +183,8 @@ impl HaneulNode {
             None,
             EpochMetrics::new(&registry_service.default_registry()),
             epoch_start_configuration,
+            store.clone(),
+            cache_metrics,
         );
 
         let checkpoint_store = CheckpointStore::new(&config.db_path().join("checkpoints"));
@@ -938,7 +942,6 @@ pub async fn build_server(
         server.register_module(TransactionExecutionApi::new(
             state.clone(),
             transaction_orchestrator.clone(),
-            state.module_cache.clone(),
         ))?;
     }
 

@@ -166,7 +166,18 @@ impl ReadApiServer for ReadApi {
 
         Ok(HaneulTransactionResponse {
             transaction: transaction.into_message().try_into()?,
-            effects: HaneulTransactionEffects::try_from(effects, self.state.module_cache.as_ref())?,
+            effects: HaneulTransactionEffects::try_from(
+                effects,
+                // threading the epoch_store through this API does not
+                // seem possible, so we just read it from the state and fetch
+                // the module cache out of it.
+                // Notice that no matter what module cache we get things
+                // should work
+                self.state
+                    .load_epoch_store_one_call_per_task()
+                    .module_cache()
+                    .as_ref(),
+            )?,
             timestamp_ms: checkpoint_timestamp,
             confirmed_local_execution: None,
             checkpoint: checkpoint.map(|c| c.summary.sequence_number),
