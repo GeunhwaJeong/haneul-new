@@ -796,6 +796,23 @@
       }
     },
     {
+      "name": "haneul_getCurrentEpochStaticInfo",
+      "tags": [
+        {
+          "name": "Governance Read API"
+        }
+      ],
+      "description": "Return [HaneulSystemState]",
+      "params": [],
+      "result": {
+        "name": "HaneulSystemState",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/HaneulSystemState"
+        }
+      }
+    },
+    {
       "name": "haneul_getDelegatedStakes",
       "tags": [
         {
@@ -1465,23 +1482,6 @@
           "type": "integer",
           "format": "uint64",
           "minimum": 0.0
-        }
-      }
-    },
-    {
-      "name": "haneul_getHaneulSystemState",
-      "tags": [
-        {
-          "name": "Governance Read API"
-        }
-      ],
-      "description": "Return [HaneulSystemState]",
-      "params": [],
-      "result": {
-        "name": "HaneulSystemState",
-        "required": true,
-        "schema": {
-          "$ref": "#/components/schemas/HaneulSystemState"
         }
       }
     },

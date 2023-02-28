@@ -763,17 +763,17 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getHaneulSystemState(): Promise<HaneulSystemState> {
+  async getCurrentEpochStaticInfo(): Promise<HaneulSystemState> {
     try {
       const resp = await this.client.requestWithType(
-        'haneul_getHaneulSystemState',
+        'haneul_getCurrentEpochStaticInfo',
         [],
         HaneulSystemState,
         this.options.skipDataValidation,
       );
       return resp;
     } catch (err) {
-      throw new Error(`Error in getHaneulSystemState: ${err}`);
+      throw new Error(`Error in getCurrentEpochStaticInfo: ${err}`);
     }
   }
 

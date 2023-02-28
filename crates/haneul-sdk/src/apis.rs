@@ -191,8 +191,8 @@ impl ReadApi {
             .await?)
     }
 
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
-        Ok(self.api.http.get_haneul_system_state().await?)
+    pub async fn get_current_epoch_static_info(&self) -> HaneulRpcResult<HaneulSystemState> {
+        Ok(self.api.http.get_current_epoch_static_info().await?)
     }
 
     pub async fn get_reference_gas_price(&self) -> HaneulRpcResult<u64> {
@@ -499,7 +499,7 @@ impl GovernanceApi {
     }
 
     /// Return [HaneulSystemState]
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
-        Ok(self.api.http.get_haneul_system_state().await?)
+    pub async fn get_current_epoch_static_info(&self) -> HaneulRpcResult<HaneulSystemState> {
+        Ok(self.api.http.get_current_epoch_static_info().await?)
     }
 }

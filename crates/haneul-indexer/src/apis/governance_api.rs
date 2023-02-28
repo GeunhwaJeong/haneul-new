@@ -39,8 +39,8 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         self.fullnode.get_committee_info(epoch).await
     }
 
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState> {
-        self.fullnode.get_haneul_system_state().await
+    async fn get_current_epoch_static_info(&self) -> RpcResult<HaneulSystemState> {
+        self.fullnode.get_current_epoch_static_info().await
     }
 
     async fn get_reference_gas_price(&self) -> RpcResult<u64> {

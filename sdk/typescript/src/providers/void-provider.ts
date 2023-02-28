@@ -63,8 +63,8 @@ export class VoidProvider extends Provider {
     throw this.newError('getReferenceGasPrice');
   }
 
-  async getHaneulSystemState(): Promise<HaneulSystemState> {
-    throw this.newError('getHaneulSystemState');
+  async getCurrentEpochStaticInfo(): Promise<HaneulSystemState> {
+    throw this.newError('getCurrentEpochStaticInfo');
   }
 
   async getDelegatedStakes(_address: HaneulAddress): Promise<DelegatedStake[]> {
