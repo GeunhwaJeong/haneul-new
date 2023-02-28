@@ -13,9 +13,6 @@ module haneul::genesis {
     use haneul::validator;
     use std::option;
 
-    /// The initial amount of HANEUL locked in the storage fund.
-    const INIT_STORAGE_FUND: u64 = 1;
-
     /// Initial value of the lower-bound on the amount of stake required to become a validator.
     /// TODO: testnet only. Needs to be changed.
     const INIT_MIN_VALIDATOR_STAKE: u64 = 1;
@@ -55,7 +52,7 @@ module haneul::genesis {
     ) {
         let haneul_supply = haneul::new(ctx);
         let subsidy_fund = balance::split(&mut haneul_supply, INIT_STAKE_SUBSIDY_FUND_BALANCE);
-        let storage_fund = balance::split(&mut haneul_supply, INIT_STORAGE_FUND);
+        let storage_fund = balance::zero();
         let validators = vector::empty();
         let count = vector::length(&validator_pubkeys);
         assert!(
