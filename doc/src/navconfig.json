@@ -102,8 +102,8 @@
 				]
 			},
 			{
-				"label": "Haneul Exchange Integration FAQ",
-				"fileName": "learn/exchange-integration-faq"
+				"label": "Haneul Exchange Integration Guide",
+				"fileName": "learn/exchange-integration-guide"
 			}
 		],
 		"build": [{
