@@ -6,9 +6,9 @@ Haneul *(swē)* is the water element in Japanese philosophy. The power of the ha
 
 The Haneul platform is built on Haneul Move, which is derived from the core [Move](https://github.com/GeunhwaJeong/awesome-move) programming language. This documentation assumes that you have a basic working knowledge of Move. To learn more about the differences between core Move and Haneul Move, see [How Haneul Move differs from core Move](../learn/haneul-move-diffs.md).
 
-For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper. Find answers to common questions about our [roadmap](https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md) and more in our [FAQ](../contribute/faq.md).
+For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) white paper.
 
-## Versions of the documentation
+## Documentation versions
 
 This site is available in two versions. You can choose which version to view using the drop-down menu at top left.
  * [Devnet](https://docs.haneul.io/devnet/learn) reflects the stable `devnet` branch of the repo. Use the **Devnet** version of the docs if you build or test with the `devnet` branch of the repo. 
