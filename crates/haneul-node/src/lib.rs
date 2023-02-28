@@ -86,8 +86,6 @@ use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{AuthorityCapabilities, ConsensusTransaction};
 
-pub const DEFAULT_CHANNEL_SIZE: usize = 1_000;
-
 pub struct ValidatorComponents {
     validator_server_handle: tokio::task::JoinHandle<Result<()>>,
     narwhal_manager: NarwhalManager,
