@@ -1,53 +1,23 @@
 <p align="center">
-  <a href="https://docs.haneul.io/">
-    <img src="https://github.com/GeunhwaJeong/haneul/blob/main/doc/static/Haneul_Icon_Brand.png" alt="Logo" width="80" height="80">
-  </a>
-  
-  <h3 align="center">Haneul</h3>
-
-  <p align="center">
-    Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model.
-    <br />
-    <a href="#"><strong>Explore more about Haneul »</strong></a>
-    <br />
-    <br />
-    <a href="https://discord.gg/haneul">Community</a>
-    ·
-    <a href="https://docs.haneul.io/">Docs</a>
-  </p>
+<img src="https://github.com/GeunhwaJeong/haneul/blob/main/doc/static/Haneul_Icon_Brand.png" alt="Logo" width="100" height="100">
 </p>
-<hr>
 
-|             |             |
-| ----------- | ----------- |
-| Welcome to Haneul, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by the [Move programming language](https://github.com/GeunhwaJeong/awesome-move)! Find everything you need within the [Haneul Developer Guides](doc/src/learn/index.md) and supporting materials below.      | <img src="doc/static/Haneul_Icon_Brand.png" alt="haneul_icon" width="200"/>      |
+# Welcome to Haneul
 
-[![Documentation (main)](https://img.shields.io/badge/docs-main-59f)](https://haneullabs.github.io/haneul)
+Haneul is a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by the [Move programming language](https://github.com/GeunhwaJeong/awesome-move).
 
-## Quick links
+## Haneul Highlights
 
-* To learn how to use Haneul, take our [end-to-end tutorial](doc/src/explore/tutorials.md).
-* To jump right into building smart contract applications on top of Haneul, start at the [Move Smart Contract Quick Start](doc/src/build/move/index.md).
-* To experiment with the Haneul CLI client, check out [Haneul CLI client Quick Start](doc/src/build/cli-client.md).
-* To understand what's possible by browsing Move code built on top of Haneul, review the [examples](doc/src/explore/examples.md).
-* To start coding against Haneul's JSON-RPC APIs, start at [JSON-RPC API Quick Start](doc/src/build/json-rpc.md).
-* To learn what distinguishes Haneul from other blockchain systems, see [How Haneul Differs?](doc/src/learn/haneul-compared.md).
-* To go deep on how Haneul works, read the [Haneul Smart Contract Platform](doc/paper/haneul.pdf) white paper.
-* To help Haneul grow, follow [Contributing to Haneul](doc/src/contribute/index.md).
-* To connect with the Haneul community, join our [Discord](https://discord.gg/haneul).
+Haneul offers the following benefits and capabilities:
 
-### Highlights
-
-Haneul offers:
-
-* Unmatched scalability, instant settlement
-* A safe smart contract language accessible to mainstream developers
-* Ability to define rich and composable on-chain assets
-* Better user experience for web3 apps
+ * Unmatched scalability, instant settlement
+ * A safe smart contract language accessible to mainstream developers
+ * Ability to define rich and composable on-chain assets
+ * Better user experience for web3 apps
 
 Haneul is the only blockchain today that can scale with the growth of web3 while achieving industry-leading performance, cost, programmability, and usability. As we push towards mainnet launch, we will demonstrate capacity beyond the transaction processing capabilities of established systems – traditional and blockchain alike. We see Haneul as the first internet-scale programmable blockchain platform, a foundational layer for web3.
 
-## Architecture
+## Haneul Architecture
 
 ```mermaid
 flowchart LR
@@ -66,7 +36,7 @@ flowchart LR
     AC2 <==>|Network TCP| Authority2
 ```
 
-## Overview
+## Haneul Overview
 
 Haneul is a smart contract platform maintained by a permissionless set of authorities that play a role similar to validators or miners in other blockchain systems.
 
@@ -77,3 +47,12 @@ Haneul is written in [Rust](https://www.rust-lang.org) and supports smart contra
 Haneul has a native token called HANEUL, with a fixed supply. The HANEUL token is used to pay for gas, and is also used as [delegated stake on authorities](https://learn.bybit.com/blockchain/delegated-proof-of-stake-dpos/) within an epoch. The voting power of authorities within this epoch is a function of this delegated stake. Authorities are periodically reconfigured according to the stake delegated to them. In any epoch, the set of authorities is [Byzantine fault tolerant](https://pmg.csail.mit.edu/papers/osdi99.pdf). At the end of the epoch, fees collected through all transactions processed are distributed to authorities according to their contribution to the operation of the system. Authorities can in turn share some of the fees as rewards to users that delegated stakes to them.
 
 Haneul is backed by a number of state-of-the-art [peer-reviewed works](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/contribute/research-papers.md) and years of open source development.
+
+## More About Haneul
+
+Use the following links to learn more about Haneul and the Haneul ecosystem:
+
+ * Learn more about working with Haneul in the [Haneul Documentation](doc/src/learn/index.md).
+ * Join the Haneul community on [Haneul Discord](https://discord.gg/haneul).
+ * Find out more about the Haneul ecosystem on the [Haneul Resources](https://haneul.io/resources/) page.
+ * Review information about Haneul governance, [decentralization](https://haneulfoundation.org/decentralization), and [Developer Grants Program](https://haneulfoundation.org/#grants) on the [Haneul Foundation](https://haneulfoundation.org/) site. 
