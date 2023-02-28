@@ -12,6 +12,7 @@ async-trait = "0.1.61"
 futures = "0.3.23"
 bcs = "0.1.4"
 
+move-binary-format.workspace = true
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
