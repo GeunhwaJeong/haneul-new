@@ -30,6 +30,7 @@ module haneul::genesis {
     /// It will create a singleton HaneulSystemState object, which contains
     /// all the information we need in the system.
     fun create(
+        initial_haneul_custody_account_address: address,
         validator_pubkeys: vector<vector<u8>>,
         validator_network_pubkeys: vector<vector<u8>>,
         validator_worker_pubkeys: vector<vector<u8>>,
@@ -126,8 +127,6 @@ module haneul::genesis {
         clock::create();
 
         // Transfer the remaining balance of haneul's supply to the initial account
-        // TODO pass in the account that should recieve the initial
-        // distribution of Haneul instead of sending it to address 0x0
-        haneul::transfer(coin::from_balance(haneul_supply, ctx), @0x0);
+        haneul::transfer(coin::from_balance(haneul_supply, ctx), initial_haneul_custody_account_address);
     }
 }
