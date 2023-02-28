@@ -138,8 +138,14 @@ export abstract class Provider {
   /**
    * Get all objects owned by an address
    */
+  /**
+   * @param addressOrObjectId owner address or object id
+   * @param typeFilter? a fully qualified type name for the object(e.g., 0x2::coin::Coin<0x2::haneul::HANEUL>)
+   * or type name without generics (e.g., 0x2::coin::Coin will match all 0x2::coin::Coin<T>)
+   */
   abstract getObjectsOwnedByAddress(
     addressOrObjectId: string,
+    typeFilter?: string,
   ): Promise<HaneulObjectInfo[]>;
 
   /**

@@ -126,7 +126,10 @@ export class VoidProvider extends Provider {
   }
 
   // Objects
-  async getObjectsOwnedByAddress(_address: string): Promise<HaneulObjectInfo[]> {
+  async getObjectsOwnedByAddress(
+    _address: string,
+    _typefilter?: string,
+  ): Promise<HaneulObjectInfo[]> {
     throw this.newError('getObjectsOwnedByAddress');
   }
 
