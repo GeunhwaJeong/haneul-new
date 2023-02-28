@@ -8,7 +8,11 @@ import {
 
 import { isBasePayload } from '_payloads';
 
-import type { MoveCallTransaction, SignableTransaction } from '@haneullabs/haneul.js';
+import type {
+    MoveCallTransaction,
+    SignableTransaction,
+    HaneulAddress,
+} from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export type TransactionDataType =
@@ -17,9 +21,10 @@ export type TransactionDataType =
           justSign?: boolean;
           data: SignableTransaction;
           options?: HaneulSignAndExecuteTransactionOptions;
+          account: HaneulAddress;
       }
-    | { type: 'move-call'; data: MoveCallTransaction }
-    | { type: 'serialized-move-call'; data: string };
+    | { type: 'move-call'; data: MoveCallTransaction; account: HaneulAddress }
+    | { type: 'serialized-move-call'; data: string; account: HaneulAddress };
 
 export interface ExecuteTransactionRequest extends BasePayload {
     type: 'execute-transaction-request';
@@ -36,7 +41,9 @@ export function isExecuteTransactionRequest(
 
 export interface SignTransactionRequest extends BasePayload {
     type: 'sign-transaction-request';
-    transaction: HaneulSignTransactionInput;
+    transaction: Omit<HaneulSignTransactionInput, 'account'> & {
+        account: HaneulAddress;
+    };
 }
 
 export function isSignTransactionRequest(
