@@ -303,7 +303,8 @@ fn test_multisig_address() {
         MultiSigPublicKey::new(vec![pk1, pk2, pk3], vec![w1, w2, w3], threshold).unwrap();
     let address: HaneulAddress = multisig_pk.into();
     assert_eq!(
-        HaneulAddress::from_str("0x43247fc96101763052ccc4f0417257a4270a537c").unwrap(),
+        HaneulAddress::from_str("0x43247fc96101763052ccc4f0417257a4270a537c45576ec6cd631c712085f389")
+            .unwrap(),
         address
     );
 }

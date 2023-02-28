@@ -1,7 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Coin as CoinAPI, getTransactionEffects } from '@haneullabs/haneul.js';
+import {
+    Coin as CoinAPI,
+    getTransactionEffects,
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
+} from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
 
 import type {
@@ -21,8 +25,6 @@ export const DEFAULT_GAS_BUDGET_FOR_STAKE = 15000;
 export const GAS_TYPE_ARG = '0x2::haneul::HANEUL';
 export const GAS_SYMBOL = 'HANEUL';
 export const DEFAULT_NFT_TRANSFER_GAS_FEE = 450;
-export const HANEUL_SYSTEM_STATE_OBJECT_ID =
-    '0x0000000000000000000000000000000000000005';
 
 // TODO use sdk
 export class Coin {

@@ -23,6 +23,7 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::construct_tbls_randomness_object_message;
 use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::object::{Object, ObjectRead};
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 pub struct ThresholdBlsApi {
     state: Arc<AuthorityState>,
@@ -36,8 +37,8 @@ impl ThresholdBlsApi {
     /// Check that the given layout represents a Randomness object.
     fn is_randomness_object(layout: &MoveStructLayout) -> bool {
         let MoveStructLayout::WithTypes{type_, fields: _} = layout else { return false; };
-        let prefix = "0000000000000000000000000000000000000002::randomness::Randomness";
-        type_.to_canonical_string().starts_with(prefix)
+        let prefix = format!("{:?}::randomness::Randomness", HANEUL_FRAMEWORK_ADDRESS);
+        type_.to_canonical_string().starts_with(&prefix)
     }
 
     /// Get the object and check if it is a Randomness object.

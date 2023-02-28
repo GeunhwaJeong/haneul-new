@@ -9,6 +9,7 @@ import {
     getTotalGasUsed,
     getTransactionDigest,
     getObjectVersion,
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
@@ -17,7 +18,6 @@ import {
 } from '@reduxjs/toolkit';
 
 import { activeAccountSelector } from '../account';
-import { HANEUL_SYSTEM_STATE_OBJECT_ID } from './Coin';
 import { ExampleNFT } from './NFT';
 
 import type { HaneulObject, HaneulAddress, ObjectId } from '@haneullabs/haneul.js';

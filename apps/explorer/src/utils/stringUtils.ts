@@ -1,10 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulAddress, HANEUL_ADDRESS_LENGTH } from '@haneullabs/haneul.js';
 
 const IPFS_START_STRING = 'https://ipfs.io/ipfs/';
-const HANEUL_ADDRESS_LENGTH = 20;
 
 export function hexToAscii(hex: string) {
     if (!hex || typeof hex != 'string') return;

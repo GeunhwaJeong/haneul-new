@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::str::FromStr;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     types::{
@@ -24,9 +23,9 @@ async fn main() -> Result<(), anyhow::Error> {
         None => panic!("Cannot obtain home directory path"),
     };
 
-    let my_address = HaneulAddress::from_str("0x47722589dc23d63e82862f7814070002ffaaa465")?;
-    let gas_object_id = ObjectID::from_str("0x273b2a83f1af1fda3ddbc02ad31367fcb146a814")?;
-    let recipient = HaneulAddress::from_str("0xbd42a850e81ebb8f80283266951d4f4f5722e301")?;
+    let my_address = HaneulAddress::random_for_testing_only();
+    let gas_object_id = ObjectID::random();
+    let recipient = HaneulAddress::random_for_testing_only();
 
     // Create a haneul transfer transaction
     let transfer_tx = haneul
