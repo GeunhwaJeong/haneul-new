@@ -3,17 +3,19 @@
 
 #[test_only]
 module haneul::validator_tests {
-    use haneul::coin;
     use haneul::haneul::HANEUL;
     use haneul::test_scenario;
     use haneul::validator;
-    use haneul::stake::Stake;
-    use haneul::locked_coin::{Self, LockedCoin};
-    use haneul::stake;
     use haneul::url;
     use std::option;
     use std::ascii;
     use std::string;
+    use haneul::coin::{Self, Coin};
+    use haneul::balance;
+    use haneul::staking_pool::{Self, StakedHaneul};
+    use haneul::tx_context;
+    use std::vector;
+
 
     const VALID_PUBKEY: vector<u8> = vector[153, 242, 94, 246, 31, 128, 50, 185, 20, 99, 100, 96, 152, 44, 92, 198, 241, 52, 239, 29, 218, 231, 102, 87, 242, 203, 254, 193, 235, 252, 141, 9, 115, 116, 8, 13, 246, 252, 240, 220, 184, 188, 75, 13, 142, 10, 245, 216, 14, 187, 255, 43, 76, 89, 159, 84, 244, 45, 99, 18, 223, 195, 20, 39, 96, 120, 193, 204, 52, 126, 187, 190, 197, 25, 139, 226, 88, 81, 63, 56, 107, 147, 13, 2, 194, 116, 154, 128, 62, 35, 48, 149, 94, 189, 26, 16];
 
@@ -29,7 +31,6 @@ module haneul::validator_tests {
     const VALID_P2P_ADDR: vector<u8> = vector[4, 127, 0, 0, 1];
     const VALID_CONSENSUS_ADDR: vector<u8> = vector[4, 127, 0, 0, 1];
     const VALID_WORKER_ADDR: vector<u8> = vector[4, 127, 0, 0, 1];
-
 
     #[test]
     fun test_validator_owner_flow() {
@@ -61,19 +62,19 @@ module haneul::validator_tests {
                 0,
                 ctx
             );
-            assert!(validator::stake_amount(&validator) == 10, 0);
+            assert!(validator::total_stake_amount(&validator) == 10, 0);
             assert!(validator::haneul_address(&validator) == sender, 0);
 
             validator::destroy(validator, ctx);
         };
 
         // Check that after destroy, the original stake still exists.
-        test_scenario::next_tx(scenario, sender);
-        {
-            let stake = test_scenario::take_from_sender<Stake>(scenario);
-            assert!(stake::value(&stake) == 10, 0);
-            test_scenario::return_to_sender(scenario, stake);
-        };
+         test_scenario::next_tx(scenario, sender);
+         {
+             let stake = test_scenario::take_from_sender<StakedHaneul>(scenario);
+             assert!(staking_pool::staked_haneul_amount(&stake) == 10, 0);
+             test_scenario::return_to_sender(scenario, stake);
+         };
         test_scenario::end(scenario_val);
     }
 
@@ -111,34 +112,38 @@ module haneul::validator_tests {
         {
             let ctx = test_scenario::ctx(scenario);
             let new_stake = coin::into_balance(coin::mint_for_testing(30, ctx));
-            validator::request_add_stake(&mut validator, new_stake, option::none(), ctx);
+            validator::request_add_delegation(&mut validator, new_stake, option::none(), sender, ctx);
 
-            assert!(validator::stake_amount(&validator) == 10, 0);
+            assert!(validator::total_stake(&validator) == 10, 0);
             assert!(validator::pending_stake_amount(&validator) == 30, 0);
         };
 
         test_scenario::next_tx(scenario, sender);
         {
-            let stake = test_scenario::take_from_sender<Stake>(scenario);
+            let coin_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
+            let stake = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&coin_ids, 0));
             let ctx = test_scenario::ctx(scenario);
-            validator::request_withdraw_stake(&mut validator, &mut stake, 5, 35, ctx);
-            test_scenario::return_to_sender(scenario, stake);
-            assert!(validator::stake_amount(&validator) == 10, 0);
+            validator::request_withdraw_delegation(&mut validator, stake, ctx);
+
+            assert!(validator::total_stake(&validator) == 10, 0);
             assert!(validator::pending_stake_amount(&validator) == 30, 0);
-            assert!(validator::pending_withdraw(&validator) == 5, 0);
+            assert!(validator::pending_principal_withdrawals(&validator) == 10, 0);
 
-            // Calling `adjust_stake_and_gas_price` will withdraw the coin and transfer to sender.
-            validator::adjust_stake_and_gas_price(&mut validator);
+            validator::deposit_delegation_rewards(&mut validator, balance::zero(), tx_context::epoch(ctx) + 1);
 
-            assert!(validator::stake_amount(&validator) == 35, 0);
+            // Calling `process_pending_delegations_and_withdraws` will withdraw the coin and transfer to sender.
+            validator::process_pending_delegations_and_withdraws(&mut validator, ctx);
+
+            assert!(validator::total_stake(&validator) == 30, 0);
             assert!(validator::pending_stake_amount(&validator) == 0, 0);
-            assert!(validator::pending_withdraw(&validator) == 0, 0);
+            assert!(validator::pending_principal_withdrawals(&validator) == 0, 0);
         };
 
         test_scenario::next_tx(scenario, sender);
         {
-            let withdraw = test_scenario::take_from_sender<LockedCoin<HANEUL>>(scenario);
-            assert!(locked_coin::value(&withdraw) == 5, 0);
+            let coin_ids = test_scenario::ids_for_sender<Coin<HANEUL>>(scenario);
+            let withdraw = test_scenario::take_from_sender_by_id<Coin<HANEUL>>(scenario, *vector::borrow(&coin_ids, 0));
+            assert!(coin::value(&withdraw) == 10, 0);
             test_scenario::return_to_sender(scenario, withdraw);
         };
 

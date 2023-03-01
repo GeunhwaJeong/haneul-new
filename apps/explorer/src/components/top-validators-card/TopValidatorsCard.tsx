@@ -19,17 +19,12 @@ import { Text } from '~/ui/Text';
 const NUMBER_OF_VALIDATORS = 10;
 
 export function processValidators(set: Validator[]) {
-    return set.map((av) => {
-        const delegatedStake = +av.delegation_staking_pool.haneul_balance;
-        const selfStake = +av.stake_amount;
-        const totalValidatorStake = selfStake + delegatedStake;
-        return {
-            name: av.metadata.name,
-            address: av.metadata.haneul_address,
-            stake: totalValidatorStake,
-            logo: av.metadata.image_url,
-        };
-    });
+    return set.map((av) => ({
+        name: av.metadata.name,
+        address: av.metadata.haneul_address,
+        stake: av.staking_pool.haneul_balance,
+        logo: av.metadata.image_url,
+    }));
 }
 
 const validatorsTable = (

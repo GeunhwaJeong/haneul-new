@@ -7,19 +7,19 @@ module haneul::governance_test_utils {
     use haneul::balance;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::stake::{Self, Stake};
-    use haneul::staking_pool::StakedHaneul;
+    use haneul::staking_pool::{Self, StakedHaneul, StakingPool};
     use haneul::tx_context::{Self, TxContext};
     use haneul::validator::{Self, Validator};
     use haneul::haneul_system::{Self, HaneulSystemState};
     use haneul::test_scenario::{Self, Scenario};
+    use haneul::validator_set;
     use std::option;
     use std::vector;
 
     public fun create_validator_for_testing(
         addr: address, init_stake_amount: u64, ctx: &mut TxContext
     ): Validator {
-        validator::new_for_testing(
+        let validator = validator::new_for_testing(
             addr,
             x"FF",
             x"FF",
@@ -39,7 +39,8 @@ module haneul::governance_test_utils {
             0,
             0,
             ctx
-        )
+        );
+        validator
     }
 
     /// Create a validator set with the given stake amounts
@@ -189,13 +190,28 @@ module haneul::governance_test_utils {
         test_scenario::return_shared(system_state);
     }
 
-    public fun assert_validator_stake_amounts(validator_addrs: vector<address>, stake_amounts: vector<u64>, scenario: &mut Scenario) {
+    public fun assert_validator_self_stake_amounts(validator_addrs: vector<address>, stake_amounts: vector<u64>, scenario: &mut Scenario) {
         let i = 0;
         while (i < vector::length(&validator_addrs)) {
             let validator_addr = *vector::borrow(&validator_addrs, i);
             let amount = *vector::borrow(&stake_amounts, i);
-            assert!(sum_up_validator_stake_amounts(validator_addr, scenario) == amount, 0);
 
+            test_scenario::next_tx(scenario, validator_addr);
+            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let stake_plus_rewards = stake_plus_current_rewards_for_validator(validator_addr, &system_state, scenario);
+            assert!(stake_plus_rewards == amount, 0);
+            test_scenario::return_shared(system_state);
+            i = i + 1;
+        };
+    }
+
+    public fun assert_validator_total_stake_amounts(validator_addrs: vector<address>, stake_amounts: vector<u64>, scenario: &mut Scenario) {
+        let i = 0;
+        while (i < vector::length(&validator_addrs)) {
+            let validator_addr = *vector::borrow(&validator_addrs, i);
+            let amount = *vector::borrow(&stake_amounts, i);
+
+            test_scenario::next_tx(scenario, validator_addr);
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
             assert!(haneul_system::validator_stake_amount(&mut system_state, validator_addr) == amount, 0);
             test_scenario::return_shared(system_state);
@@ -203,29 +219,38 @@ module haneul::governance_test_utils {
         };
     }
 
-    public fun assert_validator_delegate_amounts(validator_addrs: vector<address>, delegate_amounts: vector<u64>, scenario: &mut Scenario) {
+    public fun assert_validator_non_self_stake_amounts(validator_addrs: vector<address>, delegate_amounts: vector<u64>, scenario: &mut Scenario) {
         let i = 0;
         while (i < vector::length(&validator_addrs)) {
             let validator_addr = *vector::borrow(&validator_addrs, i);
             let amount = *vector::borrow(&delegate_amounts, i);
             test_scenario::next_tx(scenario, validator_addr);
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-            assert!(haneul_system::validator_delegate_amount(&mut system_state, validator_addr) == amount, 0);
+            let non_self_stake_amount = haneul_system::validator_stake_amount(&mut system_state, validator_addr) - stake_plus_current_rewards_for_validator(validator_addr, &system_state, scenario);
+            assert!(non_self_stake_amount == amount, 0);
             test_scenario::return_shared(system_state);
             i = i + 1;
         };
     }
 
-    public fun sum_up_validator_stake_amounts(addr: address, scenario: &mut Scenario): u64 {
+    /// Return the rewards for the validator at `addr` in terms of HANEUL.
+    public fun stake_plus_current_rewards_for_validator(addr: address, system_state: &HaneulSystemState, scenario: &mut Scenario): u64 {
+        let validator_ref = validator_set::get_validator_ref_test(haneul_system::validators(system_state), addr);
+        let amount = stake_plus_current_rewards(addr, validator::get_staking_pool_ref(validator_ref), scenario);
+        amount
+    }
+
+    public fun stake_plus_current_rewards(addr: address, staking_pool: &StakingPool, scenario: &mut Scenario): u64 {
         let sum = 0;
         test_scenario::next_tx(scenario, addr);
-        let stake_ids = test_scenario::ids_for_sender<Stake>(scenario);
-        let i = 0;
-        while (i < vector::length(&stake_ids)) {
-            let stake = test_scenario::take_from_sender_by_id(scenario, *vector::borrow(&stake_ids, i));
-            sum = sum + stake::value(&stake);
-            test_scenario::return_to_sender(scenario, stake);
-            i = i + 1;
+        let stake_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
+        let current_epoch = tx_context::epoch(test_scenario::ctx(scenario));
+
+        while (!vector::is_empty(&stake_ids)) {
+            let staked_haneul_id = vector::pop_back(&mut stake_ids);
+            let staked_haneul = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, staked_haneul_id);
+            sum = sum + staking_pool::calculate_rewards(staking_pool, &staked_haneul, current_epoch);
+            test_scenario::return_to_sender(scenario, staked_haneul);
         };
         sum
     }
