@@ -360,7 +360,7 @@ There's no contract-level storage in Haneul. In general, this contract-level inf
 
 ### Is the gas price dynamic? Is it available through JSON-RPC?
 
-Yes, the gas price is dynamic and exposed via the [haneul_getReferenceGasPrice](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-json-rpc/src/api.rs#L337-L339) endpoint.
+Yes, the gas price is dynamic and exposed via the [haneul_getReferenceGasPrice](https://docs.haneul.io/haneul-jsonrpc#haneul_getReferenceGasPrice) endpoint.
 
 ### How can I delete an object within Haneul?
 
