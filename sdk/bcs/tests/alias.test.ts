@@ -4,7 +4,7 @@
 import { describe, it, expect } from "vitest";
 import { BCS, getHaneulMoveConfig } from "../src/index";
 
-describe("type aliases", () => {
+describe("BCS: Aliases", () => {
   it("should support type aliases", () => {
     const bcs = new BCS(getHaneulMoveConfig());
     const value = "this is a string";

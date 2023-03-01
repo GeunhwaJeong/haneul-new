@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { BCS, getHaneulMoveConfig } from '@haneullabs/bcs';
+import {
+  BCS,
+  EnumTypeDefinition,
+  getHaneulMoveConfig,
+  StructTypeDefinition,
+} from '@haneullabs/bcs';
 import { HaneulObjectRef } from './objects';
 import { RpcApiVersion } from './version';
 
@@ -266,7 +271,17 @@ export function deserializeTransactionBytesToTransactionData(
   return bcs.de('TransactionData', bytes);
 }
 
-const BCS_SPEC = {
+// Move name of the Vector type.
+const VECTOR = 'vector';
+
+// Imported to explicitly tell typescript that types match
+type TypeSchema = {
+  structs?: { [key: string]: StructTypeDefinition };
+  enums?: { [key: string]: EnumTypeDefinition };
+  aliases?: { [key: string]: string };
+};
+
+const BCS_SPEC: TypeSchema = {
   enums: {
     'Option<T>': {
       None: null,
@@ -277,9 +292,9 @@ const BCS_SPEC = {
       Shared: 'SharedObjectRef',
     },
     CallArg: {
-      Pure: 'vector<u8>',
+      Pure: [VECTOR, BCS.U8],
       Object: 'ObjectArg',
-      ObjVec: 'vector<ObjectArg>',
+      ObjVec: [VECTOR, 'ObjectArg'],
     },
     TypeTag: {
       bool: null,
@@ -305,7 +320,7 @@ const BCS_SPEC = {
     },
     TransactionKind: {
       Single: 'Transaction',
-      Batch: 'vector<Transaction>',
+      Batch: [VECTOR, 'Transaction'],
     },
     TransactionExpiration: {
       None: null,
@@ -323,25 +338,25 @@ const BCS_SPEC = {
       object_ref: 'HaneulObjectRef',
     },
     PayTx: {
-      coins: 'vector<HaneulObjectRef>',
-      recipients: 'vector<address>',
-      amounts: 'vector<u64>',
+      coins: [VECTOR, 'HaneulObjectRef'],
+      recipients: [VECTOR, BCS.ADDRESS],
+      amounts: [VECTOR, BCS.U64],
     },
     PayHaneulTx: {
-      coins: 'vector<HaneulObjectRef>',
-      recipients: 'vector<address>',
-      amounts: 'vector<u64>',
+      coins: [VECTOR, 'HaneulObjectRef'],
+      recipients: [VECTOR, BCS.ADDRESS],
+      amounts: [VECTOR, BCS.U64],
     },
     PayAllHaneulTx: {
-      coins: 'vector<HaneulObjectRef>',
+      coins: [VECTOR, 'HaneulObjectRef'],
       recipient: BCS.ADDRESS,
     },
     TransferHaneulTx: {
       recipient: BCS.ADDRESS,
-      amount: 'Option<u64>',
+      amount: ['Option', BCS.U64],
     },
     PublishTx: {
-      modules: 'vector<vector<u8>>',
+      modules: [VECTOR, [VECTOR, BCS.U8]],
     },
     SharedObjectRef: {
       objectId: BCS.ADDRESS,
@@ -352,14 +367,14 @@ const BCS_SPEC = {
       address: BCS.ADDRESS,
       module: BCS.STRING,
       name: BCS.STRING,
-      typeParams: 'vector<TypeTag>',
+      typeParams: [VECTOR, 'TypeTag'],
     },
     MoveCallTx: {
       package: BCS.ADDRESS,
       module: BCS.STRING,
       function: BCS.STRING,
-      typeArguments: 'vector<TypeTag>',
-      arguments: 'vector<CallArg>',
+      typeArguments: [VECTOR, 'TypeTag'],
+      arguments: [VECTOR, 'CallArg'],
     },
     TransactionData: {
       kind: 'TransactionKind',
@@ -376,7 +391,7 @@ const BCS_SPEC = {
     // Signed transaction data needed to generate transaction digest.
     SenderSignedData: {
       data: 'TransactionData',
-      txSignatures: 'vector<vector<u8>>',
+      txSignatures: [VECTOR, [VECTOR, BCS.U8]],
     },
   },
   aliases: {
@@ -385,7 +400,7 @@ const BCS_SPEC = {
 };
 
 // for version <= 0.27.0
-const BCS_0_27_SPEC = {
+const BCS_0_27_SPEC: TypeSchema = {
   structs: {
     ...BCS_SPEC.structs,
     TransactionData: {
@@ -395,7 +410,7 @@ const BCS_0_27_SPEC = {
     },
     SenderSignedData: {
       data: 'TransactionData',
-      txSignature: 'vector<u8>',
+      txSignature: [VECTOR, BCS.U8],
     },
   },
   enums: BCS_SPEC.enums,
