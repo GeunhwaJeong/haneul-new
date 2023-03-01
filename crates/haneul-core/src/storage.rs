@@ -6,9 +6,9 @@ use std::sync::Arc;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
-use haneul_types::digests::TransactionEffectsDigest;
-use haneul_types::messages::TransactionEffects;
+use haneul_types::digests::{TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::messages::VerifiedTransaction;
+use haneul_types::messages::{TransactionEffects, TransactionEvents};
 use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
@@ -103,6 +103,13 @@ impl ReadStore for RocksDbStore {
         digest: &TransactionEffectsDigest,
     ) -> Result<Option<TransactionEffects>, Self::Error> {
         self.authority_store.perpetual_tables.effects.get(digest)
+    }
+
+    fn get_transaction_events(
+        &self,
+        digest: &TransactionEventsDigest,
+    ) -> Result<Option<TransactionEvents>, Self::Error> {
+        self.authority_store.perpetual_tables.events.get(digest)
     }
 }
 

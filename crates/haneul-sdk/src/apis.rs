@@ -13,10 +13,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DynamicFieldPage, EventPage,
-    GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse, HaneulCoinMetadata,
-    HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule, HaneulObjectInfo,
-    HaneulTransactionEffects, HaneulTransactionResponse, TransactionsPage,
+    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
+    EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
+    HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule, HaneulObjectInfo,
+    HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -202,7 +202,7 @@ impl ReadApi {
     pub async fn dry_run_transaction(
         &self,
         tx: TransactionData,
-    ) -> HaneulRpcResult<HaneulTransactionEffects> {
+    ) -> HaneulRpcResult<DryRunTransactionResponse> {
         Ok(self
             .api
             .http

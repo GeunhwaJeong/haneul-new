@@ -26,7 +26,6 @@ use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo};
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-
 pub mod apis;
 pub mod error;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";

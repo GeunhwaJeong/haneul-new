@@ -15,7 +15,9 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
-use haneul_json_rpc_types::{DevInspectResults, HaneulTransactionEffects, HaneulTransactionResponse};
+use haneul_json_rpc_types::{
+    DevInspectResults, DryRunTransactionResponse, HaneulTransactionEvents, HaneulTransactionResponse,
+};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::intent::Intent;
@@ -98,17 +100,16 @@ impl WriteApiServer for TransactionExecutionApi {
 
         match response {
             ExecuteTransactionResponse::EffectsCert(cert) => {
-                let (effects, is_executed_locally) = *cert;
+                let (effects, events, is_executed_locally) = *cert;
                 let module_cache = self
                     .state
                     .load_epoch_store_one_call_per_task()
                     .module_cache()
                     .clone();
-                let effects =
-                    HaneulTransactionEffects::try_from(effects.effects, module_cache.as_ref())?;
                 Ok(HaneulTransactionResponse {
                     transaction: tx,
-                    effects,
+                    effects: effects.effects.into(),
+                    events: HaneulTransactionEvents::try_from(events, module_cache.as_ref())?,
                     timestamp_ms: None,
                     confirmed_local_execution: Some(is_executed_locally),
                     checkpoint: None,
@@ -132,7 +133,7 @@ impl WriteApiServer for TransactionExecutionApi {
             .await?)
     }
 
-    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects> {
+    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<DryRunTransactionResponse> {
         let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
         Ok(self
             .state

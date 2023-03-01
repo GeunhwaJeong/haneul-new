@@ -4,7 +4,7 @@
 use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
-use haneul_json_rpc_types::{DevInspectResults, HaneulTransactionEffects, HaneulTransactionResponse};
+use haneul_json_rpc_types::{DevInspectResults, DryRunTransactionResponse, HaneulTransactionResponse};
 
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{EpochId, HaneulAddress};
@@ -75,5 +75,5 @@ pub trait WriteApi {
     /// Return transaction execution effects including the gas cost summary,
     /// while the effects are not committed to the chain.
     #[method(name = "dryRunTransaction")]
-    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<HaneulTransactionEffects>;
+    async fn dry_run_transaction(&self, tx_bytes: Base64) -> RpcResult<DryRunTransactionResponse>;
 }

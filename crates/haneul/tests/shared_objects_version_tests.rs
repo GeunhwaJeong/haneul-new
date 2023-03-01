@@ -10,6 +10,7 @@ use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::{
     CallArg, ExecutionFailureStatus, ExecutionStatus, ObjectArg, TransactionEffects,
+    TransactionEvents,
 };
 use haneul_types::object::{generate_test_gas_objects, Object, Owner, OBJECT_START_VERSION};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -146,7 +147,7 @@ impl TestEnvironment {
         &mut self,
         function: &'static str,
         arguments: Vec<CallArg>,
-    ) -> TransactionEffects {
+    ) -> (TransactionEffects, TransactionEvents) {
         submit_single_owner_transaction(
             move_transaction(
                 self.gas_objects.pop().unwrap(),
@@ -164,7 +165,7 @@ impl TestEnvironment {
         &mut self,
         function: &'static str,
         arguments: Vec<CallArg>,
-    ) -> HaneulResult<TransactionEffects> {
+    ) -> HaneulResult<(TransactionEffects, TransactionEvents)> {
         submit_shared_object_transaction(
             move_transaction(
                 self.gas_objects.pop().unwrap(),
@@ -179,7 +180,7 @@ impl TestEnvironment {
     }
 
     async fn create_counter(&mut self) -> (ObjectRef, Owner) {
-        let fx = self.owned_move_call("create_counter", vec![]).await;
+        let (fx, _) = self.owned_move_call("create_counter", vec![]).await;
         assert!(fx.status.is_ok());
 
         *fx.created
@@ -189,7 +190,7 @@ impl TestEnvironment {
     }
 
     async fn create_shared_counter(&mut self) -> (ObjectRef, Owner) {
-        let fx = self.owned_move_call("create_shared_counter", vec![]).await;
+        let (fx, _) = self.owned_move_call("create_shared_counter", vec![]).await;
         assert!(fx.status.is_ok());
 
         *fx.created
@@ -202,7 +203,7 @@ impl TestEnvironment {
         &mut self,
         counter: ObjectRef,
     ) -> Result<(ObjectRef, Owner), ExecutionFailureStatus> {
-        let fx = self
+        let (fx, _) = self
             .owned_move_call(
                 "share_counter",
                 vec![CallArg::Object(ObjectArg::ImmOrOwnedObject(counter))],
@@ -221,7 +222,7 @@ impl TestEnvironment {
     }
 
     async fn increment_owned_counter(&mut self, counter: ObjectRef) -> (ObjectRef, Owner) {
-        let fx = self
+        let (fx, _) = self
             .owned_move_call(
                 "increment_counter",
                 vec![CallArg::Object(ObjectArg::ImmOrOwnedObject(counter))],
@@ -241,7 +242,7 @@ impl TestEnvironment {
         counter: ObjectID,
         initial_shared_version: SequenceNumber,
     ) -> HaneulResult<(ObjectRef, Owner)> {
-        let fx = self
+        let (fx, _) = self
             .shared_move_call(
                 "increment_counter",
                 vec![CallArg::Object(ObjectArg::SharedObject {

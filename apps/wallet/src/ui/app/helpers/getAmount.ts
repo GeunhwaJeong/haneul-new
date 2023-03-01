@@ -13,14 +13,15 @@ import {
 import type {
     HaneulTransactionKind,
     TransactionEffects,
+    TransactionEvents,
     HaneulEvent,
 } from '@haneullabs/haneul.js';
 
 const getCoinType = (
     txEffects: TransactionEffects,
+    events: TransactionEvents,
     address: string
 ): string | null => {
-    const events = txEffects?.events || [];
     const coinType = events
         ?.map((event: HaneulEvent) => {
             const data = Object.values(event).find(
@@ -40,7 +41,8 @@ type FormattedBalance = {
 
 export function getAmount(
     txnData: HaneulTransactionKind,
-    txnEffect: TransactionEffects
+    txnEffect: TransactionEffects,
+    events: TransactionEvents
 ): FormattedBalance | null {
     const txKindName = getTransactionKindName(txnData);
     if (txKindName === 'TransferObject') {
@@ -62,7 +64,8 @@ export function getAmount(
                       recipientAddress: txn.recipient,
                       amount: txn?.amount,
                       coinType:
-                          txnEffect && getCoinType(txnEffect, txn.recipient),
+                          txnEffect &&
+                          getCoinType(txnEffect, events, txn.recipient),
                   },
               ]
             : null;
@@ -76,7 +79,7 @@ export function getAmount(
             const coinType =
                 txKindName === 'PayHaneul'
                     ? HANEUL_TYPE_ARG
-                    : getCoinType(txnEffect, recipient);
+                    : getCoinType(txnEffect, events, recipient);
             return {
                 ...acc,
                 [recipient]: {

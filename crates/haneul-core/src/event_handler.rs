@@ -12,6 +12,7 @@ use haneul_json_rpc_types::HaneulMoveStruct;
 use haneul_storage::event_store::{EventStore, EventStoreType};
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::filter::EventFilter;
+use haneul_types::messages::TransactionEvents;
 use haneul_types::{
     error::{HaneulError, HaneulResult},
     event::{Event, EventEnvelope},
@@ -59,12 +60,13 @@ impl EventHandler {
     pub async fn process_events(
         &self,
         effects: &TransactionEffects,
+        events: &TransactionEvents,
         timestamp_ms: u64,
         seq_num: u64,
         module_cache: &SyncModuleCache<ResolverWrapper<AuthorityStore>>,
     ) -> HaneulResult {
-        let res: Result<Vec<_>, _> = effects
-            .events
+        let res: Result<Vec<_>, _> = events
+            .data
             .iter()
             .enumerate()
             .map(|(event_num, e)| {

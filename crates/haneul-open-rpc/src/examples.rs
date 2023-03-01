@@ -19,14 +19,15 @@ use haneul_json_rpc_types::{
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
     HaneulGasCostSummary, HaneulObject, HaneulObjectInfo, HaneulObjectRead, HaneulObjectRef, HaneulParsedData,
     HaneulPastObjectRead, HaneulRawData, HaneulRawMoveObject, HaneulTransaction, HaneulTransactionData,
-    HaneulTransactionEffects, HaneulTransactionResponse, TransactionBytes, TransactionsPage,
-    TransferObjectParams,
+    HaneulTransactionEffects, HaneulTransactionEvents, HaneulTransactionResponse, TransactionBytes,
+    TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair};
+use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::{
@@ -480,8 +481,11 @@ impl RpcExampleProvider {
                     owner: Owner::ObjectOwner(signer),
                     reference: HaneulObjectRef::from(gas_ref),
                 },
-                events: vec![haneul_event],
+                events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
                 dependencies: vec![],
+            },
+            events: HaneulTransactionEvents {
+                data: vec![haneul_event],
             },
             timestamp_ms: None,
             transaction: HaneulTransaction {

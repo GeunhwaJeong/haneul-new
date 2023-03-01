@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    getExecutionStatusType,
-    getTransactionKindName,
-    getMoveCallTransaction,
     getExecutionStatusError,
-    getTransferObjectTransaction,
-    HANEUL_TYPE_ARG,
+    getExecutionStatusType,
+    getMoveCallTransaction,
+    getTransactionDigest,
+    getTransactionKindName,
     getTransactions,
     getTransactionSender,
-    getTransactionDigest,
+    getTransferObjectTransaction,
+    HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -21,22 +21,23 @@ import { TxnImage } from './TxnImage';
 import { CoinBalance } from '_app/shared/coin-balance';
 import { DateCard } from '_app/shared/date-card';
 import { Text } from '_app/shared/text';
-import { notEmpty, checkStakingTxn } from '_helpers';
-import { useGetTxnRecipientAddress, useGetTransferAmount } from '_hooks';
+import { checkStakingTxn, notEmpty } from '_helpers';
+import { useGetTransferAmount, useGetTxnRecipientAddress } from '_hooks';
 
 import type {
-    HaneulTransactionResponse,
     HaneulAddress,
-    TransactionEffects,
     HaneulEvent,
+    HaneulTransactionResponse,
+    TransactionEffects,
+    TransactionEvents,
 } from '@haneullabs/haneul.js';
 
 export const getTxnEffectsEventID = (
     txEffects: TransactionEffects,
+    events: TransactionEvents,
     address: string
 ): string[] => {
-    const events = txEffects?.events || [];
-    const objectIDs = events
+    return events
         ?.map((event: HaneulEvent) => {
             const data = Object.values(event).find(
                 (itm) => itm?.recipient?.AddressOwner === address
@@ -44,7 +45,6 @@ export const getTxnEffectsEventID = (
             return data?.objectId;
         })
         .filter(notEmpty);
-    return objectIDs;
 };
 
 export function TransactionCard({
@@ -63,8 +63,8 @@ export function TransactionCard({
             getTransferObjectTransaction(transaction)?.objectRef?.objectId;
         return transferId
             ? transferId
-            : getTxnEffectsEventID(txn.effects, address)[0];
-    }, [address, transaction, txn.effects]);
+            : getTxnEffectsEventID(txn.effects, txn.events, address)[0];
+    }, [address, transaction, txn.effects, txn.events]);
 
     const transfer = useGetTransferAmount({
         txn,
