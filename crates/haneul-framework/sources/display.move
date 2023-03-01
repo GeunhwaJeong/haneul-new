@@ -11,7 +11,7 @@
 ///
 /// More entry functions might be added in the future depending on the use cases.
 module haneul::display {
-    use haneul::publisher::{is_package, Publisher};
+    use haneul::package::{from_package, Publisher};
     use haneul::tx_context::{sender, TxContext};
     use haneul::vec_map::{Self, VecMap};
     use haneul::object::{Self, ID, UID};
@@ -166,7 +166,7 @@ module haneul::display {
 
     /// Authorization check; can be performed externally to implement protection rules for Display.
     public fun is_authorized<T: key>(pub: &Publisher): bool {
-        is_package<T>(pub)
+        from_package<T>(pub)
     }
 
     /// Read the `version` field.
@@ -208,7 +208,7 @@ module haneul::display_tests {
     use haneul::test_scenario as test;
     use haneul::transfer::transfer;
     use std::string::{utf8, String};
-    use haneul::publisher;
+    use haneul::package;
     use haneul::display;
 
     /// An example object.
@@ -224,7 +224,7 @@ module haneul::display_tests {
     #[test]
     fun capy_init() {
         let test = test::begin(@0x2);
-        let pub = publisher::test_claim(CAPY {}, test::ctx(&mut test));
+        let pub = package::test_claim(CAPY {}, test::ctx(&mut test));
 
         // create a new display object
         let display = display::new<Capy>(&pub, test::ctx(&mut test));
@@ -234,7 +234,7 @@ module haneul::display_tests {
         display::add(&mut display, utf8(b"image"), utf8(b"https://api.capy.art/capy/{id}/svg"));
         display::add(&mut display, utf8(b"description"), utf8(b"A Lovely Capy"));
 
-        publisher::burn(pub);
+        package::burn_publisher(pub);
         transfer(display, @0x2);
         test::end(test);
     }

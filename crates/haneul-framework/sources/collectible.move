@@ -9,7 +9,7 @@
 /// require additional work on the creator side to set up metadata creation methods.
 module haneul::collectible {
     use haneul::object::{Self, UID};
-    use haneul::publisher::{Self, Publisher};
+    use haneul::package::{Self, Publisher};
     use haneul::tx_context::{TxContext};
     use haneul::display::{Self, Display};
     use std::option::{Self, Option};
@@ -73,8 +73,8 @@ module haneul::collectible {
     ) {
         assert!(haneul::types::is_one_time_witness(&otw), ENotOneTimeWitness);
 
-        let pub = publisher::claim(otw, ctx);
-        assert!(publisher::is_module<T>(&pub), EModuleDoesNotContainT);
+        let pub = package::claim(otw, ctx);
+        assert!(package::from_module<T>(&pub), EModuleDoesNotContainT);
 
         (
             pub,

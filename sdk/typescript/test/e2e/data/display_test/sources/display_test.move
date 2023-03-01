@@ -6,7 +6,7 @@ module display_test::boars {
     use std::option::{Self, Option};
     use haneul::tx_context::{TxContext, sender};
     use haneul::transfer::transfer;
-    use haneul::publisher;
+    use haneul::package;
     use haneul::url::{Self, Url};
     use haneul::display;
     use std::string::{utf8, String};
@@ -36,7 +36,7 @@ module display_test::boars {
     fun init(otw: BOARS, ctx: &mut TxContext) {
         assert!(haneul::types::is_one_time_witness(&otw), ENotOneTimeWitness);
 
-        let pub = publisher::claim(otw, ctx);
+        let pub = package::claim(otw, ctx);
         let display = display::new<Boar>(&pub, ctx);
 
         display::add_multiple(&mut display, vector[
