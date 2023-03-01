@@ -3,18 +3,11 @@
 
 use haneul_config::ValidatorInfo;
 use haneul_types::{
-    committee::{Committee, EpochId, ProtocolVersion},
+    committee::{Committee, EpochId},
     error::HaneulResult,
 };
 
-pub fn make_committee(
-    epoch: EpochId,
-    protocol_version: ProtocolVersion,
-    validator_set: &[ValidatorInfo],
-) -> HaneulResult<Committee> {
-    Committee::new(
-        epoch,
-        protocol_version,
-        ValidatorInfo::voting_rights(validator_set),
-    )
+// TODO: Why dod we need this file?
+pub fn make_committee(epoch: EpochId, validator_set: &[ValidatorInfo]) -> HaneulResult<Committee> {
+    Committee::new(epoch, ValidatorInfo::voting_rights(validator_set))
 }

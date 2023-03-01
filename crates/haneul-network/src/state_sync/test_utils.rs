@@ -6,7 +6,7 @@ use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::intent::{Intent, IntentMessage, IntentScope};
 use haneul_types::{
     base_types::AuthorityName,
-    committee::{Committee, EpochId, ProtocolVersion, StakeUnit},
+    committee::{Committee, EpochId, StakeUnit},
     crypto::{
         AuthorityKeyPair, AuthoritySignInfo, AuthoritySignature, KeypairTraits,
         HaneulAuthoritySignature,
@@ -36,7 +36,6 @@ impl CommitteeFixture {
 
         let committee = Committee::new(
             epoch,
-            ProtocolVersion::MIN,
             validators
                 .iter()
                 .map(|(name, (_, stake))| (*name, *stake))
