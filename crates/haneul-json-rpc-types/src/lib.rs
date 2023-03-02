@@ -363,6 +363,17 @@ pub struct HaneulTransactionResponse {
     pub checkpoint: Option<CheckpointSequenceNumber>,
 }
 
+/// We are specifically ignoring events for now until events become more stable.
+impl PartialEq for HaneulTransactionResponse {
+    fn eq(&self, other: &Self) -> bool {
+        self.transaction == other.transaction
+            && self.effects == other.effects
+            && self.timestamp_ms == other.timestamp_ms
+            && self.confirmed_local_execution == other.confirmed_local_execution
+            && self.checkpoint == other.checkpoint
+    }
+}
+
 #[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub enum HaneulTBlsSignObjectCommitmentType {
@@ -1376,7 +1387,7 @@ impl From<PayAllHaneul> for HaneulPayAllHaneul {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "GasData", rename_all = "camelCase")]
 pub struct HaneulGasData {
     pub payment: HaneulObjectRef,
@@ -1385,7 +1396,7 @@ pub struct HaneulGasData {
     pub budget: u64,
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "TransactionData", rename_all = "camelCase")]
 pub struct HaneulTransactionData {
     pub transactions: Vec<HaneulTransactionKind>,
@@ -1452,7 +1463,7 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "Transaction", rename_all = "camelCase")]
 pub struct HaneulTransaction {
     pub data: HaneulTransactionData,
@@ -1479,19 +1490,19 @@ impl Display for HaneulTransaction {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct HaneulGenesisTransaction {
     pub objects: Vec<ObjectID>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct HaneulConsensusCommitPrologue {
     pub epoch: u64,
     pub round: u64,
     pub commit_timestamp_ms: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 #[serde(rename = "TransactionKind")]
 pub enum HaneulTransactionKind {
     /// Initiate an object transfer between addresses
@@ -1686,7 +1697,7 @@ impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 #[serde(rename = "MoveCall", rename_all = "camelCase")]
 pub struct HaneulMoveCall {
     pub package: ObjectID,
@@ -1698,7 +1709,7 @@ pub struct HaneulMoveCall {
     pub arguments: Vec<HaneulJsonValue>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct HaneulChangeEpoch {
     pub epoch: EpochId,
     pub storage_charge: u64,
