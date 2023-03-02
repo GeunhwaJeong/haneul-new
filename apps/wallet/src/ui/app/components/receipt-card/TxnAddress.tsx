@@ -24,7 +24,7 @@ export function TxnAddress({ address, label }: TxnAddressProps) {
                     type={ExplorerLinkType.address}
                     address={address}
                     title="View on Haneul Explorer"
-                    className="text-haneul-dark font-mono text-body font-semibold no-underline uppercase tracking-wider"
+                    className="text-haneul-dark font-mono text-body font-semibold no-underline tracking-wider"
                     showIcon={false}
                 >
                     {formatAddress(address)}
