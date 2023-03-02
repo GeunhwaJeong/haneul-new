@@ -27,6 +27,7 @@ serde = { version = "1.0.144", features = ["derive"] }
 
 haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-types = { path = "../haneul-types" }
+haneul-cost-tables = {path = "../haneul-cost-tables"}
 
 move-binary-format.workspace = true
 move-bytecode-verifier.workspace = true

@@ -8682,6 +8682,7 @@ dependencies = [
  "once_cell",
  "serde 1.0.152",
  "smallvec",
+ "haneul-cost-tables",
  "haneul-framework-build",
  "haneul-protocol-config",
  "haneul-types",
