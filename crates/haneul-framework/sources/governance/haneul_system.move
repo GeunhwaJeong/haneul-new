@@ -6,7 +6,7 @@ module haneul::haneul_system {
     use haneul::clock::{Self, Clock};
     use haneul::coin::{Self, Coin};
     use haneul::object::{Self, ID, UID};
-    use haneul::staking_pool::StakedHaneul;
+    use haneul::staking_pool::{delegation_activation_epoch, StakedHaneul};
     use haneul::locked_coin::{Self, LockedCoin};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -326,6 +326,7 @@ module haneul::haneul_system {
         ctx: &mut TxContext,
     ) {
         let self = load_system_state_mut(wrapper);
+        assert!(delegation_activation_epoch(&staked_haneul) <= tx_context::epoch(ctx), 0);
         validator_set::request_withdraw_delegation(
             &mut self.validators, staked_haneul, ctx,
         );

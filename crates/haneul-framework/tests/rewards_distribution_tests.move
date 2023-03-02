@@ -89,18 +89,21 @@ module haneul::rewards_distribution_tests {
         delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_1, 600, scenario);
         // 10 HANEUL rewards for each 110 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 130, scenario);
-        assert!(total_haneul_balance(DELEGATOR_ADDR_1, scenario) == 240, 0); // 40 HANEUL of rewards received
-        assert_validator_self_stake_amounts(validator_addrs(), vector[120, 240, 360, 480], scenario);
+        // delegator 1 receives only 20 HANEUL of rewards, not 40 since we are using pre-epoch exchange rate.
+        assert_eq(total_haneul_balance(DELEGATOR_ADDR_1, scenario), 220);
+        assert_validator_self_stake_amounts(validator_addrs(), vector[140, 240, 360, 480], scenario);
         undelegate(DELEGATOR_ADDR_2, 0, scenario);
-        governance_test_utils::advance_epoch(scenario);
         assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 120, 0); // 20 HANEUL of rewards received
 
         // 10 HANEUL rewards for each 120 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 150, scenario);
+
         undelegate(DELEGATOR_ADDR_2, 0, scenario); // unstake 600 principal HANEUL
-        governance_test_utils::advance_epoch(scenario);
-        // additional 600 HANEUL of principal and 50 HANEUL of rewards withdrawn to Coin<HANEUL>
-        assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 770, 0);
+        // additional 600 HANEUL of principal and 46 HANEUL of rewards withdrawn to Coin<HANEUL>
+        // For this delegation, the staking exchange rate is 600 : 740 and the unstaking
+        // exchange rate is 600 : 797 so the total haneul withdraw will be:
+        // (600 * 600 / 740) * 797 / 600 = 646.
+        assert_eq(total_haneul_balance(DELEGATOR_ADDR_2, scenario), 766);
         test_scenario::end(scenario_val);
     }
 
@@ -207,8 +210,6 @@ module haneul::rewards_distribution_tests {
         undelegate(DELEGATOR_ADDR_1, 0, scenario);
         undelegate(DELEGATOR_ADDR_2, 0, scenario);
 
-        advance_epoch(scenario);
-
         // Same analysis as above. Delegator 1 has 3 additional HANEUL, and 10% of delegator 2's rewards are slashed.
         assert!(total_haneul_balance(DELEGATOR_ADDR_1, scenario) == 203, 0);
         assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 190, 0);
@@ -246,13 +247,11 @@ module haneul::rewards_distribution_tests {
         // unslashed validators too.
         // Validator 4 should get 475 HANEUL of rewards without slashing. 20% is slashed so she gets
         // 380 HANEUL of rewards.
-        assert_validator_self_stake_amounts(validator_addrs(), vector[294, 508, 722, 780], scenario);
+        assert_validator_self_stake_amounts(validator_addrs(), vector[294, 508, 723, 780], scenario);
 
         // Undelegate so we can check the delegation rewards as well.
         undelegate(DELEGATOR_ADDR_1, 0, scenario);
         undelegate(DELEGATOR_ADDR_2, 0, scenario);
-
-        advance_epoch(scenario);
 
         // WHY YOU DO THIS TO ME?
         assert!(total_haneul_balance(DELEGATOR_ADDR_1, scenario) == 214, 0);
@@ -302,8 +301,6 @@ module haneul::rewards_distribution_tests {
         undelegate(DELEGATOR_ADDR_3, 0, scenario);
         undelegate(DELEGATOR_ADDR_4, 0, scenario);
 
-        advance_epoch_with_reward_amounts(0, 0, scenario);
-
         // delegator 1's first delegation was active for 3 epochs so got 20 * 3 = 60 HANEUL of rewards
         // and her second delegation was active for only one epoch and got 10 HANEUL of rewards.
         assert_eq(total_haneul_balance(DELEGATOR_ADDR_1, scenario), 220 + 130 + 20 * 3 + 10);
@@ -314,6 +311,8 @@ module haneul::rewards_distribution_tests {
         assert_eq(total_haneul_balance(DELEGATOR_ADDR_3, scenario), 390 + 280 + 30);
         // delegator 4 joined and left in an epoch where no rewards were earned so she got no rewards.
         assert_eq(total_haneul_balance(DELEGATOR_ADDR_4, scenario), 1400);
+
+        advance_epoch_with_reward_amounts(0, 0, scenario);
 
         test_scenario::next_tx(scenario, @0x0);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);

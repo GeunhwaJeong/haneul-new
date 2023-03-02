@@ -787,6 +787,7 @@ Withdraw some portion of a delegation from a validator's staking pool.
     ctx: &<b>mut</b> TxContext,
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x2_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
+    <b>assert</b>!(delegation_activation_epoch(&staked_haneul) &lt;= <a href="tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx), 0);
     <a href="validator_set.md#0x2_validator_set_request_withdraw_delegation">validator_set::request_withdraw_delegation</a>(
         &<b>mut</b> self.validators, staked_haneul, ctx,
     );

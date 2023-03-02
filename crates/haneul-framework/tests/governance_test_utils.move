@@ -8,6 +8,7 @@ module haneul::governance_test_utils {
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
     use haneul::staking_pool::{Self, StakedHaneul, StakingPool};
+    use haneul::test_utils::assert_eq;
     use haneul::tx_context::{Self, TxContext};
     use haneul::validator::{Self, Validator};
     use haneul::haneul_system::{Self, HaneulSystemState};
@@ -199,7 +200,7 @@ module haneul::governance_test_utils {
             test_scenario::next_tx(scenario, validator_addr);
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
             let stake_plus_rewards = stake_plus_current_rewards_for_validator(validator_addr, &system_state, scenario);
-            assert!(stake_plus_rewards == amount, 0);
+            assert_eq(stake_plus_rewards, amount);
             test_scenario::return_shared(system_state);
             i = i + 1;
         };
