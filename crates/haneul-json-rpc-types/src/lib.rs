@@ -1393,6 +1393,18 @@ pub struct HaneulTransactionData {
     pub gas_data: HaneulGasData,
 }
 
+impl HaneulTransactionData {
+    pub fn move_calls(&self) -> Vec<&HaneulMoveCall> {
+        self.transactions
+            .iter()
+            .filter_map(|tx| match tx {
+                HaneulTransactionKind::Call(call) => Some(call),
+                _ => None,
+            })
+            .collect()
+    }
+}
+
 impl Display for HaneulTransactionData {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
