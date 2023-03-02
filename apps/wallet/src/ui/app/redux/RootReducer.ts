@@ -8,13 +8,11 @@ import app from './slices/app';
 import permissions from './slices/permissions';
 import haneulObjects from './slices/haneul-objects';
 import transactionRequests from './slices/transaction-requests';
-import transactions from './slices/transactions';
 
 const rootReducer = combineReducers({
     account,
     app,
     haneulObjects,
-    transactions,
     permissions,
     transactionRequests,
 });
