@@ -2,9 +2,9 @@
 title: Haneul Wallet
 ---
 
-This topic describes how to install and use the [Haneul Wallet browser extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). You can use the Haneul Wallet to create an address, complete transactions, mint NFTs, view or manage assets on the Haneul network, and connect with blockchain dApps on Web3.
+This topic describes how to install and use the [Haneul Wallet browser extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil).
 
-The early versions of Haneul Wallet let you experiment with the Haneul network for testing. The Haneul network is still in development, and the tokens have no real value. Accounts reset with each deployment of a new version of the network, typically weekly. View the [devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) channel in Discord for updates about the network.
+The early versions of Haneul Wallet let you experiment with the Haneul network for testing. The Haneul network is still in development, and the tokens have no real value. Accounts reset with each deployment of a new version of the network. View the [devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) channel in Discord for updates about the network.
 
 To test more advanced features not available in Haneul Wallet, see [Haneul CLI client](../build/cli-client.md).
 
@@ -12,19 +12,21 @@ To test more advanced features not available in Haneul Wallet, see [Haneul CLI c
 
 You can use Haneul Wallet to:
 
-* Mint NFTs
-* Stake and earn HANEUL
-* Transfer coins and NFTs to another address
-* View your coins, tokens, and NFTs
-* View recent transactions
-* Auto split/merge coins to the exact transfer amount
-* Easily access transaction history in the [Haneul Explorer](https://explorer.haneul.io/)
+ * Create Haneul accounts (addresses)
+ * Import private keys from other wallets (must be a 32 or 64 byte address)
+ * Mint NFTs
+ * Stake and earn HANEUL
+ * Transfer coins and NFTs to another address
+ * View your coins, tokens, and NFTs
+ * View recent transactions
+ * Auto split/merge coins to the exact transfer amount
+ * Easily access transaction history in the [Haneul Explorer](https://explorer.haneul.io/)
 
-Note that in the current release, Haneul Wallet includes buttons to **Buy**, **Swap**, and **Stake & Earn HANEUL**. These are placeholders for functionality included in future versions of Haneul Wallet.
+In the current release, Haneul Wallet includes **Buy** and **Swap** buttons. These are placeholders for functionality included in future versions of Haneul Wallet.
 
 ## Install the Haneul Wallet browser extension
 
-To use Haneul Wallet you must install a Chrome browser extension. You can use the extension with any browser that supports Chrome extensions from the Chrome Web Store.
+To use Haneul Wallet, you must install a Chrome browser extension. You can use the extension with any browser that supports Chrome extensions from the Chrome Web Store.
 
 1. Using a chromium-based browser, open the [Haneul Wallet](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil) page on the Chrome Web Store.
 1. Click **Add to Chrome**.
@@ -54,8 +56,8 @@ You can use your Haneul Wallet on multiple devices and browsers. After you creat
 
 1. Open the Haneul Wallet extension in your browser and then click **Get Started**.
 1. Click **Import an Existing Wallet**.
-1. Enter your 12-word recovery phrase, and then click **Continue**.
-1. Under **Create Password**, enter a password for your wallet.
+1. Enter the 12-word recovery phrase for the account to import, and then click **Continue**.
+1. Under **Create Password**, enter a password for this account address.
    This is not a global password for Haneul Wallet. It applies only to this installation in this browser.
 1. Under **Confirm Password**, enter the same password to confirm it.
 1. Click **Import**.
@@ -63,18 +65,58 @@ You can use your Haneul Wallet on multiple devices and browsers. After you creat
 
 Haneul Wallet prompts you to enter your password when you open it after the first use.
 
+## Create another account address
+
+You can create and use multiple accounts in Haneul wallet.
+
+**To add another account address**
+ 1. Click the menu (the three bars at the top-right corner of the wallet interface), then click **Accounts**.
+ 1. Click **Create New Account**.
+
+The wallet displays the new account. To use the new account, select it from the drop-down list on the **Coins** tab, or select the address to use when you connect the wallet to a site or app.
+
+## Import an account to your wallet
+
+You can import an account from a previous installation of Haneul Wallet or from another wallet provider. To import an account, the account address must be either 32 or 64 bytes.
+
+**To import an account to Haneul Wallet**
+ 1. Click the menu (the three bars at the top-right corner of the wallet interface), then click **Accounts**.
+ 1. Click **Import Private Key**.
+ 1. Enter or paste the private key for the account to import, then click **Continue**.
+ 1. Enter the wallet password and then click **Import**.
+
+The wallet displays the **Accounts** page with the imported account listed.
+
+## Export the private key for an account
+
+You can export the private key for an account to import to another wallet. You should be very careful with the private key. Anyone can use the private key to import the associated account. If someone else knows your private key, they can take over the account and cause you to lose access to it. Never share a private key.
+
+**To export the private key for an account**
+ 1. Click the menu (the three bars at the top-right corner of the wallet interface), then click **Accounts**.
+ 1. Click the address of the account to export the key from.
+ 1. Click **Export Private Key**.
+ 1. Enter the wallet password, then click **Continue**.
+ 1. Click **Copy** to copy the private key to your clipboard.
+
+You can then paste the private to import it to a different wallet. 
+
+To view the private key, make sure that no one can see your screen, and then click the crossed-out eye icon in the bottom right corner.
+
 ## Add HANEUL tokens to your Haneul Wallet
 
 When you first open the wallet, you have no coins in it. You can add test HANEUL coins to your wallet using the faucet in Discord.
 
+**To get HANEUL test coins using the wallet**
+After you install the wallet extension, click **Request Devnet HANEUL tokens**. In some cases, you can click it three times to get three tokens. Usually, you can click it once or twice and then it disappears. If this happens, you can find the button instead on the wallet settings page by clicking the three bars in the top-right corner of the wallet interface. The button is displayed there only after you successfully use it the first time (up to three requests). Note that you can request HANEUL coins only three times every 60 minutes. After you click the button, HANEUL test tokens appear in your wallet on the **Coins** tab.
+
 **To get HANEUL test coins through Discord**
-1. Click **Coins**.
-1. Click the small clipboard icon next to your address to copy it.
+ 1. Click **Coins**.
+ 1. Click the small clipboard icon next to your address to copy it.
    It's near the top of the wallet and starts with 0x.
-1. Go to the Discord faucet channel for the network you use:
+ 1. Go to the Discord faucet channel for the network you use:
    * [devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) channel in Discord.
-   * [testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966).
-1. Use the `!faucet` command with your wallet address to request tokens:
+   * [testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966). This channel may not be available at all times.
+ 1. Use the `!faucet` command with your wallet address to request tokens:
    `!faucet 0x6c04ed5110554acf59ff1b535129548dd9a0c741`
    Replace the address in the command with your wallet address.
 
@@ -103,8 +145,8 @@ You can lock your wallet to prevent unauthorized access. You must enter your pas
 You can also set a timer to automatically lock your wallet after a period of idle time, up to 30 minutes.
 
 1. Click the menu (the three bars) at the top-right corner of the Haneul Wallet interface.
-1. Click **Account**.
-1. In the field under **AUTO-LOCK TIMER**, enter the number of minutes to wait, up to 30, before the wallet locks, and then click **Save**.
+1. Click **Auto-lock**.
+1. Enter the number of minutes to wait, up to 30, before the wallet locks, and then click **Save**.
 
 The wallet remains unlocked for the number of minutes you specify, even if you switch tabs in your browser.
 
@@ -127,18 +169,19 @@ You can send coins from your wallet to another address.
 
 1. Open the Haneul Wallet extension in your browser.
 1. Click **Coins** and then click **Send**.
-1. In the **Amount** field, enter the number of HANEUL to send, and then click **Continue**.
+1. In the **Amount** field, enter the amount of HANEUL to send, and then click **Continue**.
 1. Enter the recipient's address, then click **Send Coins Now**.
 
-## Stake and earn HANEUL (Testnet only)
+## Stake and earn HANEUL
 
-While the Testnet network is available, you can try out staking to earn HANEUL. When you stake HANEUL, you delegate your HANEUL tokens to a validator to stake. The validator then pays you rewards for delegating your HANEUL to stake. Note that HANEUL tokens have no value. The rewards are for testing purposes and have no real value.
+You can try out staking HANEUL to earn rewards. These rewards are not real and are for testing purposes only. When you stake HANEUL, you delegate your HANEUL tokens to a validator to stake. The validator then pays you rewards for delegating your HANEUL for them to stake. Note that HANEUL tokens have no value on test networks.
 
+**To stake HANEUL and earn rewards**
 1. Open your wallet and click **Coins**.
 1. Click **Stake & Earn HANEUL**.
 1. Select a validator to stake with.
 1. Choose an amount of HANEUL to stake.
-   Be sure to enter an amount that leaves enough HANEUL in your wallet to cover gas fees.
+   Enter an amount that leaves sufficient HANEUL in your wallet to cover gas fees.
 1. Click **Stake Now**.
 
 Your stake starts earning rewards at the start of the next epoch.
@@ -163,7 +206,7 @@ Haneul Explorer opens with the details for your wallet address displayed.
 
 You can mint an example Haneul NFT directly from Haneul Wallet.
 
-Click **Apps**, then click **Mint an NFT**. In the current version you can mint only example NFTs.
+Click **Apps**, then click **Mint an NFT**. In the current version, you can mint only example NFTs.
 
 ## Create a new NFT
 
@@ -213,4 +256,4 @@ You can easily disconnect your wallet from a connected app.
 1. Click **Apps** and then click **Active Connections**.
 1. Click the app to disconnect from your wallet, then click **Disconnect**.
 
-Your wallet immediately disconnects from the app and returns to the **Apps** tab.
+Your wallet immediately disconnects from the app and displays the **Apps** tab.
