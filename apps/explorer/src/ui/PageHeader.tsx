@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { CopyNew24 } from '@haneullabs/icons';
+import { CopyNew24, Flag16 } from '@haneullabs/icons';
 import { type TransactionKindName } from '@haneullabs/haneul.js';
 import toast from 'react-hot-toast';
 
@@ -19,6 +19,7 @@ import { ReactComponent as TransferHaneulIcon } from './icons/transactions/trans
 export type PageHeaderType =
     | TransactionKindName
     | 'Address'
+    | 'Checkpoint'
     | 'Object'
     | 'Package';
 
@@ -32,6 +33,7 @@ export interface PageHeaderProps {
 const TYPE_TO_ICON: Record<string, typeof CallIcon> = {
     Call: CallIcon,
     ChangeEpoch: ChangeEpochIcon,
+    Checkpoint: Flag16,
     Pay: PayIcon,
     // TODO: replace with HANEUL specific icon if needed
     PayHaneul: PayIcon,
