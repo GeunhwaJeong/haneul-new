@@ -16,13 +16,13 @@ use haneul_types::haneul_system_state::{
 
 pub fn test_validatdor_metadata(
     haneul_address: HaneulAddress,
-    pubkey_bytes: AuthorityPublicKeyBytes,
+    protocol_pubkey_bytes: AuthorityPublicKeyBytes,
     net_address: Vec<u8>,
 ) -> ValidatorMetadata {
     let network_keypair: NetworkKeyPair = get_key_pair().1;
     ValidatorMetadata {
         haneul_address,
-        pubkey_bytes: pubkey_bytes.as_bytes().to_vec(),
+        protocol_pubkey_bytes: protocol_pubkey_bytes.as_bytes().to_vec(),
         network_pubkey_bytes: network_keypair.public().as_bytes().to_vec(),
         worker_pubkey_bytes: vec![],
         proof_of_possession_bytes: vec![],
@@ -34,6 +34,14 @@ pub fn test_validatdor_metadata(
         p2p_address: vec![],
         consensus_address: vec![],
         worker_address: vec![],
+        next_epoch_protocol_pubkey_bytes: None,
+        next_epoch_proof_of_possession: None,
+        next_epoch_network_pubkey_bytes: None,
+        next_epoch_worker_pubkey_bytes: None,
+        next_epoch_net_address: None,
+        next_epoch_p2p_address: None,
+        next_epoch_consensus_address: None,
+        next_epoch_worker_address: None,
     }
 }
 
@@ -52,14 +60,14 @@ pub fn test_staking_pool(haneul_balance: u64) -> StakingPool {
 }
 
 pub fn test_validator(
-    pubkey_bytes: AuthorityPublicKeyBytes,
+    protocol_pubkey_bytes: AuthorityPublicKeyBytes,
     net_address: Vec<u8>,
     stake_amount: u64,
     delegated_amount: u64,
 ) -> Validator {
-    let haneul_address = HaneulAddress::from(&pubkey_bytes);
+    let haneul_address = HaneulAddress::from(&protocol_pubkey_bytes);
     Validator {
-        metadata: test_validatdor_metadata(haneul_address, pubkey_bytes, net_address),
+        metadata: test_validatdor_metadata(haneul_address, protocol_pubkey_bytes, net_address),
         voting_power: stake_amount + delegated_amount,
         gas_price: 1,
         staking_pool: test_staking_pool(delegated_amount + stake_amount),

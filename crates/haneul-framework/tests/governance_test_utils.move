@@ -236,7 +236,7 @@ module haneul::governance_test_utils {
 
     /// Return the rewards for the validator at `addr` in terms of HANEUL.
     public fun stake_plus_current_rewards_for_validator(addr: address, system_state: &HaneulSystemState, scenario: &mut Scenario): u64 {
-        let validator_ref = validator_set::get_validator_ref_test(haneul_system::validators(system_state), addr);
+        let validator_ref = validator_set::get_active_validator_ref(haneul_system::validators(system_state), addr);
         let amount = stake_plus_current_rewards(addr, validator::get_staking_pool_ref(validator_ref), scenario);
         amount
     }
