@@ -24,7 +24,6 @@ use rand::SeedableRng;
 use haneul_config::genesis::GenesisChainParameters;
 use haneul_config::ValidatorInfo;
 use haneul_config::{genesis::Builder, genesis_config::GenesisConfig};
-use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
@@ -85,9 +84,7 @@ fn populated_genesis_snapshot_matches() {
         .add_validator(validator, pop)
         .with_parameters(GenesisChainParameters {
             timestamp_ms: 10,
-            protocol_version: ProtocolVersion::MAX,
-            allow_insertion_of_extra_objects: true,
-            initial_haneul_custody_account_address: HaneulAddress::default(),
+            ..GenesisChainParameters::new()
         })
         .add_validator_signature(&key)
         .build();

@@ -20,6 +20,15 @@ use crate::{
     HANEUL_FRAMEWORK_ADDRESS,
 };
 
+/// The number of Geunhwa per Haneul token
+pub const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
+
+/// Total supply denominated in Haneul
+pub const TOTAL_SUPPLY_HANEUL: u64 = 10_000_000_000;
+
+/// Total supply denominated in Geunhwa
+pub const TOTAL_SUPPLY_GEUNHWA: u64 = TOTAL_SUPPLY_HANEUL * GEUNHWA_PER_HANEUL;
+
 pub const GAS_MODULE_NAME: &IdentStr = ident_str!("haneul");
 pub const GAS_STRUCT_NAME: &IdentStr = ident_str!("HANEUL");
 

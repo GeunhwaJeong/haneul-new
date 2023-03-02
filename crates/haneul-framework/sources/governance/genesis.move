@@ -31,6 +31,7 @@ module haneul::genesis {
     /// all the information we need in the system.
     fun create(
         initial_haneul_custody_account_address: address,
+        initial_validator_stake_geunhwa: u64,
         validator_pubkeys: vector<vector<u8>>,
         validator_network_pubkeys: vector<vector<u8>>,
         validator_worker_pubkeys: vector<vector<u8>>,
@@ -101,9 +102,8 @@ module haneul::genesis {
                 p2p_address,
                 primary_address,
                 worker_address,
-                // TODO Figure out if we want to instead initialize validators with 0 stake.
-                // Initialize all validators with 1 Geunhwa stake.
-                balance::split(&mut haneul_supply, 1),
+                // Initialize all validators with uniform stake taken from the subsidy fund.
+                balance::split(&mut subsidy_fund, initial_validator_stake_geunhwa),
                 option::none(),
                 gas_price,
                 commission_rate,
