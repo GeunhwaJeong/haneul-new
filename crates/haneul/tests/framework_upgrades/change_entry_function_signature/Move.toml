@@ -1,0 +1,10 @@
+[package]
+name = "HaneulExtraChangeEntryFunctionSignature"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../../haneul-framework" }
+MoveStdlib = { local = "../../../../haneul-framework/deps/move-stdlib" }
+
+[addresses]
+haneul = "0x2"

@@ -39,7 +39,6 @@ use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::transaction_input_checker::check_objects;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::clock::Clock;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::id::UID;
@@ -56,6 +55,7 @@ use haneul_types::{
     MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_ADDRESS,
 };
+use haneul_types::{clock::Clock, object::OBJECT_START_VERSION};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 
 pub(crate) type FakeID = u64;
@@ -125,12 +125,14 @@ fn create_genesis_module_objects() -> Genesis {
     let packages = vec![
         Object::new_package(
             std_modules.clone(),
+            OBJECT_START_VERSION,
             TransactionDigest::genesis(),
             PROTOCOL_CONSTANTS.max_move_package_size(),
         )
         .unwrap(),
         Object::new_package(
             haneul_modules.clone(),
+            OBJECT_START_VERSION,
             TransactionDigest::genesis(),
             PROTOCOL_CONSTANTS.max_move_package_size(),
         )

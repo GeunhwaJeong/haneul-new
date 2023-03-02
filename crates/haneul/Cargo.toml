@@ -76,8 +76,10 @@ jsonrpsee = { version = "0.16.2", features = ["jsonrpsee-core"] }
 
 test-utils = { path = "../test-utils" }
 rand = "0.8.5"
+move-binary-format.workspace = true
 move-package.workspace = true
 haneul-core = { path = "../haneul-core" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-node = { path = "../haneul-node" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }

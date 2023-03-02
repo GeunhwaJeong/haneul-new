@@ -23,6 +23,7 @@ use haneul_types::crypto::{
 use haneul_types::crypto::{AuthorityKeyPair, Signer};
 use haneul_types::intent::{Intent, IntentScope};
 use haneul_types::messages::{TransactionData, VerifiedTransaction, DUMMY_GAS_PRICE};
+use haneul_types::object::OBJECT_START_VERSION;
 use haneul_types::utils::create_fake_transaction;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -160,6 +161,7 @@ async fn init_genesis(
         .collect();
     let pkg = Object::new_package(
         modules,
+        OBJECT_START_VERSION,
         TransactionDigest::genesis(),
         ProtocolConfig::get_for_max_version().max_move_package_size(),
     )

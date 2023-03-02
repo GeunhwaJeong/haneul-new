@@ -5,6 +5,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use std::sync::Mutex;
 use haneul_config::NodeConfig;
+use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::AuthorityName;
 use tap::TapFallible;
 use tracing::{error, info};
@@ -74,6 +75,14 @@ impl Node {
             .unwrap()
             .as_ref()
             .map_or(false, |c| c.is_alive())
+    }
+
+    pub fn get_node_handle(&self) -> Option<HaneulNodeHandle> {
+        self.container
+            .lock()
+            .unwrap()
+            .as_ref()
+            .and_then(|c| c.get_node_handle())
     }
 
     /// Perform a health check on this Node by:

@@ -18,6 +18,7 @@ use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use prometheus::Registry;
 use std::collections::HashMap;
+use std::fmt;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::{ConsensusConfig, NodeConfig};
@@ -119,6 +120,14 @@ pub struct HaneulNode {
 
     #[cfg(msim)]
     sim_node: haneul_simulator::runtime::NodeHandle,
+}
+
+impl fmt::Debug for HaneulNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("HaneulNode")
+            .field("name", &self.state.name.concise())
+            .finish()
+    }
 }
 
 impl HaneulNode {
@@ -800,6 +809,7 @@ impl HaneulNode {
                         self.config
                             .supported_protocol_versions
                             .expect("Supported versions should be populated"),
+                        self.state.get_available_system_packages().await,
                     ));
                 info!(?transaction, "submitting capabilities to consensus");
                 components
