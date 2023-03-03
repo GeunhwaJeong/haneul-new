@@ -11,13 +11,11 @@ edition = "2021"
 anyhow = { version = "1.0.64", features = ["backtrace"] }
 async-trait = "0.1.61"
 backoff = { version = "0.4", features = ["futures", "futures-core", "pin-project-lite", "tokio", "tokio_1"] }
-chrono = { version = "0.4.23", features = [
-  "clock",
-  "serde",
-] }
+chrono = { version = "0.4.23", features = ["clock", "serde"] }
 rand = "0.8"
 clap = { version = "3.2.17", features = ["derive"] }
 diesel = { version = "2.0.0", features = ["chrono", "postgres", "r2d2", "serde_json"] }
+diesel-derive-enum = { version = "2.0.0", features = ["postgres"] }
 futures = "0.3.23"
 jsonrpsee = { version = "0.16.2", features = ["full"] }
 jsonrpsee-proc-macros = "0.16.2"
@@ -34,7 +32,7 @@ haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
 haneul-json = { path = "../haneul-json" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-node = { path = "../haneul-node" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
