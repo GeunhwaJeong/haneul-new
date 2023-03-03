@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useFormatCoin } from '@haneullabs/core';
 import cl from 'classnames';
 import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Icon, { HaneulIcons } from '_components/icon';
-import { useFormatCoin } from '_hooks';
 import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 
 import st from './CoinBalance.module.scss';

@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useFormatCoin, CoinFormat } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
-import { useFormatCoin, CoinFormat } from '~/hooks/useFormatCoin';
 import { Text } from '~/ui/Text';
 
 type StakeColumnProps = {

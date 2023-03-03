@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCoinDecimals } from '@haneullabs/core';
 import { ArrowRight16, ArrowLeft16 } from '@haneullabs/icons';
 import { getTransactionDigest, HANEUL_TYPE_ARG, Coin } from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
@@ -19,7 +20,7 @@ import BottomMenuLayout, {
 import { ActiveCoinsCard } from '_components/active-coins-card';
 import Overlay from '_components/overlay';
 import { parseAmount } from '_helpers';
-import { useCoinDecimals, useSigner } from '_hooks';
+import { useSigner } from '_hooks';
 import { trackEvent } from '_src/shared/plausible';
 
 import type { SubmitProps } from './SendTokenForm';

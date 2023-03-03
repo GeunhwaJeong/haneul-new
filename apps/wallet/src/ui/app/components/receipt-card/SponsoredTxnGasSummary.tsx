@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useFormatCoin } from '@haneullabs/core';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { TxnAddressLink } from './TxnAddressLink';
-import { useFormatCoin } from '_hooks';
 import { GAS_SYMBOL, GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { Text } from '_src/ui/app/shared/text';
 

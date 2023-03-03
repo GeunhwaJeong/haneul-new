@@ -1,13 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { CoinFormat } from '@haneullabs/core';
 import { CheckFill16 } from '@haneullabs/icons';
 
 import { CoinBalance } from './CoinBalance';
 import { Heading } from './Heading';
 import { TransactionAddress } from './TransactionAddress';
-
-import { CoinFormat } from '~/hooks/useFormatCoin';
 
 type SponsorTransactionAddressProps = {
     sponsor: string;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeature } from '@growthbook/growthbook-react';
+import { useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG, type HaneulAddress } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { useMemo } from 'react';
@@ -13,7 +14,6 @@ import { useGetDelegatedStake } from '_app/staking/useGetDelegatedStake';
 import Icon from '_components/icon';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { HaneulIcons } from '_font-icons/output/haneul-icons';
-import { useFormatCoin } from '_hooks';
 import { FEATURES } from '_src/shared/experimentation/features';
 import { trackEvent } from '_src/shared/plausible';
 
