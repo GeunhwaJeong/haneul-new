@@ -1976,6 +1976,36 @@
       }
     },
     {
+      "name": "haneul_multiGetTransactions",
+      "tags": [
+        {
+          "name": "Read API"
+        }
+      ],
+      "params": [
+        {
+          "name": "digests",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDigest"
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "Vec<HaneulTransactionResponse>",
+        "required": true,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/HaneulTransactionResponse"
+          }
+        }
+      }
+    },
+    {
       "name": "haneul_pay",
       "tags": [
         {
