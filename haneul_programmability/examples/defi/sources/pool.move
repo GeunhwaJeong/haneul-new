@@ -345,10 +345,10 @@ module defi::pool {
 /// ```
 module defi::pool_tests {
     use haneul::haneul::HANEUL;
-    use haneul::coin::{mint_for_testing as mint, destroy_for_testing as burn};
-    use haneul::test_scenario::{Self as test, Scenario, next_tx, ctx}
-    ;
+    use haneul::coin::{Self, Coin, mint_for_testing as mint};
+    use haneul::test_scenario::{Self as test, Scenario, next_tx, ctx};
     use defi::pool::{Self, Pool, LSP};
+    use haneul::test_utils;
 
     /// Gonna be our test token.
     struct BEEP {}
@@ -397,6 +397,13 @@ module defi::pool_tests {
         let scenario = scenario();
         test_math_(&mut scenario);
         test::end(scenario);
+    }
+
+    #[test_only]
+    fun burn<T>(x: Coin<T>): u64 {
+        let value = coin::value(&x);
+        test_utils::destroy(x);
+        value
     }
 
     /// Init a Pool with a 1_000_000 BEEP and 1_000_000_000 HANEUL;

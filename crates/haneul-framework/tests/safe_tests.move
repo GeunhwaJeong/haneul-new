@@ -7,9 +7,9 @@ module haneul::safe_tests {
     use haneul::test_scenario::{Self as ts, Scenario, ctx};
     use haneul::coin::{Self, Coin};
     use haneul::object::{Self, ID};
-    use haneul::balance;
     use haneul::haneul::HANEUL;
     use haneul::transfer;
+    use haneul::test_utils;
 
     const TEST_SENDER_ADDR: address = @0x1;
     const TEST_OWNER_ADDR: address = @0x1337;
@@ -42,7 +42,7 @@ module haneul::safe_tests {
         let safe = ts::take_shared<Safe<HANEUL>>(scenario);
         let capability = ts::take_from_sender<TransferCapability<HANEUL>>(scenario);
         let balance = safe::debit(&mut safe, &mut capability, withdraw_amount);
-        balance::destroy_for_testing(balance);
+        test_utils::destroy(balance);
 
         ts::return_to_sender(scenario, capability);
         ts::return_shared(safe);
@@ -77,7 +77,7 @@ module haneul::safe_tests {
         let withdrawn_coin = ts::take_from_sender<Coin<HANEUL>>(scenario);
         assert!(coin::value(&withdrawn_coin) == initial_funds, 0);
 
-        coin::destroy_for_testing(withdrawn_coin);
+        test_utils::destroy(withdrawn_coin);
         ts::return_to_sender(scenario, cap);
         ts::return_shared(safe);
 
@@ -171,7 +171,7 @@ module haneul::safe_tests {
         ts::next_tx(scenario, owner);
         let safe = ts::take_shared<Safe<HANEUL>>(scenario);
         let balance = safe::debit(&mut safe, &mut transfer_capability, 1000u64);
-        balance::destroy_for_testing(balance);
+        test_utils::destroy(balance);
 
         ts::return_shared(safe);
         ts::return_to_sender(scenario, cap);

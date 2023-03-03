@@ -12,6 +12,7 @@ module haneul::coin_balance_tests {
     use haneul::tx_context;
     use haneul::locked_coin;
     use haneul::coin::Coin;
+    use haneul::test_utils;
 
     #[test]
     fun type_morphing() {
@@ -68,7 +69,7 @@ module haneul::coin_balance_tests {
         test_scenario::next_tx(scenario, TEST_RECIPIENT_ADDR);
         let unlocked_coin = test_scenario::take_from_sender<Coin<HANEUL>>(scenario);
         assert!(coin::value(&unlocked_coin) == 42, 2);
-        coin::destroy_for_testing(unlocked_coin);
+        test_utils::destroy(unlocked_coin);
         test_scenario::end(scenario_val);
     }
 
