@@ -1,0 +1,19 @@
+[package]
+name = "haneul-framework-test"
+version = "0.1.0"
+edition = "2021"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "Runs Move tests for haneul-framework"
+license = "Apache-2.0"
+publish = false
+
+[dev-dependencies]
+haneul-move = { path = "../haneul-move", features = ["unit_test"] }
+haneul-framework = { path = "../haneul-framework" }
+haneul-framework-build = { path = "../haneul-framework-build" }
+
+move-cli.workspace = true
+move-package.workspace = true
+
+[dependencies]
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
