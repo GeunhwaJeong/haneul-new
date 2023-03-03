@@ -39,7 +39,8 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::{
-    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateWrapper,
+    get_haneul_system_state, get_haneul_system_state_version, get_haneul_system_state_wrapper,
+    HaneulSystemState, HaneulSystemStateWrapper,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;
@@ -164,7 +165,7 @@ impl Genesis {
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
-        get_haneul_system_state(self.objects()).expect("Haneul System State object must always exist")
+        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
     }
 
     pub fn clock(&self) -> Clock {
@@ -469,7 +470,7 @@ impl Builder {
 
     fn committee(objects: &[Object]) -> Committee {
         let haneul_system_object =
-            get_haneul_system_state(objects).expect("Haneul System State object must always exist");
+            get_haneul_system_state(&objects).expect("Haneul System State object must always exist");
         haneul_system_object.get_current_epoch_committee().committee
     }
 
@@ -982,6 +983,7 @@ pub fn generate_genesis_system_object(
 ) -> Result<()> {
     let genesis_digest = genesis_ctx.digest();
     let protocol_config = ProtocolConfig::get_for_version(protocol_version);
+    let system_state_version = get_haneul_system_state_version(protocol_version);
     let mut temporary_store = TemporaryStore::new(
         &*store,
         InputObjects::new(vec![]),
@@ -1051,6 +1053,7 @@ pub fn generate_genesis_system_object(
             CallArg::Pure(bcs::to_bytes(&gas_prices).unwrap()),
             CallArg::Pure(bcs::to_bytes(&commission_rates).unwrap()),
             CallArg::Pure(bcs::to_bytes(&protocol_version.as_u64()).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&system_state_version).unwrap()),
             CallArg::Pure(bcs::to_bytes(&epoch_start_timestamp_ms).unwrap()),
         ],
         HaneulGasStatus::new_unmetered().create_move_gas_status(),

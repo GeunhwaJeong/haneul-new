@@ -38,7 +38,10 @@ use haneul_types::utils::{
     make_committee_key, mock_certified_checkpoint, to_sender_signed_transaction,
     to_sender_signed_transaction_with_multi_signers,
 };
-use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_OBJECT_ID};
+use haneul_types::{
+    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+};
 
 use crate::epoch::epoch_metrics::EpochMetrics;
 use move_core_types::parser::parse_type_tag;
@@ -48,7 +51,7 @@ use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::object::Data;
-use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
+use haneul_types::haneul_system_state::{HaneulSystemStateWrapper, INIT_SYSTEM_STATE_VERSION};
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
@@ -2996,6 +2999,76 @@ async fn test_genesis_haneul_system_state_object() {
         &haneul_system_state.get_current_epoch_committee().committee,
         authority_state.epoch_store_for_testing().committee()
     );
+}
+
+#[tokio::test]
+async fn test_haneul_system_state_nop_upgrade() {
+    let authority_state = init_state().await;
+
+    let protocol_config = ProtocolConfig::get_for_version(ProtocolVersion::MIN);
+    let native_functions =
+        haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
+    let move_vm = adapter::new_move_vm(native_functions.clone(), &protocol_config)
+        .expect("We defined natives to not fail here");
+    let mut temporary_store = TemporaryStore::new(
+        authority_state.database.clone(),
+        InputObjects::new(vec![(
+            InputObjectKind::SharedMoveObject {
+                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                mutable: true,
+            },
+            authority_state
+                .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)
+                .await
+                .unwrap()
+                .unwrap(),
+        )]),
+        TransactionDigest::genesis(),
+        &protocol_config,
+    );
+    let system_object_arg = CallArg::Object(ObjectArg::SharedObject {
+        id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+        initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+        mutable: true,
+    });
+    let new_protocol_version = ProtocolVersion::MIN.as_u64() + 1;
+    let new_system_state_version = INIT_SYSTEM_STATE_VERSION + 1;
+
+    adapter::execute::<execution_mode::Normal, _, _>(
+        &move_vm,
+        &mut temporary_store,
+        ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, ident_str!("haneul_system").to_owned()),
+        &ident_str!("advance_epoch").to_owned(),
+        vec![],
+        vec![
+            system_object_arg,
+            CallArg::Pure(bcs::to_bytes(&1u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&new_protocol_version).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&0u64).unwrap()),
+            CallArg::Pure(bcs::to_bytes(&new_system_state_version).unwrap()), // Upgrade haneul system state, set new version to 1.
+        ],
+        HaneulGasStatus::new_unmetered().create_move_gas_status(),
+        &mut TxContext::new(
+            &HaneulAddress::default(),
+            &TransactionDigest::genesis(),
+            &EpochData::new(0, 0, CheckpointDigest::default()),
+        ),
+        &protocol_config,
+    )
+    .unwrap();
+    let inner = temporary_store.into_inner();
+    // Make sure that the new version is set, and that we can still read the inner object.
+    assert_eq!(
+        inner.get_haneul_system_state_wrapper_object().unwrap().version,
+        new_system_state_version
+    );
+    inner.get_haneul_system_state_object().unwrap();
 }
 
 #[tokio::test]
