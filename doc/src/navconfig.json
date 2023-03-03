@@ -6,8 +6,8 @@
 				"link": "doc-updates"
 			},
 			{
-				"label": "Haneul Releases",
-				"link": "https://github.com/GeunhwaJeong/haneul/releases",
+				"label": "Haneul Upcoming Breaking Changes",
+				"link": "doc-updates/haneul-breaking-changes",
 				"external": true
 			},
 			{

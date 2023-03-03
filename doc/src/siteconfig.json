@@ -135,19 +135,14 @@
             "url": "/doc-updates"
           },
           {
-            "name": "Haneul Releases",
-            "url": "https://github.com/GeunhwaJeong/haneul/releases",
+            "name": "Haneul Breaking Changes",
+            "url": "/doc-updates/haneul-breaking-changes",
             "external": true
           },
           {
             "name": "Haneul Announcements (Discord)",
             "url": "https://discord.com/channels/916379725201563759/925109817834631189",
             "external": true            
-          },
-          {
-            "name": "Haneul Developer Experience Roadmap",
-            "url": "https://github.com/GeunhwaJeong/haneul/blob/main/DEVX_ROADMAP.md",
-            "external": true
           }
         ]
       },
