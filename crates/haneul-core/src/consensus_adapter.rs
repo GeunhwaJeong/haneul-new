@@ -150,7 +150,7 @@ impl SubmitToConsensus for TransactionsClient<haneul_network::tonic::transport::
         _epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult {
         let serialized =
-            bincode::serialize(transaction).expect("Serializing consensus transaction cannot fail");
+            bcs::to_bytes(transaction).expect("Serializing consensus transaction cannot fail");
         let bytes = Bytes::from(serialized.clone());
 
         self.clone()

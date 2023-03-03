@@ -45,7 +45,7 @@ impl HaneulTxValidator {
 }
 
 fn tx_from_bytes(tx: &[u8]) -> Result<ConsensusTransaction, eyre::Report> {
-    bincode::deserialize::<ConsensusTransaction>(tx)
+    bcs::from_bytes::<ConsensusTransaction>(tx)
         .wrap_err("Malformed transaction (failed to deserialize)")
 }
 
@@ -189,7 +189,7 @@ mod tests {
         let certificates = test_certificates(&state).await;
 
         let first_transaction = certificates[0].clone();
-        let first_transaction_bytes: Vec<u8> = bincode::serialize(
+        let first_transaction_bytes: Vec<u8> = bcs::to_bytes(
             &ConsensusTransaction::new_certificate_message(&name1, first_transaction),
         )
         .unwrap();
@@ -207,8 +207,7 @@ mod tests {
             .clone()
             .into_iter()
             .map(|cert| {
-                bincode::serialize(&ConsensusTransaction::new_certificate_message(&name1, cert))
-                    .unwrap()
+                bcs::to_bytes(&ConsensusTransaction::new_certificate_message(&name1, cert)).unwrap()
             })
             .collect();
 
@@ -224,8 +223,7 @@ mod tests {
                     GenericSignature::Signature(haneul_types::crypto::Signature::Ed25519HaneulSignature(
                         Ed25519HaneulSignature::default(),
                     ));
-                bincode::serialize(&ConsensusTransaction::new_certificate_message(&name1, cert))
-                    .unwrap()
+                bcs::to_bytes(&ConsensusTransaction::new_certificate_message(&name1, cert)).unwrap()
             })
             .collect();
 

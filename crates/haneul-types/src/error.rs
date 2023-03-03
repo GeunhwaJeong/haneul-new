@@ -465,7 +465,7 @@ impl From<VMError> for HaneulError {
 
 impl From<Status> for HaneulError {
     fn from(status: Status) -> Self {
-        let result = bincode::deserialize::<HaneulError>(status.details());
+        let result = bcs::from_bytes::<HaneulError>(status.details());
         if let Ok(haneul_error) = result {
             haneul_error
         } else {
@@ -479,7 +479,7 @@ impl From<Status> for HaneulError {
 
 impl From<HaneulError> for Status {
     fn from(error: HaneulError) -> Self {
-        let bytes = bincode::serialize(&error).unwrap();
+        let bytes = bcs::to_bytes(&error).unwrap();
         Status::with_details(tonic::Code::Internal, error.to_string(), bytes.into())
     }
 }
