@@ -17,7 +17,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use haneul_core::authority::TemporaryStore;
-use haneul_framework::natives::{self, object_runtime::ObjectRuntime};
+use haneul_framework::natives::{self, object_runtime::ObjectRuntime, NativesCostTable};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     digests::TransactionDigest, in_memory_storage::InMemoryStorage, messages::InputObjects,
@@ -66,7 +66,7 @@ impl Test {
 }
 
 static SET_EXTENSION_HOOK: Lazy<()> =
-    Lazy::new(|| set_extension_hook(Box::new(new_testing_object_runtime)));
+    Lazy::new(|| set_extension_hook(Box::new(new_testing_object_and_natives_cost_runtime)));
 
 /// This function returns a result of UnitTestResult. The outer result indicates whether it
 /// successfully started running the test, and the inner result indicatests whether all tests pass.
@@ -96,7 +96,7 @@ pub fn run_move_unit_tests(
     )
 }
 
-fn new_testing_object_runtime(ext: &mut NativeContextExtensions) {
+fn new_testing_object_and_natives_cost_runtime(ext: &mut NativeContextExtensions) {
     let store = InMemoryStorage::new(vec![]);
     let state_view = TemporaryStore::new(
         store,
@@ -109,5 +109,8 @@ fn new_testing_object_runtime(ext: &mut NativeContextExtensions) {
         BTreeMap::new(),
         false,
         &ProtocolConfig::get_for_min_version(),
-    ))
+    ));
+    ext.add(NativesCostTable::from_protocol_config(
+        &ProtocolConfig::get_for_min_version(),
+    ));
 }
