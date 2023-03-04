@@ -10,9 +10,9 @@ import {
     RawSigner,
     LocalTxnDataSerializer,
     type Keypair,
-    HaneulExecuteTransactionResponse,
     assert,
     localnetConnection,
+    HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 
 const addressToKeypair = new Map<string, Keypair>();
@@ -49,7 +49,7 @@ export async function mint(address: string) {
         gasBudget: 30000,
     });
 
-    assert(tx, HaneulExecuteTransactionResponse);
+    assert(tx, HaneulTransactionResponse);
     return tx;
 }
 

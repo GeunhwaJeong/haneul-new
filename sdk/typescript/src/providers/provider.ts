@@ -19,7 +19,6 @@ import {
   HaneulEventEnvelope,
   SubscriptionId,
   ExecuteTransactionRequestType,
-  HaneulExecuteTransactionResponse,
   TransactionDigest,
   ObjectId,
   HaneulAddress,
@@ -46,6 +45,7 @@ import {
   Checkpoint,
   CommitteeInfo,
   DryRunTransactionResponse,
+  HaneulTransactionResponse,
 } from '../types';
 
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
@@ -242,7 +242,7 @@ export abstract class Provider {
     txnBytes: Uint8Array | string,
     signature: SerializedSignature,
     requestType: ExecuteTransactionRequestType,
-  ): Promise<HaneulExecuteTransactionResponse>;
+  ): Promise<HaneulTransactionResponse>;
 
   // Move info
   /**

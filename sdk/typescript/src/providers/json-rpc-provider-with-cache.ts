@@ -9,8 +9,8 @@ import {
   TransactionEffects,
   normalizeHaneulObjectId,
   ExecuteTransactionRequestType,
-  HaneulExecuteTransactionResponse,
   getTransactionEffects,
+  HaneulTransactionResponse,
 } from '../types';
 import { JsonRpcProvider } from './json-rpc-provider';
 import { is } from 'superstruct';
@@ -67,7 +67,7 @@ export class JsonRpcProviderWithCache extends JsonRpcProvider {
     txnBytes: Uint8Array | string,
     signature: SerializedSignature,
     requestType: ExecuteTransactionRequestType = 'WaitForEffectsCert',
-  ): Promise<HaneulExecuteTransactionResponse> {
+  ): Promise<HaneulTransactionResponse> {
     if (requestType !== 'WaitForEffectsCert') {
       console.warn(
         `It's not recommended to use JsonRpcProviderWithCache with the request ` +

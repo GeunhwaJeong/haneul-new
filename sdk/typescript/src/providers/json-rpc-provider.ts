@@ -15,7 +15,6 @@ import {
   HaneulAddress,
   HaneulEventEnvelope,
   HaneulEventFilter,
-  HaneulExecuteTransactionResponse,
   HaneulMoveFunctionArgTypes,
   HaneulMoveNormalizedFunction,
   HaneulMoveNormalizedModule,
@@ -669,7 +668,7 @@ export class JsonRpcProvider extends Provider {
     txnBytes: Uint8Array | string,
     signature: SerializedSignature,
     requestType: ExecuteTransactionRequestType = 'WaitForEffectsCert',
-  ): Promise<HaneulExecuteTransactionResponse> {
+  ): Promise<HaneulTransactionResponse> {
     try {
       return await this.client.requestWithType(
         'haneul_executeTransactionSerializedSig',
@@ -678,7 +677,7 @@ export class JsonRpcProvider extends Provider {
           signature,
           requestType,
         ],
-        HaneulExecuteTransactionResponse,
+        HaneulTransactionResponse,
         this.options.skipDataValidation,
       );
     } catch (err) {

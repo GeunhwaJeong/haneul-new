@@ -14,7 +14,7 @@ import type {
     HaneulObject,
     HaneulAddress,
     HaneulMoveObject,
-    HaneulExecuteTransactionResponse,
+    HaneulTransactionResponse,
     SignerWithProvider,
 } from '@haneullabs/haneul.js';
 
@@ -93,7 +93,7 @@ export class Coin {
         amount: bigint,
         validator: HaneulAddress,
         gasPrice: number
-    ): Promise<HaneulExecuteTransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         const transaction = Sentry.startTransaction({ name: 'stake' });
         const stakeCoin = await this.coinManageForStake(
             signer,
@@ -132,7 +132,7 @@ export class Coin {
         signer: SignerWithProvider,
         delegation: ObjectId,
         stakedHaneulId: ObjectId
-    ): Promise<HaneulExecuteTransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         const transaction = Sentry.startTransaction({ name: 'unstake' });
         try {
             return await signer.executeMoveCall({

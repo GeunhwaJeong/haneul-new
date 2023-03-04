@@ -3,7 +3,7 @@
 
 import type {
     SignerWithProvider,
-    HaneulExecuteTransactionResponse,
+    HaneulTransactionResponse,
 } from '@haneullabs/haneul.js';
 
 const DEFAULT_NFT_IMAGE =
@@ -21,7 +21,7 @@ export class ExampleNFT {
         name?: string,
         description?: string,
         imageUrl?: string
-    ): Promise<HaneulExecuteTransactionResponse> {
+    ): Promise<HaneulTransactionResponse> {
         return await signer.executeMoveCall({
             packageObjectId: '0x2',
             module: 'devnet_nft',
