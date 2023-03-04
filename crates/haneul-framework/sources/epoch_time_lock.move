@@ -4,6 +4,7 @@
 module haneul::epoch_time_lock {
     use haneul::tx_context::{Self, TxContext};
     friend haneul::haneul_system;
+    friend haneul::staking_pool;
 
     /// The epoch passed into the creation of a lock has already passed.
     const EEpochAlreadyPassed: u64 = 0;
