@@ -11,7 +11,6 @@ use crate::{authority::AuthorityState, authority_client::AuthorityAPI};
 use async_trait::async_trait;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
-use haneul_types::messages::TransactionEvents;
 use haneul_types::{
     committee::Committee,
     crypto::AuthorityKeyPair,
@@ -22,9 +21,9 @@ use haneul_types::{
         Transaction, TransactionInfoRequest, TransactionInfoResponse,
     },
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
-    haneul_system_state::HaneulSystemState,
 };
 use haneul_types::{error::HaneulResult, messages::HandleCertificateResponse};
+use haneul_types::{messages::TransactionEvents, haneul_system_state::HaneulSystemStateInnerBenchmark};
 
 #[derive(Clone, Copy, Default)]
 pub struct LocalAuthorityClientFaultConfig {
@@ -116,9 +115,12 @@ impl AuthorityAPI for LocalAuthorityClient {
     async fn handle_system_state_object(
         &self,
         _request: SystemStateRequest,
-    ) -> Result<HaneulSystemState, HaneulError> {
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
-        Ok(epoch_store.system_state_object().clone())
+        Ok(epoch_store
+            .system_state_object()
+            .clone()
+            .into_benchmark_version())
     }
 }
 
@@ -273,7 +275,7 @@ impl AuthorityAPI for MockAuthorityApi {
     async fn handle_system_state_object(
         &self,
         _request: SystemStateRequest,
-    ) -> Result<HaneulSystemState, HaneulError> {
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
         unimplemented!();
     }
 }
@@ -330,7 +332,7 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
     async fn handle_system_state_object(
         &self,
         _request: SystemStateRequest,
-    ) -> Result<HaneulSystemState, HaneulError> {
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
         unimplemented!()
     }
 }

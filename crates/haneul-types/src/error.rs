@@ -421,6 +421,9 @@ pub enum HaneulError {
     #[error("Failed to get the system state object content")]
     HaneulSystemStateNotFound,
 
+    #[error("Found the haneul system state object but it has an unexpected version")]
+    HaneulSystemStateUnexpectedVersion,
+
     #[error("unknown error: {0}")]
     Unknown(String),
 }

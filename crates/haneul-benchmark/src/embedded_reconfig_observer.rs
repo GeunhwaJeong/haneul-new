@@ -11,6 +11,7 @@ use haneul_core::{
     quorum_driver::{reconfig_observer::ReconfigObserver, QuorumDriver},
 };
 use haneul_network::default_haneullabs_network_config;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tracing::{error, info, trace};
 
 /// A ReconfigObserver that polls validators periodically

@@ -13,7 +13,7 @@ use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 use haneul_types::{
     error::{HaneulError, HaneulResult},
@@ -494,7 +494,9 @@ where
         Ok(resp)
     }
 
-    pub async fn handle_system_state_object(&self) -> Result<HaneulSystemState, HaneulError> {
+    pub async fn handle_system_state_object(
+        &self,
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
         self.authority_client
             .handle_system_state_object(SystemStateRequest { _unused: false })
             .await

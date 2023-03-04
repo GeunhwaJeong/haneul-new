@@ -7,6 +7,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
 use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
 use haneul_types::signature::GenericSignature;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
 use crate::errors::Error;
 use crate::types::{
@@ -195,7 +196,7 @@ pub async fn metadata(
         .governance_api()
         .get_haneul_system_state()
         .await?
-        .reference_gas_price;
+        .reference_gas_price();
 
     let (tx_metadata, gas, budget) = match &option.internal_operation {
         InternalOperation::PayHaneul {

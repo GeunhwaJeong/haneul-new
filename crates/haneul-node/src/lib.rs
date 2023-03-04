@@ -41,6 +41,7 @@ use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tracing::debug;
 
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
@@ -182,7 +183,7 @@ impl HaneulNode {
             .expect("Committee of the current epoch must exist");
         let epoch_start_configuration = if cur_epoch == genesis.epoch() {
             Some(EpochStartConfiguration {
-                system_state: genesis.haneul_system_object(),
+                system_state: HaneulSystemState::new_genesis(genesis.haneul_system_object()),
                 epoch_digest: genesis.checkpoint().digest(),
             })
         } else {
@@ -830,7 +831,7 @@ impl HaneulNode {
 
             // If we eventually add tests that exercise safe mode, we will need a configurable way of
             // guarding against unexpected safe_mode.
-            debug_assert!(!system_state.safe_mode);
+            debug_assert!(!system_state.safe_mode());
 
             info!(
                 next_epoch,
@@ -849,7 +850,7 @@ impl HaneulNode {
             cur_epoch_store.record_epoch_reconfig_start_time_metric();
             let _ = self.end_of_epoch_channel.send((
                 next_epoch_committee.clone(),
-                ProtocolVersion::new(system_state.protocol_version),
+                ProtocolVersion::new(system_state.protocol_version()),
             ));
 
             // The following code handles 4 different cases, depending on whether the node

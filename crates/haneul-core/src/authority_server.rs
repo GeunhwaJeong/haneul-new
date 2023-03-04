@@ -16,11 +16,10 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
-use haneul_types::{error::*, messages::*};
+use haneul_types::{error::*, messages::*, haneul_system_state::HaneulSystemStateInnerBenchmark};
 use haneul_types::{
     fp_ensure,
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
-    haneul_system_state::HaneulSystemState,
 };
 use tap::TapFallible;
 use tokio::task::JoinHandle;
@@ -505,9 +504,12 @@ impl Validator for ValidatorService {
     async fn get_system_state_object(
         &self,
         _request: tonic::Request<SystemStateRequest>,
-    ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
+    ) -> Result<tonic::Response<HaneulSystemStateInnerBenchmark>, tonic::Status> {
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
-        let response = epoch_store.system_state_object().clone();
+        let response = epoch_store
+            .system_state_object()
+            .clone()
+            .into_benchmark_version();
 
         return Ok(tonic::Response::new(response));
     }

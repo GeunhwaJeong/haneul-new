@@ -26,7 +26,6 @@ use haneul_core::{
 use haneul_json_rpc_types::{HaneulObjectRead, HaneulTransactionEffects};
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::messages::TransactionEvents;
 use haneul_types::{
     base_types::ObjectID,
@@ -45,6 +44,10 @@ use haneul_types::{
 use haneul_types::{
     base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo,
     messages::ExecuteTransactionRequestType, object::Owner,
+};
+use haneul_types::{
+    base_types::{AuthorityName, HaneulAddress},
+    haneul_system_state::HaneulSystemStateTrait,
 };
 use haneul_types::{error::HaneulError, haneul_system_state::HaneulSystemState};
 use tokio::{task::JoinSet, time::timeout};
@@ -270,7 +273,10 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemState, anyhow::Error> {
         let auth_agg = self.qd.authority_aggregator().load();
-        auth_agg.get_latest_system_state_object_for_testing().await
+        auth_agg
+            .get_latest_system_state_object_for_testing()
+            .await
+            .map(HaneulSystemState::new_for_benchmarking)
     }
 
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects> {
@@ -477,10 +483,9 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
     async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
         let system_state = self.get_latest_system_state_object().await?;
         Ok(system_state
-            .validators
-            .active_validators
+            .get_validator_metadata_vec()
             .into_iter()
-            .map(|v| v.metadata.haneul_address)
+            .map(|metadata| metadata.haneul_address)
             .collect())
     }
 }

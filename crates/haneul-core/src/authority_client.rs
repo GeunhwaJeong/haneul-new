@@ -4,7 +4,6 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use fastcrypto::traits::ToFromBytes;
 use multiaddr::Multiaddr;
 use haneullabs_network::config::Config;
 use std::collections::BTreeMap;
@@ -16,7 +15,7 @@ use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetAddresses;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
 use haneul_types::{error::HaneulError, messages::*};
 
 use haneul_network::tonic::transport::Channel;
@@ -57,10 +56,12 @@ pub trait AuthorityAPI {
         request: CommitteeInfoRequest,
     ) -> Result<CommitteeInfoResponse, HaneulError>;
 
+    // This API is exclusively used by the benchmark code.
+    // Hence it's OK to return a fixed system state type.
     async fn handle_system_state_object(
         &self,
         request: SystemStateRequest,
-    ) -> Result<HaneulSystemState, HaneulError>;
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError>;
 }
 
 #[derive(Clone)]
@@ -168,33 +169,13 @@ impl AuthorityAPI for NetworkAuthorityClient {
     async fn handle_system_state_object(
         &self,
         request: SystemStateRequest,
-    ) -> Result<HaneulSystemState, HaneulError> {
+    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
         self.client()
             .get_system_state_object(request)
             .await
             .map(tonic::Response::into_inner)
             .map_err(Into::into)
     }
-}
-
-// This function errs on URL parsing error. This may happen
-// when a validator provides a bad URL.
-pub fn make_network_authority_client_sets_from_system_state(
-    haneul_system_state: &HaneulSystemState,
-    network_config: &Config,
-) -> anyhow::Result<BTreeMap<AuthorityName, NetworkAuthorityClient>> {
-    let mut authority_clients = BTreeMap::new();
-    for validator in &haneul_system_state.validators.active_validators {
-        let address = Multiaddr::try_from(validator.metadata.net_address.clone())?;
-        let channel = network_config
-            .connect_lazy(&address)
-            .map_err(|err| anyhow!(err.to_string()))?;
-        let client = NetworkAuthorityClient::new(channel);
-        let name: &[u8] = &validator.metadata.protocol_pubkey_bytes;
-        let public_key_bytes = AuthorityName::from_bytes(name)?;
-        authority_clients.insert(public_key_bytes, client);
-    }
-    Ok(authority_clients)
 }
 
 pub fn make_network_authority_client_sets_from_committee(

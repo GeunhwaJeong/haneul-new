@@ -1476,7 +1476,7 @@
           "name": "Governance Read API"
         }
       ],
-      "description": "Return [HaneulSystemState]",
+      "description": "Return latest HANEUL system state object on-chain.",
       "params": [],
       "result": {
         "name": "HaneulSystemState",
@@ -6102,6 +6102,13 @@
         ]
       },
       "HaneulSystemState": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/HaneulSystemStateInnerV1"
+          }
+        ]
+      },
+      "HaneulSystemStateInnerV1": {
         "description": "Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.",
         "type": "object",
         "required": [

@@ -40,7 +40,7 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_version, get_haneul_system_state_wrapper,
-    HaneulSystemState, HaneulSystemStateWrapper,
+    HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;
@@ -164,8 +164,10 @@ impl Genesis {
             .expect("Haneul System State Wrapper object must always exist")
     }
 
-    pub fn haneul_system_object(&self) -> HaneulSystemState {
-        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
+    pub fn haneul_system_object(&self) -> HaneulSystemStateInnerGenesis {
+        get_haneul_system_state(&self.objects())
+            .expect("Haneul System State object must always exist")
+            .into_genesis_version()
     }
 
     pub fn clock(&self) -> Clock {

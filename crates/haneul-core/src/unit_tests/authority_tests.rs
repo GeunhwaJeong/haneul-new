@@ -51,7 +51,7 @@ use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::object::Data;
-use haneul_types::haneul_system_state::{HaneulSystemStateWrapper, INIT_SYSTEM_STATE_VERSION};
+use haneul_types::haneul_system_state::{HaneulSystemStateWrapper, HANEUL_SYSTEM_STATE_TESTING_VERSION1};
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
@@ -1784,10 +1784,7 @@ async fn test_transaction_expiration() {
         .committee()
         .to_owned();
     committee.epoch = 1;
-    let system_state = HaneulSystemState {
-        epoch: 1,
-        ..Default::default()
-    };
+    let system_state = HaneulSystemState::new_for_testing(1);
 
     authority_state
         .reconfigure(
@@ -3001,7 +2998,7 @@ async fn test_genesis_haneul_system_state_object() {
     );
 }
 
-#[tokio::test]
+#[sim_test]
 async fn test_haneul_system_state_nop_upgrade() {
     let authority_state = init_state().await;
 
@@ -3033,7 +3030,7 @@ async fn test_haneul_system_state_nop_upgrade() {
         mutable: true,
     });
     let new_protocol_version = ProtocolVersion::MIN.as_u64() + 1;
-    let new_system_state_version = INIT_SYSTEM_STATE_VERSION + 1;
+    let new_system_state_version = HANEUL_SYSTEM_STATE_TESTING_VERSION1;
 
     adapter::execute::<execution_mode::Normal, _, _>(
         &move_vm,

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::authority_client::{
-    make_authority_clients, make_network_authority_client_sets_from_committee,
-    make_network_authority_client_sets_from_system_state, AuthorityAPI, NetworkAuthorityClient,
+    make_authority_clients, make_network_authority_client_sets_from_committee, AuthorityAPI,
+    NetworkAuthorityClient,
 };
 use crate::safe_client::{SafeClient, SafeClientMetrics, SafeClientMetricsBase};
 use crate::validator_info::make_committee;
@@ -22,7 +22,7 @@ use haneul_types::error::UserInputError;
 use haneul_types::fp_ensure;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Object;
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::{HaneulSystemStateInnerBenchmark, HaneulSystemStateTrait};
 use haneul_types::{
     base_types::*,
     committee::{Committee, ProtocolVersion},
@@ -434,16 +434,16 @@ impl<S: SignatureVerifier + Default> AuthorityAggregator<NetworkAuthorityClient,
         auth_agg_metrics: AuthAggMetrics,
     ) -> anyhow::Result<Self> {
         let haneul_system_state = store.get_haneul_system_state_object()?;
-        Self::new_from_system_state(
-            &haneul_system_state,
+        Self::new_from_committee(
+            haneul_system_state.get_current_epoch_committee(),
             committee_store,
             safe_client_metrics_base,
             auth_agg_metrics,
         )
     }
 
-    pub fn new_from_system_state(
-        haneul_system_state: &HaneulSystemState,
+    pub fn new_from_committee(
+        committee: CommitteeWithNetAddresses,
         committee_store: &Arc<CommitteeStore>,
         safe_client_metrics_base: SafeClientMetricsBase,
         auth_agg_metrics: AuthAggMetrics,
@@ -453,9 +453,9 @@ impl<S: SignatureVerifier + Default> AuthorityAggregator<NetworkAuthorityClient,
         // tolerate it as long as we have 2f+1 good validators.
         // GH issue: https://github.com/GeunhwaJeong/haneul/issues/7019
         let authority_clients =
-            make_network_authority_client_sets_from_system_state(haneul_system_state, &net_config)?;
+            make_network_authority_client_sets_from_committee(&committee, &net_config)?;
         Ok(Self::new_with_metrics(
-            haneul_system_state.get_current_epoch_committee().committee,
+            committee.committee,
             committee_store.clone(),
             authority_clients,
             safe_client_metrics_base,
@@ -843,10 +843,10 @@ where
     /// It should only be used for testing or benchmarking.
     pub async fn get_latest_system_state_object_for_testing(
         &self,
-    ) -> anyhow::Result<HaneulSystemState> {
+    ) -> anyhow::Result<HaneulSystemStateInnerBenchmark> {
         #[derive(Debug, Default)]
         struct State {
-            latest_system_state: Option<HaneulSystemState>,
+            latest_system_state: Option<HaneulSystemStateInnerBenchmark>,
             total_weight: StakeUnit,
         }
         let initial_state = State::default();
@@ -861,12 +861,12 @@ where
                             debug!(
                                 "Received system state object from validator {:?} with epoch: {:?}",
                                 name.concise(),
-                                system_state.epoch
+                                system_state.epoch()
                             );
                             if state
                                 .latest_system_state
                                 .as_ref()
-                                .map_or(true, |latest| system_state.epoch > latest.epoch)
+                                .map_or(true, |latest| system_state.epoch() > latest.epoch())
                             {
                                 state.latest_system_state = Some(system_state);
                             }

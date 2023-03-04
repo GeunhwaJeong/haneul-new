@@ -16,7 +16,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::governance::{DelegatedStake, Delegation, DelegationStatus, StakedHaneul};
 use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse};
-use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait, ValidatorMetadata};
 
 pub struct GovernanceReadApi {
     state: Arc<AuthorityState>,
@@ -73,11 +73,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         Ok(self
             .get_haneul_system_state()
             .await?
-            .validators
-            .active_validators
-            .into_iter()
-            .map(|v| v.metadata)
-            .collect())
+            .get_validator_metadata_vec())
     }
 
     async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<CommitteeInfoResponse> {
@@ -96,7 +92,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
     }
 
     async fn get_reference_gas_price(&self) -> RpcResult<u64> {
-        Ok(self.get_haneul_system_state().await?.reference_gas_price)
+        Ok(self.get_haneul_system_state().await?.reference_gas_price())
     }
 }
 

@@ -44,7 +44,7 @@ use haneul_types::messages_checkpoint::{
     VerifiedCheckpoint,
 };
 use haneul_types::signature::GenericSignature;
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 use tokio::{
     sync::{watch, Notify},
     time::timeout,
@@ -691,7 +691,7 @@ impl CheckpointBuilder {
                 Some(EndOfEpochData {
                     next_epoch_committee: committee.voting_rights,
                     next_epoch_protocol_version: ProtocolVersion::new(
-                        system_state_obj.protocol_version,
+                        system_state_obj.protocol_version(),
                     ),
                     root_state_digest: Accumulator::default().digest(),
                 })

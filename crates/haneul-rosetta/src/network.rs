@@ -9,6 +9,7 @@ use strum::IntoEnumIterator;
 
 use fastcrypto::encoding::Hex;
 use haneul_types::base_types::ObjectID;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
 use crate::errors::{Error, ErrorType};
 use crate::types::{
@@ -44,14 +45,13 @@ pub async fn status(
     let system_state = context.client.read_api().get_haneul_system_state().await?;
 
     let peers = system_state
-        .validators
-        .active_validators
-        .iter()
-        .map(|v| Peer {
-            peer_id: ObjectID::from(v.metadata.haneul_address).into(),
+        .get_staking_pool_info()
+        .into_iter()
+        .map(|(haneul_address, (pubkey_bytes, balance))| Peer {
+            peer_id: ObjectID::from(haneul_address).into(),
             metadata: Some(json!({
-                "public_key": Hex::from_bytes(&v.metadata.protocol_pubkey_bytes),
-                "stake_amount": v.staking_pool.haneul_balance,
+                "public_key": Hex::from_bytes(&pubkey_bytes),
+                "stake_amount": balance,
             })),
         })
         .collect();

@@ -64,7 +64,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointSignatureMessage, CheckpointSummary, CheckpointTimestamp,
 };
 use haneul_types::storage::{transaction_input_object_keys, ObjectKey, ParentSync};
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 use haneul_types::temporary_store::InnerTemporaryStore;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 use tokio::time::Instant;
@@ -290,7 +290,7 @@ pub struct EpochStartConfiguration {
 
 impl EpochStartConfiguration {
     pub fn protocol_version(&self) -> ProtocolVersion {
-        ProtocolVersion::new(self.system_state.protocol_version)
+        ProtocolVersion::new(self.system_state.protocol_version())
     }
 }
 
@@ -505,7 +505,7 @@ impl AuthorityPerEpochStore {
     }
 
     pub fn reference_gas_price(&self) -> u64 {
-        self.system_state_object().reference_gas_price
+        self.system_state_object().reference_gas_price()
     }
 
     pub fn protocol_version(&self) -> ProtocolVersion {
@@ -2000,11 +2000,11 @@ impl EpochStartConfiguration {
     }
 
     pub fn epoch_id(&self) -> EpochId {
-        self.system_state.epoch
+        self.system_state.epoch()
     }
 
     pub fn epoch_start_timestamp_ms(&self) -> CheckpointTimestamp {
-        self.system_state.epoch_start_timestamp_ms
+        self.system_state.epoch_start_timestamp_ms()
     }
 
     pub fn epoch_digest(&self) -> CheckpointDigest {

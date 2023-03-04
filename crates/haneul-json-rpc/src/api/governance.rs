@@ -32,7 +32,7 @@ pub trait GovernanceReadApi {
         epoch: Option<EpochId>,
     ) -> RpcResult<CommitteeInfoResponse>;
 
-    /// Return [HaneulSystemState]
+    /// Return latest HANEUL system state object on-chain.
     #[method(name = "getHaneulSystemState")]
     async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState>;
 
