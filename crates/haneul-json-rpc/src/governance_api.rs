@@ -4,6 +4,7 @@
 use jsonrpsee::core::RpcResult;
 use std::collections::HashMap;
 use std::sync::Arc;
+use haneul_json_rpc_types::HaneulSystemStateRpc;
 
 use crate::api::GovernanceReadApiServer;
 use crate::error::Error;
@@ -16,7 +17,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::governance::{DelegatedStake, Delegation, DelegationStatus, StakedHaneul};
 use haneul_types::messages::{CommitteeInfoRequest, CommitteeInfoResponse};
-use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait, ValidatorMetadata};
+use haneul_types::haneul_system_state::{HaneulSystemStateTrait, ValidatorMetadata};
 
 pub struct GovernanceReadApi {
     state: Arc<AuthorityState>,
@@ -71,8 +72,10 @@ impl GovernanceReadApiServer for GovernanceReadApi {
     async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadata>> {
         // TODO: include pending validators as well when the necessary changes are made in move.
         Ok(self
-            .get_haneul_system_state()
-            .await?
+            .state
+            .database
+            .get_haneul_system_state_object()
+            .map_err(Error::from)?
             .get_validator_metadata_vec())
     }
 
@@ -83,16 +86,22 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .map_err(Error::from)?)
     }
 
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState> {
+    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc> {
         Ok(self
             .state
             .database
             .get_haneul_system_state_object()
-            .map_err(Error::from)?)
+            .map_err(Error::from)?
+            .into())
     }
 
     async fn get_reference_gas_price(&self) -> RpcResult<u64> {
-        Ok(self.get_haneul_system_state().await?.reference_gas_price())
+        Ok(self
+            .state
+            .database
+            .get_haneul_system_state_object()
+            .map_err(Error::from)?
+            .reference_gas_price())
     }
 }
 

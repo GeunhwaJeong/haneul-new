@@ -9,7 +9,7 @@ use strum::IntoEnumIterator;
 
 use fastcrypto::encoding::Hex;
 use haneul_types::base_types::ObjectID;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 
 use crate::errors::{Error, ErrorType};
 use crate::types::{
@@ -42,7 +42,12 @@ pub async fn status(
 ) -> Result<NetworkStatusResponse, Error> {
     env.check_network_identifier(&request.network_identifier)?;
 
-    let system_state = context.client.read_api().get_haneul_system_state().await?;
+    let system_state: HaneulSystemState = context
+        .client
+        .read_api()
+        .get_haneul_system_state()
+        .await?
+        .into();
 
     let peers = system_state
         .get_staking_pool_info()

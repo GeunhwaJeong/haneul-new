@@ -4,6 +4,7 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
+use haneul_json_rpc_types::HaneulSystemStateRpc;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::HaneulAddress;
 
@@ -11,7 +12,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::governance::DelegatedStake;
 use haneul_types::messages::CommitteeInfoResponse;
 
-use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
+use haneul_types::haneul_system_state::ValidatorMetadata;
 
 #[open_rpc(namespace = "haneul", tag = "Governance Read API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -34,7 +35,7 @@ pub trait GovernanceReadApi {
 
     /// Return latest HANEUL system state object on-chain.
     #[method(name = "getHaneulSystemState")]
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemState>;
+    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc>;
 
     /// Return the reference gas price for the network
     #[method(name = "getReferenceGasPrice")]

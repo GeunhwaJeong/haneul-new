@@ -16,7 +16,7 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
     EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
     HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule, HaneulObjectInfo,
-    HaneulTransactionResponse, TransactionsPage,
+    HaneulSystemStateRpc, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -30,7 +30,7 @@ use haneul_types::messages::{
 };
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::{HaneulSystemState, ValidatorMetadata};
+use haneul_types::haneul_system_state::ValidatorMetadata;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
@@ -191,7 +191,7 @@ impl ReadApi {
             .await?)
     }
 
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
+    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateRpc> {
         Ok(self.api.http.get_haneul_system_state().await?)
     }
 
@@ -498,8 +498,8 @@ impl GovernanceApi {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
-    /// Return [HaneulSystemState]
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemState> {
+    /// Return [HaneulSystemStateRpc]
+    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateRpc> {
         Ok(self.api.http.get_haneul_system_state().await?)
     }
 }

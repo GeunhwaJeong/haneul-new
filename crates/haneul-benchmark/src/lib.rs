@@ -527,7 +527,12 @@ impl ValidatorProxy for FullNodeProxy {
     }
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemState, anyhow::Error> {
-        Ok(self.haneul_client.read_api().get_haneul_system_state().await?)
+        Ok(self
+            .haneul_client
+            .read_api()
+            .get_haneul_system_state()
+            .await?
+            .into())
     }
 
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects> {

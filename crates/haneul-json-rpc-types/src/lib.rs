@@ -58,6 +58,7 @@ use haneul_types::object::{
     Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner, PastObjectRead,
 };
 use haneul_types::signature::GenericSignature;
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateInnerV1};
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag};
 use tracing::warn;
 
@@ -1810,7 +1811,7 @@ pub struct HaneulTransactionEffects {
     /// It's also included in mutated.
     pub gas_object: OwnedObjectRef,
     /// The digest of the events emitted during execution,
-    /// can be None if the transaction does not emmit any event.
+    /// can be None if the transaction does not emit any event.
     pub events_digest: Option<TransactionEventsDigest>,
     /// The set of transaction digests this transaction depends on.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -2970,5 +2971,27 @@ impl From<CheckpointSequenceNumber> for CheckpointId {
 impl From<CheckpointDigest> for CheckpointId {
     fn from(digest: CheckpointDigest) -> Self {
         Self::Digest(digest)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[serde(untagged, rename = "HaneulSystemState")]
+pub enum HaneulSystemStateRpc {
+    V1(HaneulSystemStateInnerV1),
+}
+
+impl From<HaneulSystemState> for HaneulSystemStateRpc {
+    fn from(state: HaneulSystemState) -> Self {
+        match state {
+            HaneulSystemState::V1(state) => Self::V1(state),
+        }
+    }
+}
+
+impl From<HaneulSystemStateRpc> for HaneulSystemState {
+    fn from(state: HaneulSystemStateRpc) -> Self {
+        match state {
+            HaneulSystemStateRpc::V1(state) => Self::V1(state),
+        }
     }
 }

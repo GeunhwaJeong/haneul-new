@@ -7,7 +7,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
 use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
 use haneul_types::signature::GenericSignature;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 
 use crate::errors::Error;
 use crate::types::{
@@ -191,12 +191,13 @@ pub async fn metadata(
     env.check_network_identifier(&request.network_identifier)?;
     let option = request.options.ok_or(Error::MissingMetadata)?;
     let sender = option.internal_operation.sender();
-    let gas_price = context
+    let system_state: HaneulSystemState = context
         .client
         .governance_api()
         .get_haneul_system_state()
         .await?
-        .reference_gas_price();
+        .into();
+    let gas_price = system_state.reference_gas_price();
 
     let (tx_metadata, gas, budget) = match &option.internal_operation {
         InternalOperation::PayHaneul {

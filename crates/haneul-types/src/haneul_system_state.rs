@@ -628,8 +628,7 @@ impl Default for HaneulSystemStateInnerV1 {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
-#[serde(untagged)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 #[enum_dispatch(HaneulSystemStateTrait)]
 pub enum HaneulSystemState {
     V1(HaneulSystemStateInnerV1),
