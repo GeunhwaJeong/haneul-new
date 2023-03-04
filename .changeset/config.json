@@ -8,5 +8,11 @@
   "baseBranch": "main",
   "updateInternalDependencies": "minor",
   "privatePackages": false,
-  "ignore": ["haneul-wallet", "haneul-explorer", "@haneullabs/core", "haneul-wallet-adapter-demo"]
+  "ignore": [
+    "haneul-wallet",
+    "haneul-explorer",
+    "@haneullabs/core",
+    "haneul-wallet-adapter-demo",
+    "wallet-kit-site"
+  ]
 }
