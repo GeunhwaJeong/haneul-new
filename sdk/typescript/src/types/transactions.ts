@@ -16,7 +16,7 @@ import {
   tuple,
 } from 'superstruct';
 import { HaneulEvent } from './events';
-import { HaneulGasData, HaneulMovePackage, HaneulObject, HaneulObjectRef } from './objects';
+import { HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects';
 import {
   ObjectId,
   ObjectOwner,
@@ -45,8 +45,7 @@ export const HaneulChangeEpoch = object({
   epoch: EpochId,
   storage_charge: number(),
   computation_charge: number(),
-  // TODO: Make non-optional after v0.26.0 lands everywhere
-  storage_rebate: optional(number()),
+  storage_rebate: number(),
   epoch_start_timestamp_ms: optional(number()),
 });
 export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
@@ -173,11 +172,8 @@ export type OwnedObjectRef = Infer<typeof OwnedObjectRef>;
 export const TransactionEffects = object({
   /** The status of the execution */
   status: ExecutionStatus,
-  /**
-   * The epoch when this transaction was executed
-   * TODO: Changed it to non-optional once this is stable.
-   * */
-  executedEpoch: optional(EpochId),
+  /** The epoch when this transaction was executed */
+  executedEpoch: EpochId,
   gasUsed: GasCostSummary,
   /** The object references of the shared objects used in this transaction. Empty if no shared objects were used. */
   sharedObjects: optional(array(HaneulObjectRef)),
@@ -240,21 +236,6 @@ export const DevInspectResults = object({
 });
 export type DevInspectResults = Infer<typeof DevInspectResults>;
 
-export const HaneulEffectsFinalityInfo = union([
-  object({ certified: AuthorityQuorumSignInfo }),
-  object({ checkpointed: tuple([number(), number()]) }),
-]);
-export type HaneulEffectsFinalityInfo = Infer<typeof HaneulEffectsFinalityInfo>;
-
-export const HaneulFinalizedEffects = object({
-  transactionEffectsDigest: string(),
-  effects: TransactionEffects,
-  finalityInfo: HaneulEffectsFinalityInfo,
-});
-export type HaneulFinalizedEffects = Infer<typeof HaneulFinalizedEffects>;
-
-// TODO: Remove after devnet 0.28.0
-
 export type GatewayTxSeqNumber = number;
 
 export const GetTxnDigestsResponse = array(TransactionDigest);
@@ -293,44 +274,11 @@ export const TransactionBytes = object({
   inputObjects: unknown(),
 });
 
-export const HaneulParsedMergeCoinResponse = object({
-  updatedCoin: HaneulObject,
-  updatedGas: HaneulObject,
-});
-export type HaneulParsedMergeCoinResponse = Infer<
-  typeof HaneulParsedMergeCoinResponse
->;
-
-export const HaneulParsedSplitCoinResponse = object({
-  updatedCoin: HaneulObject,
-  newCoins: array(HaneulObject),
-  updatedGas: HaneulObject,
-});
-export type HaneulParsedSplitCoinResponse = Infer<
-  typeof HaneulParsedSplitCoinResponse
->;
-
 export const HaneulPackage = object({
   digest: string(),
   objectId: string(),
   version: number(),
 });
-
-export const HaneulParsedPublishResponse = object({
-  createdObjects: array(HaneulObject),
-  package: HaneulPackage,
-  updatedGas: HaneulObject,
-});
-export type HaneulParsedPublishResponse = Infer<typeof HaneulParsedPublishResponse>;
-
-export const HaneulParsedTransactionResponse = union([
-  object({ SplitCoin: HaneulParsedSplitCoinResponse }),
-  object({ MergeCoin: HaneulParsedMergeCoinResponse }),
-  object({ Publish: HaneulParsedPublishResponse }),
-]);
-export type HaneulParsedTransactionResponse = Infer<
-  typeof HaneulParsedTransactionResponse
->;
 
 export const HaneulTransaction = object({
   data: HaneulTransactionData,

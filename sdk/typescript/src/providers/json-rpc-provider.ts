@@ -327,7 +327,6 @@ export class JsonRpcProvider extends Provider {
   async getNormalizedMoveModulesByPackage(
     packageId: string,
   ): Promise<HaneulMoveNormalizedModules> {
-    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModulesByPackage',
@@ -346,7 +345,6 @@ export class JsonRpcProvider extends Provider {
     packageId: string,
     moduleName: string,
   ): Promise<HaneulMoveNormalizedModule> {
-    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveModule',
@@ -366,7 +364,6 @@ export class JsonRpcProvider extends Provider {
     moduleName: string,
     functionName: string,
   ): Promise<HaneulMoveNormalizedFunction> {
-    // TODO: Add caching since package object does not change
     try {
       return await this.client.requestWithType(
         'haneul_getNormalizedMoveFunction',

@@ -15,7 +15,6 @@ import {
   OBJECT_MODULE_NAME,
   HaneulJsonValue,
   HaneulMoveNormalizedType,
-  HaneulObjectRef,
   HANEUL_FRAMEWORK_ADDRESS,
 } from '../../types';
 import {
@@ -134,15 +133,12 @@ export class CallArgSerializer {
   }
 
   private async extractNormalizedFunctionParams(
-    // TODO: Restrict to just `ObjectId` once 0.24.0 has deployed
-    packageId: ObjectId | HaneulObjectRef,
+    packageId: ObjectId,
     module: string,
     functionName: string,
   ) {
     const normalized = await this.provider.getNormalizedMoveFunction(
-      normalizeHaneulObjectId(
-        typeof packageId === 'string' ? packageId : packageId.objectId,
-      ),
+      normalizeHaneulObjectId(packageId),
       module,
       functionName,
     );

@@ -48,7 +48,6 @@ export const ObjectOwner = union([
 ]);
 export type ObjectOwner = Infer<typeof ObjectOwner>;
 
-// TODO: Figure out if we actually should have validaton on this:
 export const HaneulJsonValue = unknown();
 export type HaneulJsonValue =
   | boolean
