@@ -20,6 +20,7 @@ use crate::base_types::{MoveObjectType, ObjectIDParseError};
 use crate::crypto::{deterministic_random_account_key, sha3_hash};
 use crate::error::{ExecutionError, ExecutionErrorKind, UserInputError, UserInputResult};
 use crate::error::{HaneulError, HaneulResult};
+use crate::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use crate::move_package::MovePackage;
 use crate::{
     base_types::{
@@ -852,12 +853,13 @@ pub fn generate_test_gas_objects_with_owner(count: usize, owner: HaneulAddress) 
         .collect()
 }
 
-/// Make a few test gas objects (all with the same owner) with max u64 balance.
-pub fn generate_max_test_gas_objects_with_owner(count: usize, owner: HaneulAddress) -> Vec<Object> {
+/// Make a few test gas objects (all with the same owner) with TOTAL_SUPPLY_GEUNHWA / count balance
+pub fn generate_max_test_gas_objects_with_owner(count: u64, owner: HaneulAddress) -> Vec<Object> {
+    let coin_size = TOTAL_SUPPLY_GEUNHWA / count;
     (0..count)
         .map(|_i| {
             let gas_object_id = ObjectID::random();
-            Object::with_id_owner_gas_for_testing(gas_object_id, owner, u64::MAX)
+            Object::with_id_owner_gas_for_testing(gas_object_id, owner, coin_size)
         })
         .collect()
 }
