@@ -288,7 +288,7 @@ export const AuthorityName = string();
 
 export const TransactionBytes = object({
   txBytes: string(),
-  gas: HaneulObjectRef,
+  gas: array(HaneulObjectRef),
   // TODO: Type input_objects field
   inputObjects: unknown(),
 });
@@ -375,7 +375,7 @@ export function getGasData(tx: HaneulTransactionResponse): HaneulGasData {
 
 export function getTransactionGasObject(
   tx: HaneulTransactionResponse,
-): HaneulObjectRef {
+): HaneulObjectRef[] {
   return getGasData(tx).payment;
 }
 

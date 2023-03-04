@@ -359,7 +359,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
       kind: tx,
       sender: signerAddress,
       gasData: {
-        payment: gasPayment!,
+        payment: [gasPayment!],
         price: originalTx.data.gasPrice!,
         budget: originalTx.data.gasBudget!,
         owner: signerAddress,
@@ -443,7 +443,8 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
           inputCoins: tx.Pay.coins.map((c) => c.objectId),
           recipients: tx.Pay.recipients,
           amounts: tx.Pay.amounts,
-          gasPayment: gasData.payment?.objectId,
+          // TODO: support multiple gas coins
+          gasPayment: gasData.payment?.[0].objectId,
           gasBudget: gasData.budget,
           gasOwner: gasData.owner,
           gasPrice: gasData.price,
@@ -460,7 +461,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
           arguments: await new CallArgSerializer(
             this.provider,
           ).deserializeCallArgs(tx),
-          gasPayment: gasData.payment?.objectId,
+          gasPayment: gasData.payment?.[0].objectId,
           gasBudget: gasData.budget,
           gasOwner: gasData.owner,
           gasPrice: gasData.price,
@@ -472,7 +473,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
         data: {
           objectId: tx.TransferObject.object_ref.objectId,
           recipient: tx.TransferObject.recipient,
-          gasPayment: gasData.payment?.objectId,
+          gasPayment: gasData.payment?.[0].objectId,
           gasBudget: gasData.budget,
           gasOwner: gasData.owner,
           gasPrice: gasData.price,
@@ -482,7 +483,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
       return {
         kind: 'transferHaneul',
         data: {
-          haneulObjectId: gasData.payment!.objectId,
+          haneulObjectId: gasData.payment![0].objectId,
           recipient: tx.TransferHaneul.recipient,
           amount:
             'Some' in tx.TransferHaneul.amount ? tx.TransferHaneul.amount.Some : null,
@@ -495,7 +496,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
         kind: 'publish',
         data: {
           compiledModules: tx.Publish.modules,
-          gasPayment: gasData.payment?.objectId,
+          gasPayment: gasData.payment?.[0].objectId,
           gasBudget: gasData.budget,
           gasOwner: gasData.owner,
         },

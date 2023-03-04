@@ -1391,7 +1391,7 @@ impl From<PayAllHaneul> for HaneulPayAllHaneul {
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "GasData", rename_all = "camelCase")]
 pub struct HaneulGasData {
-    pub payment: HaneulObjectRef,
+    pub payment: Vec<HaneulObjectRef>,
     pub owner: HaneulAddress,
     pub price: u64,
     pub budget: u64,
@@ -1430,7 +1430,11 @@ impl Display for HaneulTransactionData {
             }
         }
         writeln!(writer, "Sender: {}", self.sender)?;
-        writeln!(writer, "Gas Payment: {}", self.gas_data.payment)?;
+        write!(writer, "Gas Payment: ")?;
+        for payment in &self.gas_data.payment {
+            write!(writer, "{} ", payment)?;
+        }
+        writeln!(writer)?;
         writeln!(writer, "Gas Owner: {}", self.gas_data.owner)?;
         writeln!(writer, "Gas Price: {}", self.gas_data.price)?;
         writeln!(writer, "Gas Budget: {}", self.gas_data.budget)?;
@@ -1455,7 +1459,11 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
             transactions,
             sender: data.sender(),
             gas_data: HaneulGasData {
-                payment: data.gas().into(),
+                payment: data
+                    .gas()
+                    .iter()
+                    .map(|obj_ref| HaneulObjectRef::from(*obj_ref))
+                    .collect(),
                 owner: data.gas_owner(),
                 price: data.gas_price(),
                 budget: data.gas_budget(),
@@ -2868,8 +2876,8 @@ impl TryInto<EventFilter> for HaneulEventFilter {
 pub struct TransactionBytes {
     /// BCS serialized transaction data bytes without its type tag, as base-64 encoded string.
     pub tx_bytes: Base64,
-    /// the gas object to be used
-    pub gas: HaneulObjectRef,
+    /// the gas objects to be used
+    pub gas: Vec<HaneulObjectRef>,
     /// objects to be used in this transaction
     pub input_objects: Vec<HaneulInputObjectKind>,
 }
@@ -2878,7 +2886,11 @@ impl TransactionBytes {
     pub fn from_data(data: TransactionData) -> Result<Self, anyhow::Error> {
         Ok(Self {
             tx_bytes: Base64::from_bytes(bcs::to_bytes(&data)?.as_slice()),
-            gas: data.gas().into(),
+            gas: data
+                .gas()
+                .iter()
+                .map(|obj_ref| HaneulObjectRef::from(*obj_ref))
+                .collect(),
             input_objects: data
                 .input_objects()?
                 .into_iter()

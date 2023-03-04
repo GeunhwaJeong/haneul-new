@@ -31,7 +31,7 @@ export const HaneulObjectRef = object({
 export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
 
 export const HaneulGasData = object({
-  payment: HaneulObjectRef,
+  payment: array(HaneulObjectRef),
   /** Gas Object's owner */
   owner: string(),
   price: number(),
