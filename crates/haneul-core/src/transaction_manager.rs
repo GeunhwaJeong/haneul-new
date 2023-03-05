@@ -14,7 +14,7 @@ use haneul_types::{
 };
 use haneul_types::{base_types::TransactionDigest, error::HaneulResult};
 use tokio::sync::mpsc::UnboundedSender;
-use tracing::{debug, warn};
+use tracing::{debug, error, warn};
 
 use crate::authority::{
     authority_per_epoch_store::AuthorityPerEpochStore, authority_store::InputKey,
@@ -138,6 +138,9 @@ impl TransactionManager {
                 &input_object_kinds,
                 epoch_store,
             );
+            if input_object_kinds.len() != input_object_keys.len() {
+                error!("Duplicated input objects: {:?}", input_object_kinds);
+            }
             pending.push(PendingCertificate {
                 certificate: cert,
                 missing: input_object_keys
