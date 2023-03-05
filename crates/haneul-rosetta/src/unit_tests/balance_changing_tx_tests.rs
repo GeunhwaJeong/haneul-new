@@ -648,7 +648,7 @@ async fn get_balance(client: &HaneulClient, address: HaneulAddress) -> u64 {
         if coin.type_ == GasCoin::type_().to_string() {
             let object = client
                 .read_api()
-                .get_object_with_options(coin.object_id, Some(HaneulObjectDataOptions::bcs_only()))
+                .get_object_with_options(coin.object_id, HaneulObjectDataOptions::new().with_bcs())
                 .await
                 .unwrap();
             let coin: GasCoin = object

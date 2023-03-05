@@ -341,10 +341,7 @@ async fn test_get_object_info() -> Result<(), anyhow::Error> {
         let result = http_client
             .get_object_with_options(
                 oref.object_id,
-                Some(HaneulObjectDataOptions {
-                    show_owner: Some(true),
-                    ..Default::default()
-                }),
+                Some(HaneulObjectDataOptions::new().with_owner()),
             )
             .await?;
         assert!(

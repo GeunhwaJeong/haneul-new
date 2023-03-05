@@ -522,7 +522,7 @@ impl ValidatorProxy for FullNodeProxy {
         match self
             .haneul_client
             .read_api()
-            .get_object_with_options(object_id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(object_id, HaneulObjectDataOptions::bcs_lossless())
             .await?
         {
             HaneulObjectResponse::Exists(haneul_object) => haneul_object.try_into(),

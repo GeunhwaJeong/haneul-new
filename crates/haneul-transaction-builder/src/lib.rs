@@ -52,7 +52,7 @@ pub trait DataReader {
     async fn get_object_with_options(
         &self,
         object_id: ObjectID,
-        options: Option<HaneulObjectDataOptions>,
+        options: HaneulObjectDataOptions,
     ) -> Result<HaneulObjectResponse, anyhow::Error>;
 
     async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error>;
@@ -89,7 +89,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             for obj in gas_objs {
                 let response = self
                     .0
-                    .get_object_with_options(obj.object_id, Some(HaneulObjectDataOptions::bcs_only()))
+                    .get_object_with_options(obj.object_id, HaneulObjectDataOptions::new().with_bcs())
                     .await?;
                 let obj = response.object()?;
                 let gas: GasCoin = bcs::from_bytes(
@@ -335,7 +335,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> Result<ObjectArg, anyhow::Error> {
         let response = self
             .0
-            .get_object_with_options(id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(id, HaneulObjectDataOptions::bcs_lossless())
             .await?;
 
         let obj: Object = response.into_object()?.try_into()?;
@@ -367,7 +367,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> Result<Vec<CallArg>, anyhow::Error> {
         let object = self
             .0
-            .get_object_with_options(package_id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(package_id, HaneulObjectDataOptions::bcs_lossless())
             .await?
             .into_object()?;
         let package = object
@@ -454,7 +454,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> anyhow::Result<TransactionData> {
         let coin = self
             .0
-            .get_object_with_options(coin_object_id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(coin_object_id, HaneulObjectDataOptions::bcs_lossless())
             .await?
             .into_object()?;
         let coin_object_ref = coin.object_ref();
@@ -492,7 +492,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> anyhow::Result<TransactionData> {
         let coin = self
             .0
-            .get_object_with_options(coin_object_id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(coin_object_id, HaneulObjectDataOptions::bcs_lossless())
             .await?
             .into_object()?;
         let coin_object_ref = coin.object_ref();
@@ -530,7 +530,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> anyhow::Result<TransactionData> {
         let coin = self
             .0
-            .get_object_with_options(primary_coin, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .get_object_with_options(primary_coin, HaneulObjectDataOptions::bcs_lossless())
             .await?
             .into_object()?;
         let primary_coin_ref = coin.object_ref();
@@ -740,13 +740,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     ) -> anyhow::Result<(ObjectRef, ObjectType)> {
         let object = self
             .0
-            .get_object_with_options(
-                object_id,
-                Some(HaneulObjectDataOptions {
-                    show_type: Some(true),
-                    ..Default::default()
-                }),
-            )
+            .get_object_with_options(object_id, HaneulObjectDataOptions::new().with_type())
             .await?
             .into_object()?;
 

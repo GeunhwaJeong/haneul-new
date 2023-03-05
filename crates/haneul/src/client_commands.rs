@@ -534,13 +534,13 @@ impl HaneulClientCommands {
                 if !bcs {
                     let object_read = client
                         .read_api()
-                        .get_object_with_options(id, Some(HaneulObjectDataOptions::full_content()))
+                        .get_object_with_options(id, HaneulObjectDataOptions::full_content())
                         .await?;
                     HaneulClientCommandResult::Object(object_read)
                 } else {
                     let raw_object_read = client
                         .read_api()
-                        .get_object_with_options(id, Some(HaneulObjectDataOptions::bcs_lossless()))
+                        .get_object_with_options(id, HaneulObjectDataOptions::bcs_lossless())
                         .await?;
                     HaneulClientCommandResult::RawObject(raw_object_read)
                 }
@@ -934,7 +934,7 @@ impl HaneulClientCommands {
                 let client = context.get_client().await?;
                 let object_read = client
                     .read_api()
-                    .get_object_with_options(nft_id, Some(HaneulObjectDataOptions::full_content()))
+                    .get_object_with_options(nft_id, HaneulObjectDataOptions::full_content())
                     .await?;
                 HaneulClientCommandResult::CreateExampleNFT(object_read)
             }
@@ -1130,7 +1130,7 @@ impl WalletContext {
         let client = self.get_client().await?;
         Ok(client
             .read_api()
-            .get_object_with_options(object_id, None)
+            .get_object_with_options(object_id, HaneulObjectDataOptions::new())
             .await?
             .into_object()?
             .object_ref())
@@ -1153,7 +1153,7 @@ impl WalletContext {
         for oref in object_refs {
             let response = client
                 .read_api()
-                .get_object_with_options(oref.object_id, Some(HaneulObjectDataOptions::full_content()))
+                .get_object_with_options(oref.object_id, HaneulObjectDataOptions::full_content())
                 .await?;
             match response {
                 HaneulObjectResponse::Exists(o) => {
@@ -1174,13 +1174,7 @@ impl WalletContext {
         let client = self.get_client().await?;
         let object = client
             .read_api()
-            .get_object_with_options(
-                *id,
-                Some(HaneulObjectDataOptions {
-                    show_owner: Some(true),
-                    ..Default::default()
-                }),
-            )
+            .get_object_with_options(*id, HaneulObjectDataOptions::new().with_owner())
             .await?
             .into_object()?;
         Ok(object

@@ -855,7 +855,7 @@ async fn get_object(id: ObjectID, context: &WalletContext) -> Option<HaneulObjec
     let client = context.get_client().await.unwrap();
     let response = client
         .read_api()
-        .get_object_with_options(id, Some(HaneulObjectDataOptions::full_content()))
+        .get_object_with_options(id, HaneulObjectDataOptions::full_content())
         .await
         .unwrap();
     if let HaneulObjectResponse::Exists(o) = response {

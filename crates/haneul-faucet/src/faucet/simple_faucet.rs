@@ -192,12 +192,10 @@ impl SimpleFaucet {
             .read_api()
             .get_object_with_options(
                 coin_id,
-                Some(HaneulObjectDataOptions {
-                    show_content: Some(true),
-                    show_owner: Some(true),
-                    show_type: Some(true),
-                    ..Default::default()
-                }),
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_content(),
             )
             .await?;
         Ok(match gas_obj {

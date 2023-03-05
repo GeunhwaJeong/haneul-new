@@ -8,7 +8,6 @@ import {
   boolean,
   Infer,
   literal,
-  map,
   number,
   object,
   optional,
@@ -94,7 +93,7 @@ export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
 export const HaneulRawMovePackage = object({
   id: ObjectId,
   /** A mapping from module name to Move bytecode enocded in base64*/
-  moduleMap: map(string(), string()),
+  moduleMap: record(string(), string()),
 });
 export type HaneulRawMovePackage = Infer<typeof HaneulRawMovePackage>;
 
@@ -142,6 +141,12 @@ export const HaneulObjectData = object({
    * Default to be undefined unless HaneulObjectDataOptions.showStorageRebate is set to true
    */
   storageRebate: optional(number()),
+  /**
+   * Display metadata for this object, default to be undefined unless HaneulObjectDataOptions.showDisplay is set to true
+   * This can also be None if the struct type does not have Display defined
+   * See more details in https://forums.haneul.io/t/nft-object-display-proposal/4872
+   */
+  display: optional(record(string(), string())),
 });
 export type HaneulObjectData = Infer<typeof HaneulObjectData>;
 
@@ -161,6 +166,8 @@ export const HaneulObjectDataOptions = object({
   showPreviousTransaction: optional(boolean()),
   /* Whether to fetch the storage rebate, default to be false */
   showStorageRebate: optional(boolean()),
+  /* Whether to fetch the display metadata, default to be false */
+  showDisplay: optional(boolean()),
 });
 export type HaneulObjectDataOptions = Infer<typeof HaneulObjectDataOptions>;
 
@@ -271,6 +278,12 @@ export function getObjectOwner(
   resp: HaneulObjectResponse,
 ): ObjectOwner | undefined {
   return getHaneulObjectData(resp)?.owner;
+}
+
+export function getObjectDisplay(
+  resp: HaneulObjectResponse,
+): Record<string, string> | undefined {
+  return getHaneulObjectData(resp)?.display;
 }
 
 export function getSharedObjectInitialVersion(
