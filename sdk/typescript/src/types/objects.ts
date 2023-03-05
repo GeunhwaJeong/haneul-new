@@ -8,6 +8,7 @@ import {
   boolean,
   Infer,
   literal,
+  map,
   number,
   object,
   optional,
@@ -15,9 +16,14 @@ import {
   string,
   union,
 } from 'superstruct';
-import { ObjectId, ObjectOwner, TransactionDigest } from './common';
+import {
+  ObjectId,
+  ObjectOwner,
+  SequenceNumber,
+  TransactionDigest,
+} from './common';
 
-export const ObjectType = union([literal('moveObject'), literal('package')]);
+export const ObjectType = union([string(), literal('package')]);
 export type ObjectType = Infer<typeof ObjectType>;
 
 export const HaneulObjectRef = object({
@@ -60,7 +66,7 @@ export const HaneulMoveObject = object({
   type: string(),
   /** Fields and values stored inside the Move object */
   fields: ObjectContentFields,
-  has_public_transfer: optional(boolean()),
+  hasPublicTransfer: boolean(),
 });
 export type HaneulMoveObject = Infer<typeof HaneulMoveObject>;
 
@@ -70,30 +76,93 @@ export const HaneulMovePackage = object({
 });
 export type HaneulMovePackage = Infer<typeof HaneulMovePackage>;
 
-export const HaneulData = union([
+export const HaneulParsedData = union([
   assign(HaneulMoveObject, object({ dataType: literal('moveObject') })),
   assign(HaneulMovePackage, object({ dataType: literal('package') })),
 ]);
-export type HaneulData = Infer<typeof HaneulData>;
+export type HaneulParsedData = Infer<typeof HaneulParsedData>;
+
+export const HaneulRawMoveObject = object({
+  /** Move type (e.g., "0x2::coin::Coin<0x2::haneul::HANEUL>") */
+  type: string(),
+  hasPublicTransfer: boolean(),
+  version: SequenceNumber,
+  bcsBytes: array(number()),
+});
+export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
+
+export const HaneulRawMovePackage = object({
+  id: ObjectId,
+  /** A mapping from module name to Move bytecode enocded in base64*/
+  moduleMap: map(string(), string()),
+});
+export type HaneulRawMovePackage = Infer<typeof HaneulRawMovePackage>;
+
+// TODO(chris): consolidate HaneulRawParsedData and HaneulRawObject using generics
+export const HaneulRawData = union([
+  assign(HaneulMoveObject, object({ dataType: literal('moveObject') })),
+  assign(HaneulRawMovePackage, object({ dataType: literal('package') })),
+]);
+export type HaneulRawData = Infer<typeof HaneulRawData>;
 
 export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
-export const HaneulObject = object({
-  /** The meat of the object */
-  data: HaneulData,
-  /** The owner of the object */
-  owner: ObjectOwner,
-  /** The digest of the transaction that created or last mutated this object */
-  previousTransaction: TransactionDigest,
+export const ObjectDigest = string();
+export type ObjectDigest = Infer<typeof ObjectDigest>;
+
+export const HaneulObjectData = object({
+  objectId: ObjectId,
+  version: SequenceNumber,
+  digest: ObjectDigest,
+  /**
+   * Type of the object, default to be undefined unless HaneulObjectDataOptions.showType is set to true
+   */
+  type: optional(string()),
+  /**
+   * Move object content or package content, default to be undefined unless HaneulObjectDataOptions.showContent is set to true
+   */
+  content: optional(HaneulParsedData),
+  /**
+   * Move object content or package content in BCS bytes, default to be undefined unless HaneulObjectDataOptions.showBcs is set to true
+   */
+  bcs: optional(HaneulRawData),
+  /**
+   * The owner of this object. Default to be undefined unless HaneulObjectDataOptions.showOwner is set to true
+   */
+  owner: optional(ObjectOwner),
+  /**
+   * The digest of the transaction that created or last mutated this object.
+   * Default to be undefined unless HaneulObjectDataOptions.showPreviousTransaction is set to true
+   */
+  previousTransaction: optional(TransactionDigest),
   /**
    * The amount of HANEUL we would rebate if this object gets deleted.
    * This number is re-calculated each time the object is mutated based on
    * the present storage gas price.
+   * Default to be undefined unless HaneulObjectDataOptions.showStorageRebate is set to true
    */
-  storageRebate: number(),
-  reference: HaneulObjectRef,
+  storageRebate: optional(number()),
 });
-export type HaneulObject = Infer<typeof HaneulObject>;
+export type HaneulObjectData = Infer<typeof HaneulObjectData>;
+
+/**
+ * Config for fetching object data
+ */
+export const HaneulObjectDataOptions = object({
+  /* Whether to fetch the object type, default to be true */
+  showType: optional(boolean()),
+  /* Whether to fetch the object content, default to be false */
+  showContent: optional(boolean()),
+  /* Whether to fetch the object content in BCS bytes, default to be false */
+  showBcs: optional(boolean()),
+  /* Whether to fetch the object owner, default to be false */
+  showOwner: optional(boolean()),
+  /* Whether to fetch the previous transaction digest, default to be false */
+  showPreviousTransaction: optional(boolean()),
+  /* Whether to fetch the storage rebate, default to be false */
+  showStorageRebate: optional(boolean()),
+});
+export type HaneulObjectDataOptions = Infer<typeof HaneulObjectDataOptions>;
 
 export const ObjectStatus = union([
   literal('Exists'),
@@ -105,52 +174,55 @@ export type ObjectStatus = Infer<typeof ObjectStatus>;
 export const GetOwnedObjectsResponse = array(HaneulObjectInfo);
 export type GetOwnedObjectsResponse = Infer<typeof GetOwnedObjectsResponse>;
 
-export const GetObjectDataResponse = object({
+export const HaneulObjectResponse = object({
   status: ObjectStatus,
-  details: union([HaneulObject, ObjectId, HaneulObjectRef]),
+  details: union([HaneulObjectData, ObjectId, HaneulObjectRef]),
 });
-export type GetObjectDataResponse = Infer<typeof GetObjectDataResponse>;
+export type HaneulObjectResponse = Infer<typeof HaneulObjectResponse>;
 
-export type ObjectDigest = string;
 export type Order = 'ascending' | 'descending';
 
 /* -------------------------------------------------------------------------- */
 /*                              Helper functions                              */
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------- GetObjectDataResponse ------------------------- */
+/* -------------------------- HaneulObjectResponse ------------------------- */
 
-export function getObjectExistsResponse(
-  resp: GetObjectDataResponse,
-): HaneulObject | undefined {
-  return resp.status !== 'Exists' ? undefined : (resp.details as HaneulObject);
+export function getHaneulObjectData(
+  resp: HaneulObjectResponse,
+): HaneulObjectData | undefined {
+  return resp.status !== 'Exists' ? undefined : (resp.details as HaneulObjectData);
 }
 
 export function getObjectDeletedResponse(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): HaneulObjectRef | undefined {
   return resp.status !== 'Deleted' ? undefined : (resp.details as HaneulObjectRef);
 }
 
 export function getObjectNotExistsResponse(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): ObjectId | undefined {
   return resp.status !== 'NotExists' ? undefined : (resp.details as ObjectId);
 }
 
 export function getObjectReference(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): HaneulObjectRef | undefined {
-  return (
-    getObjectExistsResponse(resp)?.reference || getObjectDeletedResponse(resp)
-  );
+  const exists = getHaneulObjectData(resp);
+  if (exists) {
+    return {
+      objectId: exists.objectId,
+      version: exists.version,
+      digest: exists.digest,
+    };
+  }
+  return getObjectDeletedResponse(resp);
 }
 
 /* ------------------------------ HaneulObjectRef ------------------------------ */
 
-export function getObjectId(
-  data: GetObjectDataResponse | HaneulObjectRef,
-): ObjectId {
+export function getObjectId(data: HaneulObjectResponse | HaneulObjectRef): ObjectId {
   if ('objectId' in data) {
     return data.objectId;
   }
@@ -160,7 +232,7 @@ export function getObjectId(
 }
 
 export function getObjectVersion(
-  data: GetObjectDataResponse | HaneulObjectRef,
+  data: HaneulObjectResponse | HaneulObjectRef | HaneulObjectData,
 ): number | undefined {
   if ('version' in data) {
     return data.version;
@@ -170,26 +242,39 @@ export function getObjectVersion(
 
 /* -------------------------------- HaneulObject ------------------------------- */
 
+/**
+ * Deriving the object type from the object response
+ * @returns 'package' if the object is a package, move object type(e.g., 0x2::coin::Coin<0x2::haneul::HANEUL>)
+ * if the object is a move object
+ */
 export function getObjectType(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse | HaneulObjectData,
 ): ObjectType | undefined {
-  return getObjectExistsResponse(resp)?.data.dataType;
+  const data = 'status' in resp ? getHaneulObjectData(resp) : resp;
+
+  if (!data?.type && 'status' in resp) {
+    if (data?.content?.dataType === 'package') {
+      return 'package';
+    }
+    return getMoveObjectType(resp);
+  }
+  return data?.type;
 }
 
 export function getObjectPreviousTransactionDigest(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): TransactionDigest | undefined {
-  return getObjectExistsResponse(resp)?.previousTransaction;
+  return getHaneulObjectData(resp)?.previousTransaction;
 }
 
 export function getObjectOwner(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): ObjectOwner | undefined {
-  return getObjectExistsResponse(resp)?.owner;
+  return getHaneulObjectData(resp)?.owner;
 }
 
 export function getSharedObjectInitialVersion(
-  resp: GetObjectDataResponse,
+  resp: HaneulObjectResponse,
 ): number | undefined {
   const owner = getObjectOwner(resp);
   if (typeof owner === 'object' && 'Shared' in owner) {
@@ -199,24 +284,22 @@ export function getSharedObjectInitialVersion(
   }
 }
 
-export function isSharedObject(resp: GetObjectDataResponse): boolean {
+export function isSharedObject(resp: HaneulObjectResponse): boolean {
   const owner = getObjectOwner(resp);
   return typeof owner === 'object' && 'Shared' in owner;
 }
 
-export function isImmutableObject(resp: GetObjectDataResponse): boolean {
+export function isImmutableObject(resp: HaneulObjectResponse): boolean {
   const owner = getObjectOwner(resp);
   return owner === 'Immutable';
 }
 
-export function getMoveObjectType(
-  resp: GetObjectDataResponse,
-): string | undefined {
+export function getMoveObjectType(resp: HaneulObjectResponse): string | undefined {
   return getMoveObject(resp)?.type;
 }
 
 export function getObjectFields(
-  resp: GetObjectDataResponse | HaneulMoveObject,
+  resp: HaneulObjectResponse | HaneulMoveObject | HaneulObjectData,
 ): ObjectContentFields | undefined {
   if ('fields' in resp) {
     return resp.fields;
@@ -225,30 +308,30 @@ export function getObjectFields(
 }
 
 export function getMoveObject(
-  data: GetObjectDataResponse | HaneulObject,
+  data: HaneulObjectResponse | HaneulObjectData,
 ): HaneulMoveObject | undefined {
-  const haneulObject = 'data' in data ? data : getObjectExistsResponse(data);
-  if (haneulObject?.data.dataType !== 'moveObject') {
+  const haneulObject = 'status' in data ? getHaneulObjectData(data) : data;
+  if (haneulObject?.content?.dataType !== 'moveObject') {
     return undefined;
   }
-  return haneulObject.data as HaneulMoveObject;
+  return haneulObject.content as HaneulMoveObject;
 }
 
 export function hasPublicTransfer(
-  data: GetObjectDataResponse | HaneulObject,
+  data: HaneulObjectResponse | HaneulObjectData,
 ): boolean {
-  return getMoveObject(data)?.has_public_transfer ?? false;
+  return getMoveObject(data)?.hasPublicTransfer ?? false;
 }
 
 export function getMovePackageContent(
-  data: GetObjectDataResponse | HaneulMovePackage,
+  data: HaneulObjectResponse | HaneulMovePackage,
 ): MovePackageContent | undefined {
   if ('disassembled' in data) {
     return data.disassembled;
   }
-  const haneulObject = getObjectExistsResponse(data);
-  if (haneulObject?.data.dataType !== 'package') {
+  const haneulObject = getHaneulObjectData(data);
+  if (haneulObject?.content?.dataType !== 'package') {
     return undefined;
   }
-  return (haneulObject.data as HaneulMovePackage).disassembled;
+  return (haneulObject.content as HaneulMovePackage).disassembled;
 }

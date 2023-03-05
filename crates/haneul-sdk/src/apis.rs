@@ -14,8 +14,8 @@ use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
-    EventPage, GetObjectDataResponse, GetPastObjectDataResponse, GetRawObjectDataResponse,
-    HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule, HaneulObjectInfo,
+    EventPage, HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule,
+    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
     HaneulSystemStateRpc, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
@@ -66,18 +66,11 @@ impl ReadApi {
             .await?)
     }
 
-    pub async fn get_parsed_object(
-        &self,
-        object_id: ObjectID,
-    ) -> HaneulRpcResult<GetObjectDataResponse> {
-        Ok(self.api.http.get_object(object_id).await?)
-    }
-
     pub async fn try_get_parsed_past_object(
         &self,
         object_id: ObjectID,
         version: SequenceNumber,
-    ) -> HaneulRpcResult<GetPastObjectDataResponse> {
+    ) -> HaneulRpcResult<HaneulPastObjectResponse> {
         Ok(self
             .api
             .http
@@ -85,8 +78,16 @@ impl ReadApi {
             .await?)
     }
 
-    pub async fn get_object(&self, object_id: ObjectID) -> HaneulRpcResult<GetRawObjectDataResponse> {
-        Ok(self.api.http.get_raw_object(object_id).await?)
+    pub async fn get_object_with_options(
+        &self,
+        object_id: ObjectID,
+        options: Option<HaneulObjectDataOptions>,
+    ) -> HaneulRpcResult<HaneulObjectResponse> {
+        Ok(self
+            .api
+            .http
+            .get_object_with_options(object_id, options)
+            .await?)
     }
 
     pub async fn get_total_transaction_number(&self) -> HaneulRpcResult<u64> {

@@ -8,7 +8,7 @@ use jsonrpsee::core::RpcResult;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
-    GetRawObjectDataResponse, HaneulObjectInfo, HaneulTransactionBuilderMode, HaneulTypeTag,
+    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulTransactionBuilderMode, HaneulTypeTag,
     TransactionBytes,
 };
 use haneul_open_rpc::Module;
@@ -63,12 +63,13 @@ impl DataReader for AuthorityStateDataReader {
         Ok(refs)
     }
 
-    async fn get_object(
+    async fn get_object_with_options(
         &self,
         object_id: ObjectID,
-    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
+        options: Option<HaneulObjectDataOptions>,
+    ) -> Result<HaneulObjectResponse, anyhow::Error> {
         let result = self.0.get_object_read(&object_id).await?;
-        Ok(result.try_into()?)
+        Ok((result, options).try_into()?)
     }
 
     async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error> {

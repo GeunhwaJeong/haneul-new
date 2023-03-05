@@ -12,7 +12,7 @@ import {
 
 import { parseObjectType } from '../../utils/objectUtils';
 
-import type { GetObjectDataResponse, ObjectOwner } from '@haneullabs/haneul.js';
+import type { HaneulObjectResponse, ObjectOwner } from '@haneullabs/haneul.js';
 
 export type DataType = {
     id: string;
@@ -44,7 +44,7 @@ export function instanceOfDataType(object: any): object is DataType {
  * TODO: We should redesign the rendering logic and data model
  * to make this more extensible and customizable for different Move types
  */
-export function translate(o: GetObjectDataResponse): DataType {
+export function translate(o: HaneulObjectResponse): DataType {
     switch (o.status) {
         case 'Exists': {
             return {

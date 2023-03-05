@@ -274,12 +274,6 @@ export const TransactionBytes = object({
   inputObjects: unknown(),
 });
 
-export const HaneulPackage = object({
-  digest: string(),
-  objectId: string(),
-  version: number(),
-});
-
 export const HaneulTransaction = object({
   data: HaneulTransactionData,
   txSignatures: array(string()),
@@ -290,8 +284,8 @@ export const HaneulTransactionResponse = object({
   transaction: HaneulTransaction,
   effects: TransactionEffects,
   events: TransactionEvents,
-  timestampMs: optional(union([number(), literal(null)])),
-  checkpoint: union([number(), literal(null)]),
+  timestampMs: optional(number()),
+  checkpoint: optional(number()),
   confirmedLocalExecution: optional(boolean()),
 });
 export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
@@ -299,6 +293,10 @@ export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
 /* -------------------------------------------------------------------------- */
 /*                              Helper functions                              */
 /* -------------------------------------------------------------------------- */
+
+export function getTransaction(tx: HaneulTransactionResponse): HaneulTransaction {
+  return tx.transaction;
+}
 
 export function getTransactionDigest(
   tx: HaneulTransactionResponse,
@@ -467,10 +465,7 @@ export function getTransactionEffects(
 export function getEvents(
   data: HaneulTransactionResponse,
 ): HaneulEvent[] | undefined {
-  if ('events' in data) {
-    return data.events;
-  }
-  return undefined;
+  return data.events;
 }
 
 export function getCreatedObjects(
@@ -493,5 +488,5 @@ export function getTimestampFromTransactionResponse(
 export function getNewlyCreatedCoinRefsAfterSplit(
   data: HaneulTransactionResponse,
 ): HaneulObjectRef[] | undefined {
-  return data.effects.created?.map((c) => c.reference);
+  return getTransactionEffects(data)?.created?.map((c) => c.reference);
 }

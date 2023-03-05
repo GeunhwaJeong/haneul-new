@@ -22,7 +22,7 @@ use haneul_json_rpc::{
     CLIENT_SDK_TYPE_HEADER, CLIENT_SDK_VERSION_HEADER, CLIENT_TARGET_API_VERSION_HEADER,
 };
 pub use haneul_json_rpc_types as rpc_types;
-use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulObjectInfo};
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse};
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -269,11 +269,12 @@ impl DataReader for ReadApi {
         Ok(self.get_objects_owned_by_address(address).await?)
     }
 
-    async fn get_object(
+    async fn get_object_with_options(
         &self,
         object_id: ObjectID,
-    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
-        Ok(self.get_object(object_id).await?)
+        options: Option<HaneulObjectDataOptions>,
+    ) -> Result<HaneulObjectResponse, anyhow::Error> {
+        Ok(self.get_object_with_options(object_id, options).await?)
     }
 
     async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error> {

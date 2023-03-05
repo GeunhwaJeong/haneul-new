@@ -160,7 +160,7 @@ export const accountCoinsSelector = createSelector(
     (allHaneulObjects) => {
         return allHaneulObjects
             .filter(Coin.isCoin)
-            .map((aCoin) => aCoin.data as HaneulMoveObject);
+            .map((aCoin) => aCoin.content as HaneulMoveObject);
     }
 );
 
@@ -208,8 +208,7 @@ export const accountNftsSelector = createSelector(
 export function createAccountNftByIdSelector(nftId: ObjectId) {
     return createSelector(
         accountNftsSelector,
-        (allNfts) =>
-            allNfts.find((nft) => getObjectId(nft.reference) === nftId) || null
+        (allNfts) => allNfts.find((nft) => getObjectId(nft) === nftId) || null
     );
 }
 

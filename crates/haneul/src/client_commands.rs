@@ -32,12 +32,11 @@ use haneul_types::error::HaneulError;
 
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, GetObjectDataResponse, HaneulObjectInfo, HaneulParsedObject, HaneulRawData,
+    DynamicFieldPage, HaneulObjectData, HaneulObjectInfo, HaneulObjectResponse, HaneulRawData,
     HaneulTransactionResponse,
 };
-use haneul_json_rpc_types::{GetRawObjectDataResponse, HaneulData};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
@@ -45,7 +44,7 @@ use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::intent::Intent;
 use haneul_types::signature::GenericSignature;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{ObjectID, ObjectRef, HaneulAddress},
     gas_coin::GasCoin,
     messages::{Transaction, VerifiedTransaction},
     object::Owner,
@@ -533,10 +532,16 @@ impl HaneulClientCommands {
                 // Fetch the object ref
                 let client = context.get_client().await?;
                 if !bcs {
-                    let object_read = client.read_api().get_parsed_object(id).await?;
+                    let object_read = client
+                        .read_api()
+                        .get_object_with_options(id, Some(HaneulObjectDataOptions::full_content()))
+                        .await?;
                     HaneulClientCommandResult::Object(object_read)
                 } else {
-                    let raw_object_read = client.read_api().get_object(id).await?;
+                    let raw_object_read = client
+                        .read_api()
+                        .get_object_with_options(id, Some(HaneulObjectDataOptions::bcs_lossless()))
+                        .await?;
                     HaneulClientCommandResult::RawObject(raw_object_read)
                 }
             }
@@ -924,7 +929,10 @@ impl HaneulClientCommands {
                     .reference
                     .object_id;
                 let client = context.get_client().await?;
-                let object_read = client.read_api().get_parsed_object(nft_id).await?;
+                let object_read = client
+                    .read_api()
+                    .get_object_with_options(nft_id, Some(HaneulObjectDataOptions::full_content()))
+                    .await?;
                 HaneulClientCommandResult::CreateExampleNFT(object_read)
             }
 
@@ -1115,19 +1123,21 @@ impl WalletContext {
     }
 
     /// Get the latest object reference given a object id
-    pub async fn get_object_ref(
-        &self,
-        object_id: ObjectID,
-    ) -> Result<GetRawObjectDataResponse, anyhow::Error> {
+    pub async fn get_object_ref(&self, object_id: ObjectID) -> Result<ObjectRef, anyhow::Error> {
         let client = self.get_client().await?;
-        Ok(client.read_api().get_object(object_id).await?)
+        Ok(client
+            .read_api()
+            .get_object_with_options(object_id, None)
+            .await?
+            .into_object()?
+            .object_ref())
     }
 
     /// Get all the gas objects (and conveniently, gas amounts) for the address
     pub async fn gas_objects(
         &self,
         address: HaneulAddress,
-    ) -> Result<Vec<(u64, HaneulParsedObject, HaneulObjectInfo)>, anyhow::Error> {
+    ) -> Result<Vec<(u64, HaneulObjectData, HaneulObjectInfo)>, anyhow::Error> {
         let client = self.get_client().await?;
         let object_refs = client
             .read_api()
@@ -1135,12 +1145,16 @@ impl WalletContext {
             .await?;
 
         // TODO: We should ideally fetch the objects from local cache
+        // TODO: replace with multi-get
         let mut values_objects = Vec::new();
         for oref in object_refs {
-            let response = client.read_api().get_parsed_object(oref.object_id).await?;
+            let response = client
+                .read_api()
+                .get_object_with_options(oref.object_id, Some(HaneulObjectDataOptions::full_content()))
+                .await?;
             match response {
-                GetObjectDataResponse::Exists(o) => {
-                    if matches!( o.data.type_(), Some(v)  if *v == GasCoin::type_().to_string()) {
+                HaneulObjectResponse::Exists(o) => {
+                    if matches!( o.type_.clone(), Some(v)  if *v == GasCoin::type_().to_string()) {
                         // Okay to unwrap() since we already checked type
                         let gas_coin = GasCoin::try_from(&o)?;
                         values_objects.push((gas_coin.value(), o, oref));
@@ -1155,8 +1169,21 @@ impl WalletContext {
 
     pub async fn get_object_owner(&self, id: &ObjectID) -> Result<HaneulAddress, anyhow::Error> {
         let client = self.get_client().await?;
-        let object = client.read_api().get_object(*id).await?.into_object()?;
-        Ok(object.owner.get_owner_address()?)
+        let object = client
+            .read_api()
+            .get_object_with_options(
+                *id,
+                Some(HaneulObjectDataOptions {
+                    show_owner: Some(true),
+                    ..Default::default()
+                }),
+            )
+            .await?
+            .into_object()?;
+        Ok(object
+            .owner
+            .ok_or_else(|| anyhow!("Owner field is None"))?
+            .get_owner_address()?)
     }
 
     pub async fn try_get_object_owner(
@@ -1176,9 +1203,9 @@ impl WalletContext {
         address: HaneulAddress,
         budget: u64,
         forbidden_gas_objects: BTreeSet<ObjectID>,
-    ) -> Result<(u64, HaneulParsedObject), anyhow::Error> {
+    ) -> Result<(u64, HaneulObjectData), anyhow::Error> {
         for o in self.gas_objects(address).await.unwrap() {
-            if o.0 >= budget && !forbidden_gas_objects.contains(&o.1.id()) {
+            if o.0 >= budget && !forbidden_gas_objects.contains(&o.1.object_id) {
                 return Ok((o.0, o.1));
             }
         }
@@ -1215,11 +1242,11 @@ impl Display for HaneulClientCommandResult {
             }
             HaneulClientCommandResult::RawObject(raw_object_read) => {
                 let raw_object = match raw_object_read.object() {
-                    Ok(v) => match &v.data {
-                        HaneulRawData::MoveObject(o) => {
+                    Ok(v) => match &v.bcs {
+                        Some(HaneulRawData::MoveObject(o)) => {
                             format!("{:?}\nNumber of bytes: {}", o.bcs_bytes, o.bcs_bytes.len())
                         }
-                        HaneulRawData::Package(p) => {
+                        Some(HaneulRawData::Package(p)) => {
                             let mut temp = String::new();
                             let mut bcs_bytes = 0usize;
                             for m in &p.module_map {
@@ -1228,6 +1255,7 @@ impl Display for HaneulClientCommandResult {
                             }
                             format!("{}Number of bytes: {}", temp, bcs_bytes)
                         }
+                        None => "Bcs field is None".to_string().red().to_string(),
                     },
                     Err(err) => format!("{err}").red().to_string(),
                 };
@@ -1514,8 +1542,8 @@ impl HaneulClientCommandResult {
 pub enum HaneulClientCommandResult {
     Publish(HaneulTransactionResponse),
     VerifySource,
-    Object(GetObjectDataResponse),
-    RawObject(GetRawObjectDataResponse),
+    Object(HaneulObjectResponse),
+    RawObject(HaneulObjectResponse),
     Call(HaneulTransactionResponse),
     Transfer(
         // Skipping serialisation for elapsed time.
@@ -1538,7 +1566,7 @@ pub enum HaneulClientCommandResult {
     ActiveAddress(Option<HaneulAddress>),
     ActiveEnv(Option<String>),
     Envs(Vec<HaneulEnv>, Option<String>),
-    CreateExampleNFT(GetObjectDataResponse),
+    CreateExampleNFT(HaneulObjectResponse),
     SerializeTransferHaneul(String),
     ExecuteSignedTx(HaneulTransactionResponse),
     NewEnv(HaneulEnv),

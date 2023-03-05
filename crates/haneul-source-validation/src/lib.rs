@@ -16,7 +16,7 @@ use move_symbol_pool::Symbol;
 use haneul_sdk::apis::ReadApi;
 use haneul_sdk::error::Error;
 
-use haneul_sdk::rpc_types::{HaneulRawData, HaneulRawMoveObject, HaneulRawMovePackage};
+use haneul_sdk::rpc_types::{HaneulObjectDataOptions, HaneulRawData, HaneulRawMoveObject, HaneulRawMovePackage};
 use haneul_types::base_types::ObjectID;
 
 #[cfg(test)]
@@ -236,15 +236,21 @@ impl<'a> BytecodeSourceVerifier<'a> {
         // batched object fetching should be added to the ReadApi & used here
         let obj_read = self
             .rpc_client
-            .get_object(obj_id)
+            .get_object_with_options(obj_id, Some(HaneulObjectDataOptions::bcs_only()))
             .await
             .map_err(SourceVerificationError::DependencyObjectReadFailure)?;
 
         let obj = obj_read
-            .object()
-            .map_err(SourceVerificationError::HaneulObjectRefFailure)?;
+            .into_object()
+            .map_err(SourceVerificationError::HaneulObjectRefFailure)?
+            .bcs
+            .ok_or_else(|| {
+                SourceVerificationError::DependencyObjectReadFailure(Error::DataError(
+                    "Bcs field is not found".to_string(),
+                ))
+            })?;
 
-        match obj.data.clone() {
+        match obj {
             HaneulRawData::Package(pkg) => Ok(pkg),
             HaneulRawData::MoveObject(move_obj) => Err(
                 SourceVerificationError::ObjectFoundWhenPackageExpected(obj_id, move_obj),

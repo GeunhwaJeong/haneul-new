@@ -11,7 +11,7 @@ use crate::models::packages::Package;
 use crate::models::transactions::Transaction;
 use async_trait::async_trait;
 use haneul_json_rpc_types::{
-    Checkpoint as RpcCheckpoint, CheckpointId, HaneulParsedObject, HaneulTransactionResponse,
+    Checkpoint as RpcCheckpoint, CheckpointId, HaneulObjectData, HaneulTransactionResponse,
 };
 
 #[async_trait]
@@ -80,7 +80,7 @@ pub trait IndexerStore {
 pub struct CheckpointData {
     pub checkpoint: RpcCheckpoint,
     pub transactions: Vec<HaneulTransactionResponse>,
-    pub objects: Vec<HaneulParsedObject>,
+    pub objects: Vec<HaneulObjectData>,
 }
 
 // Per checkpoint indexing

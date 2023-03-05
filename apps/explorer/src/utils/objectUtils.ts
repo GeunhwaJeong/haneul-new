@@ -1,15 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    getObjectType,
-    getMoveObjectType,
-    type ObjectOwner,
-} from '@haneullabs/haneul.js';
+import { getObjectType, type ObjectOwner } from '@haneullabs/haneul.js';
 
 import { findIPFSvalue } from './stringUtils';
 
-import type { GetObjectDataResponse } from '@haneullabs/haneul.js';
+import type { HaneulObjectResponse } from '@haneullabs/haneul.js';
 
 export function parseImageURL(data: any): string {
     const url =
@@ -31,16 +27,13 @@ export function parseImageURL(data: any): string {
     }
 }
 
-export function parseObjectType(data: GetObjectDataResponse): string {
+export function parseObjectType(data: HaneulObjectResponse): string {
     // TODO: define better naming and typing here
     const dataType = getObjectType(data);
     if (dataType === 'package') {
         return 'Move Package';
     }
-    if (dataType === 'moveObject') {
-        return getMoveObjectType(data)!;
-    }
-    return 'unknown';
+    return dataType ?? 'unknown';
 }
 
 export function getOwnerStr(owner: ObjectOwner | string): string {

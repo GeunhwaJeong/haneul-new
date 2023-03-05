@@ -9,10 +9,13 @@ use tap::tap::TapFallible;
 
 #[cfg(test)]
 use std::collections::HashSet;
+use std::default::Default;
 use std::path::Path;
 
 use haneul::client_commands::WalletContext;
-use haneul_json_rpc_types::{HaneulObjectRead, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse};
+use haneul_json_rpc_types::{
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
 use haneul_types::{
@@ -184,11 +187,22 @@ impl SimpleFaucet {
     /// If the fullnode returns an unexpected error, returns Err(e)
     async fn get_gas_coin(&self, coin_id: ObjectID) -> anyhow::Result<Option<GasCoin>> {
         let client = self.wallet.get_client().await?;
-        let gas_obj = client.read_api().get_parsed_object(coin_id).await?;
+        let gas_obj = client
+            .read_api()
+            .get_object_with_options(
+                coin_id,
+                Some(HaneulObjectDataOptions {
+                    show_content: Some(true),
+                    show_owner: Some(true),
+                    show_type: Some(true),
+                    ..Default::default()
+                }),
+            )
+            .await?;
         Ok(match gas_obj {
-            HaneulObjectRead::NotExists(_) | HaneulObjectRead::Deleted(_) => None,
-            HaneulObjectRead::Exists(obj) => match &obj.owner {
-                Owner::AddressOwner(owner_addr) if owner_addr == &self.active_address => {
+            HaneulObjectResponse::NotExists(_) | HaneulObjectResponse::Deleted(_) => None,
+            HaneulObjectResponse::Exists(obj) => match &obj.owner {
+                Some(Owner::AddressOwner(owner_addr)) if owner_addr == &self.active_address => {
                     GasCoin::try_from(&obj).ok()
                 }
                 _ => None,

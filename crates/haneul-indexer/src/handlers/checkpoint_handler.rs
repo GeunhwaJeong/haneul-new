@@ -6,7 +6,7 @@ use futures::future::join_all;
 use haneullabs_metrics::spawn_monitored_task;
 use prometheus::Registry;
 use std::collections::BTreeMap;
-use haneul_json_rpc_types::{HaneulParsedData, HaneulParsedObject, HaneulTransactionResponse};
+use haneul_json_rpc_types::{HaneulObjectData, HaneulParsedData, HaneulTransactionResponse};
 use haneul_sdk::HaneulClient;
 use tokio::task::JoinHandle;
 use tracing::{info, warn};
@@ -254,13 +254,17 @@ where
 
     fn index_packages(
         transactions: &[HaneulTransactionResponse],
-        objects: &[HaneulParsedObject],
+        objects: &[HaneulObjectData],
     ) -> Result<Vec<Package>, IndexerError> {
         let object_map = objects
             .iter()
             .filter_map(|o| {
-                if let HaneulParsedData::Package(p) = &o.data {
-                    Some((o.reference.object_id, p))
+                if let HaneulParsedData::Package(p) = &o
+                    .content
+                    .as_ref()
+                    .expect("Expect the content field to be non-empty from data fetching")
+                {
+                    Some((o.object_id, p))
                 } else {
                     None
                 }

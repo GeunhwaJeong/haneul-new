@@ -22,7 +22,7 @@ use haneul_core::{
         QuorumDriver, QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics,
     },
 };
-use haneul_json_rpc_types::{HaneulObjectRead, HaneulTransactionEffects};
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffects};
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::messages::TransactionEvents;
@@ -519,8 +519,13 @@ impl FullNodeProxy {
 #[async_trait]
 impl ValidatorProxy for FullNodeProxy {
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error> {
-        match self.haneul_client.read_api().get_object(object_id).await? {
-            HaneulObjectRead::Exists(haneul_object) => haneul_object.try_into(),
+        match self
+            .haneul_client
+            .read_api()
+            .get_object_with_options(object_id, Some(HaneulObjectDataOptions::bcs_lossless()))
+            .await?
+        {
+            HaneulObjectResponse::Exists(haneul_object) => haneul_object.try_into(),
             _ => bail!("Object {:?} not found", object_id),
         }
     }

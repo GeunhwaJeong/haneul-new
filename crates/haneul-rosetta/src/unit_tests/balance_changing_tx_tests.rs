@@ -15,8 +15,8 @@ use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
-    OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulTransactionEffects,
-    HaneulTransactionEvents, HaneulTransactionResponse,
+    OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulObjectDataOptions,
+    HaneulTransactionEffects, HaneulTransactionEvents, HaneulTransactionResponse,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -643,11 +643,16 @@ async fn get_balance(client: &HaneulClient, address: HaneulAddress) -> u64 {
     let mut balance = 0u64;
     for coin in coins {
         if coin.type_ == GasCoin::type_().to_string() {
-            let object = client.read_api().get_object(coin.object_id).await.unwrap();
+            let object = client
+                .read_api()
+                .get_object_with_options(coin.object_id, Some(HaneulObjectDataOptions::bcs_only()))
+                .await
+                .unwrap();
             let coin: GasCoin = object
                 .into_object()
                 .unwrap()
-                .data
+                .bcs
+                .unwrap()
                 .try_as_move()
                 .unwrap()
                 .deserialize()

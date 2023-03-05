@@ -9,7 +9,7 @@ import {
     isValidHaneulObjectId,
     normalizeHaneulObjectId,
     is,
-    HaneulObject,
+    HaneulObjectData,
     type JsonRpcProvider,
     getTransactionDigest,
 } from '@haneullabs/haneul.js';
@@ -47,13 +47,13 @@ const getResultsForObject = async (rpc: JsonRpcProvider, query: string) => {
     if (!isValidHaneulObjectId(normalized)) return null;
 
     const { details, status } = await rpc.getObject(normalized);
-    if (is(details, HaneulObject) && status === 'Exists') {
+    if (is(details, HaneulObjectData) && status === 'Exists') {
         return {
             label: 'object',
             results: [
                 {
-                    id: details.reference.objectId,
-                    label: details.reference.objectId,
+                    id: details.objectId,
+                    label: details.objectId,
                     type: 'object',
                 },
             ],

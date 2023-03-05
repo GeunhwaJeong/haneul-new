@@ -4,7 +4,7 @@
 use crate::models::owners::OwnerType;
 use crate::schema::objects;
 use diesel::prelude::*;
-use haneul_json_rpc_types::{HaneulData, HaneulParsedObject};
+use haneul_json_rpc_types::HaneulObjectData;
 use haneul_types::object::Owner;
 
 #[derive(Queryable, Insertable, Debug, Identifiable, Clone)]
@@ -23,19 +23,20 @@ pub struct Object {
     pub object_status: String,
 }
 
-impl From<HaneulParsedObject> for Object {
-    fn from(o: HaneulParsedObject) -> Self {
-        let (owner_type, owner_address, initial_shared_version) = owner_to_owner_info(&o.owner);
+impl From<HaneulObjectData> for Object {
+    fn from(o: HaneulObjectData) -> Self {
+        let (owner_type, owner_address, initial_shared_version) =
+            owner_to_owner_info(&o.owner.expect("Expect the object type to be non-empty"));
         Object {
             id: None,
-            object_id: o.id().to_string(),
-            version: o.version().value() as i64,
+            object_id: o.object_id.to_string(),
+            version: o.version.value() as i64,
             owner_type,
             owner_address,
             initial_shared_version,
             package_id: "".to_string(),
             transaction_module: "".to_string(),
-            object_type: o.data.type_().map(|t| t.to_string()),
+            object_type: o.type_,
             object_status: "".to_string(),
         }
     }

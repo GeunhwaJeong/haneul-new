@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 
-import type { HaneulData } from '@haneullabs/haneul.js';
+import type { HaneulParsedData } from '@haneullabs/haneul.js';
 
 const fieldsOrder: Record<string, number> = {
     name: 0,
@@ -27,7 +27,7 @@ function sortKeys(a: string, b: string) {
     return a.localeCompare(b);
 }
 
-export default function useHaneulObjectFields(data: HaneulData) {
+export default function useHaneulObjectFields(data: HaneulParsedData) {
     const { fields = null } = data.dataType === 'moveObject' ? data : {};
     return useMemo(() => {
         const keys: string[] = [];

@@ -11,7 +11,7 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{compile_basics_package, wait_for_all_txes, wait_for_tx};
-use haneul_json_rpc_types::{HaneulObjectRead, HaneulTransactionResponse};
+use haneul_json_rpc_types::{HaneulObjectResponse, HaneulTransactionResponse};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
@@ -245,12 +245,16 @@ pub async fn create_devnet_nft(
     .await?;
 
     let (object_id, digest) = if let HaneulClientCommandResult::CreateExampleNFT(
-        HaneulObjectRead::Exists(obj),
+        HaneulObjectResponse::Exists(obj),
     ) = res
     {
-        (obj.reference.object_id, obj.previous_transaction)
+        (
+            obj.object_id,
+            obj.previous_transaction
+                .expect("previous_transaction should not be None"),
+        )
     } else {
-        panic!("CreateExampleNFT command did not return WalletCommandResult::CreateExampleNFT(HaneulObjectRead::Exists, got {:?}", res);
+        panic!("CreateExampleNFT command did not return WalletCommandResult::CreateExampleNFT(HaneulObjectResponse::Exists, got {:?}", res);
     };
 
     Ok((sender, object_id, digest))

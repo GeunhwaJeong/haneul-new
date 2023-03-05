@@ -13,11 +13,11 @@ use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 
-use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{
-    Balance, CoinPage, GetObjectDataResponse, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus,
+    Balance, CoinPage, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus, HaneulObjectResponse,
     HaneulTBlsSignObjectCommitmentType, HaneulTransactionResponse, TransactionBytes,
 };
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectInfo};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
@@ -337,9 +337,17 @@ async fn test_get_object_info() -> Result<(), anyhow::Error> {
     let objects = http_client.get_objects_owned_by_address(*address).await?;
 
     for oref in objects {
-        let result: GetObjectDataResponse = http_client.get_object(oref.object_id).await?;
+        let result = http_client
+            .get_object_with_options(
+                oref.object_id,
+                Some(HaneulObjectDataOptions {
+                    show_owner: Some(true),
+                    ..Default::default()
+                }),
+            )
+            .await?;
         assert!(
-            matches!(result, GetObjectDataResponse::Exists(object) if oref.object_id == object.id() && &object.owner.get_owner_address()? == address)
+            matches!(result, HaneulObjectResponse::Exists(object) if oref.object_id == object.object_id && &object.owner.unwrap().get_owner_address()? == address)
         );
     }
     Ok(())

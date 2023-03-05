@@ -8,7 +8,7 @@ import {
   GetTxnDigestsResponse,
   GatewayTxSeqNumber,
   HaneulObjectInfo,
-  GetObjectDataResponse,
+  HaneulObjectResponse,
   HaneulObjectRef,
   HaneulMoveFunctionArgTypes,
   HaneulMoveNormalizedFunction,
@@ -19,7 +19,6 @@ import {
   HaneulEventEnvelope,
   SubscriptionId,
   ExecuteTransactionRequestType,
-  HaneulTransactionResponse,
   HaneulAddress,
   ObjectId,
   TransactionQuery,
@@ -45,6 +44,7 @@ import {
   CommitteeInfo,
   Checkpoint,
   DryRunTransactionResponse,
+  HaneulTransactionResponse,
 } from '../types';
 import { Provider } from './provider';
 
@@ -138,22 +138,12 @@ export class VoidProvider extends Provider {
     throw this.newError('getGasObjectsOwnedByAddress');
   }
 
-  /**
-   * @deprecated The method should not be used
-   */
-  async getCoinBalancesOwnedByAddress(
-    _address: string,
-    _typeArg?: string,
-  ): Promise<GetObjectDataResponse[]> {
-    throw this.newError('getCoinBalancesOwnedByAddress');
-  }
-
   async selectCoinsWithBalanceGreaterThanOrEqual(
     _address: string,
     _amount: bigint,
     _typeArg: string,
     _exclude: ObjectId[] = [],
-  ): Promise<GetObjectDataResponse[]> {
+  ): Promise<HaneulObjectResponse[]> {
     throw this.newError('selectCoinsWithBalanceGreaterThanOrEqual');
   }
 
@@ -162,11 +152,11 @@ export class VoidProvider extends Provider {
     _amount: bigint,
     _typeArg: string,
     _exclude: ObjectId[],
-  ): Promise<GetObjectDataResponse[]> {
+  ): Promise<HaneulObjectResponse[]> {
     throw this.newError('selectCoinSetWithCombinedBalanceGreaterThanOrEqual');
   }
 
-  async getObject(_objectId: string): Promise<GetObjectDataResponse> {
+  async getObject(_objectId: string): Promise<HaneulObjectResponse> {
     throw this.newError('getObject');
   }
 
@@ -213,7 +203,7 @@ export class VoidProvider extends Provider {
   getDynamicFieldObject(
     _parent_object_id: ObjectId,
     _name: string | DynamicFieldName,
-  ): Promise<GetObjectDataResponse> {
+  ): Promise<HaneulObjectResponse> {
     throw this.newError('getDynamicFieldObject');
   }
 

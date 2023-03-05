@@ -20,9 +20,7 @@ use haneul_config::{
     HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::{
-    GetObjectDataResponse, HaneulData, HaneulObject, HaneulParsedData, HaneulParsedObject,
-};
+use haneul_json_rpc_types::{HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_types::base_types::HaneulAddress;
@@ -200,10 +198,10 @@ async fn test_create_example_nft_command() {
     .unwrap();
 
     match result {
-        HaneulClientCommandResult::CreateExampleNFT(GetObjectDataResponse::Exists(obj)) => {
-            assert_eq!(obj.owner, address);
+        HaneulClientCommandResult::CreateExampleNFT(HaneulObjectResponse::Exists(obj)) => {
+            assert_eq!(obj.owner.unwrap().get_owner_address().unwrap(), address);
             assert_eq!(
-                obj.data.type_().unwrap(),
+                obj.type_.clone().unwrap(),
                 haneul_framework_address_concat_string("::devnet_nft::DevNetNFT")
             );
             Ok(obj)
@@ -587,12 +585,11 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     }
     .execute(context)
     .await?;
-    let mut_obj1 =
-        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
-            object
-        } else {
-            panic!()
-        };
+    let mut_obj1 = if let HaneulClientCommandResult::Object(HaneulObjectResponse::Exists(object)) = resp {
+        object
+    } else {
+        panic!()
+    };
 
     let resp = HaneulClientCommands::Object {
         id: mut_obj2,
@@ -600,21 +597,20 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     }
     .execute(context)
     .await?;
-    let mut_obj2 =
-        if let HaneulClientCommandResult::Object(GetObjectDataResponse::Exists(object)) = resp {
-            object
-        } else {
-            panic!()
-        };
+    let mut_obj2 = if let HaneulClientCommandResult::Object(HaneulObjectResponse::Exists(object)) = resp {
+        object
+    } else {
+        panic!()
+    };
 
-    let (gas, obj) = if mut_obj1.owner.get_owner_address().unwrap() == address {
+    let (gas, obj) = if mut_obj1.owner.unwrap().get_owner_address().unwrap() == address {
         (mut_obj1, mut_obj2)
     } else {
         (mut_obj2, mut_obj1)
     };
 
-    assert_eq!(gas.owner.get_owner_address().unwrap(), address);
-    assert_eq!(obj.owner.get_owner_address().unwrap(), recipient);
+    assert_eq!(gas.owner.unwrap().get_owner_address().unwrap(), address);
+    assert_eq!(obj.owner.unwrap().get_owner_address().unwrap(), recipient);
 
     let object_refs = client
         .read_api()
@@ -652,7 +648,7 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
 #[test]
 // Test for issue https://github.com/GeunhwaJeong/haneul/issues/1078
 fn test_bug_1078() {
-    let read = HaneulClientCommandResult::Object(GetObjectDataResponse::NotExists(ObjectID::random()));
+    let read = HaneulClientCommandResult::Object(HaneulObjectResponse::NotExists(ObjectID::random()));
     let mut writer = String::new();
     // fmt ObjectRead should not fail.
     write!(writer, "{}", read).unwrap();
@@ -825,14 +821,18 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn get_gas_value(o: &HaneulParsedObject) -> u64 {
+fn get_gas_value(o: &HaneulObjectData) -> u64 {
     GasCoin::try_from(o).unwrap().value()
 }
 
-async fn get_object(id: ObjectID, context: &WalletContext) -> Option<HaneulParsedObject> {
+async fn get_object(id: ObjectID, context: &WalletContext) -> Option<HaneulObjectData> {
     let client = context.get_client().await.unwrap();
-    let response = client.read_api().get_parsed_object(id).await.unwrap();
-    if let GetObjectDataResponse::Exists(o) = response {
+    let response = client
+        .read_api()
+        .get_object_with_options(id, Some(HaneulObjectDataOptions::full_content()))
+        .await
+        .unwrap();
+    if let HaneulObjectResponse::Exists(o) = response {
         Some(o)
     } else {
         None
@@ -842,7 +842,7 @@ async fn get_object(id: ObjectID, context: &WalletContext) -> Option<HaneulParse
 async fn get_parsed_object_assert_existence(
     object_id: ObjectID,
     context: &WalletContext,
-) -> HaneulObject<HaneulParsedData> {
+) -> HaneulObjectData {
     get_object(object_id, context)
         .await
         .expect("Object {object_id} does not exist.")

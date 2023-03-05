@@ -3,12 +3,12 @@
 
 import { useMemo } from 'react';
 
-import type { HaneulData } from '@haneullabs/haneul.js';
+import type { HaneulParsedData } from '@haneullabs/haneul.js';
 
 export const parseIpfsUrl = (ipfsUrl: string) =>
     ipfsUrl.replace(/^ipfs:\/\//, 'https://ipfs.io/ipfs/');
 
-export default function useMediaUrl(objData: HaneulData | null) {
+export default function useMediaUrl(objData: HaneulParsedData | null) {
     const { fields } = (objData?.dataType === 'moveObject' && objData) || {};
     return useMemo(() => {
         if (fields) {

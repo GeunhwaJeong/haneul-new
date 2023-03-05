@@ -1,7 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { formatAddress, type HaneulObject as HaneulObjectType } from '@haneullabs/haneul.js';
+import {
+    formatAddress,
+    type HaneulObjectData as HaneulObjectType,
+} from '@haneullabs/haneul.js';
 import { cva } from 'class-variance-authority';
 import cl from 'classnames';
 
