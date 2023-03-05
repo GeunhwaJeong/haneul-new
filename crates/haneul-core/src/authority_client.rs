@@ -51,11 +51,6 @@ pub trait AuthorityAPI {
         request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError>;
 
-    async fn handle_committee_info_request(
-        &self,
-        request: CommitteeInfoRequest,
-    ) -> Result<CommitteeInfoResponse, HaneulError>;
-
     // This API is exclusively used by the benchmark code.
     // Hence it's OK to return a fixed system state type.
     async fn handle_system_state_object(
@@ -150,17 +145,6 @@ impl AuthorityAPI for NetworkAuthorityClient {
     ) -> Result<CheckpointResponse, HaneulError> {
         self.client()
             .checkpoint(request)
-            .await
-            .map(tonic::Response::into_inner)
-            .map_err(Into::into)
-    }
-
-    async fn handle_committee_info_request(
-        &self,
-        request: CommitteeInfoRequest,
-    ) -> Result<CommitteeInfoResponse, HaneulError> {
-        self.client()
-            .committee_info(request)
             .await
             .map(tonic::Response::into_inner)
             .map_err(Into::into)

@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use haneul_storage::default_db_options;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::error::HaneulResult;
+use haneul_types::error::{HaneulError, HaneulResult};
 use typed_store::rocks::{DBMap, DBOptions, MetricConf};
 use typed_store::traits::{TableSummary, TypedStoreDebug};
 
@@ -75,6 +75,16 @@ impl CommitteeStore {
             // when initializing the store.
             .unwrap()
             .1
+    }
+
+    /// Return the committee specified by `epoch`. If `epoch` is `None`, return the latest committee.
+    pub fn get_or_latest_committee(&self, epoch: Option<EpochId>) -> HaneulResult<Committee> {
+        Ok(match epoch {
+            Some(epoch) => self
+                .get_committee(&epoch)?
+                .ok_or(HaneulError::MissingCommitteeAtEpoch(epoch))?,
+            None => self.get_latest_committee(),
+        })
     }
 
     fn database_is_empty(&self) -> bool {

@@ -27,11 +27,11 @@ use serde_json::{json, Value};
 use serde_with::serde_as;
 use haneul_json::HaneulJsonValue;
 use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-    TransactionEffectsDigest,
+    AuthorityName, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
+    TransactionDigest, TransactionEffectsDigest,
 };
 use haneul_types::coin::CoinMetadata;
-use haneul_types::committee::EpochId;
+use haneul_types::committee::{Committee, EpochId, StakeUnit};
 use haneul_types::crypto::HaneulAuthorityStrongQuorumSignInfo;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::DynamicFieldInfo;
@@ -2518,6 +2518,23 @@ impl From<HaneulSystemStateRpc> for HaneulSystemState {
     fn from(state: HaneulSystemStateRpc) -> Self {
         match state {
             HaneulSystemStateRpc::V1(state) => Self::V1(state),
+        }
+    }
+}
+
+/// RPC representation of the [Committee] type.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[serde(rename = "CommitteeInfo")]
+pub struct HaneulCommittee {
+    pub epoch: EpochId,
+    pub validators: Vec<(AuthorityName, StakeUnit)>,
+}
+
+impl From<Committee> for HaneulCommittee {
+    fn from(committee: Committee) -> Self {
+        Self {
+            epoch: committee.epoch,
+            validators: committee.voting_rights,
         }
     }
 }

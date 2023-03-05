@@ -14,9 +14,10 @@ use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
-    EventPage, HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule,
-    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulSystemStateRpc, HaneulTransactionEffectsAPI, HaneulTransactionResponse, TransactionsPage,
+    EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEventEnvelope, HaneulEventFilter,
+    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse,
+    HaneulPastObjectResponse, HaneulSystemStateRpc, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -25,9 +26,7 @@ use haneul_types::base_types::{
 use haneul_types::committee::EpochId;
 use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
-use haneul_types::messages::{
-    CommitteeInfoResponse, ExecuteTransactionRequestType, TransactionData, VerifiedTransaction,
-};
+use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::haneul_system_state::ValidatorMetadata;
@@ -109,10 +108,7 @@ impl ReadApi {
         Ok(self.api.http.get_transaction(digest).await?)
     }
 
-    pub async fn get_committee_info(
-        &self,
-        epoch: Option<EpochId>,
-    ) -> HaneulRpcResult<CommitteeInfoResponse> {
+    pub async fn get_committee_info(&self, epoch: Option<EpochId>) -> HaneulRpcResult<HaneulCommittee> {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
@@ -492,10 +488,7 @@ impl GovernanceApi {
 
     /// Return the committee information for the asked `epoch`.
     /// `epoch`: The epoch of interest. If None, default to the latest epoch
-    pub async fn get_committee_info(
-        &self,
-        epoch: Option<EpochId>,
-    ) -> HaneulRpcResult<CommitteeInfoResponse> {
+    pub async fn get_committee_info(&self, epoch: Option<EpochId>) -> HaneulRpcResult<HaneulCommittee> {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 

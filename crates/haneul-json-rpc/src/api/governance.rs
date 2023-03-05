@@ -4,13 +4,12 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::HaneulSystemStateRpc;
+use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::HaneulAddress;
 
 use haneul_types::committee::EpochId;
 use haneul_types::governance::DelegatedStake;
-use haneul_types::messages::CommitteeInfoResponse;
 
 use haneul_types::haneul_system_state::ValidatorMetadata;
 
@@ -31,7 +30,7 @@ pub trait GovernanceReadApi {
         &self,
         /// The epoch of interest. If None, default to the latest epoch
         epoch: Option<EpochId>,
-    ) -> RpcResult<CommitteeInfoResponse>;
+    ) -> RpcResult<HaneulCommittee>;
 
     /// Return latest HANEUL system state object on-chain.
     #[method(name = "getHaneulSystemState")]

@@ -7,11 +7,10 @@ use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{GovernanceReadApiClient, GovernanceReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
-use haneul_json_rpc_types::HaneulSystemStateRpc;
+use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::governance::DelegatedStake;
-use haneul_types::messages::CommitteeInfoResponse;
 use haneul_types::haneul_system_state::ValidatorMetadata;
 
 pub(crate) struct GovernanceReadApi {
@@ -36,7 +35,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         self.fullnode.get_validators().await
     }
 
-    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<CommitteeInfoResponse> {
+    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<HaneulCommittee> {
         self.fullnode.get_committee_info(epoch).await
     }
 
