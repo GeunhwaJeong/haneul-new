@@ -37,7 +37,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointSummary,
 };
 use haneul_types::move_package::normalize_modules;
-use haneul_types::object::{Data, Object, ObjectRead};
+use haneul_types::object::{Data, Object, ObjectRead, PastObjectRead};
 use haneul_types::query::{EventQuery, TransactionQuery};
 
 use haneul_types::dynamic_field::DynamicFieldName;
@@ -133,6 +133,48 @@ impl ReadApiServer for ReadApi {
                 ))
             }
             ObjectRead::Deleted(oref) => Ok(HaneulObjectResponse::Deleted(oref.into())),
+        }
+    }
+
+    async fn try_get_past_object(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+        options: Option<HaneulObjectDataOptions>,
+    ) -> RpcResult<HaneulPastObjectResponse> {
+        let past_read = self
+            .state
+            .get_past_object_read(&object_id, version)
+            .await
+            .map_err(|e| anyhow!("{e}"))?;
+        let options = options.unwrap_or_default();
+        match past_read {
+            PastObjectRead::ObjectNotExists(id) => Ok(HaneulPastObjectResponse::ObjectNotExists(id)),
+            PastObjectRead::VersionFound(object_ref, o, layout) => {
+                let display_fields = if options.show_display {
+                    get_display_fields(self, &o, &layout).await?
+                } else {
+                    None
+                };
+                Ok(HaneulPastObjectResponse::VersionFound(
+                    (object_ref, o, layout, options, display_fields).try_into()?,
+                ))
+            }
+            PastObjectRead::ObjectDeleted(oref) => {
+                Ok(HaneulPastObjectResponse::ObjectDeleted(oref.into()))
+            }
+            PastObjectRead::VersionNotFound(id, seq_num) => {
+                Ok(HaneulPastObjectResponse::VersionNotFound(id, seq_num))
+            }
+            PastObjectRead::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            } => Ok(HaneulPastObjectResponse::VersionTooHigh {
+                object_id,
+                asked_version,
+                latest_version,
+            }),
         }
     }
 
@@ -394,19 +436,6 @@ impl ReadApiServer for ReadApi {
         let next_cursor = data.get(limit).cloned();
         data.truncate(limit);
         Ok(Page { data, next_cursor })
-    }
-
-    async fn try_get_past_object(
-        &self,
-        object_id: ObjectID,
-        version: SequenceNumber,
-    ) -> RpcResult<HaneulPastObjectResponse> {
-        Ok(self
-            .state
-            .get_past_object_read(&object_id, version)
-            .await
-            .map_err(|e| anyhow!("{e}"))?
-            .try_into()?)
     }
 
     async fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<CheckpointSequenceNumber> {

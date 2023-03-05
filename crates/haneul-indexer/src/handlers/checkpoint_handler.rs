@@ -7,8 +7,8 @@ use haneullabs_metrics::spawn_monitored_task;
 use prometheus::Registry;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
-    HaneulObjectData, HaneulParsedData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse,
+    HaneulObjectData, HaneulObjectDataOptions, HaneulParsedData, HaneulTransactionDataAPI,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse,
 };
 use haneul_sdk::HaneulClient;
 use tokio::task::JoinHandle;
@@ -150,9 +150,11 @@ where
         // TODO: Use multi get objects
         // TODO: Error handling.
         let new_objects = join_all(all_mutated.map(|(id, version)| {
-            self.rpc_client
-                .read_api()
-                .try_get_parsed_past_object(id, version)
+            self.rpc_client.read_api().try_get_parsed_past_object(
+                id,
+                version,
+                HaneulObjectDataOptions::full_content(),
+            )
         }))
         .await
         .into_iter()
