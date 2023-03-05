@@ -13,7 +13,7 @@ use haneul_rosetta::types::{
     SubAccount, SubAccountType, HaneulEnv,
 };
 use haneul_sdk::json::HaneulJsonValue;
-use haneul_sdk::rpc_types::HaneulExecutionStatus;
+use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_type_tag, HANEUL_FRAMEWORK_OBJECT_ID};
 use test_utils::network::TestClusterBuilder;
@@ -246,5 +246,5 @@ async fn test_delegation() {
 
     println!("Haneul TX: {tx:?}");
 
-    assert_eq!(HaneulExecutionStatus::Success, tx.effects.status)
+    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.status())
 }

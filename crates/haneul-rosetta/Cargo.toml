@@ -41,6 +41,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-storage = { path = "../haneul-storage" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 chrono = "0.4.23"
 

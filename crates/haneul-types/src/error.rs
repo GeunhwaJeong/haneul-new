@@ -22,6 +22,7 @@ pub use move_vm_runtime::move_vm::MoveVM;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt::Debug};
 use strum_macros::{AsRefStr, IntoStaticStr};
+use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
 use thiserror::Error;
 use tonic::Status;
 use typed_store::rocks::TypedStoreError;
@@ -425,6 +426,15 @@ pub enum HaneulError {
 
     #[error("Found the haneul system state object but it has an unexpected version")]
     HaneulSystemStateUnexpectedVersion,
+
+    #[error("Message version is not supported at the current protocol version")]
+    WrongMessageVersion {
+        message_version: u64,
+        // the range in which the given message version is supported
+        supported: SupportedProtocolVersions,
+        // the current protocol version which is outside of that range
+        current_protocol_version: ProtocolVersion,
+    },
 
     #[error("unknown error: {0}")]
     Unknown(String),

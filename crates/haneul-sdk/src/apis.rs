@@ -16,7 +16,7 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
     EventPage, HaneulCoinMetadata, HaneulEventEnvelope, HaneulEventFilter, HaneulMoveNormalizedModule,
     HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulSystemStateRpc, HaneulTransactionResponse, TransactionsPage,
+    HaneulSystemStateRpc, HaneulTransactionEffectsAPI, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -429,7 +429,7 @@ impl QuorumDriver {
                     if !confirmed_local_execution {
                         Self::wait_until_fullnode_sees_tx(
                             &self.api,
-                            response.effects.transaction_digest,
+                            *response.effects.transaction_digest(),
                         )
                         .await?;
                     }

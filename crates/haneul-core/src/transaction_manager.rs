@@ -10,7 +10,7 @@ use parking_lot::RwLock;
 use haneul_types::{
     base_types::ObjectID,
     committee::EpochId,
-    messages::{VerifiedCertificate, VerifiedExecutableTransaction},
+    messages::{TransactionDataAPI, VerifiedCertificate, VerifiedExecutableTransaction},
 };
 use haneul_types::{base_types::TransactionDigest, error::HaneulResult};
 use tokio::sync::mpsc::UnboundedSender;

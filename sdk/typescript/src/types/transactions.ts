@@ -124,6 +124,8 @@ export const HaneulTransactionKind = union([
 export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
 export const HaneulTransactionData = object({
+  // Eventually this will become union(literal('v1'), literal('v2'), ...)
+  messageVersion: literal('v1'),
   transactions: array(HaneulTransactionKind),
   sender: HaneulAddress,
   gasData: HaneulGasData,
@@ -170,6 +172,9 @@ export const OwnedObjectRef = object({
 export type OwnedObjectRef = Infer<typeof OwnedObjectRef>;
 
 export const TransactionEffects = object({
+  // Eventually this will become union(literal('v1'), literal('v2'), ...)
+  messageVersion: literal('v1'),
+
   /** The status of the execution */
   status: ExecutionStatus,
   /** The epoch when this transaction was executed */

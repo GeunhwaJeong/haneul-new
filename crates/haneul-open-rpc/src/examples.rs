@@ -19,8 +19,8 @@ use haneul_json_rpc_types::{
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
     HaneulGasCostSummary, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectRef,
     HaneulObjectResponse, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData,
-    HaneulTransactionEffects, HaneulTransactionEvents, HaneulTransactionResponse, TransactionBytes,
-    TransactionsPage, TransferObjectParams,
+    HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEffectsV1, HaneulTransactionEvents,
+    HaneulTransactionResponse, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -343,7 +343,7 @@ impl RpcExampleProvider {
             "haneul_getTransaction",
             vec![ExamplePairing::new(
                 "Return the transaction response object for specified transaction digest",
-                vec![("digest", json!(result.effects.transaction_digest))],
+                vec![("digest", json!(result.effects.transaction_digest()))],
                 json!(result),
             )],
         )
@@ -430,7 +430,7 @@ impl RpcExampleProvider {
             event: haneul_event.clone(),
         }];
         let result = HaneulTransactionResponse {
-            effects: HaneulTransactionEffects {
+            effects: HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
                 status: HaneulExecutionStatus::Success,
                 executed_epoch: 0,
                 gas_used: HaneulGasCostSummary {
@@ -461,7 +461,7 @@ impl RpcExampleProvider {
                 },
                 events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
                 dependencies: vec![],
-            },
+            }),
             events: HaneulTransactionEvents {
                 data: vec![haneul_event],
             },
@@ -492,13 +492,15 @@ impl RpcExampleProvider {
                 vec![
                     (
                         "query",
-                        json!(EventQuery::Transaction(result.effects.transaction_digest)),
+                        json!(EventQuery::Transaction(
+                            *result.effects.transaction_digest()
+                        )),
                     ),
                     (
                         "cursor",
                         json!(EventID {
                             event_seq: 10,
-                            tx_digest: result.effects.transaction_digest
+                            tx_digest: *result.effects.transaction_digest()
                         }),
                     ),
                     ("limit", json!(events.len())),

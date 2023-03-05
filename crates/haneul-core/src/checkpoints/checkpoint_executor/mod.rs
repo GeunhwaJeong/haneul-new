@@ -34,7 +34,7 @@ use haneul_types::message_envelope::Message;
 use haneul_types::messages::VerifiedExecutableTransaction;
 use haneul_types::{
     base_types::{ExecutionDigests, TransactionDigest},
-    messages::TransactionEffects,
+    messages::{TransactionEffects, TransactionEffectsAPI},
     messages_checkpoint::{CheckpointSequenceNumber, EndOfEpochData, VerifiedCheckpoint},
 };
 use tap::TapFallible;
@@ -457,7 +457,7 @@ async fn execute_transactions(
                 panic!("Transaction effects do not exist in effects table");
             }
             let fx = fx.unwrap();
-            (fx.transaction_digest, fx)
+            (*fx.transaction_digest(), fx)
         })
         .collect();
 

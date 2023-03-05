@@ -14,7 +14,8 @@ use std::path::Path;
 
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPayHaneul, HaneulTransactionKind, HaneulTransactionResponse,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPayHaneul, HaneulTransactionDataAPI,
+    HaneulTransactionEffectsAPI, HaneulTransactionKind, HaneulTransactionResponse,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
@@ -448,14 +449,14 @@ impl SimpleFaucet {
         number_of_coins: usize,
         recipient: &HaneulAddress,
     ) -> Result<(TransactionDigest, Vec<ObjectID>, Vec<u64>), FaucetError> {
-        let txns = res.transaction.data.transactions;
+        let txns = res.transaction.data.transactions();
         if txns.len() != 1 {
             panic!(
                 "PayHaneul Transaction should create one and exactly one txn, but got {:?}",
                 txns
             );
         }
-        let created = res.effects.created;
+        let created = res.effects.created().to_vec();
         if created.len() != number_of_coins {
             panic!(
                 "PayHaneul Transaction should create exact {:?} new coins, but got {:?}",
@@ -477,7 +478,7 @@ impl SimpleFaucet {
                 .iter()
                 .map(|created_coin_owner_ref| created_coin_owner_ref.reference.object_id)
                 .collect();
-            Ok((res.effects.transaction_digest, coin_ids, amounts.clone()))
+            Ok((*res.effects.transaction_digest(), coin_ids, amounts.clone()))
         } else {
             panic!("Expect HaneulTransactionKind::PayHaneul(HaneulPayHaneul) to send coins to address {} but got txn {:?}", recipient, txn);
         }
@@ -669,7 +670,7 @@ mod tests {
 
         if let HaneulClientCommandResult::PayAllHaneul(response) = res {
             assert!(matches!(
-                response.effects.status,
+                response.effects.status(),
                 HaneulExecutionStatus::Success
             ));
         } else {
@@ -725,8 +726,8 @@ mod tests {
         .unwrap();
 
         let tiny_coin_id = if let HaneulClientCommandResult::SplitCoin(resp) = res {
-            assert!(matches!(resp.effects.status, HaneulExecutionStatus::Success));
-            resp.effects.created[0].reference.object_id
+            assert!(matches!(resp.effects.status(), HaneulExecutionStatus::Success));
+            resp.effects.created()[0].reference.object_id
         } else {
             panic!("split command did not return HaneulClientCommandResult::SplitCoin");
         };

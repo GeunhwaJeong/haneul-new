@@ -21,7 +21,7 @@ use haneul_types::coin::{Coin, CoinMetadata, LockedCoin, TreasuryCap};
 use haneul_types::error::HaneulError;
 use haneul_types::event::Event;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::TransactionEvents;
+use haneul_types::messages::{TransactionEffectsAPI, TransactionEvents};
 use haneul_types::object::Object;
 use haneul_types::parse_haneul_struct_tag;
 
@@ -129,8 +129,8 @@ impl CoinReadApi {
             .get_executed_transaction_and_effects(publish_txn_digest)
             .await?;
 
-        let events = if let Some(digests) = effect.events_digest {
-            self.state.get_transaction_events(digests).await?
+        let events = if let Some(digests) = effect.events_digest() {
+            self.state.get_transaction_events(*digests).await?
         } else {
             TransactionEvents::default()
         };

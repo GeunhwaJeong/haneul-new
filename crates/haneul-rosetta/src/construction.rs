@@ -3,9 +3,12 @@
 
 use axum::{Extension, Json};
 use fastcrypto::encoding::{Encoding, Hex};
+use haneul_json_rpc_types::HaneulTransactionEffectsAPI;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
-use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
+use haneul_types::messages::{
+    ExecuteTransactionRequestType, Transaction, TransactionData, TransactionDataAPI,
+};
 use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 
@@ -130,13 +133,13 @@ pub async fn submit(
         )
         .await?;
 
-    if let HaneulExecutionStatus::Failure { error } = response.effects.status {
-        return Err(Error::TransactionExecutionError(error));
+    if let HaneulExecutionStatus::Failure { error } = response.effects.status() {
+        return Err(Error::TransactionExecutionError(error.to_string()));
     }
 
     Ok(TransactionIdentifierResponse {
         transaction_identifier: TransactionIdentifier {
-            hash: response.effects.transaction_digest,
+            hash: *response.effects.transaction_digest(),
         },
         metadata: None,
     })
@@ -273,7 +276,8 @@ pub async fn metadata(
         })?;
     let dry_run = context.client.read_api().dry_run_transaction(data).await?;
 
-    let budget = dry_run.effects.gas_used.computation_cost + dry_run.effects.gas_used.storage_cost;
+    let budget =
+        dry_run.effects.gas_used().computation_cost + dry_run.effects.gas_used().storage_cost;
 
     Ok(ConstructionMetadataResponse {
         metadata: ConstructionMetadata {

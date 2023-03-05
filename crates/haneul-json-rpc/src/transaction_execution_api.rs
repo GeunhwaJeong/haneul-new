@@ -108,7 +108,7 @@ impl WriteApiServer for TransactionExecutionApi {
                     .clone();
                 Ok(HaneulTransactionResponse {
                     transaction: tx,
-                    effects: effects.effects.into(),
+                    effects: effects.effects.try_into()?,
                     events: HaneulTransactionEvents::try_from(events, module_cache.as_ref())?,
                     timestamp_ms: None,
                     confirmed_local_execution: Some(is_executed_locally),

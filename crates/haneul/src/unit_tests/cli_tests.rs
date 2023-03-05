@@ -20,7 +20,9 @@ use haneul_config::{
     HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::{HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse};
+use haneul_json_rpc_types::{
+    HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_types::base_types::HaneulAddress;
@@ -359,7 +361,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     .await?;
 
     let package = if let HaneulClientCommandResult::Publish(response) = resp {
-        response.effects.created[0].reference.object_id
+        response.effects.created()[0].reference.object_id
     } else {
         unreachable!("Invalid response");
     };
@@ -407,7 +409,7 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
 
     // Get the created object
     let created_obj: ObjectID = if let HaneulClientCommandResult::Call(resp) = resp {
-        resp.effects.created.first().unwrap().reference.object_id
+        resp.effects.created().first().unwrap().reference.object_id
     } else {
         panic!();
     };
@@ -523,7 +525,7 @@ async fn test_package_publish_command() -> Result<(), anyhow::Error> {
     let obj_ids = if let HaneulClientCommandResult::Publish(response) = resp {
         response
             .effects
-            .created
+            .created()
             .iter()
             .map(|refe| refe.reference.object_id)
             .collect::<Vec<_>>()
@@ -571,8 +573,20 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     // Get the mutated objects
     let (mut_obj1, mut_obj2) = if let HaneulClientCommandResult::Transfer(_, response) = resp {
         (
-            response.effects.mutated.get(0).unwrap().reference.object_id,
-            response.effects.mutated.get(1).unwrap().reference.object_id,
+            response
+                .effects
+                .mutated()
+                .get(0)
+                .unwrap()
+                .reference
+                .object_id,
+            response
+                .effects
+                .mutated()
+                .get(1)
+                .unwrap()
+                .reference
+                .object_id,
         )
     } else {
         panic!()
@@ -635,8 +649,20 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     // Get the mutated objects
     let (_mut_obj1, _mut_obj2) = if let HaneulClientCommandResult::Transfer(_, response) = resp {
         (
-            response.effects.mutated.get(0).unwrap().reference.object_id,
-            response.effects.mutated.get(1).unwrap().reference.object_id,
+            response
+                .effects
+                .mutated()
+                .get(0)
+                .unwrap()
+                .reference
+                .object_id,
+            response
+                .effects
+                .mutated()
+                .get(1)
+                .unwrap()
+                .reference
+                .object_id,
         )
     } else {
         panic!()
@@ -880,6 +906,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
         let object_id = r
             .effects
             .mutated_excluding_gas()
+            .into_iter()
             .next()
             .unwrap()
             .reference
@@ -920,6 +947,7 @@ async fn test_merge_coin() -> Result<(), anyhow::Error> {
         let object_id = r
             .effects
             .mutated_excluding_gas()
+            .into_iter()
             .next()
             .unwrap()
             .reference
@@ -970,12 +998,13 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
         let updated_object_id = r
             .effects
             .mutated_excluding_gas()
+            .into_iter()
             .next()
             .unwrap()
             .reference
             .object_id;
         let updated_obj = get_parsed_object_assert_existence(updated_object_id, context).await;
-        let new_object_refs = r.effects.created;
+        let new_object_refs = r.effects.created().to_vec();
         let mut new_objects = Vec::with_capacity(new_object_refs.len());
         for obj_ref in new_object_refs {
             new_objects.push(
@@ -1020,12 +1049,13 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
         let updated_object_id = r
             .effects
             .mutated_excluding_gas()
+            .into_iter()
             .next()
             .unwrap()
             .reference
             .object_id;
         let updated_obj = get_parsed_object_assert_existence(updated_object_id, context).await;
-        let new_object_refs = r.effects.created;
+        let new_object_refs = r.effects.created().to_vec();
         let mut new_objects = Vec::with_capacity(new_object_refs.len());
         for obj_ref in new_object_refs {
             new_objects.push(
@@ -1073,12 +1103,13 @@ async fn test_split_coin() -> Result<(), anyhow::Error> {
         let updated_object_id = r
             .effects
             .mutated_excluding_gas()
+            .into_iter()
             .next()
             .unwrap()
             .reference
             .object_id;
         let updated_obj = get_parsed_object_assert_existence(updated_object_id, context).await;
-        let new_object_refs = r.effects.created;
+        let new_object_refs = r.effects.created().to_vec();
         let mut new_objects = Vec::with_capacity(new_object_refs.len());
         for obj_ref in new_object_refs {
             new_objects.push(

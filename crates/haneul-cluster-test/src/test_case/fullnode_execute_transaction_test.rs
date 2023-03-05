@@ -3,7 +3,7 @@
 
 use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
-use haneul_json_rpc_types::HaneulExecutionStatus;
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
 use haneul_sdk::HaneulClient;
 use haneul_types::{base_types::TransactionDigest, messages::ExecuteTransactionRequestType};
 use tracing::info;
@@ -59,12 +59,13 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
             .await?;
 
         assert!(!response.confirmed_local_execution.unwrap());
-        assert_eq!(txn_digest, response.effects.transaction_digest);
+        assert_eq!(txn_digest, *response.effects.transaction_digest());
         let effects = response.effects;
-        if !matches!(effects.status, HaneulExecutionStatus::Success { .. }) {
+        if !matches!(effects.status(), HaneulExecutionStatus::Success { .. }) {
             panic!(
                 "Failed to execute transfer transaction {:?}: {:?}",
-                txn_digest, effects.status
+                txn_digest,
+                effects.status()
             )
         }
         // Verify fullnode observes the txn
@@ -83,12 +84,13 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
             )
             .await?;
         assert!(response.confirmed_local_execution.unwrap());
-        assert_eq!(txn_digest, response.effects.transaction_digest);
+        assert_eq!(txn_digest, *response.effects.transaction_digest());
         let effects = response.effects;
-        if !matches!(effects.status, HaneulExecutionStatus::Success { .. }) {
+        if !matches!(effects.status(), HaneulExecutionStatus::Success { .. }) {
             panic!(
                 "Failed to execute transfer transaction {:?}: {:?}",
-                txn_digest, effects.status
+                txn_digest,
+                effects.status()
             )
         }
         // Unlike in other execution modes, there's no need to wait for the node to sync

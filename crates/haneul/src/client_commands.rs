@@ -34,7 +34,7 @@ use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulObjectData, HaneulObjectInfo, HaneulObjectResponse, HaneulRawData,
-    HaneulTransactionResponse,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -598,8 +598,11 @@ impl HaneulClientCommands {
                     .await?;
                 let effects = &response.effects;
                 let time_total = time_start.elapsed().as_micros();
-                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
-                    return Err(anyhow!("Error transferring object: {:#?}", effects.status));
+                if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
+                    return Err(anyhow!(
+                        "Error transferring object: {:#?}",
+                        effects.status()
+                    ));
                 }
                 HaneulClientCommandResult::Transfer(time_total, response)
             }
@@ -629,8 +632,8 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = &response.effects;
-                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
-                    return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status));
+                if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
+                    return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status()));
                 }
                 HaneulClientCommandResult::TransferHaneul(response)
             }
@@ -676,10 +679,10 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = &response.effects;
-                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
+                if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing Pay transaction: {:#?}",
-                        effects.status
+                        effects.status()
                     ));
                 }
                 HaneulClientCommandResult::Pay(response)
@@ -725,10 +728,10 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = &response.effects;
-                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
+                if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayHaneul transaction: {:#?}",
-                        effects.status
+                        effects.status()
                     ));
                 }
                 HaneulClientCommandResult::PayHaneul(response)
@@ -762,10 +765,10 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = &response.effects;
-                if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
+                if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayAllHaneul transaction: {:#?}",
-                        effects.status
+                        effects.status()
                     ));
                 }
                 HaneulClientCommandResult::PayAllHaneul(response)
@@ -923,7 +926,7 @@ impl HaneulClientCommands {
                 .await?;
                 let nft_id = response
                     .effects
-                    .created
+                    .created()
                     .first()
                     .ok_or_else(|| anyhow!("Failed to create NFT"))?
                     .reference
@@ -1462,8 +1465,8 @@ pub async fn call_move(
 
     let response = context.execute_transaction(transaction).await?;
     let effects = &response.effects;
-    if matches!(effects.status, HaneulExecutionStatus::Failure { .. }) {
-        return Err(anyhow!("Error calling module: {:#?}", effects.status));
+    if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
+        return Err(anyhow!("Error calling module: {:#?}", effects.status()));
     }
     Ok(response)
 }

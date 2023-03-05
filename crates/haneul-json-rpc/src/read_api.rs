@@ -31,7 +31,7 @@ use haneul_types::base_types::{
     ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
 };
 use haneul_types::crypto::sha3_hash;
-use haneul_types::messages::TransactionData;
+use haneul_types::messages::{TransactionData, TransactionEffectsAPI};
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
     CheckpointSummary,
@@ -171,10 +171,10 @@ impl ReadApiServer for ReadApi {
             .map_err(|e| anyhow!("{e}"))?;
         let checkpoint_timestamp = checkpoint.as_ref().map(|c| c.summary.timestamp_ms);
 
-        let events = if let Some(digest) = effects.events_digest {
+        let events = if let Some(digest) = effects.events_digest() {
             let events = self
                 .state
-                .get_transaction_events(digest)
+                .get_transaction_events(*digest)
                 .await
                 .map_err(Error::from)?;
             HaneulTransactionEvents::try_from(
@@ -195,7 +195,7 @@ impl ReadApiServer for ReadApi {
 
         Ok(HaneulTransactionResponse {
             transaction: transaction.into_message().try_into()?,
-            effects: effects.into(),
+            effects: effects.try_into()?,
             events,
             timestamp_ms: checkpoint_timestamp,
             confirmed_local_execution: None,
@@ -226,7 +226,7 @@ impl ReadApiServer for ReadApi {
                 let (transaction, effects, events, checkpoint) = txn;
                 responses.push(HaneulTransactionResponse {
                     transaction: transaction.into_message().try_into()?,
-                    effects: effects.into(),
+                    effects: effects.try_into()?,
                     events: HaneulTransactionEvents::try_from(
                         events,
                         // threading the epoch_store through this API does not

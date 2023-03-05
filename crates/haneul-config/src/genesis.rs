@@ -31,9 +31,9 @@ use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::intent::{Intent, IntentMessage, IntentScope};
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::Transaction;
-use haneul_types::messages::{CallArg, TransactionEffects};
-use haneul_types::messages::{InputObjects, TransactionEvents};
+use haneul_types::messages::{
+    CallArg, InputObjects, Transaction, TransactionEffects, TransactionEvents,
+};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };

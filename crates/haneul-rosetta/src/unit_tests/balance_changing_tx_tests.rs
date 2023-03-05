@@ -16,7 +16,7 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
     OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulObjectDataOptions,
-    HaneulTransactionEffects, HaneulTransactionEvents, HaneulTransactionResponse,
+    HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEvents, HaneulTransactionResponse,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -25,7 +25,7 @@ use haneul_types::intent::Intent;
 use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, InputObjectKind, MoveCall, MoveModulePublish,
     ObjectArg, Pay, PayAllHaneul, PayHaneul, SingleTransactionKind, Transaction, TransactionData,
-    TransactionKind, TransferHaneul,
+    TransactionDataAPI, TransactionKind, TransferHaneul,
 };
 use test_utils::network::TestClusterBuilder;
 
@@ -184,7 +184,7 @@ async fn test_split_coin() {
         .split_coin(sender, coin.0, vec![100000], None, 10000)
         .await
         .unwrap();
-    let tx = tx.kind.single_transactions().next().unwrap().clone();
+    let tx = tx.into_kind().single_transactions().next().unwrap().clone();
     test_transaction(&client, keystore, vec![], sender, tx, None, 10000, false).await;
 }
 
@@ -203,7 +203,7 @@ async fn test_merge_coin() {
         .merge_coins(sender, coin.0, coin2.0, None, 10000)
         .await
         .unwrap();
-    let tx = tx.kind.single_transactions().next().unwrap().clone();
+    let tx = tx.into_kind().single_transactions().next().unwrap().clone();
     test_transaction(&client, keystore, vec![], sender, tx, None, 10000, false).await;
 }
 
@@ -378,7 +378,7 @@ async fn test_delegate_haneul() {
         )
         .await
         .unwrap();
-    let tx = tx.kind.into_single_transactions().next().unwrap();
+    let tx = tx.into_kind().into_single_transactions().next().unwrap();
 
     test_transaction(&client, keystore, vec![], sender, tx, None, 10000, false).await;
 }
@@ -407,7 +407,7 @@ async fn test_delegate_haneul_with_none_amount() {
         )
         .await
         .unwrap();
-    let tx = tx.kind.into_single_transactions().next().unwrap();
+    let tx = tx.into_kind().into_single_transactions().next().unwrap();
 
     test_transaction(&client, keystore, vec![], sender, tx, None, 10000, false).await;
 }
@@ -500,7 +500,7 @@ fn find_module_object(
             {
                 if transaction_module == module && object_type.contains(object_type_name) {
                     return effects
-                        .created
+                        .created()
                         .iter()
                         .find(|obj| &obj.reference.object_id == object_id);
                 }
@@ -580,12 +580,15 @@ async fn test_transaction(
     if !expect_fail {
         assert_eq!(
             HaneulExecutionStatus::Success,
-            effects.status,
+            *effects.status(),
             "TX execution failed for {:#?}",
             data
         );
     } else {
-        assert!(matches!(effects.status, HaneulExecutionStatus::Failure { .. }));
+        assert!(matches!(
+            effects.status(),
+            HaneulExecutionStatus::Failure { .. }
+        ));
     }
 
     let ops = response.clone().try_into().unwrap();

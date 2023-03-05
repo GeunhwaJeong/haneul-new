@@ -11,7 +11,9 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{compile_basics_package, wait_for_all_txes, wait_for_tx};
-use haneul_json_rpc_types::{HaneulObjectResponse, HaneulTransactionResponse};
+use haneul_json_rpc_types::{
+    HaneulObjectResponse, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_types::base_types::ObjectRef;
@@ -23,7 +25,7 @@ use haneul_types::intent::Intent;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
     CallArg, ObjectArg, ObjectInfoRequest, ObjectInfoResponse, Transaction, TransactionData,
-    TransactionEffects, TransactionEvents, VerifiedTransaction,
+    TransactionEffects, TransactionEffectsAPI, TransactionEvents, VerifiedTransaction,
 };
 use haneul_types::messages::{ExecuteTransactionRequestType, HandleCertificateResponse};
 use haneul_types::object::{Object, Owner};
@@ -55,7 +57,7 @@ pub async fn publish_package(
     configs: &[ValidatorInfo],
 ) -> ObjectRef {
     let (effects, _) = publish_package_for_effects(gas_object, path, configs).await;
-    parse_package_ref(&effects.created).unwrap()
+    parse_package_ref(effects.created()).unwrap()
 }
 
 pub async fn publish_package_for_effects(
@@ -118,7 +120,7 @@ pub async fn publish_package_with_wallet(
 
     assert!(resp.confirmed_local_execution.unwrap());
     resp.effects
-        .created
+        .created()
         .iter()
         .find(|obj_ref| obj_ref.owner == Owner::Immutable)
         .unwrap()
@@ -199,7 +201,7 @@ pub async fn publish_basics_package_and_make_counter(
 
     let counter_ref = response
         .effects
-        .created
+        .created()
         .iter()
         .find(|obj_ref| matches!(obj_ref.owner, Owner::Shared { .. }))
         .unwrap()
@@ -287,7 +289,7 @@ pub async fn transfer_haneul(
     .await?;
 
     let digest = if let HaneulClientCommandResult::TransferHaneul(response) = res {
-        response.effects.transaction_digest
+        *response.effects.transaction_digest()
     } else {
         panic!("transfer command did not return WalletCommandResult::TransferHaneul");
     };
@@ -333,10 +335,10 @@ pub async fn transfer_coin(
 
     let (digest, gas, gas_used) = if let HaneulClientCommandResult::Transfer(_, response) = res {
         (
-            response.effects.transaction_digest,
-            response.transaction.data.gas_data.payment,
-            response.effects.gas_used.computation_cost + response.effects.gas_used.storage_cost
-                - response.effects.gas_used.storage_rebate,
+            *response.effects.transaction_digest(),
+            response.transaction.data.gas_data().payment.clone(),
+            response.effects.gas_used().computation_cost + response.effects.gas_used().storage_cost
+                - response.effects.gas_used().storage_rebate,
         )
     } else {
         panic!("transfer command did not return WalletCommandResult::Transfer");

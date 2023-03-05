@@ -5,6 +5,7 @@ use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use jsonrpsee::rpc_params;
 use haneul_core::test_utils::compile_basics_package;
+use haneul_json_rpc_types::HaneulTransactionEffectsAPI;
 use haneul_types::{base_types::ObjectID, object::Owner};
 
 pub struct FullNodeBuildPublishTransactionTest;
@@ -36,7 +37,7 @@ impl TestCaseImpl for FullNodeBuildPublishTransactionTest {
         let response = ctx.sign_and_execute(data, "publish basics package").await;
         response
             .effects
-            .created
+            .created()
             .iter()
             .find(|obj_ref| obj_ref.owner == Owner::Immutable)
             .unwrap();

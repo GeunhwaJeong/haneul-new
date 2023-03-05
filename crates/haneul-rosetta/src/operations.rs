@@ -9,8 +9,8 @@ use std::vec;
 use serde::Deserialize;
 use serde::Serialize;
 use haneul_sdk::rpc_types::{
-    HaneulEvent, HaneulMoveCall, HaneulPayHaneul, HaneulTransactionData, HaneulTransactionKind,
-    HaneulTransactionResponse,
+    HaneulEvent, HaneulMoveCall, HaneulPayHaneul, HaneulTransactionData, HaneulTransactionDataAPI,
+    HaneulTransactionEffectsAPI, HaneulTransactionKind, HaneulTransactionResponse,
 };
 
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
@@ -301,10 +301,10 @@ impl Operations {
 impl TryFrom<HaneulTransactionData> for Operations {
     type Error = Error;
     fn try_from(data: HaneulTransactionData) -> Result<Self, Self::Error> {
-        let sender = data.sender;
-        data.transactions
-            .into_iter()
-            .map(|tx| Self::from_transaction(tx, sender, None))
+        let sender = *data.sender();
+        data.transactions()
+            .iter()
+            .map(|tx| Self::from_transaction(tx.clone(), sender, None))
             .collect()
     }
 }
@@ -312,7 +312,7 @@ impl TryFrom<HaneulTransactionData> for Operations {
 impl TryFrom<HaneulTransactionResponse> for Operations {
     type Error = Error;
     fn try_from(response: HaneulTransactionResponse) -> Result<Self, Self::Error> {
-        let status = Some(response.effects.status.into());
+        let status = Some(response.effects.into_status().into());
         let ops: Operations = response.transaction.data.try_into()?;
         let ops = ops.set_status(status).into_iter();
 

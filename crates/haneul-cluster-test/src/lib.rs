@@ -12,7 +12,9 @@ use jsonrpsee::{core::client::ClientT, http_client::HttpClientBuilder};
 use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul_faucet::CoinInfo;
-use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionResponse, TransactionBytes};
+use haneul_json_rpc_types::{
+    HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse, TransactionBytes,
+};
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
@@ -139,7 +141,7 @@ impl TestContext {
             )
             .await
             .unwrap_or_else(|e| panic!("Failed to execute transaction for {}. {}", desc, e));
-        assert!(matches!(resp.effects.status, HaneulExecutionStatus::Success));
+        assert!(matches!(resp.effects.status(), HaneulExecutionStatus::Success));
         resp
     }
 

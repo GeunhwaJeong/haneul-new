@@ -22,7 +22,9 @@ use haneul_core::{
         QuorumDriver, QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics,
     },
 };
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffects};
+use haneul_json_rpc_types::{
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
+};
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::messages::TransactionEvents;
@@ -36,7 +38,7 @@ use haneul_types::{
     message_envelope::Envelope,
     messages::{
         CertifiedTransaction, CertifiedTransactionEffects, HandleCertificateResponse,
-        QuorumDriverResponse, Transaction, TransactionStatus,
+        QuorumDriverResponse, Transaction, TransactionEffectsAPI, TransactionStatus,
     },
     object::Object,
 };
@@ -73,12 +75,11 @@ impl ExecutionEffects {
     pub fn mutated(&self) -> Vec<(ObjectRef, Owner)> {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
-                certified_effects.data().mutated.clone()
+                certified_effects.data().mutated().to_vec()
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => haneul_tx_effects
-                .mutated
-                .clone()
-                .into_iter()
+                .mutated()
+                .iter()
                 .map(|refe| (refe.reference.to_object_ref(), refe.owner))
                 .collect(),
         }
@@ -87,12 +88,11 @@ impl ExecutionEffects {
     pub fn created(&self) -> Vec<(ObjectRef, Owner)> {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
-                certified_effects.data().created.clone()
+                certified_effects.data().created().to_vec()
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => haneul_tx_effects
-                .created
-                .clone()
-                .into_iter()
+                .created()
+                .iter()
                 .map(|refe| (refe.reference.to_object_ref(), refe.owner))
                 .collect(),
         }
@@ -110,10 +110,10 @@ impl ExecutionEffects {
     pub fn gas_object(&self) -> (ObjectRef, Owner) {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
-                certified_effects.data().gas_object
+                *certified_effects.data().gas_object()
             }
             ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => {
-                let refe = &haneul_tx_effects.gas_object;
+                let refe = &haneul_tx_effects.gas_object();
                 (refe.reference.to_object_ref(), refe.owner)
             }
         }
