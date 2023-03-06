@@ -20,6 +20,7 @@ use std::collections::VecDeque;
 use std::fmt::{self, Debug, Formatter};
 use std::str::FromStr;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::messages::{CallArg, ObjectArg};
 use haneul_types::move_package::MovePackage;
 use haneul_verifier::entry_points_verifier::{
     is_tx_context, TxContextKind, RESOLVED_ASCII_STR, RESOLVED_STD_OPTION, RESOLVED_HANEUL_ID,
@@ -301,6 +302,29 @@ impl std::str::FromStr for HaneulJsonValue {
     fn from_str(s: &str) -> Result<Self, anyhow::Error> {
         // Wrap input with json! if serde_json fails, the failure usually cause by missing quote escapes.
         HaneulJsonValue::new(serde_json::from_str(s).or_else(|_| serde_json::from_value(json!(s)))?)
+    }
+}
+
+impl TryFrom<CallArg> for HaneulJsonValue {
+    type Error = anyhow::Error;
+
+    fn try_from(value: CallArg) -> Result<Self, Self::Error> {
+        use serde_json::Value;
+        match value {
+            CallArg::Pure(p) => HaneulJsonValue::from_bcs_bytes(&p),
+            CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _)))
+            | CallArg::Object(ObjectArg::SharedObject { id, .. }) => {
+                HaneulJsonValue::new(Value::String(Hex::encode(id)))
+            }
+            CallArg::ObjVec(vec) => HaneulJsonValue::new(Value::Array(
+                vec.iter()
+                    .map(|obj_arg| match obj_arg {
+                        ObjectArg::ImmOrOwnedObject((id, _, _))
+                        | ObjectArg::SharedObject { id, .. } => Value::String(Hex::encode(id)),
+                    })
+                    .collect(),
+            )),
+        }
     }
 }
 
