@@ -13,9 +13,8 @@ use move_binary_format::{
 use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 use haneul_types::{error::ExecutionError, HANEUL_FRAMEWORK_ADDRESS};
 
-use crate::{format_signature_token, verification_failure};
+use crate::{format_signature_token, verification_failure, TEST_SCENARIO_MODULE_NAME};
 
-const TEST_SCENARIO_MODULE_NAME: &str = "test_scenario";
 pub const TRANSFER_MODULE: &IdentStr = ident_str!("transfer");
 pub const EVENT_MODULE: &IdentStr = ident_str!("event");
 pub const TRANSFER_FUNCTIONS: &[&IdentStr] = &[
