@@ -57,6 +57,7 @@ import {
   CommitteeInfo,
   DryRunTransactionResponse,
   HaneulObjectDataOptions,
+  HaneulSystemStateSummary,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -757,6 +758,20 @@ export class JsonRpcProvider extends Provider {
       return resp;
     } catch (err) {
       throw new Error(`Error in getHaneulSystemState: ${err}`);
+    }
+  }
+
+  async getLatestHaneulSystemState(): Promise<HaneulSystemStateSummary> {
+    try {
+      const resp = await this.client.requestWithType(
+        'haneul_getLatestHaneulSystemState',
+        [],
+        HaneulSystemStateSummary,
+        this.options.skipDataValidation,
+      );
+      return resp;
+    } catch (err) {
+      throw new Error(`Error in getLatestHaneulSystemState: ${err}`);
     }
   }
 

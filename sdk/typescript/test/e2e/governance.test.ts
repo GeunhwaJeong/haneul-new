@@ -51,6 +51,10 @@ describe('Governance API', () => {
   it('test getHaneulSystemState', async () => {
     await toolbox.provider.getHaneulSystemState();
   });
+
+  it('test getLatestHaneulSystemState', async () => {
+    await toolbox.provider.getLatestHaneulSystemState();
+  });
 });
 
 async function addDelegation(signer: RawSigner) {

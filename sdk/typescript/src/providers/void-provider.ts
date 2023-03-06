@@ -46,6 +46,7 @@ import {
   DryRunTransactionResponse,
   HaneulTransactionResponse,
   HaneulObjectDataOptions,
+  HaneulSystemStateSummary,
 } from '../types';
 import { Provider } from './provider';
 
@@ -66,6 +67,10 @@ export class VoidProvider extends Provider {
 
   async getHaneulSystemState(): Promise<HaneulSystemState> {
     throw this.newError('getHaneulSystemState');
+  }
+
+  async getLatestHaneulSystemState(): Promise<HaneulSystemStateSummary> {
+    throw this.newError('getLatestHaneulSystemState');
   }
 
   async getDelegatedStakes(_address: HaneulAddress): Promise<DelegatedStake[]> {
