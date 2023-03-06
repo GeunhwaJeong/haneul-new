@@ -14,6 +14,7 @@ import {
   unknown,
   boolean,
   tuple,
+  any,
 } from 'superstruct';
 import { HaneulEvent } from './events';
 import { HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects';
@@ -120,6 +121,8 @@ export const HaneulTransactionKind = union([
   object({ PayHaneul: PayHaneul }),
   object({ PayAllHaneul: PayAllHaneul }),
   object({ Genesis: Genesis }),
+  // TODO: Refine object type
+  object({ ProgrammableTransaction: any() }),
 ]);
 export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
