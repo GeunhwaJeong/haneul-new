@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 use crate::api::GovernanceReadApiServer;
 use crate::error::Error;
@@ -95,6 +96,15 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .get_haneul_system_state_object()
             .map_err(Error::from)?
             .into())
+    }
+
+    async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary> {
+        Ok(self
+            .state
+            .database
+            .get_haneul_system_state_object()
+            .map_err(Error::from)?
+            .into_haneul_system_state_summary())
     }
 
     async fn get_reference_gas_price(&self) -> RpcResult<u64> {

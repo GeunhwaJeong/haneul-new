@@ -21,8 +21,10 @@ use std::collections::{BTreeMap, HashMap};
 use tracing::error;
 
 use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorMetadata};
+use self::haneul_system_state_summary::HaneulSystemStateSummary;
 
 pub mod haneul_system_state_inner_v1;
+pub mod haneul_system_state_summary;
 
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 
@@ -75,6 +77,7 @@ pub trait HaneulSystemStateTrait {
     fn get_validator_metadata_vec(&self) -> Vec<ValidatorMetadata>;
     fn get_current_epoch_authority_names_to_peer_ids(&self) -> HashMap<AuthorityName, PeerId>;
     fn get_staking_pool_info(&self) -> BTreeMap<HaneulAddress, (Vec<u8>, u64)>;
+    fn into_haneul_system_state_summary(self) -> HaneulSystemStateSummary;
 }
 
 /// HaneulSystemState provides an abstraction over multiple versions of the inner HaneulSystemStateInner object.

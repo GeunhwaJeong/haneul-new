@@ -12,6 +12,7 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::governance::DelegatedStake;
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 pub(crate) struct GovernanceReadApi {
     fullnode: HttpClient,
@@ -41,6 +42,10 @@ impl GovernanceReadApiServer for GovernanceReadApi {
 
     async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc> {
         self.fullnode.get_haneul_system_state().await
+    }
+
+    async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary> {
+        self.fullnode.get_latest_haneul_system_state().await
     }
 
     async fn get_reference_gas_price(&self) -> RpcResult<u64> {

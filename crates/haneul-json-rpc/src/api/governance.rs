@@ -12,6 +12,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::governance::DelegatedStake;
 
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 #[open_rpc(namespace = "haneul", tag = "Governance Read API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -32,9 +33,14 @@ pub trait GovernanceReadApi {
         epoch: Option<EpochId>,
     ) -> RpcResult<HaneulCommittee>;
 
-    /// Return latest HANEUL system state object on-chain.
-    #[method(name = "getHaneulSystemState")]
+    /// (Deprecated) Return latest HANEUL system state object on-chain.
+    /// This is now deprecated in favor of get_latest_haneul_system_state.
+    #[method(name = "getHaneulSystemState", deprecated)]
     async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc>;
+
+    /// Return the latest HANEUL system state object on-chain.
+    #[method(name = "getLatestHaneulSystemState")]
+    async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary>;
 
     /// Return the reference gas price for the network
     #[method(name = "getReferenceGasPrice")]
