@@ -23,4 +23,6 @@ module haneul::test_utils {
     }
 
     public native fun destroy<T>(x: T);
+
+    public native fun create_one_time_witness<T: drop>(): T;
 }
