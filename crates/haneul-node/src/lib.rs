@@ -63,7 +63,6 @@ pub mod admin;
 mod handle;
 pub mod metrics;
 pub use handle::HaneulNodeHandle;
-use narwhal_config::SharedWorkerCache;
 use narwhal_types::TransactionsClient;
 use haneul_core::authority::authority_per_epoch_store::{
     AuthorityPerEpochStore, EpochStartConfiguration,
@@ -599,7 +598,7 @@ impl HaneulNode {
         narwhal_manager
             .start(
                 committee.clone(),
-                SharedWorkerCache::from(worker_cache),
+                worker_cache,
                 consensus_handler,
                 HaneulTxValidator::new(
                     epoch_store,
