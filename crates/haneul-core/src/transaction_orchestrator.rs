@@ -26,7 +26,7 @@ use std::time::Duration;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_storage::write_path_pending_tx_log::WritePathPendingTransactionLog;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::committee::Committee;
+use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
@@ -62,7 +62,7 @@ pub struct TransactiondOrchestrator<A> {
 impl TransactiondOrchestrator<NetworkAuthorityClient> {
     pub async fn new_with_network_clients(
         validator_state: Arc<AuthorityState>,
-        reconfig_channel: Receiver<(Committee, ProtocolVersion)>,
+        reconfig_channel: Receiver<(CommitteeWithNetworkMetadata, ProtocolVersion)>,
         parent_path: &Path,
         prometheus_registry: &Registry,
     ) -> anyhow::Result<Self> {

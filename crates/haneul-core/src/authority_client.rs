@@ -12,7 +12,7 @@ use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
 use haneul_network::{api::ValidatorClient, tonic};
 use haneul_types::base_types::AuthorityName;
-use haneul_types::committee::CommitteeWithNetAddresses;
+use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
@@ -163,17 +163,20 @@ impl AuthorityAPI for NetworkAuthorityClient {
 }
 
 pub fn make_network_authority_client_sets_from_committee(
-    committee: &CommitteeWithNetAddresses,
+    committee: &CommitteeWithNetworkMetadata,
     network_config: &Config,
 ) -> anyhow::Result<BTreeMap<AuthorityName, NetworkAuthorityClient>> {
     let mut authority_clients = BTreeMap::new();
     for (name, _stakes) in &committee.committee.voting_rights {
-        let address = committee.net_addresses.get(name).ok_or_else(|| {
-            HaneulError::from("Missing network address in CommitteeWithNetAddresses")
-        })?;
-        let address = Multiaddr::try_from(address.clone())?;
+        let address = &committee
+            .network_metadata
+            .get(name)
+            .ok_or_else(|| {
+                HaneulError::from("Missing network metadata in CommitteeWithNetworkMetadata")
+            })?
+            .network_address;
         let channel = network_config
-            .connect_lazy(&address)
+            .connect_lazy(address)
             .map_err(|err| anyhow!(err.to_string()))?;
         let client = NetworkAuthorityClient::new(channel);
         authority_clients.insert(*name, client);
