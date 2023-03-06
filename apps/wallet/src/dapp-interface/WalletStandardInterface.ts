@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type HaneulAddress } from '@haneullabs/haneul.js';
 import {
     HANEUL_CHAINS,
     ReadonlyWalletAccount,
@@ -33,7 +34,6 @@ import {
 import { API_ENV } from '_src/shared/api-env';
 import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 import type { GetAccount } from '_payloads/account/GetAccount';
 import type { GetAccountResponse } from '_payloads/account/GetAccountResponse';
@@ -218,6 +218,10 @@ export class HaneulWallet implements Wallet {
     };
 
     #signTransaction: HaneulSignTransactionMethod = async (input) => {
+        // const transaction = Transaction.is(input.transaction)
+        //     ? input.transaction.serialize()
+        //     : input.transaction;
+
         return mapToPromise(
             this.#send<SignTransactionRequest, SignTransactionResponse>({
                 type: 'sign-transaction-request',
@@ -229,6 +233,7 @@ export class HaneulWallet implements Wallet {
                         input.account?.address ||
                         this.#accounts[0]?.address ||
                         '',
+                    transaction: input.transaction,
                 },
             }),
             (response) => response.result
@@ -238,6 +243,10 @@ export class HaneulWallet implements Wallet {
     #signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (
         input
     ) => {
+        // const transaction = Transaction.is(input.transaction)
+        //     ? input.transaction.serialize()
+        //     : input.transaction;
+
         return mapToPromise(
             this.#send<ExecuteTransactionRequest, ExecuteTransactionResponse>({
                 type: 'execute-transaction-request',

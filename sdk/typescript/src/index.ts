@@ -33,6 +33,8 @@ export * from './utils/verify';
 
 export * from './framework';
 
+export * from './builder';
+
 export { fromB64, toB64 } from '@haneullabs/bcs';
 
 export { is, assert } from 'superstruct';

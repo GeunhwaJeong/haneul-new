@@ -12,7 +12,7 @@ import Browser from 'webextension-polyfill';
 import { Window } from './Window';
 
 import type {
-    SignTransactionRequest,
+    HaneulSignTransactionSerialized,
     TransactionDataType,
 } from '_messages/payloads/transactions/ExecuteTransactionRequest';
 import type { TransactionRequest } from '_payloads/transactions';
@@ -37,7 +37,10 @@ class Transactions {
             sign,
         }:
             | { tx: TransactionDataType; sign?: undefined }
-            | { tx?: undefined; sign: SignTransactionRequest['transaction'] },
+            | {
+                  tx?: undefined;
+                  sign: HaneulSignTransactionSerialized;
+              },
         connection: ContentScriptConnection
     ): Promise<HaneulTransactionResponse | SignedTransaction> {
         const txRequest = this.createTransactionRequest(

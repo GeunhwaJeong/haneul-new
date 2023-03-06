@@ -19,6 +19,8 @@ export type TransactionDataType =
     | {
           type: 'v2';
           justSign?: boolean;
+          //   TODO: Support transaciton builder string
+          //   data: SignableTransaction | string;
           data: SignableTransaction;
           options?: HaneulSignAndExecuteTransactionOptions;
           account: HaneulAddress;
@@ -39,11 +41,19 @@ export function isExecuteTransactionRequest(
     );
 }
 
+export type HaneulSignTransactionSerialized = Omit<
+    HaneulSignTransactionInput,
+    'transaction' | 'account'
+> & {
+    // TODO: Enable string for serialized `Transaction`
+    // transaction: SignableTransaction | string;
+    transaction: SignableTransaction;
+    account: HaneulAddress;
+};
+
 export interface SignTransactionRequest extends BasePayload {
     type: 'sign-transaction-request';
-    transaction: Omit<HaneulSignTransactionInput, 'account'> & {
-        account: HaneulAddress;
-    };
+    transaction: HaneulSignTransactionSerialized;
 }
 
 export function isSignTransactionRequest(
