@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use haneul_types::base_types::{AuthorityName, EpochId};
 use haneul_types::committee::{Committee, StakeUnit};
-use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateInnerV1};
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::HaneulSystemStateInnerV1;
+use haneul_types::haneul_system_state::HaneulSystemState;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
 #[serde(untagged, rename = "HaneulSystemState")]

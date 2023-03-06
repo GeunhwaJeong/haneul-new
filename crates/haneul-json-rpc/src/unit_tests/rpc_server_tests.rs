@@ -28,7 +28,7 @@ use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;

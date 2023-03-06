@@ -5,6 +5,7 @@ use jsonrpsee::core::RpcResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
 
 use crate::api::GovernanceReadApiServer;
 use crate::error::Error;
@@ -16,7 +17,7 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::governance::{DelegatedStake, Delegation, DelegationStatus, StakedHaneul};
-use haneul_types::haneul_system_state::{HaneulSystemStateTrait, ValidatorMetadata};
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
 pub struct GovernanceReadApi {
     state: Arc<AuthorityState>,

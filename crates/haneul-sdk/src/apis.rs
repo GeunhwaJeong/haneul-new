@@ -29,7 +29,7 @@ use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};

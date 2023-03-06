@@ -11,7 +11,7 @@ use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::governance::DelegatedStake;
-use haneul_types::haneul_system_state::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
 
 pub(crate) struct GovernanceReadApi {
     fullnode: HttpClient,
