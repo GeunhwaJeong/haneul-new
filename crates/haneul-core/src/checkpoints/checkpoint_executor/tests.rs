@@ -14,13 +14,12 @@ use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::{accumulator::Accumulator, committee::ProtocolVersion};
 use tokio::{sync::broadcast, time::timeout};
 
+use crate::authority::authority_per_epoch_store::EpochStartConfiguration;
 use crate::{
     authority::AuthorityState, checkpoints::CheckpointStore, state_accumulator::StateAccumulator,
 };
-
-use crate::authority::authority_per_epoch_store::EpochStartConfiguration;
 use haneul_network::state_sync::test_utils::{empty_contents, CommitteeFixture};
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 
 /// Test checkpoint executor happy path, test that checkpoint executor correctly
 /// picks up where it left off in the event of a mid-epoch node crash.
@@ -215,17 +214,14 @@ pub async fn test_checkpoint_executor_cross_epoch() {
         .contains_key(&first_epoch)
         .unwrap());
 
-    let system_state = HaneulSystemState::new_for_testing(1);
+    let system_state = EpochStartSystemState::new_for_testing_with_epoch(1);
 
     let new_epoch_store = authority_state
         .reconfigure(
             &authority_state.epoch_store_for_testing(),
             SupportedProtocolVersions::SYSTEM_DEFAULT,
             second_committee.committee().clone(),
-            EpochStartConfiguration {
-                system_state,
-                ..Default::default()
-            },
+            EpochStartConfiguration::new(system_state, Default::default()),
         )
         .await
         .unwrap();

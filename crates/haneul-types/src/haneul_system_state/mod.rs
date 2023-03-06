@@ -1,28 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::base_types::{AuthorityName, HaneulAddress};
+use crate::base_types::HaneulAddress;
 use crate::committee::{CommitteeWithNetworkMetadata, EpochId, ProtocolVersion};
 use crate::dynamic_field::{derive_dynamic_field_id, Field};
 use crate::error::HaneulError;
 use crate::storage::ObjectStore;
+use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use crate::{id::UID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
-use anemo::PeerId;
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use move_core_types::language_storage::TypeTag;
 use move_core_types::value::MoveTypeLayout;
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use move_vm_types::values::Value;
-use multiaddr::Multiaddr;
-use narwhal_config::{Committee as NarwhalCommittee, WorkerCache};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use tracing::error;
 
 use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorMetadata};
 use self::haneul_system_state_summary::HaneulSystemStateSummary;
 
+pub mod epoch_start_haneul_system_state;
 pub mod haneul_system_state_inner_v1;
 pub mod haneul_system_state_summary;
 
@@ -69,14 +68,9 @@ pub trait HaneulSystemStateTrait {
     fn epoch_start_timestamp_ms(&self) -> u64;
     fn safe_mode(&self) -> bool;
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata;
-    fn get_current_epoch_narwhal_committee(&self) -> NarwhalCommittee;
-    fn get_current_epoch_narwhal_worker_cache(
-        &self,
-        transactions_address: &Multiaddr,
-    ) -> WorkerCache;
     fn get_validator_metadata_vec(&self) -> Vec<ValidatorMetadata>;
-    fn get_current_epoch_authority_names_to_peer_ids(&self) -> HashMap<AuthorityName, PeerId>;
     fn get_staking_pool_info(&self) -> BTreeMap<HaneulAddress, (Vec<u8>, u64)>;
+    fn into_epoch_start_state(self) -> EpochStartSystemState;
     fn into_haneul_system_state_summary(self) -> HaneulSystemStateSummary;
 }
 
