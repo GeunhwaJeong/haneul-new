@@ -29,7 +29,7 @@ use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
@@ -482,7 +482,7 @@ impl GovernanceApi {
     }
 
     /// Return all validators available for stake delegation.
-    pub async fn get_validators(&self) -> HaneulRpcResult<Vec<ValidatorMetadata>> {
+    pub async fn get_validators(&self) -> HaneulRpcResult<Vec<ValidatorMetadataV1>> {
         Ok(self.api.http.get_validators().await?)
     }
 

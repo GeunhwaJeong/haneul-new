@@ -5,7 +5,7 @@ use jsonrpsee::core::RpcResult;
 use std::collections::HashMap;
 use std::sync::Arc;
 use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 use crate::api::GovernanceReadApiServer;
@@ -70,7 +70,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .collect())
     }
 
-    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadata>> {
+    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadataV1>> {
         // TODO: include pending validators as well when the necessary changes are made in move.
         Ok(self
             .state

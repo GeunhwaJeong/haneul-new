@@ -28,7 +28,7 @@ use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
@@ -1002,7 +1002,7 @@ async fn test_delegation() -> Result<(), anyhow::Error> {
     let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
     assert!(staked_haneul.is_empty());
 
-    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+    let validators: Vec<ValidatorMetadataV1> = http_client.get_validators().await?;
 
     // Delegate some HANEUL
     let transaction_bytes: TransactionBytes = http_client
@@ -1057,7 +1057,7 @@ async fn test_delegation_multiple_coins() -> Result<(), anyhow::Error> {
     let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
     assert!(staked_haneul.is_empty());
 
-    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+    let validators: Vec<ValidatorMetadataV1> = http_client.get_validators().await?;
 
     // Delegate some HANEUL
     let transaction_bytes: TransactionBytes = http_client
@@ -1155,7 +1155,7 @@ async fn test_delegation_with_locked_haneul() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let validators: Vec<ValidatorMetadata> = http_client.get_validators().await?;
+    let validators: Vec<ValidatorMetadataV1> = http_client.get_validators().await?;
 
     // Delegate some locked HANEUL
     let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;

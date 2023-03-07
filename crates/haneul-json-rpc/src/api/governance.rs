@@ -11,7 +11,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::governance::DelegatedStake;
 
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 #[open_rpc(namespace = "haneul", tag = "Governance Read API")]
@@ -23,7 +23,7 @@ pub trait GovernanceReadApi {
 
     /// Return all validators available for stake delegation.
     #[method(name = "getValidators")]
-    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadata>>;
+    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadataV1>>;
 
     /// Return the committee information for the asked `epoch`.
     #[method(name = "getCommitteeInfo")]

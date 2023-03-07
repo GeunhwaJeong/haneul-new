@@ -11,7 +11,7 @@ use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::governance::DelegatedStake;
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 pub(crate) struct GovernanceReadApi {
@@ -32,7 +32,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         self.fullnode.get_delegated_stakes(owner).await
     }
 
-    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadata>> {
+    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadataV1>> {
         self.fullnode.get_validators().await
     }
 
