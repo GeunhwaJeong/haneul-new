@@ -13,11 +13,9 @@ import {
   RpcTxnDataSerializer,
   HANEUL_SYSTEM_STATE_OBJECT_ID,
   UnserializedSignableTransaction,
-  getObjectReference,
   TransactionData,
   TransactionKind,
   PayHaneulTransaction,
-  getObjectId,
   PayAllHaneulTx,
   PayAllHaneulTransaction,
 } from '../../src';
@@ -214,7 +212,13 @@ describe('Transaction Serialization and deserialization', () => {
 
     const payHaneulTx = {
       PayHaneul: {
-        coins: [getObjectReference(coins[0])],
+        coins: [
+          {
+            objectId: coins[0].coinObjectId,
+            version: coins[0].version,
+            digest: coins[0].digest,
+          },
+        ],
         recipients: [DEFAULT_RECIPIENT],
         amounts: [100],
       },
@@ -228,7 +232,13 @@ describe('Transaction Serialization and deserialization', () => {
         owner: DEFAULT_RECIPIENT_2,
         budget: gasBudget,
         price: 100,
-        payment: [getObjectReference(coins[1])],
+        payment: [
+          {
+            objectId: coins[1].coinObjectId,
+            version: coins[1].version,
+            digest: coins[1].digest,
+          },
+        ],
       },
       expiration: { None: null },
     } as TransactionData;
@@ -245,7 +255,7 @@ describe('Transaction Serialization and deserialization', () => {
     const expectedTx = {
       kind: 'payHaneul',
       data: {
-        inputCoins: [getObjectId(coins[0]).substring(2)],
+        inputCoins: [coins[0].coinObjectId.substring(2)],
         recipients: [DEFAULT_RECIPIENT.substring(2)],
         amounts: [BigInt(100)] as unknown as number[],
       } as PayHaneulTransaction,
@@ -263,7 +273,13 @@ describe('Transaction Serialization and deserialization', () => {
 
     const payAllHaneul = {
       PayAllHaneul: {
-        coins: [getObjectReference(coins[0])],
+        coins: [
+          {
+            objectId: coins[0].coinObjectId,
+            version: coins[0].version,
+            digest: coins[0].digest,
+          },
+        ],
         recipient: DEFAULT_RECIPIENT,
       },
     } as PayAllHaneulTx;
@@ -275,7 +291,13 @@ describe('Transaction Serialization and deserialization', () => {
         owner: DEFAULT_RECIPIENT_2,
         budget: gasBudget,
         price: 100,
-        payment: [getObjectReference(coins[1])],
+        payment: [
+          {
+            objectId: coins[1].coinObjectId,
+            version: coins[1].version,
+            digest: coins[1].digest,
+          },
+        ],
       },
       expiration: { None: null },
     } as TransactionData;
@@ -292,7 +314,7 @@ describe('Transaction Serialization and deserialization', () => {
     const expectedTx = {
       kind: 'payAllHaneul',
       data: {
-        inputCoins: [getObjectId(coins[0]).substring(2)],
+        inputCoins: [coins[0].coinObjectId.substring(2)],
         recipient: DEFAULT_RECIPIENT.substring(2),
       } as PayAllHaneulTransaction,
     } as UnserializedSignableTransaction;

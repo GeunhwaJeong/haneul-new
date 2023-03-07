@@ -1,19 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getObjectId } from '@haneullabs/haneul.js';
 import {
     createAsyncThunk,
     createEntityAdapter,
-    createSelector,
     createSlice,
 } from '@reduxjs/toolkit';
 import Browser from 'webextension-polyfill';
 
-import { haneulObjectsAdapterSelectors } from '_redux/slices/haneul-objects';
-import { Coin } from '_redux/slices/haneul-objects/Coin';
-
-import type { ObjectId, HaneulAddress, HaneulMoveObject } from '@haneullabs/haneul.js';
+import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { PayloadAction, Reducer } from '@reduxjs/toolkit';
 import type { KeyringPayload } from '_payloads/keyring';
 import type { RootState } from '_redux/RootReducer';
@@ -138,82 +133,3 @@ export default reducer;
 
 export const activeAccountSelector = ({ account }: RootState) =>
     account.address;
-
-export const ownedObjects = createSelector(
-    haneulObjectsAdapterSelectors.selectAll,
-    activeAccountSelector,
-    (objects, address) => {
-        if (address) {
-            return objects.filter(
-                ({ owner }) =>
-                    typeof owner === 'object' &&
-                    'AddressOwner' in owner &&
-                    owner.AddressOwner === address
-            );
-        }
-        return [];
-    }
-);
-
-export const accountCoinsSelector = createSelector(
-    ownedObjects,
-    (allHaneulObjects) => {
-        return allHaneulObjects
-            .filter(Coin.isCoin)
-            .map((aCoin) => aCoin.content as HaneulMoveObject);
-    }
-);
-
-// return an aggregate balance for each coin type
-export const accountAggregateBalancesSelector = createSelector(
-    accountCoinsSelector,
-    (coins) => {
-        return coins.reduce((acc, aCoin) => {
-            const coinType = Coin.getCoinTypeArg(aCoin);
-            if (coinType) {
-                if (typeof acc[coinType] === 'undefined') {
-                    acc[coinType] = BigInt(0);
-                }
-                acc[coinType] += Coin.getBalance(aCoin);
-            }
-            return acc;
-        }, {} as Record<string, bigint>);
-    }
-);
-
-// return a list of balances for each coin object for each coin type
-export const accountItemizedBalancesSelector = createSelector(
-    accountCoinsSelector,
-    (coins) => {
-        return coins.reduce((acc, aCoin) => {
-            const coinType = Coin.getCoinTypeArg(aCoin);
-            if (coinType) {
-                if (typeof acc[coinType] === 'undefined') {
-                    acc[coinType] = [];
-                }
-                acc[coinType].push(Coin.getBalance(aCoin));
-            }
-            return acc;
-        }, {} as Record<string, bigint[]>);
-    }
-);
-
-export const accountNftsSelector = createSelector(
-    ownedObjects,
-    (allHaneulObjects) => {
-        return allHaneulObjects.filter((anObj) => !Coin.isCoin(anObj));
-    }
-);
-
-export function createAccountNftByIdSelector(nftId: ObjectId) {
-    return createSelector(
-        accountNftsSelector,
-        (allNfts) => allNfts.find((nft) => getObjectId(nft) === nftId) || null
-    );
-}
-
-export function createCoinsForTypeSelector(coinTypeArg: string) {
-    return createSelector(accountCoinsSelector, (allCoins) =>
-        allCoins.filter((aCoin) => Coin.getCoinTypeArg(aCoin) === coinTypeArg)
-    );
-}

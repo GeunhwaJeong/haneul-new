@@ -3,15 +3,12 @@
 
 import { useCoinDecimals, useFormatCoin, CoinFormat } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
-import {
-    HANEUL_TYPE_ARG,
-    Coin as CoinAPI,
-    type HaneulMoveObject,
-} from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG, Coin as CoinAPI, type CoinStruct } from '@haneullabs/haneul.js';
 import { Field, Form, useFormikContext, Formik } from 'formik';
 import { useMemo, useEffect } from 'react';
 
 import { createValidationSchemaStepOne } from './validation';
+import { useActiveAddress } from '_app/hooks/useActiveAddress';
 import { Button } from '_app/shared/ButtonUI';
 import BottomMenuLayout, {
     Content,
@@ -22,11 +19,7 @@ import { IconTooltip } from '_app/shared/tooltip';
 import { AddressInput } from '_components/address-input';
 import Loading from '_components/loading';
 import { parseAmount } from '_helpers';
-import { useAppSelector, useIndividualCoinMaxBalance } from '_hooks';
-import {
-    accountAggregateBalancesSelector,
-    accountCoinsSelector,
-} from '_redux/slices/account';
+import { useGetCoins } from '_hooks';
 import { Coin, GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { useGasBudgetInMist } from '_src/ui/app/hooks/useGasBudgetInMist';
 import { InputWithAction } from '_src/ui/app/shared/InputWithAction';
@@ -48,7 +41,7 @@ export type SubmitProps = {
     isPayAllHaneul: boolean;
     coinIds: string[];
     gasBudget: number;
-    coins: HaneulMoveObject[];
+    coins: CoinStruct[];
 };
 
 export type SendTokenFormProps = {
@@ -64,7 +57,7 @@ function GasBudgetEstimation({
     haneulCoins,
 }: {
     coinDecimals: number;
-    haneulCoins: HaneulMoveObject[];
+    haneulCoins: CoinStruct[];
 }) {
     const { values, setFieldValue } = useFormikContext<FormValues>();
     const gasBudgetEstimationUnits = useMemo(
@@ -118,26 +111,44 @@ export function SendTokenForm({
     initialTo = '',
     initialGasEstimation = 0,
 }: SendTokenFormProps) {
-    const aggregateBalances = useAppSelector(accountAggregateBalancesSelector);
-    const coinBalance = useMemo(
-        () => (coinType && aggregateBalances[coinType]) || BigInt(0),
-        [coinType, aggregateBalances]
+    const activeAddress = useActiveAddress();
+    // Get all coins of the type
+    const { data: coinsData, isLoading: coinsIsLoading } = useGetCoins(
+        coinType,
+        activeAddress!
     );
 
-    const allCoins = useAppSelector(accountCoinsSelector);
-    const coins = allCoins.filter(
-        ({ type }) => CoinAPI.getCoinType(type) === coinType
+    const { data: haneulCoinsData, isLoading: haneulCoinsIsLoading } = useGetCoins(
+        HANEUL_TYPE_ARG,
+        activeAddress!
     );
 
-    const haneulCoins = allCoins.filter(
-        ({ type }) => CoinAPI.getCoinType(type) === HANEUL_TYPE_ARG
+    const haneulCoins = haneulCoinsData?.filter(
+        ({ lockedUntilEpoch }) => !lockedUntilEpoch
     );
 
-    const gasAggregateBalance = aggregateBalances[HANEUL_TYPE_ARG] || BigInt(0);
+    // filter out locked lockedUntilEpoch
+    const coins = coinsData?.filter(
+        ({ lockedUntilEpoch }) => !lockedUntilEpoch
+    );
+    const coinBalance = CoinAPI.totalBalance(coins || []);
+
+    const gasAggregateBalance = CoinAPI.totalBalance(haneulCoins || []);
+
     const coinSymbol = (coinType && CoinAPI.getCoinSymbol(coinType)) || '';
     const [coinDecimals, coinDecimalsQueryResult] = useCoinDecimals(coinType);
     const [gasDecimals, gasQueryResult] = useCoinDecimals(HANEUL_TYPE_ARG);
-    const maxHaneulSingleCoinBalance = useIndividualCoinMaxBalance(HANEUL_TYPE_ARG);
+    const maxHaneulSingleCoinBalance = useMemo(
+        () =>
+            haneulCoins?.reduce(
+                (max, c) =>
+                    max < CoinAPI.getBalanceFromCoinStruct(c)
+                        ? CoinAPI.getBalanceFromCoinStruct(c)
+                        : max,
+                BigInt(0)
+            ) || BigInt(0),
+        [haneulCoins]
+    );
 
     const validationSchemaStepOne = useMemo(
         () =>
@@ -178,7 +189,9 @@ export function SendTokenForm({
             loading={
                 queryResult.isLoading ||
                 gasQueryResult.isLoading ||
-                coinDecimalsQueryResult.isLoading
+                coinDecimalsQueryResult.isLoading ||
+                haneulCoinsIsLoading ||
+                coinsIsLoading
             }
         >
             <Formik
@@ -202,15 +215,15 @@ export function SendTokenForm({
                     gasInputBudgetEst,
                 }: FormValues) => {
                     if (!gasInputBudgetEst || !coins || !haneulCoins) return;
-                    const coinsIDs = CoinAPI.sortByBalance(coins)
-                        .reverse()
-                        .map((coin) => CoinAPI.getID(coin));
+                    const coinsIDs = [...coins]
+                        .sort((a, b) => b.balance - a.balance)
+                        .map(({ coinObjectId }) => coinObjectId);
 
                     const data = {
                         to,
                         amount,
                         isPayAllHaneul,
-                        coins: allCoins,
+                        coins,
                         coinIds: coinsIDs,
                         gasBudget: gasInputBudgetEst,
                     };
@@ -279,10 +292,12 @@ export function SendTokenForm({
                                             }
                                         />
                                     </div>
-                                    <GasBudgetEstimation
-                                        coinDecimals={coinDecimals}
-                                        haneulCoins={haneulCoins}
-                                    />
+                                    {haneulCoins ? (
+                                        <GasBudgetEstimation
+                                            coinDecimals={coinDecimals}
+                                            haneulCoins={haneulCoins}
+                                        />
+                                    ) : null}
 
                                     <div className="w-full flex gap-2.5 flex-col mt-7.5">
                                         <div className="px-2 tracking-wider">

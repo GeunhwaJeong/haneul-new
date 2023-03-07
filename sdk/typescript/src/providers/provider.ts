@@ -46,6 +46,7 @@ import {
   HaneulTransactionResponse,
   HaneulObjectDataOptions,
   HaneulSystemStateSummary,
+  CoinStruct,
 } from '../types';
 
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
@@ -168,7 +169,7 @@ export abstract class Provider {
     amount: bigint,
     typeArg: string,
     exclude: ObjectId[],
-  ): Promise<HaneulObjectResponse[]>;
+  ): Promise<CoinStruct[]>;
 
   /**
    * Convenience method for select a minimal set of coin objects that has a balance greater than
@@ -185,7 +186,7 @@ export abstract class Provider {
     amount: bigint,
     typeArg: string,
     exclude: ObjectId[],
-  ): Promise<HaneulObjectResponse[]>;
+  ): Promise<CoinStruct[]>;
 
   /**
    * Get details about an object
