@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::str::FromStr;
 use std::{fmt::Write, fs::read_dir, path::PathBuf, str, thread, time::Duration};
 
 use anyhow::anyhow;
@@ -25,7 +26,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{ObjectType, HaneulAddress};
 use haneul_types::crypto::{
     Ed25519HaneulSignature, Secp256k1HaneulSignature, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,
 };
@@ -204,7 +205,10 @@ async fn test_create_example_nft_command() {
             assert_eq!(obj.owner.unwrap().get_owner_address().unwrap(), address);
             assert_eq!(
                 obj.type_.clone().unwrap(),
-                haneul_framework_address_concat_string("::devnet_nft::DevNetNFT")
+                ObjectType::from_str(&haneul_framework_address_concat_string(
+                    "::devnet_nft::DevNetNFT"
+                ))
+                .unwrap()
             );
             Ok(obj)
         }
