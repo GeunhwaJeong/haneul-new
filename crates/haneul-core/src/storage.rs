@@ -9,12 +9,13 @@ use haneul_types::committee::EpochId;
 use haneul_types::digests::{TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::messages::VerifiedTransaction;
 use haneul_types::messages::{TransactionEffects, TransactionEvents};
-use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_checkpoint::EndOfEpochData;
+use haneul_types::messages_checkpoint::FullCheckpointContents;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
+use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
 use haneul_types::storage::ReadStore;
 use haneul_types::storage::WriteStore;
 use typed_store::Map;
@@ -80,11 +81,14 @@ impl ReadStore for RocksDbStore {
             })
     }
 
-    fn get_checkpoint_contents(
+    fn get_full_checkpoint_contents(
         &self,
         digest: &CheckpointContentsDigest,
-    ) -> Result<Option<CheckpointContents>, Self::Error> {
-        self.checkpoint_store.get_checkpoint_contents(digest)
+    ) -> Result<Option<FullCheckpointContents>, Self::Error> {
+        self.checkpoint_store
+            .get_checkpoint_contents(digest)?
+            .map(|contents| FullCheckpointContents::from_checkpoint_contents(&self, contents))
+            .transpose()
     }
 
     fn get_committee(&self, epoch: EpochId) -> Result<Option<Committee>, Self::Error> {
@@ -137,8 +141,14 @@ impl WriteStore for RocksDbStore {
             .update_highest_synced_checkpoint(checkpoint)
     }
 
-    fn insert_checkpoint_contents(&self, contents: CheckpointContents) -> Result<(), Self::Error> {
-        self.checkpoint_store.insert_checkpoint_contents(contents)
+    fn insert_checkpoint_contents(
+        &self,
+        contents: VerifiedCheckpointContents,
+    ) -> Result<(), Self::Error> {
+        self.authority_store
+            .multi_insert_transaction_and_effects(contents.iter())?;
+        self.checkpoint_store
+            .insert_checkpoint_contents(contents.into_inner().into_checkpoint_contents())
     }
 
     fn insert_committee(&self, new_committee: Committee) -> Result<(), Self::Error> {
@@ -146,14 +156,5 @@ impl WriteStore for RocksDbStore {
             .insert_new_committee(&new_committee)
             .unwrap();
         Ok(())
-    }
-
-    fn insert_transaction_and_effects(
-        &self,
-        transaction: VerifiedTransaction,
-        transaction_effects: TransactionEffects,
-    ) -> Result<(), Self::Error> {
-        self.authority_store
-            .insert_transaction_and_effects(&transaction, &transaction_effects)
     }
 }

@@ -133,16 +133,7 @@ fn build_anemo_services(out_dir: &Path) {
                 .name("get_checkpoint_contents")
                 .route_name("GetCheckpointContents")
                 .request_type("haneul_types::messages_checkpoint::CheckpointContentsDigest")
-                .response_type("Option<haneul_types::messages_checkpoint::CheckpointContents>")
-                .codec_path(codec_path)
-                .build(),
-        )
-        .method(
-            anemo_build::manual::Method::builder()
-                .name("get_transaction_and_effects")
-                .route_name("GetTransactionAndEffects")
-                .request_type("haneul_types::base_types::ExecutionDigests")
-                .response_type("Option<(haneul_types::messages::Transaction, haneul_types::messages::TransactionEffects)>")
+                .response_type("Option<haneul_types::messages_checkpoint::FullCheckpointContents>")
                 .codec_path(codec_path)
                 .build(),
         )
