@@ -1,32 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    type HaneulSignTransactionInput,
-    type HaneulSignAndExecuteTransactionOptions,
-} from '@haneullabs/wallet-standard';
+import { type HaneulSignTransactionInput } from '@haneullabs/wallet-standard';
 
+import { type TransactionDataType } from './ApprovalRequest';
 import { isBasePayload } from '_payloads';
 
-import type {
-    MoveCallTransaction,
-    SignableTransaction,
-    HaneulAddress,
-} from '@haneullabs/haneul.js';
+import type { SignableTransaction, HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
-
-export type TransactionDataType =
-    | {
-          type: 'v2';
-          justSign?: boolean;
-          //   TODO: Support transaciton builder string
-          //   data: SignableTransaction | string;
-          data: SignableTransaction;
-          options?: HaneulSignAndExecuteTransactionOptions;
-          account: HaneulAddress;
-      }
-    | { type: 'move-call'; data: MoveCallTransaction; account: HaneulAddress }
-    | { type: 'serialized-move-call'; data: string; account: HaneulAddress };
 
 export interface ExecuteTransactionRequest extends BasePayload {
     type: 'execute-transaction-request';

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ArrowUpRight12 } from '@haneullabs/icons';
-import { type HaneulAddress } from '@haneullabs/haneul.js/src';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { cx } from 'class-variance-authority';
 import { useMemo } from 'react';
 

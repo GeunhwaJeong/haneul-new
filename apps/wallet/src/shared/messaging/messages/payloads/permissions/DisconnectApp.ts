@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js/src';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { isBasePayload } from '_payloads';
 
