@@ -27,7 +27,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
-use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadata;
 
@@ -137,14 +137,6 @@ impl ReadApi {
     /// Return a checkpoint
     pub async fn get_checkpoint(&self, id: CheckpointId) -> HaneulRpcResult<Checkpoint> {
         Ok(self.api.http.get_checkpoint(id).await?)
-    }
-
-    /// Return a checkpoint summary based on a checkpoint sequence number
-    pub async fn get_checkpoint_summary(
-        &self,
-        seq_number: CheckpointSequenceNumber,
-    ) -> HaneulRpcResult<CheckpointSummary> {
-        Ok(self.api.http.get_checkpoint_summary(seq_number).await?)
     }
 
     /// Return the sequence number of the latest checkpoint that has been executed

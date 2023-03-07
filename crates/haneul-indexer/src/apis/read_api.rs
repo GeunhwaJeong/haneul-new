@@ -18,11 +18,9 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TxSequenceNumber};
-use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest, TransactionDigest};
+use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::DynamicFieldName;
-use haneul_types::messages_checkpoint::{
-    CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
-};
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::query::TransactionQuery;
 
 pub(crate) struct ReadApi<S> {
@@ -343,38 +341,6 @@ where
             return self.fullnode.get_checkpoint(id).await;
         }
         Ok(self.get_checkpoint(id).await?)
-    }
-
-    // NOTE: checkpoint APIs below will be deprecated,
-    // thus skipping them regarding indexer native implementations.
-    async fn get_checkpoint_summary_by_digest(
-        &self,
-        digest: CheckpointDigest,
-    ) -> RpcResult<CheckpointSummary> {
-        self.fullnode.get_checkpoint_summary_by_digest(digest).await
-    }
-
-    async fn get_checkpoint_summary(
-        &self,
-        sequence_number: CheckpointSequenceNumber,
-    ) -> RpcResult<CheckpointSummary> {
-        self.fullnode.get_checkpoint_summary(sequence_number).await
-    }
-
-    async fn get_checkpoint_contents_by_digest(
-        &self,
-        digest: CheckpointContentsDigest,
-    ) -> RpcResult<CheckpointContents> {
-        self.fullnode
-            .get_checkpoint_contents_by_digest(digest)
-            .await
-    }
-
-    async fn get_checkpoint_contents(
-        &self,
-        sequence_number: CheckpointSequenceNumber,
-    ) -> RpcResult<CheckpointContents> {
-        self.fullnode.get_checkpoint_contents(sequence_number).await
     }
 }
 
