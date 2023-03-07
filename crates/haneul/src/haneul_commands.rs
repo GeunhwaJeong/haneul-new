@@ -10,6 +10,7 @@ use anyhow::{anyhow, bail};
 use clap::*;
 use fastcrypto::traits::KeyPair;
 use move_package::BuildConfig;
+use haneul_framework_build::compiled_package::HaneulPackageHooks;
 use tracing::info;
 
 use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_KEYSTORE_FILENAME};
@@ -112,6 +113,7 @@ pub enum HaneulCommand {
 
 impl HaneulCommand {
     pub async fn execute(self) -> Result<(), anyhow::Error> {
+        move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
         match self {
             HaneulCommand::Start {
                 config,
