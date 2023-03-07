@@ -3,7 +3,11 @@
 
 import { useCoinDecimals } from '@haneullabs/core';
 import { ArrowRight16, ArrowLeft16 } from '@haneullabs/icons';
-import { getTransactionDigest, HANEUL_TYPE_ARG, Coin } from '@haneullabs/haneul.js';
+import {
+    getTransactionDigest,
+    HANEUL_TYPE_ARG,
+    Transaction,
+} from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -51,29 +55,73 @@ function TransferCoinPage() {
                     props: { coinType },
                 });
 
-                // Use payAllHaneul if sendMax is true and the token type is HANEUL
+                const tx = new Transaction();
+                tx.setGasBudget(formData.gasBudget);
+
                 if (formData.isPayAllHaneul && coinType === HANEUL_TYPE_ARG) {
-                    return signer.signAndExecuteTransaction({
-                        kind: 'payAllHaneul',
-                        data: {
-                            recipient: formData.to,
-                            gasBudget: formData.gasBudget,
-                            inputCoins: formData.coinIds,
-                        },
-                    });
+                    tx.add(
+                        Transaction.Commands.TransferObjects(
+                            [tx.gas],
+                            tx.input(formData.to)
+                        )
+                    );
+                    tx.setGasPayment(
+                        formData.coins
+                            .filter((coin) => coin.coinType === coinType)
+                            .map((coin) => ({
+                                objectId: coin.coinObjectId,
+                                digest: coin.digest,
+                                version: coin.version,
+                            }))
+                    );
+
+                    return signer.signAndExecuteTransaction(tx);
                 }
 
                 const bigIntAmount = parseAmount(formData.amount, coinDecimals);
-
-                return signer.signAndExecuteTransaction(
-                    await Coin.newPayTransaction(
-                        formData.coins,
-                        coinType,
-                        bigIntAmount,
-                        formData.to,
-                        formData.gasBudget
-                    )
+                const [primaryCoin, ...coins] = formData.coins.filter(
+                    (coin) => coin.coinType === coinType
                 );
+
+                if (coinType === HANEUL_TYPE_ARG) {
+                    const coin = tx.add(
+                        Transaction.Commands.SplitCoin(
+                            tx.gas,
+                            tx.input(bigIntAmount)
+                        )
+                    );
+                    tx.add(
+                        Transaction.Commands.TransferObjects(
+                            [coin],
+                            tx.input(formData.to)
+                        )
+                    );
+                } else {
+                    const primaryCoinInput = tx.input(primaryCoin);
+                    if (coins.length) {
+                        // TODO: This could just merge a subset of coins that meet the balance requirements instead of all of them.
+                        tx.add(
+                            Transaction.Commands.MergeCoins(
+                                primaryCoinInput,
+                                coins.map((coin) => tx.input(coin.coinObjectId))
+                            )
+                        );
+                    }
+                    const coin = tx.add(
+                        Transaction.Commands.SplitCoin(
+                            primaryCoinInput,
+                            tx.input(bigIntAmount)
+                        )
+                    );
+                    tx.add(
+                        Transaction.Commands.TransferObjects(
+                            [coin],
+                            tx.input(formData.to)
+                        )
+                    );
+                }
+
+                return signer.signAndExecuteTransaction(tx);
             } catch (error) {
                 transaction.setTag('failure', true);
                 throw error;

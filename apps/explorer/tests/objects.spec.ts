@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getCreatedObjects } from '@haneullabs/haneul.js';
 import { test, expect } from '@playwright/test';
 
-import { getCreatedObjects } from '@haneullabs/haneul.js';
 import { faucet, mint } from './utils/localnet';
 
 test('can be reached through URL', async ({ page }) => {

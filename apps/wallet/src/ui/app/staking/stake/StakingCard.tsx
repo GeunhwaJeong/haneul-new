@@ -14,7 +14,6 @@ import { toast } from 'react-hot-toast';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Alert from '../../components/alert';
-import { useReferenceGasPrice } from '../../hooks/useReferenceGasPrice';
 import { getStakingRewards } from '../getStakingRewards';
 import { useGetDelegatedStake } from '../useGetDelegatedStake';
 import { useSystemState } from '../useSystemState';
@@ -34,7 +33,7 @@ import Icon, { HaneulIcons } from '_components/icon';
 import Loading from '_components/loading';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { parseAmount } from '_helpers';
-import { useSigner, useGetCoinBalance, useGetCoins } from '_hooks';
+import { useSigner, useGetCoinBalance } from '_hooks';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 import { trackEvent } from '_src/shared/plausible';
 import { Text } from '_src/ui/app/shared/text';
@@ -63,10 +62,6 @@ function StakingCard() {
     );
 
     const { data: system, isLoading: validatorsIsloading } = useSystemState();
-    const { data: haneulCoinsData, isLoading: haneulCoinsIsLoading } = useGetCoins(
-        HANEUL_TYPE_ARG,
-        accountAddress!
-    );
 
     const totalTokenBalance = useMemo(() => {
         if (!allDelegation) return 0n;
@@ -126,13 +121,9 @@ function StakingCard() {
         return delegationData.delegation_status.Active.id.id;
     }, [delegationData]);
 
-    const gasPrice = useReferenceGasPrice();
     const navigate = useNavigate();
     const signer = useSigner();
 
-    const allHaneulCoins = haneulCoinsData?.filter(
-        ({ lockedUntilEpoch }) => !lockedUntilEpoch
-    );
     const stakeToken = useMutation({
         mutationFn: async ({
             tokenTypeArg,
@@ -143,13 +134,7 @@ function StakingCard() {
             amount: bigint;
             validatorAddress: HaneulAddress;
         }) => {
-            if (
-                !validatorAddress ||
-                !amount ||
-                !tokenTypeArg ||
-                !signer ||
-                !allHaneulCoins
-            ) {
+            if (!validatorAddress || !amount || !tokenTypeArg || !signer) {
                 throw new Error('Failed, missing required field');
             }
             trackEvent('Stake', {
@@ -157,10 +142,8 @@ function StakingCard() {
             });
             const response = await Coin.stakeCoin(
                 signer,
-                allHaneulCoins,
                 amount,
-                validatorAddress,
-                gasPrice.data!
+                validatorAddress
             );
             return response;
         },
@@ -278,12 +261,7 @@ function StakingCard() {
     return (
         <div className="flex flex-col flex-nowrap flex-grow w-full">
             <Loading
-                loading={
-                    isLoading ||
-                    validatorsIsloading ||
-                    loadingHaneulBalances ||
-                    haneulCoinsIsLoading
-                }
+                loading={isLoading || validatorsIsloading || loadingHaneulBalances}
             >
                 <Formik
                     initialValues={initialValues}
@@ -387,8 +365,7 @@ function StakingCard() {
                                     disabled={
                                         !isValid ||
                                         isSubmitting ||
-                                        (unstake && !delegationId) ||
-                                        gasPrice.isLoading
+                                        (unstake && !delegationId)
                                     }
                                 >
                                     {isSubmitting ? (
