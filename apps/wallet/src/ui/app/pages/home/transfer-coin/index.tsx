@@ -52,10 +52,13 @@ function TransferCoinPage() {
 
                 // Use payAllHaneul if sendMax is true and the token type is HANEUL
                 if (formData.isPayAllHaneul && coinType === HANEUL_TYPE_ARG) {
-                    return signer.payAllHaneul({
-                        recipient: formData.to,
-                        gasBudget: formData.gasBudget,
-                        inputCoins: formData.coinIds,
+                    return signer.signAndExecuteTransaction({
+                        kind: 'payAllHaneul',
+                        data: {
+                            recipient: formData.to,
+                            gasBudget: formData.gasBudget,
+                            inputCoins: formData.coinIds,
+                        },
                     });
                 }
 

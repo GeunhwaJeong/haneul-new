@@ -33,10 +33,13 @@ describe('Event Subscription API', () => {
       toolbox.address(),
     );
 
-    await signer.payAllHaneul({
-      inputCoins: inputCoins.map((o) => o.objectId),
-      recipient: DEFAULT_RECIPIENT,
-      gasBudget: DEFAULT_GAS_BUDGET,
+    await signer.signAndExecuteTransaction({
+      kind: 'payAllHaneul',
+      data: {
+        inputCoins: inputCoins.map((o) => o.objectId),
+        recipient: DEFAULT_RECIPIENT,
+        gasBudget: DEFAULT_GAS_BUDGET,
+      },
     });
 
     const subFoundAndRemoved = await toolbox.provider.unsubscribeEvent(
