@@ -239,6 +239,7 @@ export const HaneulValidatorSummary = object({
   next_epoch_stake: number(),
   next_epoch_gas_price: number(),
   next_epoch_commission_rate: number(),
+  staking_pool_id: string(),
   staking_pool_starting_epoch: number(),
   staking_pool_deactivation_epoch: nullable(number()),
   staking_pool_haneul_balance: number(),
