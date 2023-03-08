@@ -3,14 +3,18 @@
 
 use anyhow::anyhow;
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::vec;
+use haneul_json_rpc_types::HaneulArgument;
+use haneul_json_rpc_types::HaneulCommand;
+use haneul_json_rpc_types::HaneulProgrammableMoveCall;
+use haneul_json_rpc_types::HaneulProgrammableTransaction;
+use haneul_sdk::json::HaneulJsonValue;
 
 use serde::Deserialize;
 use serde::Serialize;
 use haneul_sdk::rpc_types::{
-    HaneulEvent, HaneulMoveCall, HaneulPayHaneul, HaneulTransactionData, HaneulTransactionDataAPI,
-    HaneulTransactionEffectsAPI, HaneulTransactionKind, HaneulTransactionResponse,
+    HaneulEvent, HaneulTransactionData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
+    HaneulTransactionKind, HaneulTransactionResponse,
 };
 
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
@@ -129,13 +133,18 @@ impl Operations {
         self,
         locked_until_epoch: Option<EpochId>,
     ) -> Result<InternalOperation, Error> {
-        if self.0.len() != 1 {
+        let mut ops = self
+            .0
+            .into_iter()
+            .filter(|op| op.type_ == OperationType::Delegation)
+            .collect::<Vec<_>>();
+        if ops.len() != 1 {
             return Err(Error::MalformedOperationError(
                 "Delegation should only have one operation.".into(),
             ));
         }
         // Checked above, safe to unwrap.
-        let op = self.into_iter().next().unwrap();
+        let op = ops.pop().unwrap();
         let sender = op
             .account
             .ok_or_else(|| Error::MissingInput("Sender address".to_string()))?
@@ -168,83 +177,183 @@ impl Operations {
         status: Option<OperationStatus>,
     ) -> Result<Vec<Operation>, Error> {
         Ok(match tx {
-            HaneulTransactionKind::PayHaneul(tx) => Self::parse_pay_haneul_operations(sender, tx, status),
-            HaneulTransactionKind::Call(tx) => Self::parse_call_operations(sender, status, tx)?,
+            HaneulTransactionKind::ProgrammableTransaction(pt) => {
+                Self::parse_programmable_transaction(sender, status, pt)?
+            }
             _ => vec![Operation::generic_op(status, sender, tx)],
         })
     }
 
-    fn parse_call_operations(
+    fn parse_programmable_transaction(
         sender: HaneulAddress,
         status: Option<OperationStatus>,
-        tx: HaneulMoveCall,
+        pt: HaneulProgrammableTransaction,
     ) -> Result<Vec<Operation>, Error> {
-        if Self::is_delegation_call(&tx) {
-            let (amount, validator) = match &tx.arguments[..] {
+        enum KnownValue {
+            GasCoin(u64),
+        }
+        macro_rules! bcs_json_to_value {
+            ($value:expr) => {
+                $value.to_json_value().as_array().and_then(|v| {
+                    // value is a byte array
+                    let bytes = v
+                        .iter()
+                        .flat_map(|v| v.as_u64().map(|n| n as u8))
+                        .collect::<Vec<_>>();
+                    bcs::from_bytes(&bytes).ok()
+                })
+            };
+        }
+        fn resolve_result(
+            known_results: &[Vec<KnownValue>],
+            i: u16,
+            j: u16,
+        ) -> Option<&KnownValue> {
+            known_results
+                .get(i as usize)
+                .and_then(|inner| inner.get(j as usize))
+        }
+        fn split_coin(
+            inputs: &[HaneulJsonValue],
+            _known_results: &[Vec<KnownValue>],
+            _coin: HaneulArgument,
+            amount: HaneulArgument,
+        ) -> Option<Vec<KnownValue>> {
+            let amount: u64 = match amount {
+                HaneulArgument::Input(i) => bcs_json_to_value!(&inputs[i as usize])?,
+                HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
+                    return None
+                }
+            };
+            Some(vec![KnownValue::GasCoin(amount)])
+        }
+        fn transfer_object(
+            aggregated_recipients: &mut HashMap<HaneulAddress, u64>,
+            inputs: &[HaneulJsonValue],
+            known_results: &[Vec<KnownValue>],
+            objs: &[HaneulArgument],
+            recipient: HaneulArgument,
+        ) -> Option<Vec<KnownValue>> {
+            let addr = match recipient {
+                HaneulArgument::Input(i) => inputs[i as usize].to_haneul_address().ok()?,
+                HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
+                    return None
+                }
+            };
+            for obj in objs {
+                let value = match *obj {
+                    HaneulArgument::Result(i) => {
+                        let KnownValue::GasCoin(value) = resolve_result(known_results, i, 0)?;
+                        value
+                    }
+                    HaneulArgument::NestedResult(i, j) => {
+                        let KnownValue::GasCoin(value) = resolve_result(known_results, i, j)?;
+                        value
+                    }
+                    HaneulArgument::GasCoin | HaneulArgument::Input(_) => return None,
+                };
+                let aggregate = aggregated_recipients.entry(addr).or_default();
+                *aggregate += value;
+            }
+            Some(vec![])
+        }
+        fn delegation_call(
+            inputs: &[HaneulJsonValue],
+            _known_results: &[Vec<KnownValue>],
+            call: &HaneulProgrammableMoveCall,
+        ) -> Result<Option<(Option<u64>, HaneulAddress)>, Error> {
+            let HaneulProgrammableMoveCall { arguments, .. } = call;
+            let (amount, validator) = match &arguments[..] {
                 [_, _, amount, validator] => {
-                    let amount = amount.to_json_value().as_array().and_then(|v| {
-                        // value is a byte array
-                        let bytes = v.iter().flat_map(|v| v.as_u64().map(|n| n as u8)).collect::<Vec<_>>();
-                        if let Ok(Some(amount)) = bcs::from_bytes::<Option<u64>>(&bytes) {
-                            Some(amount as u128)
-                        } else { None }
-                    });
-                    let validator = validator
-                        .to_json_value()
-                        .as_str()
-                        .map(HaneulAddress::from_str)
-                        .transpose()?
-                        .ok_or_else(|| Error::InternalError(anyhow!("Error parsing Validator address from call arg.")))?;
+                    let amount = match amount {
+                        HaneulArgument::Input(i) => match bcs_json_to_value!(&inputs[*i as usize]){
+                            Some(amount) => amount,
+                            None => return Ok(None),
+                        },
+                        HaneulArgument::GasCoin |
+                        HaneulArgument::Result(_) |
+                        HaneulArgument::NestedResult(_, _) => return Ok(None),
+                    };
+                    let validator = match validator {
+                        HaneulArgument::Input(i) => inputs[*i as usize].to_haneul_address(),
+                        HaneulArgument::GasCoin |
+                        HaneulArgument::Result(_) |
+                        HaneulArgument::NestedResult(_, _) => return Ok(None),
+                    };
                     (amount, validator)
                 },
-                _ => return Err(Error::InternalError(anyhow!("Error encountered when extracting arguments from move call, expecting 4 elements, got {}", tx.arguments.len()))),
+                _ => return Err(Error::InternalError(anyhow!("Error encountered when extracting arguments from move call, expecting 4 elements, got {}", arguments.len()))),
             };
-
-            let amount = amount.map(|amount| Amount::new(-(amount as i128)));
-
-            return Ok(vec![Operation {
-                operation_identifier: Default::default(),
-                type_: OperationType::Delegation,
-                status,
-                account: Some(sender.into()),
-                amount,
-                coin_change: None,
-                metadata: Some(OperationMetadata::Delegation { validator }),
-            }]);
+            let validator = validator.map_err(|_| {
+                Error::InternalError(anyhow!("Error parsing Validator address from call arg."))
+            })?;
+            Ok(Some((amount, validator)))
         }
-        Ok(vec![Operation::generic_op(
-            status,
-            sender,
-            HaneulTransactionKind::Call(tx),
-        )])
+
+        let HaneulProgrammableTransaction { inputs, commands } = &pt;
+        let mut known_results: Vec<Vec<KnownValue>> = vec![];
+        let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
+        let mut needs_generic = false;
+        let mut operations = vec![];
+        for command in commands {
+            let result = match command {
+                HaneulCommand::SplitCoin(coin, amount) => {
+                    split_coin(inputs, &known_results, *coin, *amount)
+                }
+                HaneulCommand::TransferObjects(objs, addr) => transfer_object(
+                    &mut aggregated_recipients,
+                    inputs,
+                    &known_results,
+                    objs,
+                    *addr,
+                ),
+                HaneulCommand::MoveCall(m) if Self::is_delegation_call(m) => {
+                    delegation_call(inputs, &known_results, m)?.map(|(amount, validator)| {
+                        let amount = amount.map(|amount| Amount::new(-(amount as i128)));
+                        operations.push(Operation {
+                            operation_identifier: Default::default(),
+                            type_: OperationType::Delegation,
+                            status,
+                            account: Some(sender.into()),
+                            amount,
+                            coin_change: None,
+                            metadata: Some(OperationMetadata::Delegation { validator }),
+                        });
+                        vec![]
+                    })
+                }
+                _ => None,
+            };
+            if let Some(result) = result {
+                known_results.push(result)
+            } else {
+                needs_generic = true;
+                known_results.push(vec![])
+            }
+        }
+
+        let total_paid: u64 = aggregated_recipients.values().copied().sum();
+        operations.extend(
+            aggregated_recipients
+                .into_iter()
+                .map(|(recipient, amount)| Operation::pay_haneul(status, recipient, amount.into())),
+        );
+        operations.push(Operation::pay_haneul(status, sender, -(total_paid as i128)));
+        if needs_generic {
+            operations.push(Operation::generic_op(
+                status,
+                sender,
+                HaneulTransactionKind::ProgrammableTransaction(pt),
+            ))
+        }
+        Ok(operations)
     }
 
-    fn is_delegation_call(tx: &HaneulMoveCall) -> bool {
+    fn is_delegation_call(tx: &HaneulProgrammableMoveCall) -> bool {
         tx.package == HANEUL_FRAMEWORK_OBJECT_ID
             && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
             && (tx.function == ADD_DELEGATION_LOCKED_COIN_FUN_NAME.as_str()
                 || tx.function == ADD_DELEGATION_MUL_COIN_FUN_NAME.as_str())
-    }
-
-    fn parse_pay_haneul_operations(
-        sender: HaneulAddress,
-        tx: HaneulPayHaneul,
-        status: Option<OperationStatus>,
-    ) -> Vec<Operation> {
-        let recipients = tx.recipients.iter().zip(&tx.amounts);
-        let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
-
-        for (recipient, amount) in recipients {
-            *aggregated_recipients.entry(*recipient).or_default() += *amount
-        }
-
-        let mut pay_operations = aggregated_recipients
-            .into_iter()
-            .map(|(recipient, amount)| Operation::pay_haneul(status, recipient, amount.into()))
-            .collect::<Vec<_>>();
-        let total_paid = tx.amounts.iter().sum::<u64>();
-        pay_operations.push(Operation::pay_haneul(status, sender, -(total_paid as i128)));
-        pay_operations
     }
 
     fn get_balance_operation_from_events(

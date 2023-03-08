@@ -248,3 +248,36 @@ async fn test_delegation() {
 
     assert_eq!(HaneulExecutionStatus::Success, *tx.effects.status())
 }
+
+#[tokio::test]
+async fn test_pay_haneul() {
+    let test_cluster = TestClusterBuilder::new().build().await.unwrap();
+    let sender = test_cluster.accounts[0];
+    let recipient = test_cluster.accounts[1];
+    let client = test_cluster.wallet.get_client().await.unwrap();
+    let keystore = &test_cluster.wallet.config.keystore;
+    let coin1 = get_random_haneul(&client, sender, vec![]).await;
+
+    let (rosetta_client, _handle) =
+        start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
+
+    let ops = client
+        .transaction_builder()
+        .pay_haneul(sender, vec![coin1.0], vec![recipient], vec![10000], 1000)
+        .await
+        .unwrap();
+
+    let ops = Operations::try_from(ops).unwrap();
+
+    let response = rosetta_client.rosetta_flow(ops, keystore).await;
+
+    let tx = client
+        .read_api()
+        .get_transaction(response.transaction_identifier.hash)
+        .await
+        .unwrap();
+
+    println!("Haneul TX: {tx:?}");
+
+    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.status())
+}
