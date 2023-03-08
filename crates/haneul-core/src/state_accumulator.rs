@@ -8,11 +8,11 @@ use typed_store::Map;
 
 use std::sync::Arc;
 
-use fastcrypto::hash::{Digest, MultisetHash};
+use fastcrypto::hash::MultisetHash;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, ECMHLiveObjectSetDigest};
 use typed_store::rocks::TypedStoreError;
 
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
@@ -160,10 +160,11 @@ impl StateAccumulator {
         epoch: &EpochId,
         last_checkpoint_of_epoch: CheckpointSequenceNumber,
         epoch_store: Arc<AuthorityPerEpochStore>,
-    ) -> Result<Digest<32>, TypedStoreError> {
+    ) -> Result<ECMHLiveObjectSetDigest, TypedStoreError> {
         Ok(self
             .accumulate_epoch(epoch, last_checkpoint_of_epoch, epoch_store)
             .await?
-            .digest())
+            .digest()
+            .into())
     }
 }
