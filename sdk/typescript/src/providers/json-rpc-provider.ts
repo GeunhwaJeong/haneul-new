@@ -428,13 +428,6 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getGasObjectsOwnedByAddress(
-    address: HaneulAddress,
-  ): Promise<HaneulObjectInfo[]> {
-    const objects = await this.getObjectsOwnedByAddress(address);
-    return objects.filter((obj: HaneulObjectInfo) => Coin.isHANEUL(obj));
-  }
-
   async selectCoinsWithBalanceGreaterThanOrEqual(
     address: HaneulAddress,
     amount: bigint,

@@ -12,6 +12,7 @@ import {
   fromB64,
   localnetConnection,
   Connection,
+  Coin,
 } from '../../../src';
 import { retry } from 'ts-retry-promise';
 import { FaucetRateLimitError } from '../../../src/rpc/faucet-client';
@@ -37,6 +38,14 @@ export class TestToolbox {
 
   address() {
     return this.keypair.getPublicKey().toHaneulAddress();
+  }
+
+  async getGasObjectsOwnedByAddress() {
+    const objects = await this.provider.getObjectsOwnedByAddress(
+      this.address(),
+    );
+
+    return objects.filter((obj) => Coin.isHANEUL(obj));
   }
 
   public async getActiveValidators() {

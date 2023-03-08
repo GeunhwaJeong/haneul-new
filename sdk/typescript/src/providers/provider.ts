@@ -150,13 +150,6 @@ export abstract class Provider {
   ): Promise<HaneulObjectInfo[]>;
 
   /**
-   * Convenience method for getting all gas objects(HANEUL Tokens) owned by an address
-   */
-  abstract getGasObjectsOwnedByAddress(
-    _address: string,
-  ): Promise<HaneulObjectInfo[]>;
-
-  /**
    * Convenience method for select coin objects that has a balance greater than or equal to `amount`
    *
    * @param amount coin balance
