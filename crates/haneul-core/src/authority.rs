@@ -57,7 +57,7 @@ use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, DevInspectResults, DryRunTransactionResponse, HaneulEvent,
     HaneulEventEnvelope, HaneulMoveValue, HaneulTransactionEvents,
 };
-use haneul_macros::nondeterministic;
+use haneul_macros::{fail_point, nondeterministic};
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::indexes::{ObjectIndexChanges, MAX_GET_OWNED_OBJECT_SIZE};
 use haneul_storage::write_ahead_log::WriteAheadLog;
@@ -3098,6 +3098,7 @@ impl AuthorityState {
         self.db()
             .set_epoch_start_configuration(&epoch_start_configuration)
             .await?;
+        fail_point!("before-open-new-epoch-store");
         let new_epoch_store = cur_epoch_store.new_at_next_epoch(
             self.name,
             new_committee,
