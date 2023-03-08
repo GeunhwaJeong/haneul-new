@@ -22,7 +22,6 @@ pub use move_vm_runtime::move_vm::MoveVM;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt::Debug};
 use strum_macros::{AsRefStr, IntoStaticStr};
-use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
 use thiserror::Error;
 use tonic::Status;
 use typed_store::rocks::TypedStoreError;
@@ -427,14 +426,8 @@ pub enum HaneulError {
     #[error("Found the haneul system state object but it has an unexpected version")]
     HaneulSystemStateUnexpectedVersion,
 
-    #[error("Message version is not supported at the current protocol version")]
-    WrongMessageVersion {
-        message_version: u64,
-        // the range in which the given message version is supported
-        supported: SupportedProtocolVersions,
-        // the current protocol version which is outside of that range
-        current_protocol_version: ProtocolVersion,
-    },
+    #[error("Message version is not supported at the current protocol version: {error}")]
+    WrongMessageVersion { error: String },
 
     #[error("unknown error: {0}")]
     Unknown(String),
@@ -456,6 +449,12 @@ pub enum VMMemoryLimitExceededSubStatusCode {
 
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
 pub type UserInputResult<T = ()> = Result<T, UserInputError>;
+
+impl From<haneul_protocol_config::Error> for HaneulError {
+    fn from(error: haneul_protocol_config::Error) -> Self {
+        HaneulError::WrongMessageVersion { error: error.0 }
+    }
+}
 
 // TODO these are both horribly wrong, categorization needs to be considered
 impl From<PartialVMError> for HaneulError {
