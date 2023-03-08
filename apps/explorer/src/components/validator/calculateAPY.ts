@@ -1,24 +1,29 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Validator } from '@haneullabs/haneul.js';
+import type { HaneulValidatorSummary } from '@haneullabs/haneul.js';
 
 import { roundFloat } from '~/utils/roundFloat';
 
 const APY_DECIMALS = 4;
 
 // TODO: share code with `calculateAPY` for wallet?
-export function calculateAPY(validator: Validator, epoch: number) {
+export function calculateAPY(validator: HaneulValidatorSummary, epoch: number) {
     let apy;
-    const { haneul_balance, activation_epoch, pool_token_balance } =
-        validator.staking_pool;
+    const {
+        staking_pool_haneul_balance,
+        staking_pool_activation_epoch,
+        pool_token_balance,
+    } = validator;
 
     // If the staking pool is active then we calculate its APY.
-    if (activation_epoch.vec.length > 0) {
-        const num_epochs_participated = +epoch - +activation_epoch.vec[0];
+    if (staking_pool_activation_epoch) {
+        const num_epochs_participated = +epoch - +staking_pool_activation_epoch;
         apy =
             Math.pow(
-                1 + (+haneul_balance - +pool_token_balance) / +pool_token_balance,
+                1 +
+                    (+staking_pool_haneul_balance - +pool_token_balance) /
+                        +pool_token_balance,
                 365 / num_epochs_participated
             ) - 1;
     } else {

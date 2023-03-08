@@ -39,18 +39,9 @@ describe('Governance API', () => {
     // TODO: implement this
   });
 
-  it('test getValidators', async () => {
-    const validators = await toolbox.provider.getValidators();
-    expect(validators.length).greaterThan(0);
-  });
-
   it('test getCommitteeInfo', async () => {
     const committeeInfo = await toolbox.provider.getCommitteeInfo(0);
     expect(committeeInfo.validators?.length).greaterThan(0);
-  });
-
-  it('test getHaneulSystemState', async () => {
-    await toolbox.provider.getHaneulSystemState();
   });
 
   it('test getLatestHaneulSystemState', async () => {
@@ -66,7 +57,8 @@ async function addDelegation(signer: RawSigner) {
     null,
   );
 
-  const validators = await signer.provider.getValidators();
+  const system = await signer.provider.getLatestHaneulSystemState();
+  const validators = system.active_validators;
 
   const tx = await HaneulSystemStateUtil.newRequestAddDelegationTxn(
     signer.provider,

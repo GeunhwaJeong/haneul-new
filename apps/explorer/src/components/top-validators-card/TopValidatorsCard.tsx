@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type Validator } from '@haneullabs/haneul.js';
+import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { ReactComponent as ArrowRight } from '../../assets/SVGIcons/12px/ArrowRight.svg';
@@ -18,17 +18,17 @@ import { Text } from '~/ui/Text';
 
 const NUMBER_OF_VALIDATORS = 10;
 
-export function processValidators(set: Validator[]) {
+export function processValidators(set: HaneulValidatorSummary[]) {
     return set.map((av) => ({
-        name: av.metadata.name,
-        address: av.metadata.haneul_address,
-        stake: av.staking_pool.haneul_balance,
-        logo: av.metadata.image_url,
+        name: av.name,
+        address: av.haneul_address,
+        stake: av.staking_pool_haneul_balance,
+        logo: av.image_url,
     }));
 }
 
 const validatorsTable = (
-    validatorsData: Validator[],
+    validatorsData: HaneulValidatorSummary[],
     limit?: number,
     showIcon?: boolean
 ) => {
@@ -93,11 +93,7 @@ export function TopValidatorsCard({ limit, showIcon }: TopValidatorsCardProps) {
     const tableData = useMemo(
         () =>
             data
-                ? validatorsTable(
-                      data.validators.active_validators,
-                      limit,
-                      showIcon
-                  )
+                ? validatorsTable(data.active_validators, limit, showIcon)
                 : null,
         [data, limit, showIcon]
     );

@@ -31,9 +31,7 @@ import {
   Order,
   CoinMetadata,
   DevInspectResults,
-  HaneulSystemState,
   DelegatedStake,
-  ValidatorMetaData,
   PaginatedCoins,
   CoinBalance,
   CoinSupply,
@@ -63,20 +61,12 @@ export class VoidProvider extends Provider {
     throw this.newError('getReferenceGasPrice');
   }
 
-  async getHaneulSystemState(): Promise<HaneulSystemState> {
-    throw this.newError('getHaneulSystemState');
-  }
-
   async getLatestHaneulSystemState(): Promise<HaneulSystemStateSummary> {
     throw this.newError('getLatestHaneulSystemState');
   }
 
   async getDelegatedStakes(_address: HaneulAddress): Promise<DelegatedStake[]> {
     throw this.newError('getDelegatedStakes');
-  }
-
-  async getValidators(): Promise<ValidatorMetaData[]> {
-    throw this.newError('getValidators');
   }
 
   // Faucet

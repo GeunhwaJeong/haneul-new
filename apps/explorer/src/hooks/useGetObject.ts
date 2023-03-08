@@ -5,14 +5,9 @@ import { useRpcClient } from '@haneullabs/core';
 import { type HaneulObjectResponse, normalizeHaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-export function useGetValidators() {
-    const rpc = useRpcClient();
-    return useQuery(['system', 'validators'], () => rpc.getValidators());
-}
-
 export function useGetSystemObject() {
     const rpc = useRpcClient();
-    return useQuery(['system', 'state'], () => rpc.getHaneulSystemState());
+    return useQuery(['system', 'state'], () => rpc.getLatestHaneulSystemState());
 }
 
 export function useGetObject(

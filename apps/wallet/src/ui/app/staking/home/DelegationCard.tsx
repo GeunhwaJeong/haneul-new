@@ -11,7 +11,7 @@ import { ValidatorLogo } from '../validators/ValidatorLogo';
 import { Text } from '_src/ui/app/shared/text';
 import { IconTooltip } from '_src/ui/app/shared/tooltip';
 
-import type { Validator, DelegatedStake } from '@haneullabs/haneul.js';
+import type { HaneulValidatorSummary, DelegatedStake } from '@haneullabs/haneul.js';
 
 export enum DelegationState {
     WARM_UP = 'WARM_UP',
@@ -21,7 +21,7 @@ export enum DelegationState {
 
 interface DelegationCardProps {
     delegationObject: DelegatedStake;
-    activeValidators: Validator[];
+    activeValidators: HaneulValidatorSummary[];
     currentEpoch: number;
 }
 

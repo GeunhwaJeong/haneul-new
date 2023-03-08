@@ -45,8 +45,6 @@ import {
   HaneulObjectResponse,
   GetOwnedObjectsResponse,
   DelegatedStake,
-  ValidatorMetaData,
-  HaneulSystemState,
   CoinBalance,
   CoinSupply,
   CheckpointDigest,
@@ -719,34 +717,6 @@ export class JsonRpcProvider extends Provider {
       return resp;
     } catch (err) {
       throw new Error(`Error in getDelegatedStake: ${err}`);
-    }
-  }
-
-  async getValidators(): Promise<ValidatorMetaData[]> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_getValidators',
-        [],
-        array(ValidatorMetaData),
-        this.options.skipDataValidation,
-      );
-      return resp;
-    } catch (err) {
-      throw new Error(`Error in getValidators: ${err}`);
-    }
-  }
-
-  async getHaneulSystemState(): Promise<HaneulSystemState> {
-    try {
-      const resp = await this.client.requestWithType(
-        'haneul_getHaneulSystemState',
-        [],
-        HaneulSystemState,
-        this.options.skipDataValidation,
-      );
-      return resp;
-    } catch (err) {
-      throw new Error(`Error in getHaneulSystemState: ${err}`);
     }
   }
 
