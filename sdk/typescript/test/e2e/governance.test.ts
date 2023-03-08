@@ -50,12 +50,10 @@ describe('Governance API', () => {
 });
 
 async function addDelegation(signer: RawSigner) {
-  const coins = await signer.provider.getCoins(
-    await signer.getAddress(),
-    HANEUL_TYPE_ARG,
-    null,
-    null,
-  );
+  const coins = await signer.provider.getCoins({
+    owner: await signer.getAddress(),
+    coinType: HANEUL_TYPE_ARG,
+  });
 
   const system = await signer.provider.getLatestHaneulSystemState();
   const validators = system.active_validators;

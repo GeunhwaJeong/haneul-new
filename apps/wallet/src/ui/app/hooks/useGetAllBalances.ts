@@ -9,7 +9,7 @@ export function useGetAllBalances(address?: HaneulAddress | null) {
     const rpc = useRpcClient();
     return useQuery(
         ['get-all-balance', address],
-        () => rpc.getAllBalances(address!),
+        () => rpc.getAllBalances({ owner: address! }),
         // refetchInterval is set to 4 seconds
         { enabled: !!address, refetchInterval: 4000 }
     );

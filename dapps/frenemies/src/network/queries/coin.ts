@@ -13,10 +13,10 @@ export function useBalance() {
   return useQuery(
     ["account-balance", currentAccount?.address],
     async () => {
-      const { totalBalance } = await provider.getBalance(
-        currentAccount?.address!,
-        HANEUL_TYPE_ARG
-      );
+      const { totalBalance } = await provider.getBalance({
+        owner: currentAccount?.address!,
+        coinType: HANEUL_TYPE_ARG,
+      });
 
       return {
         balance: BigInt(totalBalance),

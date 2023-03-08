@@ -30,7 +30,11 @@ export async function convertToTransactionBuilder(
 
       if (getObjectType(coinToMerge) === '0x2::coin::Coin<0x2::haneul::HANEUL>') {
         // Merging Haneul, need to avoid gas overlap:
-        const coins = await provider.getCoins(sender, HANEUL_TYPE_ARG, null, null);
+        const coins = await provider.getCoins({
+          owner: sender,
+          coinType: HANEUL_TYPE_ARG,
+        });
+
         tx.add(
           Commands.MergeCoins(tx.input(data.primaryCoin), [
             tx.input(data.coinToMerge),
