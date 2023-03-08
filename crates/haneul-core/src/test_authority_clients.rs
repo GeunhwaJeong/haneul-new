@@ -317,6 +317,10 @@ impl HandleTransactionTestAuthorityClient {
         self.tx_info_resp_to_return = Ok(resp);
     }
 
+    pub fn set_tx_info_response_error(&mut self, error: HaneulError) {
+        self.tx_info_resp_to_return = Err(error);
+    }
+
     pub fn reset_tx_info_response(&mut self) {
         self.tx_info_resp_to_return = Err(HaneulError::Unknown("".to_string()));
     }
