@@ -15,6 +15,7 @@ use haneul_types::crypto::AccountKeyPair;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::is_system_package;
 use haneul_types::object::GAS_VALUE_FOR_TESTING;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{base_types::dbg_addr, crypto::get_key_pair, gas::HaneulGasStatus};
 
@@ -176,10 +177,12 @@ async fn test_transfer_haneul_insufficient_gas() {
     let authority_state = init_state().await;
     authority_state.insert_genesis_object(gas_object).await;
 
-    let kind = TransactionKind::Single(SingleTransactionKind::TransferHaneul(TransferHaneul {
-        recipient,
-        amount: None,
-    }));
+    let pt = {
+        let mut builder = ProgrammableTransactionBuilder::new();
+        builder.transfer_haneul(recipient, None);
+        builder.finish()
+    };
+    let kind = TransactionKind::Single(SingleTransactionKind::ProgrammableTransaction(pt));
     let data = TransactionData::new(kind, sender, gas_object_ref, 110, 1);
     let tx = to_sender_signed_transaction(data, &sender_key);
 
@@ -603,10 +606,12 @@ async fn execute_transfer_with_price(
         .unwrap()
         .unwrap();
 
-    let kind = TransactionKind::Single(SingleTransactionKind::TransferObject(TransferObject {
-        recipient,
-        object_ref: object.compute_object_reference(),
-    }));
+    let pt = {
+        let mut builder = ProgrammableTransactionBuilder::new();
+        builder.transfer_object(recipient, object.compute_object_reference());
+        builder.finish()
+    };
+    let kind = TransactionKind::Single(SingleTransactionKind::ProgrammableTransaction(pt));
     let data = TransactionData::new(kind, sender, gas_object_ref, gas_budget, gas_price);
     let tx = to_sender_signed_transaction(data, &sender_key);
 

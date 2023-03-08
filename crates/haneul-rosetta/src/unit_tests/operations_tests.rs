@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAddress};
-use haneul_types::messages::TransactionData;
+use haneul_types::messages::{PayHaneul, SingleTransactionKind, TransactionData, TransactionKind};
 
 use crate::operations::Operations;
 use crate::types::{ConstructionMetadata, TransactionMetadata};
@@ -17,14 +17,13 @@ async fn test_operation_data_parsing() -> Result<(), anyhow::Error> {
 
     let sender = HaneulAddress::random_for_testing_only();
 
-    let data = TransactionData::new_pay_haneul_with_dummy_gas_price(
-        sender,
-        vec![gas],
-        vec![HaneulAddress::random_for_testing_only()],
-        vec![10000],
-        gas,
-        1000,
-    );
+    // TODO figure out an analogous operation for programmable transactions
+    let kind = TransactionKind::Single(SingleTransactionKind::PayHaneul(PayHaneul {
+        coins: vec![gas],
+        recipients: vec![HaneulAddress::random_for_testing_only()],
+        amounts: vec![10000],
+    }));
+    let data = TransactionData::new_with_dummy_gas_price(kind, sender, gas, 1000);
 
     let ops: Operations = data.clone().try_into()?;
     let metadata = ConstructionMetadata {
