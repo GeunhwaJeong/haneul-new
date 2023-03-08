@@ -4,7 +4,7 @@
 import { type SerializedSignature, SignerWithProvider } from '@haneullabs/haneul.js';
 
 import type { BackgroundClient } from '.';
-import type { Provider, HaneulAddress, TxnDataSerializer } from '@haneullabs/haneul.js';
+import type { Provider, HaneulAddress } from '@haneullabs/haneul.js';
 
 export class BackgroundServiceSigner extends SignerWithProvider {
     readonly #address: HaneulAddress;
@@ -13,10 +13,9 @@ export class BackgroundServiceSigner extends SignerWithProvider {
     constructor(
         address: HaneulAddress,
         backgroundClient: BackgroundClient,
-        provider?: Provider,
-        serializer?: TxnDataSerializer
+        provider?: Provider
     ) {
-        super(provider, serializer);
+        super(provider);
         this.#address = address;
         this.#backgroundClient = backgroundClient;
     }
