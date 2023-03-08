@@ -27,14 +27,16 @@ export function App() {
 You can then add a **Connect Wallet** button to your page:
 
 ```tsx
-import { ConnectButton } from "@haneullabs/wallet-kit";
+import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
+import { formatAddress } from "@haneullabs/haneul.js";
 
 function ConnectToWallet() {
+  const { currentAccount } = useWalletKit();
   return (
-    <div>
-      Connect wallet to get started:
-      <ConnectButton />
-    </div>
+    <ConnectButton
+      connectText={"Connect Wallet"}
+      connectedText={`Connected: ${formatAddress(currentAccount.address)}`}
+    />
   );
 }
 ```
