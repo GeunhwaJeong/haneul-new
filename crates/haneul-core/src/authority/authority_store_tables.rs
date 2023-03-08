@@ -197,6 +197,13 @@ impl AuthorityPerpetualTables {
             prev: None,
         }
     }
+
+    pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {
+        // This checkpoints the entire db and not just objects table
+        self.objects
+            .checkpoint_db(path)
+            .map_err(HaneulError::StorageError)
+    }
 }
 
 impl ObjectStore for AuthorityPerpetualTables {

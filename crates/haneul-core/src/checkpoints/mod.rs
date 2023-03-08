@@ -31,7 +31,7 @@ use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{EpochId, TransactionDigest};
 use haneul_types::crypto::{AuthoritySignInfo, AuthorityStrongQuorumSignInfo};
 use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
-use haneul_types::error::HaneulResult;
+use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages::{
     ConsensusTransactionKey, SingleTransactionKind, TransactionDataAPI, TransactionEffects,
@@ -387,6 +387,13 @@ impl CheckpointStore {
                 .epoch_rolling_gas_cost_summary
                 .computation_cost,
         })
+    }
+
+    pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {
+        // This checkpoints the entire db and not one column family
+        self.checkpoint_content
+            .checkpoint_db(path)
+            .map_err(HaneulError::StorageError)
     }
 }
 

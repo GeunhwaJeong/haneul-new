@@ -84,6 +84,7 @@ haneul-node = { path = "../haneul-node" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
+haneul-tool = { path = "../haneul-tool" }
 
 assert_cmd = "2.0.6"
 

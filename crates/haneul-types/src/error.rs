@@ -431,6 +431,9 @@ pub enum HaneulError {
 
     #[error("unknown error: {0}")]
     Unknown(String),
+
+    #[error("Failed to perform file operation: {0}")]
+    FileIOError(String),
 }
 
 #[repr(u64)]

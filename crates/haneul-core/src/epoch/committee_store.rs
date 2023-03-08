@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use rocksdb::Options;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use haneul_storage::default_db_options;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
@@ -76,7 +76,6 @@ impl CommitteeStore {
             .unwrap()
             .1
     }
-
     /// Return the committee specified by `epoch`. If `epoch` is `None`, return the latest committee.
     pub fn get_or_latest_committee(&self, epoch: Option<EpochId>) -> HaneulResult<Committee> {
         Ok(match epoch {
@@ -85,6 +84,12 @@ impl CommitteeStore {
                 .ok_or(HaneulError::MissingCommitteeAtEpoch(epoch))?,
             None => self.get_latest_committee(),
         })
+    }
+
+    pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {
+        self.committee_map
+            .checkpoint_db(path)
+            .map_err(HaneulError::StorageError)
     }
 
     fn database_is_empty(&self) -> bool {

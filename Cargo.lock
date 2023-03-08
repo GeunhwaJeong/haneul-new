@@ -8456,6 +8456,7 @@ dependencies = [
  "haneul-simulator",
  "haneul-source-validation",
  "haneul-swarm",
+ "haneul-tool",
  "haneul-types",
  "telemetry-subscribers",
  "tempfile",
