@@ -14,7 +14,6 @@ use crate::haneul_system_state::epoch_start_haneul_system_state::{
 use anyhow::Result;
 use fastcrypto::traits::ToFromBytes;
 use multiaddr::Multiaddr;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -30,7 +29,7 @@ const E_METADATA_INVALID_PRIMARY_ADDR: u64 = 6;
 const E_METADATA_INVALID_WORKER_ADDR: u64 = 7;
 
 /// Rust version of the Move haneul::haneul_system::SystemParameters type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "SystemParameters")]
 pub struct SystemParametersV1 {
@@ -39,7 +38,7 @@ pub struct SystemParametersV1 {
     pub governance_start_epoch: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "ValidatorMetadata")]
 pub struct ValidatorMetadataV1 {
@@ -208,7 +207,7 @@ impl ValidatorMetadataV1 {
 }
 
 /// Rust version of the Move haneul::validator::Validator type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "Validator")]
 pub struct ValidatorV1 {
@@ -345,7 +344,7 @@ impl ValidatorV1 {
 }
 
 /// Rust version of the Move haneul::staking_pool::StakingPool type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "StakingPool")]
 pub struct StakingPoolV1 {
@@ -362,7 +361,7 @@ pub struct StakingPoolV1 {
 }
 
 /// Rust version of the Move haneul::validator_set::ValidatorSet type
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "ValidatorSet")]
 pub struct ValidatorSetV1 {
@@ -377,7 +376,7 @@ pub struct ValidatorSetV1 {
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type
 /// We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct HaneulSystemStateInnerV1 {
     pub epoch: u64,
     pub protocol_version: u64,
@@ -392,7 +391,7 @@ pub struct HaneulSystemStateInnerV1 {
     // TODO: Use getters instead of all pub.
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
 #[serde(rename = "StakeSubsidy")]
 pub struct StakeSubsidyV1 {
@@ -444,24 +443,6 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
             .active_validators
             .iter()
             .map(|v| v.metadata.clone())
-            .collect()
-    }
-
-    /// Maps from validator Haneul address to (public key bytes, staking pool haneul balance).
-    /// TODO: Might be useful to return a more organized data structure.
-    fn get_staking_pool_info(&self) -> BTreeMap<HaneulAddress, (Vec<u8>, u64)> {
-        self.validators
-            .active_validators
-            .iter()
-            .map(|validator| {
-                (
-                    validator.metadata.haneul_address,
-                    (
-                        validator.metadata.protocol_pubkey_bytes.clone(),
-                        validator.staking_pool.haneul_balance,
-                    ),
-                )
-            })
             .collect()
     }
 

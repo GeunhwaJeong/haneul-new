@@ -13,8 +13,7 @@ use haneul_core::{
     safe_client::SafeClientMetricsBase,
 };
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{committee::Committee, haneul_system_state::HaneulSystemStateTrait};
+use haneul_types::committee::Committee;
 use tracing::{debug, error, trace};
 
 /// A ReconfigObserver that polls FullNode periodically
@@ -65,10 +64,14 @@ impl<S: SignatureVerifier + Default> ReconfigObserver<NetworkAuthorityClient, S>
     async fn run(&mut self, quorum_driver: Arc<QuorumDriver<NetworkAuthorityClient, S>>) {
         loop {
             tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-            match self.fullnode_client.read_api().get_haneul_system_state().await {
+            match self
+                .fullnode_client
+                .governance_api()
+                .get_latest_haneul_system_state()
+                .await
+            {
                 Ok(haneul_system_state) => {
-                    let haneul_system_state: HaneulSystemState = haneul_system_state.into();
-                    let epoch_id = haneul_system_state.epoch();
+                    let epoch_id = haneul_system_state.epoch;
                     if epoch_id > quorum_driver.current_epoch() {
                         debug!(epoch_id, "Got HaneulSystemState in newer epoch");
                         let new_committee = match self
@@ -95,7 +98,7 @@ impl<S: SignatureVerifier + Default> ReconfigObserver<NetworkAuthorityClient, S>
                         };
                         let _ = self.committee_store.insert_new_committee(&new_committee);
                         match AuthorityAggregator::new_from_committee(
-                            haneul_system_state.get_current_epoch_committee(),
+                            haneul_system_state.get_haneul_committee_for_benchmarking(),
                             &self.committee_store,
                             self.safe_client_metrics_base.clone(),
                             self.auth_agg_metrics.clone(),

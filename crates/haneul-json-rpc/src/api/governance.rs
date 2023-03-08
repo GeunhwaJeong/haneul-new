@@ -4,14 +4,13 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
+use haneul_json_rpc_types::HaneulCommittee;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::HaneulAddress;
 
 use haneul_types::committee::EpochId;
 use haneul_types::governance::DelegatedStake;
 
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 #[open_rpc(namespace = "haneul", tag = "Governance Read API")]
@@ -21,10 +20,6 @@ pub trait GovernanceReadApi {
     #[method(name = "getDelegatedStakes")]
     async fn get_delegated_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>>;
 
-    /// Return all validators available for stake delegation.
-    #[method(name = "getValidators")]
-    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadataV1>>;
-
     /// Return the committee information for the asked `epoch`.
     #[method(name = "getCommitteeInfo")]
     async fn get_committee_info(
@@ -32,11 +27,6 @@ pub trait GovernanceReadApi {
         /// The epoch of interest. If None, default to the latest epoch
         epoch: Option<EpochId>,
     ) -> RpcResult<HaneulCommittee>;
-
-    /// (Deprecated) Return latest HANEUL system state object on-chain.
-    /// This is now deprecated in favor of get_latest_haneul_system_state.
-    #[method(name = "getHaneulSystemState", deprecated)]
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc>;
 
     /// Return the latest HANEUL system state object on-chain.
     #[method(name = "getLatestHaneulSystemState")]

@@ -27,7 +27,9 @@ use haneul_json_rpc_types::{
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::error::HaneulError;
 use haneul_types::messages::TransactionEvents;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::{
     base_types::ObjectID,
     committee::{Committee, EpochId},
@@ -50,7 +52,6 @@ use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
 };
-use haneul_types::{error::HaneulError, haneul_system_state::HaneulSystemState};
 use tokio::{task::JoinSet, time::timeout};
 use tracing::{error, info};
 
@@ -124,7 +125,7 @@ impl ExecutionEffects {
 pub trait ValidatorProxy {
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error>;
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemState, anyhow::Error>;
+    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error>;
 
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects>;
 
@@ -270,12 +271,12 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
             .await?)
     }
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemState, anyhow::Error> {
+    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
         let auth_agg = self.qd.authority_aggregator().load();
-        auth_agg
+        Ok(auth_agg
             .get_latest_system_state_object_for_testing()
-            .await
-            .map(HaneulSystemState::new_for_benchmarking)
+            .await?
+            .into_haneul_system_state_summary())
     }
 
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects> {
@@ -482,9 +483,9 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
     async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
         let system_state = self.get_latest_system_state_object().await?;
         Ok(system_state
-            .get_validator_metadata_vec()
-            .into_iter()
-            .map(|metadata| metadata.haneul_address)
+            .active_validators
+            .iter()
+            .map(|v| v.haneul_address)
             .collect())
     }
 }
@@ -530,13 +531,12 @@ impl ValidatorProxy for FullNodeProxy {
         }
     }
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemState, anyhow::Error> {
+    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
         Ok(self
             .haneul_client
-            .read_api()
-            .get_haneul_system_state()
-            .await?
-            .into())
+            .governance_api()
+            .get_latest_haneul_system_state()
+            .await?)
     }
 
     async fn execute_transaction(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects> {
@@ -592,7 +592,12 @@ impl ValidatorProxy for FullNodeProxy {
     }
 
     async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
-        let validators = self.haneul_client.governance_api().get_validators().await?;
+        let validators = self
+            .haneul_client
+            .governance_api()
+            .get_latest_haneul_system_state()
+            .await?
+            .active_validators;
         Ok(validators.into_iter().map(|v| v.haneul_address).collect())
     }
 }

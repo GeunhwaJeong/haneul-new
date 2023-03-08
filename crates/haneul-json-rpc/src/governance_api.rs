@@ -4,8 +4,7 @@
 use jsonrpsee::core::RpcResult;
 use std::collections::HashMap;
 use std::sync::Arc;
-use haneul_json_rpc_types::{HaneulCommittee, HaneulSystemStateRpc};
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
+use haneul_json_rpc_types::HaneulCommittee;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 use crate::api::GovernanceReadApiServer;
@@ -70,16 +69,6 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .collect())
     }
 
-    async fn get_validators(&self) -> RpcResult<Vec<ValidatorMetadataV1>> {
-        // TODO: include pending validators as well when the necessary changes are made in move.
-        Ok(self
-            .state
-            .database
-            .get_haneul_system_state_object()
-            .map_err(Error::from)?
-            .get_validator_metadata_vec())
-    }
-
     async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<HaneulCommittee> {
         Ok(self
             .state
@@ -87,15 +76,6 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .get_or_latest_committee(epoch)
             .map(|committee| committee.into())
             .map_err(Error::from)?)
-    }
-
-    async fn get_haneul_system_state(&self) -> RpcResult<HaneulSystemStateRpc> {
-        Ok(self
-            .state
-            .database
-            .get_haneul_system_state_object()
-            .map_err(Error::from)?
-            .into())
     }
 
     async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary> {

@@ -1206,8 +1206,12 @@ async fn test_delegation_with_none_amount() -> Result<(), anyhow::Error> {
         .data;
 
     let config_path = test_cluster.swarm.dir().join(HANEUL_CLIENT_CONFIG);
-    let validator_addrs = client.governance_api().get_validators().await?;
-    let validator_addr = validator_addrs.first().unwrap().haneul_address;
+    let validator_addr = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await?
+        .active_validators[0]
+        .haneul_address;
 
     test_with_haneul_binary(&[
         "client",
@@ -1257,8 +1261,12 @@ async fn test_delegation_with_u64_amount() -> Result<(), anyhow::Error> {
         .data;
 
     let config_path = test_cluster.swarm.dir().join(HANEUL_CLIENT_CONFIG);
-    let validator_addrs = client.governance_api().get_validators().await?;
-    let validator_addr = validator_addrs.first().unwrap().haneul_address;
+    let validator_addr = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await?
+        .active_validators[0]
+        .haneul_address;
 
     test_with_haneul_binary(&[
         "client",

@@ -163,7 +163,13 @@ async fn test_get_delegated_haneul() {
     assert_eq!(response.balances[0].value, 0);
 
     // Delegate some haneul
-    let validators = client.governance_api().get_validators().await.unwrap();
+    let validator = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await
+        .unwrap()
+        .active_validators[0]
+        .haneul_address;
     let coins = client
         .coin_read_api()
         .get_coins(address, None, None, None)
@@ -176,7 +182,7 @@ async fn test_get_delegated_haneul() {
             address,
             vec![coins[0].coin_object_id],
             Some(100000),
-            validators[0].haneul_address,
+            validator,
             None,
             10000,
         )
@@ -222,11 +228,10 @@ async fn test_delegation() {
 
     let validator = client
         .governance_api()
-        .get_validators()
+        .get_latest_haneul_system_state()
         .await
         .unwrap()
-        .first()
-        .unwrap()
+        .active_validators[0]
         .haneul_address;
     let ops = client
         .transaction_builder()

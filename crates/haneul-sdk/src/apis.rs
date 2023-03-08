@@ -16,8 +16,7 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DryRunTransactionResponse, DynamicFieldPage,
     EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEventEnvelope, HaneulEventFilter,
     HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse,
-    HaneulPastObjectResponse, HaneulSystemStateRpc, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    TransactionsPage,
+    HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -29,11 +28,11 @@ use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::query::{EventQuery, TransactionQuery};
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorMetadataV1;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
 use haneul_types::governance::DelegatedStake;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 #[derive(Debug)]
 pub struct ReadApi {
@@ -186,10 +185,6 @@ impl ReadApi {
             .http
             .get_normalized_move_modules_by_package(package)
             .await?)
-    }
-
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateRpc> {
-        Ok(self.api.http.get_haneul_system_state().await?)
     }
 
     pub async fn get_reference_gas_price(&self) -> HaneulRpcResult<u64> {
@@ -481,19 +476,19 @@ impl GovernanceApi {
         Ok(self.api.http.get_delegated_stakes(owner).await?)
     }
 
-    /// Return all validators available for stake delegation.
-    pub async fn get_validators(&self) -> HaneulRpcResult<Vec<ValidatorMetadataV1>> {
-        Ok(self.api.http.get_validators().await?)
-    }
-
     /// Return the committee information for the asked `epoch`.
     /// `epoch`: The epoch of interest. If None, default to the latest epoch
     pub async fn get_committee_info(&self, epoch: Option<EpochId>) -> HaneulRpcResult<HaneulCommittee> {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
-    /// Return [HaneulSystemStateRpc]
-    pub async fn get_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateRpc> {
-        Ok(self.api.http.get_haneul_system_state().await?)
+    /// Return the latest HANEUL system state object on-chain.
+    pub async fn get_latest_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateSummary> {
+        Ok(self.api.http.get_latest_haneul_system_state().await?)
+    }
+
+    /// Return the reference gas price for the network
+    pub async fn get_reference_gas_price(&self) -> HaneulRpcResult<u64> {
+        Ok(self.api.http.get_reference_gas_price().await?)
     }
 }
