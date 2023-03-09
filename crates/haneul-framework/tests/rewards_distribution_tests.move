@@ -6,6 +6,7 @@ module haneul::rewards_distribution_tests {
     use haneul::test_scenario::{Self, Scenario};
     use haneul::haneul_system::{Self, HaneulSystemState};
 
+    use haneul::validator_cap::UnverifiedValidatorOperationCap;
     use haneul::governance_test_utils::{
         Self,
         advance_epoch,
@@ -362,8 +363,9 @@ module haneul::rewards_distribution_tests {
     fun report_validator(reporter: address, reportee: address, scenario: &mut Scenario) {
         test_scenario::next_tx(scenario, reporter);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let ctx = test_scenario::ctx(scenario);
-        haneul_system::report_validator(&mut system_state, reportee, ctx);
+        let cap = test_scenario::take_from_sender<UnverifiedValidatorOperationCap>(scenario);
+        haneul_system::report_validator(&mut system_state, &cap, reportee);
+        test_scenario::return_to_sender(scenario, cap);
         test_scenario::return_shared(system_state);
     }
 }
