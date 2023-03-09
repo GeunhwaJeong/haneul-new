@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
 
 import App from './app';
+import { HaneulLedgerClientProvider } from './app/components/ledger/HaneulLedgerClientProvider';
 import { growthbook } from './app/experimentation/feature-gating';
 import { queryClient } from './app/helpers/queryClient';
 import { useAppSelector } from './app/hooks';
@@ -68,9 +69,11 @@ function AppWrapper() {
                             <RpcClientContext.Provider
                                 value={api.instance.fullNode}
                             >
-                                <ErrorBoundary>
-                                    <App />
-                                </ErrorBoundary>
+                                <HaneulLedgerClientProvider>
+                                    <ErrorBoundary>
+                                        <App />
+                                    </ErrorBoundary>
+                                </HaneulLedgerClientProvider>
                             </RpcClientContext.Provider>
                         </QueryClientProvider>
                     </IntlProvider>
