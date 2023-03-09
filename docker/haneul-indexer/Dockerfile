@@ -38,20 +38,14 @@ COPY Cargo.toml Cargo.lock ./
 COPY crates crates
 COPY narwhal narwhal
 RUN cargo build --release \
-    --bin haneul-node \
-    --bin haneul \
-    --bin haneul-faucet \
-    --bin stress \
-    --bin haneul-cluster-test
+    --bin haneul-indexer
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
-COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
-COPY --from=builder /haneul/target/release/stress /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
+COPY --from=builder /haneul/target/release/haneul-indexer /usr/local/bin
+# haneul-indexer needs postgres libpq5 and ca-certificates
+RUN apt update && apt install -y libpq5 ca-certificates
 
 ARG BUILD_DATE
 ARG GIT_REVISION
