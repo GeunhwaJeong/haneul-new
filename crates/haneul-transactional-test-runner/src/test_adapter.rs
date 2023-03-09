@@ -43,7 +43,6 @@ use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::id::UID;
 use haneul_types::in_memory_storage::InMemoryStorage;
-use haneul_types::messages::Command;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -301,7 +300,10 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         gas_budget: Option<u64>,
         extra: Self::ExtraPublishArgs,
     ) -> anyhow::Result<(Option<String>, CompiledModule)> {
-        let HaneulPublishArgs { sender } = extra;
+        let HaneulPublishArgs {
+            sender,
+            upgradeable,
+        } = extra;
         let module_name = module.self_id().name().to_string();
         let module_bytes = {
             let mut buf = vec![];
@@ -311,7 +313,12 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
         let data = |sender, gas| {
             let mut builder = ProgrammableTransactionBuilder::new();
-            builder.command(Command::Publish(vec![module_bytes]));
+            if upgradeable {
+                let cap = builder.publish_upgradeable(vec![module_bytes]);
+                builder.transfer_arg(sender, cap);
+            } else {
+                builder.publish(vec![module_bytes]);
+            };
             let pt = builder.finish();
             TransactionData::new_programmable_with_dummy_gas_price(
                 sender,
