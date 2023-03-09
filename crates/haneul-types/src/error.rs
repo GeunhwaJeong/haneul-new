@@ -192,6 +192,9 @@ pub enum HaneulError {
     #[error("Expecting a single owner, shared ownership found")]
     UnexpectedOwnerType,
 
+    #[error("There are already {queue_len} transactions pending, above threshold of {threshold}")]
+    TooManyTransactionsPendingExecution { queue_len: usize, threshold: usize },
+
     #[error("Input {object_id} already has {queue_len} transactions pending, above threshold of {threshold}")]
     TooManyTransactionsPendingOnObject {
         object_id: ObjectID,
@@ -582,6 +585,10 @@ impl HaneulError {
             HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
                 (false, true)
             }
+
+            // Overload errors
+            HaneulError::TooManyTransactionsPendingExecution { .. } => (false, true),
+            HaneulError::TooManyTransactionsPendingOnObject { .. } => (false, true),
             _ => (false, false),
         }
     }
