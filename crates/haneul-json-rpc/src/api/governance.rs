@@ -4,12 +4,11 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::HaneulCommittee;
+use haneul_json_rpc_types::{DelegatedStake, HaneulCommittee};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::HaneulAddress;
 
 use haneul_types::committee::EpochId;
-use haneul_types::governance::DelegatedStake;
 
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 

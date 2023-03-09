@@ -13,12 +13,13 @@ use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 
+use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{
-    Balance, CoinPage, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus, HaneulObjectResponse,
-    HaneulTBlsSignObjectCommitmentType, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionBytes,
+    Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTBlsSignObjectCommitmentType,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    TransactionBytes,
 };
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectInfo};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
@@ -33,7 +34,6 @@ use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEW
 use test_utils::network::TestClusterBuilder;
 
 use haneul_macros::sim_test;
-use haneul_types::governance::{DelegatedStake, DelegationStatus};
 
 use tokio::time::{sleep, Duration};
 
@@ -1045,11 +1045,11 @@ async fn test_delegation() -> Result<(), anyhow::Error> {
     // Check DelegatedStake object
     let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
     assert_eq!(1, staked_haneul.len());
-    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
-    assert!(staked_haneul[0].staked_haneul.haneul_token_lock().is_none());
+    assert_eq!(1000000, staked_haneul[0].stakes[0].principal);
+    assert!(staked_haneul[0].stakes[0].token_lock.is_none());
     assert!(matches!(
-        staked_haneul[0].delegation_status,
-        DelegationStatus::Pending
+        staked_haneul[0].stakes[0].status,
+        StakeStatus::Pending
     ));
     Ok(())
 }
@@ -1107,11 +1107,11 @@ async fn test_delegation_multiple_coins() -> Result<(), anyhow::Error> {
     // Check DelegatedStake object
     let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
     assert_eq!(1, staked_haneul.len());
-    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
-    assert!(staked_haneul[0].staked_haneul.haneul_token_lock().is_none());
+    assert_eq!(1000000, staked_haneul[0].stakes[0].principal);
+    assert!(staked_haneul[0].stakes[0].token_lock.is_none());
     assert!(matches!(
-        staked_haneul[0].delegation_status,
-        DelegationStatus::Pending
+        staked_haneul[0].stakes[0].status,
+        StakeStatus::Pending
     ));
 
     // Coins should be merged into one and returned to the sender.
@@ -1208,12 +1208,12 @@ async fn test_delegation_with_locked_haneul() -> Result<(), anyhow::Error> {
     // Check StakedHaneul object
     let staked_haneul: Vec<DelegatedStake> = http_client.get_delegated_stakes(*address).await?;
     assert_eq!(1, staked_haneul.len());
-    assert_eq!(1000000, staked_haneul[0].staked_haneul.principal());
-    assert_eq!(Some(20), staked_haneul[0].staked_haneul.haneul_token_lock());
+    assert_eq!(1000000, staked_haneul[0].stakes[0].principal);
+    assert_eq!(Some(20), staked_haneul[0].stakes[0].token_lock);
 
     assert!(matches!(
-        staked_haneul[0].delegation_status,
-        DelegationStatus::Pending
+        staked_haneul[0].stakes[0].status,
+        StakeStatus::Pending
     ));
 
     Ok(())

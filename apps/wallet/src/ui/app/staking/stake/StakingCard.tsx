@@ -14,7 +14,8 @@ import { toast } from 'react-hot-toast';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Alert from '../../components/alert';
-import { getStakingRewards } from '../getStakingRewards';
+import { getDelegationDataByStakeId } from '../getDelegationByStakeId';
+import { getStakeHaneulByHaneulId } from '../getStakeHaneulByHaneulId';
 import { useGetDelegatedStake } from '../useGetDelegatedStake';
 import { useSystemState } from '../useSystemState';
 import { DelegationState, STATE_TO_COPY } from './../home/DelegationCard';
@@ -55,7 +56,7 @@ function StakingCard() {
     const coinBalance = BigInt(haneulBalance?.totalBalance || 0);
     const [searchParams] = useSearchParams();
     const validatorAddress = searchParams.get('address');
-    const stakeIdParams = searchParams.get('staked');
+    const stakeHaneulIdParams = searchParams.get('staked');
     const unstake = searchParams.get('unstake') === 'true';
     const { data: allDelegation, isLoading } = useGetDelegatedStake(
         accountAddress || ''
@@ -66,37 +67,21 @@ function StakingCard() {
     const totalTokenBalance = useMemo(() => {
         if (!allDelegation) return 0n;
         // return only the total amount of tokens staked for a specific stakeId
-        if (stakeIdParams) {
-            const balance =
-                allDelegation.find(
-                    ({ staked_haneul }) => staked_haneul.id.id === stakeIdParams
-                )?.staked_haneul.principal.value || 0;
-            return BigInt(balance);
-        }
-        // return aggregate delegation
-        return allDelegation.reduce(
-            (acc, { staked_haneul }) => acc + BigInt(staked_haneul.principal.value),
-            0n
-        );
-    }, [allDelegation, stakeIdParams]);
+        return getStakeHaneulByHaneulId(allDelegation, stakeHaneulIdParams);
+    }, [allDelegation, stakeHaneulIdParams]);
 
-    const delegationData = useMemo(() => {
-        if (!allDelegation) return null;
-
-        return allDelegation.find(
-            ({ staked_haneul }) => staked_haneul.id.id === stakeIdParams
-        );
-    }, [allDelegation, stakeIdParams]);
+    const stakeData = useMemo(() => {
+        if (!allDelegation || !stakeHaneulIdParams) return null;
+        // return delegation data for a specific stakeId
+        return getDelegationDataByStakeId(allDelegation, stakeHaneulIdParams);
+    }, [allDelegation, stakeHaneulIdParams]);
 
     const coinSymbol = useMemo(
         () => (coinType && Coin.getCoinSymbol(coinType)) || '',
         [coinType]
     );
 
-    const haneulEarned = useMemo(() => {
-        if (!system || !delegationData) return 0;
-        return getStakingRewards(system.active_validators, delegationData);
-    }, [delegationData, system]);
+    const haneulEarned = stakeData?.estimatedReward || 0;
 
     const [coinDecimals] = useCoinDecimals(coinType);
 
@@ -113,10 +98,9 @@ function StakingCard() {
 
     const queryClient = useQueryClient();
     const delegationId = useMemo(() => {
-        if (!delegationData || delegationData.delegation_status === 'Pending')
-            return null;
-        return delegationData.delegation_status.Active.id.id;
-    }, [delegationData]);
+        if (!stakeData || stakeData.status === 'Pending') return null;
+        return stakeData.stakedHaneulId;
+    }, [stakeData]);
 
     const navigate = useNavigate();
     const signer = useSigner();
@@ -137,12 +121,7 @@ function StakingCard() {
             trackEvent('Stake', {
                 props: { validator: validatorAddress },
             });
-            const response = await Coin.stakeCoin(
-                signer,
-                amount,
-                validatorAddress
-            );
-            return response;
+            return Coin.stakeCoin(signer, amount, validatorAddress);
         },
     });
     const unStakeToken = useMutation({
@@ -161,12 +140,7 @@ function StakingCard() {
 
             trackEvent('Unstake');
 
-            const response = await Coin.unStakeCoin(
-                signer,
-                delegationId,
-                stakeSuId
-            );
-            return response;
+            return Coin.unStakeCoin(signer, delegationId, stakeSuId);
         },
     });
 
@@ -185,16 +159,15 @@ function StakingCard() {
                 if (unstake) {
                     // check for delegation data
                     if (
-                        !delegationData ||
-                        !stakeIdParams ||
-                        delegationData.delegation_status === 'Pending'
+                        !stakeData ||
+                        !stakeHaneulIdParams ||
+                        stakeData.status === 'Pending'
                     ) {
                         return;
                     }
                     response = await unStakeToken.mutateAsync({
-                        delegationId:
-                            delegationData.delegation_status.Active.id.id,
-                        stakeSuId: stakeIdParams,
+                        delegationId: stakeData.stakedHaneulId,
+                        stakeSuId: stakeHaneulIdParams,
                     });
 
                     txDigest = getTransactionDigest(response);
@@ -245,8 +218,8 @@ function StakingCard() {
             unstake,
             queryClient,
             navigate,
-            delegationData,
-            stakeIdParams,
+            stakeData,
+            stakeHaneulIdParams,
             unStakeToken,
             stakeToken,
         ]
@@ -312,7 +285,7 @@ function StakingCard() {
                                         <Collapse
                                             title={
                                                 STATE_TO_COPY[
-                                                    delegationData?.delegation_status ===
+                                                    stakeData?.status ===
                                                     'Pending'
                                                         ? DelegationState.WARM_UP
                                                         : DelegationState.EARNING

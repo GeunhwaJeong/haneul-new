@@ -19,12 +19,10 @@ function ValidatorDetails() {
 
     const validatorData = useMemo(() => {
         if (!data) return null;
-        return (
-            data.active_validators.find((av) => av.haneul_address === id) || null
-        );
+        return data.activeValidators.find((av) => av.haneulAddress === id) || null;
     }, [id, data]);
 
-    const numberOfValidators = data?.active_validators.length ?? null;
+    const numberOfValidators = data?.activeValidators.length ?? null;
 
     const { data: validatorEvents, isLoading: validatorsEventsLoading } =
         useGetValidatorsEvents({

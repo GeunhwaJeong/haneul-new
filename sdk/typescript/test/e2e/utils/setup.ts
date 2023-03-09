@@ -58,7 +58,7 @@ export class TestToolbox {
   }
 
   public async getActiveValidators() {
-    return (await this.provider.getLatestHaneulSystemState()).active_validators;
+    return (await this.provider.getLatestHaneulSystemState()).activeValidators;
   }
 }
 

@@ -39,10 +39,10 @@ export function StakeTxnCard({ txnEffects, events }: StakeTxnCardProps) {
     const { data: system } = useSystemState();
 
     const validatorData = useMemo(() => {
-        if (!system || !stakingData || !stakingData.fields.validator_address)
+        if (!system || !stakingData || !stakingData.fields.validatorAddress)
             return null;
-        return system.active_validators.find(
-            (av) => av.haneul_address === stakingData.fields.validator_address
+        return system.activeValidators.find(
+            (av) => av.haneulAddress === stakingData.fields.validator_address
         );
     }, [stakingData, system]);
 

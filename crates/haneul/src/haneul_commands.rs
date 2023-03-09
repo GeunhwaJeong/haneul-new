@@ -63,6 +63,8 @@ pub enum HaneulCommand {
         working_dir: Option<PathBuf>,
         #[clap(short, long, help = "Forces overwriting existing configuration")]
         force: bool,
+        #[clap(long = "epoch-duration-ms")]
+        epoch_duration_ms: Option<u64>,
     },
     GenesisCeremony(Ceremony),
     /// Haneul keystore tool.
@@ -121,7 +123,7 @@ impl HaneulCommand {
             } => {
                 // Auto genesis if path is none and haneul directory doesn't exists.
                 if config.is_none() && !haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG).exists() {
-                    genesis(None, None, None, false).await?;
+                    genesis(None, None, None, false, None).await?;
                 }
 
                 // Load the config of the Haneul authority.
@@ -196,7 +198,17 @@ impl HaneulCommand {
                 force,
                 from_config,
                 write_config,
-            } => genesis(from_config, write_config, working_dir, force).await,
+                epoch_duration_ms,
+            } => {
+                genesis(
+                    from_config,
+                    write_config,
+                    working_dir,
+                    force,
+                    epoch_duration_ms,
+                )
+                .await
+            }
             HaneulCommand::GenesisCeremony(cmd) => run(cmd),
             HaneulCommand::KeyTool { keystore_path, cmd } => {
                 let keystore_path =
@@ -243,6 +255,7 @@ async fn genesis(
     write_config: Option<PathBuf>,
     working_dir: Option<PathBuf>,
     force: bool,
+    epoch_duration_ms: Option<u64>,
 ) -> Result<(), anyhow::Error> {
     let haneul_config_dir = &match working_dir {
         // if a directory is specified, it must exist (it
@@ -326,13 +339,17 @@ async fn genesis(
     }
 
     let validator_info = genesis_conf.validator_config_info.take();
+    let mut builder = ConfigBuilder::new(haneul_config_dir);
+    if let Some(epoch_duration_ms) = epoch_duration_ms {
+        builder = builder.with_epoch_duration(epoch_duration_ms);
+    }
     let mut network_config = if let Some(validators) = validator_info {
-        ConfigBuilder::new(haneul_config_dir)
+        builder
             .initial_accounts_config(genesis_conf)
             .with_validators(validators)
             .build()
     } else {
-        ConfigBuilder::new(haneul_config_dir)
+        builder
             .committee_size(NonZeroUsize::new(genesis_conf.committee_size).unwrap())
             .initial_accounts_config(genesis_conf)
             .build()

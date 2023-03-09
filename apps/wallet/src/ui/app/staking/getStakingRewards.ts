@@ -3,37 +3,25 @@
 
 import BigNumber from 'bignumber.js';
 
-import type { HaneulValidatorSummary, DelegatedStake } from '@haneullabs/haneul.js';
+import type { HaneulValidatorSummary, StakeObject } from '@haneullabs/haneul.js';
 
 export function getStakingRewards(
-    activeValidators: HaneulValidatorSummary[],
-    delegation: DelegatedStake
+    validator: HaneulValidatorSummary,
+    stakes: StakeObject
 ) {
-    if (
-        !activeValidators ||
-        !delegation ||
-        delegation.delegation_status === 'Pending'
-    )
-        return 0;
-    const pool_id = delegation.staked_haneul.pool_id;
-    const validator = activeValidators.find(
-        (validator) => validator.staking_pool_id === pool_id
-    );
+    if (!validator || !stakes || stakes.status === 'Pending') return 0;
 
     if (!validator) return 0;
 
-    const poolTokens = new BigNumber(
-        delegation.delegation_status.Active.pool_tokens.value
-    );
-    const delegationTokenSupply = new BigNumber(validator.pool_token_balance);
-    const haneulBalance = new BigNumber(validator.staking_pool_haneul_balance);
-    const pricipalAmout = new BigNumber(
-        delegation.delegation_status.Active.principal_haneul_amount
-    );
+    const poolTokens = new BigNumber(stakes.principal);
+    const delegationTokenSupply = new BigNumber(validator.poolTokenBalance);
+    const haneulBalance = new BigNumber(validator.stakingPoolHaneulBalance);
+    const principalAmount = new BigNumber(stakes.principal);
+
     const currentHaneulWorth = poolTokens
         .multipliedBy(haneulBalance)
         .dividedBy(delegationTokenSupply);
 
-    const earnToken = currentHaneulWorth.minus(pricipalAmout);
+    const earnToken = currentHaneulWorth.minus(principalAmount);
     return earnToken.decimalPlaces(0, BigNumber.ROUND_DOWN).toNumber();
 }

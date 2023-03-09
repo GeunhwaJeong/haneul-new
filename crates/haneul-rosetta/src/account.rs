@@ -8,9 +8,9 @@ use axum_extra::extract::WithRejection;
 use futures::StreamExt;
 use std::collections::HashMap;
 
+use haneul_sdk::rpc_types::StakeStatus;
 use haneul_sdk::{HaneulClient, HANEUL_COIN_TYPE};
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::governance::DelegationStatus;
 
 use crate::errors::Error;
 use crate::types::{
@@ -69,11 +69,12 @@ async fn get_sub_account_balances(
                 .await?;
             delegations
                 .into_iter()
-                .fold(HashMap::new(), |mut balances, delegation| {
-                    if let DelegationStatus::Active(_) = delegation.delegation_status {
-                        *balances
-                            .entry(delegation.staked_haneul.haneul_token_lock())
-                            .or_default() += delegation.staked_haneul.principal() as u128;
+                .fold(HashMap::new(), |mut balances, stakes| {
+                    for delegation in &stakes.stakes {
+                        if let StakeStatus::Active { .. } = delegation.status {
+                            *balances.entry(delegation.token_lock).or_default() +=
+                                delegation.principal as u128;
+                        }
                     }
                     balances
                 })
@@ -85,11 +86,12 @@ async fn get_sub_account_balances(
                 .await?;
             delegations
                 .into_iter()
-                .fold(HashMap::new(), |mut balances, delegation| {
-                    if let DelegationStatus::Pending = delegation.delegation_status {
-                        *balances
-                            .entry(delegation.staked_haneul.haneul_token_lock())
-                            .or_default() += delegation.staked_haneul.principal() as u128;
+                .fold(HashMap::new(), |mut balances, stakes| {
+                    for delegation in &stakes.stakes {
+                        if let StakeStatus::Pending = delegation.status {
+                            *balances.entry(delegation.token_lock).or_default() +=
+                                delegation.principal as u128;
+                        }
                     }
                     balances
                 })

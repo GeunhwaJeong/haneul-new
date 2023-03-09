@@ -10,19 +10,19 @@ const APY_DECIMALS = 4;
 export function calculateAPY(validator: HaneulValidatorSummary, epoch: number) {
     let apy;
     const {
-        staking_pool_haneul_balance,
-        staking_pool_activation_epoch,
-        pool_token_balance,
+        stakingPoolHaneulBalance,
+        stakingPoolActivationEpoch,
+        poolTokenBalance,
     } = validator;
 
     // If the staking pool is active then we calculate its APY.
-    if (staking_pool_activation_epoch) {
-        const num_epochs_participated = +epoch - +staking_pool_activation_epoch;
+    if (stakingPoolActivationEpoch) {
+        const num_epochs_participated = +epoch - +stakingPoolActivationEpoch;
         apy =
             Math.pow(
                 1 +
-                    (+staking_pool_haneul_balance - +pool_token_balance) /
-                        +pool_token_balance,
+                    (+stakingPoolHaneulBalance - +poolTokenBalance) /
+                        +poolTokenBalance,
                 365 / num_epochs_participated
             ) - 1;
     } else {

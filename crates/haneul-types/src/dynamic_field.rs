@@ -6,6 +6,7 @@ use crate::error::{HaneulError, HaneulResult};
 use crate::id::UID;
 use crate::haneul_serde::Readable;
 use crate::{ObjectID, SequenceNumber, HANEUL_FRAMEWORK_ADDRESS};
+use fastcrypto::encoding::Base58;
 use fastcrypto::hash::{HashFunction, Sha3_256};
 use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::value::{MoveStruct, MoveTypeLayout, MoveValue};
@@ -25,10 +26,14 @@ pub struct Field<N, V> {
     pub value: V,
 }
 
+#[serde_as]
 #[derive(Clone, Serialize, Deserialize, JsonSchema, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DynamicFieldInfo {
     pub name: DynamicFieldName,
+    #[schemars(with = "Base58")]
+    #[serde_as(as = "Readable<Base58, _>")]
+    pub bcs_name: Vec<u8>,
     pub type_: DynamicFieldType,
     pub object_type: String,
     pub object_id: ObjectID,

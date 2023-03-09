@@ -56,13 +56,13 @@ async function addDelegation(signer: RawSigner) {
   });
 
   const system = await signer.provider.getLatestHaneulSystemState();
-  const validators = system.active_validators;
+  const validators = system.activeValidators;
 
   const tx = await HaneulSystemStateUtil.newRequestAddDelegationTxn(
     signer.provider,
     [coins.data[0].coinObjectId],
     BigInt(DEFAULT_STAKED_AMOUNT),
-    validators[0].haneul_address,
+    validators[0].haneulAddress,
   );
 
   tx.setGasBudget(DEFAULT_GAS_BUDGET);
