@@ -289,56 +289,77 @@ export const HaneulTransaction = object({
 export type HaneulTransaction = Infer<typeof HaneulTransaction>;
 
 export const HaneulTransactionResponse = object({
-  transaction: HaneulTransaction,
-  effects: TransactionEffects,
-  events: TransactionEvents,
+  digest: TransactionDigest,
+  transaction: optional(HaneulTransaction),
+  effects: optional(TransactionEffects),
+  events: optional(TransactionEvents),
   timestampMs: optional(number()),
   checkpoint: optional(number()),
   confirmedLocalExecution: optional(boolean()),
+  /* Errors that occurred in fetching/serializing the transaction. */
+  errors: optional(array(string())),
 });
 export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
+
+export const HaneulTransactionResponseOptions = object({
+  /* Whether to show transaction input data. Default to be false. */
+  showInput: optional(boolean()),
+  /* Whether to show transaction effects. Default to be false. */
+  showEffects: optional(boolean()),
+  /* Whether to show transaction events. Default to be false. */
+  showEvents: optional(boolean()),
+});
+
+export type HaneulTransactionResponseOptions = Infer<
+  typeof HaneulTransactionResponseOptions
+>;
 
 /* -------------------------------------------------------------------------- */
 /*                              Helper functions                              */
 /* -------------------------------------------------------------------------- */
 
-export function getTransaction(tx: HaneulTransactionResponse): HaneulTransaction {
+export function getTransaction(
+  tx: HaneulTransactionResponse,
+): HaneulTransaction | undefined {
   return tx.transaction;
 }
 
 export function getTransactionDigest(
   tx: HaneulTransactionResponse,
 ): TransactionDigest {
-  const effects = getTransactionEffects(tx)!;
-  return effects.transactionDigest;
+  return tx.digest;
 }
 
-export function getTransactionSignature(tx: HaneulTransactionResponse): string[] {
-  return tx.transaction.txSignatures;
+export function getTransactionSignature(
+  tx: HaneulTransactionResponse,
+): string[] | undefined {
+  return tx.transaction?.txSignatures;
 }
 
 /* ----------------------------- TransactionData ---------------------------- */
 
-export function getTransactionSender(tx: HaneulTransactionResponse): HaneulAddress {
-  return tx.transaction.data.sender;
+export function getTransactionSender(
+  tx: HaneulTransactionResponse,
+): HaneulAddress | undefined {
+  return tx.transaction?.data.sender;
 }
 
-export function getGasData(tx: HaneulTransactionResponse): HaneulGasData {
-  return tx.transaction.data.gasData;
+export function getGasData(tx: HaneulTransactionResponse): HaneulGasData | undefined {
+  return tx.transaction?.data.gasData;
 }
 
 export function getTransactionGasObject(
   tx: HaneulTransactionResponse,
-): HaneulObjectRef[] {
-  return getGasData(tx).payment;
+): HaneulObjectRef[] | undefined {
+  return getGasData(tx)?.payment;
 }
 
 export function getTransactionGasPrice(tx: HaneulTransactionResponse) {
-  return getGasData(tx).price;
+  return getGasData(tx)?.price;
 }
 
-export function getTransactionGasBudget(tx: HaneulTransactionResponse): number {
-  return getGasData(tx).budget;
+export function getTransactionGasBudget(tx: HaneulTransactionResponse) {
+  return getGasData(tx)?.budget;
 }
 
 export function getTransferObjectTransaction(
@@ -395,10 +416,10 @@ export function getConsensusCommitPrologueTransaction(
     : undefined;
 }
 
-export function getTransactions(
+export function getTransactionKinds(
   data: HaneulTransactionResponse,
-): HaneulTransactionKind[] {
-  return data.transaction.data.transactions;
+): HaneulTransactionKind[] | undefined {
+  return data.transaction?.data.transactions;
 }
 
 export function getTransferHaneulAmount(data: HaneulTransactionKind): bigint | null {

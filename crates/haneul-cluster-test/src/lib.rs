@@ -13,7 +13,8 @@ use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul_faucet::CoinInfo;
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse, TransactionBytes,
+    HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions, TransactionBytes,
 };
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
@@ -141,7 +142,10 @@ impl TestContext {
             )
             .await
             .unwrap_or_else(|e| panic!("Failed to execute transaction for {}. {}", desc, e));
-        assert!(matches!(resp.effects.status(), HaneulExecutionStatus::Success));
+        assert!(matches!(
+            resp.effects.as_ref().unwrap().status(),
+            HaneulExecutionStatus::Success
+        ));
         resp
     }
 
@@ -195,7 +199,7 @@ impl TestContext {
             .client
             .get_fullnode_client()
             .read_api()
-            .get_transaction(digest)
+            .get_transaction_with_options(digest, HaneulTransactionResponseOptions::new())
             .await
         {
             Ok(_) => (true, digest, retry_times),

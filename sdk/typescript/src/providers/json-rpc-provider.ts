@@ -54,6 +54,7 @@ import {
   HaneulObjectDataOptions,
   HaneulSystemStateSummary,
   CoinStruct,
+  HaneulTransactionResponseOptions,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -621,8 +622,9 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getTransactionWithEffects(
+  async getTransactionResponse(
     digest: TransactionDigest,
+    options?: HaneulTransactionResponseOptions,
   ): Promise<HaneulTransactionResponse> {
     try {
       if (!isValidTransactionDigest(digest)) {
@@ -630,7 +632,7 @@ export class JsonRpcProvider extends Provider {
       }
       const resp = await this.client.requestWithType(
         'haneul_getTransaction',
-        [digest],
+        [digest, options],
         HaneulTransactionResponse,
         this.options.skipDataValidation,
       );
@@ -642,8 +644,9 @@ export class JsonRpcProvider extends Provider {
     }
   }
 
-  async getTransactionWithEffectsBatch(
+  async getTransactionResponseBatch(
     digests: TransactionDigest[],
+    options?: HaneulTransactionResponseOptions,
   ): Promise<HaneulTransactionResponse[]> {
     try {
       const requests = digests.map((d) => {
@@ -652,7 +655,7 @@ export class JsonRpcProvider extends Provider {
         }
         return {
           method: 'haneul_getTransaction',
-          args: [d],
+          args: [d, options],
         };
       });
       return await this.client.batchRequestWithType(

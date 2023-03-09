@@ -14,7 +14,7 @@ use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, Page,
     HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionResponse, TransactionsPage,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TxSequenceNumber};
@@ -44,10 +44,12 @@ impl<S: IndexerStore> ReadApi<S> {
         Ok(total_tx_number as u64)
     }
 
-    async fn get_transaction(
+    async fn get_transaction_with_options(
         &self,
         digest: &TransactionDigest,
+        _options: Option<HaneulTransactionResponseOptions>,
     ) -> RpcResult<HaneulTransactionResponse> {
+        // TODO(chris): support options in indexer
         let txn_resp: HaneulTransactionResponse = self
             .state
             .get_transaction_by_digest(&digest.base58_encode())?
@@ -245,30 +247,39 @@ where
         self.fullnode.get_transactions_in_range(start, end).await
     }
 
-    async fn get_transaction(
+    async fn get_transaction_with_options(
         &self,
         digest: TransactionDigest,
+        options: Option<HaneulTransactionResponseOptions>,
     ) -> RpcResult<HaneulTransactionResponse> {
         if self
             .method_to_be_forwarded
             .contains(&"get_transaction".to_string())
         {
-            return self.fullnode.get_transaction(digest).await;
+            return self
+                .fullnode
+                .get_transaction_with_options(digest, options)
+                .await;
         }
-        self.get_transaction(&digest).await
+        self.get_transaction_with_options(&digest, options).await
     }
 
-    async fn multi_get_transactions(
+    async fn multi_get_transactions_with_options(
         &self,
         digests: Vec<TransactionDigest>,
+        options: Option<HaneulTransactionResponseOptions>,
     ) -> RpcResult<Vec<HaneulTransactionResponse>> {
         if self
             .method_to_be_forwarded
             .contains(&"muti_get_transactions".to_string())
         {
-            return self.fullnode.multi_get_transactions(digests).await;
+            return self
+                .fullnode
+                .multi_get_transactions_with_options(digests, options)
+                .await;
         }
-        self.multi_get_transactions(digests).await
+        self.multi_get_transactions_with_options(digests, options)
+            .await
     }
 
     async fn get_normalized_move_modules_by_package(

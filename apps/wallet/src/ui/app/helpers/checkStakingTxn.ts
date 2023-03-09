@@ -4,13 +4,13 @@
 import {
     getTransactionKindName,
     getMoveCallTransaction,
-    getTransactions,
+    getTransactionKinds,
 } from '@haneullabs/haneul.js';
 
 import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
 
 export function checkStakingTxn(txn: HaneulTransactionResponse) {
-    const [transaction] = getTransactions(txn);
+    const [transaction] = getTransactionKinds(txn)!;
     const txnKind = getTransactionKindName(transaction);
 
     if (txnKind !== 'Call') return null;

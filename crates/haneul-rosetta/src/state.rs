@@ -16,7 +16,7 @@ use std::path::Path;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::{Duration, UNIX_EPOCH};
-use haneul_json_rpc_types::HaneulTransactionEffectsAPI;
+use haneul_json_rpc_types::HaneulTransactionResponseOptions;
 use haneul_sdk::rpc_types::Checkpoint;
 use haneul_sdk::HaneulClient;
 use haneul_storage::default_db_options;
@@ -233,11 +233,19 @@ impl CheckpointBlockProvider {
         let hash = checkpoint.digest;
         let mut transactions = vec![];
         for digest in checkpoint.transactions.iter() {
-            let tx = self.client.read_api().get_transaction(*digest).await?;
+            let tx = self
+                .client
+                .read_api()
+                .get_transaction_with_options(
+                    *digest,
+                    HaneulTransactionResponseOptions::new()
+                        .with_input()
+                        .with_events()
+                        .with_effects(),
+                )
+                .await?;
             transactions.push(Transaction {
-                transaction_identifier: TransactionIdentifier {
-                    hash: *tx.effects.transaction_digest(),
-                },
+                transaction_identifier: TransactionIdentifier { hash: tx.digest },
                 operations: Operations::try_from(tx)?,
                 related_transactions: vec![],
                 metadata: None,

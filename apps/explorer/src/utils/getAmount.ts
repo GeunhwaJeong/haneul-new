@@ -8,7 +8,7 @@ import {
     getTransferObjectTransaction,
     getTransactionKindName,
     getTransactionSender,
-    getTransactions,
+    getTransactionKinds,
     HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
 
@@ -145,10 +145,13 @@ export function getAmount({
     haneulCoinOnly?: boolean;
 }) {
     const { effects, events } = txnData;
-    const txnDetails = getTransactions(txnData)[0];
+    const txnDetails = getTransactionKinds(txnData)![0];
     const sender = getTransactionSender(txnData);
     const haneulTransfer = getTransfersAmount(txnDetails, effects);
-    const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(events, sender);
+    const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(
+        events!,
+        sender!
+    );
     const transfers = haneulTransfer || coinBalanceChange;
     if (haneulCoinOnly) {
         return transfers?.filter(({ coinType }) => coinType === HANEUL_TYPE_ARG);

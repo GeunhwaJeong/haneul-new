@@ -19,8 +19,8 @@ use haneul_json_rpc_types::{
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
     HaneulGasCostSummary, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectRef,
     HaneulObjectResponse, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData,
-    HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEffectsV1, HaneulTransactionEvents,
-    HaneulTransactionResponse, TransactionBytes, TransactionsPage, TransferObjectParams,
+    HaneulTransactionEffects, HaneulTransactionEffectsV1, HaneulTransactionEvents, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -350,7 +350,16 @@ impl RpcExampleProvider {
             "haneul_getTransaction",
             vec![ExamplePairing::new(
                 "Return the transaction response object for specified transaction digest",
-                vec![("digest", json!(result.effects.transaction_digest()))],
+                vec![
+                    ("digest", json!(result.digest)),
+                    (
+                        "options",
+                        json!(HaneulTransactionResponseOptions::new()
+                            .with_input()
+                            .with_effects()
+                            .with_events()),
+                    ),
+                ],
                 json!(result),
             )],
         )
@@ -437,7 +446,8 @@ impl RpcExampleProvider {
             event: haneul_event.clone(),
         }];
         let result = HaneulTransactionResponse {
-            effects: HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
+            digest: *tx_digest,
+            effects: Some(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
                 status: HaneulExecutionStatus::Success,
                 executed_epoch: 0,
                 gas_used: HaneulGasCostSummary {
@@ -468,17 +478,18 @@ impl RpcExampleProvider {
                 },
                 events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
                 dependencies: vec![],
-            }),
-            events: HaneulTransactionEvents {
+            })),
+            events: Some(HaneulTransactionEvents {
                 data: vec![haneul_event],
-            },
+            }),
             timestamp_ms: None,
-            transaction: HaneulTransaction {
+            transaction: Some(HaneulTransaction {
                 data: HaneulTransactionData::try_from(data1).unwrap(),
                 tx_signatures: signatures.clone(),
-            },
+            }),
             confirmed_local_execution: None,
             checkpoint: None,
+            errors: vec![],
         };
 
         (data2, signatures, recipient, obj_id, result, events)
@@ -497,17 +508,12 @@ impl RpcExampleProvider {
             vec![ExamplePairing::new(
                 "Return the Events emitted by a transaction",
                 vec![
-                    (
-                        "query",
-                        json!(EventQuery::Transaction(
-                            *result.effects.transaction_digest()
-                        )),
-                    ),
+                    ("query", json!(EventQuery::Transaction(result.digest))),
                     (
                         "cursor",
                         json!(EventID {
                             event_seq: 10,
-                            tx_digest: *result.effects.transaction_digest()
+                            tx_digest: result.digest
                         }),
                     ),
                     ("limit", json!(events.len())),

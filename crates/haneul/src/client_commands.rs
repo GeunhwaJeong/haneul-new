@@ -596,7 +596,9 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let effects = &response.effects;
+                let effects = response.effects.as_ref().ok_or_else(|| {
+                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                })?;
                 let time_total = time_start.elapsed().as_micros();
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
@@ -631,7 +633,9 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let effects = &response.effects;
+                let effects = response.effects.as_ref().ok_or_else(|| {
+                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status()));
                 }
@@ -678,7 +682,9 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let effects = &response.effects;
+                let effects = response.effects.as_ref().ok_or_else(|| {
+                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing Pay transaction: {:#?}",
@@ -727,7 +733,9 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let effects = &response.effects;
+                let effects = response.effects.as_ref().ok_or_else(|| {
+                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayHaneul transaction: {:#?}",
@@ -764,7 +772,9 @@ impl HaneulClientCommands {
                             .verify()?,
                     )
                     .await?;
-                let effects = &response.effects;
+                let effects = response.effects.as_ref().ok_or_else(|| {
+                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
                         "Error executing PayAllHaneul transaction: {:#?}",
@@ -926,6 +936,7 @@ impl HaneulClientCommands {
                 .await?;
                 let nft_id = response
                     .effects
+                    .ok_or_else(|| anyhow!("Failed to fetch transaction effects"))?
                     .created()
                     .first()
                     .ok_or_else(|| anyhow!("Failed to create NFT"))?
@@ -1458,7 +1469,10 @@ pub async fn call_move(
     let transaction = Transaction::from_data(data, Intent::default(), vec![signature]).verify()?;
 
     let response = context.execute_transaction(transaction).await?;
-    let effects = &response.effects;
+    let effects = response
+        .effects
+        .as_ref()
+        .ok_or_else(|| anyhow!("Effects from HaneulTransactionResult should not be empty"))?;
     if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
         return Err(anyhow!("Error calling module: {:#?}", effects.status()));
     }
@@ -1488,9 +1502,14 @@ fn unwrap_or<'a>(val: &'a Option<String>, default: &'a str) -> &'a str {
 fn write_transaction_response(response: &HaneulTransactionResponse) -> Result<String, fmt::Error> {
     let mut writer = String::new();
     writeln!(writer, "{}", "----- Transaction Data ----".bold())?;
-    write!(writer, "{}", response.transaction)?;
+    if let Some(t) = &response.transaction {
+        write!(writer, "{}", t)?;
+    }
+
     writeln!(writer, "{}", "----- Transaction Effects ----".bold())?;
-    write!(writer, "{}", response.effects)?;
+    if let Some(e) = &response.effects {
+        write!(writer, "{}", e)?;
+    }
     Ok(writer)
 }
 

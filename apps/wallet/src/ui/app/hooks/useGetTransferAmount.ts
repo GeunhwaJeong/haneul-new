@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HANEUL_TYPE_ARG, getTransactions } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG, getTransactionKinds } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { getEventsSummary, getAmount } from '_helpers';
@@ -16,11 +16,11 @@ export function useGetTransferAmount({
     activeAddress: HaneulAddress;
 }) {
     const { effects, events } = txn;
-    const { coins } = getEventsSummary(events, activeAddress);
+    const { coins } = getEventsSummary(events!, activeAddress);
 
     const haneulTransfer = useMemo(() => {
-        const txdetails = getTransactions(txn)[0];
-        return getAmount(txdetails, effects, events)?.map(
+        const txdetails = getTransactionKinds(txn)![0];
+        return getAmount(txdetails, effects!, events!)?.map(
             ({ amount, coinType, recipientAddress }) => {
                 return {
                     amount: amount || 0,

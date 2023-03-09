@@ -6,6 +6,7 @@ mod rosetta_client;
 use crate::rosetta_client::RosettaEndpoint;
 use rosetta_client::{get_random_haneul, start_rosetta_test_server};
 use serde_json::json;
+use haneul_json_rpc_types::HaneulTransactionResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
 use haneul_rosetta::types::{
@@ -245,13 +246,19 @@ async fn test_delegation() {
 
     let tx = client
         .read_api()
-        .get_transaction(response.transaction_identifier.hash)
+        .get_transaction_with_options(
+            response.transaction_identifier.hash,
+            HaneulTransactionResponseOptions::new().with_effects(),
+        )
         .await
         .unwrap();
 
     println!("Haneul TX: {tx:?}");
 
-    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.status())
+    assert_eq!(
+        HaneulExecutionStatus::Success,
+        *tx.effects.as_ref().unwrap().status()
+    )
 }
 
 #[tokio::test]
@@ -278,11 +285,14 @@ async fn test_pay_haneul() {
 
     let tx = client
         .read_api()
-        .get_transaction(response.transaction_identifier.hash)
+        .get_transaction_with_options(
+            response.transaction_identifier.hash,
+            HaneulTransactionResponseOptions::new().with_effects(),
+        )
         .await
         .unwrap();
 
     println!("Haneul TX: {tx:?}");
 
-    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.status())
+    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.unwrap().status())
 }
