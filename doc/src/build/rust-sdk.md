@@ -39,11 +39,13 @@ This will print a list of object summaries owned by the address `"0xec11cad080d0
 ```rust
 use std::str::FromStr;
 use haneul_sdk::types::base_types::HaneulAddress;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
+    let haneul = HaneulClientBuilder::default().build(
+      "https://fullnode.devnet.haneul.io:443",
+    ).await.unwrap();
     let address = HaneulAddress::from_str("0xec11cad080d0496a53bafcea629fcbcfff2a9866")?;
     let objects = haneul.read_api().get_objects_owned_by_address(address).await?;
     println!("{:?}", objects);
@@ -67,11 +69,14 @@ use haneul_sdk::{
         messages::Transaction,
     },
     HaneulClient,
+    HaneulClientBuilder,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
+    let haneul = HaneulClientBuilder::default().build(
+      "https://fullnode.devnet.haneul.io:443",
+    ).await.unwrap();
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = match dirs::home_dir() {
         Some(v) => v.join(".haneul").join("haneul_config").join("haneul.keystore"),
@@ -110,11 +115,13 @@ Use the WebSocket client to [subscribe to events](event_api.md#subscribe-to-hane
 ```rust
 use futures::StreamExt;
 use haneul_sdk::rpc_types::HaneulEventFilter;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", Some("ws://127.0.0.1:9001"), None).await?;
+    let haneul = HaneulClientBuilder::default().build(
+      "https://fullnode.devnet.haneul.io:443",
+    ).await.unwrap();
     let mut subscribe_all = haneul.event_api().subscribe_event(HaneulEventFilter::All(vec![])).await?;
     loop {
         println!("{:?}", subscribe_all.next().await);

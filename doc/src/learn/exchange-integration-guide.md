@@ -137,12 +137,14 @@ The following example demonstrates using haneul_getBalance in Rust:
 ```rust
 use std::str::FromStr;
 use haneul_sdk::types::base_types::HaneulAddress;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-   let haneul = HaneulClient::new("https://fullnode.devnet.haneul.io:443", None, None).await?;
+   let haneul = HaneulClientBuilder::default().build(
+      "https://fullnode.devnet.haneul.io:443",
+   ).await.unwrap();
    let address = HaneulAddress::from_str("0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2")?;
    let objects = haneul.read_api().get_balance(address).await?;
    println!("{:?}", objects);
