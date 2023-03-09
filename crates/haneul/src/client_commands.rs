@@ -30,7 +30,9 @@ use haneul_move::build::resolve_lock_file_path;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 use haneul_types::error::HaneulError;
 
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_framework_build::compiled_package::{
+    build_from_resolution_graph, ensure_published_dependencies, BuildConfig,
+};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulObjectData, HaneulObjectInfo, HaneulObjectResponse, HaneulRawData,
@@ -469,13 +471,21 @@ impl HaneulClientCommands {
                 let build_config =
                     resolve_lock_file_path(build_config, Some(package_path.clone()))?;
 
-                let compiled_package = build_move_package(
-                    &package_path,
-                    BuildConfig {
-                        config: build_config,
-                        run_bytecode_verifier: true,
-                        print_diags_to_stderr: true,
-                    },
+                let resolution_graph = build_config
+                    .resolution_graph_for_package(&package_path, &mut std::io::stderr())
+                    .map_err(|err| HaneulError::ModuleBuildFailure {
+                        error: format!("{:?}", err),
+                    })?;
+
+                if !with_unpublished_dependencies {
+                    ensure_published_dependencies(&resolution_graph)?;
+                };
+
+                let compiled_package = build_from_resolution_graph(
+                    package_path,
+                    resolution_graph,
+                    /* run_bytecode_verifier */ true,
+                    /* print_diags_to_stderr */ true,
                 )?;
 
                 if !compiled_package.is_framework() {

@@ -13,7 +13,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
-use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
+use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::{
@@ -128,6 +128,7 @@ pub fn dummy_transaction_effects(tx: &Transaction) -> TransactionEffects {
 }
 
 pub fn compile_basics_package() -> CompiledPackage {
+    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("../../haneul_programmability/examples/basics");
 
