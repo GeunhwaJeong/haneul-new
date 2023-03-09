@@ -8,27 +8,18 @@ import {
 } from '@haneullabs/wallet-standard';
 
 import type {
-    MoveCallTransaction,
-    SignableTransaction,
     SignedTransaction,
     HaneulAddress,
-    HaneulMoveNormalizedFunction,
     HaneulTransactionResponse,
-    UnserializedSignableTransaction,
 } from '@haneullabs/haneul.js';
 
-export type TransactionDataType =
-    | {
-          type: 'v2';
-          justSign?: boolean;
-          //   TODO: Support transaciton builder string
-          //   data: SignableTransaction | string;
-          data: SignableTransaction;
-          options?: HaneulSignAndExecuteTransactionOptions;
-          account: HaneulAddress;
-      }
-    | { type: 'move-call'; data: MoveCallTransaction; account: HaneulAddress }
-    | { type: 'serialized-move-call'; data: string; account: HaneulAddress };
+export type TransactionDataType = {
+    type: 'transaction';
+    data: string;
+    account: HaneulAddress;
+    justSign?: boolean;
+    options?: HaneulSignAndExecuteTransactionOptions;
+};
 
 export type SignMessageDataType = {
     type: 'sign-message';
@@ -45,10 +36,8 @@ export type ApprovalRequest = {
     txResult?: HaneulTransactionResponse | HaneulSignMessageOutput;
     txResultError?: string;
     txSigned?: SignedTransaction;
-    metadata?: HaneulMoveNormalizedFunction;
     createdDate: string;
     tx: TransactionDataType | SignMessageDataType;
-    unSerializedTxn?: UnserializedSignableTransaction | null;
 };
 
 export interface SignMessageApprovalRequest

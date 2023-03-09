@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
-  SignableTransaction,
   SignedTransaction,
   Transaction,
 } from "@haneullabs/haneul.js";
@@ -30,9 +29,7 @@ export type HaneulSignTransactionMethod = (
 
 /** Input for signing transactions. */
 export interface HaneulSignTransactionInput {
-  // TODO: Support Transaction builder:
-  // transaction: Transaction | SignableTransaction;
-  transaction: SignableTransaction;
+  transaction: Transaction;
   options?: HaneulSignTransactionOptions;
   account: WalletAccount;
   chain: IdentifierString;

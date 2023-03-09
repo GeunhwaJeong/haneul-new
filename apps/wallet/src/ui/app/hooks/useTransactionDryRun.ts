@@ -5,22 +5,17 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useSigner } from '_hooks';
 
-import type { SignerWithProvider, HaneulAddress } from '@haneullabs/haneul.js';
-
-export type TransactionDryRun = Parameters<
-    SignerWithProvider['dryRunTransaction']
->['0'];
+import type { HaneulAddress, Transaction } from '@haneullabs/haneul.js';
 
 export function useTransactionDryRun(
-    txData: TransactionDryRun,
-    addressForTransaction: HaneulAddress
+    sender: HaneulAddress,
+    transaction: Transaction
 ) {
-    const signer = useSigner(addressForTransaction);
+    const signer = useSigner(sender);
     const response = useQuery({
-        queryKey: ['executeDryRunTxn', txData, addressForTransaction],
+        queryKey: ['dryRunTransaction', transaction, sender],
         queryFn: async () => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return signer!.dryRunTransaction(txData);
+            return signer!.dryRunTransaction(transaction);
         },
         enabled: !!signer,
     });

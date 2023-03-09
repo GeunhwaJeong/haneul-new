@@ -6,7 +6,7 @@ import { type HaneulSignTransactionInput } from '@haneullabs/wallet-standard';
 import { type TransactionDataType } from './ApprovalRequest';
 import { isBasePayload } from '_payloads';
 
-import type { SignableTransaction, HaneulAddress } from '@haneullabs/haneul.js';
+import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface ExecuteTransactionRequest extends BasePayload {
@@ -26,9 +26,7 @@ export type HaneulSignTransactionSerialized = Omit<
     HaneulSignTransactionInput,
     'transaction' | 'account'
 > & {
-    // TODO: Enable string for serialized `Transaction`
-    // transaction: SignableTransaction | string;
-    transaction: SignableTransaction;
+    transaction: string;
     account: HaneulAddress;
 };
 
