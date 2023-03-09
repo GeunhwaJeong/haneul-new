@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  define,
   Infer,
   literal,
   number,
   object,
   string,
   union,
-  unknown,
 } from 'superstruct';
 import { CallArg, TransactionData, TransactionDataBCS } from './haneul-bcs';
 import { sha256Hash } from '../cryptography/hash';
@@ -48,13 +48,13 @@ export const ObjectOwner = union([
 ]);
 export type ObjectOwner = Infer<typeof ObjectOwner>;
 
-export const HaneulJsonValue = unknown();
 export type HaneulJsonValue =
   | boolean
   | number
   | string
   | CallArg
   | Array<HaneulJsonValue>;
+export const HaneulJsonValue = define<HaneulJsonValue>('HaneulJsonValue', () => true);
 
 // source of truth is
 // https://github.com/GeunhwaJeong/haneul/blob/acb2b97ae21f47600e05b0d28127d88d0725561d/crates/haneul-types/src/base_types.rs#L171

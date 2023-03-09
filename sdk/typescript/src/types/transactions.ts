@@ -14,7 +14,7 @@ import {
   unknown,
   boolean,
   tuple,
-  any,
+  nullable,
 } from 'superstruct';
 import { HaneulEvent } from './events';
 import { HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects';
@@ -94,6 +94,31 @@ export const Genesis = object({
 });
 export type Genesis = Infer<typeof Genesis>;
 
+export const HaneulArgument = unknown();
+
+export const HaneulCommand = union([
+  object({
+    MoveCall: object({
+      arguments: array(HaneulArgument),
+      type_arguments: array(string()),
+      package: ObjectId,
+      module: string(),
+      function: string(),
+    }),
+  }),
+  object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
+  object({ SplitCoin: tuple([HaneulArgument, HaneulAddress]) }),
+  object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
+  object({ Publish: HaneulMovePackage }),
+  object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
+]);
+
+export const ProgrammableTransaction = object({
+  commands: array(),
+  inputs: array(HaneulJsonValue),
+});
+export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
+
 export type ExecuteTransactionRequestType =
   | 'WaitForEffectsCert'
   | 'WaitForLocalExecution';
@@ -108,7 +133,8 @@ export type TransactionKindName =
   | 'Pay'
   | 'PayHaneul'
   | 'PayAllHaneul'
-  | 'Genesis';
+  | 'Genesis'
+  | 'ProgrammableTransaction';
 
 export const HaneulTransactionKind = union([
   object({ TransferObject: TransferObject }),
@@ -121,8 +147,7 @@ export const HaneulTransactionKind = union([
   object({ PayHaneul: PayHaneul }),
   object({ PayAllHaneul: PayAllHaneul }),
   object({ Genesis: Genesis }),
-  // TODO: Refine object type
-  object({ ProgrammableTransaction: any() }),
+  object({ ProgrammableTransaction: ProgrammableTransaction }),
 ]);
 export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 
@@ -274,13 +299,6 @@ export type TransactionQuery =
 export type EmptySignInfo = object;
 export type AuthorityName = Infer<typeof AuthorityName>;
 export const AuthorityName = string();
-
-export const TransactionBytes = object({
-  txBytes: string(),
-  gas: array(HaneulObjectRef),
-  // TODO: Type input_objects field
-  inputObjects: unknown(),
-});
 
 export const HaneulTransaction = object({
   data: HaneulTransactionData,
