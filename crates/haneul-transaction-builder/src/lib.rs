@@ -25,10 +25,7 @@ use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
 use haneul_types::coin::{Coin, LockedCoin};
 use haneul_types::error::UserInputError;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::{
-    CallArg, InputObjectKind, MoveCall, ObjectArg, SingleTransactionKind, TransactionData,
-    TransactionKind, TransferObject,
-};
+use haneul_types::messages::{CallArg, InputObjectKind, ObjectArg, TransactionData, TransactionKind};
 
 use haneul_types::governance::{
     ADD_DELEGATION_LOCKED_COIN_FUN_NAME, ADD_DELEGATION_MUL_COIN_FUN_NAME,
@@ -36,6 +33,7 @@ use haneul_types::governance::{
 };
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Object, Owner};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
     coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
@@ -118,14 +116,16 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         gas_budget: u64,
         recipient: HaneulAddress,
     ) -> anyhow::Result<TransactionData> {
-        let single_transfer = self.single_transfer_object(object_id, recipient).await?;
+        let mut builder = ProgrammableTransactionBuilder::new();
+        self.single_transfer_object(&mut builder, object_id, recipient)
+            .await?;
         let gas_price = self.0.get_reference_gas_price().await?;
         let gas = self
             .select_gas(signer, gas, gas_budget, vec![object_id], gas_price)
             .await?;
 
         Ok(TransactionData::new(
-            TransactionKind::Single(single_transfer),
+            TransactionKind::programmable(builder.finish()),
             signer,
             gas,
             gas_budget,
@@ -135,13 +135,12 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
 
     async fn single_transfer_object(
         &self,
+        builder: &mut ProgrammableTransactionBuilder,
         object_id: ObjectID,
         recipient: HaneulAddress,
-    ) -> Result<SingleTransactionKind, anyhow::Error> {
-        Ok(SingleTransactionKind::TransferObject(TransferObject {
-            recipient,
-            object_ref: self.get_object_ref(object_id).await?,
-        }))
+    ) -> anyhow::Result<()> {
+        builder.transfer_object(recipient, self.get_object_ref(object_id).await?);
+        Ok(())
     }
 
     pub async fn transfer_haneul(
@@ -272,11 +271,18 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> anyhow::Result<TransactionData> {
-        let single_move_call = SingleTransactionKind::Call(
-            self.single_move_call(package_object_id, module, function, type_args, call_args)
-                .await?,
-        );
-        let input_objects = single_move_call
+        let mut builder = ProgrammableTransactionBuilder::new();
+        self.single_move_call(
+            &mut builder,
+            package_object_id,
+            module,
+            function,
+            type_args,
+            call_args,
+        )
+        .await?;
+        let pt = builder.finish();
+        let input_objects = pt
             .input_objects()?
             .iter()
             .flat_map(|obj| match obj {
@@ -290,7 +296,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .await?;
 
         Ok(TransactionData::new(
-            TransactionKind::Single(single_move_call),
+            TransactionKind::programmable(pt),
             signer,
             gas,
             gas_budget,
@@ -300,12 +306,13 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
 
     pub async fn single_move_call(
         &self,
+        builder: &mut ProgrammableTransactionBuilder,
         package: ObjectID,
         module: &str,
         function: &str,
         type_args: Vec<HaneulTypeTag>,
         call_args: Vec<HaneulJsonValue>,
-    ) -> anyhow::Result<MoveCall> {
+    ) -> anyhow::Result<()> {
         let module = Identifier::from_str(module)?;
         let function = Identifier::from_str(function)?;
 
@@ -318,13 +325,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .resolve_and_checks_json_args(package, &module, &function, &type_args, call_args)
             .await?;
 
-        Ok(MoveCall {
-            package,
-            module,
-            function,
-            type_arguments: type_args,
-            arguments: call_args,
-        })
+        builder.move_call(package, module, function, type_args, call_args)
     }
 
     async fn get_object_arg(
@@ -577,36 +578,30 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             }
             .into()
         );
-        let mut tx_kinds = Vec::new();
+        let mut builder = ProgrammableTransactionBuilder::new();
         for param in single_transaction_params {
-            let single_tx = match param {
+            match param {
                 RPCTransactionRequestParams::TransferObjectRequestParams(param) => {
-                    self.single_transfer_object(param.object_id, param.recipient)
+                    self.single_transfer_object(&mut builder, param.object_id, param.recipient)
                         .await?
                 }
                 RPCTransactionRequestParams::MoveCallRequestParams(param) => {
-                    SingleTransactionKind::Call(
-                        self.single_move_call(
-                            param.package_object_id,
-                            &param.module,
-                            &param.function,
-                            param.type_arguments,
-                            param.arguments,
-                        )
-                        .await?,
+                    self.single_move_call(
+                        &mut builder,
+                        param.package_object_id,
+                        &param.module,
+                        &param.function,
+                        param.type_arguments,
+                        param.arguments,
                     )
+                    .await?
                 }
             };
-            tx_kinds.push(single_tx);
         }
-
-        let all_inputs = tx_kinds
-            .iter()
-            .map(|tx| tx.input_objects())
-            .collect::<Result<Vec<_>, _>>()?;
+        let pt = builder.finish();
+        let all_inputs = pt.input_objects()?;
         let inputs = all_inputs
             .iter()
-            .flatten()
             .flat_map(|obj| match obj {
                 InputObjectKind::ImmOrOwnedMoveObject((id, _, _)) => Some(*id),
                 _ => None,
@@ -618,7 +613,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .await?;
 
         Ok(TransactionData::new(
-            TransactionKind::Batch(tx_kinds),
+            TransactionKind::programmable(pt),
             signer,
             gas,
             gas_budget,
