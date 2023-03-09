@@ -8,8 +8,8 @@ use jsonrpsee::core::RpcResult;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulTransactionBuilderMode, HaneulTypeTag,
-    TransactionBytes,
+    BigInt, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulTransactionBuilderMode,
+    HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
@@ -115,13 +115,20 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         signer: HaneulAddress,
         input_coins: Vec<ObjectID>,
         recipients: Vec<HaneulAddress>,
-        amounts: Vec<u64>,
+        amounts: Vec<BigInt>,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes> {
         let data = self
             .builder
-            .pay(signer, input_coins, recipients, amounts, gas, gas_budget)
+            .pay(
+                signer,
+                input_coins,
+                recipients,
+                amounts.into_iter().map(|a| a.into()).collect(),
+                gas,
+                gas_budget,
+            )
             .await?;
         Ok(TransactionBytes::from_data(data)?)
     }
@@ -131,12 +138,18 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         signer: HaneulAddress,
         input_coins: Vec<ObjectID>,
         recipients: Vec<HaneulAddress>,
-        amounts: Vec<u64>,
+        amounts: Vec<BigInt>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes> {
         let data = self
             .builder
-            .pay_haneul(signer, input_coins, recipients, amounts, gas_budget)
+            .pay_haneul(
+                signer,
+                input_coins,
+                recipients,
+                amounts.into_iter().map(|a| a.into()).collect(),
+                gas_budget,
+            )
             .await?;
         Ok(TransactionBytes::from_data(data)?)
     }

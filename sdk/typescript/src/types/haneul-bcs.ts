@@ -53,7 +53,7 @@ export type PayTx = {
   Pay: {
     coins: HaneulObjectRef[];
     recipients: string[];
-    amounts: number[];
+    amounts: string[];
   };
 };
 
@@ -61,7 +61,7 @@ export type PayHaneulTx = {
   PayHaneul: {
     coins: HaneulObjectRef[];
     recipients: string[];
-    amounts: number[];
+    amounts: string[];
   };
 };
 

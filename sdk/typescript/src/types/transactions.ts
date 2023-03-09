@@ -63,14 +63,14 @@ export type HaneulConsensusCommitPrologue = Infer<
 export const Pay = object({
   coins: array(HaneulObjectRef),
   recipients: array(HaneulAddress),
-  amounts: array(number()),
+  amounts: array(string()),
 });
 export type Pay = Infer<typeof Pay>;
 
 export const PayHaneul = object({
   coins: array(HaneulObjectRef),
   recipients: array(HaneulAddress),
-  amounts: array(number()),
+  amounts: array(string()),
 });
 export type PayHaneul = Infer<typeof PayHaneul>;
 

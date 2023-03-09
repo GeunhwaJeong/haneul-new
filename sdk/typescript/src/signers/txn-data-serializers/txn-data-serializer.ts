@@ -44,7 +44,7 @@ export interface PayTransaction extends TransactionCommon {
    */
   inputCoins: ObjectId[];
   recipients: HaneulAddress[];
-  amounts: number[];
+  amounts: string[];
   gasPayment?: ObjectId;
   gasOwner?: HaneulAddress;
 }
@@ -66,7 +66,7 @@ export interface PayHaneulTransaction extends TransactionCommon {
    */
   inputCoins: ObjectId[];
   recipients: HaneulAddress[];
-  amounts: number[];
+  amounts: string[];
 }
 
 /// Send all HANEUL coins to one recipient.

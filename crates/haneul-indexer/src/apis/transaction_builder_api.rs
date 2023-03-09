@@ -10,7 +10,7 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::api::{TransactionBuilderClient, TransactionBuilderServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    RPCTransactionRequestParams, HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
+    BigInt, RPCTransactionRequestParams, HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -60,7 +60,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         signer: HaneulAddress,
         input_coins: Vec<ObjectID>,
         recipients: Vec<HaneulAddress>,
-        amounts: Vec<u64>,
+        amounts: Vec<BigInt>,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes> {
@@ -74,7 +74,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         signer: HaneulAddress,
         input_coins: Vec<ObjectID>,
         recipients: Vec<HaneulAddress>,
-        amounts: Vec<u64>,
+        amounts: Vec<BigInt>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes> {
         self.fullnode
