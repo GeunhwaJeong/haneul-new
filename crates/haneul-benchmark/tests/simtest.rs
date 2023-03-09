@@ -20,6 +20,7 @@ mod test {
     use haneul_core::checkpoints::{CheckpointStore, CheckpointWatermark};
     use haneul_macros::{register_fail_points, sim_test};
     use haneul_simulator::{configs::*, SimConfig};
+    use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     use haneul_types::object::Owner;
     use test_utils::messages::get_haneul_gas_object_with_wallet_context;
     use test_utils::network::{TestCluster, TestClusterBuilder};
@@ -181,12 +182,13 @@ mod test {
             .unwrap()
             .unwrap();
         assert!(pruned > 0);
-        let pruned_epoch = store
+        let pruned_checkpoint: VerifiedCheckpoint = store
             .checkpoint_by_digest
             .get(&digest)
             .unwrap()
             .unwrap()
-            .epoch();
+            .into();
+        let pruned_epoch = pruned_checkpoint.epoch();
         let expected_checkpoint = store
             .epoch_last_checkpoint_map
             .get(&pruned_epoch)

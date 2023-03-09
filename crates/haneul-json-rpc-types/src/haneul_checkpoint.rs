@@ -7,6 +7,7 @@ use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::gas::GasCostSummary;
+use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
     CheckpointCommitment, CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
     CheckpointTimestamp, EndOfEpochData,
