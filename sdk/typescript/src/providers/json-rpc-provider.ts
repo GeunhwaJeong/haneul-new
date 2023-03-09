@@ -672,15 +672,15 @@ export class JsonRpcProvider extends Provider {
 
   async executeTransaction(
     txnBytes: Uint8Array | string,
-    signature: SerializedSignature,
+    signature: SerializedSignature | SerializedSignature[],
     requestType: ExecuteTransactionRequestType = 'WaitForEffectsCert',
   ): Promise<HaneulTransactionResponse> {
     try {
       return await this.client.requestWithType(
-        'haneul_executeTransactionSerializedSig',
+        'haneul_executeTransaction',
         [
           typeof txnBytes === 'string' ? txnBytes : toB64(txnBytes),
-          signature,
+          Array.isArray(signature) ? signature : [signature],
           requestType,
         ],
         HaneulTransactionResponse,
