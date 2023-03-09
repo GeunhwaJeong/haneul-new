@@ -434,7 +434,7 @@ impl TryInto<Object> for HaneulObjectData {
                 let struct_tag = parse_haneul_struct_tag(o.type_())?;
                 Data::Move(unsafe {
                     MoveObject::new_from_execution(
-                        struct_tag,
+                        struct_tag.into(),
                         o.has_public_transfer,
                         o.version,
                         o.bcs_bytes,
@@ -664,7 +664,7 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
                 }
             } else {
                 HaneulParsedMoveObject {
-                    type_: object.type_.to_string(),
+                    type_: object.type_().to_string(),
                     has_public_transfer: object.has_public_transfer(),
                     fields: move_struct,
                 }
@@ -703,7 +703,7 @@ pub struct HaneulRawMoveObject {
 impl From<MoveObject> for HaneulRawMoveObject {
     fn from(o: MoveObject) -> Self {
         Self {
-            type_: o.type_.to_string(),
+            type_: o.type_().to_string(),
             has_public_transfer: o.has_public_transfer(),
             version: o.version(),
             bcs_bytes: o.into_contents(),
@@ -717,7 +717,7 @@ impl HaneulMoveObject for HaneulRawMoveObject {
         _layout: MoveStructLayout,
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
-            type_: object.type_.to_string(),
+            type_: object.type_().to_string(),
             has_public_transfer: object.has_public_transfer(),
             version: object.version(),
             bcs_bytes: object.into_contents(),

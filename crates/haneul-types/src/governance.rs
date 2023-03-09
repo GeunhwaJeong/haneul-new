@@ -47,6 +47,13 @@ impl StakedHaneul {
         }
     }
 
+    pub fn is_staked_haneul(s: &StructTag) -> bool {
+        s.address == HANEUL_FRAMEWORK_ADDRESS
+            && s.module.as_ident_str() == STAKING_POOL_MODULE_NAME
+            && s.name.as_ident_str() == STAKED_HANEUL_STRUCT_NAME
+            && s.type_params.is_empty()
+    }
+
     pub fn id(&self) -> ObjectID {
         self.id.id.bytes
     }
@@ -77,7 +84,7 @@ impl TryFrom<&Object> for StakedHaneul {
     fn try_from(object: &Object) -> Result<Self, Self::Error> {
         match &object.data {
             Data::Move(o) => {
-                if o.type_ == StakedHaneul::type_() {
+                if o.type_().is_staked_haneul() {
                     return bcs::from_bytes(o.contents()).map_err(|err| HaneulError::TypeError {
                         error: format!("Unable to deserialize StakedHaneul object: {:?}", err),
                     });

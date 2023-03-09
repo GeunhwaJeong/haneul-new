@@ -15,7 +15,7 @@ use jsonrpsee::RpcModule;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{MoveObjectType, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::{PoolTokenExchangeRate, ValidatorV1};
@@ -34,7 +34,7 @@ impl GovernanceReadApi {
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> Result<Vec<StakedHaneul>, Error> {
         Ok(self
             .state
-            .get_move_objects(owner, &StakedHaneul::type_())
+            .get_move_objects(owner, MoveObjectType::StakedHaneul)
             .await?)
     }
 
