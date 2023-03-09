@@ -13,6 +13,7 @@ import {
   record,
   any,
   optional,
+  boolean,
 } from 'superstruct';
 import {
   ObjectId,
@@ -192,6 +193,7 @@ export type HaneulEvents = HaneulEventEnvelope[];
 export const PaginatedEvents = object({
   data: array(HaneulEventEnvelope),
   nextCursor: union([EventId, literal(null)]),
+  hasNextPage: boolean(),
 });
 export type PaginatedEvents = Infer<typeof PaginatedEvents>;
 
