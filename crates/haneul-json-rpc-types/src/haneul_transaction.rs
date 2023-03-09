@@ -150,7 +150,7 @@ impl PartialEq for HaneulTransactionResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
-#[serde(rename = "TransactionKind")]
+#[serde(rename = "TransactionKind", tag = "kind")]
 pub enum HaneulTransactionKind {
     /// Initiate an object transfer between addresses
     TransferObject(HaneulTransferObject),

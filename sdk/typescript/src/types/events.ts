@@ -120,15 +120,18 @@ export const CheckpointEvent = union([bigint(), number()]);
 export type CheckpointEvent = Infer<typeof EpochChangeEvent>;
 
 export const HaneulEvent = union([
-  object({ moveEvent: MoveEvent }),
-  object({ publish: PublishEvent }),
-  object({ coinBalanceChange: CoinBalanceChangeEvent }),
-  object({ transferObject: TransferObjectEvent }),
-  object({ mutateObject: MutateObjectEvent }),
-  object({ deleteObject: DeleteObjectEvent }),
-  object({ newObject: NewObjectEvent }),
-  object({ epochChange: EpochChangeEvent }),
-  object({ checkpoint: CheckpointEvent }),
+  object({ type: literal('moveEvent'), content: MoveEvent }),
+  object({ type: literal('publish'), content: PublishEvent }),
+  object({
+    type: literal('coinBalanceChange'),
+    content: CoinBalanceChangeEvent,
+  }),
+  object({ type: literal('transferObject'), content: TransferObjectEvent }),
+  object({ type: literal('mutateObject'), content: MutateObjectEvent }),
+  object({ type: literal('deleteObject'), content: DeleteObjectEvent }),
+  object({ type: literal('newObject'), content: NewObjectEvent }),
+  object({ type: literal('epochChange'), content: EpochChangeEvent }),
+  object({ type: literal('checkpoint'), content: CheckpointEvent }),
 ]);
 export type HaneulEvent = Infer<typeof HaneulEvent>;
 
@@ -207,3 +210,81 @@ export const SubscriptionEvent = object({
 });
 
 export type SubscriptionEvent = Infer<typeof SubscriptionEvent>;
+
+/* ------------------------------- EventData ------------------------------ */
+
+export function getMoveEvent(event: HaneulEvent): MoveEvent | undefined {
+  return event.type === 'moveEvent' ? event.content : undefined;
+}
+
+export function getPublishEvent(event: HaneulEvent): PublishEvent | undefined {
+  return event.type === 'publish' ? event.content : undefined;
+}
+
+export function getCoinBalanceChangeEvent(
+  event: HaneulEvent,
+): CoinBalanceChangeEvent | undefined {
+  return event.type === 'coinBalanceChange' ? event.content : undefined;
+}
+
+export function getTransferObjectEvent(
+  event: HaneulEvent,
+): TransferObjectEvent | undefined {
+  return event.type === 'transferObject' ? event.content : undefined;
+}
+
+export function getMutateObjectEvent(
+  event: HaneulEvent,
+): MutateObjectEvent | undefined {
+  return event.type === 'mutateObject' ? event.content : undefined;
+}
+
+export function getDeletObjectEvent(
+  event: HaneulEvent,
+): DeleteObjectEvent | undefined {
+  return event.type === 'deleteObject' ? event.content : undefined;
+}
+
+export function getNewObjectEvent(event: HaneulEvent): NewObjectEvent | undefined {
+  return event.type === 'newObject' ? event.content : undefined;
+}
+
+export function getEpochChangeEvent(
+  event: HaneulEvent,
+): EpochChangeEvent | undefined {
+  return event.type === 'epochChange' ? event.content : undefined;
+}
+
+export function getCheckpointEvent(
+  event: HaneulEvent,
+): CheckpointEvent | undefined {
+  return event.type === 'checkpoint' ? event.content : undefined;
+}
+
+export function getEventSender(event: HaneulEvent): HaneulAddress | undefined {
+  return event.type !== 'epochChange' && event.type !== 'checkpoint'
+    ? event.content.sender
+    : undefined;
+}
+
+export function getEventPackage(event: HaneulEvent): ObjectId | undefined {
+  return event.type !== 'epochChange' && event.type !== 'checkpoint'
+    ? event.content.packageId
+    : undefined;
+}
+
+export function isEventType(
+  e: HaneulEvent,
+  type:
+    | 'moveEvent'
+    | 'publish'
+    | 'transferObject'
+    | 'mutateObject'
+    | 'coinBalanceChange'
+    | 'deleteObject'
+    | 'newObject'
+    | 'epochChange'
+    | 'checkpoint',
+): boolean {
+  return e.type === type;
+}
