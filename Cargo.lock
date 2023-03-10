@@ -9142,6 +9142,7 @@ dependencies = [
  "haneul-telemetry",
  "haneul-tls",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "tokio",
  "tower",
