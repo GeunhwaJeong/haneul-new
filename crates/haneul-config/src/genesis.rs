@@ -11,6 +11,7 @@ use move_binary_format::CompiledModule;
 use move_core_types::ident_str;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::serde_as;
+use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 use std::{fs, path::Path};
@@ -28,7 +29,6 @@ use haneul_types::crypto::{
 use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
-use haneul_types::intent::{Intent, IntentMessage, IntentScope};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
     CallArg, Command, InputObjects, Transaction, TransactionEffects, TransactionEvents,

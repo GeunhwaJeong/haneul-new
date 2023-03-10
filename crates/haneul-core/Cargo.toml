@@ -76,6 +76,7 @@ num_cpus = "1.14.0"
 
 haneul-simulator = { path = "../haneul-simulator" }
 haneul-macros = { path = "../haneul-macros" }
+shared-crypto = { path = "../shared-crypto" }
 
 [dev-dependencies]
 clap = { version = "3.2.17", features = ["derive"] }

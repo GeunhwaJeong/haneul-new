@@ -24,6 +24,7 @@ use prometheus::{
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use shared_crypto::intent::{Intent, IntentScope};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::Duration;
@@ -31,8 +32,6 @@ use std::{collections::HashMap, fs, pin::Pin, sync::Arc};
 use haneul_config::node::{AuthorityStorePruningConfig, DBCheckpointConfig};
 use haneul_types::crypto::AuthoritySignInfo;
 use haneul_types::error::UserInputError;
-use haneul_types::intent::Intent;
-use haneul_types::intent::IntentScope;
 use haneul_types::message_envelope::Message;
 use haneul_types::parse_haneul_struct_tag;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;

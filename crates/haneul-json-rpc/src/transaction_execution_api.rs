@@ -11,6 +11,7 @@ use fastcrypto::traits::ToFromBytes;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 use haneullabs_metrics::spawn_monitored_task;
+use shared_crypto::intent::Intent;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
@@ -20,7 +21,6 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
-use haneul_types::intent::Intent;
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, TransactionKind,
 };

@@ -1,10 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    base_types::HaneulAddress, crypto::Signature, error::HaneulError, intent::IntentMessage,
-    multisig::MultiSig,
-};
+use crate::{base_types::HaneulAddress, crypto::Signature, error::HaneulError, multisig::MultiSig};
 use crate::{
     crypto::{SignatureScheme, HaneulSignature},
     serde_to_from_bytes,
@@ -16,6 +13,7 @@ use fastcrypto::{
 };
 use schemars::JsonSchema;
 use serde::Serialize;
+use shared_crypto::intent::IntentMessage;
 use std::hash::Hash;
 
 /// A lightweight trait that all members of [enum GenericSignature] implement.

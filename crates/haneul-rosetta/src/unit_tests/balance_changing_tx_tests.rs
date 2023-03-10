@@ -12,6 +12,7 @@ use signature::rand_core::OsRng;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 
 use crate::operations::Operations;
+use shared_crypto::intent::Intent;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
@@ -22,7 +23,6 @@ use haneul_sdk::rpc_types::{
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::intent::Intent;
 use haneul_types::messages::{
     CallArg, ExecuteTransactionRequestType, InputObjectKind, ObjectArg, ProgrammableTransaction,
     Transaction, TransactionData, TransactionDataAPI, TransactionKind, DUMMY_GAS_PRICE,

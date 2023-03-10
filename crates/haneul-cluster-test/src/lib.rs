@@ -21,9 +21,9 @@ use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
 use test_utils::messages::make_transactions_with_wallet_context;
 
+use shared_crypto::intent::Intent;
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::intent::Intent;
 use haneul_types::{
     base_types::HaneulAddress,
     messages::{Transaction, TransactionData, VerifiedTransaction},

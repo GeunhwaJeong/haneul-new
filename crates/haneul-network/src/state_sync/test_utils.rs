@@ -1,9 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 use std::collections::HashMap;
-use haneul_types::intent::{Intent, IntentMessage, IntentScope};
-use haneul_types::messages_checkpoint::{FullCheckpointContents, VerifiedCheckpointContents};
 use haneul_types::{
     base_types::AuthorityName,
     committee::{Committee, EpochId, StakeUnit},
@@ -13,10 +12,9 @@ use haneul_types::{
     },
     messages_checkpoint::{
         CertifiedCheckpointSummary, CheckpointDigest, CheckpointSequenceNumber, CheckpointSummary,
-        EndOfEpochData, VerifiedCheckpoint,
+        EndOfEpochData, FullCheckpointContents, VerifiedCheckpoint, VerifiedCheckpointContents,
     },
 };
-
 pub struct CommitteeFixture {
     epoch: EpochId,
     validators: HashMap<AuthorityName, (AuthorityKeyPair, StakeUnit)>,

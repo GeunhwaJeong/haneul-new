@@ -6,6 +6,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use tracing::{debug, info};
 
+use shared_crypto::intent::Intent;
 use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::ValidatorInfo;
@@ -21,7 +22,6 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{deterministic_random_account_key, AuthorityKeyPair};
 use haneul_types::error::HaneulResult;
-use haneul_types::intent::Intent;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
     CallArg, ObjectArg, ObjectInfoRequest, ObjectInfoResponse, Transaction, TransactionData,

@@ -30,6 +30,7 @@ use haneul_move::build::resolve_lock_file_path;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 use haneul_types::error::HaneulError;
 
+use shared_crypto::intent::Intent;
 use haneul_framework_build::compiled_package::{
     build_from_resolution_graph, ensure_published_dependencies, BuildConfig,
 };
@@ -43,7 +44,6 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::dynamic_field::DynamicFieldType;
-use haneul_types::intent::Intent;
 use haneul_types::signature::GenericSignature;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},

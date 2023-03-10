@@ -12,6 +12,7 @@ use std::collections::HashSet;
 use std::default::Default;
 use std::path::Path;
 
+use shared_crypto::intent::Intent;
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
@@ -21,7 +22,6 @@ use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     gas_coin::GasCoin,
-    intent::Intent,
     messages::{ExecuteTransactionRequestType, Transaction, TransactionData, VerifiedTransaction},
 };
 use tokio::sync::{

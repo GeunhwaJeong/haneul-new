@@ -24,8 +24,8 @@ use crate::types::{
 use crate::{OnlineServerContext, HaneulEnv};
 use axum::extract::State;
 use axum_extra::extract::WithRejection;
+use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_sdk::rpc_types::HaneulExecutionStatus;
-use haneul_types::intent::{Intent, IntentMessage};
 
 /// This module implements the [Rosetta Construction API](https://www.rosetta-api.org/docs/ConstructionApi.html)
 

@@ -15,6 +15,7 @@ use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
 
 use haneullabs_metrics::RegistryService;
+use shared_crypto::intent::Intent;
 use haneul::config::HaneulEnv;
 use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
 use haneul_config::builder::{ProtocolVersionsConfig, SupportedProtocolVersionsCallback};
@@ -32,7 +33,6 @@ use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::intent::Intent;
 use haneul_types::messages::TransactionData;
 use haneul_types::object::Object;
 

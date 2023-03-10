@@ -18,7 +18,7 @@ use move_binary_format::normalized::{Module as NormalizedModule, Type};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
 use move_core_types::value::{MoveStruct, MoveStructLayout, MoveValue};
-
+use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectValueKind, Page,
@@ -37,7 +37,6 @@ use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::display::{DisplayCreatedEvent, DisplayObject};
 use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::error::UserInputError;
-use haneul_types::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_types::messages::{
     TransactionData, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
     VerifiedTransaction,

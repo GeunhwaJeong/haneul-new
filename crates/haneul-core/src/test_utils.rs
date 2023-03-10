@@ -7,6 +7,7 @@ use crate::epoch::committee_store::CommitteeStore;
 use crate::test_authority_clients::LocalAuthorityClient;
 use fastcrypto::traits::KeyPair;
 use prometheus::Registry;
+use shared_crypto::intent::{Intent, IntentScope};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -21,7 +22,6 @@ use haneul_types::crypto::{
     NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::crypto::{AuthorityKeyPair, Signer};
-use haneul_types::intent::{Intent, IntentScope};
 use haneul_types::messages::{TransactionData, VerifiedTransaction, DUMMY_GAS_PRICE};
 use haneul_types::object::OBJECT_START_VERSION;
 use haneul_types::utils::create_fake_transaction;

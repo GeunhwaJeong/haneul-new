@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use shared_crypto::intent::Intent;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     types::{
@@ -9,7 +10,6 @@ use haneul_sdk::{
     },
     HaneulClientBuilder,
 };
-use haneul_types::intent::Intent;
 use haneul_types::messages::ExecuteTransactionRequestType;
 
 #[tokio::main]

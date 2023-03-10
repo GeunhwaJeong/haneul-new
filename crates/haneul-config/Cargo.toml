@@ -35,7 +35,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
-
+shared-crypto = { path = "../shared-crypto" }
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }
 

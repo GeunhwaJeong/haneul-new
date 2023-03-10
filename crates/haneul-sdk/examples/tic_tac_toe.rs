@@ -13,6 +13,7 @@ use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
 
+use shared_crypto::intent::Intent;
 use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
@@ -25,7 +26,6 @@ use haneul_sdk::{
     },
     HaneulClient, HaneulClientBuilder,
 };
-use haneul_types::intent::Intent;
 use haneul_types::messages::ExecuteTransactionRequestType;
 
 #[tokio::main]

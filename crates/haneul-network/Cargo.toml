@@ -16,6 +16,7 @@ tonic = "0.8"
 
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
+shared-crypto = { path = "../shared-crypto" }
 
 haneullabs-network.workspace = true
 

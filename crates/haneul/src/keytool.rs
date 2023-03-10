@@ -5,6 +5,7 @@ use bip32::DerivationPath;
 use clap::*;
 use fastcrypto::encoding::{decode_bytes_hex, Base64, Encoding};
 use fastcrypto::traits::KeyPair;
+use shared_crypto::intent::{Intent, IntentMessage};
 use std::fs;
 use std::path::{Path, PathBuf};
 use haneul_keys::key_derive::generate_new_key;
@@ -13,7 +14,6 @@ use haneul_keys::keypair_file::{
     write_keypair_to_file,
 };
 use haneul_types::crypto::{PublicKey, Signature};
-use haneul_types::intent::{Intent, IntentMessage};
 use haneul_types::messages::TransactionData;
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey, ThresholdUnit, WeightUnit};
 use haneul_types::signature::GenericSignature;

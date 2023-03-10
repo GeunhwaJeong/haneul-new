@@ -12,6 +12,8 @@ use fastcrypto::encoding::Base64;
 use fastcrypto::encoding::Encoding;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentScope;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, InMemKeystore, Keystore};
 use haneul_types::base_types::ObjectDigest;
 use haneul_types::base_types::ObjectID;
@@ -28,8 +30,6 @@ use haneul_types::crypto::Signature;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::crypto::HaneulSignatureInner;
-use haneul_types::intent::Intent;
-use haneul_types::intent::IntentScope;
 use haneul_types::messages::TransactionData;
 use tempfile::TempDir;
 

@@ -44,6 +44,7 @@ haneul-storage = { path = "../haneul-storage" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 chrono = "0.4.23"
+shared-crypto = { path = "../shared-crypto" }
 
 move-core-types.workspace = true
 
