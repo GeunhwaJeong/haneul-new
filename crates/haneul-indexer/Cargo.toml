@@ -26,6 +26,7 @@ thiserror = "1.0.34"
 tracing = "0.1.36"
 tokio = { workspace = true, features = ["full"] }
 
+fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-network = { path = "../../narwhal/network" }
 haneul-config = { path = "../haneul-config" }
@@ -39,10 +40,10 @@ haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-types = { path = "../haneul-types" }
-telemetry-subscribers.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
-fastcrypto = { workspace = true, features = ["copy_key"] }
+move-core-types.workspace = true
+telemetry-subscribers.workspace = true
 
 [features]
 pg_integration = []
