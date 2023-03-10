@@ -875,6 +875,8 @@ pub enum HaneulCommand {
     MergeCoins(HaneulArgument, Vec<HaneulArgument>),
     /// Publishes a Move package
     Publish(HaneulMovePackage),
+    /// Upgrades a Move package
+    Upgrade(HaneulArgument, Vec<ObjectID>, HaneulMovePackage),
     /// `forall T: Vec<T> -> vector<T>`
     /// Given n-values of the same type, it constructs a vector. For non objects or an empty vector,
     /// the type tag must be specified.
@@ -910,6 +912,12 @@ impl Display for HaneulCommand {
                 write!(f, ")")
             }
             Self::Publish(_bytes) => write!(f, "Publish(_)"),
+            Self::Upgrade(ticket, deps, _bytes) => {
+                write!(f, "Upgrade({ticket},")?;
+                write_sep(f, deps, ",")?;
+                write!(f, ", _)")?;
+                write!(f, ")")
+            }
         }
     }
 }
@@ -933,6 +941,13 @@ impl From<Command> for HaneulCommand {
             Command::MakeMoveVec(tag_opt, args) => HaneulCommand::MakeMoveVec(
                 tag_opt.map(|tag| tag.to_string()),
                 args.into_iter().map(HaneulArgument::from).collect(),
+            ),
+            Command::Upgrade(ticket, dep_ids, modules) => HaneulCommand::Upgrade(
+                HaneulArgument::from(ticket),
+                dep_ids,
+                HaneulMovePackage {
+                    disassembled: disassemble_modules(modules.iter()).unwrap_or_default(),
+                },
             ),
         }
     }

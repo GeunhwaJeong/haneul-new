@@ -318,7 +318,7 @@ fn display_validator(summary: &HaneulValidatorSummary, metadata: &VerifiedValida
     );
     println!("Rewards Pool: {}", summary.rewards_pool);
     println!("Pool Token Balance: {}", summary.pool_token_balance);
-    println!("Pending Delegation: {}", summary.pending_delegation);
+    println!("Pending Delegation: {}", summary.pending_stake);
     println!(
         "Pending Total Haneul Withdraw: {}",
         summary.pending_total_haneul_withdraw
