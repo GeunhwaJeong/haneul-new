@@ -25,80 +25,6 @@ function registerUTF8String(bcs: BCS) {
 }
 
 /**
- * Transaction type used for transferring objects.
- * For this transaction to be executed, and `HaneulObjectRef` should be queried
- * upfront and used as a parameter.
- */
-export type TransferObjectTx = {
-  TransferObject: {
-    recipient: string;
-    object_ref: HaneulObjectRef;
-  };
-};
-
-/**
- * Transaction type used for transferring Haneul.
- */
-export type TransferHaneulTx = {
-  TransferHaneul: {
-    recipient: string;
-    amount: { Some: number } | { None: null };
-  };
-};
-
-/**
- * Transaction type used for Pay transaction.
- */
-export type PayTx = {
-  Pay: {
-    coins: HaneulObjectRef[];
-    recipients: string[];
-    amounts: string[];
-  };
-};
-
-export type PayHaneulTx = {
-  PayHaneul: {
-    coins: HaneulObjectRef[];
-    recipients: string[];
-    amounts: string[];
-  };
-};
-
-export type PayAllHaneulTx = {
-  PayAllHaneul: {
-    coins: HaneulObjectRef[];
-    recipient: string;
-  };
-};
-
-/**
- * Transaction type used for publishing Move modules to the Haneul.
- * Should be already compiled using `haneul-move`, example:
- * ```
- * $ haneul-move build
- * $ cat build/project_name/bytecode_modules/module.mv
- * ```
- * In JS:
- * ```
- * let file = fs.readFileSync('./move/build/project_name/bytecode_modules/module.mv');
- * let bytes = Array.from(bytes);
- * let modules = [ bytes ];
- *
- * // ... publish logic ...
- * ```
- *
- * Each module should be represented as a sequence of bytes.
- */
-export type PublishTx = {
-  Publish: {
-    modules: ArrayLike<ArrayLike<number>>;
-  };
-};
-
-// ========== Move Call Tx ===========
-
-/**
  * A reference to a shared object.
  */
 export type SharedObjectRef = {
@@ -150,10 +76,7 @@ export function isPureArg(arg: any): arg is PureArg {
  * For `Pure` arguments BCS is required. You must encode the values with BCS according
  * to the type required by the called function. Pure accepts only serialized values
  */
-export type CallArg =
-  | PureArg
-  | { Object: ObjectArg }
-  | { ObjVec: ArrayLike<ObjectArg> };
+export type CallArg = PureArg | { Object: ObjectArg };
 
 /**
  * Kind of a TypeTag which is represented by a Move type identifier.
@@ -181,41 +104,7 @@ export type TypeTag =
   | { u32: null }
   | { u256: null };
 
-/**
- * Transaction type used for calling Move modules' functions.
- * Should be crafted carefully, because the order of type parameters and
- * arguments matters.
- */
-export type MoveCallTx = {
-  Call: {
-    package: string;
-    module: string;
-    function: string;
-    typeArguments: TypeTag[];
-    arguments: CallArg[];
-  };
-};
-
 // ========== TransactionData ===========
-
-export type SingleTransactionKind =
-  | MoveCallTx
-  | PayTx
-  | PayHaneulTx
-  | PayAllHaneulTx
-  | PublishTx
-  | TransferObjectTx
-  | TransferHaneulTx;
-
-/**
- * Transaction kind - either Batch or Single.
- *
- * Can be improved to change serialization automatically based on
- * the passed value (single Transaction or an array).
- */
-export type TransactionKind =
-  | { Single: SingleTransactionKind }
-  | { Batch: SingleTransactionKind[] };
 
 /**
  * The GasData to be used in the transaction.
@@ -233,50 +122,6 @@ export type GasData = {
  * Indications the expiration time for a transaction.
  */
 export type TransactionExpiration = { None: null } | { Epoch: number };
-
-/**
- * The TransactionData to be signed and sent to the RPC service.
- *
- * Field `sender` is made optional as it can be added during the signing
- * process and there's no need to define it sooner.
- *
- * Field `expiration` is made optional as it is defaulted to `None`.
- */
-export type TransactionData = {
-  messageVersion: 1; // Eventually: 1 | 2 | ...
-  sender?: string;
-  kind: TransactionKind;
-  gasData: GasData;
-  expiration?: TransactionExpiration;
-};
-
-export type TransactionDataBCS = {
-  V1: Omit<TransactionData, 'messageVersion'>;
-};
-
-export const TRANSACTION_DATA_TYPE_TAG = Array.from('TransactionData::').map(
-  (e) => e.charCodeAt(0),
-);
-
-export function deserializeTransactionBytesToTransactionData(
-  bcs: BCS,
-  bytes: Uint8Array,
-): TransactionData {
-  let deserialized = bcs.de('TransactionData', bytes);
-  let inner, messageVersion;
-
-  if (deserialized.V1 != null) {
-    inner = deserialized.V1;
-    messageVersion = 1;
-  } else {
-    throw new Error(`Unknown message: ${JSON.stringify(deserialized)}`);
-  }
-
-  return {
-    messageVersion,
-    ...inner,
-  };
-}
 
 // Move name of the Vector type.
 const VECTOR = 'vector';
@@ -346,31 +191,6 @@ const BCS_SPEC: TypeSchema = {
       version: BCS.U64,
       digest: 'ObjectDigest',
     },
-    TransferObjectTx: {
-      recipient: BCS.ADDRESS,
-      object_ref: 'HaneulObjectRef',
-    },
-    PayTx: {
-      coins: [VECTOR, 'HaneulObjectRef'],
-      recipients: [VECTOR, BCS.ADDRESS],
-      amounts: [VECTOR, BCS.U64],
-    },
-    PayHaneulTx: {
-      coins: [VECTOR, 'HaneulObjectRef'],
-      recipients: [VECTOR, BCS.ADDRESS],
-      amounts: [VECTOR, BCS.U64],
-    },
-    PayAllHaneulTx: {
-      coins: [VECTOR, 'HaneulObjectRef'],
-      recipient: BCS.ADDRESS,
-    },
-    TransferHaneulTx: {
-      recipient: BCS.ADDRESS,
-      amount: ['Option', BCS.U64],
-    },
-    PublishTx: {
-      modules: [VECTOR, [VECTOR, BCS.U8]],
-    },
     SharedObjectRef: {
       objectId: BCS.ADDRESS,
       initialSharedVersion: BCS.U64,
@@ -381,13 +201,6 @@ const BCS_SPEC: TypeSchema = {
       module: BCS.STRING,
       name: BCS.STRING,
       typeParams: [VECTOR, 'TypeTag'],
-    },
-    MoveCallTx: {
-      package: BCS.ADDRESS,
-      module: BCS.STRING,
-      function: BCS.STRING,
-      typeArguments: [VECTOR, 'TypeTag'],
-      arguments: [VECTOR, 'CallArg'],
     },
     GasData: {
       payment: [VECTOR, 'HaneulObjectRef'],
