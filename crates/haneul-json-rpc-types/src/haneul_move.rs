@@ -45,6 +45,7 @@ pub enum HaneulMoveVisibility {
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct HaneulMoveStructTypeParameter {
     pub constraints: HaneulMoveAbilitySet,
     pub is_phantom: bool,
@@ -53,10 +54,12 @@ pub struct HaneulMoveStructTypeParameter {
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub struct HaneulMoveNormalizedField {
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: HaneulMoveNormalizedType,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedStruct {
     pub abilities: HaneulMoveAbilitySet,
     pub type_parameters: Vec<HaneulMoveStructTypeParameter>,
@@ -74,6 +77,7 @@ pub enum HaneulMoveNormalizedType {
     U256,
     Address,
     Signer,
+    #[serde(rename_all = "camelCase")]
     Struct {
         address: String,
         module: String,
@@ -87,6 +91,7 @@ pub enum HaneulMoveNormalizedType {
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedFunction {
     pub visibility: HaneulMoveVisibility,
     pub is_entry: bool,
@@ -102,6 +107,7 @@ pub struct HaneulMoveModuleId {
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedModule {
     pub file_format_version: u32,
     pub address: String,

@@ -47,7 +47,7 @@ export type HaneulMoveAbilitySet = Infer<typeof HaneulMoveAbilitySet>;
 
 export const HaneulMoveStructTypeParameter = object({
   constraints: HaneulMoveAbilitySet,
-  is_phantom: boolean(),
+  isPhantom: boolean(),
 });
 export type HaneulMoveStructTypeParameter = Infer<
   typeof HaneulMoveStructTypeParameter
@@ -94,7 +94,7 @@ export type HaneulMoveNormalizedStructType = {
     address: string;
     module: string;
     name: string;
-    type_arguments: HaneulMoveNormalizedType[];
+    typeArguments: HaneulMoveNormalizedType[];
   };
 };
 
@@ -112,8 +112,8 @@ function isHaneulMoveNormalizedStructType(
     typeof structProperties.address !== 'string' ||
     typeof structProperties.module !== 'string' ||
     typeof structProperties.name !== 'string' ||
-    !Array.isArray(structProperties.type_arguments) ||
-    !structProperties.type_arguments.every((value) =>
+    !Array.isArray(structProperties.typeArguments) ||
+    !structProperties.typeArguments.every((value) =>
       isHaneulMoveNormalizedType(value),
     )
   ) {
@@ -131,33 +131,33 @@ export const HaneulMoveNormalizedStructType = define<HaneulMoveNormalizedStructT
 
 export const HaneulMoveNormalizedFunction = object({
   visibility: HaneulMoveVisibility,
-  is_entry: boolean(),
-  type_parameters: array(HaneulMoveAbilitySet),
+  isEntry: boolean(),
+  typeParameters: array(HaneulMoveAbilitySet),
   parameters: array(HaneulMoveNormalizedType),
-  return_: array(HaneulMoveNormalizedType),
+  return: array(HaneulMoveNormalizedType),
 });
 export type HaneulMoveNormalizedFunction = Infer<typeof HaneulMoveNormalizedFunction>;
 
 export const HaneulMoveNormalizedField = object({
   name: string(),
-  type_: HaneulMoveNormalizedType,
+  type: HaneulMoveNormalizedType,
 });
 export type HaneulMoveNormalizedField = Infer<typeof HaneulMoveNormalizedField>;
 
 export const HaneulMoveNormalizedStruct = object({
   abilities: HaneulMoveAbilitySet,
-  type_parameters: array(HaneulMoveStructTypeParameter),
+  typeParameters: array(HaneulMoveStructTypeParameter),
   fields: array(HaneulMoveNormalizedField),
 });
 export type HaneulMoveNormalizedStruct = Infer<typeof HaneulMoveNormalizedStruct>;
 
 export const HaneulMoveNormalizedModule = object({
-  file_format_version: number(),
+  fileFormatVersion: number(),
   address: string(),
   name: string(),
   friends: array(HaneulMoveModuleId),
   structs: record(string(), HaneulMoveNormalizedStruct),
-  exposed_functions: record(string(), HaneulMoveNormalizedFunction),
+  exposedFunctions: record(string(), HaneulMoveNormalizedFunction),
 });
 export type HaneulMoveNormalizedModule = Infer<typeof HaneulMoveNormalizedModule>;
 
