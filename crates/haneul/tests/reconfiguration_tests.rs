@@ -412,11 +412,11 @@ async fn test_reconfig_with_committee_change_basic() {
     assert!(effects.status().is_ok());
 
     // Step 2: Give the candidate enough stake.
-    let delegation_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
+    let stake_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         new_validator_address,
         HANEUL_FRAMEWORK_OBJECT_ID,
         ident_str!("haneul_system").to_owned(),
-        ident_str!("request_add_delegation").to_owned(),
+        ident_str!("request_add_stake").to_owned(),
         vec![],
         gas_objects[1].compute_object_reference(),
         vec![
@@ -434,7 +434,7 @@ async fn test_reconfig_with_committee_change_basic() {
     )
     .unwrap();
     let transaction =
-        to_sender_signed_transaction(delegation_tx_data, new_node_config.account_key_pair());
+        to_sender_signed_transaction(stake_tx_data, new_node_config.account_key_pair());
     let effects = execute_transaction(&authorities, transaction)
         .await
         .unwrap();

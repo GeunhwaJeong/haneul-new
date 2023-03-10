@@ -390,7 +390,7 @@ async fn test_failed_pay_haneul() {
 }
 
 #[tokio::test]
-async fn test_delegate_haneul() {
+async fn test_stake_haneul() {
     let network = TestClusterBuilder::new().build().await.unwrap();
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
@@ -408,7 +408,7 @@ async fn test_delegate_haneul() {
         .haneul_address;
     let tx = client
         .transaction_builder()
-        .request_add_delegation(
+        .request_add_stake(
             sender,
             vec![coin1.0, coin2.0],
             Some(1000000),
@@ -426,12 +426,12 @@ async fn test_delegate_haneul() {
 }
 
 #[tokio::test]
-async fn test_delegate_haneul_with_none_amount() {
+async fn test_stake_haneul_with_none_amount() {
     let network = TestClusterBuilder::new().build().await.unwrap();
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
 
-    // Test Delegate Haneul
+    // Test Staking Haneul
     let sender = get_random_address(&network.accounts, vec![]);
     let coin1 = get_random_haneul(&client, sender, vec![]).await;
     let coin2 = get_random_haneul(&client, sender, vec![coin1.0]).await;
@@ -444,7 +444,7 @@ async fn test_delegate_haneul_with_none_amount() {
         .haneul_address;
     let tx = client
         .transaction_builder()
-        .request_add_delegation(
+        .request_add_stake(
             sender,
             vec![coin1.0, coin2.0],
             None,
@@ -507,7 +507,7 @@ async fn test_delegation_parsing() -> Result<(), anyhow::Error> {
         .haneul_address;
     let data = client
         .transaction_builder()
-        .request_add_delegation(
+        .request_add_stake(
             sender,
             vec![coin1.0, coin2.0],
             Some(100000),

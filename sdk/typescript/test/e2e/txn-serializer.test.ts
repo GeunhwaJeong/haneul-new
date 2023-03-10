@@ -22,7 +22,7 @@ describe('Transaction Serialization and deserialization', () => {
     const tx = new Transaction();
     tx.add(
       Commands.MoveCall({
-        target: '0x2::haneul_system::request_add_delegation',
+        target: '0x2::haneul_system::request_add_stake',
         arguments: [
           tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
           tx.input(coins[2].objectId),

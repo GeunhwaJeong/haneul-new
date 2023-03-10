@@ -17,8 +17,8 @@ module haneul::rewards_distribution_tests {
         assert_validator_self_stake_amounts,
         create_validator_for_testing,
         create_haneul_system_state_for_testing,
-        delegate_to,
-        total_haneul_balance, undelegate
+        stake_with,
+        total_haneul_balance, unstake
     };
     use haneul::test_utils::assert_eq;
 
@@ -27,10 +27,10 @@ module haneul::rewards_distribution_tests {
     const VALIDATOR_ADDR_3: address = @0x3;
     const VALIDATOR_ADDR_4: address = @0x4;
 
-    const DELEGATOR_ADDR_1: address = @0x42;
-    const DELEGATOR_ADDR_2: address = @0x43;
-    const DELEGATOR_ADDR_3: address = @0x44;
-    const DELEGATOR_ADDR_4: address = @0x45;
+    const STAKER_ADDR_1: address = @0x42;
+    const STAKER_ADDR_2: address = @0x43;
+    const STAKER_ADDR_3: address = @0x44;
+    const STAKER_ADDR_4: address = @0x45;
 
     #[test]
     fun test_validator_rewards() {
@@ -44,7 +44,7 @@ module haneul::rewards_distribution_tests {
         advance_epoch_with_reward_amounts(0, 100, scenario);
         assert_validator_total_stake_amounts(validator_addrs(), vector[110, 220, 330, 440], scenario);
 
-        delegate_to(VALIDATOR_ADDR_2, VALIDATOR_ADDR_2, 720, scenario);
+        stake_with(VALIDATOR_ADDR_2, VALIDATOR_ADDR_2, 720, scenario);
 
         advance_epoch_with_reward_amounts(0, 100, scenario);
         // validator 2's new stake hasn' started counting yet so she only gets 20% of the rewards.
@@ -71,13 +71,13 @@ module haneul::rewards_distribution_tests {
     }
 
     #[test]
-    fun test_delegation_rewards() {
+    fun test_stake_rewards() {
         let scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
         set_up_haneul_system_state(scenario);
 
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 200, scenario);
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 200, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
         governance_test_utils::advance_epoch(scenario);
 
         assert_validator_total_stake_amounts(validator_addrs(), vector[300, 300, 300, 400], scenario);
@@ -86,47 +86,47 @@ module haneul::rewards_distribution_tests {
         // 10 HANEUL rewards for each 100 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 130, scenario);
         assert_validator_self_stake_amounts(validator_addrs(), vector[110, 220, 330, 440], scenario);
-        undelegate(DELEGATOR_ADDR_1, 0, scenario);
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_1, 600, scenario);
+        unstake(STAKER_ADDR_1, 0, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_1, 600, scenario);
         // 10 HANEUL rewards for each 110 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 130, scenario);
-        // delegator 1 receives only 20 HANEUL of rewards, not 40 since we are using pre-epoch exchange rate.
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_1, scenario), 220);
+        // staker 1 receives only 20 HANEUL of rewards, not 40 since we are using pre-epoch exchange rate.
+        assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 220);
         assert_validator_self_stake_amounts(validator_addrs(), vector[140, 240, 360, 480], scenario);
-        undelegate(DELEGATOR_ADDR_2, 0, scenario);
-        assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 120, 0); // 20 HANEUL of rewards received
+        unstake(STAKER_ADDR_2, 0, scenario);
+        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 120, 0); // 20 HANEUL of rewards received
 
         // 10 HANEUL rewards for each 120 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 150, scenario);
 
-        undelegate(DELEGATOR_ADDR_2, 0, scenario); // unstake 600 principal HANEUL
+        unstake(STAKER_ADDR_2, 0, scenario); // unstake 600 principal HANEUL
         // additional 600 HANEUL of principal and 46 HANEUL of rewards withdrawn to Coin<HANEUL>
-        // For this delegation, the staking exchange rate is 600 : 740 and the unstaking
+        // For this stake, the staking exchange rate is 600 : 740 and the unstaking
         // exchange rate is 600 : 797 so the total haneul withdraw will be:
         // (600 * 600 / 740) * 797 / 600 = 646.
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_2, scenario), 766);
+        assert_eq(total_haneul_balance(STAKER_ADDR_2, scenario), 766);
         test_scenario::end(scenario_val);
     }
 
     #[test]
-    fun test_delegation_tiny_rewards() {
+    fun test_stake_tiny_rewards() {
         let scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
         set_up_haneul_system_state_with_big_amounts(scenario);
 
-        // delegate a large amount
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 200000000, scenario);
+        // stake a large amount
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 200000000, scenario);
 
         governance_test_utils::advance_epoch(scenario);
 
         advance_epoch_with_reward_amounts(0, 150000, scenario);
 
-        // delegate a small amount
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 10, scenario);
+        // stake a small amount
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 10, scenario);
         advance_epoch_with_reward_amounts(0, 130, scenario);
 
-        // undelegate the delegations
-        undelegate(DELEGATOR_ADDR_1, 1, scenario);
+        // unstake the stakes
+        unstake(STAKER_ADDR_1, 1, scenario);
 
         // and advance epoch should succeed
         advance_epoch_with_reward_amounts(0, 150, scenario);
@@ -139,15 +139,15 @@ module haneul::rewards_distribution_tests {
         let scenario = &mut scenario_val;
         set_up_haneul_system_state(scenario);
 
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
         governance_test_utils::advance_epoch(scenario);
 
         set_commission_rate_and_advance_epoch(VALIDATOR_ADDR_2, 5000, scenario); // 50% commission
 
         // 10 HANEUL for each 100 HANEUL staked
         advance_epoch_with_reward_amounts(0, 120, scenario);
-        // 5 HANEUL, or 50 % of delegator_2's rewards, goes to validator_2
+        // 5 HANEUL, or 50 % of staker_2's rewards, goes to validator_2
         assert_validator_non_self_stake_amounts(validator_addrs(), vector[110, 105, 0, 0], scenario);
         assert_validator_self_stake_amounts(validator_addrs(), vector[110, 225, 330, 440], scenario);
 
@@ -156,10 +156,10 @@ module haneul::rewards_distribution_tests {
         // 20 HANEUL for each 110 HANEUL staked
         advance_epoch_with_reward_amounts(0, 240, scenario);
 
-        // 2 HANEUL, or 10 % of delegator_1's rewards (20 HANEUL), goes to validator_1
-        // so delegator_1 now has 110 + 20 - 2 = 128 HANEUL.
-        // And 10 HANEUL, or 50% of delegator_2's rewards (20 HANEUL) goes to validator_2
-        // so delegator_2 now has 105 +20 - 10 = 115 HANEUL.
+        // 2 HANEUL, or 10 % of staker_1's rewards (20 HANEUL), goes to validator_1
+        // so staker_1 now has 110 + 20 - 2 = 128 HANEUL.
+        // And 10 HANEUL, or 50% of staker_2's rewards (20 HANEUL) goes to validator_2
+        // so staker_2 now has 105 +20 - 10 = 115 HANEUL.
         assert_validator_non_self_stake_amounts(validator_addrs(), vector[128, 115, 0, 0], scenario);
 
         // validator_1 gets 20 HANEUL of their own rewards and 2 HANEUL of commission
@@ -180,8 +180,8 @@ module haneul::rewards_distribution_tests {
 
         advance_epoch(scenario);
 
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
 
         advance_epoch(scenario);
 
@@ -202,18 +202,18 @@ module haneul::rewards_distribution_tests {
         // Without reward slashing, the validator's stakes should be [200, 400, 600, 800]
         // after the last epoch advancement.
         // Since 20 HANEUL, or 10% of validator_2's rewards (200) are slashed, she only has 400 - 20 = 380 now.
-        // There are in total 30 HANEUL of rewards slashed (20 from the validator, and 10 from her delegator)
+        // There are in total 30 HANEUL of rewards slashed (20 from the validator, and 10 from her staker)
         // so the unslashed validators each get their weighted share of additional rewards, which is
         // 30 / 9 = 3, 30 * 3 / 9 = 10 and 30 * 4 / 9 = 13.
         assert_validator_self_stake_amounts(validator_addrs(), vector[203, 380, 610, 813], scenario);
 
-        // Undelegate so we can check the delegation rewards as well.
-        undelegate(DELEGATOR_ADDR_1, 0, scenario);
-        undelegate(DELEGATOR_ADDR_2, 0, scenario);
+        // Unstake so we can check the stake rewards as well.
+        unstake(STAKER_ADDR_1, 0, scenario);
+        unstake(STAKER_ADDR_2, 0, scenario);
 
-        // Same analysis as above. Delegator 1 has 3 additional HANEUL, and 10% of delegator 2's rewards are slashed.
-        assert!(total_haneul_balance(DELEGATOR_ADDR_1, scenario) == 203, 0);
-        assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 190, 0);
+        // Same analysis as above. Delegator 1 has 3 additional HANEUL, and 10% of staker 2's rewards are slashed.
+        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == 203, 0);
+        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 190, 0);
         test_scenario::end(scenario_val);
     }
 
@@ -226,9 +226,9 @@ module haneul::rewards_distribution_tests {
         // Put 300 HANEUL into the storage fund.
         advance_epoch_with_reward_amounts(300, 0, scenario);
 
-        // Add a few delegations.
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_3, 100, scenario);
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_4, 100, scenario);
+        // Add a few stakes.
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_3, 100, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_4, 100, scenario);
         advance_epoch(scenario);
 
         // validator_4 is reported by 3 other validators, so (100 + 200 + 400) / 1200 = 58% of total stake.
@@ -250,13 +250,13 @@ module haneul::rewards_distribution_tests {
         // 380 HANEUL of rewards.
         assert_validator_self_stake_amounts(validator_addrs(), vector[294, 508, 723, 780], scenario);
 
-        // Undelegate so we can check the delegation rewards as well.
-        undelegate(DELEGATOR_ADDR_1, 0, scenario);
-        undelegate(DELEGATOR_ADDR_2, 0, scenario);
+        // Unstake so we can check the stake rewards as well.
+        unstake(STAKER_ADDR_1, 0, scenario);
+        unstake(STAKER_ADDR_2, 0, scenario);
 
         // WHY YOU DO THIS TO ME?
-        assert!(total_haneul_balance(DELEGATOR_ADDR_1, scenario) == 214, 0);
-        assert!(total_haneul_balance(DELEGATOR_ADDR_2, scenario) == 180, 0);
+        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == 214, 0);
+        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 180, 0);
 
         test_scenario::end(scenario_val);
     }
@@ -267,23 +267,23 @@ module haneul::rewards_distribution_tests {
         let scenario = &mut scenario_val;
         set_up_haneul_system_state(scenario);
 
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 220, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 220, scenario);
 
         // 10 HANEUL rewards for each 100 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 100, scenario);
 
-        delegate_to(DELEGATOR_ADDR_2, VALIDATOR_ADDR_1, 480, scenario);
+        stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_1, 480, scenario);
 
         // 10 HANEUL rewards for each 110 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 120, scenario);
 
-        delegate_to(DELEGATOR_ADDR_1, VALIDATOR_ADDR_1, 130, scenario);
-        delegate_to(DELEGATOR_ADDR_3, VALIDATOR_ADDR_1, 390, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 130, scenario);
+        stake_with(STAKER_ADDR_3, VALIDATOR_ADDR_1, 390, scenario);
 
         // 10 HANEUL rewards for each 120 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 160, scenario);
-        delegate_to(DELEGATOR_ADDR_3, VALIDATOR_ADDR_1, 280, scenario);
-        delegate_to(DELEGATOR_ADDR_4, VALIDATOR_ADDR_1, 1400, scenario);
+        stake_with(STAKER_ADDR_3, VALIDATOR_ADDR_1, 280, scenario);
+        stake_with(STAKER_ADDR_4, VALIDATOR_ADDR_1, 1400, scenario);
 
         // 10 HANEUL rewards for each 130 HANEUL of stake
         advance_epoch_with_reward_amounts(0, 200, scenario);
@@ -294,30 +294,30 @@ module haneul::rewards_distribution_tests {
         assert_eq(haneul_system::validator_stake_amount(&system_state, VALIDATOR_ADDR_1), 140 * 23);
         test_scenario::return_shared(system_state);
 
-        // Withdraw all delegations at once.
-        undelegate(DELEGATOR_ADDR_1, 0, scenario);
-        undelegate(DELEGATOR_ADDR_1, 0, scenario);
-        undelegate(DELEGATOR_ADDR_2, 0, scenario);
-        undelegate(DELEGATOR_ADDR_3, 0, scenario);
-        undelegate(DELEGATOR_ADDR_3, 0, scenario);
-        undelegate(DELEGATOR_ADDR_4, 0, scenario);
+        // Withdraw all stakes at once.
+        unstake(STAKER_ADDR_1, 0, scenario);
+        unstake(STAKER_ADDR_1, 0, scenario);
+        unstake(STAKER_ADDR_2, 0, scenario);
+        unstake(STAKER_ADDR_3, 0, scenario);
+        unstake(STAKER_ADDR_3, 0, scenario);
+        unstake(STAKER_ADDR_4, 0, scenario);
 
-        // delegator 1's first delegation was active for 3 epochs so got 20 * 3 = 60 HANEUL of rewards
-        // and her second delegation was active for only one epoch and got 10 HANEUL of rewards.
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_1, scenario), 220 + 130 + 20 * 3 + 10);
-        // delegator 2's delegation was active for 2 epochs so got 40 * 2 = 80 HANEUL of rewards
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_2, scenario), 480 + 40 * 2);
-        // delegator 3's first delegation was active for 1 epoch and got 30 HANEUL of rewards
-        // and her second delegation didn't get any rewards.
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_3, scenario), 390 + 280 + 30);
-        // delegator 4 joined and left in an epoch where no rewards were earned so she got no rewards.
-        assert_eq(total_haneul_balance(DELEGATOR_ADDR_4, scenario), 1400);
+        // staker 1's first stake was active for 3 epochs so got 20 * 3 = 60 HANEUL of rewards
+        // and her second stake was active for only one epoch and got 10 HANEUL of rewards.
+        assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 220 + 130 + 20 * 3 + 10);
+        // staker 2's stake was active for 2 epochs so got 40 * 2 = 80 HANEUL of rewards
+        assert_eq(total_haneul_balance(STAKER_ADDR_2, scenario), 480 + 40 * 2);
+        // staker 3's first stake was active for 1 epoch and got 30 HANEUL of rewards
+        // and her second stake didn't get any rewards.
+        assert_eq(total_haneul_balance(STAKER_ADDR_3, scenario), 390 + 280 + 30);
+        // staker 4 joined and left in an epoch where no rewards were earned so she got no rewards.
+        assert_eq(total_haneul_balance(STAKER_ADDR_4, scenario), 1400);
 
         advance_epoch_with_reward_amounts(0, 0, scenario);
 
         test_scenario::next_tx(scenario, @0x0);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        // Since all the delegations are gone the pool is empty except for the validator's original stake.
+        // Since all the stakes are gone the pool is empty except for the validator's original stake.
         assert_eq(haneul_system::validator_stake_amount(&system_state, VALIDATOR_ADDR_1), 140);
         test_scenario::return_shared(system_state);
         test_scenario::end(scenario_val);

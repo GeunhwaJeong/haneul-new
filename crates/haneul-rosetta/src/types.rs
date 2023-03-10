@@ -24,9 +24,7 @@ use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddres
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
-use haneul_types::governance::{
-    ADD_DELEGATION_LOCKED_COIN_FUN_NAME, ADD_DELEGATION_MUL_COIN_FUN_NAME,
-};
+use haneul_types::governance::{ADD_STAKE_LOCKED_COIN_FUN_NAME, ADD_STAKE_MUL_COIN_FUN_NAME};
 use haneul_types::messages::{CallArg, Command, ObjectArg, TransactionData};
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
@@ -896,9 +894,9 @@ impl InternalOperation {
                 TransactionMetadata::Delegation { coins, .. },
             ) => {
                 let function = if locked_until_epoch.is_some() {
-                    ADD_DELEGATION_LOCKED_COIN_FUN_NAME.to_owned()
+                    ADD_STAKE_LOCKED_COIN_FUN_NAME.to_owned()
                 } else {
-                    ADD_DELEGATION_MUL_COIN_FUN_NAME.to_owned()
+                    ADD_STAKE_MUL_COIN_FUN_NAME.to_owned()
                 };
                 let mut builder = ProgrammableTransactionBuilder::new();
                 let arguments = vec![

@@ -21,9 +21,7 @@ use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::event::BalanceChangeType;
 use haneul_types::gas_coin::{GasCoin, GAS};
-use haneul_types::governance::{
-    ADD_DELEGATION_LOCKED_COIN_FUN_NAME, ADD_DELEGATION_MUL_COIN_FUN_NAME,
-};
+use haneul_types::governance::{ADD_STAKE_LOCKED_COIN_FUN_NAME, ADD_STAKE_MUL_COIN_FUN_NAME};
 use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
@@ -352,8 +350,8 @@ impl Operations {
     fn is_delegation_call(tx: &HaneulProgrammableMoveCall) -> bool {
         tx.package == HANEUL_FRAMEWORK_OBJECT_ID
             && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
-            && (tx.function == ADD_DELEGATION_LOCKED_COIN_FUN_NAME.as_str()
-                || tx.function == ADD_DELEGATION_MUL_COIN_FUN_NAME.as_str())
+            && (tx.function == ADD_STAKE_LOCKED_COIN_FUN_NAME.as_str()
+                || tx.function == ADD_STAKE_MUL_COIN_FUN_NAME.as_str())
     }
 
     fn get_balance_operation_from_events(

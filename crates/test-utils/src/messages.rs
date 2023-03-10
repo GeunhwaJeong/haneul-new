@@ -396,7 +396,7 @@ pub fn make_counter_increment_transaction(
     to_sender_signed_transaction(data, keypair)
 }
 
-pub fn make_delegation_transaction(
+pub fn make_staking_transaction(
     gas_object: ObjectRef,
     coin: ObjectRef,
     validator: HaneulAddress,
@@ -408,7 +408,7 @@ pub fn make_delegation_transaction(
         sender,
         HANEUL_FRAMEWORK_OBJECT_ID,
         HANEUL_SYSTEM_MODULE_NAME.to_owned(),
-        "request_add_delegation".parse().unwrap(),
+        "request_add_stake".parse().unwrap(),
         vec![],
         gas_object,
         vec![

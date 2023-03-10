@@ -216,15 +216,15 @@ pub trait TransactionBuilder {
         txn_builder_mode: Option<HaneulTransactionBuilderMode>,
     ) -> RpcResult<TransactionBytes>;
 
-    /// Add delegated stake to a validator's staking pool using multiple coins and amount.
-    #[method(name = "requestAddDelegation")]
-    async fn request_add_delegation(
+    /// Add stake to a validator's staking pool using multiple coins and amount.
+    #[method(name = "requestAddStake")]
+    async fn request_add_stake(
         &self,
         /// the transaction signer's Haneul address
         signer: HaneulAddress,
-        /// Coin<HANEUL> or LockedCoin<HANEUL> object to delegate
+        /// Coin<HANEUL> or LockedCoin<HANEUL> object to stake
         coins: Vec<ObjectID>,
-        /// delegation amount
+        /// stake amount
         amount: Option<u64>,
         /// the validator's Haneul address
         validator: HaneulAddress,
@@ -234,9 +234,9 @@ pub trait TransactionBuilder {
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes>;
 
-    /// Withdraw a delegation from a validator's staking pool.
-    #[method(name = "requestWithdrawDelegation")]
-    async fn request_withdraw_delegation(
+    /// Withdraw stake from a validator's staking pool.
+    #[method(name = "requestWithdrawStake")]
+    async fn request_withdraw_stake(
         &self,
         /// the transaction signer's Haneul address
         signer: HaneulAddress,

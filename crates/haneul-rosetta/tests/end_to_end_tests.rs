@@ -117,7 +117,7 @@ async fn test_locked_haneul() {
 }
 
 #[tokio::test]
-async fn test_get_delegated_haneul() {
+async fn test_get_staked_haneul() {
     let test_cluster = TestClusterBuilder::new().build().await.unwrap();
     let address = test_cluster.accounts[0];
     let client = test_cluster.wallet.get_client().await.unwrap();
@@ -130,7 +130,7 @@ async fn test_get_delegated_haneul() {
         blockchain: "haneul".to_string(),
         network: HaneulEnv::LocalNet,
     };
-    // Verify initial balance and delegation
+    // Verify initial balance and stake
     let request = AccountBalanceRequest {
         network_identifier: network_identifier.clone(),
         account_identifier: AccountIdentifier {
@@ -163,7 +163,7 @@ async fn test_get_delegated_haneul() {
         .await;
     assert_eq!(response.balances[0].value, 0);
 
-    // Delegate some haneul
+    // Stake some haneul
     let validator = client
         .governance_api()
         .get_latest_haneul_system_state()
@@ -179,7 +179,7 @@ async fn test_get_delegated_haneul() {
         .data;
     let delegation_tx = client
         .transaction_builder()
-        .request_add_delegation(
+        .request_add_stake(
             address,
             vec![coins[0].coin_object_id],
             Some(100000),
@@ -236,7 +236,7 @@ async fn test_delegation() {
         .haneul_address;
     let ops = client
         .transaction_builder()
-        .request_add_delegation(sender, vec![coin1.0], Some(100000), validator, None, 10000)
+        .request_add_stake(sender, vec![coin1.0], Some(100000), validator, None, 10000)
         .await
         .unwrap();
 

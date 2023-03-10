@@ -13,7 +13,7 @@ use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::messages::VerifiedTransaction;
-use test_utils::messages::make_delegation_transaction;
+use test_utils::messages::make_staking_transaction;
 
 #[derive(Debug)]
 pub struct DelegationTestPayload {
@@ -31,7 +31,7 @@ impl Payload for DelegationTestPayload {
     /// followup call creates delegation transaction itself
     fn make_transaction(&self) -> VerifiedTransaction {
         match self.coin {
-            Some(coin) => make_delegation_transaction(
+            Some(coin) => make_staking_transaction(
                 self.gas,
                 coin,
                 self.validator,

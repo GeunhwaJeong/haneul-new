@@ -48,7 +48,7 @@ module haneul::staking_pool {
         /// The total number of HANEUL tokens in this pool, including the HANEUL in the rewards_pool, as well as in all the principal
         /// in the `StakedHaneul` object, updated at epoch boundaries.
         haneul_balance: u64,
-        /// The epoch delegation rewards will be added here at the end of each epoch.
+        /// The epoch stake rewards will be added here at the end of each epoch.
         rewards_pool: Balance<HANEUL>,
         /// Total number of pool tokens issued by the pool.
         pool_token_balance: u64,
@@ -56,16 +56,16 @@ module haneul::staking_pool {
         /// The entries start from the `starting_epoch` of this pool and contain exchange rates at the beginning of each epoch,
         /// i.e., right after the rewards for the previous epoch have been deposited into the pool.
         exchange_rates: Table<u64, PoolTokenExchangeRate>,
-        /// Pending delegation amount for this epoch.
-        pending_delegation: u64,
-        /// Pending delegation withdrawn during the current epoch, emptied at epoch boundaries.
+        /// Pending stake amount for this epoch.
+        pending_stake: u64,
+        /// Pending stake withdrawn during the current epoch, emptied at epoch boundaries.
         /// This includes both the principal and rewards HANEUL withdrawn.
         pending_total_haneul_withdraw: u64,
         /// Pending pool token withdrawn during the current epoch, emptied at epoch boundaries.
         pending_pool_token_withdraw: u64,
     }
 
-    /// Struct representing the exchange rate of the delegation pool token to HANEUL.
+    /// Struct representing the exchange rate of the stake pool token to HANEUL.
     struct PoolTokenExchangeRate has store, copy, drop {
         haneul_amount: u64,
         pool_token_amount: u64,
@@ -78,8 +78,8 @@ module haneul::staking_pool {
         pool_id: ID,
         // TODO: keeping this field here because the apps depend on it. consider removing it.
         validator_address: address,
-        /// The epoch at which the delegation becomes active.
-        delegation_activation_epoch: u64,
+        /// The epoch at which the stake becomes active.
+        stake_activation_epoch: u64,
         /// The staked HANEUL tokens.
         principal: Balance<HANEUL>,
         /// If the stake comes from a Coin<HANEUL>, this field is None. If it comes from a LockedCoin<HANEUL>, this
@@ -100,22 +100,22 @@ module haneul::staking_pool {
             rewards_pool: balance::zero(),
             pool_token_balance: 0,
             exchange_rates,
-            pending_delegation: 0,
+            pending_stake: 0,
             pending_total_haneul_withdraw: 0,
             pending_pool_token_withdraw: 0,
         }
     }
 
-    // ==== delegation requests ====
+    // ==== stake requests ====
 
-    /// Request to delegate to a staking pool. The delegation starts counting at the beginning of the next epoch,
-    public(friend) fun request_add_delegation(
+    /// Request to stake to a staking pool. The stake starts counting at the beginning of the next epoch,
+    public(friend) fun request_add_stake(
         pool: &mut StakingPool,
         stake: Balance<HANEUL>,
         haneul_token_lock: Option<EpochTimeLock>,
         validator_address: address,
-        delegator: address,
-        delegation_activation_epoch: u64,
+        staker: address,
+        stake_activation_epoch: u64,
         ctx: &mut TxContext
     ) {
         let haneul_amount = balance::value(&stake);
@@ -125,25 +125,25 @@ module haneul::staking_pool {
             id: object::new(ctx),
             pool_id: object::id(pool),
             validator_address,
-            delegation_activation_epoch,
+            stake_activation_epoch,
             principal: stake,
             haneul_token_lock,
         };
-        pool.pending_delegation = pool.pending_delegation + haneul_amount;
-        transfer::transfer(staked_haneul, delegator);
+        pool.pending_stake = pool.pending_stake + haneul_amount;
+        transfer::transfer(staked_haneul, staker);
     }
 
     /// Request to withdraw `principal_withdraw_amount` of stake plus rewards from a staking pool.
-    /// This amount of principal and corresponding rewards in HANEUL are withdrawn and transferred to the delegator.
+    /// This amount of principal and corresponding rewards in HANEUL are withdrawn and transferred to the staker.
     /// A proportional amount of pool tokens is burnt.
-    public(friend) fun request_withdraw_delegation(
+    public(friend) fun request_withdraw_stake(
         pool: &mut StakingPool,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext
     ) : u64 {
         let (pool_token_withdraw_amount, principal_withdraw, time_lock) =
             withdraw_from_principal(pool, staked_haneul);
-        let delegator = tx_context::sender(ctx);
+        let staker = tx_context::sender(ctx);
         let principal_withdraw_amount = balance::value(&principal_withdraw);
 
         let rewards_withdraw = withdraw_rewards_and_burn_pool_tokens(
@@ -155,19 +155,19 @@ module haneul::staking_pool {
         pool.pending_pool_token_withdraw = pool.pending_pool_token_withdraw + pool_token_withdraw_amount;
 
         // If the pool is inactive, we immediately process the withdrawal.
-        if (is_inactive(pool)) process_pending_delegation_withdraw(pool);
+        if (is_inactive(pool)) process_pending_stake_withdraw(pool);
 
         // TODO: implement withdraw bonding period here.
         if (option::is_some(&time_lock)) {
-            locked_coin::new_from_balance(principal_withdraw, option::destroy_some(time_lock), delegator, ctx);
+            locked_coin::new_from_balance(principal_withdraw, option::destroy_some(time_lock), staker, ctx);
             if (balance::value(&rewards_withdraw) > 0) {
-                transfer::transfer(coin::from_balance(rewards_withdraw, ctx), delegator);
+                transfer::transfer(coin::from_balance(rewards_withdraw, ctx), staker);
             } else {
                 balance::destroy_zero(rewards_withdraw);
             }
         } else {
             balance::join(&mut principal_withdraw, rewards_withdraw);
-            transfer::transfer(coin::from_balance(principal_withdraw, ctx), delegator);
+            transfer::transfer(coin::from_balance(principal_withdraw, ctx), staker);
             option::destroy_none(time_lock);
         };
         total_haneul_withdraw_amount
@@ -176,7 +176,7 @@ module haneul::staking_pool {
     }
 
     /// Withdraw the principal HANEUL stored in the StakedHaneul object, and calculate the corresponding amount of pool
-    /// tokens using exchange rate at delegation epoch.
+    /// tokens using exchange rate at stake epoch.
     /// Returns values are amount of pool tokens withdrawn, withdrawn principal portion of HANEUL, and its
     /// time lock if applicable.
     public(friend) fun withdraw_from_principal(
@@ -184,10 +184,10 @@ module haneul::staking_pool {
         staked_haneul: StakedHaneul,
     ) : (u64, Balance<HANEUL>, Option<EpochTimeLock>) {
 
-        // Check that the delegation information matches the pool.
+        // Check that the stake information matches the pool.
         assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
 
-        let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.delegation_activation_epoch);
+        let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
         let (principal_withdraw, time_lock) = unwrap_staked_haneul(staked_haneul);
         let pool_token_withdraw_amount = get_token_amount(&exchange_rate_at_staking_epoch, balance::value(&principal_withdraw));
 
@@ -203,7 +203,7 @@ module haneul::staking_pool {
             id,
             pool_id: _,
             validator_address: _,
-            delegation_activation_epoch: _,
+            stake_activation_epoch: _,
             principal,
             haneul_token_lock
         } = staked_haneul;
@@ -219,10 +219,10 @@ module haneul::staking_pool {
         balance::join(&mut pool.rewards_pool, rewards);
     }
 
-    public(friend) fun process_pending_delegations_and_withdraws(pool: &mut StakingPool, ctx: &mut TxContext) {
+    public(friend) fun process_pending_stakes_and_withdraws(pool: &mut StakingPool, ctx: &mut TxContext) {
         let new_epoch = tx_context::epoch(ctx) + 1;
-        process_pending_delegation_withdraw(pool);
-        process_pending_delegation(pool);
+        process_pending_stake_withdraw(pool);
+        process_pending_stake(pool);
         table::add(
             &mut pool.exchange_rates,
             new_epoch,
@@ -231,32 +231,32 @@ module haneul::staking_pool {
         check_balance_invariants(pool, new_epoch);
     }
 
-    /// Called at epoch boundaries to process pending delegation withdraws requested during the epoch.
+    /// Called at epoch boundaries to process pending stake withdraws requested during the epoch.
     /// Also called immediately upon withdrawal if the pool is inactive.
-    fun process_pending_delegation_withdraw(pool: &mut StakingPool) {
+    fun process_pending_stake_withdraw(pool: &mut StakingPool) {
         pool.haneul_balance = pool.haneul_balance - pool.pending_total_haneul_withdraw;
         pool.pool_token_balance = pool.pool_token_balance - pool.pending_pool_token_withdraw;
         pool.pending_total_haneul_withdraw = 0;
         pool.pending_pool_token_withdraw = 0;
     }
 
-    /// Called at epoch boundaries to process the pending delegation.
-    public(friend) fun process_pending_delegation(pool: &mut StakingPool) {
+    /// Called at epoch boundaries to process the pending stake.
+    public(friend) fun process_pending_stake(pool: &mut StakingPool) {
         // Use the most up to date exchange rate with the rewards deposited and withdraws effectuated.
         let latest_exchange_rate =
             PoolTokenExchangeRate { haneul_amount: pool.haneul_balance, pool_token_amount: pool.pool_token_balance };
-        pool.haneul_balance = pool.haneul_balance + pool.pending_delegation;
+        pool.haneul_balance = pool.haneul_balance + pool.pending_stake;
         pool.pool_token_balance = get_token_amount(&latest_exchange_rate, pool.haneul_balance);
-        pool.pending_delegation = 0;
+        pool.pending_stake = 0;
     }
 
     /// This function does the following:
     ///     1. Calculates the total amount of HANEUL (including principal and rewards) that the provided pool tokens represent
     ///        at the current exchange rate.
     ///     2. Using the above number and the given `principal_withdraw_amount`, calculates the rewards portion of the
-    ///        delegation we should withdraw.
+    ///        stake we should withdraw.
     ///     3. Withdraws the rewards portion from the rewards pool at the current exchange rate. We only withdraw the rewards
-    ///        portion because the principal portion was already taken out of the delegator's self custodied StakedHaneul.
+    ///        portion because the principal portion was already taken out of the staker's self custodied StakedHaneul.
     ///     4. Since HANEUL tokens are withdrawn, we need to burn the corresponding pool tokens to keep the exchange rate the same.
     fun withdraw_rewards_and_burn_pool_tokens(
         pool: &mut StakingPool,
@@ -294,28 +294,28 @@ module haneul::staking_pool {
         option::fill(&mut pool.activation_epoch, activation_epoch);
     }
 
-    public(friend) fun request_withdraw_delegation_preactive(
+    public(friend) fun request_withdraw_stake_preactive(
         pool: &mut StakingPool,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext
     ) : u64 {
-        // Check that the delegation information matches the pool.
+        // Check that the stake information matches the pool.
         assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
 
         assert!(is_preactive(pool), EPoolNotPreactive);
 
-        let delegator = tx_context::sender(ctx);
+        let staker = tx_context::sender(ctx);
 
         let (principal, time_lock) = unwrap_staked_haneul(staked_haneul);
         let withdraw_amount = balance::value(&principal);
         pool.haneul_balance = pool.haneul_balance - withdraw_amount;
         pool.pool_token_balance = pool.pool_token_balance - withdraw_amount;
 
-        // TODO: consider sharing code with `request_withdraw_delegation`
+        // TODO: consider sharing code with `request_withdraw_stake`
         if (option::is_some(&time_lock)) {
-            locked_coin::new_from_balance(principal, option::destroy_some(time_lock), delegator, ctx);
+            locked_coin::new_from_balance(principal, option::destroy_some(time_lock), staker, ctx);
         } else {
-            transfer::transfer(coin::from_balance(principal, ctx), delegator);
+            transfer::transfer(coin::from_balance(principal, ctx), staker);
             option::destroy_none(time_lock);
         };
         withdraw_amount
@@ -324,7 +324,7 @@ module haneul::staking_pool {
     // ==== inactive pool related ====
 
     /// Deactivate a staking pool by setting the `deactivation_epoch`. After
-    /// this pool deactivation, the pool stops earning rewards. Only delegation
+    /// this pool deactivation, the pool stops earning rewards. Only stake
     /// withdraws can be made to the pool.
     public(friend) fun deactivate_staking_pool(pool: &mut StakingPool, deactivation_epoch: u64) {
         // We can't deactivate an already deactivated pool.
@@ -340,8 +340,8 @@ module haneul::staking_pool {
 
     public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { balance::value(&staked_haneul.principal) }
 
-    public fun delegation_activation_epoch(staked_haneul: &StakedHaneul): u64 {
-        staked_haneul.delegation_activation_epoch
+    public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
+        staked_haneul.stake_activation_epoch
     }
 
     /// Returns true if the input staking pool is preactive.
@@ -356,13 +356,13 @@ module haneul::staking_pool {
 
     /// Split StakedHaneul `self` to two parts, one with principal `split_amount`,
     /// and the remaining principal is left in `self`.
-    /// All the other parameters of the StakedHaneul like `delegation_activation_epoch` or `pool_id` remain the same.
+    /// All the other parameters of the StakedHaneul like `stake_activation_epoch` or `pool_id` remain the same.
     public fun split(self: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext): StakedHaneul {
         StakedHaneul {
             id: object::new(ctx),
             pool_id: self.pool_id,
             validator_address: self.validator_address,
-            delegation_activation_epoch: self.delegation_activation_epoch,
+            stake_activation_epoch: self.stake_activation_epoch,
             principal: balance::split(&mut self.principal, split_amount),
             haneul_token_lock: self.haneul_token_lock,
         }
@@ -375,14 +375,14 @@ module haneul::staking_pool {
     }
 
     /// Consume the staked haneul `other` and add its value to `self`.
-    /// Aborts if some of the staking parameters are incompatible (pool id, delegation activation epoch, etc.)
+    /// Aborts if some of the staking parameters are incompatible (pool id, stake activation epoch, etc.)
     public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul) {
         assert!(is_equal_staking_metadata(self, &other), EIncompatibleStakedHaneul);
         let StakedHaneul {
             id,
             pool_id: _,
             validator_address: _,
-            delegation_activation_epoch: _,
+            stake_activation_epoch: _,
             principal,
             haneul_token_lock
         } = other;
@@ -400,7 +400,7 @@ module haneul::staking_pool {
     public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul): bool {
         if ((self.pool_id != other.pool_id) ||
             (self.validator_address != other.validator_address) ||
-            (self.delegation_activation_epoch != other.delegation_activation_epoch)) {
+            (self.stake_activation_epoch != other.stake_activation_epoch)) {
             return false
         };
         if (option::is_none(&self.haneul_token_lock) && option::is_none(&other.haneul_token_lock)) {
@@ -436,7 +436,7 @@ module haneul::staking_pool {
 
     /// Calculate the total value of the pending staking requests for this staking pool.
     public fun pending_stake_amount(staking_pool: &StakingPool): u64 {
-        staking_pool.pending_delegation
+        staking_pool.pending_stake
     }
 
     /// Calculate the current the total withdrawal from the staking pool this epoch.
@@ -451,7 +451,7 @@ module haneul::staking_pool {
     }
 
     fun get_haneul_amount(exchange_rate: &PoolTokenExchangeRate, token_amount: u64): u64 {
-        // When either amount is 0, that means we have no delegations with this pool.
+        // When either amount is 0, that means we have no stakes with this pool.
         // The other amount might be non-zero when there's dust left in the pool.
         if (exchange_rate.haneul_amount == 0 || exchange_rate.pool_token_amount == 0) {
             return token_amount
@@ -463,7 +463,7 @@ module haneul::staking_pool {
     }
 
     fun get_token_amount(exchange_rate: &PoolTokenExchangeRate, haneul_amount: u64): u64 {
-        // When either amount is 0, that means we have no delegations with this pool.
+        // When either amount is 0, that means we have no stakes with this pool.
         // The other amount might be non-zero when there's dust left in the pool.
         if (exchange_rate.haneul_amount == 0 || exchange_rate.pool_token_amount == 0) {
             return haneul_amount
@@ -497,7 +497,7 @@ module haneul::staking_pool {
     ): u64 {
         let staked_amount = staked_haneul_amount(staked_haneul);
         let pool_token_withdraw_amount = {
-            let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.delegation_activation_epoch);
+            let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
             get_token_amount(&exchange_rate_at_staking_epoch, staked_amount)
         };
 
