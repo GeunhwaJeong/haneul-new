@@ -32,7 +32,6 @@ use std::fs;
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use haneul_adapter::programmable_transactions;
 use haneul_json_rpc_types::{
     HaneulExecutionResult, HaneulExecutionStatus, HaneulGasCostSummary, HaneulTransactionEffectsAPI,
 };
@@ -42,10 +41,7 @@ use haneul_types::utils::{
     make_committee_key, mock_certified_checkpoint, to_sender_signed_transaction,
     to_sender_signed_transaction_with_multi_signers,
 };
-use haneul_types::{
-    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-};
+use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_OBJECT_ID};
 
 use crate::epoch::epoch_metrics::EpochMetrics;
 use move_core_types::parser::parse_type_tag;
@@ -56,7 +52,7 @@ use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::object::Data;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
-use haneul_types::haneul_system_state::{HaneulSystemStateWrapper, HANEUL_SYSTEM_STATE_TESTING_VERSION1};
+use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
 use haneul_types::{
     base_types::dbg_addr,
     crypto::{get_key_pair, Signature},
@@ -3015,8 +3011,13 @@ async fn test_genesis_haneul_system_state_object() {
     );
 }
 
+#[cfg(msim)]
 #[sim_test]
 async fn test_haneul_system_state_nop_upgrade() {
+    use haneul_adapter::programmable_transactions;
+    use haneul_types::haneul_system_state::HANEUL_SYSTEM_STATE_TESTING_VERSION1;
+    use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
+
     let authority_state = init_state().await;
 
     let protocol_config = ProtocolConfig::get_for_version(ProtocolVersion::MIN);
