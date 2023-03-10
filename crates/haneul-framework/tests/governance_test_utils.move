@@ -64,8 +64,6 @@ module haneul::governance_test_utils {
             validators,
             balance::create_for_testing<HANEUL>(haneul_supply_amount), // haneul_supply
             balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
-            1024, // max_validator_candidate_count
-            0, // min_validator_stake
             0, // governance_start_epoch
             0, // stake subsidy
             1, // protocol version
@@ -215,7 +213,7 @@ module haneul::governance_test_utils {
             ctx
         );
         haneul_system::request_add_delegation(&mut system_state, coin::mint_for_testing<HANEUL>(init_stake_amount, ctx), validator, ctx);
-        haneul_system::request_add_validator(&mut system_state, ctx);
+        haneul_system::request_add_validator_for_testing(&mut system_state, 0, ctx);
         test_scenario::return_shared(system_state);
     }
 
@@ -264,8 +262,9 @@ module haneul::governance_test_utils {
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
         let ctx = test_scenario::ctx(scenario);
 
-        haneul_system::request_add_validator(
+        haneul_system::request_add_validator_for_testing(
             &mut system_state,
+            0,
             ctx
         );
         test_scenario::return_shared(system_state);
