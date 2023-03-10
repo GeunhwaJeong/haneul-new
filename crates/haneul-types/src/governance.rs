@@ -8,7 +8,9 @@ use move_core_types::language_storage::StructTag;
 use crate::balance::Balance;
 use crate::base_types::{ObjectID, HaneulAddress};
 use crate::committee::EpochId;
+use crate::error::HaneulError;
 use crate::id::{ID, UID};
+use crate::object::{Data, Object};
 use crate::HANEUL_FRAMEWORK_ADDRESS;
 use serde::Deserialize;
 use serde::Serialize;
@@ -69,5 +71,25 @@ impl StakedHaneul {
 
     pub fn haneul_token_lock(&self) -> Option<EpochId> {
         self.haneul_token_lock
+    }
+}
+
+impl TryFrom<&Object> for StakedHaneul {
+    type Error = HaneulError;
+    fn try_from(object: &Object) -> Result<Self, Self::Error> {
+        match &object.data {
+            Data::Move(o) => {
+                if o.type_ == StakedHaneul::type_() {
+                    return bcs::from_bytes(o.contents()).map_err(|err| HaneulError::TypeError {
+                        error: format!("Unable to deserialize StakedHaneul object: {:?}", err),
+                    });
+                }
+            }
+            Data::Package(_) => {}
+        }
+
+        Err(HaneulError::TypeError {
+            error: format!("Object type is not a StakedHaneul: {:?}", object),
+        })
     }
 }

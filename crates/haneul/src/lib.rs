@@ -10,3 +10,4 @@ pub mod shell;
 pub mod haneul_commands;
 
 pub mod genesis_ceremony;
+pub mod genesis_inspector;

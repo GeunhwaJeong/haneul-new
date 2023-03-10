@@ -38,6 +38,8 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::VerifiedValidatorMetadataV1;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulValidatorSummary;
 use haneul_types::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_version, get_haneul_system_state_wrapper,
     HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper,
@@ -152,6 +154,19 @@ impl Genesis {
                     image_url: metadata.image_url.clone(),
                     project_url: metadata.project_url.clone(),
                 }
+            })
+            .collect()
+    }
+
+    pub fn validator_summary_set(&self) -> Vec<(HaneulValidatorSummary, VerifiedValidatorMetadataV1)> {
+        self.haneul_system_object()
+            .validators
+            .active_validators
+            .iter()
+            .map(|validator| {
+                let summary = validator.clone().into_haneul_validator_summary();
+                let metadata = validator.verified_metadata().clone();
+                (summary, metadata)
             })
             .collect()
     }
