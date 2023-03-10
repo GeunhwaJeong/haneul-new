@@ -10,8 +10,9 @@ use haneul_indexer::models::objects::Object;
 use haneul_indexer::models::transactions::Transaction;
 use haneul_indexer::store::{IndexerStore, TemporaryCheckpointStore, TemporaryEpochStore};
 use haneul_indexer::Indexer;
-use haneul_json_rpc_types::{CheckpointId, HaneulObjectDataOptions, HaneulObjectResponse};
-use haneul_types::base_types::ObjectID;
+use haneul_json_rpc_types::CheckpointId;
+use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::object::ObjectRead;
 use test_utils::network::TestClusterBuilder;
 
 #[tokio::test]
@@ -167,11 +168,11 @@ impl IndexerStore for InMemoryIndexerStore {
         todo!()
     }
 
-    fn get_object_with_options(
+    fn get_object(
         &self,
         _object_id: ObjectID,
-        _options: HaneulObjectDataOptions,
-    ) -> Result<HaneulObjectResponse, IndexerError> {
+        _version: Option<SequenceNumber>,
+    ) -> Result<ObjectRead, IndexerError> {
         todo!();
     }
 

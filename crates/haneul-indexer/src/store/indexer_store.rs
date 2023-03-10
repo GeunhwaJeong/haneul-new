@@ -14,21 +14,21 @@ use crate::models::transactions::Transaction;
 
 use async_trait::async_trait;
 use haneul_json_rpc_types::{
-    Checkpoint as RpcCheckpoint, CheckpointId, HaneulObjectData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulTransactionResponse,
+    Checkpoint as RpcCheckpoint, CheckpointId, HaneulObjectData, HaneulTransactionResponse,
 };
-use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::object::ObjectRead;
 
 #[async_trait]
 pub trait IndexerStore {
     fn get_latest_checkpoint_sequence_number(&self) -> Result<i64, IndexerError>;
     fn get_checkpoint(&self, id: CheckpointId) -> Result<Checkpoint, IndexerError>;
 
-    fn get_object_with_options(
+    fn get_object(
         &self,
         object_id: ObjectID,
-        options: HaneulObjectDataOptions,
-    ) -> Result<HaneulObjectResponse, IndexerError>;
+        version: Option<SequenceNumber>,
+    ) -> Result<ObjectRead, IndexerError>;
 
     fn get_total_transaction_number(&self) -> Result<i64, IndexerError>;
 
