@@ -14,7 +14,6 @@ use haneul_json_rpc::event_api::EventReadApi;
 use haneul_json_rpc::governance_api::GovernanceReadApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::haneul_rpc_doc;
-use haneul_json_rpc::threshold_bls_api::ThresholdBlsApi;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
 use haneul_json_rpc::HaneulRpcModule;
@@ -53,7 +52,6 @@ async fn main() {
     open_rpc.add_module(TransactionExecutionApi::rpc_doc_module());
     open_rpc.add_module(TransactionBuilderApi::rpc_doc_module());
     open_rpc.add_module(GovernanceReadApi::rpc_doc_module());
-    open_rpc.add_module(ThresholdBlsApi::rpc_doc_module());
 
     open_rpc.add_examples(RpcExampleProvider::new().examples());
 

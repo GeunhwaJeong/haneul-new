@@ -11,7 +11,6 @@ pub use haneul_event::*;
 pub use haneul_object::*;
 pub use haneul_transaction::*;
 
-pub use haneul_bls::*;
 pub use haneul_checkpoint::*;
 pub use haneul_coin::*;
 pub use haneul_governance::*;
@@ -21,7 +20,6 @@ pub use haneul_move::*;
 #[path = "unit_tests/rpc_types_tests.rs"]
 mod rpc_types_tests;
 
-mod haneul_bls;
 mod haneul_checkpoint;
 mod haneul_coin;
 mod haneul_event;

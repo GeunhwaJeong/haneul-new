@@ -40,10 +40,9 @@
 /// the above curl commands.
 ///
 module games::drand_based_lottery {
-    use games::drand_lib::{derive_randomness, verify_drand_signature};
+    use games::drand_lib::{derive_randomness, verify_drand_signature, safe_selection};
     use std::option::{Self, Option};
     use haneul::object::{Self, ID, UID};
-    use haneul::randomness::safe_selection;
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
 
