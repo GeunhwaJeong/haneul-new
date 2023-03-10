@@ -107,7 +107,6 @@ export class Coin {
             tx.add(
                 Transaction.Commands.MoveCall({
                     target: '0x2::haneul_system::request_add_delegation',
-                    typeArguments: [],
                     arguments: [
                         tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
                         stakeCoin,
@@ -134,7 +133,6 @@ export class Coin {
             tx.add(
                 Transaction.Commands.MoveCall({
                     target: '0x2::haneul_system::request_withdraw_delegation',
-                    typeArguments: [],
                     arguments: [
                         tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
                         tx.input(delegation),

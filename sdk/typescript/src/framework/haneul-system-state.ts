@@ -45,10 +45,7 @@ export class HaneulSystemStateUtil {
     const coin = tx.add(Commands.SplitCoin(tx.gas, tx.input(amount)));
     tx.add(
       Commands.MoveCall({
-        package: HANEUL_FRAMEWORK_ADDRESS,
-        module: HANEUL_SYSTEM_MODULE_NAME,
-        function: ADD_DELEGATION_FUN_NAME,
-        typeArguments: [],
+        target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_DELEGATION_FUN_NAME}`,
         arguments: [
           tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
           coin,
@@ -78,10 +75,7 @@ export class HaneulSystemStateUtil {
     const tx = new Transaction();
     tx.add(
       Commands.MoveCall({
-        package: HANEUL_FRAMEWORK_ADDRESS,
-        module: HANEUL_SYSTEM_MODULE_NAME,
-        function: WITHDRAW_DELEGATION_FUN_NAME,
-        typeArguments: [],
+        target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${WITHDRAW_DELEGATION_FUN_NAME}`,
         arguments: [
           tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
           tx.input(delegation),
