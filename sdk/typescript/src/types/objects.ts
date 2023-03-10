@@ -15,6 +15,7 @@ import {
   record,
   string,
   union,
+  is,
 } from 'superstruct';
 import {
   ObjectId,
@@ -22,6 +23,7 @@ import {
   SequenceNumber,
   TransactionDigest,
 } from './common';
+import { OwnedObjectRef } from './transactions';
 
 export const ObjectType = union([string(), literal('package')]);
 export type ObjectType = Infer<typeof ObjectType>;
@@ -215,8 +217,11 @@ export function getObjectNotExistsResponse(
 }
 
 export function getObjectReference(
-  resp: HaneulObjectResponse,
+  resp: HaneulObjectResponse | OwnedObjectRef,
 ): HaneulObjectRef | undefined {
+  if ('reference' in resp) {
+    return resp.reference;
+  }
   const exists = getHaneulObjectData(resp);
   if (exists) {
     return {
@@ -230,12 +235,15 @@ export function getObjectReference(
 
 /* ------------------------------ HaneulObjectRef ------------------------------ */
 
-export function getObjectId(data: HaneulObjectResponse | HaneulObjectRef): ObjectId {
+export function getObjectId(
+  data: HaneulObjectResponse | HaneulObjectRef | OwnedObjectRef,
+): ObjectId {
   if ('objectId' in data) {
     return data.objectId;
   }
   return (
-    getObjectReference(data)?.objectId ?? getObjectNotExistsResponse(data)!
+    getObjectReference(data)?.objectId ??
+    getObjectNotExistsResponse(data as HaneulObjectResponse)!
   );
 }
 
@@ -276,8 +284,11 @@ export function getObjectPreviousTransactionDigest(
 }
 
 export function getObjectOwner(
-  resp: HaneulObjectResponse,
+  resp: HaneulObjectResponse | ObjectOwner,
 ): ObjectOwner | undefined {
+  if (is(resp, ObjectOwner)) {
+    return resp;
+  }
   return getHaneulObjectData(resp)?.owner;
 }
 
@@ -288,7 +299,7 @@ export function getObjectDisplay(
 }
 
 export function getSharedObjectInitialVersion(
-  resp: HaneulObjectResponse,
+  resp: HaneulObjectResponse | ObjectOwner,
 ): number | undefined {
   const owner = getObjectOwner(resp);
   if (typeof owner === 'object' && 'Shared' in owner) {
@@ -298,12 +309,14 @@ export function getSharedObjectInitialVersion(
   }
 }
 
-export function isSharedObject(resp: HaneulObjectResponse): boolean {
+export function isSharedObject(resp: HaneulObjectResponse | ObjectOwner): boolean {
   const owner = getObjectOwner(resp);
   return typeof owner === 'object' && 'Shared' in owner;
 }
 
-export function isImmutableObject(resp: HaneulObjectResponse): boolean {
+export function isImmutableObject(
+  resp: HaneulObjectResponse | ObjectOwner,
+): boolean {
   const owner = getObjectOwner(resp);
   return owner === 'Immutable';
 }

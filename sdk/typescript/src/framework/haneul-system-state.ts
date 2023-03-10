@@ -5,7 +5,7 @@ import { Commands, Transaction } from '../builder';
 import { Provider } from '../providers/provider';
 import {
   getObjectReference,
-  normalizeHaneulAddress,
+  normalizeHaneulObjectId,
   ObjectId,
   HaneulAddress,
   HANEUL_FRAMEWORK_ADDRESS,
@@ -15,7 +15,7 @@ import {
  * Address of the Haneul System object.
  * Always the same in every Haneul network (local, devnet, testnet).
  */
-export const HANEUL_SYSTEM_STATE_OBJECT_ID: string = normalizeHaneulAddress('0x5');
+export const HANEUL_SYSTEM_STATE_OBJECT_ID: string = normalizeHaneulObjectId('0x5');
 
 export const HANEUL_SYSTEM_MODULE_NAME = 'haneul_system';
 export const ADD_STAKE_FUN_NAME = 'request_add_stake';
