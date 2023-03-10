@@ -78,9 +78,13 @@ Single-writer objects are owned by one address. In Haneul, transactions affectin
 
 A [smart contract](https://en.wikipedia.org/wiki/Smart_contract) is an agreement based upon the protocol for conducting transactions in a blockchain. In Haneul, smart contracts are written in the [Move](https://github.com/GeunhwaJeong/awesome-move) programming language.
 
-### Haneul/HANEUL
+### Haneul
 
-Haneul refers to the Haneul blockchain, the HANEUL currency, and the [Haneul open source project](https://github.com/GeunhwaJeong/haneul/) as a whole.
+Haneul refers to the Haneul blockchain, and the [Haneul open source project](https://github.com/GeunhwaJeong/haneul/) as a whole.
+
+### HANEUL
+
+HANEUL is the native token to the Haneul network.
 
 ### Total order
 
@@ -96,16 +100,13 @@ More *complex transactions* affecting objects that are shared or owned by multip
 
 ### Transfer
 
-A transfer is switching the owner address of a token to a new one via command in Haneul. This is accomplished via the
-[Haneul CLI client](../build/cli-client.md) command line interface. It is one of the more common of many commands
-available in the CLI client.
+A transfer is switching the owner address of a token to a new one via command in Haneul. This is accomplished via the [Haneul CLI client](../build/cli-client.md) command line interface. It is one of the more common of many commands available in the CLI client.
 
 For more information, see [Transferring objects](../build/cli-client.md#transferring-objects).
 
 ### Validator
 
-A validator in Haneul plays a passive role analogous to the more active role of validators and minors in other blockchains. In Haneul,
-validators do not continuously participate in the consensus protocol but are called into action only when receiving a transaction or
+A validator in Haneul plays a passive role analogous to the more active role of validators and minors in other blockchains. In Haneul, validators do not continuously participate in the consensus protocol but are called into action only when receiving a transaction or
 certificate.
 
 For more information, see [Validators](architecture/validators.md).

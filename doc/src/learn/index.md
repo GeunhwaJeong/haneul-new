@@ -11,10 +11,10 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 ## Documentation versions
 
 This site is available in two versions. You can choose which version to view using the drop-down menu at top left.
- * [Devnet](https://docs.haneul.io/devnet/learn) reflects the stable `devnet` branch of the repo. Use the **Devnet** version of the docs if you build or test with the `devnet` branch of the repo. 
- * [Latest build](https://docs.haneul.io/learn) reflects the `main` branch of the repo. The `main` branch includes the most recent updates we've made to the documentation. The `main` branch includes updates not yet merged into the `devnet` branch.
+ * **Devnet** reflects the version of Haneul running on the Haneul Devnet network.  
+ * **Testnet** reflects the version of Haneul running on the Haneul Testnet network. 
 
- When Haneul releases a new feature, or change to an existing feature, to the `devnet` branch, the documentation in the **Devnet** version may not reflect the associated updates for a few days after the release. You can see the associated updates in the **Latest build** version in the interim.  
+Use the version of the documentation that corresponds to the Haneul network you use.
 
 ## Haneul releases
 
@@ -25,14 +25,6 @@ Check for the latest release of Haneul, including Release Notes, on the [Haneul 
 We list changes and updates to the documentation in the [Haneul documentation updates](../doc-updates/index.md) topic.
 
 See the [docs-related commit history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) in the Haneul repo.
-
-### Code changes
-
-For a complete view of all changes in the Haneul `devnet` branch, see:
-https://github.com/GeunhwaJeong/haneul/commits/devnet
-
-For updates in the `main` branch, see:
-https://github.com/GeunhwaJeong/haneul/commits/main 
 
 ### Write Smart Contracts with Move
 

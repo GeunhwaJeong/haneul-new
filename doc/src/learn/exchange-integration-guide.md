@@ -2,7 +2,7 @@
 title: Haneul Exchange Integration Guide
 ---
 
-This topic describes how to integrate HANEUL, the token native to the Haneul network, into a cryptocurrency exchange. The specific requirements and processes to implement an integration vary between exchanges. Rather than provide a step-by-step guide, this topic provides information about the primary tasks necessary to complete an integration. After the guidance about how to configure an integration, you can also find information and code samples related to staking and delegation on the Haneul network.
+This topic describes how to integrate HANEUL, the token native to the Haneul network, into a cryptocurrency exchange. The specific requirements and processes to implement an integration vary between exchanges. Rather than provide a step-by-step guide, this topic provides information about the primary tasks necessary to complete an integration. After the guidance about how to configure an integration, you can also find information and code samples related to staking on the Haneul network.
 
 ## Requirements to configure a HANEUL integration
 
@@ -232,15 +232,15 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
 ## HANEUL Staking and Delegation
 
-The Haneul blockchain uses a delegated Proof-of-Stake mechanism (DPoS). This allows HANEUL token holders to delegate their tokens to any validator of their choice. When someone delegates their HANEUL tokens, it means those tokens are locked for the entire epoch. Users can withdraw their stake and stake with a different validator between epochs.
+The Haneul blockchain uses a Delegated Proof-of-Stake mechanism (DPoS). This allows HANEUL token holders to stake their HANEUL tokens to any validator of their choice. When someone stakes their HANEUL tokens, it means those tokens are locked for the entire epoch. Users can withdraw their stake at any time, but new staking requests become active only at the start of the next epoch.
 
-HANEUL holders who delegate their tokens to validators earn rewards for helping secure the Haneul network. Haneul determines rewards for delegation based on stake rewards on the network, and distributes them at the end of each epoch.
+HANEUL holders who stake their tokens to validators earn rewards for helping secure the Haneul network. Haneul determines rewards for staking based on stake rewards on the network, and distributes them at the end of each epoch.
 
 The total voting power in the Haneul Network is always 10,000. The voting power of each individual validator is similar to basis points. For example, a voting power of 101 = 1.01%. Haneul's quorum threshold (number of votes needed to confirm a transaction) is 6,667 (which is greater than 2/3). The voting power for a single validator is capped at 1,000 (10%) regardless of how much stake the validator has.
 
-## Delegated staking functions
+## Staking functions
 
-Haneul supports the following API operations related to staking and delegation. You can find the source code in the [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/governance/haneul_system.move) module.
+Haneul supports the following API operations related to staking. You can find the source code in the [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/governance/haneul_system.move) module.
 
  * `request_add_stake`
  Add delegated stake to a validator's staking pool.
