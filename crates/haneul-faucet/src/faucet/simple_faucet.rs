@@ -14,8 +14,7 @@ use std::path::Path;
 
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
@@ -460,23 +459,6 @@ impl SimpleFaucet {
         number_of_coins: usize,
         recipient: HaneulAddress,
     ) -> Result<(TransactionDigest, Vec<ObjectID>), FaucetError> {
-        let txns = res
-            .transaction
-            .as_ref()
-            .ok_or_else(|| {
-                FaucetError::ParseTransactionResponseError(format!(
-                    "transaction field missing for txn {}",
-                    res.digest
-                ))
-            })?
-            .data
-            .transactions();
-        if txns.len() != 1 {
-            panic!(
-                "PayHaneul Transaction should create one and exactly one txn, but got {:?}",
-                txns
-            );
-        }
         let created = res
             .effects
             .ok_or_else(|| {

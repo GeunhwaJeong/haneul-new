@@ -21,8 +21,8 @@ use haneullabs_metrics::spawn_monitored_task;
 use prometheus::Registry;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
-    OwnedObjectRef, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData, HaneulTransactionDataAPI,
-    HaneulTransactionEffectsAPI, HaneulTransactionKind, HaneulTransactionResponse,
+    OwnedObjectRef, HaneulCommand, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData,
+    HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionKind, HaneulTransactionResponse,
     HaneulTransactionResponseOptions,
 };
 use haneul_sdk::error::Error;
@@ -310,42 +310,49 @@ where
 
         let move_calls: Vec<MoveCall> = transactions
             .iter()
-            .flat_map(|t| {
-                t.transaction
+            .map(|t| {
+                let tx = t
+                    .transaction
                     .as_ref()
                     .expect("transaction should not be empty")
                     .data
-                    .transactions()
-                    .iter()
-                    .map(move |tx| {
-                        (
-                            tx.clone(),
-                            t.digest,
-                            checkpoint.sequence_number,
-                            checkpoint.epoch,
-                            t.transaction
-                                .as_ref()
-                                .expect("transaction should not be empty")
-                                .data
-                                .sender(),
-                        )
-                    })
+                    .transaction();
+                (
+                    tx.clone(),
+                    t.digest,
+                    checkpoint.sequence_number,
+                    checkpoint.epoch,
+                    t.transaction
+                        .as_ref()
+                        .expect("transaction should not be empty")
+                        .data
+                        .sender(),
+                )
             })
             .filter_map(
                 |(tx_kind, txn_digest, checkpoint_seq, epoch, sender)| match tx_kind {
-                    HaneulTransactionKind::Call(haneul_move_call) => Some(MoveCall {
-                        id: None,
-                        transaction_digest: txn_digest.to_string(),
-                        checkpoint_sequence_number: checkpoint_seq as i64,
-                        epoch: epoch as i64,
-                        sender: sender.to_string(),
-                        move_package: haneul_move_call.package.to_string(),
-                        move_module: haneul_move_call.module,
-                        move_function: haneul_move_call.function,
-                    }),
+                    HaneulTransactionKind::ProgrammableTransaction(pt) => Some(
+                        pt.commands
+                            .into_iter()
+                            .filter_map(move |command| match command {
+                                HaneulCommand::MoveCall(m) => Some(MoveCall {
+                                    id: None,
+                                    transaction_digest: txn_digest.to_string(),
+                                    checkpoint_sequence_number: checkpoint_seq as i64,
+                                    epoch: epoch as i64,
+                                    sender: sender.to_string(),
+                                    move_package: m.package.to_string(),
+                                    move_module: m.module,
+                                    move_function: m.function,
+                                }),
+                                _ => None,
+                            }),
+                    ),
+
                     _ => None,
                 },
             )
+            .flatten()
             .collect();
 
         let recipients: Vec<Recipient> = transactions

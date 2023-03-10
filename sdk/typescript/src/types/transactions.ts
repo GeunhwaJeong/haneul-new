@@ -31,18 +31,6 @@ import {
 // TODO: support u64
 export const EpochId = number();
 
-export const TransferObject = object({
-  recipient: HaneulAddress,
-  objectRef: HaneulObjectRef,
-});
-export type TransferObject = Infer<typeof TransferObject>;
-
-export const HaneulTransferHaneul = object({
-  recipient: HaneulAddress,
-  amount: union([number(), literal(null)]),
-});
-export type HaneulTransferHaneul = Infer<typeof HaneulTransferHaneul>;
-
 export const HaneulChangeEpoch = object({
   epoch: EpochId,
   storage_charge: number(),
@@ -60,35 +48,6 @@ export const HaneulConsensusCommitPrologue = object({
 export type HaneulConsensusCommitPrologue = Infer<
   typeof HaneulConsensusCommitPrologue
 >;
-
-export const Pay = object({
-  coins: array(HaneulObjectRef),
-  recipients: array(HaneulAddress),
-  amounts: array(string()),
-});
-export type Pay = Infer<typeof Pay>;
-
-export const PayHaneul = object({
-  coins: array(HaneulObjectRef),
-  recipients: array(HaneulAddress),
-  amounts: array(string()),
-});
-export type PayHaneul = Infer<typeof PayHaneul>;
-
-export const PayAllHaneul = object({
-  coins: array(HaneulObjectRef),
-  recipient: HaneulAddress,
-});
-export type PayAllHaneul = Infer<typeof PayAllHaneul>;
-
-export const MoveCall = object({
-  package: string(),
-  module: string(),
-  function: string(),
-  typeArguments: optional(array(string())),
-  arguments: optional(array(HaneulJsonValue)),
-});
-export type MoveCall = Infer<typeof MoveCall>;
 
 export const Genesis = object({
   objects: array(ObjectId),
@@ -134,23 +93,12 @@ export type ExecuteTransactionRequestType =
   | 'WaitForLocalExecution';
 
 export type TransactionKindName =
-  | 'TransferObject'
-  | 'Publish'
-  | 'Call'
-  | 'TransferHaneul'
   | 'ChangeEpoch'
   | 'ConsensusCommitPrologue'
-  | 'Pay'
-  | 'PayHaneul'
-  | 'PayAllHaneul'
   | 'Genesis'
   | 'ProgrammableTransaction';
 
 export const HaneulTransactionKind = union([
-  assign(TransferObject, object({ kind: literal('TransferObject') })),
-  assign(HaneulMovePackage, object({ kind: literal('Publish') })),
-  assign(MoveCall, object({ kind: literal('Call') })),
-  assign(HaneulTransferHaneul, object({ kind: literal('TransferHaneul') })),
   assign(HaneulChangeEpoch, object({ kind: literal('ChangeEpoch') })),
   assign(
     HaneulConsensusCommitPrologue,
@@ -158,9 +106,6 @@ export const HaneulTransactionKind = union([
       kind: literal('ConsensusCommitPrologue'),
     }),
   ),
-  assign(Pay, object({ kind: literal('Pay') })),
-  assign(PayHaneul, object({ kind: literal('PayHaneul') })),
-  assign(PayAllHaneul, object({ kind: literal('PayAllHaneul') })),
   assign(Genesis, object({ kind: literal('Genesis') })),
   assign(
     ProgrammableTransaction,
@@ -172,7 +117,7 @@ export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
 export const HaneulTransactionData = object({
   // Eventually this will become union(literal('v1'), literal('v2'), ...)
   messageVersion: literal('v1'),
-  transactions: array(HaneulTransactionKind),
+  transaction: HaneulTransactionKind,
   sender: HaneulAddress,
   gasData: HaneulGasData,
 });
@@ -398,46 +343,6 @@ export function getTransactionGasBudget(tx: HaneulTransactionResponse) {
   return getGasData(tx)?.budget;
 }
 
-export function getTransferObjectTransaction(
-  data: HaneulTransactionKind,
-): TransferObject | undefined {
-  return data.kind === 'TransferObject' ? data : undefined;
-}
-
-export function getPublishTransaction(
-  data: HaneulTransactionKind,
-): HaneulMovePackage | undefined {
-  return data.kind === 'Publish' ? data : undefined;
-}
-
-export function getMoveCallTransaction(
-  data: HaneulTransactionKind,
-): MoveCall | undefined {
-  return data.kind === 'Call' ? data : undefined;
-}
-
-export function getTransferHaneulTransaction(
-  data: HaneulTransactionKind,
-): HaneulTransferHaneul | undefined {
-  return data.kind === 'TransferHaneul' ? data : undefined;
-}
-
-export function getPayTransaction(data: HaneulTransactionKind): Pay | undefined {
-  return data.kind === 'Pay' ? data : undefined;
-}
-
-export function getPayHaneulTransaction(
-  data: HaneulTransactionKind,
-): PayHaneul | undefined {
-  return data.kind === 'PayHaneul' ? data : undefined;
-}
-
-export function getPayAllHaneulTransaction(
-  data: HaneulTransactionKind,
-): PayAllHaneul | undefined {
-  return data.kind === 'PayAllHaneul' ? data : undefined;
-}
-
 export function getChangeEpochTransaction(
   data: HaneulTransactionKind,
 ): HaneulChangeEpoch | undefined {
@@ -450,16 +355,10 @@ export function getConsensusCommitPrologueTransaction(
   return data.kind === 'ConsensusCommitPrologue' ? data : undefined;
 }
 
-export function getTransactionKinds(
+export function getTransactionKind(
   data: HaneulTransactionResponse,
-): HaneulTransactionKind[] | undefined {
-  return data.transaction?.data.transactions;
-}
-
-export function getTransferHaneulAmount(data: HaneulTransactionKind): bigint | null {
-  return data.kind === 'TransferHaneul' && data.amount
-    ? BigInt(data.amount)
-    : null;
+): HaneulTransactionKind | undefined {
+  return data.transaction?.data.transaction;
 }
 
 export function getTransactionKindName(

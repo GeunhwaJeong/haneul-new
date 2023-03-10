@@ -28,9 +28,10 @@ use haneul_types::event::Event;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse, GasData,
-    QuorumDriverResponse, SingleTransactionKind, TransactionData, TransactionKind, TransferObject,
+    QuorumDriverResponse, TransactionData, TransactionKind,
 };
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::query::{EventQuery, TransactionQuery};
 use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
 use haneul_types::{
@@ -124,10 +125,12 @@ async fn test_sponsored_transaction() -> Result<(), anyhow::Error> {
     info!("updated gas ref: {:?}", gas_obj);
 
     // Construct the sponsored transction
-    let kind = TransactionKind::Single(SingleTransactionKind::TransferObject(TransferObject {
-        recipient: another_addr,
-        object_ref,
-    }));
+    let pt = {
+        let mut builder = ProgrammableTransactionBuilder::new();
+        builder.transfer_object(another_addr, object_ref);
+        builder.finish()
+    };
+    let kind = TransactionKind::programmable(pt);
     let tx_data = TransactionData::new_with_gas_data(
         kind,
         sender,

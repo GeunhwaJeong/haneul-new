@@ -27,7 +27,7 @@ use haneul_types::crypto::SignatureScheme;
 use haneul_types::governance::{
     ADD_DELEGATION_LOCKED_COIN_FUN_NAME, ADD_DELEGATION_MUL_COIN_FUN_NAME,
 };
-use haneul_types::messages::{CallArg, ObjectArg, TransactionData};
+use haneul_types::messages::{CallArg, Command, ObjectArg, TransactionData};
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
@@ -399,12 +399,6 @@ pub enum OperationType {
     WithdrawDelegation,
     SwitchDelegation,
     // All other Haneul transaction types, readonly
-    TransferHANEUL,
-    Pay,
-    PayAllHaneul,
-    TransferObject,
-    Publish,
-    MoveCall,
     EpochChange,
     Genesis,
     ConsensusCommitPrologue,
@@ -414,13 +408,6 @@ pub enum OperationType {
 impl From<&HaneulTransactionKind> for OperationType {
     fn from(tx: &HaneulTransactionKind) -> Self {
         match tx {
-            HaneulTransactionKind::TransferObject(_) => OperationType::TransferObject,
-            HaneulTransactionKind::Pay(_) => OperationType::Pay,
-            HaneulTransactionKind::PayHaneul(_) => OperationType::PayHaneul,
-            HaneulTransactionKind::PayAllHaneul(_) => OperationType::PayAllHaneul,
-            HaneulTransactionKind::Publish(_) => OperationType::Publish,
-            HaneulTransactionKind::Call(_) => OperationType::MoveCall,
-            HaneulTransactionKind::TransferHaneul(_) => OperationType::TransferHANEUL,
             HaneulTransactionKind::ChangeEpoch(_) => OperationType::EpochChange,
             HaneulTransactionKind::Genesis(_) => OperationType::Genesis,
             HaneulTransactionKind::ConsensusCommitPrologue(_) => {
@@ -914,24 +901,29 @@ impl InternalOperation {
                     ADD_DELEGATION_MUL_COIN_FUN_NAME.to_owned()
                 };
                 let mut builder = ProgrammableTransactionBuilder::new();
-                builder.move_call(
+                let arguments = vec![
+                    builder
+                        .input(CallArg::Object(ObjectArg::SharedObject {
+                            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                            mutable: true,
+                        }))
+                        .unwrap(),
+                    builder.make_obj_vec(coins.into_iter().map(ObjectArg::ImmOrOwnedObject)),
+                    builder
+                        .input(CallArg::Pure(bcs::to_bytes(&Some(amount as u64))?))
+                        .unwrap(),
+                    builder
+                        .input(CallArg::Pure(bcs::to_bytes(&validator)?))
+                        .unwrap(),
+                ];
+                builder.command(Command::move_call(
                     HANEUL_FRAMEWORK_OBJECT_ID,
                     HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                     function,
                     vec![],
-                    vec![
-                        CallArg::Object(ObjectArg::SharedObject {
-                            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                            mutable: true,
-                        }),
-                        CallArg::ObjVec(
-                            coins.into_iter().map(ObjectArg::ImmOrOwnedObject).collect(),
-                        ),
-                        CallArg::Pure(bcs::to_bytes(&Some(amount as u64))?),
-                        CallArg::Pure(bcs::to_bytes(&validator)?),
-                    ],
-                )?;
+                    arguments,
+                ));
                 builder.finish()
             }
             (op, metadata) => {

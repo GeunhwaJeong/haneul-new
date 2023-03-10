@@ -4,12 +4,11 @@
 use std::fmt::{self, Display, Formatter, Write};
 
 use enum_dispatch::enum_dispatch;
-use fastcrypto::encoding::{Base64, Encoding, Hex};
+use fastcrypto::encoding::Base64;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::language_storage::TypeTag;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use serde_with::{serde_as, DisplayFromStr};
 
 use haneul_json::HaneulJsonValue;
@@ -20,10 +19,10 @@ use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::error::ExecutionError;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages::{
-    Argument, CallArg, Command, ExecutionStatus, GenesisObject, InputObjectKind, ObjectArg, Pay,
-    PayAllHaneul, PayHaneul, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
-    SingleTransactionKind, TransactionData, TransactionDataAPI, TransactionEffects,
-    TransactionEffectsAPI, TransactionEvents, TransactionKind, VersionedProtocolMessage,
+    Argument, Command, ExecutionStatus, GenesisObject, InputObjectKind, ProgrammableMoveCall,
+    ProgrammableTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
+    TransactionEffects, TransactionEffectsAPI, TransactionEvents, TransactionKind,
+    VersionedProtocolMessage,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::disassemble_modules;
@@ -152,22 +151,6 @@ impl PartialEq for HaneulTransactionResponse {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 #[serde(rename = "TransactionKind", tag = "kind")]
 pub enum HaneulTransactionKind {
-    /// Initiate an object transfer between addresses
-    TransferObject(HaneulTransferObject),
-    /// Pay one or more recipients from a set of input coins
-    Pay(HaneulPay),
-    /// Pay one or more recipients from a set of Haneul coins, the input coins
-    /// are also used to for gas payments.
-    PayHaneul(HaneulPayHaneul),
-    /// Pay one or more recipients from a set of Haneul coins, the input coins
-    /// are also used to for gas payments.
-    PayAllHaneul(HaneulPayAllHaneul),
-    /// Publish a new Move module
-    Publish(HaneulMovePackage),
-    /// Call a function in a published Move module
-    Call(HaneulMoveCall),
-    /// Initiate a HANEUL coin transfer between addresses
-    TransferHaneul(HaneulTransferHaneul),
     /// A system transaction that will update epoch information on-chain.
     ChangeEpoch(HaneulChangeEpoch),
     /// A system transaction used for initializing the initial state of the chain.
@@ -185,76 +168,6 @@ impl Display for HaneulTransactionKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         match &self {
-            Self::TransferObject(t) => {
-                writeln!(writer, "Transaction Kind : Transfer Object")?;
-                writeln!(writer, "Recipient : {}", t.recipient)?;
-                writeln!(writer, "Object ID : {}", t.object_ref.object_id)?;
-                writeln!(writer, "Version : {:?}", t.object_ref.version)?;
-                write!(
-                    writer,
-                    "Object Digest : {}",
-                    Base64::encode(t.object_ref.digest)
-                )?;
-            }
-            Self::TransferHaneul(t) => {
-                writeln!(writer, "Transaction Kind : Transfer HANEUL")?;
-                writeln!(writer, "Recipient : {}", t.recipient)?;
-                if let Some(amount) = t.amount {
-                    writeln!(writer, "Amount: {}", amount)?;
-                } else {
-                    writeln!(writer, "Amount: Full Balance")?;
-                }
-            }
-            Self::Pay(p) => {
-                writeln!(writer, "Transaction Kind : Pay")?;
-                writeln!(writer, "Coins:")?;
-                for obj_ref in &p.coins {
-                    writeln!(writer, "Object ID : {}", obj_ref.object_id)?;
-                }
-                writeln!(writer, "Recipients:")?;
-                for recipient in &p.recipients {
-                    writeln!(writer, "{}", recipient)?;
-                }
-                writeln!(writer, "Amounts:")?;
-                for amount in &p.amounts {
-                    writeln!(writer, "{}", amount)?
-                }
-            }
-            Self::PayHaneul(p) => {
-                writeln!(writer, "Transaction Kind : Pay HANEUL")?;
-                writeln!(writer, "Coins:")?;
-                for obj_ref in &p.coins {
-                    writeln!(writer, "Object ID : {}", obj_ref.object_id)?;
-                }
-                writeln!(writer, "Recipients:")?;
-                for recipient in &p.recipients {
-                    writeln!(writer, "{}", recipient)?;
-                }
-                writeln!(writer, "Amounts:")?;
-                for amount in &p.amounts {
-                    writeln!(writer, "{}", amount)?
-                }
-            }
-            Self::PayAllHaneul(p) => {
-                writeln!(writer, "Transaction Kind : Pay HANEUL")?;
-                writeln!(writer, "Coins:")?;
-                for obj_ref in &p.coins {
-                    writeln!(writer, "Object ID : {}", obj_ref.object_id)?;
-                }
-                writeln!(writer, "Recipient:")?;
-                writeln!(writer, "{}", &p.recipient)?;
-            }
-            Self::Publish(_p) => {
-                write!(writer, "Transaction Kind : Publish")?;
-            }
-            Self::Call(c) => {
-                writeln!(writer, "Transaction Kind : Call")?;
-                writeln!(writer, "Package ID : {}", c.package.to_hex_literal())?;
-                writeln!(writer, "Module : {}", c.module)?;
-                writeln!(writer, "Function : {}", c.function)?;
-                writeln!(writer, "Arguments : {:?}", c.arguments)?;
-                write!(writer, "Type Arguments : {:?}", c.type_arguments)?;
-            }
             Self::ChangeEpoch(e) => {
                 writeln!(writer, "Transaction Kind : Epoch Change")?;
                 writeln!(writer, "New epoch ID : {}", e.epoch)?;
@@ -283,84 +196,33 @@ impl Display for HaneulTransactionKind {
     }
 }
 
-impl TryFrom<SingleTransactionKind> for HaneulTransactionKind {
+impl TryFrom<TransactionKind> for HaneulTransactionKind {
     type Error = anyhow::Error;
 
-    fn try_from(tx: SingleTransactionKind) -> Result<Self, Self::Error> {
+    fn try_from(tx: TransactionKind) -> Result<Self, Self::Error> {
         Ok(match tx {
-            SingleTransactionKind::TransferObject(t) => Self::TransferObject(HaneulTransferObject {
-                recipient: t.recipient,
-                object_ref: t.object_ref.into(),
-            }),
-            SingleTransactionKind::TransferHaneul(t) => Self::TransferHaneul(HaneulTransferHaneul {
-                recipient: t.recipient,
-                amount: t.amount,
-            }),
-            SingleTransactionKind::Pay(p) => Self::Pay(p.into()),
-            SingleTransactionKind::PayHaneul(p) => Self::PayHaneul(p.into()),
-            SingleTransactionKind::PayAllHaneul(p) => Self::PayAllHaneul(p.into()),
-            SingleTransactionKind::Publish(p) => Self::Publish(p.into()),
-            SingleTransactionKind::Call(c) => Self::Call(HaneulMoveCall {
-                package: c.package,
-                module: c.module.to_string(),
-                function: c.function.to_string(),
-                type_arguments: c.type_arguments.iter().map(|ty| ty.to_string()).collect(),
-                arguments: c
-                    .arguments
-                    .into_iter()
-                    .map(|arg| match arg {
-                        CallArg::Pure(p) => HaneulJsonValue::from_bcs_bytes(&p),
-                        CallArg::Object(ObjectArg::ImmOrOwnedObject((id, _, _)))
-                        | CallArg::Object(ObjectArg::SharedObject { id, .. }) => {
-                            HaneulJsonValue::new(Value::String(Hex::encode(id)))
-                        }
-                        CallArg::ObjVec(vec) => HaneulJsonValue::new(Value::Array(
-                            vec.iter()
-                                .map(|obj_arg| match obj_arg {
-                                    ObjectArg::ImmOrOwnedObject((id, _, _))
-                                    | ObjectArg::SharedObject { id, .. } => {
-                                        Value::String(Hex::encode(id))
-                                    }
-                                })
-                                .collect(),
-                        )),
-                    })
-                    .collect::<Result<Vec<_>, _>>()?,
-            }),
-            SingleTransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(HaneulChangeEpoch {
+            TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(HaneulChangeEpoch {
                 epoch: e.epoch,
                 storage_charge: e.storage_charge,
                 computation_charge: e.computation_charge,
                 storage_rebate: e.storage_rebate,
                 epoch_start_timestamp_ms: e.epoch_start_timestamp_ms,
             }),
-            SingleTransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
+            TransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
                 objects: g.objects.iter().map(GenesisObject::id).collect(),
             }),
-            SingleTransactionKind::ConsensusCommitPrologue(p) => {
+            TransactionKind::ConsensusCommitPrologue(p) => {
                 Self::ConsensusCommitPrologue(HaneulConsensusCommitPrologue {
                     epoch: p.epoch,
                     round: p.round,
                     commit_timestamp_ms: p.commit_timestamp_ms,
                 })
             }
-            SingleTransactionKind::ProgrammableTransaction(p) => {
+            TransactionKind::ProgrammableTransaction(p) => {
                 Self::ProgrammableTransaction(p.try_into()?)
             }
         })
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
-#[serde(rename = "MoveCall", rename_all = "camelCase")]
-pub struct HaneulMoveCall {
-    pub package: ObjectID,
-    pub module: String,
-    pub function: String,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub type_arguments: Vec<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub arguments: Vec<HaneulJsonValue>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
@@ -771,88 +633,6 @@ impl From<GasCostSummary> for HaneulGasCostSummary {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
-#[serde(rename = "Pay")]
-pub struct HaneulPay {
-    /// The coins to be used for payment
-    pub coins: Vec<HaneulObjectRef>,
-    /// The addresses that will receive payment
-    pub recipients: Vec<HaneulAddress>,
-    /// The amounts each recipient will receive.
-    /// Must be the same length as amounts
-    pub amounts: Vec<BigInt>,
-}
-
-impl From<Pay> for HaneulPay {
-    fn from(p: Pay) -> Self {
-        let coins = p.coins.into_iter().map(|c| c.into()).collect();
-        HaneulPay {
-            coins,
-            recipients: p.recipients,
-            amounts: p.amounts.into_iter().map(|x| x.into()).collect(),
-        }
-    }
-}
-
-/// Send HANEUL coins to a list of addresses, following a list of amounts.
-/// only for HANEUL coin and does not require a separate gas coin object.
-/// Specifically, what pay_haneul does are:
-/// 1. debit each input_coin to create new coin following the order of
-/// amounts and assign it to the corresponding recipient.
-/// 2. accumulate all residual HANEUL from input coins left and deposit all HANEUL to the first
-/// input coin, then use the first input coin as the gas coin object.
-/// 3. the balance of the first input coin after tx is sum(input_coins) - sum(amounts) - actual_gas_cost
-/// 4. all other input coints other than the first one are deleted.
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
-#[serde(rename = "PayHaneul")]
-pub struct HaneulPayHaneul {
-    /// The coins to be used for payment
-    pub coins: Vec<HaneulObjectRef>,
-    /// The addresses that will receive payment
-    pub recipients: Vec<HaneulAddress>,
-    /// The amounts each recipient will receive.
-    /// Must be the same length as amounts
-    pub amounts: Vec<BigInt>,
-}
-
-impl From<PayHaneul> for HaneulPayHaneul {
-    fn from(p: PayHaneul) -> Self {
-        let coins = p.coins.into_iter().map(|c| c.into()).collect();
-        HaneulPayHaneul {
-            coins,
-            recipients: p.recipients,
-            amounts: p.amounts.into_iter().map(|x| x.into()).collect(),
-        }
-    }
-}
-
-/// Send all HANEUL coins to one recipient.
-/// only for HANEUL coin and does not require a separate gas coin object either.
-/// Specifically, what pay_all_haneul does are:
-/// 1. accumulate all HANEUL from input coins and deposit all HANEUL to the first input coin
-/// 2. transfer the updated first coin to the recipient and also use this first coin as
-/// gas coin object.
-/// 3. the balance of the first input coin after tx is sum(input_coins) - actual_gas_cost.
-/// 4. all other input coins other than the first are deleted.
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
-#[serde(rename = "PayAllHaneul")]
-pub struct HaneulPayAllHaneul {
-    /// The coins to be used for payment
-    pub coins: Vec<HaneulObjectRef>,
-    /// The addresses that will receive payment
-    pub recipient: HaneulAddress,
-}
-
-impl From<PayAllHaneul> for HaneulPayAllHaneul {
-    fn from(p: PayAllHaneul) -> Self {
-        let coins = p.coins.into_iter().map(|c| c.into()).collect();
-        HaneulPayAllHaneul {
-            coins,
-            recipient: p.recipient,
-        }
-    }
-}
-
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "GasData", rename_all = "camelCase")]
 pub struct HaneulGasData {
@@ -875,7 +655,7 @@ pub enum HaneulTransactionData {
 
 #[enum_dispatch]
 pub trait HaneulTransactionDataAPI {
-    fn transactions(&self) -> &[HaneulTransactionKind];
+    fn transaction(&self) -> &HaneulTransactionKind;
     fn sender(&self) -> &HaneulAddress;
     fn gas_data(&self) -> &HaneulGasData;
 }
@@ -883,14 +663,14 @@ pub trait HaneulTransactionDataAPI {
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "TransactionDataV1", rename_all = "camelCase")]
 pub struct HaneulTransactionDataV1 {
-    pub transactions: Vec<HaneulTransactionKind>,
+    pub transaction: HaneulTransactionKind,
     pub sender: HaneulAddress,
     pub gas_data: HaneulGasData,
 }
 
 impl HaneulTransactionDataAPI for HaneulTransactionDataV1 {
-    fn transactions(&self) -> &[HaneulTransactionKind] {
-        &self.transactions
+    fn transaction(&self) -> &HaneulTransactionKind {
+        &self.transaction
     }
     fn sender(&self) -> &HaneulAddress {
         &self.sender
@@ -901,16 +681,19 @@ impl HaneulTransactionDataAPI for HaneulTransactionDataV1 {
 }
 
 impl HaneulTransactionData {
-    pub fn move_calls(&self) -> Vec<&HaneulMoveCall> {
+    pub fn move_calls(&self) -> Vec<&HaneulProgrammableMoveCall> {
         match self {
-            Self::V1(data) => data
-                .transactions
-                .iter()
-                .filter_map(|tx| match tx {
-                    HaneulTransactionKind::Call(call) => Some(call),
-                    _ => None,
-                })
-                .collect(),
+            Self::V1(data) => match &data.transaction {
+                HaneulTransactionKind::ProgrammableTransaction(pt) => pt
+                    .commands
+                    .iter()
+                    .filter_map(|command| match command {
+                        HaneulCommand::MoveCall(c) => Some(&**c),
+                        _ => None,
+                    })
+                    .collect(),
+                _ => vec![],
+            },
         }
     }
 }
@@ -919,26 +702,16 @@ impl Display for HaneulTransactionData {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::V1(data) => {
-                let mut writer = String::new();
-                if data.transactions.len() == 1 {
-                    writeln!(writer, "{}", data.transactions.first().unwrap())?;
-                } else {
-                    writeln!(writer, "Transaction Kind : Batch")?;
-                    writeln!(writer, "List of transactions in the batch:")?;
-                    for kind in &data.transactions {
-                        writeln!(writer, "{}", kind)?;
-                    }
-                }
-                writeln!(writer, "Sender: {}", data.sender)?;
-                write!(writer, "Gas Payment: ")?;
+                writeln!(f, "{}", data.transaction)?;
+                writeln!(f, "Sender: {}", data.sender)?;
+                write!(f, "Gas Payment: ")?;
                 for payment in &self.gas_data().payment {
-                    write!(writer, "{} ", payment)?;
+                    write!(f, "{} ", payment)?;
                 }
-                writeln!(writer)?;
-                writeln!(writer, "Gas Owner: {}", data.gas_data.owner)?;
-                writeln!(writer, "Gas Price: {}", data.gas_data.price)?;
-                writeln!(writer, "Gas Budget: {}", data.gas_data.budget)?;
-                write!(f, "{}", writer)
+                writeln!(f)?;
+                writeln!(f, "Gas Owner: {}", data.gas_data.owner)?;
+                writeln!(f, "Gas Price: {}", data.gas_data.price)?;
+                writeln!(f, "Gas Budget: {}", data.gas_data.budget)
             }
         }
     }
@@ -948,33 +721,26 @@ impl TryFrom<TransactionData> for HaneulTransactionData {
     type Error = anyhow::Error;
 
     fn try_from(data: TransactionData) -> Result<Self, Self::Error> {
-        let transactions = match data.kind().clone() {
-            TransactionKind::Single(tx) => {
-                vec![tx.try_into()?]
-            }
-            TransactionKind::Batch(txs) => txs
-                .into_iter()
-                .map(HaneulTransactionKind::try_from)
-                .collect::<Result<Vec<_>, _>>()?,
-        };
         let message_version = data
             .message_version()
             .expect("TransactionData defines message_version()");
-
+        let sender = data.sender();
+        let gas_data = HaneulGasData {
+            payment: data
+                .gas()
+                .iter()
+                .map(|obj_ref| HaneulObjectRef::from(*obj_ref))
+                .collect(),
+            owner: data.gas_owner(),
+            price: data.gas_price(),
+            budget: data.gas_budget(),
+        };
+        let transaction = data.into_kind().try_into()?;
         match message_version {
             1 => Ok(HaneulTransactionData::V1(HaneulTransactionDataV1 {
-                transactions,
-                sender: data.sender(),
-                gas_data: HaneulGasData {
-                    payment: data
-                        .gas()
-                        .iter()
-                        .map(|obj_ref| HaneulObjectRef::from(*obj_ref))
-                        .collect(),
-                    owner: data.gas_owner(),
-                    price: data.gas_price(),
-                    budget: data.gas_budget(),
-                },
+                transaction,
+                sender,
+                gas_data,
             })),
             _ => Err(anyhow::anyhow!(
                 "Support for TransactionData version {} not implemented",

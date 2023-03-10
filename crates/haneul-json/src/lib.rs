@@ -329,14 +329,6 @@ impl TryFrom<CallArg> for HaneulJsonValue {
             | CallArg::Object(ObjectArg::SharedObject { id, .. }) => {
                 HaneulJsonValue::new(Value::String(Hex::encode(id)))
             }
-            CallArg::ObjVec(vec) => HaneulJsonValue::new(Value::Array(
-                vec.iter()
-                    .map(|obj_arg| match obj_arg {
-                        ObjectArg::ImmOrOwnedObject((id, _, _))
-                        | ObjectArg::SharedObject { id, .. } => Value::String(Hex::encode(id)),
-                    })
-                    .collect(),
-            )),
         }
     }
 }

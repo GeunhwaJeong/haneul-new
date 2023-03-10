@@ -39,7 +39,6 @@ use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::transaction_input_checker::check_objects;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::id::UID;
 use haneul_types::in_memory_storage::InMemoryStorage;
@@ -60,6 +59,7 @@ use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS,
 };
 use haneul_types::{clock::Clock, object::OBJECT_START_VERSION};
+use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 
 pub(crate) type FakeID = u64;
@@ -388,24 +388,22 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             sender,
             view_events,
         } = extra;
+        let mut builder = ProgrammableTransactionBuilder::new();
         let arguments = args
             .into_iter()
-            .map(|arg| arg.into_call_args(self))
+            .map(|arg| arg.into_call_args(&mut builder, self))
             .collect::<anyhow::Result<_>>()?;
         let package_id = ObjectID::from(*module_id.address());
 
         let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
         let data = |sender, gas| {
-            let mut builder = ProgrammableTransactionBuilder::new();
-            builder
-                .move_call(
-                    package_id,
-                    module_id.name().to_owned(),
-                    function.to_owned(),
-                    type_args,
-                    arguments,
-                )
-                .unwrap();
+            builder.command(Command::move_call(
+                package_id,
+                module_id.name().to_owned(),
+                function.to_owned(),
+                type_args,
+                arguments,
+            ));
             let pt = builder.finish();
             TransactionData::new_programmable_with_dummy_gas_price(
                 sender,
@@ -517,16 +515,15 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 sender,
                 gas_budget,
             }) => {
-                let obj_arg = HaneulValue::Object(fake_id).into_call_args(self)?;
+                let mut builder = ProgrammableTransactionBuilder::new();
+                let obj_arg = HaneulValue::Object(fake_id).into_call_args(&mut builder, self)?;
                 let recipient = match self.accounts.get(&recipient) {
                     Some((recipient, _)) => *recipient,
                     None => panic!("Unbound account {}", recipient),
                 };
                 let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
                 let transaction = self.sign_txn(sender, |sender, gas| {
-                    let mut builder = ProgrammableTransactionBuilder::new();
                     let rec_arg = builder.pure(recipient).unwrap();
-                    let obj_arg = builder.input(obj_arg).unwrap();
                     builder.command(haneul_types::messages::Command::TransferObjects(
                         vec![obj_arg],
                         rec_arg,

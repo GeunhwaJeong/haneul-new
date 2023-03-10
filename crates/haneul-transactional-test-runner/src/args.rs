@@ -8,8 +8,9 @@ use move_command_line_common::{parser::Parser as MoveCLParser, values::ValueToke
 use move_compiler::shared::parse_u128;
 use move_core_types::identifier::Identifier;
 use move_core_types::value::{MoveStruct, MoveValue};
-use haneul_types::messages::{CallArg, ObjectArg};
+use haneul_types::messages::{Argument, CallArg, ObjectArg};
 use haneul_types::object::Owner;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 
 use crate::test_adapter::HaneulTestAdapter;
 
@@ -138,16 +139,23 @@ impl HaneulValue {
         }
     }
 
-    pub(crate) fn into_call_args(self, test_adapter: &HaneulTestAdapter) -> anyhow::Result<CallArg> {
+    pub(crate) fn into_call_args(
+        self,
+        builder: &mut ProgrammableTransactionBuilder,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<Argument> {
         Ok(match self {
-            HaneulValue::Object(fake_id) => CallArg::Object(Self::object_arg(fake_id, test_adapter)?),
-            HaneulValue::ObjVec(vec) => CallArg::ObjVec(
+            HaneulValue::Object(fake_id) => {
+                builder.input(CallArg::Object(Self::object_arg(fake_id, test_adapter)?))?
+            }
+            HaneulValue::ObjVec(vec) => builder.make_obj_vec(
                 vec.iter()
                     .map(|fake_id| Self::object_arg(*fake_id, test_adapter))
                     .collect::<Result<Vec<ObjectArg>, _>>()?,
             ),
-
-            HaneulValue::MoveValue(v) => CallArg::Pure(v.simple_serialize().unwrap()),
+            HaneulValue::MoveValue(v) => {
+                builder.input(CallArg::Pure(v.simple_serialize().unwrap()))?
+            }
         })
     }
 }

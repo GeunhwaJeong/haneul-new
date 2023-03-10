@@ -4,7 +4,7 @@
 import {
     type HaneulTransactionResponse,
     type HaneulAddress,
-    getTransactionKinds,
+    getTransactionKind,
     getTransactionSender,
 } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
@@ -24,7 +24,7 @@ export function useGetTxnRecipientAddress({ txn, address }: Props) {
         return coins;
     }, [events, address]);
 
-    const [transaction] = getTransactionKinds(txn)!;
+    const transaction = getTransactionKind(txn)!;
     const amountByRecipient = getAmount(transaction, txn.effects!, events);
 
     const recipientAddress = useMemo(() => {
