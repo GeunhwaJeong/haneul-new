@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/haneullabs-common",
     "crates/haneullabs-metrics",
     "crates/haneullabs-network",
     "crates/haneullabs-util-mem",
@@ -140,8 +141,9 @@ anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "d4017b
 # Use the same workspace-hack across crates.
 workspace-hack = { path = "crates/workspace-hack" }
 
+haneullabs-common = { path = "crates/haneullabs-common" }
 haneullabs-network = { path = "crates/haneullabs-network" }
-telemetry-subscribers = { path = "crates/telemetry-subscribers" }
 haneullabs-util-mem = { path = "crates/haneullabs-util-mem" }
+telemetry-subscribers = { path = "crates/telemetry-subscribers" }
 typed-store = { path = "crates/typed-store" }
 typed-store-derive = { path = "crates/typed-store-derive" }
