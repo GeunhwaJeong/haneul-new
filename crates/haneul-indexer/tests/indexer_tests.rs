@@ -77,6 +77,23 @@ impl IndexerStore for InMemoryIndexerStore {
         })
     }
 
+    fn get_event(
+        &self,
+        _id: haneul_types::event::EventID,
+    ) -> Result<haneul_indexer::models::events::Event, IndexerError> {
+        todo!()
+    }
+
+    fn get_events(
+        &self,
+        _query: haneul_types::query::EventQuery,
+        _cursor: Option<haneul_types::event::EventID>,
+        _limit: Option<usize>,
+        _descending_order: bool,
+    ) -> Result<haneul_json_rpc_types::EventPage, IndexerError> {
+        todo!()
+    }
+
     fn get_total_transaction_number(&self) -> Result<i64, IndexerError> {
         todo!()
     }
