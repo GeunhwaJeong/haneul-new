@@ -145,14 +145,12 @@ impl HaneulValue {
         test_adapter: &HaneulTestAdapter,
     ) -> anyhow::Result<Argument> {
         Ok(match self {
-            HaneulValue::Object(fake_id) => {
-                builder.input(CallArg::Object(Self::object_arg(fake_id, test_adapter)?))?
-            }
+            HaneulValue::Object(fake_id) => builder.obj(Self::object_arg(fake_id, test_adapter)?)?,
             HaneulValue::ObjVec(vec) => builder.make_obj_vec(
                 vec.iter()
                     .map(|fake_id| Self::object_arg(*fake_id, test_adapter))
                     .collect::<Result<Vec<ObjectArg>, _>>()?,
-            ),
+            )?,
             HaneulValue::MoveValue(v) => {
                 builder.input(CallArg::Pure(v.simple_serialize().unwrap()))?
             }
