@@ -42,6 +42,7 @@ use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tap::tap::TapFallible;
 use tracing::{debug, warn};
@@ -67,9 +68,8 @@ pub mod metrics;
 pub use handle::HaneulNodeHandle;
 use narwhal_types::TransactionsClient;
 use haneul_config::node::DBCheckpointConfig;
-use haneul_core::authority::authority_per_epoch_store::{
-    AuthorityPerEpochStore, EpochStartConfiguration,
-};
+use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
+use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
 use haneul_core::checkpoints::{
     CheckpointMetrics, CheckpointService, CheckpointStore, SendCheckpointToStateSync,
     SubmitCheckpointToConsensus,
@@ -329,7 +329,6 @@ impl HaneulNode {
         let accumulator = Arc::new(StateAccumulator::new(store));
 
         let authority_names_to_peer_ids = epoch_store
-            .epoch_start_configuration()
             .epoch_start_state()
             .get_authority_names_to_peer_ids();
 
@@ -604,7 +603,7 @@ impl HaneulNode {
             state.metrics.clone(),
         ));
 
-        let new_epoch_start_state = epoch_store.epoch_start_config().epoch_start_state();
+        let new_epoch_start_state = epoch_store.epoch_start_state();
         let committee = new_epoch_start_state.get_narwhal_committee();
 
         let transactions_addr = &config
@@ -651,9 +650,7 @@ impl HaneulNode {
         debug!(
             "Starting checkpoint service with epoch start timestamp {}
             and epoch duration {}",
-            epoch_store
-                .epoch_start_configuration()
-                .epoch_start_timestamp_ms(),
+            epoch_store.epoch_start_state().epoch_start_timestamp_ms(),
             config.epoch_duration_ms
         );
 
@@ -662,7 +659,7 @@ impl HaneulNode {
             signer: state.secret.clone(),
             authority: config.protocol_public_key(),
             next_reconfiguration_timestamp_ms: epoch_store
-                .epoch_start_configuration()
+                .epoch_start_state()
                 .epoch_start_timestamp_ms()
                 .checked_add(config.epoch_duration_ms)
                 .expect("Overflow calculating next_reconfiguration_timestamp_ms"),
@@ -852,7 +849,7 @@ impl HaneulNode {
 
             // If we eventually add tests that exercise safe mode, we will need a configurable way of
             // guarding against unexpected safe_mode.
-            debug_assert!(!new_epoch_start_state.safe_mode);
+            debug_assert!(!new_epoch_start_state.safe_mode());
 
             info!(
                 next_epoch,
@@ -871,7 +868,7 @@ impl HaneulNode {
             cur_epoch_store.record_epoch_reconfig_start_time_metric();
             let _ = self.end_of_epoch_channel.send((
                 next_epoch_committee.clone(),
-                ProtocolVersion::new(new_epoch_start_state.protocol_version),
+                new_epoch_start_state.protocol_version(),
             ));
             let _ = send_trusted_peer_change(
                 &self.config,
@@ -980,8 +977,10 @@ impl HaneulNode {
             .get_epoch_last_checkpoint(cur_epoch_store.epoch())
             .expect("Error loading last checkpoint for current epoch")
             .expect("Could not load last checkpoint for current epoch");
-        let epoch_start_configuration =
-            EpochStartConfiguration::new(next_epoch_start_system_state, *last_checkpoint.digest());
+        let epoch_start_configuration = EpochStartConfiguration::new_v1(
+            next_epoch_start_system_state,
+            *last_checkpoint.digest(),
+        );
 
         let new_epoch_store = self
             .state
