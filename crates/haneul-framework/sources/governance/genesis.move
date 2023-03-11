@@ -98,7 +98,6 @@ module haneul::genesis {
                 worker_address,
                 // Initialize all validators with uniform stake taken from the subsidy fund.
                 option::some(balance::split(&mut subsidy_fund, initial_validator_stake_geunhwa)),
-                option::none(),
                 gas_price,
                 commission_rate,
                 true, // validator is active right away

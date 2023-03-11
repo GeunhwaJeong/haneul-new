@@ -9,7 +9,6 @@ module haneul::validator {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::epoch_time_lock::EpochTimeLock;
     use haneul::validator_cap::{Self, ValidatorOperationCap};
     use haneul::object::{Self, ID};
     use std::option::{Option, Self};
@@ -58,9 +57,6 @@ module haneul::validator {
 
     /// Commission rate set by the validator is higher than the threshold
     const ECommissionRateTooHigh: u64 = 8;
-
-    /// No stake balance is provided but an epoch time lock for the stake is provided.
-    const EEmptyStakeWithNonEmptyTimeLock: u64 = 9;
 
     /// New Capability is not created by the validator itself
     const ENewCapNotCreatedByValidatorItself: u64 = 100;
@@ -197,7 +193,6 @@ module haneul::validator {
         primary_address: vector<u8>,
         worker_address: vector<u8>,
         initial_stake_option: Option<Balance<HANEUL>>,
-        coin_locked_until_epoch: Option<EpochTimeLock>,
         gas_price: u64,
         commission_rate: u64,
         is_active_at_genesis: bool,
@@ -235,7 +230,6 @@ module haneul::validator {
         new_from_metadata(
             metadata,
             initial_stake_option,
-            coin_locked_until_epoch,
             gas_price,
             commission_rate,
             is_active_at_genesis,
@@ -262,7 +256,6 @@ module haneul::validator {
     public(friend) fun request_add_stake(
         self: &mut Validator,
         stake: Balance<HANEUL>,
-        locking_period: Option<EpochTimeLock>,
         staker_address: address,
         ctx: &mut TxContext,
     ) {
@@ -270,7 +263,7 @@ module haneul::validator {
         assert!(stake_amount > 0, 0);
         let stake_epoch = tx_context::epoch(ctx) + 1;
         staking_pool::request_add_stake(
-            &mut self.staking_pool, stake, locking_period, self.metadata.haneul_address, staker_address, stake_epoch, ctx
+            &mut self.staking_pool, stake, self.metadata.haneul_address, staker_address, stake_epoch, ctx
         );
         // Process stake right away if staking pool is preactive.
         if (staking_pool::is_preactive(&self.staking_pool)) {
@@ -634,7 +627,6 @@ module haneul::validator {
     fun new_from_metadata(
         metadata: ValidatorMetadata,
         initial_stake_option: Option<Balance<HANEUL>>,
-        coin_locked_until_epoch: Option<EpochTimeLock>,
         gas_price: u64,
         commission_rate: u64,
         is_active_at_genesis: bool,
@@ -656,8 +648,7 @@ module haneul::validator {
         if (option::is_some(&initial_stake_option)) {
             staking_pool::request_add_stake(
                 &mut staking_pool,
-                option::destroy_some(initial_stake_option),
-                coin_locked_until_epoch,
+                option::extract(&mut initial_stake_option),
                 haneul_address,
                 haneul_address,
                 tx_context::epoch(ctx),
@@ -665,11 +656,8 @@ module haneul::validator {
             );
             // We immediately process this stake as they are at validator setup time and this is the validator staking with itself.
             staking_pool::process_pending_stake(&mut staking_pool);
-        } else {
-            assert!(option::is_none(&coin_locked_until_epoch), EEmptyStakeWithNonEmptyTimeLock);
-            option::destroy_none(coin_locked_until_epoch);
-            option::destroy_none(initial_stake_option);
         };
+        option::destroy_none(initial_stake_option);
 
         let operation_cap_id = validator_cap::new_unverified_validator_operation_cap_and_transfer(haneul_address, ctx);
         Validator {
@@ -709,7 +697,6 @@ module haneul::validator {
         primary_address: vector<u8>,
         worker_address: vector<u8>,
         initial_stake_option: Option<Balance<HANEUL>>,
-        coin_locked_until_epoch: Option<EpochTimeLock>,
         gas_price: u64,
         commission_rate: u64,
         is_active_at_genesis: bool,
@@ -732,7 +719,6 @@ module haneul::validator {
                 worker_address,
             ),
             initial_stake_option,
-            coin_locked_until_epoch,
             gas_price,
             commission_rate,
             is_active_at_genesis,

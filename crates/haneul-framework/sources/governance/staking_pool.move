@@ -7,9 +7,7 @@ module haneul::staking_pool {
     use std::option::{Self, Option};
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
-    use haneul::epoch_time_lock::{Self, EpochTimeLock};
     use haneul::object::{Self, ID, UID};
-    use haneul::locked_coin;
     use haneul::coin;
     use haneul::math;
     use haneul::table::{Self, Table};
@@ -82,9 +80,6 @@ module haneul::staking_pool {
         stake_activation_epoch: u64,
         /// The staked HANEUL tokens.
         principal: Balance<HANEUL>,
-        /// If the stake comes from a Coin<HANEUL>, this field is None. If it comes from a LockedCoin<HANEUL>, this
-        /// field will record the original lock expiration epoch, to be used when unstaking.
-        haneul_token_lock: Option<EpochTimeLock>,
     }
 
     // ==== initializer ====
@@ -112,7 +107,6 @@ module haneul::staking_pool {
     public(friend) fun request_add_stake(
         pool: &mut StakingPool,
         stake: Balance<HANEUL>,
-        haneul_token_lock: Option<EpochTimeLock>,
         validator_address: address,
         staker: address,
         stake_activation_epoch: u64,
@@ -127,7 +121,6 @@ module haneul::staking_pool {
             validator_address,
             stake_activation_epoch,
             principal: stake,
-            haneul_token_lock,
         };
         pool.pending_stake = pool.pending_stake + haneul_amount;
         transfer::transfer(staked_haneul, staker);
@@ -141,7 +134,7 @@ module haneul::staking_pool {
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext
     ) : u64 {
-        let (pool_token_withdraw_amount, principal_withdraw, time_lock) =
+        let (pool_token_withdraw_amount, principal_withdraw) =
             withdraw_from_principal(pool, staked_haneul);
         let staker = tx_context::sender(ctx);
         let principal_withdraw_amount = balance::value(&principal_withdraw);
@@ -158,57 +151,42 @@ module haneul::staking_pool {
         if (is_inactive(pool)) process_pending_stake_withdraw(pool);
 
         // TODO: implement withdraw bonding period here.
-        if (option::is_some(&time_lock)) {
-            locked_coin::new_from_balance(principal_withdraw, option::destroy_some(time_lock), staker, ctx);
-            if (balance::value(&rewards_withdraw) > 0) {
-                transfer::transfer(coin::from_balance(rewards_withdraw, ctx), staker);
-            } else {
-                balance::destroy_zero(rewards_withdraw);
-            }
-        } else {
-            balance::join(&mut principal_withdraw, rewards_withdraw);
-            transfer::transfer(coin::from_balance(principal_withdraw, ctx), staker);
-            option::destroy_none(time_lock);
-        };
+        balance::join(&mut principal_withdraw, rewards_withdraw);
+        transfer::transfer(coin::from_balance(principal_withdraw, ctx), staker);
         total_haneul_withdraw_amount
-
-        // payment_amount
     }
 
     /// Withdraw the principal HANEUL stored in the StakedHaneul object, and calculate the corresponding amount of pool
-    /// tokens using exchange rate at stake epoch.
-    /// Returns values are amount of pool tokens withdrawn, withdrawn principal portion of HANEUL, and its
-    /// time lock if applicable.
+    /// tokens using exchange rate at staking epoch.
+    /// Returns values are amount of pool tokens withdrawn and withdrawn principal portion of HANEUL.
     public(friend) fun withdraw_from_principal(
         pool: &mut StakingPool,
         staked_haneul: StakedHaneul,
-    ) : (u64, Balance<HANEUL>, Option<EpochTimeLock>) {
+    ) : (u64, Balance<HANEUL>) {
 
         // Check that the stake information matches the pool.
         assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
 
         let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
-        let (principal_withdraw, time_lock) = unwrap_staked_haneul(staked_haneul);
+        let principal_withdraw = unwrap_staked_haneul(staked_haneul);
         let pool_token_withdraw_amount = get_token_amount(&exchange_rate_at_staking_epoch, balance::value(&principal_withdraw));
 
         (
             pool_token_withdraw_amount,
             principal_withdraw,
-            time_lock
         )
     }
 
-    fun unwrap_staked_haneul(staked_haneul: StakedHaneul): (Balance<HANEUL>, Option<EpochTimeLock>) {
+    fun unwrap_staked_haneul(staked_haneul: StakedHaneul): Balance<HANEUL> {
         let StakedHaneul {
             id,
             pool_id: _,
             validator_address: _,
             stake_activation_epoch: _,
             principal,
-            haneul_token_lock
         } = staked_haneul;
         object::delete(id);
-        (principal, haneul_token_lock)
+        principal
     }
 
     // ==== functions called at epoch boundaries ===
@@ -306,18 +284,12 @@ module haneul::staking_pool {
 
         let staker = tx_context::sender(ctx);
 
-        let (principal, time_lock) = unwrap_staked_haneul(staked_haneul);
+        let principal = unwrap_staked_haneul(staked_haneul);
         let withdraw_amount = balance::value(&principal);
         pool.haneul_balance = pool.haneul_balance - withdraw_amount;
         pool.pool_token_balance = pool.pool_token_balance - withdraw_amount;
 
-        // TODO: consider sharing code with `request_withdraw_stake`
-        if (option::is_some(&time_lock)) {
-            locked_coin::new_from_balance(principal, option::destroy_some(time_lock), staker, ctx);
-        } else {
-            transfer::transfer(coin::from_balance(principal, ctx), staker);
-            option::destroy_none(time_lock);
-        };
+        transfer::transfer(coin::from_balance(principal, ctx), staker);
         withdraw_amount
     }
 
@@ -364,7 +336,6 @@ module haneul::staking_pool {
             validator_address: self.validator_address,
             stake_activation_epoch: self.stake_activation_epoch,
             principal: balance::split(&mut self.principal, split_amount),
-            haneul_token_lock: self.haneul_token_lock,
         }
     }
 
@@ -384,33 +355,17 @@ module haneul::staking_pool {
             validator_address: _,
             stake_activation_epoch: _,
             principal,
-            haneul_token_lock
         } = other;
 
         object::delete(id);
-        if (option::is_some(&haneul_token_lock)) {
-            epoch_time_lock::destroy_unchecked(option::destroy_some(haneul_token_lock));
-        } else {
-            option::destroy_none(haneul_token_lock);
-        };
         balance::join(&mut self.principal, principal);
     }
 
     /// Returns true if all the staking parameters of the staked haneul except the principal are identical
     public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul): bool {
-        if ((self.pool_id != other.pool_id) ||
-            (self.validator_address != other.validator_address) ||
-            (self.stake_activation_epoch != other.stake_activation_epoch)) {
-            return false
-        };
-        if (option::is_none(&self.haneul_token_lock) && option::is_none(&other.haneul_token_lock)) {
-            return true
-        };
-        if (option::is_some(&self.haneul_token_lock) && option::is_some(&other.haneul_token_lock)) {
-            epoch_time_lock::epoch(option::borrow(&self.haneul_token_lock)) ==
-                epoch_time_lock::epoch(option::borrow(&other.haneul_token_lock))
-        } else
-            false // locked coin in one and unlocked in another
+        (self.pool_id == other.pool_id) &&
+        (self.validator_address == other.validator_address) &&
+        (self.stake_activation_epoch == other.stake_activation_epoch)
     }
 
 

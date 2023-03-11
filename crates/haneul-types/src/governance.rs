@@ -23,8 +23,6 @@ pub const STAKED_HANEUL_STRUCT_NAME: &IdentStr = ident_str!("StakedHaneul");
 
 pub const ADD_STAKE_MUL_COIN_FUN_NAME: &IdentStr = ident_str!("request_add_stake_mul_coin");
 pub const ADD_STAKE_FUN_NAME: &IdentStr = ident_str!("request_add_stake_mul_coin");
-pub const ADD_STAKE_LOCKED_COIN_FUN_NAME: &IdentStr =
-    ident_str!("request_add_stake_mul_locked_coin");
 pub const WITHDRAW_STAKE_FUN_NAME: &IdentStr = ident_str!("request_withdraw_stake");
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
@@ -34,7 +32,6 @@ pub struct StakedHaneul {
     validator_address: HaneulAddress,
     stake_activation_epoch: u64,
     principal: Balance,
-    haneul_token_lock: Option<EpochId>,
 }
 
 impl StakedHaneul {
@@ -72,10 +69,6 @@ impl StakedHaneul {
 
     pub fn validator_address(&self) -> HaneulAddress {
         self.validator_address
-    }
-
-    pub fn haneul_token_lock(&self) -> Option<EpochId> {
-        self.haneul_token_lock
     }
 }
 

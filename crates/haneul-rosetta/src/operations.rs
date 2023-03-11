@@ -18,10 +18,9 @@ use haneul_sdk::rpc_types::{
 };
 
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
-use haneul_types::committee::EpochId;
 use haneul_types::event::BalanceChangeType;
 use haneul_types::gas_coin::{GasCoin, GAS};
-use haneul_types::governance::{ADD_STAKE_LOCKED_COIN_FUN_NAME, ADD_STAKE_MUL_COIN_FUN_NAME};
+use haneul_types::governance::ADD_STAKE_MUL_COIN_FUN_NAME;
 use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
@@ -90,11 +89,7 @@ impl Operations {
             metadata,
         ) {
             (OperationType::PayHaneul, _) => self.pay_haneul_ops_to_internal(),
-            (
-                OperationType::Delegation,
-                Some(PreprocessMetadata::Delegation { locked_until_epoch }),
-            ) => self.delegation_ops_to_internal(locked_until_epoch),
-            (OperationType::Delegation, _) => self.delegation_ops_to_internal(None),
+            (OperationType::Delegation, _) => self.delegation_ops_to_internal(),
             (op, _) => Err(Error::UnsupportedOperation(op)),
         }
     }
@@ -127,10 +122,7 @@ impl Operations {
         })
     }
 
-    fn delegation_ops_to_internal(
-        self,
-        locked_until_epoch: Option<EpochId>,
-    ) -> Result<InternalOperation, Error> {
+    fn delegation_ops_to_internal(self) -> Result<InternalOperation, Error> {
         let mut ops = self
             .0
             .into_iter()
@@ -165,7 +157,6 @@ impl Operations {
             sender,
             validator,
             amount,
-            locked_until_epoch,
         })
     }
 
@@ -350,8 +341,7 @@ impl Operations {
     fn is_delegation_call(tx: &HaneulProgrammableMoveCall) -> bool {
         tx.package == HANEUL_FRAMEWORK_OBJECT_ID
             && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
-            && (tx.function == ADD_STAKE_LOCKED_COIN_FUN_NAME.as_str()
-                || tx.function == ADD_STAKE_MUL_COIN_FUN_NAME.as_str())
+            && tx.function == ADD_STAKE_MUL_COIN_FUN_NAME.as_str()
     }
 
     fn get_balance_operation_from_events(

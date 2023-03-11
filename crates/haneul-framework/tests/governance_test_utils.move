@@ -7,7 +7,6 @@ module haneul::governance_test_utils {
     use haneul::balance;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::locked_coin::{Self, LockedCoin};
     use haneul::staking_pool::{Self, StakedHaneul, StakingPool};
     use haneul::test_utils::assert_eq;
     use haneul::tx_context::{Self, TxContext};
@@ -36,7 +35,6 @@ module haneul::governance_test_utils {
             x"FFFF",
             x"FFFF",
             option::some(balance::create_for_testing<HANEUL>(init_stake_amount)),
-            option::none(),
             1,
             0,
             true,
@@ -145,32 +143,6 @@ module haneul::governance_test_utils {
 
         haneul_system::request_add_stake(&mut system_state, coin::mint_for_testing(amount, ctx), validator, ctx);
         test_scenario::return_shared(system_state);
-    }
-
-    public fun stake_locked_to(
-        staker: address, validator: address, amount: u64, locked_until_epoch: u64, scenario: &mut Scenario
-    ) {
-        // First lock the coin
-        test_scenario::next_tx(scenario, staker);
-        {
-            let ctx = test_scenario::ctx(scenario);
-            locked_coin::lock_coin<HANEUL>(coin::mint_for_testing(amount, ctx), staker, locked_until_epoch, ctx);
-        };
-
-        // Next stake the locked coin
-        test_scenario::next_tx(scenario, staker);
-        {
-            let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-            let locked_val = test_scenario::take_from_sender<LockedCoin<HANEUL>>(scenario);
-            let ctx = test_scenario::ctx(scenario);
-            haneul_system::request_add_stake_with_locked_coin(
-                &mut system_state,
-                locked_val,
-                validator,
-                ctx
-            );
-            test_scenario::return_shared(system_state);
-        };
     }
 
     public fun unstake(

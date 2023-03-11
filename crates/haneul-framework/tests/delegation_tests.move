@@ -104,30 +104,6 @@ module haneul::stake_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = staking_pool::EIncompatibleStakedHaneul)]
-    fun test_join_different_locked_coins() {
-        let scenario_val = test_scenario::begin(STAKER_ADDR_1);
-        let scenario = &mut scenario_val;
-        set_up_haneul_system_state(scenario);
-        // Create staked haneul w/ locked coin and regular staked haneul
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
-        governance_test_utils::stake_locked_to(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, 2, scenario);
-
-        // Verify that these cannot be merged
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
-        {
-            let staked_haneul_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
-            let part1 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 0));
-            let part2 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 1));
-
-            staking_pool::join_staked_haneul(&mut part1, part2);
-
-            test_scenario::return_to_sender(scenario, part1);
-        };
-        test_scenario::end(scenario_val);
-    }
-
-    #[test]
     fun test_add_remove_stake_flow() {
         let scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
