@@ -42,14 +42,14 @@ export class HaneulSystemStateUtil {
   ): Promise<Transaction> {
     // TODO: validate coin types and handle locked coins
     const tx = new Transaction();
-    const coin = tx.add(Commands.SplitCoin(tx.gas, tx.input(amount)));
+    const coin = tx.add(Commands.SplitCoin(tx.gas, tx.pure(amount)));
     tx.add(
       Commands.MoveCall({
         target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_STAKE_FUN_NAME}`,
         arguments: [
-          tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
+          tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
           coin,
-          tx.input(validatorAddress),
+          tx.pure(validatorAddress),
         ],
       }),
     );
@@ -77,9 +77,9 @@ export class HaneulSystemStateUtil {
       Commands.MoveCall({
         target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${WITHDRAW_STAKE_FUN_NAME}`,
         arguments: [
-          tx.input(HANEUL_SYSTEM_STATE_OBJECT_ID),
-          tx.input(stake),
-          tx.input(stakedCoinId),
+          tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
+          tx.object(stake),
+          tx.object(stakedCoinId),
         ],
       }),
     );
