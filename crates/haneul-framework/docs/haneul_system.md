@@ -146,6 +146,14 @@ The top-level object containing all information of the Haneul system.
  The current protocol version, starting from 1.
 </dd>
 <dt>
+<code>system_state_version: u64</code>
+</dt>
+<dd>
+ The current version of the system state data structure type.
+ This is always the same as HaneulSystemState.version. Keeping a copy here so that
+ we know what version it is by inspecting HaneulSystemStateInner as well.
+</dd>
+<dt>
 <code>validators: <a href="validator_set.md#0x2_validator_set_ValidatorSet">validator_set::ValidatorSet</a></code>
 </dt>
 <dd>
@@ -474,6 +482,7 @@ This function will be called only once in genesis.
     <b>let</b> system_state = <a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> {
         epoch: 0,
         protocol_version,
+        system_state_version,
         validators,
         storage_fund,
         parameters: <a href="haneul_system.md#0x2_haneul_system_SystemParameters">SystemParameters</a> {
@@ -574,7 +583,7 @@ To produce a valid PoP, run [fn test_proof_of_possession].
 ## Function `request_remove_validator_candidate`
 
 Called by a validator candidate to remove themselves from the candidacy. After this call
-their staking pool becomes deactive.
+their staking pool becomes deactivate.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x2_haneul_system_request_remove_validator_candidate">request_remove_validator_candidate</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
@@ -1581,6 +1590,7 @@ gas coins.
         <b>assert</b>!(old_protocol_version != next_protocol_version, 0);
         <b>let</b> cur_state: <a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> = <a href="dynamic_field.md#0x2_dynamic_field_remove">dynamic_field::remove</a>(&<b>mut</b> wrapper.id, wrapper.version);
         <b>let</b> new_state = <a href="haneul_system.md#0x2_haneul_system_upgrade_system_state">upgrade_system_state</a>(cur_state);
+        new_state.system_state_version = new_system_state_version;
         wrapper.version = new_system_state_version;
         <a href="dynamic_field.md#0x2_dynamic_field_add">dynamic_field::add</a>(&<b>mut</b> wrapper.id, wrapper.version, new_state);
     };
@@ -1842,7 +1852,10 @@ Returns all the validators who are currently reporting <code>addr</code>
 
 
 <pre><code><b>fun</b> <a href="haneul_system.md#0x2_haneul_system_load_system_state">load_system_state</a>(self: &<a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> {
-    <a href="dynamic_field.md#0x2_dynamic_field_borrow">dynamic_field::borrow</a>(&self.id, self.version)
+    <b>let</b> version = self.version;
+    <b>let</b> inner: &<a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> = <a href="dynamic_field.md#0x2_dynamic_field_borrow">dynamic_field::borrow</a>(&self.id, version);
+    <b>assert</b>!(inner.system_state_version == version, 0);
+    inner
 }
 </code></pre>
 
@@ -1866,7 +1879,10 @@ Returns all the validators who are currently reporting <code>addr</code>
 
 
 <pre><code><b>fun</b> <a href="haneul_system.md#0x2_haneul_system_load_system_state_mut">load_system_state_mut</a>(self: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> {
-    <a href="dynamic_field.md#0x2_dynamic_field_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, self.version)
+    <b>let</b> version = self.version;
+    <b>let</b> inner: &<b>mut</b> <a href="haneul_system.md#0x2_haneul_system_HaneulSystemStateInner">HaneulSystemStateInner</a> = <a href="dynamic_field.md#0x2_dynamic_field_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, version);
+    <b>assert</b>!(inner.system_state_version == version, 0);
+    inner
 }
 </code></pre>
 

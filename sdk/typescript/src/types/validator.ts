@@ -151,6 +151,7 @@ export type HaneulValidatorSummary = Infer<typeof HaneulValidatorSummary>;
 export const HaneulSystemStateSummary = object({
   epoch: number(),
   protocolVersion: number(),
+  systemStateVersion: number(),
   storageFund: number(),
   referenceGasPrice: number(),
   safeMode: boolean(),
