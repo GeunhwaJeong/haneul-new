@@ -13,7 +13,7 @@ export class BackgroundServiceSigner extends SignerWithProvider {
     constructor(
         address: HaneulAddress,
         backgroundClient: BackgroundClient,
-        provider?: Provider
+        provider: Provider
     ) {
         super(provider);
         this.#address = address;
