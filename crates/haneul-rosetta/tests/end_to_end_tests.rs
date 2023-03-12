@@ -15,6 +15,7 @@ use haneul_rosetta::types::{
 };
 use haneul_sdk::json::HaneulJsonValue;
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
+use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_type_tag, HANEUL_FRAMEWORK_OBJECT_ID};
 use test_utils::network::TestClusterBuilder;
@@ -85,7 +86,11 @@ async fn test_locked_haneul() {
     let tx = to_sender_signed_transaction(tx, keystore.get_key(&address).unwrap());
     client
         .quorum_driver()
-        .execute_transaction(tx, HaneulTransactionResponseOptions::new(), None)
+        .execute_transaction(
+            tx,
+            HaneulTransactionResponseOptions::new(),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
         .await
         .unwrap();
 
@@ -192,7 +197,11 @@ async fn test_get_staked_haneul() {
     let tx = to_sender_signed_transaction(delegation_tx, keystore.get_key(&address).unwrap());
     client
         .quorum_driver()
-        .execute_transaction(tx, HaneulTransactionResponseOptions::new(), None)
+        .execute_transaction(
+            tx,
+            HaneulTransactionResponseOptions::new(),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
         .await
         .unwrap();
 

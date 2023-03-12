@@ -9,6 +9,7 @@ import {
 } from "@haneullabs/wallet-adapter-base";
 import { localStorageAdapter, StorageAdapter } from "./storage";
 import {
+  HaneulSignAndExecuteTransactionInput,
   HaneulSignMessageInput,
   HaneulSignTransactionInput,
   WalletAccount,
@@ -68,7 +69,7 @@ export interface WalletKitCore {
   ) => ReturnType<WalletAdapter["signTransaction"]>;
   signAndExecuteTransaction: (
     transactionInput: OptionalProperties<
-      HaneulSignTransactionInput,
+      HaneulSignAndExecuteTransactionInput,
       "chain" | "account"
     >
   ) => ReturnType<WalletAdapter["signAndExecuteTransaction"]>;
