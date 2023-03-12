@@ -3,21 +3,19 @@
 
 import "./App.css";
 import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
-import { Commands, Transaction } from "@haneullabs/haneul.js";
+import { Transaction } from "@haneullabs/haneul.js";
 import { useEffect } from "react";
 
 const transaction = new Transaction();
 transaction.setGasBudget(2000);
-transaction.add(
-  Commands.MoveCall({
-    target: `0x2::devnet_nft::mint`,
-    arguments: [
-      transaction.pure("foo"),
-      transaction.pure("bar"),
-      transaction.pure("baz"),
-    ],
-  })
-);
+transaction.moveCall({
+  target: `0x2::devnet_nft::mint`,
+  arguments: [
+    transaction.pure("foo"),
+    transaction.pure("bar"),
+    transaction.pure("baz"),
+  ],
+});
 
 function App() {
   const {
