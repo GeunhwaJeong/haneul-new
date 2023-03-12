@@ -235,17 +235,12 @@ export type GatewayTxSeqNumber = number;
 export const GetTxnDigestsResponse = array(TransactionDigest);
 export type GetTxnDigestsResponse = Infer<typeof GetTxnDigestsResponse>;
 
-export const PaginatedTransactionDigests = object({
-  data: array(TransactionDigest),
-  nextCursor: union([TransactionDigest, literal(null)]),
-  hasNextPage: boolean(),
-});
-export type PaginatedTransactionDigests = Infer<
-  typeof PaginatedTransactionDigests
->;
+export type HaneulTransactionResponseQuery = {
+  filter?: TransactionFilter;
+  options?: HaneulTransactionResponseOptions;
+};
 
-export type TransactionQuery =
-  | 'All'
+export type TransactionFilter =
   | {
       MoveFunction: {
         package: ObjectId;
@@ -292,6 +287,15 @@ export const HaneulTransactionResponseOptions = object({
 
 export type HaneulTransactionResponseOptions = Infer<
   typeof HaneulTransactionResponseOptions
+>;
+
+export const PaginatedTransactionResponse = object({
+  data: array(HaneulTransactionResponse),
+  nextCursor: union([TransactionDigest, literal(null)]),
+  hasNextPage: boolean(),
+});
+export type PaginatedTransactionResponse = Infer<
+  typeof PaginatedTransactionResponse
 >;
 
 /* -------------------------------------------------------------------------- */

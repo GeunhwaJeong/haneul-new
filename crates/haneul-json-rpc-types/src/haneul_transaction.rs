@@ -28,6 +28,7 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::disassemble_modules;
 use haneul_types::object::Owner;
 use haneul_types::parse_haneul_type_tag;
+use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
 
 use crate::{Page, HaneulEvent, HaneulMovePackage, HaneulObjectRef};
@@ -58,8 +59,32 @@ impl Display for BigInt {
         write!(f, "{}", self.0)
     }
 }
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Default)]
+#[serde(rename_all = "camelCase", rename = "TransactionResponseQuery", default)]
+pub struct HaneulTransactionResponseQuery {
+    /// If None, no filter will be applied
+    pub filter: Option<TransactionFilter>,
+    /// config which fields to include in the response, by default only digest is included
+    pub options: Option<HaneulTransactionResponseOptions>,
+}
 
-pub type TransactionsPage = Page<TransactionDigest, TransactionDigest>;
+impl HaneulTransactionResponseQuery {
+    pub fn new(
+        filter: Option<TransactionFilter>,
+        options: Option<HaneulTransactionResponseOptions>,
+    ) -> Self {
+        Self { filter, options }
+    }
+
+    pub fn new_with_filter(filter: TransactionFilter) -> Self {
+        Self {
+            filter: Some(filter),
+            options: None,
+        }
+    }
+}
+
+pub type TransactionsPage = Page<HaneulTransactionResponse, TransactionDigest>;
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq, Default)]
 #[serde(

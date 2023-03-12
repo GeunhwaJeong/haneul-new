@@ -13,12 +13,12 @@ use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
 
-use haneul_json_rpc_types::HaneulObjectInfo;
 use haneul_json_rpc_types::{
     Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, TransactionBytes,
 };
+use haneul_json_rpc_types::{HaneulObjectInfo, HaneulTransactionResponseQuery};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
@@ -27,7 +27,7 @@ use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME, LOCKED_COIN_MODULE_NAME}
 use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
-use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::query::{EventQuery, TransactionFilter};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
@@ -554,7 +554,7 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     // test get_recent_transactions with smaller range
     let tx = client
         .read_api()
-        .get_transactions(TransactionQuery::All, None, Some(3), true)
+        .query_transactions(HaneulTransactionResponseQuery::default(), None, Some(3), true)
         .await
         .unwrap();
     assert_eq!(3, tx.data.len());
@@ -563,7 +563,7 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     // test get all transactions paged
     let first_page = client
         .read_api()
-        .get_transactions(TransactionQuery::All, None, Some(5), false)
+        .query_transactions(HaneulTransactionResponseQuery::default(), None, Some(5), false)
         .await
         .unwrap();
     assert_eq!(5, first_page.data.len());
@@ -571,7 +571,12 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
 
     let second_page = client
         .read_api()
-        .get_transactions(TransactionQuery::All, first_page.next_cursor, None, false)
+        .query_transactions(
+            HaneulTransactionResponseQuery::default(),
+            first_page.next_cursor,
+            None,
+            false,
+        )
         .await
         .unwrap();
     assert_eq!(16, second_page.data.len());
@@ -584,19 +589,21 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     // test get 10 latest transactions paged
     let latest = client
         .read_api()
-        .get_transactions(TransactionQuery::All, None, Some(10), true)
+        .query_transactions(HaneulTransactionResponseQuery::default(), None, Some(10), true)
         .await
         .unwrap();
     assert_eq!(10, latest.data.len());
-    assert_eq!(Some(all_txs_rev[9]), latest.next_cursor);
+    assert_eq!(Some(all_txs_rev[9].digest), latest.next_cursor);
     assert_eq!(all_txs_rev[0..10], latest.data);
     assert!(latest.has_next_page);
 
     // test get from address txs in ascending order
     let address_txs_asc = client
         .read_api()
-        .get_transactions(
-            TransactionQuery::FromAddress(cluster.accounts[0]),
+        .query_transactions(
+            HaneulTransactionResponseQuery::new_with_filter(TransactionFilter::FromAddress(
+                cluster.accounts[0],
+            )),
             None,
             None,
             false,
@@ -608,8 +615,10 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     // test get from address txs in descending order
     let address_txs_desc = client
         .read_api()
-        .get_transactions(
-            TransactionQuery::FromAddress(cluster.accounts[0]),
+        .query_transactions(
+            HaneulTransactionResponseQuery::new_with_filter(TransactionFilter::FromAddress(
+                cluster.accounts[0],
+            )),
             None,
             None,
             true,
@@ -626,16 +635,16 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     // test get_recent_transactions
     let tx = client
         .read_api()
-        .get_transactions(TransactionQuery::All, None, Some(20), true)
+        .query_transactions(HaneulTransactionResponseQuery::default(), None, Some(20), true)
         .await
         .unwrap();
     assert_eq!(20, tx.data.len());
 
     // test get_transaction
-    for tx_digest in tx.data {
+    for tx_resp in tx.data {
         let response: HaneulTransactionResponse = client
             .read_api()
-            .get_transaction_with_options(tx_digest, HaneulTransactionResponseOptions::new())
+            .get_transaction_with_options(tx_resp.digest, HaneulTransactionResponseOptions::new())
             .await
             .unwrap();
         assert!(tx_responses

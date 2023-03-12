@@ -76,7 +76,7 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::object::{MoveObject, Owner, PastObjectRead, OBJECT_START_VERSION};
-use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::query::{EventQuery, TransactionFilter};
 use haneul_types::storage::{ObjectKey, WriteKind};
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::temporary_store::InnerTemporaryStore;
@@ -2341,14 +2341,14 @@ impl AuthorityState {
 
     pub fn get_transactions(
         &self,
-        query: TransactionQuery,
+        filter: Option<TransactionFilter>,
         // exclusive cursor if `Some`, otherwise start from the beginning
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
         reverse: bool,
     ) -> Result<Vec<TransactionDigest>, anyhow::Error> {
         self.get_indexes()?
-            .get_transactions(query, cursor, limit, reverse)
+            .get_transactions(filter, cursor, limit, reverse)
     }
 
     fn get_checkpoint_store(&self) -> Arc<CheckpointStore> {

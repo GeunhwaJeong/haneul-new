@@ -17,7 +17,7 @@ use haneul_json_rpc_types::{
     DynamicFieldPage, EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEventEnvelope, HaneulEventFilter,
     HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo,
     HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionsPage,
+    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -28,7 +28,7 @@ use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::query::EventQuery;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
@@ -157,9 +157,9 @@ impl ReadApi {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
-    pub async fn get_transactions(
+    pub async fn query_transactions(
         &self,
-        query: TransactionQuery,
+        query: HaneulTransactionResponseQuery,
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
         descending_order: bool,
@@ -167,7 +167,7 @@ impl ReadApi {
         Ok(self
             .api
             .http
-            .get_transactions(query, cursor, limit, Some(descending_order))
+            .query_transactions(query, cursor, limit, Some(descending_order))
             .await?)
     }
 
@@ -189,10 +189,10 @@ impl ReadApi {
 
     pub fn get_transactions_stream(
         &self,
-        query: TransactionQuery,
+        query: HaneulTransactionResponseQuery,
         cursor: Option<TransactionDigest>,
         descending_order: bool,
-    ) -> impl Stream<Item = TransactionDigest> + '_ {
+    ) -> impl Stream<Item = HaneulTransactionResponse> + '_ {
         stream::unfold(
             (vec![], cursor, true, query),
             move |(mut data, cursor, first, query)| async move {
@@ -200,7 +200,7 @@ impl ReadApi {
                     Some((item, (data, cursor, false, query)))
                 } else if (cursor.is_none() && first) || cursor.is_some() {
                     let page = self
-                        .get_transactions(query.clone(), cursor, Some(100), descending_order)
+                        .query_transactions(query.clone(), cursor, Some(100), descending_order)
                         .await
                         .ok()?;
                     let mut data = page.data;

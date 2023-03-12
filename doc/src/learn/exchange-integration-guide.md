@@ -466,7 +466,7 @@ Haneul is [DAG](https://cointelegraph.com/explained/what-is-a-directed-acyclic-g
     {
       "jsonrpc": "2.0",
       "id": 1,
-      "method": "haneul_getTransactions",
+      "method": "haneul_queryTransactions",
       "params": [
         "All",
         <last known transaction digest>,

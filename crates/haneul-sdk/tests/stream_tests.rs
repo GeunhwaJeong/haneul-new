@@ -4,9 +4,10 @@
 use futures::StreamExt;
 use std::future;
 use haneul::client_commands::HaneulClientCommands;
+use haneul_json_rpc_types::HaneulTransactionResponseQuery;
 use haneul_sdk::{HaneulClientBuilder, HANEUL_COIN_TYPE};
 use haneul_types::event::EventType;
-use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::query::EventQuery;
 use test_utils::network::TestClusterBuilder;
 
 #[tokio::test]
@@ -17,7 +18,7 @@ async fn test_transactions_stream() -> Result<(), anyhow::Error> {
     let client = HaneulClientBuilder::default().build(rpc_url).await?;
     let txs = client
         .read_api()
-        .get_transactions_stream(TransactionQuery::All, None, true)
+        .get_transactions_stream(HaneulTransactionResponseQuery::default(), None, true)
         .collect::<Vec<_>>()
         .await;
 
@@ -36,7 +37,7 @@ async fn test_transactions_stream() -> Result<(), anyhow::Error> {
 
     let txs = client
         .read_api()
-        .get_transactions_stream(TransactionQuery::All, None, true)
+        .get_transactions_stream(HaneulTransactionResponseQuery::default(), None, true)
         .collect::<Vec<_>>()
         .await;
 

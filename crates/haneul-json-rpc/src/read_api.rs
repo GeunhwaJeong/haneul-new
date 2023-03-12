@@ -25,7 +25,7 @@ use haneul_json_rpc_types::{
     HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct, HaneulMoveStruct, HaneulMoveValue, HaneulObjectDataOptions, HaneulObjectInfo,
     HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEvents, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionsPage,
+    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{
@@ -44,7 +44,7 @@ use haneul_types::messages::{
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointTimestamp};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, Object, ObjectRead, PastObjectRead};
-use haneul_types::query::{EventQuery, TransactionQuery};
+use haneul_types::query::EventQuery;
 
 use crate::api::cap_page_limit;
 use crate::api::ReadApiServer;
@@ -647,9 +647,9 @@ impl ReadApiServer for ReadApi {
         }?)
     }
 
-    async fn get_transactions(
+    async fn query_transactions(
         &self,
-        query: TransactionQuery,
+        query: HaneulTransactionResponseQuery,
         // exclusive cursor if `Some`, otherwise start from the beginning
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
@@ -659,16 +659,18 @@ impl ReadApiServer for ReadApi {
         let descending = descending_order.unwrap_or_default();
 
         // Retrieve 1 extra item for next cursor
-        let mut data = self
-            .state
-            .get_transactions(query, cursor, Some(limit + 1), descending)?;
+        let mut data =
+            self.state
+                .get_transactions(query.filter, cursor, Some(limit + 1), descending)?;
 
         // extract next cursor
         let has_next_page = data.len() > limit;
         data.truncate(limit);
         let next_cursor = data.last().cloned().map_or(cursor, Some);
+
+        // TODO(chris): fetch transaction response based on `query.options`
         Ok(Page {
-            data,
+            data: data.into_iter().map(HaneulTransactionResponse::new).collect(),
             next_cursor,
             has_next_page,
         })

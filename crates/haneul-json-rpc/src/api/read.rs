@@ -8,7 +8,8 @@ use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, HaneulGetPastObjectRequest,
     HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionsPage,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+    TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{
@@ -16,7 +17,6 @@ use haneul_types::base_types::{
 };
 use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::query::TransactionQuery;
 
 #[open_rpc(namespace = "haneul", tag = "Read API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -46,7 +46,7 @@ pub trait ReadApi {
     async fn get_total_transaction_number(&self) -> RpcResult<u64>;
 
     /// Return list of transaction digests within the queried range.
-    /// This method will be removed before April 2023, please use `getTransactions` instead
+    /// This method will be removed before April 2023, please use `queryTransactions` instead
     #[method(name = "getTransactionsInRangeDeprecated", deprecated)]
     async fn get_transactions_in_range_deprecated(
         &self,
@@ -140,11 +140,11 @@ pub trait ReadApi {
     ) -> RpcResult<HaneulMoveNormalizedFunction>;
 
     /// Return list of transactions for a specified query criteria.
-    #[method(name = "getTransactions")]
-    async fn get_transactions(
+    #[method(name = "queryTransactions")]
+    async fn query_transactions(
         &self,
         /// the transaction query criteria.
-        query: TransactionQuery,
+        query: HaneulTransactionResponseQuery,
         /// Optional paging cursor
         cursor: Option<TransactionDigest>,
         /// Maximum item returned per page, default to QUERY_MAX_RESULT_LIMIT if not specified.
