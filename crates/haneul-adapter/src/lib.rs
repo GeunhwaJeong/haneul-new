@@ -6,10 +6,7 @@ macro_rules! invariant_violation {
         if cfg!(debug_assertions) {
             panic!("{}", $msg)
         }
-        return Err(haneul_types::error::ExecutionError::new_with_source(
-            haneul_types::error::ExecutionErrorKind::InvariantViolation,
-            $msg,
-        ));
+        return Err(haneul_types::error::ExecutionError::invariant_violation($msg));
     }};
 }
 

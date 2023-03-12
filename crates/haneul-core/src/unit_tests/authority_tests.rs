@@ -1927,10 +1927,7 @@ async fn test_handle_transfer_haneul_with_amount_insufficient_gas() {
         panic!("expected transaction to fail")
     };
     assert_eq!(command, &Some(0));
-    assert_eq!(
-        error,
-        &ExecutionFailureStatus::InvalidTransferHaneulInsufficientBalance
-    )
+    assert_eq!(error, &ExecutionFailureStatus::InsufficientCoinBalance)
 }
 
 #[tokio::test]
