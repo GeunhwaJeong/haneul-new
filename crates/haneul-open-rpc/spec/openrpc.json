@@ -5505,7 +5505,7 @@
                 "type": "array",
                 "items": [
                   {
-                    "$ref": "#/components/schemas/HaneulArgument"
+                    "$ref": "#/components/schemas/MovePackage"
                   },
                   {
                     "type": "array",
@@ -5514,7 +5514,7 @@
                     }
                   },
                   {
-                    "$ref": "#/components/schemas/MovePackage"
+                    "$ref": "#/components/schemas/HaneulArgument"
                   }
                 ],
                 "maxItems": 3,
