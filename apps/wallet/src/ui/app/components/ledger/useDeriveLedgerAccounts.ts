@@ -1,30 +1,31 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519PublicKey } from '@haneullabs/haneul.js';
+import { Ed25519PublicKey, normalizeHaneulAddress } from '@haneullabs/haneul.js';
 import { useEffect, useState } from 'react';
 
-import { type LedgerAccount } from './LedgerAccountItem';
 import { useHaneulLedgerClient } from './HaneulLedgerClientProvider';
+import { AccountType } from '_src/background/keyring/Account';
+import { type SerializedLedgerAccount } from '_src/background/keyring/LedgerAccount';
 
 import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
+
+export type SelectableLedgerAccount = SerializedLedgerAccount & {
+    isSelected: boolean;
+};
 
 type UseDeriveLedgerAccountOptions = {
     numAccountsToDerive: number;
     onError: (error: unknown) => void;
 };
 
-type UseDeriveLedgerAccountResult = [
-    LedgerAccount[],
-    React.Dispatch<React.SetStateAction<LedgerAccount[]>>,
-    boolean
-];
-
 export function useDeriveLedgerAccounts(
     options: UseDeriveLedgerAccountOptions
-): UseDeriveLedgerAccountResult {
+) {
     const { numAccountsToDerive, onError } = options;
-    const [ledgerAccounts, setLedgerAccounts] = useState<LedgerAccount[]>([]);
+    const [ledgerAccounts, setLedgerAccounts] = useState<
+        SelectableLedgerAccount[]
+    >([]);
     const [haneulLedgerClient] = useHaneulLedgerClient();
     const [isLoading, setLoading] = useState(false);
 
@@ -57,14 +58,14 @@ export function useDeriveLedgerAccounts(
         generateLedgerAccounts();
     }, [numAccountsToDerive, onError, haneulLedgerClient]);
 
-    return [ledgerAccounts, setLedgerAccounts, isLoading];
+    return [ledgerAccounts, setLedgerAccounts, isLoading] as const;
 }
 
 async function deriveAccountsFromLedger(
     haneulLedgerClient: HaneulLedgerClient,
     numAccountsToDerive: number
 ) {
-    const ledgerAccounts: LedgerAccount[] = [];
+    const ledgerAccounts: SelectableLedgerAccount[] = [];
     const derivationPaths = getDerivationPathsForLedger(numAccountsToDerive);
 
     for (const derivationPath of derivationPaths) {
@@ -72,9 +73,12 @@ async function deriveAccountsFromLedger(
             derivationPath
         );
         const publicKey = new Ed25519PublicKey(publicKeyResult.publicKey);
+        const haneulAddress = normalizeHaneulAddress(publicKey.toHaneulAddress());
         ledgerAccounts.push({
+            type: AccountType.LEDGER,
+            address: haneulAddress,
+            derivationPath,
             isSelected: false,
-            address: publicKey.toHaneulAddress(),
         });
     }
 
