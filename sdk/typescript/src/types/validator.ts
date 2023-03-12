@@ -170,6 +170,7 @@ export const HaneulSystemStateSummary = object({
   inactivePoolsSize: number(),
   validatorCandidatesId: string(),
   validatorCandidatesSize: number(),
+  atRiskValidators: array(tuple([HaneulAddress, number()])),
   validatorReportRecords: array(tuple([HaneulAddress, array(HaneulAddress)])),
 });
 

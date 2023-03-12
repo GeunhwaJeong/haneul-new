@@ -62,7 +62,8 @@ module haneul::governance_test_utils {
             validators,
             balance::create_for_testing<HANEUL>(haneul_supply_amount), // haneul_supply
             balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
-            0, // governance_start_epoch
+            100, // governance_start_epoch, we set this to a big-ish number so that
+                 // low stake departure won't start kicking in for testing
             0, // stake subsidy
             1, // protocol version
             1, // system state version

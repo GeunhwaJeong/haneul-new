@@ -398,6 +398,7 @@ pub struct ValidatorSetV1 {
     pub staking_pool_mappings: Table,
     pub inactive_pools: Table,
     pub validator_candidates: Table,
+    pub at_risk_validators: VecMap<HaneulAddress, u64>,
 }
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type
@@ -539,6 +540,10 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
                             id: validator_candidates_id,
                             size: validator_candidates_size,
                         },
+                    at_risk_validators:
+                        VecMap {
+                            contents: at_risk_validators,
+                        },
                 },
             storage_fund,
             parameters: SystemParametersV1 {
@@ -584,6 +589,10 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
             inactive_pools_size,
             validator_candidates_id,
             validator_candidates_size,
+            at_risk_validators: at_risk_validators
+                .into_iter()
+                .map(|e| (e.key, e.value))
+                .collect(),
             validator_report_records: validator_report_records
                 .into_iter()
                 .map(|e| (e.key, e.value.contents))
@@ -603,6 +612,7 @@ impl Default for HaneulSystemStateInnerV1 {
             staking_pool_mappings: Table::default(),
             inactive_pools: Table::default(),
             validator_candidates: Table::default(),
+            at_risk_validators: VecMap { contents: vec![] },
         };
         Self {
             epoch: 0,
