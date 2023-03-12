@@ -43,9 +43,13 @@ jobs:
       CARGO_TERM_COLOR: always
 
     steps:
+    - name: Cargo clean
+      run: |
+        cd ~/haneul && cargo clean && git restore Cargo.lock
+
     - name: Checkout haneul repo and cargo clean
       run: |
-        cd ~/haneul && git fetch origin && git rebase origin/main && cargo clean
+        cd ~/haneul && git fetch origin && git rebase origin/main
 
     - name: Install simtest
       run: |
@@ -62,7 +66,7 @@ jobs:
   notify:
     name: Notify
     needs: [simtest]
-    runs-on: [self-hosted, self-hosted-arc]
+    runs-on: [self-hosted, simtest-01]
     if: always() # always notify
 
     steps:
@@ -111,7 +115,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "Haneul commit: <https://github.com/GeunhwaJeong/haneul/commit/${{ env.HANEUL_SHA }}|${{ env.HANEUL_SHA }}> \nLogs: <${{ env.GH_JOB_LINK }}|${{ github.run_id }}>"
+                  "text": "Haneul commit: <https://github.com/GeunhwaJeong/haneul/commit/${{ env.HANEUL_SHA }}|${{ env.HANEUL_SHA }}> \nRun: <${{ env.GH_JOB_LINK }}|${{ github.run_id }}>"
                 }
               },
               {
