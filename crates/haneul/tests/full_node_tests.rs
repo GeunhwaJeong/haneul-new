@@ -15,7 +15,7 @@ use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, W
 use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, EventPage, HaneulEvent, HaneulEventEnvelope, HaneulEventFilter,
     HaneulExecutionStatus, HaneulMoveStruct, HaneulMoveValue, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
@@ -1000,6 +1000,7 @@ async fn test_execute_tx_with_serialized_signature() -> Result<(), anyhow::Error
         let params = rpc_params![
             tx_bytes,
             signatures,
+            HaneulTransactionResponseOptions::new(),
             ExecuteTransactionRequestType::WaitForLocalExecution
         ];
         let response: HaneulTransactionResponse = jsonrpc_client
@@ -1040,6 +1041,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     let params = rpc_params![
         tx_bytes,
         signatures,
+        HaneulTransactionResponseOptions::new(),
         ExecuteTransactionRequestType::WaitForLocalExecution
     ];
     let response: HaneulTransactionResponse = jsonrpc_client
@@ -1065,6 +1067,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     let params = rpc_params![
         tx_bytes,
         signatures,
+        HaneulTransactionResponseOptions::new().with_effects(),
         ExecuteTransactionRequestType::WaitForEffectsCert
     ];
     let response: HaneulTransactionResponse = jsonrpc_client

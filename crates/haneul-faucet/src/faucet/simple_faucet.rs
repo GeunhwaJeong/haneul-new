@@ -16,6 +16,7 @@ use shared_crypto::intent::Intent;
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
@@ -414,6 +415,7 @@ impl SimpleFaucet {
             .quorum_driver()
             .execute_transaction(
                 tx.clone(),
+                HaneulTransactionResponseOptions::new().with_effects(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await

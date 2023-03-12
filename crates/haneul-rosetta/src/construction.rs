@@ -3,7 +3,7 @@
 
 use axum::{Extension, Json};
 use fastcrypto::encoding::{Encoding, Hex};
-use haneul_json_rpc_types::HaneulTransactionEffectsAPI;
+use haneul_json_rpc_types::{HaneulTransactionEffectsAPI, HaneulTransactionResponseOptions};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
 use haneul_types::messages::{
@@ -128,6 +128,7 @@ pub async fn submit(
         .quorum_driver()
         .execute_transaction(
             signed_tx,
+            HaneulTransactionResponseOptions::new().with_effects(),
             Some(ExecuteTransactionRequestType::WaitForEffectsCert),
         )
         .await?;

@@ -24,6 +24,7 @@ use haneul_core::{
 };
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
+    HaneulTransactionResponseOptions,
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
@@ -44,10 +45,7 @@ use haneul_types::{
     },
     object::Object,
 };
-use haneul_types::{
-    base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo,
-    messages::ExecuteTransactionRequestType, object::Owner,
-};
+use haneul_types::{base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo, object::Owner};
 use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
@@ -551,8 +549,8 @@ impl ValidatorProxy for FullNodeProxy {
                 .quorum_driver()
                 .execute_transaction(
                     tx.clone(),
-                    // We need to use WaitForLocalExecution to make sure objects are updated on FN
-                    Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+                    HaneulTransactionResponseOptions::new().with_effects(),
+                    None,
                 )
                 .await
             {

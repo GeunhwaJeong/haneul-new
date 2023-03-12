@@ -4,6 +4,7 @@
 import type {
   ExecuteTransactionRequestType,
   HaneulTransactionResponse,
+  HaneulTransactionResponseOptions,
 } from "@haneullabs/haneul.js";
 import type { HaneulSignTransactionInput } from "./haneulSignTransaction";
 
@@ -41,4 +42,5 @@ export interface HaneulSignAndExecuteTransactionOutput
 /** Options for signing and sending transactions. */
 export interface HaneulSignAndExecuteTransactionOptions {
   requestType?: ExecuteTransactionRequestType;
+  contentOptions?: HaneulTransactionResponseOptions;
 }

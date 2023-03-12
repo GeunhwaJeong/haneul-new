@@ -14,7 +14,7 @@ use clap::Subcommand;
 use serde::Deserialize;
 
 use shared_crypto::intent::Intent;
-use haneul_json_rpc_types::HaneulObjectDataOptions;
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulTransactionResponseOptions};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     json::HaneulJsonValue,
@@ -105,6 +105,7 @@ impl TicTacToe {
             .execute_transaction(
                 Transaction::from_data(create_game_call, Intent::default(), vec![signature])
                     .verify()?,
+                HaneulTransactionResponseOptions::full_content(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await?;
@@ -203,6 +204,7 @@ impl TicTacToe {
                 .execute_transaction(
                     Transaction::from_data(place_mark_call, Intent::default(), vec![signature])
                         .verify()?,
+                    HaneulTransactionResponseOptions::new().with_effects(),
                     Some(ExecuteTransactionRequestType::WaitForLocalExecution),
                 )
                 .await?;

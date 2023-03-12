@@ -14,6 +14,7 @@ use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{compile_basics_package, wait_for_all_txes, wait_for_tx};
 use haneul_json_rpc_types::{
     HaneulObjectResponse, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
@@ -113,6 +114,7 @@ pub async fn publish_package_with_wallet(
         .quorum_driver()
         .execute_transaction(
             transaction,
+            HaneulTransactionResponseOptions::new().with_effects(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -172,6 +174,7 @@ pub async fn submit_move_transaction(
         .quorum_driver()
         .execute_transaction(
             tx,
+            HaneulTransactionResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -409,6 +412,7 @@ pub async fn delete_devnet_nft(
         .quorum_driver()
         .execute_transaction(
             tx,
+            HaneulTransactionResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await

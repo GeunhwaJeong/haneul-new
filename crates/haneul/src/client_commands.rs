@@ -38,7 +38,7 @@ use haneul_framework_build::compiled_package::{
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulObjectData, HaneulObjectInfo, HaneulObjectResponse, HaneulRawData,
-    HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -1252,6 +1252,8 @@ impl WalletContext {
             .quorum_driver()
             .execute_transaction(
                 tx,
+                // TODO(chris): we probably don't need full content here
+                HaneulTransactionResponseOptions::full_content(),
                 Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await?)

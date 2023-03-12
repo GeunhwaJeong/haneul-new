@@ -19,10 +19,10 @@ use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::error::ExecutionError;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages::{
-    Argument, Command, ExecutionStatus, GenesisObject, InputObjectKind, ProgrammableMoveCall,
-    ProgrammableTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
-    TransactionEffects, TransactionEffectsAPI, TransactionEvents, TransactionKind,
-    VersionedProtocolMessage,
+    Argument, Command, ExecuteTransactionRequestType, ExecutionStatus, GenesisObject,
+    InputObjectKind, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
+    TransactionData, TransactionDataAPI, TransactionEffects, TransactionEffectsAPI,
+    TransactionEvents, TransactionKind, VersionedProtocolMessage,
 };
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::disassemble_modules;
@@ -102,6 +102,26 @@ impl HaneulTransactionResponseOptions {
     pub fn with_events(mut self) -> Self {
         self.show_events = true;
         self
+    }
+
+    /// default to return `WaitForEffectsCert` unless some options require
+    /// local execution
+    pub fn default_execution_request_type(&self) -> ExecuteTransactionRequestType {
+        // if people want effects or events, they typically want to wait for local execution
+        if self.require_effects() {
+            ExecuteTransactionRequestType::WaitForLocalExecution
+        } else {
+            ExecuteTransactionRequestType::WaitForEffectsCert
+        }
+    }
+
+    pub fn require_local_execution(&self) -> bool {
+        // TODO: change this if we add new options that require local execution
+        false
+    }
+
+    pub fn require_effects(&self) -> bool {
+        self.show_effects || self.show_events
     }
 }
 
