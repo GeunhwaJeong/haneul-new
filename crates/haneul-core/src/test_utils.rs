@@ -268,6 +268,28 @@ pub fn make_transfer_haneul_transaction(
     to_sender_signed_transaction(data, keypair)
 }
 
+pub fn make_pay_haneul_transaction(
+    gas_object: ObjectRef,
+    coins: Vec<ObjectRef>,
+    recipients: Vec<HaneulAddress>,
+    amounts: Vec<u64>,
+    sender: HaneulAddress,
+    keypair: &AccountKeyPair,
+    gas_price: Option<u64>,
+) -> VerifiedTransaction {
+    let data = TransactionData::new_pay_haneul(
+        sender,
+        coins,
+        recipients,
+        amounts,
+        gas_object,
+        MAX_GAS,
+        gas_price.unwrap_or(DUMMY_GAS_PRICE),
+    )
+    .unwrap();
+    to_sender_signed_transaction(data, keypair)
+}
+
 pub fn make_transfer_object_transaction(
     object_ref: ObjectRef,
     gas_object: ObjectRef,
