@@ -515,18 +515,20 @@ export class JsonRpcProvider extends Provider {
     options?: HaneulObjectDataOptions,
   ): Promise<HaneulObjectResponse[]> {
     try {
-      const requests = objectIds.map((id) => {
+      objectIds.forEach((id) => {
         if (!id || !isValidHaneulObjectId(normalizeHaneulObjectId(id))) {
           throw new Error(`Invalid Haneul Object id ${id}`);
         }
-        return {
-          method: 'haneul_getObject',
-          args: [id, options],
-        };
       });
-      return await this.client.batchRequestWithType(
-        requests,
-        HaneulObjectResponse,
+      const hasDuplicates = objectIds.length !== new Set(objectIds).size;
+      if (hasDuplicates) {
+        throw new Error(`Duplicate object ids in batch call ${objectIds}`);
+      }
+
+      return await this.client.requestWithType(
+        'haneul_multiGetObjects',
+        [objectIds, options],
+        array(HaneulObjectResponse),
         this.options.skipDataValidation,
       );
     } catch (err) {
@@ -647,18 +649,21 @@ export class JsonRpcProvider extends Provider {
     options?: HaneulTransactionResponseOptions,
   ): Promise<HaneulTransactionResponse[]> {
     try {
-      const requests = digests.map((d) => {
+      digests.forEach((d) => {
         if (!isValidTransactionDigest(d)) {
           throw new Error(`Invalid Transaction digest ${d}`);
         }
-        return {
-          method: 'haneul_getTransaction',
-          args: [d, options],
-        };
       });
-      return await this.client.batchRequestWithType(
-        requests,
-        HaneulTransactionResponse,
+
+      const hasDuplicates = digests.length !== new Set(digests).size;
+      if (hasDuplicates) {
+        throw new Error(`Duplicate digests in batch call ${digests}`);
+      }
+
+      return await this.client.requestWithType(
+        'haneul_multiGetTransactions',
+        [digests, options],
+        array(HaneulTransactionResponse),
         this.options.skipDataValidation,
       );
     } catch (err) {

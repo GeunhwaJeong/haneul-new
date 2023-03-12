@@ -15,8 +15,8 @@ use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
     DynamicFieldPage, EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEventEnvelope, HaneulEventFilter,
-    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse,
-    HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo,
+    HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, TransactionsPage,
 };
 use haneul_types::balance::Supply;
@@ -77,6 +77,18 @@ impl ReadApi {
             .await?)
     }
 
+    pub async fn try_multi_get_parsed_past_object(
+        &self,
+        past_objects: Vec<HaneulGetPastObjectRequest>,
+        options: HaneulObjectDataOptions,
+    ) -> HaneulRpcResult<Vec<HaneulPastObjectResponse>> {
+        Ok(self
+            .api
+            .http
+            .try_multi_get_past_objects(past_objects, Some(options))
+            .await?)
+    }
+
     pub async fn get_object_with_options(
         &self,
         object_id: ObjectID,
@@ -86,6 +98,18 @@ impl ReadApi {
             .api
             .http
             .get_object_with_options(object_id, Some(options))
+            .await?)
+    }
+
+    pub async fn multi_get_object_with_options(
+        &self,
+        object_ids: Vec<ObjectID>,
+        options: HaneulObjectDataOptions,
+    ) -> HaneulRpcResult<Vec<HaneulObjectResponse>> {
+        Ok(self
+            .api
+            .http
+            .multi_get_object_with_options(object_ids, Some(options))
             .await?)
     }
 

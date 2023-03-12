@@ -11,7 +11,7 @@ use std::collections::BTreeMap;
 use haneul_json_rpc::api::{cap_page_limit, ReadApiClient, ReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, Page,
+    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, Page, HaneulGetPastObjectRequest,
     HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
     HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionsPage,
@@ -372,6 +372,16 @@ where
     ) -> RpcResult<HaneulPastObjectResponse> {
         self.fullnode
             .try_get_past_object(object_id, version, options)
+            .await
+    }
+
+    async fn try_multi_get_past_objects(
+        &self,
+        past_objects: Vec<HaneulGetPastObjectRequest>,
+        options: Option<HaneulObjectDataOptions>,
+    ) -> RpcResult<Vec<HaneulPastObjectResponse>> {
+        self.fullnode
+            .try_multi_get_past_objects(past_objects, options)
             .await
     }
 

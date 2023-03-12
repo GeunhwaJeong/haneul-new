@@ -5,10 +5,10 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectInfo,
-    HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionsPage,
+    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, HaneulGetPastObjectRequest,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{
@@ -178,6 +178,19 @@ pub trait ReadApi {
         /// options for specifying the content to be returned
         options: Option<HaneulObjectDataOptions>,
     ) -> RpcResult<HaneulPastObjectResponse>;
+
+    /// Note there is no software-level guarantee/SLA that objects with past versions
+    /// can be retrieved by this API, even if the object and version exists/existed.
+    /// The result may vary across nodes depending on their pruning policies.
+    /// Return the object information for a specified version
+    #[method(name = "tryMultiGetPastObjects")]
+    async fn try_multi_get_past_objects(
+        &self,
+        /// a vector of object and versions to be queried
+        past_objects: Vec<HaneulGetPastObjectRequest>,
+        /// options for specifying the content to be returned
+        options: Option<HaneulObjectDataOptions>,
+    ) -> RpcResult<Vec<HaneulPastObjectResponse>>;
 
     /// Return the sequence number of the latest checkpoint that has been executed
     #[method(name = "getLatestCheckpointSequenceNumber")]
