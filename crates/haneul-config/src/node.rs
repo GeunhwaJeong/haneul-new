@@ -18,6 +18,7 @@ use std::sync::Arc;
 use std::usize;
 use haneul_keys::keypair_file::{read_authority_keypair_from_file, read_keypair_from_file};
 use haneul_protocol_config::SupportedProtocolVersions;
+use haneul_storage::object_store::ObjectStoreConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::crypto::KeypairTraits;
@@ -351,6 +352,8 @@ pub struct DBCheckpointConfig {
     pub perform_db_checkpoints_at_epoch_end: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checkpoint_path: Option<PathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object_store_config: Option<ObjectStoreConfig>,
 }
 
 /// Publicly known information about a validator
