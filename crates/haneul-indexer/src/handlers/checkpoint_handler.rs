@@ -139,7 +139,10 @@ where
                     .read_api()
                     .multi_get_transactions_with_options(
                         digests.to_vec(),
-                        HaneulTransactionResponseOptions::full_content(),
+                        HaneulTransactionResponseOptions::new()
+                            .with_effects()
+                            .with_input()
+                            .with_events(),
                     )
             },
         ))
