@@ -14,13 +14,6 @@ To connect with the Haneul community, join our [Discord](https://discord.gg/hane
 
 To report an issue with Haneul, [create an issue](https://github.com/GeunhwaJeong/haneul/issues/new/choose) in the GitHub repo. Click **Get started** to open a template for the type of issue to create.
 
-
-## Updates to docs
-
-To request an update to a specific topic, click the **Source Code** link near the bottom of the page to open the source file in the GitHub repo. To submit a request, first choose the **Latest build** version of the doc site. This opens the main branch of the repo, which may contain a newer version of the topic than the one on **Devnet**.
-
-Click **Edit this file**, make your changes, and then click **Propose changes** to create a pull request that includes your changes in a new branch.
-
 ## Install Haneul to contribute
 
 To contribute to Haneul source code or documentation, you need only a GitHub account. You can commit updates and then submit a PR directly from the Github website, or create a fork of the repo to your local environment and use your favorite tools to make changes. Always submit PRs to the `main` branch.
@@ -63,7 +56,6 @@ You now have a fork of the Haneul repo set up in your local workspace. You can m
 
 ## Further reading
 
-* Learn [about Haneul Labs](https://haneul-labs.com/) the company on our public site.
 * Read the [Haneul Smart Contract Platform](../../paper/haneul.pdf) white paper.
 * Implementing [logging](../contribute/observability.md) in Haneul to observe the behavior of your development.
 * Find related [research papers](../contribute/research-papers.md).

@@ -11,4 +11,4 @@ All code samples are written with the assumption that you use *Haneul Move*, whi
 $ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch "main" haneul
 ```
 
-Keep in mind that the branch is set to `main`. If you're developing with our [devnet](../../build/devnet.md) or need more details, follow the instructions at [install Haneul](../../build/install.md#install-or-update-haneul-binaries).
+Keep in mind that the branch is set to `main`. If you're developing with [devnet](../../build/devnet.md) or need more details, follow the instructions at [install Haneul](../../build/install.md#install-or-update-haneul-binaries).

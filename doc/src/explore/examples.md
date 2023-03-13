@@ -4,8 +4,7 @@ title: Examples of Haneul Smart Contracts
 
 Find sample Haneul smart contract implementations in the [haneul_programmability/examples](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples) directory. Also see [Haneul by Example](../explore/move-examples/index.md) for a feature-by-feature guide to [Haneul Move](../learn/haneul-move-diffs.md).
 
-
-Here is a rundown of existing examples in the Haneul repository.
+Here is a list of existing examples in the Haneul repository.
 
 ## Basics
 
@@ -14,9 +13,9 @@ In the [Basics](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programm
 ## Crypto
 
 In the [Cryptography](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/math) example, employ a simple contract to:
-  * Hash a piece of data using keccak256 and output an object with hashed data.
-  * Recover a [Secp256k1](https://crates.io/crates/secp256k1/) signature to its public key and output an object with the public key.
-  * Verify a Secp256k1 signature and produce an event indicating whether it is verified.
+ * Hash a piece of data using keccak256 and output an object with hashed data.
+ * Recover a [Secp256k1](https://crates.io/crates/secp256k1/) signature to its public key and output an object with the public key.
+ * Verify a Secp256k1 signature and produce an event indicating whether it is verified.
 
 ## DeFi
 
@@ -24,8 +23,7 @@ In the [DeFi](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmab
 
 ## Fungible Tokens
 
-In the [Fungible Tokens](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/fungible_tokens) example, see a token managed by a treasurer trusted for minting and burning for
-how (e.g.) a fiat-backed stablecoin would work.
+In the [Fungible Tokens](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/fungible_tokens) example, see a token managed by a treasurer trusted for minting and burning for how (e.g.) a fiat-backed stablecoin would work.
 
 ## Games
 

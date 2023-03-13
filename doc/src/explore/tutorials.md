@@ -2,14 +2,13 @@
 title: End-to-End Tutorial to Set Up and Play TicTacToe on Haneul
 ---
 
-In this tutorial, we demonstrate the end-to-end process for starting a
-Haneul network locally, connecting to it through our [CLI client](../build/cli-client.md)
-app, publishing a TicTacToe game written in [Move](../build/move/index.md) on Haneul,
+This tutorial demonstrates the end-to-end process for starting a
+Haneul network locally, connecting to it through the [Haneul CLI client](../build/cli-client.md), publishing a TicTacToe game written in [Move](../build/move/index.md) on Haneul,
 and playing it to the end.
 
 ## Set up
 
-1. [Install Haneul binaries](../build/install.md#install-or-update-haneul-binaries) and
+1. [Install Haneul binaries](../build/install.md#install-haneul-binaries) and
    [download Haneul source code](../build/install.md#source-code).
 1. [Create Haneul genesis](../build/cli-client.md#genesis) by running the
    `haneul genesis` command.

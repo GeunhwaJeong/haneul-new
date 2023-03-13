@@ -27,7 +27,7 @@ Haneul provides the following tools to interact with Haneul Devnet:
 
 ## Environment set up
 
-First, [Install Haneul](../build/install.md#install-or-update-haneul-binaries). After you install Haneul, [request HANEUL test tokens](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
+First, [Install Haneul](../build/install.md#install-haneul-binaries). After you install Haneul, [request HANEUL test tokens](#request-gas-tokens) through [Discord](https://discordapp.com/channels/916379725201563759/971488439931392130).
 
 To check whether Haneul is already installed, run the following command:
 
@@ -81,7 +81,7 @@ To switch the active network, run the following command:
 haneul client switch --env <ALIAS>
 ```
 
-If you encounter an issue, delete the Haneul configuration directory (`~/.haneul/haneul_config`) and reinstall the latest [Haneul binaries](../build/install.md#install-or-update-haneul-binaries).
+If you encounter an issue, delete the Haneul configuration directory (`~/.haneul/haneul_config`) and reinstall the latest [Haneul binaries](../build/install.md#install-haneul-binaries).
 
 ## Validating
 

@@ -4,7 +4,7 @@ title: Write a Haneul Move Package
 
 ##
 
-In order to build a Move package and run code defined in this package, first [install Haneul binaries](../install.md#install-or-update-haneul-binaries).
+In order to build a Move package and run code defined in this package, first [install Haneul binaries](../install.md#install-haneul-binaries).
 
 ### Creating the package
 

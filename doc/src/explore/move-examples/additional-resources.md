@@ -2,7 +2,7 @@
 title: Additional Resources
 ---
 
-To find out more about Haneul Move and its usage, check out these links:
+To find out more about Haneul Move and its usage, see:
 
 - [Haneul Move examples in 'haneullabsLabs/haneul' repo](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples)
 - [How Haneul Move differs from Core Move](../../learn/haneul-move-diffs.md)
