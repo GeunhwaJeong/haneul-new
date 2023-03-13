@@ -59,7 +59,7 @@ use haneul_storage::{
 };
 use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::AuthoritySignInfo;
-use haneul_types::crypto::{sha3_hash, AuthorityKeyPair, NetworkKeyPair, Signer};
+use haneul_types::crypto::{user_hash, AuthorityKeyPair, NetworkKeyPair, Signer};
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType, Field};
 use haneul_types::error::UserInputError;
@@ -1126,7 +1126,7 @@ impl AuthorityState {
             gas_price,
             gas_budget,
         );
-        let transaction_digest = TransactionDigest::new(sha3_hash(&data));
+        let transaction_digest = TransactionDigest::new(user_hash(&data));
         let transaction_kind = data.into_kind();
         let transaction_dependencies = input_objects.transaction_dependencies();
         let temporary_store = TemporaryStore::new(

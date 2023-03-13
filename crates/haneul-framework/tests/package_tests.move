@@ -4,7 +4,6 @@
 #[test_only]
 module haneul::package_tests {
     use std::ascii;
-    use std::hash;
     use haneul::address;
     use haneul::object::id_from_address as id;
     use haneul::package;
@@ -70,7 +69,7 @@ module haneul::package_tests {
         let ticket = package::authorize_upgrade(
             &mut cap,
             package::dep_only_policy(),
-            hash::sha3_256(b"package contents"),
+            haneul::hash::blake2b256(&b"package contents"),
         );
 
         let receipt = package::test_upgrade(ticket);
@@ -104,7 +103,7 @@ module haneul::package_tests {
         let _ticket = package::authorize_upgrade(
             &mut cap,
             package::compatible_policy(),
-            hash::sha3_256(b"package contents"),
+            haneul::hash::blake2b256(&b"package contents"),
         );
 
         abort 0
@@ -119,7 +118,7 @@ module haneul::package_tests {
         let _ticket0 = package::authorize_upgrade(
             &mut cap,
             package::compatible_policy(),
-            hash::sha3_256(b"package contents 0"),
+            haneul::hash::blake2b256(&b"package contents 0"),
         );
 
         // It's an error to try and issue more than one simultaneous
@@ -127,7 +126,7 @@ module haneul::package_tests {
         let _ticket1 = package::authorize_upgrade(
             &mut cap,
             package::compatible_policy(),
-            hash::sha3_256(b"package contents 1"),
+            haneul::hash::blake2b256(&b"package contents 1"),
         );
 
         abort 0
@@ -143,7 +142,7 @@ module haneul::package_tests {
         let ticket1 = package::authorize_upgrade(
             &mut cap1,
             package::dep_only_policy(),
-            hash::sha3_256(b"package contents 1"),
+            haneul::hash::blake2b256(&b"package contents 1"),
         );
 
         let receipt1 = package::test_upgrade(ticket1);

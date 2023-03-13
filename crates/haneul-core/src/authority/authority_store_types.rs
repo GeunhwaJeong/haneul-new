@@ -7,7 +7,7 @@ use serde_with::Bytes;
 use std::convert::TryFrom;
 use haneul_types::base_types::MoveObjectType;
 use haneul_types::base_types::{ObjectDigest, SequenceNumber, TransactionDigest};
-use haneul_types::crypto::{sha3_hash, Signable};
+use haneul_types::crypto::{internal_hash, Signable};
 use haneul_types::error::HaneulError;
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, Owner};
@@ -178,7 +178,7 @@ impl StoreMoveObject {
     pub fn digest(&self) -> ObjectContentDigest {
         // expected to be called on constructed object with default ref count 1
         assert_eq!(self.ref_count, 1);
-        ObjectContentDigest::new(sha3_hash(self))
+        ObjectContentDigest::new(internal_hash(self))
     }
 }
 
