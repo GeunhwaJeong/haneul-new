@@ -7,6 +7,7 @@ use anyhow::anyhow;
 use expect_test::expect;
 use move_package::BuildConfig;
 use serde_json::json;
+use haneul_types::object::Owner;
 use tokio::time::sleep;
 
 use haneul::client_commands::SwitchResponse;
@@ -22,7 +23,8 @@ use haneul_config::{
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI,
+    OwnedObjectRef, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulTransactionEffectsAPI,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
@@ -368,7 +370,20 @@ async fn test_move_call_args_linter_command() -> Result<(), anyhow::Error> {
     .await?;
 
     let package = if let HaneulClientCommandResult::Publish(response) = resp {
-        response.effects.unwrap().created()[0].reference.object_id
+        response
+            .effects
+            .unwrap()
+            .created()
+            .iter()
+            .find(
+                |OwnedObjectRef {
+                     owner,
+                     reference: _,
+                 }| matches!(owner, Owner::Immutable),
+            )
+            .unwrap()
+            .reference
+            .object_id
     } else {
         unreachable!("Invalid response");
     };
