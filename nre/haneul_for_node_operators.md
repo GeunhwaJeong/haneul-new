@@ -181,10 +181,6 @@ Public dashboard for network wide visibility:
 
 - [Haneul Testnet Validators](https://metrics.testnet.haneul.io/public-dashboards/49484483fe0a40e9ae5d0fad331cda5b)
 
-Example dashboard configurations for node operators to use:
-
-- [Grafana Validator Overview](./dashboards/grafana/README.md)
-
 ## Software Updates
 
 When an update is required to the Haneul Node software the following process can be used. Follow the relevant Systemd or Docker Compose runbook depending on your deployment type. It is highly unlikely that you will want to restart with a clean database.
