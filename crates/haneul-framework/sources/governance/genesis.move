@@ -44,6 +44,7 @@ module haneul::genesis {
         protocol_version: u64,
         system_state_version: u64,
         epoch_start_timestamp_ms: u64,
+        epoch_duration_ms: u64,
         ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new(ctx);
@@ -115,6 +116,7 @@ module haneul::genesis {
             protocol_version,
             system_state_version,
             epoch_start_timestamp_ms,
+            epoch_duration_ms,
             ctx,
         );
 
