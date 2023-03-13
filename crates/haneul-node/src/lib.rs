@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::metrics::GrpcMetrics;
+use std::collections::HashMap;
+use std::fmt;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::time::Duration;
+
 use anemo::Network;
 use anemo_tower::callback::CallbackLayer;
 use anemo_tower::trace::DefaultMakeSpan;
@@ -10,67 +15,31 @@ use anemo_tower::trace::TraceLayer;
 use anyhow::anyhow;
 use anyhow::Result;
 use arc_swap::ArcSwap;
-use checkpoint_executor::CheckpointExecutor;
 use futures::TryFutureExt;
-use haneullabs_metrics::{spawn_monitored_task, RegistryService};
-use haneullabs_network::server::ServerBuilder;
-use narwhal_network::metrics::MetricsMakeCallbackHandler;
-use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use prometheus::Registry;
-use std::collections::HashMap;
-use std::fmt;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::time::Duration;
-use haneul_config::{ConsensusConfig, NodeConfig};
-use haneul_core::authority_aggregator::AuthorityAggregator;
-use haneul_core::authority_server::ValidatorService;
-use haneul_core::checkpoints::checkpoint_executor;
-use haneul_core::epoch::committee_store::CommitteeStore;
-use haneul_core::state_accumulator::StateAccumulator;
-use haneul_core::storage::RocksDbStore;
-use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
-use haneul_core::{
-    authority::{AuthorityState, AuthorityStore, VerifiedCertificateCacheMetrics},
-    authority_client::NetworkAuthorityClient,
-};
-use haneul_json_rpc::event_api::EventReadApi;
-use haneul_json_rpc::read_api::ReadApi;
-use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
-use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
-use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
-use haneul_network::api::ValidatorServer;
-use haneul_network::discovery;
-use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tap::tap::TapFallible;
-use tracing::{debug, warn};
-
-use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
-
-use haneul_storage::{
-    event_store::{EventStoreType, SqlEventStore},
-    IndexStore,
-};
-use haneul_types::committee::Committee;
-use haneul_types::crypto::KeypairTraits;
-use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use tokio::sync::broadcast;
 use tokio::sync::oneshot::Sender;
 use tokio::sync::{watch, Mutex};
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
+use tracing::{debug, warn};
 use tracing::{error_span, info, Instrument};
-use typed_store::DBMetrics;
-pub mod admin;
-mod handle;
-pub mod metrics;
+
+use checkpoint_executor::CheckpointExecutor;
 pub use handle::HaneulNodeHandle;
+use haneullabs_metrics::{spawn_monitored_task, RegistryService};
+use haneullabs_network::server::ServerBuilder;
+use narwhal_network::metrics::MetricsMakeCallbackHandler;
+use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use narwhal_types::TransactionsClient;
 use haneul_config::node::DBCheckpointConfig;
+use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
+use haneul_core::authority_aggregator::AuthorityAggregator;
+use haneul_core::authority_server::ValidatorService;
+use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::checkpoints::{
     CheckpointMetrics, CheckpointService, CheckpointStore, SendCheckpointToStateSync,
     SubmitCheckpointToConsensus,
@@ -81,16 +50,48 @@ use haneul_core::consensus_adapter::{
 use haneul_core::consensus_handler::ConsensusHandler;
 use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics};
 use haneul_core::db_checkpoint_handler::DBCheckpointHandler;
+use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_core::epoch::data_removal::EpochDataRemover;
 use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::narwhal_manager::{NarwhalConfiguration, NarwhalManager, NarwhalManagerMetrics};
+use haneul_core::state_accumulator::StateAccumulator;
+use haneul_core::storage::RocksDbStore;
+use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
+use haneul_core::{
+    authority::{AuthorityState, AuthorityStore, VerifiedCertificateCacheMetrics},
+    authority_client::NetworkAuthorityClient,
+};
 use haneul_json_rpc::coin_api::CoinReadApi;
+use haneul_json_rpc::event_api::EventReadApi;
+use haneul_json_rpc::governance_api::GovernanceReadApi;
+use haneul_json_rpc::read_api::ReadApi;
+use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
+use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
+use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
+use haneul_network::api::ValidatorServer;
+use haneul_network::discovery;
+use haneul_network::discovery::TrustedPeerChangeEvent;
+use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
+use haneul_storage::IndexStore;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
+use haneul_types::committee::Committee;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{AuthorityCapabilities, ConsensusTransaction};
+use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use typed_store::DBMetrics;
+
+use crate::metrics::GrpcMetrics;
+
+pub mod admin;
+mod handle;
+pub mod metrics;
 
 pub struct ValidatorComponents {
     validator_server_handle: JoinHandle<Result<()>>,
@@ -104,8 +105,6 @@ pub struct ValidatorComponents {
     checkpoint_metrics: Arc<CheckpointMetrics>,
     haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
 }
-use haneul_json_rpc::governance_api::GovernanceReadApi;
-use haneul_network::discovery::TrustedPeerChangeEvent;
 
 pub struct HaneulNode {
     config: NodeConfig,
@@ -227,22 +226,6 @@ impl HaneulNode {
             Some(Arc::new(IndexStore::new(config.db_path().join("indexes"))))
         };
 
-        let event_store = if config.enable_event_processing {
-            let path = config.db_path().join("events.db");
-            let db = SqlEventStore::new_from_file(&path).await?;
-            db.initialize().await?;
-
-            if index_store.is_none() {
-                return Err(anyhow!(
-                    "event storage requires that IndexStore be enabled as well"
-                ));
-            }
-
-            Some(Arc::new(EventStoreType::SqlEventStore(db)))
-        } else {
-            None
-        };
-
         // Create network
         // TODO only configure validators as seed/preferred peers for validators and not for
         // fullnodes once we've had a chance to re-work fullnode configuration generation.
@@ -291,7 +274,6 @@ impl HaneulNode {
             epoch_store.clone(),
             committee_store.clone(),
             index_store.clone(),
-            event_store,
             checkpoint_store.clone(),
             &prometheus_registry,
             config.authority_store_pruning_config,
@@ -1058,9 +1040,10 @@ pub async fn build_server(
         ))?;
     }
 
-    if let Some(event_handler) = state.event_handler.clone() {
-        server.register_module(EventReadApi::new(state.clone(), event_handler))?;
-    }
+    server.register_module(EventReadApi::new(
+        state.clone(),
+        state.event_handler.clone(),
+    ))?;
 
     let rpc_server_handle = server.start(config.json_rpc_address).await?;
 
