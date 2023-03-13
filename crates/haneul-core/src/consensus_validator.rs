@@ -240,7 +240,7 @@ mod tests {
             .into_iter()
             .map(|mut cert| {
                 // set it to an all-zero user signature
-                cert.tx_signatures[0] =
+                cert.tx_signatures_mut_for_testing()[0] =
                     GenericSignature::Signature(haneul_types::crypto::Signature::Ed25519HaneulSignature(
                         Ed25519HaneulSignature::default(),
                     ));
