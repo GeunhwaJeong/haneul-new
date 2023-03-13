@@ -51,6 +51,8 @@ ARG PROFILE=release
 WORKDIR haneul
 # Both bench and release profiles copy from release dir
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
+# Staged migration from /usr/local/bin to /opt/haneul/bin
+COPY --from=builder /haneul/target/release/haneul-node /opt/haneul/bin
 
 ARG BUILD_DATE
 ARG GIT_REVISION

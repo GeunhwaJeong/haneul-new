@@ -1,0 +1,107 @@
+---
+- name: Add a haneul user
+  ansible.builtin.user:
+    name: haneul
+    shell: /bin/bash
+
+- name: Create haneul directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "haneul"
+    group: "haneul"
+    mode: 0755
+  loop:
+    - /opt/haneul/bin
+    - /opt/haneul/config
+    - /opt/haneul/db
+    - /opt/haneul/key-pairs
+
+- name: Copy validator configuration file
+  copy:
+    src: "{{ node_config }}"
+    dest: /opt/haneul/config/validator.yaml
+    owner: "haneul"
+    group: "haneul"
+    mode: 0644
+
+- name: Copy genesis.blob
+  copy:
+    src: "{{ genesis_blob }}"
+    dest: /opt/haneul/config/genesis.blob
+    owner: "haneul"
+    group: "haneul"
+    mode: 0644
+
+- name: Copy protocol.key
+  copy:
+    src: "{{ keypair_path }}protocol.key"
+    dest: /opt/haneul/key-pairs/protocol.key
+    owner: "haneul"
+    group: "haneul"
+    mode: 0600
+
+- name: Copy account.key
+  copy:
+    src: "{{ keypair_path }}account.key"
+    dest: /opt/haneul/key-pairs/account.key
+    owner: "haneul"
+    group: "haneul"
+    mode: 0600
+
+- name: Copy network.key
+  copy:
+    src: "{{ keypair_path }}network.key"
+    dest: /opt/haneul/key-pairs/network.key
+    owner: "haneul"
+    group: "haneul"
+    mode: 0600
+
+- name: Copy worker.key
+  copy:
+    src: "{{ keypair_path }}worker.key"
+    dest: /opt/haneul/key-pairs/worker.key
+    owner: "haneul"
+    group: "haneul"
+    mode: 0600
+
+- name: Stop haneul-node
+  systemd:
+    name: haneul-node
+    state: stopped
+  ignore_errors: yes
+
+- name: Remove authorities directory
+  file:
+    state: absent
+    path: "/opt/haneul/db/authorities_db"
+  when: reset_db == true
+
+- name: Remove consensus directory
+  file:
+    state: absent
+    path: "/opt/haneul/db/consensus_db"
+  when: reset_db == true
+
+- name: Place binary
+  ansible.builtin.get_url:
+    url: "https://releases.haneul.io/{{ haneul_release }}/haneul-node"
+    dest: /opt/haneul/bin/haneul-node
+    force: true
+    mode: "0755"
+
+- name: Copy haneul-node systemd service file
+  copy:
+    src: "../files/haneul-node.service"
+    dest: /etc/systemd/system/haneul-node.service
+
+- name: Reload haneul-node systemd service file
+  ansible.builtin.systemd:
+    name: haneul-node
+    state: reloaded
+
+- name: Start haneul-node service
+  systemd:
+    name: haneul-node
+    state: started
+  when: start_haneul == true
