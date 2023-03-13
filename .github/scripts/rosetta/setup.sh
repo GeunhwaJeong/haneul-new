@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 echo "Install binaries"
-cargo install --bin haneul --path crates/haneul
-cargo install --bin haneul-rosetta --path crates/haneul-rosetta
+cargo install --locked --bin haneul --path crates/haneul
+cargo install --locked --bin haneul-rosetta --path crates/haneul-rosetta
 
 echo "run Haneul genesis"
 haneul genesis
