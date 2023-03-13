@@ -123,7 +123,7 @@ pub trait IndexerStore {
 pub struct CheckpointData {
     pub checkpoint: RpcCheckpoint,
     pub transactions: Vec<HaneulTransactionResponse>,
-    pub all_mutated_objects: Vec<(ObjectStatus, HaneulObjectData)>,
+    pub changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
 }
 
 // Per checkpoint indexing
