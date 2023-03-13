@@ -74,7 +74,7 @@ use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::object::{MoveObject, Owner, PastObjectRead, OBJECT_START_VERSION};
 use haneul_types::parse_haneul_struct_tag;
 use haneul_types::query::{EventQuery, TransactionFilter};
-use haneul_types::storage::{ObjectKey, WriteKind};
+use haneul_types::storage::{ObjectKey, ObjectStore, WriteKind};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -1961,7 +1961,6 @@ impl AuthorityState {
     }
 
     // This function is only used for testing.
-    #[cfg(test)]
     pub fn get_haneul_system_state_object_for_testing(&self) -> HaneulResult<HaneulSystemState> {
         self.database.get_haneul_system_state_object()
     }

@@ -1,24 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::base_types::ObjectID;
 use crate::committee::{CommitteeWithNetworkMetadata, EpochId, ProtocolVersion};
-use crate::dynamic_field::{derive_dynamic_field_id, Field};
+use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::HaneulError;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
-use crate::{id::UID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
+use crate::{id::UID, MoveTypeTagTrait, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
-use move_core_types::language_storage::TypeTag;
-use move_core_types::value::MoveTypeLayout;
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
-use move_vm_types::values::Value;
 use multiaddr::Multiaddr;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use tracing::error;
 
-use self::haneul_system_state_inner_v1::HaneulSystemStateInnerV1;
-use self::haneul_system_state_summary::HaneulSystemStateSummary;
+use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorV1};
+use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
 
 pub mod epoch_start_haneul_system_state;
 pub mod haneul_system_state_inner_v1;
@@ -112,10 +110,7 @@ impl HaneulSystemState {
     }
 
     pub fn new_for_testing(epoch: EpochId) -> Self {
-        HaneulSystemState::V1(HaneulSystemStateInnerV1 {
-            epoch,
-            ..Default::default()
-        })
+        HaneulSystemState::V1(HaneulSystemStateInnerV1::new_for_testing(epoch))
     }
 
     pub fn version(&self) -> u64 {
@@ -133,15 +128,19 @@ pub fn get_haneul_system_state_wrapper<S>(object_store: &S) -> Result<HaneulSyst
 where
     S: ObjectStore,
 {
-    let haneul_system_object = object_store
+    let wrapper = object_store
         .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?
-        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
-    let move_object = haneul_system_object
-        .data
-        .try_as_move()
-        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
+        // Don't panic here on None because object_store is a generic store.
+        .ok_or_else(|| {
+            HaneulError::HaneulSystemStateReadError("HaneulSystemStateWrapper object not found".to_owned())
+        })?;
+    let move_object = wrapper.data.try_as_move().ok_or_else(|| {
+        HaneulError::HaneulSystemStateReadError(
+            "HaneulSystemStateWrapper object must be a Move object".to_owned(),
+        )
+    })?;
     let result = bcs::from_bytes::<HaneulSystemStateWrapper>(move_object.contents())
-        .expect("Haneul System State object deserialization cannot fail");
+        .map_err(|err| HaneulError::HaneulSystemStateReadError(err.to_string()))?;
     Ok(result)
 }
 
@@ -153,39 +152,48 @@ where
     S: ObjectStore,
 {
     let wrapper = get_haneul_system_state_wrapper(object_store)?;
-    let inner_id = derive_dynamic_field_id(
-        wrapper.id.id.bytes,
-        &TypeTag::U64,
-        &MoveTypeLayout::U64,
-        &Value::u64(wrapper.version),
-    )
-    .expect("Haneul System State object must exist");
-    let inner = object_store
-        .get_object(&inner_id)?
-        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
-    let move_object = inner
-        .data
-        .try_as_move()
-        .ok_or(HaneulError::HaneulSystemStateNotFound)?;
     match wrapper.version {
         1 => {
-            let result =
-                bcs::from_bytes::<Field<u64, HaneulSystemStateInnerV1>>(move_object.contents())
-                    .expect("Haneul System State object deserialization cannot fail");
-            Ok(HaneulSystemState::V1(result.value))
+            let result: HaneulSystemStateInnerV1 =
+                get_dynamic_field_from_store(object_store, wrapper.id.id.bytes, &wrapper.version)?;
+            Ok(HaneulSystemState::V1(result))
         }
         // The following case is for sim_test only to support authority_tests::test_haneul_system_state_nop_upgrade.
         #[cfg(msim)]
         HANEUL_SYSTEM_STATE_TESTING_VERSION1 => {
-            let result =
-                bcs::from_bytes::<Field<u64, HaneulSystemStateInnerV1>>(move_object.contents())
-                    .expect("Haneul System State object deserialization cannot fail");
-            Ok(HaneulSystemState::V1(result.value))
+            let result: HaneulSystemStateInnerV1 =
+                get_dynamic_field_from_store(object_store, wrapper.id.id.bytes, &wrapper.version)?;
+            Ok(HaneulSystemState::V1(result))
         }
-        _ => {
-            error!("Unsupported Haneul System State version: {}", wrapper.version);
-            Err(HaneulError::HaneulSystemStateUnexpectedVersion)
+        _ => Err(HaneulError::HaneulSystemStateReadError(format!(
+            "Unsupported HaneulSystemState version: {}",
+            wrapper.version
+        ))),
+    }
+}
+
+/// Given a system state type version, and the ID of the table, along with a key, retrieve the
+/// dynamic field as a Validator type. We need the version to determine which inner type to use for
+/// the Validator type.
+pub fn get_validator_from_table<S, K>(
+    system_state_version: u64,
+    object_store: &S,
+    table_id: ObjectID,
+    key: &K,
+) -> Result<HaneulValidatorSummary, HaneulError>
+where
+    S: ObjectStore,
+    K: MoveTypeTagTrait + Serialize + DeserializeOwned,
+{
+    match system_state_version {
+        1 => {
+            let validator: ValidatorV1 = get_dynamic_field_from_store(object_store, table_id, key)?;
+            Ok(validator.into_haneul_validator_summary())
         }
+        _ => Err(HaneulError::HaneulSystemStateReadError(format!(
+            "Unsupported HaneulSystemState version: {}",
+            system_state_version
+        ))),
     }
 }
 
@@ -210,6 +218,23 @@ pub fn multiaddr_to_anemo_address(multiaddr: &Multiaddr) -> Option<anemo::types:
         _ => {
             tracing::debug!("unsupported p2p multiaddr: '{multiaddr}'");
             None
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct PoolTokenExchangeRate {
+    haneul_amount: u64,
+    pool_token_amount: u64,
+}
+
+impl PoolTokenExchangeRate {
+    /// Rate of the staking pool, pool token amount : Haneul amount
+    pub fn rate(&self) -> f64 {
+        if self.haneul_amount == 0 {
+            0 as f64
+        } else {
+            self.pool_token_amount as f64 / self.haneul_amount as f64
         }
     }
 }

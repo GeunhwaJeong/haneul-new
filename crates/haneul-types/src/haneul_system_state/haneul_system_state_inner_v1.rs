@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::balance::Balance;
-use crate::base_types::{ObjectID, HaneulAddress};
+use crate::base_types::{EpochId, ObjectID, HaneulAddress};
 use crate::collection_types::{Table, TableVec, VecMap, VecSet};
 use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata, ProtocolVersion};
 use crate::crypto::verify_proof_of_possession;
@@ -373,19 +373,6 @@ pub struct StakingPoolV1 {
     pub pending_pool_token_withdraw: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
-pub struct PoolTokenExchangeRate {
-    haneul_amount: u64,
-    pool_token_amount: u64,
-}
-
-impl PoolTokenExchangeRate {
-    /// Rate of the staking pool, pool token amount : Haneul amount
-    pub fn rate(&self) -> f64 {
-        self.pool_token_amount as f64 / self.haneul_amount as f64
-    }
-}
-
 /// Rust version of the Move haneul::validator_set::ValidatorSet type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 // TODO: Get rid of json schema once we deprecate getHaneulSystemState RPC API.
@@ -417,6 +404,15 @@ pub struct HaneulSystemStateInnerV1 {
     pub safe_mode: bool,
     pub epoch_start_timestamp_ms: u64,
     // TODO: Use getters instead of all pub.
+}
+
+impl HaneulSystemStateInnerV1 {
+    pub fn new_for_testing(epoch: EpochId) -> Self {
+        Self {
+            epoch,
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
