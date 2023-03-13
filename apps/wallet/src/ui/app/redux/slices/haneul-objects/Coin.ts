@@ -127,7 +127,6 @@ export class Coin {
 
     public static async unStakeCoin(
         signer: SignerWithProvider,
-        stake: ObjectId,
         stakedHaneulId: ObjectId
     ): Promise<HaneulTransactionResponse> {
         const transaction = Sentry.startTransaction({ name: 'unstake' });
@@ -138,7 +137,6 @@ export class Coin {
                 target: '0x2::haneul_system::request_withdraw_stake',
                 arguments: [
                     tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
-                    tx.object(stake),
                     tx.object(stakedHaneulId),
                 ],
             });
