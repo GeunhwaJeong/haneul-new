@@ -23,8 +23,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::error::{UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::MoveModulePublish;
-use haneul_types::move_package::{disassemble_modules, MovePackage};
+use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
 use haneul_types::parse_haneul_struct_tag;
 
@@ -835,15 +834,6 @@ impl HaneulPastObjectResponse {
 #[serde(rename = "MovePackage", rename_all = "camelCase")]
 pub struct HaneulMovePackage {
     pub disassembled: BTreeMap<String, Value>,
-}
-
-impl From<MoveModulePublish> for HaneulMovePackage {
-    fn from(m: MoveModulePublish) -> Self {
-        Self {
-            // In case of failed publish transaction, disassemble can fail, we can only return empty module map in that case.
-            disassembled: disassemble_modules(m.modules.iter()).unwrap_or_default(),
-        }
-    }
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema, Ord, PartialOrd, Eq, PartialEq, Debug)]
