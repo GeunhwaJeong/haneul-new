@@ -6,9 +6,7 @@ use fastcrypto::encoding::{Encoding, Hex};
 use haneul_json_rpc_types::{HaneulTransactionEffectsAPI, HaneulTransactionResponseOptions};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{SignatureScheme, ToFromBytes};
-use haneul_types::messages::{
-    ExecuteTransactionRequestType, Transaction, TransactionData, TransactionDataAPI,
-};
+use haneul_types::messages::{Transaction, TransactionData, TransactionDataAPI};
 use haneul_types::signature::GenericSignature;
 
 use crate::errors::Error;
@@ -128,8 +126,11 @@ pub async fn submit(
         .quorum_driver()
         .execute_transaction(
             signed_tx,
-            HaneulTransactionResponseOptions::full_content(),
-            Some(ExecuteTransactionRequestType::WaitForEffectsCert),
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes(),
+            None,
         )
         .await?;
 

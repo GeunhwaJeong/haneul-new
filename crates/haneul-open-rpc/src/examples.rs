@@ -7,6 +7,7 @@ use std::str::FromStr;
 
 use fastcrypto::traits::EncodeDecodeBase64;
 use move_core_types::identifier::Identifier;
+use move_core_types::parser::parse_struct_tag;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use serde_json::json;
@@ -15,7 +16,7 @@ use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, EventPage, MoveCallParams, OwnedObjectRef,
+    Checkpoint, CheckpointId, EventPage, MoveCallParams, ObjectChange, OwnedObjectRef,
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
     HaneulGasCostSummary, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectRef,
     HaneulObjectResponse, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData,
@@ -444,6 +445,14 @@ impl RpcExampleProvider {
             id: EventID::from((*tx_digest, 0)),
             event: haneul_event.clone(),
         }];
+        let object_change = ObjectChange::Transferred {
+            sender: signer,
+            recipient: Owner::AddressOwner(recipient),
+            object_type: parse_struct_tag("0x2::example::Object").unwrap(),
+            object_id: object_ref.0,
+            version: object_ref.1,
+            digest: ObjectDigest::new(self.rng.gen()),
+        };
         let result = HaneulTransactionResponse {
             digest: *tx_digest,
             effects: Some(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
@@ -481,6 +490,8 @@ impl RpcExampleProvider {
             events: Some(HaneulTransactionEvents {
                 data: vec![haneul_event],
             }),
+            object_changes: Some(vec![object_change]),
+            balance_changes: None,
             timestamp_ms: None,
             transaction: Some(HaneulTransaction {
                 data: HaneulTransactionData::try_from(data1).unwrap(),

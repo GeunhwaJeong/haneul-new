@@ -1,24 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::anyhow;
 use std::collections::HashMap;
 use std::vec;
-use haneul_json_rpc_types::HaneulArgument;
+
+use anyhow::anyhow;
+use serde::Deserialize;
+use serde::Serialize;
+
 use haneul_json_rpc_types::HaneulCommand;
 use haneul_json_rpc_types::HaneulProgrammableMoveCall;
 use haneul_json_rpc_types::HaneulProgrammableTransaction;
+use haneul_json_rpc_types::{BalanceChange, HaneulArgument};
 use haneul_sdk::json::HaneulJsonValue;
-
-use serde::Deserialize;
-use serde::Serialize;
 use haneul_sdk::rpc_types::{
-    HaneulEvent, HaneulTransactionData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
-    HaneulTransactionKind, HaneulTransactionResponse,
+    HaneulTransactionData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionKind,
+    HaneulTransactionResponse,
 };
-
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
-use haneul_types::event::BalanceChangeType;
 use haneul_types::gas_coin::{GasCoin, GAS};
 use haneul_types::governance::ADD_STAKE_MUL_COIN_FUN_NAME;
 use haneul_types::messages::TransactionData;
@@ -344,54 +343,33 @@ impl Operations {
             && tx.function == ADD_STAKE_MUL_COIN_FUN_NAME.as_str()
     }
 
-    fn get_balance_operation_from_events(
-        events: &[HaneulEvent],
+    fn process_balance_change(
+        gas_owner: HaneulAddress,
+        gas_used: i128,
+        balance_changes: &[BalanceChange],
         status: Option<OperationStatus>,
         balances: HashMap<HaneulAddress, i128>,
     ) -> impl Iterator<Item = Operation> {
-        let (balances, gas) = events
+        let mut balances = balance_changes
             .iter()
-            .flat_map(Self::get_balance_change_from_event)
-            .fold(
-                (balances, HashMap::<HaneulAddress, i128>::new()),
-                |(mut balances, mut gas), (type_, address, amount)| {
-                    if type_ == BalanceChangeType::Gas {
-                        *gas.entry(address).or_default() += amount;
-                    } else {
-                        *balances.entry(address).or_default() += amount;
+            .fold(balances, |mut balances, balance_change| {
+                // Rosetta only care about address owner
+                if let Owner::AddressOwner(owner) = balance_change.owner {
+                    if balance_change.coin_type == GAS::type_tag() {
+                        *balances.entry(owner).or_default() += balance_change.amount;
                     }
-                    (balances, gas)
-                },
-            );
+                }
+                balances
+            });
+        // separate gas from balances
+        *balances.entry(gas_owner).or_default() -= gas_used;
 
         let balance_change = balances
             .into_iter()
             .filter(|(_, amount)| *amount != 0)
             .map(move |(addr, amount)| Operation::balance_change(status, addr, amount));
-        let gas = gas
-            .into_iter()
-            .map(|(addr, amount)| Operation::gas(addr, amount));
-
+        let gas = vec![Operation::gas(gas_owner, gas_used)];
         balance_change.chain(gas)
-    }
-
-    fn get_balance_change_from_event(
-        event: &HaneulEvent,
-    ) -> Option<(BalanceChangeType, HaneulAddress, i128)> {
-        if let HaneulEvent::CoinBalanceChange {
-            owner: Owner::AddressOwner(owner),
-            coin_type,
-            amount,
-            change_type,
-            ..
-        } = event
-        {
-            // We only interested in HANEUL coins and account addresses
-            if coin_type == &GAS::type_().to_string() {
-                return Some((*change_type, *owner, *amount));
-            }
-        }
-        None
     }
 }
 
@@ -410,15 +388,16 @@ impl TryFrom<HaneulTransactionData> for Operations {
 impl TryFrom<HaneulTransactionResponse> for Operations {
     type Error = Error;
     fn try_from(response: HaneulTransactionResponse) -> Result<Self, Self::Error> {
-        let status = Some(
-            response
-                .effects
-                .ok_or_else(|| {
-                    Error::InternalError(anyhow!("Response effects should not be empty"))
-                })?
-                .into_status()
-                .into(),
-        );
+        let effect = response
+            .effects
+            .ok_or_else(|| Error::InternalError(anyhow!("Response effects should not be empty")))?;
+        let gas_owner = effect.gas_object().owner.get_owner_address()?;
+        let gas_summary = effect.gas_used();
+        let gas_used = gas_summary.storage_rebate as i128
+            - gas_summary.storage_cost as i128
+            - gas_summary.computation_cost as i128;
+
+        let status = Some(effect.into_status().into());
         let ops: Operations = response
             .transaction
             .ok_or_else(|| {
@@ -445,13 +424,12 @@ impl TryFrom<HaneulTransactionResponse> for Operations {
             });
 
         // Extract coin change operations from events
-        let coin_change_operations = Self::get_balance_operation_from_events(
-            &response
-                .events
-                .ok_or_else(|| {
-                    Error::InternalError(anyhow!("Response events should not be empty"))
-                })?
-                .data,
+        let coin_change_operations = Self::process_balance_change(
+            gas_owner,
+            gas_used,
+            &response.balance_changes.ok_or_else(|| {
+                Error::InternalError(anyhow!("Response balance changes should not be empty."))
+            })?,
             status,
             accounted_balances,
         );

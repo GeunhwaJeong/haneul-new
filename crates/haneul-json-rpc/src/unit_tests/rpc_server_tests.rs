@@ -12,9 +12,10 @@ use std::str::FromStr;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_types::ObjectChange;
 
 use haneul_json_rpc_types::{
-    Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulEvent, HaneulExecutionStatus,
+    Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulExecutionStatus,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, TransactionBytes,
 };
@@ -289,17 +290,20 @@ async fn test_get_metadata() -> Result<(), anyhow::Error> {
         .execute_transaction(
             tx_bytes,
             signatures,
-            Some(HaneulTransactionResponseOptions::new().with_events()),
+            Some(
+                HaneulTransactionResponseOptions::new()
+                    .with_object_changes()
+                    .with_events(),
+            ),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await?;
 
-    let events = tx_response.events.as_ref().unwrap();
-    let package_id = events
-        .data
+    let object_changes = tx_response.object_changes.unwrap();
+    let package_id = object_changes
         .iter()
         .find_map(|e| {
-            if let HaneulEvent::Publish { package_id, .. } = e {
+            if let ObjectChange::Published { package_id, .. } = e {
                 Some(package_id)
             } else {
                 None
@@ -347,17 +351,20 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
         .execute_transaction(
             tx_bytes,
             signatures,
-            Some(HaneulTransactionResponseOptions::new().with_events()),
+            Some(
+                HaneulTransactionResponseOptions::new()
+                    .with_object_changes()
+                    .with_events(),
+            ),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await?;
 
-    let events = tx_response.events.as_ref().unwrap();
-    let package_id = events
-        .data
+    let object_changes = tx_response.object_changes.as_ref().unwrap();
+    let package_id = object_changes
         .iter()
         .find_map(|e| {
-            if let HaneulEvent::Publish { package_id, .. } = e {
+            if let ObjectChange::Published { package_id, .. } = e {
                 Some(package_id)
             } else {
                 None
@@ -371,19 +378,17 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
 
     assert_eq!(0, result.value);
 
-    let treasury_cap = events
-        .data
+    let object_changes = tx_response.object_changes.as_ref().unwrap();
+    let treasury_cap = object_changes
         .iter()
         .find_map(|e| {
-            if let HaneulEvent::NewObject {
+            if let ObjectChange::Created {
                 object_id,
                 object_type,
                 ..
             } = e
             {
-                if TreasuryCap::type_(parse_haneul_struct_tag(&coin_name).unwrap())
-                    == parse_haneul_struct_tag(object_type).unwrap()
-                {
+                if &TreasuryCap::type_(parse_haneul_struct_tag(&coin_name).unwrap()) == object_type {
                     Some(object_id)
                 } else {
                     None

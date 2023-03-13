@@ -15,11 +15,12 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use crate::operations::Operations;
 use shared_crypto::intent::Intent;
 use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_json_rpc_types::{ObjectChange, HaneulObjectRef};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
-    OwnedObjectRef, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulObjectDataOptions,
-    HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEvents, HaneulTransactionResponse,
+    OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulObjectDataOptions, HaneulTransactionEffectsAPI,
+    HaneulTransactionResponse,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -142,15 +143,13 @@ async fn test_publish_and_move_call() {
     };
     let response =
         test_transaction(&client, keystore, vec![], sender, pt, vec![], 10000, false).await;
-    let events = response.events.unwrap();
+    let object_changes = response.object_changes.unwrap();
 
     // Test move call (reuse published module from above test)
-    let effect = response.effects.unwrap();
-    let package = events
-        .data
+    let package = object_changes
         .iter()
-        .find_map(|event| {
-            if let HaneulEvent::Publish { package_id, .. } = event {
+        .find_map(|change| {
+            if let ObjectChange::Published { package_id, .. } = change {
                 Some(package_id)
             } else {
                 None
@@ -159,7 +158,7 @@ async fn test_publish_and_move_call() {
         .unwrap();
 
     // TODO: Improve tx response to make it easier to find objects.
-    let treasury = find_module_object(&effect, &events, "::TreasuryCap");
+    let treasury = find_module_object(&object_changes, "::TreasuryCap");
     let treasury = treasury.clone().reference.to_object_ref();
     let recipient = *network.accounts.choose(&mut OsRng::default()).unwrap();
     let pt = {
@@ -536,31 +535,32 @@ async fn test_delegation_parsing() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn find_module_object(
-    effects: &HaneulTransactionEffects,
-    events: &HaneulTransactionEvents,
-    object_type_name: &str,
-) -> OwnedObjectRef {
-    let mut results: Vec<_> = events
-        .data
+fn find_module_object(changes: &[ObjectChange], object_type_name: &str) -> OwnedObjectRef {
+    let mut results: Vec<_> = changes
         .iter()
-        .filter_map(|event| {
-            if let HaneulEvent::NewObject {
+        .filter_map(|change| {
+            if let ObjectChange::Created {
                 object_id,
                 object_type,
+                owner,
+                version,
+                digest,
                 ..
-            } = event
+            } = change
             {
-                if object_type.contains(object_type_name) {
-                    return effects
-                        .created()
-                        .iter()
-                        .find(|obj| &obj.reference.object_id == object_id);
+                if object_type.to_string().contains(object_type_name) {
+                    return Some(OwnedObjectRef {
+                        owner: *owner,
+                        reference: HaneulObjectRef {
+                            object_id: *object_id,
+                            version: *version,
+                            digest: *digest,
+                        },
+                    });
                 }
             };
             None
         })
-        .cloned()
         .collect();
     // Check that there is only one object found, and hence no ambiguity.
     assert_eq!(results.len(), 1);
