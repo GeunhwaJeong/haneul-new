@@ -28,11 +28,11 @@ There are pre-built container images available in [Docker Hub](https://hub.docke
 And pre built `linux/amd64` binaries available in S3 that can be fetched using one of the following methods:
 
 ```shell
-wget https://releases.haneul.io/$HANEUL_REPO_SHA/haneul-node
+wget https://releases.haneul.io/$HANEUL_SHA/haneul-node
 ```
 
 ```shell
-curl https://releases.haneul.io/$HANEUL_REPO_SHA/haneul-node -o haneul-node
+curl https://releases.haneul.io/$HANEUL_SHA/haneul-node -o haneul-node
 ```
 
 To build directly from source:
@@ -196,7 +196,7 @@ These checkpoints are synchronized between validators and fullnodes via a dedica
 
 Inter-validator state sync is always permitted however there are controls available to limit what fullnodes are allowed to sync from a specific validator. 
 
-The default and recommended `max-concurrent-connections: 0` configuration does not affect inter-validator state sync, but will restrict all fullnode from syncing. The Haneul Node [configuration](#configuration) can be modified to allow a known fullnode to sync from a validator:
+The default and recommended `max-concurrent-connections: 0` configuration does not affect inter-validator state sync, but will restrict all fullnodes from syncing. The Haneul Node [configuration](#configuration) can be modified to allow a known fullnode to sync from a validator:
 
 ```shell
 p2p-config:
@@ -214,12 +214,12 @@ p2p-config:
 The following chain operations are executed using the `haneul` CLI. This binary is built and provided as a release similar to `haneul-node`, examples:
 
 ```shell
-wget https://releases.haneul.io/$HANEUL_REPO_SHA/haneul
+wget https://releases.haneul.io/$HANEUL_SHA/haneul
 chmod +x haneul
 ```
 
 ```shell
-curl https://releases.haneul.io/$HANEUL_REPO_SHA/haneul -o haneul
+curl https://releases.haneul.io/$HANEUL_SHA/haneul -o haneul
 chmod +x haneul
 ```
 
@@ -240,7 +240,7 @@ To update metadata, a validator makes a MoveCall transaction that interacts with
 1. to update name to `new_validator_name`, use the Haneul Client CLI to call `haneul_system::update_validator_name`:
 
 ```
-haneul client call --package 0x2 --module haneul_system --function update_validator_name --args 0x5 \"new_validaotr_name\" --gas-budget 10000
+haneul client call --package 0x2 --module haneul_system --function update_validator_name --args 0x5 \"new_validator_name\" --gas-budget 10000
 ```
 
 2. to update p2p address starting from next epoch to `/ip4/192.168.1.1`, use the Haneul Client CLI to call `haneul_system::update_validator_next_epoch_p2p_address`:

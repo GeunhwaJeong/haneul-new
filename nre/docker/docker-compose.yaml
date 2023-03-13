@@ -4,7 +4,7 @@ version: "3"
 services:
   validator:
     container_name: validator
-    image: haneullabs/haneul-node:testnet
+    image: haneullabs/haneul-node:${HANEUL_SHA} # UPDATE HERE
     environment:
       - RUST_BACKTRACE=1
       - RUST_LOG=info,haneul_core=debug,narwhal=debug,narwhal-primary::helper=info
