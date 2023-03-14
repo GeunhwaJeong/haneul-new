@@ -226,7 +226,6 @@ module haneul::haneul_system_state_inner {
             option::none(),
             gas_price,
             commission_rate,
-            false, // not an initial validator active at genesis
             ctx
         );
 

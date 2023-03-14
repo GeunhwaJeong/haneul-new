@@ -36,7 +36,7 @@ module haneul::validator_tests {
 
     #[test_only]
     fun get_test_validator(ctx: &mut TxContext, init_stake: Balance<HANEUL>): Validator {
-        validator::new(
+        let validator = validator::new(
             VALID_ADDRESS,
             VALID_PUBKEY,
             VALID_NET_PUBKEY,
@@ -53,9 +53,12 @@ module haneul::validator_tests {
             option::some(init_stake),
             1,
             0,
-            true,
             ctx
-        )
+        );
+
+        validator::activate(&mut validator, 0);
+
+        validator
     }
 
     #[test]
