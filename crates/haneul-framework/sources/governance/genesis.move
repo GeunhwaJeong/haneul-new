@@ -21,88 +21,89 @@ module haneul::genesis {
 
     const INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY: u64 = 100_000_000_000_000_000;
 
+    struct GenesisValidatorMetadata has drop, copy {
+        name: vector<u8>,
+        description: vector<u8>,
+        image_url: vector<u8>,
+        project_url: vector<u8>,
+
+        haneul_address: address,
+
+        gas_price: u64,
+        commission_rate: u64,
+
+        protocol_public_key: vector<u8>,
+        proof_of_possession: vector<u8>,
+
+        network_public_key: vector<u8>,
+        worker_public_key: vector<u8>,
+
+        network_address: vector<u8>,
+        p2p_address: vector<u8>,
+        primary_address: vector<u8>,
+        worker_address: vector<u8>,
+    }
+
+    struct GenesisChainParameters has drop, copy {
+        initial_haneul_custody_account_address: address,
+        initial_validator_stake_geunhwa: u64,
+        governance_start_epoch: u64,
+        chain_start_timestamp_ms: u64,
+        epoch_duration_ms: u64,
+    }
+
     /// This function will be explicitly called once at genesis.
     /// It will create a singleton HaneulSystemState object, which contains
     /// all the information we need in the system.
     fun create(
-        initial_haneul_custody_account_address: address,
-        initial_validator_stake_geunhwa: u64,
-        governance_start_epoch: u64,
-        validator_pubkeys: vector<vector<u8>>,
-        validator_network_pubkeys: vector<vector<u8>>,
-        validator_worker_pubkeys: vector<vector<u8>>,
-        validator_proof_of_possessions: vector<vector<u8>>,
-        validator_haneul_addresses: vector<address>,
-        validator_names: vector<vector<u8>>,
-        validator_descriptions: vector<vector<u8>>,
-        validator_image_urls: vector<vector<u8>>,
-        validator_project_urls: vector<vector<u8>>,
-        validator_net_addresses: vector<vector<u8>>,
-        validator_p2p_addresses: vector<vector<u8>>,
-        validator_primary_addresses: vector<vector<u8>>,
-        validator_worker_addresses: vector<vector<u8>>,
-        validator_gas_prices: vector<u64>,
-        validator_commission_rates: vector<u64>,
+        genesis_chain_parameters: GenesisChainParameters,
+        genesis_validators: vector<GenesisValidatorMetadata>,
         protocol_version: u64,
         system_state_version: u64,
-        epoch_start_timestamp_ms: u64,
-        epoch_duration_ms: u64,
         ctx: &mut TxContext,
     ) {
         let haneul_supply = haneul::new(ctx);
         let subsidy_fund = balance::split(&mut haneul_supply, INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY);
         let storage_fund = balance::zero();
         let validators = vector::empty();
-        let count = vector::length(&validator_pubkeys);
-        assert!(
-            vector::length(&validator_haneul_addresses) == count
-                && vector::length(&validator_names) == count
-                && vector::length(&validator_descriptions) == count
-                && vector::length(&validator_image_urls) == count
-                && vector::length(&validator_project_urls) == count
-                && vector::length(&validator_net_addresses) == count
-                && vector::length(&validator_p2p_addresses) == count
-                && vector::length(&validator_primary_addresses) == count
-                && vector::length(&validator_worker_addresses) == count
-                && vector::length(&validator_gas_prices) == count
-                && vector::length(&validator_commission_rates) == count,
-            1
-        );
+        let count = vector::length(&genesis_validators);
         let i = 0;
         while (i < count) {
-            let haneul_address = *vector::borrow(&validator_haneul_addresses, i);
-            let pubkey = *vector::borrow(&validator_pubkeys, i);
-            let network_pubkey = *vector::borrow(&validator_network_pubkeys, i);
-            let worker_pubkey = *vector::borrow(&validator_worker_pubkeys, i);
-            let proof_of_possession = *vector::borrow(&validator_proof_of_possessions, i);
-            let name = *vector::borrow(&validator_names, i);
-            let description = *vector::borrow(&validator_descriptions, i);
-            let image_url = *vector::borrow(&validator_image_urls, i);
-            let project_url = *vector::borrow(&validator_project_urls, i);
-            let net_address = *vector::borrow(&validator_net_addresses, i);
-            let p2p_address = *vector::borrow(&validator_p2p_addresses, i);
-            let primary_address = *vector::borrow(&validator_primary_addresses, i);
-            let worker_address = *vector::borrow(&validator_worker_addresses, i);
-            let gas_price = *vector::borrow(&validator_gas_prices, i);
-            let commission_rate = *vector::borrow(&validator_commission_rates, i);
+            let GenesisValidatorMetadata {
+                name,
+                description,
+                image_url,
+                project_url,
+                haneul_address,
+                gas_price,
+                commission_rate,
+                protocol_public_key,
+                proof_of_possession,
+                network_public_key,
+                worker_public_key,
+                network_address,
+                p2p_address,
+                primary_address,
+                worker_address,
+            } = *vector::borrow(&genesis_validators, i);
 
             let validator = validator::new(
                 haneul_address,
-                pubkey,
-                network_pubkey,
-                worker_pubkey,
+                protocol_public_key,
+                network_public_key,
+                worker_public_key,
                 proof_of_possession,
                 name,
                 description,
                 image_url,
                 project_url,
-                net_address,
+                network_address,
                 p2p_address,
                 primary_address,
                 worker_address,
                 // Initialize all validators with uniform stake taken from the subsidy fund.
                 // TODO: change this back to take from subsidy fund instead.
-                option::some(balance::split(&mut haneul_supply, initial_validator_stake_geunhwa)),
+                option::some(balance::split(&mut haneul_supply, genesis_chain_parameters.initial_validator_stake_geunhwa)),
                 gas_price,
                 commission_rate,
                 ctx
@@ -119,18 +120,18 @@ module haneul::genesis {
             validators,
             subsidy_fund,
             storage_fund,
-            governance_start_epoch,
+            genesis_chain_parameters.governance_start_epoch,
             INIT_STAKE_SUBSIDY_AMOUNT,
             protocol_version,
             system_state_version,
-            epoch_start_timestamp_ms,
-            epoch_duration_ms,
+            genesis_chain_parameters.chain_start_timestamp_ms,
+            genesis_chain_parameters.epoch_duration_ms,
             ctx,
         );
 
         clock::create();
 
         // Transfer the remaining balance of haneul's supply to the initial account
-        haneul::transfer(coin::from_balance(haneul_supply, ctx), initial_haneul_custody_account_address);
+        haneul::transfer(coin::from_balance(haneul_supply, ctx), genesis_chain_parameters.initial_haneul_custody_account_address);
     }
 }
