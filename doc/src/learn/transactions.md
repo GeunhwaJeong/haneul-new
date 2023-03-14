@@ -8,12 +8,13 @@ All updates to the Haneul ledger happen via a transaction. This topic describes 
 
 All Haneul transactions have the following common metadata:
  * Sender address: The address of the user sending this transaction.
- * Gas Input: An object reference pointing to the object that will be used to pay for this transaction's execution and storage. This object must be owned by the user and must be of type `haneul::coin::Coin<HANEUL>` (i.e., the Haneul native currency).
- * Gas Price: An unsigned integer specifying the number of native tokens per gas unit this transaction will pay. The gas price must always be nonzero.
- * Maximum Gas Budget: The maximum number of gas units that can be expended by executing this transaction. If this budget is exceeded, transaction execution will abort and have no effects other than debiting the gas input. The gas input object must have a value higher than the gas price multiplied by the max gas, and this product is the maximum amount that the gas input object will be debited for the transaction.
+ * Gas input: An object reference pointing to the object that will be used to pay for this transaction's execution and storage. This object must be owned by the user and must be of type `haneul::coin::Coin<HANEUL>` (i.e., the Haneul native currency).
+ * Gas price: An unsigned integer specifying the number of native tokens per gas unit this transaction will pay. The gas price must always be nonzero.
+ * Maximum gas budget: The maximum number of gas units that can be expended by executing this transaction. If this budget is exceeded, transaction execution will abort and have no effects other than debiting the gas input. The gas input object must have a value higher than the gas price multiplied by the max gas, and this product is the maximum amount that the gas input object will be debited for the transaction.
  * Epoch: The Haneul epoch this transaction is intended for.
  * Type: A call, publish, or native transaction and its type-specific-data (see below).
  * Authenticator: A cryptographic signature on the [Binary Canonical Serialization (BCS)](https://docs.rs/bcs/latest/bcs/)-encoded bytes of the data above, and a public key that both verifies against the signature and is cryptographically committed to by the sender address.
+ * Expiration: An epoch reference that sets a deadline after which validators will no longer consider the transaction valid. The optional expiration epoch reference enables users to define transactions that either execute and commit by a set time (current epoch less than or equal to expiration epoch), or never execute after the deadline passes. By default, there is no deadline for when a transaction must execute. 
 
 ## Move call transaction
 
