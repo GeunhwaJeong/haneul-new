@@ -62,7 +62,7 @@ override this setting by providing a path to the directory where this
 file is stored:
 
 ```shell
-haneul console --config /workspace/config-files
+haneul console --client.config /workspace/config-files
 ```
 
 The Haneul interactive client console supports the following shell functionality:
