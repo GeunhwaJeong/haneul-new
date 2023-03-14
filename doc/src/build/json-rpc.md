@@ -6,13 +6,13 @@ Welcome to the guide for making remote procedure calls (RPC) to the Haneul netwo
 
 This guide is useful for developers interested in Haneul network interactions via API and should be used in conjunction with the [HaneulJSON format](haneul-json.md) for aligning JSON inputs with Move Call arguments.
 
-For a similar guide on Haneul network interactions via CLI, refer to the [Haneul CLI client](cli-client.md) documentation.
+For a similar guide on Haneul network interactions via CLI, refer to the [Haneul Client CLI](cli-client.md) documentation.
 
 Follow the instructions to [install Haneul binaries](install.md#install-haneul-binaries).
 
 ## Connect to a Haneul network
 
-You can connect to a Haneul Full node on Devnet. Follow the guidance in the [Connect to Haneul Devnet](../build/devnet.md) topic to start making RPC calls to the Haneul network.
+You can connect to a Haneul Full node on a Haneul network. Follow the guidance in the [Connect to Haneul Devnet](../build/devnet.md) topic to start making RPC calls to the Haneul network.
 
 To configure your own Haneul Full node, see [Configure a Haneul Full node](fullnode.md).
 

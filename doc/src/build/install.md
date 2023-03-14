@@ -8,10 +8,10 @@ Before you install Haneul, you need to install some prerequisite tools and confi
 
 The steps to install Haneul include:
 
-1. Install [prerequisites](#prerequisites) for your operating system.
-1. Install [Haneul binaries](#install-haneul-binaries).
-1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
-1. Request [HANEUL test tokens](#haneul-tokens) to use on a Haneul network.
+ 1. Install [prerequisites](#prerequisites) for your operating system.
+ 1. Install [Haneul binaries](#install-haneul-binaries).
+ 1. Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
+ 1. Request [HANEUL test tokens](#haneul-tokens) to use on a Haneul network.
 
 You can also download the [source code](#source-code) to have local access to files.
 
@@ -24,16 +24,16 @@ The Haneul repository includes two primary branches, `devnet` and `main`.
 
 ## Documentation in the Haneul repository
 
-The source for the documentation published on this site also resides in the Haneul repository. The content differs between the branches of the repository just like the Haneul source code. Use the version of the documentation that corresponds to the Haneul network you plan to use. For example, to use the Haneul Devnet network, use the **Devnet** version of the documentation. To use Haneul Testnet, use the **Testnet** version of the documentation. 
+The source for the documentation published on this site also resides in the Haneul repository. The content differs between the branches of the repository just like the Haneul source code. Use the version of the documentation that corresponds to the Haneul network you plan to use. For example, to use the Haneul Devnet network, use the **Devnet** version of the documentation. To use the latest Haneul updates, use the **Latest build** version of the documentation.
 
 
 ## Supported operating systems
 
 Haneul supports the following operating systems:
 
-* Linux - Ubuntu version 20.04 (Bionic Beaver)
-* macOS - macOS Monterey
-* Microsoft Windows - Windows 11
+ * Linux - Ubuntu version 20.04 (Bionic Beaver)
+ * macOS - macOS Monterey
+ * Microsoft Windows - Windows 11
 
 ## Prerequisites
 
@@ -300,10 +300,10 @@ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
 ```
 
 The following primary directories offer a good starting point for exploring Haneul's source code:
-* [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - Haneul, including the Haneul CLI Client
-* [haneul_framework](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/sources) - Haneul Move core smart contracts (e.g., coin.move, object.move, test_scenario.move, ...)
-* [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul Move code examples (games, defi, nfts, ...)
-* [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - Core Haneul components
-* [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - Haneul object types, such as coins and gas
-* [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) - browser-based object explorer for the Haneul network
-* [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces
+ * [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - Haneul, including the Haneul CLI Client
+ * [haneul_framework](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/sources) - Haneul Move core smart contracts (e.g., coin.move, object.move, test_scenario.move, ...)
+ * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul Move code examples (games, defi, nfts, ...)
+ * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - Core Haneul components
+ * [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - Haneul object types, such as coins and gas
+ * [explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer) - browser-based object explorer for the Haneul network
+ * [haneul-network](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-network) - networking interfaces

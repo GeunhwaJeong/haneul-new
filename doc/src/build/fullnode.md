@@ -48,7 +48,7 @@ Suggested minimum hardware to run a Haneul Full node:
 
 * CPUs: 10 core
 * RAM: 32 GB
-* Storage (SSD): 1 TB
+* Storage (SSD): 2 TB
 
 ### Software requirements
 
@@ -113,7 +113,7 @@ Follow the instructions in the [Full node Docker README](https://github.com/Geun
     ```shell
     curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob
     ```
-   * [Testnet genesis blob](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob)
+   * [Testnet genesis blob](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob) - Supported only when there is an active public Testnet network.
     ```shell
     curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob
     ```
@@ -174,7 +174,7 @@ docker-compose down --volumes
 If you followed the instructions for [Building from
 Source](#building-from-source), update your Full node as follows:
 
-1. Shut down your currently running Full node.
+1. Shut down your running Full node.
 1. `cd` into your local Haneul repository:
     ```shell
     cd haneul
@@ -196,7 +196,7 @@ Source](#building-from-source), update your Full node as follows:
     ```shell
     curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/devnet/genesis.blob
     ```
-   * [Testnet genesis blob](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob)
+   * [Testnet genesis blob](https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob) - supported only when there is an active public Testnet network
     ```shell
     curl -fLJO https://github.com/GeunhwaJeong/haneul-genesis/raw/main/testnet/genesis.blob
     ```
