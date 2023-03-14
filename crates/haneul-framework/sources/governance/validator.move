@@ -140,6 +140,17 @@ module haneul::validator {
         amount: u64,
     }
 
+    /// Event emitted when a new unstake request is received.
+    struct UnstakingRequestEvent has copy, drop {
+        pool_id: ID,
+        validator_address: address,
+        staker_address: address,
+        stake_activation_epoch: u64,
+        unstaking_epoch: u64,
+        principal_amount: u64,
+        reward_amount: u64,
+    }
+
     public(friend) fun new_metadata(
         haneul_address: address,
         protocol_pubkey_bytes: vector<u8>,
@@ -290,9 +301,23 @@ module haneul::validator {
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
+        let principal_amount = staking_pool::staked_haneul_amount(&staked_haneul);
+        let stake_activation_epoch = staking_pool::stake_activation_epoch(&staked_haneul);
         let withdraw_amount = staking_pool::request_withdraw_stake(
                 &mut self.staking_pool, staked_haneul, ctx);
+        let reward_amount = withdraw_amount - principal_amount;
         self.next_epoch_stake = self.next_epoch_stake - withdraw_amount;
+        event::emit(
+            UnstakingRequestEvent {
+                pool_id: staking_pool_id(self),
+                validator_address: self.metadata.haneul_address,
+                staker_address: tx_context::sender(ctx),
+                stake_activation_epoch,
+                unstaking_epoch: tx_context::epoch(ctx),
+                principal_amount,
+                reward_amount,
+            }
+        )
     }
 
     /// Request to set new gas price for the next epoch.
