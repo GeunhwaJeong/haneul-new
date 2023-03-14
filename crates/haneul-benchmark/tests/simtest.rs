@@ -8,10 +8,9 @@ mod test {
     use std::str::FromStr;
     use std::sync::{Arc, Mutex};
     use std::time::{Duration, Instant};
-    use haneul_benchmark::benchmark_setup::ProxyGasAndCoin;
+    use haneul_benchmark::bank::BenchmarkBank;
     use haneul_benchmark::system_state_observer::SystemStateObserver;
-    use haneul_benchmark::workloads::batch_payment;
-    use haneul_benchmark::workloads::workload_configuration::configure_combined_mode;
+    use haneul_benchmark::workloads::workload_configuration::WorkloadConfiguration;
     use haneul_benchmark::{
         drivers::{bench_driver::BenchDriver, driver::Driver, Interval},
         util::get_ed25519_keypair_from_keystore,
@@ -23,7 +22,6 @@ mod test {
     use haneul_macros::{register_fail_points, sim_test};
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
-    use haneul_types::object::Owner;
     use test_utils::messages::get_haneul_gas_object_with_wallet_context;
     use test_utils::network::{TestCluster, TestClusterBuilder};
     use tracing::info;
@@ -225,18 +223,9 @@ mod test {
             Arc::new(get_ed25519_keypair_from_keystore(keystore_path, &sender).unwrap());
         let all_gas = get_haneul_gas_object_with_wallet_context(context, &sender).await;
         let (_, gas) = all_gas.get(0).unwrap();
-        let (move_struct, pay_coin) = all_gas.get(1).unwrap();
-        let primary_gas = (
-            gas.clone(),
-            Owner::AddressOwner(sender),
-            ed25519_keypair.clone(),
-        );
-        let pay_coin = (
-            pay_coin.clone(),
-            Owner::AddressOwner(sender),
-            ed25519_keypair.clone(),
-        );
-        let pay_coin_type_tag = move_struct.type_params[0].clone();
+        let (_move_struct, pay_coin) = all_gas.get(1).unwrap();
+        let primary_gas = (gas.clone(), sender, ed25519_keypair.clone());
+        let pay_coin = (pay_coin.clone(), sender, ed25519_keypair.clone());
 
         let registry = prometheus::Registry::new();
         let proxy: Arc<dyn ValidatorProxy + Send + Sync> = Arc::new(
@@ -244,13 +233,7 @@ mod test {
                 .await,
         );
 
-        let proxy_gas_and_coins = vec![ProxyGasAndCoin {
-            primary_gas,
-            pay_coin,
-            pay_coin_type_tag,
-            proxy: proxy.clone(),
-        }];
-
+        let bank = BenchmarkBank::new(proxy.clone(), primary_gas, pay_coin);
         let system_state_observer = {
             let mut system_state_observer = SystemStateObserver::new(proxy.clone());
             if let Ok(_) = system_state_observer.reference_gas_price.changed().await {
@@ -258,6 +241,7 @@ mod test {
             }
             Arc::new(system_state_observer)
         };
+
         // The default test parameters are somewhat conservative in order to keep the running time
         // of the test reasonable in CI.
         let target_qps = get_var("SIM_STRESS_TEST_QPS", 10);
@@ -270,7 +254,7 @@ mod test {
         let batch_payment_weight = 1;
         let shared_counter_hotness_factor = 50;
 
-        let proxy_workloads = configure_combined_mode(
+        let workloads = WorkloadConfiguration::build_workloads(
             num_workers,
             num_transfer_accounts,
             shared_counter_weight,
@@ -280,9 +264,9 @@ mod test {
             shared_counter_hotness_factor,
             target_qps,
             in_flight_ratio,
-            proxy_gas_and_coins,
+            bank,
             system_state_observer.clone(),
-            1000,
+            100,
         )
         .await
         .unwrap();
@@ -301,7 +285,8 @@ mod test {
         let show_progress = interval.is_unbounded();
         let (benchmark_stats, _) = driver
             .run(
-                proxy_workloads,
+                vec![proxy],
+                workloads,
                 system_state_observer,
                 &registry,
                 show_progress,
