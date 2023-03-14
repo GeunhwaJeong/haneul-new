@@ -4,7 +4,7 @@
 import { HANEUL_TYPE_ARG, getTransactionKind } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
-import { getEventsSummary, getAmount } from '_helpers';
+import { getAmount } from '_helpers';
 
 import type { HaneulTransactionResponse, HaneulAddress } from '@haneullabs/haneul.js';
 
@@ -16,7 +16,7 @@ export function useGetTransferAmount({
     activeAddress: HaneulAddress;
 }) {
     const { effects, events } = txn;
-    const { coins } = getEventsSummary(events!, activeAddress);
+    // const { coins } = getEventsSummary(events!, activeAddress);
 
     const haneulTransfer = useMemo(() => {
         const txdetails = getTransactionKind(txn)!;
@@ -31,13 +31,15 @@ export function useGetTransferAmount({
         );
     }, [txn, effects, events]);
 
-    const transferAmount = useMemo(() => {
-        return haneulTransfer?.length
-            ? haneulTransfer
-            : coins.filter(
-                  ({ receiverAddress }) => receiverAddress === activeAddress
-              );
-    }, [haneulTransfer, coins, activeAddress]);
+    // MUSTFIX(chris)
+    // const transferAmount = useMemo(() => {
+    //     return haneulTransfer?.length
+    //         ? haneulTransfer
+    //         : coins.filter(
+    //               ({ receiverAddress }) => receiverAddress === activeAddress
+    //           );
+    // }, [haneulTransfer, coins, activeAddress]);
 
-    return haneulTransfer ?? transferAmount;
+    // return haneulTransfer ?? transferAmount;
+    return haneulTransfer;
 }

@@ -1,20 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::WriteApiServer;
-use crate::balance_changes::get_balance_change_from_effect;
-use crate::error::Error;
-use crate::read_api::get_transaction_data_and_digest;
-use crate::{get_object_change_from_effect, ObjectProviderCache, HaneulRpcModule};
+use std::sync::Arc;
+
 use anyhow::anyhow;
 use async_trait::async_trait;
 use fastcrypto::encoding::Base64;
 use fastcrypto::traits::ToFromBytes;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+
 use haneullabs_metrics::spawn_monitored_task;
 use shared_crypto::intent::Intent;
-use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
@@ -30,6 +27,12 @@ use haneul_types::messages::{
 use haneul_types::messages::{ExecuteTransactionResponse, Transaction};
 use haneul_types::messages::{TransactionData, TransactionDataAPI};
 use haneul_types::signature::GenericSignature;
+
+use crate::api::WriteApiServer;
+use crate::balance_changes::get_balance_change_from_effect;
+use crate::error::Error;
+use crate::read_api::get_transaction_data_and_digest;
+use crate::{get_object_change_from_effect, ObjectProviderCache, HaneulRpcModule};
 
 pub struct TransactionExecutionApi {
     state: Arc<AuthorityState>,
@@ -98,6 +101,8 @@ impl TransactionExecutionApi {
                         .clone();
                     events = Some(HaneulTransactionEvents::try_from(
                         transaction_events,
+                        digest,
+                        None,
                         module_cache.as_ref(),
                     )?);
                 }

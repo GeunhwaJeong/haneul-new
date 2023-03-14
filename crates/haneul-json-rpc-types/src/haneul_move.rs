@@ -1,17 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeMap;
-use std::fmt;
-use std::fmt::{Display, Formatter, Write};
-use haneul_types::base_types::{ObjectID, HaneulAddress};
-use tracing::warn;
-
 use colored::Colorize;
 use itertools::Itertools;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use serde_with::{serde_as, DisplayFromStr};
+use std::collections::BTreeMap;
+use std::fmt;
+use std::fmt::{Display, Formatter, Write};
+use haneul_types::base_types::{ObjectID, HaneulAddress};
+use tracing::warn;
 
 use move_binary_format::file_format::{Ability, AbilitySet, StructTypeParameter, Visibility};
 use move_binary_format::normalized::{
@@ -379,13 +379,16 @@ fn to_bytearray(value: &[MoveValue]) -> Option<Vec<u8>> {
     }
 }
 
+#[serde_as]
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(untagged, rename = "MoveStruct")]
 pub enum HaneulMoveStruct {
     Runtime(Vec<HaneulMoveValue>),
     WithTypes {
+        #[schemars(with = "String")]
         #[serde(rename = "type")]
-        type_: String,
+        #[serde_as(as = "DisplayFromStr")]
+        type_: StructTag,
         fields: BTreeMap<String, HaneulMoveValue>,
     },
     WithFields(BTreeMap<String, HaneulMoveValue>),
@@ -516,7 +519,7 @@ impl From<MoveStruct> for HaneulMoveStruct {
                     .collect(),
             ),
             MoveStruct::WithTypes { type_, fields } => HaneulMoveStruct::WithTypes {
-                type_: type_.to_string(),
+                type_,
                 fields: fields
                     .into_iter()
                     .map(|(id, value)| (id.into_string(), value.into()))

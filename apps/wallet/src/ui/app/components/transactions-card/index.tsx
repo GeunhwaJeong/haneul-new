@@ -15,33 +15,31 @@ import { Link } from 'react-router-dom';
 
 import { TxnTypeLabel } from './TxnActionLabel';
 import { TxnIcon } from './TxnIcon';
-import { TxnImage } from './TxnImage';
 import { CoinBalance } from '_app/shared/coin-balance';
 import { DateCard } from '_app/shared/date-card';
 import { Text } from '_app/shared/text';
-import { notEmpty } from '_helpers';
 import { useGetTransferAmount, useGetTxnRecipientAddress } from '_hooks';
 
 import type {
     HaneulAddress,
-    HaneulEvent,
+    // HaneulEvent,
     HaneulTransactionResponse,
-    TransactionEvents,
+    // TransactionEvents,
 } from '@haneullabs/haneul.js';
 
-export const getTxnEffectsEventID = (
-    events: TransactionEvents,
-    address: string
-): string[] => {
-    return events
-        ?.map((event: HaneulEvent) => {
-            const data = Object.values(event).find(
-                (itm) => itm?.recipient?.AddressOwner === address
-            );
-            return data?.objectId;
-        })
-        .filter(notEmpty);
-};
+// export const getTxnEffectsEventID = (
+//     events: TransactionEvents,
+//     address: string
+// ): string[] => {
+//     return events
+//         ?.map((event: HaneulEvent) => {
+//             const data = Object.values(event).find(
+//                 (itm) => itm?.recipient?.AddressOwner === address
+//             );
+//             return data?.objectId;
+//         })
+//         .filter(notEmpty);
+// };
 
 export function TransactionCard({
     txn,
@@ -54,9 +52,9 @@ export function TransactionCard({
     const executionStatus = getExecutionStatusType(txn);
     getTransactionKindName(transaction);
 
-    const objectId = useMemo(() => {
-        return getTxnEffectsEventID(txn.events!, address)[0];
-    }, [address, txn.events]);
+    // const objectId = useMemo(() => {
+    //     return getTxnEffectsEventID(txn.events!, address)[0];
+    // }, [address, txn.events]);
 
     const transfer = useGetTransferAmount({
         txn,
@@ -66,12 +64,12 @@ export function TransactionCard({
     // we only show Haneul Transfer amount or the first non-Haneul transfer amount
     const transferAmount = useMemo(() => {
         // Find HANEUL transfer amount
-        const amountTransfersHaneul = transfer.find(
+        const amountTransfersHaneul = transfer?.find(
             ({ coinType }) => coinType === HANEUL_TYPE_ARG
         );
 
         // Find non-HANEUL transfer amount
-        const amountTransfersNonHaneul = transfer.find(
+        const amountTransfersNonHaneul = transfer?.find(
             ({ coinType }) => coinType !== HANEUL_TYPE_ARG
         );
 
@@ -176,7 +174,7 @@ export function TransactionCard({
                                 isSender={isSender}
                                 isTransfer={false}
                             />
-                            {objectId && <TxnImage id={objectId} />}
+                            {/* {objectId && <TxnImage id={objectId} />} */}
                         </>
                     )}
 

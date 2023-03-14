@@ -139,6 +139,8 @@ impl TestContext {
                     .verify()
                     .unwrap(),
                 HaneulTransactionResponseOptions::new()
+                    .with_object_changes()
+                    .with_balance_changes()
                     .with_effects()
                     .with_events(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),

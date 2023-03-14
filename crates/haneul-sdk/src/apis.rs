@@ -14,7 +14,7 @@ use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
-    DynamicFieldPage, EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEventEnvelope, HaneulEventFilter,
+    DynamicFieldPage, EventFilter, EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
     HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo,
     HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
@@ -28,7 +28,6 @@ use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::query::EventQuery;
 
 use futures::StreamExt;
 use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
@@ -364,12 +363,11 @@ impl EventApi {
 
     pub async fn subscribe_event(
         &self,
-        filter: HaneulEventFilter,
-    ) -> HaneulRpcResult<impl Stream<Item = HaneulRpcResult<HaneulEventEnvelope>>> {
+        filter: EventFilter,
+    ) -> HaneulRpcResult<impl Stream<Item = HaneulRpcResult<HaneulEvent>>> {
         match &self.api.ws {
             Some(c) => {
-                let subscription: Subscription<HaneulEventEnvelope> =
-                    c.subscribe_event(filter).await?;
+                let subscription: Subscription<HaneulEvent> = c.subscribe_event(filter).await?;
                 Ok(subscription.map(|item| Ok(item?)))
             }
             _ => Err(Error::Subscription(
@@ -378,9 +376,13 @@ impl EventApi {
         }
     }
 
-    pub async fn get_events(
+    pub async fn get_events(&self, digest: TransactionDigest) -> HaneulRpcResult<Vec<HaneulEvent>> {
+        Ok(self.api.http.get_events(digest).await?)
+    }
+
+    pub async fn query_events(
         &self,
-        query: EventQuery,
+        query: EventFilter,
         cursor: Option<EventID>,
         limit: Option<usize>,
         descending_order: bool,
@@ -388,16 +390,16 @@ impl EventApi {
         Ok(self
             .api
             .http
-            .get_events(query, cursor, limit, Some(descending_order))
+            .query_events(query, cursor, limit, Some(descending_order))
             .await?)
     }
 
     pub fn get_events_stream(
         &self,
-        query: EventQuery,
+        query: EventFilter,
         cursor: Option<EventID>,
         descending_order: bool,
-    ) -> impl Stream<Item = HaneulEventEnvelope> + '_ {
+    ) -> impl Stream<Item = HaneulEvent> + '_ {
         stream::unfold(
             (vec![], cursor, true, query),
             move |(mut data, cursor, first, query)| async move {
@@ -405,7 +407,7 @@ impl EventApi {
                     Some((item, (data, cursor, false, query)))
                 } else if (cursor.is_none() && first) || cursor.is_some() {
                     let page = self
-                        .get_events(query.clone(), cursor, Some(100), descending_order)
+                        .query_events(query.clone(), cursor, Some(100), descending_order)
                         .await
                         .ok()?;
                     let mut data = page.data;

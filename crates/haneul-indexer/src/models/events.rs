@@ -4,8 +4,13 @@
 use crate::errors::IndexerError;
 use crate::schema::events;
 use diesel::prelude::*;
-use haneul_json_rpc_types::{HaneulEvent, HaneulEventEnvelope, HaneulMoveStruct};
+use move_core_types::identifier::Identifier;
+use move_core_types::parser::parse_struct_tag;
+use serde_json::Value;
+use std::str::FromStr;
+use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::base_types::TransactionDigest;
+use haneul_types::event::EventID;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 #[diesel(table_name = events)]
@@ -19,48 +24,24 @@ pub struct Event {
     pub module: String,
     pub event_type: String,
     pub event_time_ms: Option<i64>,
-    pub move_struct_bcs: String,
+    pub parsed_json: Value,
     pub event_bcs: Vec<u8>,
 }
 
-pub fn compose_event(
-    haneul_event: &HaneulEvent,
-    transaction_digest: String,
-    seq: usize,
-    timestamp_ms: Option<i64>,
-) -> Option<Result<Event, IndexerError>> {
-    match haneul_event {
-        HaneulEvent::MoveEvent {
-            package_id,
-            transaction_module,
-            sender,
-            type_,
-            fields,
-            bcs,
-        } => {
-            let move_struct_bcs = serde_json::to_string(fields).map_err(|e| {
-                IndexerError::SerdeError(format!("Failed to serialize MoveStruct to BCS: {}", e))
-            });
-            match move_struct_bcs {
-                Ok(move_struct_bcs) => {
-                    let event = Event {
-                        id: None,
-                        transaction_digest,
-                        event_sequence: seq as i64,
-                        sender: sender.to_string(),
-                        package: package_id.to_string(),
-                        module: transaction_module.clone(),
-                        event_type: type_.clone(),
-                        event_time_ms: timestamp_ms,
-                        move_struct_bcs,
-                        event_bcs: bcs.clone(),
-                    };
-                    Some(Ok(event))
-                }
-                Err(e) => Some(Err(e)),
-            }
+impl From<HaneulEvent> for Event {
+    fn from(se: HaneulEvent) -> Self {
+        Self {
+            id: None,
+            transaction_digest: se.id.tx_digest.base58_encode(),
+            event_sequence: se.id.event_seq as i64,
+            sender: se.sender.to_string(),
+            package: se.package_id.to_string(),
+            module: se.transaction_module.to_string(),
+            event_type: se.type_.to_string(),
+            event_time_ms: se.timestamp_ms.map(|t| t as i64),
+            parsed_json: se.parsed_json,
+            event_bcs: se.bcs,
         }
-        _ => None,
     }
 }
 
@@ -74,45 +55,18 @@ impl TryInto<HaneulEvent> for Event {
         let sender = self.sender.parse().map_err(|e| {
             IndexerError::SerdeError(format!("Failed to parse event sender address: {:?}", e))
         })?;
-        let move_structs: Option<HaneulMoveStruct> =
-            // TODO(gegaowp): replace JSON encoding with BCS encoding.
-            serde_json::from_str(self.move_struct_bcs.as_str()).map_err(|e| {
-                IndexerError::SerdeError(format!(
-                    "Failed to deserialize MoveStruct from BCS: {}",
-                    e
-                ))
-            })?;
-        Ok(HaneulEvent::MoveEvent {
+        Ok(HaneulEvent {
+            id: EventID {
+                tx_digest: TransactionDigest::from_str(&self.transaction_digest)?,
+                event_seq: self.event_sequence as u64,
+            },
             package_id,
-            transaction_module: self.module,
+            transaction_module: Identifier::from_str(&self.module)?,
             sender,
-            type_: self.event_type,
-            fields: move_structs,
+            type_: parse_struct_tag(&self.event_type)?,
             bcs: self.event_bcs,
-        })
-    }
-}
-
-impl TryInto<HaneulEventEnvelope> for Event {
-    type Error = IndexerError;
-
-    fn try_into(self) -> Result<HaneulEventEnvelope, Self::Error> {
-        let tx_digest: TransactionDigest = self.transaction_digest.parse().map_err(|e| {
-            IndexerError::SerdeError(format!("Failed to parse event tx digest: {:?}", e))
-        })?;
-        let event_id = (tx_digest, self.event_sequence).into();
-        let haneul_event = self.clone().try_into()?;
-        // timestamp should always exist b/c it's the checkpoint timestamp,
-        // and indexer always reads after checkpoint is available on FN.
-        let timestamp = self.event_time_ms.ok_or_else(|| {
-            IndexerError::PostgresReadError("Timestamp is None in events table".to_string())
-        })?;
-
-        Ok(HaneulEventEnvelope {
-            timestamp: timestamp as u64,
-            tx_digest,
-            id: event_id,
-            event: haneul_event,
+            parsed_json: self.parsed_json,
+            timestamp_ms: self.event_time_ms.map(|t| t as u64),
         })
     }
 }

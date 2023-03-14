@@ -4,10 +4,8 @@
 use futures::StreamExt;
 use std::future;
 use haneul::client_commands::HaneulClientCommands;
-use haneul_json_rpc_types::HaneulTransactionResponseQuery;
+use haneul_json_rpc_types::{EventFilter, HaneulTransactionResponseQuery};
 use haneul_sdk::{HaneulClientBuilder, HANEUL_COIN_TYPE};
-use haneul_types::event::EventType;
-use haneul_types::query::EventQuery;
 use test_utils::network::TestClusterBuilder;
 
 #[tokio::test]
@@ -56,31 +54,11 @@ async fn test_events_stream() -> Result<(), anyhow::Error> {
     let client = HaneulClientBuilder::default().build(rpc_url).await?;
     let events = client
         .event_api()
-        .get_events_stream(EventQuery::All, None, true)
+        .get_events_stream(EventFilter::All(vec![]), None, true)
         .collect::<Vec<_>>()
         .await;
 
     let starting_event_count = events.len();
-
-    let events = client
-        .event_api()
-        .get_events_stream(
-            EventQuery::EventType(EventType::CoinBalanceChange),
-            None,
-            true,
-        )
-        .collect::<Vec<_>>()
-        .await;
-
-    let starting_coin_balance_change_event_count = events.len();
-
-    let events = client
-        .event_api()
-        .get_events_stream(EventQuery::EventType(EventType::NewObject), None, true)
-        .collect::<Vec<_>>()
-        .await;
-
-    let starting_new_object_event_count = events.len();
 
     // execute some transactions
     HaneulClientCommands::CreateExampleNFT {
@@ -95,28 +73,11 @@ async fn test_events_stream() -> Result<(), anyhow::Error> {
 
     let events = client
         .event_api()
-        .get_events_stream(EventQuery::All, None, true)
+        .get_events_stream(EventFilter::All(vec![]), None, true)
         .collect::<Vec<_>>()
         .await;
-    assert_eq!(starting_event_count + 3, events.len());
+    assert_eq!(starting_event_count + 1, events.len());
 
-    let events = client
-        .event_api()
-        .get_events_stream(
-            EventQuery::EventType(EventType::CoinBalanceChange),
-            None,
-            true,
-        )
-        .collect::<Vec<_>>()
-        .await;
-    assert_eq!(starting_coin_balance_change_event_count + 1, events.len());
-
-    let events = client
-        .event_api()
-        .get_events_stream(EventQuery::EventType(EventType::NewObject), None, true)
-        .collect::<Vec<_>>()
-        .await;
-    assert_eq!(starting_new_object_event_count + 1, events.len());
     Ok(())
 }
 

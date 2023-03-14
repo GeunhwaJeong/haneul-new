@@ -13,22 +13,24 @@ use crate::models::recipients::Recipient;
 use crate::models::transactions::Transaction;
 use async_trait::async_trait;
 use haneul_json_rpc_types::{
-    Checkpoint as RpcCheckpoint, CheckpointId, EventPage, HaneulObjectData, HaneulTransactionResponse,
+    Checkpoint as RpcCheckpoint, CheckpointId, EventFilter, EventPage, HaneulObjectData,
+    HaneulTransactionResponse,
 };
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::event::EventID;
 use haneul_types::object::ObjectRead;
-use haneul_types::query::EventQuery;
 
 #[async_trait]
 pub trait IndexerStore {
+    type ModuleCache;
+
     fn get_latest_checkpoint_sequence_number(&self) -> Result<i64, IndexerError>;
     fn get_checkpoint(&self, id: CheckpointId) -> Result<Checkpoint, IndexerError>;
 
     fn get_event(&self, id: EventID) -> Result<Event, IndexerError>;
     fn get_events(
         &self,
-        query: EventQuery,
+        query: EventFilter,
         cursor: Option<EventID>,
         limit: Option<usize>,
         descending_order: bool,
@@ -118,6 +120,8 @@ pub trait IndexerStore {
     fn persist_epoch(&self, data: &TemporaryEpochStore) -> Result<usize, IndexerError>;
 
     fn log_errors(&self, errors: Vec<IndexerError>) -> Result<(), IndexerError>;
+
+    fn module_cache(&self) -> &Self::ModuleCache;
 }
 
 pub struct CheckpointData {

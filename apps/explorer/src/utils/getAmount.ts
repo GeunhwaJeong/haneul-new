@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    getTransactionSender,
-    getTransactionKind,
-    HANEUL_TYPE_ARG,
-    getCoinBalanceChangeEvent,
-} from '@haneullabs/haneul.js';
+import { getTransactionKind, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
 import type {
     HaneulTransactionKind,
@@ -50,43 +45,44 @@ export function getTransfersAmount(
 
 // Get transaction amount from coinBalanceChange event for Call Txn
 // Aggregate coinBalanceChange by coinType and address
-function getTxnAmountFromCoinBalanceEvent(
-    events: TransactionEvents,
-    address: string
-): FormattedBalance[] {
-    const coinsMeta = {} as { [coinType: string]: FormattedBalance };
+// MUSTFIX(chris): Use the CoinBalanceChanges in effects instead
+// function getTxnAmountFromCoinBalanceEvent(
+//     events: TransactionEvents,
+//     address: string
+// ): FormattedBalance[] {
+//     const coinsMeta = {} as { [coinType: string]: FormattedBalance };
 
-    events.forEach((event) => {
-        if (
-            event.type === 'coinBalanceChange' &&
-            event?.content?.changeType &&
-            ['Receive', 'Pay'].includes(event?.content?.changeType)
-        ) {
-            const coinBalanceChange = getCoinBalanceChangeEvent(event)!;
-            const { coinType, amount, owner, sender } = coinBalanceChange;
+//     events.forEach((event) => {
+//         if (
+//             event.type === 'coinBalanceChange' &&
+//             event?.content?.changeType &&
+//             ['Receive', 'Pay'].includes(event?.content?.changeType)
+//         ) {
+//             const coinBalanceChange = getCoinBalanceChangeEvent(event)!;
+//             const { coinType, amount, owner, sender } = coinBalanceChange;
 
-            const AddressOwner =
-                owner !== 'Immutable' && 'AddressOwner' in owner
-                    ? owner.AddressOwner
-                    : null;
+//             const AddressOwner =
+//                 owner !== 'Immutable' && 'AddressOwner' in owner
+//                     ? owner.AddressOwner
+//                     : null;
 
-            // ChangeEpoch txn includes coinBalanceChange event for other addresses
-            if (
-                AddressOwner === address ||
-                (address === sender && AddressOwner)
-            ) {
-                coinsMeta[`${AddressOwner}${coinType}`] = {
-                    amount:
-                        (coinsMeta[`${AddressOwner}${coinType}`]?.amount || 0) +
-                        +amount,
-                    coinType: coinType,
-                    address: AddressOwner,
-                };
-            }
-        }
-    });
-    return Object.values(coinsMeta);
-}
+//             // ChangeEpoch txn includes coinBalanceChange event for other addresses
+//             if (
+//                 AddressOwner === address ||
+//                 (address === sender && AddressOwner)
+//             ) {
+//                 coinsMeta[`${AddressOwner}${coinType}`] = {
+//                     amount:
+//                         (coinsMeta[`${AddressOwner}${coinType}`]?.amount || 0) +
+//                         +amount,
+//                     coinType: coinType,
+//                     address: AddressOwner,
+//                 };
+//             }
+//         }
+//     });
+//     return Object.values(coinsMeta);
+// }
 
 // Get the amount from events and transfer data
 // optional flag to get only HANEUL coin type for table view
@@ -97,15 +93,16 @@ export function getAmount({
     txnData: HaneulTransactionResponse;
     haneulCoinOnly?: boolean;
 }) {
-    const { effects, events } = txnData;
+    const { effects } = txnData;
     const txnDetails = getTransactionKind(txnData)!;
-    const sender = getTransactionSender(txnData);
+    // MUSTFIX(chris): Fix this
+    // const sender = getTransactionSender(txnData);
     const haneulTransfer = getTransfersAmount(txnDetails, effects);
-    const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(
-        events!,
-        sender!
-    );
-    const transfers = haneulTransfer || coinBalanceChange;
+    // const coinBalanceChange = getTxnAmountFromCoinBalanceEvent(
+    //     events!,
+    //     sender!
+    // );
+    const transfers = haneulTransfer || [];
     if (haneulCoinOnly) {
         return transfers?.filter(({ coinType }) => coinType === HANEUL_TYPE_ARG);
     }

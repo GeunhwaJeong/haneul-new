@@ -11,16 +11,17 @@ use move_core_types::parser::parse_struct_tag;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use serde_json::json;
+
 use haneul::client_commands::EXAMPLE_NFT_DESCRIPTION;
 use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, EventPage, MoveCallParams, ObjectChange, OwnedObjectRef,
-    RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulEventEnvelope, HaneulExecutionStatus,
-    HaneulGasCostSummary, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectRef,
-    HaneulObjectResponse, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData,
-    HaneulTransactionEffects, HaneulTransactionEffectsV1, HaneulTransactionEvents, HaneulTransactionResponse,
+    RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGasCostSummary,
+    HaneulObjectData, HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectRef, HaneulObjectResponse,
+    HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData,
+    HaneulTransactionEffects, HaneulTransactionEffectsV1, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
@@ -38,7 +39,6 @@ use haneul_types::messages::{
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::query::EventQuery;
 use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -168,7 +168,7 @@ impl RpcExampleProvider {
     }
 
     fn execute_transaction_example(&mut self) -> Examples {
-        let (data, signatures, _, _, result, _) = self.get_transfer_data_response();
+        let (data, signatures, _, _, result) = self.get_transfer_data_response();
         let tx_bytes = TransactionBytes::from_data(data).unwrap();
 
         Examples::new(
@@ -336,7 +336,7 @@ impl RpcExampleProvider {
     }
 
     fn get_transaction(&mut self) -> Examples {
-        let (_, _, _, _, result, _) = self.get_transfer_data_response();
+        let (_, _, _, _, result) = self.get_transfer_data_response();
         Examples::new(
             "haneul_getTransaction",
             vec![ExamplePairing::new(
@@ -403,7 +403,6 @@ impl RpcExampleProvider {
         HaneulAddress,
         ObjectID,
         HaneulTransactionResponse,
-        Vec<HaneulEventEnvelope>,
     ) {
         let (signer, kp): (_, AccountKeyPair) = get_key_pair_from_rng(&mut self.rng);
         let recipient = HaneulAddress::from(ObjectID::new(self.rng.gen()));
@@ -430,21 +429,6 @@ impl RpcExampleProvider {
         let signatures = tx.into_inner().tx_signatures().to_vec();
 
         let tx_digest = tx1.digest();
-        let haneul_event = HaneulEvent::TransferObject {
-            package_id: ObjectID::from_hex_literal("0x2").unwrap(),
-            transaction_module: String::from("native"),
-            sender: signer,
-            recipient: Owner::AddressOwner(recipient),
-            object_type: "0x2::example::Object".to_string(),
-            object_id: object_ref.0,
-            version: object_ref.1,
-        };
-        let events = vec![HaneulEventEnvelope {
-            timestamp: std::time::Instant::now().elapsed().as_secs(),
-            tx_digest: *tx_digest,
-            id: EventID::from((*tx_digest, 0)),
-            event: haneul_event.clone(),
-        }];
         let object_change = ObjectChange::Transferred {
             sender: signer,
             recipient: Owner::AddressOwner(recipient),
@@ -487,9 +471,7 @@ impl RpcExampleProvider {
                 events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
                 dependencies: vec![],
             })),
-            events: Some(HaneulTransactionEvents {
-                data: vec![haneul_event],
-            }),
+            events: None,
             object_changes: Some(vec![object_change]),
             balance_changes: None,
             timestamp_ms: None,
@@ -502,15 +484,29 @@ impl RpcExampleProvider {
             errors: vec![],
         };
 
-        (data2, signatures, recipient, obj_id, result, events)
+        (data2, signatures, recipient, obj_id, result)
     }
 
     fn get_events(&mut self) -> Examples {
-        let (_, _, _, _, result, events) = self.get_transfer_data_response();
+        let (_, _, _, _, result) = self.get_transfer_data_response();
         let tx_dig =
             TransactionDigest::from_str("11a72GCQ5hGNpWGh2QhQkkusTEGS6EDqifJqxr7nSYX").unwrap();
+        let event = HaneulEvent {
+            id: EventID {
+                tx_digest: tx_dig,
+                event_seq: 0,
+            },
+            package_id: ObjectID::new(self.rng.gen()),
+            transaction_module: Identifier::from_str("test_module").unwrap(),
+            sender: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+            type_: parse_struct_tag("0x9::test::TestEvent").unwrap(),
+            parsed_json: json! ({"test": "example value"}),
+            bcs: vec![],
+            timestamp_ms: None,
+        };
+
         let page = EventPage {
-            data: events.clone(),
+            data: vec![event],
             next_cursor: Some((tx_dig, 5).into()),
             has_next_page: false,
         };
@@ -518,18 +514,7 @@ impl RpcExampleProvider {
             "haneul_getEvents",
             vec![ExamplePairing::new(
                 "Return the Events emitted by a transaction",
-                vec![
-                    ("query", json!(EventQuery::Transaction(result.digest))),
-                    (
-                        "cursor",
-                        json!(EventID {
-                            event_seq: 10,
-                            tx_digest: result.digest
-                        }),
-                    ),
-                    ("limit", json!(events.len())),
-                    ("descending_order", json!(false)),
-                ],
+                vec![("transaction_digest", json!(result.digest))],
                 json!(page),
             )],
         )

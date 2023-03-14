@@ -11,7 +11,6 @@ import {
   PaginatedTransactionResponse,
   SubscriptionId,
   HaneulAddress,
-  HaneulEventEnvelope,
   HaneulEventFilter,
   HaneulMoveFunctionArgTypes,
   HaneulMoveNormalizedFunction,
@@ -25,7 +24,6 @@ import {
   HANEUL_TYPE_ARG,
   RpcApiVersion,
   parseVersionFromString,
-  EventQuery,
   PaginatedEvents,
   FaucetResponse,
   Order,
@@ -51,6 +49,7 @@ import {
   HaneulSystemStateSummary,
   CoinStruct,
   HaneulTransactionResponseOptions,
+  HaneulEvent,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -885,16 +884,16 @@ export class JsonRpcProvider {
   /**
    * Get events for a given query criteria
    */
-  async getEvents(
+  async queryEvents(
     input: {
       /** the event query criteria. */
-      query: EventQuery;
+      query: HaneulEventFilter;
     } & PaginationArguments &
       OrderArguments,
   ): Promise<PaginatedEvents> {
     try {
       return await this.client.requestWithType(
-        'haneul_getEvents',
+        'haneul_queryEvents',
         [
           input.query,
           input.cursor,
@@ -918,7 +917,7 @@ export class JsonRpcProvider {
     /** filter describing the subset of events to follow */
     filter: HaneulEventFilter;
     /** function to run when we receive a notification of a new event matching the filter */
-    onMessage: (event: HaneulEventEnvelope) => void;
+    onMessage: (event: HaneulEvent) => void;
   }): Promise<SubscriptionId> {
     return this.wsClient.subscribeEvent(input.filter, input.onMessage);
   }

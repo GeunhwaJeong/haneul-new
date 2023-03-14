@@ -1,21 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_bytecode_utils::module_cache::SyncModuleCache;
 use tokio_stream::Stream;
-use tracing::{debug, error, instrument, trace};
+use tracing::{error, instrument, trace};
 
-use haneul_json_rpc_types::HaneulMoveStruct;
-use haneul_types::base_types::TransactionDigest;
-use haneul_types::filter::EventFilter;
-use haneul_types::messages::TransactionEvents;
-use haneul_types::{
-    error::{HaneulError, HaneulResult},
-    event::{Event, EventEnvelope},
-    messages::{TransactionEffects, TransactionEffectsAPI},
-};
+use haneul_json_rpc_types::{EventFilter, HaneulTransactionEffects, HaneulTransactionEvents};
+use haneul_json_rpc_types::{HaneulEvent, HaneulTransactionEffectsAPI};
+use haneul_types::error::HaneulResult;
 
-use crate::authority::{AuthorityStore, ResolverWrapper};
 use crate::streamer::Streamer;
 
 #[cfg(test)]
@@ -25,7 +17,7 @@ mod event_handler_tests;
 pub const EVENT_DISPATCH_BUFFER_SIZE: usize = 1000;
 
 pub struct EventHandler {
-    event_streamer: Streamer<EventEnvelope, EventFilter>,
+    event_streamer: Streamer<HaneulEvent, EventFilter>,
 }
 
 impl Default for EventHandler {
@@ -38,81 +30,28 @@ impl Default for EventHandler {
 }
 
 impl EventHandler {
-    #[instrument(level = "debug", skip_all, fields(seq=?seq_num, tx_digest=?effects.transaction_digest()), err)]
+    #[instrument(level = "debug", skip_all, fields(tx_digest=?effects.transaction_digest()), err)]
     pub async fn process_events(
         &self,
-        effects: &TransactionEffects,
-        events: &TransactionEvents,
-        timestamp_ms: u64,
-        seq_num: u64,
-        module_cache: &SyncModuleCache<ResolverWrapper<AuthorityStore>>,
+        effects: &HaneulTransactionEffects,
+        events: &HaneulTransactionEvents,
     ) -> HaneulResult {
-        let res: Result<Vec<_>, _> = events
-            .data
-            .iter()
-            .enumerate()
-            .map(|(event_num, e)| {
-                self.create_envelope(
-                    e,
-                    *effects.transaction_digest(),
-                    event_num.try_into().unwrap(),
-                    seq_num,
-                    timestamp_ms,
-                    module_cache,
-                )
-            })
-            .collect();
-        let envelopes = res?;
-
         trace!(
-            num_events = envelopes.len(),
+            num_events = events.data.len(),
             tx_digest =? effects.transaction_digest(),
             "Finished writing events to event store"
         );
 
         // serially dispatch event processing to honor events' orders.
-        for envelope in envelopes {
-            if let Err(e) = self.event_streamer.send(envelope).await {
-                error!(error =? e, "Failed to send EventEnvelope to dispatch");
+        for event in events.data.clone() {
+            if let Err(e) = self.event_streamer.send(event).await {
+                error!(error =? e, "Failed to send event to dispatch");
             }
         }
-
         Ok(())
     }
 
-    fn create_envelope(
-        &self,
-        event: &Event,
-        digest: TransactionDigest,
-        event_num: u64,
-        seq_num: u64,
-        timestamp_ms: u64,
-        module_cache: &SyncModuleCache<ResolverWrapper<AuthorityStore>>,
-    ) -> Result<EventEnvelope, HaneulError> {
-        let json_value = match event {
-            Event::MoveEvent {
-                type_, contents, ..
-            } => {
-                debug!(event =? event, "Process MoveEvent.");
-                let move_struct = Event::move_event_to_move_struct(type_, contents, module_cache)?;
-                // Convert into `HaneulMoveStruct` which is a mirror of MoveStruct but with additional type supports, (e.g. ascii::String).
-                let haneul_move_struct = HaneulMoveStruct::from(move_struct);
-                Some(haneul_move_struct.to_json_value())
-            }
-            _ => None,
-        };
-
-        Ok(EventEnvelope::new(
-            timestamp_ms,
-            digest,
-            seq_num,
-            event_num,
-            event.clone(),
-            json_value,
-        ))
-    }
-
-    pub fn subscribe(&self, filter: EventFilter) -> impl Stream<Item = EventEnvelope> {
+    pub fn subscribe(&self, filter: EventFilter) -> impl Stream<Item = HaneulEvent> {
         self.event_streamer.subscribe(filter)
     }
 }

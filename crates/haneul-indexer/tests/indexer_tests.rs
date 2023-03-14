@@ -10,7 +10,7 @@ use haneul_indexer::models::objects::Object;
 use haneul_indexer::models::transactions::Transaction;
 use haneul_indexer::store::{IndexerStore, TemporaryCheckpointStore, TemporaryEpochStore};
 use haneul_indexer::Indexer;
-use haneul_json_rpc_types::CheckpointId;
+use haneul_json_rpc_types::{CheckpointId, EventFilter};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::object::ObjectRead;
 use test_utils::network::TestClusterBuilder;
@@ -56,6 +56,8 @@ struct Tables {
 }
 
 impl IndexerStore for InMemoryIndexerStore {
+    type ModuleCache = ();
+
     fn get_latest_checkpoint_sequence_number(&self) -> Result<i64, IndexerError> {
         Ok(self.tables.read().unwrap().checkpoints.len() as i64 - 1)
     }
@@ -86,7 +88,7 @@ impl IndexerStore for InMemoryIndexerStore {
 
     fn get_events(
         &self,
-        _query: haneul_types::query::EventQuery,
+        _query: EventFilter,
         _cursor: Option<haneul_types::event::EventID>,
         _limit: Option<usize>,
         _descending_order: bool,
@@ -220,6 +222,10 @@ impl IndexerStore for InMemoryIndexerStore {
     }
 
     fn log_errors(&self, _errors: Vec<IndexerError>) -> Result<(), IndexerError> {
+        todo!()
+    }
+
+    fn module_cache(&self) -> &Self::ModuleCache {
         todo!()
     }
 }

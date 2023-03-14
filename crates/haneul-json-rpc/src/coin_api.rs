@@ -16,13 +16,12 @@ use haneul_json_rpc_types::{Balance, Coin as HaneulCoin};
 use haneul_json_rpc_types::{CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{MoveObjectType, ObjectID, ObjectType, HaneulAddress};
+use haneul_types::base_types::{MoveObjectType, ObjectID, ObjectRef, ObjectType, HaneulAddress};
 use haneul_types::coin::{Coin, CoinMetadata, LockedCoin, TreasuryCap};
 use haneul_types::error::HaneulError;
-use haneul_types::event::Event;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::{TransactionEffectsAPI, TransactionEvents};
-use haneul_types::object::Object;
+use haneul_types::messages::TransactionEffectsAPI;
+use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_struct_tag;
 
 use crate::api::{cap_page_limit, CoinReadApiServer};
@@ -141,31 +140,25 @@ impl CoinReadApi {
             .state
             .get_executed_transaction_and_effects(publish_txn_digest)
             .await?;
+        let created: &[(ObjectRef, Owner)] = effect.created();
 
-        let events = if let Some(digests) = effect.events_digest() {
-            self.state.get_transaction_events(digests)?
-        } else {
-            TransactionEvents::default()
-        };
-
-        let object_id = events.data
-            .into_iter()
-            .find_map(|e| {
-                if let Event::NewObject { object_type, .. } = &e {
-                    if matches!(parse_haneul_struct_tag(object_type), Ok(tag) if tag == object_struct_tag) {
-                        return e.object_id();
+        let object_id = async {
+            for ((id, version, _), _) in created {
+                if let Ok(past_object) = self.state.get_past_object_read(id, *version).await {
+                    if let Ok(object) = past_object.into_object() {
+                        if matches!(object.type_(), Some(type_) if type_.is(&object_struct_tag)) {
+                            return Ok(*id);
+                        }
                     }
                 }
-                None
-            })
-            .ok_or_else(|| {
-                anyhow!(
-                    "Cannot find object [{}] from [{}] package event.",
-                    object_struct_tag,
-                    package_id
-                )
-            })?;
-
+            }
+            Err(anyhow!(
+                "Cannot find object [{}] from [{}] package event.",
+                object_struct_tag,
+                package_id
+            ))
+        }
+        .await?;
         self.get_object(&object_id).await
     }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::base_types::{HaneulAddress, TransactionDigest, VersionNumber};
+use crate::base_types::{TransactionDigest, VersionNumber};
 use crate::committee::{Committee, EpochId};
 use crate::digests::{
     CheckpointContentsDigest, CheckpointDigest, TransactionEffectsDigest, TransactionEventsDigest,
@@ -22,10 +22,7 @@ use crate::{
     error::HaneulResult,
     event::Event,
     object::Object,
-    HANEUL_FRAMEWORK_OBJECT_ID,
 };
-use move_core_types::ident_str;
-use move_core_types::identifier::{IdentStr, Identifier};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::{BTreeMap, HashMap};
@@ -56,62 +53,8 @@ pub enum DeleteKind {
 
 #[derive(Debug)]
 pub enum ObjectChange {
-    Write(SingleTxContext, Object, WriteKind),
-    Delete(SingleTxContext, SequenceNumber, DeleteKind),
-}
-
-#[derive(Clone, Debug)]
-pub struct SingleTxContext {
-    pub package_id: ObjectID,
-    pub transaction_module: Identifier,
-    pub sender: HaneulAddress,
-}
-
-impl SingleTxContext {
-    // legacy
-    pub fn transfer_haneul(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("transfer_haneul"), sender)
-    }
-    pub fn pay(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("pay"), sender)
-    }
-    pub fn pay_haneul(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("pay_haneul"), sender)
-    }
-    pub fn pay_all_haneul(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("pay_all_haneul"), sender)
-    }
-    // programmable transactions
-    pub fn split_coin(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("split_coin"), sender)
-    }
-    // common to legacy and programmable transactions
-    pub fn transfer_object(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("transfer_object"), sender)
-    }
-    pub fn unused_input(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("unused_input_object"), sender)
-    }
-    pub fn publish(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("publish"), sender)
-    }
-    // system
-    pub fn gas(sender: HaneulAddress) -> Self {
-        Self::haneul_transaction(ident_str!("gas"), sender)
-    }
-    pub fn genesis() -> Self {
-        Self::haneul_transaction(ident_str!("genesis"), HaneulAddress::ZERO)
-    }
-    pub fn haneul_system() -> Self {
-        Self::haneul_transaction(ident_str!("haneul_system"), HaneulAddress::ZERO)
-    }
-    fn haneul_transaction(ident: &IdentStr, sender: HaneulAddress) -> Self {
-        Self {
-            package_id: HANEUL_FRAMEWORK_OBJECT_ID,
-            transaction_module: Identifier::from(ident),
-            sender,
-        }
-    }
+    Write(Object, WriteKind),
+    Delete(SequenceNumber, DeleteKind),
 }
 
 /// An abstraction of the (possibly distributed) store for objects. This

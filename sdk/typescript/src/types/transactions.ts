@@ -18,10 +18,16 @@ import {
   nullable,
 } from 'superstruct';
 import { HaneulEvent } from './events';
-import { HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects';
+import {
+  ObjectDigest,
+  HaneulGasData,
+  HaneulMovePackage,
+  HaneulObjectRef,
+} from './objects';
 import {
   ObjectId,
   ObjectOwner,
+  SequenceNumber,
   HaneulAddress,
   HaneulJsonValue,
   TransactionDigest,
@@ -263,6 +269,78 @@ export const HaneulTransaction = object({
 });
 export type HaneulTransaction = Infer<typeof HaneulTransaction>;
 
+export const HaneulObjectChangePublished = object({
+  type: literal('published'),
+  packageId: ObjectId,
+  version: SequenceNumber,
+  digest: ObjectDigest,
+  modules: array(string()),
+});
+export type HaneulObjectChangePublished = Infer<typeof HaneulObjectChangePublished>;
+
+export const HaneulObjectChangeTransferred = object({
+  type: literal('transferred'),
+  sender: HaneulAddress,
+  recipient: ObjectOwner,
+  objectType: string(),
+  objectId: ObjectId,
+  version: SequenceNumber,
+  digest: ObjectDigest,
+});
+export type HaneulObjectChangeTransferred = Infer<
+  typeof HaneulObjectChangeTransferred
+>;
+
+export const HaneulObjectChangeMutated = object({
+  type: literal('mutated'),
+  sender: HaneulAddress,
+  owner: ObjectOwner,
+  objectType: string(),
+  objectId: ObjectId,
+  version: SequenceNumber,
+  digest: ObjectDigest,
+});
+export type HaneulObjectChangeMutated = Infer<typeof HaneulObjectChangeMutated>;
+
+export const HaneulObjectChangeDeleted = object({
+  type: literal('deleted'),
+  sender: HaneulAddress,
+  objectType: string(),
+  objectId: ObjectId,
+  version: SequenceNumber,
+});
+export type HaneulObjectChangeDeleted = Infer<typeof HaneulObjectChangeDeleted>;
+
+export const HaneulObjectChangeWrapped = object({
+  type: literal('wrapped'),
+  sender: HaneulAddress,
+  objectType: string(),
+  objectId: ObjectId,
+  version: SequenceNumber,
+});
+export type HaneulObjectChangeWrapped = Infer<typeof HaneulObjectChangeWrapped>;
+
+export const HaneulObjectChangeCreated = object({
+  type: literal('created'),
+  sender: HaneulAddress,
+  owner: ObjectOwner,
+  objectType: string(),
+  objectId: ObjectId,
+  version: SequenceNumber,
+  digest: ObjectDigest,
+});
+export type HaneulObjectChangeCreated = Infer<typeof HaneulObjectChangeCreated>;
+
+export const HaneulObjectChange = union([
+  HaneulObjectChangePublished,
+  HaneulObjectChangeTransferred,
+  HaneulObjectChangeMutated,
+  HaneulObjectChangeDeleted,
+  HaneulObjectChangeWrapped,
+  HaneulObjectChangeCreated,
+]);
+export type HaneulObjectChange = Infer<typeof HaneulObjectChange>;
+
 export const HaneulTransactionResponse = object({
   digest: TransactionDigest,
   transaction: optional(HaneulTransaction),
@@ -271,6 +349,7 @@ export const HaneulTransactionResponse = object({
   timestampMs: optional(number()),
   checkpoint: optional(number()),
   confirmedLocalExecution: optional(boolean()),
+  objectChanges: optional(array(HaneulObjectChange)),
   /* Errors that occurred in fetching/serializing the transaction. */
   errors: optional(array(string())),
 });
@@ -283,6 +362,9 @@ export const HaneulTransactionResponseOptions = object({
   showEffects: optional(boolean()),
   /* Whether to show transaction events. Default to be false. */
   showEvents: optional(boolean()),
+  /* Whether to show transaction events. Default to be false. */
+  showObjectChanges: optional(boolean()),
+  // MUSTFIX(chris): add showBalanceChanges
 });
 
 export type HaneulTransactionResponseOptions = Infer<
@@ -460,4 +542,20 @@ export function getNewlyCreatedCoinRefsAfterSplit(
   data: HaneulTransactionResponse,
 ): HaneulObjectRef[] | undefined {
   return getTransactionEffects(data)?.created?.map((c) => c.reference);
+}
+
+export function getObjectChanges(
+  data: HaneulTransactionResponse,
+): HaneulObjectChange[] | undefined {
+  return data.objectChanges;
+}
+
+export function getPublishedObjectChanges(
+  data: HaneulTransactionResponse,
+): HaneulObjectChangePublished[] {
+  return (
+    (data.objectChanges?.filter((a) =>
+      is(a, HaneulObjectChangePublished),
+    ) as HaneulObjectChangePublished[]) ?? []
+  );
 }

@@ -25,7 +25,6 @@ use haneul_types::error::{UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
-use haneul_types::parse_haneul_struct_tag;
 
 use crate::{HaneulMoveStruct, HaneulMoveValue};
 
@@ -148,7 +147,7 @@ impl TryFrom<&HaneulObjectData> for GasCoin {
             .ok_or_else(|| anyhow!("Expect object content to not be empty"))?
         {
             HaneulParsedData::MoveObject(o) => {
-                if GasCoin::type_().to_string() == o.type_ {
+                if GasCoin::type_() == o.type_ {
                     return GasCoin::try_from(&o.fields);
                 }
             }
@@ -429,18 +428,15 @@ impl TryInto<Object> for HaneulObjectData {
     fn try_into(self) -> Result<Object, Self::Error> {
         let protocol_config = ProtocolConfig::get_for_min_version();
         let data = match self.bcs {
-            Some(HaneulRawData::MoveObject(o)) => {
-                let struct_tag = parse_haneul_struct_tag(o.type_())?;
-                Data::Move(unsafe {
-                    MoveObject::new_from_execution(
-                        struct_tag.into(),
-                        o.has_public_transfer,
-                        o.version,
-                        o.bcs_bytes,
-                        &protocol_config,
-                    )?
-                })
-            }
+            Some(HaneulRawData::MoveObject(o)) => Data::Move(unsafe {
+                MoveObject::new_from_execution(
+                    o.type_().clone().into(),
+                    o.has_public_transfer,
+                    o.version,
+                    o.bcs_bytes,
+                    &protocol_config,
+                )?
+            }),
             Some(HaneulRawData::Package(p)) => Data::Package(MovePackage::new(
                 p.id,
                 self.version,
@@ -511,7 +507,7 @@ pub trait HaneulData: Sized {
     fn try_from_package(package: MovePackage) -> Result<Self, anyhow::Error>;
     fn try_as_move(&self) -> Option<&Self::ObjectType>;
     fn try_as_package(&self) -> Option<&Self::PackageType>;
-    fn type_(&self) -> Option<&str>;
+    fn type_(&self) -> Option<&StructTag>;
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
@@ -548,9 +544,9 @@ impl HaneulData for HaneulRawData {
         }
     }
 
-    fn type_(&self) -> Option<&str> {
+    fn type_(&self) -> Option<&StructTag> {
         match self {
-            Self::MoveObject(o) => Some(o.type_.as_ref()),
+            Self::MoveObject(o) => Some(&o.type_),
             Self::Package(_) => None,
         }
     }
@@ -597,7 +593,7 @@ impl HaneulData for HaneulParsedData {
         }
     }
 
-    fn type_(&self) -> Option<&str> {
+    fn type_(&self) -> Option<&StructTag> {
         match self {
             Self::MoveObject(o) => Some(&o.type_),
             Self::Package(_) => None,
@@ -635,14 +631,17 @@ pub trait HaneulMoveObject: Sized {
         Self::try_from_layout(o, layout)
     }
 
-    fn type_(&self) -> &str;
+    fn type_(&self) -> &StructTag;
 }
 
+#[serde_as]
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "MoveObject", rename_all = "camelCase")]
 pub struct HaneulParsedMoveObject {
     #[serde(rename = "type")]
-    pub type_: String,
+    #[serde_as(as = "DisplayFromStr")]
+    #[schemars(with = "String")]
+    pub type_: StructTag,
     pub has_public_transfer: bool,
     pub fields: HaneulMoveStruct,
 }
@@ -663,7 +662,7 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
                 }
             } else {
                 HaneulParsedMoveObject {
-                    type_: object.type_().to_string(),
+                    type_: object.type_().clone().into(),
                     has_public_transfer: object.has_public_transfer(),
                     fields: move_struct,
                 }
@@ -671,7 +670,7 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
         )
     }
 
-    fn type_(&self) -> &str {
+    fn type_(&self) -> &StructTag {
         &self.type_
     }
 }
@@ -679,10 +678,10 @@ impl HaneulMoveObject for HaneulParsedMoveObject {
 pub fn type_and_fields_from_move_struct(
     type_: &StructTag,
     move_struct: MoveStruct,
-) -> (String, HaneulMoveStruct) {
+) -> (StructTag, HaneulMoveStruct) {
     match move_struct.into() {
         HaneulMoveStruct::WithTypes { type_, fields } => (type_, HaneulMoveStruct::WithFields(fields)),
-        fields => (type_.to_string(), fields),
+        fields => (type_.clone(), fields),
     }
 }
 
@@ -690,8 +689,10 @@ pub fn type_and_fields_from_move_struct(
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "RawMoveObject", rename_all = "camelCase")]
 pub struct HaneulRawMoveObject {
+    #[schemars(with = "String")]
     #[serde(rename = "type")]
-    pub type_: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub type_: StructTag,
     pub has_public_transfer: bool,
     pub version: SequenceNumber,
     #[serde_as(as = "Base64")]
@@ -702,7 +703,7 @@ pub struct HaneulRawMoveObject {
 impl From<MoveObject> for HaneulRawMoveObject {
     fn from(o: MoveObject) -> Self {
         Self {
-            type_: o.type_().to_string(),
+            type_: o.type_().clone().into(),
             has_public_transfer: o.has_public_transfer(),
             version: o.version(),
             bcs_bytes: o.into_contents(),
@@ -716,14 +717,14 @@ impl HaneulMoveObject for HaneulRawMoveObject {
         _layout: MoveStructLayout,
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
-            type_: object.type_().to_string(),
+            type_: object.type_().clone().into(),
             has_public_transfer: object.has_public_transfer(),
             version: object.version(),
             bcs_bytes: object.into_contents(),
         })
     }
 
-    fn type_(&self) -> &str {
+    fn type_(&self) -> &StructTag {
         &self.type_
     }
 }
