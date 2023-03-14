@@ -46,7 +46,7 @@ impl TestCaseImpl for NativeTransferTest {
             recipient_addr
         ];
         let data = ctx
-            .build_transaction_remotely("haneul_transferObject", params)
+            .build_transaction_remotely("unsafe_transferObject", params)
             .await?;
         let mut response = ctx.sign_and_execute(data, "coin transfer").await;
 
@@ -56,7 +56,7 @@ impl TestCaseImpl for NativeTransferTest {
         let obj_to_transfer = *haneul_objs.swap_remove(0).id();
         let params = rpc_params![signer, obj_to_transfer, 5000, recipient_addr, None::<u64>];
         let data = ctx
-            .build_transaction_remotely("haneul_transferHaneul", params)
+            .build_transaction_remotely("unsafe_transferHaneul", params)
             .await?;
         let mut response = ctx.sign_and_execute(data, "coin transfer").await;
 

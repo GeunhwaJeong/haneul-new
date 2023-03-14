@@ -13,8 +13,8 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 
-#[open_rpc(namespace = "haneul", tag = "Transaction Builder API")]
-#[rpc(server, client, namespace = "haneul")]
+#[open_rpc(namespace = "unsafe", tag = "Transaction Builder API")]
+#[rpc(server, client, namespace = "unsafe")]
 pub trait TransactionBuilder {
     /// Create an unsigned transaction to transfer an object from one address to another. The object's type
     /// must allow public transfers
@@ -240,9 +240,6 @@ pub trait TransactionBuilder {
         &self,
         /// the transaction signer's Haneul address
         signer: HaneulAddress,
-        // TODO: remove this parameter
-        /// Delegation object ID
-        delegation: ObjectID,
         /// StakedHaneul object ID
         staked_haneul: ObjectID,
         /// gas object to be used in this transaction, node will pick one from the signer's possession if not provided

@@ -712,7 +712,6 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
     pub async fn request_withdraw_stake(
         &self,
         signer: HaneulAddress,
-        _stake: ObjectID,
         staked_haneul: ObjectID,
         gas: Option<ObjectID>,
         gas_budget: u64,

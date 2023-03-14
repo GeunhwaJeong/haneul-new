@@ -202,13 +202,12 @@ impl TransactionBuilderServer for TransactionBuilderApi {
     async fn request_withdraw_stake(
         &self,
         signer: HaneulAddress,
-        delegation: ObjectID,
         staked_haneul: ObjectID,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> RpcResult<TransactionBytes> {
         self.fullnode
-            .request_withdraw_stake(signer, delegation, staked_haneul, gas, gas_budget)
+            .request_withdraw_stake(signer, staked_haneul, gas, gas_budget)
             .await
     }
 }

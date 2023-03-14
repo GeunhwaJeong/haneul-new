@@ -32,7 +32,7 @@ impl TestCaseImpl for FullNodeBuildPublishTransactionTest {
         ];
 
         let data = ctx
-            .build_transaction_remotely("haneul_publish", params)
+            .build_transaction_remotely("unsafe_publish", params)
             .await?;
         let response = ctx.sign_and_execute(data, "publish basics package").await;
         response
