@@ -24,7 +24,8 @@ use haneul_types::error::UserInputError;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Owner;
 use haneul_types::storage::{
-    BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey, ObjectStore,
+    get_module, get_module_by_id, BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey,
+    ObjectStore,
 };
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
@@ -1444,23 +1445,8 @@ impl ParentSync for AuthorityStore {
 impl ModuleResolver for AuthorityStore {
     type Error = HaneulError;
 
-    // TODO: duplicated code with ModuleResolver for InMemoryStorage in memory_storage.rs.
     fn get_module(&self, module_id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
-        // TODO: We should cache the deserialized modules to avoid
-        // fetching from the store / re-deserializing them every time.
-        // https://github.com/GeunhwaJeong/haneul/issues/809
-        Ok(self
-            .get_package(&ObjectID::from(*module_id.address()))?
-            .and_then(|package| {
-                // unwrap safe since get_package() ensures it's a package object.
-                package
-                    .data
-                    .try_as_package()
-                    .unwrap()
-                    .serialized_module_map()
-                    .get(module_id.name().as_str())
-                    .cloned()
-            }))
+        get_module(self, module_id)
     }
 }
 
@@ -1469,9 +1455,7 @@ impl GetModule for AuthorityStore {
     type Item = CompiledModule;
 
     fn get_module_by_id(&self, id: &ModuleId) -> anyhow::Result<Option<Self::Item>, Self::Error> {
-        Ok(self
-            .get_module(id)?
-            .map(|bytes| CompiledModule::deserialize(&bytes).unwrap()))
+        get_module_by_id(self, id)
     }
 }
 
