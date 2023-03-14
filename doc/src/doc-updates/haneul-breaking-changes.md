@@ -4,7 +4,13 @@ title: Haneul Breaking Changes in Release .28
 
 The next release of Haneul, release 0.28, includes the breaking changes described in this topic. A breaking change is one that introduces new, or changed, Haneul functionality that causes existing apps and implementations to stop functioning as expected.
 
-New entries added 03/13/23.
+To learn how to update your project to work with the changes introduced in release .28, see the [Haneul Migration Guide](haneul-migration-guide.md).
+
+New entries added 03/14/23.
+
+Added 03/14/23
+
+**[Major breaking change]** - Haneul now calculates `HaneulAddress` using the first 32 bytes of the Blake2b hash of `flag || pubkey` instead of the SHA3_256 hash. See [PR 9262](https://github.com/GeunhwaJeong/haneul/pull/9262) for more information.
 
 ---
 
@@ -33,6 +39,12 @@ Added 03/13/23
 ---
 
 **[Major breaking change]** - `HaneulAddress` and `ObjectID` are now 32 bytes long instead of 20 bytes (in hex, the `len` increases from 40 to 64). If your software interacts with any `ObjectID` and `HaneulAddress`, you must update it to use updated addresses and redeploy it. [PR 8542](https://github.com/GeunhwaJeong/haneul/pull/8542).
+
+---
+
+Added 03/14/23
+
+**[Breaking change]** - This release introduces several limits on transactions and transaction executions. Many of these limits are subject to change prior to Haneul Mainnet. To view a list of limits in release .28, see the [source code](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs#L716).
 
 ---
 

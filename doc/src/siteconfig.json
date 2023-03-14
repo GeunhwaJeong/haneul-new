@@ -131,8 +131,8 @@
         "name": "What's New",
         "sublist": [
           {
-            "name": "Doc Updates",
-            "url": "/doc-updates"
+            "name": "Haneul Migration Guide",
+            "url": "/doc-updates/haneul-migration-guide"
           },
           {
             "name": "Haneul Breaking Changes",
