@@ -19,11 +19,10 @@ use std::time::{Duration, UNIX_EPOCH};
 use haneul_json_rpc_types::HaneulTransactionResponseOptions;
 use haneul_sdk::rpc_types::Checkpoint;
 use haneul_sdk::HaneulClient;
-use haneul_storage::default_db_options;
 use haneul_types::base_types::{EpochId, HaneulAddress};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tracing::{debug, error, info, warn};
-use typed_store::rocks::{DBMap, DBOptions, MetricConf};
+use typed_store::rocks::{point_lookup_db_options, DBMap, DBOptions, MetricConf};
 use typed_store::traits::TableSummary;
 use typed_store::traits::TypedStoreDebug;
 use typed_store::Map;
@@ -347,5 +346,5 @@ impl CheckpointIndexStore {
 }
 
 fn default_config() -> DBOptions {
-    default_db_options(None, None).1
+    point_lookup_db_options()
 }
