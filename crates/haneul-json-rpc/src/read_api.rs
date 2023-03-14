@@ -34,7 +34,7 @@ use haneul_types::base_types::{
     ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
 };
 use haneul_types::collection_types::VecMap;
-use haneul_types::crypto::user_hash;
+use haneul_types::crypto::default_hash;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::display::{DisplayCreatedEvent, DisplayObject};
 use haneul_types::dynamic_field::DynamicFieldName;
@@ -922,7 +922,7 @@ pub fn get_transaction_data_and_digest(
         },
         tx_data,
     );
-    let txn_digest = TransactionDigest::new(user_hash(&intent_msg.value));
+    let txn_digest = TransactionDigest::new(default_hash(&intent_msg.value));
     Ok((intent_msg.value, txn_digest))
 }
 

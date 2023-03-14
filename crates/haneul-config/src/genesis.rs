@@ -5,7 +5,7 @@ use crate::ValidatorInfo;
 use anyhow::{bail, Context, Result};
 use camino::Utf8Path;
 use fastcrypto::encoding::{Base64, Encoding, Hex};
-use fastcrypto::hash::{HashFunction, Sha3_256};
+use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::KeyPair;
 use move_binary_format::CompiledModule;
 use move_core_types::ident_str;
@@ -21,11 +21,11 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::clock::Clock;
-use haneul_types::crypto::PublicKey as AccountsPublicKey;
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
     HaneulAuthoritySignature, ToFromBytes,
 };
+use haneul_types::crypto::{DefaultHash, PublicKey as AccountsPublicKey};
 use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::in_memory_storage::InMemoryStorage;
@@ -224,10 +224,10 @@ impl Genesis {
         bcs::to_bytes(self).expect("failed to serialize genesis")
     }
 
-    pub fn sha3(&self) -> [u8; 32] {
+    pub fn hash(&self) -> [u8; 32] {
         use std::io::Write;
 
-        let mut digest = Sha3_256::default();
+        let mut digest = DefaultHash::default();
         digest.write_all(&self.to_bytes()).unwrap();
         let hash = digest.finalize();
         hash.into()
