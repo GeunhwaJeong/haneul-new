@@ -28,10 +28,10 @@
 
 <a name="0x2_genesis_INIT_STAKE_SUBSIDY_AMOUNT"></a>
 
-Stake subisidy to be given out in the very first epoch. Placeholder value.
+Stake subisidy to be given out in the very first epoch in Geunhwa (1 million * 10^9).
 
 
-<pre><code><b>const</b> <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_AMOUNT">INIT_STAKE_SUBSIDY_AMOUNT</a>: u64 = 1000000;
+<pre><code><b>const</b> <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_AMOUNT">INIT_STAKE_SUBSIDY_AMOUNT</a>: u64 = 1000000000000000;
 </code></pre>
 
 
@@ -42,6 +42,15 @@ The initial balance of the Subsidy fund in Geunhwa (1 Billion * 10^9)
 
 
 <pre><code><b>const</b> <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_FUND_BALANCE">INIT_STAKE_SUBSIDY_FUND_BALANCE</a>: u64 = 1000000000000000000;
+</code></pre>
+
+
+
+<a name="0x2_genesis_INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY"></a>
+
+
+
+<pre><code><b>const</b> <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY">INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY</a>: u64 = 100000000000000000;
 </code></pre>
 
 
@@ -90,7 +99,7 @@ all the information we need in the system.
     ctx: &<b>mut</b> TxContext,
 ) {
     <b>let</b> haneul_supply = <a href="haneul.md#0x2_haneul_new">haneul::new</a>(ctx);
-    <b>let</b> subsidy_fund = <a href="balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> haneul_supply, <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_FUND_BALANCE">INIT_STAKE_SUBSIDY_FUND_BALANCE</a>);
+    <b>let</b> subsidy_fund = <a href="balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> haneul_supply, <a href="genesis.md#0x2_genesis_INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY">INIT_STAKE_SUBSIDY_FUND_BALANCE_TEST_ONLY</a>);
     <b>let</b> storage_fund = <a href="balance.md#0x2_balance_zero">balance::zero</a>();
     <b>let</b> validators = <a href="_empty">vector::empty</a>();
     <b>let</b> count = <a href="_length">vector::length</a>(&validator_pubkeys);
@@ -140,7 +149,8 @@ all the information we need in the system.
             primary_address,
             worker_address,
             // Initialize all validators <b>with</b> uniform stake taken from the subsidy fund.
-            <a href="_some">option::some</a>(<a href="balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> subsidy_fund, initial_validator_stake_geunhwa)),
+            // TODO: change this back <b>to</b> take from subsidy fund instead.
+            <a href="_some">option::some</a>(<a href="balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> haneul_supply, initial_validator_stake_geunhwa)),
             gas_price,
             commission_rate,
             <b>true</b>, // <a href="validator.md#0x2_validator">validator</a> is active right away
