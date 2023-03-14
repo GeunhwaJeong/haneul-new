@@ -11,7 +11,6 @@ import {
   optional,
   string,
   union,
-  unknown,
   boolean,
   tuple,
   assign,
@@ -60,7 +59,12 @@ export const Genesis = object({
 });
 export type Genesis = Infer<typeof Genesis>;
 
-export const HaneulArgument = unknown();
+export const HaneulArgument = union([
+  literal('GasCoin'),
+  object({ Input: number() }),
+  object({ Result: number() }),
+  object({ NestedResult: tuple([number(), number()]) }),
+]);
 
 export const HaneulCommand = union([
   object({
@@ -218,7 +222,11 @@ export const DryRunTransactionResponse = object({
 export type DryRunTransactionResponse = Infer<typeof DryRunTransactionResponse>;
 
 const ReturnValueType = tuple([array(number()), string()]);
-const MutableReferenceOutputType = tuple([number(), array(number()), string()]);
+const MutableReferenceOutputType = tuple([
+  HaneulArgument,
+  array(number()),
+  string(),
+]);
 const ExecutionResultType = object({
   mutableReferenceOutputs: optional(array(MutableReferenceOutputType)),
   returnValues: optional(array(ReturnValueType)),
