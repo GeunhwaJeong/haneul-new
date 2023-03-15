@@ -1,33 +1,33 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use fastcrypto::encoding::{Encoding, Hex};
-use rand::rngs::OsRng;
-use rand::seq::IteratorRandom;
-use reqwest::Client;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::net::SocketAddr;
 use std::path::Path;
 use std::str::FromStr;
+
+use fastcrypto::encoding::{Encoding, Hex};
+use reqwest::Client;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use serde_json::Value;
+use tokio::task::JoinHandle;
+
 use haneul_config::utils;
-use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_rosetta::operations::Operations;
 use haneul_rosetta::types::{
-    ConstructionCombineRequest, ConstructionCombineResponse, ConstructionMetadataRequest,
-    ConstructionMetadataResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse,
-    ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionSubmitRequest,
-    NetworkIdentifier, Signature, SignatureType, HaneulEnv, TransactionIdentifierResponse,
+    AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, ConstructionCombineRequest,
+    ConstructionCombineResponse, ConstructionMetadataRequest, ConstructionMetadataResponse,
+    ConstructionPayloadsRequest, ConstructionPayloadsResponse, ConstructionPreprocessRequest,
+    ConstructionPreprocessResponse, ConstructionSubmitRequest, NetworkIdentifier, Signature,
+    SignatureType, SubAccount, SubAccountType, HaneulEnv, TransactionIdentifierResponse,
 };
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
 use haneul_sdk::HaneulClient;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::HaneulSignature;
-use tokio::task::JoinHandle;
 
 pub async fn start_rosetta_test_server(
     client: HaneulClient,
@@ -95,7 +95,7 @@ impl RosettaClient {
     /// rosetta construction e2e flow, see https://www.rosetta-api.org/docs/flow.html#construction-api
     pub async fn rosetta_flow(
         &self,
-        operations: Operations,
+        operations: &Operations,
         keystore: &Keystore,
     ) -> TransactionIdentifierResponse {
         let network_identifier = NetworkIdentifier {
@@ -132,7 +132,7 @@ impl RosettaClient {
                 RosettaEndpoint::Payloads,
                 &ConstructionPayloadsRequest {
                     network_identifier: network_identifier.clone(),
-                    operations,
+                    operations: operations.clone(),
                     metadata: Some(metadata.metadata),
                     public_keys: vec![],
                 },
@@ -176,38 +176,25 @@ impl RosettaClient {
         println!("Submit : {submit:?}");
         submit
     }
-}
 
-pub async fn get_random_haneul(
-    client: &HaneulClient,
-    sender: HaneulAddress,
-    except: Vec<ObjectID>,
-) -> ObjectRef {
-    let coins = client
-        .read_api()
-        .get_owned_objects(
-            sender,
-            Some(HaneulObjectDataOptions::full_content()),
-            None,
-            None,
-            None,
-        )
-        .await
-        .unwrap();
-
-    let coin = coins
-        .data
-        .iter()
-        .filter(|&object| {
-            let obj = object.object().unwrap();
-            obj.clone().type_.unwrap().is_gas_coin() && !except.contains(&obj.object_id)
-        })
-        .choose(&mut OsRng::default())
-        .unwrap();
-    // We type checked the gas coin above
-    let gas_coin = coin.clone().into_object().unwrap();
-
-    (gas_coin.object_id, gas_coin.version, gas_coin.digest)
+    pub async fn get_balance(
+        &self,
+        network_identifier: NetworkIdentifier,
+        address: HaneulAddress,
+        sub_account: Option<SubAccountType>,
+    ) -> AccountBalanceResponse {
+        let sub_account = sub_account.map(|account_type| SubAccount { account_type });
+        let request = AccountBalanceRequest {
+            network_identifier,
+            account_identifier: AccountIdentifier {
+                address,
+                sub_account,
+            },
+            block_identifier: Default::default(),
+            currencies: vec![],
+        };
+        self.call(RosettaEndpoint::Balance, &request).await
+    }
 }
 
 #[allow(dead_code)]

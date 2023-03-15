@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-mod rosetta_client;
+use std::time::Duration;
 
-use crate::rosetta_client::RosettaEndpoint;
-use rosetta_client::{get_random_haneul, start_rosetta_test_server};
 use serde_json::json;
+
+use rosetta_client::start_rosetta_test_server;
 use haneul_json_rpc_types::HaneulTransactionResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
@@ -13,113 +13,14 @@ use haneul_rosetta::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier,
     SubAccount, SubAccountType, HaneulEnv,
 };
-use haneul_sdk::json::HaneulJsonValue;
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{parse_haneul_type_tag, HANEUL_FRAMEWORK_OBJECT_ID};
 use test_utils::network::TestClusterBuilder;
 
-#[tokio::test]
-async fn test_locked_haneul() {
-    let test_cluster = TestClusterBuilder::new().build().await.unwrap();
-    let address = test_cluster.accounts[0];
-    let client = test_cluster.wallet.get_client().await.unwrap();
-    let keystore = &test_cluster.wallet.config.keystore;
+use crate::rosetta_client::RosettaEndpoint;
 
-    let (rosetta_client, _handle) =
-        start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
-
-    let network_identifier = NetworkIdentifier {
-        blockchain: "haneul".to_string(),
-        network: HaneulEnv::LocalNet,
-    };
-
-    // verify no coins are locked
-    let coins = client
-        .coin_read_api()
-        .get_coins(address, None, None, None)
-        .await
-        .unwrap();
-    assert!(!coins
-        .data
-        .iter()
-        .any(|coin| coin.locked_until_epoch.is_some()));
-
-    let request = AccountBalanceRequest {
-        network_identifier: network_identifier.clone(),
-        account_identifier: AccountIdentifier {
-            address,
-            sub_account: Some(SubAccount {
-                account_type: SubAccountType::LockedHaneul,
-            }),
-        },
-        block_identifier: Default::default(),
-        currencies: vec![],
-    };
-    let response: AccountBalanceResponse = rosetta_client
-        .call(RosettaEndpoint::Balance, &request)
-        .await;
-    assert_eq!(response.balances[0].value, 0);
-
-    // Lock some haneul
-    let call_args = vec![
-        HaneulJsonValue::from_object_id(coins.data[0].coin_object_id),
-        HaneulJsonValue::from_object_id(address.into()),
-        HaneulJsonValue::new(json!("100")).unwrap(),
-    ];
-    let tx = client
-        .transaction_builder()
-        .move_call(
-            address,
-            HANEUL_FRAMEWORK_OBJECT_ID,
-            "locked_coin",
-            "lock_coin",
-            vec![parse_haneul_type_tag("0x2::haneul::HANEUL").unwrap().into()],
-            call_args,
-            None,
-            2000,
-        )
-        .await
-        .unwrap();
-
-    let tx = to_sender_signed_transaction(tx, keystore.get_key(&address).unwrap());
-    client
-        .quorum_driver()
-        .execute_transaction(
-            tx,
-            HaneulTransactionResponseOptions::new(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
-        .await
-        .unwrap();
-
-    // Check the balance again after locking the coin
-    let request = AccountBalanceRequest {
-        network_identifier: network_identifier.clone(),
-        account_identifier: AccountIdentifier {
-            address,
-            sub_account: Some(SubAccount {
-                account_type: SubAccountType::LockedHaneul,
-            }),
-        },
-        block_identifier: Default::default(),
-        currencies: vec![],
-    };
-    let response: AccountBalanceResponse = rosetta_client
-        .call(RosettaEndpoint::Balance, &request)
-        .await;
-    assert_eq!(1, response.balances.len());
-    assert_eq!(
-        100,
-        response.balances[0]
-            .metadata
-            .as_ref()
-            .unwrap()
-            .lock_until_epoch
-    );
-    assert_eq!(100000000000000, response.balances[0].value);
-}
+mod rosetta_client;
 
 #[tokio::test]
 async fn test_get_staked_haneul() {
@@ -157,7 +58,7 @@ async fn test_get_staked_haneul() {
         account_identifier: AccountIdentifier {
             address,
             sub_account: Some(SubAccount {
-                account_type: SubAccountType::PendingDelegation,
+                account_type: SubAccountType::PendingStake,
             }),
         },
         block_identifier: Default::default(),
@@ -205,33 +106,25 @@ async fn test_get_staked_haneul() {
         .await
         .unwrap();
 
-    let request = AccountBalanceRequest {
-        network_identifier: network_identifier.clone(),
-        account_identifier: AccountIdentifier {
+    let response = rosetta_client
+        .get_balance(
+            network_identifier.clone(),
             address,
-            sub_account: Some(SubAccount {
-                account_type: SubAccountType::PendingDelegation,
-            }),
-        },
-        block_identifier: Default::default(),
-        currencies: vec![],
-    };
-    let response: AccountBalanceResponse = rosetta_client
-        .call(RosettaEndpoint::Balance, &request)
+            Some(SubAccountType::PendingStake),
+        )
         .await;
     assert_eq!(1, response.balances.len());
     assert_eq!(100000, response.balances[0].value);
 
-    // TODO: add DelegatedHaneul test when we can advance epoch.
+    println!("{}", serde_json::to_string_pretty(&response).unwrap());
 }
 
 #[tokio::test]
-async fn test_delegation() {
+async fn test_stake() {
     let test_cluster = TestClusterBuilder::new().build().await.unwrap();
     let sender = test_cluster.accounts[0];
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
-    let coin1 = get_random_haneul(&client, sender, vec![]).await;
 
     let (rosetta_client, _handle) =
         start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
@@ -243,21 +136,29 @@ async fn test_delegation() {
         .unwrap()
         .active_validators[0]
         .haneul_address;
-    let ops = client
-        .transaction_builder()
-        .request_add_stake(sender, vec![coin1.0], Some(100000), validator, None, 10000)
-        .await
-        .unwrap();
 
-    let ops = Operations::try_from(ops).unwrap();
+    let ops = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"Stake",
+            "account": { "address" : sender.to_string() },
+            "amount" : { "value": "-1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
+            "metadata": { "Stake" : {"validator": validator.to_string()} }
+        }]
+    ))
+    .unwrap();
 
-    let response = rosetta_client.rosetta_flow(ops, keystore).await;
+    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
 
     let tx = client
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new().with_effects(),
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes()
+                .with_events(),
         )
         .await
         .unwrap();
@@ -265,9 +166,208 @@ async fn test_delegation() {
     println!("Haneul TX: {tx:?}");
 
     assert_eq!(
-        HaneulExecutionStatus::Success,
-        *tx.effects.as_ref().unwrap().status()
-    )
+        &HaneulExecutionStatus::Success,
+        tx.effects.as_ref().unwrap().status()
+    );
+
+    let ops2 = Operations::try_from(tx).unwrap();
+    assert!(
+        ops2.contains(&ops),
+        "Operation mismatch. expecting:{}, got:{}",
+        serde_json::to_string(&ops).unwrap(),
+        serde_json::to_string(&ops2).unwrap()
+    );
+
+    println!("{}", serde_json::to_string_pretty(&ops2).unwrap())
+}
+
+#[tokio::test]
+async fn test_stake_all() {
+    let test_cluster = TestClusterBuilder::new().build().await.unwrap();
+    let sender = test_cluster.accounts[0];
+    let client = test_cluster.wallet.get_client().await.unwrap();
+    let keystore = &test_cluster.wallet.config.keystore;
+
+    let (rosetta_client, _handle) =
+        start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
+
+    let validator = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await
+        .unwrap()
+        .active_validators[0]
+        .haneul_address;
+
+    let ops = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"Stake",
+            "account": { "address" : sender.to_string() },
+            "metadata": { "Stake" : {"validator": validator.to_string()} }
+        }]
+    ))
+    .unwrap();
+
+    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+
+    let tx = client
+        .read_api()
+        .get_transaction_with_options(
+            response.transaction_identifier.hash,
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes()
+                .with_events(),
+        )
+        .await
+        .unwrap();
+
+    println!("Haneul TX: {tx:?}");
+
+    assert_eq!(
+        &HaneulExecutionStatus::Success,
+        tx.effects.as_ref().unwrap().status()
+    );
+
+    let ops2 = Operations::try_from(tx).unwrap();
+    assert!(
+        ops2.contains(&ops),
+        "Operation mismatch. expecting:{}, got:{}",
+        serde_json::to_string(&ops).unwrap(),
+        serde_json::to_string(&ops2).unwrap()
+    );
+
+    println!("{}", serde_json::to_string_pretty(&ops2).unwrap())
+}
+
+#[tokio::test]
+async fn test_withdraw_stake() {
+    let test_cluster = TestClusterBuilder::new()
+        .with_epoch_duration_ms(10000)
+        .build()
+        .await
+        .unwrap();
+    let sender = test_cluster.accounts[0];
+    let client = test_cluster.wallet.get_client().await.unwrap();
+    let keystore = &test_cluster.wallet.config.keystore;
+
+    let (rosetta_client, _handle) =
+        start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
+
+    // First add some stakes
+    let validator = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await
+        .unwrap()
+        .active_validators[0]
+        .haneul_address;
+
+    let ops = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"Stake",
+            "account": { "address" : sender.to_string() },
+            "amount" : { "value": "-1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
+            "metadata": { "Stake" : {"validator": validator.to_string()} }
+        }]
+    ))
+    .unwrap();
+
+    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+
+    let tx = client
+        .read_api()
+        .get_transaction_with_options(
+            response.transaction_identifier.hash,
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes()
+                .with_events(),
+        )
+        .await
+        .unwrap();
+
+    println!("Haneul TX: {tx:?}");
+
+    assert_eq!(
+        &HaneulExecutionStatus::Success,
+        tx.effects.as_ref().unwrap().status()
+    );
+    // verify balance
+    let network_identifier = NetworkIdentifier {
+        blockchain: "haneul".to_string(),
+        network: HaneulEnv::LocalNet,
+    };
+    let response = rosetta_client
+        .get_balance(
+            network_identifier.clone(),
+            sender,
+            Some(SubAccountType::PendingStake),
+        )
+        .await;
+
+    assert_eq!(1, response.balances.len());
+    assert_eq!(1000000, response.balances[0].value);
+
+    // wait for epoch.
+    tokio::time::sleep(Duration::from_millis(15000)).await;
+
+    // withdraw all stake
+    let ops = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"WithdrawStake",
+            "account": { "address" : sender.to_string() }
+        }]
+    ))
+    .unwrap();
+
+    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+
+    let tx = client
+        .read_api()
+        .get_transaction_with_options(
+            response.transaction_identifier.hash,
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes()
+                .with_events(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(
+        &HaneulExecutionStatus::Success,
+        tx.effects.as_ref().unwrap().status()
+    );
+    println!("Haneul TX: {tx:?}");
+
+    let ops2 = Operations::try_from(tx).unwrap();
+    assert!(
+        ops2.contains(&ops),
+        "Operation mismatch. expecting:{}, got:{}",
+        serde_json::to_string(&ops).unwrap(),
+        serde_json::to_string(&ops2).unwrap()
+    );
+
+    println!("{}", serde_json::to_string_pretty(&ops2).unwrap());
+
+    // stake should be 0
+    let response = rosetta_client
+        .get_balance(
+            network_identifier.clone(),
+            sender,
+            Some(SubAccountType::PendingStake),
+        )
+        .await;
+
+    assert_eq!(1, response.balances.len());
+    assert_eq!(0, response.balances[0].value);
 }
 
 #[tokio::test]
@@ -277,31 +377,112 @@ async fn test_pay_haneul() {
     let recipient = test_cluster.accounts[1];
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
-    let coin1 = get_random_haneul(&client, sender, vec![]).await;
 
     let (rosetta_client, _handle) =
         start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
 
-    let ops = client
-        .transaction_builder()
-        .pay_haneul(sender, vec![coin1.0], vec![recipient], vec![10000], 1000)
-        .await
-        .unwrap();
+    let ops = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"PayHaneul",
+            "account": { "address" : recipient.to_string() },
+            "amount" : { "value": "1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+        },{
+            "operation_identifier":{"index":1},
+            "type":"PayHaneul",
+            "account": { "address" : sender.to_string() },
+            "amount" : { "value": "-1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+        }]
+    ))
+    .unwrap();
 
-    let ops = Operations::try_from(ops).unwrap();
-
-    let response = rosetta_client.rosetta_flow(ops, keystore).await;
+    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
 
     let tx = client
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new().with_effects(),
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_balance_changes()
+                .with_events(),
         )
         .await
         .unwrap();
 
+    assert_eq!(
+        &HaneulExecutionStatus::Success,
+        tx.effects.as_ref().unwrap().status()
+    );
     println!("Haneul TX: {tx:?}");
 
-    assert_eq!(HaneulExecutionStatus::Success, *tx.effects.unwrap().status())
+    let ops2 = Operations::try_from(tx).unwrap();
+    assert!(
+        ops2.contains(&ops),
+        "Operation mismatch. expecting:{}, got:{}",
+        serde_json::to_string(&ops).unwrap(),
+        serde_json::to_string(&ops2).unwrap()
+    );
+}
+
+#[tokio::test]
+async fn test_pay_haneul_multiple_times() {
+    let test_cluster = TestClusterBuilder::new()
+        .with_epoch_duration_ms(36000000)
+        .build()
+        .await
+        .unwrap();
+    let sender = test_cluster.accounts[0];
+    let recipient = test_cluster.accounts[1];
+    let client = test_cluster.wallet.get_client().await.unwrap();
+    let keystore = &test_cluster.wallet.config.keystore;
+
+    let (rosetta_client, _handle) =
+        start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
+
+    for _ in 1..100 {
+        let ops = serde_json::from_value(json!(
+            [{
+                "operation_identifier":{"index":0},
+                "type":"PayHaneul",
+                "account": { "address" : recipient.to_string() },
+                "amount" : { "value": "1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+            },{
+                "operation_identifier":{"index":1},
+                "type":"PayHaneul",
+                "account": { "address" : sender.to_string() },
+                "amount" : { "value": "-1000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+            }]
+        ))
+        .unwrap();
+
+        let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+
+        let tx = client
+            .read_api()
+            .get_transaction_with_options(
+                response.transaction_identifier.hash,
+                HaneulTransactionResponseOptions::new()
+                    .with_input()
+                    .with_effects()
+                    .with_balance_changes()
+                    .with_events(),
+            )
+            .await
+            .unwrap();
+        println!("Haneul TX: {tx:?}");
+        assert_eq!(
+            &HaneulExecutionStatus::Success,
+            tx.effects.as_ref().unwrap().status()
+        );
+
+        let ops2 = Operations::try_from(tx).unwrap();
+        assert!(
+            ops2.contains(&ops),
+            "Operation mismatch. expecting:{}, got:{}",
+            serde_json::to_string(&ops).unwrap(),
+            serde_json::to_string(&ops2).unwrap()
+        );
+    }
 }

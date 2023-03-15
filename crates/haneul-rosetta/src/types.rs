@@ -1,16 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::anyhow;
-use axum::Json;
 use std::fmt::Debug;
 use std::str::FromStr;
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 
-use crate::errors::{Error, ErrorType};
-use crate::operations::Operations;
-use crate::HANEUL;
 use axum::response::{IntoResponse, Response};
+use axum::Json;
 use fastcrypto::encoding::Hex;
 use fastcrypto::traits::ToFromBytes;
 use serde::de::Error as DeError;
@@ -19,18 +14,23 @@ use serde::{Deserializer, Serialize};
 use serde_json::Value;
 use strum_macros::EnumIter;
 use strum_macros::EnumString;
+
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionKind};
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
-use haneul_types::committee::EpochId;
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
-use haneul_types::governance::ADD_STAKE_MUL_COIN_FUN_NAME;
-use haneul_types::messages::{CallArg, Command, ObjectArg, TransactionData};
+use haneul_types::governance::{ADD_STAKE_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
+use haneul_types::messages::{Argument, CallArg, Command, ObjectArg, TransactionData};
 use haneul_types::messages_checkpoint::CheckpointDigest;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
     HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
+
+use crate::errors::{Error, ErrorType};
+use crate::operations::Operations;
+use crate::HANEUL;
 
 pub type BlockHeight = u64;
 
@@ -69,24 +69,24 @@ impl HaneulEnv {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct AccountIdentifier {
     pub address: HaneulAddress,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sub_account: Option<SubAccount>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct SubAccount {
     #[serde(rename = "address")]
     pub account_type: SubAccountType,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub enum SubAccountType {
-    DelegatedHaneul,
-    PendingDelegation,
-    LockedHaneul,
+    Stake,
+    PendingStake,
+    EstimatedReward,
 }
 
 impl From<HaneulAddress> for AccountIdentifier {
@@ -98,7 +98,7 @@ impl From<HaneulAddress> for AccountIdentifier {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct Currency {
     pub symbol: String,
     pub decimals: u64,
@@ -132,7 +132,7 @@ pub struct BlockIdentifier {
 
 pub type BlockHash = CheckpointDigest;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct Amount {
     #[serde(with = "str_format")]
     pub value: i128,
@@ -141,9 +141,10 @@ pub struct Amount {
     pub metadata: Option<AmountMetadata>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct AmountMetadata {
-    pub lock_until_epoch: EpochId,
+    pub stake_id: ObjectID,
+    pub validator: HaneulAddress,
 }
 
 impl Amount {
@@ -154,21 +155,23 @@ impl Amount {
             metadata: None,
         }
     }
-    pub fn new_locked(epoch: EpochId, value: i128) -> Self {
+    pub fn new_stake(value: i128, stake_id: ObjectID, validator: HaneulAddress) -> Self {
         Self {
             value,
             currency: HANEUL.clone(),
             metadata: Some(AmountMetadata {
-                lock_until_epoch: epoch,
+                stake_id,
+                validator,
             }),
         }
     }
 }
 
 mod str_format {
+    use std::str::FromStr;
+
     use serde::de::Error;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    use std::str::FromStr;
 
     pub fn serialize<S>(value: &i128, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -220,20 +223,18 @@ impl From<haneul_sdk::rpc_types::Coin> for Coin {
             amount: Amount {
                 value: coin.balance as i128,
                 currency: HANEUL.clone(),
-                metadata: coin.locked_until_epoch.map(|epoch| AmountMetadata {
-                    lock_until_epoch: epoch,
-                }),
+                metadata: None,
             },
         }
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct CoinIdentifier {
     pub identifier: CoinID,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CoinID {
     pub id: ObjectID,
     pub version: SequenceNumber,
@@ -391,11 +392,12 @@ pub enum OperationType {
     // Balance changing operations from TransactionEffect
     Gas,
     HaneulBalanceChange,
+    StakeReward,
+    StakePrinciple,
     // haneul-rosetta supported operation type
     PayHaneul,
-    Delegation,
-    WithdrawDelegation,
-    SwitchDelegation,
+    Stake,
+    WithdrawStake,
     // All other Haneul transaction types, readonly
     EpochChange,
     Genesis,
@@ -418,7 +420,7 @@ impl From<&HaneulTransactionKind> for OperationType {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Default)]
+#[derive(Deserialize, Serialize, Clone, Debug, Default, Eq, PartialEq)]
 pub struct OperationIdentifier {
     index: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -434,13 +436,13 @@ impl From<u64> for OperationIdentifier {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub struct CoinChange {
     pub coin_identifier: CoinIdentifier,
     pub coin_action: CoinAction,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum CoinAction {
     CoinCreated,
@@ -538,15 +540,6 @@ pub enum PreprocessMetadata {
     Delegation,
 }
 
-impl From<TransactionMetadata> for PreprocessMetadata {
-    fn from(tx_metadata: TransactionMetadata) -> Self {
-        match tx_metadata {
-            TransactionMetadata::PayHaneul => Self::PayHaneul,
-            TransactionMetadata::Delegation { .. } => Self::Delegation,
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConstructionPreprocessResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -589,9 +582,10 @@ pub struct ConstructionMetadataResponse {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConstructionMetadata {
-    pub tx_metadata: TransactionMetadata,
     pub sender: HaneulAddress,
-    pub gas: Vec<ObjectRef>,
+    pub coins: Vec<ObjectRef>,
+    pub objects: Vec<ObjectRef>,
+    pub total_coin_value: u64,
     pub gas_price: u64,
     pub budget: u64,
 }
@@ -600,11 +594,6 @@ impl IntoResponse for ConstructionMetadataResponse {
     fn into_response(self) -> Response {
         Json(self).into_response()
     }
-}
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub enum TransactionMetadata {
-    PayHaneul,
-    Delegation { coins: Vec<ObjectRef> },
 }
 
 #[derive(Deserialize)]
@@ -710,7 +699,7 @@ pub struct Allow {
     pub transaction_hash_case: Option<Case>,
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Debug)]
+#[derive(Copy, Clone, Deserialize, Serialize, Debug, Eq, PartialEq)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum OperationStatus {
     Success,
@@ -849,10 +838,15 @@ pub enum InternalOperation {
         recipients: Vec<HaneulAddress>,
         amounts: Vec<u64>,
     },
-    Delegation {
+    Stake {
         sender: HaneulAddress,
         validator: HaneulAddress,
-        amount: u128,
+        amount: Option<u64>,
+    },
+    WithdrawStake {
+        sender: HaneulAddress,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        stake_ids: Vec<ObjectID>,
     },
 }
 
@@ -860,70 +854,95 @@ impl InternalOperation {
     pub fn sender(&self) -> HaneulAddress {
         match self {
             InternalOperation::PayHaneul { sender, .. }
-            | InternalOperation::Delegation { sender, .. } => *sender,
+            | InternalOperation::Stake { sender, .. }
+            | InternalOperation::WithdrawStake { sender, .. } => *sender,
         }
     }
     /// Combine with ConstructionMetadata to form the TransactionData
     pub fn try_into_data(self, metadata: ConstructionMetadata) -> Result<TransactionData, Error> {
-        let pt = match (self, metadata.tx_metadata) {
-            (
-                Self::PayHaneul {
-                    recipients,
-                    amounts,
-                    ..
-                },
-                TransactionMetadata::PayHaneul,
-            ) => {
+        let pt = match self {
+            Self::PayHaneul {
+                recipients,
+                amounts,
+                ..
+            } => {
                 let mut builder = ProgrammableTransactionBuilder::new();
                 builder.pay_haneul(recipients, amounts)?;
                 builder.finish()
             }
-            (
-                InternalOperation::Delegation {
-                    validator, amount, ..
-                },
-                TransactionMetadata::Delegation { coins, .. },
-            ) => {
+            InternalOperation::Stake {
+                validator, amount, ..
+            } => {
                 let mut builder = ProgrammableTransactionBuilder::new();
-                let arguments = vec![
-                    builder
-                        .input(CallArg::Object(ObjectArg::SharedObject {
-                            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                            mutable: true,
-                        }))
-                        .map_err(Error::InternalError)?,
-                    builder
-                        .make_obj_vec(coins.into_iter().map(ObjectArg::ImmOrOwnedObject))
-                        .map_err(Error::InternalError)?,
-                    builder
-                        .input(CallArg::Pure(bcs::to_bytes(&Some(amount as u64))?))
-                        .map_err(Error::InternalError)?,
-                    builder
-                        .input(CallArg::Pure(bcs::to_bytes(&validator)?))
-                        .map_err(Error::InternalError)?,
-                ];
+                let system_state = CallArg::Object(ObjectArg::SharedObject {
+                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                    mutable: true,
+                });
+
+                // [WORKAROUND] - this is a hack to work out if the staking ops is for a selected amount or None amount (whole wallet).
+                // if amount is none, validator input will be created after the system object input
+                let (validator, system_state, amount) = if let Some(amount) = amount {
+                    let amount = builder.pure(amount)?;
+                    let validator = builder.input(CallArg::Pure(bcs::to_bytes(&validator)?))?;
+                    let state = builder.input(system_state)?;
+                    (validator, state, amount)
+                } else {
+                    let amount = builder.pure(metadata.total_coin_value - metadata.budget)?;
+                    let state = builder.input(system_state)?;
+                    let validator = builder.input(CallArg::Pure(bcs::to_bytes(&validator)?))?;
+                    (validator, state, amount)
+                };
+                let coin = builder.command(Command::SplitCoin(Argument::GasCoin, amount));
+
+                let arguments = vec![system_state, coin, validator];
+
                 builder.command(Command::move_call(
                     HANEUL_FRAMEWORK_OBJECT_ID,
                     HANEUL_SYSTEM_MODULE_NAME.to_owned(),
-                    ADD_STAKE_MUL_COIN_FUN_NAME.to_owned(),
+                    ADD_STAKE_FUN_NAME.to_owned(),
                     vec![],
                     arguments,
                 ));
                 builder.finish()
             }
-            (op, metadata) => {
-                return Err(Error::InternalError(anyhow!(
-                "Cannot construct TransactionData from provided operation and metadata, {:?}, {:?}",
-                op,
-                metadata
-            )))
+            InternalOperation::WithdrawStake { stake_ids, .. } => {
+                let mut builder = ProgrammableTransactionBuilder::new();
+                let system_state = CallArg::Object(ObjectArg::SharedObject {
+                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                    mutable: true,
+                });
+
+                for stake_id in metadata.objects {
+                    // [WORKAROUND] - this is a hack to work out if the withdraw stake ops is for selected stake_ids or None (all stakes) using the index of the call args.
+                    // if stake_ids is not empty, id input will be created after the system object input
+                    let (system_state, id) = if !stake_ids.is_empty() {
+                        let system_state = builder.input(system_state.clone())?;
+                        let id = builder.obj(ObjectArg::ImmOrOwnedObject(stake_id))?;
+                        (system_state, id)
+                    } else {
+                        let id = builder.obj(ObjectArg::ImmOrOwnedObject(stake_id))?;
+                        let system_state = builder.input(system_state.clone())?;
+                        (system_state, id)
+                    };
+
+                    let arguments = vec![system_state, id];
+                    builder.command(Command::move_call(
+                        HANEUL_FRAMEWORK_OBJECT_ID,
+                        HANEUL_SYSTEM_MODULE_NAME.to_owned(),
+                        WITHDRAW_STAKE_FUN_NAME.to_owned(),
+                        vec![],
+                        arguments,
+                    ));
+                }
+                builder.finish()
             }
         };
 
         Ok(TransactionData::new_programmable(
             metadata.sender,
-            metadata.gas,
+            metadata.coins,
             pt,
             metadata.budget,
             metadata.gas_price,
