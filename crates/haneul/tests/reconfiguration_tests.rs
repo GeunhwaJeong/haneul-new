@@ -10,7 +10,6 @@ use std::time::{Duration, Instant};
 use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_core::safe_client::SafeClientMetricsBase;
-use haneul_core::signature_verifier::DefaultSignatureVerifier;
 use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
@@ -105,7 +104,7 @@ async fn reconfig_with_revert_end_to_end_test() {
         &keypair,
         None,
     );
-    let net = AuthorityAggregator::<_, DefaultSignatureVerifier>::new_from_local_system_state(
+    let net = AuthorityAggregator::new_from_local_system_state(
         &authorities[0].with(|node| node.state().db()),
         &authorities[0].with(|node| node.state().committee_store().clone()),
         SafeClientMetricsBase::new(&registry),
@@ -289,7 +288,7 @@ async fn test_validator_resign_effects() {
         None,
     );
     let registry = Registry::new();
-    let mut net = AuthorityAggregator::<_, DefaultSignatureVerifier>::new_from_local_system_state(
+    let mut net = AuthorityAggregator::new_from_local_system_state(
         &authorities[0].with(|node| node.state().db()),
         &authorities[0].with(|node| node.state().committee_store().clone()),
         SafeClientMetricsBase::new(&registry),
@@ -666,7 +665,7 @@ async fn execute_transaction(
     transaction: VerifiedTransaction,
 ) -> anyhow::Result<CertifiedTransactionEffects> {
     let registry = Registry::new();
-    let net = AuthorityAggregator::<_, DefaultSignatureVerifier>::new_from_local_system_state(
+    let net = AuthorityAggregator::new_from_local_system_state(
         &authorities[0].with(|node| node.state().db()),
         &authorities[0].with(|node| node.state().committee_store().clone()),
         SafeClientMetricsBase::new(&registry),
