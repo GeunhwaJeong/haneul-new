@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeature } from '@growthbook/growthbook-react';
-import { formatAmount, useRpcClient } from '@haneullabs/core';
+import { formatAmount, roundFloat, useRpcClient } from '@haneullabs/core';
 import { useQuery } from '@tanstack/react-query';
 
 import { MetricGroup } from './MetricGroup';
@@ -25,10 +25,6 @@ interface CountsResponse {
 interface TPSCheckpointResponse {
     tps: number;
     checkpoint: string;
-}
-
-function roundFloat(number: number, decimals: number) {
-    return parseFloat(number.toFixed(decimals));
 }
 
 // Simple wrapper around stats to avoid text wrapping:

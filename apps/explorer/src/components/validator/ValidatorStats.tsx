@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { calculateAPY } from '@haneullabs/core';
 import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { DelegationAmount } from './DelegationAmount';
-import { calculateAPY } from './calculateAPY';
 
 import { Card } from '~/ui/Card';
 import { Heading } from '~/ui/Heading';

@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { calculateAPY } from '@haneullabs/core';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useActiveAddress } from '../../hooks/useActiveAddress';
-import { calculateAPY } from '../calculateAPY';
 import { calculateStakeShare } from '../calculateStakeShare';
 import { getStakeHaneulByHaneulId } from '../getStakeHaneulByHaneulId';
 import { getTokenStakeHaneulForValidator } from '../getTokenStakeHaneulForValidator';

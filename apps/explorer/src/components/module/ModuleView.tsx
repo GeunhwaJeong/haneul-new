@@ -1,13 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
+import {
+    normalizeHaneulAddress,
+    type HaneulMoveNormalizedType,
+} from '@haneullabs/haneul.js';
 import cl from 'clsx';
 import Highlight, { defaultProps, Prism } from 'prism-react-renderer';
 import 'prism-themes/themes/prism-one-light.css';
 import { useMemo } from 'react';
 
-import { normalizeHaneulAddress } from '../../utils/stringUtils';
-
-import type { HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
 import type { Language } from 'prism-react-renderer';
 
 import styles from './ModuleView.module.css';
