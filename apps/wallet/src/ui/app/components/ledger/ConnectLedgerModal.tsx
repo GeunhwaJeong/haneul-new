@@ -23,7 +23,7 @@ export function ConnectLedgerModal({
     onError,
 }: ConnectLedgerModalProps) {
     const [isConnectingToLedger, setConnectingToLedger] = useState(false);
-    const [, connectToLedger] = useHaneulLedgerClient();
+    const { connectToLedger } = useHaneulLedgerClient();
 
     const onContinueClick = async () => {
         try {

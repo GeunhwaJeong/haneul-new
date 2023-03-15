@@ -26,7 +26,7 @@ export function useDeriveLedgerAccounts(
     const [ledgerAccounts, setLedgerAccounts] = useState<
         SelectableLedgerAccount[]
     >([]);
-    const [haneulLedgerClient] = useHaneulLedgerClient();
+    const { haneulLedgerClient } = useHaneulLedgerClient();
     const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {

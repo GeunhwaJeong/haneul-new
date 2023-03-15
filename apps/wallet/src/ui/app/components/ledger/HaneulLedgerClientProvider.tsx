@@ -13,21 +13,25 @@ import {
     useState,
 } from 'react';
 
+import { LedgerSigner } from '../../LedgerSigner';
+import { api } from '../../redux/store/thunk-extras';
 import {
     LedgerConnectionFailedError,
+    LedgerDeviceNotFoundError,
     LedgerNoTransportMechanismError,
 } from './LedgerExceptions';
-
-import type Transport from '@ledgerhq/hw-transport';
 
 type HaneulLedgerClientProviderProps = {
     children: React.ReactNode;
 };
 
-type HaneulLedgerClientContextValue = [
-    HaneulLedgerClient | undefined,
-    () => Promise<HaneulLedgerClient>
-];
+type HaneulLedgerClientContextValue = {
+    haneulLedgerClient: HaneulLedgerClient | undefined;
+    connectToLedger: () => Promise<HaneulLedgerClient>;
+    initializeLedgerSignerInstance: (
+        derivationPath: string
+    ) => Promise<LedgerSigner>;
+};
 
 const HaneulLedgerClientContext = createContext<
     HaneulLedgerClientContextValue | undefined
@@ -47,6 +51,33 @@ export function HaneulLedgerClientProvider({
         return () => haneulLedgerClient?.transport.off('disconnect', onDisconnect);
     }, [haneulLedgerClient?.transport]);
 
+    const initializeLedgerSignerInstance = useCallback(
+        async (derivationPath: string) => {
+            if (!haneulLedgerClient) {
+                try {
+                    const transport = await forceConnectionToLedger();
+                    const newClient = new HaneulLedgerClient(transport);
+                    setHaneulLedgerClient(newClient);
+
+                    return new LedgerSigner(
+                        newClient,
+                        derivationPath,
+                        api.instance.fullNode
+                    );
+                } catch (error) {
+                    throw new Error('Failed to connect');
+                }
+            }
+
+            return new LedgerSigner(
+                haneulLedgerClient,
+                derivationPath,
+                api.instance.fullNode
+            );
+        },
+        [haneulLedgerClient]
+    );
+
     const connectToLedger = useCallback(async () => {
         if (haneulLedgerClient?.transport) {
             // If we've already connected to a Ledger device, we need
@@ -54,16 +85,19 @@ export function HaneulLedgerClientProvider({
             await haneulLedgerClient.transport.close();
         }
 
-        const ledgerTransport = await getLedgerTransport();
+        const ledgerTransport = await requestConnectionToLedger();
         const ledgerClient = new HaneulLedgerClient(ledgerTransport);
         setHaneulLedgerClient(ledgerClient);
         return ledgerClient;
     }, [haneulLedgerClient]);
 
-    const contextValue: HaneulLedgerClientContextValue = useMemo(
-        () => [haneulLedgerClient, connectToLedger],
-        [connectToLedger, haneulLedgerClient]
-    );
+    const contextValue: HaneulLedgerClientContextValue = useMemo(() => {
+        return {
+            haneulLedgerClient,
+            connectToLedger,
+            initializeLedgerSignerInstance,
+        };
+    }, [connectToLedger, haneulLedgerClient, initializeLedgerSignerInstance]);
 
     return (
         <HaneulLedgerClientContext.Provider value={contextValue}>
@@ -82,31 +116,41 @@ export function useHaneulLedgerClient() {
     return haneulLedgerClientContext;
 }
 
-async function getLedgerTransport() {
-    let ledgerTransport: Transport | null | undefined;
-
+async function requestConnectionToLedger() {
     try {
-        ledgerTransport = await initiateLedgerConnection();
+        if (await TransportWebHID.isSupported()) {
+            return await TransportWebHID.request();
+        } else if (await TransportWebUSB.isSupported()) {
+            return await TransportWebUSB.request();
+        }
+    } catch (error) {
+        throw new LedgerConnectionFailedError(
+            "Unable to connect to the user's Ledger device"
+        );
+    }
+    throw new LedgerNoTransportMechanismError(
+        "There are no supported transport mechanisms to connect to the user's Ledger device"
+    );
+}
+
+async function forceConnectionToLedger() {
+    let transport: TransportWebHID | TransportWebUSB | null | undefined;
+    try {
+        if (await TransportWebHID.isSupported()) {
+            transport = await TransportWebHID.openConnected();
+        } else if (await TransportWebUSB.isSupported()) {
+            transport = await TransportWebUSB.openConnected();
+        }
     } catch (error) {
         throw new LedgerConnectionFailedError(
             "Unable to connect to the user's Ledger device"
         );
     }
 
-    if (!ledgerTransport) {
-        throw new LedgerNoTransportMechanismError(
-            "There are no supported transport mechanisms to connect to the user's Ledger device"
+    if (!transport) {
+        throw new LedgerDeviceNotFoundError(
+            'Connected Ledger device not found'
         );
     }
-
-    return ledgerTransport;
-}
-
-async function initiateLedgerConnection(): Promise<Transport | null> {
-    if (await TransportWebHID.isSupported()) {
-        return await TransportWebHID.request();
-    } else if (await TransportWebUSB.isSupported()) {
-        return await TransportWebUSB.request();
-    }
-    return null;
+    return transport;
 }
