@@ -19,16 +19,17 @@ use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber, TransactionDigest,
+    MoveObjectType, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
+    TransactionDigest,
 };
 use haneul_types::error::{UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
 
-use crate::{HaneulMoveStruct, HaneulMoveValue};
+use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(tag = "status", content = "details", rename = "ObjectRead")]
 pub enum HaneulObjectResponse {
     Exists(HaneulObjectData),
@@ -50,7 +51,7 @@ pub struct HaneulObjectData {
     #[serde_as(as = "Option<DisplayFromStr>")]
     #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     pub type_: Option<ObjectType>,
-    // Default to be None because otherwise it will be repeated for the getObjectsOwnedByAddress endpoint
+    // Default to be None because otherwise it will be repeated for the getOwnedObjects endpoint
     /// The owner of this object. Default to be None unless HaneulObjectDataOptions.showOwner is set to true
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<Owner>,
@@ -86,6 +87,14 @@ impl HaneulObjectData {
             .as_ref()
             .ok_or_else(|| anyhow!("type is missing for object {:?}", self.object_id))
             .cloned()
+    }
+
+    pub fn is_gas_coin(&self) -> bool {
+        match self.type_.as_ref() {
+            Some(ObjectType::Struct(MoveObjectType::GasCoin)) => true,
+            Some(_) => false,
+            None => false,
+        }
     }
 }
 
@@ -255,6 +264,11 @@ impl HaneulObjectDataOptions {
         self.show_bcs = true;
         self
     }
+
+    pub fn with_previous_transaction(mut self) -> Self {
+        self.show_previous_transaction = true;
+        self
+    }
 }
 
 impl TryFrom<(ObjectRead, HaneulObjectDataOptions)> for HaneulObjectResponse {
@@ -270,6 +284,35 @@ impl TryFrom<(ObjectRead, HaneulObjectDataOptions)> for HaneulObjectResponse {
             }
             ObjectRead::Deleted(oref) => Ok(Self::Deleted(oref.into())),
         }
+    }
+}
+
+impl TryFrom<(ObjectInfo, HaneulObjectDataOptions)> for HaneulObjectResponse {
+    type Error = anyhow::Error;
+
+    fn try_from(
+        (object_info, options): (ObjectInfo, HaneulObjectDataOptions),
+    ) -> Result<Self, Self::Error> {
+        let HaneulObjectDataOptions {
+            show_type,
+            show_owner,
+            show_previous_transaction,
+            ..
+        } = options;
+
+        Ok(Self::Exists(HaneulObjectData {
+            object_id: object_info.object_id,
+            version: object_info.version,
+            digest: object_info.digest,
+            type_: show_type.then_some(object_info.type_),
+            owner: show_owner.then_some(object_info.owner),
+            previous_transaction: show_previous_transaction
+                .then_some(object_info.previous_transaction),
+            storage_rebate: None,
+            display: None,
+            content: None,
+            bcs: None,
+        }))
     }
 }
 
@@ -837,36 +880,7 @@ pub struct HaneulMovePackage {
     pub disassembled: BTreeMap<String, Value>,
 }
 
-#[derive(Clone, Serialize, Deserialize, JsonSchema, Ord, PartialOrd, Eq, PartialEq, Debug)]
-#[serde(rename = "ObjectInfo", rename_all = "camelCase")]
-pub struct HaneulObjectInfo {
-    pub object_id: ObjectID,
-    pub version: SequenceNumber,
-    pub digest: ObjectDigest,
-    #[serde(rename = "type")]
-    pub type_: String,
-    pub owner: Owner,
-    pub previous_transaction: TransactionDigest,
-}
-
-impl HaneulObjectInfo {
-    pub fn to_object_ref(&self) -> ObjectRef {
-        (self.object_id, self.version, self.digest)
-    }
-}
-
-impl From<ObjectInfo> for HaneulObjectInfo {
-    fn from(info: ObjectInfo) -> Self {
-        Self {
-            object_id: info.object_id,
-            version: info.version,
-            digest: info.digest,
-            type_: format!("{}", info.type_),
-            owner: info.owner,
-            previous_transaction: info.previous_transaction,
-        }
-    }
-}
+pub type ObjectsPage = Page<HaneulObjectResponse, ObjectID>;
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "GetPastObjectRequest", rename_all = "camelCase")]

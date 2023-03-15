@@ -37,8 +37,8 @@ use haneul_framework_build::compiled_package::{
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, HaneulObjectData, HaneulObjectInfo, HaneulObjectResponse, HaneulRawData,
-    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    DynamicFieldPage, HaneulObjectData, HaneulObjectResponse, HaneulRawData, HaneulTransactionEffectsAPI,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -811,9 +811,16 @@ impl HaneulClientCommands {
                 let client = context.get_client().await?;
                 let address_object = client
                     .read_api()
-                    .get_objects_owned_by_address(address)
+                    // TODO: (jian) fill in later
+                    .get_owned_objects(
+                        address,
+                        Some(HaneulObjectDataOptions::full_content()),
+                        None,
+                        None,
+                        None,
+                    )
                     .await?;
-                HaneulClientCommandResult::Objects(address_object)
+                HaneulClientCommandResult::Objects(address_object.data)
             }
 
             HaneulClientCommands::NewAddress {
@@ -833,7 +840,7 @@ impl HaneulClientCommands {
                     .await?
                     .iter()
                     // Ok to unwrap() since `get_gas_objects` guarantees gas
-                    .map(|(_val, object, _object_ref)| GasCoin::try_from(object).unwrap())
+                    .map(|(_val, object)| GasCoin::try_from(object).unwrap())
                     .collect();
                 HaneulClientCommandResult::Gas(coins)
             }
@@ -1168,31 +1175,40 @@ impl WalletContext {
     pub async fn gas_objects(
         &self,
         address: HaneulAddress,
-    ) -> Result<Vec<(u64, HaneulObjectData, HaneulObjectInfo)>, anyhow::Error> {
+    ) -> Result<Vec<(u64, HaneulObjectData)>, anyhow::Error> {
         let client = self.get_client().await?;
-        let object_refs = client
+        let objects = client
             .read_api()
-            .get_objects_owned_by_address(address)
-            .await?;
-        let o_ref_clone = object_refs.clone();
+            // TODO: (jian) fill in later
+            .get_owned_objects(
+                address,
+                Some(HaneulObjectDataOptions::full_content()),
+                None,
+                Some(256),
+                None,
+            )
+            .await?
+            .data;
         // TODO: We should ideally fetch the objects from local cache
         let mut values_objects = Vec::new();
-        let oref_ids: Vec<ObjectID> = object_refs.into_iter().map(|oref| oref.object_id).collect();
+
+        let oref_ids = objects
+            .into_iter()
+            .map(|o| o.object().unwrap().object_id)
+            .collect();
 
         let responses = client
             .read_api()
             .multi_get_object_with_options(oref_ids, HaneulObjectDataOptions::full_content())
             .await?;
 
-        let pairs: Vec<_> = responses.iter().zip(o_ref_clone.into_iter()).collect();
-
-        for (response, oref) in pairs {
-            match response {
+        for object in responses {
+            match object {
                 HaneulObjectResponse::Exists(o) => {
                     if matches!( &o.type_, Some(type_)  if type_.is_gas_coin()) {
                         // Okay to unwrap() since we already checked type
-                        let gas_coin = GasCoin::try_from(o)?;
-                        values_objects.push((gas_coin.value(), o.clone(), oref));
+                        let gas_coin = GasCoin::try_from(&o)?;
+                        values_objects.push((gas_coin.value(), o.clone()));
                     }
                 }
                 _ => continue,
@@ -1331,20 +1347,25 @@ impl Display for HaneulClientCommandResult {
                 )?;
                 writeln!(writer, "{}", ["-"; 165].join(""))?;
                 for oref in object_refs {
-                    let owner_type = match oref.owner {
-                        Owner::AddressOwner(_) => "AddressOwner",
-                        Owner::ObjectOwner(_) => "object_owner",
-                        Owner::Shared { .. } => "Shared",
-                        Owner::Immutable => "Immutable",
+                    // TODO (jian): fix unwrap and clone later
+                    let obj = oref.clone().into_object().unwrap();
+
+                    let owner_type = match obj.owner {
+                        Some(Owner::AddressOwner(_)) => "AddressOwner",
+                        Some(Owner::ObjectOwner(_)) => "object_owner",
+                        Some(Owner::Shared { .. }) => "Shared",
+                        Some(Owner::Immutable) => "Immutable",
+                        None => "None",
                     };
+
                     writeln!(
                         writer,
                         " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
-                        oref.object_id,
-                        oref.version.value(),
-                        Base64::encode(oref.digest),
+                        obj.object_id,
+                        obj.version.value(),
+                        Base64::encode(obj.digest),
                         owner_type,
-                        oref.type_
+                        format!("{:?}", obj.type_)
                     )?
                 }
                 writeln!(writer, "Showing {} results.", object_refs.len())?;
@@ -1596,7 +1617,7 @@ pub enum HaneulClientCommandResult {
     PayHaneul(HaneulTransactionResponse),
     PayAllHaneul(HaneulTransactionResponse),
     Addresses(Vec<HaneulAddress>, Option<HaneulAddress>),
-    Objects(Vec<HaneulObjectInfo>),
+    Objects(Vec<HaneulObjectResponse>),
     DynamicFieldQuery(DynamicFieldPage),
     SyncClientState,
     NewAddress((HaneulAddress, String, SignatureScheme)),

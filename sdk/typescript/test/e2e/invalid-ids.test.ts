@@ -15,7 +15,7 @@ describe('Object id/Address/Transaction digest validation', () => {
   it('Test all functions with invalid Haneul Address', async () => {
     //empty id
     expect(
-      toolbox.provider.getObjectsOwnedByAddress({ owner: '' }),
+      toolbox.provider.getOwnedObjects({ owner: '' }),
     ).rejects.toThrowError(/Invalid Haneul address/);
 
     //wrong id

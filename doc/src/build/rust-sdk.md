@@ -39,13 +39,14 @@ use std::str::FromStr;
 use haneul_sdk::types::base_types::HaneulAddress;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
+// TODO: (jian) update example after pagination changes
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let haneul = HaneulClientBuilder::default().build(
       "https://fullnode.devnet.haneul.io:443",
     ).await.unwrap();
     let address = HaneulAddress::from_str("0xbcab7526033aa0e014f634bf51316715dda0907a7fab5a8d7e3bd44e634a4d44")?;
-    let objects = haneul.read_api().get_objects_owned_by_address(address).await?;
+    let objects = haneul.read_api().get_owned_objects(address).await?;
     println!("{:?}", objects);
     Ok(())
 }

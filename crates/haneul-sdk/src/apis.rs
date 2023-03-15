@@ -14,9 +14,9 @@ use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
-    DynamicFieldPage, EventFilter, EventPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
-    HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectInfo,
-    HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    DynamicFieldPage, EventFilter, EventPage, ObjectsPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
+    HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_types::balance::Supply;
@@ -43,11 +43,19 @@ impl ReadApi {
         Self { api }
     }
 
-    pub async fn get_objects_owned_by_address(
+    pub async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-    ) -> HaneulRpcResult<Vec<HaneulObjectInfo>> {
-        Ok(self.api.http.get_objects_owned_by_address(address).await?)
+        options: Option<HaneulObjectDataOptions>,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+        checkpoint: Option<CheckpointId>,
+    ) -> HaneulRpcResult<ObjectsPage> {
+        Ok(self
+            .api
+            .http
+            .get_owned_objects(address, options, cursor, limit, checkpoint)
+            .await?)
     }
 
     pub async fn get_dynamic_fields(

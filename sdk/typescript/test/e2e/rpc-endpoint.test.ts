@@ -11,20 +11,25 @@ describe('Invoke any RPC endpoint', () => {
     toolbox = await setup();
   });
 
-  it('haneul_getObjectsOwnedByAddress', async () => {
-    const gasObjectsExpected = await toolbox.provider.getObjectsOwnedByAddress({
+  it('haneul_getOwnedObjects', async () => {
+    const gasObjectsExpected = await toolbox.provider.getOwnedObjects({
       owner: toolbox.address(),
     });
-    const gasObjects = await toolbox.provider.call(
-      'haneul_getObjectsOwnedByAddress',
-      [toolbox.address()],
-    );
-    expect(gasObjects).toStrictEqual(gasObjectsExpected);
+    const gasObjects = await toolbox.provider.call('haneul_getOwnedObjects', [
+      toolbox.address(),
+    ]);
+    // TODO (jian): fix this test in the upcoming PR because haneul_getOwnedObjects returns a paginated response which our API
+    // currently doesn't consume
+    for (let i = 0; i < gasObjectsExpected.length; i++) {
+      expect(gasObjects.data[i].details.objectId).toStrictEqual(
+        gasObjectsExpected[i].objectId,
+      );
+    }
   });
 
   it('haneul_getObjectOwnedByAddress Error', async () => {
     expect(
-      toolbox.provider.call('haneul_getObjectsOwnedByAddress', []),
+      toolbox.provider.call('haneul_getOwnedObjects', []),
     ).rejects.toThrowError();
   });
 

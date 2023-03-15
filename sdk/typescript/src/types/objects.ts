@@ -362,3 +362,10 @@ export function getMovePackageContent(
   }
   return (haneulObject.content as HaneulMovePackage).disassembled;
 }
+
+export const PaginatedObjectsResponse = object({
+  data: array(HaneulObjectResponse),
+  nextCursor: union([ObjectId, literal(null)]),
+  hasNextPage: boolean(),
+});
+export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;

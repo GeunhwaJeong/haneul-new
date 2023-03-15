@@ -13,6 +13,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::str::FromStr;
 use haneul_config::utils;
+use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_rosetta::operations::Operations;
@@ -26,7 +27,6 @@ use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::HaneulSignature;
-use haneul_types::gas_coin::GasCoin;
 use tokio::task::JoinHandle;
 
 pub async fn start_rosetta_test_server(
@@ -185,17 +185,29 @@ pub async fn get_random_haneul(
 ) -> ObjectRef {
     let coins = client
         .read_api()
-        .get_objects_owned_by_address(sender)
+        .get_owned_objects(
+            sender,
+            Some(HaneulObjectDataOptions::full_content()),
+            None,
+            None,
+            None,
+        )
         .await
         .unwrap();
+
     let coin = coins
+        .data
         .iter()
-        .filter(|object| {
-            object.type_ == GasCoin::type_().to_string() && !except.contains(&object.object_id)
+        .filter(|&object| {
+            let obj = object.object().unwrap();
+            obj.clone().type_.unwrap().is_gas_coin() && !except.contains(&obj.object_id)
         })
         .choose(&mut OsRng::default())
         .unwrap();
-    (coin.object_id, coin.version, coin.digest)
+    // We type checked the gas coin above
+    let gas_coin = coin.clone().into_object().unwrap();
+
+    (gas_coin.object_id, gas_coin.version, gas_coin.digest)
 }
 
 #[allow(dead_code)]

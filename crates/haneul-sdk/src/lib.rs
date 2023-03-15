@@ -22,7 +22,7 @@ use haneul_json_rpc::{
     CLIENT_SDK_TYPE_HEADER, CLIENT_SDK_VERSION_HEADER, CLIENT_TARGET_API_VERSION_HEADER,
 };
 pub use haneul_json_rpc_types as rpc_types;
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse};
+use haneul_json_rpc_types::{CheckpointId, ObjectsPage, HaneulObjectDataOptions, HaneulObjectResponse};
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -247,11 +247,17 @@ impl HaneulClient {
 
 #[async_trait]
 impl DataReader for ReadApi {
-    async fn get_objects_owned_by_address(
+    async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-    ) -> Result<Vec<HaneulObjectInfo>, anyhow::Error> {
-        Ok(self.get_objects_owned_by_address(address).await?)
+        options: Option<HaneulObjectDataOptions>,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+        checkpoint: Option<CheckpointId>,
+    ) -> Result<ObjectsPage, anyhow::Error> {
+        Ok(self
+            .get_owned_objects(address, options, cursor, limit, checkpoint)
+            .await?)
     }
 
     async fn get_object_with_options(

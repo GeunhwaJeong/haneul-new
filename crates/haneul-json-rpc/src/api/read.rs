@@ -5,9 +5,9 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, HaneulGetPastObjectRequest,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
-    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
+    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
+    HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
+    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
     HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
     TransactionsPage,
 };
@@ -22,12 +22,20 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 #[rpc(server, client, namespace = "haneul")]
 pub trait ReadApi {
     /// Return the list of objects owned by an address.
-    #[method(name = "getObjectsOwnedByAddress")]
-    async fn get_objects_owned_by_address(
+    #[method(name = "getOwnedObjects")]
+    async fn get_owned_objects(
         &self,
         /// the owner's Haneul address
         address: HaneulAddress,
-    ) -> RpcResult<Vec<HaneulObjectInfo>>;
+        /// options for specifying the content to be returned
+        options: Option<HaneulObjectDataOptions>,
+        /// Optional paging cursor
+        cursor: Option<ObjectID>,
+        /// Max number of items returned per page, default to [MAX_GET_OWNED_OBJECT_SIZE] if not specified.
+        limit: Option<usize>,
+        /// If not specified, objects may be created or deleted across pagination requests. This parameter is only supported when the haneul-indexer instance is running.
+        at_checkpoint: Option<CheckpointId>,
+    ) -> RpcResult<ObjectsPage>;
 
     /// Return the list of dynamic field objects owned by an object.
     #[method(name = "getDynamicFields")]

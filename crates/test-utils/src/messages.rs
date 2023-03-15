@@ -9,7 +9,7 @@ use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_core::test_utils::dummy_transaction_effects;
 use haneul_framework_build::compiled_package::BuildConfig;
-use haneul_json_rpc_types::HaneulObjectInfo;
+use haneul_json_rpc_types::HaneulObjectResponse;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_types::base_types::ObjectRef;
@@ -75,7 +75,8 @@ pub async fn get_gas_object_with_wallet_context(
     if res.is_empty() {
         None
     } else {
-        Some(res.swap_remove(0).to_object_ref())
+        // TODO (jian): handle unwrap error
+        Some(res.swap_remove(0).into_object().unwrap().object_ref())
     }
 }
 
@@ -87,9 +88,10 @@ pub async fn get_haneul_gas_object_with_wallet_context(
     let res = get_gas_objects_with_wallet_context(context, address).await;
     res.iter()
         .map(|obj| {
+            let obj_data = obj.clone().into_object().unwrap();
             (
-                parse_haneul_struct_tag(&obj.type_).unwrap(),
-                obj.to_object_ref(),
+                parse_haneul_struct_tag(&obj_data.type_.clone().unwrap().to_string()).unwrap(),
+                obj_data.object_ref(),
             )
         })
         .collect()
@@ -98,21 +100,26 @@ pub async fn get_haneul_gas_object_with_wallet_context(
 pub async fn get_gas_objects_with_wallet_context(
     context: &WalletContext,
     address: &HaneulAddress,
-) -> Vec<HaneulObjectInfo> {
+) -> Vec<HaneulObjectResponse> {
     context
         .gas_objects(*address)
         .await
         .unwrap()
         .into_iter()
-        .map(|(_val, _object, object_ref)| object_ref)
+        .map(|(_val, object_data)| HaneulObjectResponse::Exists(object_data))
         .collect()
+    // .try_fold(vec![], |mut acc, (_val, object_data)| {
+    //     let obj_resp = HaneulObjectResponse::Exists(object_data);
+    //     acc.push(obj_resp);
+    //     Ok::<Vec<HaneulObjectResponse>, Error>(acc)
+    // })?
 }
 
 /// A helper function to get all accounts and their owned gas objects
 /// with a WalletContext.
 pub async fn get_account_and_gas_objects(
     context: &WalletContext,
-) -> Vec<(HaneulAddress, Vec<HaneulObjectInfo>)> {
+) -> Vec<(HaneulAddress, Vec<HaneulObjectResponse>)> {
     let owned_gas_objects = futures::future::join_all(
         context
             .config
@@ -157,7 +164,8 @@ pub async fn make_transactions_with_wallet_context(
                 recipient,
                 *address,
                 Some(2),
-                obj.to_object_ref(),
+                // TODO (jian)
+                obj.clone().into_object().expect("REASON").object_ref(),
                 MAX_GAS,
             );
             let tx = to_sender_signed_transaction(

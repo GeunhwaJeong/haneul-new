@@ -11,9 +11,9 @@ use std::collections::BTreeMap;
 use haneul_json_rpc::api::{cap_page_limit, ReadApiClient, ReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, Page, HaneulGetPastObjectRequest,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
-    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
+    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectsPage, Page,
+    HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
+    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
     HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
     TransactionsPage,
 };
@@ -212,11 +212,17 @@ impl<S> ReadApiServer for ReadApi<S>
 where
     S: IndexerStore + Sync + Send + 'static,
 {
-    async fn get_objects_owned_by_address(
+    async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-    ) -> RpcResult<Vec<HaneulObjectInfo>> {
-        self.fullnode.get_objects_owned_by_address(address).await
+        options: Option<HaneulObjectDataOptions>,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+        at_checkpoint: Option<CheckpointId>,
+    ) -> RpcResult<ObjectsPage> {
+        self.fullnode
+            .get_owned_objects(address, options, cursor, limit, at_checkpoint)
+            .await
     }
 
     async fn get_object_with_options(

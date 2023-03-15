@@ -23,11 +23,11 @@ use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVer
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     BalanceChange, Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectChange,
-    ObjectValueKind, Page, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction,
+    ObjectValueKind, ObjectsPage, Page, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction,
     HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulMoveStruct, HaneulMoveValue,
-    HaneulObjectDataOptions, HaneulObjectInfo, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionEvents, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionsPage,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionEvents,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+    TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{
@@ -49,9 +49,9 @@ use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointTime
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, Object, ObjectRead, PastObjectRead};
 
-use crate::api::cap_page_limit;
 use crate::api::ReadApiServer;
 use crate::api::QUERY_MAX_RESULT_LIMIT;
+use crate::api::{cap_page_limit, cap_page_objects_limit};
 use crate::error::Error;
 use crate::{
     get_balance_change_from_effect, get_object_change_from_effect, ObjectProviderCache,
@@ -114,17 +114,46 @@ impl ReadApi {
 
 #[async_trait]
 impl ReadApiServer for ReadApi {
-    async fn get_objects_owned_by_address(
+    async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-    ) -> RpcResult<Vec<HaneulObjectInfo>> {
-        Ok(self
+        // exclusive cursor if `Some`, otherwise start from the beginning
+        options: Option<HaneulObjectDataOptions>,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+        at_checkpoint: Option<CheckpointId>,
+    ) -> RpcResult<ObjectsPage> {
+        if at_checkpoint.is_some() {
+            return Err(anyhow!("at_checkpoint param currently not supported").into());
+        }
+        let limit = cap_page_objects_limit(limit)?;
+        let options = options.unwrap_or_default();
+
+        // MUSTFIXD(jian): multi-get-object for content/storage rebate if opt.show_content is true
+        let mut objects = self
             .state
-            .get_owner_objects(address)
-            .map_err(|e| anyhow!("{e}"))?
-            .into_iter()
-            .map(HaneulObjectInfo::from)
-            .collect())
+            .get_owner_objects(address, cursor, limit + 1)
+            .map_err(|e| anyhow!("{e}"))?;
+
+        // objects here are of size (limit + 1), where the last one is the cursor for the next page
+        let has_next_page = objects.len() > limit;
+        objects.truncate(limit);
+        let next_cursor = objects
+            .last()
+            .cloned()
+            .map_or(cursor, |o_info| Some(o_info.object_id));
+
+        let data = objects.into_iter().try_fold(vec![], |mut acc, o_info| {
+            let o_resp = HaneulObjectResponse::try_from((o_info, options.clone()))?;
+            acc.push(o_resp);
+            Ok::<Vec<HaneulObjectResponse>, Error>(acc)
+        })?;
+
+        Ok(Page {
+            data,
+            next_cursor,
+            has_next_page,
+        })
     }
 
     async fn get_dynamic_fields(
