@@ -24,7 +24,7 @@ services:
       - haneuldb:/opt/haneul/db:rw
     command:
       [
-        "/opt/haneul/bin/haneul-node",
+        "/usr/local/bin/haneul-node",
         "--config-path",
         "/opt/haneul/config/validator.yaml",
       ]
@@ -32,8 +32,8 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-file: 10
-        max-size: 5g
+        max-file: "10"
+        max-size: "5g"
 
 volumes:
   haneuldb:
