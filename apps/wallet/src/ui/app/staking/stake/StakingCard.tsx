@@ -7,6 +7,7 @@ import {
     HANEUL_TYPE_ARG,
     type HaneulAddress,
 } from '@haneullabs/haneul.js';
+import * as Sentry from '@sentry/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Formik } from 'formik';
 import { useCallback, useMemo } from 'react';
@@ -21,7 +22,11 @@ import { useSystemState } from '../useSystemState';
 import StakeForm from './StakeForm';
 import { UnStakeForm } from './UnstakeForm';
 import { ValidatorFormDetail } from './ValidatorFormDetail';
-import { createValidationSchema } from './validation';
+import {
+    createStakeTransaction,
+    createUnstakeTransaction,
+} from './utils/transaction';
+import { createValidationSchema } from './utils/validation';
 import { useActiveAddress } from '_app/hooks/useActiveAddress';
 import BottomMenuLayout, {
     Content,
@@ -42,7 +47,6 @@ import type { FormikHelpers } from 'formik';
 
 const initialValues = {
     amount: '',
-    gasBudget: '',
 };
 
 export type FormValues = typeof initialValues;
@@ -123,20 +127,52 @@ function StakingCard() {
             trackEvent('Stake', {
                 props: { validator: validatorAddress },
             });
-            return Coin.stakeCoin(signer, amount, validatorAddress);
+            const sentryTransaction = Sentry.startTransaction({
+                name: 'stake',
+            });
+            try {
+                const transaction = createStakeTransaction(
+                    amount,
+                    validatorAddress
+                );
+                return await signer.signAndExecuteTransaction({
+                    transaction,
+                    options: {
+                        showInput: true,
+                        showEffects: true,
+                        showEvents: true,
+                    },
+                });
+            } finally {
+                sentryTransaction.finish();
+            }
         },
     });
+
     const unStakeToken = useMutation({
-        mutationFn: async ({ stakeSuId }: { stakeSuId: string }) => {
-            if (!stakeSuId || !signer) {
-                throw new Error(
-                    'Failed, missing required field (!principalWithdrawAmount | delegationId | stakeSuId).'
-                );
+        mutationFn: async ({ stakedHaneulId }: { stakedHaneulId: string }) => {
+            if (!stakedHaneulId || !signer) {
+                throw new Error('Failed, missing required field.');
             }
 
             trackEvent('Unstake');
 
-            return Coin.unStakeCoin(signer, stakeSuId);
+            const sentryTransaction = Sentry.startTransaction({
+                name: 'stake',
+            });
+            try {
+                const transaction = createUnstakeTransaction(stakedHaneulId);
+                return await signer.signAndExecuteTransaction({
+                    transaction,
+                    options: {
+                        showInput: true,
+                        showEffects: true,
+                        showEvents: true,
+                    },
+                });
+            } finally {
+                sentryTransaction.finish();
+            }
         },
     });
 
@@ -162,7 +198,7 @@ function StakingCard() {
                         return;
                     }
                     response = await unStakeToken.mutateAsync({
-                        stakeSuId: stakeHaneulIdParams,
+                        stakedHaneulId: stakeHaneulIdParams,
                     });
 
                     txDigest = getTransactionDigest(response);
@@ -251,6 +287,7 @@ function StakingCard() {
 
                                 {unstake ? (
                                     <UnStakeForm
+                                        stakedHaneulId={stakeHaneulIdParams!}
                                         coinBalance={totalTokenBalance}
                                         coinType={coinType}
                                         stakingReward={haneulEarned}
@@ -258,6 +295,7 @@ function StakingCard() {
                                     />
                                 ) : (
                                     <StakeForm
+                                        validatorAddress={validatorAddress}
                                         coinBalance={coinBalance}
                                         coinType={coinType}
                                         epoch={system?.epoch}
@@ -265,13 +303,13 @@ function StakingCard() {
                                 )}
 
                                 {(unstake || touched.amount) &&
-                                (errors.amount || errors.gasBudget) ? (
+                                errors.amount ? (
                                     <div className="mt-2 flex flex-col flex-nowrap">
                                         <Alert
                                             mode="warning"
                                             className="text-body"
                                         >
-                                            {errors.amount || errors.gasBudget}
+                                            {errors.amount}
                                         </Alert>
                                     </div>
                                 ) : null}
