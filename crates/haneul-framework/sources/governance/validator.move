@@ -19,6 +19,7 @@ module haneul::validator {
     use haneul::event;
     friend haneul::genesis;
     friend haneul::haneul_system_state_inner;
+    friend haneul::validator_wrapper;
     friend haneul::validator_set;
     friend haneul::voting_power;
 
