@@ -9128,6 +9128,7 @@ dependencies = [
  "haneul-swarm",
  "haneul-tool",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "tempfile",
  "test-utils",

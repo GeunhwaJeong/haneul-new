@@ -29,6 +29,7 @@ use crate::console::start_console;
 use crate::fire_drill::{run_fire_drill, FireDrill};
 use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
+use crate::validator_commands::HaneulValidatorCommand;
 use haneul_move::{self, execute_move_command};
 
 #[allow(clippy::large_enum_variant)]
@@ -92,6 +93,20 @@ pub enum HaneulCommand {
         config: Option<PathBuf>,
         #[clap(subcommand)]
         cmd: Option<HaneulClientCommands>,
+        /// Return command outputs in json format.
+        #[clap(long, global = true)]
+        json: bool,
+        #[clap(short = 'y', long = "yes")]
+        accept_defaults: bool,
+    },
+    /// A tool for validators and validator candidates.
+    #[clap(name = "validator")]
+    Validator {
+        /// Sets the file storing the state of our user accounts (an empty one will be created if missing)
+        #[clap(long = "client.config")]
+        config: Option<PathBuf>,
+        #[clap(subcommand)]
+        cmd: Option<HaneulValidatorCommand>,
         /// Return command outputs in json format.
         #[clap(long, global = true)]
         json: bool,
@@ -245,6 +260,25 @@ impl HaneulCommand {
                     let mut app: Command = HaneulCommand::command();
                     app.build();
                     app.find_subcommand_mut("client").unwrap().print_help()?;
+                }
+                Ok(())
+            }
+            HaneulCommand::Validator {
+                config,
+                cmd,
+                json,
+                accept_defaults,
+            } => {
+                let config_path = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
+                prompt_if_no_config(&config_path, accept_defaults).await?;
+                let mut context = WalletContext::new(&config_path, None).await?;
+                if let Some(cmd) = cmd {
+                    cmd.execute(&mut context).await?.print(!json);
+                } else {
+                    // Print help
+                    let mut app: Command = HaneulCommand::command();
+                    app.build();
+                    app.find_subcommand_mut("validator").unwrap().print_help()?;
                 }
                 Ok(())
             }
