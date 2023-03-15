@@ -35,17 +35,23 @@ use tracing::info;
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
 pub enum HaneulValidatorCommand {
-    #[clap(name = "join-committee")]
-    JoinCommittee {
+    #[clap(name = "become-candidate")]
+    BecomeCandidate {
         #[clap(name = "validator-info-path")]
         file: PathBuf,
     },
+    #[clap(name = "join-committee")]
+    JoinCommittee,
+    #[clap(name = "leave-committee")]
+    LeaveCommittee,
 }
 
 #[derive(Serialize)]
 #[serde(untagged)]
 pub enum HaneulValidatorCommandResponse {
+    BecomeCandidate(HaneulTransactionResponse),
     JoinCommittee(HaneulTransactionResponse),
+    LeaveCommittee(HaneulTransactionResponse),
 }
 
 impl HaneulValidatorCommand {
@@ -53,17 +59,17 @@ impl HaneulValidatorCommand {
         self,
         context: &mut WalletContext,
     ) -> Result<HaneulValidatorCommandResponse, anyhow::Error> {
+        let client = context.get_client().await?;
         let ret = Ok(match self {
-            HaneulValidatorCommand::JoinCommittee {
+            HaneulValidatorCommand::BecomeCandidate {
                 file
             } => {
-                let client = context.get_client().await?;
                 let validator_info_bytes = fs::read(file)?;
                 // Note: we should probably rename the struct or evolve it accordingly.
                 let validator_info: GenesisValidatorInfo =
                     serde_yaml::from_slice(&validator_info_bytes)?;
                 let validator = validator_info.info;
-                
+
                 // FIXME remove these
                 let new_protocol_key_pair = get_authority_key_pair().1;
                 let pop = generate_proof_of_possession(&new_protocol_key_pair, context.active_address()?);
@@ -85,10 +91,17 @@ impl HaneulValidatorCommand {
                     CallArg::Pure(bcs::to_bytes(&validator.commission_rate()).unwrap()),
                 ];
                 let response = call_0x5(context, "request_add_validator_candidate", args, &client).await?;
+                HaneulValidatorCommandResponse::BecomeCandidate(response)
+            }
+
+            HaneulValidatorCommand::JoinCommittee => {
+                let response = call_0x5(context, "request_add_validator", vec![], &client).await?;
                 HaneulValidatorCommandResponse::JoinCommittee(response)
             }
-            _ => {
-                panic!()
+
+            HaneulValidatorCommand::LeaveCommittee => {
+                let response = call_0x5(context, "request_remove_validator", vec![], &client).await?;
+                HaneulValidatorCommandResponse::LeaveCommittee(response)
             }
         });
         ret
@@ -106,6 +119,8 @@ async fn call_0x5(
     let gas_obj_ref = get_gas_obj_ref(sender, haneul_client).await?;
     let mut args = vec![HANEUL_SYSTEM_OBJ_CALL_ARG];
     args.extend(call_args);
+    let rgp = haneul_client.governance_api().get_reference_gas_price().await?;
+    let gas_budget = 2000 * rgp;
     let tx_data = TransactionData::new_move_call(
         sender,
         HANEUL_FRAMEWORK_OBJECT_ID,
@@ -114,9 +129,8 @@ async fn call_0x5(
         vec![],
         gas_obj_ref,
         args,
-        5000,
-        // FIXME
-        1,
+        gas_budget,
+        rgp,
     )
     .unwrap();
     let signature = context
@@ -139,7 +153,13 @@ impl Display for HaneulValidatorCommandResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         match self {
+            HaneulValidatorCommandResponse::BecomeCandidate(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
+            }
             HaneulValidatorCommandResponse::JoinCommittee(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
+            }
+            HaneulValidatorCommandResponse::LeaveCommittee(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
         }
