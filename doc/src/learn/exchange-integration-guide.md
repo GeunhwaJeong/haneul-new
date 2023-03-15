@@ -83,16 +83,15 @@ Use the steps in this section to install and configure a Haneul Full node direct
     ```
 ## Set up Haneul addresses
 
-Haneul addresses do not require on-chain initialization, you own an address if you own the key for the address. You can derive a Haneul address by hashing the signature flag byte + public key bytes. The following code sample demonstrates how to derive a Haneul address in Rust:
+Haneul addresses do not require on-chain initialization, you can spend from an address if it corresponds to your private key. You can derive a Haneul address by hashing the signature scheme flag byte concatenated with public key bytes `flag || pubkey` using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function. The following code sample demonstrates how to derive a Haneul address in Rust:
 
 ```rust
-let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1
-// Hash the [flag, public key] bytearray using SHA3-256
-let mut hasher = Sha3_256::default();
+let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1, 0x03 = Multisig
+// Hash the [flag, public key] bytearray using Blake2b
+let mut hasher = UserHash::default();
 hasher.update([flag]);
 hasher.update(pk);
 let g_arr = hasher.finalize();
-
 
 // The first 32 bytes is the Haneul address.
 let mut res = [0u8; HANEUL_ADDRESS_LENGTH]; // HANEUL_ADDRESS_LENGTH = 32
@@ -108,11 +107,11 @@ Haneul supports both addresses with and without a 0x prefix. Haneul recommends t
 
 You can track balance changes by calling `haneul_getBalance` at predefined intervals. This call returns the total balance for an address. The total includes any coin or token type, but this document focuses on HANEUL. You can track changes in the total balance for an address between subsequent `haneul_getBalance` requests.
 
-The following bash example demonstrates how to use `haneul_getBalance` for address 0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2. If you use a network other than Devnet, replace the value for `rpc` with the URL to the appropriate Full node.
+The following bash example demonstrates how to use `haneul_getBalance` for address 0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3. If you use a network other than Devnet, replace the value for `rpc` with the URL to the appropriate Full node.
 
 ```bash
 rpc="https://fullnode.devnet.haneul.io:443"
-address="0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2"
+address="0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3"
 data="{\"jsonrpc\": \"2.0\", \"method\": \"haneul_getBalance\", \"id\": 1, \"params\": [\"$address\"]}"
 curl -X POST -H 'Content-type: application/json' --data-raw "$data" $rpc
 ```
@@ -145,7 +144,7 @@ async fn main() -> Result<(), anyhow::Error> {
    let haneul = HaneulClientBuilder::default().build(
       "https://fullnode.devnet.haneul.io:443",
    ).await.unwrap();
-   let address = HaneulAddress::from_str("0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2")?;
+   let address = HaneulAddress::from_str("0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3")?;
    let objects = haneul.read_api().get_balance(address).await?;
    println!("{:?}", objects);
    Ok(())
@@ -159,8 +158,8 @@ The following example demonstrates how to filter events for an address using bas
 
 ```bash
 rpc="https://fullnode.devnet.haneul.io:443"
-address="0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2"
-data="{\"jsonrpc\": \"2.0\", \"id\":1, \"method\": \"haneul_getEvents\", \"params\": [{\"Recipient\": {\"AddressOwner\": \"0xa38bc2aa63c34e37821f7abb34dbbe97b7ab2ea2\"}}, null, null, true ]}"
+address="0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3"
+data="{\"jsonrpc\": \"2.0\", \"id\":1, \"method\": \"haneul_getEvents\", \"params\": [{\"Recipient\": {\"AddressOwner\": \"0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3\"}}, null, null, true ]}"
 curl -X POST -H 'Content-type: application/json' --data-raw "$data" $rpc
 ```
 
@@ -229,6 +228,12 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
  * [haneul_transferHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_transferHaneul)
     This method accepts only one HANEUL token object and an amount to send to the recipient. It uses the same token for gas fees, so the amount to transfer must be strictly less than the value of the HANEUL token used.
+
+## Signing Transactions
+
+Please refer to [offline signing](https://github.com/GeunhwaJeong/haneul/blob/d0aceaea613b33fc969f7ca2cdd84b8a35e87de3/crates/haneul/offline_signing.md) for more details on signature validity requirements.
+
+A native weighted multi-sig multi-scheme signature is also supported. Please see [multisig](https://github.com/GeunhwaJeong/haneul/blob/d0aceaea613b33fc969f7ca2cdd84b8a35e87de3/crates/haneul/multisig.md) for details. 
 
 ## HANEUL Staking and Delegation
 
@@ -339,7 +344,7 @@ Specific amounts to be determined prior to Haneul Mainnet.
 
 ### How to stake and un-stake HANEUL?
 
-Haneul Wallet supports both stake and un-staking. Staking via Move code or the Haneul CLI is also possible – the relevant functions are in the [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/governance/haneul_system.move) module.
+Haneul Wallet supports both stake and un-staking. Staking via Move code or the Haneul CLI is also possible - the relevant functions are in the [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/governance/haneul_system.move) module.
 
 ### Where are the Haneul Developer Docs?
 
@@ -366,7 +371,7 @@ Yes, the gas price is dynamic and exposed via the [haneul_getReferenceGasPrice](
 
 ### How can I delete an object within Haneul?
 
-You can delete objects (in most cases) only if the Move module that defines the object type includes a Move function that can delete the object, such as when a Move contract writer explicitly wants the object to be deletable).[https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object](https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object)
+You can delete objects (in most cases) only if the Move module that defines the object type includes a Move function that can delete the object, such as when a Move contract writer explicitly wants the object to be deletable.[https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object](https://docs.haneul.io/devnet/build/programming-with-objects/ch2-using-objects#option-1-delete-the-object)
 
 If the delete function is defined in the Move module, you can delete the object by invoking the Move call using CLI or wallet. Here’s an example:
 
