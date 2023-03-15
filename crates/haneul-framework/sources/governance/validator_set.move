@@ -20,7 +20,7 @@ module haneul::validator_set {
     use haneul::table_vec::{Self, TableVec};
     use haneul::voting_power;
 
-    friend haneul::haneul_system;
+    friend haneul::haneul_system_state_inner;
 
     #[test_only]
     friend haneul::validator_set_tests;

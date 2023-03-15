@@ -5,7 +5,7 @@ module haneul::validator_cap {
     use haneul::object::{Self, ID, UID};
     use haneul::transfer;
     use haneul::tx_context::TxContext;
-    friend haneul::haneul_system;
+    friend haneul::haneul_system_state_inner;
     friend haneul::validator;
     friend haneul::validator_set;
 

@@ -18,7 +18,7 @@ module haneul::validator {
     use haneul::url;
     use haneul::event;
     friend haneul::genesis;
-    friend haneul::haneul_system;
+    friend haneul::haneul_system_state_inner;
     friend haneul::validator_set;
     friend haneul::voting_power;
 
@@ -31,7 +31,7 @@ module haneul::validator {
     #[test_only]
     friend haneul::governance_test_utils;
 
-    /// Invalid proof_of_possesion field in ValidatorMetadata
+    /// Invalid proof_of_possession field in ValidatorMetadata
     const EInvalidProofOfPossession: u64 = 0;
 
     /// Invalid pubkey_bytes field in ValidatorMetadata

@@ -5,7 +5,7 @@
 /// module to allow balance operations and can be used to implement
 /// custom coins with `Supply` and `Balance`s.
 module haneul::balance {
-    friend haneul::haneul_system;
+    friend haneul::haneul_system_state_inner;
     friend haneul::haneul;
 
     /// For when trying to destroy a non-zero balance.
