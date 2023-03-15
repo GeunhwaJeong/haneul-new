@@ -24,6 +24,7 @@ module haneul::validator_set {
     use haneul::bag::Bag;
     use haneul::bag;
 
+    friend haneul::genesis;
     friend haneul::haneul_system_state_inner;
 
     #[test_only]
@@ -623,7 +624,7 @@ module haneul::validator_set {
         res
     }
 
-    fun get_validator_mut(
+    public(friend) fun get_validator_mut(
         validators: &mut vector<Validator>,
         validator_address: address,
     ): &mut Validator {
