@@ -139,6 +139,17 @@ impl ExecutionEffects {
             Owner::ObjectOwner(_) | Owner::Shared { .. } | Owner::Immutable => unreachable!(), // owner of gas object is always an address
         }
     }
+
+    pub fn is_ok(&self) -> bool {
+        match self {
+            ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
+                certified_effects.data().status().is_ok()
+            }
+            ExecutionEffects::HaneulTransactionEffects(haneul_tx_effects) => {
+                haneul_tx_effects.status().is_ok()
+            }
+        }
+    }
 }
 
 #[async_trait]

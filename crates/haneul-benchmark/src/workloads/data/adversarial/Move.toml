@@ -1,0 +1,10 @@
+[package]
+name = "adversarial"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../../../haneul-framework" }
+
+[addresses]
+adversarial =  "0x0"
+haneul =  "0000000000000000000000000000000000000000000000000000000000000002"
