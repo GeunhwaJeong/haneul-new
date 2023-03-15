@@ -842,9 +842,7 @@ export class JsonRpcProvider {
   /**
    * Return the delegated stakes for an address
    */
-  async getDelegatedStakes(input: {
-    owner: HaneulAddress;
-  }): Promise<DelegatedStake[]> {
+  async getStakes(input: { owner: HaneulAddress }): Promise<DelegatedStake[]> {
     try {
       if (
         !input.owner ||
@@ -853,14 +851,14 @@ export class JsonRpcProvider {
         throw new Error('Invalid Haneul address');
       }
       const resp = await this.client.requestWithType(
-        'haneul_getDelegatedStakes',
+        'haneul_getStakes',
         [input.owner],
         array(DelegatedStake),
         this.options.skipDataValidation,
       );
       return resp;
     } catch (err) {
-      throw new Error(`Error in getDelegatedStakes: ${err}`);
+      throw new Error(`Error in getStakes: ${err}`);
     }
   }
 

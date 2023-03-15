@@ -6,7 +6,7 @@ use jsonrpsee_proc_macros::rpc;
 
 use haneul_json_rpc_types::{DelegatedStake, HaneulCommittee};
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 
 use haneul_types::committee::EpochId;
 
@@ -15,9 +15,16 @@ use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystem
 #[open_rpc(namespace = "haneul", tag = "Governance Read API")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait GovernanceReadApi {
+    /// Return one or more [DelegatedStake]
+    #[method(name = "getStakesByIds")]
+    async fn get_stakes_by_ids(
+        &self,
+        staked_haneul_id: Vec<ObjectID>,
+    ) -> RpcResult<Vec<DelegatedStake>>;
+
     /// Return all [DelegatedStake].
-    #[method(name = "getDelegatedStakes")]
-    async fn get_delegated_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>>;
+    #[method(name = "getStakes")]
+    async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>>;
 
     /// Return the committee information for the asked `epoch`.
     #[method(name = "getCommitteeInfo")]

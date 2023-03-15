@@ -10,7 +10,7 @@ use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::DelegatedStake;
 use haneul_json_rpc_types::HaneulCommittee;
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{EpochId, HaneulAddress};
+use haneul_types::base_types::{EpochId, ObjectID, HaneulAddress};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 pub(crate) struct GovernanceReadApi {
@@ -27,8 +27,14 @@ impl GovernanceReadApi {
 
 #[async_trait]
 impl GovernanceReadApiServer for GovernanceReadApi {
-    async fn get_delegated_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
-        self.fullnode.get_delegated_stakes(owner).await
+    async fn get_stakes_by_ids(
+        &self,
+        staked_haneul_id: Vec<ObjectID>,
+    ) -> RpcResult<Vec<DelegatedStake>> {
+        self.fullnode.get_stakes_by_ids(staked_haneul_id).await
+    }
+    async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
+        self.fullnode.get_stakes(owner).await
     }
 
     async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<HaneulCommittee> {
