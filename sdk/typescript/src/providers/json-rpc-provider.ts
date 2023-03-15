@@ -3,7 +3,6 @@
 
 import { ErrorResponse, HttpHeaders, JsonRpcClient } from '../rpc/client';
 import {
-  Coin,
   ExecuteTransactionRequestType,
   GatewayTxSeqNumber,
   GetTxnDigestsResponse,
@@ -21,7 +20,6 @@ import {
   HaneulTransactionResponse,
   TransactionDigest,
   HaneulTransactionResponseQuery,
-  HANEUL_TYPE_ARG,
   RpcApiVersion,
   parseVersionFromString,
   PaginatedEvents,
@@ -46,7 +44,6 @@ import {
   DryRunTransactionResponse,
   HaneulObjectDataOptions,
   HaneulSystemStateSummary,
-  CoinStruct,
   HaneulTransactionResponseOptions,
   HaneulEvent,
   PaginatedObjectsResponse,
@@ -518,44 +515,6 @@ export class JsonRpcProvider {
         `Error fetching owned object: ${err} for address ${input.owner}`,
       );
     }
-  }
-
-  /** @deprecated */
-  async selectCoinsWithBalanceGreaterThanOrEqual(
-    address: HaneulAddress,
-    amount: bigint,
-    typeArg: string = HANEUL_TYPE_ARG,
-    exclude: ObjectId[] = [],
-  ): Promise<CoinStruct[]> {
-    const coinsStruct = await this.getCoins({
-      owner: address,
-      coinType: typeArg,
-    });
-    return Coin.selectCoinsWithBalanceGreaterThanOrEqual(
-      coinsStruct.data,
-      amount,
-      exclude,
-    );
-  }
-
-  /** @deprecated */
-  async selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-    address: HaneulAddress,
-    amount: bigint,
-    typeArg: string = HANEUL_TYPE_ARG,
-    exclude: ObjectId[] = [],
-  ): Promise<CoinStruct[]> {
-    const coinsStruct = await this.getCoins({
-      owner: address,
-      coinType: typeArg,
-    });
-    const coins = coinsStruct.data;
-
-    return Coin.selectCoinSetWithCombinedBalanceGreaterThanOrEqual(
-      coins,
-      amount,
-      exclude,
-    );
   }
 
   /**
