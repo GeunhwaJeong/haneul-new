@@ -17,6 +17,8 @@ module haneul::validator {
     use haneul::url::Url;
     use haneul::url;
     use haneul::event;
+    use haneul::bag::Bag;
+    use haneul::bag;
     friend haneul::genesis;
     friend haneul::haneul_system_state_inner;
     friend haneul::validator_wrapper;
@@ -70,7 +72,7 @@ module haneul::validator {
 
     const MAX_COMMISSION_RATE: u64 = 10_000; // Max rate is 100%, which is 10K base points
 
-    struct ValidatorMetadata has store, drop, copy {
+    struct ValidatorMetadata has store {
         /// The Haneul Address of the validator. This is the sender that created the Validator object,
         /// and also the address to send validator/coins to during withdraws.
         haneul_address: address,
@@ -108,6 +110,9 @@ module haneul::validator {
         next_epoch_p2p_address: Option<String>,
         next_epoch_primary_address: Option<String>,
         next_epoch_worker_address: Option<String>,
+
+        /// Any extra fields that's not defined statically.
+        extra_fields: Bag,
     }
 
     struct Validator has store {
@@ -130,6 +135,8 @@ module haneul::validator {
         next_epoch_gas_price: u64,
         /// The commission rate of the validator starting the next epoch, in basis point.
         next_epoch_commission_rate: u64,
+        /// Any extra fields that's not defined statically.
+        extra_fields: Bag,
     }
 
     /// Event emitted when a new stake request is received.
@@ -166,6 +173,7 @@ module haneul::validator {
         p2p_address: String,
         primary_address: String,
         worker_address: String,
+        extra_fields: Bag,
     ): ValidatorMetadata {
         let metadata = ValidatorMetadata {
             haneul_address,
@@ -189,6 +197,7 @@ module haneul::validator {
             next_epoch_p2p_address: option::none(),
             next_epoch_primary_address: option::none(),
             next_epoch_worker_address: option::none(),
+            extra_fields,
         };
         metadata
     }
@@ -238,6 +247,7 @@ module haneul::validator {
             string::from_ascii(ascii::string(p2p_address)),
             string::from_ascii(ascii::string(primary_address)),
             string::from_ascii(ascii::string(worker_address)),
+            bag::new(ctx),
         );
 
         validate_metadata(&metadata);
@@ -775,6 +785,7 @@ module haneul::validator {
             next_epoch_stake: stake_amount,
             next_epoch_gas_price: gas_price,
             next_epoch_commission_rate: commission_rate,
+            extra_fields: bag::new(ctx),
         }
     }
 
@@ -819,6 +830,7 @@ module haneul::validator {
                 string::from_ascii(ascii::string(p2p_address)),
                 string::from_ascii(ascii::string(primary_address)),
                 string::from_ascii(ascii::string(worker_address)),
+                bag::new(ctx),
             ),
             initial_stake_option,
             gas_price,

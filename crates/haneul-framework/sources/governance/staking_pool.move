@@ -11,6 +11,8 @@ module haneul::staking_pool {
     use haneul::coin;
     use haneul::math;
     use haneul::table::{Self, Table};
+    use haneul::bag::Bag;
+    use haneul::bag;
 
     friend haneul::validator;
     friend haneul::validator_set;
@@ -61,6 +63,8 @@ module haneul::staking_pool {
         pending_total_haneul_withdraw: u64,
         /// Pending pool token withdrawn during the current epoch, emptied at epoch boundaries.
         pending_pool_token_withdraw: u64,
+        /// Any extra fields that's not defined statically.
+        extra_fields: Bag,
     }
 
     /// Struct representing the exchange rate of the stake pool token to HANEUL.
@@ -98,6 +102,7 @@ module haneul::staking_pool {
             pending_stake: 0,
             pending_total_haneul_withdraw: 0,
             pending_pool_token_withdraw: 0,
+            extra_fields: bag::new(ctx),
         }
     }
 

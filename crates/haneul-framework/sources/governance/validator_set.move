@@ -21,6 +21,8 @@ module haneul::validator_set {
     use haneul::voting_power;
     use haneul::validator_wrapper::ValidatorWrapper;
     use haneul::validator_wrapper;
+    use haneul::bag::Bag;
+    use haneul::bag;
 
     friend haneul::haneul_system_state_inner;
 
@@ -62,6 +64,9 @@ module haneul::validator_set {
 
         /// Table storing the number of epochs during which a validator's stake has been below the low stake threshold.
         at_risk_validators: VecMap<address, u64>,
+
+        /// Any extra fields that's not defined statically.
+        extra_fields: Bag,
     }
 
     /// Event containing staking and rewards related information of
@@ -139,6 +144,7 @@ module haneul::validator_set {
             inactive_validators: table::new(ctx),
             validator_candidates: table::new(ctx),
             at_risk_validators: vec_map::empty(),
+            extra_fields: bag::new(ctx),
         };
         voting_power::set_voting_power(&mut validators.active_validators);
         validators
