@@ -20,9 +20,9 @@ To configure your own Haneul Full node, see [Configure a Haneul Full node](fulln
 
 You can sign transactions and interact with the Haneul network using any of the following:
 
-* [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
-* [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
-* [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
+ * [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
+ * [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
+ * [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
 
 ## Haneul JSON-RPC examples
 

@@ -11,11 +11,11 @@ Haneul offers ease of development, a developer interface, fast transaction speed
 
 Additional resources:
 
-* [Why Move?](../learn/why-move)
-* [How Haneul Move differs from Core Move](../learn/haneul-move-diffs.md)
-* [How Haneul Works](../learn/how-haneul-works.md)
-* [Haneul Compared to Other Blockchains](../learn/haneul-compared.md)
-* [Narwhal and Bullshark, Haneul's Consensus Engine](../learn/architecture/consensus.md)
+ * [Why Move?](../learn/why-move)
+ * [How Haneul Move differs from Core Move](../learn/haneul-move-diffs.md)
+ * [How Haneul Works](../learn/how-haneul-works.md)
+ * [Haneul Compared to Other Blockchains](../learn/haneul-compared.md)
+ * [Narwhal and Bullshark, Haneul's Consensus Engine](../learn/architecture/consensus.md)
 
 ## Can I buy Haneul tokens?
 
@@ -39,7 +39,7 @@ Packages are immutable objects, and this property is relied upon in several plac
 
 See the [Haneul Smart Contract Platform](https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf) for node architecture information.
 
-See the instructions to [run a Haneul Fullnode](../build/fullnode.md).
+See the instructions to [run a Haneul Full node](../build/fullnode.md).
 
 ## Is Haneul compatible with Ethereum Virtual Machine (EVM)?
 
