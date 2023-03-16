@@ -23,6 +23,7 @@ haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types" }
+haneul-cost-tables = { path = "../haneul-cost-tables" }
 
 
 fastcrypto.workspace = true

@@ -9742,6 +9742,7 @@ dependencies = [
  "serde_json",
  "serde_yaml 0.8.26",
  "haneul-core",
+ "haneul-cost-tables",
  "haneul-framework",
  "haneul-framework-build",
  "haneul-macros",
