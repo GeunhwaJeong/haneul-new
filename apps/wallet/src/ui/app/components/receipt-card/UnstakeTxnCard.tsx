@@ -1,30 +1,77 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
+import { ValidatorLogo } from '_app/staking/validators/ValidatorLogo';
 import { TxnAmount } from '_components/receipt-card/TxnAmount';
+import { Text } from '_src/ui/app/shared/text';
 
-import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulEvent } from '@haneullabs/haneul.js';
 
-type StakeTxnCardProps = {
-    txn: HaneulTransactionResponse;
-    amount: number;
-    activeAddress: string;
+type UnStakeTxnCardProps = {
+    event: HaneulEvent;
 };
 
-// TODO For unstake Transaction there is no reliable way to get the validator address, reward
-// For now show the amount
-export function UnStakeTxnCard({ amount }: StakeTxnCardProps) {
+export function UnStakeTxnCard({ event }: UnStakeTxnCardProps) {
+    const principalAmount = event.parsedJson?.principal_amount || 0;
+    const rewardAmount = event.parsedJson?.reward_amount || 0;
+    const validatorAddress = event.parsedJson?.validator_address;
+    const totalAmount = +principalAmount + +rewardAmount;
+    const [formatPrinciple, symbol] = useFormatCoin(
+        principalAmount,
+        HANEUL_TYPE_ARG
+    );
+    const [formatRewards] = useFormatCoin(rewardAmount || 0, HANEUL_TYPE_ARG);
+
     return (
         <>
-            {amount && (
+            {validatorAddress && (
+                <div className="mb-3.5 w-full">
+                    <ValidatorLogo
+                        validatorAddress={validatorAddress}
+                        showAddress
+                        iconSize="md"
+                        size="body"
+                    />
+                </div>
+            )}
+            {totalAmount && (
                 <TxnAmount
-                    amount={amount}
+                    amount={totalAmount}
                     coinType={HANEUL_TYPE_ARG}
-                    label="Unstake"
+                    label="Total"
                 />
             )}
+
+            <div className="flex justify-between w-full py-3.5">
+                <div className="flex gap-1 items-baseline text-steel">
+                    <Text variant="body" weight="medium" color="steel-darker">
+                        Your HANEUL Stake
+                    </Text>
+                </div>
+
+                <div className="flex gap-1 items-baseline text-steel">
+                    <Text variant="body" weight="medium" color="steel-darker">
+                        {formatPrinciple} {symbol}
+                    </Text>
+                </div>
+            </div>
+
+            <div className="flex justify-between w-full py-3.5">
+                <div className="flex gap-1 items-baseline text-steel">
+                    <Text variant="body" weight="medium" color="steel-darker">
+                        Staking Rewards Earned
+                    </Text>
+                </div>
+
+                <div className="flex gap-1 items-baseline text-steel">
+                    <Text variant="body" weight="medium" color="steel-darker">
+                        {formatRewards} {symbol}
+                    </Text>
+                </div>
+            </div>
         </>
     );
 }
