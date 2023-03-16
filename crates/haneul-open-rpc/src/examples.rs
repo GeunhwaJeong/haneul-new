@@ -22,7 +22,7 @@ use haneul_json_rpc_types::{
     HaneulObjectData, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulParsedData,
     HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData, HaneulTransactionEffects,
     HaneulTransactionEffectsV1, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    TransactionBytes, TransactionsPage, TransferObjectParams,
+    HaneulTransactionResponseQuery, TransactionBytes, TransactionsPage, TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -391,9 +391,12 @@ impl RpcExampleProvider {
                 vec![
                     (
                         "query",
-                        json!(TransactionFilter::InputObject(ObjectID::new(
-                            self.rng.gen()
-                        ))),
+                        json!(HaneulTransactionResponseQuery {
+                            filter: Some(TransactionFilter::InputObject(ObjectID::new(
+                                self.rng.gen()
+                            ))),
+                            options: None,
+                        }),
                     ),
                     ("cursor", json!(TransactionDigest::new(self.rng.gen()))),
                     ("limit", json!(100)),
