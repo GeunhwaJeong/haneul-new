@@ -3,9 +3,8 @@
 use axum::{http::StatusCode, routing::get, Extension, Router};
 use config::WorkerId;
 use crypto::PublicKey;
-use multiaddr::Multiaddr;
 use haneullabs_metrics::spawn_logged_monitored_task;
-use haneullabs_network::multiaddr::to_socket_addr;
+use haneullabs_network::multiaddr::{to_socket_addr, Multiaddr};
 use prometheus::{Registry, TextEncoder};
 use std::collections::HashMap;
 use tokio::task::JoinHandle;

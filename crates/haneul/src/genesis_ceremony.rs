@@ -5,12 +5,12 @@ use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
-use multiaddr::Multiaddr;
 use std::path::PathBuf;
 use haneul_config::{
     genesis::{Builder, UnsignedGenesis},
     HANEUL_GENESIS_FILENAME,
 };
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     committee::ProtocolVersion,

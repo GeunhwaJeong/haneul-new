@@ -34,7 +34,6 @@ haneul-keys = { path = "../haneul-keys" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneullabs-metrics = { path = "../haneullabs-metrics"}
 once_cell = "1.16"
-multiaddr = "0.17.0"
 shared-crypto = { path = "../shared-crypto" }
 
 haneullabs-network.workspace = true

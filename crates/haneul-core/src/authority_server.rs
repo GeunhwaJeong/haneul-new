@@ -4,7 +4,6 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
-use multiaddr::Multiaddr;
 use haneullabs_metrics::spawn_monitored_task;
 use narwhal_types::TransactionsClient;
 use prometheus::{
@@ -16,6 +15,7 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::{error::*, messages::*, haneul_system_state::HaneulSystemStateInnerBenchmark};
 use haneul_types::{
     fp_ensure,

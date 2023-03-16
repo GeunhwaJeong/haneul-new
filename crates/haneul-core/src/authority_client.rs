@@ -4,7 +4,6 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use multiaddr::Multiaddr;
 use haneullabs_network::config::Config;
 use std::collections::BTreeMap;
 use std::time::Duration;
@@ -15,6 +14,7 @@ use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
 use haneul_types::{error::HaneulError, messages::*};
 

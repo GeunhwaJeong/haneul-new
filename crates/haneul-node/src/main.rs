@@ -3,13 +3,13 @@
 
 use anyhow::Result;
 use clap::Parser;
-use multiaddr::Multiaddr;
 use std::path::PathBuf;
 use std::time::Duration;
 use haneul_config::{Config, NodeConfig};
 use haneul_node::metrics;
 use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_telemetry::send_telemetry_event;
+use haneul_types::multiaddr::Multiaddr;
 use tokio::task;
 use tokio::time::sleep;
 use tracing::info;

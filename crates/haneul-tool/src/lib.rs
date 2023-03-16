@@ -5,7 +5,6 @@
 use anyhow::Result;
 use futures::future::join_all;
 use itertools::Itertools;
-use multiaddr::Multiaddr;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use std::path::{Path, PathBuf};
@@ -13,6 +12,7 @@ use std::{fs, io};
 use haneul_config::{genesis::Genesis, NodeConfig, ValidatorInfo};
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use haneul_network::default_haneullabs_network_config;
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::ObjectFormatOptions;
 use haneul_types::{base_types::*, messages::*, object::Owner};
 use tokio::time::Instant;

@@ -7,9 +7,9 @@ use std::{
 };
 
 use anyhow::Result;
-use multiaddr::Multiaddr;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use haneul_types::multiaddr::Multiaddr;
 use tracing::info;
 
 use haneul_types::base_types::{ObjectID, HaneulAddress};
