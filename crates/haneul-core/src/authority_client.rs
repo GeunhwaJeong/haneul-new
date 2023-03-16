@@ -7,12 +7,9 @@ use async_trait::async_trait;
 use haneullabs_network::config::Config;
 use std::collections::BTreeMap;
 use std::time::Duration;
-use haneul_config::genesis::Genesis;
-use haneul_config::ValidatorInfo;
 use haneul_network::{api::ValidatorClient, tonic};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
-use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
@@ -162,7 +159,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
     }
 }
 
-pub fn make_network_authority_client_sets_from_committee(
+pub fn make_network_authority_clients_with_network_config(
     committee: &CommitteeWithNetworkMetadata,
     network_config: &Config,
 ) -> anyhow::Result<BTreeMap<AuthorityName, NetworkAuthorityClient>> {
@@ -184,36 +181,13 @@ pub fn make_network_authority_client_sets_from_committee(
     Ok(authority_clients)
 }
 
-pub fn make_network_authority_client_sets_from_genesis(
-    genesis: &Genesis,
-    network_config: &Config,
-) -> anyhow::Result<BTreeMap<AuthorityPublicKeyBytes, NetworkAuthorityClient>> {
-    let mut authority_clients = BTreeMap::new();
-    for validator in genesis.validator_set() {
-        let channel = network_config
-            .connect_lazy(validator.network_address())
-            .map_err(|err| anyhow!(err.to_string()))?;
-        let client = NetworkAuthorityClient::new(channel);
-        authority_clients.insert(validator.protocol_key(), client);
-    }
-    Ok(authority_clients)
-}
-
-pub fn make_authority_clients(
-    validator_set: &[ValidatorInfo],
+pub fn make_authority_clients_with_timeout_config(
+    committee: &CommitteeWithNetworkMetadata,
     connect_timeout: Duration,
     request_timeout: Duration,
-) -> BTreeMap<AuthorityName, NetworkAuthorityClient> {
-    let mut authority_clients = BTreeMap::new();
+) -> anyhow::Result<BTreeMap<AuthorityName, NetworkAuthorityClient>> {
     let mut network_config = haneullabs_network::config::Config::new();
     network_config.connect_timeout = Some(connect_timeout);
     network_config.request_timeout = Some(request_timeout);
-    for authority in validator_set {
-        let channel = network_config
-            .connect_lazy(authority.network_address())
-            .unwrap();
-        let client = NetworkAuthorityClient::new(channel);
-        authority_clients.insert(authority.protocol_key(), client);
-    }
-    authority_clients
+    make_network_authority_clients_with_network_config(committee, &network_config)
 }

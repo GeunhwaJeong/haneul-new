@@ -21,6 +21,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::clock::Clock;
+use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
     HaneulAuthoritySignature, ToFromBytes,
@@ -171,11 +172,13 @@ impl Genesis {
             .collect()
     }
 
+    pub fn committee_with_network(&self) -> CommitteeWithNetworkMetadata {
+        self.haneul_system_object().get_current_epoch_committee()
+    }
+
+    // TODO: No need to return HaneulResult.
     pub fn committee(&self) -> HaneulResult<Committee> {
-        Ok(self
-            .haneul_system_object()
-            .get_current_epoch_committee()
-            .committee)
+        Ok(self.committee_with_network().committee)
     }
 
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {
