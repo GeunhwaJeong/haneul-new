@@ -3,7 +3,7 @@
 
 //! This module contains the transactional test runner instantiation for the Haneul adapter
 
-use crate::args::*;
+use crate::{args::*, programmable_transaction_test_parser::parser::ParsedCommand};
 use anyhow::bail;
 use bimap::btree::BiBTreeMap;
 use move_binary_format::{file_format::CompiledScript, CompiledModule};
@@ -41,7 +41,7 @@ use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::gas::{GasCostSummary, HaneulCostTable};
 use haneul_types::id::UID;
-use haneul_types::in_memory_storage::InMemoryStorage;
+use haneul_types::messages::CallArg;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -53,7 +53,7 @@ use haneul_types::{
         ExecutionStatus, TransactionData, TransactionDataAPI, TransactionEffectsAPI,
         VerifiedTransaction,
     },
-    object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
+    object::{self, Object, ObjectFormatOptions},
     object::{MoveObject, Owner},
     MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_ADDRESS,
@@ -61,6 +61,7 @@ use haneul_types::{
 use haneul_types::{clock::Clock, object::OBJECT_START_VERSION};
 use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
+use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
 
 pub(crate) type FakeID = u64;
 
@@ -71,6 +72,8 @@ const RNG_SEED: [u8; 32] = [
     21, 23, 199, 200, 234, 250, 252, 178, 94, 15, 202, 178, 62, 186, 88, 137, 233, 192, 130, 157,
     179, 179, 65, 9, 31, 249, 221, 123, 225, 112, 199, 247,
 ];
+
+const DEFAULT_GAS_BUDGET: u64 = 10_000;
 
 pub struct HaneulTestAdapter<'a> {
     vm: Arc<MoveVM>,
@@ -312,7 +315,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             module.serialize(&mut buf).unwrap();
             buf
         };
-        let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
+        let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
         let data = |sender, gas| {
             let mut builder = ProgrammableTransactionBuilder::new();
             if upgradeable {
@@ -394,11 +397,11 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         let mut builder = ProgrammableTransactionBuilder::new();
         let arguments = args
             .into_iter()
-            .map(|arg| arg.into_call_args(&mut builder, self))
+            .map(|arg| arg.into_argument(&mut builder, self))
             .collect::<anyhow::Result<_>>()?;
         let package_id = ObjectID::from(*module_id.address());
 
-        let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
+        let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
         let data = |sender, gas| {
             builder.command(Command::move_call(
                 package_id,
@@ -458,7 +461,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             start_line,
             command_lines_stop,
             stop_line: _,
-            data: _,
+            data,
         } = task;
         macro_rules! get_obj {
             ($fake_id:ident) => {{
@@ -520,12 +523,12 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 view_gas_used,
             }) => {
                 let mut builder = ProgrammableTransactionBuilder::new();
-                let obj_arg = HaneulValue::Object(fake_id).into_call_args(&mut builder, self)?;
+                let obj_arg = HaneulValue::Object(fake_id).into_argument(&mut builder, self)?;
                 let recipient = match self.accounts.get(&recipient) {
                     Some((recipient, _)) => *recipient,
                     None => panic!("Unbound account {}", recipient),
                 };
-                let gas_budget = gas_budget.unwrap_or(GAS_VALUE_FOR_TESTING);
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
                 let transaction = self.sign_txn(sender, |sender, gas| {
                     let rec_arg = builder.pure(recipient).unwrap();
                     builder.command(haneul_types::messages::Command::TransferObjects(
@@ -549,8 +552,43 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             }) => {
                 let transaction =
                     VerifiedTransaction::new_consensus_commit_prologue(0, 0, timestamp_ms);
-                let summary = self.execute_txn(transaction, GAS_VALUE_FOR_TESTING)?;
+                let summary = self.execute_txn(transaction, DEFAULT_GAS_BUDGET)?;
                 let output = self.object_summary_output(&summary, false, false);
+                Ok(output)
+            }
+            HaneulSubcommand::ProgrammableTransaction(ProgrammableTransactionCommand {
+                sender,
+                gas_budget,
+                inputs,
+                view_events,
+                view_gas_used,
+            }) => {
+                let inputs = self.compiled_state().resolve_args(inputs)?;
+                let inputs: Vec<CallArg> = inputs
+                    .into_iter()
+                    .map(|arg| arg.into_call_arg(self))
+                    .collect::<anyhow::Result<_>>()?;
+                let file = data.ok_or_else(|| {
+                    anyhow::anyhow!("Missing commands for programmable transaction")
+                })?;
+                let contents = std::fs::read_to_string(file.path())?;
+                let commands = ParsedCommand::parse_vec(&contents)?;
+                let state = &self.compiled_state;
+                let commands = commands
+                    .into_iter()
+                    .map(|c| c.into_command(&|s| Some(state.resolve_named_address(s))))
+                    .collect::<anyhow::Result<Vec<Command>>>()?;
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let transaction = self.sign_txn(sender, |sender, gas| {
+                    TransactionData::new_programmable_with_dummy_gas_price(
+                        sender,
+                        vec![gas],
+                        ProgrammableTransaction { inputs, commands },
+                        gas_budget,
+                    )
+                });
+                let summary = self.execute_txn(transaction, gas_budget)?;
+                let output = self.object_summary_output(&summary, view_events, view_gas_used);
                 Ok(output)
             }
         }
