@@ -52,9 +52,10 @@ move-bytecode-utils.workspace = true
 pg_integration = []
 
 [dev-dependencies]
-test-utils = { path = "../test-utils" }
-haneul-framework-build = { path = "../haneul-framework-build" }
 diesel_migrations = "2.0.0"
+haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-keys = { path = "../haneul-keys" }
+test-utils = { path = "../test-utils" }
 
 [[bin]]
 name = "haneul-indexer"
