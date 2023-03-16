@@ -9,7 +9,7 @@ use haneul_indexer::models::checkpoints::Checkpoint;
 use haneul_indexer::models::objects::Object;
 use haneul_indexer::models::transactions::Transaction;
 use haneul_indexer::store::{IndexerStore, TemporaryCheckpointStore, TemporaryEpochStore};
-use haneul_indexer::Indexer;
+use haneul_indexer::{Indexer, IndexerConfig};
 use haneul_json_rpc_types::{CheckpointId, EventFilter};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::object::ObjectRead;
@@ -22,7 +22,9 @@ async fn test_genesis() {
 
     let s = store.clone();
     let _handle = tokio::task::spawn(async move {
-        Indexer::start(test_cluster.rpc_url(), &Registry::default(), s).await
+        let mut config = IndexerConfig::default();
+        config.rpc_client_url = test_cluster.rpc_url().to_string();
+        Indexer::start(&config, &Registry::default(), s).await
     });
 
     // Allow indexer to process the data
