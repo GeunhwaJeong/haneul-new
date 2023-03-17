@@ -16,8 +16,9 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
     HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulPastObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
+    HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionEffectsAPI,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+    TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -46,7 +47,7 @@ impl ReadApi {
     pub async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        options: Option<HaneulObjectDataOptions>,
+        query: Option<HaneulObjectResponseQuery>,
         cursor: Option<ObjectID>,
         limit: Option<usize>,
         checkpoint: Option<CheckpointId>,
@@ -54,7 +55,7 @@ impl ReadApi {
         Ok(self
             .api
             .http
-            .get_owned_objects(address, options, cursor, limit, checkpoint)
+            .get_owned_objects(address, query, cursor, limit, checkpoint)
             .await?)
     }
 

@@ -13,8 +13,8 @@ use haneul_config::ValidatorInfo;
 use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{compile_basics_package, wait_for_all_txes, wait_for_tx};
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionDataAPI,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
@@ -322,7 +322,9 @@ pub async fn transfer_coin(
         .read_api()
         .get_owned_objects(
             sender,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::full_content(),
+            )),
             None,
             None,
             None,

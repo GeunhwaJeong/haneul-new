@@ -44,7 +44,7 @@ use haneul_config::genesis::Genesis;
 use haneul_config::node::{AuthorityStorePruningConfig, DBCheckpointConfig};
 use haneul_json_rpc_types::{
     DevInspectResults, DryRunTransactionResponse, EventFilter, HaneulEvent, HaneulMoveValue,
-    HaneulTransactionEvents,
+    HaneulObjectDataFilter, HaneulTransactionEvents,
 };
 use haneul_macros::{fail_point, nondeterministic};
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
@@ -2151,9 +2151,10 @@ impl AuthorityState {
         owner: HaneulAddress,
         cursor: Option<ObjectID>,
         limit: usize,
+        filter: Option<HaneulObjectDataFilter>,
     ) -> HaneulResult<Vec<ObjectInfo>> {
         if let Some(indexes) = &self.indexes {
-            indexes.get_owner_objects(owner, cursor, limit)
+            indexes.get_owner_objects(owner, cursor, limit, filter)
         } else {
             Err(HaneulError::IndexStoreNotAvailable)
         }
@@ -2162,9 +2163,15 @@ impl AuthorityState {
     pub fn get_owner_objects_iterator(
         &self,
         owner: HaneulAddress,
+        cursor: Option<ObjectID>,
+        limit: Option<usize>,
+        filter: Option<HaneulObjectDataFilter>,
     ) -> HaneulResult<impl Iterator<Item = ObjectInfo> + '_> {
+        let cursor_u = cursor.unwrap_or(ObjectID::ZERO);
+        let count = limit.unwrap_or(MAX_GET_OWNED_OBJECT_SIZE);
+
         if let Some(indexes) = &self.indexes {
-            indexes.get_owner_objects_iterator(owner, ObjectID::ZERO, MAX_GET_OWNED_OBJECT_SIZE)
+            indexes.get_owner_objects_iterator(owner, cursor_u, count, filter)
         } else {
             Err(HaneulError::IndexStoreNotAvailable)
         }
@@ -2179,7 +2186,7 @@ impl AuthorityState {
         T: DeserializeOwned,
     {
         let object_ids = self
-            .get_owner_objects_iterator(owner)?
+            .get_owner_objects_iterator(owner, None, None, None)?
             .filter(|o| match &o.type_ {
                 ObjectType::Struct(s) => type_.matches_type_fuzzy_generics(s),
                 ObjectType::Package => false,

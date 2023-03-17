@@ -13,8 +13,8 @@ use haneul_json_rpc_types::ObjectsPage;
 use haneul_json_rpc_types::HaneulTransactionResponseQuery;
 use haneul_json_rpc_types::{
     Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulExecutionStatus,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionBytes,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionEffectsAPI,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionBytes,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_macros::sim_test;
@@ -44,7 +44,9 @@ async fn test_get_objects() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::new()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new(),
+            )),
             None,
             None,
             None,
@@ -75,7 +77,12 @@ async fn test_public_transfer_object() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -123,7 +130,12 @@ async fn test_publish() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -165,7 +177,12 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -226,7 +243,12 @@ async fn test_get_object_info() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -315,7 +337,12 @@ async fn test_get_metadata() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -386,7 +413,12 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -514,7 +546,12 @@ async fn test_get_transaction() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -603,7 +640,12 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
             .read_api()
             .get_owned_objects(
                 *address,
-                Some(HaneulObjectDataOptions::full_content()),
+                Some(HaneulObjectResponseQuery::new_with_options(
+                    HaneulObjectDataOptions::new()
+                        .with_type()
+                        .with_owner()
+                        .with_previous_transaction(),
+                )),
                 None,
                 None,
                 None,
@@ -749,7 +791,12 @@ async fn test_locked_haneul() -> Result<(), anyhow::Error> {
     let objects = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,
@@ -825,7 +872,12 @@ async fn test_staking() -> Result<(), anyhow::Error> {
     let objects: ObjectsPage = http_client
         .get_owned_objects(
             *address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             None,
             None,
             None,

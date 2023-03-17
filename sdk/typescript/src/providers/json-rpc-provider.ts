@@ -16,7 +16,6 @@ import {
   HaneulMoveNormalizedModule,
   HaneulMoveNormalizedModules,
   HaneulMoveNormalizedStruct,
-  HaneulObjectInfo,
   HaneulTransactionResponse,
   TransactionDigest,
   HaneulTransactionResponseQuery,
@@ -47,8 +46,7 @@ import {
   HaneulTransactionResponseOptions,
   HaneulEvent,
   PaginatedObjectsResponse,
-  HaneulObjectData,
-  ObjectOwner,
+  HaneulObjectResponseQuery,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -461,13 +459,10 @@ export class JsonRpcProvider {
   async getOwnedObjects(
     input: {
       owner: HaneulAddress;
-      /** a fully qualified type name for the object(e.g., 0x2::coin::Coin<0x2::haneul::HANEUL>)
-       * or type name without generics (e.g., 0x2::coin::Coin will match all 0x2::coin::Coin<T>) */
-      typeFilter?: string;
-      options?: HaneulObjectDataOptions;
       checkpointId?: CheckpointDigest;
-    } & PaginationArguments,
-  ): Promise<HaneulObjectInfo[]> {
+    } & PaginationArguments &
+      HaneulObjectResponseQuery,
+  ): Promise<PaginatedObjectsResponse> {
     try {
       if (
         !input.owner ||
@@ -475,11 +470,15 @@ export class JsonRpcProvider {
       ) {
         throw new Error('Invalid Haneul address');
       }
+
       const objects = await this.client.requestWithType(
         'haneul_getOwnedObjects',
         [
           input.owner,
-          input.options,
+          {
+            filter: input.filter,
+            options: input.options,
+          } as HaneulObjectResponseQuery,
           input.cursor,
           input.limit,
           input.checkpointId,
@@ -487,29 +486,8 @@ export class JsonRpcProvider {
         PaginatedObjectsResponse,
         this.options.skipDataValidation,
       );
-      const obj_infos = objects.data.map((object: HaneulObjectResponse) => {
-        const details = object.details as HaneulObjectData;
-        const obj_info: HaneulObjectInfo = {
-          objectId: details.objectId,
-          version: details.version,
-          digest: details.digest,
-          owner: details.owner as ObjectOwner,
-          type: details.type as string,
-          previousTransaction: details.previousTransaction as TransactionDigest,
-        };
-        return obj_info;
-      });
 
-      // TODO: remove this once we migrated to the new queryObject API
-      if (input.typeFilter) {
-        return obj_infos.filter(
-          (obj: HaneulObjectInfo) =>
-            obj.type === input.typeFilter ||
-            obj.type.startsWith(input.typeFilter + '<'),
-        );
-      }
-
-      return obj_infos;
+      return objects;
     } catch (err) {
       throw new Error(
         `Error fetching owned object: ${err} for address ${input.owner}`,

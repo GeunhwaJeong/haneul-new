@@ -7,6 +7,7 @@ use std::str::FromStr;
 
 use fastcrypto::traits::EncodeDecodeBase64;
 use move_core_types::identifier::Identifier;
+use move_core_types::language_storage::StructTag;
 use move_core_types::parser::parse_struct_tag;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
@@ -19,10 +20,11 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, EventPage, MoveCallParams, ObjectChange, OwnedObjectRef,
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGasCostSummary,
-    HaneulObjectData, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulParsedData,
-    HaneulPastObjectResponse, HaneulTransaction, HaneulTransactionData, HaneulTransactionEffects,
-    HaneulTransactionEffectsV1, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionBytes, TransactionsPage, TransferObjectParams,
+    HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction,
+    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionEffectsV1, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionBytes, TransactionsPage,
+    TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
 use haneul_types::base_types::{
@@ -325,11 +327,18 @@ impl RpcExampleProvider {
                 vec![
                     ("address", json!(owner)),
                     (
-                        "options",
-                        json!(HaneulObjectDataOptions::new()
-                            .with_type()
-                            .with_owner()
-                            .with_previous_transaction()),
+                        "query",
+                        json!(HaneulObjectResponseQuery {
+                            filter: Some(HaneulObjectDataFilter::StructType(
+                                StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap()
+                            )),
+                            options: Some(
+                                HaneulObjectDataOptions::new()
+                                    .with_type()
+                                    .with_owner()
+                                    .with_previous_transaction()
+                            )
+                        }),
                     ),
                     ("cursor", json!(ObjectID::new(self.rng.gen()))),
                     ("limit", json!(100)),

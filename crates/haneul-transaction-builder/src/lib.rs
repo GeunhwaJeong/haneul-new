@@ -19,7 +19,7 @@ use haneul_adapter::execution_mode::ExecutionMode;
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::{
     CheckpointId, ObjectsPage, RPCTransactionRequestParams, HaneulData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulTypeTag,
+    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTypeTag,
 };
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
@@ -43,7 +43,7 @@ pub trait DataReader {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        options: Option<HaneulObjectDataOptions>,
+        options: Option<HaneulObjectResponseQuery>,
         cursor: Option<ObjectID>,
         limit: Option<usize>,
         checkpoint: Option<CheckpointId>,
@@ -84,7 +84,9 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
                 .0
                 .get_owned_objects(
                     signer,
-                    Some(HaneulObjectDataOptions::full_content()),
+                    Some(HaneulObjectResponseQuery::new_with_options(
+                        HaneulObjectDataOptions::full_content(),
+                    )),
                     None,
                     None,
                     None,

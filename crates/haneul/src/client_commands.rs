@@ -37,8 +37,8 @@ use haneul_framework_build::compiled_package::{
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, HaneulObjectData, HaneulObjectResponse, HaneulRawData, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    DynamicFieldPage, HaneulObjectData, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -814,7 +814,9 @@ impl HaneulClientCommands {
                     // TODO: (jian) fill in later
                     .get_owned_objects(
                         address,
-                        Some(HaneulObjectDataOptions::full_content()),
+                        Some(HaneulObjectResponseQuery::new_with_options(
+                            HaneulObjectDataOptions::full_content(),
+                        )),
                         None,
                         None,
                         None,
@@ -1179,12 +1181,13 @@ impl WalletContext {
         let client = self.get_client().await?;
         let objects = client
             .read_api()
-            // TODO: (jian) fill in later
             .get_owned_objects(
                 address,
-                Some(HaneulObjectDataOptions::full_content()),
+                Some(HaneulObjectResponseQuery::new_with_options(
+                    HaneulObjectDataOptions::full_content(),
+                )),
                 None,
-                Some(256),
+                None,
                 None,
             )
             .await?

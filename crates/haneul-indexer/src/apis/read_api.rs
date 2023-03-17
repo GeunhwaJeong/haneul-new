@@ -14,9 +14,9 @@ use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectsPage, Page,
     HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
-    TransactionsPage,
+    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulPastObjectResponse, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TxSequenceNumber};
@@ -218,13 +218,13 @@ where
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        options: Option<HaneulObjectDataOptions>,
+        query: Option<HaneulObjectResponseQuery>,
         cursor: Option<ObjectID>,
         limit: Option<usize>,
         at_checkpoint: Option<CheckpointId>,
     ) -> RpcResult<ObjectsPage> {
         self.fullnode
-            .get_owned_objects(address, options, cursor, limit, at_checkpoint)
+            .get_owned_objects(address, query, cursor, limit, at_checkpoint)
             .await
     }
 

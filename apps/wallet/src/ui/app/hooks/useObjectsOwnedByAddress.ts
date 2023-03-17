@@ -4,13 +4,21 @@
 import { useRpcClient } from '@haneullabs/core';
 import { useQuery } from '@tanstack/react-query';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
+import type { HaneulAddress, HaneulObjectResponseQuery } from '@haneullabs/haneul.js';
 
-export function useObjectsOwnedByAddress(address?: HaneulAddress | null) {
+export function useObjectsOwnedByAddress(
+    address?: HaneulAddress | null,
+    query?: HaneulObjectResponseQuery
+) {
     const rpc = useRpcClient();
     return useQuery(
         ['objects-owned', address],
-        () => rpc.getOwnedObjects({ owner: address! }),
+        () =>
+            rpc.getOwnedObjects({
+                owner: address!,
+                filter: query?.filter,
+                options: query?.options,
+            }),
         {
             enabled: !!address,
         }

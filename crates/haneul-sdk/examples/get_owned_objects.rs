@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::str::FromStr;
-use haneul_json_rpc_types::HaneulObjectDataOptions;
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectResponseQuery};
 use haneul_sdk::types::base_types::HaneulAddress;
 use haneul_sdk::HaneulClientBuilder;
 
@@ -16,7 +16,9 @@ async fn main() -> Result<(), anyhow::Error> {
         .read_api()
         .get_owned_objects(
             address,
-            Some(HaneulObjectDataOptions::default()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new(),
+            )),
             None,
             None,
             None,

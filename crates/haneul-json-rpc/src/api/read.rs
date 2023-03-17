@@ -7,9 +7,9 @@ use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
     HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
-    TransactionsPage,
+    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulPastObjectResponse, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{
@@ -27,8 +27,8 @@ pub trait ReadApi {
         &self,
         /// the owner's Haneul address
         address: HaneulAddress,
-        /// options for specifying the content to be returned
-        options: Option<HaneulObjectDataOptions>,
+        /// the objects query criteria.
+        query: Option<HaneulObjectResponseQuery>,
         /// Optional paging cursor
         cursor: Option<ObjectID>,
         /// Max number of items returned per page, default to [MAX_GET_OWNED_OBJECT_SIZE] if not specified.

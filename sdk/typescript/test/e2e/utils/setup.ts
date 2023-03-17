@@ -53,9 +53,13 @@ export class TestToolbox {
   async getGasObjectsOwnedByAddress() {
     const objects = await this.provider.getOwnedObjects({
       owner: this.address(),
-      options: { showType: true, showContent: true, showOwner: true },
+      options: {
+        showType: true,
+        showContent: true,
+        showOwner: true,
+      },
     });
-    return objects.filter((obj) => Coin.isHANEUL(obj));
+    return objects.data.filter((obj) => Coin.isHANEUL(obj));
   }
 
   public async getActiveValidators() {

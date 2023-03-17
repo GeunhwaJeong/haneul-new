@@ -16,12 +16,13 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use crate::operations::Operations;
 use shared_crypto::intent::Intent;
 use haneul_framework_build::compiled_package::BuildConfig;
-use haneul_json_rpc_types::{ObjectChange, HaneulObjectRef};
+use haneul_json_rpc_types::{
+    ObjectChange, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponseQuery,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
-    OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulObjectDataOptions, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse,
+    OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -667,7 +668,12 @@ async fn get_random_haneul(
         .read_api()
         .get_owned_objects(
             sender,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             /* cursor */ None,
             /* limit */ None,
             /* at_checkpoint */ None,
@@ -702,7 +708,12 @@ async fn get_balance(client: &HaneulClient, address: HaneulAddress) -> u64 {
         .read_api()
         .get_owned_objects(
             address,
-            Some(HaneulObjectDataOptions::full_content()),
+            Some(HaneulObjectResponseQuery::new_with_options(
+                HaneulObjectDataOptions::new()
+                    .with_type()
+                    .with_owner()
+                    .with_previous_transaction(),
+            )),
             /* cursor */ None,
             /* limit */ None,
             /* at_checkpoint */ None,

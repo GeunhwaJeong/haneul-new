@@ -12,11 +12,22 @@ import { NFTDisplayCard } from '_components/nft-display';
 import { useObjectsOwnedByAddress } from '_hooks';
 import PageTitle from '_src/ui/app/shared/PageTitle';
 
+import type { HaneulObjectResponse, HaneulObjectData } from '@haneullabs/haneul.js';
+
 function NftsPage() {
     const accountAddress = useActiveAddress();
-    const { data, isLoading, error, isError } =
-        useObjectsOwnedByAddress(accountAddress);
-    const nfts = data?.filter((obj) => !Coin.isCoin(obj));
+    const { data, isLoading, error, isError } = useObjectsOwnedByAddress(
+        accountAddress,
+        { options: { showType: true } }
+    );
+    const haneul_object_responses = data?.data as HaneulObjectResponse[];
+    const nft_objects = haneul_object_responses?.filter(
+        (obj) => !Coin.isCoin(obj)
+    );
+    const nfts = nft_objects?.map((nft) => {
+        const nft_details = nft.details as HaneulObjectData;
+        return nft_details;
+    });
 
     return (
         <div className="flex flex-col flex-nowrap items-center gap-4 flex-1">
@@ -30,7 +41,6 @@ function NftsPage() {
                         <small>{(error as Error).message}</small>
                     </Alert>
                 ) : null}
-
                 {nfts?.length ? (
                     <div className="grid grid-cols-2 gap-x-3.5 gap-y-4 w-full h-full">
                         {nfts.map(({ objectId }) => (

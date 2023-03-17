@@ -9,7 +9,7 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     BigInt, CheckpointId, ObjectsPage, Page, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
+    HaneulObjectResponseQuery, HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
 };
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
@@ -56,7 +56,7 @@ impl DataReader for AuthorityStateDataReader {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        options: Option<HaneulObjectDataOptions>,
+        query: Option<HaneulObjectResponseQuery>,
         cursor: Option<ObjectID>,
         limit: Option<usize>,
         at_checkpoint: Option<CheckpointId>,
@@ -66,9 +66,13 @@ impl DataReader for AuthorityStateDataReader {
         }
 
         let limit = cap_page_objects_limit(limit)?;
+        let HaneulObjectResponseQuery { filter, options } = query.unwrap_or_default();
+
         let options = options.unwrap_or_default();
 
-        let mut objects = self.0.get_owner_objects(address, cursor, limit + 1)?;
+        let mut objects = self
+            .0
+            .get_owner_objects(address, cursor, limit + 1, filter)?;
 
         // objects here are of size (limit + 1), where the last one is the cursor for the next page
         let has_next_page = objects.len() > limit;

@@ -369,3 +369,14 @@ export const PaginatedObjectsResponse = object({
   hasNextPage: boolean(),
 });
 export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;
+
+// mirrors haneul_json_rpc_types:: HaneulObjectDataFilter
+export type HaneulObjectDataFilter =
+  | { Package: ObjectId }
+  | { MoveModule: { package: ObjectId; module: string } }
+  | { StructType: string };
+
+export type HaneulObjectResponseQuery = {
+  filter?: HaneulObjectDataFilter;
+  options?: HaneulObjectDataOptions;
+};

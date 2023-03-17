@@ -9,6 +9,7 @@ import {
   isMutableSharedObjectInput,
   isSharedObjectInput,
   ObjectId,
+  HaneulObjectData,
   HaneulTransactionResponse,
   HANEUL_SYSTEM_STATE_OBJECT_ID,
   Transaction,
@@ -53,11 +54,12 @@ describe('Transaction Serialization and deserialization', () => {
       await toolbox.getActiveValidators();
 
     const tx = new Transaction();
+    const coin = coins[2].details as HaneulObjectData;
     tx.moveCall({
       target: '0x2::haneul_system::request_add_stake',
       arguments: [
         tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
-        tx.object(coins[2].objectId),
+        tx.object(coin.objectId),
         tx.pure(validatorAddress),
       ],
     });

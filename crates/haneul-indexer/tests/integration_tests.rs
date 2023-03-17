@@ -16,8 +16,9 @@ mod pg_integration {
     use haneul_indexer::{new_pg_connection_pool, Indexer, IndexerConfig, PgPoolConnection};
     use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
     use haneul_json_rpc_types::{
-        HaneulMoveObject, HaneulObjectDataOptions, HaneulObjectResponse, HaneulParsedMoveObject,
-        HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionBytes,
+        HaneulMoveObject, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+        HaneulParsedMoveObject, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+        TransactionBytes,
     };
     use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
     use haneul_types::base_types::ObjectID;
@@ -72,7 +73,9 @@ mod pg_integration {
         let gas_objects: Vec<ObjectID> = indexer_rpc_client
             .get_owned_objects(
                 *address,
-                Some(HaneulObjectDataOptions::new().with_type()),
+                Some(HaneulObjectResponseQuery::new_with_options(
+                    HaneulObjectDataOptions::new().with_type(),
+                )),
                 None,
                 None,
                 None,
