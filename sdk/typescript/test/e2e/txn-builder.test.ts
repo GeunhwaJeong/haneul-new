@@ -14,6 +14,7 @@ import {
   Transaction,
   HaneulObjectData,
   getCreatedObjects,
+  HANEUL_CLOCK_OBJECT_ID,
 } from '../../src';
 import {
   DEFAULT_RECIPIENT,
@@ -133,6 +134,15 @@ describe('Transaction Builders', () => {
     tx.moveCall({
       target: `${packageId}::serializer_tests::set_value`,
       arguments: [tx.object(sharedObjectId)],
+    });
+    await validateTransaction(toolbox.signer, tx);
+  });
+
+  it('immutable clock', async () => {
+    const tx = new Transaction();
+    tx.moveCall({
+      target: `${packageId}::serializer_tests::use_clock`,
+      arguments: [tx.object(HANEUL_CLOCK_OBJECT_ID)],
     });
     await validateTransaction(toolbox.signer, tx);
   });

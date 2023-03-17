@@ -5,6 +5,7 @@ module serializer::serializer_tests {
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
     use haneul::object::{Self, UID};
+    use haneul::clock::Clock;
 
     struct MutableShared has key {
         id: UID,
@@ -17,6 +18,8 @@ module serializer::serializer_tests {
             value: 1,
         })
     }
+
+    public entry fun use_clock(_clock: &Clock) {}
 
     public entry fun list<T: key + store, C>(
         item: T,
