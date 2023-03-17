@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use tracing::{debug, info, trace};
 
+use haneul_protocol_config::ProtocolConfig;
 use haneul_storage::mutex_table::{MutexGuard, MutexTable, RwLockGuard, RwLockTable};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::digests::TransactionEventsDigest;

@@ -94,9 +94,9 @@ async fn main() -> Result<()> {
         }
     });
 
-    haneul_node::admin::start_admin_server(config.admin_interface_port, filter_handle);
+    let node = haneul_node::HaneulNode::start(&config, registry_service).await?;
+    haneul_node::admin::start_admin_server(node.clone(), config.admin_interface_port, filter_handle);
 
-    let _node = haneul_node::HaneulNode::start(&config, registry_service).await?;
     // TODO: Do we want to provide a way for the node to gracefully shutdown?
     loop {
         tokio::time::sleep(Duration::from_secs(1000)).await;
