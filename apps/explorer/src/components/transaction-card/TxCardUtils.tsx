@@ -2,30 +2,29 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin } from '@haneullabs/core';
+import { X12 } from '@haneullabs/icons';
 import {
+    type ExecutionStatusType,
     getExecutionStatusType,
     getTotalGasUsed,
-    getTransactionKind,
     getTransactionDigest,
+    getTransactionKind,
     getTransactionKindName,
-    HANEUL_TYPE_ARG,
-    type GetTxnDigestsResponse,
-    type ExecutionStatusType,
-    type TransactionKindName,
-    type JsonRpcProvider,
     getTransactionSender,
-    formatDigest,
-    formatAddress,
+    type GetTxnDigestsResponse,
+    type JsonRpcProvider,
+    HANEUL_TYPE_ARG,
+    type TransactionKindName,
 } from '@haneullabs/haneul.js';
-import { Fragment } from 'react';
+import clsx from 'clsx';
+import { type ReactNode } from 'react';
 
-import { ReactComponent as ContentArrowRight } from '../../assets/SVGIcons/16px/ArrowRight.svg';
 import { getAmount } from '../../utils/getAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
 
 import styles from './RecentTxCard.module.css';
 
-import { AddressLink, ObjectLink, TransactionLink } from '~/ui/InternalLink';
+import { AddressLink, TransactionLink } from '~/ui/InternalLink';
 import { TransactionType } from '~/ui/TransactionType';
 
 export type TxnData = {
@@ -38,14 +37,6 @@ export type TxnData = {
     kind: TransactionKindName | undefined;
     From: string;
     timestamp_ms?: number;
-};
-
-type Category = 'object' | 'transaction' | 'address';
-
-export type LinkObj = {
-    url: string;
-    name?: string;
-    category?: Category;
 };
 
 export function HaneulAmount({
@@ -71,22 +62,26 @@ export function HaneulAmount({
     return <span className={styles.haneulamount}>--</span>;
 }
 
-export function TxAddresses({ content }: { content: LinkObj[] }) {
+function TxTableHeader({ label }: { label: string }) {
+    return <div className="pl-3">{label}</div>;
+}
+
+function TxTableCol({
+    isHighlightedOnHover,
+    children,
+}: {
+    isHighlightedOnHover?: boolean;
+    children: ReactNode;
+}) {
     return (
-        <section className={styles.addresses}>
-            {content.map((itm, idx) => (
-                <Fragment key={idx + itm.url}>
-                    {itm.category === 'address' ? (
-                        <AddressLink address={itm.url} />
-                    ) : itm.category === 'object' ? (
-                        <ObjectLink objectId={itm.url} />
-                    ) : (
-                        <TransactionLink digest={itm.url} />
-                    )}
-                    {idx !== content.length - 1 && <ContentArrowRight />}
-                </Fragment>
-            ))}
-        </section>
+        <div
+            className={clsx(
+                'flex h-full items-center rounded px-3',
+                isHighlightedOnHover && 'hover:bg-haneul-light'
+            )}
+        >
+            {children}
+        </div>
     );
 }
 
@@ -95,35 +90,18 @@ export const genTableDataFromTxData = (results: TxnData[]) => ({
     data: results.map((txn) => ({
         date: <TxTimeType timestamp={txn.timestamp_ms} />,
         transactionId: (
-            <TxAddresses
-                content={[
-                    {
-                        url: txn.txId,
-                        name: formatDigest(txn.txId),
-                        category: 'transaction',
-                    },
-                ]}
-            />
-        ),
-        addresses: (
-            <TxAddresses
-                content={[
-                    {
-                        url: txn.From,
-                        name: formatAddress(txn.From),
-                        category: 'address',
-                    },
-                    ...(txn.To
-                        ? [
-                              {
-                                  url: txn.To,
-                                  name: formatAddress(txn.To),
-                                  category: 'address',
-                              } as const,
-                          ]
-                        : []),
-                ]}
-            />
+            <TxTableCol isHighlightedOnHover>
+                <TransactionLink
+                    digest={txn.txId}
+                    before={
+                        txn.status === 'success' ? (
+                            <div className="h-2 w-2 rounded-full bg-success" />
+                        ) : (
+                            <X12 className="text-issue-dark" />
+                        )
+                    }
+                />
+            </TxTableCol>
         ),
         txTypes: (
             <TransactionType
@@ -131,34 +109,41 @@ export const genTableDataFromTxData = (results: TxnData[]) => ({
                 type={txn.kind}
             />
         ),
-        amounts: <HaneulAmount amount={txn.haneulAmount} />,
-        gas: <HaneulAmount amount={txn.txGas} />,
+        amounts: (
+            <TxTableCol>
+                <HaneulAmount amount={txn.haneulAmount} />
+            </TxTableCol>
+        ),
+        gas: (
+            <TxTableCol>
+                <HaneulAmount amount={txn.txGas} />
+            </TxTableCol>
+        ),
+        sender: (
+            <TxTableCol isHighlightedOnHover>
+                <AddressLink address={txn.From} />
+            </TxTableCol>
+        ),
     })),
     columns: [
         {
-            header: 'Type',
-            accessorKey: 'txTypes',
-        },
-        {
-            header: () => (
-                <div className={styles.addresses}>Transaction ID</div>
-            ),
+            header: () => <TxTableHeader label="Transaction ID" />,
             accessorKey: 'transactionId',
         },
         {
-            header: () => <div className={styles.addresses}>Addresses</div>,
-            accessorKey: 'addresses',
+            header: () => <TxTableHeader label="Sender" />,
+            accessorKey: 'sender',
         },
         {
-            header: 'Amount',
+            header: () => <TxTableHeader label="Amount" />,
             accessorKey: 'amounts',
         },
         {
-            header: 'Gas',
+            header: () => <TxTableHeader label="Gas" />,
             accessorKey: 'gas',
         },
         {
-            header: 'Time',
+            header: () => <TxTableHeader label="Time" />,
             accessorKey: 'date',
         },
     ],
