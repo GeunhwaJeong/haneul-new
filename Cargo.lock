@@ -8973,6 +8973,7 @@ dependencies = [
  "haneul-simulator",
  "haneul-storage",
  "haneul-types",
+ "haneul-verifier",
  "tap",
  "telemetry-subscribers",
  "tempfile",
