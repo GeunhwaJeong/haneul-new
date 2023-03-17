@@ -20,13 +20,17 @@ use errors::IndexerError;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::event_handler::EventHandler;
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle, CLIENT_SDK_TYPE_HEADER};
+use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_sdk::apis::ReadApi as HaneulReadApi;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::base_types::TransactionDigest;
 
 use crate::apis::{
     CoinReadApi, EventReadApi, GovernanceReadApi, ReadApi, TransactionBuilderApi, WriteApi,
 };
 use crate::handlers::checkpoint_handler::CheckpointHandler;
 use crate::store::IndexerStore;
+use crate::types::HaneulTransactionFullResponse;
 
 pub mod apis;
 pub mod errors;
@@ -36,6 +40,7 @@ pub mod models;
 pub mod processors;
 pub mod schema;
 pub mod store;
+pub mod types;
 pub mod utils;
 
 pub type PgConnectionPool = Pool<ConnectionManager<PgConnection>>;
@@ -186,4 +191,37 @@ pub async fn build_json_rpc_server<S: IndexerStore + Sync + Send + 'static + Clo
         config.rpc_server_port,
     );
     Ok(builder.start(default_socket_addr).await?)
+}
+
+pub async fn multi_get_full_transactions(
+    read_api: &HaneulReadApi,
+    digests: Vec<TransactionDigest>,
+) -> Result<Vec<HaneulTransactionFullResponse>, IndexerError> {
+    let haneul_transactions = read_api
+        .multi_get_transactions_with_options(
+            digests.clone(),
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_effects()
+                .with_events(),
+        )
+        .await
+        .map_err(|e| {
+            IndexerError::FullNodeReadingError(format!(
+                "Failed to get transactions {:?} with error: {:?}",
+                digests.clone(),
+                e
+            ))
+        })?;
+    let haneul_full_transactions: Vec<HaneulTransactionFullResponse> = haneul_transactions
+        .into_iter()
+        .map(HaneulTransactionFullResponse::try_from)
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| {
+            IndexerError::FullNodeReadingError(format!(
+                "Unexpected None value in HaneulTransactionFullResponse of digests {:?} with error {:?}",
+                digests, e
+            ))
+        })?;
+    Ok(haneul_full_transactions)
 }

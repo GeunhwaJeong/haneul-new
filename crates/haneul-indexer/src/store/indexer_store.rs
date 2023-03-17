@@ -11,10 +11,10 @@ use crate::models::owners::ObjectOwner;
 use crate::models::packages::Package;
 use crate::models::recipients::Recipient;
 use crate::models::transactions::Transaction;
+use crate::types::HaneulTransactionFullResponse;
 use async_trait::async_trait;
 use haneul_json_rpc_types::{
     Checkpoint as RpcCheckpoint, CheckpointId, EventFilter, EventPage, HaneulObjectData,
-    HaneulTransactionResponse,
 };
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::event::EventID;
@@ -124,9 +124,10 @@ pub trait IndexerStore {
     fn module_cache(&self) -> &Self::ModuleCache;
 }
 
+#[derive(Clone, Debug)]
 pub struct CheckpointData {
     pub checkpoint: RpcCheckpoint,
-    pub transactions: Vec<HaneulTransactionResponse>,
+    pub transactions: Vec<HaneulTransactionFullResponse>,
     pub changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
 }
 
