@@ -81,6 +81,7 @@ pub enum HaneulSystemState {
 
 /// This is the fixed type used by genesis.
 pub type HaneulSystemStateInnerGenesis = HaneulSystemStateInnerV1;
+pub type HaneulValidatorGenesis = ValidatorV1;
 
 impl HaneulSystemState {
     pub fn new_genesis(inner: HaneulSystemStateInnerGenesis) -> Self {

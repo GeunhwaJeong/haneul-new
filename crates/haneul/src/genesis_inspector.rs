@@ -4,6 +4,7 @@
 use inquire::Select;
 use std::collections::BTreeMap;
 use haneul_config::genesis::UnsignedGenesis;
+use haneul_types::haneul_system_state::HaneulValidatorGenesis;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     coin::CoinMetadata,
@@ -11,10 +12,6 @@ use haneul_types::{
     governance::StakedHaneul,
     move_package::MovePackage,
     object::{MoveObject, Owner},
-    haneul_system_state::{
-        haneul_system_state_inner_v1::VerifiedValidatorMetadataV1,
-        haneul_system_state_summary::HaneulValidatorSummary,
-    },
 };
 
 const STR_ALL: &str = "All";
@@ -30,15 +27,17 @@ const STR_VALIDATORS: &str = "Validators";
 
 #[allow(clippy::or_fun_call)]
 pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
+    let system_object = genesis.haneul_system_object();
+
     // Prepare Validator info
-    let summary_set = genesis.validator_summary_set();
-    let validator_map = summary_set
+    let validator_set = &system_object.validators.active_validators;
+    let validator_map = validator_set
         .iter()
-        .map(|(summary, metadata)| (summary.name.as_str(), (summary, metadata)))
+        .map(|v| (v.verified_metadata().name.as_str(), v))
         .collect::<BTreeMap<_, _>>();
-    let validator_address_map = summary_set
+    let validator_address_map = validator_set
         .iter()
-        .map(|(summary, _metadata)| (summary.haneul_address, summary))
+        .map(|v| (v.verified_metadata().haneul_address, v))
         .collect::<BTreeMap<_, _>>();
 
     let mut validator_options = validator_map
@@ -46,13 +45,9 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
         .map(|(name, _)| *name)
         .collect::<Vec<_>>();
     validator_options.extend_from_slice(&[STR_ALL, STR_EXIT]);
-    println!(
-        "Total Number of Validators: {}",
-        genesis.validator_summary_set().len()
-    );
+    println!("Total Number of Validators: {}", validator_set.len());
 
     // Prepare Haneul distribution info
-    let system_object = genesis.haneul_system_object();
     let mut haneul_distribution = BTreeMap::new();
     let entry = haneul_distribution
         .entry("Haneul System".to_string())
@@ -99,7 +94,7 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
                     let validator = validator_address_map
                         .get(&staked_haneul.validator_address())
                         .unwrap();
-                    assert_eq!(validator.staking_pool_id, staked_haneul.pool_id());
+                    assert_eq!(validator.staking_pool.id, staked_haneul.pool_id());
 
                     staked_haneul_map.insert(object.id(), staked_haneul);
                 } else {
@@ -159,20 +154,20 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
 #[allow(clippy::ptr_arg)]
 fn examine_validators(
     validator_options: &Vec<&str>,
-    validator_map: &BTreeMap<&str, (&HaneulValidatorSummary, &VerifiedValidatorMetadataV1)>,
+    validator_map: &BTreeMap<&str, &HaneulValidatorGenesis>,
 ) {
     loop {
         let ans = Select::new("Select one validator to examine ('All' to display all Validators, 'Exit' to return to Main):", validator_options.clone()).prompt();
         match ans {
             Ok(name) if name == STR_ALL => {
-                for (summary, metadata) in validator_map.values() {
-                    display_validator(summary, metadata);
+                for validator in validator_map.values() {
+                    display_validator(validator);
                 }
             }
             Ok(name) if name == STR_EXIT => break,
             Ok(name) => {
-                let (summary, metadata) = validator_map.get(name).unwrap();
-                display_validator(summary, metadata);
+                let validator = validator_map.get(name).unwrap();
+                display_validator(validator);
             }
             Err(err) => {
                 println!("Error: {err}");
@@ -185,7 +180,7 @@ fn examine_validators(
 
 fn examine_object(
     owner_map: &BTreeMap<ObjectID, Owner>,
-    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorSummary>,
+    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorGenesis>,
     package_map: &BTreeMap<ObjectID, &MovePackage>,
     haneul_map: &BTreeMap<ObjectID, GasCoin>,
     staked_haneul_map: &BTreeMap<ObjectID, StakedHaneul>,
@@ -291,44 +286,60 @@ fn examine_total_supply(
     }
 }
 
-fn display_validator(summary: &HaneulValidatorSummary, metadata: &VerifiedValidatorMetadataV1) {
+fn display_validator(validator: &HaneulValidatorGenesis) {
+    let metadata = validator.verified_metadata();
     println!("Validator name: {}", metadata.name);
     println!("{:#?}", metadata);
-    println!("Voting Power: {}", summary.voting_power);
-    println!("Gas Price: {}", summary.gas_price);
-    println!("Next Epoch Gas Price: {}", summary.next_epoch_gas_price);
-    println!("Commission Rate: {}", summary.commission_rate);
+    println!("Voting Power: {}", validator.voting_power);
+    println!("Gas Price: {}", validator.gas_price);
+    println!("Next Epoch Gas Price: {}", validator.next_epoch_gas_price);
+    println!("Commission Rate: {}", validator.commission_rate);
     println!(
         "Next Epoch Commission Rate: {}",
-        summary.next_epoch_commission_rate
+        validator.next_epoch_commission_rate
     );
-    println!("Next Epoch Stake: {}", summary.next_epoch_stake);
-    println!("Staking Pool ID: {}", summary.staking_pool_id);
+    println!("Next Epoch Stake: {}", validator.next_epoch_stake);
+    println!("Staking Pool ID: {}", validator.staking_pool.id);
     println!(
         "Staking Pool Activation Epoch: {:?}",
-        summary.staking_pool_activation_epoch
+        validator.staking_pool.activation_epoch
     );
     println!(
         "Staking Pool Deactivation Epoch: {:?}",
-        summary.staking_pool_deactivation_epoch
+        validator.staking_pool.deactivation_epoch
     );
     println!(
         "Staking Pool Haneul Balance: {:?}",
-        summary.staking_pool_haneul_balance
+        validator.staking_pool.haneul_balance
     );
-    println!("Rewards Pool: {}", summary.rewards_pool);
-    println!("Pool Token Balance: {}", summary.pool_token_balance);
-    println!("Pending Delegation: {}", summary.pending_stake);
+    println!(
+        "Rewards Pool: {}",
+        validator.staking_pool.rewards_pool.value()
+    );
+    println!(
+        "Pool Token Balance: {}",
+        validator.staking_pool.pool_token_balance
+    );
+    println!(
+        "Pending Delegation: {}",
+        validator.staking_pool.pending_stake
+    );
     println!(
         "Pending Total Haneul Withdraw: {}",
-        summary.pending_total_haneul_withdraw
+        validator.staking_pool.pending_total_haneul_withdraw
     );
     println!(
         "Pendign Pool Token Withdraw: {}",
-        summary.pending_pool_token_withdraw
+        validator.staking_pool.pending_pool_token_withdraw
     );
-    println!("Exchange Rates ID: {}", summary.exchange_rates_id);
-    println!("Exchange Rates Size: {}", summary.exchange_rates_size);
+    println!(
+        "Exchange Rates ID: {}",
+        validator.staking_pool.exchange_rates.id
+    );
+    println!(
+        "Exchange Rates Size: {}",
+        validator.staking_pool.exchange_rates.size
+    );
     print_divider(&metadata.name);
 }
 
@@ -340,14 +351,17 @@ fn display_haneul(gas_coin: &GasCoin, owner_map: &BTreeMap<ObjectID, Owner>) {
 
 fn display_staked_haneul(
     staked_haneul: &StakedHaneul,
-    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorSummary>,
+    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorGenesis>,
     owner_map: &BTreeMap<ObjectID, Owner>,
 ) {
     let validator = validator_address_map
         .get(&staked_haneul.validator_address())
         .unwrap();
     println!("{:#?}", staked_haneul);
-    println!("Staked to Validator: {}", validator.name);
+    println!(
+        "Staked to Validator: {}",
+        validator.verified_metadata().name
+    );
     println!("Owner: {}\n", owner_map.get(&staked_haneul.id()).unwrap());
 }
 

@@ -23,11 +23,11 @@ use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::clock::Clock;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
+use haneul_types::crypto::DefaultHash;
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignature,
     HaneulAuthoritySignature, ToFromBytes,
 };
-use haneul_types::crypto::{DefaultHash, PublicKey as AccountsPublicKey};
 use haneul_types::epoch_data::EpochData;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
@@ -43,11 +43,9 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::haneul_system_state::haneul_system_state_inner_v1::VerifiedValidatorMetadataV1;
-use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulValidatorSummary;
 use haneul_types::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_version, get_haneul_system_state_wrapper,
-    HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper,
+    HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::MOVE_STDLIB_ADDRESS;
@@ -136,44 +134,8 @@ impl Genesis {
         0
     }
 
-    pub fn validator_set(&self) -> Vec<ValidatorInfo> {
-        self.haneul_system_object()
-            .validators
-            .active_validators
-            .iter()
-            .map(|validator| {
-                let metadata = validator.verified_metadata();
-                ValidatorInfo {
-                    name: metadata.name.clone(),
-                    account_key: AccountsPublicKey::Ed25519(metadata.network_pubkey.clone()), //TODO this is wrong and we shouldn't have this here
-                    protocol_key: metadata.haneul_pubkey_bytes(),
-                    worker_key: metadata.worker_pubkey.clone(),
-                    network_key: metadata.network_pubkey.clone(),
-                    gas_price: validator.gas_price,
-                    commission_rate: validator.commission_rate,
-                    network_address: metadata.net_address.clone(),
-                    p2p_address: metadata.p2p_address.clone(),
-                    narwhal_primary_address: metadata.primary_address.clone(),
-                    narwhal_worker_address: metadata.worker_address.clone(),
-                    description: metadata.description.clone(),
-                    image_url: metadata.image_url.clone(),
-                    project_url: metadata.project_url.clone(),
-                }
-            })
-            .collect()
-    }
-
-    pub fn validator_summary_set(&self) -> Vec<(HaneulValidatorSummary, VerifiedValidatorMetadataV1)> {
-        self.haneul_system_object()
-            .validators
-            .active_validators
-            .iter()
-            .map(|validator| {
-                let summary = validator.clone().into_haneul_validator_summary();
-                let metadata = validator.verified_metadata().clone();
-                (summary, metadata)
-            })
-            .collect()
+    pub fn validator_set(&self) -> Vec<HaneulValidatorGenesis> {
+        self.haneul_system_object().validators.active_validators
     }
 
     pub fn committee_with_network(&self) -> CommitteeWithNetworkMetadata {
@@ -355,17 +317,8 @@ impl UnsignedGenesis {
         0
     }
 
-    pub fn validator_summary_set(&self) -> Vec<(HaneulValidatorSummary, VerifiedValidatorMetadataV1)> {
-        self.haneul_system_object()
-            .validators
-            .active_validators
-            .iter()
-            .map(|validator| {
-                let summary = validator.clone().into_haneul_validator_summary();
-                let metadata = validator.verified_metadata().clone();
-                (summary, metadata)
-            })
-            .collect()
+    pub fn validator_set(&self) -> Vec<HaneulValidatorGenesis> {
+        self.haneul_system_object().validators.active_validators
     }
 
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {

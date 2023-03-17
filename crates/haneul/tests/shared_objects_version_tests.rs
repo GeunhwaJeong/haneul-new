@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 use std::time::Duration;
-use haneul_config::{NetworkConfig, ValidatorInfo};
+use haneul_config::NetworkConfig;
 use haneul_macros::*;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
@@ -12,6 +12,7 @@ use haneul_types::messages::{
     CallArg, ExecutionFailureStatus, ExecutionStatus, ObjectArg, TransactionEffects,
     TransactionEffectsAPI, TransactionEvents,
 };
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::{generate_test_gas_objects, Object, Owner, OBJECT_START_VERSION};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::authority::{spawn_test_authorities, test_authority_configs_with_objects};
@@ -131,7 +132,7 @@ impl TestEnvironment {
         let node_handles = spawn_test_authorities(&configs).await;
 
         let move_package =
-            publish_move_package(gas_objects.pop().unwrap(), &configs.validator_set())
+            publish_move_package(gas_objects.pop().unwrap(), &configs.net_addresses())
                 .await
                 .0;
 
@@ -156,7 +157,7 @@ impl TestEnvironment {
                 self.move_package,
                 arguments,
             ),
-            &self.configs.validator_set(),
+            &self.configs.net_addresses(),
         )
         .await
     }
@@ -174,7 +175,7 @@ impl TestEnvironment {
                 self.move_package,
                 arguments,
             ),
-            &self.configs.validator_set(),
+            &self.configs.net_addresses(),
         )
         .await
     }
@@ -263,8 +264,8 @@ impl TestEnvironment {
     }
 }
 
-async fn publish_move_package(gas: Object, validators: &[ValidatorInfo]) -> ObjectRef {
+async fn publish_move_package(gas: Object, net_addresses: &[Multiaddr]) -> ObjectRef {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("tests/move_test_code");
-    publish_package(gas, path, validators).await
+    publish_package(gas, path, net_addresses).await
 }

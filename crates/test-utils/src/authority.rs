@@ -6,13 +6,14 @@ use prometheus::Registry;
 use rand::{prelude::StdRng, SeedableRng};
 use std::net::IpAddr;
 use std::time::Duration;
-use haneul_config::{builder::ConfigBuilder, NetworkConfig, NodeConfig, ValidatorInfo};
+use haneul_config::{builder::ConfigBuilder, NetworkConfig, NodeConfig};
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::authority_client::NetworkAuthorityClient;
 pub use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::TEST_COMMITTEE_SIZE;
 use haneul_types::messages::ObjectInfoRequest;
+use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Object;
 
 /// The default network buffer size of a test authority.
@@ -156,12 +157,12 @@ pub async fn spawn_fullnode(config: &NetworkConfig, rpc_port: Option<u16>) -> Ha
 }
 
 /// Get a network client to communicate with the consensus.
-pub fn get_client(config: &ValidatorInfo) -> NetworkAuthorityClient {
-    NetworkAuthorityClient::connect_lazy(config.network_address()).unwrap()
+pub fn get_client(net_address: &Multiaddr) -> NetworkAuthorityClient {
+    NetworkAuthorityClient::connect_lazy(net_address).unwrap()
 }
 
-pub async fn get_object(config: &ValidatorInfo, object_id: ObjectID) -> Object {
-    get_client(config)
+pub async fn get_object(net_address: &Multiaddr, object_id: ObjectID) -> Object {
+    get_client(net_address)
         .handle_object_info_request(ObjectInfoRequest::latest_object_info_request(
             object_id, None,
         ))

@@ -490,6 +490,7 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
                 name,
                 NetworkMetadata {
                     network_address: verified_metadata.net_address.clone(),
+                    narwhal_primary_address: verified_metadata.primary_address.clone(),
                 },
             );
         }
