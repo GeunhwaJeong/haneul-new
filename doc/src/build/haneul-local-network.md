@@ -20,7 +20,7 @@ git clone https://github.com/GeunhwaJeong/haneul.git
 # Make haneul the working directory
 cd haneul
 # Build Haneul
-cargo build haneul-test-validator haneul
+cargo build --bin haneul-test-validator --bin haneul
 ```
 
 To use remote code, `cargo install` Haneul directly from the remote repository. The following example uses the `main` branch, but you can set other branches as needed (e.g., `--branch devnet`, `--branch testnet`, and so on) to target different network versions.
