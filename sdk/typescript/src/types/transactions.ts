@@ -345,6 +345,13 @@ export const HaneulObjectChange = union([
 ]);
 export type HaneulObjectChange = Infer<typeof HaneulObjectChange>;
 
+export const BalanceChange = object({
+  owner: ObjectOwner,
+  coinType: string(),
+  /* Coin balance change(positive means receive, negative means send) */
+  amount: string(),
+});
+
 export const HaneulTransactionResponse = object({
   digest: TransactionDigest,
   transaction: optional(HaneulTransaction),
@@ -354,6 +361,7 @@ export const HaneulTransactionResponse = object({
   checkpoint: optional(number()),
   confirmedLocalExecution: optional(boolean()),
   objectChanges: optional(array(HaneulObjectChange)),
+  balanceChanges: optional(array(BalanceChange)),
   /* Errors that occurred in fetching/serializing the transaction. */
   errors: optional(array(string())),
 });
@@ -366,9 +374,10 @@ export const HaneulTransactionResponseOptions = object({
   showEffects: optional(boolean()),
   /* Whether to show transaction events. Default to be false. */
   showEvents: optional(boolean()),
-  /* Whether to show transaction events. Default to be false. */
+  /* Whether to show object changes. Default to be false. */
   showObjectChanges: optional(boolean()),
-  // MUSTFIX(chris): add showBalanceChanges
+  /* Whether to show coin balance changes. Default to be false. */
+  showBalanceChanges: optional(boolean()),
 });
 
 export type HaneulTransactionResponseOptions = Infer<
