@@ -5,8 +5,10 @@
 module haneul::package_tests {
     use std::ascii;
     use haneul::address;
+    use std::vector;
     use haneul::object::id_from_address as id;
-    use haneul::package;
+    use haneul::package::{Self, UpgradeCap, UpgradeTicket};
+    use haneul::test_utils;
     use haneul::test_scenario::{Self as test, Scenario, ctx};
 
     /// OTW for the package_tests module -- it can't actually be a OTW
@@ -59,6 +61,40 @@ module haneul::package_tests {
         test::end(test);
     }
 
+    fun check_ticket(cap: &mut UpgradeCap, policy: u8, digest: vector<u8>): UpgradeTicket {
+        let ticket = package::authorize_upgrade(
+            cap,
+            policy,
+            digest,
+        );
+        test_utils::assert_eq(package::ticket_policy(&ticket), policy);
+        test_utils::assert_ref_eq(package::ticket_digest(&ticket), &digest);
+        ticket
+    }
+
+    #[test]
+    fun test_upgrade_policy_reflected_in_ticket() {
+        let test = test::begin(@0x1);
+        let cap = package::test_publish(id(@0x42), ctx(&mut test));
+        let policies = vector[
+            package::dep_only_policy(),
+            package::compatible_policy(),
+            package::additive_policy(),
+            // Add more policies here when they exist.
+        ];
+
+        while (!vector::is_empty(&policies)) {
+            let policy = vector::pop_back(&mut policies);
+            let ticket = check_ticket(&mut cap, policy, haneul::hash::blake2b256(&vector[policy]));
+            let receipt = package::test_upgrade(ticket);
+            package::commit_upgrade(&mut cap, receipt);
+        };
+
+        package::make_immutable(cap);
+        test::end(test);
+    }
+
+
     #[test]
     fun test_full_upgrade_flow() {
         let test = test::begin(@0x1);
@@ -72,6 +108,7 @@ module haneul::package_tests {
             haneul::hash::blake2b256(&b"package contents"),
         );
 
+        test_utils::assert_eq(package::ticket_policy(&ticket), package::dep_only_policy());
         let receipt = package::test_upgrade(ticket);
         package::commit_upgrade(&mut cap, receipt);
         assert!(package::version(&cap) == version + 1, 0);
@@ -145,6 +182,7 @@ module haneul::package_tests {
             haneul::hash::blake2b256(&b"package contents 1"),
         );
 
+        test_utils::assert_eq(package::ticket_policy(&ticket1), package::dep_only_policy());
         let receipt1 = package::test_upgrade(ticket1);
 
         // Trying to update a cap with the receipt from some other cap
