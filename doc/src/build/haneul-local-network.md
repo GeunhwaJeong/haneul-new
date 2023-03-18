@@ -2,17 +2,29 @@
 title: Create a local Haneul network
 ---
 
-To test your dApps against the latest changes to Haneul, or to prepare for new features ahead of the next Devnet or Testnet release, you can test on a local network using the `haneul-test-validator` binary. This binary starts a single-node cluster with Full node and faucet capabilities.
+Use a Haneul local network to test your dApps against the latest changes to Haneul, and to prepare for the next Haneul release to the Devnet or Testnet network. To set up a local network, Haneul provides the `haneul-test-validator` binary. The `haneul-test-validator` starts a local network that includes a Haneul Full node, a Haneul validator, and a Haneul faucet. You can use the included faucet to get test HANEUL to use on the local network.
 
-## Prerequisite
+## Prerequisites
 
-[Install](../build/install.md) the required libraries if not already installed.
+Install the necessary [prerequisites](../build/install.md#prerequisites) for Haneul.
 
 ## Install Haneul
 
-You can install Haneul from your local repository or from the remote repository. If you build from your local source, you have the benefit of being able to run a local Haneul Explorer and Haneul Wallet.
+Use the steps in this section to install the `haneul-test-validator` to run a local network. To install Haneul to build or for other purposes, use the steps in the [Install Haneul](install.md) topic.
 
-To run from your local source, clone the repository locally (or get latest, if already cloned). Then, run `cargo build` from the `haneul` directory:
+If you previously installed Haneul, do one of the following:
+ * Use the same branch for the commands in this topic that you used to install Haneul
+ * Install Haneul again using the branch you intend to use for your local network
+
+You have two options to install Haneul:
+ * Clone the Haneul GitHub repository locally, and then install Haneul from your local drive
+ * Install Haneul directly from the remote Haneul repository.
+
+ If you clone the repository and install Haneul from your local drive, you can also start a local Haneul Explorer and Haneul Wallet that works with your local network.
+
+### Install Haneul locally
+
+Use the following command to clone the Haneul repo, change to the Haneul folder after the clone completes, and then use cargo to install the `haneul-test-validator` and `haneul` binaries from your local drive.
 
 ```bash
 # Clone the repository
@@ -23,25 +35,31 @@ cd haneul
 cargo build --bin haneul-test-validator --bin haneul
 ```
 
-To use remote code, `cargo install` Haneul directly from the remote repository. The following example uses the `main` branch, but you can set other branches as needed (e.g., `--branch devnet`, `--branch testnet`, and so on) to target different network versions.
+### Install Haneul from GitHub
+
+Use the following command to install Haneul directly from the Haneul GitHub repository:
 
 ```bash
 cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch main haneul-test-validator haneul
 ```
 
-## Running local network
+Note that the command uses the `main` branch of the Haneul repository. To use a different branch, change the value for the `--branch` switch. For example, to use the `devnet` branch, specify `--branch devnet`.
 
-To run a local network with validators and a faucet, open a Terminal or Console window at the `haneul` root directory. Use the following command to run `haneul-test-validator`, setting `RUST_LOG` to `consensus=off`:
+## Start the local network
+
+To start the local network, run the following command from the `haneul` root folder.
 
 ```bash
 RUST_LOG="consensus=off" cargo run --bin haneul-test-validator
 ```
 
-**Note** The state for `haneul-test-validator` is currently not persistent, i.e., it will always start from a fresh state upon restart.
+The command starts the `haneul-test-validator`. The `RUST_LOG`=`consensus=off` turns off consensus for the local network.
 
-You can customize your local Haneul network by passing values to the following flags for the `haneul-test-validator` command:
+**Important** Each time you start the `haneul-test-validator`, the network starts as a new network with no previous data. The local network is not persistent.
 
-```bash
+To customize your local Haneul network, such as changing the port used, include additional parameters in the command to start `haneul-test-validator`:
+
+```
 OPTIONS:
         --epoch-duration-ms <EPOCH_DURATION_MS>
             The duration for epochs (defaults to one minute) [default: 60000]
@@ -55,9 +73,11 @@ OPTIONS:
 
 Use `haneul-validator-test --help` to see these options in your console.
 
-### Making faucet requests
+## Use the local faucet
 
-To get gas coins for an address, open a new Terminal or Console window or tab. Make a cURL request and specify the address to receive the coins. Use the `haneul client active-address` command to get the current active address, if needed.
+You need to have coins to pay for gas on your local network just like other networks. Use the following cURL command to get test coins from the local faucet you just installed and started. 
+
+To add the coins to the current active address on the local network, use the `haneul client active-address` command to retrieve it. Use the `haneul client addresses` command to see all of the addresses on your local network. To send coins to a Haneul Wallet connected to your local network, see [Set up a local Haneul](#set-up-a-local-haneul-wallet).
 
 ```bash
 curl --location --request POST 'http://127.0.0.1:9123/gas' \
@@ -104,9 +124,9 @@ If successful, the response resembles the following:
 }
 ```
 
-### Accessing Full node
+### Access your local Full node
 
-You can access your Full node using cURL:
+Use the following command to retrieve the total transaction count from your local network:
 
 ```bash
 curl --location --request POST 'http://127.0.0.1:9000' \
@@ -119,7 +139,7 @@ curl --location --request POST 'http://127.0.0.1:9000' \
 }'
 ```
 
-If successful, the return resembles the following:
+If successful, the response resembles the following:
 
 ```bash
 {
@@ -129,40 +149,50 @@ If successful, the return resembles the following:
 }
 ```
 
-## Setup local Haneul Explorer
+## Set up a local Haneul Explorer
 
-While [https://explorer.haneul.io/?network=local](https://explorer.haneul.io/?network=local) is compatible with the local network, it might not have all the latest features that are available in the `main` branch of the Haneul repository. To run `explorer` locally, open a Terminal or Console window in the `haneul` directory (install [pnpm](https://pnpm.io/installation) first if you don't already have it):
+To connect the live Haneul Explorer to your local network, open the URL:[https://explorer.haneul.io/?network=local](https://explorer.haneul.io/?network=local). The live version of Haneul Explorer may not include recent updates added to the `main` branch of the Haneul repo. To use Haneul Explorer that includes the most recent updates, install and run Haneul Explorer from your local clone of the Haneul repo.
+
+**Note:** To run the command you must have [pnpm](https://pnpm.io/installation) installed.
+
+Run the following command from the `haneul` root folder:
 
 ```bash
 pnpm explorer dev
 ```
 
-After running the command, you can open a browser to [http://localhost:3000/](http://localhost:3000/) to access your local version of Haneul Explorer.
+After the command completes, open your local Haneul Explorer at the following URL: [http://localhost:3000/](http://localhost:3000/).
 
-For more details, see [https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer).
+For more details about Haneul explorer, see [https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer](https://github.com/GeunhwaJeong/haneul/tree/main/apps/explorer).
 
-## Set up local Haneul Wallet
+## Set up a local Haneul Wallet
 
-Similar to local Haneul Explorer, you can also setup a local Haneul Wallet. Open a Terminal or Console window or tab at the `haneul` root directory and use the `wallet start` command (install [pnpm](https://pnpm.io/installation) first if you don't already have it):
+You can also use a local Haneul Wallet to test with your local network. You can then see transactions executed from your local Haneul Wallet on your local Haneul Explorer.
+
+**Note:** To run the command you must have [pnpm](https://pnpm.io/installation) installed.
+
+Run the following command from the `haneul` root folder to start Haneul Wallet on your local network:
 
 ```bash
 pnpm wallet start
 ```
 
-**Tips** You can set the default environment to use your local network with https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet#environment-variables so that you don't have to switch network manually.
+**Note** You can set the default environment for the wallet to use so that you don't have to switch network manually. For details, see [https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet#environment-variables](https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet#environment-variables). 
 
-For more details, reference [https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet](https://github.com/GeunhwaJeong/haneul/tree/main/apps/wallet).
+## Generate example data
 
-## Generating example data
+Use the TypeScript SDK to add example data to your network. 
 
-Open a Terminal or Console window or tab at the `haneul` root directory. From there, run the TypeScript SDK end to end test against the local network to generate example data to the network (install [pnpm](https://pnpm.io/installation) first if you don't already have it):
+**Note:** To run the command you must have [pnpm](https://pnpm.io/installation) installed.
+
+Run the following command from the `haneul` root folder: 
 
 ```bash
 pnpm sdk test:e2e
 ```
 
-For more details, refer to [https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing).
+For additional information about example data for testing, see [https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing).
 
-## Testing with the Haneul TypeScript SDK
+## Test with the Haneul TypeScript SDK
 
-The published Haneul TypeScript SDK version might be behind the local network version. To make sure you're using the latest version of the SDK, use the `experimental`-tagged version (for example, `0.0.0-experimental-20230317184920`) in the [Current Tags](https://www.npmjs.com/package/@haneullabs/haneul.js/v/0.0.0-experimental-20230127130009?activeTab=versions) section of the Haneul NPM registry.
+The published version of the Haneul TypeScript SDK might be an earlier version than the version of Haneul you installed for your local network. To make sure you're using the latest version of the SDK, use the `experimental`-tagged version (for example, `0.0.0-experimental-20230317184920`) in the [Current Tags](https://www.npmjs.com/package/@haneullabs/haneul.js/v/0.0.0-experimental-20230127130009?activeTab=versions) section of the Haneul NPM registry.
