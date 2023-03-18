@@ -140,9 +140,9 @@ impl HaneulValidatorCommand {
                     read_authority_keypair_from_file(protocol_key_file_name)?;
                 let account_keypair: HaneulKeyPair = read_keypair_from_file(account_key_file_name)?;
                 let worker_keypair: NetworkKeyPair =
-                    read_network_keypair_from_file(network_key_file_name)?;
-                let network_keypair: NetworkKeyPair =
                     read_network_keypair_from_file(worker_key_file_name)?;
+                let network_keypair: NetworkKeyPair =
+                    read_network_keypair_from_file(network_key_file_name)?;
                 let pop =
                     generate_proof_of_possession(&keypair, (&account_keypair.public()).into());
                 let validator_info = GenesisValidatorInfo {
