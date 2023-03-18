@@ -21,7 +21,7 @@ services:
       - ./validator.yaml:/opt/haneul/config/validator.yaml:ro
       - ./genesis.blob:/opt/haneul/config/genesis.blob:ro
       - ../genesis/key-pairs:/opt/haneul/key-pairs/:ro
-      - haneuldb:/opt/haneul/db:rw
+      - /opt/haneul/db:/opt/haneul/db:rw
     command:
       [
         "/usr/local/bin/haneul-node",
@@ -34,6 +34,3 @@ services:
       options:
         max-file: "10"
         max-size: "5g"
-
-volumes:
-  haneuldb:
