@@ -13,6 +13,7 @@ pub struct HaneulTransactionFullResponse {
     pub digest: TransactionDigest,
     /// Transaction input data
     pub transaction: HaneulTransaction,
+    pub raw_transaction: Vec<u8>,
     pub effects: HaneulTransactionEffects,
     pub events: HaneulTransactionEvents,
     pub object_changes: Option<Vec<ObjectChange>>,
@@ -29,6 +30,7 @@ impl TryFrom<HaneulTransactionResponse> for HaneulTransactionFullResponse {
         let HaneulTransactionResponse {
             digest,
             transaction,
+            raw_transaction,
             effects,
             events,
             object_changes,
@@ -80,6 +82,7 @@ impl TryFrom<HaneulTransactionResponse> for HaneulTransactionFullResponse {
         Ok(HaneulTransactionFullResponse {
             digest,
             transaction,
+            raw_transaction,
             effects,
             events,
             object_changes,
@@ -103,11 +106,13 @@ impl From<HaneulTransactionFullResponse> for HaneulTransactionResponse {
             timestamp_ms,
             confirmed_local_execution,
             checkpoint,
+            raw_transaction,
         } = response;
 
         HaneulTransactionResponse {
             digest,
             transaction: Some(transaction),
+            raw_transaction,
             effects: Some(effects),
             events: Some(events),
             object_changes,
