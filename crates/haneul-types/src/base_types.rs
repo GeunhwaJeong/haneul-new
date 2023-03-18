@@ -9,8 +9,8 @@ use crate::coin::COIN_MODULE_NAME;
 use crate::coin::COIN_STRUCT_NAME;
 pub use crate::committee::EpochId;
 use crate::crypto::{
-    AuthorityPublicKey, AuthorityPublicKeyBytes, DefaultHash, KeypairTraits, PublicKey,
-    SignatureScheme, HaneulPublicKey, HaneulSignature,
+    AuthorityPublicKeyBytes, DefaultHash, KeypairTraits, PublicKey, SignatureScheme, HaneulPublicKey,
+    HaneulSignature,
 };
 pub use crate::digests::{ObjectDigest, TransactionDigest, TransactionEffectsDigest};
 use crate::dynamic_field::DynamicFieldInfo;
@@ -453,31 +453,13 @@ impl TryFrom<Vec<u8>> for HaneulAddress {
     }
 }
 
-impl From<&AuthorityPublicKeyBytes> for HaneulAddress {
-    fn from(pkb: &AuthorityPublicKeyBytes) -> Self {
-        let mut hasher = DefaultHash::default();
-        hasher.update([AuthorityPublicKey::SIGNATURE_SCHEME.flag()]);
-        hasher.update(pkb);
-        let g_arr = hasher.finalize();
-
-        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
-        // OK to access slice because digest should never be shorter than HANEUL_ADDRESS_LENGTH.
-        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-        HaneulAddress(res)
-    }
-}
-
 impl<T: HaneulPublicKey> From<&T> for HaneulAddress {
     fn from(pk: &T) -> Self {
         let mut hasher = DefaultHash::default();
         hasher.update([T::SIGNATURE_SCHEME.flag()]);
         hasher.update(pk);
         let g_arr = hasher.finalize();
-
-        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
-        // OK to access slice because digest should never be shorter than HANEUL_ADDRESS_LENGTH.
-        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-        HaneulAddress(res)
+        HaneulAddress(g_arr.digest)
     }
 }
 
@@ -487,11 +469,7 @@ impl From<&PublicKey> for HaneulAddress {
         hasher.update([pk.flag()]);
         hasher.update(pk);
         let g_arr = hasher.finalize();
-
-        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
-        // OK to access slice because digest should never be shorter than HANEUL_ADDRESS_LENGTH.
-        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-        HaneulAddress(res)
+        HaneulAddress(g_arr.digest)
     }
 }
 
@@ -509,11 +487,7 @@ impl From<MultiSigPublicKey> for HaneulAddress {
             hasher.update(w.to_le_bytes());
         });
         let g_arr = hasher.finalize();
-
-        let mut res = [0u8; HANEUL_ADDRESS_LENGTH];
-        // OK to access slice because digest should never be shorter than HANEUL_ADDRESS_LENGTH.
-        res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-        HaneulAddress(res)
+        HaneulAddress(g_arr.digest)
     }
 }
 

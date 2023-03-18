@@ -83,7 +83,11 @@ Use the steps in this section to install and configure a Haneul Full node direct
     ```
 ## Set up Haneul addresses
 
-Haneul addresses do not require on-chain initialization, you can spend from an address if it corresponds to your private key. You can derive a Haneul address by hashing the signature scheme flag byte concatenated with public key bytes `flag || pubkey` using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function. The following code sample demonstrates how to derive a Haneul address in Rust:
+Haneul addresses do not require on-chain initialization, you can spend from an address if it corresponds to your private key. You can derive a 32-byte Haneul address by hashing the signature scheme flag byte concatenated with public key bytes `flag || pubkey` using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function. 
+
+Currently, Haneul address supports these signature schemes: pure Ed25519, Secp256k1, Secp256r1 and Multisig. The corresponding flag bytes are 0x00, 0x01, 0x02, 0x03 respectively. 
+
+The following code sample demonstrates how to derive a Haneul address in Rust:
 
 ```rust
 let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1, 0x03 = Multisig
@@ -91,12 +95,8 @@ let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1, 0x03 = M
 let mut hasher = UserHash::default();
 hasher.update([flag]);
 hasher.update(pk);
-let g_arr = hasher.finalize();
-
-// The first 32 bytes is the Haneul address.
-let mut res = [0u8; HANEUL_ADDRESS_LENGTH]; // HANEUL_ADDRESS_LENGTH = 32
-res.copy_from_slice(&AsRef::<[u8]>::as_ref(&g_arr)[..HANEUL_ADDRESS_LENGTH]);
-let haneul_address_string = hex::encode(res);
+let arr = hasher.finalize();
+let haneul_address_string = hex::encode(arr);
 ```
 
 ## Displaying addresses

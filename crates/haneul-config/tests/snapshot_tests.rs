@@ -26,17 +26,16 @@ use haneul_config::{genesis::Builder, genesis_config::GenesisConfig};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
-    AuthorityPublicKeyBytes, NetworkKeyPair,
+    NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::multiaddr::Multiaddr;
 
 #[test]
 #[cfg_attr(msim, ignore)]
 fn genesis_config_snapshot_matches() {
-    // Test creating fake HaneulAddress from PublicKeyBytes.
-    let keypair: AuthorityKeyPair = get_key_pair_from_rng(&mut StdRng::from_seed([0; 32])).1;
-    let public_key = AuthorityPublicKeyBytes::from(keypair.public());
-    let fake_addr = HaneulAddress::from(&public_key);
+    let ed_kp1: HaneulKeyPair =
+        HaneulKeyPair::Ed25519(get_key_pair_from_rng(&mut StdRng::from_seed([0; 32])).1);
+    let fake_addr: HaneulAddress = (&ed_kp1.public()).into();
 
     let fake_obj_id = ObjectID::from(fake_addr);
     let mut genesis_config = GenesisConfig::for_local_testing();
