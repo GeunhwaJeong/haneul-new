@@ -9299,8 +9299,10 @@ dependencies = [
 name = "haneul-macros"
 version = "0.7.0"
 dependencies = [
+ "futures",
  "once_cell",
  "haneul-proc-macros",
+ "tracing",
  "workspace-hack",
 ]
 
@@ -9412,6 +9414,7 @@ dependencies = [
  "haneul-config",
  "haneul-core",
  "haneul-json-rpc",
+ "haneul-macros",
  "haneul-network",
  "haneul-protocol-config",
  "haneul-simulator",

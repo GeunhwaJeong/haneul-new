@@ -71,6 +71,7 @@ use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle};
+use haneul_macros::fail_point_async;
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::discovery::TrustedPeerChangeEvent;
@@ -883,6 +884,8 @@ impl HaneulNode {
                 next_epoch,
                 "Finished executing all checkpoints in epoch. About to reconfigure the system."
             );
+
+            fail_point_async!("reconfig_delay");
 
             // We save the connection monitor status map regardless of validator / fullnode status
             // so that we don't need to restart the connection monitor every epoch.

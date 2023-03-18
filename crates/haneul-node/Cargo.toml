@@ -28,6 +28,7 @@ tap = "1.0.1"
 serde = { version = "1.0.144", features = ["derive"] }
 
 haneul-tls = { path = "../haneul-tls" }
+haneul-macros = { path = "../haneul-macros" }
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }

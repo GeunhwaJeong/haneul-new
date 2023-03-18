@@ -57,6 +57,7 @@ use haneullabs_metrics::monitored_scope;
 use prometheus::IntCounter;
 use std::cmp::Ordering as CmpOrdering;
 use haneul_adapter::adapter;
+use haneul_macros::fail_point;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_storage::mutex_table::MutexGuard;
 use haneul_types::message_envelope::TrustedEnvelope;
@@ -1876,6 +1877,10 @@ impl AuthorityPerEpochStore {
     }
 
     pub(crate) fn record_is_safe_mode_metric(&self, safe_mode: bool) {
+        if safe_mode {
+            // allow tests to inject a panic here.
+            fail_point!("record_is_safe_mode_metric");
+        }
         self.metrics.is_safe_mode.set(safe_mode as i64);
     }
 
