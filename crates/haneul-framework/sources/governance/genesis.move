@@ -117,9 +117,6 @@ module haneul::genesis {
                 p2p_address,
                 primary_address,
                 worker_address,
-                // Initialize all validators with no stake. Stake distribution
-                // will be handled by the 'allocate_tokens' call bellow.
-                option::none(),
                 gas_price,
                 commission_rate,
                 ctx
