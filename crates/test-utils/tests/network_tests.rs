@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_binary_format::access::ModuleAccess;
-use haneul_framework::make_std_haneul_move_pkgs;
+use haneul_framework::get_move_stdlib_package;
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;
 use haneul_types::{
@@ -54,11 +54,10 @@ async fn test_package_override() {
         // entirely because we will call into it for genesis.
         framework_modules.push(test_module);
 
-        let (std_move_pkg, _) = make_std_haneul_move_pkgs();
         let package_override = Object::new_package_for_testing(
             framework_modules,
             TransactionDigest::genesis(),
-            [&std_move_pkg],
+            &[get_move_stdlib_package()],
         )
         .unwrap();
 

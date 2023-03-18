@@ -47,6 +47,7 @@ use haneul_types::haneul_system_state::{
     HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
+use haneul_types::MOVE_STDLIB_ADDRESS;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::{
     base_types::TxContext,
@@ -54,7 +55,6 @@ use haneul_types::{
     error::HaneulResult,
     object::Object,
 };
-use haneul_types::{MOVE_STDLIB_ADDRESS, MOVE_STDLIB_OBJECT_ID};
 use tracing::trace;
 
 #[derive(Clone, Debug)]
@@ -803,10 +803,13 @@ fn build_unsigned_genesis_data(
 
     // Get Move and Haneul Framework
     let modules = [
-        (haneul_framework::get_move_stdlib(), vec![]),
+        (
+            haneul_framework::get_move_stdlib(),
+            haneul_framework::get_move_stdlib_transitive_dependencies(),
+        ),
         (
             haneul_framework::get_haneul_framework(),
-            vec![MOVE_STDLIB_OBJECT_ID],
+            haneul_framework::get_haneul_framework_transitive_dependencies(),
         ),
     ];
 
@@ -1041,7 +1044,7 @@ fn process_package(
         .collect();
     let pt = {
         let mut builder = ProgrammableTransactionBuilder::new();
-        // executing in Genesis mode does not create a package upgrade
+        // executing in Genesis mode does not create an `UpgradeCap`.
         builder.command(Command::Publish(module_bytes, dependencies));
         builder.finish()
     };

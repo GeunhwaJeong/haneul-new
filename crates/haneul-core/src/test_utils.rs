@@ -152,13 +152,12 @@ async fn init_genesis(
         .into_iter()
         .cloned()
         .collect();
-    let (std_move_pkg, haneul_move_pkg) = haneul_framework::make_std_haneul_move_pkgs();
     let pkg = Object::new_package(
         modules,
         OBJECT_START_VERSION,
         TransactionDigest::genesis(),
         ProtocolConfig::get_for_max_version().max_move_package_size(),
-        [&std_move_pkg, &haneul_move_pkg],
+        &haneul_framework::make_system_packages(),
     )
     .unwrap();
     let pkg_id = pkg.id();

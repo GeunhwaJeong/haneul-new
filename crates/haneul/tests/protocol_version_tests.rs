@@ -61,7 +61,7 @@ mod sim_only_tests {
     use std::path::PathBuf;
     use std::sync::Arc;
     use haneul_core::authority::haneul_framework_injection;
-    use haneul_framework::make_std_haneul_move_pkgs;
+    use haneul_framework::get_move_stdlib_package;
     use haneul_framework_build::compiled_package::BuildConfig;
     use haneul_json_rpc::api::WriteApiClient;
     use haneul_macros::*;
@@ -596,13 +596,12 @@ mod sim_only_tests {
 
     /// Like `haneul_framework`, but package the modules in an `Object`.
     fn haneul_framework_object(fixture: &str) -> Object {
-        let (std_move_pkg, _) = make_std_haneul_move_pkgs();
         Object::new_package(
             haneul_framework(fixture),
             OBJECT_START_VERSION,
             TransactionDigest::genesis(),
             u64::MAX,
-            [&std_move_pkg],
+            &[get_move_stdlib_package()],
         )
         .unwrap()
     }
