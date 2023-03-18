@@ -11,7 +11,7 @@ module a::m {
     struct S<T> has key, store { id: haneul::object::UID, v: T }
 }
 
-//# publish
+//# publish --dependencies a
 module t1::m {
     fun t(s: a::m::S<u64>) {
         haneul::transfer::transfer(s, @100)
@@ -21,7 +21,7 @@ module t1::m {
     }
 }
 
-//# publish
+//# publish --dependencies a
 module t3::m {
     fun t(s: a::m::S<u64>) {
         haneul::transfer::freeze_object(s)
@@ -31,7 +31,7 @@ module t3::m {
     }
 }
 
-//# publish
+//# publish --dependencies a
 module t4::m {
     fun t(s: a::m::S<u64>) {
         haneul::transfer::share_object(s)

@@ -6,7 +6,7 @@ use move_core_types::gas_algebra::InternalGas;
 use once_cell::sync::Lazy;
 use std::path::Path;
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
-use haneul_types::error::HaneulResult;
+use haneul_types::{error::HaneulResult, move_package::MovePackage, object::OBJECT_START_VERSION};
 
 pub mod natives;
 
@@ -108,4 +108,16 @@ pub fn build_move_package(path: &Path, config: BuildConfig) -> HaneulResult<Comp
         pkg.verify_framework_version(get_haneul_framework(), get_move_stdlib())?;
     }*/
     Ok(pkg)
+}
+
+pub fn make_std_haneul_move_pkgs() -> (MovePackage, MovePackage) {
+    let haneul_modules = get_haneul_framework();
+    let std_modules = get_move_stdlib();
+
+    let std_pkg =
+        MovePackage::new_initial(OBJECT_START_VERSION, std_modules, u64::MAX, &[]).unwrap();
+
+    let haneul_pkg =
+        MovePackage::new_initial(OBJECT_START_VERSION, haneul_modules, u64::MAX, [&std_pkg]).unwrap();
+    (std_pkg, haneul_pkg)
 }

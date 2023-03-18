@@ -967,8 +967,9 @@ pub enum HaneulCommand {
     /// `(&mut Coin<T>, Vec<Coin<T>>)`
     /// It merges n-coins into the first coin
     MergeCoins(HaneulArgument, Vec<HaneulArgument>),
-    /// Publishes a Move package
-    Publish(HaneulMovePackage),
+    /// Publishes a Move package. It takes the package bytes and a list of the package's transitive
+    /// dependencies to link against on-chain.
+    Publish(HaneulMovePackage, Vec<ObjectID>),
     /// Upgrades a Move package
     Upgrade(HaneulMovePackage, Vec<ObjectID>, ObjectID, HaneulArgument),
     /// `forall T: Vec<T> -> vector<T>`
@@ -1005,7 +1006,11 @@ impl Display for HaneulCommand {
                 write_sep(f, coins, ",")?;
                 write!(f, ")")
             }
-            Self::Publish(_bytes) => write!(f, "Publish(_)"),
+            Self::Publish(_bytes, deps) => {
+                write!(f, "Publish(_,")?;
+                write_sep(f, deps, ",")?;
+                write!(f, ")")
+            }
             Self::Upgrade(_bytes, deps, current_package_id, ticket) => {
                 write!(f, "Upgrade({ticket},")?;
                 write_sep(f, deps, ",")?;
@@ -1030,9 +1035,12 @@ impl From<Command> for HaneulCommand {
                 arg.into(),
                 args.into_iter().map(HaneulArgument::from).collect(),
             ),
-            Command::Publish(modules) => HaneulCommand::Publish(HaneulMovePackage {
-                disassembled: disassemble_modules(modules.iter()).unwrap_or_default(),
-            }),
+            Command::Publish(modules, dep_ids) => HaneulCommand::Publish(
+                HaneulMovePackage {
+                    disassembled: disassemble_modules(modules.iter()).unwrap_or_default(),
+                },
+                dep_ids,
+            ),
             Command::MakeMoveVec(tag_opt, args) => HaneulCommand::MakeMoveVec(
                 tag_opt.map(|tag| tag.to_string()),
                 args.into_iter().map(HaneulArgument::from).collect(),

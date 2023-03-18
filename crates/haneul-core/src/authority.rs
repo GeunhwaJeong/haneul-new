@@ -69,6 +69,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointSummary, CheckpointTimestamp, VerifiedCheckpoint,
 };
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
+use haneul_types::move_package::MovePackage;
 use haneul_types::object::{MoveObject, Owner, PastObjectRead, OBJECT_START_VERSION};
 use haneul_types::query::TransactionFilter;
 use haneul_types::storage::{ObjectKey, ObjectStore, WriteKind};
@@ -2885,14 +2886,15 @@ impl AuthorityState {
     pub async fn get_available_system_packages(&self) -> Vec<ObjectRef> {
         let Some(move_stdlib) = self.compare_system_package(
             MOVE_STDLIB_OBJECT_ID,
-            haneul_framework::get_move_stdlib(),
+            haneul_framework::get_move_stdlib(), &[],
         ) .await else {
             return vec![];
         };
 
+        let (std_move_pkg, _) = haneul_framework::make_std_haneul_move_pkgs();
         let Some(haneul_framework) = self.compare_system_package(
             HANEUL_FRAMEWORK_OBJECT_ID,
-            haneul_framework_injection::get_modules(self.name),
+            haneul_framework_injection::get_modules(self.name), [&std_move_pkg],
         ).await else {
             return vec![];
         };
@@ -2911,10 +2913,11 @@ impl AuthorityState {
     ///   framework (indicates support for a protocol upgrade without a framework upgrade).
     /// - Returns the digest of the new framework (and version) if it is compatible (indicates
     ///   support for a protocol upgrade with a framework upgrade).
-    async fn compare_system_package(
+    async fn compare_system_package<'p>(
         &self,
         id: ObjectID,
         modules: Vec<CompiledModule>,
+        dependencies: impl IntoIterator<Item = &'p MovePackage>,
     ) -> Option<ObjectRef> {
         let cur_object = match self.get_object(&id).await {
             Ok(Some(cur_object)) => cur_object,
@@ -2942,6 +2945,7 @@ impl AuthorityState {
             // successful
             cur_object.version(),
             cur_object.previous_transaction,
+            dependencies,
         ) {
             Ok(object) => object,
             Err(e) => {
@@ -3018,9 +3022,13 @@ impl AuthorityState {
                 continue;
             }
 
-            let bytes = match system_package.0 {
-                MOVE_STDLIB_OBJECT_ID => haneul_framework::get_move_stdlib_bytes(),
-                HANEUL_FRAMEWORK_OBJECT_ID => haneul_framework_injection::get_bytes(self.name),
+            let (std_move_pkg, _) = haneul_framework::make_std_haneul_move_pkgs();
+            let (bytes, dependencies) = match system_package.0 {
+                MOVE_STDLIB_OBJECT_ID => (haneul_framework::get_move_stdlib_bytes(), vec![]),
+                HANEUL_FRAMEWORK_OBJECT_ID => (
+                    haneul_framework_injection::get_bytes(self.name),
+                    vec![&std_move_pkg],
+                ),
                 _ => panic!("Unrecognised framework: {}", system_package.0),
             };
 
@@ -3031,6 +3039,7 @@ impl AuthorityState {
                     .collect(),
                 system_package.1,
                 cur_object.previous_transaction,
+                dependencies,
             )
             .unwrap();
 

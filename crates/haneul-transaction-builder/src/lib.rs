@@ -9,7 +9,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use anyhow::{anyhow, ensure, Ok};
+use anyhow::{anyhow, bail, ensure, Ok};
 use move_binary_format::file_format::SignatureToken;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
@@ -19,7 +19,7 @@ use haneul_adapter::execution_mode::ExecutionMode;
 use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::{
     CheckpointId, ObjectsPage, RPCTransactionRequestParams, HaneulData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTypeTag,
+    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData, HaneulTypeTag,
 };
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
@@ -396,17 +396,16 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .get_object_with_options(package_id, HaneulObjectDataOptions::bcs_lossless())
             .await?
             .into_object()?;
-        let package = object
-            .bcs
-            .ok_or_else(|| anyhow!("Bcs field in object [{}] is missing.", package_id))?
-            .try_as_package()
-            .cloned()
-            .ok_or_else(|| anyhow!("Object [{}] is not a move package.", package_id))?;
+        let Some(HaneulRawData::Package(package)) = object.bcs else {
+            bail!("Bcs field in object [{}] is missing or not a package.", package_id);
+        };
         let package: MovePackage = MovePackage::new(
             package.id,
             object.version,
-            &package.module_map,
+            package.module_map,
             ProtocolConfig::get_for_min_version().max_move_package_size(),
+            package.type_origin_table,
+            package.linkage_table,
         )?;
 
         let json_args_and_tokens = resolve_move_function_args(
@@ -463,6 +462,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         &self,
         sender: HaneulAddress,
         compiled_modules: Vec<Vec<u8>>,
+        dep_ids: Vec<ObjectID>,
         gas: Option<ObjectID>,
         gas_budget: u64,
     ) -> anyhow::Result<TransactionData> {
@@ -474,6 +474,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             sender,
             gas,
             compiled_modules,
+            dep_ids,
             gas_budget,
             gas_price,
         ))

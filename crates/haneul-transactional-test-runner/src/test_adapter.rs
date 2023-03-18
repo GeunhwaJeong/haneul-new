@@ -37,8 +37,9 @@ use std::{
 use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::transaction_input_checker::check_objects;
-use haneul_framework::DEFAULT_FRAMEWORK_PATH;
+use haneul_framework::{make_std_haneul_move_pkgs, DEFAULT_FRAMEWORK_PATH};
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::clock::Clock;
 use haneul_types::gas::{GasCostSummary, HaneulCostTable};
 use haneul_types::id::UID;
 use haneul_types::messages::CallArg;
@@ -53,12 +54,11 @@ use haneul_types::{
         ExecutionStatus, TransactionData, TransactionDataAPI, TransactionEffectsAPI,
         VerifiedTransaction,
     },
-    object::{self, Object, ObjectFormatOptions},
+    object::{self, Data, Object, ObjectFormatOptions},
     object::{MoveObject, Owner},
-    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-    HANEUL_FRAMEWORK_ADDRESS,
+    MOVE_STDLIB_ADDRESS, MOVE_STDLIB_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
+    HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_OBJECT_ID,
 };
-use haneul_types::{clock::Clock, object::OBJECT_START_VERSION};
 use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
@@ -129,23 +129,13 @@ fn create_genesis_module_objects() -> Genesis {
     let haneul_modules = haneul_framework::get_haneul_framework();
     let std_modules = haneul_framework::get_move_stdlib();
     let objects = vec![create_clock()];
-    // SAFETY: unwraps safe because genesis packages should never exceed max size
-    let packages = vec![
-        Object::new_package(
-            std_modules.clone(),
-            OBJECT_START_VERSION,
-            TransactionDigest::genesis(),
-            PROTOCOL_CONSTANTS.max_move_package_size(),
-        )
-        .unwrap(),
-        Object::new_package(
-            haneul_modules.clone(),
-            OBJECT_START_VERSION,
-            TransactionDigest::genesis(),
-            PROTOCOL_CONSTANTS.max_move_package_size(),
-        )
-        .unwrap(),
-    ];
+    let (std_move_pkg, haneul_move_pkg) = make_std_haneul_move_pkgs();
+    let std_pkg =
+        Object::new_package_from_data(Data::Package(std_move_pkg), TransactionDigest::genesis());
+    let haneul_pkg =
+        Object::new_package_from_data(Data::Package(haneul_move_pkg), TransactionDigest::genesis());
+
+    let packages = vec![std_pkg, haneul_pkg];
     let modules = vec![std_modules, haneul_modules];
     Genesis {
         objects,
@@ -308,6 +298,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             sender,
             upgradeable,
             view_gas_used,
+            dependencies,
         } = extra;
         let module_name = module.self_id().name().to_string();
         let module_bytes = {
@@ -316,13 +307,27 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             buf
         };
         let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+        let mut dependencies: Vec<_> = dependencies
+            .into_iter()
+            .map(|d| {
+                let Some(addr) = self.compiled_state.named_address_mapping.get(&d) else {
+                    bail!("There is no published module address corresponding to name address {d}");
+                };
+                let id: ObjectID = addr.into_inner().into();
+                Ok(id)
+            })
+            .collect::<Result<_, _>>()?;
+        // we are assuming that all packages depend on Haneul framework and (transitively) on Move
+        // stdlib so these don't have to be provided explicitly as parameters
+        dependencies.push(MOVE_STDLIB_OBJECT_ID);
+        dependencies.push(HANEUL_FRAMEWORK_OBJECT_ID);
         let data = |sender, gas| {
             let mut builder = ProgrammableTransactionBuilder::new();
             if upgradeable {
-                let cap = builder.publish_upgradeable(vec![module_bytes]);
+                let cap = builder.publish_upgradeable(vec![module_bytes], dependencies);
                 builder.transfer_arg(sender, cap);
             } else {
-                builder.publish_immutable(vec![module_bytes]);
+                builder.publish_immutable(vec![module_bytes], dependencies);
             };
             let pt = builder.finish();
             TransactionData::new_programmable_with_dummy_gas_price(

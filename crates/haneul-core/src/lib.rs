@@ -31,6 +31,9 @@ mod transaction_manager;
 pub mod transaction_orchestrator;
 
 #[cfg(test)]
+#[path = "unit_tests/move_package_tests.rs"]
+mod move_package_tests;
+#[cfg(test)]
 #[path = "unit_tests/pay_haneul_tests.rs"]
 mod pay_haneul_tests;
 pub mod test_authority_clients;
