@@ -46,12 +46,12 @@ module haneul::genesis {
         epoch_duration_ms: u64,
     }
 
-    struct TokenDistributionSchedule has drop, copy {
+    struct TokenDistributionSchedule {
         stake_subsidy_fund_geunhwa: u64,
         allocations: vector<TokenAllocation>,
     }
 
-    struct TokenAllocation has drop, copy {
+    struct TokenAllocation {
         recipient_address: address,
         amount_geunhwa: u64,
 
@@ -73,10 +73,15 @@ module haneul::genesis {
         // Ensure this is only called at genesis
         assert!(tx_context::epoch(ctx) == 0, 0);
 
+        let TokenDistributionSchedule {
+            stake_subsidy_fund_geunhwa,
+            allocations,
+        } = token_distribution_schedule;
+
         let haneul_supply = haneul::new(ctx);
         let subsidy_fund = balance::split(
             &mut haneul_supply,
-            token_distribution_schedule.stake_subsidy_fund_geunhwa
+            stake_subsidy_fund_geunhwa,
         );
         let storage_fund = balance::zero();
 
@@ -136,7 +141,7 @@ module haneul::genesis {
         // Allocate tokens and staking operations
         allocate_tokens(
             haneul_supply,
-            token_distribution_schedule.allocations,
+            allocations,
             &mut validators,
             ctx
         );
@@ -166,31 +171,33 @@ module haneul::genesis {
         validators: &mut vector<Validator>,
         ctx: &mut TxContext,
     ) {
-        let count = vector::length(&allocations);
-        let i = 0;
-        while (i < count) {
-            let allocation = *vector::borrow(&allocations, i);
 
-            let allocation_balance = balance::split(&mut haneul_supply, allocation.amount_geunhwa);
+        while (!vector::is_empty(&allocations)) {
+            let TokenAllocation {
+                recipient_address,
+                amount_geunhwa,
+                staked_with_validator,
+            } = vector::pop_back(&mut allocations);
 
-            if (option::is_some(&allocation.staked_with_validator)) {
-                let validator_address = option::destroy_some(allocation.staked_with_validator);
+            let allocation_balance = balance::split(&mut haneul_supply, amount_geunhwa);
+
+            if (option::is_some(&staked_with_validator)) {
+                let validator_address = option::destroy_some(staked_with_validator);
                 let validator = validator_set::get_validator_mut(validators, validator_address);
                 validator::request_add_stake_at_genesis(
                     validator,
                     allocation_balance,
-                    allocation.recipient_address,
+                    recipient_address,
                     ctx
                 );
             } else {
                 haneul::transfer(
                     coin::from_balance(allocation_balance, ctx),
-                    allocation.recipient_address,
+                    recipient_address,
                 );
             };
-
-            i = i + 1;
         };
+        vector::destroy_empty(allocations);
 
         // Provided allocations must fully allocate the haneul_supply and there
         // should be none left at this point.
