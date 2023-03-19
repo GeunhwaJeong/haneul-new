@@ -200,10 +200,12 @@ pub async fn multi_get_full_transactions(
     let haneul_transactions = read_api
         .multi_get_transactions_with_options(
             digests.clone(),
+            // MUSTFIX(gegaowp): avoid double fetching both input and raw_input
             HaneulTransactionResponseOptions::new()
                 .with_input()
                 .with_effects()
-                .with_events(),
+                .with_events()
+                .with_raw_input(),
         )
         .await
         .map_err(|e| {
