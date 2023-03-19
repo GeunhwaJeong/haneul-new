@@ -37,7 +37,9 @@ use std::{
 use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::transaction_input_checker::check_objects;
-use haneul_framework::{make_system_modules, make_system_objects, DEFAULT_FRAMEWORK_PATH};
+use haneul_framework::{
+    make_system_modules, make_system_objects, system_package_ids, DEFAULT_FRAMEWORK_PATH,
+};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::clock::Clock;
 use haneul_types::gas::{GasCostSummary, HaneulCostTable};
@@ -56,8 +58,8 @@ use haneul_types::{
     },
     object::{self, Object, ObjectFormatOptions},
     object::{MoveObject, Owner},
-    MOVE_STDLIB_ADDRESS, MOVE_STDLIB_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_OBJECT_ID,
+    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_ADDRESS,
 };
 use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
@@ -306,10 +308,9 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 Ok(id)
             })
             .collect::<Result<_, _>>()?;
-        // we are assuming that all packages depend on Haneul framework and (transitively) on Move
-        // stdlib so these don't have to be provided explicitly as parameters
-        dependencies.push(MOVE_STDLIB_OBJECT_ID);
-        dependencies.push(HANEUL_FRAMEWORK_OBJECT_ID);
+        // we are assuming that all packages depend on the system packages, so these don't have to
+        // be provided explicitly as parameters
+        dependencies.extend(system_package_ids());
         let data = |sender, gas| {
             let mut builder = ProgrammableTransactionBuilder::new();
             if upgradeable {

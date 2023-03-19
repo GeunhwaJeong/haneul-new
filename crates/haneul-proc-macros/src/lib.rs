@@ -27,9 +27,10 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
             // be very important for being able to reproduce a failure that occurs in the Nth
             // iteration of a multi-iteration test run.
             std::thread::spawn(|| {
+                use haneul_simulator::haneul_framework::SystemPackage;
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
-                ::haneul_simulator::haneul_framework::get_move_stdlib();
-                ::haneul_simulator::haneul_framework::get_haneul_framework();
+                ::haneul_simulator::haneul_framework::MoveStdlib::as_modules();
+                ::haneul_simulator::haneul_framework::HaneulFramework::as_modules();
                 ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
 
                 // For reasons I can't understand, LruCache causes divergent behavior the second

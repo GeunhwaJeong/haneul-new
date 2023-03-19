@@ -17,6 +17,7 @@ use std::convert::TryInto;
 use std::{fs, path::Path};
 use haneul_adapter::adapter::MoveVM;
 use haneul_adapter::{adapter, execution_mode, programmable_transactions};
+use haneul_framework::{MoveStdlib, HaneulFramework, SystemPackage};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
@@ -888,12 +889,12 @@ fn build_unsigned_genesis_data(
     // Get Move and Haneul Framework
     let modules = [
         (
-            haneul_framework::get_move_stdlib(),
-            haneul_framework::get_move_stdlib_transitive_dependencies(),
+            MoveStdlib::as_modules(),
+            MoveStdlib::transitive_dependencies(),
         ),
         (
-            haneul_framework::get_haneul_framework(),
-            haneul_framework::get_haneul_framework_transitive_dependencies(),
+            HaneulFramework::as_modules(),
+            HaneulFramework::transitive_dependencies(),
         ),
     ];
 
