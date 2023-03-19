@@ -8616,6 +8616,7 @@ dependencies = [
  "haneul-core",
  "haneul-faucet",
  "haneul-framework-build",
+ "haneul-indexer",
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-keys",
@@ -8911,7 +8912,9 @@ dependencies = [
  "test-utils",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tracing",
+ "url",
  "workspace-hack",
 ]
 

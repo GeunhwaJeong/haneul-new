@@ -24,6 +24,7 @@ prometheus = "0.13.3"
 fastcrypto = { workspace = true }
 shared-crypto = { path = "../shared-crypto" }
 
+haneul-indexer = { path = "../haneul-indexer" }
 haneul-faucet = { path = "../haneul-faucet" }
 haneul-swarm = { path = "../haneul-swarm" }
 haneul = { path = "../haneul" }
