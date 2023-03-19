@@ -22,12 +22,12 @@ use tracing::debug;
 use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
-    BalanceChange, Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectChange,
-    ObjectValueKind, ObjectsPage, Page, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction,
-    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulMoveStruct, HaneulMoveValue,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
-    HaneulTransactionEvents, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionsPage,
+    BalanceChange, Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType,
+    ObjectChange, ObjectValueKind, ObjectsPage, Page, HaneulGetPastObjectRequest,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulMoveStruct,
+    HaneulMoveValue, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulPastObjectResponse, HaneulTransactionEvents, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{
@@ -49,9 +49,8 @@ use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointTime
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, Object, ObjectRead, PastObjectRead};
 
-use crate::api::ReadApiServer;
-use crate::api::QUERY_MAX_RESULT_LIMIT;
-use crate::api::{cap_page_limit, cap_page_objects_limit};
+use crate::api::{cap_page_limit, cap_page_objects_limit, validate_limit, ReadApiServer};
+use crate::api::{QUERY_MAX_RESULT_LIMIT, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS};
 use crate::error::Error;
 use crate::{
     get_balance_change_from_effect, get_object_change_from_effect, ObjectProviderCache,
@@ -117,8 +116,8 @@ impl ReadApiServer for ReadApi {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        // exclusive cursor if `Some`, otherwise start from the beginning
         query: Option<HaneulObjectResponseQuery>,
+        // If `Some`, the query will start from the next item after the specified cursor
         cursor: Option<ObjectID>,
         limit: Option<usize>,
         at_checkpoint: Option<CheckpointId>,
@@ -164,7 +163,7 @@ impl ReadApiServer for ReadApi {
     async fn get_dynamic_fields(
         &self,
         parent_object_id: ObjectID,
-        // exclusive cursor if `Some`, otherwise start from the beginning
+        // If `Some`, the query will start from the next item after the specified cursor
         cursor: Option<ObjectID>,
         limit: Option<usize>,
     ) -> RpcResult<DynamicFieldPage> {
@@ -768,7 +767,7 @@ impl ReadApiServer for ReadApi {
     async fn query_transactions(
         &self,
         query: HaneulTransactionResponseQuery,
-        // exclusive cursor if `Some`, otherwise start from the beginning
+        // If `Some`, the query will start from the next item after the specified cursor
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
         descending_order: Option<bool>,
@@ -815,6 +814,35 @@ impl ReadApiServer for ReadApi {
 
     async fn get_checkpoint(&self, id: CheckpointId) -> RpcResult<Checkpoint> {
         Ok(self.get_checkpoint_internal(id)?)
+    }
+
+    async fn get_checkpoints(
+        &self,
+        // If `Some`, the query will start from the next item after the specified cursor
+        cursor: Option<CheckpointSequenceNumber>,
+        limit: Option<usize>,
+        descending_order: bool,
+    ) -> RpcResult<CheckpointPage> {
+        let limit = validate_limit(limit, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS)?;
+
+        let mut data = self
+            .state
+            .get_checkpoints(cursor, limit as u64 + 1, descending_order)?;
+
+        let has_next_page = data.len() > limit;
+        data.truncate(limit);
+
+        let next_cursor = if has_next_page {
+            data.last().cloned().map(|d| d.sequence_number)
+        } else {
+            None
+        };
+
+        Ok(CheckpointPage {
+            data,
+            next_cursor,
+            has_next_page,
+        })
     }
 }
 

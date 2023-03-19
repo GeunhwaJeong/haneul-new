@@ -12,8 +12,8 @@ use std::collections::BTreeMap;
 use haneul_json_rpc::api::{cap_page_limit, ReadApiClient, ReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, DynamicFieldPage, MoveFunctionArgType, ObjectsPage, Page,
-    HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
+    Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
+    Page, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
     HaneulPastObjectResponse, HaneulTransactionResponse, HaneulTransactionResponseOptions,
     HaneulTransactionResponseQuery, TransactionsPage,
@@ -442,6 +442,18 @@ where
             return self.fullnode.get_checkpoint(id).await;
         }
         Ok(self.get_checkpoint_internal(id)?)
+    }
+
+    async fn get_checkpoints(
+        &self,
+        cursor: Option<CheckpointSequenceNumber>,
+        limit: Option<usize>,
+        descending_order: bool,
+    ) -> RpcResult<CheckpointPage> {
+        return self
+            .fullnode
+            .get_checkpoints(cursor, limit, descending_order)
+            .await;
     }
 }
 
