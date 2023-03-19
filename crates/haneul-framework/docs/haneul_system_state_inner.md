@@ -491,7 +491,7 @@ Create a new HaneulSystemState object and make it shared.
 This function will be called only once in genesis.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x2_haneul_system_state_inner_create">create</a>(validators: <a href="">vector</a>&lt;<a href="validator.md#0x2_validator_Validator">validator::Validator</a>&gt;, stake_subsidy_fund: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_fund: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, governance_start_epoch: u64, initial_stake_subsidy_amount: u64, protocol_version: u64, system_state_version: u64, epoch_start_timestamp_ms: u64, epoch_duration_ms: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="haneul_system_state_inner.md#0x2_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x2_haneul_system_state_inner_create">create</a>(validators: <a href="">vector</a>&lt;<a href="validator.md#0x2_validator_Validator">validator::Validator</a>&gt;, stake_subsidy_fund: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_fund: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, protocol_version: u64, system_state_version: u64, governance_start_epoch: u64, epoch_start_timestamp_ms: u64, epoch_duration_ms: u64, initial_stake_subsidy_distribution_amount: u64, stake_subsidy_period_length: u64, stake_subsidy_decrease_rate: u16, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="haneul_system_state_inner.md#0x2_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
 </code></pre>
 
 
@@ -504,12 +504,14 @@ This function will be called only once in genesis.
     validators: <a href="">vector</a>&lt;Validator&gt;,
     stake_subsidy_fund: Balance&lt;HANEUL&gt;,
     storage_fund: Balance&lt;HANEUL&gt;,
-    governance_start_epoch: u64,
-    initial_stake_subsidy_amount: u64,
     protocol_version: u64,
     system_state_version: u64,
+    governance_start_epoch: u64,
     epoch_start_timestamp_ms: u64,
     epoch_duration_ms: u64,
+    initial_stake_subsidy_distribution_amount: u64,
+    stake_subsidy_period_length: u64,
+    stake_subsidy_decrease_rate: u16,
     ctx: &<b>mut</b> TxContext,
 ): <a href="haneul_system_state_inner.md#0x2_haneul_system_state_inner_HaneulSystemStateInner">HaneulSystemStateInner</a> {
     <b>let</b> validators = <a href="validator_set.md#0x2_validator_set_new">validator_set::new</a>(validators, ctx);
@@ -527,7 +529,13 @@ This function will be called only once in genesis.
         },
         reference_gas_price,
         validator_report_records: <a href="vec_map.md#0x2_vec_map_empty">vec_map::empty</a>(),
-        <a href="stake_subsidy.md#0x2_stake_subsidy">stake_subsidy</a>: <a href="stake_subsidy.md#0x2_stake_subsidy_create">stake_subsidy::create</a>(stake_subsidy_fund, initial_stake_subsidy_amount, ctx),
+        <a href="stake_subsidy.md#0x2_stake_subsidy">stake_subsidy</a>: <a href="stake_subsidy.md#0x2_stake_subsidy_create">stake_subsidy::create</a>(
+            stake_subsidy_fund,
+            initial_stake_subsidy_distribution_amount,
+            stake_subsidy_period_length,
+            stake_subsidy_decrease_rate,
+            ctx
+        ),
         safe_mode: <b>false</b>,
         epoch_start_timestamp_ms,
         extra_fields: <a href="bag.md#0x2_bag_new">bag::new</a>(ctx),
