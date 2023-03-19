@@ -72,7 +72,7 @@ fn main() -> Result<()> {
                 .name("get_system_state_object")
                 .route_name("GetSystemStateObject")
                 .input_type("haneul_types::messages::SystemStateRequest")
-                .output_type("haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark")
+                .output_type("haneul_types::haneul_system_state::HaneulSystemState")
                 .codec_path(codec_path)
                 .build(),
         )

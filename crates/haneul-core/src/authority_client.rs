@@ -12,7 +12,7 @@ use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::haneul_system_state::HaneulSystemStateInnerBenchmark;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{error::HaneulError, messages::*};
 
 use haneul_network::tonic::transport::Channel;
@@ -53,7 +53,7 @@ pub trait AuthorityAPI {
     async fn handle_system_state_object(
         &self,
         request: SystemStateRequest,
-    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError>;
+    ) -> Result<HaneulSystemState, HaneulError>;
 }
 
 #[derive(Clone)]
@@ -150,7 +150,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
     async fn handle_system_state_object(
         &self,
         request: SystemStateRequest,
-    ) -> Result<HaneulSystemStateInnerBenchmark, HaneulError> {
+    ) -> Result<HaneulSystemState, HaneulError> {
         self.client()
             .get_system_state_object(request)
             .await

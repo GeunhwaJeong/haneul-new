@@ -82,9 +82,6 @@ pub enum HaneulSystemState {
 /// This is the fixed type used by genesis.
 pub type HaneulSystemStateInnerGenesis = HaneulSystemStateInnerV1;
 
-/// This is the fixed type used by benchmarking.
-pub type HaneulSystemStateInnerBenchmark = HaneulSystemStateInnerV1;
-
 impl HaneulSystemState {
     pub fn new_genesis(inner: HaneulSystemStateInnerGenesis) -> Self {
         Self::V1(inner)
@@ -96,16 +93,6 @@ impl HaneulSystemState {
         match self {
             HaneulSystemState::V1(inner) => inner,
         }
-    }
-
-    pub fn into_benchmark_version(self) -> HaneulSystemStateInnerBenchmark {
-        match self {
-            HaneulSystemState::V1(inner) => inner,
-        }
-    }
-
-    pub fn new_for_benchmarking(inner: HaneulSystemStateInnerBenchmark) -> Self {
-        Self::V1(inner)
     }
 
     pub fn new_for_testing(epoch: EpochId) -> Self {

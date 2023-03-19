@@ -21,7 +21,7 @@ use haneul_types::error::UserInputError;
 use haneul_types::fp_ensure;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Object;
-use haneul_types::haneul_system_state::{HaneulSystemStateInnerBenchmark, HaneulSystemStateTrait};
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 use haneul_types::{
     base_types::*,
     committee::{Committee, ProtocolVersion},
@@ -926,10 +926,10 @@ where
     /// It should only be used for testing or benchmarking.
     pub async fn get_latest_system_state_object_for_testing(
         &self,
-    ) -> anyhow::Result<HaneulSystemStateInnerBenchmark> {
+    ) -> anyhow::Result<HaneulSystemState> {
         #[derive(Debug, Default)]
         struct State {
-            latest_system_state: Option<HaneulSystemStateInnerBenchmark>,
+            latest_system_state: Option<HaneulSystemState>,
             total_weight: StakeUnit,
         }
         let initial_state = State::default();

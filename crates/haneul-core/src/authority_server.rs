@@ -16,7 +16,8 @@ use haneul_network::{
     tonic,
 };
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::{error::*, messages::*, haneul_system_state::HaneulSystemStateInnerBenchmark};
+use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::{error::*, messages::*};
 use haneul_types::{
     fp_ensure,
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
@@ -487,12 +488,8 @@ impl Validator for ValidatorService {
     async fn get_system_state_object(
         &self,
         _request: tonic::Request<SystemStateRequest>,
-    ) -> Result<tonic::Response<HaneulSystemStateInnerBenchmark>, tonic::Status> {
-        let response = self
-            .state
-            .database
-            .get_haneul_system_state_object()?
-            .into_benchmark_version();
+    ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
+        let response = self.state.database.get_haneul_system_state_object()?;
 
         return Ok(tonic::Response::new(response));
     }
