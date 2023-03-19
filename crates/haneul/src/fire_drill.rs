@@ -97,13 +97,14 @@ async fn run_metadata_rotation(metadata_rotation: MetadataRotation) -> anyhow::R
 pub async fn get_gas_obj_ref(
     haneul_address: HaneulAddress,
     haneul_client: &HaneulClient,
+    minimal_gas_balance: u64,
 ) -> anyhow::Result<ObjectRef> {
     let coins = haneul_client
         .coin_read_api()
-        .get_coins(haneul_address, Some("0x2::haneul::HANEUL".into()), None, Some(3))
+        .get_coins(haneul_address, Some("0x2::haneul::HANEUL".into()), None, None)
         .await?
         .data;
-    let gas_obj = coins.iter().find(|c| c.balance >= 10000 * 100);
+    let gas_obj = coins.iter().find(|c| c.balance >= minimal_gas_balance);
     if gas_obj.is_none() {
         bail!("Validator doesn't have enough Haneul coins to cover transaction fees.");
     }
@@ -306,7 +307,7 @@ async fn update_metadata_on_chain(
     haneul_address: HaneulAddress,
     haneul_client: &HaneulClient,
 ) -> anyhow::Result<()> {
-    let gas_obj_ref = get_gas_obj_ref(haneul_address, haneul_client).await?;
+    let gas_obj_ref = get_gas_obj_ref(haneul_address, haneul_client, 10000 * 100).await?;
     let mut args = vec![CallArg::Object(ObjectArg::SharedObject {
         id: HANEUL_SYSTEM_STATE_OBJECT_ID,
         initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
