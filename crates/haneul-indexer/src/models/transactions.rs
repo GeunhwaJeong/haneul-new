@@ -1,18 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use diesel::prelude::*;
+use diesel::result::Error;
+
+use haneul_json_rpc_types::{
+    OwnedObjectRef, HaneulObjectRef, HaneulTransaction, HaneulTransactionDataAPI, HaneulTransactionEffects,
+    HaneulTransactionEffectsAPI,
+};
+
 use crate::errors::IndexerError;
 use crate::schema::transactions;
 use crate::schema::transactions::transaction_digest;
 use crate::types::HaneulTransactionFullResponse;
 use crate::PgPoolConnection;
-
-use diesel::prelude::*;
-use diesel::result::Error;
-use haneul_json_rpc_types::{
-    OwnedObjectRef, HaneulObjectRef, HaneulTransaction, HaneulTransactionDataAPI, HaneulTransactionEffects,
-    HaneulTransactionEffectsAPI,
-};
 
 #[derive(Clone, Debug, Queryable, Insertable)]
 #[diesel(table_name = transactions)]
