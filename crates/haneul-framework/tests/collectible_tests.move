@@ -5,9 +5,10 @@
 /// Initializes a simple collection.
 module haneul::boars {
     use haneul::tx_context::{TxContext, sender};
-    use haneul::transfer::transfer;
+    use haneul::transfer::{transfer, /* share_object */};
     use haneul::collectible;
     use haneul::display;
+    // use haneul::royalty;
     use std::string::utf8;
     use std::option;
 
@@ -23,9 +24,14 @@ module haneul::boars {
     struct Boar has store {}
 
     fun init(otw: BOARS, ctx: &mut TxContext) {
-        let (pub, display, creator_cap) = collectible::create_collection<BOARS, Boar>(
-            otw, option::some(CAP), ctx
-        );
+        let sender = sender(ctx);
+        let (
+            publisher,
+            type_owner_cap,
+            creator_cap
+        ) = collectible::create_collection<BOARS, Boar>(otw, option::some(CAP), ctx);
+
+        let (display, borrow) = collectible::borrow_display(&mut creator_cap);
 
         display::add_multiple(&mut display, vector[
             utf8(b"name"),
@@ -42,9 +48,14 @@ module haneul::boars {
         ]);
 
         display::update_version(&mut display);
-        transfer(creator_cap, sender(ctx));
-        transfer(display, sender(ctx));
-        transfer(pub, sender(ctx))
+        collectible::return_display(&mut creator_cap, display, borrow);
+
+        // let (policy, royalty_cap) = royalty::new_royalty_policy(type_owner_cap, 500, ctx);
+
+        transfer(type_owner_cap, sender);
+        transfer(creator_cap, sender);
+        transfer(publisher, sender);
+        // share_object(policy)
     }
 
     #[test_only]
