@@ -29,7 +29,6 @@ rocksdb = "0.20.1"
 tempfile = "3.3.0"
 
 haneul = { path = "../haneul" }
-haneul-sdk = { path = "../haneul-sdk" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }

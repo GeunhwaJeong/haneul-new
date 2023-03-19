@@ -24,10 +24,8 @@ parking_lot = "0.12.1"
 async-trait = "0.1.61"
 tempfile = "3.3.0"
 itertools = "0.10.4"
-strum_macros = "^0.24"
 tracing = "0.1.36"
 signature = "1.6.0"
-bincode = "1.3.3"
 prometheus = "0.13.3"
 arc-swap = "1.5.1"
 object_store = "=0.5.4"
@@ -45,7 +43,6 @@ haneul-network = { path = "../haneul-network" }
 haneul-types = { path = "../haneul-types" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-config = { path = "../haneul-config" }
-haneul-json = { path = "../haneul-json" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 lru = "0.10"
@@ -59,7 +56,6 @@ move-package.workspace = true
 haneullabs-common.workspace = true
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-config = { path = "../../narwhal/config" }
-narwhal-consensus = { path = "../../narwhal/consensus" }
 narwhal-executor = { path = "../../narwhal/executor" }
 narwhal-node = { path = "../../narwhal/node" }
 narwhal-types = { path = "../../narwhal/types" }
