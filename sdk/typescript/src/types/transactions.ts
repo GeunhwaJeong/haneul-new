@@ -302,6 +302,7 @@ export const HaneulObjectChangeMutated = object({
   objectType: string(),
   objectId: ObjectId,
   version: SequenceNumber,
+  previousVersion: SequenceNumber,
   digest: ObjectDigest,
 });
 export type HaneulObjectChangeMutated = Infer<typeof HaneulObjectChangeMutated>;
