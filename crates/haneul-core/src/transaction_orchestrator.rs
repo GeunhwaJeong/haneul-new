@@ -6,13 +6,13 @@ Transaction Orchestrator is a Node component that utilizes Quorum Driver to
 submit transactions to validators for finality, and proactively executes
 finalized transactions locally, when possible.
 */
-use crate::authority::authority_notify_read::{NotifyRead, Registration};
 use crate::authority::AuthorityState;
 use crate::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use crate::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use crate::quorum_driver::reconfig_observer::{OnsiteReconfigObserver, ReconfigObserver};
 use crate::quorum_driver::{QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics};
 use crate::safe_client::SafeClientMetricsBase;
+use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
 use haneullabs_metrics::histogram::{Histogram, HistogramTimerGuard, HistogramVec};
 use haneullabs_metrics::spawn_monitored_task;
 use prometheus::core::{AtomicI64, AtomicU64, GenericCounter, GenericGauge};

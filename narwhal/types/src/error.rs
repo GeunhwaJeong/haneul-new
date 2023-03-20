@@ -4,7 +4,7 @@
 use crate::{CertificateDigest, HeaderDigest, Round, TimestampMs, VoteDigest};
 use config::Epoch;
 use fastcrypto::hash::Digest;
-use haneullabs_common::notify_once::NotifyOnce;
+use haneullabs_common::sync::notify_once::NotifyOnce;
 use std::sync::Arc;
 use store::StoreError;
 use thiserror::Error;

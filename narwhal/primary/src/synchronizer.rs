@@ -8,7 +8,7 @@ use consensus::dag::Dag;
 use crypto::{NetworkPublicKey, PublicKey};
 use fastcrypto::hash::Hash as _;
 use futures::{stream::FuturesOrdered, StreamExt};
-use haneullabs_common::notify_once::NotifyOnce;
+use haneullabs_common::sync::notify_once::NotifyOnce;
 use haneullabs_metrics::spawn_monitored_task;
 use network::{
     anemo_ext::{NetworkExt, WaitingPeer},
