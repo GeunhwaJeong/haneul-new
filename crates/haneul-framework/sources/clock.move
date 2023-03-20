@@ -6,9 +6,10 @@
 module haneul::clock {
     use haneul::object::{Self, UID};
     use haneul::transfer;
+    use haneul::tx_context::{Self, TxContext};
 
-    friend haneul::genesis;
-    friend haneul::haneul_system;
+    /// Sender is not @0x0 the system address.
+    const ENotSystemAddress: u64 = 0;
 
     /// Singleton shared object that exposes time to Move calls.  This
     /// object is found at address 0x6, and can only be read (accessed
@@ -35,7 +36,9 @@ module haneul::clock {
 
     /// Create and share the singleton Clock -- this function is
     /// called exactly once, during genesis.
-    public(friend) fun create() {
+    fun create(ctx: &TxContext) {
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
+
         transfer::share_object(Clock {
             id: object::clock(),
             // Initialised to zero, but set to a real timestamp by a
@@ -45,9 +48,14 @@ module haneul::clock {
         })
     }
 
-    /// Set the Clock's timestamp -- this function should only be called by
-    /// `haneul::system_state::consensus_commit_prologue`.
-    public(friend) fun set_timestamp(clock: &mut Clock, timestamp_ms: u64) {
+    fun consensus_commit_prologue(
+        clock: &mut Clock,
+        timestamp_ms: u64,
+        ctx: &TxContext,
+    ) {
+        // Validator will make a special system call with sender set as 0x0.
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
+
         clock.timestamp_ms = timestamp_ms
     }
 

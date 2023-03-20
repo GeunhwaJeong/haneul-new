@@ -5,6 +5,7 @@
 module haneul::governance_test_utils {
     use haneul::address;
     use haneul::balance;
+    use haneul::object;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
     use haneul::staking_pool::{Self, StakedHaneul, StakingPool};
@@ -59,6 +60,7 @@ module haneul::governance_test_utils {
         validators: vector<Validator>, haneul_supply_amount: u64, storage_fund_amount: u64, ctx: &mut TxContext
     ) {
         haneul_system::create(
+            object::new(ctx), // it doesn't matter what ID haneul system state has in tests
             validators,
             balance::create_for_testing<HANEUL>(haneul_supply_amount), // haneul_supply
             balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
@@ -111,7 +113,7 @@ module haneul::governance_test_utils {
 
         let ctx = test_scenario::ctx(scenario);
 
-        haneul_system::advance_epoch(&mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, 0, 0, 1, ctx);
+        haneul_system::advance_epoch_for_testing(&mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, 0, 0, 1, ctx);
         test_scenario::return_shared(system_state);
         test_scenario::next_epoch(scenario, @0x0);
     }
@@ -128,7 +130,7 @@ module haneul::governance_test_utils {
 
         let ctx = test_scenario::ctx(scenario);
 
-        haneul_system::advance_epoch(
+        haneul_system::advance_epoch_for_testing(
             &mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, reward_slashing_rate, 0, 1, ctx
         );
         test_scenario::return_shared(system_state);

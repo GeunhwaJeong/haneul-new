@@ -18,8 +18,8 @@
 <pre><code><b>use</b> <a href="">0x1::option</a>;
 <b>use</b> <a href="">0x1::vector</a>;
 <b>use</b> <a href="balance.md#0x2_balance">0x2::balance</a>;
-<b>use</b> <a href="clock.md#0x2_clock">0x2::clock</a>;
 <b>use</b> <a href="coin.md#0x2_coin">0x2::coin</a>;
+<b>use</b> <a href="object.md#0x2_object">0x2::object</a>;
 <b>use</b> <a href="haneul.md#0x2_haneul">0x2::haneul</a>;
 <b>use</b> <a href="haneul_system.md#0x2_haneul_system">0x2::haneul_system</a>;
 <b>use</b> <a href="tx_context.md#0x2_tx_context">0x2::tx_context</a>;
@@ -275,7 +275,7 @@ It will create a singleton HaneulSystemState object, which contains
 all the information we need in the system.
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x2_genesis_create">create</a>(genesis_chain_parameters: <a href="genesis.md#0x2_genesis_GenesisChainParameters">genesis::GenesisChainParameters</a>, genesis_validators: <a href="">vector</a>&lt;<a href="genesis.md#0x2_genesis_GenesisValidatorMetadata">genesis::GenesisValidatorMetadata</a>&gt;, token_distribution_schedule: <a href="genesis.md#0x2_genesis_TokenDistributionSchedule">genesis::TokenDistributionSchedule</a>, protocol_version: u64, system_state_version: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="genesis.md#0x2_genesis_create">create</a>(haneul_system_state_id: <a href="object.md#0x2_object_UID">object::UID</a>, haneul_supply: <a href="balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, genesis_chain_parameters: <a href="genesis.md#0x2_genesis_GenesisChainParameters">genesis::GenesisChainParameters</a>, genesis_validators: <a href="">vector</a>&lt;<a href="genesis.md#0x2_genesis_GenesisValidatorMetadata">genesis::GenesisValidatorMetadata</a>&gt;, token_distribution_schedule: <a href="genesis.md#0x2_genesis_TokenDistributionSchedule">genesis::TokenDistributionSchedule</a>, protocol_version: u64, system_state_version: u64, ctx: &<b>mut</b> <a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -285,6 +285,8 @@ all the information we need in the system.
 
 
 <pre><code><b>fun</b> <a href="genesis.md#0x2_genesis_create">create</a>(
+    haneul_system_state_id: UID,
+    haneul_supply: Balance&lt;HANEUL&gt;,
     genesis_chain_parameters: <a href="genesis.md#0x2_genesis_GenesisChainParameters">GenesisChainParameters</a>,
     genesis_validators: <a href="">vector</a>&lt;<a href="genesis.md#0x2_genesis_GenesisValidatorMetadata">GenesisValidatorMetadata</a>&gt;,
     token_distribution_schedule: <a href="genesis.md#0x2_genesis_TokenDistributionSchedule">TokenDistributionSchedule</a>,
@@ -300,7 +302,6 @@ all the information we need in the system.
         allocations,
     } = token_distribution_schedule;
 
-    <b>let</b> haneul_supply = <a href="haneul.md#0x2_haneul_new">haneul::new</a>(ctx);
     <b>let</b> subsidy_fund = <a href="balance.md#0x2_balance_split">balance::split</a>(
         &<b>mut</b> haneul_supply,
         stake_subsidy_fund_geunhwa,
@@ -372,6 +373,7 @@ all the information we need in the system.
     <a href="genesis.md#0x2_genesis_activate_validators">activate_validators</a>(&<b>mut</b> validators);
 
     <a href="haneul_system.md#0x2_haneul_system_create">haneul_system::create</a>(
+        haneul_system_state_id,
         validators,
         subsidy_fund,
         storage_fund,
@@ -383,8 +385,6 @@ all the information we need in the system.
         genesis_chain_parameters.epoch_duration_ms,
         ctx,
     );
-
-    <a href="clock.md#0x2_clock_create">clock::create</a>();
 }
 </code></pre>
 

@@ -10,9 +10,9 @@ module haneul::haneul {
     use haneul::transfer;
     use haneul::coin;
 
-    friend haneul::genesis;
-
     const EAlreadyMinted: u64 = 0;
+    /// Sender is not @0x0 the system address.
+    const ENotSystemAddress: u64 = 1;
 
     /// The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
     /// 10^-9 of a Haneul token
@@ -29,11 +29,12 @@ module haneul::haneul {
 
     /// Register the `HANEUL` Coin to acquire its `Supply`.
     /// This should be called only once during genesis creation.
-    public(friend) fun new(ctx: &mut TxContext): Balance<HANEUL> {
+    fun new(ctx: &mut TxContext): Balance<HANEUL> {
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
         assert!(tx_context::epoch(ctx) == 0, EAlreadyMinted);
 
         let (treasury, metadata) = coin::create_currency(
-            HANEUL {}, 
+            HANEUL {},
             9,
             b"HANEUL",
             b"Haneul",

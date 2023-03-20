@@ -4,9 +4,9 @@
 module haneul::genesis {
     use std::vector;
 
-    use haneul::balance::{Balance, Self};
+    use haneul::balance::{Self, Balance};
     use haneul::coin;
-    use haneul::clock;
+    use haneul::object::UID;
     use haneul::haneul::{Self, HANEUL};
     use haneul::haneul_system;
     use haneul::tx_context::{Self, TxContext};
@@ -63,6 +63,8 @@ module haneul::genesis {
     /// It will create a singleton HaneulSystemState object, which contains
     /// all the information we need in the system.
     fun create(
+        haneul_system_state_id: UID,
+        haneul_supply: Balance<HANEUL>,
         genesis_chain_parameters: GenesisChainParameters,
         genesis_validators: vector<GenesisValidatorMetadata>,
         token_distribution_schedule: TokenDistributionSchedule,
@@ -78,7 +80,6 @@ module haneul::genesis {
             allocations,
         } = token_distribution_schedule;
 
-        let haneul_supply = haneul::new(ctx);
         let subsidy_fund = balance::split(
             &mut haneul_supply,
             stake_subsidy_fund_geunhwa,
@@ -150,6 +151,7 @@ module haneul::genesis {
         activate_validators(&mut validators);
 
         haneul_system::create(
+            haneul_system_state_id,
             validators,
             subsidy_fund,
             storage_fund,
@@ -161,8 +163,6 @@ module haneul::genesis {
             genesis_chain_parameters.epoch_duration_ms,
             ctx,
         );
-
-        clock::create();
     }
 
     fun allocate_tokens(

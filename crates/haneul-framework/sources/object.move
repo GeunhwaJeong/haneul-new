@@ -10,7 +10,6 @@ module haneul::object {
     friend haneul::clock;
     friend haneul::dynamic_field;
     friend haneul::dynamic_object_field;
-    friend haneul::haneul_system;
     friend haneul::transfer;
 
     #[test_only]
@@ -21,6 +20,9 @@ module haneul::object {
 
     /// The hardcoded ID for the singleton Clock Object.
     const HANEUL_CLOCK_OBJECT_ID: address = @0x6;
+
+    /// Sender is not @0x0 the system address.
+    const ENotSystemAddress: u64 = 0;
 
     /// An object ID. This is used to reference Haneul Objects.
     /// This is *not* guaranteed to be globally unique--anyone can create an `ID` from a `UID` or
@@ -78,7 +80,8 @@ module haneul::object {
 
     /// Create the `UID` for the singleton `HaneulSystemState` object.
     /// This should only be called once from `haneul_system`.
-    public(friend) fun haneul_system_state(): UID {
+    fun haneul_system_state(ctx: &TxContext): UID {
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
         UID {
             id: ID { bytes: HANEUL_SYSTEM_STATE_OBJECT_ID },
         }

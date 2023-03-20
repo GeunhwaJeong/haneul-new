@@ -27,8 +27,6 @@ const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSys
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch_safe_mode");
-pub const CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME: &IdentStr =
-    ident_str!("consensus_commit_prologue");
 
 pub const INIT_SYSTEM_STATE_VERSION: u64 = 1;
 
