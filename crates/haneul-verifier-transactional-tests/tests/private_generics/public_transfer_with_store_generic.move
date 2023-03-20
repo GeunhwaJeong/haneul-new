@@ -14,29 +14,29 @@ module a::m {
 //# publish --dependencies a
 module t1::m {
     fun t(s: a::m::S<u64>) {
-        haneul::transfer::transfer(s, @100)
+        haneul::transfer::public_transfer(s, @100)
     }
     fun t_gen<T: key + store>(s: T) {
-        haneul::transfer::transfer(s, @100)
+        haneul::transfer::public_transfer(s, @100)
     }
 }
 
 //# publish --dependencies a
 module t3::m {
     fun t(s: a::m::S<u64>) {
-        haneul::transfer::freeze_object(s)
+        haneul::transfer::public_freeze_object(s)
     }
     fun t_gen<T: key + store>(s: T) {
-        haneul::transfer::freeze_object(s)
+        haneul::transfer::public_freeze_object(s)
     }
 }
 
 //# publish --dependencies a
 module t4::m {
     fun t(s: a::m::S<u64>) {
-        haneul::transfer::share_object(s)
+        haneul::transfer::public_share_object(s)
     }
     fun t_gen<T: key + store>(s: T) {
-        haneul::transfer::share_object(s)
+        haneul::transfer::public_share_object(s)
     }
 }

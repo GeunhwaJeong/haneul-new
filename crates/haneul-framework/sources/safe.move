@@ -6,7 +6,7 @@
 module haneul::safe {
     use haneul::object::{Self, ID, UID};
     use haneul::tx_context::{TxContext, sender};
-    use haneul::transfer::Self;
+    use haneul::transfer;
     use haneul::balance::{Self, Balance};
     use haneul::coin::{Self, Coin};
     use haneul::vec_set::{Self, VecSet};
@@ -22,9 +22,9 @@ module haneul::safe {
     //
     /// Allows any holder of a capability to transfer a fixed amount of assets from the safe.
     /// Useful in situations like an NFT marketplace where you wish to buy the NFTs at a specific price.
-    /// 
+    ///
     /// @ownership: Shared
-    /// 
+    ///
     struct Safe<phantom T> has key {
         id: UID,
         balance: Balance<T>,
@@ -51,7 +51,7 @@ module haneul::safe {
     //////////////////////////////////////////////////////
     /// HELPER FUNCTIONS
     //////////////////////////////////////////////////////
-    
+
     /// Check that the capability has not yet been revoked by the owner.
     fun check_capability_validity<T>(safe: &Safe<T>, capability: &TransferCapability<T>) {
         // Check that the ids match
@@ -81,7 +81,7 @@ module haneul::safe {
     //////////////////////////////////////////////////////
     /// PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////
-    
+
     public fun balance<T>(safe: &Safe<T>): &Balance<T> {
         &safe.balance
     }
@@ -105,13 +105,13 @@ module haneul::safe {
     public entry fun create<T>(coin: Coin<T>, ctx: &mut TxContext) {
         let balance = coin::into_balance(coin);
         let cap = create_<T>(balance, ctx);
-        transfer::transfer(cap, sender(ctx));
+        transfer::public_transfer(cap, sender(ctx));
     }
 
     public entry fun create_empty<T>(ctx: &mut TxContext) {
         let empty_balance = balance::zero<T>();
         let cap = create_(empty_balance, ctx);
-        transfer::transfer(cap, sender(ctx));
+        transfer::public_transfer(cap, sender(ctx));
     }
 
     /// Deposit funds to the safe
@@ -136,7 +136,7 @@ module haneul::safe {
     public entry fun withdraw<T>(safe: &mut Safe<T>, capability: &OwnerCapability<T>, withdraw_amount: u64, ctx: &mut TxContext) {
         let balance = withdraw_(safe, capability, withdraw_amount);
         let coin = coin::from_balance(balance, ctx);
-        transfer::transfer(coin, sender(ctx));
+        transfer::public_transfer(coin, sender(ctx));
     }
 
     /// Withdraw coins from the safe as a `TransferCapability` holder.

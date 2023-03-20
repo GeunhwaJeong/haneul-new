@@ -2,31 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // tests modules cannot use transfer internal functions outside of the defining module
+// Note: it is not possible to make a generic type `T<...> has key, store`
+// where a given instantiation`T<...>` has key but does _not_ have store
 
-//# init --addresses a=0x0 test=0x0
-
-//# publish
-module a::m {
-    struct S has key { id: haneul::object::UID }
-}
+//# init --addresses test=0x0
 
 //# publish
 module test::m {
-    fun t(s: a::m::S) {
+    fun t<T: key + store>(s: T) {
         haneul::transfer::transfer(s, @100)
     }
 }
 
 //# publish
 module test::m {
-    fun t(s: a::m::S) {
+    fun t<T: key + store>(s: T) {
         haneul::transfer::freeze_object(s)
     }
 }
 
 //# publish
 module test::m {
-    fun t(s: a::m::S) {
+    fun t<T: key + store>(s: T) {
         haneul::transfer::share_object(s)
     }
 }

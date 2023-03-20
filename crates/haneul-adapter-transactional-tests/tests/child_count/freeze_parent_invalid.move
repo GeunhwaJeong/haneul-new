@@ -23,7 +23,7 @@ module test::m {
 
     public entry fun mint(ctx: &mut TxContext) {
         let id = haneul::object::new(ctx);
-        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
+        haneul::transfer::public_transfer(S { id }, tx_context::sender(ctx))
     }
 
     public entry fun add(parent: &mut S, idx: u64, ctx: &mut TxContext) {
@@ -53,11 +53,11 @@ module test::m {
 
     public entry fun wrap(s: S, ctx: &mut TxContext) {
         let r = R { id: haneul::object::new(ctx), s };
-        haneul::transfer::transfer(r, tx_context::sender(ctx))
+        haneul::transfer::public_transfer(r, tx_context::sender(ctx))
     }
 
     public entry fun freeze_object(s: S) {
-        haneul::transfer::freeze_object(s)
+        haneul::transfer::public_freeze_object(s)
     }
 }
 

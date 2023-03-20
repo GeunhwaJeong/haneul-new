@@ -525,7 +525,7 @@ A proportional amount of pool token withdraw is recorded and processed at epoch 
 
     // TODO: implement withdraw bonding period here.
     <a href="balance.md#0x2_balance_join">balance::join</a>(&<b>mut</b> principal_withdraw, rewards_withdraw);
-    <a href="transfer.md#0x2_transfer_transfer">transfer::transfer</a>(<a href="coin.md#0x2_coin_from_balance">coin::from_balance</a>(principal_withdraw, ctx), staker);
+    <a href="transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(<a href="coin.md#0x2_coin_from_balance">coin::from_balance</a>(principal_withdraw, ctx), staker);
     total_haneul_withdraw_amount
 }
 </code></pre>
@@ -840,7 +840,7 @@ Withdraw stake from a preactive staking pool.
     pool.haneul_balance = pool.haneul_balance - withdraw_amount;
     pool.pool_token_balance = pool.pool_token_balance - withdraw_amount;
 
-    <a href="transfer.md#0x2_transfer_transfer">transfer::transfer</a>(<a href="coin.md#0x2_coin_from_balance">coin::from_balance</a>(principal, ctx), staker);
+    <a href="transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(<a href="coin.md#0x2_coin_from_balance">coin::from_balance</a>(principal, ctx), staker);
     withdraw_amount
 }
 </code></pre>

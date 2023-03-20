@@ -8,35 +8,35 @@
 //# publish
 module test::m {
     use haneul::locked_coin::LockedCoin;
-    use haneul::transfer::transfer;
+    use haneul::transfer;
 
     struct TestCoin { }
 
     fun t(coin: LockedCoin<TestCoin>) {
-        transfer(coin, @0x42);
+        transfer::transfer(coin, @0x42);
     }
 }
 
 //# publish
 module test::m {
     use haneul::locked_coin::LockedCoin;
-    use haneul::transfer::share_object;
+    use haneul::transfer;
 
     struct TestCoin { }
 
     fun t(coin: LockedCoin<TestCoin>) {
-        share_object(coin);
+        transfer::share_object(coin);
     }
 }
 
 //# publish
 module test::m {
     use haneul::locked_coin::LockedCoin;
-    use haneul::transfer::freeze_object;
+    use haneul::transfer;
 
     struct TestCoin { }
 
     fun t(coin: LockedCoin<TestCoin>) {
-        freeze_object(coin);
+        transfer::freeze_object(coin);
     }
 }

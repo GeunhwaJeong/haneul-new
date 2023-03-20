@@ -15,7 +15,7 @@ module haneul::display {
     use haneul::tx_context::{sender, TxContext};
     use haneul::vec_map::{Self, VecMap};
     use haneul::object::{Self, ID, UID};
-    use haneul::transfer::transfer;
+    use haneul::transfer;
     use haneul::event;
     use std::vector;
     use std::string::String;
@@ -114,7 +114,7 @@ module haneul::display {
 
     /// Create a new empty Display<T> object and keep it.
     entry public fun create_and_keep<T: key>(pub: &Publisher, ctx: &mut TxContext) {
-        transfer(new<T>(pub, ctx), sender(ctx))
+        transfer::public_transfer(new<T>(pub, ctx), sender(ctx))
     }
 
     /// Manually bump the version and emit an event with the updated version's contents.
@@ -206,7 +206,7 @@ module haneul::display {
 module haneul::display_tests {
     use haneul::object::UID;
     use haneul::test_scenario as test;
-    use haneul::transfer::transfer;
+    use haneul::transfer;
     use std::string::{utf8, String};
     use haneul::package;
     use haneul::display;
@@ -235,7 +235,7 @@ module haneul::display_tests {
         display::add(&mut display, utf8(b"description"), utf8(b"A Lovely Capy"));
 
         package::burn_publisher(pub);
-        transfer(display, @0x2);
+        transfer::public_transfer(display, @0x2);
         test::end(test);
     }
 }

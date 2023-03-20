@@ -43,7 +43,7 @@ module haneul::haneul {
             option::none(),
             ctx
         );
-        transfer::freeze_object(metadata);
+        transfer::public_freeze_object(metadata);
         let supply = coin::treasury_into_supply(treasury);
         let total_haneul = balance::increase_supply(&mut supply, TOTAL_SUPPLY_GEUNHWA);
         balance::destroy_supply(supply);
@@ -51,6 +51,6 @@ module haneul::haneul {
     }
 
     public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address) {
-        transfer::transfer(c, recipient)
+        transfer::public_transfer(c, recipient)
     }
 }

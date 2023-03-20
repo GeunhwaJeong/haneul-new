@@ -7,7 +7,7 @@
 
 //# publish
 module a::m {
-    struct S has key { id: haneul::object::UID }
+    struct S has key, store { id: haneul::object::UID }
 }
 
 //# publish

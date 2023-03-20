@@ -130,7 +130,7 @@ module defi::pool {
     entry fun swap_haneul_<P, T>(
         pool: &mut Pool<P, T>, haneul: Coin<HANEUL>, ctx: &mut TxContext
     ) {
-        transfer::transfer(
+        transfer::public_transfer(
             swap_haneul(pool, haneul, ctx),
             tx_context::sender(ctx)
         )
@@ -166,7 +166,7 @@ module defi::pool {
     entry fun swap_token_<P, T>(
         pool: &mut Pool<P, T>, token: Coin<T>, ctx: &mut TxContext
     ) {
-        transfer::transfer(
+        transfer::public_transfer(
             swap_token(pool, token, ctx),
             tx_context::sender(ctx)
         )
@@ -200,7 +200,7 @@ module defi::pool {
     entry fun add_liquidity_<P, T>(
         pool: &mut Pool<P, T>, haneul: Coin<HANEUL>, token: Coin<T>, ctx: &mut TxContext
     ) {
-        transfer::transfer(
+        transfer::public_transfer(
             add_liquidity(pool, haneul, token, ctx),
             tx_context::sender(ctx)
         );
@@ -247,8 +247,8 @@ module defi::pool {
         let (haneul, token) = remove_liquidity(pool, lsp, ctx);
         let sender = tx_context::sender(ctx);
 
-        transfer::transfer(haneul, sender);
-        transfer::transfer(token, sender);
+        transfer::public_transfer(haneul, sender);
+        transfer::public_transfer(token, sender);
     }
 
     /// Remove liquidity from the `Pool` by burning `Coin<LSP>`.

@@ -8,7 +8,7 @@
 module examples::my_hero {
     use haneul::tx_context::{sender, TxContext};
     use std::string::{utf8, String};
-    use haneul::transfer::transfer;
+    use haneul::transfer;
     use haneul::object::{Self, UID};
 
     // The creator bundle: these two packages often go together.
@@ -68,8 +68,8 @@ module examples::my_hero {
         // Commit first version of `Display` to apply changes.
         display::update_version(&mut display);
 
-        transfer(publisher, sender(ctx));
-        transfer(display, sender(ctx));
+        transfer::public_transfer(publisher, sender(ctx));
+        transfer::public_transfer(display, sender(ctx));
     }
 
     /// Anyone can mint their `Hero`!

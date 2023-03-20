@@ -26,7 +26,7 @@ module test::m {
         let id = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
         ofield::add(&mut id, 0, child);
-        haneul::transfer::share_object(S { id })
+        haneul::transfer::public_share_object(S { id })
     }
 
 }

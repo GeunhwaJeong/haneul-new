@@ -25,18 +25,18 @@ module test::m {
         let id = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
         ofield::add(&mut id, 0, child);
-        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
+        haneul::transfer::public_transfer(S { id }, tx_context::sender(ctx))
     }
 
     public entry fun mint_and_share(ctx: &mut TxContext) {
         let id = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
         ofield::add(&mut id, 0, child);
-        haneul::transfer::share_object(S { id })
+        haneul::transfer::public_share_object(S { id })
     }
 
     public entry fun transfer(s: S, recipient: address) {
-        haneul::transfer::transfer(s, recipient)
+        haneul::transfer::public_transfer(s, recipient)
     }
 
 }

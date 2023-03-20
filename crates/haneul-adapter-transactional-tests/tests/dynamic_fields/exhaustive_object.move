@@ -44,7 +44,7 @@ fun destroy(counter: Counter): u64 {
 
 entry fun t0(ctx: &mut TxContext) {
     let id = object::new(ctx);
-    haneul::transfer::transfer(Obj { id }, sender(ctx))
+    haneul::transfer::public_transfer(Obj { id }, sender(ctx))
 }
 
 entry fun t1(obj: &mut Obj, ctx: &mut TxContext) {

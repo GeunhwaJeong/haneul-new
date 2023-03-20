@@ -23,7 +23,7 @@ module test::m {
 
     public entry fun mint(ctx: &mut TxContext) {
         let id = haneul::object::new(ctx);
-        haneul::transfer::transfer(S { id }, tx_context::sender(ctx))
+        haneul::transfer::public_transfer(S { id }, tx_context::sender(ctx))
     }
 
     public entry fun add(parent: &mut S, idx: u64, ctx: &mut TxContext) {
