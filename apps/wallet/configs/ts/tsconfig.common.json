@@ -46,7 +46,9 @@
             "_font-icons/*": ["./font-icons/*"],
             "@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
             "@haneullabs/bcs": ["../../sdk/bcs/src/"],
-            "@haneullabs/ledgerjs-hw-app-haneul": ["../../sdk/ledgerjs-hw-app-haneul"],
+            "@haneullabs/ledgerjs-hw-app-haneul": [
+                "../../sdk/ledgerjs-hw-app-haneul/src/Haneul.ts"
+            ],
             "@haneullabs/wallet-standard": [
                 "../../sdk/wallet-adapter/wallet-standard/src/"
             ]
