@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto::encoding::{Encoding, Hex};
+use move_core_types::value::MoveTypeLayout;
 
 use shared_crypto::intent::IntentMessage;
+use haneul_json_rpc_types::HaneulCallArg;
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAddress};
-use haneul_types::messages::TransactionData;
+use haneul_types::messages::{CallArg, TransactionData};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 
 use crate::operations::Operations;
@@ -53,4 +55,13 @@ async fn test_shorter_bytearray_bug() {
 
     let op = Operations::try_from(data.value).unwrap();
     assert_eq!(OperationType::PayHaneul, op.type_().unwrap());
+}
+
+#[tokio::test]
+async fn test_haneul_json() {
+    let arg1 = CallArg::Pure(bcs::to_bytes(&1000000u64).unwrap());
+    let arg2 = CallArg::Pure(bcs::to_bytes(&30215u64).unwrap());
+    let json1 = HaneulCallArg::try_from(arg1, Some(&MoveTypeLayout::U64)).unwrap();
+    let json2 = HaneulCallArg::try_from(arg2, Some(&MoveTypeLayout::U64)).unwrap();
+    println!("{:?}, {:?}", json1, json2);
 }

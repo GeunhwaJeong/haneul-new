@@ -16,7 +16,7 @@ use move_core_types::language_storage::TypeTag;
 use std::result::Result;
 use haneul_adapter::adapter::{resolve_and_type_check, CheckCallArg};
 use haneul_adapter::execution_mode::ExecutionMode;
-use haneul_json::{resolve_move_function_args, HaneulJsonCallArg, HaneulJsonValue};
+use haneul_json::{resolve_move_function_args, ResolvedCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::{
     CheckpointId, ObjectsPage, RPCTransactionRequestParams, HaneulData, HaneulObjectDataOptions,
     HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData, HaneulTypeTag,
@@ -420,11 +420,11 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         let mut objects = BTreeMap::new();
         for (arg, expected_type) in json_args_and_tokens {
             check_args.push(match arg {
-                HaneulJsonCallArg::Object(id) => CheckCallArg::Object(
+                ResolvedCallArg::Object(id) => CheckCallArg::Object(
                     self.get_object_arg(id, &mut objects, expected_type).await?,
                 ),
-                HaneulJsonCallArg::Pure(p) => CheckCallArg::Pure(p),
-                HaneulJsonCallArg::ObjVec(v) => {
+                ResolvedCallArg::Pure(p) => CheckCallArg::Pure(p),
+                ResolvedCallArg::ObjVec(v) => {
                     let mut object_ids = vec![];
                     for id in v {
                         object_ids.push(

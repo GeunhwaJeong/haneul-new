@@ -5,9 +5,13 @@ use std::path::Path;
 #[cfg(not(msim))]
 use std::str::FromStr;
 
+use crate::api::{
+    CoinReadApiClient, GovernanceReadApiClient, ReadApiClient, TransactionBuilderClient,
+    WriteApiClient,
+};
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
-use haneul_json::HaneulJsonValue;
+use haneul_json::{call_args, type_args};
 use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::ObjectsPage;
 use haneul_json_rpc_types::{
@@ -23,13 +27,8 @@ use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME, LOCKED_COIN_MODULE_NAME}
 use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{parse_haneul_struct_tag, parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
-
-use crate::api::{
-    CoinReadApiClient, GovernanceReadApiClient, ReadApiClient, TransactionBuilderClient,
-    WriteApiClient,
-};
 
 #[sim_test]
 async fn test_get_objects() -> Result<(), anyhow::Error> {
@@ -203,19 +202,14 @@ async fn test_move_call() -> Result<(), anyhow::Error> {
     let module = "pay".to_string();
     let function = "split".to_string();
 
-    let json_args = vec![
-        HaneulJsonValue::from_object_id(coin.object_id),
-        HaneulJsonValue::from_str("\"10\"")?,
-    ];
-
     let transaction_bytes: TransactionBytes = http_client
         .move_call(
             *address,
             package_id,
             module,
             function,
-            vec![GAS::type_tag().into()],
-            json_args,
+            type_args![GAS::type_tag()]?,
+            call_args!(coin.object_id, 10)?,
             Some(gas.object_id),
             10_000,
             None,
@@ -521,7 +515,6 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
         .unwrap();
 
     let coin_name = format!("{package_id}::trusted_coin::TRUSTED_COIN");
-    let coin_type = parse_haneul_type_tag(&coin_name).unwrap();
     let result: Supply = http_client.get_total_supply(coin_name.clone()).await?;
 
     assert_eq!(0, result.value);
@@ -555,12 +548,8 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
             HANEUL_FRAMEWORK_ADDRESS.into(),
             COIN_MODULE_NAME.to_string(),
             "mint_and_transfer".into(),
-            vec![coin_type.into()],
-            vec![
-                HaneulJsonValue::from_str(&treasury_cap.to_string()).unwrap(),
-                HaneulJsonValue::from_str("\"100000\"").unwrap(),
-                HaneulJsonValue::from_str(&address.to_string()).unwrap(),
-            ],
+            type_args![coin_name]?,
+            call_args![treasury_cap, 100000, address]?,
             Some(gas.object_id),
             10_000,
             None,
@@ -633,12 +622,8 @@ async fn test_locked_haneul() -> Result<(), anyhow::Error> {
             HANEUL_FRAMEWORK_ADDRESS.into(),
             LOCKED_COIN_MODULE_NAME.to_string(),
             "lock_coin".to_string(),
-            vec![parse_haneul_type_tag("0x2::haneul::HANEUL")?.into()],
-            vec![
-                HaneulJsonValue::from_str(&coins.data[0].coin_object_id.to_string())?,
-                HaneulJsonValue::from_str(&format!("{address}"))?,
-                HaneulJsonValue::from_bcs_bytes(&bcs::to_bytes(&"20")?)?,
-            ],
+            type_args!("0x2::haneul::HANEUL")?,
+            call_args![coins.data[0].coin_object_id, address, 20]?,
             None,
             2000,
             None,

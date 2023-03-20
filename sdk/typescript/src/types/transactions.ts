@@ -83,9 +83,32 @@ export const HaneulCommand = union([
   object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
 ]);
 
+export const HaneulCallArg = union([
+  object({
+    type: literal('pure'),
+    valueType: optional(string()),
+    value: HaneulJsonValue,
+  }),
+  object({
+    type: literal('object'),
+    objectType: literal('immOrOwnedObject'),
+    objectId: ObjectId,
+    version: SequenceNumber,
+    digest: ObjectDigest,
+  }),
+  object({
+    type: literal('object'),
+    objectType: literal('sharedObject'),
+    objectId: ObjectId,
+    initialSharedVersion: SequenceNumber,
+    mutable: boolean(),
+  }),
+]);
+export type HaneulCallArg = Infer<typeof HaneulCallArg>;
+
 export const ProgrammableTransaction = object({
   commands: array(),
-  inputs: array(HaneulJsonValue),
+  inputs: array(HaneulCallArg),
 });
 export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
 

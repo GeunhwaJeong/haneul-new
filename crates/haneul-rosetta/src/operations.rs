@@ -8,16 +8,15 @@ use std::vec;
 
 use anyhow::anyhow;
 use move_core_types::ident_str;
-use move_core_types::language_storage::StructTag;
-use move_core_types::value::MoveTypeLayout;
+use move_core_types::language_storage::{ModuleId, StructTag};
+use move_core_types::resolver::ModuleResolver;
 use serde::Deserialize;
 use serde::Serialize;
 
-use haneul_json_rpc_types::HaneulCommand;
 use haneul_json_rpc_types::HaneulProgrammableMoveCall;
 use haneul_json_rpc_types::HaneulProgrammableTransaction;
 use haneul_json_rpc_types::{BalanceChange, HaneulArgument};
-use haneul_sdk::json::HaneulJsonValue;
+use haneul_json_rpc_types::{HaneulCallArg, HaneulCommand};
 use haneul_sdk::rpc_types::{
     HaneulTransactionData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionKind,
     HaneulTransactionResponse,
@@ -241,19 +240,10 @@ impl Operations {
                 .get(i as usize)
                 .and_then(|inner| inner.get(j as usize))
         }
-        fn split_coin(inputs: &[HaneulJsonValue], amount: HaneulArgument) -> Option<Vec<KnownValue>> {
+        fn split_coin(inputs: &[HaneulCallArg], amount: HaneulArgument) -> Option<Vec<KnownValue>> {
             let amount: u64 = match amount {
                 HaneulArgument::Input(i) => {
-                    let input = inputs[i as usize]
-                        .to_bcs_bytes(&MoveTypeLayout::Vector(Box::new(MoveTypeLayout::U8)))
-                        .ok()?;
-                    let input = if input.len() == 8 {
-                        input
-                    } else {
-                        bcs::from_bytes::<Vec<u8>>(&input).ok()?
-                    };
-                    // convert to u64
-                    bcs::from_bytes(&input).ok()?
+                    u64::from_str(inputs[i as usize].pure()?.to_json_value().as_str()?).ok()?
                 }
                 HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
                     return None
@@ -263,13 +253,13 @@ impl Operations {
         }
         fn transfer_object(
             aggregated_recipients: &mut HashMap<HaneulAddress, u64>,
-            inputs: &[HaneulJsonValue],
+            inputs: &[HaneulCallArg],
             known_results: &[Vec<KnownValue>],
             objs: &[HaneulArgument],
             recipient: HaneulArgument,
         ) -> Option<Vec<KnownValue>> {
             let addr = match recipient {
-                HaneulArgument::Input(i) => inputs[i as usize].to_haneul_address().ok()?,
+                HaneulArgument::Input(i) => inputs[i as usize].pure()?.to_haneul_address().ok()?,
                 HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
                     return None
                 }
@@ -292,7 +282,7 @@ impl Operations {
             Some(vec![])
         }
         fn stake_call(
-            inputs: &[HaneulJsonValue],
+            inputs: &[HaneulCallArg],
             known_results: &[Vec<KnownValue>],
             call: &HaneulProgrammableMoveCall,
         ) -> Result<Option<(Option<u64>, HaneulAddress)>, Error> {
@@ -311,20 +301,18 @@ impl Operations {
                         // We use the position of the validator arg as a indicator of if the rosetta stake
                         // transaction is staking the whole wallet or not, if staking whole wallet, 
                         // we have to omit the amount value in the final operation output.
-                        HaneulArgument::Input(i) => (*i==1, inputs[*i as usize].to_haneul_address()),
+                        HaneulArgument::Input(i) => (*i==1, inputs[*i as usize].pure().map(|v|v.to_haneul_address()).transpose()),
                         _=> return Ok(None),
                     };
                     (some_amount.then_some(*amount), validator)
                 },
                 _ => Err(anyhow!("Error encountered when extracting arguments from move call, expecting 3 elements, got {}", arguments.len()))?,
             };
-            let validator =
-                validator.map_err(|_| anyhow!("Error parsing Validator address from call arg."))?;
-            Ok(Some((amount, validator)))
+            Ok(validator.map(|v| v.map(|v| (amount, v)))?)
         }
 
         fn unstake_call(
-            inputs: &[HaneulJsonValue],
+            inputs: &[HaneulCallArg],
             call: &HaneulProgrammableMoveCall,
         ) -> Result<Option<ObjectID>, Error> {
             let HaneulProgrammableMoveCall { arguments, .. } = call;
@@ -332,8 +320,7 @@ impl Operations {
                 [_, stake_id] => {
                     match stake_id {
                         HaneulArgument::Input(i) => {
-                            let id = inputs[*i as usize].to_json_value().as_str().ok_or_else(|| anyhow!("Cannot fin stake id from input args."))?.to_string();
-                            let id = ObjectID::from_str(&id).map_err(|e| anyhow!("Error parsing stake object id from call arg: {e}"))?;
+                            let id = inputs[*i as usize].object().ok_or_else(|| anyhow!("Cannot find stake id from input args."))?;
                             // [WORKAROUND] - this is a hack to work out if the withdraw stake ops is for a selected stake or None (all stakes).
                             // this hack is similar to the one in stake_call.
                             let some_id = i % 2 == 1;
@@ -344,7 +331,7 @@ impl Operations {
                 },
                 _ => Err(anyhow!("Error encountered when extracting arguments from move call, expecting 3 elements, got {}", arguments.len()))?,
             };
-            Ok(id)
+            Ok(id.cloned())
         }
         let HaneulProgrammableTransaction { inputs, commands } = &pt;
         let mut known_results: Vec<Vec<KnownValue>> = vec![];
@@ -586,7 +573,15 @@ fn is_unstake_event(tag: &StructTag) -> bool {
 impl TryFrom<TransactionData> for Operations {
     type Error = Error;
     fn try_from(data: TransactionData) -> Result<Self, Self::Error> {
-        HaneulTransactionData::try_from(data)?.try_into()
+        struct NoOpsModuleResolver;
+        impl ModuleResolver for NoOpsModuleResolver {
+            type Error = Error;
+            fn get_module(&self, _id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
+                Ok(None)
+            }
+        }
+        // Rosetta don't need the call args to be parsed into readable format
+        HaneulTransactionData::try_from(data, &&mut NoOpsModuleResolver)?.try_into()
     }
 }
 

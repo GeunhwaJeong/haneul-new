@@ -16,8 +16,8 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
-    DevInspectResults, DryRunTransactionResponse, HaneulTransactionEvents, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions,
+    DevInspectResults, DryRunTransactionResponse, HaneulTransaction, HaneulTransactionEvents,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
@@ -75,9 +75,9 @@ impl TransactionExecutionApi {
         for sig in signatures {
             sigs.push(GenericSignature::from_bytes(&sig.to_vec()?)?);
         }
-
+        let epoch_store = self.state.load_epoch_store_one_call_per_task();
         let txn = Transaction::from_generic_sig_data(tx_data, Intent::default(), sigs);
-        let tx = txn.data().clone().try_into()?;
+        let tx = HaneulTransaction::try_from(txn.data().clone(), epoch_store.module_cache())?;
         let raw_transaction = if opts.show_raw_input {
             bcs::to_bytes(txn.data())?
         } else {

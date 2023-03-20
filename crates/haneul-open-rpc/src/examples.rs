@@ -7,8 +7,10 @@ use std::str::FromStr;
 
 use fastcrypto::traits::EncodeDecodeBase64;
 use move_core_types::identifier::Identifier;
+use move_core_types::language_storage::ModuleId;
 use move_core_types::language_storage::StructTag;
 use move_core_types::parser::parse_struct_tag;
+use move_core_types::resolver::ModuleResolver;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use serde_json::json;
@@ -17,6 +19,7 @@ use haneul::client_commands::EXAMPLE_NFT_DESCRIPTION;
 use haneul::client_commands::EXAMPLE_NFT_NAME;
 use haneul::client_commands::EXAMPLE_NFT_URL;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc::error::Error;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, EventPage, MoveCallParams, ObjectChange, OwnedObjectRef,
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGasCostSummary,
@@ -466,6 +469,13 @@ impl RpcExampleProvider {
             version: object_ref.1,
             digest: ObjectDigest::new(self.rng.gen()),
         };
+        struct NoOpsModuleResolver;
+        impl ModuleResolver for NoOpsModuleResolver {
+            type Error = Error;
+            fn get_module(&self, _id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
+                Ok(None)
+            }
+        }
         let result = HaneulTransactionResponse {
             digest: *tx_digest,
             effects: Some(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
@@ -505,7 +515,7 @@ impl RpcExampleProvider {
             balance_changes: None,
             timestamp_ms: None,
             transaction: Some(HaneulTransaction {
-                data: HaneulTransactionData::try_from(data1).unwrap(),
+                data: HaneulTransactionData::try_from(data1, &&mut NoOpsModuleResolver).unwrap(),
                 tx_signatures: signatures.clone(),
             }),
             raw_transaction,
