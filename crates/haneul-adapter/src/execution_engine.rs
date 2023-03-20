@@ -225,7 +225,7 @@ fn execute_transaction<
         #[cfg(debug_assertions)]
         {
             // ensure that this transaction did not create or destroy HANEUL
-            temporary_store.check_haneul_conserved();
+            temporary_store.check_haneul_conserved().unwrap();
         }
     }
     let cost_summary = gas_status.summary();
