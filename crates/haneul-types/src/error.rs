@@ -9,11 +9,8 @@ use crate::{
     object::Owner,
 };
 use fastcrypto::error::FastCryptoError;
-use move_binary_format::access::ModuleAccess;
-use move_binary_format::{
-    errors::{Location, PartialVMError, VMError},
-    file_format::FunctionDefinitionIndex,
-};
+use move_binary_format::{access::ModuleAccess, errors::VMError};
+use move_binary_format::{errors::Location, file_format::FunctionDefinitionIndex};
 use move_core_types::{
     resolver::{ModuleResolver, ResourceResolver},
     vm_status::{StatusCode, StatusType},
@@ -478,26 +475,9 @@ impl From<haneul_protocol_config::Error> for HaneulError {
     }
 }
 
-// TODO these are both horribly wrong, categorization needs to be considered
-impl From<PartialVMError> for HaneulError {
-    fn from(error: PartialVMError) -> Self {
-        HaneulError::ModuleVerificationFailure {
-            error: error.to_string(),
-        }
-    }
-}
-
 impl From<ExecutionError> for HaneulError {
     fn from(error: ExecutionError) -> Self {
         HaneulError::ExecutionError(error.to_string())
-    }
-}
-
-impl From<VMError> for HaneulError {
-    fn from(error: VMError) -> Self {
-        HaneulError::ModuleVerificationFailure {
-            error: error.to_string(),
-        }
     }
 }
 
