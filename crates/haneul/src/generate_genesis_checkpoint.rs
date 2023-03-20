@@ -5,6 +5,7 @@ use camino::Utf8PathBuf;
 use haneul_config::genesis::Builder;
 use haneul_config::utils;
 use haneul_config::ValidatorInfo;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
     KeypairTraits, NetworkKeyPair,
@@ -26,7 +27,7 @@ async fn main() {
             name: format!("Validator {}", i),
             protocol_key: key.public().into(),
             worker_key: worker_key.public().clone(),
-            account_key: account_key.public().clone().into(),
+            account_address: HaneulAddress::from(account_key.public()),
             network_key: network_key.public().clone(),
             gas_price: 1,
             commission_rate: 0,
