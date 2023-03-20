@@ -1257,7 +1257,7 @@ system running and continue making epoch changes.
 version
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, new_epoch: u64, next_protocol_version: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(storage_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, computation_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, new_epoch: u64, next_protocol_version: u64, storage_rebate: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1266,16 +1266,27 @@ version
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(
+    storage_reward: Balance&lt;HANEUL&gt;,
+    computation_reward: Balance&lt;HANEUL&gt;,
     wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
     new_epoch: u64,
     next_protocol_version: u64,
+    storage_rebate: u64,
     ctx: &<b>mut</b> TxContext,
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     // Validator will make a special system call <b>with</b> sender set <b>as</b> 0x0.
     <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, 0);
-    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch_safe_mode">haneul_system_state_inner::advance_epoch_safe_mode</a>(self, new_epoch, next_protocol_version, ctx)
+    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch_safe_mode">haneul_system_state_inner::advance_epoch_safe_mode</a>(
+        self,
+        new_epoch,
+        next_protocol_version,
+        storage_reward,
+        computation_reward,
+        storage_rebate,
+        ctx
+    )
 }
 </code></pre>
 
