@@ -5,6 +5,7 @@
 /// on Haneul. The user should be able to use the wallet command line tool
 /// (https://docs.haneul.io/build/wallet) to mint an NFT. For example,
 /// `wallet example-nft --name <Name> --description <Description> --url <URL>`
+/// MUSTFIX: Remove this module from framework.
 module haneul::devnet_nft {
     use haneul::url::{Self, Url};
     use std::string;
