@@ -1050,10 +1050,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
         .get_owned_objects(
             addr1,
             Some(HaneulObjectResponseQuery::new_with_options(
-                HaneulObjectDataOptions::new()
-                    .with_type()
-                    .with_owner()
-                    .with_previous_transaction(),
+                HaneulObjectDataOptions::full_content(),
             )),
             None,
             None,
