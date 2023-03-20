@@ -5,6 +5,7 @@ use axum::extract::State;
 use axum::{Extension, Json};
 use axum_extra::extract::WithRejection;
 use fastcrypto::encoding::{Encoding, Hex};
+use fastcrypto::hash::HashFunction;
 use futures::StreamExt;
 
 use shared_crypto::intent::{Intent, IntentMessage};
@@ -13,7 +14,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_sdk::rpc_types::HaneulExecutionStatus;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{SignatureScheme, ToFromBytes};
+use haneul_types::crypto::{DefaultHash, SignatureScheme, ToFromBytes};
 use haneul_types::error::HaneulError;
 use haneul_types::messages::{Transaction, TransactionData, TransactionDataAPI};
 use haneul_types::signature::GenericSignature;
@@ -66,11 +67,15 @@ pub async fn payloads(
     let intent_msg = IntentMessage::new(Intent::default(), data);
     let intent_msg_bytes = bcs::to_bytes(&intent_msg)?;
 
+    let mut hasher = DefaultHash::default();
+    hasher.update(&bcs::to_bytes(&intent_msg).expect("Message serialization should not fail"));
+    let digest = hasher.finalize().digest;
+
     Ok(ConstructionPayloadsResponse {
         unsigned_transaction: Hex::from_bytes(&intent_msg_bytes),
         payloads: vec![SigningPayload {
             account_identifier: address.into(),
-            hex_bytes: Hex::encode(bcs::to_bytes(&intent_msg)?),
+            hex_bytes: Hex::encode(digest),
             signature_type: Some(SignatureType::Ed25519),
         }],
     })
