@@ -6,21 +6,15 @@ The next release of Haneul, release 0.28, includes the breaking changes describe
 
 To learn how to update your project to work with the changes introduced in release .28, see the [Haneul Migration Guide](haneul-migration-guide.md).
 
-New entries added 03/14/23.
-
-Added 03/14/23
+New entries added 03/20/23.
 
 **[Major breaking change]** - Haneul now calculates `HaneulAddress` using the first 32 bytes of the Blake2b hash of `flag || pubkey` instead of the SHA3_256 hash. See [PR 9262](https://github.com/GeunhwaJeong/haneul/pull/9262) for more information.
 
 ---
 
-Added 03/13/23
-
 **[Major breaking change]** - This release replaces the `haneul_getValidators` and `haneul_getHaneulSystemState` functions with a new `haneul_getLatestHaneulSystemState` function. The new function returns a flattened type that contains all information from the latest `HaneulSystemState`  object on-chain with type `HaneulSystemStateSummary`. It also contains a vector of type `HaneulValidatorSummary` that summarizes information from each validator, including: metadata, staking pool, and other data. The release also adds a `p2p_address` to each validator’s metadata. The value for the field is the address the validator used for p2p activities, such as state sync.
 
 ---
-
-Added 03/13/23
 
 **[Major breaking change]** - This release changes the serialization format of Haneul object types. Haneul now uses a more compact serialization format for common types such as `Coin<HANEUL>`, `Coin<T>`, and `StakedHaneul`, reducing object size by up to 40%. This lowers storage gas costs for objects of these types. This doesn’t effect clients using JSON-RPC API read functions, but clients that read raw Haneul objects directly need to understand the new type encoding. Note that the encoding of Haneul Move structs remains unchanged. See [PR 9055](https://github.com/GeunhwaJeong/haneul/pull/9055) for more details.
 
@@ -41,8 +35,6 @@ Added 03/13/23
 **[Major breaking change]** - `HaneulAddress` and `ObjectID` are now 32 bytes long instead of 20 bytes (in hex, the `len` increases from 40 to 64). If your software interacts with any `ObjectID` and `HaneulAddress`, you must update it to use updated addresses and redeploy it. [PR 8542](https://github.com/GeunhwaJeong/haneul/pull/8542).
 
 ---
-
-Added 03/14/23
 
 **[Breaking change]** - This release introduces several limits on transactions and transaction executions. Many of these limits are subject to change prior to Haneul Mainnet. To view a list of limits in release .28, see the [source code](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs#L716).
 
@@ -76,19 +68,13 @@ Added 03/14/23
 
 ---
 
-Added 03/13/23
-
 **[Minor breaking change]** - Removes `Randomness` from the Haneul Framework and the `haneul_tblsSignRandomnessObject` JSON RPC. See [PR 8977](https://github.com/GeunhwaJeong/haneul/pull/8977) for more information.
 
 ---
 
-Added 03/13/23
-
 **[Minor breaking change]** - This changes the genesis snapshot since the generation for a PoP changed. It also removes Haneul Move APIs `bls12381::bls12381_min_sig_verify_with_domain`, and `validator::verify_proof_of_possession` because now all validate PoP is now done in `validator::validate_metadata`.
 
 ---
-
-Added 3/9/23
 
 **[Major API breaking changes]** - `GetTransaction` API refactoring
 
@@ -99,8 +85,6 @@ For more information, see [PR 8888](https://github.com/GeunhwaJeong/haneul/pull/
 
 ---
 
-Added 3/9/23
-
 **[Major API breaking changes] haneul_executeTransaction refactoring**
  * Removed `haneul_executeTransactionSerializedSig` and `haneul_submitTransaction` operations.
  * The `haneul_executeTransaction` operation now takes a vector of signatures instead of a single signature to support Sponsored Transactions.
@@ -108,8 +92,6 @@ Added 3/9/23
 To learn more, see [PR 9068](https://github.com/GeunhwaJeong/haneul/pull/9068).
 
 ---
-
-Added 03/13/23
 
 **[RPC API breaking change]** - Various changes in JSON-RPC governance API:
  * updated `haneul_getDelegatedStakes` to the new staking flow
@@ -122,13 +104,15 @@ For more information, see [PR 8848](https://github.com/GeunhwaJeong/haneul/pull/
 
 ---
 
-Added 03/13/23
+Added 03/20/23
+
+**[API breaking change]** - A valid signature must be committed to the Blake2b hash of the message before passing to any signing APIs. If a signature is created elsewhere, please ensure the transaction data is hashed first. For more information, see [PR 9561](https://github.com/GeunhwaJeong/haneul/pull/9561).
+
+---
 
 **[API breaking change]** - This release removes locked coin staking functionality, and changes the layout of the StakedHaneul object to remove the locking period field. For more information, see [PR 9046](https://github.com/GeunhwaJeong/haneul/pull/9046).
 
 ---
-
-Added 03/13/23
 
 **[API breaking change]** - All functions that include *delegation* in their name are renamed to use *stake* instead. For example, `request_add_delegation` is now `request_add_stake`. See [PR 9059](https://github.com/GeunhwaJeong/haneul/pull/9059) for details.
 

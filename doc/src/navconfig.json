@@ -6,7 +6,7 @@
 				"link": "doc-updates/haneul-migration-guide"
 			},
 			{
-				"label": "Haneul Upcoming Breaking Changes",
+				"label": "Haneul Breaking Changes",
 				"link": "doc-updates/haneul-breaking-changes"
 			},
 			{
@@ -198,7 +198,12 @@
 				"label": "Connect to Haneul",
 				"fileName": "build/comms",
 				"title": "Connect to Haneul",
-				"items": [{
+				"items": [
+					{
+						"label": "Programmable Transactions with TypeScript SDK",
+						"fileName": "build/prog-trans-ts-sdk"
+					},
+					{
 						"label": "JSON-RPC API",
 						"fileName": "build/json-rpc"
 					},
