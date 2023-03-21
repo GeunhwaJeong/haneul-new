@@ -8895,7 +8895,6 @@ dependencies = [
  "move-core-types",
  "haneullabs-metrics",
  "prometheus",
- "rand 0.8.5",
  "serde 1.0.152",
  "serde_json",
  "haneul-config",
