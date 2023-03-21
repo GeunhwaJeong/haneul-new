@@ -60,6 +60,9 @@ pub enum IndexerError {
     #[error(transparent)]
     HaneulError(#[from] HaneulError),
 
+    #[error(transparent)]
+    BcsError(#[from] bcs::Error),
+
     #[error("Invalid argument with error: `{0}`")]
     InvalidArgumentError(String),
 }
@@ -85,6 +88,7 @@ impl IndexerError {
             IndexerError::ObjectIdParseError(_) => "ObjectIdParseError".into(),
             IndexerError::HaneulError(_) => "HaneulError".into(),
             IndexerError::InvalidArgumentError(_) => "InvalidArgumentError".into(),
+            IndexerError::BcsError(_) => "BcsError".into(),
         }
     }
 }

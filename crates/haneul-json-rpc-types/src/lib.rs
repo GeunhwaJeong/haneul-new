@@ -4,19 +4,18 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use haneul_types::base_types::ObjectID;
-use haneul_types::dynamic_field::DynamicFieldInfo;
-
-pub use haneul_event::*;
-pub use haneul_object::*;
-pub use haneul_transaction::*;
-
 pub use balance_changes::*;
 pub use object_changes::*;
 pub use haneul_checkpoint::*;
 pub use haneul_coin::*;
+pub use haneul_event::*;
+pub use haneul_extended::*;
 pub use haneul_governance::*;
 pub use haneul_move::*;
+pub use haneul_object::*;
+pub use haneul_transaction::*;
+use haneul_types::base_types::ObjectID;
+use haneul_types::dynamic_field::DynamicFieldInfo;
 
 #[cfg(test)]
 #[path = "unit_tests/rpc_types_tests.rs"]
@@ -27,6 +26,7 @@ mod object_changes;
 mod haneul_checkpoint;
 mod haneul_coin;
 mod haneul_event;
+mod haneul_extended;
 mod haneul_governance;
 mod haneul_move;
 mod haneul_object;
