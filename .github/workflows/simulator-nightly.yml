@@ -42,9 +42,10 @@ jobs:
       NUM_CPUS: 24
 
     steps:
-    - name: Cargo clean
+    - name: Environment clean
       run: |
         cd ~/haneul && cargo clean && git restore Cargo.lock
+        sudo rm -rf /tmp/*.*
 
     - name: Tmpfs clean
       run: |
@@ -52,7 +53,7 @@ jobs:
 
     - name: Checkout haneul repo
       run: |
-        cd ~/haneul && git fetch origin && git rebase origin/main
+        cd ~/haneul && git fetch origin main && git rebase origin/main
 
     - name: Install simtest
       run: |
