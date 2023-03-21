@@ -15,8 +15,8 @@ pub mod pg_integration_test {
 
     use haneul_config::HANEUL_KEYSTORE_FILENAME;
     use haneul_indexer::errors::IndexerError;
-    use haneul_indexer::indexer_test_utils::start_test_indexer;
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
+    use haneul_indexer::test_utils::start_test_indexer;
     use haneul_indexer::IndexerConfig;
     use haneul_json_rpc::api::EventReadApiClient;
     use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
@@ -482,6 +482,7 @@ pub mod pg_integration_test {
             db_url,
             rpc_client_url: test_cluster.rpc_url().to_string(),
             migrated_methods: IndexerConfig::all_migrated_methods(),
+            reset_db: true,
             ..Default::default()
         };
 
@@ -491,9 +492,7 @@ pub mod pg_integration_test {
         );
         let http_client = HttpClientBuilder::default().build(http_addr_port).unwrap();
 
-        let (store, handle) = start_test_indexer(config, /* reset_db */ true)
-            .await
-            .unwrap();
+        let (store, handle) = start_test_indexer(config).await.unwrap();
 
         (test_cluster, http_client, store, handle)
     }

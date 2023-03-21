@@ -10,7 +10,7 @@ use haneul::config::{HaneulClientConfig, HaneulEnv};
 use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::Config;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
-use haneul_indexer::indexer_test_utils::start_test_indexer;
+use haneul_indexer::test_utils::start_test_indexer;
 use haneul_indexer::IndexerConfig;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_swarm::memory::Swarm;
@@ -206,11 +206,10 @@ impl Cluster for LocalNewCluster {
                 rpc_server_url: indexer_address.as_ref().unwrap().ip().to_string(),
                 rpc_server_port: indexer_address.as_ref().unwrap().port(),
                 migrated_methods: IndexerConfig::all_migrated_methods(),
+                reset_db: true,
                 ..Default::default()
             };
-            start_test_indexer(config, /* reset_db */ true)
-                .await
-                .unwrap();
+            start_test_indexer(config).await.unwrap();
         }
 
         // Let nodes connect to one another
