@@ -26,7 +26,7 @@ module test::m1 {
 }
 
 // let's get ourselves a coin worth 1000
-//# run haneul::pay::split_and_transfer --type-args haneul::haneul::HANEUL --args object(100) 1000 @A --sender A
+//# run haneul::pay::split_and_transfer --type-args haneul::haneul::HANEUL --args object(103) 1000 @A --sender A
 
 //# view-object 109
 
