@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use bip32::DerivationPath;
 use clap::*;
 use fastcrypto::encoding::{decode_bytes_hex, Base64, Encoding};
+use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::KeyPair;
 use shared_crypto::intent::{Intent, IntentMessage};
 use std::fs;
@@ -13,15 +14,14 @@ use haneul_keys::keypair_file::{
     read_authority_keypair_from_file, read_keypair_from_file, write_authority_keypair_to_file,
     write_keypair_to_file,
 };
-use haneul_types::crypto::{PublicKey, Signature};
+use haneul_keys::keystore::{AccountKeystore, Keystore};
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::{get_authority_key_pair, EncodeDecodeBase64, SignatureScheme, HaneulKeyPair};
+use haneul_types::crypto::{DefaultHash, PublicKey, Signature};
 use haneul_types::messages::TransactionData;
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey, ThresholdUnit, WeightUnit};
 use haneul_types::signature::GenericSignature;
 use tracing::info;
-
-use haneul_keys::keystore::{AccountKeystore, Keystore};
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{get_authority_key_pair, EncodeDecodeBase64, SignatureScheme, HaneulKeyPair};
 #[cfg(test)]
 #[path = "unit_tests/keytool_tests.rs"]
 mod keytool_tests;
@@ -188,10 +188,13 @@ impl KeyToolCommand {
                     })?)?;
                 let intent_msg = IntentMessage::new(intent, msg);
                 println!(
-                    "Intent message to sign: {:?}",
+                    "Raw intent message: {:?}",
                     Base64::encode(bcs::to_bytes(&intent_msg)?)
                 );
-
+                let mut hasher = DefaultHash::default();
+                hasher.update(bcs::to_bytes(&intent_msg)?);
+                let digest = hasher.finalize().digest;
+                println!("Digest to sign: {:?}", Base64::encode(digest));
                 let haneul_signature =
                     keystore.sign_secure(&address, &intent_msg.value, intent_msg.intent)?;
                 println!(
