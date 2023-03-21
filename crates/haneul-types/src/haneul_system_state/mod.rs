@@ -85,10 +85,6 @@ pub type HaneulSystemStateInnerGenesis = HaneulSystemStateInnerV1;
 pub type HaneulValidatorGenesis = ValidatorV1;
 
 impl HaneulSystemState {
-    pub fn new_genesis(inner: HaneulSystemStateInnerGenesis) -> Self {
-        Self::V1(inner)
-    }
-
     /// Always return the version that we will be using for genesis.
     /// Genesis always uses this version regardless of the current version.
     pub fn into_genesis_version(self) -> HaneulSystemStateInnerGenesis {

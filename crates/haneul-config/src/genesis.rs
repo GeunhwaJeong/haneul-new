@@ -44,8 +44,8 @@ use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{
-    get_haneul_system_state, get_haneul_system_state_version, get_haneul_system_state_wrapper,
-    HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
+    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemStateInnerGenesis,
+    HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::{
@@ -395,7 +395,6 @@ pub struct GenesisValidatorMetadata {
 #[serde(rename_all = "kebab-case")]
 pub struct GenesisChainParameters {
     pub protocol_version: u64,
-    pub system_state_version: u64,
     pub governance_start_epoch: u64,
     pub chain_start_timestamp_ms: u64,
     pub epoch_duration_ms: u64,
@@ -495,7 +494,6 @@ impl GenesisCeremonyParameters {
     fn to_genesis_chain_parameters(&self) -> GenesisChainParameters {
         GenesisChainParameters {
             protocol_version: self.protocol_version.as_u64(),
-            system_state_version: get_haneul_system_state_version(self.protocol_version),
             governance_start_epoch: self.governance_start_epoch,
             chain_start_timestamp_ms: self.timestamp_ms,
             epoch_duration_ms: self.epoch_duration_ms,
