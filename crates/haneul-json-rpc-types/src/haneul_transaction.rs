@@ -992,8 +992,12 @@ impl HaneulProgrammableTransaction {
                         }
                     }
                 }
-                Command::SplitCoin(_, Argument::Input(i)) => {
-                    result_types[(*i) as usize] = Some(MoveTypeLayout::U64);
+                Command::SplitCoins(_, amounts) => {
+                    for arg in amounts {
+                        if let &Argument::Input(i) = arg {
+                            result_types[i as usize] = Some(MoveTypeLayout::U64);
+                        }
+                    }
                 }
                 Command::TransferObjects(_, Argument::Input(i)) => {
                     result_types[(*i) as usize] = Some(MoveTypeLayout::Address);
@@ -1041,9 +1045,9 @@ pub enum HaneulCommand {
     /// (public transfer) and either the previous owner must be an address or the object must
     /// be newly created.
     TransferObjects(Vec<HaneulArgument>, HaneulArgument),
-    /// `(&mut Coin<T>, u64)` -> `Coin<T>`
-    /// It splits off some amount into a new coin
-    SplitCoin(HaneulArgument, HaneulArgument),
+    /// `(&mut Coin<T>, Vec<u64>)` -> `Vec<Coin<T>>`
+    /// It splits off some amounts into a new coins with those amounts
+    SplitCoins(HaneulArgument, Vec<HaneulArgument>),
     /// `(&mut Coin<T>, Vec<Coin<T>>)`
     /// It merges n-coins into the first coin
     MergeCoins(HaneulArgument, Vec<HaneulArgument>),
@@ -1080,7 +1084,11 @@ impl Display for HaneulCommand {
                 write_sep(f, objs, ",")?;
                 write!(f, "],{addr})")
             }
-            Self::SplitCoin(coin, amount) => write!(f, "SplitCoin({coin},{amount})"),
+            Self::SplitCoins(coin, amounts) => {
+                write!(f, "SplitCoins({coin},")?;
+                write_sep(f, amounts, ",")?;
+                write!(f, ")")
+            }
             Self::MergeCoins(target, coins) => {
                 write!(f, "MergeCoins({target},")?;
                 write_sep(f, coins, ",")?;
@@ -1110,7 +1118,10 @@ impl From<Command> for HaneulCommand {
                 args.into_iter().map(HaneulArgument::from).collect(),
                 arg.into(),
             ),
-            Command::SplitCoin(a1, a2) => HaneulCommand::SplitCoin(a1.into(), a2.into()),
+            Command::SplitCoins(arg, args) => HaneulCommand::SplitCoins(
+                arg.into(),
+                args.into_iter().map(HaneulArgument::from).collect(),
+            ),
             Command::MergeCoins(arg, args) => HaneulCommand::MergeCoins(
                 arg.into(),
                 args.into_iter().map(HaneulArgument::from).collect(),

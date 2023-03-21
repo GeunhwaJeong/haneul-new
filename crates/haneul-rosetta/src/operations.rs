@@ -240,16 +240,39 @@ impl Operations {
                 .get(i as usize)
                 .and_then(|inner| inner.get(j as usize))
         }
-        fn split_coin(inputs: &[HaneulCallArg], amount: HaneulArgument) -> Option<Vec<KnownValue>> {
-            let amount: u64 = match amount {
-                HaneulArgument::Input(i) => {
-                    u64::from_str(inputs[i as usize].pure()?.to_json_value().as_str()?).ok()?
+        fn split_coins(
+            inputs: &[HaneulCallArg],
+            known_results: &[Vec<KnownValue>],
+            coin: HaneulArgument,
+            amounts: &[HaneulArgument],
+        ) -> Option<Vec<KnownValue>> {
+            match coin {
+                HaneulArgument::Result(i) => {
+                    let KnownValue::GasCoin(_) = resolve_result(known_results, i, 0)?;
                 }
-                HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
-                    return None
+                HaneulArgument::NestedResult(i, j) => {
+                    let KnownValue::GasCoin(_) = resolve_result(known_results, i, j)?;
                 }
+                HaneulArgument::GasCoin => (),
+                // Might not be a HANEUL coin
+                HaneulArgument::Input(_) => return None,
             };
-            Some(vec![KnownValue::GasCoin(amount)])
+            let amounts = amounts
+                .iter()
+                .map(|amount| {
+                    let value: u64 = match *amount {
+                        HaneulArgument::Input(i) => {
+                            u64::from_str(inputs[i as usize].pure()?.to_json_value().as_str()?)
+                                .ok()?
+                        }
+                        HaneulArgument::GasCoin
+                        | HaneulArgument::Result(_)
+                        | HaneulArgument::NestedResult(_, _) => return None,
+                    };
+                    Some(KnownValue::GasCoin(value))
+                })
+                .collect::<Option<_>>()?;
+            Some(amounts)
         }
         fn transfer_object(
             aggregated_recipients: &mut HashMap<HaneulAddress, u64>,
@@ -299,7 +322,7 @@ impl Operations {
                     let (some_amount, validator) = match validator {
                         // [WORKAROUND] - this is a hack to work out if the staking ops is for a selected amount or None amount (whole wallet).
                         // We use the position of the validator arg as a indicator of if the rosetta stake
-                        // transaction is staking the whole wallet or not, if staking whole wallet, 
+                        // transaction is staking the whole wallet or not, if staking whole wallet,
                         // we have to omit the amount value in the final operation output.
                         HaneulArgument::Input(i) => (*i==1, inputs[*i as usize].pure().map(|v|v.to_haneul_address()).transpose()),
                         _=> return Ok(None),
@@ -341,7 +364,9 @@ impl Operations {
         let mut stake_ids = vec![];
         for command in commands {
             let result = match command {
-                HaneulCommand::SplitCoin(_, amount) => split_coin(inputs, *amount),
+                HaneulCommand::SplitCoins(coin, amounts) => {
+                    split_coins(inputs, &known_results, *coin, amounts)
+                }
                 HaneulCommand::TransferObjects(objs, addr) => transfer_object(
                     &mut aggregated_recipients,
                     inputs,

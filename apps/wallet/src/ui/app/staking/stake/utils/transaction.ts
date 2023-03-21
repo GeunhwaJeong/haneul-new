@@ -5,7 +5,7 @@ import { HANEUL_SYSTEM_STATE_OBJECT_ID, Transaction } from '@haneullabs/haneul.j
 
 export function createStakeTransaction(amount: bigint, validator: string) {
     const tx = new Transaction();
-    const stakeCoin = tx.splitCoin(tx.gas, tx.pure(amount));
+    const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
     tx.moveCall({
         target: '0x2::haneul_system::request_add_stake',
         arguments: [

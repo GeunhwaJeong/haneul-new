@@ -77,7 +77,7 @@ export const HaneulCommand = union([
     }),
   }),
   object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
-  object({ SplitCoin: tuple([HaneulArgument, HaneulAddress]) }),
+  object({ SplitCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ Publish: HaneulMovePackage }),
   object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
