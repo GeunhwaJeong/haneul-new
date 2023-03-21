@@ -11,7 +11,7 @@ The requirements to configure a HANEUL integration include:
  * Suggested hardware requirements to run a Haneul Full node:
     * CPU: 10 core
     * RAM: 32 GB
-    * Storage: 1 TB SSD
+    * Storage: 2 TB SSD
 
 We recommend running Haneul Full nodes on Linux. Haneul supports the Ubuntu and Debian distributions.
 
