@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type HaneulAddress } from '@haneullabs/haneul.js';
-import {
-    type HaneulSignMessageOptions,
-    type HaneulSignMessageOutput,
-} from '@haneullabs/wallet-standard';
+import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
 import { type BasePayload, isBasePayload } from '../BasePayload';
 import { type Payload } from '../Payload';
@@ -14,7 +11,6 @@ export interface SignMessageRequest extends BasePayload {
     type: 'sign-message-request';
     args?: {
         message: string; // base64
-        options?: HaneulSignMessageOptions;
         accountAddress: HaneulAddress;
     };
     return?: HaneulSignMessageOutput;

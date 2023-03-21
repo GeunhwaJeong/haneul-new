@@ -27,12 +27,8 @@ export type HaneulSignMessageMethod = (
 /** Input for signing messages. */
 export interface HaneulSignMessageInput {
   message: Uint8Array;
-  options?: HaneulSignMessageOptions;
   account: WalletAccount;
 }
 
 /** Output of signing messages. */
 export interface HaneulSignMessageOutput extends SignedMessage {}
-
-/** Options for signing messages. */
-export interface HaneulSignMessageOptions {}

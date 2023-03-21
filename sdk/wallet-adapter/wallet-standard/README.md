@@ -43,17 +43,17 @@ You can implement these features in your wallet class under the `features` prope
 
 ```typescript
 import {
-  ConnectFeature,
-  ConnectMethod,
-  EventsFeature,
-  EventsOnMethod,
+  StandardConnectFeature,
+  StandardConnectMethod,
+  StandardEventsFeature,
+  StandardEventsOnMethod,
   HaneulFeatures,
   HaneulTransactionMethod,
   HaneulSignAndExecuteTransactionMethod
 } from "@haneullabs/wallet-standard";
 
 class YourWallet implements Wallet {
-  get features(): ConnectFeature & EventsFeature & HaneulFeatures {
+  get features(): StandardConnectFeature & StandardEventsFeature & HaneulFeatures {
     return {
       "standard:connect": {
         version: "1.0.0",
@@ -74,11 +74,11 @@ class YourWallet implements Wallet {
     };
   },
 
-  #on: EventsOnMethod = () => {
+  #on: StandardEventsOnMethod = () => {
     // Your wallet's events on implementation.
   };
 
-  #connect: ConnectMethod = () => {
+  #connect: StandardConnectMethod = () => {
     // Your wallet's connect implementation
   };
 

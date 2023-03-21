@@ -10,12 +10,12 @@ import {
     HANEUL_LOCALNET_CHAIN,
     type HaneulFeatures,
     type HaneulSignAndExecuteTransactionMethod,
-    type ConnectFeature,
-    type ConnectMethod,
+    type StandardConnectFeature,
+    type StandardConnectMethod,
     type Wallet,
-    type EventsFeature,
-    type EventsOnMethod,
-    type EventsListeners,
+    type StandardEventsFeature,
+    type StandardEventsOnMethod,
+    type StandardEventsListeners,
     type HaneulSignTransactionMethod,
     type HaneulSignMessageMethod,
 } from '@haneullabs/wallet-standard';
@@ -50,7 +50,9 @@ import type {
 import type { NetworkEnvType } from '_src/background/NetworkEnv';
 
 type WalletEventsMap = {
-    [E in keyof EventsListeners]: Parameters<EventsListeners[E]>[0];
+    [E in keyof StandardEventsListeners]: Parameters<
+        StandardEventsListeners[E]
+    >[0];
 };
 
 // NOTE: Because this runs in a content script, we can't fetch the manifest.
@@ -98,8 +100,8 @@ export class HaneulWallet implements Wallet {
         return HANEUL_CHAINS;
     }
 
-    get features(): ConnectFeature &
-        EventsFeature &
+    get features(): StandardConnectFeature &
+        StandardEventsFeature &
         HaneulFeatures &
         HaneulWalletStakeFeature {
         return {
@@ -186,7 +188,7 @@ export class HaneulWallet implements Wallet {
         this.#connected();
     }
 
-    #on: EventsOnMethod = (event, listener) => {
+    #on: StandardEventsOnMethod = (event, listener) => {
         this.#events.on(event, listener);
         return () => this.#events.off(event, listener);
     };
@@ -203,7 +205,7 @@ export class HaneulWallet implements Wallet {
         }
     };
 
-    #connect: ConnectMethod = async (input) => {
+    #connect: StandardConnectMethod = async (input) => {
         if (!input?.silent) {
             await mapToPromise(
                 this.#send<
@@ -282,18 +284,13 @@ export class HaneulWallet implements Wallet {
         });
     };
 
-    #signMessage: HaneulSignMessageMethod = async ({
-        message,
-        account,
-        options,
-    }) => {
+    #signMessage: HaneulSignMessageMethod = async ({ message, account }) => {
         return mapToPromise(
             this.#send<SignMessageRequest, SignMessageRequest>({
                 type: 'sign-message-request',
                 args: {
                     message: toB64(message),
                     accountAddress: account.address,
-                    options,
                 },
             }),
             (response) => {

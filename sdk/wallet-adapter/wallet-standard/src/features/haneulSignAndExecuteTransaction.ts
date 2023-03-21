@@ -32,15 +32,15 @@ export type HaneulSignAndExecuteTransactionMethod = (
 /** Input for signing and sending transactions. */
 export interface HaneulSignAndExecuteTransactionInput
   extends HaneulSignTransactionInput {
-  options?: HaneulSignAndExecuteTransactionOptions;
+  /**
+   * `WaitForEffectsCert` or `WaitForLocalExecution`, see details in `ExecuteTransactionRequestType`.
+   * Defaults to `WaitForLocalExecution` if options.showEffects or options.showEvents is true
+   */
+  requestType?: ExecuteTransactionRequestType;
+  /** specify which fields to return (e.g., transaction, effects, events, etc). By default, only the transaction digest will be returned. */
+  options?: HaneulTransactionResponseOptions;
 }
 
 /** Output of signing and sending transactions. */
 export interface HaneulSignAndExecuteTransactionOutput
   extends HaneulTransactionResponse {}
-
-/** Options for signing and sending transactions. */
-export interface HaneulSignAndExecuteTransactionOptions {
-  requestType?: ExecuteTransactionRequestType;
-  contentOptions?: HaneulTransactionResponseOptions;
-}
