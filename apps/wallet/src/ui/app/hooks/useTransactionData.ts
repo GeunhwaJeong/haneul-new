@@ -2,24 +2,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useRpcClient } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG, Transaction } from '@haneullabs/haneul.js';
+import { type HaneulAddress, HANEUL_TYPE_ARG, Transaction } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { useActiveAddress } from './useActiveAddress';
-
-export function useTransactionData(transaction?: Transaction | null) {
+export function useTransactionData(
+    sender?: HaneulAddress | null,
+    transaction?: Transaction | null
+) {
     const rpc = useRpcClient();
-    const address = useActiveAddress();
     const clonedTransaction = useMemo(() => {
         if (!transaction) return;
 
         const tx = new Transaction(transaction);
-        if (address) {
-            tx.setSenderIfNotSet(address);
+        if (sender) {
+            tx.setSenderIfNotSet(sender);
         }
         return tx;
-    }, [transaction, address]);
+    }, [transaction, sender]);
 
     return useQuery(
         ['transaction-data', clonedTransaction?.serialize()],
@@ -34,8 +34,11 @@ export function useTransactionData(transaction?: Transaction | null) {
     );
 }
 
-export function useTransactionGasBudget(transaction?: Transaction | null) {
-    const { data, ...rest } = useTransactionData(transaction);
+export function useTransactionGasBudget(
+    sender?: HaneulAddress | null,
+    transaction?: Transaction | null
+) {
+    const { data, ...rest } = useTransactionData(sender, transaction);
 
     const [formattedGas] = useFormatCoin(data?.gasConfig.budget, HANEUL_TYPE_ARG);
 

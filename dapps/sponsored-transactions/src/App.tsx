@@ -7,7 +7,7 @@ import {
   Transaction,
 } from "@haneullabs/haneul.js";
 import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
-import { ComponentProps, ReactNode, useEffect, useState } from "react";
+import { ComponentProps, ReactNode, useState } from "react";
 import { provider } from "./utils/rpc";
 import { sponsorTransaction } from "./utils/sponsorTransaction";
 

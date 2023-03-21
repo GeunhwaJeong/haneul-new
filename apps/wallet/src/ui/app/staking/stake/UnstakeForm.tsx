@@ -6,7 +6,7 @@ import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { Form } from 'formik';
 import { useMemo } from 'react';
 
-import { useTransactionGasBudget } from '../../hooks';
+import { useTransactionGasBudget, useActiveAddress } from '../../hooks';
 import { GAS_SYMBOL } from '../../redux/slices/haneul-objects/Coin';
 import { Heading } from '../../shared/heading';
 import { useGetTimeBeforeEpochNumber } from '../useGetTimeBeforeEpochNumber';
@@ -41,7 +41,11 @@ export function UnStakeForm({
         () => createUnstakeTransaction(stakedHaneulId),
         [stakedHaneulId]
     );
-    const { data: gasBudget } = useTransactionGasBudget(transaction);
+    const activeAddress = useActiveAddress();
+    const { data: gasBudget } = useTransactionGasBudget(
+        activeAddress,
+        transaction
+    );
 
     const { data: currentEpochEndTime } = useGetTimeBeforeEpochNumber(
         epoch + 1 || 0
