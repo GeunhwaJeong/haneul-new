@@ -38,7 +38,7 @@ pub struct HaneulSystemStateSummary {
 
     // System parameters
     /// The starting epoch in which various on-chain governance features take effect.
-    pub governance_start_epoch: u64,
+    pub stake_subsidy_start_epoch: u64,
 
     /// The duration of an epoch, in milliseconds.
     pub epoch_duration_ms: u64,
