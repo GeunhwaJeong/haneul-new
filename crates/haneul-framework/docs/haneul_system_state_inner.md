@@ -10,6 +10,7 @@
 -  [Struct `SystemEpochInfoEvent`](#0x3_haneul_system_state_inner_SystemEpochInfoEvent)
 -  [Constants](#@Constants_0)
 -  [Function `create`](#0x3_haneul_system_state_inner_create)
+-  [Function `create_system_parameters`](#0x3_haneul_system_state_inner_create_system_parameters)
 -  [Function `request_add_validator_candidate`](#0x3_haneul_system_state_inner_request_add_validator_candidate)
 -  [Function `request_remove_validator_candidate`](#0x3_haneul_system_state_inner_request_remove_validator_candidate)
 -  [Function `request_add_validator`](#0x3_haneul_system_state_inner_request_add_validator)
@@ -481,7 +482,7 @@ Create a new HaneulSystemState object and make it shared.
 This function will be called only once in genesis.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create">create</a>(validators: <a href="">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;, stake_subsidy_fund: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, storage_fund: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, protocol_version: u64, epoch_start_timestamp_ms: u64, epoch_duration_ms: u64, stake_subsidy_start_epoch: u64, stake_subsidy_initial_distribution_amount: u64, stake_subsidy_period_length: u64, stake_subsidy_decrease_rate: u16, max_validator_count: u64, min_validator_joining_stake: u64, validator_low_stake_threshold: u64, validator_very_low_stake_threshold: u64, validator_low_stake_grace_period: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>): <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create">create</a>(validators: <a href="">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;, storage_fund: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, protocol_version: u64, epoch_start_timestamp_ms: u64, parameters: <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">haneul_system_state_inner::SystemParameters</a>, <a href="stake_subsidy.md#0x3_stake_subsidy">stake_subsidy</a>: <a href="stake_subsidy.md#0x3_stake_subsidy_StakeSubsidy">stake_subsidy::StakeSubsidy</a>, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>): <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
 </code></pre>
 
 
@@ -492,24 +493,11 @@ This function will be called only once in genesis.
 
 <pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create">create</a>(
     validators: <a href="">vector</a>&lt;Validator&gt;,
-    stake_subsidy_fund: Balance&lt;HANEUL&gt;,
     storage_fund: Balance&lt;HANEUL&gt;,
     protocol_version: u64,
     epoch_start_timestamp_ms: u64,
-    epoch_duration_ms: u64,
-
-    // Stake Subsidy parameters
-    stake_subsidy_start_epoch: u64,
-    stake_subsidy_initial_distribution_amount: u64,
-    stake_subsidy_period_length: u64,
-    stake_subsidy_decrease_rate: u16,
-
-    // Validator committee parameters
-    max_validator_count: u64,
-    min_validator_joining_stake: u64,
-    validator_low_stake_threshold: u64,
-    validator_very_low_stake_threshold: u64,
-    validator_low_stake_grace_period: u64,
+    parameters: <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">SystemParameters</a>,
+    <a href="stake_subsidy.md#0x3_stake_subsidy">stake_subsidy</a>: StakeSubsidy,
     ctx: &<b>mut</b> TxContext,
 ): <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">HaneulSystemStateInner</a> {
     <b>let</b> validators = <a href="validator_set.md#0x3_validator_set_new">validator_set::new</a>(validators, ctx);
@@ -520,30 +508,59 @@ This function will be called only once in genesis.
         system_state_version: <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SYSTEM_STATE_VERSION_V1">SYSTEM_STATE_VERSION_V1</a>,
         validators,
         storage_fund,
-        parameters: <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">SystemParameters</a> {
-            epoch_duration_ms,
-            stake_subsidy_start_epoch,
-            max_validator_count,
-            min_validator_joining_stake,
-            validator_low_stake_threshold,
-            validator_very_low_stake_threshold,
-            validator_low_stake_grace_period,
-            extra_fields: <a href="_new">bag::new</a>(ctx),
-        },
+        parameters,
         reference_gas_price,
         validator_report_records: <a href="_empty">vec_map::empty</a>(),
-        <a href="stake_subsidy.md#0x3_stake_subsidy">stake_subsidy</a>: <a href="stake_subsidy.md#0x3_stake_subsidy_create">stake_subsidy::create</a>(
-            stake_subsidy_fund,
-            stake_subsidy_initial_distribution_amount,
-            stake_subsidy_period_length,
-            stake_subsidy_decrease_rate,
-            ctx
-        ),
+        <a href="stake_subsidy.md#0x3_stake_subsidy">stake_subsidy</a>,
         safe_mode: <b>false</b>,
         epoch_start_timestamp_ms,
         extra_fields: <a href="_new">bag::new</a>(ctx),
     };
     system_state
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_state_inner_create_system_parameters"></a>
+
+## Function `create_system_parameters`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create_system_parameters">create_system_parameters</a>(epoch_duration_ms: u64, stake_subsidy_start_epoch: u64, max_validator_count: u64, min_validator_joining_stake: u64, validator_low_stake_threshold: u64, validator_very_low_stake_threshold: u64, validator_low_stake_grace_period: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>): <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">haneul_system_state_inner::SystemParameters</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create_system_parameters">create_system_parameters</a>(
+    epoch_duration_ms: u64,
+    stake_subsidy_start_epoch: u64,
+
+    // Validator committee parameters
+    max_validator_count: u64,
+    min_validator_joining_stake: u64,
+    validator_low_stake_threshold: u64,
+    validator_very_low_stake_threshold: u64,
+    validator_low_stake_grace_period: u64,
+    ctx: &<b>mut</b> TxContext,
+): <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">SystemParameters</a> {
+    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_SystemParameters">SystemParameters</a> {
+        epoch_duration_ms,
+        stake_subsidy_start_epoch,
+        max_validator_count,
+        min_validator_joining_stake,
+        validator_low_stake_threshold,
+        validator_very_low_stake_threshold,
+        validator_low_stake_grace_period,
+        extra_fields: <a href="_new">bag::new</a>(ctx),
+    }
 }
 </code></pre>
 

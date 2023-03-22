@@ -9,7 +9,11 @@ module haneul_system::stake_subsidy {
     use haneul::bag;
     use haneul::tx_context::TxContext;
 
+    friend haneul_system::genesis;
     friend haneul_system::haneul_system_state_inner;
+
+    #[test_only]
+    friend haneul_system::governance_test_utils;
 
     struct StakeSubsidy has store {
         /// Balance of HANEUL set aside for stake subsidies that will be drawn down over time.
