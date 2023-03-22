@@ -11,24 +11,25 @@ export function useGetSystemObject() {
 }
 
 export function useGetObject(
-    objectId: string
+    objectId?: string | null
 ): UseQueryResult<HaneulObjectResponse, unknown> {
     const rpc = useRpcClient();
-    const normalizedObjId = normalizeHaneulAddress(objectId);
+    const normalizedObjId = objectId && normalizeHaneulAddress(objectId);
     const response = useQuery(
         ['object', normalizedObjId],
         async () =>
             rpc.getObject({
-                id: normalizedObjId,
+                id: normalizedObjId!,
                 options: {
                     showType: true,
                     showContent: true,
                     showOwner: true,
                     showPreviousTransaction: true,
                     showStorageRebate: true,
+                    showDisplay: true,
                 },
             }),
-        { enabled: !!objectId }
+        { enabled: !!normalizedObjId }
     );
 
     return response;
