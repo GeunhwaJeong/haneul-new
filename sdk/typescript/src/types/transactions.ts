@@ -16,13 +16,7 @@ import {
   assign,
   nullable,
 } from 'superstruct';
-import { HaneulEvent } from './events';
-import {
-  ObjectDigest,
-  HaneulGasData,
-  HaneulMovePackage,
-  HaneulObjectRef,
-} from './objects';
+
 import {
   ObjectId,
   ObjectOwner,
@@ -32,6 +26,13 @@ import {
   TransactionDigest,
   TransactionEventDigest,
 } from './common';
+import { HaneulEvent } from './events';
+import {
+  ObjectDigest,
+  HaneulGasData,
+  HaneulMovePackage,
+  HaneulObjectRef,
+} from './objects';
 
 // TODO: support u64
 export const EpochId = number();
@@ -65,17 +66,19 @@ export const HaneulArgument = union([
   object({ Result: number() }),
   object({ NestedResult: tuple([number(), number()]) }),
 ]);
+export type HaneulArgument = Infer<typeof HaneulArgument>;
+
+export const MoveCallHaneulCommand = object({
+  arguments: optional(array(HaneulArgument)),
+  type_arguments: optional(array(string())),
+  package: ObjectId,
+  module: string(),
+  function: string(),
+});
+export type MoveCallHaneulCommand = Infer<typeof MoveCallHaneulCommand>;
 
 export const HaneulCommand = union([
-  object({
-    MoveCall: object({
-      arguments: array(HaneulArgument),
-      type_arguments: array(string()),
-      package: ObjectId,
-      module: string(),
-      function: string(),
-    }),
-  }),
+  object({ MoveCall: MoveCallHaneulCommand }),
   object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
   object({ SplitCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
@@ -107,10 +110,11 @@ export const HaneulCallArg = union([
 export type HaneulCallArg = Infer<typeof HaneulCallArg>;
 
 export const ProgrammableTransaction = object({
-  commands: array(),
+  commands: array(HaneulCommand),
   inputs: array(HaneulCallArg),
 });
 export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
+export type ProgrammableTransactionCommand = Infer<typeof HaneulCommand>;
 
 /**
  * 1. WaitForEffectsCert: waits for TransactionEffectsCert and then returns to the client.
