@@ -21,7 +21,7 @@ pub mod pg_integration_test {
     use haneul_indexer::models::owners::OwnerType;
     use haneul_indexer::schema::objects;
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
-    use haneul_indexer::test_utils::start_test_indexer;
+    use haneul_indexer::test_utils::{start_test_indexer, HaneulTransactionResponseBuilder};
     use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, IndexerConfig};
     use haneul_json_rpc::api::EventReadApiClient;
     use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
@@ -771,6 +771,99 @@ pub mod pg_integration_test {
                 Ok(())
             });
         assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_transaction_with_options() -> Result<(), anyhow::Error> {
+        let (mut test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+        let (tx_response, _, _, _) =
+            execute_simple_transfer(&mut test_cluster, &indexer_rpc_client).await?;
+        wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
+        let full_transaction_response = indexer_rpc_client
+            .get_transaction_with_options(
+                tx_response.digest,
+                Some(HaneulTransactionResponseOptions::full_content()),
+            )
+            .await?;
+        let transaction_required_fields =
+            HaneulTransactionResponse::new(full_transaction_response.clone().digest);
+        let haneul_transaction_response_options = vec![
+            HaneulTransactionResponseOptions::new().with_input(),
+            HaneulTransactionResponseOptions::new().with_raw_input(),
+            HaneulTransactionResponseOptions::new().with_effects(),
+            HaneulTransactionResponseOptions::new().with_events(),
+            HaneulTransactionResponseOptions::new().with_balance_changes(),
+            HaneulTransactionResponseOptions::new().with_object_changes(),
+            HaneulTransactionResponseOptions::new()
+                .with_input()
+                .with_balance_changes()
+                .with_object_changes(),
+        ];
+        let futures = haneul_transaction_response_options
+            .into_iter()
+            .map(|option| {
+                indexer_rpc_client.get_transaction_with_options(tx_response.digest, Some(option))
+            })
+            .collect::<Vec<_>>();
+        let received_transaction_results: Vec<HaneulTransactionResponse> = join_all(futures)
+            .await
+            .into_iter()
+            .collect::<Result<_, _>>()
+            .unwrap();
+
+        let expected_transaction_results = vec![
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_transaction()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_raw_transaction()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_effects()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_events()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_balance_changes()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_object_changes()
+            .build(),
+            HaneulTransactionResponseBuilder::new(
+                &full_transaction_response,
+                &transaction_required_fields,
+            )
+            .with_all()
+            .build(),
+        ];
+        for (received, expected) in received_transaction_results
+            .iter()
+            .zip(expected_transaction_results.iter())
+        {
+            assert_eq!(received, expected);
+        }
+        Ok(())
     }
 
     async fn start_test_cluster(

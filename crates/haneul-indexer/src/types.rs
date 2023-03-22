@@ -4,7 +4,7 @@
 use haneul_json_rpc_types::{
     BalanceChange, ObjectChange, HaneulCommand, HaneulTransaction, HaneulTransactionDataAPI,
     HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEvents, HaneulTransactionKind,
-    HaneulTransactionResponse,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages::{SenderSignedData, TransactionDataAPI};
@@ -133,6 +133,40 @@ impl From<HaneulTransactionFullResponse> for HaneulTransactionResponse {
             timestamp_ms: Some(timestamp_ms),
             confirmed_local_execution,
             checkpoint: Some(checkpoint),
+            errors: vec![],
+        }
+    }
+}
+
+pub struct HaneulTransactionFullResponseWithOptions {
+    pub response: HaneulTransactionFullResponse,
+    pub options: HaneulTransactionResponseOptions,
+}
+
+impl From<HaneulTransactionFullResponseWithOptions> for HaneulTransactionResponse {
+    fn from(value: HaneulTransactionFullResponseWithOptions) -> Self {
+        let HaneulTransactionFullResponseWithOptions { response, options } = value;
+
+        HaneulTransactionResponse {
+            digest: response.digest,
+            transaction: options.show_input.then_some(response.transaction),
+            raw_transaction: options
+                .show_raw_input
+                .then_some(response.raw_transaction)
+                .unwrap_or_default(),
+            effects: options.show_effects.then_some(response.effects),
+            events: options.show_events.then_some(response.events),
+            object_changes: options
+                .show_object_changes
+                .then_some(response.object_changes)
+                .unwrap_or_default(),
+            balance_changes: options
+                .show_balance_changes
+                .then_some(response.balance_changes)
+                .unwrap_or_default(),
+            timestamp_ms: Some(response.timestamp_ms),
+            confirmed_local_execution: response.confirmed_local_execution,
+            checkpoint: Some(response.checkpoint),
             errors: vec![],
         }
     }
