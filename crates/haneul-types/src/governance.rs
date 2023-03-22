@@ -59,7 +59,7 @@ impl StakedHaneul {
         self.pool_id.bytes
     }
 
-    pub fn request_epoch(&self) -> EpochId {
+    pub fn activation_epoch(&self) -> EpochId {
         self.stake_activation_epoch
     }
 

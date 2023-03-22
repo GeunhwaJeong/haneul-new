@@ -213,7 +213,7 @@ pub fn get_haneul_system_state_version(_protocol_version: ProtocolVersion) -> u6
     INIT_SYSTEM_STATE_VERSION
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Default)]
 pub struct PoolTokenExchangeRate {
     haneul_amount: u64,
     pool_token_amount: u64,
@@ -223,7 +223,7 @@ impl PoolTokenExchangeRate {
     /// Rate of the staking pool, pool token amount : Haneul amount
     pub fn rate(&self) -> f64 {
         if self.haneul_amount == 0 {
-            0 as f64
+            1_f64
         } else {
             self.pool_token_amount as f64 / self.haneul_amount as f64
         }

@@ -1,18 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::core::RpcResult;
+use std::cmp::max;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use haneul_json_rpc_types::HaneulCommittee;
-use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
-use crate::api::GovernanceReadApiServer;
-use crate::error::Error;
-use crate::HaneulRpcModule;
 use async_trait::async_trait;
+use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+
 use haneul_core::authority::AuthorityState;
+use haneul_json_rpc_types::HaneulCommittee;
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{MoveObjectType, ObjectID, HaneulAddress};
@@ -21,9 +19,14 @@ use haneul_types::dynamic_field::get_dynamic_field_from_store;
 use haneul_types::error::HaneulError;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::id::ID;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{get_validator_from_table, HaneulSystemState};
+
+use crate::api::GovernanceReadApiServer;
+use crate::error::Error;
+use crate::HaneulRpcModule;
 
 pub struct GovernanceReadApi {
     state: Arc<AuthorityState>,
@@ -85,33 +88,44 @@ impl GovernanceReadApi {
             self.get_system_state()?.into_haneul_system_state_summary();
         let mut delegated_stakes = vec![];
         for ((pool_id, validator_address), stakes) in pools {
+            // Rate table and rate can be null when the pool is not active
             let rate_table = self
                 .get_exchange_rate_table(&system_state, &pool_id)
-                .await?;
-
-            let current_rate = self
-                .get_exchange_rate(rate_table, system_state.epoch)
-                .await?;
+                .await
+                .ok();
+            let current_rate = if let Some(rate_table) = rate_table {
+                self.get_exchange_rate(rate_table, system_state.epoch)
+                    .await
+                    .ok()
+            } else {
+                None
+            };
 
             let mut delegations = vec![];
             for stake in stakes {
-                // delegation will be active in next epoch
-                let status = if system_state.epoch >= stake.request_epoch() {
-                    let stake_rate = self
-                        .get_exchange_rate(rate_table, stake.request_epoch())
-                        .await?;
-                    let estimated_reward = (((stake_rate.rate() / current_rate.rate()) - 1.0)
-                        * stake.principal() as f64)
-                        .round() as u64;
+                let status = if system_state.epoch >= stake.activation_epoch() {
+                    let estimated_reward = if let (Some(rate_table), Some(current_rate)) =
+                        (&rate_table, &current_rate)
+                    {
+                        let stake_rate = self
+                            .get_exchange_rate(*rate_table, stake.activation_epoch())
+                            .await
+                            .unwrap_or_default();
+                        let estimated_reward = ((stake_rate.rate() / current_rate.rate()) - 1.0)
+                            * stake.principal() as f64;
+                        max(0, estimated_reward.round() as u64)
+                    } else {
+                        0
+                    };
                     StakeStatus::Active { estimated_reward }
                 } else {
                     StakeStatus::Pending
                 };
                 delegations.push(Stake {
                     staked_haneul_id: stake.id(),
-                    stake_request_epoch: stake.request_epoch(),
                     // TODO: this might change when we implement warm up period.
-                    stake_active_epoch: stake.request_epoch() + 1,
+                    stake_request_epoch: stake.activation_epoch() - 1,
+                    stake_active_epoch: stake.activation_epoch(),
                     principal: stake.principal(),
                     status,
                 })
