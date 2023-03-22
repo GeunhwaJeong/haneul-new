@@ -13,11 +13,8 @@ import {
     useState,
 } from 'react';
 
-import { LedgerSigner } from '../../LedgerSigner';
-import { api } from '../../redux/store/thunk-extras';
 import {
     LedgerConnectionFailedError,
-    LedgerDeviceNotFoundError,
     LedgerNoTransportMechanismError,
 } from './LedgerExceptions';
 
@@ -28,9 +25,6 @@ type HaneulLedgerClientProviderProps = {
 type HaneulLedgerClientContextValue = {
     haneulLedgerClient: HaneulLedgerClient | undefined;
     connectToLedger: () => Promise<HaneulLedgerClient>;
-    initializeLedgerSignerInstance: (
-        derivationPath: string
-    ) => Promise<LedgerSigner>;
 };
 
 const HaneulLedgerClientContext = createContext<
@@ -51,33 +45,6 @@ export function HaneulLedgerClientProvider({
         return () => haneulLedgerClient?.transport.off('disconnect', onDisconnect);
     }, [haneulLedgerClient?.transport]);
 
-    const initializeLedgerSignerInstance = useCallback(
-        async (derivationPath: string) => {
-            if (!haneulLedgerClient) {
-                try {
-                    const transport = await forceConnectionToLedger();
-                    const newClient = new HaneulLedgerClient(transport);
-                    setHaneulLedgerClient(newClient);
-
-                    return new LedgerSigner(
-                        newClient,
-                        derivationPath,
-                        api.instance.fullNode
-                    );
-                } catch (error) {
-                    throw new Error('Failed to connect');
-                }
-            }
-
-            return new LedgerSigner(
-                haneulLedgerClient,
-                derivationPath,
-                api.instance.fullNode
-            );
-        },
-        [haneulLedgerClient]
-    );
-
     const connectToLedger = useCallback(async () => {
         if (haneulLedgerClient?.transport) {
             // If we've already connected to a Ledger device, we need
@@ -95,9 +62,8 @@ export function HaneulLedgerClientProvider({
         return {
             haneulLedgerClient,
             connectToLedger,
-            initializeLedgerSignerInstance,
         };
-    }, [connectToLedger, haneulLedgerClient, initializeLedgerSignerInstance]);
+    }, [connectToLedger, haneulLedgerClient]);
 
     return (
         <HaneulLedgerClientContext.Provider value={contextValue}>
@@ -131,26 +97,4 @@ async function requestConnectionToLedger() {
     throw new LedgerNoTransportMechanismError(
         "There are no supported transport mechanisms to connect to the user's Ledger device"
     );
-}
-
-async function forceConnectionToLedger() {
-    let transport: TransportWebHID | TransportWebUSB | null | undefined;
-    try {
-        if (await TransportWebHID.isSupported()) {
-            transport = await TransportWebHID.openConnected();
-        } else if (await TransportWebUSB.isSupported()) {
-            transport = await TransportWebUSB.openConnected();
-        }
-    } catch (error) {
-        throw new LedgerConnectionFailedError(
-            "Unable to connect to the user's Ledger device"
-        );
-    }
-
-    if (!transport) {
-        throw new LedgerDeviceNotFoundError(
-            'Connected Ledger device not found'
-        );
-    }
-    return transport;
 }
