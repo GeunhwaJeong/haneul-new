@@ -116,9 +116,9 @@ module haneul_system::haneul_system_tests {
 
         test_scenario::next_tx(scenario, new_stakee_address);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let validator = haneul_system::active_validator_by_address(&system_state, @0x1);
+        let validator = haneul_system::active_validator_by_address(&mut system_state, @0x1);
         assert!(validator::next_epoch_gas_price(validator) == 666, 0);
-        let pending_validator = haneul_system::pending_validator_by_address(&system_state, new_validator_addr);
+        let pending_validator = haneul_system::pending_validator_by_address(&mut system_state, new_validator_addr);
         assert!(validator::next_epoch_gas_price(pending_validator) == 777, 0);
         test_scenario::return_shared(system_state);
 
@@ -169,7 +169,7 @@ module haneul_system::haneul_system_tests {
 
         test_scenario::next_tx(scenario, stakee_address);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let validator = haneul_system::active_validator_by_address(&system_state, @0x1);
+        let validator = haneul_system::active_validator_by_address(&mut system_state, @0x1);
         assert!(validator::next_epoch_gas_price(validator) == 888, 0);
         test_scenario::return_shared(system_state);
 
@@ -224,10 +224,10 @@ module haneul_system::haneul_system_tests {
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3], scenario);
         test_scenario::next_tx(scenario, @0x1);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let pool_id_1 = haneul_system::validator_staking_pool_id(&system_state, @0x1);
-        let pool_id_2 = haneul_system::validator_staking_pool_id(&system_state, @0x2);
-        let pool_id_3 = haneul_system::validator_staking_pool_id(&system_state, @0x3);
-        let pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        let pool_id_1 = haneul_system::validator_staking_pool_id(&mut system_state, @0x1);
+        let pool_id_2 = haneul_system::validator_staking_pool_id(&mut system_state, @0x2);
+        let pool_id_3 = haneul_system::validator_staking_pool_id(&mut system_state, @0x3);
+        let pool_mappings = haneul_system::validator_staking_pool_mappings(&mut system_state);
         assert_eq(table::length(pool_mappings), 3);
         assert_eq(*table::borrow(pool_mappings, pool_id_1), @0x1);
         assert_eq(*table::borrow(pool_mappings, pool_id_2), @0x2);
@@ -247,8 +247,8 @@ module haneul_system::haneul_system_tests {
 
         test_scenario::next_tx(scenario, @0x1);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let pool_id_4 = haneul_system::validator_staking_pool_id(&system_state, new_validator_addr);
-        pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        let pool_id_4 = haneul_system::validator_staking_pool_id(&mut system_state, new_validator_addr);
+        pool_mappings = haneul_system::validator_staking_pool_mappings(&mut system_state);
         // Check that the previous mappings didn't change as well.
         assert_eq(table::length(pool_mappings), 4);
         assert_eq(*table::borrow(pool_mappings, pool_id_1), @0x1);
@@ -263,7 +263,7 @@ module haneul_system::haneul_system_tests {
 
         test_scenario::next_tx(scenario, @0x1);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        pool_mappings = haneul_system::validator_staking_pool_mappings(&system_state);
+        pool_mappings = haneul_system::validator_staking_pool_mappings(&mut system_state);
         // Check that the previous mappings didn't change as well.
         assert_eq(table::length(pool_mappings), 3);
         assert_eq(table::contains(pool_mappings, pool_id_1), false);
@@ -314,7 +314,7 @@ module haneul_system::haneul_system_tests {
     fun get_reporters_of(addr: address, scenario: &mut Scenario): vector<address> {
         test_scenario::next_tx(scenario, addr);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let res = vec_set::into_keys(haneul_system::get_reporters_of(&system_state, addr));
+        let res = vec_set::into_keys(haneul_system::get_reporters_of(&mut system_state, addr));
         test_scenario::return_shared(system_state);
         res
     }
@@ -602,7 +602,7 @@ module haneul_system::haneul_system_tests {
         };
 
         test_scenario::next_tx(scenario, validator_addr);
-        let validator = haneul_system::active_validator_by_address(&system_state, validator_addr);
+        let validator = haneul_system::active_validator_by_address(&mut system_state, validator_addr);
         verify_metadata(
             validator,
             b"validator_new_name",
@@ -667,7 +667,7 @@ module haneul_system::haneul_system_tests {
         };
 
         test_scenario::next_tx(scenario, new_validator_addr);
-        let validator = haneul_system::pending_validator_by_address(&system_state, new_validator_addr);
+        let validator = haneul_system::pending_validator_by_address(&mut system_state, new_validator_addr);
         verify_metadata(
             validator,
             b"new_validator_new_name",
@@ -694,7 +694,7 @@ module haneul_system::haneul_system_tests {
         // Now both validators are active, verify their metadata.
         test_scenario::next_tx(scenario, new_validator_addr);
         let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let validator = haneul_system::active_validator_by_address(&system_state, validator_addr);
+        let validator = haneul_system::active_validator_by_address(&mut system_state, validator_addr);
         verify_metadata_after_advancing_epoch(
             validator,
             b"validator_new_name",
@@ -706,7 +706,7 @@ module haneul_system::haneul_system_tests {
             vector[215, 64, 85, 185, 231, 116, 69, 151, 97, 79, 4, 183, 20, 70, 84, 51, 211, 162, 115, 221, 73, 241, 240, 171, 192, 25, 232, 106, 175, 162, 176, 43],
         );
 
-        let validator = haneul_system::active_validator_by_address(&system_state, new_validator_addr);
+        let validator = haneul_system::active_validator_by_address(&mut system_state, new_validator_addr);
         verify_metadata_after_advancing_epoch(
             validator,
             b"new_validator_new_name",
@@ -778,7 +778,7 @@ module haneul_system::haneul_system_tests {
 
         test_scenario::next_tx(scenario, validator_addr);
 
-        let validator = haneul_system::candidate_validator_by_address(&system_state, validator_addr);
+        let validator = haneul_system::candidate_validator_by_address(&mut system_state, validator_addr);
         verify_candidate(
             validator,
             b"validator_new_name",

@@ -57,7 +57,7 @@ module haneul_system::haneul_system {
             stake_subsidy,
             ctx,
         );
-        let version = haneul_system_state_inner::system_state_version(&system_state);
+        let version = haneul_system_state_inner::genesis_system_state_version();
         let self = HaneulSystemState {
             id,
             version,
@@ -471,13 +471,11 @@ module haneul_system::haneul_system {
                                          // into storage fund, in basis point.
         reward_slashing_rate: u64, // how much rewards are slashed to punish a validator, in bps.
         epoch_start_timestamp_ms: u64, // Timestamp of the epoch start
-        new_system_state_version: u64,
         ctx: &mut TxContext,
     ) : Balance<HANEUL> {
         let self = load_system_state_mut(wrapper);
         // Validator will make a special system call with sender set as 0x0.
         assert!(tx_context::sender(ctx) == @0x0, 0);
-        let old_protocol_version = haneul_system_state_inner::protocol_version(self);
         let storage_rebate = haneul_system_state_inner::advance_epoch(
             self,
             new_epoch,
@@ -491,15 +489,6 @@ module haneul_system::haneul_system {
             ctx,
         );
 
-        if (new_system_state_version != wrapper.version) {
-            // If we are upgrading the system state, we need to make sure that the protocol version
-            // is also upgraded.
-            assert!(old_protocol_version != next_protocol_version, 0);
-            let cur_state: HaneulSystemStateInner = dynamic_field::remove(&mut wrapper.id, wrapper.version);
-            let new_state = haneul_system_state_inner::upgrade_system_state(cur_state, new_system_state_version, ctx);
-            wrapper.version = new_system_state_version;
-            dynamic_field::add(&mut wrapper.id, wrapper.version, new_state);
-        };
         storage_rebate
     }
 
@@ -534,52 +523,55 @@ module haneul_system::haneul_system {
 
     /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,
     /// since epochs are ever-increasing and epoch changes are intended to happen every 24 hours.
-    public fun epoch(wrapper: &HaneulSystemState): u64 {
+    public fun epoch(wrapper: &mut HaneulSystemState): u64 {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::epoch(self)
     }
 
     /// Returns unix timestamp of the start of current epoch
-    public fun epoch_start_timestamp_ms(wrapper: &HaneulSystemState): u64 {
+    public fun epoch_start_timestamp_ms(wrapper: &mut HaneulSystemState): u64 {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::epoch_start_timestamp_ms(self)
     }
 
     /// Returns the total amount staked with `validator_addr`.
     /// Aborts if `validator_addr` is not an active validator.
-    public fun validator_stake_amount(wrapper: &HaneulSystemState, validator_addr: address): u64 {
+    public fun validator_stake_amount(wrapper: &mut HaneulSystemState, validator_addr: address): u64 {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::validator_stake_amount(self, validator_addr)
     }
 
     /// Returns the staking pool id of a given validator.
     /// Aborts if `validator_addr` is not an active validator.
-    public fun validator_staking_pool_id(wrapper: &HaneulSystemState, validator_addr: address): ID {
+    public fun validator_staking_pool_id(wrapper: &mut HaneulSystemState, validator_addr: address): ID {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::validator_staking_pool_id(self, validator_addr)
     }
 
     /// Returns reference to the staking pool mappings that map pool ids to active validator addresses
-    public fun validator_staking_pool_mappings(wrapper: &HaneulSystemState): &Table<ID, address> {
+    public fun validator_staking_pool_mappings(wrapper: &mut HaneulSystemState): &Table<ID, address> {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::validator_staking_pool_mappings(self)
     }
 
     /// Returns all the validators who are currently reporting `addr`
-    public fun get_reporters_of(wrapper: &HaneulSystemState, addr: address): VecSet<address> {
+    public fun get_reporters_of(wrapper: &mut HaneulSystemState, addr: address): VecSet<address> {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::get_reporters_of(self, addr)
     }
 
-    fun load_system_state(self: &HaneulSystemState): &HaneulSystemStateInner {
-        let version = self.version;
-        let inner: &HaneulSystemStateInner = dynamic_field::borrow(&self.id, version);
-        assert!(haneul_system_state_inner::system_state_version(inner) == version, 0);
-        inner
+    fun load_system_state(self: &mut HaneulSystemState): &HaneulSystemStateInner {
+        load_inner_maybe_upgrade(self)
     }
 
     fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {
+        load_inner_maybe_upgrade(self)
+    }
+
+    fun load_inner_maybe_upgrade(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {
         let version = self.version;
+        // TODO: This is where we check the version and perform upgrade if necessary.
+
         let inner: &mut HaneulSystemStateInner = dynamic_field::borrow_mut(&mut self.id, version);
         assert!(haneul_system_state_inner::system_state_version(inner) == version, 0);
         inner
@@ -587,26 +579,26 @@ module haneul_system::haneul_system {
 
     #[test_only]
     /// Return the current validator set
-    public fun validators(wrapper: &HaneulSystemState): &ValidatorSet {
+    public fun validators(wrapper: &mut HaneulSystemState): &ValidatorSet {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::validators(self)
     }
 
     #[test_only]
     /// Return the currently active validator by address
-    public fun active_validator_by_address(self: &HaneulSystemState, validator_address: address): &Validator {
+    public fun active_validator_by_address(self: &mut HaneulSystemState, validator_address: address): &Validator {
         validator_set::get_active_validator_ref(validators(self), validator_address)
     }
 
     #[test_only]
     /// Return the currently pending validator by address
-    public fun pending_validator_by_address(self: &HaneulSystemState, validator_address: address): &Validator {
+    public fun pending_validator_by_address(self: &mut HaneulSystemState, validator_address: address): &Validator {
         validator_set::get_pending_validator_ref(validators(self), validator_address)
     }
 
     #[test_only]
     /// Return the currently candidate validator by address
-    public fun candidate_validator_by_address(self: &HaneulSystemState, validator_address: address): &Validator {
+    public fun candidate_validator_by_address(self: &mut HaneulSystemState, validator_address: address): &Validator {
         validator_set::get_candidate_validator_ref(validators(self), validator_address)
     }
 
@@ -627,7 +619,7 @@ module haneul_system::haneul_system {
     }
 
     #[test_only]
-    public fun get_storage_fund_balance(wrapper: &HaneulSystemState): u64 {
+    public fun get_storage_fund_balance(wrapper: &mut HaneulSystemState): u64 {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::get_storage_fund_balance(self)
     }
@@ -687,7 +679,6 @@ module haneul_system::haneul_system {
         storage_fund_reinvest_rate: u64,
         reward_slashing_rate: u64,
         epoch_start_timestamp_ms: u64,
-        new_system_state_version: u64,
         ctx: &mut TxContext,
     ): Balance<HANEUL> {
         let storage_reward = balance::create_for_testing(storage_charge);
@@ -702,7 +693,6 @@ module haneul_system::haneul_system {
             storage_fund_reinvest_rate,
             reward_slashing_rate,
             epoch_start_timestamp_ms,
-            new_system_state_version,
             ctx,
         );
         storage_rebate
