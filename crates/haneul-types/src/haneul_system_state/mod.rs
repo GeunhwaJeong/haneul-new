@@ -23,11 +23,19 @@ pub mod epoch_start_haneul_system_state;
 pub mod haneul_system_state_inner_v1;
 pub mod haneul_system_state_summary;
 
+#[cfg(msim)]
+mod simtest_haneul_system_state_inner;
+#[cfg(msim)]
+use self::simtest_haneul_system_state_inner::SimTestHaneulSystemStateInnerV1;
+
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch_safe_mode");
+
+#[cfg(msim)]
+const HANEUL_SYSTEM_STATE_SIM_TEST_V1: u64 = 18446744073709551605; // u64::MAX - 10
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
 /// This repreents the object with 0x5 ID.
@@ -76,6 +84,8 @@ pub trait HaneulSystemStateTrait {
 #[enum_dispatch(HaneulSystemStateTrait)]
 pub enum HaneulSystemState {
     V1(HaneulSystemStateInnerV1),
+    #[cfg(msim)]
+    SimTestV1(SimTestHaneulSystemStateInnerV1),
 }
 
 /// This is the fixed type used by genesis.
@@ -90,6 +100,8 @@ impl HaneulSystemState {
     pub fn into_genesis_version_for_tooling(self) -> HaneulSystemStateInnerGenesis {
         match self {
             HaneulSystemState::V1(inner) => inner,
+            #[cfg(msim)]
+            _ => unreachable!(),
         }
     }
 
@@ -123,9 +135,9 @@ where
     S: ObjectStore,
 {
     let wrapper = get_haneul_system_state_wrapper(object_store)?;
+    let id = wrapper.id.id.bytes;
     match wrapper.version {
         1 => {
-            let id = wrapper.id.id.bytes;
             let result: HaneulSystemStateInnerV1 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
@@ -136,6 +148,19 @@ where
                     },
                 )?;
             Ok(HaneulSystemState::V1(result))
+        }
+        #[cfg(msim)]
+        HANEUL_SYSTEM_STATE_SIM_TEST_V1 => {
+            let result: SimTestHaneulSystemStateInnerV1 =
+                get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
+                    |err| {
+                        HaneulError::DynamicFieldReadError(format!(
+                            "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
+                            id, wrapper.version, err
+                        ))
+                    },
+                )?;
+            Ok(HaneulSystemState::SimTestV1(result))
         }
         _ => Err(HaneulError::HaneulSystemStateReadError(format!(
             "Unsupported HaneulSystemState version: {}",
