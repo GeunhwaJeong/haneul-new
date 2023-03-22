@@ -44,8 +44,8 @@ use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{
-    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemStateInnerGenesis,
-    HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
+    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateTrait,
+    HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
 use haneul_types::{
@@ -133,8 +133,11 @@ impl Genesis {
         0
     }
 
-    pub fn validator_set(&self) -> Vec<HaneulValidatorGenesis> {
-        self.haneul_system_object().validators.active_validators
+    pub fn validator_set_for_tooling(&self) -> Vec<HaneulValidatorGenesis> {
+        self.haneul_system_object()
+            .into_genesis_version_for_tooling()
+            .validators
+            .active_validators
     }
 
     pub fn committee_with_network(&self) -> CommitteeWithNetworkMetadata {
@@ -151,10 +154,8 @@ impl Genesis {
             .expect("Haneul System State Wrapper object must always exist")
     }
 
-    pub fn haneul_system_object(&self) -> HaneulSystemStateInnerGenesis {
-        get_haneul_system_state(&self.objects())
-            .expect("Haneul System State object must always exist")
-            .into_genesis_version()
+    pub fn haneul_system_object(&self) -> HaneulSystemState {
+        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
     }
 
     pub fn clock(&self) -> Clock {
@@ -316,19 +317,13 @@ impl UnsignedGenesis {
         0
     }
 
-    pub fn validator_set(&self) -> Vec<HaneulValidatorGenesis> {
-        self.haneul_system_object().validators.active_validators
-    }
-
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {
         get_haneul_system_state_wrapper(&self.objects())
             .expect("Haneul System State Wrapper object must always exist")
     }
 
-    pub fn haneul_system_object(&self) -> HaneulSystemStateInnerGenesis {
-        get_haneul_system_state(&self.objects())
-            .expect("Haneul System State object must always exist")
-            .into_genesis_version()
+    pub fn haneul_system_object(&self) -> HaneulSystemState {
+        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
     }
 }
 
@@ -697,13 +692,15 @@ impl Builder {
         };
 
         // Verify that all the validators were properly created onchain
-        let system_object = genesis.haneul_system_object();
-        assert_eq!(system_object.epoch, 0);
+        let system_object = genesis
+            .haneul_system_object()
+            .into_genesis_version_for_tooling();
+        assert_eq!(system_object.epoch(), 0);
 
         for (validator, onchain_validator) in validators
             .iter()
             .map(|genesis_info| &genesis_info.info)
-            .zip(system_object.validators.active_validators.iter())
+            .zip(system_object.validators.active_validators)
         {
             let metadata = onchain_validator.verified_metadata();
             assert_eq!(validator.haneul_address(), metadata.haneul_address);

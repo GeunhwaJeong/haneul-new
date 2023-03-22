@@ -25,7 +25,6 @@ use haneul_types::crypto::{
     get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::haneul_system_state::HaneulSystemStateInnerGenesis;
 
 /// This is a config that is used for testing or local use as it contains the config and keys for
 /// all validators
@@ -51,10 +50,6 @@ impl NetworkConfig {
             .into_values()
             .map(|n| n.network_address)
             .collect()
-    }
-
-    pub fn genesis_system_state(&self) -> HaneulSystemStateInnerGenesis {
-        self.genesis.haneul_system_object()
     }
 
     pub fn committee_with_network(&self) -> CommitteeWithNetworkMetadata {
