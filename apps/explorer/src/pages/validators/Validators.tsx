@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { calculateAPY, roundFloat } from '@haneullabs/core';
-import { type HaneulValidatorSummary, type HaneulEvent } from '@haneullabs/haneul.js';
+import { type HaneulSystemStateSummary, type HaneulEvent } from '@haneullabs/haneul.js';
 import { lazy, Suspense, useMemo } from 'react';
 
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
@@ -24,24 +24,20 @@ import { getValidatorMoveEvent } from '~/utils/getValidatorMoveEvent';
 
 const APY_DECIMALS = 3;
 
-// This constant needs to match the constant in the on-chain smart contract haneul_system::VALIDATOR_LOW_STAKE_THRESHOLD.
-const VALIDATOR_LOW_STAKE_THRESHOLD = 25_000_000_000_000_000;
-
 const NodeMap = lazy(() => import('../../components/node-map'));
 
 export function validatorsTableData(
-    validators: HaneulValidatorSummary[],
-    epoch: number,
-    validatorsEvents: HaneulEvent[]
+    systemState: HaneulSystemStateSummary,
+    validatorEvents: HaneulEvent[]
 ) {
     return {
-        data: validators.map((validator) => {
+        data: systemState.activeValidators.map((validator) => {
             const validatorName = validator.name;
             const totalStake = validator.stakingPoolHaneulBalance;
             const img = validator.imageUrl;
 
             const event = getValidatorMoveEvent(
-                validatorsEvents,
+                validatorEvents,
                 validator.haneulAddress
             );
             return {
@@ -50,13 +46,15 @@ export function validatorsTableData(
                     logo: validator.imageUrl,
                 },
                 stake: totalStake,
-                apy: calculateAPY(validator, epoch),
+                apy: calculateAPY(validator, systemState.epoch),
                 nextEpochGasPrice: validator.nextEpochGasPrice,
                 commission: +validator.commissionRate / 100,
                 img: img,
                 address: validator.haneulAddress,
                 lastReward: event?.stake_rewards || 0,
-                atRisk: totalStake < VALIDATOR_LOW_STAKE_THRESHOLD,
+                atRisk: systemState.atRiskValidators.some(
+                    ([address]) => address === validator.haneulAddress
+                ),
             };
         }),
         columns: [
@@ -233,14 +231,7 @@ function ValidatorPageResult() {
 
     const validatorsTable = useMemo(() => {
         if (!data || !validatorEvents) return null;
-
-        const validators = data.activeValidators;
-
-        return validatorsTableData(
-            validators,
-            +data.epoch,
-            validatorEvents.data
-        );
+        return validatorsTableData(data, validatorEvents.data);
     }, [validatorEvents, data]);
 
     const defaultSorting = [{ id: 'stake', desc: false }];
