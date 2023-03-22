@@ -17,7 +17,7 @@ use std::convert::TryInto;
 use std::{fs, path::Path};
 use haneul_adapter::adapter::MoveVM;
 use haneul_adapter::{adapter, execution_mode, programmable_transactions};
-use haneul_framework::{MoveStdlib, HaneulFramework, SystemPackage};
+use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ExecutionDigests, TransactionDigest};
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
@@ -48,14 +48,13 @@ use haneul_types::haneul_system_state::{
     HaneulSystemStateInnerGenesis, HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
-use haneul_types::MOVE_STDLIB_ADDRESS;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::{
     base_types::TxContext,
     committee::{Committee, EpochId, ProtocolVersion},
     error::HaneulResult,
     object::Object,
 };
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS};
 use tracing::trace;
 
 #[derive(Clone, Debug)]
@@ -878,6 +877,7 @@ fn create_genesis_context(
     token_distribution_schedule: &TokenDistributionSchedule,
     move_framework: Vec<Vec<u8>>,
     haneul_framework: Vec<Vec<u8>>,
+    haneul_system_package: Vec<Vec<u8>>,
 ) -> TxContext {
     let mut hasher = DefaultHash::default();
     hasher.update(b"haneul-genesis");
@@ -886,6 +886,7 @@ fn create_genesis_context(
     hasher.update(&bcs::to_bytes(token_distribution_schedule).unwrap());
     hasher.update(&bcs::to_bytes(&move_framework).unwrap());
     hasher.update(&bcs::to_bytes(&haneul_framework).unwrap());
+    hasher.update(&bcs::to_bytes(&haneul_system_package).unwrap());
 
     let hash = hasher.finalize();
     let genesis_transaction_digest = TransactionDigest::new(hash.into());
@@ -928,6 +929,7 @@ fn build_unsigned_genesis_data(
         token_distribution_schedule,
         MoveStdlib::as_bytes(),
         HaneulFramework::as_bytes(),
+        HaneulSystem::as_bytes(),
     );
 
     // Get Move and Haneul Framework
@@ -939,6 +941,10 @@ fn build_unsigned_genesis_data(
         (
             HaneulFramework::as_modules(),
             HaneulFramework::transitive_dependencies(),
+        ),
+        (
+            HaneulSystem::as_modules(),
+            HaneulSystem::transitive_dependencies(),
         ),
     ];
 
@@ -1040,10 +1046,7 @@ fn create_genesis_transaction(
             protocol_config,
         );
 
-        let native_functions = haneul_framework::natives::all_natives(
-            haneul_types::MOVE_STDLIB_ADDRESS,
-            haneul_types::HANEUL_FRAMEWORK_ADDRESS,
-        );
+        let native_functions = haneul_framework::natives::all_natives();
         let move_vm = std::sync::Arc::new(
             adapter::new_move_vm(native_functions, protocol_config)
                 .expect("We defined natives to not fail here"),
@@ -1098,8 +1101,7 @@ fn create_genesis_objects(
     let protocol_config =
         ProtocolConfig::get_for_version(ProtocolVersion::new(parameters.protocol_version));
 
-    let native_functions =
-        haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
+    let native_functions = haneul_framework::natives::all_natives();
     let move_vm = adapter::new_move_vm(native_functions.clone(), &protocol_config)
         .expect("We defined natives to not fail here");
 
@@ -1274,7 +1276,7 @@ pub fn generate_genesis_system_object(
         .collect::<Result<_, _>>()?;
         arguments.append(&mut call_arg_arguments);
         builder.programmable_move_call(
-            HANEUL_FRAMEWORK_ADDRESS.into(),
+            HANEUL_SYSTEM_ADDRESS.into(),
             ident_str!("genesis").to_owned(),
             ident_str!("create").to_owned(),
             vec![],
@@ -1547,10 +1549,7 @@ mod test {
             &protocol_config,
         );
 
-        let native_functions = haneul_framework::natives::all_natives(
-            haneul_types::MOVE_STDLIB_ADDRESS,
-            haneul_types::HANEUL_FRAMEWORK_ADDRESS,
-        );
+        let native_functions = haneul_framework::natives::all_natives();
         let move_vm = std::sync::Arc::new(
             adapter::new_move_vm(native_functions, &protocol_config)
                 .expect("We defined natives to not fail here"),

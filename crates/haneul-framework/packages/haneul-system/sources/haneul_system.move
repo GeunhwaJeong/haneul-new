@@ -1,35 +1,34 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::haneul_system {
+module haneul_system::haneul_system {
     use haneul::balance::Balance;
     #[test_only]
     use haneul::balance;
     use haneul::coin::Coin;
     use haneul::object::{ID, UID};
-    use haneul::staking_pool::StakedHaneul;
+    use haneul_system::staking_pool::StakedHaneul;
     use haneul::haneul::HANEUL;
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator::Validator;
-    use haneul::validator_cap::UnverifiedValidatorOperationCap;
-    use haneul::haneul_system_state_inner::HaneulSystemStateInner;
+    use haneul_system::validator::Validator;
+    use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
+    use haneul_system::haneul_system_state_inner::{Self, HaneulSystemStateInner};
     use haneul::vec_set::VecSet;
     use std::option;
     use haneul::table::Table;
     use haneul::dynamic_field;
-    use haneul::haneul_system_state_inner;
     #[test_only]
-    use haneul::validator_set::ValidatorSet;
+    use haneul_system::validator_set::ValidatorSet;
     #[test_only]
-    use haneul::validator_set;
+    use haneul_system::validator_set;
 
-    friend haneul::genesis;
+    friend haneul_system::genesis;
 
     #[test_only]
     use haneul::test_utils;
     #[test_only]
-    friend haneul::governance_test_utils;
+    friend haneul_system::governance_test_utils;
 
     struct HaneulSystemState has key {
         id: UID,

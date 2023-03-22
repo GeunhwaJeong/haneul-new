@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::stake_subsidy {
+module haneul_system::stake_subsidy {
     use haneul::balance::{Self, Balance};
     use haneul::math;
     use haneul::haneul::HANEUL;
@@ -9,7 +9,7 @@ module haneul::stake_subsidy {
     use haneul::bag;
     use haneul::tx_context::TxContext;
 
-    friend haneul::haneul_system_state_inner;
+    friend haneul_system::haneul_system_state_inner;
 
     struct StakeSubsidy has store {
         /// Balance of HANEUL set aside for stake subsidies that will be drawn down over time.

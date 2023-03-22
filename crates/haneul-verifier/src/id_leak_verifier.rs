@@ -33,7 +33,7 @@ use haneul_types::{
     error::{ExecutionError, VMMVerifierErrorSubStatusCode},
     id::OBJECT_MODULE_NAME,
     haneul_system_state::HANEUL_SYSTEM_MODULE_NAME,
-    HANEUL_FRAMEWORK_ADDRESS,
+    HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 
 use crate::{verification_failure, TEST_SCENARIO_MODULE_NAME};
@@ -61,7 +61,7 @@ const TS_NEW_OBJECT: FunctionIdent = (
     ident_str!("new_object"),
 );
 const HANEUL_SYSTEM_CREATE: FunctionIdent = (
-    &HANEUL_FRAMEWORK_ADDRESS,
+    &HANEUL_SYSTEM_ADDRESS,
     HANEUL_SYSTEM_MODULE_NAME,
     ident_str!("create"),
 );

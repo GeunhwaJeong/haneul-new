@@ -31,6 +31,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
                 ::haneul_simulator::haneul_framework::MoveStdlib::as_modules();
                 ::haneul_simulator::haneul_framework::HaneulFramework::as_modules();
+                ::haneul_simulator::haneul_framework::HaneulSystem::as_modules();
                 ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
 
                 // For reasons I can't understand, LruCache causes divergent behavior the second

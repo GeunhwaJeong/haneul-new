@@ -3,7 +3,7 @@ name = "ecommerce"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../crates/haneul-framework" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 ecommerce =  "0x0"

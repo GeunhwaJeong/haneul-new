@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::validator_wrapper {
+module haneul_system::validator_wrapper {
     use haneul::versioned::Versioned;
-    use haneul::validator::Validator;
+    use haneul_system::validator::Validator;
     use haneul::versioned;
     use haneul::tx_context::TxContext;
 
-    friend haneul::validator_set;
+    friend haneul_system::validator_set;
 
     const EInvalidVersion: u64 = 0;
 

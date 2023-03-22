@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_binary_format::access::ModuleAccess;
-use haneul_framework::{MoveStdlib, HaneulFramework, SystemPackage};
+use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;
 use haneul_types::{
@@ -34,7 +34,7 @@ async fn test_package_override() {
         let default_cluster = TestClusterBuilder::new().build().await.unwrap();
         let client = default_cluster.rpc_client();
         let HaneulObjectResponse::Exists(obj) = client
-            .get_object_with_options(HaneulFramework::ID, None)
+            .get_object_with_options(HaneulSystem::ID, None)
             .await
             .unwrap()
         else {
@@ -45,7 +45,7 @@ async fn test_package_override() {
     };
 
     let modified_ref = {
-        let mut framework_modules = HaneulFramework::as_modules();
+        let mut framework_modules = HaneulSystem::as_modules();
 
         // Create an empty module that is pretending to be part of the haneul framework.
         let mut test_module = move_binary_format::file_format::empty_module();
@@ -59,7 +59,7 @@ async fn test_package_override() {
         let package_override = Object::new_package_for_testing(
             framework_modules,
             TransactionDigest::genesis(),
-            &[MoveStdlib::as_package()],
+            &[MoveStdlib::as_package(), HaneulFramework::as_package()],
         )
         .unwrap();
 
@@ -71,7 +71,7 @@ async fn test_package_override() {
 
         let client = modified_cluster.rpc_client();
         let HaneulObjectResponse::Exists(obj) = client
-            .get_object_with_options(HaneulFramework::ID, None)
+            .get_object_with_options(HaneulSystem::ID, None)
             .await
             .unwrap()
         else {

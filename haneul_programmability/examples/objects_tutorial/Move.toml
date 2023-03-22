@@ -3,8 +3,8 @@ name = "Tutorial"
 version = "0.0.1"
 
 [dependencies]
-MoveStdlib = { local = "../../../crates/haneul-framework/deps/move-stdlib/" }
-Haneul = { local = "../../../crates/haneul-framework/" }
+MoveStdlib = { local = "../../../crates/haneul-framework/packages/move-stdlib/" }
+Haneul = { local = "../../../crates/haneul-framework//packages/haneul-framework" }
 
 [addresses]
 tutorial = "0x0"

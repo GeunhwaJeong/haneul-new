@@ -70,7 +70,6 @@ use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
     EpochStartSystemState, EpochStartSystemStateTrait,
 };
 use haneul_types::temporary_store::InnerTemporaryStore;
-use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 use tokio::time::Instant;
 use typed_store::{retry_transaction_forever, Map};
 use typed_store_derive::DBMapUtils;
@@ -1908,8 +1907,7 @@ impl ExecutionComponents {
         store: Arc<AuthorityStore>,
         metrics: Arc<ResolverMetrics>,
     ) -> Self {
-        let native_functions =
-            haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
+        let native_functions = haneul_framework::natives::all_natives();
         let move_vm = Arc::new(
             adapter::new_move_vm(native_functions.clone(), protocol_config)
                 .expect("We defined natives to not fail here"),

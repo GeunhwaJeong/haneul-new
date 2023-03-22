@@ -1,18 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::haneul_system_state_inner {
+module haneul_system::haneul_system_state_inner {
     use haneul::balance::{Self, Balance};
     use haneul::coin::{Self, Coin};
     use haneul::object::{ID};
-    use haneul::staking_pool::{stake_activation_epoch, StakedHaneul};
+    use haneul_system::staking_pool::{stake_activation_epoch, StakedHaneul};
     use haneul::haneul::HANEUL;
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator::{Self, Validator};
-    use haneul::validator_set::{Self, ValidatorSet};
-    use haneul::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
-    use haneul::stake_subsidy::{Self, StakeSubsidy};
+    use haneul_system::validator::{Self, Validator};
+    use haneul_system::validator_set::{Self, ValidatorSet};
+    use haneul_system::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
+    use haneul_system::stake_subsidy::{Self, StakeSubsidy};
     use haneul::vec_map::{Self, VecMap};
     use haneul::vec_set::{Self, VecSet};
     use std::option;
@@ -26,10 +26,10 @@ module haneul::haneul_system_state_inner {
     use haneul::bag::Bag;
     use haneul::bag;
 
-    friend haneul::haneul_system;
+    friend haneul_system::haneul_system;
 
     #[test_only]
-    friend haneul::governance_test_utils;
+    friend haneul_system::governance_test_utils;
 
     // same as in validator_set
     const ACTIVE_VALIDATOR_ONLY: u8 = 1;

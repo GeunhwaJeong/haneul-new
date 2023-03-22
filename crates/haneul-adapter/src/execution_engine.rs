@@ -44,7 +44,7 @@ use haneul_types::{
 };
 use haneul_types::{
     is_system_package, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_PACKAGE_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
 use haneul_types::temporary_store::TemporaryStore;
@@ -367,7 +367,7 @@ pub fn construct_advance_epoch_pt(
     );
 
     let storage_rebates = builder.programmable_move_call(
-        HANEUL_FRAMEWORK_OBJECT_ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
         HANEUL_SYSTEM_MODULE_NAME.to_owned(),
         ADVANCE_EPOCH_FUNCTION_NAME.to_owned(),
         vec![],
@@ -432,7 +432,7 @@ fn advance_epoch<S: BackingPackageStore + ParentSync + ChildObjectResolver>(
             });
             // TODO: Rewards should be kept in safe mode too.
             let res = builder.move_call(
-                HANEUL_FRAMEWORK_OBJECT_ID,
+                HANEUL_SYSTEM_PACKAGE_ID,
                 HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                 function,
                 vec![],

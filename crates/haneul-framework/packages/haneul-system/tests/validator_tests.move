@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::validator_tests {
+module haneul_system::validator_tests {
     use haneul::haneul::HANEUL;
     use haneul::test_scenario;
     use haneul::url;
     use std::string::Self;
-    use haneul::validator::{Self, Validator};
+    use haneul_system::validator::{Self, Validator};
     use haneul::tx_context::TxContext;
     use haneul::balance::Balance;
     use std::option;
     use std::ascii;
     use haneul::coin::{Self, Coin};
     use haneul::balance;
-    use haneul::staking_pool::{Self, StakedHaneul};
+    use haneul_system::staking_pool::{Self, StakedHaneul};
     use std::vector;
     use haneul::test_utils;
     use haneul::bag;
@@ -443,7 +443,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EInvalidProofOfPossession)]
+    #[expected_failure(abort_code = haneul_system::validator::EInvalidProofOfPossession)]
     #[test]
     fun test_validator_update_metadata_invalid_proof_of_possession() {
         let sender = VALID_ADDRESS;
@@ -467,7 +467,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidNetPubkey)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidNetPubkey)]
     #[test]
     fun test_validator_update_metadata_invalid_network_key() {
         let sender = VALID_ADDRESS;
@@ -491,7 +491,7 @@ module haneul::validator_tests {
     }
 
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidWorkerPubkey)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidWorkerPubkey)]
     #[test]
     fun test_validator_update_metadata_invalid_worker_key() {
         let sender = VALID_ADDRESS;
@@ -514,7 +514,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidNetAddr)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidNetAddr)]
     #[test]
     fun test_validator_update_metadata_invalid_network_addr() {
         let sender = VALID_ADDRESS;
@@ -537,7 +537,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidPrimaryAddr)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidPrimaryAddr)]
     #[test]
     fun test_validator_update_metadata_invalid_consensus_addr() {
         let sender = VALID_ADDRESS;
@@ -560,7 +560,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidWorkerAddr)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidWorkerAddr)]
     #[test]
     fun test_validator_update_metadata_invalid_worker_addr() {
         let sender = VALID_ADDRESS;
@@ -583,7 +583,7 @@ module haneul::validator_tests {
         test_scenario::end(scenario_val);
     }
 
-    #[expected_failure(abort_code = haneul::validator::EMetadataInvalidP2pAddr)]
+    #[expected_failure(abort_code = haneul_system::validator::EMetadataInvalidP2pAddr)]
     #[test]
     fun test_validator_update_metadata_invalid_p2p_address() {
         let sender = VALID_ADDRESS;

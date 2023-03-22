@@ -276,7 +276,7 @@ jobs:
           command: build
 
       - name: Prover Run
-        working-directory: crates/haneul-framework
+        working-directory: crates/haneul-framework/packages
         run: |
           set -o pipefail
           DOTNET_ROOT="$HOME/.dotnet"
@@ -286,7 +286,8 @@ jobs:
           export Z3_EXE="${BIN_DIR}/z3"
           export CVC5_EXE="${BIN_DIR}/cvc5"
           export BOOGIE_EXE="${DOTNET_ROOT}/tools/boogie"
-          /home/runner/.cargo/bin/cargo run -p haneul -- move prove
+          /home/runner/.cargo/bin/cargo run -p haneul -- move prove -p haneul-framework
+          /home/runner/.cargo/bin/cargo run -p haneul -- move prove -p haneul-system
 
   indexer:
     name: indexer

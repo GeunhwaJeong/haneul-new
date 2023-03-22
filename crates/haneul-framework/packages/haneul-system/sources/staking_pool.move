@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::staking_pool {
+module haneul_system::staking_pool {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
     use std::option::{Self, Option};
@@ -14,8 +14,8 @@ module haneul::staking_pool {
     use haneul::bag::Bag;
     use haneul::bag;
 
-    friend haneul::validator;
-    friend haneul::validator_set;
+    friend haneul_system::validator;
+    friend haneul_system::validator_set;
 
     const EInsufficientPoolTokenBalance: u64 = 0;
     const EWrongPool: u64 = 1;

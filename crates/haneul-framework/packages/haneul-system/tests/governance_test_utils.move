@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::governance_test_utils {
+module haneul_system::governance_test_utils {
     use haneul::address;
     use haneul::balance;
     use haneul::object;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::staking_pool::{Self, StakedHaneul, StakingPool};
+    use haneul_system::staking_pool::{Self, StakedHaneul, StakingPool};
     use haneul::test_utils::assert_eq;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator::{Self, Validator};
-    use haneul::haneul_system::{Self, HaneulSystemState};
+    use haneul_system::validator::{Self, Validator};
+    use haneul_system::haneul_system::{Self, HaneulSystemState};
     use haneul::test_scenario::{Self, Scenario};
-    use haneul::validator_set;
+    use haneul_system::validator_set;
     use std::option;
     use std::vector;
 

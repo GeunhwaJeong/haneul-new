@@ -41,7 +41,6 @@ use haneul_framework::{
     make_system_modules, make_system_objects, system_package_ids, DEFAULT_FRAMEWORK_PATH,
 };
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::clock::Clock;
 use haneul_types::gas::{GasCostSummary, HaneulCostTable};
 use haneul_types::id::UID;
 use haneul_types::messages::CallArg;
@@ -61,6 +60,7 @@ use haneul_types::{
     MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_ADDRESS,
 };
+use haneul_types::{clock::Clock, HANEUL_SYSTEM_ADDRESS};
 use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
@@ -118,15 +118,6 @@ pub fn clone_genesis_packages() -> Vec<Object> {
 
 pub fn clone_genesis_objects() -> Vec<Object> {
     GENESIS.objects.clone()
-}
-
-pub fn get_framework_object_ref() -> ObjectRef {
-    GENESIS
-        .packages
-        .iter()
-        .find(|o| o.id() == HANEUL_FRAMEWORK_ADDRESS.into())
-        .unwrap()
-        .compute_object_reference()
 }
 
 /// Create and return objects wrapping the genesis modules for haneul
@@ -228,8 +219,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             named_address_mapping.insert(name, addr);
         }
 
-        let native_functions =
-            haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
+        let native_functions = haneul_framework::natives::all_natives();
         let mut objects = clone_genesis_packages();
         objects.extend(clone_genesis_objects());
         let mut account_objects = BTreeMap::new();
@@ -990,20 +980,36 @@ static NAMED_ADDRESSES: Lazy<BTreeMap<String, NumericalAddress>> = Lazy::new(|| 
             move_compiler::shared::NumberFormat::Hex,
         ),
     );
+    map.insert(
+        "haneul_system".to_string(),
+        NumericalAddress::new(
+            HANEUL_SYSTEM_ADDRESS.into_bytes(),
+            move_compiler::shared::NumberFormat::Hex,
+        ),
+    );
     map
 });
 
 pub(crate) static PRE_COMPILED: Lazy<FullyCompiledProgram> = Lazy::new(|| {
     // TODO invoke package system?
     let haneul_files: &Path = Path::new(DEFAULT_FRAMEWORK_PATH);
+    let haneul_system_sources: String = {
+        let mut buf = haneul_files.to_path_buf();
+        buf.push("packages");
+        buf.push("haneul-system");
+        buf.push("sources");
+        buf.to_string_lossy().to_string()
+    };
     let haneul_sources: String = {
         let mut buf = haneul_files.to_path_buf();
+        buf.push("packages");
+        buf.push("haneul-framework");
         buf.push("sources");
         buf.to_string_lossy().to_string()
     };
     let haneul_deps = {
         let mut buf = haneul_files.to_path_buf();
-        buf.push("deps");
+        buf.push("packages");
         buf.push("move-stdlib");
         buf.push("sources");
         buf.to_string_lossy().to_string()
@@ -1011,7 +1017,7 @@ pub(crate) static PRE_COMPILED: Lazy<FullyCompiledProgram> = Lazy::new(|| {
     let fully_compiled_res = move_compiler::construct_pre_compiled_lib(
         vec![PackagePaths {
             name: None,
-            paths: vec![haneul_sources, haneul_deps],
+            paths: vec![haneul_system_sources, haneul_sources, haneul_deps],
             named_address_map: NAMED_ADDRESSES.clone(),
         }],
         None,

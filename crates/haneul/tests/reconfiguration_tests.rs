@@ -15,7 +15,7 @@ use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_core::test_utils::make_transfer_haneul_transaction;
-use haneul_framework::{HaneulFramework, SystemPackage};
+use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress};
@@ -487,7 +487,7 @@ async fn test_inactive_validator_pool_read() {
 
     let tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         address,
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!("request_remove_validator").to_owned(),
         vec![],
@@ -956,7 +956,7 @@ async fn execute_join_committee_txes(
     // Step 1: Add the new node as a validator candidate.
     let candidate_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         sender,
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!("request_add_validator_candidate").to_owned(),
         vec![],
@@ -995,7 +995,7 @@ async fn execute_join_committee_txes(
     // Step 2: Give the candidate enough stake.
     let stake_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         sender,
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!("request_add_stake").to_owned(),
         vec![],
@@ -1021,7 +1021,7 @@ async fn execute_join_committee_txes(
     // Step 3: Convert the candidate to an active valdiator.
     let activation_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         sender,
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!("request_add_validator").to_owned(),
         vec![],
@@ -1050,7 +1050,7 @@ async fn execute_leave_committee_txes(
 ) -> CertifiedTransactionEffects {
     let tx_data = TransactionData::new_move_call_with_dummy_gas_price(
         node_config.haneul_address(),
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!("request_remove_validator").to_owned(),
         vec![],

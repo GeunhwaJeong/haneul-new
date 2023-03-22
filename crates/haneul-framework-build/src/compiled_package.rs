@@ -42,11 +42,11 @@ use haneul_types::{
     base_types::ObjectID,
     error::{HaneulError, HaneulResult},
     move_package::{FnInfo, FnInfoKey, FnInfoMap, MovePackage},
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
+    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
-use crate::{MOVE_STDLIB_PACKAGE_NAME, HANEUL_PACKAGE_NAME};
+use crate::{MOVE_STDLIB_PACKAGE_NAME, HANEUL_PACKAGE_NAME, HANEUL_SYSTEM_PACKAGE_NAME};
 
 /// Wrapper around the core Move `CompiledPackage` with some Haneul-specific traits and info
 pub struct CompiledPackage {
@@ -342,8 +342,14 @@ impl CompiledPackage {
             .collect()
     }
 
+    /// Get bytecode modules from the Haneul System that are used by this package
+    pub fn get_haneul_system_modules(&self) -> impl Iterator<Item = &CompiledModule> {
+        self.get_modules_and_deps()
+            .filter(|m| *m.self_id().address() == HANEUL_SYSTEM_ADDRESS)
+    }
+
     /// Get bytecode modules from the Haneul Framework that are used by this package
-    pub fn get_framework_modules(&self) -> impl Iterator<Item = &CompiledModule> {
+    pub fn get_haneul_framework_modules(&self) -> impl Iterator<Item = &CompiledModule> {
         self.get_modules_and_deps()
             .filter(|m| *m.self_id().address() == HANEUL_FRAMEWORK_ADDRESS)
     }
@@ -360,18 +366,43 @@ impl CompiledPackage {
     // TODO: replace this with actual versioning checks instead of hacky byte-for-byte comparisons
     pub fn verify_framework_version(
         &self,
+        ext_haneul_system: Vec<CompiledModule>,
         ext_haneul_framework: Vec<CompiledModule>,
         ext_move_stdlib: Vec<CompiledModule>,
     ) -> HaneulResult<()> {
         // We stash compiled modules in the Modules map which is sorted so that we can compare sets of
         // compiled modules directly.
-        let ext_framework_modules = Modules::new(ext_haneul_framework.iter());
-        let pkg_framework_modules: Vec<&CompiledModule> = self.get_framework_modules().collect();
+        let ext_haneul_system_modules = Modules::new(ext_haneul_system.iter());
+        let pkg_haneul_system_modules: Vec<&CompiledModule> = self.get_haneul_system_modules().collect();
+
+        // compare haneul-system modules pulled as dependencies (if any - a developer may choose to use only
+        // stdlib) with haneul-system modules bundled with the distribution
+        if !pkg_haneul_system_modules.is_empty()
+            && ext_haneul_system_modules != Modules::new(pkg_haneul_system_modules)
+        {
+            return Err(HaneulError::ModuleVerificationFailure {
+            error: "Haneul system package version mismatch detected.\
+		    Make sure that you are using a GitHub dep in your Move.toml:\
+		    \
+                    [dependencies]
+                    Haneul = { git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-system\", rev = \"devnet\" }
+`                   \
+                    If that does not fix the issue, your `haneul` binary is likely out of date--try \
+                    cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul"
+                .to_string(),
+        });
+        }
+
+        // We stash compiled modules in the Modules map which is sorted so that we can compare sets of
+        // compiled modules directly.
+        let ext_haneul_framework_modules = Modules::new(ext_haneul_framework.iter());
+        let pkg_haneul_framework_modules: Vec<&CompiledModule> =
+            self.get_haneul_framework_modules().collect();
 
         // compare framework modules pulled as dependencies (if any - a developer may choose to use only
         // stdlib) with framework modules bundled with the distribution
-        if !pkg_framework_modules.is_empty()
-            && ext_framework_modules != Modules::new(pkg_framework_modules)
+        if !pkg_haneul_framework_modules.is_empty()
+            && ext_haneul_framework_modules != Modules::new(pkg_haneul_framework_modules)
         {
             // note: this advice is overfitted to the most common failure modes we see:
             // user is trying to publish to testnet, but has a `haneul` binary and Haneul Framework
@@ -383,7 +414,7 @@ impl CompiledPackage {
 		    Make sure that you are using a GitHub dep in your Move.toml:\
 		    \
                     [dependencies]
-                    Haneul = { git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework\", rev = \"devnet\" }
+                    Haneul = { git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"devnet\" }
 `                   \
                     If that does not fix the issue, your `haneul` binary is likely out of date--try \
                     cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul"
@@ -476,9 +507,11 @@ impl CompiledPackage {
     }
 
     /// Checks whether this package corresponds to a built-in framework
-    pub fn is_framework(&self) -> bool {
+    pub fn is_system_package(&self) -> bool {
         let package_name = self.package.compiled_package_info.package_name.as_str();
-        package_name == HANEUL_PACKAGE_NAME || package_name == MOVE_STDLIB_PACKAGE_NAME
+        package_name == HANEUL_SYSTEM_PACKAGE_NAME
+            || package_name == HANEUL_PACKAGE_NAME
+            || package_name == MOVE_STDLIB_PACKAGE_NAME
     }
 
     /// Checks for root modules with non-zero package addresses.  Returns an arbitrary one, if one

@@ -3,7 +3,7 @@ name = "haneul-capybaras"
 version = "0.1.0"
 
 [dependencies]
-Haneul = { local = "../../../crates/haneul-framework" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 capy = "0x0"

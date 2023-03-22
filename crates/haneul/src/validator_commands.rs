@@ -8,7 +8,7 @@ use std::{
     path::PathBuf,
 };
 use haneul_config::genesis::GenesisValidatorInfo;
-use haneul_framework::{HaneulFramework, SystemPackage};
+use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_types::{base_types::HaneulAddress, multiaddr::Multiaddr};
 
 use crate::client_commands::{write_transaction_response, WalletContext};
@@ -298,7 +298,7 @@ async fn call_0x5(
     let gas_obj_ref = get_gas_obj_ref(sender, haneul_client, minimal_gas_budget).await?;
     let tx_data = TransactionData::new_move_call(
         sender,
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
         vec![],

@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use haneul_config::node::KeyPairWithPath;
 use haneul_config::utils;
 use haneul_config::{node::AuthorityKeyPairWithPath, Config, NodeConfig, PersistedConfig};
-use haneul_framework::{HaneulFramework, SystemPackage};
+use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionResponseOptions};
 use haneul_sdk::{rpc_types::HaneulTransactionEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
@@ -315,7 +315,7 @@ async fn update_metadata_on_chain(
     args.extend(call_args);
     let tx_data = TransactionData::new_move_call(
         config.haneul_address(),
-        HaneulFramework::ID,
+        HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
         vec![],

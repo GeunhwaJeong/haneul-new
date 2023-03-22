@@ -1,17 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::genesis {
+module haneul_system::genesis {
     use std::vector;
 
     use haneul::balance::{Self, Balance};
     use haneul::coin;
     use haneul::object::UID;
     use haneul::haneul::{Self, HANEUL};
-    use haneul::haneul_system;
+    use haneul_system::haneul_system;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator::{Self, Validator};
-    use haneul::validator_set;
+    use haneul_system::validator::{Self, Validator};
+    use haneul_system::validator_set;
     use std::option::{Option, Self};
 
     /// Stake subisidy to be given out in the very first epoch in Geunhwa (1 million * 10^9).

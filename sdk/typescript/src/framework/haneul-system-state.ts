@@ -8,7 +8,7 @@ import {
   normalizeHaneulObjectId,
   ObjectId,
   HaneulAddress,
-  HANEUL_FRAMEWORK_ADDRESS,
+  HANEUL_SYSTEM_ADDRESS,
 } from '../types';
 
 /**
@@ -45,7 +45,7 @@ export class HaneulSystemStateUtil {
 
     const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
     tx.moveCall({
-      target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_STAKE_FUN_NAME}`,
+      target: `${HANEUL_SYSTEM_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_STAKE_FUN_NAME}`,
       arguments: [
         tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
         coin,
@@ -76,7 +76,7 @@ export class HaneulSystemStateUtil {
   ): Promise<Transaction> {
     const tx = new Transaction();
     tx.moveCall({
-      target: `${HANEUL_FRAMEWORK_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${WITHDRAW_STAKE_FUN_NAME}`,
+      target: `${HANEUL_SYSTEM_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${WITHDRAW_STAKE_FUN_NAME}`,
       arguments: [
         tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
         tx.object(stake),

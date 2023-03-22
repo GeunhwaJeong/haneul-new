@@ -25,7 +25,7 @@ use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
-    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_SYSTEM_PACKAGE_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
 use crate::errors::{Error, ErrorType};
@@ -898,7 +898,7 @@ impl InternalOperation {
                 let arguments = vec![system_state, coin, validator];
 
                 builder.command(Command::move_call(
-                    HANEUL_FRAMEWORK_OBJECT_ID,
+                    HANEUL_SYSTEM_PACKAGE_ID,
                     HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                     ADD_STAKE_FUN_NAME.to_owned(),
                     vec![],
@@ -929,7 +929,7 @@ impl InternalOperation {
 
                     let arguments = vec![system_state, id];
                     builder.command(Command::move_call(
-                        HANEUL_FRAMEWORK_OBJECT_ID,
+                        HANEUL_SYSTEM_PACKAGE_ID,
                         HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                         WITHDRAW_STAKE_FUN_NAME.to_owned(),
                         vec![],

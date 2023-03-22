@@ -16,8 +16,9 @@ storage/
 
 # Move-related files
 Move.lock
-!crates/haneul-framework/Move.lock
-!crates/haneul-framework/deps/move-stdlib/Move.lock
+!crates/haneul-framework/packages/move-stdlib/Move.lock
+!crates/haneul-framework/packages/haneul-framework/Move.lock
+!crates/haneul-framework/packages/haneul-system/Move.lock
 .trace
 .coverage_map.mvcov
 

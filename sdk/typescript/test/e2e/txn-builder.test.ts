@@ -88,7 +88,7 @@ describe('Transaction Builders', () => {
 
     const tx = new Transaction();
     tx.moveCall({
-      target: '0x2::haneul_system::request_add_stake',
+      target: '0x3::haneul_system::request_add_stake',
       arguments: [
         tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
         tx.object(coin_2.objectId),

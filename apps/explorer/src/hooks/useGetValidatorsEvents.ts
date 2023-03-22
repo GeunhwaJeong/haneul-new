@@ -5,7 +5,7 @@ import { useRpcClient } from '@haneullabs/core';
 import { type PaginatedEvents, type EventId } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-export const VALIDATORS_EVENTS_QUERY = '0x2::validator_set::ValidatorEpochInfo';
+export const VALIDATORS_EVENTS_QUERY = '0x3::validator_set::ValidatorEpochInfo';
 
 type GetValidatorsEvent = {
     cursor?: EventId | null;

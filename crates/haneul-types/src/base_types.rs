@@ -117,7 +117,7 @@ pub enum MoveObjectType {
     Other(StructTag),
     /// A HANEUL coin (i.e., 0x2::coin::Coin<0x2::haneul::HANEUL>)
     GasCoin,
-    /// A record of a staked HANEUL coin (i.e., 0x2::staking_pool::StakedHaneul)
+    /// A record of a staked HANEUL coin (i.e., 0x3::staking_pool::StakedHaneul)
     StakedHaneul,
     /// A non-HANEUL coin type (i.e., 0x2::coin::Coin<T> where T != 0x2::haneul::HANEUL)
     Coin(TypeTag),

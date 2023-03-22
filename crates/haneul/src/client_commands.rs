@@ -495,7 +495,7 @@ impl HaneulClientCommands {
                     print_diags_to_stderr,
                 )?;
 
-                if !compiled_package.is_framework() {
+                if !compiled_package.is_system_package() {
                     if let Some(already_published) = compiled_package.published_root_module() {
                         return Err(HaneulError::ModulePublishFailure {
                             error: format!(

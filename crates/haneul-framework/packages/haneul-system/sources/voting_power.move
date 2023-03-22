@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::voting_power {
-    use haneul::validator::Validator;
+module haneul_system::voting_power {
+    use haneul_system::validator::Validator;
     use std::vector;
-    use haneul::validator;
+    use haneul_system::validator;
     use haneul::math;
     use haneul::math::divide_and_round_up;
 

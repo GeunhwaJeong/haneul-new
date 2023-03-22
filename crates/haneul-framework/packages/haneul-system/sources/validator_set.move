@@ -1,16 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::validator_set {
+module haneul_system::validator_set {
     use std::option::{Self, Option};
     use std::vector;
 
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator::{Self, Validator, staking_pool_id, haneul_address};
-    use haneul::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
-    use haneul::staking_pool::{PoolTokenExchangeRate, StakedHaneul, pool_id};
+    use haneul_system::validator::{Self, Validator, staking_pool_id, haneul_address};
+    use haneul_system::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
+    use haneul_system::staking_pool::{PoolTokenExchangeRate, StakedHaneul, pool_id};
     use haneul::object::{Self, ID};
     use haneul::priority_queue as pq;
     use haneul::vec_map::{Self, VecMap};
@@ -18,20 +18,20 @@ module haneul::validator_set {
     use haneul::table::{Self, Table};
     use haneul::event;
     use haneul::table_vec::{Self, TableVec};
-    use haneul::voting_power;
-    use haneul::validator_wrapper::ValidatorWrapper;
-    use haneul::validator_wrapper;
+    use haneul_system::voting_power;
+    use haneul_system::validator_wrapper::ValidatorWrapper;
+    use haneul_system::validator_wrapper;
     use haneul::bag::Bag;
     use haneul::bag;
 
-    friend haneul::genesis;
-    friend haneul::haneul_system_state_inner;
+    friend haneul_system::genesis;
+    friend haneul_system::haneul_system_state_inner;
 
     #[test_only]
-    friend haneul::validator_set_tests;
+    friend haneul_system::validator_set_tests;
 
     #[test_only]
-    friend haneul::stake_tests;
+    friend haneul_system::stake_tests;
 
     struct ValidatorSet has store {
         /// Total amount of stake from all active validators at the beginning of the epoch.

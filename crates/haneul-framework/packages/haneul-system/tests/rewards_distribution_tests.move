@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::rewards_distribution_tests {
+module haneul_system::rewards_distribution_tests {
     use haneul::test_scenario::{Self, Scenario};
-    use haneul::haneul_system::{Self, HaneulSystemState};
+    use haneul_system::haneul_system::{Self, HaneulSystemState};
 
-    use haneul::validator_cap::UnverifiedValidatorOperationCap;
-    use haneul::governance_test_utils::{
+    use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
+    use haneul_system::governance_test_utils::{
         Self,
         advance_epoch,
         advance_epoch_with_reward_amounts,

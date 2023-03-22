@@ -34,7 +34,8 @@ use haneul_types::parse_haneul_struct_tag;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
-    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_PACKAGE_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
 /// The maximum gas per transaction.
@@ -388,7 +389,7 @@ pub fn make_staking_transaction(
 ) -> VerifiedTransaction {
     let data = TransactionData::new_move_call(
         sender,
-        HANEUL_FRAMEWORK_OBJECT_ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
         HANEUL_SYSTEM_MODULE_NAME.to_owned(),
         "request_add_stake".parse().unwrap(),
         vec![],

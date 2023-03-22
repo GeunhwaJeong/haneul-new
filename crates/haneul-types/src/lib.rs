@@ -65,8 +65,13 @@ pub const MOVE_STDLIB_OBJECT_ID: ObjectID = ObjectID::from_address(MOVE_STDLIB_A
 
 /// 0x2-- account address where haneul framework modules are stored
 /// Same as the ObjectID
-pub const HANEUL_FRAMEWORK_ADDRESS: AccountAddress = get_hex_address_two();
+pub const HANEUL_FRAMEWORK_ADDRESS: AccountAddress = address_from_single_byte(2);
 pub const HANEUL_FRAMEWORK_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_FRAMEWORK_ADDRESS);
+
+/// 0x3-- account address where haneul system modules are stored
+/// Same as the ObjectID
+pub const HANEUL_SYSTEM_ADDRESS: AccountAddress = address_from_single_byte(3);
+pub const HANEUL_SYSTEM_PACKAGE_ID: ObjectID = ObjectID::from_address(HANEUL_SYSTEM_ADDRESS);
 
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
@@ -85,12 +90,15 @@ pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERS
 /// Return `true` if `id` is a special system package that can be upgraded at epoch boundaries
 /// All new system package ID's must be added here
 pub fn is_system_package(id: ObjectID) -> bool {
-    matches!(id, MOVE_STDLIB_OBJECT_ID | HANEUL_FRAMEWORK_OBJECT_ID)
+    matches!(
+        id,
+        MOVE_STDLIB_OBJECT_ID | HANEUL_FRAMEWORK_OBJECT_ID | HANEUL_SYSTEM_PACKAGE_ID
+    )
 }
 
-const fn get_hex_address_two() -> AccountAddress {
+const fn address_from_single_byte(b: u8) -> AccountAddress {
     let mut addr = [0u8; AccountAddress::LENGTH];
-    addr[AccountAddress::LENGTH - 1] = 2u8;
+    addr[AccountAddress::LENGTH - 1] = b;
     AccountAddress::new(addr)
 }
 
@@ -112,6 +120,7 @@ fn resolve_address(addr: &str) -> Option<AccountAddress> {
     match addr {
         "std" => Some(MOVE_STDLIB_ADDRESS),
         "haneul" => Some(HANEUL_FRAMEWORK_ADDRESS),
+        "haneul_system" => Some(HANEUL_SYSTEM_ADDRESS),
         _ => None,
     }
 }

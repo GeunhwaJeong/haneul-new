@@ -12,7 +12,7 @@ use haneul_types::{
     error::HaneulResult,
     move_package::MovePackage,
     object::{Object, OBJECT_START_VERSION},
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
+    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 
 pub mod natives;
@@ -87,6 +87,20 @@ define_system_package!(
     [MoveStdlib]
 );
 
+define_system_package!(
+    HANEUL_SYSTEM_ADDRESS,
+    HaneulSystem,
+    "haneul-system",
+    [MoveStdlib, HaneulFramework]
+);
+
+define_system_package!(
+    HANEUL_SYSTEM_ADDRESS,
+    HaneulSystemTest,
+    "haneul-system-test",
+    [MoveStdlib, HaneulFramework]
+);
+
 /// Trait exposing all the various properties of a system package in a variety of different forms,
 /// of increasing levels of abstraction
 pub trait SystemPackage {
@@ -100,19 +114,31 @@ pub trait SystemPackage {
 }
 
 pub fn system_package_ids() -> Vec<ObjectID> {
-    vec![MoveStdlib::ID, HaneulFramework::ID]
+    vec![MoveStdlib::ID, HaneulFramework::ID, HaneulSystem::ID]
 }
 
 pub fn make_system_modules() -> Vec<Vec<CompiledModule>> {
-    vec![MoveStdlib::as_modules(), HaneulFramework::as_modules()]
+    vec![
+        MoveStdlib::as_modules(),
+        HaneulFramework::as_modules(),
+        HaneulSystem::as_modules(),
+    ]
 }
 
 pub fn make_system_packages() -> Vec<MovePackage> {
-    vec![MoveStdlib::as_package(), HaneulFramework::as_package()]
+    vec![
+        MoveStdlib::as_package(),
+        HaneulFramework::as_package(),
+        HaneulSystem::as_package(),
+    ]
 }
 
 pub fn make_system_objects() -> Vec<Object> {
-    vec![MoveStdlib::as_object(), HaneulFramework::as_object()]
+    vec![
+        MoveStdlib::as_object(),
+        HaneulFramework::as_object(),
+        HaneulSystem::as_object(),
+    ]
 }
 
 pub const DEFAULT_FRAMEWORK_PATH: &str = env!("CARGO_MANIFEST_DIR");

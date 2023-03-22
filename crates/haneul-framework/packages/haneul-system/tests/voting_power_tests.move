@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::voting_power_tests {
-    use haneul::governance_test_utils as gtu;
-    use haneul::voting_power;
+module haneul_system::voting_power_tests {
+    use haneul_system::governance_test_utils as gtu;
+    use haneul_system::voting_power;
     use haneul::test_scenario;
     use haneul::test_utils;
     use haneul::tx_context::TxContext;
     use std::vector;
-    use haneul::validator::Validator;
-    use haneul::validator;
+    use haneul_system::validator::{Self, Validator};
 
     const TOTAL_VOTING_POWER: u64 = 10_000;
     const MAX_VOTING_POWER: u64 = 1_000;

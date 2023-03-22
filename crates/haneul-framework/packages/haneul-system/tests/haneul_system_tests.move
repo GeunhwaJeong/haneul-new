@@ -6,15 +6,15 @@
 // `rewards_distribution_tests`.
 
 #[test_only]
-module haneul::haneul_system_tests {
+module haneul_system::haneul_system_tests {
     use haneul::test_scenario::{Self, Scenario};
     use haneul::haneul::HANEUL;
-    use haneul::governance_test_utils::{add_validator_full_flow, advance_epoch, remove_validator, set_up_haneul_system_state, create_haneul_system_state_for_testing};
-    use haneul::haneul_system::{Self, HaneulSystemState};
-    use haneul::haneul_system_state_inner;
-    use haneul::validator::{Self, Validator};
-    use haneul::validator_set;
-    use haneul::validator_cap::UnverifiedValidatorOperationCap;
+    use haneul_system::governance_test_utils::{add_validator_full_flow, advance_epoch, remove_validator, set_up_haneul_system_state, create_haneul_system_state_for_testing};
+    use haneul_system::haneul_system::{Self, HaneulSystemState};
+    use haneul_system::haneul_system_state_inner;
+    use haneul_system::validator::{Self, Validator};
+    use haneul_system::validator_set;
+    use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
     use haneul::transfer;
     use haneul::vec_set;
     use haneul::table;
@@ -126,7 +126,7 @@ module haneul::haneul_system_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = haneul::validator_set::EInvalidCap)]
+    #[expected_failure(abort_code = haneul_system::validator_set::EInvalidCap)]
     fun test_report_validator_by_stakee_revoked() {
         let scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
@@ -152,7 +152,7 @@ module haneul::haneul_system_tests {
     }
 
     #[test]
-    #[expected_failure(abort_code = haneul::validator_set::EInvalidCap)]
+    #[expected_failure(abort_code = haneul_system::validator_set::EInvalidCap)]
     fun test_set_reference_gas_price_by_stakee_revoked() {
         let scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;

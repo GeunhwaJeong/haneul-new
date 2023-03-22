@@ -25,7 +25,7 @@ use prometheus::{
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use haneul_framework::{MoveStdlib, HaneulFramework, SystemPackage};
+use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use tap::{TapFallible, TapOptional};
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::oneshot;
@@ -87,7 +87,7 @@ use haneul_types::{
     fp_ensure,
     messages::*,
     object::{Object, ObjectFormatOptions, ObjectRead},
-    HANEUL_FRAMEWORK_ADDRESS,
+    HANEUL_SYSTEM_ADDRESS,
 };
 use typed_store::Map;
 
@@ -1981,9 +1981,9 @@ impl AuthorityState {
         self.database.get_object(object_id)
     }
 
-    pub async fn get_framework_object_ref(&self) -> HaneulResult<ObjectRef> {
+    pub async fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
         Ok(self
-            .get_object(&HANEUL_FRAMEWORK_ADDRESS.into())
+            .get_object(&HANEUL_SYSTEM_ADDRESS.into())
             .await?
             .expect("framework object should always exist")
             .compute_object_reference())
@@ -2975,13 +2975,21 @@ impl AuthorityState {
 
         let Some(haneul_framework) = self.compare_system_package(
             HaneulFramework::ID,
-            haneul_framework_injection::get_modules(self.name),
+            HaneulFramework::as_modules(),
             HaneulFramework::transitive_dependencies(),
         ).await else {
             return vec![];
         };
 
-        vec![move_stdlib, haneul_framework]
+        let Some(haneul_system) = self.compare_system_package(
+            HaneulSystem::ID,
+            haneul_system_injection::get_modules(self.name),
+            HaneulSystem::transitive_dependencies(),
+        ).await else {
+            return vec![];
+        };
+
+        vec![move_stdlib, haneul_framework, haneul_system]
     }
 
     /// Check whether the framework defined by `modules` is compatible with the framework that is
@@ -3104,8 +3112,12 @@ impl AuthorityState {
                     MoveStdlib::transitive_dependencies(),
                 ),
                 HaneulFramework::ID => (
-                    haneul_framework_injection::get_bytes(self.name),
+                    HaneulFramework::as_bytes(),
                     HaneulFramework::transitive_dependencies(),
+                ),
+                HaneulSystem::ID => (
+                    haneul_system_injection::get_bytes(self.name),
+                    HaneulSystem::transitive_dependencies(),
                 ),
                 _ => panic!("Unrecognised framework: {}", system_package.0),
             };
@@ -3546,7 +3558,7 @@ mod tests {
 }
 
 #[cfg(msim)]
-pub mod haneul_framework_injection {
+pub mod haneul_system_injection {
     use std::cell::RefCell;
 
     use super::*;
@@ -3588,36 +3600,36 @@ pub mod haneul_framework_injection {
 
     pub fn get_bytes(name: AuthorityName) -> Vec<Vec<u8>> {
         OVERRIDE.with(|cfg| match &*cfg.borrow() {
-            FrameworkOverrideConfig::Default => HaneulFramework::as_bytes(),
+            FrameworkOverrideConfig::Default => HaneulSystem::as_bytes(),
             FrameworkOverrideConfig::Global(framework) => compiled_modules_to_bytes(framework),
             FrameworkOverrideConfig::PerValidator(func) => func(name)
                 .map(|fw| compiled_modules_to_bytes(&fw))
-                .unwrap_or_else(HaneulFramework::as_bytes),
+                .unwrap_or_else(HaneulSystem::as_bytes),
         })
     }
 
     pub fn get_modules(name: AuthorityName) -> Vec<CompiledModule> {
         OVERRIDE.with(|cfg| match &*cfg.borrow() {
-            FrameworkOverrideConfig::Default => HaneulFramework::as_modules(),
+            FrameworkOverrideConfig::Default => HaneulSystem::as_modules(),
             FrameworkOverrideConfig::Global(framework) => framework.clone(),
             FrameworkOverrideConfig::PerValidator(func) => {
-                func(name).unwrap_or_else(HaneulFramework::as_modules)
+                func(name).unwrap_or_else(HaneulSystem::as_modules)
             }
         })
     }
 }
 
 #[cfg(not(msim))]
-pub mod haneul_framework_injection {
+pub mod haneul_system_injection {
     use move_binary_format::CompiledModule;
 
     use super::*;
 
     pub fn get_bytes(_name: AuthorityName) -> Vec<Vec<u8>> {
-        HaneulFramework::as_bytes()
+        HaneulSystem::as_bytes()
     }
 
     pub fn get_modules(_name: AuthorityName) -> Vec<CompiledModule> {
-        HaneulFramework::as_modules()
+        HaneulSystem::as_modules()
     }
 }

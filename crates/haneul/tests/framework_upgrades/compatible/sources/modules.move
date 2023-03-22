@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::msim_extra_1 {
+module haneul_system::msim_extra_1 {
     struct Type has drop, store {
         x: u64
     }
@@ -30,7 +30,7 @@ module haneul::msim_extra_1 {
     public fun generic<T: drop>(_t: T) {}
 }
 
-module haneul::msim_extra_2 {
+module haneul_system::msim_extra_2 {
     public fun bar(): u64 {
         43
     }

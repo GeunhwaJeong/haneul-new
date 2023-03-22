@@ -2793,11 +2793,11 @@ async fn test_generate_lock_file() {
 
         [[move.package]]
         name = "MoveStdlib"
-        source = { local = "../../../../../haneul-framework/deps/move-stdlib" }
+        source = { local = "../../../../../haneul-framework/packages/move-stdlib" }
 
         [[move.package]]
         name = "Haneul"
-        source = { local = "../../../../../haneul-framework" }
+        source = { local = "../../../../../haneul-framework/packages/haneul-framework" }
 
         dependencies = [
           { name = "MoveStdlib" },

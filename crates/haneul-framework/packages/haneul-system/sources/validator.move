@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::validator {
+module haneul_system::validator {
     use std::ascii;
     use std::vector;
     use std::bcs;
@@ -9,30 +9,30 @@ module haneul::validator {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::validator_cap::{Self, ValidatorOperationCap};
+    use haneul_system::validator_cap::{Self, ValidatorOperationCap};
     use haneul::object::{Self, ID};
     use std::option::{Option, Self};
-    use haneul::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
+    use haneul_system::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
     use std::string::{Self, String};
     use haneul::url::Url;
     use haneul::url;
     use haneul::event;
     use haneul::bag::Bag;
     use haneul::bag;
-    friend haneul::genesis;
-    friend haneul::haneul_system_state_inner;
-    friend haneul::validator_wrapper;
-    friend haneul::validator_set;
-    friend haneul::voting_power;
+    friend haneul_system::genesis;
+    friend haneul_system::haneul_system_state_inner;
+    friend haneul_system::validator_wrapper;
+    friend haneul_system::validator_set;
+    friend haneul_system::voting_power;
 
     #[test_only]
-    friend haneul::validator_tests;
+    friend haneul_system::validator_tests;
     #[test_only]
-    friend haneul::validator_set_tests;
+    friend haneul_system::validator_set_tests;
     #[test_only]
-    friend haneul::haneul_system_tests;
+    friend haneul_system::haneul_system_tests;
     #[test_only]
-    friend haneul::governance_test_utils;
+    friend haneul_system::governance_test_utils;
 
     /// Invalid proof_of_possession field in ValidatorMetadata
     const EInvalidProofOfPossession: u64 = 0;

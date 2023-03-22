@@ -3,8 +3,9 @@ name = "HaneulExtraChangeStructLayout"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../../haneul-framework" }
-MoveStdlib = { local = "../../../../haneul-framework/deps/move-stdlib" }
+HaneulSystem = { local = "../../../../haneul-framework/packages/haneul-system" }
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
+MoveStdlib = { local = "../../../../haneul-framework/packages/move-stdlib" }
 
 [addresses]
-haneul = "0x2"
+haneul_system = "0x3"

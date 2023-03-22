@@ -11,7 +11,7 @@ use crate::committee::EpochId;
 use crate::error::HaneulError;
 use crate::id::{ID, UID};
 use crate::object::{Data, Object};
-use crate::HANEUL_FRAMEWORK_ADDRESS;
+use crate::HANEUL_SYSTEM_ADDRESS;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -37,7 +37,7 @@ pub struct StakedHaneul {
 impl StakedHaneul {
     pub fn type_() -> StructTag {
         StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
+            address: HANEUL_SYSTEM_ADDRESS,
             module: STAKING_POOL_MODULE_NAME.to_owned(),
             name: STAKED_HANEUL_STRUCT_NAME.to_owned(),
             type_params: vec![],
@@ -45,7 +45,7 @@ impl StakedHaneul {
     }
 
     pub fn is_staked_haneul(s: &StructTag) -> bool {
-        s.address == HANEUL_FRAMEWORK_ADDRESS
+        s.address == HANEUL_SYSTEM_ADDRESS
             && s.module.as_ident_str() == STAKING_POOL_MODULE_NAME
             && s.name.as_ident_str() == STAKED_HANEUL_STRUCT_NAME
             && s.type_params.is_empty()

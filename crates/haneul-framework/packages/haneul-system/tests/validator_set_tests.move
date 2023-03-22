@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::validator_set_tests {
+module haneul_system::validator_set_tests {
     use haneul::balance;
     use haneul::coin;
-    use haneul::staking_pool::StakedHaneul;
+    use haneul_system::staking_pool::StakedHaneul;
     use haneul::tx_context::TxContext;
-    use haneul::validator::{Self, Validator, staking_pool_id};
-    use haneul::validator_set::{Self, ValidatorSet, active_validator_addresses};
+    use haneul_system::validator::{Self, Validator, staking_pool_id};
+    use haneul_system::validator_set::{Self, ValidatorSet, active_validator_addresses};
     use haneul::test_scenario::{Self, Scenario};
     use haneul::vec_map;
     use std::ascii;

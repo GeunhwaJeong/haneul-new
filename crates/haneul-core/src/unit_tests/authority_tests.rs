@@ -1418,7 +1418,10 @@ async fn test_transfer_package() {
         .await
         .unwrap()
         .unwrap();
-    let package_object_ref = authority_state.get_framework_object_ref().await.unwrap();
+    let package_object_ref = authority_state
+        .get_haneul_system_package_object_ref()
+        .await
+        .unwrap();
     // We are trying to transfer the genesis package object, which is immutable.
     let transfer_transaction = init_transfer_transaction(
         sender,
@@ -3172,15 +3175,12 @@ async fn test_haneul_system_state_nop_upgrade() {
     use haneul_adapter::execution_engine::{construct_advance_epoch_pt, AdvanceEpochParams};
     use haneul_adapter::programmable_transactions;
     use haneul_types::haneul_system_state::HANEUL_SYSTEM_STATE_TESTING_VERSION1;
-    use haneul_types::{
-        MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-    };
+    use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 
     let authority_state = init_state().await;
 
     let protocol_config = ProtocolConfig::get_for_version(ProtocolVersion::MIN);
-    let native_functions =
-        haneul_framework::natives::all_natives(MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS);
+    let native_functions = haneul_framework::natives::all_natives();
     let move_vm = adapter::new_move_vm(native_functions.clone(), &protocol_config)
         .expect("We defined natives to not fail here");
     let mut temporary_store = TemporaryStore::new(

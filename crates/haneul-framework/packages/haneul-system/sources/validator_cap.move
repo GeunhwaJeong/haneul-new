@@ -1,18 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::validator_cap {
+module haneul_system::validator_cap {
     use haneul::object::{Self, ID, UID};
     use haneul::transfer;
     use haneul::tx_context::TxContext;
-    friend haneul::haneul_system_state_inner;
-    friend haneul::validator;
-    friend haneul::validator_set;
+    friend haneul_system::haneul_system_state_inner;
+    friend haneul_system::validator;
+    friend haneul_system::validator_set;
 
     #[test_only]
-    friend haneul::haneul_system_tests;
+    friend haneul_system::haneul_system_tests;
     #[test_only]
-    friend haneul::rewards_distribution_tests;
+    friend haneul_system::rewards_distribution_tests;
 
     /// The capability object is created when creating a new `Validator` or when the
     /// validator explicitly creates a new capability object for rotation/revocation.

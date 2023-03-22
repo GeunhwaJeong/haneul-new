@@ -8,7 +8,7 @@ use crate::error::HaneulError;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use crate::versioned::Versioned;
-use crate::{id::UID, MoveTypeTagTrait, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
+use crate::{id::UID, MoveTypeTagTrait, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
@@ -47,7 +47,7 @@ pub struct HaneulSystemStateWrapper {
 impl HaneulSystemStateWrapper {
     pub fn type_() -> StructTag {
         StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
+            address: HANEUL_SYSTEM_ADDRESS,
             name: HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME.to_owned(),
             module: HANEUL_SYSTEM_MODULE_NAME.to_owned(),
             type_params: vec![],

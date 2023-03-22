@@ -12,24 +12,36 @@ use std::{
 
 use haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
 
-const FRAMEWORK_DOCS_DIR: &str = "docs";
+const DOCS_DIR: &str = "docs";
 
 /// Save revision info to environment variable
 fn main() {
     move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let packages_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("packages");
 
-    let haneul_framework_path = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let move_stdlib_path = haneul_framework_path.join("deps").join("move-stdlib");
+    let haneul_system_path = packages_path.join("haneul-system");
+    let haneul_framework_path = packages_path.join("haneul-framework");
+    let haneul_system_path_clone = haneul_system_path.clone();
+    let haneul_framework_path_clone = haneul_framework_path.clone();
+    let move_stdlib_path = packages_path.join("move-stdlib");
 
     Builder::new()
         .stack_size(16 * 1024 * 1024) // build_move_package require bigger stack size on windows.
-        .spawn(move || build_framework_and_stdlib(haneul_framework_path, out_dir))
+        .spawn(move || build_packages(haneul_system_path_clone, haneul_framework_path_clone, out_dir))
         .unwrap()
         .join()
         .unwrap();
 
     println!("cargo:rerun-if-changed=build.rs");
+    println!(
+        "cargo:rerun-if-changed={}",
+        haneul_system_path.join("Move.toml").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        haneul_system_path.join("sources").display()
+    );
     println!(
         "cargo:rerun-if-changed={}",
         haneul_framework_path.join("Move.toml").display()
@@ -48,15 +60,17 @@ fn main() {
     );
 }
 
-fn build_framework_and_stdlib(haneul_framework_path: &Path, out_dir: PathBuf) {
+fn build_packages(haneul_system_path: PathBuf, haneul_framework_path: PathBuf, out_dir: PathBuf) {
     let config = MoveBuildConfig {
         generate_docs: true,
         ..Default::default()
     };
     debug_assert!(!config.test_mode);
-    build_framework_and_stdlib_with_move_config(
-        haneul_framework_path,
+    build_packages_with_move_config(
+        haneul_system_path.clone(),
+        haneul_framework_path.clone(),
         out_dir.clone(),
+        "haneul-system",
         "haneul-framework",
         "move-stdlib",
         config,
@@ -66,38 +80,58 @@ fn build_framework_and_stdlib(haneul_framework_path: &Path, out_dir: PathBuf) {
         test_mode: true,
         ..Default::default()
     };
-    build_framework_and_stdlib_with_move_config(
+    build_packages_with_move_config(
+        haneul_system_path,
         haneul_framework_path,
         out_dir,
+        "haneul-system-test",
         "haneul-framework-test",
         "move-stdlib-test",
         config,
     );
 }
 
-fn build_framework_and_stdlib_with_move_config(
-    haneul_framework_path: &Path,
+fn build_packages_with_move_config(
+    haneul_system_path: PathBuf,
+    haneul_framework_path: PathBuf,
     out_dir: PathBuf,
+    system_dir: &str,
     framework_dir: &str,
     stdlib_dir: &str,
     config: MoveBuildConfig,
 ) {
-    let pkg = BuildConfig {
+    let system_pkg = BuildConfig {
+        config: config.clone(),
+        run_bytecode_verifier: true,
+        print_diags_to_stderr: false,
+    }
+    .build(haneul_system_path)
+    .unwrap();
+    let framework_pkg = BuildConfig {
         config,
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
     }
-    .build(haneul_framework_path.to_path_buf())
+    .build(haneul_framework_path)
     .unwrap();
-    let haneul_framework = pkg.get_framework_modules();
-    let move_stdlib = pkg.get_stdlib_modules();
 
+    let haneul_system = system_pkg.get_haneul_system_modules();
+    let haneul_framework = framework_pkg.get_haneul_framework_modules();
+    let move_stdlib = framework_pkg.get_stdlib_modules();
+
+    serialize_modules_to_file(haneul_system, &out_dir.join(system_dir)).unwrap();
     serialize_modules_to_file(haneul_framework, &out_dir.join(framework_dir)).unwrap();
     serialize_modules_to_file(move_stdlib, &out_dir.join(stdlib_dir)).unwrap();
     // write out generated docs
     // TODO: remove docs of deleted files
-    for (fname, doc) in pkg.package.compiled_docs.unwrap() {
-        let mut dst_path = PathBuf::from(FRAMEWORK_DOCS_DIR);
+    for (fname, doc) in system_pkg.package.compiled_docs.unwrap() {
+        let mut dst_path = PathBuf::from(DOCS_DIR);
+        dst_path.push(fname);
+        fs::write(dst_path, doc).unwrap();
+    }
+
+    for (fname, doc) in framework_pkg.package.compiled_docs.unwrap() {
+        let mut dst_path = PathBuf::from(DOCS_DIR);
         dst_path.push(fname);
         fs::write(dst_path, doc).unwrap();
     }
@@ -115,7 +149,7 @@ fn serialize_modules_to_file<'a>(
     }
     assert!(
         !serialized_modules.is_empty(),
-        "Failed to find framework or stdlib modules"
+        "Failed to find system or framework or stdlib modules"
     );
 
     let binary = bcs::to_bytes(&serialized_modules)?;

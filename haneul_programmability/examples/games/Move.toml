@@ -3,7 +3,7 @@ name = "Games"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../crates/haneul-framework" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 games = "0x0"

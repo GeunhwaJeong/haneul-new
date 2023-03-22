@@ -309,7 +309,7 @@ Make an <code><a href="object.md#0x2_object_ID">ID</a></code> from an address.
 ## Function `haneul_system_state`
 
 Create the <code><a href="object.md#0x2_object_UID">UID</a></code> for the singleton <code>HaneulSystemState</code> object.
-This should only be called once from <code><a href="haneul_system.md#0x2_haneul_system">haneul_system</a></code>.
+This should only be called once from <code>haneul_system</code>.
 
 
 <pre><code><b>fun</b> <a href="object.md#0x2_object_haneul_system_state">haneul_system_state</a>(ctx: &<a href="tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="object.md#0x2_object_UID">object::UID</a>
