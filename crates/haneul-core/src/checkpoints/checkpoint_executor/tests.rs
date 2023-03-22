@@ -12,7 +12,7 @@ use crate::authority::epoch_start_configuration::EpochStartConfiguration;
 use broadcast::{Receiver, Sender};
 use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_types::committee::ProtocolVersion;
-use haneul_types::messages_checkpoint::{ECMHLiveObjectSetDigest, VerifiedCheckpoint};
+use haneul_types::messages_checkpoint::{ECMHLiveObjectSetDigest, EndOfEpochData, VerifiedCheckpoint};
 use tokio::{sync::broadcast, time::timeout};
 
 use crate::{
