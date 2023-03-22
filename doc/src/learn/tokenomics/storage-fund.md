@@ -6,7 +6,7 @@ Haneul includes an efficient and sustainable economic mechanism for financing da
 
 Financially, on-chain data storage introduces a severe inter-temporal challenge: validators who process and write data into storage today may differ from the future validators needing to store that data. If users were to pay fees for computation power only at write, effectively, future users would need to subsidize past users for their storage and pay disproportionately high fees. This negative network externality can become highly taxing for Haneul in the future if left unaddressed.
 
-Haneul’s economic design includes a storage fund that redistributes storage fees from past transactions to future validators. When users transact on Haneul, they pay fees upfront for both computation and storage. The storage fees are deposited into a storage fund used to adjust the share of future stake rewards distributed to validators relative to HANEUL delegators. This design is intended to provide future Haneul validators with viable business models.
+Haneul’s economic design includes a storage fund that redistributes storage fees from past transactions to future validators. When users transact on Haneul, they pay fees upfront for both computation and storage. The storage fees are deposited into a storage fund used to adjust the share of future stake rewards distributed to validators relative to the users that stake HANEUL with them. This design is intended to provide future Haneul validators with viable business models.
 
 ## Storage fund rewards
 

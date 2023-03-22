@@ -6,7 +6,7 @@ The Haneul platform relies on Delegated Proof-of-Stake to determine the set of v
 
 ## HANEUL token staking
 
-Within each epoch, operations are processed by a fixed set of validators, each with a specific amount of stake from HANEUL token holders. A validator's share of total stake is relevant in that it determines each validator’s share of voting power for processing transactions. Staking HANEUL implies the HANEUL tokens are locked for the entire epoch. HANEUL token holders are free to unstake their HANEUL or to change their selected validator when the epoch changes.
+Within each epoch, operations are processed by a fixed set of validators, each with a specific amount of stake from HANEUL token holders. A validator's share of total stake is relevant in that it determines each validator’s share of voting power for processing transactions. Staking HANEUL implies the HANEUL tokens are locked for the entire epoch. HANEUL token holders are free to withdraw their HANEUL or to change their selected validator when the epoch changes.
 
 ## Economic model
 
