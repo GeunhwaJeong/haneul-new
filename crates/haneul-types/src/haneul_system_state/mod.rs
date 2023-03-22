@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::base_types::ObjectID;
-use crate::committee::{CommitteeWithNetworkMetadata, EpochId};
+use crate::committee::CommitteeWithNetworkMetadata;
 use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::HaneulError;
 use crate::storage::ObjectStore;
@@ -28,8 +28,6 @@ const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSys
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch_safe_mode");
-
-pub const INIT_SYSTEM_STATE_VERSION: u64 = 1;
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
 /// This repreents the object with 0x5 ID.
@@ -95,18 +93,8 @@ impl HaneulSystemState {
         }
     }
 
-    pub fn new_for_testing(epoch: EpochId) -> Self {
-        HaneulSystemState::V1(HaneulSystemStateInnerV1::new_for_testing(epoch))
-    }
-
     pub fn version(&self) -> u64 {
         self.system_state_version()
-    }
-}
-
-impl Default for HaneulSystemState {
-    fn default() -> Self {
-        HaneulSystemState::V1(HaneulSystemStateInnerV1::default())
     }
 }
 
@@ -130,9 +118,6 @@ where
     Ok(result)
 }
 
-// This version is used to support authority_tests::test_haneul_system_state_nop_upgrade.
-pub const HANEUL_SYSTEM_STATE_TESTING_VERSION1: u64 = u64::MAX;
-
 pub fn get_haneul_system_state<S>(object_store: &S) -> Result<HaneulSystemState, HaneulError>
 where
     S: ObjectStore,
@@ -150,13 +135,6 @@ where
                         ))
                     },
                 )?;
-            Ok(HaneulSystemState::V1(result))
-        }
-        // The following case is for sim_test only to support authority_tests::test_haneul_system_state_nop_upgrade.
-        #[cfg(msim)]
-        HANEUL_SYSTEM_STATE_TESTING_VERSION1 => {
-            let result: HaneulSystemStateInnerV1 =
-                get_dynamic_field_from_store(object_store, wrapper.id.id.bytes, &wrapper.version)?;
             Ok(HaneulSystemState::V1(result))
         }
         _ => Err(HaneulError::HaneulSystemStateReadError(format!(

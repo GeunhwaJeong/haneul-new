@@ -521,45 +521,6 @@ module haneul_system::haneul_system {
         )
     }
 
-    /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,
-    /// since epochs are ever-increasing and epoch changes are intended to happen every 24 hours.
-    public fun epoch(wrapper: &mut HaneulSystemState): u64 {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::epoch(self)
-    }
-
-    /// Returns unix timestamp of the start of current epoch
-    public fun epoch_start_timestamp_ms(wrapper: &mut HaneulSystemState): u64 {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::epoch_start_timestamp_ms(self)
-    }
-
-    /// Returns the total amount staked with `validator_addr`.
-    /// Aborts if `validator_addr` is not an active validator.
-    public fun validator_stake_amount(wrapper: &mut HaneulSystemState, validator_addr: address): u64 {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::validator_stake_amount(self, validator_addr)
-    }
-
-    /// Returns the staking pool id of a given validator.
-    /// Aborts if `validator_addr` is not an active validator.
-    public fun validator_staking_pool_id(wrapper: &mut HaneulSystemState, validator_addr: address): ID {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::validator_staking_pool_id(self, validator_addr)
-    }
-
-    /// Returns reference to the staking pool mappings that map pool ids to active validator addresses
-    public fun validator_staking_pool_mappings(wrapper: &mut HaneulSystemState): &Table<ID, address> {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::validator_staking_pool_mappings(self)
-    }
-
-    /// Returns all the validators who are currently reporting `addr`
-    public fun get_reporters_of(wrapper: &mut HaneulSystemState, addr: address): VecSet<address> {
-        let self = load_system_state(wrapper);
-        haneul_system_state_inner::get_reporters_of(self, addr)
-    }
-
     fun load_system_state(self: &mut HaneulSystemState): &HaneulSystemStateInner {
         load_inner_maybe_upgrade(self)
     }
@@ -575,6 +536,51 @@ module haneul_system::haneul_system {
         let inner: &mut HaneulSystemStateInner = dynamic_field::borrow_mut(&mut self.id, version);
         assert!(haneul_system_state_inner::system_state_version(inner) == version, 0);
         inner
+    }
+
+    #[test_only]
+    /// Return the current epoch number. Useful for applications that need a coarse-grained concept of time,
+    /// since epochs are ever-increasing and epoch changes are intended to happen every 24 hours.
+    public fun epoch(wrapper: &mut HaneulSystemState): u64 {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::epoch(self)
+    }
+
+    #[test_only]
+    /// Returns unix timestamp of the start of current epoch
+    public fun epoch_start_timestamp_ms(wrapper: &mut HaneulSystemState): u64 {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::epoch_start_timestamp_ms(self)
+    }
+
+    #[test_only]
+    /// Returns the total amount staked with `validator_addr`.
+    /// Aborts if `validator_addr` is not an active validator.
+    public fun validator_stake_amount(wrapper: &mut HaneulSystemState, validator_addr: address): u64 {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::validator_stake_amount(self, validator_addr)
+    }
+
+    #[test_only]
+    /// Returns the staking pool id of a given validator.
+    /// Aborts if `validator_addr` is not an active validator.
+    public fun validator_staking_pool_id(wrapper: &mut HaneulSystemState, validator_addr: address): ID {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::validator_staking_pool_id(self, validator_addr)
+    }
+
+    #[test_only]
+    /// Returns reference to the staking pool mappings that map pool ids to active validator addresses
+    public fun validator_staking_pool_mappings(wrapper: &mut HaneulSystemState): &Table<ID, address> {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::validator_staking_pool_mappings(self)
+    }
+
+    #[test_only]
+    /// Returns all the validators who are currently reporting `addr`
+    public fun get_reporters_of(wrapper: &mut HaneulSystemState, addr: address): VecSet<address> {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::get_reporters_of(self, addr)
     }
 
     #[test_only]

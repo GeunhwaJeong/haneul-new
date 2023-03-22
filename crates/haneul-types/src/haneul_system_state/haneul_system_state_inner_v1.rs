@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::balance::Balance;
-use crate::base_types::{EpochId, ObjectID, HaneulAddress};
+use crate::base_types::{ObjectID, HaneulAddress};
 use crate::collection_types::{Bag, Table, TableVec, VecMap, VecSet};
-use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata, ProtocolVersion};
+use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::crypto::verify_proof_of_possession;
 use crate::crypto::AuthorityPublicKeyBytes;
 use crate::id::ID;
@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 
 use super::epoch_start_haneul_system_state::EpochStartValidatorInfoV1;
 use super::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
-use super::{HaneulSystemStateTrait, INIT_SYSTEM_STATE_VERSION};
+use super::HaneulSystemStateTrait;
 
 const E_METADATA_INVALID_POP: u64 = 0;
 const E_METADATA_INVALID_PUBKEY: u64 = 1;
@@ -469,15 +469,6 @@ pub struct HaneulSystemStateInnerV1 {
     // TODO: Use getters instead of all pub.
 }
 
-impl HaneulSystemStateInnerV1 {
-    pub fn new_for_testing(epoch: EpochId) -> Self {
-        Self {
-            epoch,
-            ..Default::default()
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct StakeSubsidyV1 {
     /// Balance of HANEUL set aside for stake subsidies that will be drawn down over time.
@@ -699,59 +690,6 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
             validator_low_stake_grace_period,
             stake_subsidy_period_length,
             stake_subsidy_decrease_rate,
-        }
-    }
-}
-
-// The default implementation for tests
-impl Default for HaneulSystemStateInnerV1 {
-    fn default() -> Self {
-        let validator_set = ValidatorSetV1 {
-            total_stake: 2,
-            active_validators: vec![],
-            pending_active_validators: TableVec::default(),
-            pending_removals: vec![],
-            staking_pool_mappings: Table::default(),
-            inactive_validators: Table::default(),
-            validator_candidates: Table::default(),
-            at_risk_validators: VecMap { contents: vec![] },
-            extra_fields: Default::default(),
-        };
-        Self {
-            epoch: 0,
-            protocol_version: ProtocolVersion::MIN.as_u64(),
-            system_state_version: INIT_SYSTEM_STATE_VERSION,
-            validators: validator_set,
-            storage_fund: Balance::new(0),
-            parameters: SystemParametersV1 {
-                stake_subsidy_start_epoch: 0,
-                epoch_duration_ms: 10000,
-                max_validator_count: crate::governance::MAX_VALIDATOR_COUNT,
-                min_validator_joining_stake: crate::governance::MIN_VALIDATOR_JOINING_STAKE_GEUNHWA,
-                validator_low_stake_threshold:
-                    crate::governance::VALIDATOR_LOW_STAKE_THRESHOLD_GEUNHWA,
-                validator_very_low_stake_threshold:
-                    crate::governance::VALIDATOR_VERY_LOW_STAKE_THRESHOLD_GEUNHWA,
-                validator_low_stake_grace_period:
-                    crate::governance::VALIDATOR_LOW_STAKE_GRACE_PERIOD,
-                extra_fields: Default::default(),
-            },
-            reference_gas_price: 1,
-            validator_report_records: VecMap { contents: vec![] },
-            stake_subsidy: StakeSubsidyV1 {
-                balance: Balance::new(0),
-                distribution_counter: 0,
-                current_distribution_amount: 0,
-                stake_subsidy_period_length: 1,
-                stake_subsidy_decrease_rate: 0,
-                extra_fields: Default::default(),
-            },
-            safe_mode: false,
-            safe_mode_storage_rewards: Balance::new(0),
-            safe_mode_computation_rewards: Balance::new(0),
-            safe_mode_storage_rebates: 0,
-            epoch_start_timestamp_ms: 0,
-            extra_fields: Default::default(),
         }
     }
 }
