@@ -49,13 +49,13 @@ haneul =  "0000000000000000000000000000000000000000000000000000000000000002"
 
 The aliases defined in `[addresses]` enable you to reference the shortened name instead of the actual address. For example, when you import from Haneul in a module, you can write:
 
-```move
+```rust
 use haneul::transfer
 ```
 
 Without the alias, you have to write:
 
-```move
+```rust
 // You could also use 0x2
 use 0000000000000000000000000000000000000000000000000000000000000002::transfer
 ```

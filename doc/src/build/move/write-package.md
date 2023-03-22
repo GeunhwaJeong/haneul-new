@@ -9,13 +9,13 @@ Before you can build a Haneul Move package and run its code, you must first [ins
 To begin, open a terminal or console at the location you plan to store your package. Use the `haneul move new` command to create an empty Haneul Move package with the name `my_first_package`:
 
 ``` shell
-$ haneul move new my_first_package
+haneul move new my_first_package
 ```
 
 Running the previous command creates a directory with the name you provide (`my_first_package`). The command populates the new directory with a skeleton Haneul Move project that consists of a `sources` directory and a [`Move.toml` manifest](manifest.md). Open the manifest with a text editor to review its contents:
 
 ```shell
-$ cat my_first_package/Move.toml
+cat my_first_package/Move.toml
 [package]
 name = "my_first_package"
 version = "0.0.1"
@@ -25,7 +25,7 @@ Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/
 
 [addresses]
 my_first_package = "0x0"
-haneul = "0000000000000000000000000000000000000002"
+haneul = "0000000000000000000000000000000000000000000000000000000000000002"
 ```
 
 ### Defining the package
@@ -33,7 +33,7 @@ haneul = "0000000000000000000000000000000000000002"
 You have a package now but it doesn't do anything. To make your package useful, you must add logic contained in `.move` source files that define *modules*. Use a text editor or the command line to create your first package source file named `my_module.move` in the `sources` directory of the package:
 
 ``` shell
-$ touch my_first_package/sources/my_module.move
+touch my_first_package/sources/my_module.move
 ```
 
 Populate the `my_module.move` file with the following code:
@@ -91,12 +91,19 @@ module my_first_package::my_module {
 The comments in the preceding code highlight different parts of a typical Haneul Move source file. 
 
 * Part 1: Imports
+
     Code reuse is a necessity in modern programming. Haneul Move supports this concept with imports that allow your module to use types and functions declared in other modules. In this example, the module imports from `object`, `transfer`, and `tx_content` modules. These modules are available to the package because the `Move.toml` file defines the Haneul dependency (along with the `haneul` named address) where they are defined.
+
 * Part 2: Struct declarations
+
     Structs define types that a module can create or destroy. Struct definitions can include abilities provided with the `has` keyword. The structs in this example, for instance, have the `key` ability, which indicates that these structs are Haneul objects that you can transfer between addresses. The `store` ability on the structs provide the ability to appear in other struct fields and be transferred freely.
+
 * Part 3: Module initializer
+
     A special function that is invoked exactly once when the module publishes.
+    
 * Part 4: Accessor functions
+
     These functions allow the fields of the module's structs to be read from other modules.
 
 After you save the file, you have a complete Haneul Move package. Next, you learn to build and test your package to get it ready for publishing. 
