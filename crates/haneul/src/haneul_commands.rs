@@ -13,7 +13,10 @@ use move_package::BuildConfig;
 use haneul_framework_build::compiled_package::HaneulPackageHooks;
 use tracing::info;
 
-use haneul_config::{builder::ConfigBuilder, NetworkConfig, HANEUL_KEYSTORE_FILENAME};
+use haneul_config::{
+    builder::ConfigBuilder, NetworkConfig, HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME,
+    HANEUL_KEYSTORE_FILENAME,
+};
 use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
 use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, FULL_NODE_DB_PATH, HANEUL_CLIENT_CONFIG,
@@ -67,6 +70,15 @@ pub enum HaneulCommand {
         force: bool,
         #[clap(long = "epoch-duration-ms")]
         epoch_duration_ms: Option<u64>,
+        #[clap(
+            long,
+            value_name = "ADDR",
+            multiple_occurrences = false,
+            multiple_values = true,
+            value_delimiter = ',',
+            help = "A list of ip addresses to generate a genesis suitable for benchmarks"
+        )]
+        benchmark_ips: Option<Vec<String>>,
     },
     GenesisCeremony(Ceremony),
     /// Haneul keystore tool.
@@ -145,7 +157,7 @@ impl HaneulCommand {
             } => {
                 // Auto genesis if path is none and haneul directory doesn't exists.
                 if config.is_none() && !haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG).exists() {
-                    genesis(None, None, None, false, None).await?;
+                    genesis(None, None, None, false, None, None).await?;
                 }
 
                 // Load the config of the Haneul authority.
@@ -221,6 +233,7 @@ impl HaneulCommand {
                 from_config,
                 write_config,
                 epoch_duration_ms,
+                benchmark_ips,
             } => {
                 genesis(
                     from_config,
@@ -228,6 +241,7 @@ impl HaneulCommand {
                     working_dir,
                     force,
                     epoch_duration_ms,
+                    benchmark_ips,
                 )
                 .await
             }
@@ -298,6 +312,7 @@ async fn genesis(
     working_dir: Option<PathBuf>,
     force: bool,
     epoch_duration_ms: Option<u64>,
+    benchmark_ips: Option<Vec<String>>,
 ) -> Result<(), anyhow::Error> {
     let haneul_config_dir = &match working_dir {
         // if a directory is specified, it must exist (it
@@ -365,7 +380,17 @@ async fn genesis(
     let mut genesis_conf = match from_config {
         Some(path) => PersistedConfig::read(&path)?,
         None => {
-            if keystore_path.exists() {
+            if let Some(ips) = benchmark_ips {
+                // Make a keystore containing the key for the genesis gas object.
+                let path = haneul_config_dir.join(HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME);
+                let mut keystore = FileBasedKeystore::new(&path)?;
+                let gas_key = GenesisConfig::benchmark_gas_key();
+                keystore.add_key(gas_key)?;
+                keystore.save()?;
+
+                // Make a new genesis config from the provided ip addresses.
+                GenesisConfig::new_for_benchmarks(&ips)
+            } else if keystore_path.exists() {
                 let existing_keys = FileBasedKeystore::new(&keystore_path)?.addresses();
                 GenesisConfig::for_local_testing_with_addresses(existing_keys)
             } else {
@@ -428,7 +453,7 @@ async fn genesis(
         .into_iter()
         .enumerate()
     {
-        let path = haneul_config_dir.join(format!("validator-config-{}.yaml", i));
+        let path = haneul_config_dir.join(haneul_config::validator_config_file(i));
         validator.save(path)?;
     }
 

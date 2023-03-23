@@ -27,6 +27,7 @@ pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
 pub const HANEUL_KEYSTORE_FILENAME: &str = "haneul.keystore";
+pub const HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME: &str = "benchmark.keystore";
 pub const HANEUL_GENESIS_FILENAME: &str = "genesis.blob";
 pub const HANEUL_DEV_NET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 
@@ -51,6 +52,10 @@ pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {
         }
         Ok(dir)
     })
+}
+
+pub fn validator_config_file(i: usize) -> String {
+    format!("validator-config-{}.yaml", i)
 }
 
 pub trait Config
