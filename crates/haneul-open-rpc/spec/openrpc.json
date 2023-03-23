@@ -2533,7 +2533,7 @@
         },
         {
           "name": "coins",
-          "description": "Coin<HANEUL> or LockedCoin<HANEUL> object to stake",
+          "description": "Coin<HANEUL> object to stake",
           "required": true,
           "schema": {
             "type": "array",

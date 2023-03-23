@@ -1,5 +1,5 @@
 [package]
-name = "haneul-framework-test"
+name = "haneul-framework-tests"
 version = "0.1.0"
 edition = "2021"
 authors = ["Haneul Labs <eng@haneul-labs.com>"]

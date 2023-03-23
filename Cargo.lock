@@ -8869,7 +8869,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-framework-test"
+name = "haneul-framework-tests"
 version = "0.1.0"
 dependencies = [
  "move-cli",

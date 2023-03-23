@@ -224,7 +224,7 @@ pub trait TransactionBuilder {
         &self,
         /// the transaction signer's Haneul address
         signer: HaneulAddress,
-        /// Coin<HANEUL> or LockedCoin<HANEUL> object to stake
+        /// Coin<HANEUL> object to stake
         coins: Vec<ObjectID>,
         /// stake amount
         amount: Option<u64>,

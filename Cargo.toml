@@ -20,7 +20,7 @@ members = [
     "crates/haneul-faucet",
     "crates/haneul-framework",
     "crates/haneul-framework-build",
-    "crates/haneul-framework-test",
+    "crates/haneul-framework-tests",
     "crates/haneul-indexer",
     "crates/haneul-json",
     "crates/haneul-json-rpc",

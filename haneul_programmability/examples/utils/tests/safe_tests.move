@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[test_only]
-module haneul::safe_tests {
-    use haneul::safe::{Self, Safe, TransferCapability, OwnerCapability};
+module utils::safe_tests {
+    use utils::safe::{Self, Safe, TransferCapability, OwnerCapability};
     use haneul::test_scenario::{Self as ts, Scenario, ctx};
     use haneul::coin::{Self, Coin};
     use haneul::object::{Self, ID};

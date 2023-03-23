@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module haneul::locked_coin {
+module utils::locked_coin {
     use haneul::balance::{Self, Balance};
     use haneul::coin::{Self, Coin};
     use haneul::object::{Self, UID};
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
-    use haneul::epoch_time_lock::{Self, EpochTimeLock};
+    use utils::epoch_time_lock::{Self, EpochTimeLock};
 
     /// A coin of type `T` locked until `locked_until_epoch`.
     struct LockedCoin<phantom T> has key {
