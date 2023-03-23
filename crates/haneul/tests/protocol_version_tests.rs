@@ -66,7 +66,10 @@ mod sim_only_tests {
     use haneul_json_rpc::api::WriteApiClient;
     use haneul_macros::*;
     use haneul_protocol_config::SupportedProtocolVersions;
-    use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+    use haneul_types::haneul_system_state::{
+        HaneulSystemState, HaneulSystemStateTrait, HANEUL_SYSTEM_STATE_SIM_TEST_V1,
+        HANEUL_SYSTEM_STATE_SIM_TEST_V2,
+    };
     use haneul_types::{
         base_types::SequenceNumber,
         digests::TransactionDigest,
@@ -556,6 +559,38 @@ mod sim_only_tests {
             .unwrap();
         // Make sure we can survive at least one epoch.
         test_cluster.wait_for_epoch(None).await;
+    }
+
+    #[sim_test]
+    async fn haneul_system_state_upgrade_test() {
+        let test_cluster = TestClusterBuilder::new()
+            .with_epoch_duration_ms(20000)
+            .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(
+                START, FINISH,
+            ))
+            .with_objects([haneul_system_package_object("mock_haneul_systems/base")])
+            .build()
+            .await
+            .unwrap();
+        haneul_system_injection::set_override(haneul_system_modules("mock_haneul_systems/upgrade"));
+        // Wait for the upgrade to finish. After the upgrade, the new framework will be installed,
+        // but the system state object hasn't been upgraded yet.
+        let system_state = test_cluster.wait_for_epoch(Some(1)).await;
+        assert_eq!(system_state.protocol_version(), FINISH);
+        assert_eq!(
+            system_state.system_state_version(),
+            HANEUL_SYSTEM_STATE_SIM_TEST_V1
+        );
+        assert!(matches!(system_state, HaneulSystemState::SimTestV1(_)));
+
+        // The system state object will be upgraded next time we execute advance_epoch transaction
+        // at epoch boundary.
+        let system_state = test_cluster.wait_for_epoch(Some(2)).await;
+        assert_eq!(
+            system_state.system_state_version(),
+            HANEUL_SYSTEM_STATE_SIM_TEST_V2
+        );
+        assert!(matches!(system_state, HaneulSystemState::SimTestV2(_)));
     }
 
     async fn monitor_version_change(test_cluster: &TestCluster, final_version: u64) {
