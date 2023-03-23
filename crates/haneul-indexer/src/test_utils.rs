@@ -38,22 +38,17 @@ pub async fn start_test_indexer(
 pub struct HaneulTransactionResponseBuilder<'a> {
     response: HaneulTransactionResponse,
     full_response: &'a HaneulTransactionResponse,
-    required_fields: &'a HaneulTransactionResponse,
 }
 
 impl<'a> HaneulTransactionResponseBuilder<'a> {
-    pub fn new(
-        full_response: &'a HaneulTransactionResponse,
-        required_fields: &'a HaneulTransactionResponse,
-    ) -> Self {
+    pub fn new(full_response: &'a HaneulTransactionResponse) -> Self {
         Self {
             response: HaneulTransactionResponse::default(),
             full_response,
-            required_fields,
         }
     }
 
-    pub fn with_transaction(mut self) -> Self {
+    pub fn with_input(mut self) -> Self {
         self.response = HaneulTransactionResponse {
             transaction: self.full_response.transaction.clone(),
             ..self.response
@@ -61,7 +56,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
         self
     }
 
-    pub fn with_raw_transaction(mut self) -> Self {
+    pub fn with_raw_input(mut self) -> Self {
         self.response = HaneulTransactionResponse {
             raw_transaction: self.full_response.raw_transaction.clone(),
             ..self.response
@@ -111,19 +106,6 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
         self
     }
 
-    pub fn with_all(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
-            transaction: self.full_response.transaction.clone(),
-            raw_transaction: self.full_response.raw_transaction.clone(),
-            effects: self.full_response.effects.clone(),
-            events: self.full_response.events.clone(),
-            balance_changes: self.full_response.balance_changes.clone(),
-            object_changes: self.full_response.object_changes.clone(),
-            ..self.response
-        };
-        self
-    }
-
     pub fn build(self) -> HaneulTransactionResponse {
         HaneulTransactionResponse {
             transaction: self.response.transaction,
@@ -132,7 +114,8 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
             events: self.response.events,
             balance_changes: self.response.balance_changes,
             object_changes: self.response.object_changes,
-            ..self.required_fields.clone()
+            // Use full response for any fields that aren't showable
+            ..self.full_response.clone()
         }
     }
 }

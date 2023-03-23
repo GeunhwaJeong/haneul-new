@@ -817,8 +817,6 @@ pub mod pg_integration_test {
                 Some(HaneulTransactionResponseOptions::full_content()),
             )
             .await?;
-        let transaction_required_fields =
-            HaneulTransactionResponse::new(full_transaction_response.clone().digest);
         let haneul_transaction_response_options = vec![
             HaneulTransactionResponseOptions::new().with_input(),
             HaneulTransactionResponseOptions::new().with_raw_input(),
@@ -844,54 +842,36 @@ pub mod pg_integration_test {
             .unwrap();
 
         let expected_transaction_results = vec![
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_transaction()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_raw_transaction()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_effects()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_events()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_balance_changes()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_object_changes()
-            .build(),
-            HaneulTransactionResponseBuilder::new(
-                &full_transaction_response,
-                &transaction_required_fields,
-            )
-            .with_all()
-            .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_input()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_raw_input()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_effects()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_events()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_balance_changes()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_object_changes()
+                .build(),
+            HaneulTransactionResponseBuilder::new(&full_transaction_response)
+                .with_input()
+                .with_balance_changes()
+                .with_object_changes()
+                .build(),
         ];
-        for (received, expected) in received_transaction_results
+        for (i, (received, expected)) in received_transaction_results
             .iter()
             .zip(expected_transaction_results.iter())
+            .enumerate()
         {
-            assert_eq!(received, expected);
+            assert_eq!(received, expected, "Mismatch found at index {}", i);
         }
         Ok(())
     }
