@@ -43,6 +43,6 @@ mod move_package_upgrade_tests;
 mod pay_haneul_tests;
 pub mod test_authority_clients;
 
-pub mod batch_bls_verifier;
+pub mod signature_verifier;
 
 pub const HANEUL_CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
