@@ -130,6 +130,10 @@
 				"fileName": "build/haneul-local-network"
 			},
 			{
+				"label": "Haneul Object Display Standard",
+				"fileName": "build/haneul-object-display"
+			},
+			{
 				"label": "Create Smart Contracts with Move",
 				"fileName": "build/move/index",
 				"title": "Smart Contracts with Move",
