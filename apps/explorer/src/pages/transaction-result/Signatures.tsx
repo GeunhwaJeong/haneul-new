@@ -14,6 +14,7 @@ import {
 } from '@haneullabs/haneul.js';
 
 import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
+import { AddressLink } from '~/ui/InternalLink';
 import { Tab, TabGroup, TabList } from '~/ui/Tabs';
 import { Text } from '~/ui/Text';
 
@@ -36,9 +37,12 @@ function SignaturePanel({
                     </Text>
                 </DescriptionItem>
                 <DescriptionItem title="Address">
-                    <Text variant="p1/medium" color="steel-darker">
-                        {signature.pubKey.toHaneulAddress()}
-                    </Text>
+                    <AddressLink
+                        noTruncate
+                        address={normalizeHaneulAddress(
+                            signature.pubKey.toHaneulAddress()
+                        )}
+                    />
                 </DescriptionItem>
                 <DescriptionItem title="Signature">
                     <Text variant="p1/medium" color="steel-darker">
