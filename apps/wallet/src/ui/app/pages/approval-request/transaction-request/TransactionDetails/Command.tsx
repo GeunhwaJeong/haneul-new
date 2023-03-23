@@ -6,6 +6,7 @@ import {
     type CommandArgument,
     formatAddress,
     type TransactionCommand,
+    normalizeHaneulAddress,
 } from '@haneullabs/haneul.js';
 import { useState } from 'react';
 
@@ -44,7 +45,7 @@ function convertCommandToString({ kind, ...command }: TransactionCommand) {
             if (key === 'target') {
                 const [packageId, moduleName, functionName] = value.split('::');
                 return [
-                    `package: ${formatAddress(packageId)}`,
+                    `package: ${formatAddress(normalizeHaneulAddress(packageId))}`,
                     `module: ${moduleName}`,
                     `function: ${functionName}`,
                 ].join(', ');

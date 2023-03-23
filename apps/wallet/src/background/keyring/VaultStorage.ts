@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { fromExportedKeypair, normalizeHaneulAddress } from '@haneullabs/haneul.js';
+import { fromExportedKeypair } from '@haneullabs/haneul.js';
 import { randomBytes } from '@noble/hashes/utils';
 
 import {
@@ -146,9 +146,7 @@ class VaultStorageClass {
             throw new Error('Error, vault is locked. Unlock the vault first.');
         }
         const keypairToImport = fromExportedKeypair(keypair);
-        const importedAddress = normalizeHaneulAddress(
-            keypairToImport.getPublicKey().toHaneulAddress()
-        );
+        const importedAddress = keypairToImport.getPublicKey().toHaneulAddress();
         const isDuplicate = existingAccounts.some(
             (anAccount) => anAccount.address === importedAddress
         );

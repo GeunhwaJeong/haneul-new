@@ -9,11 +9,11 @@ dependencies = [
 
 [[move.package]]
 name = "MoveStdlib"
-source = { local = "../../../../../../crates/haneul-framework/deps/move-stdlib" }
+source = { local = "../../../../../../crates/haneul-framework/packages/move-stdlib" }
 
 [[move.package]]
 name = "Haneul"
-source = { local = "../../../../../../crates/haneul-framework" }
+source = { local = "../../../../../../crates/haneul-framework/packages/haneul-framework" }
 
 dependencies = [
   { name = "MoveStdlib" },

@@ -1,11 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    normalizeHaneulAddress,
-    type Keypair,
-    type HaneulAddress,
-} from '@haneullabs/haneul.js';
+import { type Keypair, type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { type Account, AccountType } from './Account';
 import { AccountKeypair } from './AccountKeypair';
@@ -24,9 +20,7 @@ export class ImportedAccount implements Account {
     constructor({ keypair }: { keypair: Keypair }) {
         this.type = AccountType.IMPORTED;
         this.accountKeypair = new AccountKeypair(keypair);
-        this.address = normalizeHaneulAddress(
-            this.accountKeypair.publicKey.toHaneulAddress()
-        );
+        this.address = this.accountKeypair.publicKey.toHaneulAddress();
     }
 
     toJSON(): SerializedImportedAccount {
