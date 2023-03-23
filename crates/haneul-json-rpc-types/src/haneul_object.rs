@@ -38,6 +38,41 @@ pub enum HaneulObjectResponse {
     Deleted(HaneulObjectRef),
 }
 
+impl HaneulObjectResponse {
+    pub fn move_object_bcs(&self) -> Option<&Vec<u8>> {
+        match self {
+            HaneulObjectResponse::Exists(data) => match &data.bcs {
+                Some(HaneulRawData::MoveObject(obj)) => Some(&obj.bcs_bytes),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+    pub fn owner(&self) -> Option<Owner> {
+        match self {
+            HaneulObjectResponse::Exists(e) => e.owner,
+            HaneulObjectResponse::NotExists(_) => None,
+            HaneulObjectResponse::Deleted(_) => None,
+        }
+    }
+
+    pub fn object_id(&self) -> ObjectID {
+        match self {
+            HaneulObjectResponse::Exists(e) => e.object_id,
+            HaneulObjectResponse::NotExists(ne) => *ne,
+            HaneulObjectResponse::Deleted(d) => d.object_id,
+        }
+    }
+
+    pub fn object_ref_if_exists(&self) -> Option<ObjectRef> {
+        match self {
+            HaneulObjectResponse::Exists(e) => Some(e.object_ref()),
+            HaneulObjectResponse::NotExists(_) => None,
+            HaneulObjectResponse::Deleted(_) => None,
+        }
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "ObjectData")]

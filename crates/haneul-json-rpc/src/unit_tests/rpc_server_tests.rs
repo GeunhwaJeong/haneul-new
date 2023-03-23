@@ -9,6 +9,8 @@ use crate::api::{
     CoinReadApiClient, GovernanceReadApiClient, ReadApiClient, TransactionBuilderClient,
     WriteApiClient,
 };
+use haneul_config::genesis_config::DEFAULT_GAS_AMOUNT;
+use haneul_config::genesis_config::DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::{call_args, type_args};
@@ -353,8 +355,14 @@ async fn test_get_balance() -> Result<(), anyhow::Error> {
 
     let result: Balance = http_client.get_balance(*address, None).await?;
     assert_eq!("0x2::haneul::HANEUL", result.coin_type);
-    assert_eq!(500000000000000, result.total_balance);
-    assert_eq!(5, result.coin_object_count);
+    assert_eq!(
+        (DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT as u64 * DEFAULT_GAS_AMOUNT) as u128,
+        result.total_balance
+    );
+    assert_eq!(
+        DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT,
+        result.coin_object_count
+    );
 
     Ok(())
 }

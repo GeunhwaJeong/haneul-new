@@ -1,17 +1,30 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use anyhow::{anyhow, bail, Result};
 use move_core_types::ident_str;
 use std::{
-    fmt::{Debug, Display, Formatter, Write},
+    collections::{BTreeMap, HashSet},
+    fmt::{self, Debug, Display, Formatter, Write},
     fs,
     path::PathBuf,
 };
 use haneul_config::genesis::GenesisValidatorInfo;
 use haneul_framework::{HaneulSystem, SystemPackage};
-use haneul_types::{base_types::HaneulAddress, multiaddr::Multiaddr};
 
-use crate::client_commands::{write_transaction_response, WalletContext};
+use haneul_types::{
+    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    crypto::{AuthorityPublicKey, NetworkPublicKey},
+    multiaddr::Multiaddr,
+    object::Owner,
+    haneul_system_state::{
+        haneul_system_state_inner_v1::{UnverifiedValidatorOperationCapV1, ValidatorV1},
+        haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary},
+    },
+};
+use tap::tap::TapOptional;
+
+use crate::client_commands::WalletContext;
 use crate::fire_drill::get_gas_obj_ref;
 use clap::*;
 use colored::Colorize;
@@ -19,7 +32,9 @@ use fastcrypto::traits::KeyPair;
 use fastcrypto::traits::ToFromBytes;
 use serde::Serialize;
 use shared_crypto::intent::Intent;
-use haneul_json_rpc_types::{HaneulTransactionResponse, HaneulTransactionResponseOptions};
+use haneul_json_rpc_types::{
+    HaneulObjectDataOptions, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::{
     key_derive::generate_new_key,
@@ -33,12 +48,14 @@ use haneul_types::crypto::{
     generate_proof_of_possession, get_authority_key_pair, AuthorityPublicKeyBytes,
 };
 use haneul_types::messages::Transaction;
-use haneul_types::messages::{CallArg, TransactionData};
+use haneul_types::messages::{CallArg, ObjectArg, TransactionData};
 use haneul_types::{
     crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair},
     HANEUL_SYSTEM_OBJ_CALL_ARG,
 };
-use tracing::info;
+
+// TODO adjust this to a reasonable number after the gas fix is in
+const DEFAULT_GAS_BUDGET: u64 = 15_000_000;
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -61,11 +78,60 @@ pub enum HaneulValidatorCommand {
     },
     #[clap(name = "join-committee")]
     JoinCommittee {
+        /// Gas budget for this transaction.
         #[clap(name = "gas-budget", long)]
         gas_budget: Option<u64>,
     },
     #[clap(name = "leave-committee")]
     LeaveCommittee {
+        /// Gas budget for this transaction.
+        #[clap(name = "gas-budget", long)]
+        gas_budget: Option<u64>,
+    },
+    #[clap(name = "display-metadata")]
+    DisplayMetadata {
+        #[clap(name = "validator-address")]
+        validator_address: Option<HaneulAddress>,
+        #[clap(name = "json", long)]
+        json: Option<bool>,
+    },
+    #[clap(name = "update-metadata")]
+    UpdateMetadata {
+        #[clap(subcommand)]
+        metadata: MetadataUpdate,
+        /// Gas budget for this transaction.
+        #[clap(name = "gas-budget", long)]
+        gas_budget: Option<u64>,
+    },
+    /// Update gas price that is used to calculate Reference Gas Price
+    #[clap(name = "update-gas-price")]
+    UpdateGasPrice {
+        /// Optional when sender is the validator itself and it holds the Cap object.
+        /// Required when sender is not the validator itself.
+        /// Validator's OperationCap ID can be found by using the `display-metadata` subcommand.
+        #[clap(name = "operation-cap-id", long)]
+        operation_cap_id: Option<ObjectID>,
+        #[clap(name = "gas-price")]
+        gas_price: u64,
+        /// Gas budget for this transaction.
+        #[clap(name = "gas-budget", long)]
+        gas_budget: Option<u64>,
+    },
+    /// Report or un-report a validator.
+    #[clap(name = "report-validator")]
+    ReportValidator {
+        /// Optional when sender is reporter validator itself and it holds the Cap object.
+        /// Required when sender is not the reporter validator itself.
+        /// Validator's OperationCap ID can be found by using the `display-metadata` subcommand.
+        #[clap(name = "operation-cap-id", long)]
+        operation_cap_id: Option<ObjectID>,
+        /// The Haneul Address of the validator is being reported or un-reported
+        #[clap(name = "reportee-address")]
+        reportee_address: HaneulAddress,
+        /// If true, undo an existing report.
+        #[clap(name = "undo-report", long)]
+        undo_report: Option<bool>,
+        /// Gas budget for this transaction.
         #[clap(name = "gas-budget", long)]
         gas_budget: Option<u64>,
     },
@@ -75,9 +141,13 @@ pub enum HaneulValidatorCommand {
 #[serde(untagged)]
 pub enum HaneulValidatorCommandResponse {
     MakeValidatorInfo,
+    DisplayMetadata,
     BecomeCandidate(HaneulTransactionResponse),
     JoinCommittee(HaneulTransactionResponse),
     LeaveCommittee(HaneulTransactionResponse),
+    UpdateMetadata(HaneulTransactionResponse),
+    UpdateGasPrice(HaneulTransactionResponse),
+    ReportValidator(HaneulTransactionResponse),
 }
 
 fn make_key_files(
@@ -117,8 +187,8 @@ impl HaneulValidatorCommand {
         self,
         context: &mut WalletContext,
     ) -> Result<HaneulValidatorCommandResponse, anyhow::Error> {
-        let client = context.get_client().await?;
         let haneul_address = context.active_address()?;
+
         let ret = Ok(match self {
             HaneulValidatorCommand::MakeValidatorInfo {
                 name,
@@ -192,7 +262,7 @@ impl HaneulValidatorCommand {
                 HaneulValidatorCommandResponse::MakeValidatorInfo
             }
             HaneulValidatorCommand::BecomeCandidate { file, gas_budget } => {
-                let gas_budget = gas_budget.unwrap_or(15000);
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
                 let validator_info_bytes = fs::read(file)?;
                 // Note: we should probably rename the struct or evolve it accordingly.
                 let validator_info: GenesisValidatorInfo =
@@ -235,55 +305,225 @@ impl HaneulValidatorCommand {
                     CallArg::Pure(bcs::to_bytes(&validator.gas_price()).unwrap()),
                     CallArg::Pure(bcs::to_bytes(&validator.commission_rate()).unwrap()),
                 ];
-                let response = call_0x5(
-                    context,
-                    "request_add_validator_candidate",
-                    args,
-                    &client,
-                    gas_budget,
-                )
-                .await?;
+                let response =
+                    call_0x5(context, "request_add_validator_candidate", args, gas_budget).await?;
                 HaneulValidatorCommandResponse::BecomeCandidate(response)
             }
 
             HaneulValidatorCommand::JoinCommittee { gas_budget } => {
-                let gas_budget = gas_budget.unwrap_or(10000);
-                let response = call_0x5(
-                    context,
-                    "request_add_validator",
-                    vec![],
-                    &client,
-                    gas_budget,
-                )
-                .await?;
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let response =
+                    call_0x5(context, "request_add_validator", vec![], gas_budget).await?;
                 HaneulValidatorCommandResponse::JoinCommittee(response)
             }
 
             HaneulValidatorCommand::LeaveCommittee { gas_budget } => {
-                let gas_budget = gas_budget.unwrap_or(10000);
-                let response = call_0x5(
+                // Only an active validator can leave committee.
+                let _status =
+                    check_status(context, HashSet::from([ValidatorStatus::Active])).await?;
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let response =
+                    call_0x5(context, "request_remove_validator", vec![], gas_budget).await?;
+                HaneulValidatorCommandResponse::LeaveCommittee(response)
+            }
+
+            HaneulValidatorCommand::DisplayMetadata {
+                validator_address,
+                json,
+            } => {
+                let validator_address = validator_address.unwrap_or(context.active_address()?);
+                // Default display with json serialization for better UX.
+                let haneul_client = context.get_client().await?;
+                display_metadata(&haneul_client, validator_address, json.unwrap_or(true)).await?;
+                HaneulValidatorCommandResponse::DisplayMetadata
+            }
+
+            HaneulValidatorCommand::UpdateMetadata {
+                metadata,
+                gas_budget,
+            } => {
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let resp = update_metadata(context, metadata, gas_budget).await?;
+                HaneulValidatorCommandResponse::UpdateMetadata(resp)
+            }
+
+            HaneulValidatorCommand::UpdateGasPrice {
+                operation_cap_id,
+                gas_price,
+                gas_budget,
+            } => {
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let resp =
+                    update_gas_price(context, operation_cap_id, gas_price, gas_budget).await?;
+                HaneulValidatorCommandResponse::UpdateGasPrice(resp)
+            }
+
+            HaneulValidatorCommand::ReportValidator {
+                operation_cap_id,
+                reportee_address,
+                undo_report,
+                gas_budget,
+            } => {
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let undo_report = undo_report.unwrap_or(false);
+                let resp = report_validator(
                     context,
-                    "request_remove_validator",
-                    vec![],
-                    &client,
+                    reportee_address,
+                    operation_cap_id,
+                    undo_report,
                     gas_budget,
                 )
                 .await?;
-                HaneulValidatorCommandResponse::LeaveCommittee(response)
+                HaneulValidatorCommandResponse::ReportValidator(resp)
             }
         });
         ret
     }
 }
 
+async fn get_cap_object_ref(
+    context: &mut WalletContext,
+    operation_cap_id: Option<ObjectID>,
+) -> Result<(ValidatorStatus, HaneulValidatorSummary, ObjectRef)> {
+    let haneul_client = context.get_client().await?;
+    if let Some(operation_cap_id) = operation_cap_id {
+        let (status, summary) =
+            get_validator_summary_from_cap_id(&haneul_client, operation_cap_id).await?;
+        let cap_obj_ref = haneul_client
+            .read_api()
+            .get_object_with_options(
+                summary.operation_cap_id.bytes,
+                HaneulObjectDataOptions::default().with_owner(),
+            )
+            .await?
+            .object_ref_if_exists()
+            .ok_or_else(|| anyhow!("OperaionCap {} does not exist", operation_cap_id))?;
+        Ok::<(ValidatorStatus, HaneulValidatorSummary, ObjectRef), anyhow::Error>((
+            status,
+            summary,
+            cap_obj_ref,
+        ))
+    } else {
+        // Sender is Reporter Validator itself.
+        let validator_address = context.active_address()?;
+        let (status, summary) = get_validator_summary(&haneul_client, validator_address)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("{} is not a validator.", validator_address))?;
+        // TODO we should allow validator to perform this operation even though the Cap is not at hand.
+        // But for now we need to make sure the cap is owned by the sender.
+        let cap_object_id = summary.operation_cap_id.bytes;
+        let resp = haneul_client
+            .read_api()
+            .get_object_with_options(cap_object_id, HaneulObjectDataOptions::default().with_owner())
+            .await
+            .map_err(|e| anyhow!(e))?;
+        // Safe to unwrap as we ask with `with_owner`.
+        let owner = resp.owner().unwrap();
+        let cap_obj_ref = resp
+            .object_ref_if_exists()
+            .unwrap_or_else(|| panic!("OperaionCap {} shall exist.", cap_object_id));
+        if owner != Owner::AddressOwner(context.active_address()?) {
+            anyhow::bail!(
+                "OperationCap {} is not owned by the sender address {} but {:?}",
+                summary.operation_cap_id.bytes,
+                validator_address,
+                owner
+            );
+        }
+        Ok((status, summary, cap_obj_ref))
+    }
+}
+
+async fn update_gas_price(
+    context: &mut WalletContext,
+    operation_cap_id: Option<ObjectID>,
+    gas_price: u64,
+    gas_budget: u64,
+) -> Result<HaneulTransactionResponse> {
+    let (_status, _summary, cap_obj_ref) = get_cap_object_ref(context, operation_cap_id).await?;
+
+    // TODO: Only active/pending validators can set gas price.
+
+    let args = vec![
+        CallArg::Object(ObjectArg::ImmOrOwnedObject(cap_obj_ref)),
+        CallArg::Pure(bcs::to_bytes(&gas_price).unwrap()),
+    ];
+    call_0x5(context, "request_set_gas_price", args, gas_budget).await
+}
+
+async fn report_validator(
+    context: &mut WalletContext,
+    reportee_address: HaneulAddress,
+    operation_cap_id: Option<ObjectID>,
+    undo_report: bool,
+    gas_budget: u64,
+) -> Result<HaneulTransactionResponse> {
+    let (status, summary, cap_obj_ref) = get_cap_object_ref(context, operation_cap_id).await?;
+
+    let validator_address = summary.haneul_address;
+    // Only active validators can report/un-report.
+    if !matches!(status, ValidatorStatus::Active) {
+        anyhow::bail!(
+            "Only active Validator can report/un-report Validators, but {} is {:?}.",
+            validator_address,
+            status
+        );
+    }
+    let args = vec![
+        CallArg::Object(ObjectArg::ImmOrOwnedObject(cap_obj_ref)),
+        CallArg::Pure(bcs::to_bytes(&reportee_address).unwrap()),
+    ];
+    let function_name = if undo_report {
+        "undo_report_validator"
+    } else {
+        "report_validator"
+    };
+    call_0x5(context, function_name, args, gas_budget).await
+}
+
+async fn get_validator_summary_from_cap_id(
+    client: &HaneulClient,
+    operation_cap_id: ObjectID,
+) -> anyhow::Result<(ValidatorStatus, HaneulValidatorSummary)> {
+    let resp = client
+        .read_api()
+        .get_object_with_options(operation_cap_id, HaneulObjectDataOptions::default().with_bcs())
+        .await?;
+    let bcs = resp.move_object_bcs().ok_or_else(|| {
+        anyhow::anyhow!(
+            "Object {} does not exist or does not return bcs bytes",
+            operation_cap_id
+        )
+    })?;
+    let cap = bcs::from_bytes::<UnverifiedValidatorOperationCapV1>(bcs).map_err(|e| {
+        anyhow::anyhow!(
+            "Can't convert bcs bytes of object {} to UnverifiedValidatorOperationCapV1: {}",
+            operation_cap_id,
+            e,
+        )
+    })?;
+    let validator_address = cap.authorizer_validator_address;
+    let (status, summary) = get_validator_summary(client, validator_address)
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("{} is not a validator", validator_address))?;
+    if summary.operation_cap_id.bytes != operation_cap_id {
+        anyhow::bail!(
+            "Validator {}'s current operation cap id is {}",
+            validator_address,
+            summary.operation_cap_id.bytes
+        );
+    }
+    Ok((status, summary))
+}
+
 async fn call_0x5(
     context: &mut WalletContext,
     function: &'static str,
     call_args: Vec<CallArg>,
-    haneul_client: &HaneulClient,
     gas_budget: u64,
 ) -> anyhow::Result<HaneulTransactionResponse> {
     let sender = context.active_address()?;
+    let haneul_client = context.get_client().await?;
     let mut args = vec![HANEUL_SYSTEM_OBJ_CALL_ARG];
     args.extend(call_args);
     let rgp = haneul_client
@@ -291,11 +531,7 @@ async fn call_0x5(
         .get_reference_gas_price()
         .await?;
 
-    let gas_budget = gas_budget * rgp;
-    // TODO: remove the 2nd multiplication once the gas checker fix is in
-    let minimal_gas_budget = gas_budget * rgp;
-
-    let gas_obj_ref = get_gas_obj_ref(sender, haneul_client, minimal_gas_budget).await?;
+    let gas_obj_ref = get_gas_obj_ref(sender, &haneul_client, gas_budget).await?;
     let tx_data = TransactionData::new_move_call(
         sender,
         HaneulSystem::ID,
@@ -330,6 +566,7 @@ impl Display for HaneulValidatorCommandResponse {
         let mut writer = String::new();
         match self {
             HaneulValidatorCommandResponse::MakeValidatorInfo => {}
+            HaneulValidatorCommandResponse::DisplayMetadata => {}
             HaneulValidatorCommandResponse::BecomeCandidate(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
@@ -339,9 +576,37 @@ impl Display for HaneulValidatorCommandResponse {
             HaneulValidatorCommandResponse::LeaveCommittee(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
+            HaneulValidatorCommandResponse::UpdateMetadata(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
+            }
+            HaneulValidatorCommandResponse::UpdateGasPrice(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
+            }
+            HaneulValidatorCommandResponse::ReportValidator(response) => {
+                write!(writer, "{}", write_transaction_response(response)?)?;
+            }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
+}
+
+pub fn write_transaction_response(response: &HaneulTransactionResponse) -> Result<String, fmt::Error> {
+    // we requested with for full_content, so the following content should be available.
+    let success = response.status_ok().unwrap();
+    let lines = vec![
+        String::from("----- Transaction Digest ----"),
+        response.digest.to_string(),
+        String::from("\n----- Transaction Data ----"),
+        response.transaction.as_ref().unwrap().to_string(),
+        String::from("----- Transaction Effects ----"),
+        response.effects.as_ref().unwrap().to_string(),
+    ];
+    let mut writer = String::new();
+    for line in lines {
+        let colorized_line = if success { line.green() } else { line.red() };
+        writeln!(writer, "{}", colorized_line)?;
+    }
+    Ok(writer)
 }
 
 impl Debug for HaneulValidatorCommandResponse {
@@ -357,16 +622,311 @@ impl Debug for HaneulValidatorCommandResponse {
 
 impl HaneulValidatorCommandResponse {
     pub fn print(&self, pretty: bool) {
-        let line = if pretty {
-            format!("{self}")
-        } else {
-            format!("{:?}", self)
-        };
-        // Log line by line
-        for line in line.lines() {
-            // Logs write to a file on the side.  Print to stdout and also log to file, for tests to pass.
-            println!("{line}");
-            info!("{line}")
+        match self {
+            // Don't print empty responses
+            HaneulValidatorCommandResponse::MakeValidatorInfo
+            | HaneulValidatorCommandResponse::DisplayMetadata => {}
+            other => {
+                let line = if pretty {
+                    format!("{other}")
+                } else {
+                    format!("{:?}", other)
+                };
+                // Log line by line
+                for line in line.lines() {
+                    println!("{line}");
+                }
+            }
         }
     }
+}
+
+#[derive(Debug, Hash, PartialEq, Eq)]
+pub enum ValidatorStatus {
+    Active,
+    Pending,
+}
+
+async fn get_validator_summary(
+    client: &HaneulClient,
+    validator_address: HaneulAddress,
+) -> anyhow::Result<Option<(ValidatorStatus, HaneulValidatorSummary)>> {
+    let HaneulSystemStateSummary {
+        active_validators,
+        pending_active_validators_id,
+        ..
+    } = client
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await?;
+    let mut status = None;
+    let mut active_validators = active_validators
+        .into_iter()
+        .map(|s| (s.haneul_address, s))
+        .collect::<BTreeMap<_, _>>();
+    let validator_info = if active_validators.contains_key(&validator_address) {
+        status = Some(ValidatorStatus::Active);
+        Some(active_validators.remove(&validator_address).unwrap())
+    } else {
+        // Check panding validators
+        get_pending_candidate_summary(validator_address, client, pending_active_validators_id)
+            .await?
+            .map(|v| v.into_haneul_validator_summary())
+            .tap_some(|_s| status = Some(ValidatorStatus::Pending))
+
+        // TODO also check candidate and inactive valdiators
+    };
+    if validator_info.is_none() {
+        return Ok(None);
+    }
+    // status is safe unwrap because it has to be Some when the code recahes here
+    // validator_info is safe to unwrap because of the above check
+    Ok(Some((status.unwrap(), validator_info.unwrap())))
+}
+
+async fn display_metadata(
+    client: &HaneulClient,
+    validator_address: HaneulAddress,
+    json: bool,
+) -> anyhow::Result<()> {
+    match get_validator_summary(client, validator_address).await? {
+        None => println!(
+            "{} is not an active or pending Validator.",
+            validator_address
+        ),
+        Some((status, info)) => {
+            println!("{}'s valdiator status: {:?}", validator_address, status);
+            if json {
+                println!("{}", serde_json::to_string_pretty(&info)?);
+            } else {
+                println!("{:#?}", info);
+            }
+        }
+    }
+    Ok(())
+}
+
+async fn get_pending_candidate_summary(
+    validator_address: HaneulAddress,
+    haneul_client: &HaneulClient,
+    pending_active_validators_id: ObjectID,
+) -> anyhow::Result<Option<ValidatorV1>> {
+    let pending_validators = haneul_client
+        .read_api()
+        .get_dynamic_fields(pending_active_validators_id, None, None)
+        .await?
+        .data
+        .into_iter()
+        .map(|dyi| dyi.object_id)
+        .collect::<Vec<_>>();
+    let resps = haneul_client
+        .read_api()
+        .multi_get_object_with_options(
+            pending_validators,
+            HaneulObjectDataOptions::default().with_bcs(),
+        )
+        .await?;
+    for resp in resps {
+        let object_id = resp.object_id();
+        let bcs = resp.move_object_bcs().ok_or_else(|| {
+            anyhow::anyhow!(
+                "Object {} does not exist or does not return bcs bytes",
+                object_id
+            )
+        })?;
+        let val = bcs::from_bytes::<ValidatorV1>(bcs).map_err(|e| {
+            anyhow::anyhow!(
+                "Can't convert bcs bytes of object {} to ValidatorV1: {}",
+                object_id,
+                e,
+            )
+        })?;
+        if val.verified_metadata().haneul_address == validator_address {
+            return Ok(Some(val));
+        }
+    }
+    Ok(None)
+}
+
+#[derive(Subcommand)]
+#[clap(rename_all = "kebab-case")]
+pub enum MetadataUpdate {
+    /// Update name. Effectuate immediately.
+    Name { name: String },
+    /// Update description. Effectuate immediately.
+    Description { description: String },
+    /// Update Image URL. Effectuate immediately.
+    ImageUrl { image_url: String },
+    /// Update Project URL. Effectuate immediately.
+    ProjectUrl { project_url: String },
+    /// Update Network Address. Effectuate from next epoch.
+    NetworkAddress { network_address: Multiaddr },
+    /// Update Primary Address. Effectuate from next epoch.
+    PrimaryAddress { primary_address: Multiaddr },
+    /// Update Worker Address. Effectuate from next epoch.
+    WorkerAddress { worker_address: Multiaddr },
+    /// Update P2P Address. Effectuate from next epoch.
+    P2pAddress { p2p_address: Multiaddr },
+    /// Update Network Public Key. Effectuate from next epoch.
+    NetworkPubKey {
+        #[clap(name = "network-key-path")]
+        file: PathBuf,
+    },
+    /// Update Worker Public Key. Effectuate from next epoch.
+    WorkerPubKey {
+        #[clap(name = "worker-key-path")]
+        file: PathBuf,
+    },
+    /// Update Protocol Public Key and Proof and Possession. Effectuate from next epoch.
+    ProtocolPubKey {
+        #[clap(name = "protocol-key-path")]
+        file: PathBuf,
+    },
+}
+
+async fn update_metadata(
+    context: &mut WalletContext,
+    metadata: MetadataUpdate,
+    gas_budget: u64,
+) -> anyhow::Result<HaneulTransactionResponse> {
+    use ValidatorStatus::*;
+    match metadata {
+        MetadataUpdate::Name { name } => {
+            let args = vec![CallArg::Pure(bcs::to_bytes(&name.into_bytes()).unwrap())];
+            call_0x5(context, "update_validator_name", args, gas_budget).await
+        }
+        MetadataUpdate::Description { description } => {
+            let args = vec![CallArg::Pure(
+                bcs::to_bytes(&description.into_bytes()).unwrap(),
+            )];
+            call_0x5(context, "update_validator_description", args, gas_budget).await
+        }
+        MetadataUpdate::ImageUrl { image_url } => {
+            let args = vec![CallArg::Pure(
+                bcs::to_bytes(&image_url.into_bytes()).unwrap(),
+            )];
+            call_0x5(context, "update_validator_image_url", args, gas_budget).await
+        }
+        MetadataUpdate::ProjectUrl { project_url } => {
+            let args = vec![CallArg::Pure(
+                bcs::to_bytes(&project_url.into_bytes()).unwrap(),
+            )];
+            call_0x5(context, "update_validator_project_url", args, gas_budget).await
+        }
+        MetadataUpdate::NetworkAddress { network_address } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let args = vec![CallArg::Pure(bcs::to_bytes(&network_address).unwrap())];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_network_address",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::PrimaryAddress { primary_address } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let args = vec![CallArg::Pure(bcs::to_bytes(&primary_address).unwrap())];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_primary_address",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::WorkerAddress { worker_address } => {
+            // Only an active validator can leave committee.
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let args = vec![CallArg::Pure(bcs::to_bytes(&worker_address).unwrap())];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_worker_address",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::P2pAddress { p2p_address } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let args = vec![CallArg::Pure(bcs::to_bytes(&p2p_address).unwrap())];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_p2p_address",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::NetworkPubKey { file } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let network_pub_key: NetworkPublicKey =
+                read_network_keypair_from_file(file)?.public().clone();
+            let args = vec![CallArg::Pure(
+                bcs::to_bytes(&network_pub_key.as_bytes().to_vec()).unwrap(),
+            )];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_network_pubkey",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::WorkerPubKey { file } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let worker_pub_key: NetworkPublicKey =
+                read_network_keypair_from_file(file)?.public().clone();
+            let args = vec![CallArg::Pure(
+                bcs::to_bytes(&worker_pub_key.as_bytes().to_vec()).unwrap(),
+            )];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_worker_pubkey",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+        MetadataUpdate::ProtocolPubKey { file } => {
+            let _status = check_status(context, HashSet::from([Pending, Active])).await?;
+            let haneul_address = context.active_address()?;
+            let protocol_key_pair: AuthorityKeyPair = read_authority_keypair_from_file(file)?;
+            let protocol_pub_key: AuthorityPublicKey = protocol_key_pair.public().clone();
+            let pop = generate_proof_of_possession(&protocol_key_pair, haneul_address);
+            let args = vec![
+                CallArg::Pure(
+                    bcs::to_bytes(&AuthorityPublicKeyBytes::from_bytes(
+                        protocol_pub_key.as_bytes(),
+                    )?)
+                    .unwrap(),
+                ),
+                CallArg::Pure(bcs::to_bytes(&pop.as_ref().to_vec()).unwrap()),
+            ];
+            call_0x5(
+                context,
+                "update_validator_next_epoch_protocol_pubkey",
+                args,
+                gas_budget,
+            )
+            .await
+        }
+    }
+}
+
+async fn check_status(
+    context: &mut WalletContext,
+    allowed_status: HashSet<ValidatorStatus>,
+) -> Result<ValidatorStatus> {
+    let haneul_client = context.get_client().await?;
+    let validator_address = context.active_address()?;
+    let summary = get_validator_summary(&haneul_client, validator_address).await?;
+    if summary.is_none() {
+        bail!("{validator_address} is not a Validator.");
+    }
+    let (status, _summary) = summary.unwrap();
+    if allowed_status.contains(&status) {
+        return Ok(status);
+    }
+    bail!("Validator {validator_address} is {:?}, this operation is not supported in this tool or prohibited.", status)
 }
