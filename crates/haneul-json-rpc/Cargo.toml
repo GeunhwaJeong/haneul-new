@@ -39,6 +39,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-open-rpc = { path = "../haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "../haneul-open-rpc-macros" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }

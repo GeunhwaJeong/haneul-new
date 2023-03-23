@@ -8978,6 +8978,7 @@ dependencies = [
  "haneul-macros",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
+ "haneul-protocol-config",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-transaction-builder",
