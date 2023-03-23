@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '@haneullabs/core';
-import { type GetTxnDigestsResponse } from '@haneullabs/haneul.js';
+import {
+    type HaneulTransactionResponse,
+    type GetTxnDigestsResponse,
+} from '@haneullabs/haneul.js';
 import { useState, useEffect, useContext } from 'react';
 
 import { NetworkContext } from '../../context';
 import { DefaultRpcClient as rpc } from '../../utils/api/DefaultRpcClient';
 import PaginationLogic from '../pagination/PaginationLogic';
-import {
-    type TxnData,
-    genTableDataFromTxData,
-    getDataOnTxDigests,
-} from './TxCardUtils';
+import { genTableDataFromTxData, getDataOnTxDigests } from './TxCardUtils';
 
 import { Banner } from '~/ui/Banner';
 import { TableCard } from '~/ui/TableCard';
@@ -36,7 +35,11 @@ const getTx = async (
 
 const viewFn = (results: any) => <TxForIDView showData={results} />;
 
-function TxForIDView({ showData }: { showData: TxnData[] | undefined }) {
+function TxForIDView({
+    showData,
+}: {
+    showData: HaneulTransactionResponse[] | undefined;
+}) {
     if (!showData || showData.length === 0) return null;
 
     const tableData = genTableDataFromTxData(showData);
@@ -50,7 +53,7 @@ function TxForIDView({ showData }: { showData: TxnData[] | undefined }) {
 
 function TxForID({ id, category }: { id: string; category: categoryType }) {
     const [showData, setData] = useState<{
-        data?: TxnData[];
+        data?: HaneulTransactionResponse[];
         loadState: string;
     }>(DATATYPE_DEFAULT);
     const [network] = useContext(NetworkContext);
@@ -67,7 +70,7 @@ function TxForID({ id, category }: { id: string; category: categoryType }) {
                     getDataOnTxDigests(rpc, transactions)
                         .then((data) => {
                             setData({
-                                data: data as TxnData[],
+                                data,
                                 loadState: 'loaded',
                             });
                         })

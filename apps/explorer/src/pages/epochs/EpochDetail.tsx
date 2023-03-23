@@ -8,7 +8,7 @@ import { validatorsTableData } from '../validators/Validators';
 import { getMockEpochData, mockCheckpointsTable } from './mocks';
 import { EpochStats } from './stats/EpochStats';
 
-import { HaneulAmount } from '~/components/transaction-card/TxCardUtils';
+import { HaneulAmount } from '~/components/transactions/TxCardUtils';
 import { useGetSystemObject } from '~/hooks/useGetObject';
 import { useGetValidatorsEvents } from '~/hooks/useGetValidatorsEvents';
 import { EpochProgress } from '~/pages/epochs/stats/EpochProgress';
