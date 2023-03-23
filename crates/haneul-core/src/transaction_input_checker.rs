@@ -4,6 +4,7 @@
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::AuthorityStore;
 use std::collections::HashSet;
+use haneul_adapter::adapter::run_metered_move_bytecode_verifier;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::{UserInputError, UserInputResult};
@@ -55,6 +56,7 @@ pub async fn check_transaction_input(
 ) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)> {
     transaction.check_version_supported(epoch_store.protocol_config())?;
     transaction.validity_check(epoch_store.protocol_config())?;
+    check_non_system_packages_to_be_published(transaction, epoch_store.protocol_config())?;
     let input_objects = transaction.input_objects()?;
     let objects = store.check_input_objects(&input_objects, epoch_store.protocol_config())?;
     let gas_status = get_gas_status(&objects, transaction.gas(), epoch_store, transaction).await?;
@@ -69,7 +71,7 @@ pub async fn check_transaction_input_with_given_gas(
     gas_object: Object,
 ) -> HaneulResult<(HaneulGasStatus<'static>, InputObjects)> {
     transaction.validity_check_no_gas_check(epoch_store.protocol_config())?;
-
+    check_non_system_packages_to_be_published(transaction, epoch_store.protocol_config())?;
     let mut input_objects = transaction.input_objects()?;
     let mut objects = store.check_input_objects(&input_objects, epoch_store.protocol_config())?;
 
@@ -382,5 +384,23 @@ fn check_one_object(
             }
         }
     };
+    Ok(())
+}
+
+/// Check package verification timeout
+#[instrument(level = "trace", skip_all)]
+pub fn check_non_system_packages_to_be_published(
+    transaction: &TransactionData,
+    protocol_config: &ProtocolConfig,
+) -> UserInputResult<()> {
+    // Only meter non-system TXes
+    if !transaction.is_system_tx() {
+        if let TransactionKind::ProgrammableTransaction(pt) = transaction.kind() {
+            pt.non_system_packages_to_be_published()
+                .try_for_each(|q| run_metered_move_bytecode_verifier(q, protocol_config))
+                .map_err(|e| UserInputError::PackageVerificationTimedout { err: e.to_string() })?;
+        }
+    }
+
     Ok(())
 }
