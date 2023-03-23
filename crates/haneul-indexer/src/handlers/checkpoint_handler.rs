@@ -22,7 +22,7 @@ use haneul_sdk::HaneulClient;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait};
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
+use haneul_types::HANEUL_SYSTEM_ADDRESS;
 
 use crate::errors::IndexerError;
 use crate::metrics::IndexerCheckpointHandlerMetrics;
@@ -388,7 +388,7 @@ where
                 .iter()
                 .find_map(|tx| {
                     tx.events.data.iter().find(|ev| {
-                        ev.type_.address == HANEUL_FRAMEWORK_ADDRESS
+                        ev.type_.address == HANEUL_SYSTEM_ADDRESS
                             && ev.type_.module.as_ident_str()
                                 == ident_str!("haneul_system_state_inner")
                             && ev.type_.name.as_ident_str() == ident_str!("SystemEpochInfoEvent")
