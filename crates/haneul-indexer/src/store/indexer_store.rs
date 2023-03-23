@@ -5,6 +5,7 @@ use async_trait::async_trait;
 
 use haneul_json_rpc_types::{
     Checkpoint as RpcCheckpoint, CheckpointId, EpochInfo, EventFilter, EventPage, HaneulObjectData,
+    HaneulTransactionResponseOptions,
 };
 use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber};
 use haneul_types::error::HaneulError;
@@ -54,6 +55,12 @@ pub trait IndexerStore {
         &self,
         txn_digests: &[String],
     ) -> Result<Vec<Transaction>, IndexerError>;
+
+    async fn compose_full_transaction_response(
+        &self,
+        tx: Transaction,
+        options: Option<HaneulTransactionResponseOptions>,
+    ) -> Result<HaneulTransactionFullResponse, IndexerError>;
 
     fn get_all_transaction_digest_page(
         &self,
