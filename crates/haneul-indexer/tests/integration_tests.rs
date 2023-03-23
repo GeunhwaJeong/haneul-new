@@ -23,8 +23,10 @@ pub mod pg_integration_test {
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
     use haneul_indexer::test_utils::{start_test_indexer, HaneulTransactionResponseBuilder};
     use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, IndexerConfig};
-    use haneul_json_rpc::api::EventReadApiClient;
-    use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
+    use haneul_json_rpc::api::{
+        EventReadApiClient, ExtendedApiClient, ReadApiClient, TransactionBuilderClient,
+        WriteApiClient,
+    };
     use haneul_json_rpc_types::{
         CheckpointId, EventFilter, HaneulMoveObject, HaneulObjectData, HaneulObjectDataOptions,
         HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedMoveObject, HaneulTransactionResponse,
@@ -192,13 +194,60 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
-    async fn test_total_address() -> Result<(), anyhow::Error> {
-        let (_test_cluster, _indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+    async fn test_total_addresses() -> Result<(), anyhow::Error> {
+        let (_test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         // Allow indexer to sync genesis
         wait_until_next_checkpoint(&store).await;
-        let total_address_count = store.get_total_address_number().unwrap();
-        // one sender address of all zeroes and 9 recipient addresses.
-        assert_eq!(total_address_count, 10);
+        let total_address_count = store.get_total_addresses().unwrap();
+        let rpc_total_address_count = indexer_rpc_client.get_total_addresses().await?;
+        assert_eq!(rpc_total_address_count, total_address_count);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_total_objects() -> Result<(), anyhow::Error> {
+        let (_test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+        let total_object_count = store.get_total_objects().unwrap();
+        let rpc_total_object_count = indexer_rpc_client.get_total_objects().await?;
+        // number of objects in genesis varies
+        assert!(total_object_count > 0);
+        assert_eq!(total_object_count, rpc_total_object_count);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_total_packages() -> Result<(), anyhow::Error> {
+        let (_test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+        let total_package_count = store.get_total_packages().unwrap();
+        let rpc_total_package_count = indexer_rpc_client.get_total_packages().await?;
+        // number of packages in genesis varies
+        assert!(total_package_count > 0);
+        assert_eq!(total_package_count, rpc_total_package_count);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_total_transaction() -> Result<(), anyhow::Error> {
+        let (mut test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+        let (tx_response, _, _, _) =
+            execute_simple_transfer(&mut test_cluster, &indexer_rpc_client).await?;
+        wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
+        let tx_count = store
+            .get_total_transaction_number_from_checkpoints()
+            .unwrap();
+        // At least 1 transaction + 1 genesis, others are like Consensus Commit Prologue
+        assert!(tx_count >= 2);
+        let rpc_tx_count = indexer_rpc_client
+            .get_total_transaction_number()
+            .await
+            .unwrap();
+        assert!(rpc_tx_count >= 2);
         Ok(())
     }
 
@@ -835,6 +884,7 @@ pub mod pg_integration_test {
                 indexer_rpc_client.get_transaction_with_options(tx_response.digest, Some(option))
             })
             .collect::<Vec<_>>();
+
         let received_transaction_results: Vec<HaneulTransactionResponse> = join_all(futures)
             .await
             .into_iter()
