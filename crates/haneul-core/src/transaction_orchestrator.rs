@@ -23,10 +23,8 @@ use prometheus::{
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_protocol_config::ProtocolVersion;
 use haneul_storage::write_path_pending_tx_log::WritePathPendingTransactionLog;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::committee::Committee;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
@@ -36,6 +34,7 @@ use haneul_types::messages::{
 use haneul_types::quorum_driver_types::{
     QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResult,
 };
+use haneul_types::haneul_system_state::HaneulSystemState;
 use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::broadcast::Receiver;
 use tokio::task::JoinHandle;
@@ -62,7 +61,7 @@ pub struct TransactiondOrchestrator<A> {
 impl TransactiondOrchestrator<NetworkAuthorityClient> {
     pub async fn new_with_network_clients(
         validator_state: Arc<AuthorityState>,
-        reconfig_channel: Receiver<(Committee, ProtocolVersion)>,
+        reconfig_channel: Receiver<HaneulSystemState>,
         parent_path: &Path,
         prometheus_registry: &Registry,
     ) -> anyhow::Result<Self> {

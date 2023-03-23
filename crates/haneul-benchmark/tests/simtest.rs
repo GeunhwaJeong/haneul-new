@@ -20,7 +20,6 @@ mod test {
     use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
     use haneul_core::checkpoints::CheckpointStore;
     use haneul_macros::{register_fail_points, sim_test};
-    use haneul_protocol_config::ProtocolConfig;
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     use test_utils::messages::get_haneul_gas_object_with_wallet_context;

@@ -18,6 +18,7 @@ use arc_swap::ArcSwap;
 use futures::TryFutureExt;
 use prometheus::Registry;
 use haneul_core::consensus_adapter::SubmitToConsensus;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::sync::broadcast;
 use tokio::sync::oneshot::Sender;
@@ -77,7 +78,7 @@ use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::discovery::TrustedPeerChangeEvent;
 use haneul_network::{state_sync, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_HTTP2_KEEPALIVE_SEC};
-use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
+use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::IndexStore;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::committee::Committee;
@@ -124,7 +125,7 @@ pub struct HaneulNode {
     connection_monitor_status: Arc<ConnectionMonitorStatus>,
 
     /// Broadcast channel to send the starting system state for the next epoch.
-    end_of_epoch_channel: broadcast::Sender<(Committee, ProtocolVersion)>,
+    end_of_epoch_channel: broadcast::Sender<HaneulSystemState>,
 
     /// Broadcast channel to notify state-sync for new validator peers.
     trusted_peer_change_tx: watch::Sender<TrustedPeerChangeEvent>,
@@ -415,7 +416,7 @@ impl HaneulNode {
         Ok(node)
     }
 
-    pub fn subscribe_to_epoch_change(&self) -> broadcast::Receiver<(Committee, ProtocolVersion)> {
+    pub fn subscribe_to_epoch_change(&self) -> broadcast::Receiver<HaneulSystemState> {
         self.end_of_epoch_channel.subscribe()
     }
 
@@ -908,6 +909,13 @@ impl HaneulNode {
                 .state
                 .get_haneul_system_state_object_during_reconfig()
                 .expect("Read Haneul System State object cannot fail");
+            if let Err(err) = self.end_of_epoch_channel.send(latest_system_state.clone()) {
+                warn!(
+                    "Failed to send end of epoch notification to subscriber: {:?}",
+                    err
+                );
+            }
+
             cur_epoch_store.record_is_safe_mode_metric(latest_system_state.safe_mode());
             let new_epoch_start_state = latest_system_state.into_epoch_start_state();
             let next_epoch_committee = new_epoch_start_state.get_haneul_committee();
@@ -935,10 +943,7 @@ impl HaneulNode {
                 .update_mapping_for_epoch(authority_names_to_peer_ids);
 
             cur_epoch_store.record_epoch_reconfig_start_time_metric();
-            let _ = self.end_of_epoch_channel.send((
-                next_epoch_committee.clone(),
-                new_epoch_start_state.protocol_version(),
-            ));
+
             let _ = send_trusted_peer_change(
                 &self.config,
                 &self.trusted_peer_change_tx,
