@@ -28,7 +28,6 @@ module games::drand_based_scratch_card {
     use haneul::balance::Balance;
     use haneul::balance::{Self};
     use haneul::coin::{Self, Coin};
-    use haneul::digest;
     use haneul::hmac::hmac_sha3_256;
     use haneul::object::{Self, ID, UID};
 
@@ -135,7 +134,7 @@ module games::drand_based_scratch_card {
         // devastating, but for similar games it might be.)
         let random_key = drand_lib::derive_randomness(drand_sig);
         let randomness = hmac_sha3_256(&random_key, &object::id_to_bytes(&object::id(&ticket)));
-        let is_winner = (drand_lib::safe_selection(game.reward_factor, &digest::sha3_256_digest_to_bytes(&randomness)) == 0);
+        let is_winner = (drand_lib::safe_selection(game.reward_factor, &randomness) == 0);
 
         if (is_winner) {
             let winner = Winner {
