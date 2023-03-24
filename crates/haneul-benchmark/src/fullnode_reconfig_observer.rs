@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
-use std::collections::BTreeMap;
 use std::sync::Arc;
 use haneul_core::{
     authority_aggregator::{AuthAggMetrics, AuthorityAggregator},
@@ -12,7 +11,6 @@ use haneul_core::{
     safe_client::SafeClientMetricsBase,
 };
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::committee::Committee;
 use tracing::{debug, error, trace};
 
 /// A ReconfigObserver that polls FullNode periodically
@@ -71,27 +69,9 @@ impl ReconfigObserver<NetworkAuthorityClient> for FullNodeReconfigObserver {
                     let epoch_id = haneul_system_state.epoch;
                     if epoch_id > quorum_driver.current_epoch() {
                         debug!(epoch_id, "Got HaneulSystemState in newer epoch");
-                        let new_committee = match self
-                            .fullnode_client
-                            .read_api()
-                            .get_committee_info(Some(epoch_id))
-                            .await
-                        {
-                            Ok(committee) => {
-                                // Safe to unwrap, checked above
-                                Committee::new(
-                                    committee.epoch,
-                                    BTreeMap::from_iter(committee.validators.into_iter()),
-                                )
-                            }
-                            other => {
-                                error!(
-                                    "Can't get CommitteeInfo {} from Full Node: {:?}",
-                                    epoch_id, other
-                                );
-                                continue;
-                            }
-                        };
+                        let new_committee = haneul_system_state
+                            .get_haneul_committee_for_benchmarking()
+                            .committee;
                         let _ = self.committee_store.insert_new_committee(&new_committee);
                         match AuthorityAggregator::new_from_committee(
                             haneul_system_state.get_haneul_committee_for_benchmarking(),
