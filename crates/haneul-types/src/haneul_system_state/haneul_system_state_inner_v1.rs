@@ -417,7 +417,7 @@ impl ValidatorV1 {
     }
 }
 
-/// Rust version of the Move haneul::staking_pool::StakingPool type
+/// Rust version of the Move haneul_system::staking_pool::StakingPool type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct StakingPoolV1 {
     pub id: ObjectID,
@@ -433,7 +433,7 @@ pub struct StakingPoolV1 {
     pub extra_fields: Bag,
 }
 
-/// Rust version of the Move haneul::validator_set::ValidatorSet type
+/// Rust version of the Move haneul_system::validator_set::ValidatorSet type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct ValidatorSetV1 {
     pub total_stake: u64,
@@ -447,7 +447,14 @@ pub struct ValidatorSetV1 {
     pub extra_fields: Bag,
 }
 
-/// Rust version of the Move haneul::haneul_system::HaneulSystemStateInner type
+/// Rust version of the Move haneul_system::storage_fund::StorageFund type
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct StorageFundV1 {
+    pub total_object_storage_rebates: Balance,
+    pub non_refundable_balance: Balance,
+}
+
+/// Rust version of the Move haneul_system::haneul_system::HaneulSystemStateInner type
 /// We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct HaneulSystemStateInnerV1 {
@@ -455,7 +462,7 @@ pub struct HaneulSystemStateInnerV1 {
     pub protocol_version: u64,
     pub system_state_version: u64,
     pub validators: ValidatorSetV1,
-    pub storage_fund: Balance,
+    pub storage_fund: StorageFundV1,
     pub parameters: SystemParametersV1,
     pub reference_gas_price: u64,
     pub validator_report_records: VecMap<HaneulAddress, VecSet<HaneulAddress>>,
@@ -464,6 +471,7 @@ pub struct HaneulSystemStateInnerV1 {
     pub safe_mode_storage_rewards: Balance,
     pub safe_mode_computation_rewards: Balance,
     pub safe_mode_storage_rebates: u64,
+    pub safe_mode_non_refundable_storage_fee: u64,
     pub epoch_start_timestamp_ms: u64,
     pub extra_fields: Bag,
     // TODO: Use getters instead of all pub.
@@ -643,6 +651,7 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
             safe_mode_storage_rewards,
             safe_mode_computation_rewards,
             safe_mode_storage_rebates,
+            safe_mode_non_refundable_storage_fee,
             epoch_start_timestamp_ms,
             extra_fields: _,
         } = self;
@@ -650,12 +659,16 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
             epoch,
             protocol_version,
             system_state_version,
-            storage_fund: storage_fund.value(),
+            storage_fund_total_object_storage_rebates: storage_fund
+                .total_object_storage_rebates
+                .value(),
+            storage_fund_non_refundable_balance: storage_fund.non_refundable_balance.value(),
             reference_gas_price,
             safe_mode,
             safe_mode_storage_rewards: safe_mode_storage_rewards.value(),
             safe_mode_computation_rewards: safe_mode_computation_rewards.value(),
             safe_mode_storage_rebates,
+            safe_mode_non_refundable_storage_fee,
             epoch_start_timestamp_ms,
             stake_subsidy_start_epoch,
             epoch_duration_ms,
@@ -695,7 +708,7 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV1 {
     }
 }
 
-/// Rust version of the Move haneul::validator_cap::UnverifiedValidatorOperationCap type
+/// Rust version of the Move haneul_system::validator_cap::UnverifiedValidatorOperationCap type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct UnverifiedValidatorOperationCapV1 {
     pub id: ObjectID,

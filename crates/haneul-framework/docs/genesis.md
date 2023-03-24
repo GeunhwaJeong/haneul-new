@@ -344,7 +344,7 @@ all the information we need in the system.
         &<b>mut</b> haneul_supply,
         stake_subsidy_fund_geunhwa,
     );
-    <b>let</b> storage_fund = <a href="_zero">balance::zero</a>();
+    <b>let</b> <a href="storage_fund.md#0x3_storage_fund">storage_fund</a> = <a href="_zero">balance::zero</a>();
 
     // Create all the `Validator` structs
     <b>let</b> validators = <a href="_empty">vector::empty</a>();
@@ -435,7 +435,7 @@ all the information we need in the system.
     <a href="haneul_system.md#0x3_haneul_system_create">haneul_system::create</a>(
         haneul_system_state_id,
         validators,
-        storage_fund,
+        <a href="storage_fund.md#0x3_storage_fund">storage_fund</a>,
         genesis_chain_parameters.protocol_version,
         genesis_chain_parameters.chain_start_timestamp_ms,
         system_parameters,
