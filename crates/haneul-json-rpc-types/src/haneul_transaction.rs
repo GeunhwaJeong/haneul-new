@@ -17,9 +17,7 @@ use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use haneul_json::{primitive_type, HaneulJsonValue};
-use haneul_types::base_types::{
-    EpochId, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-};
+use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::digests::{ObjectDigest, TransactionEventsDigest};
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::gas::GasCostSummary;
@@ -67,6 +65,10 @@ impl Display for BigInt {
         write!(f, "{}", self.0)
     }
 }
+
+// similar to EpochId of haneul-types but BigInt
+pub type HaneulEpochId = BigInt;
+
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Default)]
 #[serde(rename_all = "camelCase", rename = "TransactionResponseQuery", default)]
 pub struct HaneulTransactionResponseQuery {
@@ -302,7 +304,7 @@ impl HaneulTransactionKind {
     fn try_from(tx: TransactionKind, module_cache: &impl GetModule) -> Result<Self, anyhow::Error> {
         Ok(match tx {
             TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(HaneulChangeEpoch {
-                epoch: e.epoch,
+                epoch: e.epoch.into(),
                 storage_charge: e.storage_charge,
                 computation_charge: e.computation_charge,
                 storage_rebate: e.storage_rebate,
@@ -334,7 +336,7 @@ impl HaneulTransactionKind {
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct HaneulChangeEpoch {
-    pub epoch: EpochId,
+    pub epoch: HaneulEpochId,
     pub storage_charge: u64,
     pub computation_charge: u64,
     pub storage_rebate: u64,
@@ -366,7 +368,7 @@ pub trait HaneulTransactionEffectsAPI {
     fn gas_object(&self) -> &OwnedObjectRef;
     fn events_digest(&self) -> Option<&TransactionEventsDigest>;
     fn dependencies(&self) -> &[TransactionDigest];
-    fn executed_epoch(&self) -> EpochId;
+    fn executed_epoch(&self) -> HaneulEpochId;
     fn transaction_digest(&self) -> &TransactionDigest;
     fn gas_cost_summary(&self) -> &HaneulGasCostSummary;
 
@@ -394,7 +396,7 @@ pub struct HaneulTransactionEffectsV1 {
     /// The status of the execution
     pub status: HaneulExecutionStatus,
     /// The epoch when this transaction was executed.
-    pub executed_epoch: EpochId,
+    pub executed_epoch: HaneulEpochId,
     pub gas_used: HaneulGasCostSummary,
     /// The version that every modified (mutated or deleted) object had before it was modified by
     /// this transaction.
@@ -475,7 +477,7 @@ impl HaneulTransactionEffectsAPI for HaneulTransactionEffectsV1 {
         &self.dependencies
     }
 
-    fn executed_epoch(&self) -> EpochId {
+    fn executed_epoch(&self) -> HaneulEpochId {
         self.executed_epoch
     }
 
@@ -546,7 +548,7 @@ impl TryFrom<TransactionEffects> for HaneulTransactionEffects {
         match message_version {
             1 => Ok(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
                 status: effect.status().clone().into(),
-                executed_epoch: effect.executed_epoch(),
+                executed_epoch: effect.executed_epoch().into(),
                 modified_at_versions: effect
                     .modified_at_versions()
                     .iter()
@@ -807,19 +809,19 @@ fn to_owned_ref(owned_refs: Vec<(ObjectRef, Owner)>) -> Vec<OwnedObjectRef> {
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "GasCostSummary", rename_all = "camelCase")]
 pub struct HaneulGasCostSummary {
-    pub computation_cost: u64,
-    pub storage_cost: u64,
-    pub storage_rebate: u64,
-    pub non_refundable_storage_fee: u64,
+    pub computation_cost: BigInt,
+    pub storage_cost: BigInt,
+    pub storage_rebate: BigInt,
+    pub non_refundable_storage_fee: BigInt,
 }
 
 impl From<GasCostSummary> for HaneulGasCostSummary {
     fn from(s: GasCostSummary) -> Self {
         Self {
-            computation_cost: s.computation_cost,
-            storage_cost: s.storage_cost,
-            storage_rebate: s.storage_rebate,
-            non_refundable_storage_fee: s.non_refundable_storage_fee,
+            computation_cost: s.computation_cost.into(),
+            storage_cost: s.storage_cost.into(),
+            storage_rebate: s.storage_rebate.into(),
+            non_refundable_storage_fee: s.non_refundable_storage_fee.into(),
         }
     }
 }
@@ -827,10 +829,10 @@ impl From<GasCostSummary> for HaneulGasCostSummary {
 impl From<HaneulGasCostSummary> for GasCostSummary {
     fn from(s: HaneulGasCostSummary) -> Self {
         Self {
-            computation_cost: s.computation_cost,
-            storage_cost: s.storage_cost,
-            storage_rebate: s.storage_rebate,
-            non_refundable_storage_fee: s.non_refundable_storage_fee,
+            computation_cost: s.computation_cost.into(),
+            storage_cost: s.storage_cost.into(),
+            storage_rebate: s.storage_rebate.into(),
+            non_refundable_storage_fee: s.non_refundable_storage_fee.into(),
         }
     }
 }
