@@ -633,6 +633,25 @@ export class JsonRpcProvider {
   }
 
   /**
+   * Return the delegated stakes queried by id.
+   */
+  async getStakesByIds(input: {
+    stakedHaneulIds: ObjectId[];
+  }): Promise<DelegatedStake[]> {
+    input.stakedHaneulIds.forEach((id) => {
+      if (!id || !isValidHaneulObjectId(normalizeHaneulObjectId(id))) {
+        throw new Error(`Invalid Haneul Stake id ${id}`);
+      }
+    });
+    return await this.client.requestWithType(
+      'haneul_getStakesByIds',
+      [input.stakedHaneulIds],
+      array(DelegatedStake),
+      this.options.skipDataValidation,
+    );
+  }
+
+  /**
    * Return the latest system state content.
    */
   async getLatestHaneulSystemState(): Promise<HaneulSystemStateSummary> {

@@ -4,6 +4,7 @@
 use std::path::Path;
 #[cfg(not(msim))]
 use std::str::FromStr;
+use std::time::Duration;
 
 use crate::api::{
     CoinReadApiClient, GovernanceReadApiClient, ReadApiClient, TransactionBuilderClient,
@@ -31,6 +32,7 @@ use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
+use tokio::time::sleep;
 
 #[sim_test]
 async fn test_get_objects() -> Result<(), anyhow::Error> {
@@ -681,6 +683,143 @@ async fn test_staking() -> Result<(), anyhow::Error> {
         staked_haneul[0].stakes[0].staked_haneul_id,
         staked_haneul_copy[0].stakes[0].staked_haneul_id
     );
+    Ok(())
+}
+
+#[sim_test]
+async fn test_unstaking() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new()
+        .with_epoch_duration_ms(10000)
+        .build()
+        .await?;
+
+    let http_client = cluster.rpc_client();
+    let address = cluster.accounts.first().unwrap();
+
+    let coins: CoinPage = http_client.get_coins(*address, None, None, None).await?;
+    assert_eq!(5, coins.data.len());
+
+    // Check StakedHaneul object before test
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_stakes(*address).await?;
+    assert!(staked_haneul.is_empty());
+
+    let validator = http_client
+        .get_latest_haneul_system_state()
+        .await?
+        .active_validators[0]
+        .haneul_address;
+
+    // Delegate some HANEUL
+    for i in 0..3 {
+        let transaction_bytes: TransactionBytes = http_client
+            .request_add_stake(
+                *address,
+                vec![coins.data[i].coin_object_id],
+                Some(1000000),
+                validator,
+                None,
+                10000,
+            )
+            .await?;
+        let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+        let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+        let tx =
+            to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+        let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
+
+        http_client
+            .execute_transaction(
+                tx_bytes,
+                signatures,
+                Some(HaneulTransactionResponseOptions::new()),
+                Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+            )
+            .await?;
+    }
+    // Check DelegatedStake object
+    let staked_haneul: Vec<DelegatedStake> = http_client.get_stakes(*address).await?;
+    assert_eq!(1, staked_haneul.len());
+    assert_eq!(1000000, staked_haneul[0].stakes[0].principal);
+
+    sleep(Duration::from_millis(10000)).await;
+
+    let staked_haneul_copy = http_client
+        .get_stakes_by_ids(vec![
+            staked_haneul[0].stakes[0].staked_haneul_id,
+            staked_haneul[0].stakes[1].staked_haneul_id,
+            staked_haneul[0].stakes[2].staked_haneul_id,
+        ])
+        .await?;
+
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[0].status,
+        StakeStatus::Active {
+            estimated_reward: _
+        }
+    ));
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[1].status,
+        StakeStatus::Active {
+            estimated_reward: _
+        }
+    ));
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[2].status,
+        StakeStatus::Active {
+            estimated_reward: _
+        }
+    ));
+
+    let transaction_bytes: TransactionBytes = http_client
+        .request_withdraw_stake(
+            *address,
+            staked_haneul_copy[0].stakes[2].staked_haneul_id,
+            None,
+            100000,
+        )
+        .await?;
+    let keystore_path = cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let tx = to_sender_signed_transaction(transaction_bytes.to_data()?, keystore.get_key(address)?);
+
+    let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
+
+    http_client
+        .execute_transaction(
+            tx_bytes,
+            signatures,
+            Some(HaneulTransactionResponseOptions::new()),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
+        .await?;
+
+    sleep(Duration::from_millis(20000)).await;
+
+    let staked_haneul_copy = http_client
+        .get_stakes_by_ids(vec![
+            staked_haneul[0].stakes[0].staked_haneul_id,
+            staked_haneul[0].stakes[1].staked_haneul_id,
+            staked_haneul[0].stakes[2].staked_haneul_id,
+        ])
+        .await?;
+
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[0].status,
+        StakeStatus::Active {
+            estimated_reward: _
+        }
+    ));
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[1].status,
+        StakeStatus::Active {
+            estimated_reward: _
+        }
+    ));
+    assert!(matches!(
+        &staked_haneul_copy[0].stakes[2].status,
+        StakeStatus::Unstaked
+    ));
     Ok(())
 }
 

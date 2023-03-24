@@ -16,9 +16,10 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::{MoveObjectType, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::governance::StakedHaneul;
 use haneul_types::id::ID;
+use haneul_types::object::ObjectRead;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -48,16 +49,45 @@ impl GovernanceReadApi {
 
     async fn get_stakes_by_ids(
         &self,
-        staked_haneul_id: Vec<ObjectID>,
+        staked_haneul_ids: Vec<ObjectID>,
     ) -> Result<Vec<DelegatedStake>, Error> {
-        let stakes = futures::future::try_join_all(
-            staked_haneul_id
+        let stakes_read = futures::future::try_join_all(
+            staked_haneul_ids
                 .iter()
-                .map(|id| self.state.get_move_object::<StakedHaneul>(id)),
+                .map(|id| self.state.get_object_read(id)),
         )
         .await?;
-        if stakes.is_empty() {
+        if stakes_read.is_empty() {
             return Ok(vec![]);
+        }
+
+        let mut stakes: Vec<(StakedHaneul, bool)> = vec![];
+
+        for stake in stakes_read.into_iter() {
+            match stake {
+                ObjectRead::Exists(_, o, _) => stakes.push((StakedHaneul::try_from(&o)?, true)),
+                ObjectRead::Deleted(oref) => {
+                    match self
+                        .state
+                        .database
+                        .find_object_lt_or_eq_version(oref.0, oref.1.one_before().unwrap())
+                    {
+                        Some(o) => stakes.push((StakedHaneul::try_from(&o)?, false)),
+                        None => {
+                            return Err(Error::UserInputError(UserInputError::ObjectNotFound {
+                                object_id: oref.0,
+                                version: None,
+                            }))
+                        }
+                    }
+                }
+                ObjectRead::NotExists(id) => {
+                    return Err(Error::UserInputError(UserInputError::ObjectNotFound {
+                        object_id: id,
+                        version: None,
+                    }))
+                }
+            }
         }
 
         self.get_delegated_stakes(stakes).await
@@ -69,19 +99,24 @@ impl GovernanceReadApi {
             return Ok(vec![]);
         }
 
-        self.get_delegated_stakes(stakes).await
+        self.get_delegated_stakes(stakes.iter().map(|s| (s.clone(), true)).collect())
+            .await
     }
 
     async fn get_delegated_stakes(
         &self,
-        stakes: Vec<StakedHaneul>,
+        stakes: Vec<(StakedHaneul, bool)>,
     ) -> Result<Vec<DelegatedStake>, Error> {
-        let pools = stakes
-            .into_iter()
-            .fold(BTreeMap::<_, Vec<_>>::new(), |mut pools, s| {
-                pools.entry(s.pool_id()).or_default().push(s);
+        let pools = stakes.into_iter().fold(
+            BTreeMap::<_, Vec<_>>::new(),
+            |mut pools, (stake, exists)| {
                 pools
-            });
+                    .entry(stake.pool_id())
+                    .or_default()
+                    .push((stake, exists));
+                pools
+            },
+        );
 
         let system_state: HaneulSystemStateSummary =
             self.get_system_state()?.into_haneul_system_state_summary();
@@ -101,8 +136,10 @@ impl GovernanceReadApi {
             };
 
             let mut delegations = vec![];
-            for stake in stakes {
-                let status = if system_state.epoch >= stake.activation_epoch() {
+            for (stake, exists) in stakes {
+                let status = if !exists {
+                    StakeStatus::Unstaked
+                } else if system_state.epoch >= stake.activation_epoch() {
                     let estimated_reward = if let (Some(rate_table), Some(current_rate)) =
                         (&rate_table, &current_rate)
                     {
@@ -192,9 +229,9 @@ impl GovernanceReadApi {
 impl GovernanceReadApiServer for GovernanceReadApi {
     async fn get_stakes_by_ids(
         &self,
-        staked_haneul_id: Vec<ObjectID>,
+        staked_haneul_ids: Vec<ObjectID>,
     ) -> RpcResult<Vec<DelegatedStake>> {
-        Ok(self.get_stakes_by_ids(staked_haneul_id).await?)
+        Ok(self.get_stakes_by_ids(staked_haneul_ids).await?)
     }
 
     async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
