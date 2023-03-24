@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use haneul_config::genesis::UnsignedGenesis;
 use haneul_types::haneul_system_state::HaneulValidatorGenesis;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::ObjectID,
     coin::CoinMetadata,
     gas_coin::{GasCoin, GEUNHWA_PER_HANEUL, TOTAL_SUPPLY_GEUNHWA},
     governance::StakedHaneul,
@@ -37,9 +37,9 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
         .iter()
         .map(|v| (v.verified_metadata().name.as_str(), v))
         .collect::<BTreeMap<_, _>>();
-    let validator_address_map = validator_set
+    let validator_pool_id_map = validator_set
         .iter()
-        .map(|v| (v.verified_metadata().haneul_address, v))
+        .map(|v| (v.staking_pool.id, v))
         .collect::<BTreeMap<_, _>>();
 
     let mut validator_options = validator_map
@@ -93,9 +93,7 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
                         .or_default();
                     entry.insert(object_id_str, (STR_STAKED_HANEUL, staked_haneul.principal()));
                     // Assert pool id is associated with a knonw validator.
-                    let validator = validator_address_map
-                        .get(&staked_haneul.validator_address())
-                        .unwrap();
+                    let validator = validator_pool_id_map.get(&staked_haneul.pool_id()).unwrap();
                     assert_eq!(validator.staking_pool.id, staked_haneul.pool_id());
 
                     staked_haneul_map.insert(object.id(), staked_haneul);
@@ -135,7 +133,7 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
                 println!("Examine Objects (total: {})", genesis.objects().len());
                 examine_object(
                     &owner_map,
-                    &validator_address_map,
+                    &validator_pool_id_map,
                     &package_map,
                     &haneul_map,
                     &staked_haneul_map,
@@ -182,7 +180,7 @@ fn examine_validators(
 
 fn examine_object(
     owner_map: &BTreeMap<ObjectID, Owner>,
-    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorGenesis>,
+    validator_pool_id_map: &BTreeMap<ObjectID, &HaneulValidatorGenesis>,
     package_map: &BTreeMap<ObjectID, &MovePackage>,
     haneul_map: &BTreeMap<ObjectID, GasCoin>,
     staked_haneul_map: &BTreeMap<ObjectID, StakedHaneul>,
@@ -213,7 +211,7 @@ fn examine_object(
             }
             Ok(name) if name == STR_STAKED_HANEUL => {
                 for staked_haneul_coin in staked_haneul_map.values() {
-                    display_staked_haneul(staked_haneul_coin, validator_address_map, owner_map);
+                    display_staked_haneul(staked_haneul_coin, validator_pool_id_map, owner_map);
                 }
                 print_divider(STR_STAKED_HANEUL);
             }
@@ -353,12 +351,10 @@ fn display_haneul(gas_coin: &GasCoin, owner_map: &BTreeMap<ObjectID, Owner>) {
 
 fn display_staked_haneul(
     staked_haneul: &StakedHaneul,
-    validator_address_map: &BTreeMap<HaneulAddress, &HaneulValidatorGenesis>,
+    validator_pool_id_map: &BTreeMap<ObjectID, &HaneulValidatorGenesis>,
     owner_map: &BTreeMap<ObjectID, Owner>,
 ) {
-    let validator = validator_address_map
-        .get(&staked_haneul.validator_address())
-        .unwrap();
+    let validator = validator_pool_id_map.get(&staked_haneul.pool_id()).unwrap();
     println!("{:#?}", staked_haneul);
     println!(
         "Staked to Validator: {}",

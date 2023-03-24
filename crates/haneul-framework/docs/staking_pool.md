@@ -214,12 +214,6 @@ A self-custodial object holding the staked HANEUL tokens.
  ID of the staking pool we are staking with.
 </dd>
 <dt>
-<code>validator_address: <b>address</b></code>
-</dt>
-<dd>
-
-</dd>
-<dt>
 <code>stake_activation_epoch: u64</code>
 </dt>
 <dd>
@@ -448,7 +442,7 @@ Create a new, empty staking pool.
 Request to stake to a staking pool. The stake starts counting at the beginning of the next epoch,
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_request_add_stake">request_add_stake</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">staking_pool::StakingPool</a>, stake: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, validator_address: <b>address</b>, staker: <b>address</b>, stake_activation_epoch: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_request_add_stake">request_add_stake</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">staking_pool::StakingPool</a>, stake: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, staker: <b>address</b>, stake_activation_epoch: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -460,7 +454,6 @@ Request to stake to a staking pool. The stake starts counting at the beginning o
 <pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_request_add_stake">request_add_stake</a>(
     pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">StakingPool</a>,
     stake: Balance&lt;HANEUL&gt;,
-    validator_address: <b>address</b>,
     staker: <b>address</b>,
     stake_activation_epoch: u64,
     ctx: &<b>mut</b> TxContext
@@ -471,7 +464,6 @@ Request to stake to a staking pool. The stake starts counting at the beginning o
     <b>let</b> staked_haneul = <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
         id: <a href="_new">object::new</a>(ctx),
         pool_id: <a href="_id">object::id</a>(pool),
-        validator_address,
         stake_activation_epoch,
         principal: stake,
     };
@@ -594,7 +586,6 @@ Returns values are amount of pool tokens withdrawn and withdrawn principal porti
     <b>let</b> <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
         id,
         pool_id: _,
-        validator_address: _,
         stake_activation_epoch: _,
         principal,
     } = staked_haneul;
@@ -1040,7 +1031,6 @@ All the other parameters of the StakedHaneul like <code>stake_activation_epoch</
     <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
         id: <a href="_new">object::new</a>(ctx),
         pool_id: self.pool_id,
-        validator_address: self.validator_address,
         stake_activation_epoch: self.stake_activation_epoch,
         principal: <a href="_split">balance::split</a>(&<b>mut</b> self.principal, split_amount),
     }
@@ -1099,7 +1089,6 @@ Aborts if some of the staking parameters are incompatible (pool id, stake activa
     <b>let</b> <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
         id,
         pool_id: _,
-        validator_address: _,
         stake_activation_epoch: _,
         principal,
     } = other;
@@ -1131,7 +1120,6 @@ Returns true if all the staking parameters of the staked haneul except the princ
 
 <pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_is_equal_staking_metadata">is_equal_staking_metadata</a>(self: &<a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a>, other: &<a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a>): bool {
     (self.pool_id == other.pool_id) &&
-    (self.validator_address == other.validator_address) &&
     (self.stake_activation_epoch == other.stake_activation_epoch)
 }
 </code></pre>

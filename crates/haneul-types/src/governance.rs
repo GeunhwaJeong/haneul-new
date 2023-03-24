@@ -6,7 +6,7 @@ use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::StructTag;
 
 use crate::balance::Balance;
-use crate::base_types::{ObjectID, HaneulAddress};
+use crate::base_types::ObjectID;
 use crate::committee::EpochId;
 use crate::error::HaneulError;
 use crate::gas_coin::GEUNHWA_PER_HANEUL;
@@ -53,7 +53,6 @@ pub const WITHDRAW_STAKE_FUN_NAME: &IdentStr = ident_str!("request_withdraw_stak
 pub struct StakedHaneul {
     id: UID,
     pool_id: ID,
-    validator_address: HaneulAddress,
     stake_activation_epoch: u64,
     principal: Balance,
 }
@@ -89,10 +88,6 @@ impl StakedHaneul {
 
     pub fn principal(&self) -> u64 {
         self.principal.value()
-    }
-
-    pub fn validator_address(&self) -> HaneulAddress {
-        self.validator_address
     }
 }
 

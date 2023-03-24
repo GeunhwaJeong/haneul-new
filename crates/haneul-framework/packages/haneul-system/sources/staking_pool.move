@@ -78,8 +78,6 @@ module haneul_system::staking_pool {
         id: UID,
         /// ID of the staking pool we are staking with.
         pool_id: ID,
-        // TODO: keeping this field here because the apps depend on it. consider removing it.
-        validator_address: address,
         /// The epoch at which the stake becomes active.
         stake_activation_epoch: u64,
         /// The staked HANEUL tokens.
@@ -112,7 +110,6 @@ module haneul_system::staking_pool {
     public(friend) fun request_add_stake(
         pool: &mut StakingPool,
         stake: Balance<HANEUL>,
-        validator_address: address,
         staker: address,
         stake_activation_epoch: u64,
         ctx: &mut TxContext
@@ -123,7 +120,6 @@ module haneul_system::staking_pool {
         let staked_haneul = StakedHaneul {
             id: object::new(ctx),
             pool_id: object::id(pool),
-            validator_address,
             stake_activation_epoch,
             principal: stake,
         };
@@ -186,7 +182,6 @@ module haneul_system::staking_pool {
         let StakedHaneul {
             id,
             pool_id: _,
-            validator_address: _,
             stake_activation_epoch: _,
             principal,
         } = staked_haneul;
@@ -340,7 +335,6 @@ module haneul_system::staking_pool {
         StakedHaneul {
             id: object::new(ctx),
             pool_id: self.pool_id,
-            validator_address: self.validator_address,
             stake_activation_epoch: self.stake_activation_epoch,
             principal: balance::split(&mut self.principal, split_amount),
         }
@@ -359,7 +353,6 @@ module haneul_system::staking_pool {
         let StakedHaneul {
             id,
             pool_id: _,
-            validator_address: _,
             stake_activation_epoch: _,
             principal,
         } = other;
@@ -371,7 +364,6 @@ module haneul_system::staking_pool {
     /// Returns true if all the staking parameters of the staked haneul except the principal are identical
     public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul): bool {
         (self.pool_id == other.pool_id) &&
-        (self.validator_address == other.validator_address) &&
         (self.stake_activation_epoch == other.stake_activation_epoch)
     }
 
