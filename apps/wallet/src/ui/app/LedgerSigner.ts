@@ -32,6 +32,8 @@ export class LedgerSigner extends SignerWithProvider {
 
     async #initializeHaneulLedgerClient() {
         if (!this.#haneulLedgerClient) {
+            // We want to make sure that there's only one connection established per Ledger signer
+            // instance since some methods make multiple calls like getAddress and signData
             this.#haneulLedgerClient = await this.#connectToLedger();
         }
         return this.#haneulLedgerClient;
