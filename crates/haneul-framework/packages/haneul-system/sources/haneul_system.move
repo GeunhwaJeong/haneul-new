@@ -3,10 +3,9 @@
 
 module haneul_system::haneul_system {
     use haneul::balance::Balance;
-    #[test_only]
-    use haneul::balance;
+
     use haneul::coin::Coin;
-    use haneul::object::{ID, UID};
+    use haneul::object::UID;
     use haneul_system::staking_pool::StakedHaneul;
     use haneul::haneul::HANEUL;
     use haneul::transfer;
@@ -15,14 +14,15 @@ module haneul_system::haneul_system {
     use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
     use haneul_system::haneul_system_state_inner::{Self, SystemParameters, HaneulSystemStateInner};
     use haneul_system::stake_subsidy::StakeSubsidy;
-    use haneul::vec_set::VecSet;
     use std::option;
-    use haneul::table::Table;
     use haneul::dynamic_field;
-    #[test_only]
-    use haneul_system::validator_set::ValidatorSet;
-    #[test_only]
-    use haneul_system::validator_set;
+
+    #[test_only] use haneul::balance;
+    #[test_only] use haneul::object::ID;
+    #[test_only] use haneul::table::Table;
+    #[test_only] use haneul_system::validator_set::ValidatorSet;
+    #[test_only] use haneul_system::validator_set;
+    #[test_only] use haneul::vec_set::VecSet;
 
     friend haneul_system::genesis;
 
