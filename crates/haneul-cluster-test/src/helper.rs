@@ -3,10 +3,9 @@
 
 use anyhow::bail;
 use move_core_types::language_storage::TypeTag;
-use haneul_json_rpc_types::{
-    BalanceChange, HaneulData, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse,
-};
+use haneul_json_rpc_types::{BalanceChange, HaneulData, HaneulObjectData, HaneulObjectDataOptions};
 use haneul_sdk::HaneulClient;
+use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{base_types::ObjectID, object::Owner, parse_haneul_type_tag};
 use tracing::{debug, trace};
@@ -84,21 +83,28 @@ impl ObjectChecker {
 
         trace!("getting object {object_id}, info :: {object_info:?}");
 
-        match object_info {
-            HaneulObjectResponse::NotExists(_) => {
+        match (object_info.data, object_info.error) {
+            (None, Some(HaneulObjectResponseError::NotExists { object_id })) => {
                 panic!(
                     "Node can't find gas object {} with client {:?}",
                     object_id,
                     client.read_api()
                 )
             }
-            HaneulObjectResponse::Deleted(_) => {
+            (
+                None,
+                Some(HaneulObjectResponseError::Deleted {
+                    object_id,
+                    version: _,
+                    digest: _,
+                }),
+            ) => {
                 if !self.is_deleted {
                     panic!("Gas object {} was deleted", object_id);
                 }
                 Ok(CheckerResultObject::new(None, None))
             }
-            HaneulObjectResponse::Exists(object) => {
+            (Some(object), _) => {
                 if self.is_deleted {
                     panic!("Expect Gas object {} deleted, but it is not", object_id);
                 }
@@ -124,6 +130,9 @@ impl ObjectChecker {
                     return Ok(CheckerResultObject::new(Some(gas_coin), Some(object)));
                 }
                 Ok(CheckerResultObject::new(None, Some(object)))
+            }
+            (None, None) | (None, Some(HaneulObjectResponseError::Unknown)) => {
+                panic!("Unexpected response: object not found and no specific error provided");
             }
         }
     }

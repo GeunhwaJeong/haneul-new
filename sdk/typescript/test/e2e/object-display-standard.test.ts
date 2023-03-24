@@ -23,7 +23,7 @@ describe('Test Object Display Standard', () => {
         filter: { StructType: `${packageId}::boars::Boar` },
       })
     ).data;
-    const data = resp[0].details as HaneulObjectData;
+    const data = resp[0].data as HaneulObjectData;
     const boarId = data.objectId;
     const display = getObjectDisplay(
       await toolbox.provider.getObject({
@@ -47,7 +47,7 @@ describe('Test Object Display Standard', () => {
 
   it('Test getting Display fields for object that has no display object', async () => {
     const coin = (await toolbox.getGasObjectsOwnedByAddress())[0]
-      .details as HaneulObjectData;
+      .data as HaneulObjectData;
     const coinId = coin.objectId;
     const display = getObjectDisplay(
       await toolbox.provider.getObject({

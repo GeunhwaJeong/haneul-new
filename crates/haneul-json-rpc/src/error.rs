@@ -5,7 +5,7 @@ use fastcrypto::error::FastCryptoError;
 use hyper::header::InvalidHeaderValue;
 use jsonrpsee::core::Error as RpcError;
 use jsonrpsee::types::error::CallError;
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulError, HaneulObjectResponseError, UserInputError};
 use haneul_types::quorum_driver_types::QuorumDriverError;
 use thiserror::Error;
 use tokio::task::JoinError;
@@ -44,6 +44,9 @@ pub enum Error {
 
     #[error(transparent)]
     FastCryptoError(#[from] FastCryptoError),
+
+    #[error(transparent)]
+    HaneulObjectResponseError(#[from] HaneulObjectResponseError),
 }
 
 impl From<Error> for RpcError {

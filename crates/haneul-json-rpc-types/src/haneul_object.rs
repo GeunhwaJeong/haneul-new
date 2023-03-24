@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
 use anyhow::anyhow;
 use colored::Colorize;
 use fastcrypto::encoding::Base64;
@@ -23,52 +24,76 @@ use haneul_types::base_types::{
     MoveObjectType, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
     TransactionDigest,
 };
-use haneul_types::error::{UserInputError, UserInputResult};
+use haneul_types::error::{HaneulObjectResponseError, UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
 
-use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
-
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, PartialEq, Eq)]
-#[serde(tag = "status", content = "details", rename = "ObjectRead")]
-pub enum HaneulObjectResponse {
-    Exists(HaneulObjectData),
-    NotExists(ObjectID),
-    Deleted(HaneulObjectRef),
+pub struct HaneulObjectResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<HaneulObjectData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<HaneulObjectResponseError>,
+}
+
+impl HaneulObjectResponse {
+    pub fn new(data: Option<HaneulObjectData>, error: Option<HaneulObjectResponseError>) -> Self {
+        Self { data, error }
+    }
+
+    pub fn new_with_data(data: HaneulObjectData) -> Self {
+        Self {
+            data: Some(data),
+            error: None,
+        }
+    }
+
+    pub fn new_with_error(error: HaneulObjectResponseError) -> Self {
+        Self {
+            data: None,
+            error: Some(error),
+        }
+    }
 }
 
 impl HaneulObjectResponse {
     pub fn move_object_bcs(&self) -> Option<&Vec<u8>> {
-        match self {
-            HaneulObjectResponse::Exists(data) => match &data.bcs {
+        if let Some(data) = &self.data {
+            match &data.bcs {
                 Some(HaneulRawData::MoveObject(obj)) => Some(&obj.bcs_bytes),
                 _ => None,
-            },
-            _ => None,
+            };
         }
+        None
     }
     pub fn owner(&self) -> Option<Owner> {
-        match self {
-            HaneulObjectResponse::Exists(e) => e.owner,
-            HaneulObjectResponse::NotExists(_) => None,
-            HaneulObjectResponse::Deleted(_) => None,
+        if let Some(data) = &self.data {
+            return data.owner;
         }
+        None
     }
 
-    pub fn object_id(&self) -> ObjectID {
-        match self {
-            HaneulObjectResponse::Exists(e) => e.object_id,
-            HaneulObjectResponse::NotExists(ne) => *ne,
-            HaneulObjectResponse::Deleted(d) => d.object_id,
+    pub fn object_id(&self) -> Result<ObjectID, anyhow::Error> {
+        match (&self.data, &self.error) {
+            (Some(obj_data), None) => Ok(obj_data.object_id),
+            (None, Some(HaneulObjectResponseError::NotExists { object_id })) => Ok(*object_id),
+            (
+                None,
+                Some(HaneulObjectResponseError::Deleted {
+                    object_id,
+                    version: _,
+                    digest: _,
+                }),
+            ) => Ok(*object_id),
+            _ => Err(anyhow!("Could not get object_id, something went wrong with HaneulObjectResponse construction.")),
         }
     }
 
     pub fn object_ref_if_exists(&self) -> Option<ObjectRef> {
-        match self {
-            HaneulObjectResponse::Exists(e) => Some(e.object_ref()),
-            HaneulObjectResponse::NotExists(_) => None,
-            HaneulObjectResponse::Deleted(_) => None,
+        match (&self.data, &self.error) {
+            (Some(obj_data), None) => Some(obj_data.object_ref()),
+            _ => None,
         }
     }
 }
@@ -318,11 +343,20 @@ impl TryFrom<(ObjectRead, HaneulObjectDataOptions)> for HaneulObjectResponse {
         (object_read, options): (ObjectRead, HaneulObjectDataOptions),
     ) -> Result<Self, Self::Error> {
         match object_read {
-            ObjectRead::NotExists(id) => Ok(Self::NotExists(id)),
+            ObjectRead::NotExists(id) => Ok(HaneulObjectResponse::new_with_error(
+                HaneulObjectResponseError::NotExists { object_id: id },
+            )),
             ObjectRead::Exists(object_ref, o, layout) => {
-                Ok(Self::Exists((object_ref, o, layout, options).try_into()?))
+                let data = (object_ref, o, layout, options).try_into()?;
+                Ok(HaneulObjectResponse::new_with_data(data))
             }
-            ObjectRead::Deleted(oref) => Ok(Self::Deleted(oref.into())),
+            ObjectRead::Deleted((object_id, version, digest)) => Ok(
+                HaneulObjectResponse::new_with_error(HaneulObjectResponseError::Deleted {
+                    object_id,
+                    version,
+                    digest,
+                }),
+            ),
         }
     }
 }
@@ -340,7 +374,7 @@ impl TryFrom<(ObjectInfo, HaneulObjectDataOptions)> for HaneulObjectResponse {
             ..
         } = options;
 
-        Ok(Self::Exists(HaneulObjectData {
+        Ok(Self::new_with_data(HaneulObjectData {
             object_id: object_info.object_id,
             version: object_info.version,
             digest: object_info.digest,
@@ -477,31 +511,31 @@ impl
 impl HaneulObjectResponse {
     /// Returns a reference to the object if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn object(&self) -> UserInputResult<&HaneulObjectData> {
-        match &self {
-            Self::Deleted(oref) => Err(UserInputError::ObjectDeleted {
-                object_ref: oref.to_object_ref(),
-            }),
-            Self::NotExists(id) => Err(UserInputError::ObjectNotFound {
-                object_id: *id,
-                version: None,
-            }),
-            Self::Exists(o) => Ok(o),
+    pub fn object(&self) -> Result<&HaneulObjectData, HaneulObjectResponseError> {
+        let data = &self.data;
+        let error = self.error.clone();
+        if let Some(data) = data {
+            Ok(data)
+        } else if let Some(error) = error {
+            Err(error)
+        } else {
+            // We really shouldn't reach this code block since either data, or error field should always be filled.
+            Err(HaneulObjectResponseError::Unknown)
         }
     }
 
     /// Returns the object value if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
-    pub fn into_object(self) -> UserInputResult<HaneulObjectData> {
-        match self {
-            Self::Deleted(oref) => Err(UserInputError::ObjectDeleted {
-                object_ref: oref.to_object_ref(),
-            }),
-            Self::NotExists(id) => Err(UserInputError::ObjectNotFound {
-                object_id: id,
-                version: None,
-            }),
-            Self::Exists(o) => Ok(o),
+    pub fn into_object(self) -> Result<HaneulObjectData, HaneulObjectResponseError> {
+        let data = self.data.clone();
+        let error = self.error;
+        if let Some(data) = data {
+            Ok(data)
+        } else if let Some(error) = error {
+            Err(error)
+        } else {
+            // We really shouldn't reach this code block since either data, or error field should always be filled.
+            Err(HaneulObjectResponseError::Unknown)
         }
     }
 }

@@ -23,7 +23,7 @@ use haneul_core::{
     },
 };
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
+    HaneulObjectDataOptions, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
     HaneulTransactionResponseOptions,
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
@@ -549,14 +549,18 @@ impl FullNodeProxy {
 #[async_trait]
 impl ValidatorProxy for FullNodeProxy {
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error> {
-        match self
+        let response = self
             .haneul_client
             .read_api()
             .get_object_with_options(object_id, HaneulObjectDataOptions::bcs_lossless())
-            .await?
-        {
-            HaneulObjectResponse::Exists(haneul_object) => haneul_object.try_into(),
-            _ => bail!("Object {:?} not found", object_id),
+            .await?;
+
+        if let Some(haneul_object) = response.data {
+            haneul_object.try_into()
+        } else if let Some(error) = response.error {
+            bail!("Error getting object {:?}: {}", object_id, error)
+        } else {
+            bail!("Object {:?} not found and no error provided", object_id)
         }
     }
 

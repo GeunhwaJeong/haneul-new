@@ -48,14 +48,14 @@ const getResultsForObject = async (rpc: JsonRpcProvider, query: string) => {
     const normalized = normalizeHaneulObjectId(query);
     if (!isValidHaneulObjectId(normalized)) return null;
 
-    const { details, status } = await rpc.getObject({ id: normalized });
-    if (is(details, HaneulObjectData) && status === 'Exists') {
+    const { data, error } = await rpc.getObject({ id: normalized });
+    if (is(data, HaneulObjectData) && !error) {
         return {
             label: 'object',
             results: [
                 {
-                    id: details.objectId,
-                    label: details.objectId,
+                    id: data.objectId,
+                    label: data.objectId,
                     type: 'object',
                 },
             ],

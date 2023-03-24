@@ -183,9 +183,17 @@ export type ObjectStatus = Infer<typeof ObjectStatus>;
 export const GetOwnedObjectsResponse = array(HaneulObjectInfo);
 export type GetOwnedObjectsResponse = Infer<typeof GetOwnedObjectsResponse>;
 
+export const HaneulObjectResponseError = object({
+  tag: string(),
+  object_id: optional(ObjectId),
+  version: optional(SequenceNumber),
+  digest: optional(ObjectDigest),
+});
+export type HaneulObjectResponseError = Infer<typeof HaneulObjectResponseError>;
+
 export const HaneulObjectResponse = object({
-  status: ObjectStatus,
-  details: union([HaneulObjectData, ObjectId, HaneulObjectRef]),
+  data: optional(HaneulObjectData),
+  error: optional(HaneulObjectResponseError),
 });
 export type HaneulObjectResponse = Infer<typeof HaneulObjectResponse>;
 
@@ -200,19 +208,42 @@ export type Order = 'ascending' | 'descending';
 export function getHaneulObjectData(
   resp: HaneulObjectResponse,
 ): HaneulObjectData | undefined {
-  return resp.status !== 'Exists' ? undefined : (resp.details as HaneulObjectData);
+  return resp.data;
 }
 
 export function getObjectDeletedResponse(
   resp: HaneulObjectResponse,
 ): HaneulObjectRef | undefined {
-  return resp.status !== 'Deleted' ? undefined : (resp.details as HaneulObjectRef);
+  if (
+    resp.error &&
+    'object_id' in resp.error &&
+    'version' in resp.error &&
+    'digest' in resp.error
+  ) {
+    const error = resp.error as HaneulObjectResponseError;
+    return {
+      objectId: error.object_id,
+      version: error.version,
+      digest: error.digest,
+    } as HaneulObjectRef;
+  }
+
+  return undefined;
 }
 
 export function getObjectNotExistsResponse(
   resp: HaneulObjectResponse,
 ): ObjectId | undefined {
-  return resp.status !== 'NotExists' ? undefined : (resp.details as ObjectId);
+  if (
+    resp.error &&
+    'object_id' in resp.error &&
+    !('version' in resp.error) &&
+    !('digest' in resp.error)
+  ) {
+    return (resp.error as HaneulObjectResponseError).object_id as ObjectId;
+  }
+
+  return undefined;
 }
 
 export function getObjectReference(
@@ -257,6 +288,12 @@ export function getObjectVersion(
 
 /* -------------------------------- HaneulObject ------------------------------- */
 
+export function isHaneulObjectResponse(
+  resp: HaneulObjectResponse | HaneulObjectData,
+): resp is HaneulObjectResponse {
+  return (resp as HaneulObjectResponse).data !== undefined;
+}
+
 /**
  * Deriving the object type from the object response
  * @returns 'package' if the object is a package, move object type(e.g., 0x2::coin::Coin<0x2::haneul::HANEUL>)
@@ -265,9 +302,9 @@ export function getObjectVersion(
 export function getObjectType(
   resp: HaneulObjectResponse | HaneulObjectData,
 ): ObjectType | undefined {
-  const data = 'status' in resp ? getHaneulObjectData(resp) : resp;
+  const data = isHaneulObjectResponse(resp) ? resp.data : resp;
 
-  if (!data?.type && 'status' in resp) {
+  if (!data?.type && 'data' in resp) {
     if (data?.content?.dataType === 'package') {
       return 'package';
     }
@@ -333,13 +370,30 @@ export function getObjectFields(
   return getMoveObject(resp)?.fields;
 }
 
+export interface HaneulObjectDataWithContent extends HaneulObjectData {
+  content: HaneulParsedData;
+}
+
+function isHaneulObjectDataWithContent(
+  data: HaneulObjectData,
+): data is HaneulObjectDataWithContent {
+  return data.content !== undefined;
+}
+
 export function getMoveObject(
   data: HaneulObjectResponse | HaneulObjectData,
 ): HaneulMoveObject | undefined {
-  const haneulObject = 'status' in data ? getHaneulObjectData(data) : data;
-  if (haneulObject?.content?.dataType !== 'moveObject') {
+  const haneulObject =
+    'data' in data ? getHaneulObjectData(data) : (data as HaneulObjectData);
+
+  if (
+    !haneulObject ||
+    !isHaneulObjectDataWithContent(haneulObject) ||
+    haneulObject.content.dataType !== 'moveObject'
+  ) {
     return undefined;
   }
+
   return haneulObject.content as HaneulMoveObject;
 }
 

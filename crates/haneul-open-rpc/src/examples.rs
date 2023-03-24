@@ -208,7 +208,7 @@ impl RpcExampleProvider {
 
         let coin = GasCoin::new(object_id, 10000);
 
-        let result = HaneulObjectResponse::Exists(HaneulObjectData {
+        let result = HaneulObjectResponse::new_with_data(HaneulObjectData {
             content: Some(
                 HaneulParsedData::try_from_object(
                     coin.to_object(SequenceNumber::from_u64(1)),

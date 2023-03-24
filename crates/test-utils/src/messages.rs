@@ -106,13 +106,8 @@ pub async fn get_gas_objects_with_wallet_context(
         .await
         .unwrap()
         .into_iter()
-        .map(|(_val, object_data)| HaneulObjectResponse::Exists(object_data))
+        .map(|(_val, object_data)| HaneulObjectResponse::new_with_data(object_data))
         .collect()
-    // .try_fold(vec![], |mut acc, (_val, object_data)| {
-    //     let obj_resp = HaneulObjectResponse::Exists(object_data);
-    //     acc.push(obj_resp);
-    //     Ok::<Vec<HaneulObjectResponse>, Error>(acc)
-    // })?
 }
 
 /// A helper function to get all accounts and their owned gas objects

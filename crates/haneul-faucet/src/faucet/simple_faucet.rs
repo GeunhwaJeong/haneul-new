@@ -15,7 +15,7 @@ use std::path::Path;
 use shared_crypto::intent::Intent;
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    HaneulObjectDataOptions, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
     HaneulTransactionResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
@@ -200,12 +200,12 @@ impl SimpleFaucet {
                     .with_content(),
             )
             .await?;
-        Ok(match gas_obj {
-            HaneulObjectResponse::NotExists(_) | HaneulObjectResponse::Deleted(_) => None,
-            HaneulObjectResponse::Exists(obj) => {
-                GasCoin::try_from(&obj).ok().map(|coin| (obj.owner, coin))
-            }
-        })
+        let o = gas_obj.data;
+        if let Some(o) = o {
+            Ok(GasCoin::try_from(&o).ok().map(|coin| (o.owner, coin)))
+        } else {
+            Ok(None)
+        }
     }
 
     /// Similar to get_coin but checks that the owner is the active

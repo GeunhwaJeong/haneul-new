@@ -54,7 +54,7 @@ describe('Transaction Serialization and deserialization', () => {
       await toolbox.getActiveValidators();
 
     const tx = new Transaction();
-    const coin = coins[2].details as HaneulObjectData;
+    const coin = coins[2].data as HaneulObjectData;
     tx.moveCall({
       target: '0x3::haneul_system::request_add_stake',
       arguments: [

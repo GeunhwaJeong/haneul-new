@@ -25,7 +25,7 @@ function NftsPage() {
         (obj) => !Coin.isCoin(obj)
     );
     const nfts = nft_objects?.map((nft) => {
-        const nft_details = nft.details as HaneulObjectData;
+        const nft_details = nft.data as HaneulObjectData;
         return nft_details;
     });
 

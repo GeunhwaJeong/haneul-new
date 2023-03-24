@@ -96,10 +96,10 @@ const DisplayDomainRegex =
 export const NftParser: HaneulObjectParser<NftRpcResponse, NftRaw> = {
     parser: (data, haneulData, rpcResponse) => {
         if (
-            typeof rpcResponse.details === 'object' &&
-            'owner' in rpcResponse.details
+            typeof rpcResponse.data === 'object' &&
+            'owner' in rpcResponse.data
         ) {
-            const { owner } = rpcResponse.details;
+            const { owner } = rpcResponse.data;
 
             const matches = (haneulData.content as HaneulMoveObject).type.match(
                 NftRegex
@@ -114,7 +114,7 @@ export const NftParser: HaneulObjectParser<NftRpcResponse, NftRaw> = {
             return {
                 owner,
                 type: haneulData.content?.dataType,
-                id: rpcResponse.details.objectId,
+                id: rpcResponse.data.objectId,
                 packageObjectId,
                 packageModule,
                 packageModuleClassName,
@@ -128,12 +128,12 @@ export const NftParser: HaneulObjectParser<NftRpcResponse, NftRaw> = {
     regex: NftRegex,
 };
 
-const isObjectExists = (o: HaneulObjectResponse) => o.status === 'Exists';
+const isObjectExists = (o: HaneulObjectResponse) => o.data;
 
 const isTypeMatchRegex = (d: HaneulObjectResponse, regex: RegExp) => {
-    const { details } = d;
-    if (is(details, HaneulObjectData)) {
-        const { content } = details;
+    const { data } = d;
+    if (is(data, HaneulObjectData)) {
+        const { content } = data;
         if (content && 'type' in content) {
             return content.type.match(regex);
         }

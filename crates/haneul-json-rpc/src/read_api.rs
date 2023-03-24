@@ -42,7 +42,7 @@ use haneul_types::crypto::default_hash;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::display::DisplayVersionUpdatedEvent;
 use haneul_types::dynamic_field::DynamicFieldName;
-use haneul_types::error::UserInputError;
+use haneul_types::error::{HaneulObjectResponseError, UserInputError};
 use haneul_types::messages::TransactionDataAPI;
 use haneul_types::messages::{
     TransactionData, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
@@ -202,18 +202,26 @@ impl ReadApiServer for ReadApi {
         let options = options.unwrap_or_default();
 
         match object_read {
-            ObjectRead::NotExists(id) => Ok(HaneulObjectResponse::NotExists(id)),
+            ObjectRead::NotExists(id) => Ok(HaneulObjectResponse::new_with_error(
+                HaneulObjectResponseError::NotExists { object_id: id },
+            )),
             ObjectRead::Exists(object_ref, o, layout) => {
                 let display_fields = if options.show_display {
                     get_display_fields(self, &o, &layout).await?
                 } else {
                     None
                 };
-                Ok(HaneulObjectResponse::Exists(
+                Ok(HaneulObjectResponse::new_with_data(
                     (object_ref, o, layout, options, display_fields).try_into()?,
                 ))
             }
-            ObjectRead::Deleted(oref) => Ok(HaneulObjectResponse::Deleted(oref.into())),
+            ObjectRead::Deleted((object_id, version, digest)) => Ok(
+                HaneulObjectResponse::new_with_error(HaneulObjectResponseError::Deleted {
+                    object_id,
+                    version,
+                    digest,
+                }),
+            ),
         }
     }
 
