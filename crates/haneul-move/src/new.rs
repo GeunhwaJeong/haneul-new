@@ -8,8 +8,8 @@ use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 const HANEUL_PKG_NAME: &str = "Haneul";
 
-// Use devnet by default. Probably want to add options to make this configurable later
-const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"devnet\" }";
+// Use testnet by default. Probably want to add options to make this configurable later
+const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"testnet\" }";
 
 #[derive(Parser)]
 pub struct New {
