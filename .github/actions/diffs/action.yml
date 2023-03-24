@@ -35,4 +35,3 @@ runs:
           - 'crates/haneul-framework/sources/**'
           - 'crates/haneul/src/haneul_move/**'
           - 'Cargo.toml'
-          - 'Cargo.lock'
