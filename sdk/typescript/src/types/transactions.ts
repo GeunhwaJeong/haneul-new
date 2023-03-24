@@ -248,12 +248,6 @@ export type TransactionEffects = Infer<typeof TransactionEffects>;
 export const TransactionEvents = array(HaneulEvent);
 export type TransactionEvents = Infer<typeof TransactionEvents>;
 
-export const DryRunTransactionResponse = object({
-  effects: TransactionEffects,
-  events: TransactionEvents,
-});
-export type DryRunTransactionResponse = Infer<typeof DryRunTransactionResponse>;
-
 const ReturnValueType = tuple([array(number()), string()]);
 const MutableReferenceOutputType = tuple([
   HaneulArgument,
@@ -424,6 +418,13 @@ export const PaginatedTransactionResponse = object({
 export type PaginatedTransactionResponse = Infer<
   typeof PaginatedTransactionResponse
 >;
+export const DryRunTransactionResponse = object({
+  effects: TransactionEffects,
+  events: TransactionEvents,
+  objectChanges: array(HaneulObjectChange),
+  balanceChanges: array(BalanceChange),
+});
+export type DryRunTransactionResponse = Infer<typeof DryRunTransactionResponse>;
 
 /* -------------------------------------------------------------------------- */
 /*                              Helper functions                              */
