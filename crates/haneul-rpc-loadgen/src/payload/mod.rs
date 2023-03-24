@@ -10,19 +10,35 @@ use std::time::Duration;
 
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
+use crate::load_test::LoadTestConfig;
 pub use rpc_command_processor::RpcCommandProcessor;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::crypto::HaneulKeyPair;
+
+#[derive(Default, Clone)]
+pub struct SignerInfo {
+    pub encoded_keypair: String,
+    // TODO(chris): we should be able to derive this from the keypair?
+    pub signer_address: HaneulAddress,
+    /// Different thread should use different gas_payment to avoid equivocation
+    pub gas_payment: Option<ObjectID>,
+    pub gas_budget: Option<u64>,
+}
+
+impl SignerInfo {
+    pub fn new(encoded_keypair: String, signer_address: HaneulAddress) -> Self {
+        Self {
+            encoded_keypair,
+            signer_address,
+            gas_payment: None,
+            gas_budget: None,
+        }
+    }
+}
 
 #[derive(Clone, Default)]
 pub struct Payload {
     pub commands: Vec<Command>,
-    /// base64 encoded keypair
-    pub encoded_keypair: Option<String>,
-    // TODO(chris): we should be able to derive this from the keypair?
-    pub signer_address: Option<HaneulAddress>,
-    /// Different thread should use different gas_payment to avoid equivocation
-    pub gas_payment: Option<ObjectID>,
+    pub signer_info: Option<SignerInfo>,
 }
 
 #[derive(Default, Clone)]
@@ -114,11 +130,13 @@ pub struct PayHaneul {}
 pub trait Processor {
     /// process commands in order
     async fn apply(&self, payload: &Payload) -> Result<()>;
+
+    /// prepare payload for each thread according to LoadTestConfig
+    async fn prepare(&self, config: &LoadTestConfig) -> Result<Vec<Payload>>;
 }
 
 /// all payload should implement this trait
 #[async_trait]
 pub trait ProcessPayload<'a, T> {
-    // TODO: replace HaneulKeyPair with signerInfo
-    async fn process(&'a self, op: T, keypair: &Option<HaneulKeyPair>) -> Result<()>;
+    async fn process(&'a self, op: T, signer_info: &Option<SignerInfo>) -> Result<()>;
 }
