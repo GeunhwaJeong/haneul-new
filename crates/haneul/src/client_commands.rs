@@ -143,6 +143,10 @@ pub enum HaneulClientCommands {
         /// Also publish transitive dependencies that have not already been published.
         #[clap(long)]
         with_unpublished_dependencies: bool,
+
+        /// Do not Sign transaction, output Base64-encoded Serialized Output
+        #[clap(long)]
+        serialize_output: bool,
     },
 
     /// Upgrade Move modules
@@ -585,6 +589,7 @@ impl HaneulClientCommands {
                 gas_budget,
                 skip_dependency_verification,
                 with_unpublished_dependencies,
+                serialize_output,
             } => {
                 let sender = context.try_get_object_owner(&gas).await?;
                 let sender = sender.unwrap_or(context.active_address()?);
@@ -609,6 +614,12 @@ impl HaneulClientCommands {
                         gas_budget,
                     )
                     .await?;
+                if serialize_output {
+                    return Ok(HaneulClientCommandResult::SerializePublish(Base64::encode(
+                        bcs::to_bytes(&data).unwrap(),
+                    )));
+                }
+
                 let signature =
                     context
                         .config
@@ -1598,6 +1609,9 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::SerializeTransferHaneul(data) => {
                 writeln!(writer, "Raw tx_bytes to execute: {}", data)?;
             }
+            HaneulClientCommandResult::SerializePublish(data) => {
+                writeln!(writer, "Raw tx_bytes to execute: {}", data)?;
+            }
             HaneulClientCommandResult::ActiveEnv(env) => {
                 write!(writer, "{}", env.as_deref().unwrap_or("None"))?;
             }
@@ -1798,6 +1812,7 @@ pub enum HaneulClientCommandResult {
     Envs(Vec<HaneulEnv>, Option<String>),
     CreateExampleNFT(HaneulObjectResponse),
     SerializeTransferHaneul(String),
+    SerializePublish(String),
     ExecuteSignedTx(HaneulTransactionResponse),
     NewEnv(HaneulEnv),
 }
