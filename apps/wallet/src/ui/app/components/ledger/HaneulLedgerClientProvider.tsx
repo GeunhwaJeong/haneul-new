@@ -16,7 +16,7 @@ import {
 import {
     LedgerConnectionFailedError,
     LedgerNoTransportMechanismError,
-} from './LedgerExceptions';
+} from './ledgerErrors';
 
 type HaneulLedgerClientProviderProps = {
     children: React.ReactNode;
