@@ -44,4 +44,9 @@ pub enum QuorumDriverError {
     NonRecoverableTransactionError {
         errors: Vec<(HaneulError, Vec<AuthorityName>, StakeUnit)>,
     },
+    #[error("Transaction is not processed because {overloaded_stake} of validators by stake are overloaded with certificates pending execution.")]
+    SystemOverload {
+        overloaded_stake: StakeUnit,
+        errors: Vec<(HaneulError, Vec<AuthorityName>, StakeUnit)>,
+    },
 }

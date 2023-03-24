@@ -625,6 +625,10 @@ impl HaneulError {
                 }
             }
 
+            // Overload errors
+            HaneulError::TooManyTransactionsPendingExecution { .. } => (true, true),
+            HaneulError::TooManyTransactionsPendingOnObject { .. } => (true, true),
+
             // Non retryable error
             HaneulError::ExecutionError(..) => (false, true),
             HaneulError::ByzantineAuthoritySuspicion { .. } => (false, true),
@@ -632,9 +636,6 @@ impl HaneulError {
                 (false, true)
             }
 
-            // Overload errors
-            HaneulError::TooManyTransactionsPendingExecution { .. } => (false, true),
-            HaneulError::TooManyTransactionsPendingOnObject { .. } => (false, true),
             _ => (false, false),
         }
     }
@@ -650,6 +651,14 @@ impl HaneulError {
             }
             _ => false,
         }
+    }
+
+    pub fn is_overload(&self) -> bool {
+        matches!(
+            self,
+            HaneulError::TooManyTransactionsPendingExecution { .. }
+                | HaneulError::TooManyTransactionsPendingOnObject { .. }
+        )
     }
 }
 
