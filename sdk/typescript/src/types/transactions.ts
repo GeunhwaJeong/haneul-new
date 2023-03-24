@@ -284,7 +284,7 @@ export type TransactionFilter =
       };
     }
   | { InputObject: ObjectId }
-  | { MutatedObject: ObjectId }
+  | { ChangedObject: ObjectId }
   | { FromAddress: HaneulAddress }
   | { ToAddress: HaneulAddress };
 

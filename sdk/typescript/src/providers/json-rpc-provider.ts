@@ -483,10 +483,7 @@ export class JsonRpcProvider {
     objectID: ObjectId,
     descendingOrder: boolean = true,
   ): Promise<GetTxnDigestsResponse> {
-    const filters = [
-      { filter: { InputObject: objectID } },
-      { filter: { MutatedObject: objectID } },
-    ];
+    const filters = [{ InputObject: objectID }, { ChangedObject: objectID }];
     if (!objectID || !isValidHaneulObjectId(normalizeHaneulObjectId(objectID))) {
       throw new Error('Invalid Haneul Object id');
     }
