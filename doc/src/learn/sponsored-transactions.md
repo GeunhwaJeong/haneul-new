@@ -11,16 +11,6 @@ You can use Haneul Sponsored transactions to:
  * Sponsor transactions you initiate as the sponsor.
  * Provide a wildcard GasData object to users. The object covers the gas fees for a user transaction. The GasData object covers any fee amount determined for the transaction as long as the budget is sufficient.
 
-## Considerations for Sponsored Transactions
-
-Before you implement or agree to a sponsored transaction, you should consider the following information.
-In a sponsored transaction, the sponsor’s gas object covers fees for the transaction. This is contrary to certain types of Haneul transaction types in which the gas object itself also transfers. As a result, Haneul does not support sponsoring the following Haneul transaction types:
- * [TransferHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_transferHaneul)
- * [PayHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_payHaneul)
- * [PayAllHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_payAllHaneul)
-
- Also note that you can’t use Sponsored Transaction with `BatchTransaction`, which will be deprecated in a future release.
-
 ## Potential Risks Using Sponsored Transactions
 
 The most significant potential risk when using sponsored transactions is [equivocation](../learn/haneul-glossary#equivocation). In some cases under certain conditions, a sponsored transaction can result in all associated owned objects, including gas in a locked state when examined by Haneul validators. To avoid double spending, validators lock objects as they validate transactions. An equivocation occurs when an owned object’s pair (`ObjectID`, `SequenceNumber`) is concurrently used in multiple non-finalized transactions.
