@@ -13,17 +13,17 @@ use std::collections::BTreeMap;
 use haneul_json_rpc::api::{validate_limit, ReadApiClient, ReadApiServer, QUERY_MAX_RESULT_LIMIT};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
-    Page, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulPastObjectResponse, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionsPage,
+    BigInt, Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType,
+    ObjectsPage, Page, HaneulCheckpointSequenceNumber, HaneulGetPastObjectRequest,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
+    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+    TransactionsPage,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TxSequenceNumber};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::DynamicFieldName;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::query::TransactionFilter;
 
 pub(crate) struct ReadApi<S> {
@@ -317,14 +317,14 @@ where
             .await
     }
 
-    async fn get_total_transaction_number(&self) -> RpcResult<u64> {
+    async fn get_total_transaction_number(&self) -> RpcResult<BigInt> {
         if !self
             .migrated_methods
             .contains(&"get_total_transaction_number".to_string())
         {
             return self.fullnode.get_total_transaction_number().await;
         }
-        Ok(self.get_total_transaction_number_internal()?)
+        Ok(self.get_total_transaction_number_internal()?.into())
     }
 
     async fn query_transactions(
@@ -467,14 +467,18 @@ where
             .await
     }
 
-    async fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<CheckpointSequenceNumber> {
+    async fn get_latest_checkpoint_sequence_number(
+        &self,
+    ) -> RpcResult<HaneulCheckpointSequenceNumber> {
         if !self
             .migrated_methods
             .contains(&"get_latest_checkpoint_sequence_number".to_string())
         {
             return self.fullnode.get_latest_checkpoint_sequence_number().await;
         }
-        Ok(self.get_latest_checkpoint_sequence_number_internal()?)
+        Ok(self
+            .get_latest_checkpoint_sequence_number_internal()?
+            .into())
     }
 
     async fn get_checkpoint(&self, id: CheckpointId) -> RpcResult<Checkpoint> {
@@ -489,7 +493,7 @@ where
 
     async fn get_checkpoints(
         &self,
-        cursor: Option<CheckpointSequenceNumber>,
+        cursor: Option<HaneulCheckpointSequenceNumber>,
         limit: Option<usize>,
         descending_order: bool,
     ) -> RpcResult<CheckpointPage> {

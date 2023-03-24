@@ -16,7 +16,7 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
-    DevInspectResults, DryRunTransactionResponse, HaneulTransaction, HaneulTransactionEvents,
+    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransaction, HaneulTransactionEvents,
     HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_open_rpc::Module;
@@ -170,14 +170,14 @@ impl WriteApiServer for TransactionExecutionApi {
         &self,
         sender_address: HaneulAddress,
         tx_bytes: Base64,
-        gas_price: Option<u64>,
+        gas_price: Option<BigInt>,
         _epoch: Option<EpochId>,
     ) -> RpcResult<DevInspectResults> {
         let tx_kind: TransactionKind =
             bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
         Ok(self
             .state
-            .dev_inspect_transaction(sender_address, tx_kind, gas_price)
+            .dev_inspect_transaction(sender_address, tx_kind, gas_price.map(<u64>::from))
             .await?)
     }
 

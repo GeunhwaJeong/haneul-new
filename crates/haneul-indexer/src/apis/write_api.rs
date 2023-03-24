@@ -9,7 +9,7 @@ use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{WriteApiClient, WriteApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    DevInspectResults, DryRunTransactionResponse, HaneulTransactionResponse,
+    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionResponse,
     HaneulTransactionResponseOptions,
 };
 use haneul_open_rpc::Module;
@@ -46,7 +46,7 @@ impl WriteApiServer for WriteApi {
         &self,
         sender_address: HaneulAddress,
         tx_bytes: Base64,
-        gas_price: Option<u64>,
+        gas_price: Option<BigInt>,
         epoch: Option<EpochId>,
     ) -> RpcResult<DevInspectResults> {
         self.fullnode

@@ -5,18 +5,17 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
-    HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulPastObjectResponse, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionsPage,
+    BigInt, Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType,
+    ObjectsPage, HaneulCheckpointSequenceNumber, HaneulGetPastObjectRequest, HaneulMoveNormalizedFunction,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionResponse,
+    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{
     ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
 };
 use haneul_types::dynamic_field::DynamicFieldName;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 #[open_rpc(namespace = "haneul", tag = "Read API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -51,7 +50,7 @@ pub trait ReadApi {
 
     /// Return the total number of transactions known to the server.
     #[method(name = "getTotalTransactionNumber")]
-    async fn get_total_transaction_number(&self) -> RpcResult<u64>;
+    async fn get_total_transaction_number(&self) -> RpcResult<BigInt>;
 
     /// Return list of transaction digests within the queried range.
     /// This method will be removed before April 2023, please use `queryTransactions` instead
@@ -203,7 +202,8 @@ pub trait ReadApi {
 
     /// Return the sequence number of the latest checkpoint that has been executed
     #[method(name = "getLatestCheckpointSequenceNumber")]
-    async fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<CheckpointSequenceNumber>;
+    async fn get_latest_checkpoint_sequence_number(&self)
+        -> RpcResult<HaneulCheckpointSequenceNumber>;
 
     /// Return a checkpoint
     #[method(name = "getCheckpoint")]
@@ -218,7 +218,7 @@ pub trait ReadApi {
     async fn get_checkpoints(
         &self,
         /// An optional paging cursor. If provided, the query will start from the next item after the specified cursor. Default to start from the first item if not specified.
-        cursor: Option<CheckpointSequenceNumber>,
+        cursor: Option<HaneulCheckpointSequenceNumber>,
         /// Maximum item returned per page, default to [QUERY_MAX_RESULT_LIMIT_CHECKPOINTS] if not specified.
         limit: Option<usize>,
         /// query result ordering, default to false (ascending order), oldest record first.

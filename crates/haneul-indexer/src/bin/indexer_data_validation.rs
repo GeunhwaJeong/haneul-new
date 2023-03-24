@@ -7,7 +7,7 @@ use tracing::{error, info, warn};
 
 use haneul_indexer::new_rpc_client;
 use haneul_json_rpc_types::{
-    CheckpointId, ObjectChange, HaneulObjectDataOptions, HaneulTransactionResponseOptions,
+    BigInt, CheckpointId, ObjectChange, HaneulObjectDataOptions, HaneulTransactionResponseOptions,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
@@ -54,11 +54,11 @@ pub async fn check_checkpoint(
 ) -> Result<(), anyhow::Error> {
     let fn_checkpoint = fn_client
         .read_api()
-        .get_checkpoint(CheckpointId::SequenceNumber(checkpoint))
+        .get_checkpoint(CheckpointId::SequenceNumber(<BigInt>::from(checkpoint)))
         .await?;
     let indexer_checkpoint = indexer_client
         .read_api()
-        .get_checkpoint(CheckpointId::SequenceNumber(checkpoint))
+        .get_checkpoint(CheckpointId::SequenceNumber(<BigInt>::from(checkpoint)))
         .await?;
 
     if fn_checkpoint != indexer_checkpoint {

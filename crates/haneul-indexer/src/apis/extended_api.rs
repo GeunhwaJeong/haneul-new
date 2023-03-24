@@ -11,8 +11,8 @@ use haneul_json_rpc::api::{
 };
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    CheckpointId, EpochInfo, EpochPage, ObjectsPage, Page, HaneulObjectDataFilter, HaneulObjectResponse,
-    HaneulObjectResponseQuery,
+    BigInt, CheckpointId, EpochInfo, EpochPage, ObjectsPage, Page, HaneulObjectDataFilter,
+    HaneulObjectResponse, HaneulObjectResponseQuery,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, ObjectID};
@@ -41,17 +41,17 @@ impl<S: IndexerStore> ExtendedApi<S> {
         let at_checkpoint = match at_checkpoint {
             Some(CheckpointId::SequenceNumber(seq)) => seq,
             Some(CheckpointId::Digest(digest)) => {
-                self.state.get_checkpoint_sequence_number(digest)?
+                <BigInt>::from(self.state.get_checkpoint_sequence_number(digest)?)
             }
-            None => self.state.get_latest_checkpoint_sequence_number()? as u64,
+            None => <BigInt>::from(self.state.get_latest_checkpoint_sequence_number()? as u64),
         };
 
         let HaneulObjectResponseQuery { filter, options } = query;
         let filter = filter.unwrap_or_else(|| HaneulObjectDataFilter::MatchAll(vec![]));
 
-        let objects_from_db = self
-            .state
-            .query_objects(filter, at_checkpoint, cursor, limit + 1)?;
+        let objects_from_db =
+            self.state
+                .query_objects(filter, <u64>::from(at_checkpoint), cursor, limit + 1)?;
 
         let mut data = objects_from_db
             .into_iter()
