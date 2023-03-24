@@ -6,7 +6,6 @@ use std::str::FromStr;
 use diesel::{Insertable, Queryable};
 
 use haneul_types::base_types::{EpochId, ObjectID, HaneulAddress};
-use haneul_types::id::ID;
 use haneul_types::haneul_system_state::haneul_system_state_summary::{
     HaneulSystemStateSummary, HaneulValidatorSummary,
 };
@@ -141,7 +140,7 @@ impl From<(EpochId, HaneulValidatorSummary)> for DBValidatorSummary {
             next_epoch_primary_address: v.next_epoch_primary_address,
             next_epoch_worker_address: v.next_epoch_worker_address,
             voting_power: v.voting_power as i64,
-            operation_cap_id: v.operation_cap_id.bytes.to_string(),
+            operation_cap_id: v.operation_cap_id.to_string(),
             gas_price: v.gas_price as i64,
             commission_rate: v.commission_rate as i64,
             next_epoch_stake: v.next_epoch_stake as i64,
@@ -188,9 +187,7 @@ impl TryFrom<DBValidatorSummary> for HaneulValidatorSummary {
             next_epoch_primary_address: db.next_epoch_primary_address,
             next_epoch_worker_address: db.next_epoch_worker_address,
             voting_power: db.voting_power as u64,
-            operation_cap_id: ID {
-                bytes: ObjectID::from_str(&db.operation_cap_id)?,
-            },
+            operation_cap_id: ObjectID::from_str(&db.operation_cap_id)?,
             gas_price: db.gas_price as u64,
             commission_rate: db.commission_rate as u64,
             next_epoch_stake: db.next_epoch_stake as u64,
