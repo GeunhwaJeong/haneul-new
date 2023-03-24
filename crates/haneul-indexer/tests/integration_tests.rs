@@ -13,6 +13,8 @@ pub mod pg_integration_test {
     use move_core_types::ident_str;
     use move_core_types::identifier::Identifier;
     use move_core_types::language_storage::StructTag;
+    use move_core_types::parser::parse_struct_tag;
+    use ntest::timeout;
     use tokio::task::JoinHandle;
 
     use haneul_config::HANEUL_KEYSTORE_FILENAME;
@@ -23,14 +25,14 @@ pub mod pg_integration_test {
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
     use haneul_indexer::test_utils::{start_test_indexer, HaneulTransactionResponseBuilder};
     use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, IndexerConfig};
-    use haneul_json_rpc::api::{
-        EventReadApiClient, ExtendedApiClient, ReadApiClient, TransactionBuilderClient,
-        WriteApiClient,
-    };
+    use haneul_json_rpc::api::EventReadApiClient;
+    use haneul_json_rpc::api::ExtendedApiClient;
+    use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
     use haneul_json_rpc_types::{
-        CheckpointId, EventFilter, HaneulMoveObject, HaneulObjectData, HaneulObjectDataOptions,
-        HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedMoveObject, HaneulTransactionResponse,
-        HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionBytes,
+        CheckpointId, EventFilter, HaneulMoveObject, HaneulObjectData, HaneulObjectDataFilter,
+        HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedMoveObject,
+        HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
+        TransactionBytes,
     };
     use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
     use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -170,6 +172,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_genesis_sync() {
         let (test_cluster, indexer_rpc_client, store, handle) = start_test_cluster(None).await;
         // Allow indexer to sync
@@ -201,6 +204,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_total_addresses() -> Result<(), anyhow::Error> {
         let (_test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         // Allow indexer to sync genesis
@@ -259,6 +263,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_simple_transaction_e2e() -> Result<(), anyhow::Error> {
         let (mut test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         // Allow indexer to sync genesis
@@ -403,6 +408,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_event_query_e2e() -> Result<(), anyhow::Error> {
         let (mut test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         wait_until_next_checkpoint(&store).await;
@@ -493,6 +499,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_event_query_pagination_e2e() -> Result<(), anyhow::Error> {
         let (mut test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         // Allow indexer to sync genesis
@@ -553,6 +560,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_get_object_with_options() -> Result<(), anyhow::Error> {
         let (test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
         wait_until_next_checkpoint(&store).await;
@@ -763,6 +771,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_module_cache() {
         let (test_cluster, _, store, handle) = start_test_cluster(None).await;
         let coins = test_cluster
@@ -800,6 +809,7 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
     async fn test_get_epoch() {
         let (test_cluster, _, store, handle) = start_test_cluster(Some(10000)).await;
 
@@ -858,6 +868,56 @@ pub mod pg_integration_test {
     }
 
     #[tokio::test]
+    #[timeout(60000)]
+    async fn test_query_objects_cross_check() -> Result<(), anyhow::Error> {
+        let (test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+        let address = test_cluster.accounts[0];
+        let fullnode_client = test_cluster.rpc_client();
+
+        let object_from_fullnode = fullnode_client
+            .get_owned_objects(address, None, None, None, None)
+            .await
+            .unwrap();
+
+        let object_from_indexer = indexer_rpc_client
+            .query_objects(
+                HaneulObjectResponseQuery::new_with_filter(HaneulObjectDataFilter::AddressOwner(address)),
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        assert_eq!(object_from_fullnode.data, object_from_indexer.data);
+        Ok(())
+    }
+
+    #[tokio::test]
+    #[timeout(60000)]
+    async fn test_query_objects() -> Result<(), anyhow::Error> {
+        let (_test_cluster, indexer_rpc_client, store, _handle) = start_test_cluster(None).await;
+        // Allow indexer to sync genesis
+        wait_until_next_checkpoint(&store).await;
+
+        let all_coins = indexer_rpc_client
+            .query_objects(
+                HaneulObjectResponseQuery::new_with_filter(HaneulObjectDataFilter::StructType(
+                    parse_struct_tag("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap(),
+                )),
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        assert_eq!(25, all_coins.data.len());
+        Ok(())
+    }
+
+    #[tokio::test]
+    #[timeout(60000)]
     async fn pg_parameter_limit_test() {
         // Helps clear/build the database
         start_test_cluster(None).await;

@@ -6,7 +6,7 @@ use jsonrpsee::types::error::CallError;
 use thiserror::Error;
 
 use haneul_types::base_types::ObjectIDParseError;
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, HaneulObjectResponseError, UserInputError};
 
 #[derive(Debug, Error)]
 pub enum IndexerError {
@@ -69,6 +69,12 @@ pub enum IndexerError {
 
     #[error("Invalid argument with error: `{0}`")]
     InvalidArgumentError(String),
+
+    #[error(transparent)]
+    UserInputError(#[from] UserInputError),
+
+    #[error(transparent)]
+    ObjectResponseError(#[from] HaneulObjectResponseError),
 
     #[error("`{0}`: `{1}`")]
     ErrorWithContext(String, Box<IndexerError>),

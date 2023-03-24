@@ -10,7 +10,7 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 use std::collections::BTreeMap;
-use haneul_json_rpc::api::{cap_page_limit, ReadApiClient, ReadApiServer};
+use haneul_json_rpc::api::{validate_limit, ReadApiClient, ReadApiServer, QUERY_MAX_RESULT_LIMIT};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
@@ -113,7 +113,7 @@ impl<S: IndexerStore> ReadApi<S> {
         limit: Option<usize>,
         descending_order: Option<bool>,
     ) -> Result<TransactionsPage, IndexerError> {
-        let limit = cap_page_limit(limit);
+        let limit = validate_limit(limit, QUERY_MAX_RESULT_LIMIT)?;
         let is_descending = descending_order.unwrap_or_default();
         let cursor_str = cursor.map(|digest| digest.to_string());
 

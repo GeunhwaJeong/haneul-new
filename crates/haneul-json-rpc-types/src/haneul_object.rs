@@ -22,7 +22,7 @@ use std::fmt::{Display, Formatter};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
     MoveObjectType, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
-    TransactionDigest,
+    HaneulAddress, TransactionDigest,
 };
 use haneul_types::error::{HaneulObjectResponseError, UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
@@ -975,6 +975,8 @@ pub struct HaneulGetPastObjectRequest {
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 pub enum HaneulObjectDataFilter {
+    MatchAll(Vec<HaneulObjectDataFilter>),
+    MatchAny(Vec<HaneulObjectDataFilter>),
     /// Query by type a specified Package.
     Package(ObjectID),
     /// Query by type a specified Move module.
@@ -992,6 +994,12 @@ pub enum HaneulObjectDataFilter {
         #[serde_as(as = "DisplayFromStr")]
         StructTag,
     ),
+    AddressOwner(HaneulAddress),
+    ObjectOwner(ObjectID),
+    ObjectId(ObjectID),
+    // allow querying for multiple object ids
+    ObjectIds(Vec<ObjectID>),
+    Version(u64),
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Default)]

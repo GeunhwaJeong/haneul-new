@@ -5,11 +5,13 @@ use async_trait::async_trait;
 
 use haneul_json_rpc_types::{
     Checkpoint as RpcCheckpoint, CheckpointId, EpochInfo, EventFilter, EventPage, HaneulObjectData,
-    HaneulTransactionResponseOptions,
+    HaneulObjectDataFilter, HaneulTransactionResponseOptions,
 };
 use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber};
+use haneul_types::digests::CheckpointDigest;
 use haneul_types::error::HaneulError;
 use haneul_types::event::EventID;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::ObjectRead;
 use haneul_types::storage::ObjectStore;
 
@@ -31,6 +33,10 @@ pub trait IndexerStore {
 
     fn get_latest_checkpoint_sequence_number(&self) -> Result<i64, IndexerError>;
     fn get_checkpoint(&self, id: CheckpointId) -> Result<Checkpoint, IndexerError>;
+    fn get_checkpoint_sequence_number(
+        &self,
+        digest: CheckpointDigest,
+    ) -> Result<CheckpointSequenceNumber, IndexerError>;
 
     fn get_event(&self, id: EventID) -> Result<Event, IndexerError>;
     fn get_events(
@@ -46,6 +52,14 @@ pub trait IndexerStore {
         object_id: ObjectID,
         version: Option<SequenceNumber>,
     ) -> Result<ObjectRead, IndexerError>;
+
+    fn query_objects(
+        &self,
+        filter: HaneulObjectDataFilter,
+        at_checkpoint: CheckpointSequenceNumber,
+        cursor: Option<ObjectID>,
+        limit: usize,
+    ) -> Result<Vec<ObjectRead>, IndexerError>;
 
     fn get_total_transaction_number_from_checkpoints(&self) -> Result<i64, IndexerError>;
 

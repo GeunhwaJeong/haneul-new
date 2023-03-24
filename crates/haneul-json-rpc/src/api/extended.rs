@@ -4,9 +4,9 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::{EpochInfo, EpochPage};
+use haneul_json_rpc_types::{CheckpointId, EpochInfo, EpochPage, ObjectsPage, HaneulObjectResponseQuery};
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::EpochId;
+use haneul_types::base_types::{EpochId, ObjectID};
 
 #[open_rpc(namespace = "haneulx", tag = "Extended API")]
 #[rpc(server, client, namespace = "haneulx")]
@@ -24,6 +24,20 @@ pub trait ExtendedApi {
     /// Return current epoch info
     #[method(name = "getCurrentEpoch")]
     async fn get_current_epoch(&self) -> RpcResult<EpochInfo>;
+
+    /// Return the list of queried objects. Note that this is an enhanced full node only api.
+    #[method(name = "queryObjects")]
+    async fn query_objects(
+        &self,
+        /// the objects query criteria.
+        query: HaneulObjectResponseQuery,
+        /// An optional paging cursor. If provided, the query will start from the next item after the specified cursor. Default to start from the first item if not specified.
+        cursor: Option<ObjectID>,
+        /// Max number of items returned per page, default to [QUERY_MAX_RESULT_LIMIT_OBJECTS] if not specified.
+        limit: Option<usize>,
+        /// If not specified, objects may be created or deleted across pagination requests. This parameter is only supported when the haneul-indexer instance is running.
+        at_checkpoint: Option<CheckpointId>,
+    ) -> RpcResult<ObjectsPage>;
 
     /// Return total address count
     #[method(name = "getTotalAddresses")]

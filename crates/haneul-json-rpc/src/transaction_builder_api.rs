@@ -22,7 +22,7 @@ use fastcrypto::encoding::Base64;
 use jsonrpsee::RpcModule;
 use haneul_adapter::execution_mode::{DevInspect, Normal};
 
-use crate::api::MAX_GET_OWNED_OBJECT_LIMIT;
+use crate::api::QUERY_MAX_RESULT_LIMIT_OBJECTS;
 use crate::error::Error;
 use anyhow::anyhow;
 use haneul_json::HaneulJsonValue;
@@ -65,7 +65,7 @@ impl DataReader for AuthorityStateDataReader {
             return Err(anyhow!("at_checkpoint param currently not supported"));
         }
 
-        let limit = validate_limit(limit, MAX_GET_OWNED_OBJECT_LIMIT)?;
+        let limit = validate_limit(limit, QUERY_MAX_RESULT_LIMIT_OBJECTS)?;
         let HaneulObjectResponseQuery { filter, options } = query.unwrap_or_default();
 
         let options = options.unwrap_or_default();
