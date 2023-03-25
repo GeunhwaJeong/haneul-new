@@ -18,8 +18,8 @@ use haneul_adapter::adapter::{resolve_and_type_check, CheckCallArg};
 use haneul_adapter::execution_mode::ExecutionMode;
 use haneul_json::{resolve_move_function_args, ResolvedCallArg, HaneulJsonValue};
 use haneul_json_rpc_types::{
-    CheckpointId, ObjectsPage, RPCTransactionRequestParams, HaneulData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData, HaneulTypeTag,
+    CheckpointId, ObjectsPage, RPCTransactionRequestParams, HaneulData, HaneulObjectDataFilter,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData, HaneulTypeTag,
 };
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, ObjectType, HaneulAddress};
@@ -80,28 +80,23 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
         if let Some(gas) = input_gas {
             self.get_object_ref(gas).await
         } else {
-            let objs = self
+            // TODO: use get coins here
+            let gas_objs = self
                 .0
                 .get_owned_objects(
                     signer,
-                    Some(HaneulObjectResponseQuery::new_with_options(
-                        HaneulObjectDataOptions::full_content(),
-                    )),
+                    Some(HaneulObjectResponseQuery {
+                        filter: Some(HaneulObjectDataFilter::gas_coin()),
+                        options: Some(HaneulObjectDataOptions::new().with_bcs()),
+                    }),
                     None,
                     None,
                     None,
                 )
                 .await?;
-            let gas_objs = objs.data.into_iter().filter(|obj| {
-                let obj_data = obj.clone().into_object();
-                match obj_data {
-                    Result::Ok(o) => o.type_.unwrap().to_string() == GasCoin::type_().to_string(),
-                    _ => false,
-                }
-            });
             let required_gas_amount = (budget as u128) * (gas_price as u128);
 
-            for obj in gas_objs {
+            for obj in gas_objs.data {
                 let response = self
                     .0
                     .get_object_with_options(
