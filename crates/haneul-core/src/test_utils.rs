@@ -130,9 +130,17 @@ pub fn dummy_transaction_effects(tx: &Transaction) -> TransactionEffects {
 }
 
 pub fn compile_basics_package() -> CompiledPackage {
+    compile_example_package("../../haneul_programmability/examples/basics")
+}
+
+pub fn compile_nfts_package() -> CompiledPackage {
+    compile_example_package("../../haneul_programmability/examples/nfts")
+}
+
+pub fn compile_example_package(relative_path: &str) -> CompiledPackage {
     move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    path.push("../../haneul_programmability/examples/basics");
+    path.push(relative_path);
 
     let build_config = BuildConfig::new_for_testing();
     haneul_framework::build_move_package(&path, build_config).unwrap()

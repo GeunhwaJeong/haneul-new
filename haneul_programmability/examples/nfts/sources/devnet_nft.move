@@ -2,11 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// A minimalist example to demonstrate how to create an NFT like object
-/// on Haneul. The user should be able to use the wallet command line tool
-/// (https://docs.haneul.io/build/wallet) to mint an NFT. For example,
-/// `wallet example-nft --name <Name> --description <Description> --url <URL>`
-/// MUSTFIX: Remove this module from framework.
-module haneul::devnet_nft {
+/// on Haneul.
+module nfts::devnet_nft {
     use haneul::url::{Self, Url};
     use std::string;
     use haneul::object::{Self, ID, UID};
@@ -88,8 +85,8 @@ module haneul::devnet_nft {
 }
 
 #[test_only]
-module haneul::devnet_nftTests {
-    use haneul::devnet_nft::{Self, DevNetNFT};
+module nfts::devnet_nftTests {
+    use nfts::devnet_nft::{Self, DevNetNFT};
     use haneul::test_scenario as ts;
     use haneul::transfer;
     use std::string;

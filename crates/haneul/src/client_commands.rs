@@ -52,15 +52,10 @@ use haneul_types::{
     gas_coin::GasCoin,
     messages::{Transaction, VerifiedTransaction},
     object::Owner,
-    parse_haneul_type_tag, HANEUL_FRAMEWORK_ADDRESS,
+    parse_haneul_type_tag,
 };
 use tokio::sync::RwLock;
 use tracing::{info, warn};
-
-pub const EXAMPLE_NFT_NAME: &str = "Example NFT";
-pub const EXAMPLE_NFT_DESCRIPTION: &str = "An NFT created by the Haneul Command Line Tool";
-pub const EXAMPLE_NFT_URL: &str =
-    "ipfs://bafkreibngqhl3gaa7daob4i2vccziay2jjlp435cf66vhono7nrvww53ty";
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -437,31 +432,6 @@ pub enum HaneulClientCommands {
         /// Gas budget for this call
         #[clap(long)]
         gas_budget: u64,
-    },
-
-    /// Create an example NFT
-    #[clap(name = "create-example-nft")]
-    CreateExampleNFT {
-        /// Name of the NFT
-        #[clap(long)]
-        name: Option<String>,
-
-        /// Description of the NFT
-        #[clap(long)]
-        description: Option<String>,
-
-        /// Display url(e.g., an image url) of the NFT
-        #[clap(long)]
-        url: Option<String>,
-
-        /// ID of the gas object for gas payment, in 20 bytes Hex string
-        /// If not provided, a gas object with at least gas_budget value will be selected
-        #[clap(long)]
-        gas: Option<ObjectID>,
-
-        /// Gas budget for this transfer
-        #[clap(long)]
-        gas_budget: Option<u64>,
     },
 
     /// Serialize a transfer that can be signed. This is useful when user prefers to take the data to sign elsewhere.
@@ -1022,48 +992,6 @@ impl HaneulClientCommands {
             HaneulClientCommands::ActiveAddress => {
                 HaneulClientCommandResult::ActiveAddress(context.active_address().ok())
             }
-            HaneulClientCommands::CreateExampleNFT {
-                name,
-                description,
-                url,
-                gas,
-                gas_budget,
-            } => {
-                let args_json = json!([
-                    unwrap_or(&name, EXAMPLE_NFT_NAME),
-                    unwrap_or(&description, EXAMPLE_NFT_DESCRIPTION),
-                    unwrap_or(&url, EXAMPLE_NFT_URL)
-                ]);
-                let mut args = vec![];
-                for a in args_json.as_array().unwrap() {
-                    args.push(HaneulJsonValue::new(a.clone()).unwrap());
-                }
-                let response = call_move(
-                    ObjectID::from(HANEUL_FRAMEWORK_ADDRESS),
-                    "devnet_nft",
-                    "mint",
-                    vec![],
-                    gas,
-                    gas_budget.unwrap_or(100_000),
-                    args,
-                    context,
-                )
-                .await?;
-                let nft_id = response
-                    .effects
-                    .ok_or_else(|| anyhow!("Failed to fetch transaction effects"))?
-                    .created()
-                    .first()
-                    .ok_or_else(|| anyhow!("Failed to create NFT"))?
-                    .reference
-                    .object_id;
-                let client = context.get_client().await?;
-                let object_read = client
-                    .read_api()
-                    .get_object_with_options(nft_id, HaneulObjectDataOptions::full_content())
-                    .await?;
-                HaneulClientCommandResult::CreateExampleNFT(object_read)
-            }
 
             HaneulClientCommands::SerializeTransferHaneul {
                 to,
@@ -1597,12 +1525,6 @@ impl Display for HaneulClientCommandResult {
                     None => write!(writer, "None")?,
                 };
             }
-            HaneulClientCommandResult::CreateExampleNFT(object_read) => {
-                // TODO: display the content of the object
-                let object = unwrap_err_to_string(|| Ok(object_read.object()?));
-                writeln!(writer, "{}\n", "Successfully created an ExampleNFT:".bold())?;
-                writeln!(writer, "{}", object)?;
-            }
             HaneulClientCommandResult::ExecuteSignedTx(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
@@ -1698,13 +1620,6 @@ fn convert_number_to_string(value: Value) -> Value {
                 .collect(),
         ),
         _ => value,
-    }
-}
-
-fn unwrap_or<'a>(val: &'a Option<String>, default: &'a str) -> &'a str {
-    match val {
-        Some(v) => v,
-        None => default,
     }
 }
 
@@ -1810,7 +1725,6 @@ pub enum HaneulClientCommandResult {
     ActiveAddress(Option<HaneulAddress>),
     ActiveEnv(Option<String>),
     Envs(Vec<HaneulEnv>, Option<String>),
-    CreateExampleNFT(HaneulObjectResponse),
     SerializeTransferHaneul(String),
     SerializePublish(String),
     ExecuteSignedTx(HaneulTransactionResponse),

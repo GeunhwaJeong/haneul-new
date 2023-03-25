@@ -1389,6 +1389,12 @@ impl From<InputObjectKind> for HaneulInputObjectKind {
 #[serde(rename = "TypeTag", rename_all = "camelCase")]
 pub struct HaneulTypeTag(String);
 
+impl HaneulTypeTag {
+    pub fn new(tag: String) -> Self {
+        Self(tag)
+    }
+}
+
 impl TryInto<TypeTag> for HaneulTypeTag {
     type Error = anyhow::Error;
     fn try_into(self) -> Result<TypeTag, Self::Error> {
