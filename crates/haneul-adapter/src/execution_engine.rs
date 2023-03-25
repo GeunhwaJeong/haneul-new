@@ -14,7 +14,7 @@ use haneul_types::balance::{
 use haneul_types::base_types::ObjectID;
 use haneul_types::gas_coin::GAS;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use tracing::{debug, info, instrument, warn};
+use tracing::{info, instrument, trace, warn};
 
 use crate::programmable_transactions;
 use haneul_protocol_config::{
@@ -102,7 +102,7 @@ pub fn execute_transaction_to_effects<
             (ExecutionStatus::new_failure(status, command), Err(error))
         }
     };
-    debug!(
+    trace!(
         computation_gas_cost = gas_cost_summary.computation_cost,
         storage_gas_cost = gas_cost_summary.storage_cost,
         storage_gas_rebate = gas_cost_summary.storage_rebate,
@@ -379,7 +379,7 @@ pub fn construct_advance_epoch_pt(
 
     arguments.append(&mut call_arg_arguments.unwrap());
 
-    debug!(
+    info!(
         "Call arguments to advance_epoch transaction: {:?}",
         arguments
     );
@@ -435,7 +435,7 @@ pub fn construct_advance_epoch_safe_mode_pt(
 
     arguments.append(&mut call_arg_arguments.unwrap());
 
-    debug!(
+    info!(
         "Call arguments to advance_epoch transaction: {:?}",
         arguments
     );

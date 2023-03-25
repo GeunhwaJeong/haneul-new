@@ -15,7 +15,7 @@ use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSignatureMessage, CheckpointSummary,
     SignedCheckpointSummary, VerifiedCheckpoint,
 };
-use tracing::{debug, info};
+use tracing::{debug, info, trace};
 
 use super::CheckpointMetrics;
 
@@ -107,9 +107,10 @@ impl CheckpointOutput for LogCheckpointOutput {
         contents: &CheckpointContents,
         _epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult {
-        debug!(
+        trace!(
             "Including following transactions in checkpoint {}: {:?}",
-            summary.sequence_number, contents
+            summary.sequence_number,
+            contents
         );
         info!(
             "Creating checkpoint {:?} at epoch {}, sequence {}, previous digest {:?}, transactions count {}, content digest {:?}, end_of_epoch_data {:?}",
