@@ -198,7 +198,7 @@ export class JsonRpcProvider {
     }
 
     return await this.client.requestWithType(
-      'haneul_getCoins',
+      'haneulx_getCoins',
       [input.owner, input.coinType, input.cursor, input.limit],
       PaginatedCoins,
       this.options.skipDataValidation,
@@ -218,7 +218,7 @@ export class JsonRpcProvider {
     }
 
     return await this.client.requestWithType(
-      'haneul_getAllCoins',
+      'haneulx_getAllCoins',
       [input.owner, input.cursor, input.limit],
       PaginatedCoins,
       this.options.skipDataValidation,
@@ -237,7 +237,7 @@ export class JsonRpcProvider {
       throw new Error('Invalid Haneul address');
     }
     return await this.client.requestWithType(
-      'haneul_getBalance',
+      'haneulx_getBalance',
       [input.owner, input.coinType],
       CoinBalance,
       this.options.skipDataValidation,
@@ -252,7 +252,7 @@ export class JsonRpcProvider {
       throw new Error('Invalid Haneul address');
     }
     return await this.client.requestWithType(
-      'haneul_getAllBalances',
+      'haneulx_getAllBalances',
       [input.owner],
       array(CoinBalance),
       this.options.skipDataValidation,
@@ -264,7 +264,7 @@ export class JsonRpcProvider {
    */
   async getCoinMetadata(input: { coinType: string }): Promise<CoinMetadata> {
     return await this.client.requestWithType(
-      'haneul_getCoinMetadata',
+      'haneulx_getCoinMetadata',
       [input.coinType],
       CoinMetadataStruct,
       this.options.skipDataValidation,
@@ -276,7 +276,7 @@ export class JsonRpcProvider {
    */
   async getTotalSupply(input: { coinType: string }): Promise<CoinSupply> {
     return await this.client.requestWithType(
-      'haneul_getTotalSupply',
+      'haneulx_getTotalSupply',
       [input.coinType],
       CoinSupply,
       this.options.skipDataValidation,
@@ -394,7 +394,7 @@ export class JsonRpcProvider {
     }
 
     return await this.client.requestWithType(
-      'haneul_getOwnedObjects',
+      'haneulx_getOwnedObjects',
       [
         input.owner,
         {
@@ -460,7 +460,7 @@ export class JsonRpcProvider {
     input: HaneulTransactionResponseQuery & PaginationArguments & OrderArguments,
   ): Promise<PaginatedTransactionResponse> {
     return await this.client.requestWithType(
-      'haneul_queryTransactions',
+      'haneulx_queryTransactions',
       [
         {
           filter: input.filter,
@@ -490,7 +490,7 @@ export class JsonRpcProvider {
     const results = await Promise.all(
       filters.map((filter) =>
         this.client.requestWithType(
-          'haneul_queryTransactions',
+          'haneulx_queryTransactions',
           [{ filter }, null, null, descendingOrder],
           PaginatedTransactionResponse,
           this.options.skipDataValidation,
@@ -518,7 +518,7 @@ export class JsonRpcProvider {
     const results = await Promise.all(
       filters.map((filter) =>
         this.client.requestWithType(
-          'haneul_queryTransactions',
+          'haneulx_queryTransactions',
           [{ filter }, null, null, descendingOrder],
           PaginatedTransactionResponse,
           this.options.skipDataValidation,
@@ -609,7 +609,7 @@ export class JsonRpcProvider {
    */
   async getReferenceGasPrice(): Promise<bigint> {
     const resp = await this.client.requestWithType(
-      'haneul_getReferenceGasPrice',
+      'haneulx_getReferenceGasPrice',
       [],
       string(),
       this.options.skipDataValidation,
@@ -625,7 +625,7 @@ export class JsonRpcProvider {
       throw new Error('Invalid Haneul address');
     }
     return await this.client.requestWithType(
-      'haneul_getStakes',
+      'haneulx_getStakes',
       [input.owner],
       array(DelegatedStake),
       this.options.skipDataValidation,
@@ -644,7 +644,7 @@ export class JsonRpcProvider {
       }
     });
     return await this.client.requestWithType(
-      'haneul_getStakesByIds',
+      'haneulx_getStakesByIds',
       [input.stakedHaneulIds],
       array(DelegatedStake),
       this.options.skipDataValidation,
@@ -656,7 +656,7 @@ export class JsonRpcProvider {
    */
   async getLatestHaneulSystemState(): Promise<HaneulSystemStateSummary> {
     return await this.client.requestWithType(
-      'haneul_getLatestHaneulSystemState',
+      'haneulx_getLatestHaneulSystemState',
       [],
       HaneulSystemStateSummary,
       this.options.skipDataValidation,
@@ -674,7 +674,7 @@ export class JsonRpcProvider {
       OrderArguments,
   ): Promise<PaginatedEvents> {
     return await this.client.requestWithType(
-      'haneul_queryEvents',
+      'haneulx_queryEvents',
       [
         input.query,
         input.cursor,
@@ -780,7 +780,7 @@ export class JsonRpcProvider {
       throw new Error('Invalid Haneul Object id');
     }
     return await this.client.requestWithType(
-      'haneul_getDynamicFields',
+      'haneulx_getDynamicFields',
       [input.parentId, input.cursor, input.limit],
       DynamicFieldPage,
       this.options.skipDataValidation,
@@ -797,7 +797,7 @@ export class JsonRpcProvider {
     name: string | DynamicFieldName;
   }): Promise<HaneulObjectResponse> {
     return await this.client.requestWithType(
-      'haneul_getDynamicFieldObject',
+      'haneulx_getDynamicFieldObject',
       [input.parentId, input.name],
       HaneulObjectResponse,
       this.options.skipDataValidation,
@@ -863,7 +863,7 @@ export class JsonRpcProvider {
     epoch?: number;
   }): Promise<CommitteeInfo> {
     return await this.client.requestWithType(
-      'haneul_getCommitteeInfo',
+      'haneulx_getCommitteeInfo',
       [input?.epoch],
       CommitteeInfo,
     );

@@ -25,14 +25,13 @@ pub mod pg_integration_test {
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
     use haneul_indexer::test_utils::{start_test_indexer, HaneulTransactionResponseBuilder};
     use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, IndexerConfig};
-    use haneul_json_rpc::api::EventReadApiClient;
     use haneul_json_rpc::api::ExtendedApiClient;
+    use haneul_json_rpc::api::IndexerApiClient;
     use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
     use haneul_json_rpc_types::{
         BigInt, CheckpointId, EventFilter, HaneulMoveObject, HaneulObjectData, HaneulObjectDataFilter,
         HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedMoveObject,
-        HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
-        TransactionBytes,
+        HaneulTransactionResponse, HaneulTransactionResponseOptions, TransactionBytes,
     };
     use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
     use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -40,7 +39,6 @@ pub mod pg_integration_test {
     use haneul_types::gas_coin::GasCoin;
     use haneul_types::messages::ExecuteTransactionRequestType;
     use haneul_types::object::ObjectFormatOptions;
-    use haneul_types::query::TransactionFilter;
     use haneul_types::utils::to_sender_signed_transaction;
     use test_utils::network::{TestCluster, TestClusterBuilder};
     use test_utils::transaction::{
@@ -185,11 +183,11 @@ pub mod pg_integration_test {
             assert!(transaction.is_ok());
             let _fullnode_rpc_tx = test_cluster
                 .rpc_client()
-                .get_transaction_with_options(tx_digest, Some(HaneulTransactionResponseOptions::new()))
+                .get_transaction(tx_digest, Some(HaneulTransactionResponseOptions::new()))
                 .await
                 .unwrap();
             let _indexer_rpc_tx = indexer_rpc_client
-                .get_transaction_with_options(tx_digest, Some(HaneulTransactionResponseOptions::new()))
+                .get_transaction(tx_digest, Some(HaneulTransactionResponseOptions::new()))
                 .await
                 .unwrap();
 
@@ -269,7 +267,7 @@ pub mod pg_integration_test {
     //     wait_until_transaction_synced(&store, tx_response_2.digest.base58_encode().as_str()).await;
 
     //     let tx_read_response = indexer_rpc_client
-    //         .get_transaction_with_options(
+    //         .get_transaction(
     //             tx_response.digest,
     //             Some(HaneulTransactionResponseOptions::full_content()),
     //         )
@@ -355,7 +353,7 @@ pub mod pg_integration_test {
         wait_until_transaction_synced(&store, nft_digest.base58_encode().as_str()).await;
 
         let tx_multi_read_tx_response_1 = indexer_rpc_client
-            .multi_get_transactions_with_options(
+            .multi_get_transactions(
                 vec![tx_response.digest, nft_digest],
                 Some(HaneulTransactionResponseOptions::full_content()),
             )
@@ -365,7 +363,7 @@ pub mod pg_integration_test {
         assert_eq!(tx_multi_read_tx_response_1[1].digest, nft_digest);
 
         let tx_multi_read_tx_response_2 = indexer_rpc_client
-            .multi_get_transactions_with_options(
+            .multi_get_transactions(
                 vec![nft_digest, tx_response.digest],
                 Some(HaneulTransactionResponseOptions::full_content()),
             )
@@ -481,7 +479,7 @@ pub mod pg_integration_test {
             let (sender, object_id, digest) = create_devnet_nft(context, package_id).await.unwrap();
             wait_until_transaction_synced(&store, digest.base58_encode().as_str()).await;
             let obj_resp = indexer_rpc_client
-                .get_object_with_options(object_id, None)
+                .get_object(object_id, None)
                 .await
                 .unwrap();
             let data = obj_resp.object()?;
@@ -549,7 +547,7 @@ pub mod pg_integration_test {
             show_storage_rebate: true,
         };
         let resp = indexer_rpc_client
-            .get_object_with_options(source_object_id, Some(show_all_content.clone()))
+            .get_object(source_object_id, Some(show_all_content.clone()))
             .await
             .unwrap();
         let initial_full_obj_data = resp.object()?;
@@ -565,7 +563,7 @@ pub mod pg_integration_test {
         wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
 
         let response = indexer_rpc_client
-            .get_object_with_options(source_object_id, Some(show_all_content.clone()))
+            .get_object(source_object_id, Some(show_all_content.clone()))
             .await?;
         let post_transfer_full_obj_data = response.object()?;
         let object_required_fields = HaneulObjectData {
@@ -580,37 +578,30 @@ pub mod pg_integration_test {
         };
         let show_some_content = HaneulObjectDataOptions::new();
         let futures = vec![
-            indexer_rpc_client.get_object_with_options(
-                source_object_id,
-                Some(HaneulObjectDataOptions::bcs_lossless()),
-            ),
-            indexer_rpc_client.get_object_with_options(
-                source_object_id,
-                Some(HaneulObjectDataOptions::full_content()),
-            ),
             indexer_rpc_client
-                .get_object_with_options(source_object_id, Some(show_some_content.clone())),
-            indexer_rpc_client.get_object_with_options(
+                .get_object(source_object_id, Some(HaneulObjectDataOptions::bcs_lossless())),
+            indexer_rpc_client
+                .get_object(source_object_id, Some(HaneulObjectDataOptions::full_content())),
+            indexer_rpc_client.get_object(source_object_id, Some(show_some_content.clone())),
+            indexer_rpc_client.get_object(
                 source_object_id,
                 Some(show_some_content.clone().with_content()),
             ),
-            indexer_rpc_client.get_object_with_options(
+            indexer_rpc_client.get_object(
                 source_object_id,
                 Some(show_some_content.clone().with_owner()),
             ),
-            indexer_rpc_client.get_object_with_options(
+            indexer_rpc_client.get_object(
                 source_object_id,
                 Some(show_some_content.clone().with_type()),
             ),
-            indexer_rpc_client.get_object_with_options(
+            indexer_rpc_client.get_object(
                 source_object_id,
                 Some(show_some_content.clone().with_display()),
             ),
-            indexer_rpc_client.get_object_with_options(
-                source_object_id,
-                Some(show_some_content.clone().with_bcs()),
-            ),
-            indexer_rpc_client.get_object_with_options(
+            indexer_rpc_client
+                .get_object(source_object_id, Some(show_some_content.clone().with_bcs())),
+            indexer_rpc_client.get_object(
                 source_object_id,
                 Some(show_some_content.clone().with_previous_transaction()),
             ),
@@ -698,7 +689,7 @@ pub mod pg_integration_test {
         .await?;
         wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
         let resp = indexer_rpc_client
-            .get_object_with_options(post_transfer_full_obj_data.object_id, None)
+            .get_object(post_transfer_full_obj_data.object_id, None)
             .await
             .unwrap();
 
@@ -726,7 +717,7 @@ pub mod pg_integration_test {
         // Not exists
         let obj_id = ObjectID::from([42; 32]);
         let resp = indexer_rpc_client
-            .get_object_with_options(obj_id, Some(show_all_content.clone()))
+            .get_object(obj_id, Some(show_all_content.clone()))
             .await
             .unwrap();
 
@@ -974,7 +965,7 @@ pub mod pg_integration_test {
             execute_simple_transfer(&mut test_cluster, &indexer_rpc_client).await?;
         wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
         let full_transaction_response = indexer_rpc_client
-            .get_transaction_with_options(
+            .get_transaction(
                 tx_response.digest,
                 Some(HaneulTransactionResponseOptions::full_content()),
             )
@@ -993,9 +984,7 @@ pub mod pg_integration_test {
         ];
         let futures = haneul_transaction_response_options
             .into_iter()
-            .map(|option| {
-                indexer_rpc_client.get_transaction_with_options(tx_response.digest, Some(option))
-            })
+            .map(|option| indexer_rpc_client.get_transaction(tx_response.digest, Some(option)))
             .collect::<Vec<_>>();
 
         let received_transaction_results: Vec<HaneulTransactionResponse> = join_all(futures)
@@ -1065,7 +1054,7 @@ pub mod pg_integration_test {
         wait_until_transaction_synced(&store, tx_response.digest.base58_encode().as_str()).await;
         // We do this as checkpoint field is only returned in the read api
         let tx_response = indexer_rpc_client
-            .get_transaction_with_options(
+            .get_transaction(
                 tx_response.digest,
                 Some(HaneulTransactionResponseOptions::full_content()),
             )

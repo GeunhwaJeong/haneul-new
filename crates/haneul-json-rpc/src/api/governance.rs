@@ -7,13 +7,11 @@ use jsonrpsee_proc_macros::rpc;
 use haneul_json_rpc_types::{BigInt, DelegatedStake, HaneulCommittee};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-
 use haneul_types::committee::EpochId;
-
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
-#[open_rpc(namespace = "haneul", tag = "Governance Read API")]
-#[rpc(server, client, namespace = "haneul")]
+#[open_rpc(namespace = "haneulx", tag = "Governance Read API")]
+#[rpc(server, client, namespace = "haneulx")]
 pub trait GovernanceReadApi {
     /// Return one or more [DelegatedStake]. If a Stake was withdrawn its status will be Unstaked.
     #[method(name = "getStakesByIds")]

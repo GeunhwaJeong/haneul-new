@@ -12,6 +12,8 @@ use std::future;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use haneul_json_rpc::api::GovernanceReadApiClient;
+use haneul_json_rpc::api::IndexerApiClient;
+use haneul_json_rpc::api::MoveUtilsClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
@@ -31,7 +33,7 @@ use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, Ver
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use futures::StreamExt;
-use haneul_json_rpc::api::{CoinReadApiClient, EventReadApiClient, ReadApiClient, WriteApiClient};
+use haneul_json_rpc::api::{CoinReadApiClient, ReadApiClient, WriteApiClient};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 #[derive(Debug)]
@@ -102,11 +104,7 @@ impl ReadApi {
         object_id: ObjectID,
         options: HaneulObjectDataOptions,
     ) -> HaneulRpcResult<HaneulObjectResponse> {
-        Ok(self
-            .api
-            .http
-            .get_object_with_options(object_id, Some(options))
-            .await?)
+        Ok(self.api.http.get_object(object_id, Some(options)).await?)
     }
 
     pub async fn multi_get_object_with_options(
@@ -117,7 +115,7 @@ impl ReadApi {
         Ok(self
             .api
             .http
-            .multi_get_object_with_options(object_ids, Some(options))
+            .multi_get_objects(object_ids, Some(options))
             .await?)
     }
 
@@ -142,11 +140,7 @@ impl ReadApi {
         digest: TransactionDigest,
         options: HaneulTransactionResponseOptions,
     ) -> HaneulRpcResult<HaneulTransactionResponse> {
-        Ok(self
-            .api
-            .http
-            .get_transaction_with_options(digest, Some(options))
-            .await?)
+        Ok(self.api.http.get_transaction(digest, Some(options)).await?)
     }
 
     pub async fn multi_get_transactions_with_options(
@@ -157,7 +151,7 @@ impl ReadApi {
         Ok(self
             .api
             .http
-            .multi_get_transactions_with_options(digests, Some(options))
+            .multi_get_transactions(digests, Some(options))
             .await?)
     }
 
@@ -499,7 +493,7 @@ impl QuorumDriver {
     ) -> HaneulRpcResult<()> {
         let start = Instant::now();
         loop {
-            let resp = ReadApiClient::get_transaction_with_options(
+            let resp = ReadApiClient::get_transaction(
                 &c.http,
                 tx_digest,
                 Some(HaneulTransactionResponseOptions::new()),

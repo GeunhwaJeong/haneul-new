@@ -569,9 +569,9 @@ async fn test_full_node_sub_and_query_move_event_ok() -> Result<(), anyhow::Erro
 
     let mut sub: Subscription<HaneulEvent> = ws_client
         .subscribe(
-            "haneul_subscribeEvent",
+            "haneulx_subscribeEvent",
             rpc_params![EventFilter::MoveEventType(struct_tag.clone())],
-            "haneul_unsubscribeEvents",
+            "haneulx_unsubscribeEvents",
         )
         .await
         .unwrap();

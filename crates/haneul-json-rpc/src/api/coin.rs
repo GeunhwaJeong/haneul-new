@@ -8,8 +8,8 @@ use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 
-#[open_rpc(namespace = "haneul", tag = "Coin Query API")]
-#[rpc(server, client, namespace = "haneul")]
+#[open_rpc(namespace = "haneulx", tag = "Coin Query API")]
+#[rpc(server, client, namespace = "haneulx")]
 pub trait CoinReadApi {
     /// Return all Coin<`coin_type`> objects owned by an address.
     #[method(name = "getCoins")]
