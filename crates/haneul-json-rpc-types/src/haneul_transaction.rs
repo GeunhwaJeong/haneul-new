@@ -1475,6 +1475,12 @@ pub struct OwnedObjectRef {
     pub reference: HaneulObjectRef,
 }
 
+impl OwnedObjectRef {
+    pub fn object_id(&self) -> ObjectID {
+        self.reference.object_id
+    }
+}
+
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum HaneulCallArg {
