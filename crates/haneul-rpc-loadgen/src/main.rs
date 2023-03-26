@@ -100,7 +100,7 @@ fn get_keypair() -> Result<SignerInfo> {
     let active_address = keystore.addresses().pop().unwrap();
     let keypair: &HaneulKeyPair = keystore.get_key(&active_address)?;
     println!("using address {active_address} for signing");
-    Ok(SignerInfo::new(keypair.encode_base64(), active_address))
+    Ok(SignerInfo::new(keypair.encode_base64()))
 }
 
 fn get_haneul_config_directory() -> PathBuf {
