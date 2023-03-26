@@ -16,7 +16,7 @@ Run the following command to see available commands:
 cargo run --bin haneul-rpc-loadgen -- -h
 ```
 
-To try this locally, refer to [sef](../haneul-test-validator/README.md). Recommend setting `database-url` to an env variable.
+To try this locally, refer to [sef](../haneul-test-validator/README.md). Recommend setting `database-url` to an env variable. Note: run `RUST_LOG="consensus=off" cargo run haneul-test-validator -- --with-indexer` to rebuild.
 
 ### Example 1: Get All Checkpoints
 
