@@ -26,7 +26,6 @@ use prometheus::{
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use tap::TapFallible;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::oneshot;
@@ -45,13 +44,14 @@ use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter, execution_mode};
 use haneul_config::genesis::Genesis;
 use haneul_config::node::{AuthorityStorePruningConfig, DBCheckpointConfig};
+use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{
     Checkpoint, DevInspectResults, DryRunTransactionResponse, EventFilter, HaneulEvent, HaneulMoveValue,
     HaneulObjectDataFilter, HaneulTransactionEvents,
 };
 use haneul_macros::{fail_point, fail_point_async, nondeterministic};
 use haneul_protocol_config::SupportedProtocolVersions;
-use haneul_storage::indexes::{ObjectIndexChanges, MAX_GET_OWNED_OBJECT_SIZE};
+use haneul_storage::indexes::ObjectIndexChanges;
 use haneul_storage::IndexStore;
 use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{
@@ -2159,14 +2159,11 @@ impl AuthorityState {
         owner: HaneulAddress,
         // If `Some`, the query will start from the next item after the specified cursor
         cursor: Option<ObjectID>,
-        limit: Option<usize>,
         filter: Option<HaneulObjectDataFilter>,
     ) -> HaneulResult<impl Iterator<Item = ObjectInfo> + '_> {
         let cursor_u = cursor.unwrap_or(ObjectID::ZERO);
-        let count = limit.unwrap_or(MAX_GET_OWNED_OBJECT_SIZE);
-
         if let Some(indexes) = &self.indexes {
-            indexes.get_owner_objects_iterator(owner, cursor_u, count, filter)
+            indexes.get_owner_objects_iterator(owner, cursor_u, filter)
         } else {
             Err(HaneulError::IndexStoreNotAvailable)
         }
@@ -2181,7 +2178,7 @@ impl AuthorityState {
         T: DeserializeOwned,
     {
         let object_ids = self
-            .get_owner_objects_iterator(owner, None, None, None)?
+            .get_owner_objects_iterator(owner, None, None)?
             .filter(|o| match &o.type_ {
                 ObjectType::Struct(s) => &type_ == s,
                 ObjectType::Package => false,

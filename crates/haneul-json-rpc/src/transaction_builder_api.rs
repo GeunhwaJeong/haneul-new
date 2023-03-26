@@ -1,32 +1,32 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::{validate_limit, TransactionBuilderServer};
-use crate::HaneulRpcModule;
-use async_trait::async_trait;
-use jsonrpsee::core::RpcResult;
 use std::sync::Arc;
+
+use async_trait::async_trait;
+use fastcrypto::encoding::Base64;
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::RpcModule;
+use move_core_types::language_storage::StructTag;
+
+use haneul_adapter::execution_mode::{DevInspect, Normal};
 use haneul_core::authority::AuthorityState;
+use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    BigInt, CheckpointId, ObjectsPage, Page, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
+    BigInt, HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionBuilderMode, HaneulTypeTag,
+    TransactionBytes,
 };
+use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulObjectDataFilter};
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
+use haneul_types::base_types::ObjectInfo;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     messages::TransactionData,
 };
 
-use fastcrypto::encoding::Base64;
-use jsonrpsee::RpcModule;
-use haneul_adapter::execution_mode::{DevInspect, Normal};
-
-use crate::api::QUERY_MAX_RESULT_LIMIT_OBJECTS;
-use crate::error::Error;
-use anyhow::anyhow;
-use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::RPCTransactionRequestParams;
+use crate::api::TransactionBuilderServer;
+use crate::HaneulRpcModule;
 
 pub struct TransactionBuilderApi {
     builder: TransactionBuilder<Normal>,
@@ -56,42 +56,17 @@ impl DataReader for AuthorityStateDataReader {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
-        query: Option<HaneulObjectResponseQuery>,
-        cursor: Option<ObjectID>,
-        limit: Option<usize>,
-        at_checkpoint: Option<CheckpointId>,
-    ) -> Result<ObjectsPage, anyhow::Error> {
-        if at_checkpoint.is_some() {
-            return Err(anyhow!("at_checkpoint param currently not supported"));
-        }
-
-        let limit = validate_limit(limit, QUERY_MAX_RESULT_LIMIT_OBJECTS)?;
-        let HaneulObjectResponseQuery { filter, options } = query.unwrap_or_default();
-
-        let options = options.unwrap_or_default();
-
-        let mut objects = self
+        object_type: StructTag,
+    ) -> Result<Vec<ObjectInfo>, anyhow::Error> {
+        Ok(self
             .0
-            .get_owner_objects(address, cursor, limit + 1, filter)?;
-
-        // objects here are of size (limit + 1), where the last one is the cursor for the next page
-        let has_next_page = objects.len() > limit;
-        objects.truncate(limit);
-        let next_cursor = objects
-            .last()
-            .cloned()
-            .map_or(cursor, |o_info| Some(o_info.object_id));
-
-        let data = objects.into_iter().try_fold(vec![], |mut acc, o_info| {
-            let o_resp = HaneulObjectResponse::try_from((o_info, options.clone()))?;
-            acc.push(o_resp);
-            Ok::<Vec<HaneulObjectResponse>, Error>(acc)
-        })?;
-        Ok(Page {
-            data,
-            next_cursor,
-            has_next_page,
-        })
+            // DataReader is used internally, don't need a limit
+            .get_owner_objects_iterator(
+                address,
+                None,
+                Some(HaneulObjectDataFilter::StructType(object_type)),
+            )?
+            .collect())
     }
 
     async fn get_object_with_options(

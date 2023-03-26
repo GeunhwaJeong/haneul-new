@@ -15,12 +15,12 @@ use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc::api::IndexerApiClient;
 use haneul_json_rpc::api::MoveUtilsClient;
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DryRunTransactionResponse,
-    DynamicFieldPage, EventFilter, EventPage, ObjectsPage, HaneulCoinMetadata, HaneulCommittee, HaneulEvent,
-    HaneulGetPastObjectRequest, HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions, HaneulTransactionResponseQuery,
-    TransactionsPage,
+    Balance, Checkpoint, CheckpointId, CheckpointedObjectID, Coin, CoinPage, DelegatedStake,
+    DryRunTransactionResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
+    HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
+    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{
@@ -50,14 +50,13 @@ impl ReadApi {
         &self,
         address: HaneulAddress,
         query: Option<HaneulObjectResponseQuery>,
-        cursor: Option<ObjectID>,
+        cursor: Option<CheckpointedObjectID>,
         limit: Option<usize>,
-        checkpoint: Option<CheckpointId>,
     ) -> HaneulRpcResult<ObjectsPage> {
         Ok(self
             .api
             .http
-            .get_owned_objects(address, query, cursor, limit, checkpoint)
+            .get_owned_objects(address, query, cursor, limit)
             .await?)
     }
 

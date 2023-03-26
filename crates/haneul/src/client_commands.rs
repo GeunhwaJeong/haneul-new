@@ -878,7 +878,6 @@ impl HaneulClientCommands {
                         )),
                         None,
                         None,
-                        None,
                     )
                     .await?;
                 HaneulClientCommandResult::Objects(address_object.data)
@@ -1270,7 +1269,6 @@ impl WalletContext {
                 Some(HaneulObjectResponseQuery::new_with_options(
                     HaneulObjectDataOptions::full_content(),
                 )),
-                None,
                 None,
                 None,
             )

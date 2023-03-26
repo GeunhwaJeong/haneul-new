@@ -1,7 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
+use std::collections::BTreeMap;
+use std::fmt;
+use std::fmt::Write;
+use std::fmt::{Display, Formatter};
+
 use anyhow::anyhow;
 use colored::Colorize;
 use fastcrypto::encoding::Base64;
@@ -15,10 +19,7 @@ use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
 use serde_with::DisplayFromStr;
-use std::collections::BTreeMap;
-use std::fmt;
-use std::fmt::Write;
-use std::fmt::{Display, Formatter};
+
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
     MoveObjectType, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
@@ -26,8 +27,11 @@ use haneul_types::base_types::{
 };
 use haneul_types::error::{HaneulObjectResponseError, UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
 use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
+
+use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, PartialEq, Eq)]
 pub struct HaneulObjectResponse {
@@ -95,6 +99,32 @@ impl HaneulObjectResponse {
             (Some(obj_data), None) => Some(obj_data.object_ref()),
             _ => None,
         }
+    }
+}
+
+impl TryFrom<HaneulObjectResponse> for ObjectInfo {
+    type Error = anyhow::Error;
+
+    fn try_from(value: HaneulObjectResponse) -> Result<Self, Self::Error> {
+        let HaneulObjectData {
+            object_id,
+            version,
+            digest,
+            type_,
+            owner,
+            previous_transaction,
+            ..
+        } = value.into_object()?;
+
+        Ok(ObjectInfo {
+            object_id,
+            version,
+            digest,
+            type_: type_.ok_or_else(|| anyhow!("Object type not found for object."))?,
+            owner: owner.ok_or_else(|| anyhow!("Owner not found for object."))?,
+            previous_transaction: previous_transaction
+                .ok_or_else(|| anyhow!("Transaction digest not found for object."))?,
+        })
     }
 }
 
@@ -961,7 +991,15 @@ pub struct HaneulMovePackage {
     pub disassembled: BTreeMap<String, Value>,
 }
 
-pub type ObjectsPage = Page<HaneulObjectResponse, ObjectID>;
+pub type ObjectsPage = Page<HaneulObjectResponse, CheckpointedObjectID>;
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Copy, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct CheckpointedObjectID {
+    pub object_id: ObjectID,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub at_checkpoint: Option<CheckpointSequenceNumber>,
+}
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "GetPastObjectRequest", rename_all = "camelCase")]
@@ -1005,6 +1043,51 @@ pub enum HaneulObjectDataFilter {
 impl HaneulObjectDataFilter {
     pub fn gas_coin() -> Self {
         Self::StructType(GasCoin::type_())
+    }
+
+    pub fn and(self, other: Self) -> Self {
+        Self::MatchAll(vec![self, other])
+    }
+    pub fn or(self, other: Self) -> Self {
+        Self::MatchAny(vec![self, other])
+    }
+
+    pub fn matches(&self, object: &ObjectInfo) -> bool {
+        match self {
+            HaneulObjectDataFilter::MatchAll(filters) => !filters.iter().any(|f| !f.matches(object)),
+            HaneulObjectDataFilter::MatchAny(filters) => filters.iter().any(|f| f.matches(object)),
+            HaneulObjectDataFilter::StructType(s) => {
+                let obj_tag: StructTag = match &object.type_ {
+                    ObjectType::Package => return false,
+                    ObjectType::Struct(s) => s.clone().into(),
+                };
+                // If people do not provide type_params, we will match all type_params
+                // e.g. `0x2::coin::Coin` can match `0x2::coin::Coin<0x2::haneul::HANEUL>`
+                if !s.type_params.is_empty() && s.type_params != obj_tag.type_params {
+                    false
+                } else {
+                    obj_tag.address == s.address
+                        && obj_tag.module == s.module
+                        && obj_tag.name == s.name
+                }
+            }
+            HaneulObjectDataFilter::MoveModule { package, module } => {
+                matches!(&object.type_, ObjectType::Struct(s) if &ObjectID::from(s.address()) == package
+                        && s.module() == module.as_ident_str())
+            }
+            HaneulObjectDataFilter::Package(p) => {
+                matches!(&object.type_, ObjectType::Struct(s) if &ObjectID::from(s.address()) == p)
+            }
+            HaneulObjectDataFilter::AddressOwner(a) => {
+                matches!(object.owner, Owner::AddressOwner(addr) if &addr == a)
+            }
+            HaneulObjectDataFilter::ObjectOwner(o) => {
+                matches!(object.owner, Owner::ObjectOwner(addr) if addr == HaneulAddress::from(*o))
+            }
+            HaneulObjectDataFilter::ObjectId(id) => &object.object_id == id,
+            HaneulObjectDataFilter::ObjectIds(ids) => ids.contains(&object.object_id),
+            HaneulObjectDataFilter::Version(v) => object.version.value() == *v,
+        }
     }
 }
 

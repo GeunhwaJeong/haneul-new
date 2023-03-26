@@ -416,9 +416,15 @@ export function getMovePackageContent(
   return (haneulObject.content as HaneulMovePackage).disassembled;
 }
 
+export const CheckpointedObjectId = object({
+  objectId: ObjectId,
+  atCheckpoint: optional(number()),
+});
+export type CheckpointedObjectId = Infer<typeof CheckpointedObjectId>;
+
 export const PaginatedObjectsResponse = object({
   data: array(HaneulObjectResponse),
-  nextCursor: union([ObjectId, literal(null)]),
+  nextCursor: optional(CheckpointedObjectId),
   hasNextPage: boolean(),
 });
 export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;
