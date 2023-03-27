@@ -34,7 +34,7 @@ function toMist(haneul: string) {
  */
 export function AddDelegation({ validator, amount }: Props) {
   const manageCoins = useManageCoin();
-  const { signAndExecuteTransaction } = useWalletKit();
+  const { signAndExecuteTransactionBlock } = useWalletKit();
   const getLatestCoins = useGetLatestCoins();
 
   const stake = useMutation(["stake-for-validator"], async () => {
@@ -65,7 +65,7 @@ export function AddDelegation({ validator, amount }: Props) {
 
     const stakeCoin = await manageCoins(coins, geunhwaAmount, gasRequired);
 
-    await signAndExecuteTransaction({
+    await signAndExecuteTransactionBlock({
       transaction: {
         kind: "moveCall",
         data: {

@@ -7,8 +7,8 @@ import {
   SignedMessage,
 } from "@haneullabs/haneul.js";
 import {
-  HaneulSignTransactionInput,
-  HaneulSignAndExecuteTransactionInput,
+  HaneulSignTransactionBlockInput,
+  HaneulSignAndExecuteTransactionBlockInput,
   WalletAccount,
   HaneulSignMessageInput,
 } from "@haneullabs/wallet-standard";
@@ -35,14 +35,14 @@ export interface WalletAdapter {
     callback: WalletAdapterEvents[E]
   ) => () => void;
   signMessage(messageInput: HaneulSignMessageInput): Promise<SignedMessage>;
-  signTransaction(
-    transactionInput: HaneulSignTransactionInput
+  signTransactionBlock(
+    transactionInput: HaneulSignTransactionBlockInput
   ): Promise<SignedTransaction>;
   /**
    * Suggest a transaction for the user to sign. Supports all valid transaction types.
    */
-  signAndExecuteTransaction(
-    transactionInput: HaneulSignAndExecuteTransactionInput
+  signAndExecuteTransactionBlock(
+    transactionInput: HaneulSignAndExecuteTransactionBlockInput
   ): Promise<HaneulTransactionResponse>;
 
   getAccounts: () => Promise<readonly WalletAccount[]>;

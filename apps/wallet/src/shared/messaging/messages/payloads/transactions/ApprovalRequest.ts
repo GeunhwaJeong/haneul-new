@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    type HaneulSignAndExecuteTransactionInput,
+    type HaneulSignAndExecuteTransactionBlockInput,
     type HaneulSignMessageOutput,
 } from '@haneullabs/wallet-standard';
 
@@ -17,8 +17,8 @@ export type TransactionDataType = {
     data: string;
     account: HaneulAddress;
     justSign?: boolean;
-    requestType?: HaneulSignAndExecuteTransactionInput['requestType'];
-    options?: HaneulSignAndExecuteTransactionInput['options'];
+    requestType?: HaneulSignAndExecuteTransactionBlockInput['requestType'];
+    options?: HaneulSignAndExecuteTransactionBlockInput['options'];
 };
 
 export type SignMessageDataType = {

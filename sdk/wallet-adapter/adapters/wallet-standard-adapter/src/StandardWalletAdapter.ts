@@ -7,8 +7,8 @@ import {
 } from "@haneullabs/wallet-adapter-base";
 import {
   StandardWalletAdapterWallet,
-  HaneulSignAndExecuteTransactionVersion,
-  HaneulSignTransactionVersion,
+  HaneulSignAndExecuteTransactionBlockVersion,
+  HaneulSignTransactionBlockVersion,
 } from "@haneullabs/wallet-standard";
 import mitt from "mitt";
 
@@ -20,9 +20,10 @@ type WalletAdapterEventsMap = {
   [E in keyof WalletAdapterEvents]: Parameters<WalletAdapterEvents[E]>[0];
 };
 
-const haneulSignTransactionLatestVersion: HaneulSignTransactionVersion = "2.0.0";
-const haneulSignAndExecuteTransactionLatestVersion: HaneulSignAndExecuteTransactionVersion =
-  "2.0.0";
+const haneulSignTransactionBlockLatestVersion: HaneulSignTransactionBlockVersion =
+  "1.0.0";
+const haneulSignAndExecuteTransactionBlockLatestVersion: HaneulSignAndExecuteTransactionBlockVersion =
+  "1.0.0";
 
 function isFeatureCompatible(featureVersion: string, adapterVersion: string) {
   const [featureMajor] = featureVersion.split(".");
@@ -103,34 +104,38 @@ export class StandardWalletAdapter implements WalletAdapter {
     return this.#wallet.features["haneul:signMessage"].signMessage(messageInput);
   };
 
-  signTransaction: WalletAdapter["signTransaction"] = (transactionInput) => {
-    const version = this.#wallet.features["haneul:signTransaction"].version;
-    if (!isFeatureCompatible(version, haneulSignTransactionLatestVersion)) {
-      throw new Error(
-        `Version mismatch, signTransaction feature version ${version} is not compatible with version ${haneulSignTransactionLatestVersion}`
-      );
-    }
-    return this.#wallet.features["haneul:signTransaction"].signTransaction(
-      transactionInput
-    );
-  };
-
-  signAndExecuteTransaction: WalletAdapter["signAndExecuteTransaction"] = (
+  signTransactionBlock: WalletAdapter["signTransactionBlock"] = (
     transactionInput
   ) => {
-    const version =
-      this.#wallet.features["haneul:signAndExecuteTransaction"].version;
-    if (
-      !isFeatureCompatible(version, haneulSignAndExecuteTransactionLatestVersion)
-    ) {
+    const version = this.#wallet.features["haneul:signTransactionBlock"].version;
+    if (!isFeatureCompatible(version, haneulSignTransactionBlockLatestVersion)) {
       throw new Error(
-        `Version mismatch, signAndExecuteTransaction feature version ${version} is not compatible with version ${haneulSignAndExecuteTransactionLatestVersion}`
+        `Version mismatch, signTransaction feature version ${version} is not compatible with version ${haneulSignTransactionBlockLatestVersion}`
       );
     }
     return this.#wallet.features[
-      "haneul:signAndExecuteTransaction"
-    ].signAndExecuteTransaction(transactionInput);
+      "haneul:signTransactionBlock"
+    ].signTransactionBlock(transactionInput);
   };
+
+  signAndExecuteTransactionBlock: WalletAdapter["signAndExecuteTransactionBlock"] =
+    (transactionInput) => {
+      const version =
+        this.#wallet.features["haneul:signAndExecuteTransactionBlock"].version;
+      if (
+        !isFeatureCompatible(
+          version,
+          haneulSignAndExecuteTransactionBlockLatestVersion
+        )
+      ) {
+        throw new Error(
+          `Version mismatch, signAndExecuteTransactionBlock feature version ${version} is not compatible with version ${haneulSignAndExecuteTransactionBlockLatestVersion}`
+        );
+      }
+      return this.#wallet.features[
+        "haneul:signAndExecuteTransactionBlock"
+      ].signAndExecuteTransactionBlock(transactionInput);
+    };
 
   on: <E extends keyof WalletAdapterEvents>(
     event: E,

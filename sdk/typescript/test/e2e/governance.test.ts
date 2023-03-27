@@ -68,7 +68,7 @@ async function addStake(signer: RawSigner) {
     validators[0].haneulAddress,
   );
 
-  return await signer.signAndExecuteTransaction({
+  return await signer.signAndExecuteTransactionBlock({
     transactionBlock: tx,
     options: {
       showEffects: true,

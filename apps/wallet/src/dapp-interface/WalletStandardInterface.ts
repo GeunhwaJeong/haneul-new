@@ -9,14 +9,14 @@ import {
     HANEUL_TESTNET_CHAIN,
     HANEUL_LOCALNET_CHAIN,
     type HaneulFeatures,
-    type HaneulSignAndExecuteTransactionMethod,
+    type HaneulSignAndExecuteTransactionBlockMethod,
     type StandardConnectFeature,
     type StandardConnectMethod,
     type Wallet,
     type StandardEventsFeature,
     type StandardEventsOnMethod,
     type StandardEventsListeners,
-    type HaneulSignTransactionMethod,
+    type HaneulSignTransactionBlockMethod,
     type HaneulSignMessageMethod,
 } from '@haneullabs/wallet-standard';
 import mitt, { type Emitter } from 'mitt';
@@ -113,13 +113,14 @@ export class HaneulWallet implements Wallet {
                 version: '1.0.0',
                 on: this.#on,
             },
-            'haneul:signTransaction': {
-                version: '2.0.0',
-                signTransaction: this.#signTransaction,
+            'haneul:signTransactionBlock': {
+                version: '1.0.0',
+                signTransactionBlock: this.#signTransactionBlock,
             },
-            'haneul:signAndExecuteTransaction': {
-                version: '2.0.0',
-                signAndExecuteTransaction: this.#signAndExecuteTransaction,
+            'haneul:signAndExecuteTransactionBlock': {
+                version: '1.0.0',
+                signAndExecuteTransactionBlock:
+                    this.#signAndExecuteTransactionBlock,
             },
             'haneulWallet:stake': {
                 version: '0.0.1',
@@ -224,7 +225,7 @@ export class HaneulWallet implements Wallet {
         return { accounts: this.accounts };
     };
 
-    #signTransaction: HaneulSignTransactionMethod = async (input) => {
+    #signTransactionBlock: HaneulSignTransactionBlockMethod = async (input) => {
         if (!TransactionBlock.is(input.transactionBlock)) {
             throw new Error(
                 'Unexpect transaction format found. Ensure that you are using the `Transaction` class.'
@@ -249,33 +250,35 @@ export class HaneulWallet implements Wallet {
         );
     };
 
-    #signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (
-        input
-    ) => {
-        if (!TransactionBlock.is(input.transactionBlock)) {
-            throw new Error(
-                'Unexpect transaction format found. Ensure that you are using the `Transaction` class.'
-            );
-        }
+    #signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod =
+        async (input) => {
+            if (!TransactionBlock.is(input.transactionBlock)) {
+                throw new Error(
+                    'Unexpect transaction format found. Ensure that you are using the `Transaction` class.'
+                );
+            }
 
-        return mapToPromise(
-            this.#send<ExecuteTransactionRequest, ExecuteTransactionResponse>({
-                type: 'execute-transaction-request',
-                transaction: {
-                    type: 'transaction',
-                    data: input.transactionBlock.serialize(),
-                    options: input.options,
-                    // account might be undefined if previous version of adapters is used
-                    // in that case use the first account address
-                    account:
-                        input.account?.address ||
-                        this.#accounts[0]?.address ||
-                        '',
-                },
-            }),
-            (response) => response.result
-        );
-    };
+            return mapToPromise(
+                this.#send<
+                    ExecuteTransactionRequest,
+                    ExecuteTransactionResponse
+                >({
+                    type: 'execute-transaction-request',
+                    transaction: {
+                        type: 'transaction',
+                        data: input.transactionBlock.serialize(),
+                        options: input.options,
+                        // account might be undefined if previous version of adapters is used
+                        // in that case use the first account address
+                        account:
+                            input.account?.address ||
+                            this.#accounts[0]?.address ||
+                            '',
+                    },
+                }),
+                (response) => response.result
+            );
+        };
 
     #stake = async (input: StakeInput) => {
         this.#send<StakeRequest, void>({
