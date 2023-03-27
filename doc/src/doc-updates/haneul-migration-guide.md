@@ -8,6 +8,59 @@ Haneul release .28 introduces many [Breaking changes](haneul-breaking-changes.md
 
 The steps in this section provide guidance on making updates related to the changes to Haneul Move.
 
+### Haneul Framework split into two Move packages
+
+Updated 3/27/23
+
+The Haneul Framework (`haneul-framework`) Move package contains modules central to Haneul Move, including `object`, `transfer` and `dynamic_field`. The framework package is often a dependency of application packages developed on Haneul. Previously, `haneul-framework` included a `governance` folder that defined a number of modules related to the operations of Haneul’s system, such as `validator_set` and `staking_pool`. These modules are fundamentally different from the other library modules within the framework, and are not commonly used by developers. To simplify, this release splits `haneul-framework` into two Haneul Move packages to improve modularity, usability and upgrading.
+
+In [PR 9618](https://github.com/GeunhwaJeong/haneul/pull/9618), the `haneul-framework` crate now contains three Move packages in the `packages` directory: `move-stdlib`, `haneul-framework` and `haneul-system`:
+
+ * `haneul-system` contains modules that were in the `haneul-framework/sources/governance` directory, including all the validator management and staking related functions, published at `0x3` with named address `haneul_system`.
+ * `haneul-framework` contains all other modules that were not in the `governance` folder. The framework provides library and utility modules for Haneul Move developers. It is still published at `0x2` with named address `haneul`.
+ * `move-stdlib` contains a copy of the Move standard library that used to be in the `haneul-framework/deps` folder. It is still published at `0x1` with named address `std`.
+
+If you develop Haneul Move code depending on `haneul-framework`, the `Move.toml` file of your Move package has to change to reflect the path changes:
+
+**Prior to this release:**
+
+```rust
+[package]
+name = "Example"
+version = "0.0.1"
+published-at = "0x42"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir="crates/haneul-framework/", rev = "devnet" }
+
+[addresses]
+example = "0x42"
+```
+
+**Updated for this release:**
+
+```rust
+[package]
+name = "Example"
+version = "0.0.1"
+published-at = "0x42"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir="crates/haneul-framework/packages/haneul-framework/", rev = "devnet" }
+
+[addresses]
+example = "0x42"
+```
+
+If your Haneul Move code uses a module in the `governance` folder:
+
+`genesis.move`, `haneul_system.move`, `validator_cap.move`, `voting_power.move`, 
+`stake_subsidy.move`, `haneul_system_state_inner.move`, `validator_set.move`, 
+`staking_pool.move`, `validator.move`, or `validator_wrapper.move`
+
+The modules are now in the `haneul-system` package. You must list `HaneulSystem` as a dependency, and access these modules via `0x3` or the `haneul_system` named address.
+
+
 ### Erecover and verify
 
 In this release, `ecdsa_k1::ecrecover` and `ecdsa_k1::secp256k1_verify` now require you to input the raw message instead of a hashed message.
