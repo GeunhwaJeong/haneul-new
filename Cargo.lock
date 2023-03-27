@@ -5750,6 +5750,7 @@ dependencies = [
  "fastcrypto",
  "futures",
  "lru",
+ "haneullabs-common",
  "narwhal-config",
  "narwhal-crypto",
  "narwhal-test-utils",
