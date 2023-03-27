@@ -6,23 +6,24 @@ import { type HaneulObjectResponse, normalizeHaneulAddress } from '@haneullabs/h
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 export function useGetObject(
-    objectId: string
+    objectId?: string | null
 ): UseQueryResult<HaneulObjectResponse, unknown> {
     const rpc = useRpcClient();
-    const normalizedObjId = normalizeHaneulAddress(objectId);
+    const normalizedObjId = objectId && normalizeHaneulAddress(objectId);
     const response = useQuery(
         ['object', normalizedObjId],
         async () => {
             return rpc.getObject({
-                id: normalizedObjId,
+                id: normalizedObjId!,
                 options: {
                     showType: true,
                     showContent: true,
                     showOwner: true,
+                    showDisplay: true,
                 },
             });
         },
-        { enabled: !!objectId }
+        { enabled: !!normalizedObjId }
     );
 
     return response;

@@ -15,7 +15,7 @@ export function useOwnedNFT(
     nftObjectId: string | null,
     address: HaneulAddress | null
 ) {
-    const data = useGetObject(nftObjectId!);
+    const data = useGetObject(nftObjectId);
     const { data: objectData } = data;
     const objectDetails = useMemo(() => {
         if (!objectData || !is(objectData.data, HaneulObjectData) || !address)

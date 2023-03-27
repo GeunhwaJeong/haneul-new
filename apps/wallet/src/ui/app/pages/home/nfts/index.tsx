@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Coin } from '@haneullabs/haneul.js';
 import { Link } from 'react-router-dom';
 
 import { useActiveAddress } from '_app/hooks/useActiveAddress';
@@ -12,25 +11,22 @@ import { NFTDisplayCard } from '_components/nft-display';
 import { useObjectsOwnedByAddress } from '_hooks';
 import PageTitle from '_src/ui/app/shared/PageTitle';
 
-import type { HaneulObjectResponse, HaneulObjectData } from '@haneullabs/haneul.js';
+import type { HaneulObjectData } from '@haneullabs/haneul.js';
 
 function NftsPage() {
     const accountAddress = useActiveAddress();
     const { data, isLoading, error, isError } = useObjectsOwnedByAddress(
         accountAddress,
-        { options: { showType: true } }
+        { options: { showType: true, showDisplay: true } }
     );
-    const haneul_object_responses = data?.data as HaneulObjectResponse[];
-    const nft_objects = haneul_object_responses?.filter(
-        (obj) => !Coin.isCoin(obj)
-    );
-    const nfts = nft_objects?.map((nft) => {
-        const nft_details = nft.data as HaneulObjectData;
-        return nft_details;
-    });
-
+    const nfts = data?.data
+        ?.filter(
+            ({ data }) =>
+                typeof data === 'object' && 'display' in data && data.display
+        )
+        .map(({ data }) => data as HaneulObjectData);
     return (
-        <div className="flex flex-col flex-nowrap items-center gap-4 flex-1">
+        <div className="flex flex-1 flex-col flex-nowrap items-center gap-4">
             <PageTitle title="NFTs" />
             <Loading loading={isLoading}>
                 {isError ? (
@@ -42,7 +38,7 @@ function NftsPage() {
                     </Alert>
                 ) : null}
                 {nfts?.length ? (
-                    <div className="grid grid-cols-2 gap-x-3.5 gap-y-4 w-full h-full">
+                    <div className="grid w-full grid-cols-2 gap-x-3.5 gap-y-4">
                         {nfts.map(({ objectId }) => (
                             <Link
                                 to={`/nft-details?${new URLSearchParams({
@@ -64,7 +60,7 @@ function NftsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-steel-darker font-semibold text-caption flex-1 self-center flex items-center">
+                    <div className="flex flex-1 items-center self-center text-caption font-semibold text-steel-darker">
                         No NFTs found
                     </div>
                 )}
