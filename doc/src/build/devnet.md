@@ -2,7 +2,7 @@
 title: Connect to a Haneul Network
 ---
 
-Haneul has Testnet and Devnet networks available. Use one of the on-chain networks to experiment with the version of Haneul running on that network. Youi can also spin up a [local Haneul network](haneul-local-network.md) for local development. 
+Haneul has Testnet and Devnet networks available. Use one of the on-chain networks to experiment with the version of Haneul running on that network. You can also spin up a [local Haneul network](haneul-local-network.md) for local development. 
 
 The Haneul networks consist of:
 
