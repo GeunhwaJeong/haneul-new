@@ -11,13 +11,15 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::authority_client::NetworkAuthorityClient;
 pub use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::base_types::ObjectID;
-use haneul_types::crypto::TEST_COMMITTEE_SIZE;
 use haneul_types::messages::ObjectInfoRequest;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Object;
 
 /// The default network buffer size of a test authority.
 pub const NETWORK_BUFFER_SIZE: usize = 65_000;
+
+/// Default committee size for tests
+pub const TEST_COMMITTEE_SIZE: usize = 4;
 
 /// Make an authority config for each of the `TEST_COMMITTEE_SIZE` authorities in the test committee.
 pub fn test_authority_configs() -> NetworkConfig {
