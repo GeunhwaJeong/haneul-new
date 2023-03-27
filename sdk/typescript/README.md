@@ -149,7 +149,7 @@ console.log({ result });
 
 ### Transfer Haneul
 
-To transfer `1000` HANEUL to another address:
+To transfer `1000` GEUNHWA to another address:
 
 ```typescript
 import {
@@ -163,7 +163,7 @@ const keypair = new Ed25519Keypair();
 const provider = new JsonRpcProvider();
 const signer = new RawSigner(keypair, provider);
 const tx = new Transaction();
-const coin = tx.splitCoin(tx.gas, tx.pure(1000));
+const [coin] = tx.splitCoins(tx.gas, tx.pure(1000));
 tx.transferObjects([coin], tx.pure(keypair.getPublicKey().toHaneulAddress()));
 const result = await signer.signAndExecuteTransaction({ transaction: tx });
 console.log({ result });
