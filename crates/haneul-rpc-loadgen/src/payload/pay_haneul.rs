@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::payload::rpc_command_processor::DEFAULT_GAS_BUDGET;
+use crate::payload::rpc_command_processor::{sign_and_execute, DEFAULT_GAS_BUDGET};
 use crate::payload::{PayHaneul, ProcessPayload, RpcCommandProcessor, SignerInfo};
 use async_trait::async_trait;
-use shared_crypto::intent::{Intent, IntentMessage};
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{EncodeDecodeBase64, Signature, HaneulKeyPair};
-use haneul_types::messages::{ExecuteTransactionRequestType, Transaction};
+use futures::future::join_all;
+use haneul_json_rpc_types::HaneulTransactionResponse;
+use haneul_sdk::HaneulClient;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::crypto::{EncodeDecodeBase64, HaneulKeyPair};
 use tracing::debug;
 
 #[async_trait]
@@ -27,42 +27,39 @@ impl<'a> ProcessPayload<'a, &'a PayHaneul> for RpcCommandProcessor {
         let recipient = HaneulAddress::random_for_testing_only();
         let amount = 1;
         let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+        let gas_payments = gas_payment.unwrap();
 
         let keypair =
             HaneulKeyPair::decode_base64(&encoded_keypair).expect("Decoding keypair should not fail");
-        let signer_address = HaneulAddress::from(&keypair.public());
 
-        debug!("Pay Haneul to {recipient} with {amount} GEUNHWA with {gas_payment:?}");
+        debug!(
+            "Transfer Haneul {} time to {recipient} with {amount} GEUNHWA with {gas_payments:?}",
+            gas_payments.len()
+        );
         for client in clients.iter() {
-            let transfer_tx = client
-                .transaction_builder()
-                .transfer_haneul(
-                    signer_address,
-                    gas_payment.unwrap(),
-                    gas_budget,
-                    recipient,
-                    Some(amount),
-                )
-                .await?;
-            debug!("transfer_tx {:?}", transfer_tx);
-            let signature = Signature::new_secure(
-                &IntentMessage::new(Intent::default(), &transfer_tx),
-                &keypair,
-            );
-
-            let transaction_response = client
-                .quorum_driver()
-                .execute_transaction(
-                    Transaction::from_data(transfer_tx, Intent::default(), vec![signature])
-                        .verify()?,
-                    HaneulTransactionResponseOptions::full_content(),
-                    Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-                )
-                .await?;
-
-            debug!("transaction_response {transaction_response:?}");
+            join_all(gas_payments.iter().map(|gas| async {
+                transfer_haneul(client, &keypair, *gas, gas_budget, recipient, amount).await;
+            }))
+            .await;
         }
 
         Ok(())
     }
+}
+
+async fn transfer_haneul(
+    client: &HaneulClient,
+    keypair: &HaneulKeyPair,
+    gas_payment: ObjectID,
+    gas_budget: u64,
+    recipient: HaneulAddress,
+    amount: u64,
+) -> HaneulTransactionResponse {
+    let sender = HaneulAddress::from(&keypair.public());
+    let tx = client
+        .transaction_builder()
+        .transfer_haneul(sender, gas_payment, gas_budget, recipient, Some(amount))
+        .await
+        .expect("Failed to construct transfer coin transaction");
+    sign_and_execute(client, keypair, tx).await
 }
