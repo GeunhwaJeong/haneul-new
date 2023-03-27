@@ -10,22 +10,11 @@ use haneul_json_rpc_types::{
     HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest, TxSequenceNumber};
+use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest};
 
 #[open_rpc(namespace = "haneul", tag = "Read API")]
 #[rpc(server, client, namespace = "haneul")]
 pub trait ReadApi {
-    /// Return list of transaction digests within the queried range.
-    /// This method will be removed before April 2023, please use `queryTransactions` instead
-    #[method(name = "getTransactionsInRangeDeprecated", deprecated)]
-    async fn get_transactions_in_range_deprecated(
-        &self,
-        /// the matching transactions' sequence number will be greater than or equals to the starting sequence number
-        start: TxSequenceNumber,
-        /// the matching transactions' sequence number will be less than the ending sequence number
-        end: TxSequenceNumber,
-    ) -> RpcResult<Vec<TransactionDigest>>;
-
     /// Return the transaction response object.
     #[method(name = "getTransaction")]
     async fn get_transaction(

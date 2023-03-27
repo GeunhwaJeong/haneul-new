@@ -28,7 +28,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionEvents, HaneulTransactionResponse, HaneulTransactionResponseOptions,
 };
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest, TxSequenceNumber};
+use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest};
 use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::default_hash;
 use haneul_types::digests::TransactionEventsDigest;
@@ -259,19 +259,6 @@ impl ReadApiServer for ReadApi {
 
     async fn get_total_transaction_number(&self) -> RpcResult<BigInt> {
         Ok(self.state.get_total_transaction_number()?.into())
-    }
-
-    async fn get_transactions_in_range_deprecated(
-        &self,
-        start: TxSequenceNumber,
-        end: TxSequenceNumber,
-    ) -> RpcResult<Vec<TransactionDigest>> {
-        Ok(self
-            .state
-            .get_transactions_in_range_deprecated(start, end)?
-            .into_iter()
-            .map(|(_, digest)| digest)
-            .collect())
     }
 
     async fn get_transaction(

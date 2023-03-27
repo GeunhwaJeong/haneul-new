@@ -20,7 +20,6 @@ use haneul_types::base_types::{ObjectInfo, ObjectRef};
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName};
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::fp_ensure;
 use haneul_types::messages::TransactionEvents;
 use haneul_types::object::Owner;
 use haneul_types::query::TransactionFilter;
@@ -382,70 +381,6 @@ impl IndexStore {
                 }
             }
         }
-    }
-
-    pub fn get_transactions_in_range_deprecated(
-        &self,
-        start: TxSequenceNumber,
-        end: TxSequenceNumber,
-    ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
-        fp_ensure!(
-            start <= end,
-            HaneulError::FullNodeInvalidTxRangeQuery {
-                error: format!(
-                    "start must not exceed end, (start={}, end={}) given",
-                    start, end
-                ),
-            }
-            .into()
-        );
-        fp_ensure!(
-            end - start <= MAX_TX_RANGE_SIZE,
-            HaneulError::FullNodeInvalidTxRangeQuery {
-                error: format!(
-                    "Number of transactions queried must not exceed {}, {} queried",
-                    MAX_TX_RANGE_SIZE,
-                    end - start
-                ),
-            }
-            .into()
-        );
-        let res = self.transactions_in_seq_range(start, end)?;
-        debug!(?start, ?end, ?res, "Fetched transactions");
-        Ok(res)
-    }
-
-    fn transactions_in_seq_range(
-        &self,
-        start: TxSequenceNumber,
-        end: TxSequenceNumber,
-    ) -> HaneulResult<Vec<(TxSequenceNumber, TransactionDigest)>> {
-        Ok(self
-            .tables
-            .transaction_order
-            .iter()
-            .skip_to(&start)?
-            .take_while(|(seq, _tx)| *seq < end)
-            .collect())
-    }
-
-    pub fn get_recent_transactions(
-        &self,
-        count: u64,
-    ) -> Result<Vec<(TxSequenceNumber, TransactionDigest)>, anyhow::Error> {
-        fp_ensure!(
-            count <= MAX_TX_RANGE_SIZE,
-            HaneulError::FullNodeInvalidTxRangeQuery {
-                error: format!(
-                    "Number of transactions queried must not exceed {}, {} queried",
-                    MAX_TX_RANGE_SIZE, count
-                ),
-            }
-            .into()
-        );
-        let end = self.next_sequence_number();
-        let start = if end >= count { end - count } else { 0 };
-        self.get_transactions_in_range_deprecated(start, end)
     }
 
     /// Returns unix timestamp for a transaction if it exists

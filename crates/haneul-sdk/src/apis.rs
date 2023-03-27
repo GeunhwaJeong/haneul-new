@@ -23,9 +23,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionResponseQuery, TransactionsPage,
 };
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{
-    ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
-};
+use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::committee::EpochId;
 use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
@@ -120,18 +118,6 @@ impl ReadApi {
 
     pub async fn get_total_transaction_number(&self) -> HaneulRpcResult<u64> {
         Ok(self.api.http.get_total_transaction_number().await?.into())
-    }
-
-    pub async fn get_transactions_in_range_deprecated(
-        &self,
-        start: TxSequenceNumber,
-        end: TxSequenceNumber,
-    ) -> HaneulRpcResult<Vec<TransactionDigest>> {
-        Ok(self
-            .api
-            .http
-            .get_transactions_in_range_deprecated(start, end)
-            .await?)
     }
 
     pub async fn get_transaction_with_options(
