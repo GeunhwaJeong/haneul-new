@@ -552,7 +552,7 @@ async fn call_0x5(
         Transaction::from_data(tx_data, Intent::default(), vec![signature]).verify()?;
     haneul_client
         .quorum_driver()
-        .execute_transaction(
+        .execute_transaction_block(
             transaction,
             HaneulTransactionResponseOptions::full_content(),
             Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),

@@ -341,7 +341,7 @@ async fn execute_tx(
     let tx_digest = *tx.digest();
     let resp = haneul_client
         .quorum_driver()
-        .execute_transaction(
+        .execute_transaction_block(
             tx,
             HaneulTransactionResponseOptions::full_content(),
             Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),

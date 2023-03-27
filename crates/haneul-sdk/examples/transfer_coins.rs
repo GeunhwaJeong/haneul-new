@@ -41,7 +41,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // Execute the transaction
     let transaction_response = haneul
         .quorum_driver()
-        .execute_transaction(
+        .execute_transaction_block(
             Transaction::from_data(transfer_tx, Intent::default(), vec![signature]).verify()?,
             HaneulTransactionResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
