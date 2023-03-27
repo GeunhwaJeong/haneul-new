@@ -66,9 +66,12 @@ mod sim_only_tests {
     use haneul_json_rpc::api::WriteApiClient;
     use haneul_macros::*;
     use haneul_protocol_config::SupportedProtocolVersions;
+    use haneul_types::base_types::ObjectID;
+    use haneul_types::id::ID;
     use haneul_types::haneul_system_state::{
-        HaneulSystemState, HaneulSystemStateTrait, HANEUL_SYSTEM_STATE_SIM_TEST_V1,
-        HANEUL_SYSTEM_STATE_SIM_TEST_V2,
+        get_validator_from_table, HaneulSystemState, HaneulSystemStateTrait,
+        HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2, HANEUL_SYSTEM_STATE_SIM_TEST_SHALLOW_V2,
+        HANEUL_SYSTEM_STATE_SIM_TEST_V1,
     };
     use haneul_types::{
         base_types::SequenceNumber,
@@ -562,7 +565,7 @@ mod sim_only_tests {
     }
 
     #[sim_test]
-    async fn haneul_system_state_upgrade_test() {
+    async fn haneul_system_state_shallow_upgrade_test() {
         let test_cluster = TestClusterBuilder::new()
             .with_epoch_duration_ms(20000)
             .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(
@@ -572,7 +575,7 @@ mod sim_only_tests {
             .build()
             .await
             .unwrap();
-        haneul_system_injection::set_override(haneul_system_modules("mock_haneul_systems/upgrade"));
+        haneul_system_injection::set_override(haneul_system_modules("mock_haneul_systems/shallow_upgrade"));
         // Wait for the upgrade to finish. After the upgrade, the new framework will be installed,
         // but the system state object hasn't been upgraded yet.
         let system_state = test_cluster.wait_for_epoch(Some(1)).await;
@@ -588,9 +591,63 @@ mod sim_only_tests {
         let system_state = test_cluster.wait_for_epoch(Some(2)).await;
         assert_eq!(
             system_state.system_state_version(),
-            HANEUL_SYSTEM_STATE_SIM_TEST_V2
+            HANEUL_SYSTEM_STATE_SIM_TEST_SHALLOW_V2
         );
-        assert!(matches!(system_state, HaneulSystemState::SimTestV2(_)));
+        assert!(matches!(system_state, HaneulSystemState::SimTestShallowV2(_)));
+    }
+
+    #[sim_test]
+    async fn haneul_system_state_deep_upgrade_test() {
+        let test_cluster = TestClusterBuilder::new()
+            .with_epoch_duration_ms(20000)
+            .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(
+                START, FINISH,
+            ))
+            .with_objects([haneul_system_package_object("mock_haneul_systems/base")])
+            .build()
+            .await
+            .unwrap();
+        haneul_system_injection::set_override(haneul_system_modules("mock_haneul_systems/deep_upgrade"));
+        // Wait for the upgrade to finish. After the upgrade, the new framework will be installed,
+        // but the system state object hasn't been upgraded yet.
+        let system_state = test_cluster.wait_for_epoch(Some(1)).await;
+        assert_eq!(system_state.protocol_version(), FINISH);
+        assert_eq!(
+            system_state.system_state_version(),
+            HANEUL_SYSTEM_STATE_SIM_TEST_V1
+        );
+        if let HaneulSystemState::SimTestV1(inner) = system_state {
+            // Make sure we have 1 inactive validator for latter testing.
+            assert_eq!(inner.validators.inactive_validators.size, 1);
+            get_validator_from_table(
+                test_cluster.fullnode_handle.haneul_node.state().db().as_ref(),
+                inner.validators.inactive_validators.id,
+                &ID::new(ObjectID::ZERO),
+            )
+            .unwrap();
+        } else {
+            panic!("Expecting SimTestV1 type");
+        }
+
+        // The system state object will be upgraded next time we execute advance_epoch transaction
+        // at epoch boundary.
+        let system_state = test_cluster.wait_for_epoch(Some(2)).await;
+        assert_eq!(
+            system_state.system_state_version(),
+            HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2
+        );
+        if let HaneulSystemState::SimTestDeepV2(inner) = system_state {
+            // Make sure we have 1 inactive validator for latter testing.
+            assert_eq!(inner.validators.inactive_validators.size, 1);
+            get_validator_from_table(
+                test_cluster.fullnode_handle.haneul_node.state().db().as_ref(),
+                inner.validators.inactive_validators.id,
+                &ID::new(ObjectID::ZERO),
+            )
+            .unwrap();
+        } else {
+            panic!("Expecting SimTestDeepV2 type");
+        }
     }
 
     async fn monitor_version_change(test_cluster: &TestCluster, final_version: u64) {

@@ -27,7 +27,8 @@ pub mod haneul_system_state_summary;
 mod simtest_haneul_system_state_inner;
 #[cfg(msim)]
 use self::simtest_haneul_system_state_inner::{
-    SimTestHaneulSystemStateInnerV1, SimTestHaneulSystemStateInnerV2,
+    SimTestHaneulSystemStateInnerDeepV2, SimTestHaneulSystemStateInnerShallowV2,
+    SimTestHaneulSystemStateInnerV1, SimTestValidatorDeepV2, SimTestValidatorV1,
 };
 
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
@@ -39,7 +40,9 @@ pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance
 #[cfg(msim)]
 pub const HANEUL_SYSTEM_STATE_SIM_TEST_V1: u64 = 18446744073709551605; // u64::MAX - 10
 #[cfg(msim)]
-pub const HANEUL_SYSTEM_STATE_SIM_TEST_V2: u64 = 18446744073709551606; // u64::MAX - 9
+pub const HANEUL_SYSTEM_STATE_SIM_TEST_SHALLOW_V2: u64 = 18446744073709551606; // u64::MAX - 9
+#[cfg(msim)]
+pub const HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2: u64 = 18446744073709551607; // u64::MAX - 8
 
 /// Rust version of the Move haneul::haneul_system::HaneulSystemState type
 /// This repreents the object with 0x5 ID.
@@ -91,7 +94,9 @@ pub enum HaneulSystemState {
     #[cfg(msim)]
     SimTestV1(SimTestHaneulSystemStateInnerV1),
     #[cfg(msim)]
-    SimTestV2(SimTestHaneulSystemStateInnerV2),
+    SimTestShallowV2(SimTestHaneulSystemStateInnerShallowV2),
+    #[cfg(msim)]
+    SimTestDeepV2(SimTestHaneulSystemStateInnerDeepV2),
 }
 
 /// This is the fixed type used by genesis.
@@ -169,8 +174,8 @@ where
             Ok(HaneulSystemState::SimTestV1(result))
         }
         #[cfg(msim)]
-        HANEUL_SYSTEM_STATE_SIM_TEST_V2 => {
-            let result: SimTestHaneulSystemStateInnerV2 =
+        HANEUL_SYSTEM_STATE_SIM_TEST_SHALLOW_V2 => {
+            let result: SimTestHaneulSystemStateInnerShallowV2 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
                         HaneulError::DynamicFieldReadError(format!(
@@ -179,7 +184,20 @@ where
                         ))
                     },
                 )?;
-            Ok(HaneulSystemState::SimTestV2(result))
+            Ok(HaneulSystemState::SimTestShallowV2(result))
+        }
+        #[cfg(msim)]
+        HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2 => {
+            let result: SimTestHaneulSystemStateInnerDeepV2 =
+                get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
+                    |err| {
+                        HaneulError::DynamicFieldReadError(format!(
+                            "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
+                            id, wrapper.version, err
+                        ))
+                    },
+                )?;
+            Ok(HaneulSystemState::SimTestDeepV2(result))
         }
         _ => Err(HaneulError::HaneulSystemStateReadError(format!(
             "Unsupported HaneulSystemState version: {}",
@@ -213,6 +231,30 @@ where
     match version {
         1 => {
             let validator: ValidatorV1 =
+                get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
+                    .map_err(|err| {
+                        HaneulError::HaneulSystemStateReadError(format!(
+                            "Failed to load inner validator from the wrapper: {:?}",
+                            err
+                        ))
+                    })?;
+            Ok(validator.into_haneul_validator_summary())
+        }
+        #[cfg(msim)]
+        HANEUL_SYSTEM_STATE_SIM_TEST_V1 => {
+            let validator: SimTestValidatorV1 =
+                get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
+                    .map_err(|err| {
+                        HaneulError::HaneulSystemStateReadError(format!(
+                            "Failed to load inner validator from the wrapper: {:?}",
+                            err
+                        ))
+                    })?;
+            Ok(validator.into_haneul_validator_summary())
+        }
+        #[cfg(msim)]
+        HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2 => {
+            let validator: SimTestValidatorDeepV2 =
                 get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
                     .map_err(|err| {
                         HaneulError::HaneulSystemStateReadError(format!(

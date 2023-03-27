@@ -63,36 +63,7 @@ impl SimTestValidatorV1 {
     }
 
     pub fn into_haneul_validator_summary(self) -> HaneulValidatorSummary {
-        let Self {
-            metadata:
-                SimTestValidatorMetadataV1 {
-                    haneul_address,
-                    protocol_pubkey_bytes,
-                    network_pubkey_bytes,
-                    worker_pubkey_bytes,
-                    net_address,
-                    p2p_address,
-                    primary_address,
-                    worker_address,
-                    extra_fields: _,
-                },
-            verified_metadata: _,
-            stake: _,
-            voting_power,
-            extra_fields: _,
-        } = self;
-        HaneulValidatorSummary {
-            haneul_address,
-            protocol_pubkey_bytes,
-            network_pubkey_bytes,
-            worker_pubkey_bytes,
-            net_address,
-            p2p_address,
-            primary_address,
-            worker_address,
-            voting_power,
-            ..Default::default()
-        }
+        HaneulValidatorSummary::default()
     }
 }
 
@@ -235,52 +206,12 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV1 {
     }
 
     fn into_haneul_system_state_summary(self) -> HaneulSystemStateSummary {
-        let Self {
-            epoch,
-            protocol_version,
-            system_state_version,
-            validators:
-                SimTestValidatorSetV1 {
-                    active_validators,
-                    inactive_validators:
-                        Table {
-                            id: inactive_pools_id,
-                            size: inactive_pools_size,
-                        },
-                    extra_fields: _,
-                },
-            storage_fund: _,
-            parameters:
-                SimTestSystemParametersV1 {
-                    epoch_duration_ms,
-                    extra_fields: _,
-                },
-            reference_gas_price,
-            safe_mode,
-            epoch_start_timestamp_ms,
-            extra_fields: _,
-        } = self;
-        HaneulSystemStateSummary {
-            epoch,
-            protocol_version,
-            system_state_version,
-            reference_gas_price,
-            safe_mode,
-            epoch_start_timestamp_ms,
-            epoch_duration_ms,
-            active_validators: active_validators
-                .into_iter()
-                .map(|v| v.into_haneul_validator_summary())
-                .collect(),
-            inactive_pools_id,
-            inactive_pools_size,
-            ..Default::default()
-        }
+        HaneulSystemStateSummary::default()
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
-pub struct SimTestHaneulSystemStateInnerV2 {
+pub struct SimTestHaneulSystemStateInnerShallowV2 {
     pub new_dummy_field: u64,
     pub epoch: u64,
     pub protocol_version: u64,
@@ -294,7 +225,7 @@ pub struct SimTestHaneulSystemStateInnerV2 {
     pub extra_fields: Bag,
 }
 
-impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV2 {
+impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerShallowV2 {
     fn epoch(&self) -> u64 {
         self.epoch
     }
@@ -375,50 +306,135 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV2 {
     }
 
     fn into_haneul_system_state_summary(self) -> HaneulSystemStateSummary {
-        // If you are making any changes to HaneulSystemStateV1 or any of its dependent types before
-        // mainnet, please also update HaneulSystemStateSummary and its corresponding TS type.
-        // Post-mainnet, we will need to introduce a new version.
-        let Self {
-            new_dummy_field: _,
-            epoch,
-            protocol_version,
-            system_state_version,
-            validators:
-                SimTestValidatorSetV1 {
-                    active_validators,
-                    inactive_validators:
-                        Table {
-                            id: inactive_pools_id,
-                            size: inactive_pools_size,
-                        },
-                    extra_fields: _,
+        HaneulSystemStateSummary::default()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct SimTestValidatorSetDeepV2 {
+    pub active_validators: Vec<SimTestValidatorDeepV2>,
+    pub inactive_validators: Table,
+    pub extra_fields: Bag,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct SimTestValidatorDeepV2 {
+    pub new_dummy_field: u64,
+    metadata: SimTestValidatorMetadataV1,
+    #[serde(skip)]
+    verified_metadata: OnceCell<VerifiedSimTestValidatorMetadataV1>,
+    pub voting_power: u64,
+    pub stake: Balance,
+    pub extra_fields: Bag,
+}
+
+impl SimTestValidatorDeepV2 {
+    pub fn verified_metadata(&self) -> &VerifiedSimTestValidatorMetadataV1 {
+        self.verified_metadata
+            .get_or_init(|| self.metadata.verify())
+    }
+
+    pub fn into_haneul_validator_summary(self) -> HaneulValidatorSummary {
+        HaneulValidatorSummary::default()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct SimTestHaneulSystemStateInnerDeepV2 {
+    pub new_dummy_field: u64,
+    pub epoch: u64,
+    pub protocol_version: u64,
+    pub system_state_version: u64,
+    pub validators: SimTestValidatorSetDeepV2,
+    pub storage_fund: Balance,
+    pub parameters: SimTestSystemParametersV1,
+    pub reference_gas_price: u64,
+    pub safe_mode: bool,
+    pub epoch_start_timestamp_ms: u64,
+    pub extra_fields: Bag,
+}
+
+impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerDeepV2 {
+    fn epoch(&self) -> u64 {
+        self.epoch
+    }
+
+    fn reference_gas_price(&self) -> u64 {
+        self.reference_gas_price
+    }
+
+    fn protocol_version(&self) -> u64 {
+        self.protocol_version
+    }
+
+    fn system_state_version(&self) -> u64 {
+        self.system_state_version
+    }
+
+    fn epoch_start_timestamp_ms(&self) -> u64 {
+        self.epoch_start_timestamp_ms
+    }
+
+    fn epoch_duration_ms(&self) -> u64 {
+        self.parameters.epoch_duration_ms
+    }
+
+    fn safe_mode(&self) -> bool {
+        self.safe_mode
+    }
+
+    fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata {
+        let mut voting_rights = BTreeMap::new();
+        let mut network_metadata = BTreeMap::new();
+        for validator in &self.validators.active_validators {
+            let verified_metadata = validator.verified_metadata();
+            let name = verified_metadata.haneul_pubkey_bytes();
+            voting_rights.insert(name, validator.voting_power);
+            network_metadata.insert(
+                name,
+                NetworkMetadata {
+                    network_address: verified_metadata.net_address.clone(),
+                    narwhal_primary_address: verified_metadata.primary_address.clone(),
                 },
-            storage_fund: _,
-            parameters:
-                SimTestSystemParametersV1 {
-                    epoch_duration_ms,
-                    extra_fields: _,
-                },
-            reference_gas_price,
-            safe_mode,
-            epoch_start_timestamp_ms,
-            extra_fields: _,
-        } = self;
-        HaneulSystemStateSummary {
-            epoch,
-            protocol_version,
-            system_state_version,
-            reference_gas_price,
-            safe_mode,
-            epoch_start_timestamp_ms,
-            epoch_duration_ms,
-            active_validators: active_validators
-                .into_iter()
-                .map(|v| v.into_haneul_validator_summary())
-                .collect(),
-            inactive_pools_id,
-            inactive_pools_size,
-            ..Default::default()
+            );
         }
+        CommitteeWithNetworkMetadata {
+            committee: Committee::new(self.epoch, voting_rights),
+            network_metadata,
+        }
+    }
+
+    fn into_epoch_start_state(self) -> EpochStartSystemState {
+        EpochStartSystemState::new_v1(
+            self.epoch,
+            self.protocol_version,
+            self.reference_gas_price,
+            self.safe_mode,
+            self.epoch_start_timestamp_ms,
+            self.parameters.epoch_duration_ms,
+            self.validators
+                .active_validators
+                .iter()
+                .map(|validator| {
+                    let metadata = validator.verified_metadata();
+                    EpochStartValidatorInfoV1 {
+                        haneul_address: metadata.haneul_address,
+                        protocol_pubkey: metadata.protocol_pubkey.clone(),
+                        narwhal_network_pubkey: metadata.network_pubkey.clone(),
+                        narwhal_worker_pubkey: metadata.worker_pubkey.clone(),
+                        haneul_net_address: metadata.net_address.clone(),
+                        p2p_address: metadata.p2p_address.clone(),
+                        narwhal_primary_address: metadata.primary_address.clone(),
+                        narwhal_worker_address: metadata.worker_address.clone(),
+                        voting_power: validator.voting_power,
+                        hostname: "".to_string(),
+                    }
+                })
+                .collect(),
+        )
+    }
+
+    fn into_haneul_system_state_summary(self) -> HaneulSystemStateSummary {
+        HaneulSystemStateSummary::default()
     }
 }

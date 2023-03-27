@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul_system::haneul_system_state_inner {
+    use std::vector;
+
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
     use haneul::tx_context::TxContext;
@@ -9,15 +11,17 @@ module haneul_system::haneul_system_state_inner {
     use haneul::table::{Self, Table};
     use haneul::object::ID;
 
-    use haneul_system::validator::Validator;
+    use haneul_system::validator::{Validator, ValidatorV2};
     use haneul_system::validator_wrapper::ValidatorWrapper;
     use haneul_system::validator_wrapper;
-    use haneul_system::validator;
     use haneul::object;
+    use haneul_system::validator;
 
     friend haneul_system::haneul_system;
 
     const SYSTEM_STATE_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
+    // Not using MAX - 9 since it's already used in the shallow upgrade test.
+    const SYSTEM_STATE_VERSION_V2: u64 = 18446744073709551607;  // u64::MAX - 8
 
     struct SystemParameters has store {
         epoch_duration_ms: u64,
@@ -30,11 +34,31 @@ module haneul_system::haneul_system_state_inner {
         extra_fields: Bag,
     }
 
+    struct ValidatorSetV2 has store {
+        active_validators: vector<ValidatorV2>,
+        inactive_validators: Table<ID, ValidatorWrapper>,
+        extra_fields: Bag,
+    }
+
     struct HaneulSystemStateInner has store {
         epoch: u64,
         protocol_version: u64,
         system_state_version: u64,
         validators: ValidatorSet,
+        storage_fund: Balance<HANEUL>,
+        parameters: SystemParameters,
+        reference_gas_price: u64,
+        safe_mode: bool,
+        epoch_start_timestamp_ms: u64,
+        extra_fields: Bag,
+    }
+
+    struct HaneulSystemStateInnerV2 has store {
+        new_dummy_field: u64,
+        epoch: u64,
+        protocol_version: u64,
+        system_state_version: u64,
+        validators: ValidatorSetV2,
         storage_fund: Balance<HANEUL>,
         parameters: SystemParameters,
         reference_gas_price: u64,
@@ -67,13 +91,11 @@ module haneul_system::haneul_system_state_inner {
             epoch_start_timestamp_ms,
             extra_fields: bag::new(ctx),
         };
-        // Add a dummy inactive validator so that we could test validator upgrade through wrapper latter.
-        add_dummy_inactive_validator_for_testing(&mut system_state, ctx);
         system_state
     }
 
     public(friend) fun advance_epoch(
-        self: &mut HaneulSystemStateInner,
+        self: &mut HaneulSystemStateInnerV2,
         new_epoch: u64,
         next_protocol_version: u64,
         storage_reward: Balance<HANEUL>,
@@ -81,6 +103,8 @@ module haneul_system::haneul_system_state_inner {
         storage_rebate_amount: u64,
         epoch_start_timestamp_ms: u64,
     ) : Balance<HANEUL> {
+        touch_dummy_inactive_validator(self);
+
         self.epoch_start_timestamp_ms = epoch_start_timestamp_ms;
         self.epoch = self.epoch + 1;
         assert!(new_epoch == self.epoch, 0);
@@ -94,7 +118,7 @@ module haneul_system::haneul_system_state_inner {
     }
 
     public(friend) fun advance_epoch_safe_mode(
-        self: &mut HaneulSystemStateInner,
+        self: &mut HaneulSystemStateInnerV2,
         new_epoch: u64,
         next_protocol_version: u64,
         storage_reward: Balance<HANEUL>,
@@ -109,19 +133,10 @@ module haneul_system::haneul_system_state_inner {
         balance::join(&mut self.storage_fund, storage_reward);
     }
 
-    public(friend) fun protocol_version(self: &HaneulSystemStateInner): u64 { self.protocol_version }
-    public(friend) fun system_state_version(self: &HaneulSystemStateInner): u64 { self.system_state_version }
+    public(friend) fun protocol_version(self: &HaneulSystemStateInnerV2): u64 { self.protocol_version }
+    public(friend) fun system_state_version(self: &HaneulSystemStateInnerV2): u64 { self.system_state_version }
     public(friend) fun genesis_system_state_version(): u64 {
         SYSTEM_STATE_VERSION_V1
-    }
-
-    public(friend) fun add_dummy_inactive_validator_for_testing(self: &mut HaneulSystemStateInner, ctx: &mut TxContext) {
-        // Add a new entry to the inactive validator table for upgrade testing.
-        let dummy_inactive_validator = validator_wrapper::create_v1(
-            validator::new_dummy_inactive_validator(ctx),
-            ctx,
-        );
-        table::add(&mut self.validators.inactive_validators, object::id_from_address(@0x0), dummy_inactive_validator);
     }
 
     fun new_validator_set(init_active_validators: vector<Validator>, ctx: &mut TxContext): ValidatorSet {
@@ -129,6 +144,63 @@ module haneul_system::haneul_system_state_inner {
             active_validators: init_active_validators,
             inactive_validators: table::new(ctx),
             extra_fields: bag::new(ctx),
+        }
+    }
+
+    public(friend) fun v1_to_v2(v1: HaneulSystemStateInner): HaneulSystemStateInnerV2 {
+        let HaneulSystemStateInner {
+            epoch,
+            protocol_version,
+            system_state_version: old_system_state_version,
+            validators,
+            storage_fund,
+            parameters,
+            reference_gas_price,
+            safe_mode,
+            epoch_start_timestamp_ms,
+            extra_fields,
+        } = v1;
+        let new_validator_set = validator_set_v1_to_v2(validators);
+        assert!(old_system_state_version == SYSTEM_STATE_VERSION_V1, 0);
+        HaneulSystemStateInnerV2 {
+            new_dummy_field: 100,
+            epoch,
+            protocol_version,
+            system_state_version: SYSTEM_STATE_VERSION_V2,
+            validators: new_validator_set,
+            storage_fund,
+            parameters,
+            reference_gas_price,
+            safe_mode,
+            epoch_start_timestamp_ms,
+            extra_fields,
+        }
+    }
+
+    /// Load the dummy inactive validator added in the base version, trigger it to be upgraded.
+    fun touch_dummy_inactive_validator(self: &mut HaneulSystemStateInnerV2) {
+        let validator_wrapper = table::borrow_mut(&mut self.validators.inactive_validators, object::id_from_address(@0x0));
+        let _ = validator_wrapper::load_validator_maybe_upgrade(validator_wrapper);
+    }
+
+    fun validator_set_v1_to_v2(v1: ValidatorSet): ValidatorSetV2 {
+        let ValidatorSet {
+            active_validators,
+            inactive_validators,
+            extra_fields,
+        } = v1;
+        let new_active_validators = vector[];
+        while (!vector::is_empty(&active_validators)) {
+            let validator = vector::pop_back(&mut active_validators);
+            let validator = validator::v1_to_v2(validator);
+            vector::push_back(&mut new_active_validators, validator);
+        };
+        vector::destroy_empty(active_validators);
+        vector::reverse(&mut new_active_validators);
+        ValidatorSetV2 {
+            active_validators: new_active_validators,
+            inactive_validators,
+            extra_fields,
         }
     }
 }

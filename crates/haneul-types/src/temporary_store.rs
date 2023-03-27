@@ -19,9 +19,7 @@ use crate::committee::EpochId;
 use crate::is_system_package;
 use crate::messages::TransactionEvents;
 use crate::storage::ObjectStore;
-use crate::haneul_system_state::{
-    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateWrapper,
-};
+use crate::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
 use crate::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -86,12 +84,8 @@ impl InnerTemporaryStore {
             .collect()
     }
 
-    pub fn get_haneul_system_state_wrapper_object(&self) -> Option<HaneulSystemStateWrapper> {
-        get_haneul_system_state_wrapper(&self.written).ok()
-    }
-
-    pub fn get_haneul_system_state_object(&self) -> Option<HaneulSystemState> {
-        get_haneul_system_state(&self.written).ok()
+    pub fn get_haneul_system_state_object(&self) -> HaneulResult<HaneulSystemState> {
+        get_haneul_system_state(&self.written)
     }
 }
 
