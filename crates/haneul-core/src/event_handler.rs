@@ -4,8 +4,8 @@
 use tokio_stream::Stream;
 use tracing::{error, instrument, trace};
 
-use haneul_json_rpc_types::{EventFilter, HaneulTransactionEffects, HaneulTransactionEvents};
-use haneul_json_rpc_types::{HaneulEvent, HaneulTransactionEffectsAPI};
+use haneul_json_rpc_types::{EventFilter, HaneulTransactionBlockEffects, HaneulTransactionBlockEvents};
+use haneul_json_rpc_types::{HaneulEvent, HaneulTransactionBlockEffectsAPI};
 use haneul_types::error::HaneulResult;
 
 use crate::streamer::Streamer;
@@ -33,8 +33,8 @@ impl EventHandler {
     #[instrument(level = "debug", skip_all, fields(tx_digest=?effects.transaction_digest()), err)]
     pub async fn process_events(
         &self,
-        effects: &HaneulTransactionEffects,
-        events: &HaneulTransactionEvents,
+        effects: &HaneulTransactionBlockEffects,
+        events: &HaneulTransactionBlockEvents,
     ) -> HaneulResult {
         trace!(
             num_events = events.data.len(),

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_json_rpc_types::{
-    BalanceChange, ObjectChange, HaneulCommand, HaneulTransaction, HaneulTransactionDataAPI,
-    HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEvents, HaneulTransactionKind,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    BalanceChange, ObjectChange, HaneulCommand, HaneulTransactionBlock, HaneulTransactionBlockDataAPI,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
+    HaneulTransactionBlockKind, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages::{SenderSignedData, TransactionDataAPI};
@@ -16,13 +16,13 @@ use crate::models::addresses::Address;
 use crate::models::transaction_index::{InputObject, MoveCall, Recipient};
 
 #[derive(Debug, Clone)]
-pub struct HaneulTransactionFullResponse {
+pub struct HaneulTransactionBlockFullResponse {
     pub digest: TransactionDigest,
     /// Transaction input data
-    pub transaction: HaneulTransaction,
+    pub transaction: HaneulTransactionBlock,
     pub raw_transaction: Vec<u8>,
-    pub effects: HaneulTransactionEffects,
-    pub events: HaneulTransactionEvents,
+    pub effects: HaneulTransactionBlockEffects,
+    pub events: HaneulTransactionBlockEvents,
     pub object_changes: Option<Vec<ObjectChange>>,
     pub balance_changes: Option<Vec<BalanceChange>>,
     pub timestamp_ms: u64,
@@ -30,11 +30,11 @@ pub struct HaneulTransactionFullResponse {
     pub checkpoint: CheckpointSequenceNumber,
 }
 
-impl TryFrom<HaneulTransactionResponse> for HaneulTransactionFullResponse {
+impl TryFrom<HaneulTransactionBlockResponse> for HaneulTransactionBlockFullResponse {
     type Error = anyhow::Error;
 
-    fn try_from(response: HaneulTransactionResponse) -> Result<Self, Self::Error> {
-        let HaneulTransactionResponse {
+    fn try_from(response: HaneulTransactionBlockResponse) -> Result<Self, Self::Error> {
+        let HaneulTransactionBlockResponse {
             digest,
             transaction,
             raw_transaction,
@@ -50,49 +50,49 @@ impl TryFrom<HaneulTransactionResponse> for HaneulTransactionFullResponse {
 
         let transaction = transaction.ok_or_else(|| {
             anyhow::anyhow!(
-                "Transaction is None in HaneulTransactionFullResponse of digest {:?}.",
+                "Transaction is None in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             )
         })?;
         let effects = effects.ok_or_else(|| {
             anyhow::anyhow!(
-                "Effects is None in HaneulTransactionFullResponse of digest {:?}.",
+                "Effects is None in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             )
         })?;
         let events = events.ok_or_else(|| {
             anyhow::anyhow!(
-                "Events is None in HaneulTransactionFullResponse of digest {:?}.",
+                "Events is None in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             )
         })?;
         let timestamp_ms = timestamp_ms.ok_or_else(|| {
             anyhow::anyhow!(
-                "TimestampMs is None in HaneulTransactionFullResponse of digest {:?}.",
+                "TimestampMs is None in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             )
         })?;
         let checkpoint = checkpoint.ok_or_else(|| {
             anyhow::anyhow!(
-                "Checkpoint is None in HaneulTransactionFullResponse of digest {:?}.",
+                "Checkpoint is None in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             )
         })?;
         if raw_transaction.is_empty() {
             return Err(anyhow::anyhow!(
-                "Unexpected empty RawTransaction in HaneulTransactionFullResponse of digest {:?}.",
+                "Unexpected empty RawTransaction in HaneulTransactionBlockFullResponse of digest {:?}.",
                 digest
             ));
         }
         if !errors.is_empty() {
             return Err(anyhow::anyhow!(
-                "Errors in HaneulTransactionFullResponse of digest {:?}: {:?}",
+                "Errors in HaneulTransactionBlockFullResponse of digest {:?}: {:?}",
                 digest,
                 errors
             ));
         }
 
-        Ok(HaneulTransactionFullResponse {
+        Ok(HaneulTransactionBlockFullResponse {
             digest,
             transaction,
             raw_transaction,
@@ -107,9 +107,9 @@ impl TryFrom<HaneulTransactionResponse> for HaneulTransactionFullResponse {
     }
 }
 
-impl From<HaneulTransactionFullResponse> for HaneulTransactionResponse {
-    fn from(response: HaneulTransactionFullResponse) -> Self {
-        let HaneulTransactionFullResponse {
+impl From<HaneulTransactionBlockFullResponse> for HaneulTransactionBlockResponse {
+    fn from(response: HaneulTransactionBlockFullResponse) -> Self {
+        let HaneulTransactionBlockFullResponse {
             digest,
             transaction,
             effects,
@@ -122,7 +122,7 @@ impl From<HaneulTransactionFullResponse> for HaneulTransactionResponse {
             raw_transaction,
         } = response;
 
-        HaneulTransactionResponse {
+        HaneulTransactionBlockResponse {
             digest,
             transaction: Some(transaction),
             raw_transaction,
@@ -138,16 +138,16 @@ impl From<HaneulTransactionFullResponse> for HaneulTransactionResponse {
     }
 }
 
-pub struct HaneulTransactionFullResponseWithOptions {
-    pub response: HaneulTransactionFullResponse,
-    pub options: HaneulTransactionResponseOptions,
+pub struct HaneulTransactionBlockFullResponseWithOptions {
+    pub response: HaneulTransactionBlockFullResponse,
+    pub options: HaneulTransactionBlockResponseOptions,
 }
 
-impl From<HaneulTransactionFullResponseWithOptions> for HaneulTransactionResponse {
-    fn from(value: HaneulTransactionFullResponseWithOptions) -> Self {
-        let HaneulTransactionFullResponseWithOptions { response, options } = value;
+impl From<HaneulTransactionBlockFullResponseWithOptions> for HaneulTransactionBlockResponse {
+    fn from(value: HaneulTransactionBlockFullResponseWithOptions) -> Self {
+        let HaneulTransactionBlockFullResponseWithOptions { response, options } = value;
 
-        HaneulTransactionResponse {
+        HaneulTransactionBlockResponse {
             digest: response.digest,
             transaction: options.show_input.then_some(response.transaction),
             raw_transaction: options
@@ -172,7 +172,7 @@ impl From<HaneulTransactionFullResponseWithOptions> for HaneulTransactionRespons
     }
 }
 
-impl HaneulTransactionFullResponse {
+impl HaneulTransactionBlockFullResponse {
     pub fn get_input_objects(&self, epoch: u64) -> Result<Vec<InputObject>, IndexerError> {
         let raw_tx = self.raw_transaction.clone();
         let sender_signed_data: SenderSignedData = bcs::from_bytes(&raw_tx).map_err(|err| {
@@ -208,7 +208,7 @@ impl HaneulTransactionFullResponse {
         let tx_kind = self.transaction.data.transaction();
         let sender = self.transaction.data.sender();
         match tx_kind {
-            HaneulTransactionKind::ProgrammableTransaction(pt) => {
+            HaneulTransactionBlockKind::ProgrammableTransaction(pt) => {
                 let move_calls: Vec<MoveCall> = pt
                     .commands
                     .clone()

@@ -20,8 +20,8 @@ use haneul_config::node::KeyPairWithPath;
 use haneul_config::utils;
 use haneul_config::{node::AuthorityKeyPairWithPath, Config, NodeConfig, PersistedConfig};
 use haneul_framework::{HaneulSystem, SystemPackage};
-use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionResponseOptions};
-use haneul_sdk::{rpc_types::HaneulTransactionEffectsAPI, HaneulClient, HaneulClientBuilder};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockResponseOptions};
+use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
 use haneul_types::messages::{CallArg, ObjectArg, TransactionData};
@@ -343,7 +343,7 @@ async fn execute_tx(
         .quorum_driver()
         .execute_transaction_block(
             tx,
-            HaneulTransactionResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::full_content(),
             Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await

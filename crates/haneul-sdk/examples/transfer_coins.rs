@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use shared_crypto::intent::Intent;
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     types::{
@@ -43,7 +43,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .quorum_driver()
         .execute_transaction_block(
             Transaction::from_data(transfer_tx, Intent::default(), vec![signature]).verify()?,
-            HaneulTransactionResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await?;

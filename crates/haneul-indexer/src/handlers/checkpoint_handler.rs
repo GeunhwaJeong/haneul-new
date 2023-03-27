@@ -17,7 +17,7 @@ use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::event_handler::EventHandler;
 use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulGetPastObjectRequest, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData,
-    HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
+    HaneulTransactionBlockDataAPI, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_sdk::error::Error;
 use haneul_sdk::HaneulClient;
@@ -37,7 +37,7 @@ use crate::store::{
     CheckpointData, IndexerStore, TemporaryCheckpointStore, TemporaryEpochStore,
     TransactionObjectChanges,
 };
-use crate::types::HaneulTransactionFullResponse;
+use crate::types::HaneulTransactionBlockFullResponse;
 use crate::utils::multi_get_full_transactions;
 
 const HANDLER_RETRY_INTERVAL_IN_SECS: u64 = 10;
@@ -493,7 +493,7 @@ where
     }
 
     fn index_packages(
-        transactions: &[HaneulTransactionFullResponse],
+        transactions: &[HaneulTransactionBlockFullResponse],
         changed_objects: &[(ObjectStatus, HaneulObjectData)],
     ) -> Result<Vec<Package>, IndexerError> {
         let object_map = changed_objects

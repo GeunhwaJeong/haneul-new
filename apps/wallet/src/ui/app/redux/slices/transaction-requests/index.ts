@@ -16,7 +16,7 @@ import {
 
 import { getSignerOperationErrorMessage } from '_src/ui/app/helpers/errorMessages';
 
-import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { ApprovalRequest } from '_payloads/transactions/ApprovalRequest';
 import type { RootState } from '_redux/RootReducer';
@@ -34,7 +34,7 @@ export const respondToTransactionRequest = createAsyncThunk<
     {
         txRequestID: string;
         approved: boolean;
-        txResponse: HaneulTransactionResponse | null;
+        txResponse: HaneulTransactionBlockResponse | null;
     },
     {
         txRequestID: string;
@@ -54,7 +54,7 @@ export const respondToTransactionRequest = createAsyncThunk<
             throw new Error(`TransactionRequest ${txRequestID} not found`);
         }
         let txSigned: SignedTransaction | undefined = undefined;
-        let txResult: HaneulTransactionResponse | SignedMessage | undefined =
+        let txResult: HaneulTransactionBlockResponse | SignedMessage | undefined =
             undefined;
         let txResultError: string | undefined;
         if (approved) {

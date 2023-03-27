@@ -31,10 +31,10 @@ import { useGetTxnRecipientAddress, useGetTransferAmount } from '_hooks';
 import { TxnGasSummary } from '_src/ui/app/components/receipt-card/TxnGasSummary';
 import { Text } from '_src/ui/app/shared/text';
 
-import type { HaneulTransactionResponse, HaneulAddress } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse, HaneulAddress } from '@haneullabs/haneul.js';
 
 type ReceiptCardProps = {
-    txn: HaneulTransactionResponse;
+    txn: HaneulTransactionBlockResponse;
     activeAddress: HaneulAddress;
 };
 

@@ -3,8 +3,8 @@
 
 import type {
   ExecuteTransactionRequestType,
-  HaneulTransactionResponse,
-  HaneulTransactionResponseOptions,
+  HaneulTransactionBlockResponse,
+  HaneulTransactionBlockResponseOptions,
 } from "@haneullabs/haneul.js";
 import type { HaneulSignTransactionBlockInput } from "./haneulSignTransactionBlock";
 
@@ -38,9 +38,9 @@ export interface HaneulSignAndExecuteTransactionBlockInput
    */
   requestType?: ExecuteTransactionRequestType;
   /** specify which fields to return (e.g., transaction, effects, events, etc). By default, only the transaction digest will be returned. */
-  options?: HaneulTransactionResponseOptions;
+  options?: HaneulTransactionBlockResponseOptions;
 }
 
 /** Output of signing and sending transactions. */
 export interface HaneulSignAndExecuteTransactionBlockOutput
-  extends HaneulTransactionResponse {}
+  extends HaneulTransactionBlockResponse {}

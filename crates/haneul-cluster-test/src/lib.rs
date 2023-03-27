@@ -13,8 +13,8 @@ use std::sync::Arc;
 use haneul::client_commands::WalletContext;
 use haneul_faucet::CoinInfo;
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, TransactionBytes,
+    HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, TransactionBlockBytes,
 };
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
@@ -122,14 +122,14 @@ impl TestContext {
         // TODO cache this?
         let rpc_client = HttpClientBuilder::default().build(fn_rpc_url)?;
 
-        TransactionBytes::to_data(rpc_client.request(method, params).await?)
+        TransactionBlockBytes::to_data(rpc_client.request(method, params).await?)
     }
 
     async fn sign_and_execute(
         &self,
         txn_data: TransactionData,
         desc: &str,
-    ) -> HaneulTransactionResponse {
+    ) -> HaneulTransactionBlockResponse {
         let signature = self.get_context().sign(&txn_data, desc);
         let resp = self
             .get_fullnode_client()
@@ -138,7 +138,7 @@ impl TestContext {
                 Transaction::from_data(txn_data, Intent::default(), vec![signature])
                     .verify()
                     .unwrap(),
-                HaneulTransactionResponseOptions::new()
+                HaneulTransactionBlockResponseOptions::new()
                     .with_object_changes()
                     .with_balance_changes()
                     .with_effects()
@@ -204,7 +204,7 @@ impl TestContext {
             .client
             .get_fullnode_client()
             .read_api()
-            .get_transaction_with_options(digest, HaneulTransactionResponseOptions::new())
+            .get_transaction_with_options(digest, HaneulTransactionBlockResponseOptions::new())
             .await
         {
             Ok(_) => (true, digest, retry_times),

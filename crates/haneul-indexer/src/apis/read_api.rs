@@ -12,7 +12,7 @@ use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
     BigInt, Checkpoint, CheckpointId, CheckpointPage, HaneulCheckpointSequenceNumber, HaneulEvent,
     HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
@@ -20,7 +20,7 @@ use haneul_types::digests::TransactionDigest;
 
 use crate::errors::IndexerError;
 use crate::store::IndexerStore;
-use crate::types::{HaneulTransactionFullResponse, HaneulTransactionFullResponseWithOptions};
+use crate::types::{HaneulTransactionBlockFullResponse, HaneulTransactionBlockFullResponseWithOptions};
 
 pub(crate) struct ReadApi<S> {
     fullnode: HttpClient,
@@ -46,17 +46,17 @@ impl<S: IndexerStore> ReadApi<S> {
     async fn get_transaction_with_options_internal(
         &self,
         digest: &TransactionDigest,
-        options: Option<HaneulTransactionResponseOptions>,
-    ) -> Result<HaneulTransactionResponse, IndexerError> {
+        options: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> Result<HaneulTransactionBlockResponse, IndexerError> {
         let tx = self
             .state
             .get_transaction_by_digest(&digest.base58_encode())?;
-        let tx_full_resp: HaneulTransactionFullResponse = self
+        let tx_full_resp: HaneulTransactionBlockFullResponse = self
             .state
             .compose_full_transaction_response(tx, options.clone())
             .await?;
 
-        let haneul_transaction_response = HaneulTransactionFullResponseWithOptions {
+        let haneul_transaction_response = HaneulTransactionBlockFullResponseWithOptions {
             response: tx_full_resp,
             options: options.unwrap_or_default(),
         }
@@ -67,8 +67,8 @@ impl<S: IndexerStore> ReadApi<S> {
     async fn multi_get_transactions_with_options_internal(
         &self,
         digests: &[TransactionDigest],
-        options: Option<HaneulTransactionResponseOptions>,
-    ) -> Result<Vec<HaneulTransactionResponse>, IndexerError> {
+        options: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> Result<Vec<HaneulTransactionBlockResponse>, IndexerError> {
         let digest_strs = digests
             .iter()
             .map(|digest| digest.base58_encode())
@@ -92,12 +92,12 @@ impl<S: IndexerStore> ReadApi<S> {
             self.state
                 .compose_full_transaction_response(tx, options.clone())
         });
-        let tx_full_resp_vec: Vec<HaneulTransactionFullResponse> = join_all(tx_full_resp_futures)
+        let tx_full_resp_vec: Vec<HaneulTransactionBlockFullResponse> = join_all(tx_full_resp_futures)
             .await
             .into_iter()
             .collect::<Result<Vec<_>, _>>()?;
 
-        let tx_resp_vec: Vec<HaneulTransactionResponse> =
+        let tx_resp_vec: Vec<HaneulTransactionBlockResponse> =
             tx_full_resp_vec.into_iter().map(|tx| tx.into()).collect();
         Ok(tx_resp_vec)
     }
@@ -159,8 +159,8 @@ where
     async fn get_transaction_block(
         &self,
         digest: TransactionDigest,
-        options: Option<HaneulTransactionResponseOptions>,
-    ) -> RpcResult<HaneulTransactionResponse> {
+        options: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> RpcResult<HaneulTransactionBlockResponse> {
         if !self
             .migrated_methods
             .contains(&"get_transaction".to_string())
@@ -175,8 +175,8 @@ where
     async fn multi_get_transaction_blocks(
         &self,
         digests: Vec<TransactionDigest>,
-        options: Option<HaneulTransactionResponseOptions>,
-    ) -> RpcResult<Vec<HaneulTransactionResponse>> {
+        options: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> RpcResult<Vec<HaneulTransactionBlockResponse>> {
         if !self
             .migrated_methods
             .contains(&"multi_get_transactions_with_options".to_string())

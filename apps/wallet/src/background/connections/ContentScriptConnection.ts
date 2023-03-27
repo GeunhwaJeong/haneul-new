@@ -4,7 +4,7 @@
 import {
     type SignedTransaction,
     type HaneulAddress,
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import Browser from 'webextension-polyfill';
 
@@ -105,7 +105,7 @@ export class ContentScriptConnection extends Connection {
                     createMessage<ExecuteTransactionResponse>(
                         {
                             type: 'execute-transaction-response',
-                            result: result as HaneulTransactionResponse,
+                            result: result as HaneulTransactionBlockResponse,
                         },
                         msg.id
                     )

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
-    HaneulTransactionKind,
+    HaneulTransactionBlockKind,
     TransactionEffects,
     TransactionEvents,
 } from '@haneullabs/haneul.js';
@@ -14,7 +14,7 @@ type FormattedBalance = {
 }[];
 
 export function getAmount(
-    _txnData: HaneulTransactionKind,
+    _txnData: HaneulTransactionBlockKind,
     _txnEffect: TransactionEffects,
     _events: TransactionEvents
 ): FormattedBalance | null {

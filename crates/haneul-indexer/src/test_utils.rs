@@ -3,7 +3,7 @@
 
 use anyhow::anyhow;
 use prometheus::Registry;
-use haneul_json_rpc_types::HaneulTransactionResponse;
+use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use tokio::task::JoinHandle;
 
 use crate::errors::IndexerError;
@@ -34,21 +34,21 @@ pub async fn start_test_indexer(
 }
 
 #[derive(Clone)]
-pub struct HaneulTransactionResponseBuilder<'a> {
-    response: HaneulTransactionResponse,
-    full_response: &'a HaneulTransactionResponse,
+pub struct HaneulTransactionBlockResponseBuilder<'a> {
+    response: HaneulTransactionBlockResponse,
+    full_response: &'a HaneulTransactionBlockResponse,
 }
 
-impl<'a> HaneulTransactionResponseBuilder<'a> {
-    pub fn new(full_response: &'a HaneulTransactionResponse) -> Self {
+impl<'a> HaneulTransactionBlockResponseBuilder<'a> {
+    pub fn new(full_response: &'a HaneulTransactionBlockResponse) -> Self {
         Self {
-            response: HaneulTransactionResponse::default(),
+            response: HaneulTransactionBlockResponse::default(),
             full_response,
         }
     }
 
     pub fn with_input(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             transaction: self.full_response.transaction.clone(),
             ..self.response
         };
@@ -56,7 +56,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_raw_input(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             raw_transaction: self.full_response.raw_transaction.clone(),
             ..self.response
         };
@@ -64,7 +64,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_effects(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             effects: self.full_response.effects.clone(),
             ..self.response
         };
@@ -72,7 +72,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_events(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             events: self.full_response.events.clone(),
             ..self.response
         };
@@ -80,7 +80,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_balance_changes(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             balance_changes: self.full_response.balance_changes.clone(),
             ..self.response
         };
@@ -88,7 +88,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_object_changes(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             object_changes: self.full_response.object_changes.clone(),
             ..self.response
         };
@@ -96,7 +96,7 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
     }
 
     pub fn with_input_and_changes(mut self) -> Self {
-        self.response = HaneulTransactionResponse {
+        self.response = HaneulTransactionBlockResponse {
             transaction: self.full_response.transaction.clone(),
             balance_changes: self.full_response.balance_changes.clone(),
             object_changes: self.full_response.object_changes.clone(),
@@ -105,8 +105,8 @@ impl<'a> HaneulTransactionResponseBuilder<'a> {
         self
     }
 
-    pub fn build(self) -> HaneulTransactionResponse {
-        HaneulTransactionResponse {
+    pub fn build(self) -> HaneulTransactionBlockResponse {
+        HaneulTransactionBlockResponse {
             transaction: self.response.transaction,
             raw_transaction: self.response.raw_transaction,
             effects: self.response.effects,

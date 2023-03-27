@@ -15,8 +15,8 @@ use serde_json::json;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
 use haneul_json_rpc_types::EventFilter;
 use haneul_json_rpc_types::{
-    type_and_fields_from_move_struct, HaneulEvent, HaneulExecutionStatus, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    type_and_fields_from_move_struct, HaneulEvent, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
@@ -819,15 +819,15 @@ async fn test_execute_tx_with_serialized_signature() -> Result<(), anyhow::Error
         let params = rpc_params![
             tx_bytes,
             signatures,
-            HaneulTransactionResponseOptions::new(),
+            HaneulTransactionBlockResponseOptions::new(),
             ExecuteTransactionRequestType::WaitForLocalExecution
         ];
-        let response: HaneulTransactionResponse = jsonrpc_client
+        let response: HaneulTransactionBlockResponse = jsonrpc_client
             .request("haneul_executeTransaction", params)
             .await
             .unwrap();
 
-        let HaneulTransactionResponse {
+        let HaneulTransactionBlockResponse {
             digest,
             confirmed_local_execution,
             ..
@@ -860,15 +860,15 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     let params = rpc_params![
         tx_bytes,
         signatures,
-        HaneulTransactionResponseOptions::new(),
+        HaneulTransactionBlockResponseOptions::new(),
         ExecuteTransactionRequestType::WaitForLocalExecution
     ];
-    let response: HaneulTransactionResponse = jsonrpc_client
+    let response: HaneulTransactionBlockResponse = jsonrpc_client
         .request("haneul_executeTransaction", params)
         .await
         .unwrap();
 
-    let HaneulTransactionResponse {
+    let HaneulTransactionBlockResponse {
         digest,
         confirmed_local_execution,
         ..
@@ -876,7 +876,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     assert_eq!(&digest, tx_digest);
     assert!(confirmed_local_execution.unwrap());
 
-    let _response: HaneulTransactionResponse = jsonrpc_client
+    let _response: HaneulTransactionBlockResponse = jsonrpc_client
         .request("haneul_getTransaction", rpc_params![*tx_digest])
         .await
         .unwrap();
@@ -886,15 +886,15 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     let params = rpc_params![
         tx_bytes,
         signatures,
-        HaneulTransactionResponseOptions::new().with_effects(),
+        HaneulTransactionBlockResponseOptions::new().with_effects(),
         ExecuteTransactionRequestType::WaitForEffectsCert
     ];
-    let response: HaneulTransactionResponse = jsonrpc_client
+    let response: HaneulTransactionBlockResponse = jsonrpc_client
         .request("haneul_executeTransaction", params)
         .await
         .unwrap();
 
-    let HaneulTransactionResponse {
+    let HaneulTransactionBlockResponse {
         effects,
         confirmed_local_execution,
         ..

@@ -10,7 +10,8 @@ use futures::StreamExt;
 
 use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_json_rpc_types::{
-    StakeStatus, HaneulObjectDataOptions, HaneulTransactionEffectsAPI, HaneulTransactionResponseOptions,
+    StakeStatus, HaneulObjectDataOptions, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::rpc_types::HaneulExecutionStatus;
 use haneul_types::base_types::HaneulAddress;
@@ -136,7 +137,7 @@ pub async fn submit(
         .quorum_driver()
         .execute_transaction_block(
             signed_tx,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes(),

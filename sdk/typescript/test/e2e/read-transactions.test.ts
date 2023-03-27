@@ -5,13 +5,13 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import {
   getTransactionDigest,
   getTransactionKind,
-  HaneulTransactionResponse,
+  HaneulTransactionBlockResponse,
 } from '../../src';
 import { executePayHaneulNTimes, setup, TestToolbox } from './utils/setup';
 
 describe('Transaction Reading API', () => {
   let toolbox: TestToolbox;
-  let transactions: HaneulTransactionResponse[];
+  let transactions: HaneulTransactionBlockResponse[];
   const NUM_TRANSACTIONS = 10;
 
   beforeAll(async () => {

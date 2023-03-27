@@ -10,9 +10,9 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use tracing::info;
 
 use haneul_json_rpc::{get_balance_changes, ObjectProvider};
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_json_rpc_types::{
-    BalanceChange, HaneulExecutionStatus, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
+    BalanceChange, HaneulExecutionStatus, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_json_rpc_types::{ObjectChange, OwnedObjectRef, HaneulObjectRef};
 use haneul_sdk::apis::ReadApi as HaneulReadApi;
@@ -24,7 +24,7 @@ use haneul_types::object::Owner;
 use haneul_types::storage::{DeleteKind, WriteKind};
 
 use crate::errors::IndexerError;
-use crate::types::HaneulTransactionFullResponse;
+use crate::types::HaneulTransactionBlockFullResponse;
 use crate::PgPoolConnection;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -81,12 +81,12 @@ pub fn drop_all_tables(conn: &mut PgConnection) -> Result<(), diesel::result::Er
 pub async fn multi_get_full_transactions(
     read_api: &HaneulReadApi,
     digests: Vec<TransactionDigest>,
-) -> Result<Vec<HaneulTransactionFullResponse>, IndexerError> {
+) -> Result<Vec<HaneulTransactionBlockFullResponse>, IndexerError> {
     let haneul_transactions = read_api
         .multi_get_transactions_with_options(
             digests.clone(),
             // MUSTFIX(gegaowp): avoid double fetching both input and raw_input
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_events()
@@ -100,13 +100,13 @@ pub async fn multi_get_full_transactions(
                 e
             ))
         })?;
-    let haneul_full_transactions: Vec<HaneulTransactionFullResponse> = haneul_transactions
+    let haneul_full_transactions: Vec<HaneulTransactionBlockFullResponse> = haneul_transactions
         .into_iter()
-        .map(HaneulTransactionFullResponse::try_from)
+        .map(HaneulTransactionBlockFullResponse::try_from)
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| {
             IndexerError::FullNodeReadingError(format!(
-                "Unexpected None value in HaneulTransactionFullResponse of digests {:?} with error {:?}",
+                "Unexpected None value in HaneulTransactionBlockFullResponse of digests {:?} with error {:?}",
                 digests, e
             ))
         })?;
@@ -115,7 +115,7 @@ pub async fn multi_get_full_transactions(
 
 pub async fn get_balance_changes_from_effect<P: ObjectProvider<Error = E>, E>(
     object_provider: &P,
-    effects: &HaneulTransactionEffects,
+    effects: &HaneulTransactionBlockEffects,
 ) -> Result<Vec<BalanceChange>, E> {
     let gas_owner = effects.gas_object().owner;
     // Only charge gas when tx fails, skip all object parsing

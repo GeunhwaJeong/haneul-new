@@ -5,8 +5,8 @@ use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions,
+    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 
 use haneul_open_rpc_macros::open_rpc;
@@ -34,10 +34,10 @@ pub trait WriteApi {
         /// A list of signatures (`flag || signature || pubkey` bytes, as base-64 encoded string). Signature is committed to the intent message of the transaction data, as base-64 encoded string.
         signatures: Vec<Base64>,
         /// options for specifying the content to be returned
-        options: Option<HaneulTransactionResponseOptions>,
-        /// The request type, derived from `HaneulTransactionResponseOptions` if None
+        options: Option<HaneulTransactionBlockResponseOptions>,
+        /// The request type, derived from `HaneulTransactionBlockResponseOptions` if None
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> RpcResult<HaneulTransactionResponse>;
+    ) -> RpcResult<HaneulTransactionBlockResponse>;
 
     /// Runs the transaction in dev-inspect mode. Which allows for nearly any
     /// transaction (or Move call) with any arguments. Detailed results are

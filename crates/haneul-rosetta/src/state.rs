@@ -16,7 +16,7 @@ use std::path::Path;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::{Duration, UNIX_EPOCH};
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_sdk::rpc_types::Checkpoint;
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{EpochId, HaneulAddress};
@@ -237,7 +237,7 @@ impl CheckpointBlockProvider {
                 .read_api()
                 .get_transaction_with_options(
                     *digest,
-                    HaneulTransactionResponseOptions::new()
+                    HaneulTransactionBlockResponseOptions::new()
                         .with_input()
                         .with_effects()
                         .with_balance_changes()

@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use futures::future::join_all;
 use std::time::Instant;
 use haneul_json_rpc_types::{
-    Page, HaneulTransactionResponse, HaneulTransactionResponseQuery, TransactionsPage,
+    Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::TransactionDigest;
@@ -33,12 +33,12 @@ impl<'a> ProcessPayload<'a, &'a QueryTransactions> for RpcCommandProcessor {
             (None, Some(address)) => Some(TransactionFilter::ToAddress(address)),
             (None, None) => None,
         };
-        let query = HaneulTransactionResponseQuery {
+        let query = HaneulTransactionBlockResponseQuery {
             filter,
             options: None, // not supported on indexer
         };
 
-        let results: Vec<TransactionsPage> = Vec::new();
+        let results: Vec<TransactionBlocksPage> = Vec::new();
 
         // Paginate results, if any
         while results.is_empty() || results.iter().any(|r| r.has_next_page) {
@@ -78,7 +78,7 @@ impl<'a> ProcessPayload<'a, &'a QueryTransactions> for RpcCommandProcessor {
             .await;
 
             // compare results
-            let transactions: Vec<Vec<HaneulTransactionResponse>> =
+            let transactions: Vec<Vec<HaneulTransactionBlockResponse>> =
                 results.iter().map(|page| page.data.clone()).collect();
 
             cross_validate_entities(&transactions, "Transactions");
@@ -90,10 +90,10 @@ impl<'a> ProcessPayload<'a, &'a QueryTransactions> for RpcCommandProcessor {
 
 async fn query_transaction_blocks(
     client: &HaneulClient,
-    query: HaneulTransactionResponseQuery,
+    query: HaneulTransactionBlockResponseQuery,
     cursor: Option<TransactionDigest>,
     limit: Option<usize>, // TODO: we should probably set a limit and paginate
-) -> Result<Page<HaneulTransactionResponse, TransactionDigest>> {
+) -> Result<Page<HaneulTransactionBlockResponse, TransactionDigest>> {
     let transactions = client
         .read_api()
         .query_transaction_blocks(query, cursor, limit, true)

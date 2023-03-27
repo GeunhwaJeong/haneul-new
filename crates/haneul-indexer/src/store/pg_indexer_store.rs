@@ -26,8 +26,8 @@ use haneul_json_rpc_types::{
     NetworkMetrics, HaneulEvent, HaneulObjectDataFilter,
 };
 use haneul_json_rpc_types::{
-    HaneulTransaction, HaneulTransactionEffects, HaneulTransactionEffectsAPI, HaneulTransactionEvents,
-    HaneulTransactionResponseOptions,
+    HaneulTransactionBlock, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockEvents, HaneulTransactionBlockResponseOptions,
 };
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::committee::{EpochId, ProtocolVersion};
@@ -62,7 +62,7 @@ use crate::store::indexer_store::TemporaryCheckpointStore;
 use crate::store::module_resolver::IndexerModuleResolver;
 use crate::store::query::DBFilter;
 use crate::store::{IndexerStore, TemporaryEpochStore};
-use crate::types::HaneulTransactionFullResponse;
+use crate::types::HaneulTransactionBlockFullResponse;
 use crate::utils::{get_balance_changes_from_effect, get_object_changes};
 use crate::{get_pg_pool_connection, PgConnectionPool};
 
@@ -409,18 +409,18 @@ impl IndexerStore for PgIndexerStore {
     async fn compose_full_transaction_response(
         &self,
         tx: Transaction,
-        options: Option<HaneulTransactionResponseOptions>,
-    ) -> Result<HaneulTransactionFullResponse, IndexerError> {
-        let transaction: HaneulTransaction =
+        options: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> Result<HaneulTransactionBlockFullResponse, IndexerError> {
+        let transaction: HaneulTransactionBlock =
             serde_json::from_str(&tx.transaction_content).map_err(|err| {
                 IndexerError::InsertableParsingError(format!(
-                    "Failed converting transaction JSON {:?} to HaneulTransaction with error: {:?}",
+                    "Failed converting transaction JSON {:?} to HaneulTransactionBlock with error: {:?}",
                     tx.transaction_content, err
                 ))
             })?;
-        let effects: HaneulTransactionEffects = serde_json::from_str(&tx.transaction_effects_content).map_err(|err| {
+        let effects: HaneulTransactionBlockEffects = serde_json::from_str(&tx.transaction_effects_content).map_err(|err| {
         IndexerError::InsertableParsingError(format!(
-            "Failed converting transaction effect JSON {:?} to HaneulTransactionEffects with error: {:?}",
+            "Failed converting transaction effect JSON {:?} to HaneulTransactionBlockEffects with error: {:?}",
             tx.transaction_effects_content, err
         ))
         })?;
@@ -462,7 +462,7 @@ impl IndexerStore for PgIndexerStore {
             /* descending_order */ false,
         )?;
 
-        Ok(HaneulTransactionFullResponse {
+        Ok(HaneulTransactionBlockFullResponse {
             digest: tx_digest,
             transaction,
             raw_transaction: tx.raw_transaction,
@@ -470,7 +470,7 @@ impl IndexerStore for PgIndexerStore {
             confirmed_local_execution: tx.confirmed_local_execution,
             timestamp_ms: tx.timestamp_ms as u64,
             checkpoint: tx.checkpoint_sequence_number as u64,
-            events: HaneulTransactionEvents { data: events.data },
+            events: HaneulTransactionBlockEvents { data: events.data },
             object_changes,
             balance_changes,
         })

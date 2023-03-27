@@ -34,7 +34,7 @@ use tracing::info;
 
 use haneul_json_rpc_types::{
     HaneulArgument, HaneulExecutionResult, HaneulExecutionStatus, HaneulGasCostSummary,
-    HaneulTransactionEffectsAPI, HaneulTypeTag,
+    HaneulTransactionBlockEffectsAPI, HaneulTypeTag,
 };
 use haneul_macros::{register_fail_point_async, sim_test};
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};

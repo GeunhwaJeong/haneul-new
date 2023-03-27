@@ -3,7 +3,7 @@
 
 import {
   SignedTransaction,
-  HaneulTransactionResponse,
+  HaneulTransactionBlockResponse,
   SignedMessage,
 } from "@haneullabs/haneul.js";
 import {
@@ -43,7 +43,7 @@ export interface WalletAdapter {
    */
   signAndExecuteTransactionBlock(
     transactionInput: HaneulSignAndExecuteTransactionBlockInput
-  ): Promise<HaneulTransactionResponse>;
+  ): Promise<HaneulTransactionBlockResponse>;
 
   getAccounts: () => Promise<readonly WalletAccount[]>;
 }

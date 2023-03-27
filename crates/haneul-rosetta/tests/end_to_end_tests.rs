@@ -7,14 +7,14 @@ use serde_json::json;
 
 use rosetta_client::start_rosetta_test_server;
 use haneul_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
 use haneul_rosetta::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier,
     SubAccount, SubAccountType, HaneulEnv,
 };
-use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
+use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use test_utils::network::TestClusterBuilder;
@@ -104,7 +104,7 @@ async fn test_get_staked_haneul() {
         .quorum_driver()
         .execute_transaction_block(
             tx,
-            HaneulTransactionResponseOptions::new(),
+            HaneulTransactionBlockResponseOptions::new(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -158,7 +158,7 @@ async fn test_stake() {
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes()
@@ -219,7 +219,7 @@ async fn test_stake_all() {
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes()
@@ -286,7 +286,7 @@ async fn test_withdraw_stake() {
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes()
@@ -336,7 +336,7 @@ async fn test_withdraw_stake() {
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes()
@@ -406,7 +406,7 @@ async fn test_pay_haneul() {
         .read_api()
         .get_transaction_with_options(
             response.transaction_identifier.hash,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects()
                 .with_balance_changes()
@@ -467,7 +467,7 @@ async fn test_pay_haneul_multiple_times() {
             .read_api()
             .get_transaction_with_options(
                 response.transaction_identifier.hash,
-                HaneulTransactionResponseOptions::new()
+                HaneulTransactionBlockResponseOptions::new()
                     .with_input()
                     .with_effects()
                     .with_balance_changes()

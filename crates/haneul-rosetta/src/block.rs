@@ -11,7 +11,7 @@ use crate::types::{
     TransactionIdentifier,
 };
 use crate::{Error, OnlineServerContext, HaneulEnv};
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 
 /// This module implements the [Rosetta Block API](https://www.rosetta-api.org/docs/BlockApi.html)
 
@@ -48,7 +48,7 @@ pub async fn transaction(
         .read_api()
         .get_transaction_with_options(
             digest,
-            HaneulTransactionResponseOptions::new()
+            HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_events()
                 .with_effects()

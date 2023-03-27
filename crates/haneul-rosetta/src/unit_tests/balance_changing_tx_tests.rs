@@ -10,7 +10,7 @@ use move_core_types::identifier::Identifier;
 use rand::seq::{IteratorRandom, SliceRandom};
 use serde_json::json;
 use signature::rand_core::OsRng;
-use haneul_json_rpc_types::HaneulTransactionResponseOptions;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 
 use crate::operations::Operations;
@@ -22,7 +22,8 @@ use haneul_json_rpc_types::{
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_sdk::rpc_types::{
-    OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
+    OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponse,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -569,7 +570,7 @@ async fn test_transaction(
     gas: Vec<ObjectRef>,
     budget: u64,
     expect_fail: bool,
-) -> HaneulTransactionResponse {
+) -> HaneulTransactionBlockResponse {
     let gas = if !gas.is_empty() {
         gas
     } else {
@@ -614,7 +615,7 @@ async fn test_transaction(
             Transaction::from_data(data.clone(), Intent::default(), vec![signature])
                 .verify()
                 .unwrap(),
-            HaneulTransactionResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await

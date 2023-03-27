@@ -16,8 +16,8 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransaction, HaneulTransactionEvents,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionBlock,
+    HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
@@ -56,9 +56,9 @@ impl TransactionExecutionApi {
         &self,
         tx_bytes: Base64,
         signatures: Vec<Base64>,
-        opts: Option<HaneulTransactionResponseOptions>,
+        opts: Option<HaneulTransactionBlockResponseOptions>,
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> Result<HaneulTransactionResponse, Error> {
+    ) -> Result<HaneulTransactionBlockResponse, Error> {
         let opts = opts.unwrap_or_default();
 
         let request_type = match (request_type, opts.require_local_execution()) {
@@ -80,7 +80,7 @@ impl TransactionExecutionApi {
         }
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
         let txn = Transaction::from_generic_sig_data(tx_data, Intent::default(), sigs);
-        let tx = HaneulTransaction::try_from(txn.data().clone(), epoch_store.module_cache())?;
+        let tx = HaneulTransactionBlock::try_from(txn.data().clone(), epoch_store.module_cache())?;
         let raw_transaction = if opts.show_raw_input {
             bcs::to_bytes(txn.data())?
         } else {
@@ -100,14 +100,14 @@ impl TransactionExecutionApi {
         match response {
             ExecuteTransactionResponse::EffectsCert(cert) => {
                 let (effects, transaction_events, is_executed_locally) = *cert;
-                let mut events: Option<HaneulTransactionEvents> = None;
+                let mut events: Option<HaneulTransactionBlockEvents> = None;
                 if opts.show_events {
                     let module_cache = self
                         .state
                         .load_epoch_store_one_call_per_task()
                         .module_cache()
                         .clone();
-                    events = Some(HaneulTransactionEvents::try_from(
+                    events = Some(HaneulTransactionBlockEvents::try_from(
                         transaction_events,
                         digest,
                         None,
@@ -136,7 +136,7 @@ impl TransactionExecutionApi {
                     None
                 };
 
-                Ok(HaneulTransactionResponse {
+                Ok(HaneulTransactionBlockResponse {
                     digest,
                     transaction: opts.show_input.then_some(tx),
                     raw_transaction,
@@ -189,9 +189,9 @@ impl WriteApiServer for TransactionExecutionApi {
         &self,
         tx_bytes: Base64,
         signatures: Vec<Base64>,
-        opts: Option<HaneulTransactionResponseOptions>,
+        opts: Option<HaneulTransactionBlockResponseOptions>,
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> RpcResult<HaneulTransactionResponse> {
+    ) -> RpcResult<HaneulTransactionBlockResponse> {
         Ok(self
             .execute_transaction_block(tx_bytes, signatures, opts, request_type)
             .await?)

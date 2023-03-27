@@ -5,12 +5,12 @@ import { type HaneulSignTransactionBlockOutput } from '@haneullabs/wallet-standa
 
 import { isBasePayload } from '_payloads';
 
-import type { HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface ExecuteTransactionResponse extends BasePayload {
     type: 'execute-transaction-response';
-    result: HaneulTransactionResponse;
+    result: HaneulTransactionBlockResponse;
 }
 
 export function isExecuteTransactionResponse(

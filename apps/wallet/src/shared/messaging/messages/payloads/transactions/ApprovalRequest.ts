@@ -9,7 +9,7 @@ import {
 import type {
     SignedTransaction,
     HaneulAddress,
-    HaneulTransactionResponse,
+    HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 
 export type TransactionDataType = {
@@ -32,7 +32,7 @@ export type ApprovalRequest = {
     approved: boolean | null;
     origin: string;
     originFavIcon?: string;
-    txResult?: HaneulTransactionResponse | HaneulSignMessageOutput;
+    txResult?: HaneulTransactionBlockResponse | HaneulSignMessageOutput;
     txResultError?: string;
     txSigned?: SignedTransaction;
     createdDate: string;
@@ -48,7 +48,7 @@ export interface SignMessageApprovalRequest
 export interface TransactionApprovalRequest
     extends Omit<ApprovalRequest, 'txResult' | 'tx'> {
     tx: TransactionDataType;
-    txResult?: HaneulTransactionResponse;
+    txResult?: HaneulTransactionBlockResponse;
 }
 
 export function isSignMessageApprovalRequest(

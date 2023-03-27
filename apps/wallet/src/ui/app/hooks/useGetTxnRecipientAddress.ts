@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
     type HaneulAddress,
     getTransactionKind,
     getTransactionSender,
@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { getAmount } from '_helpers';
 
 type Props = {
-    txn: HaneulTransactionResponse;
+    txn: HaneulTransactionBlockResponse;
     address: HaneulAddress;
 };
 

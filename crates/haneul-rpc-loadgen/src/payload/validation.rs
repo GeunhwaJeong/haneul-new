@@ -6,8 +6,8 @@ use std::collections::HashSet;
 use std::time::Instant;
 use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
@@ -62,14 +62,14 @@ pub(crate) async fn check_transactions(
     cross_validate: bool,
     verify_objects: bool,
 ) {
-    let transactions: Vec<Vec<HaneulTransactionResponse>> =
+    let transactions: Vec<Vec<HaneulTransactionBlockResponse>> =
         join_all(clients.iter().enumerate().map(|(i, client)| async move {
             let start_time = Instant::now();
             let transactions = client
                 .read_api()
                 .multi_get_transactions_with_options(
                     digests.to_vec(),
-                    HaneulTransactionResponseOptions::full_content(), // todo(Will) support options for this
+                    HaneulTransactionBlockResponseOptions::full_content(), // todo(Will) support options for this
                 )
                 .await;
             let elapsed_time = start_time.elapsed();
@@ -111,7 +111,7 @@ pub(crate) async fn check_transactions(
     }
 }
 
-pub(crate) fn get_all_object_ids(response: &HaneulTransactionResponse) -> Vec<ObjectID> {
+pub(crate) fn get_all_object_ids(response: &HaneulTransactionBlockResponse) -> Vec<ObjectID> {
     let objects = match response.effects.as_ref() {
         // TODO: handle deleted and wrapped objects
         Some(effects) => effects.all_changed_objects(),

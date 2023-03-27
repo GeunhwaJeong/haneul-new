@@ -10,7 +10,8 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::api::{TransactionBuilderClient, TransactionBuilderServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    BigInt, RPCTransactionRequestParams, HaneulTransactionBuilderMode, HaneulTypeTag, TransactionBytes,
+    BigInt, RPCTransactionRequestParams, HaneulTransactionBlockBuilderMode, HaneulTypeTag,
+    TransactionBlockBytes,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -36,7 +37,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas: Option<ObjectID>,
         gas_budget: u64,
         recipient: HaneulAddress,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .transfer_object(signer, object_id, gas, gas_budget, recipient)
             .await
@@ -49,7 +50,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: u64,
         recipient: HaneulAddress,
         amount: Option<u64>,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .transfer_haneul(signer, haneul_object_id, gas_budget, recipient, amount)
             .await
@@ -63,7 +64,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         amounts: Vec<BigInt>,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .pay(signer, input_coins, recipients, amounts, gas, gas_budget)
             .await
@@ -76,7 +77,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         recipients: Vec<HaneulAddress>,
         amounts: Vec<BigInt>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .pay_haneul(signer, input_coins, recipients, amounts, gas_budget)
             .await
@@ -88,7 +89,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         input_coins: Vec<ObjectID>,
         recipient: HaneulAddress,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .pay_all_haneul(signer, input_coins, recipient, gas_budget)
             .await
@@ -101,7 +102,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         dep_ids: Vec<ObjectID>,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .publish(sender, compiled_modules, dep_ids, gas, gas_budget)
             .await
@@ -114,7 +115,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         split_amounts: Vec<u64>,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .split_coin(signer, coin_object_id, split_amounts, gas, gas_budget)
             .await
@@ -127,7 +128,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         split_count: u64,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .split_coin_equal(signer, coin_object_id, split_count, gas, gas_budget)
             .await
@@ -140,7 +141,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         coin_to_merge: ObjectID,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .merge_coin(signer, primary_coin, coin_to_merge, gas, gas_budget)
             .await
@@ -156,8 +157,8 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         rpc_arguments: Vec<HaneulJsonValue>,
         gas: Option<ObjectID>,
         gas_budget: u64,
-        tx_builder_mode: Option<HaneulTransactionBuilderMode>,
-    ) -> RpcResult<TransactionBytes> {
+        tx_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .move_call(
                 signer,
@@ -179,8 +180,8 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         params: Vec<RPCTransactionRequestParams>,
         gas: Option<ObjectID>,
         gas_budget: u64,
-        tx_builder_mode: Option<HaneulTransactionBuilderMode>,
-    ) -> RpcResult<TransactionBytes> {
+        tx_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .batch_transaction(signer, params, gas, gas_budget, tx_builder_mode)
             .await
@@ -194,7 +195,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         validator: HaneulAddress,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .request_add_stake(signer, coins, amount, validator, gas, gas_budget)
             .await
@@ -206,7 +207,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         staked_haneul: ObjectID,
         gas: Option<ObjectID>,
         gas_budget: u64,
-    ) -> RpcResult<TransactionBytes> {
+    ) -> RpcResult<TransactionBlockBytes> {
         self.fullnode
             .request_withdraw_stake(signer, staked_haneul, gas, gas_budget)
             .await

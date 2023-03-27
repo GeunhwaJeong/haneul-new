@@ -378,7 +378,7 @@ async fn test_pay_all_haneul_success_multiple_input_coins() -> anyhow::Result<()
     Ok(())
 }
 
-struct PayHaneulTransactionExecutionResult {
+struct PayHaneulTransactionBlockExecutionResult {
     pub authority_state: Arc<AuthorityState>,
     pub txn_result: Result<SignedTransactionEffects, HaneulError>,
 }
@@ -390,7 +390,7 @@ async fn execute_pay_haneul(
     sender: HaneulAddress,
     sender_key: AccountKeyPair,
     gas_budget: u64,
-) -> PayHaneulTransactionExecutionResult {
+) -> PayHaneulTransactionBlockExecutionResult {
     let authority_state = init_state().await;
 
     let input_coin_refs: Vec<ObjectRef> = input_coin_objects
@@ -412,7 +412,7 @@ async fn execute_pay_haneul(
         .await
         .map(|(_, effects)| effects);
 
-    PayHaneulTransactionExecutionResult {
+    PayHaneulTransactionBlockExecutionResult {
         authority_state,
         txn_result,
     }
@@ -424,7 +424,7 @@ async fn execute_pay_all_haneul(
     sender: HaneulAddress,
     sender_key: AccountKeyPair,
     gas_budget: u64,
-) -> PayHaneulTransactionExecutionResult {
+) -> PayHaneulTransactionBlockExecutionResult {
     let dir = tempfile::TempDir::new().unwrap();
     let network_config = haneul_config::builder::ConfigBuilder::new(&dir)
         .with_objects(
@@ -459,7 +459,7 @@ async fn execute_pay_all_haneul(
     let txn_result = send_and_confirm_transaction(&authority_state, tx)
         .await
         .map(|(_, effects)| effects);
-    PayHaneulTransactionExecutionResult {
+    PayHaneulTransactionBlockExecutionResult {
         authority_state,
         txn_result,
     }

@@ -10,7 +10,10 @@ import {
 
 import { LinkGroup } from './LinkGroup';
 
-import type { HaneulTransactionResponse, OwnedObjectRef } from '@haneullabs/haneul.js';
+import type {
+    HaneulTransactionBlockResponse,
+    OwnedObjectRef,
+} from '@haneullabs/haneul.js';
 
 import { Banner } from '~/ui/Banner';
 
@@ -22,7 +25,7 @@ function toObjectLink(object: OwnedObjectRef) {
 }
 
 type FunctionExecutionResultProps = {
-    result: HaneulTransactionResponse | null;
+    result: HaneulTransactionBlockResponse | null;
     error: string | false;
     onClear: () => void;
 };

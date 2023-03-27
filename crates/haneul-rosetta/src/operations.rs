@@ -14,12 +14,12 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use haneul_json_rpc_types::HaneulProgrammableMoveCall;
-use haneul_json_rpc_types::HaneulProgrammableTransaction;
+use haneul_json_rpc_types::HaneulProgrammableTransactionBlock;
 use haneul_json_rpc_types::{BalanceChange, HaneulArgument};
 use haneul_json_rpc_types::{HaneulCallArg, HaneulCommand};
 use haneul_sdk::rpc_types::{
-    HaneulTransactionData, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI, HaneulTransactionKind,
-    HaneulTransactionResponse,
+    HaneulTransactionBlockData, HaneulTransactionBlockDataAPI, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockKind, HaneulTransactionBlockResponse,
 };
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::gas_coin::{GasCoin, GAS};
@@ -210,12 +210,12 @@ impl Operations {
     }
 
     fn from_transaction(
-        tx: HaneulTransactionKind,
+        tx: HaneulTransactionBlockKind,
         sender: HaneulAddress,
         status: Option<OperationStatus>,
     ) -> Result<Vec<Operation>, Error> {
         Ok(match tx {
-            HaneulTransactionKind::ProgrammableTransaction(pt) => {
+            HaneulTransactionBlockKind::ProgrammableTransaction(pt) => {
                 Self::parse_programmable_transaction(sender, status, pt)?
             }
             _ => vec![Operation::generic_op(status, sender, tx)],
@@ -225,7 +225,7 @@ impl Operations {
     fn parse_programmable_transaction(
         sender: HaneulAddress,
         status: Option<OperationStatus>,
-        pt: HaneulProgrammableTransaction,
+        pt: HaneulProgrammableTransactionBlock,
     ) -> Result<Vec<Operation>, Error> {
         #[derive(Debug)]
         enum KnownValue {
@@ -356,7 +356,7 @@ impl Operations {
             };
             Ok(id.cloned())
         }
-        let HaneulProgrammableTransaction { inputs, commands } = &pt;
+        let HaneulProgrammableTransactionBlock { inputs, commands } = &pt;
         let mut known_results: Vec<Vec<KnownValue>> = vec![];
         let mut aggregated_recipients: HashMap<HaneulAddress, u64> = HashMap::new();
         let mut needs_generic = false;
@@ -433,7 +433,7 @@ impl Operations {
             operations.push(Operation::generic_op(
                 status,
                 sender,
-                HaneulTransactionKind::ProgrammableTransaction(pt),
+                HaneulTransactionBlockKind::ProgrammableTransaction(pt),
             ))
         }
         Ok(operations)
@@ -487,9 +487,9 @@ impl Operations {
     }
 }
 
-impl TryFrom<HaneulTransactionData> for Operations {
+impl TryFrom<HaneulTransactionBlockData> for Operations {
     type Error = Error;
-    fn try_from(data: HaneulTransactionData) -> Result<Self, Self::Error> {
+    fn try_from(data: HaneulTransactionBlockData) -> Result<Self, Self::Error> {
         let sender = *data.sender();
         Ok(Self::new(Self::from_transaction(
             data.transaction().clone(),
@@ -499,9 +499,9 @@ impl TryFrom<HaneulTransactionData> for Operations {
     }
 }
 
-impl TryFrom<HaneulTransactionResponse> for Operations {
+impl TryFrom<HaneulTransactionBlockResponse> for Operations {
     type Error = Error;
-    fn try_from(response: HaneulTransactionResponse) -> Result<Self, Self::Error> {
+    fn try_from(response: HaneulTransactionBlockResponse) -> Result<Self, Self::Error> {
         let tx = response
             .transaction
             .ok_or_else(|| anyhow!("Response input should not be empty"))?;
@@ -606,7 +606,7 @@ impl TryFrom<TransactionData> for Operations {
             }
         }
         // Rosetta don't need the call args to be parsed into readable format
-        HaneulTransactionData::try_from(data, &&mut NoOpsModuleResolver)?.try_into()
+        HaneulTransactionBlockData::try_from(data, &&mut NoOpsModuleResolver)?.try_into()
     }
 }
 
@@ -640,7 +640,7 @@ impl PartialEq for Operation {
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub enum OperationMetadata {
-    GenericTransaction(HaneulTransactionKind),
+    GenericTransaction(HaneulTransactionBlockKind),
     Stake { validator: HaneulAddress },
     WithdrawStake { stake_ids: Vec<ObjectID> },
 }
@@ -649,7 +649,7 @@ impl Operation {
     fn generic_op(
         status: Option<OperationStatus>,
         sender: HaneulAddress,
-        tx: HaneulTransactionKind,
+        tx: HaneulTransactionBlockKind,
     ) -> Self {
         Operation {
             operation_identifier: Default::default(),

@@ -6,13 +6,13 @@ import { useMemo } from 'react';
 
 import { getAmount } from '_helpers';
 
-import type { HaneulTransactionResponse, HaneulAddress } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse, HaneulAddress } from '@haneullabs/haneul.js';
 
 export function useGetTransferAmount({
     txn,
     activeAddress,
 }: {
-    txn: HaneulTransactionResponse;
+    txn: HaneulTransactionBlockResponse;
     activeAddress: HaneulAddress;
 }) {
     const { effects, events } = txn;

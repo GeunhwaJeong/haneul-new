@@ -134,7 +134,7 @@ export type TransactionKindName =
   | 'Genesis'
   | 'ProgrammableTransaction';
 
-export const HaneulTransactionKind = union([
+export const HaneulTransactionBlockKind = union([
   assign(HaneulChangeEpoch, object({ kind: literal('ChangeEpoch') })),
   assign(
     HaneulConsensusCommitPrologue,
@@ -148,16 +148,16 @@ export const HaneulTransactionKind = union([
     object({ kind: literal('ProgrammableTransaction') }),
   ),
 ]);
-export type HaneulTransactionKind = Infer<typeof HaneulTransactionKind>;
+export type HaneulTransactionBlockKind = Infer<typeof HaneulTransactionBlockKind>;
 
-export const HaneulTransactionData = object({
+export const HaneulTransactionBlockData = object({
   // Eventually this will become union(literal('v1'), literal('v2'), ...)
   messageVersion: literal('v1'),
-  transaction: HaneulTransactionKind,
+  transaction: HaneulTransactionBlockKind,
   sender: HaneulAddress,
   gasData: HaneulGasData,
 });
-export type HaneulTransactionData = Infer<typeof HaneulTransactionData>;
+export type HaneulTransactionBlockData = Infer<typeof HaneulTransactionBlockData>;
 
 export const AuthoritySignature = string();
 export const GenericAuthoritySignature = union([
@@ -267,9 +267,9 @@ export const DevInspectResults = object({
 });
 export type DevInspectResults = Infer<typeof DevInspectResults>;
 
-export type HaneulTransactionResponseQuery = {
+export type HaneulTransactionBlockResponseQuery = {
   filter?: TransactionFilter;
-  options?: HaneulTransactionResponseOptions;
+  options?: HaneulTransactionBlockResponseOptions;
 };
 
 export type TransactionFilter =
@@ -289,11 +289,11 @@ export type EmptySignInfo = object;
 export type AuthorityName = Infer<typeof AuthorityName>;
 export const AuthorityName = string();
 
-export const HaneulTransaction = object({
-  data: HaneulTransactionData,
+export const HaneulTransactionBlock = object({
+  data: HaneulTransactionBlockData,
   txSignatures: array(string()),
 });
-export type HaneulTransaction = Infer<typeof HaneulTransaction>;
+export type HaneulTransactionBlock = Infer<typeof HaneulTransactionBlock>;
 
 export const HaneulObjectChangePublished = object({
   type: literal('published'),
@@ -375,9 +375,9 @@ export const BalanceChange = object({
   amount: string(),
 });
 
-export const HaneulTransactionResponse = object({
+export const HaneulTransactionBlockResponse = object({
   digest: TransactionDigest,
-  transaction: optional(HaneulTransaction),
+  transaction: optional(HaneulTransactionBlock),
   effects: optional(TransactionEffects),
   events: optional(TransactionEvents),
   timestampMs: optional(number()),
@@ -388,9 +388,11 @@ export const HaneulTransactionResponse = object({
   /* Errors that occurred in fetching/serializing the transaction. */
   errors: optional(array(string())),
 });
-export type HaneulTransactionResponse = Infer<typeof HaneulTransactionResponse>;
+export type HaneulTransactionBlockResponse = Infer<
+  typeof HaneulTransactionBlockResponse
+>;
 
-export const HaneulTransactionResponseOptions = object({
+export const HaneulTransactionBlockResponseOptions = object({
   /* Whether to show transaction input data. Default to be false. */
   showInput: optional(boolean()),
   /* Whether to show transaction effects. Default to be false. */
@@ -403,12 +405,12 @@ export const HaneulTransactionResponseOptions = object({
   showBalanceChanges: optional(boolean()),
 });
 
-export type HaneulTransactionResponseOptions = Infer<
-  typeof HaneulTransactionResponseOptions
+export type HaneulTransactionBlockResponseOptions = Infer<
+  typeof HaneulTransactionBlockResponseOptions
 >;
 
 export const PaginatedTransactionResponse = object({
-  data: array(HaneulTransactionResponse),
+  data: array(HaneulTransactionBlockResponse),
   nextCursor: union([TransactionDigest, literal(null)]),
   hasNextPage: boolean(),
 });
@@ -428,19 +430,19 @@ export type DryRunTransactionResponse = Infer<typeof DryRunTransactionResponse>;
 /* -------------------------------------------------------------------------- */
 
 export function getTransaction(
-  tx: HaneulTransactionResponse,
-): HaneulTransaction | undefined {
+  tx: HaneulTransactionBlockResponse,
+): HaneulTransactionBlock | undefined {
   return tx.transaction;
 }
 
 export function getTransactionDigest(
-  tx: HaneulTransactionResponse,
+  tx: HaneulTransactionBlockResponse,
 ): TransactionDigest {
   return tx.digest;
 }
 
 export function getTransactionSignature(
-  tx: HaneulTransactionResponse,
+  tx: HaneulTransactionBlockResponse,
 ): string[] | undefined {
   return tx.transaction?.txSignatures;
 }
@@ -448,55 +450,57 @@ export function getTransactionSignature(
 /* ----------------------------- TransactionData ---------------------------- */
 
 export function getTransactionSender(
-  tx: HaneulTransactionResponse,
+  tx: HaneulTransactionBlockResponse,
 ): HaneulAddress | undefined {
   return tx.transaction?.data.sender;
 }
 
-export function getGasData(tx: HaneulTransactionResponse): HaneulGasData | undefined {
+export function getGasData(
+  tx: HaneulTransactionBlockResponse,
+): HaneulGasData | undefined {
   return tx.transaction?.data.gasData;
 }
 
 export function getTransactionGasObject(
-  tx: HaneulTransactionResponse,
+  tx: HaneulTransactionBlockResponse,
 ): HaneulObjectRef[] | undefined {
   return getGasData(tx)?.payment;
 }
 
-export function getTransactionGasPrice(tx: HaneulTransactionResponse) {
+export function getTransactionGasPrice(tx: HaneulTransactionBlockResponse) {
   return getGasData(tx)?.price;
 }
 
-export function getTransactionGasBudget(tx: HaneulTransactionResponse) {
+export function getTransactionGasBudget(tx: HaneulTransactionBlockResponse) {
   return getGasData(tx)?.budget;
 }
 
 export function getChangeEpochTransaction(
-  data: HaneulTransactionKind,
+  data: HaneulTransactionBlockKind,
 ): HaneulChangeEpoch | undefined {
   return data.kind === 'ChangeEpoch' ? data : undefined;
 }
 
 export function getConsensusCommitPrologueTransaction(
-  data: HaneulTransactionKind,
+  data: HaneulTransactionBlockKind,
 ): HaneulConsensusCommitPrologue | undefined {
   return data.kind === 'ConsensusCommitPrologue' ? data : undefined;
 }
 
 export function getTransactionKind(
-  data: HaneulTransactionResponse,
-): HaneulTransactionKind | undefined {
+  data: HaneulTransactionBlockResponse,
+): HaneulTransactionBlockKind | undefined {
   return data.transaction?.data.transaction;
 }
 
 export function getTransactionKindName(
-  data: HaneulTransactionKind,
+  data: HaneulTransactionBlockKind,
 ): TransactionKindName {
   return data.kind;
 }
 
 export function getProgrammableTransaction(
-  data: HaneulTransactionKind,
+  data: HaneulTransactionBlockKind,
 ): ProgrammableTransaction | undefined {
   return data.kind === 'ProgrammableTransaction' ? data : undefined;
 }
@@ -504,25 +508,25 @@ export function getProgrammableTransaction(
 /* ----------------------------- ExecutionStatus ---------------------------- */
 
 export function getExecutionStatusType(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): ExecutionStatusType | undefined {
   return getExecutionStatus(data)?.status;
 }
 
 export function getExecutionStatus(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): ExecutionStatus | undefined {
   return getTransactionEffects(data)?.status;
 }
 
 export function getExecutionStatusError(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): string | undefined {
   return getExecutionStatus(data)?.error;
 }
 
 export function getExecutionStatusGasSummary(
-  data: HaneulTransactionResponse | TransactionEffects,
+  data: HaneulTransactionBlockResponse | TransactionEffects,
 ): GasCostSummary | undefined {
   if (is(data, TransactionEffects)) {
     return data.gasUsed;
@@ -531,7 +535,7 @@ export function getExecutionStatusGasSummary(
 }
 
 export function getTotalGasUsed(
-  data: HaneulTransactionResponse | TransactionEffects,
+  data: HaneulTransactionBlockResponse | TransactionEffects,
 ): bigint | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
@@ -542,7 +546,7 @@ export function getTotalGasUsed(
 }
 
 export function getTotalGasUsedUpperBound(
-  data: HaneulTransactionResponse | TransactionEffects,
+  data: HaneulTransactionBlockResponse | TransactionEffects,
 ): bigint | undefined {
   const gasSummary = getExecutionStatusGasSummary(data);
   return gasSummary
@@ -551,7 +555,7 @@ export function getTotalGasUsedUpperBound(
 }
 
 export function getTransactionEffects(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): TransactionEffects | undefined {
   return data.effects;
 }
@@ -559,13 +563,13 @@ export function getTransactionEffects(
 /* ---------------------------- Transaction Effects --------------------------- */
 
 export function getEvents(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): HaneulEvent[] | undefined {
   return data.events;
 }
 
 export function getCreatedObjects(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): OwnedObjectRef[] | undefined {
   return getTransactionEffects(data)?.created;
 }
@@ -573,7 +577,7 @@ export function getCreatedObjects(
 /* --------------------------- TransactionResponse -------------------------- */
 
 export function getTimestampFromTransactionResponse(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): number | undefined {
   return data.timestampMs ?? undefined;
 }
@@ -582,19 +586,19 @@ export function getTimestampFromTransactionResponse(
  * Get the newly created coin refs after a split.
  */
 export function getNewlyCreatedCoinRefsAfterSplit(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): HaneulObjectRef[] | undefined {
   return getTransactionEffects(data)?.created?.map((c) => c.reference);
 }
 
 export function getObjectChanges(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): HaneulObjectChange[] | undefined {
   return data.objectChanges;
 }
 
 export function getPublishedObjectChanges(
-  data: HaneulTransactionResponse,
+  data: HaneulTransactionBlockResponse,
 ): HaneulObjectChangePublished[] {
   return (
     (data.objectChanges?.filter((a) =>

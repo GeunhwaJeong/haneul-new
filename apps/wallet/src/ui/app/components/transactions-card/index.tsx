@@ -23,7 +23,7 @@ import { useGetTransferAmount, useGetTxnRecipientAddress } from '_hooks';
 import type {
     HaneulAddress,
     // HaneulEvent,
-    HaneulTransactionResponse,
+    HaneulTransactionBlockResponse,
     // TransactionEvents,
 } from '@haneullabs/haneul.js';
 
@@ -45,7 +45,7 @@ export function TransactionCard({
     txn,
     address,
 }: {
-    txn: HaneulTransactionResponse;
+    txn: HaneulTransactionBlockResponse;
     address: HaneulAddress;
 }) {
     const transaction = getTransactionKind(txn)!;

@@ -5,14 +5,14 @@ use diesel::prelude::*;
 use diesel::result::Error;
 
 use haneul_json_rpc_types::{
-    OwnedObjectRef, HaneulObjectRef, HaneulTransaction, HaneulTransactionDataAPI, HaneulTransactionEffects,
-    HaneulTransactionEffectsAPI,
+    OwnedObjectRef, HaneulObjectRef, HaneulTransactionBlock, HaneulTransactionBlockDataAPI,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 
 use crate::errors::IndexerError;
 use crate::schema::transactions;
 use crate::schema::transactions::transaction_digest;
-use crate::types::HaneulTransactionFullResponse;
+use crate::types::HaneulTransactionBlockFullResponse;
 use crate::PgPoolConnection;
 
 #[derive(Clone, Debug, Queryable, Insertable)]
@@ -52,7 +52,7 @@ pub struct Transaction {
 
 pub fn commit_transactions(
     pg_pool_conn: &mut PgPoolConnection,
-    tx_resps: Vec<HaneulTransactionFullResponse>,
+    tx_resps: Vec<HaneulTransactionBlockFullResponse>,
 ) -> Result<usize, IndexerError> {
     let new_txs: Vec<Transaction> = tx_resps
         .into_iter()
@@ -78,10 +78,10 @@ pub fn commit_transactions(
     })
 }
 
-impl TryFrom<HaneulTransactionFullResponse> for Transaction {
+impl TryFrom<HaneulTransactionBlockFullResponse> for Transaction {
     type Error = IndexerError;
 
-    fn try_from(tx_resp: HaneulTransactionFullResponse) -> Result<Self, Self::Error> {
+    fn try_from(tx_resp: HaneulTransactionBlockFullResponse) -> Result<Self, Self::Error> {
         let tx_json = serde_json::to_string(&tx_resp.transaction).map_err(|err| {
             IndexerError::InsertableParsingError(format!(
                 "Failed converting transaction {:?} to JSON with error: {:?}",
@@ -198,25 +198,25 @@ impl TryFrom<HaneulTransactionFullResponse> for Transaction {
     }
 }
 
-impl TryInto<HaneulTransactionFullResponse> for Transaction {
+impl TryInto<HaneulTransactionBlockFullResponse> for Transaction {
     type Error = IndexerError;
 
-    fn try_into(self) -> Result<HaneulTransactionFullResponse, Self::Error> {
-        let transaction: HaneulTransaction =
+    fn try_into(self) -> Result<HaneulTransactionBlockFullResponse, Self::Error> {
+        let transaction: HaneulTransactionBlock =
             serde_json::from_str(&self.transaction_content).map_err(|err| {
                 IndexerError::InsertableParsingError(format!(
-                    "Failed converting transaction JSON {:?} to HaneulTransaction with error: {:?}",
+                    "Failed converting transaction JSON {:?} to HaneulTransactionBlock with error: {:?}",
                     self.transaction_content, err
                 ))
             })?;
-        let effects: HaneulTransactionEffects = serde_json::from_str(&self.transaction_effects_content).map_err(|err| {
+        let effects: HaneulTransactionBlockEffects = serde_json::from_str(&self.transaction_effects_content).map_err(|err| {
             IndexerError::InsertableParsingError(format!(
-                "Failed converting transaction effect JSON {:?} to HaneulTransactionEffects with error: {:?}",
+                "Failed converting transaction effect JSON {:?} to HaneulTransactionBlockEffects with error: {:?}",
                 self.transaction_effects_content, err
             ))
         })?;
 
-        Ok(HaneulTransactionFullResponse {
+        Ok(HaneulTransactionBlockFullResponse {
             digest: self.transaction_digest.parse().map_err(|e| {
                 IndexerError::InsertableParsingError(format!(
                     "Failed to parse transaction digest {} : {:?}",

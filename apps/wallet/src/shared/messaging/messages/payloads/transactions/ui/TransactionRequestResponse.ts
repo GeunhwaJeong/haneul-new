@@ -5,14 +5,17 @@ import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
 import { isBasePayload } from '_payloads';
 
-import type { SignedTransaction, HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import type {
+    SignedTransaction,
+    HaneulTransactionBlockResponse,
+} from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface TransactionRequestResponse extends BasePayload {
     type: 'transaction-request-response';
     txID: string;
     approved: boolean;
-    txResult?: HaneulTransactionResponse | HaneulSignMessageOutput;
+    txResult?: HaneulTransactionBlockResponse | HaneulSignMessageOutput;
     txResultError?: string;
     txSigned?: SignedTransaction;
 }

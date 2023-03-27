@@ -4,7 +4,7 @@
 use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionEffectsAPI, HaneulTransactionResponseOptions,
+    HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::{base_types::TransactionDigest, messages::ExecuteTransactionRequestType};
@@ -16,7 +16,7 @@ impl FullNodeExecuteTransactionTest {
     async fn verify_transaction(fullnode: &HaneulClient, tx_digest: TransactionDigest) {
         fullnode
             .read_api()
-            .get_transaction_with_options(tx_digest, HaneulTransactionResponseOptions::new())
+            .get_transaction_with_options(tx_digest, HaneulTransactionBlockResponseOptions::new())
             .await
             .unwrap_or_else(|e| {
                 panic!(
@@ -59,7 +59,7 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
             .quorum_driver()
             .execute_transaction_block(
                 txn,
-                HaneulTransactionResponseOptions::new().with_effects(),
+                HaneulTransactionBlockResponseOptions::new().with_effects(),
                 Some(ExecuteTransactionRequestType::WaitForEffectsCert),
             )
             .await?;
@@ -86,7 +86,7 @@ impl TestCaseImpl for FullNodeExecuteTransactionTest {
             .quorum_driver()
             .execute_transaction_block(
                 txn,
-                HaneulTransactionResponseOptions::new().with_effects(),
+                HaneulTransactionBlockResponseOptions::new().with_effects(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await?;

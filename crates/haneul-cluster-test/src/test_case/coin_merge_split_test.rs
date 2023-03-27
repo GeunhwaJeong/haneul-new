@@ -4,7 +4,7 @@
 use crate::{helper::ObjectChecker, TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use jsonrpsee::rpc_params;
-use haneul_json_rpc_types::{HaneulTransactionEffectsAPI, HaneulTransactionResponse};
+use haneul_json_rpc_types::{HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::object::Owner;
 use tracing::{debug, info};
@@ -117,7 +117,7 @@ impl CoinMergeSplitTest {
         primary_coin: ObjectID,
         coin_to_merge: ObjectID,
         gas_obj_id: ObjectID,
-    ) -> HaneulTransactionResponse {
+    ) -> HaneulTransactionBlockResponse {
         let params = rpc_params![signer, primary_coin, coin_to_merge, Some(gas_obj_id), 2000];
 
         let data = ctx
@@ -134,7 +134,7 @@ impl CoinMergeSplitTest {
         primary_coin: ObjectID,
         amounts: Vec<u64>,
         gas_obj_id: ObjectID,
-    ) -> HaneulTransactionResponse {
+    ) -> HaneulTransactionBlockResponse {
         let params = rpc_params![signer, primary_coin, amounts, Some(gas_obj_id), 2000];
 
         let data = ctx

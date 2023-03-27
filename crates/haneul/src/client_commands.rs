@@ -38,7 +38,8 @@ use haneul_framework_build::compiled_package::{
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulRawData, HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -674,7 +675,7 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
-                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                    anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
                 let time_total = time_start.elapsed().as_micros();
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
@@ -711,7 +712,7 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
-                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                    anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!("Error transferring HANEUL: {:#?}", effects.status()));
@@ -760,7 +761,7 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
-                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                    anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
@@ -811,7 +812,7 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
-                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                    anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
@@ -850,7 +851,7 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
-                    anyhow!("Effects from HaneulTransactionResult should not be empty")
+                    anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
                 if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
                     return Err(anyhow!(
@@ -1345,13 +1346,13 @@ impl WalletContext {
     pub async fn execute_transaction_block(
         &self,
         tx: VerifiedTransaction,
-    ) -> anyhow::Result<HaneulTransactionResponse> {
+    ) -> anyhow::Result<HaneulTransactionBlockResponse> {
         let client = self.get_client().await?;
         Ok(client
             .quorum_driver()
             .execute_transaction_block(
                 tx,
-                HaneulTransactionResponseOptions::new()
+                HaneulTransactionBlockResponseOptions::new()
                     .with_effects()
                     .with_events()
                     .with_input()
@@ -1564,7 +1565,7 @@ pub async fn call_move(
     gas_budget: u64,
     args: Vec<HaneulJsonValue>,
     context: &mut WalletContext,
-) -> Result<HaneulTransactionResponse, anyhow::Error> {
+) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
     // Convert all numeric input to String, this will allow number input from the CLI without failing HaneulJSON's checks.
     let args = args
         .into_iter()
@@ -1601,7 +1602,7 @@ pub async fn call_move(
     let effects = response
         .effects
         .as_ref()
-        .ok_or_else(|| anyhow!("Effects from HaneulTransactionResult should not be empty"))?;
+        .ok_or_else(|| anyhow!("Effects from HaneulTransactionBlockResult should not be empty"))?;
     if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
         return Err(anyhow!("Error calling module: {:#?}", effects.status()));
     }
@@ -1622,7 +1623,9 @@ fn convert_number_to_string(value: Value) -> Value {
 }
 
 // TODOD(chris): only print out the full response when `--verbose` is provided
-pub fn write_transaction_response(response: &HaneulTransactionResponse) -> Result<String, fmt::Error> {
+pub fn write_transaction_response(
+    response: &HaneulTransactionBlockResponse,
+) -> Result<String, fmt::Error> {
     let mut writer = String::new();
     writeln!(writer, "{}", "----- Transaction Digest ----".bold())?;
     writeln!(writer, "{}", response.digest)?;
@@ -1696,36 +1699,36 @@ impl HaneulClientCommandResult {
 #[derive(Serialize)]
 #[serde(untagged)]
 pub enum HaneulClientCommandResult {
-    Upgrade(HaneulTransactionResponse),
-    Publish(HaneulTransactionResponse),
+    Upgrade(HaneulTransactionBlockResponse),
+    Publish(HaneulTransactionBlockResponse),
     VerifySource,
     Object(HaneulObjectResponse),
     RawObject(HaneulObjectResponse),
-    Call(HaneulTransactionResponse),
+    Call(HaneulTransactionBlockResponse),
     Transfer(
         // Skipping serialisation for elapsed time.
         #[serde(skip)] u128,
-        HaneulTransactionResponse,
+        HaneulTransactionBlockResponse,
     ),
-    TransferHaneul(HaneulTransactionResponse),
-    Pay(HaneulTransactionResponse),
-    PayHaneul(HaneulTransactionResponse),
-    PayAllHaneul(HaneulTransactionResponse),
+    TransferHaneul(HaneulTransactionBlockResponse),
+    Pay(HaneulTransactionBlockResponse),
+    PayHaneul(HaneulTransactionBlockResponse),
+    PayAllHaneul(HaneulTransactionBlockResponse),
     Addresses(Vec<HaneulAddress>, Option<HaneulAddress>),
     Objects(Vec<HaneulObjectResponse>),
     DynamicFieldQuery(DynamicFieldPage),
     SyncClientState,
     NewAddress((HaneulAddress, String, SignatureScheme)),
     Gas(Vec<GasCoin>),
-    SplitCoin(HaneulTransactionResponse),
-    MergeCoin(HaneulTransactionResponse),
+    SplitCoin(HaneulTransactionBlockResponse),
+    MergeCoin(HaneulTransactionBlockResponse),
     Switch(SwitchResponse),
     ActiveAddress(Option<HaneulAddress>),
     ActiveEnv(Option<String>),
     Envs(Vec<HaneulEnv>, Option<String>),
     SerializeTransferHaneul(String),
     SerializePublish(String),
-    ExecuteSignedTx(HaneulTransactionResponse),
+    ExecuteSignedTx(HaneulTransactionBlockResponse),
     NewEnv(HaneulEnv),
 }
 

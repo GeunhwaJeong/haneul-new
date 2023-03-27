@@ -24,8 +24,8 @@ use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     BalanceChange, BigInt, Checkpoint, CheckpointId, CheckpointPage, EventFilter, ObjectChange,
     HaneulCheckpointSequenceNumber, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveStruct, HaneulMoveValue,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransaction,
-    HaneulTransactionEvents, HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlock,
+    HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest};
@@ -67,7 +67,7 @@ struct IntermediateTransactionResponse {
     digest: TransactionDigest,
     transaction: Option<VerifiedTransaction>,
     effects: Option<TransactionEffects>,
-    events: Option<HaneulTransactionEvents>,
+    events: Option<HaneulTransactionBlockEvents>,
     checkpoint_seq: Option<HaneulCheckpointSequenceNumber>,
     balance_changes: Option<Vec<BalanceChange>>,
     object_changes: Option<Vec<ObjectChange>>,
@@ -264,8 +264,8 @@ impl ReadApiServer for ReadApi {
     async fn get_transaction_block(
         &self,
         digest: TransactionDigest,
-        opts: Option<HaneulTransactionResponseOptions>,
-    ) -> RpcResult<HaneulTransactionResponse> {
+        opts: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> RpcResult<HaneulTransactionBlockResponse> {
         let opts = opts.unwrap_or_default();
         let mut temp_response = IntermediateTransactionResponse::new(digest);
 
@@ -317,7 +317,7 @@ impl ReadApiServer for ReadApi {
             } else {
                 // events field will be Some if and only if `show_events` is true and
                 // there is no error in converting fetching events
-                temp_response.events = Some(HaneulTransactionEvents::default());
+                temp_response.events = Some(HaneulTransactionBlockEvents::default());
             }
         }
 
@@ -359,8 +359,8 @@ impl ReadApiServer for ReadApi {
     async fn multi_get_transaction_blocks(
         &self,
         digests: Vec<TransactionDigest>,
-        opts: Option<HaneulTransactionResponseOptions>,
-    ) -> RpcResult<Vec<HaneulTransactionResponse>> {
+        opts: Option<HaneulTransactionBlockResponseOptions>,
+    ) -> RpcResult<Vec<HaneulTransactionBlockResponse>> {
         let num_digests = digests.len();
         if num_digests > QUERY_MAX_RESULT_LIMIT {
             return Err(anyhow!(UserInputError::SizeLimitExceeded {
@@ -503,7 +503,7 @@ impl ReadApiServer for ReadApi {
                 if event_digest.is_some() {
                     // safe to unwrap because `is_some` is checked
                     let event_digest = event_digest.as_ref().unwrap();
-                    let events: Option<RpcResult<HaneulTransactionEvents>> = event_digest_to_events
+                    let events: Option<RpcResult<HaneulTransactionBlockEvents>> = event_digest_to_events
                         .get(event_digest)
                         .cloned()
                         .unwrap_or_else(|| panic!("Expect event digest {event_digest:?} to be found in cache for transaction {transaction_digest}"))
@@ -521,7 +521,7 @@ impl ReadApiServer for ReadApi {
                 } else {
                     // events field will be Some if and only if `show_events` is true and
                     // there is no error in converting fetching events
-                    cache_entry.events = Some(HaneulTransactionEvents::default());
+                    cache_entry.events = Some(HaneulTransactionBlockEvents::default());
                 }
             }
         }
@@ -680,8 +680,8 @@ fn to_haneul_transaction_events(
     fullnode_api: &ReadApi,
     tx_digest: TransactionDigest,
     events: TransactionEvents,
-) -> RpcResult<HaneulTransactionEvents> {
-    Ok(HaneulTransactionEvents::try_from(
+) -> RpcResult<HaneulTransactionBlockEvents> {
+    Ok(HaneulTransactionBlockEvents::try_from(
         events,
         tx_digest,
         None,
@@ -924,10 +924,10 @@ fn get_value_from_move_struct(move_struct: &HaneulMoveStruct, var_name: &str) ->
 
 fn convert_to_response(
     cache: IntermediateTransactionResponse,
-    opts: &HaneulTransactionResponseOptions,
+    opts: &HaneulTransactionBlockResponseOptions,
     module_cache: &impl GetModule,
-) -> HaneulTransactionResponse {
-    let mut response = HaneulTransactionResponse::new(cache.digest);
+) -> HaneulTransactionBlockResponse {
+    let mut response = HaneulTransactionBlockResponse::new(cache.digest);
     response.errors = cache.errors;
 
     if opts.show_raw_input && cache.transaction.is_some() {
@@ -939,7 +939,8 @@ fn convert_to_response(
     }
 
     if opts.show_input && cache.transaction.is_some() {
-        match HaneulTransaction::try_from(cache.transaction.unwrap().into_message(), module_cache) {
+        match HaneulTransactionBlock::try_from(cache.transaction.unwrap().into_message(), module_cache)
+        {
             Ok(t) => {
                 response.transaction = Some(t);
             }

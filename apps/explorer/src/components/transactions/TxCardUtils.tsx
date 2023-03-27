@@ -9,7 +9,7 @@ import {
     getTransactionSender,
     type JsonRpcProvider,
     HANEUL_TYPE_ARG,
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import clsx from 'clsx';
 import { type ReactNode } from 'react';
@@ -71,7 +71,9 @@ export function TxTableCol({
 }
 
 // Generate table data from the transaction data
-export const genTableDataFromTxData = (results: HaneulTransactionResponse[]) => ({
+export const genTableDataFromTxData = (
+    results: HaneulTransactionBlockResponse[]
+) => ({
     data: results.map((transaction) => {
         const status = getExecutionStatusType(transaction);
         const transfer = getAmount({

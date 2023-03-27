@@ -71,17 +71,17 @@ pub type HaneulEpochId = BigInt;
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Default)]
 #[serde(rename_all = "camelCase", rename = "TransactionResponseQuery", default)]
-pub struct HaneulTransactionResponseQuery {
+pub struct HaneulTransactionBlockResponseQuery {
     /// If None, no filter will be applied
     pub filter: Option<TransactionFilter>,
     /// config which fields to include in the response, by default only digest is included
-    pub options: Option<HaneulTransactionResponseOptions>,
+    pub options: Option<HaneulTransactionBlockResponseOptions>,
 }
 
-impl HaneulTransactionResponseQuery {
+impl HaneulTransactionBlockResponseQuery {
     pub fn new(
         filter: Option<TransactionFilter>,
-        options: Option<HaneulTransactionResponseOptions>,
+        options: Option<HaneulTransactionBlockResponseOptions>,
     ) -> Self {
         Self { filter, options }
     }
@@ -94,7 +94,7 @@ impl HaneulTransactionResponseQuery {
     }
 }
 
-pub type TransactionsPage = Page<HaneulTransactionResponse, TransactionDigest>;
+pub type TransactionBlocksPage = Page<HaneulTransactionBlockResponse, TransactionDigest>;
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq, Default)]
 #[serde(
@@ -102,7 +102,7 @@ pub type TransactionsPage = Page<HaneulTransactionResponse, TransactionDigest>;
     rename = "TransactionResponseOptions",
     default
 )]
-pub struct HaneulTransactionResponseOptions {
+pub struct HaneulTransactionBlockResponseOptions {
     /// Whether to show transaction input data. Default to be False
     pub show_input: bool,
     /// Whether to show bcs-encoded transaction input data
@@ -117,7 +117,7 @@ pub struct HaneulTransactionResponseOptions {
     pub show_balance_changes: bool,
 }
 
-impl HaneulTransactionResponseOptions {
+impl HaneulTransactionBlockResponseOptions {
     pub fn new() -> Self {
         Self::default()
     }
@@ -197,11 +197,11 @@ impl HaneulTransactionResponseOptions {
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, Default)]
 #[serde(rename_all = "camelCase", rename = "TransactionResponse")]
-pub struct HaneulTransactionResponse {
+pub struct HaneulTransactionBlockResponse {
     pub digest: TransactionDigest,
     /// Transaction input data
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transaction: Option<HaneulTransaction>,
+    pub transaction: Option<HaneulTransactionBlock>,
     /// BCS encoded [SenderSignedData] that includes input object references
     /// returns empty array if `show_raw_transaction` is false
     #[serde_as(as = "Base64")]
@@ -209,9 +209,9 @@ pub struct HaneulTransactionResponse {
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub raw_transaction: Vec<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub effects: Option<HaneulTransactionEffects>,
+    pub effects: Option<HaneulTransactionBlockEffects>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub events: Option<HaneulTransactionEvents>,
+    pub events: Option<HaneulTransactionBlockEvents>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub object_changes: Option<Vec<ObjectChange>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -228,7 +228,7 @@ pub struct HaneulTransactionResponse {
     pub errors: Vec<String>,
 }
 
-impl HaneulTransactionResponse {
+impl HaneulTransactionBlockResponse {
     pub fn new(digest: TransactionDigest) -> Self {
         Self {
             digest,
@@ -242,7 +242,7 @@ impl HaneulTransactionResponse {
 }
 
 /// We are specifically ignoring events for now until events become more stable.
-impl PartialEq for HaneulTransactionResponse {
+impl PartialEq for HaneulTransactionBlockResponse {
     fn eq(&self, other: &Self) -> bool {
         self.transaction == other.transaction
             && self.effects == other.effects
@@ -254,7 +254,7 @@ impl PartialEq for HaneulTransactionResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 #[serde(rename = "TransactionKind", tag = "kind")]
-pub enum HaneulTransactionKind {
+pub enum HaneulTransactionBlockKind {
     /// A system transaction that will update epoch information on-chain.
     ChangeEpoch(HaneulChangeEpoch),
     /// A system transaction used for initializing the initial state of the chain.
@@ -264,11 +264,11 @@ pub enum HaneulTransactionKind {
     ConsensusCommitPrologue(HaneulConsensusCommitPrologue),
     /// A series of commands where the results of one command can be used in future
     /// commands
-    ProgrammableTransaction(HaneulProgrammableTransaction),
+    ProgrammableTransaction(HaneulProgrammableTransactionBlock),
     // .. more transaction types go here
 }
 
-impl Display for HaneulTransactionKind {
+impl Display for HaneulTransactionBlockKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         match &self {
@@ -300,7 +300,7 @@ impl Display for HaneulTransactionKind {
     }
 }
 
-impl HaneulTransactionKind {
+impl HaneulTransactionBlockKind {
     fn try_from(tx: TransactionKind, module_cache: &impl GetModule) -> Result<Self, anyhow::Error> {
         Ok(match tx {
             TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(HaneulChangeEpoch {
@@ -321,7 +321,7 @@ impl HaneulTransactionKind {
                 })
             }
             TransactionKind::ProgrammableTransaction(p) => Self::ProgrammableTransaction(
-                HaneulProgrammableTransaction::try_from(p, module_cache)?,
+                HaneulProgrammableTransactionBlock::try_from(p, module_cache)?,
             ),
         })
     }
@@ -353,18 +353,18 @@ pub struct HaneulChangeEpoch {
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
-#[enum_dispatch(HaneulTransactionEffectsAPI)]
+#[enum_dispatch(HaneulTransactionBlockEffectsAPI)]
 #[serde(
     rename = "TransactionEffects",
     rename_all = "camelCase",
     tag = "messageVersion"
 )]
-pub enum HaneulTransactionEffects {
-    V1(HaneulTransactionEffectsV1),
+pub enum HaneulTransactionBlockEffects {
+    V1(HaneulTransactionBlockEffectsV1),
 }
 
 #[enum_dispatch]
-pub trait HaneulTransactionEffectsAPI {
+pub trait HaneulTransactionBlockEffectsAPI {
     fn status(&self) -> &HaneulExecutionStatus;
     fn into_status(self) -> HaneulExecutionStatus;
     fn shared_objects(&self) -> &[HaneulObjectRef];
@@ -393,7 +393,7 @@ pub trait HaneulTransactionEffectsAPI {
     rename = "TransactionEffectsModifiedAtVersions",
     rename_all = "camelCase"
 )]
-pub struct HaneulTransactionEffectsModifiedAtVersions {
+pub struct HaneulTransactionBlockEffectsModifiedAtVersions {
     object_id: ObjectID,
     sequence_number: SequenceNumber,
 }
@@ -401,7 +401,7 @@ pub struct HaneulTransactionEffectsModifiedAtVersions {
 /// The response from processing a transaction or a certified transaction
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "TransactionEffectsV1", rename_all = "camelCase")]
-pub struct HaneulTransactionEffectsV1 {
+pub struct HaneulTransactionBlockEffectsV1 {
     /// The status of the execution
     pub status: HaneulExecutionStatus,
     /// The epoch when this transaction was executed.
@@ -410,7 +410,7 @@ pub struct HaneulTransactionEffectsV1 {
     /// The version that every modified (mutated or deleted) object had before it was modified by
     /// this transaction.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub modified_at_versions: Vec<HaneulTransactionEffectsModifiedAtVersions>,
+    pub modified_at_versions: Vec<HaneulTransactionBlockEffectsModifiedAtVersions>,
     /// The object references of the shared objects used in this transaction. Empty if no shared objects were used.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub shared_objects: Vec<HaneulObjectRef>,
@@ -448,7 +448,7 @@ pub struct HaneulTransactionEffectsV1 {
     pub dependencies: Vec<TransactionDigest>,
 }
 
-impl HaneulTransactionEffectsAPI for HaneulTransactionEffectsV1 {
+impl HaneulTransactionBlockEffectsAPI for HaneulTransactionBlockEffectsV1 {
     fn status(&self) -> &HaneulExecutionStatus {
         &self.status
     }
@@ -544,9 +544,9 @@ impl HaneulTransactionEffectsAPI for HaneulTransactionEffectsV1 {
     }
 }
 
-impl HaneulTransactionEffects {}
+impl HaneulTransactionBlockEffects {}
 
-impl TryFrom<TransactionEffects> for HaneulTransactionEffects {
+impl TryFrom<TransactionEffects> for HaneulTransactionBlockEffects {
     type Error = HaneulError;
 
     fn try_from(effect: TransactionEffects) -> Result<Self, Self::Error> {
@@ -555,36 +555,40 @@ impl TryFrom<TransactionEffects> for HaneulTransactionEffects {
             .expect("TransactionEffects defines message_version()");
 
         match message_version {
-            1 => Ok(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
-                status: effect.status().clone().into(),
-                executed_epoch: effect.executed_epoch().into(),
-                modified_at_versions: effect
-                    .modified_at_versions()
-                    .iter()
-                    .copied()
-                    .map(
-                        |(object_id, sequence_number)| HaneulTransactionEffectsModifiedAtVersions {
-                            object_id,
-                            sequence_number,
-                        },
-                    )
-                    .collect(),
-                gas_used: effect.gas_cost_summary().clone().into(),
-                shared_objects: to_haneul_object_ref(effect.shared_objects().to_vec()),
-                transaction_digest: *effect.transaction_digest(),
-                created: to_owned_ref(effect.created().to_vec()),
-                mutated: to_owned_ref(effect.mutated().to_vec()),
-                unwrapped: to_owned_ref(effect.unwrapped().to_vec()),
-                deleted: to_haneul_object_ref(effect.deleted().to_vec()),
-                unwrapped_then_deleted: to_haneul_object_ref(effect.unwrapped_then_deleted().to_vec()),
-                wrapped: to_haneul_object_ref(effect.wrapped().to_vec()),
-                gas_object: OwnedObjectRef {
-                    owner: effect.gas_object().1,
-                    reference: effect.gas_object().0.into(),
+            1 => Ok(HaneulTransactionBlockEffects::V1(
+                HaneulTransactionBlockEffectsV1 {
+                    status: effect.status().clone().into(),
+                    executed_epoch: effect.executed_epoch().into(),
+                    modified_at_versions: effect
+                        .modified_at_versions()
+                        .iter()
+                        .copied()
+                        .map(|(object_id, sequence_number)| {
+                            HaneulTransactionBlockEffectsModifiedAtVersions {
+                                object_id,
+                                sequence_number,
+                            }
+                        })
+                        .collect(),
+                    gas_used: effect.gas_cost_summary().clone().into(),
+                    shared_objects: to_haneul_object_ref(effect.shared_objects().to_vec()),
+                    transaction_digest: *effect.transaction_digest(),
+                    created: to_owned_ref(effect.created().to_vec()),
+                    mutated: to_owned_ref(effect.mutated().to_vec()),
+                    unwrapped: to_owned_ref(effect.unwrapped().to_vec()),
+                    deleted: to_haneul_object_ref(effect.deleted().to_vec()),
+                    unwrapped_then_deleted: to_haneul_object_ref(
+                        effect.unwrapped_then_deleted().to_vec(),
+                    ),
+                    wrapped: to_haneul_object_ref(effect.wrapped().to_vec()),
+                    gas_object: OwnedObjectRef {
+                        owner: effect.gas_object().1,
+                        reference: effect.gas_object().0.into(),
+                    },
+                    events_digest: effect.events_digest().copied(),
+                    dependencies: effect.dependencies().to_vec(),
                 },
-                events_digest: effect.events_digest().copied(),
-                dependencies: effect.dependencies().to_vec(),
-            })),
+            )),
 
             _ => Err(HaneulError::UnexpectedVersion(format!(
                 "Support for TransactionEffects version {} not implemented",
@@ -594,7 +598,7 @@ impl TryFrom<TransactionEffects> for HaneulTransactionEffects {
     }
 }
 
-impl Display for HaneulTransactionEffects {
+impl Display for HaneulTransactionBlockEffects {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "Status : {:?}", self.status())?;
@@ -647,19 +651,19 @@ impl Display for HaneulTransactionEffects {
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DryRunTransactionResponse {
-    pub effects: HaneulTransactionEffects,
-    pub events: HaneulTransactionEvents,
+    pub effects: HaneulTransactionBlockEffects,
+    pub events: HaneulTransactionBlockEvents,
     pub object_changes: Vec<ObjectChange>,
     pub balance_changes: Vec<BalanceChange>,
 }
 
 #[derive(Eq, PartialEq, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename = "TransactionEvents", transparent)]
-pub struct HaneulTransactionEvents {
+pub struct HaneulTransactionBlockEvents {
     pub data: Vec<HaneulEvent>,
 }
 
-impl HaneulTransactionEvents {
+impl HaneulTransactionBlockEvents {
     pub fn try_from(
         events: TransactionEvents,
         tx_digest: TransactionDigest,
@@ -686,9 +690,9 @@ pub struct DevInspectResults {
     /// Summary of effects that likely would be generated if the transaction is actually run.
     /// Note however, that not all dev-inspect transactions are actually usable as transactions so
     /// it might not be possible actually generate these effects from a normal transaction.
-    pub effects: HaneulTransactionEffects,
+    pub effects: HaneulTransactionBlockEffects,
     /// Events that likely would be generated if the transaction is actually run.
-    pub events: HaneulTransactionEvents,
+    pub events: HaneulTransactionBlockEvents,
     /// Execution results (including return values) from executing the transaction commands
     #[serde(skip_serializing_if = "Option::is_none")]
     pub results: Option<Vec<HaneulExecutionResult>>,
@@ -750,7 +754,7 @@ impl DevInspectResults {
         };
         Ok(Self {
             effects: effects.try_into()?,
-            events: HaneulTransactionEvents::try_from(events, tx_digest, None, resolver)?,
+            events: HaneulTransactionBlockEvents::try_from(events, tx_digest, None, resolver)?,
             results,
             error,
         })
@@ -758,7 +762,7 @@ impl DevInspectResults {
 }
 
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
-pub enum HaneulTransactionBuilderMode {
+pub enum HaneulTransactionBlockBuilderMode {
     /// Regular Haneul Transactions that are committed on chain
     Commit,
     /// Simulated transaction that allows calling any Move function with
@@ -859,33 +863,33 @@ pub struct HaneulGasData {
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
-#[enum_dispatch(HaneulTransactionDataAPI)]
+#[enum_dispatch(HaneulTransactionBlockDataAPI)]
 #[serde(
     rename = "TransactionData",
     rename_all = "camelCase",
     tag = "messageVersion"
 )]
-pub enum HaneulTransactionData {
-    V1(HaneulTransactionDataV1),
+pub enum HaneulTransactionBlockData {
+    V1(HaneulTransactionBlockDataV1),
 }
 
 #[enum_dispatch]
-pub trait HaneulTransactionDataAPI {
-    fn transaction(&self) -> &HaneulTransactionKind;
+pub trait HaneulTransactionBlockDataAPI {
+    fn transaction(&self) -> &HaneulTransactionBlockKind;
     fn sender(&self) -> &HaneulAddress;
     fn gas_data(&self) -> &HaneulGasData;
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "TransactionDataV1", rename_all = "camelCase")]
-pub struct HaneulTransactionDataV1 {
-    pub transaction: HaneulTransactionKind,
+pub struct HaneulTransactionBlockDataV1 {
+    pub transaction: HaneulTransactionBlockKind,
     pub sender: HaneulAddress,
     pub gas_data: HaneulGasData,
 }
 
-impl HaneulTransactionDataAPI for HaneulTransactionDataV1 {
-    fn transaction(&self) -> &HaneulTransactionKind {
+impl HaneulTransactionBlockDataAPI for HaneulTransactionBlockDataV1 {
+    fn transaction(&self) -> &HaneulTransactionBlockKind {
         &self.transaction
     }
     fn sender(&self) -> &HaneulAddress {
@@ -896,11 +900,11 @@ impl HaneulTransactionDataAPI for HaneulTransactionDataV1 {
     }
 }
 
-impl HaneulTransactionData {
+impl HaneulTransactionBlockData {
     pub fn move_calls(&self) -> Vec<&HaneulProgrammableMoveCall> {
         match self {
             Self::V1(data) => match &data.transaction {
-                HaneulTransactionKind::ProgrammableTransaction(pt) => pt
+                HaneulTransactionBlockKind::ProgrammableTransaction(pt) => pt
                     .commands
                     .iter()
                     .filter_map(|command| match command {
@@ -914,7 +918,7 @@ impl HaneulTransactionData {
     }
 }
 
-impl Display for HaneulTransactionData {
+impl Display for HaneulTransactionBlockData {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Self::V1(data) => {
@@ -933,7 +937,7 @@ impl Display for HaneulTransactionData {
     }
 }
 
-impl HaneulTransactionData {
+impl HaneulTransactionBlockData {
     pub fn try_from(
         data: TransactionData,
         module_cache: &impl GetModule,
@@ -952,9 +956,9 @@ impl HaneulTransactionData {
             price: data.gas_price(),
             budget: data.gas_budget(),
         };
-        let transaction = HaneulTransactionKind::try_from(data.into_kind(), module_cache)?;
+        let transaction = HaneulTransactionBlockKind::try_from(data.into_kind(), module_cache)?;
         match message_version {
-            1 => Ok(HaneulTransactionData::V1(HaneulTransactionDataV1 {
+            1 => Ok(HaneulTransactionBlockData::V1(HaneulTransactionBlockDataV1 {
                 transaction,
                 sender,
                 gas_data,
@@ -969,24 +973,27 @@ impl HaneulTransactionData {
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(rename = "Transaction", rename_all = "camelCase")]
-pub struct HaneulTransaction {
-    pub data: HaneulTransactionData,
+pub struct HaneulTransactionBlock {
+    pub data: HaneulTransactionBlockData,
     pub tx_signatures: Vec<GenericSignature>,
 }
 
-impl HaneulTransaction {
+impl HaneulTransactionBlock {
     pub fn try_from(
         data: SenderSignedData,
         module_cache: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
-            data: HaneulTransactionData::try_from(data.intent_message().value.clone(), module_cache)?,
+            data: HaneulTransactionBlockData::try_from(
+                data.intent_message().value.clone(),
+                module_cache,
+            )?,
             tx_signatures: data.tx_signatures().to_vec(),
         })
     }
 }
 
-impl Display for HaneulTransaction {
+impl Display for HaneulTransactionBlock {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut writer = String::new();
         writeln!(writer, "Transaction Signature: {:?}", self.tx_signatures)?;
@@ -1040,7 +1047,7 @@ pub enum HaneulInputObjectKind {
 /// A series of commands where the results of one command can be used in future
 /// commands
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
-pub struct HaneulProgrammableTransaction {
+pub struct HaneulProgrammableTransactionBlock {
     /// Input objects or primitive values
     pub inputs: Vec<HaneulCallArg>,
     /// The commands to be executed sequentially. A failure in any command will
@@ -1048,7 +1055,7 @@ pub struct HaneulProgrammableTransaction {
     pub commands: Vec<HaneulCommand>,
 }
 
-impl Display for HaneulProgrammableTransaction {
+impl Display for HaneulProgrammableTransactionBlock {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Self { inputs, commands } = self;
         writeln!(f, "Inputs: {inputs:?}")?;
@@ -1060,14 +1067,14 @@ impl Display for HaneulProgrammableTransaction {
     }
 }
 
-impl HaneulProgrammableTransaction {
+impl HaneulProgrammableTransactionBlock {
     fn try_from(
         value: ProgrammableTransaction,
         module_cache: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
         let ProgrammableTransaction { inputs, commands } = value;
         let input_types = Self::resolve_input_type(&inputs, &commands, module_cache);
-        Ok(HaneulProgrammableTransaction {
+        Ok(HaneulProgrammableTransactionBlock {
             inputs: inputs
                 .into_iter()
                 .zip(input_types)
@@ -1436,7 +1443,7 @@ pub struct MoveCallParams {
 #[serde_as]
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct TransactionBytes {
+pub struct TransactionBlockBytes {
     /// BCS serialized transaction data bytes without its type tag, as base-64 encoded string.
     pub tx_bytes: Base64,
     /// the gas objects to be used
@@ -1445,7 +1452,7 @@ pub struct TransactionBytes {
     pub input_objects: Vec<HaneulInputObjectKind>,
 }
 
-impl TransactionBytes {
+impl TransactionBlockBytes {
     pub fn from_data(data: TransactionData) -> Result<Self, anyhow::Error> {
         Ok(Self {
             tx_bytes: Base64::from_bytes(bcs::to_bytes(&data)?.as_slice()),

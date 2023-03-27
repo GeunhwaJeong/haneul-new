@@ -19,8 +19,8 @@ use haneul_json_rpc_types::{
     DryRunTransactionResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
-    HaneulTransactionEffectsAPI, HaneulTransactionResponse, HaneulTransactionResponseOptions,
-    HaneulTransactionResponseQuery, TransactionsPage,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
 };
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
@@ -123,8 +123,8 @@ impl ReadApi {
     pub async fn get_transaction_with_options(
         &self,
         digest: TransactionDigest,
-        options: HaneulTransactionResponseOptions,
-    ) -> HaneulRpcResult<HaneulTransactionResponse> {
+        options: HaneulTransactionBlockResponseOptions,
+    ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
         Ok(self
             .api
             .http
@@ -135,8 +135,8 @@ impl ReadApi {
     pub async fn multi_get_transactions_with_options(
         &self,
         digests: Vec<TransactionDigest>,
-        options: HaneulTransactionResponseOptions,
-    ) -> HaneulRpcResult<Vec<HaneulTransactionResponse>> {
+        options: HaneulTransactionBlockResponseOptions,
+    ) -> HaneulRpcResult<Vec<HaneulTransactionBlockResponse>> {
         Ok(self
             .api
             .http
@@ -150,11 +150,11 @@ impl ReadApi {
 
     pub async fn query_transaction_blocks(
         &self,
-        query: HaneulTransactionResponseQuery,
+        query: HaneulTransactionBlockResponseQuery,
         cursor: Option<TransactionDigest>,
         limit: Option<usize>,
         descending_order: bool,
-    ) -> HaneulRpcResult<TransactionsPage> {
+    ) -> HaneulRpcResult<TransactionBlocksPage> {
         Ok(self
             .api
             .http
@@ -181,10 +181,10 @@ impl ReadApi {
 
     pub fn get_transactions_stream(
         &self,
-        query: HaneulTransactionResponseQuery,
+        query: HaneulTransactionBlockResponseQuery,
         cursor: Option<TransactionDigest>,
         descending_order: bool,
-    ) -> impl Stream<Item = HaneulTransactionResponse> + '_ {
+    ) -> impl Stream<Item = HaneulTransactionBlockResponse> + '_ {
         stream::unfold(
             (vec![], cursor, true, query),
             move |(mut data, cursor, first, query)| async move {
@@ -441,12 +441,12 @@ impl QuorumDriver {
     pub async fn execute_transaction_block(
         &self,
         tx: VerifiedTransaction,
-        options: HaneulTransactionResponseOptions,
+        options: HaneulTransactionBlockResponseOptions,
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> HaneulRpcResult<HaneulTransactionResponse> {
+    ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
         let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
         let request_type = request_type.unwrap_or_else(|| options.default_execution_request_type());
-        let mut response: HaneulTransactionResponse = self
+        let mut response: HaneulTransactionBlockResponse = self
             .api
             .http
             .execute_transaction_block(
@@ -490,7 +490,7 @@ impl QuorumDriver {
             let resp = ReadApiClient::get_transaction_block(
                 &c.http,
                 tx_digest,
-                Some(HaneulTransactionResponseOptions::new()),
+                Some(HaneulTransactionBlockResponseOptions::new()),
             )
             .await;
             if let Err(err) = resp {

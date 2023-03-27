@@ -3,7 +3,7 @@
 
 import {
     type SignedTransaction,
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 import { filter, lastValueFrom, map, race, Subject, take } from 'rxjs';
@@ -44,7 +44,7 @@ class Transactions {
                   sign: HaneulSignTransactionSerialized;
               },
         connection: ContentScriptConnection
-    ): Promise<HaneulTransactionResponse | SignedTransaction> {
+    ): Promise<HaneulTransactionBlockResponse | SignedTransaction> {
         const { txResultError, txResult, txSigned } =
             await this.requestApproval(
                 tx ?? {

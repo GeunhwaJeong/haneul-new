@@ -15,8 +15,8 @@ use std::path::Path;
 use shared_crypto::intent::Intent;
 use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulTransactionEffectsAPI, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions,
+    HaneulObjectDataOptions, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::object::Owner;
@@ -232,7 +232,7 @@ impl SimpleFaucet {
         recipient: HaneulAddress,
         coin_id: ObjectID,
         tx_data: TransactionData,
-    ) -> Result<HaneulTransactionResponse, FaucetError> {
+    ) -> Result<HaneulTransactionBlockResponse, FaucetError> {
         let signature = self
             .wallet
             .config
@@ -370,7 +370,7 @@ impl SimpleFaucet {
         coin_id: ObjectID,
         recipient: HaneulAddress,
         uuid: Uuid,
-    ) -> HaneulTransactionResponse {
+    ) -> HaneulTransactionBlockResponse {
         let mut retry_delay = Duration::from_millis(500);
 
         loop {
@@ -400,7 +400,7 @@ impl SimpleFaucet {
         coin_id: ObjectID,
         recipient: HaneulAddress,
         uuid: Uuid,
-    ) -> Result<HaneulTransactionResponse, anyhow::Error> {
+    ) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
         self.metrics.current_executions_in_flight.inc();
         let _metrics_guard = scopeguard::guard(self.metrics.clone(), |metrics| {
             metrics.current_executions_in_flight.dec();
@@ -412,7 +412,7 @@ impl SimpleFaucet {
             .quorum_driver()
             .execute_transaction_block(
                 tx.clone(),
-                HaneulTransactionResponseOptions::new().with_effects(),
+                HaneulTransactionBlockResponseOptions::new().with_effects(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await
@@ -472,7 +472,7 @@ impl SimpleFaucet {
 
     async fn check_and_map_transfer_gas_result(
         &self,
-        res: HaneulTransactionResponse,
+        res: HaneulTransactionBlockResponse,
         number_of_coins: usize,
         recipient: HaneulAddress,
     ) -> Result<(TransactionDigest, Vec<ObjectID>), FaucetError> {

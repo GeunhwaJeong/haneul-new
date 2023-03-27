@@ -12,7 +12,7 @@ New entries added 03/20/23.
 
 ---
 
-**[Major breaking change]** - This release replaces the `haneul_getValidators` and `haneul_getHaneulSystemState` functions with a new `haneul_getLatestHaneulSystemState` function. The new function returns a flattened type that contains all information from the latest `HaneulSystemState`  object on-chain with type `HaneulSystemStateSummary`. It also contains a vector of type `HaneulValidatorSummary` that summarizes information from each validator, including: metadata, staking pool, and other data. The release also adds a `p2p_address` to each validator’s metadata. The value for the field is the address the validator used for p2p activities, such as state sync.
+**[Major breaking change]** - This release replaces the `haneul_getValidators` and `haneul_getHaneulSystemState` functions with a new `haneul_getLatestHaneulSystemState` function. The new function returns a flattened type that contains all information from the latest `HaneulSystemState` object on-chain with type `HaneulSystemStateSummary`. It also contains a vector of type `HaneulValidatorSummary` that summarizes information from each validator, including: metadata, staking pool, and other data. The release also adds a `p2p_address` to each validator’s metadata. The value for the field is the address the validator used for p2p activities, such as state sync.
 
 ---
 
@@ -20,7 +20,7 @@ New entries added 03/20/23.
 
 ---
 
-**[Major breaking change]** - The `haneul_getObject` endpoint now takes an additional configuration parameter of type `HaneulObjectDataOptions` to control which fields the endpoint retrieves. By default, the endpoint retrieves only object references unless the client request  explicitly specifies other data, such as `type`, `owner`, or `bcs`. To learn more, see [PR 8817](https://github.com/GeunhwaJeong/haneul/pull/8817)
+**[Major breaking change]** - The `haneul_getObject` endpoint now takes an additional configuration parameter of type `HaneulObjectDataOptions` to control which fields the endpoint retrieves. By default, the endpoint retrieves only object references unless the client request explicitly specifies other data, such as `type`, `owner`, or `bcs`. To learn more, see [PR 8817](https://github.com/GeunhwaJeong/haneul/pull/8817)
 
 ---
 
@@ -78,27 +78,29 @@ New entries added 03/20/23.
 
 **[Major API breaking changes]** - `GetTransaction` API refactoring
 
- * [RPC] `haneul_getTransaction` and `haneul_multiGetTransaction` now take in an additional optional parameter called `options` that specifies which fields to retrieve (such as  `transaction`, `effects`, `events`, etc). By default, these operations return only the transaction digest.
- * [TS SDK] Renamed `provider.getTransactionWithEffects` to `provider.getTransactionResponse`. The new method takes in an additional parameter, `HaneulTransactionResponseOptions`, to configure which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, this method returns only the transaction digest.
+- [RPC] `haneul_getTransaction` and `haneul_multiGetTransaction` now take in an additional optional parameter called `options` that specifies which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, these operations return only the transaction digest.
+- [TS SDK] Renamed `provider.getTransactionWithEffects` to `provider.getTransactionResponse`. The new method takes in an additional parameter, `HaneulTransactionBlockResponseOptions`, to configure which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, this method returns only the transaction digest.
 
 For more information, see [PR 8888](https://github.com/GeunhwaJeong/haneul/pull/8888).
 
 ---
 
 **[Major API breaking changes] haneul_executeTransaction refactoring**
- * Removed `haneul_executeTransactionSerializedSig` and `haneul_submitTransaction` operations.
- * The `haneul_executeTransaction` operation now takes a vector of signatures instead of a single signature to support Sponsored Transactions.
-    
+
+- Removed `haneul_executeTransactionSerializedSig` and `haneul_submitTransaction` operations.
+- The `haneul_executeTransaction` operation now takes a vector of signatures instead of a single signature to support Sponsored Transactions.
+
 To learn more, see [PR 9068](https://github.com/GeunhwaJeong/haneul/pull/9068).
 
 ---
 
 **[RPC API breaking change]** - Various changes in JSON-RPC governance API:
- * updated `haneul_getDelegatedStakes` to the new staking flow
- * grouped all `StakedHaneul` by staking pool to reduce duplicate validator info in the response
- * improve `ValidatorMetadata` JSON response to make it more human-readable, which affects `getHaneulSystemState` as well.
- * make `HaneulSystemState` JSON response `camelCased`
- * added `--epoch-duration-ms` option to Haneul genesis for configuring localnet epoch duration
+
+- updated `haneul_getDelegatedStakes` to the new staking flow
+- grouped all `StakedHaneul` by staking pool to reduce duplicate validator info in the response
+- improve `ValidatorMetadata` JSON response to make it more human-readable, which affects `getHaneulSystemState` as well.
+- make `HaneulSystemState` JSON response `camelCased`
+- added `--epoch-duration-ms` option to Haneul genesis for configuring localnet epoch duration
 
 For more information, see [PR 8848](https://github.com/GeunhwaJeong/haneul/pull/8848).
 
@@ -114,11 +116,11 @@ Added 03/20/23
 
 ---
 
-**[API breaking change]** - All functions that include *delegation* in their name are renamed to use *stake* instead. For example, `request_add_delegation` is now `request_add_stake`. See [PR 9059](https://github.com/GeunhwaJeong/haneul/pull/9059) for details.
+**[API breaking change]** - All functions that include _delegation_ in their name are renamed to use _stake_ instead. For example, `request_add_delegation` is now `request_add_stake`. See [PR 9059](https://github.com/GeunhwaJeong/haneul/pull/9059) for details.
 
 ---
 
-**[API breaking change]** - This release replaces `HaneulCertifiedTransaction` with `HaneulTransaction` in `HaneulTransactionResponse`. This is because validators can no longer guarantee to return a transaction certificate. This release also unifies `HaneulTransactionResponse` and `HaneulExecuteTransactionResponse` to simplify the API. See [PR 8369](https://github.com/GeunhwaJeong/haneul/pull/8369) for more information.
+**[API breaking change]** - This release replaces `HaneulCertifiedTransaction` with `HaneulTransactionBlock` in `HaneulTransactionBlockResponse`. This is because validators can no longer guarantee to return a transaction certificate. This release also unifies `HaneulTransactionBlockResponse` and `HaneulExecuteTransactionResponse` to simplify the API. See [PR 8369](https://github.com/GeunhwaJeong/haneul/pull/8369) for more information.
 
 ---
 
@@ -130,7 +132,7 @@ Added 03/20/23
 
 ---
 
-**[API breaking change]** - To reduce the size of Haneul Full node synchronization payloads, this release removes events from `TransactionEffect`. The events are still included in the `HaneulTransactionResponse` returned by `haneul_getTransaction` and `haneul_submitTransaction` endpoints. For more information, see [PR 7822](https://github.com/GeunhwaJeong/haneul/pull/7822).
+**[API breaking change]** - To reduce the size of Haneul Full node synchronization payloads, this release removes events from `TransactionEffect`. The events are still included in the `HaneulTransactionBlockResponse` returned by `haneul_getTransaction` and `haneul_submitTransaction` endpoints. For more information, see [PR 7822](https://github.com/GeunhwaJeong/haneul/pull/7822).
 
 ---
 

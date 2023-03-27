@@ -3,7 +3,7 @@
 
 import {
   SignedTransaction,
-  HaneulTransactionResponse,
+  HaneulTransactionBlockResponse,
   Transaction,
 } from "@haneullabs/haneul.js";
 import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
@@ -49,9 +49,8 @@ export function App() {
     null
   );
   const [signedTx, setSignedTx] = useState<SignedTransaction | null>(null);
-  const [executedTx, setExecutedTx] = useState<HaneulTransactionResponse | null>(
-    null
-  );
+  const [executedTx, setExecutedTx] =
+    useState<HaneulTransactionBlockResponse | null>(null);
 
   return (
     <div className="p-8">
@@ -101,7 +100,7 @@ export function App() {
                 try {
                   const signed = await signTransaction({
                     transaction: Transaction.from(
-                      sponsoredTx!.transactionBytes
+                      sponsoredTx!.transactionBlockBytes
                     ),
                   });
                   setSignedTx(signed);
@@ -123,8 +122,8 @@ export function App() {
               onClick={async () => {
                 setLoading(true);
                 try {
-                  const executed = await provider.executeTransaction({
-                    transaction: signedTx!.transactionBytes,
+                  const executed = await provider.executeTransactionBlock({
+                    transactionBlock: signedTx!.transactionBlockBytes,
                     signature: [signedTx!.signature, sponsoredTx!.signature],
                     options: {
                       showEffects: true,

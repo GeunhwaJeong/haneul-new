@@ -14,9 +14,9 @@ import {
   HaneulMoveNormalizedModule,
   HaneulMoveNormalizedModules,
   HaneulMoveNormalizedStruct,
-  HaneulTransactionResponse,
+  HaneulTransactionBlockResponse,
   TransactionDigest,
-  HaneulTransactionResponseQuery,
+  HaneulTransactionBlockResponseQuery,
   RpcApiVersion,
   parseVersionFromString,
   PaginatedEvents,
@@ -41,7 +41,7 @@ import {
   DryRunTransactionResponse,
   HaneulObjectDataOptions,
   HaneulSystemStateSummary,
-  HaneulTransactionResponseOptions,
+  HaneulTransactionBlockResponseOptions,
   HaneulEvent,
   PaginatedObjectsResponse,
   HaneulObjectResponseQuery,
@@ -455,7 +455,9 @@ export class JsonRpcProvider {
    * Get transaction blocks for a given query criteria
    */
   async queryTransactionBlocks(
-    input: HaneulTransactionResponseQuery & PaginationArguments & OrderArguments,
+    input: HaneulTransactionBlockResponseQuery &
+      PaginationArguments &
+      OrderArguments,
   ): Promise<PaginatedTransactionResponse> {
     return await this.client.requestWithType(
       'haneulx_queryTransactions',
@@ -463,7 +465,7 @@ export class JsonRpcProvider {
         {
           filter: input.filter,
           options: input.options,
-        } as HaneulTransactionResponseQuery,
+        } as HaneulTransactionBlockResponseQuery,
         input.cursor,
         input.limit,
         (input.order || 'descending') === 'descending',
@@ -475,23 +477,23 @@ export class JsonRpcProvider {
 
   async getTransactionBlock(input: {
     digest: TransactionDigest;
-    options?: HaneulTransactionResponseOptions;
-  }): Promise<HaneulTransactionResponse> {
+    options?: HaneulTransactionBlockResponseOptions;
+  }): Promise<HaneulTransactionBlockResponse> {
     if (!isValidTransactionDigest(input.digest)) {
       throw new Error('Invalid Transaction digest');
     }
     return await this.client.requestWithType(
       'haneul_getTransaction',
       [input.digest, input.options],
-      HaneulTransactionResponse,
+      HaneulTransactionBlockResponse,
       this.options.skipDataValidation,
     );
   }
 
   async multiGetTransactionBlocks(input: {
     digests: TransactionDigest[];
-    options?: HaneulTransactionResponseOptions;
-  }): Promise<HaneulTransactionResponse[]> {
+    options?: HaneulTransactionBlockResponseOptions;
+  }): Promise<HaneulTransactionBlockResponse[]> {
     input.digests.forEach((d) => {
       if (!isValidTransactionDigest(d)) {
         throw new Error(`Invalid Transaction digest ${d}`);
@@ -506,7 +508,7 @@ export class JsonRpcProvider {
     return await this.client.requestWithType(
       'haneul_multiGetTransactions',
       [input.digests, input.options],
-      array(HaneulTransactionResponse),
+      array(HaneulTransactionBlockResponse),
       this.options.skipDataValidation,
     );
   }
@@ -514,9 +516,9 @@ export class JsonRpcProvider {
   async executeTransactionBlock(input: {
     transactionBlock: Uint8Array | string;
     signature: SerializedSignature | SerializedSignature[];
-    options?: HaneulTransactionResponseOptions;
+    options?: HaneulTransactionBlockResponseOptions;
     requestType?: ExecuteTransactionRequestType;
-  }): Promise<HaneulTransactionResponse> {
+  }): Promise<HaneulTransactionBlockResponse> {
     return await this.client.requestWithType(
       'haneul_executeTransaction',
       [
@@ -527,7 +529,7 @@ export class JsonRpcProvider {
         input.options,
         input.requestType,
       ],
-      HaneulTransactionResponse,
+      HaneulTransactionBlockResponse,
       this.options.skipDataValidation,
     );
   }

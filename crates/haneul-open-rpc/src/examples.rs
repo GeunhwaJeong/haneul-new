@@ -22,9 +22,10 @@ use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, EventPage, MoveCallParams, ObjectChange, OwnedObjectRef,
     RPCTransactionRequestParams, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGasCostSummary,
     HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulParsedData, HaneulPastObjectResponse, HaneulTransaction,
-    HaneulTransactionData, HaneulTransactionEffects, HaneulTransactionEffectsV1, HaneulTransactionResponse,
-    HaneulTransactionResponseOptions, HaneulTransactionResponseQuery, TransactionBytes, TransactionsPage,
+    HaneulObjectResponseQuery, HaneulParsedData, HaneulPastObjectResponse, HaneulTransactionBlock,
+    HaneulTransactionBlockData, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, TransactionBlockBytes, TransactionBlocksPage,
     TransferObjectParams,
 };
 use haneul_open_rpc::ExamplePairing;
@@ -154,7 +155,7 @@ impl RpcExampleProvider {
             1000,
         );
 
-        let result = TransactionBytes::from_data(data).unwrap();
+        let result = TransactionBlockBytes::from_data(data).unwrap();
 
         Examples::new(
             "haneul_batchTransaction",
@@ -174,7 +175,7 @@ impl RpcExampleProvider {
 
     fn execute_transaction_example(&mut self) -> Examples {
         let (data, signatures, _, _, result) = self.get_transfer_data_response();
-        let tx_bytes = TransactionBytes::from_data(data).unwrap();
+        let tx_bytes = TransactionBlockBytes::from_data(data).unwrap();
 
         Examples::new(
             "haneul_executeTransaction",
@@ -191,7 +192,7 @@ impl RpcExampleProvider {
                     ),
                     (
                         "options",
-                        json!(HaneulTransactionResponseOptions::full_content()),
+                        json!(HaneulTransactionBlockResponseOptions::full_content()),
                     ),
                     (
                         "request_type",
@@ -373,7 +374,7 @@ impl RpcExampleProvider {
                     ("digest", json!(result.digest)),
                     (
                         "options",
-                        json!(HaneulTransactionResponseOptions::new()
+                        json!(HaneulTransactionBlockResponseOptions::new()
                             .with_input()
                             .with_effects()
                             .with_events()),
@@ -389,9 +390,12 @@ impl RpcExampleProvider {
         let has_next_page = data.len() > (9 - 5);
         data.truncate(9 - 5);
         let next_cursor = data.last().cloned();
-        let data = data.into_iter().map(HaneulTransactionResponse::new).collect();
+        let data = data
+            .into_iter()
+            .map(HaneulTransactionBlockResponse::new)
+            .collect();
 
-        let result = TransactionsPage {
+        let result = TransactionBlocksPage {
             data,
             next_cursor,
             has_next_page,
@@ -403,7 +407,7 @@ impl RpcExampleProvider {
                 vec![
                     (
                         "query",
-                        json!(HaneulTransactionResponseQuery {
+                        json!(HaneulTransactionBlockResponseQuery {
                             filter: Some(TransactionFilter::InputObject(ObjectID::new(
                                 self.rng.gen()
                             ))),
@@ -433,7 +437,7 @@ impl RpcExampleProvider {
         Vec<GenericSignature>,
         HaneulAddress,
         ObjectID,
-        HaneulTransactionResponse,
+        HaneulTransactionBlockResponse,
     ) {
         let (signer, kp): (_, AccountKeyPair) = get_key_pair_from_rng(&mut self.rng);
         let recipient = HaneulAddress::from(ObjectID::new(self.rng.gen()));
@@ -476,48 +480,50 @@ impl RpcExampleProvider {
                 Ok(None)
             }
         }
-        let result = HaneulTransactionResponse {
+        let result = HaneulTransactionBlockResponse {
             digest: *tx_digest,
-            effects: Some(HaneulTransactionEffects::V1(HaneulTransactionEffectsV1 {
-                status: HaneulExecutionStatus::Success,
-                executed_epoch: 0.into(),
-                modified_at_versions: vec![],
-                gas_used: HaneulGasCostSummary {
-                    computation_cost: 100.into(),
-                    storage_cost: 100.into(),
-                    storage_rebate: 10.into(),
-                    non_refundable_storage_fee: 0.into(),
-                },
-                shared_objects: vec![],
-                transaction_digest: TransactionDigest::new(self.rng.gen()),
-                created: vec![],
-                mutated: vec![
-                    OwnedObjectRef {
-                        owner: Owner::AddressOwner(signer),
-                        reference: gas_ref.into(),
+            effects: Some(HaneulTransactionBlockEffects::V1(
+                HaneulTransactionBlockEffectsV1 {
+                    status: HaneulExecutionStatus::Success,
+                    executed_epoch: 0.into(),
+                    modified_at_versions: vec![],
+                    gas_used: HaneulGasCostSummary {
+                        computation_cost: 100.into(),
+                        storage_cost: 100.into(),
+                        storage_rebate: 10.into(),
+                        non_refundable_storage_fee: 0.into(),
                     },
-                    OwnedObjectRef {
-                        owner: Owner::AddressOwner(recipient),
-                        reference: object_ref.into(),
+                    shared_objects: vec![],
+                    transaction_digest: TransactionDigest::new(self.rng.gen()),
+                    created: vec![],
+                    mutated: vec![
+                        OwnedObjectRef {
+                            owner: Owner::AddressOwner(signer),
+                            reference: gas_ref.into(),
+                        },
+                        OwnedObjectRef {
+                            owner: Owner::AddressOwner(recipient),
+                            reference: object_ref.into(),
+                        },
+                    ],
+                    unwrapped: vec![],
+                    deleted: vec![],
+                    unwrapped_then_deleted: vec![],
+                    wrapped: vec![],
+                    gas_object: OwnedObjectRef {
+                        owner: Owner::ObjectOwner(signer),
+                        reference: HaneulObjectRef::from(gas_ref),
                     },
-                ],
-                unwrapped: vec![],
-                deleted: vec![],
-                unwrapped_then_deleted: vec![],
-                wrapped: vec![],
-                gas_object: OwnedObjectRef {
-                    owner: Owner::ObjectOwner(signer),
-                    reference: HaneulObjectRef::from(gas_ref),
+                    events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
+                    dependencies: vec![],
                 },
-                events_digest: Some(TransactionEventsDigest::new(self.rng.gen())),
-                dependencies: vec![],
-            })),
+            )),
             events: None,
             object_changes: Some(vec![object_change]),
             balance_changes: None,
             timestamp_ms: None,
-            transaction: Some(HaneulTransaction {
-                data: HaneulTransactionData::try_from(data1, &&mut NoOpsModuleResolver).unwrap(),
+            transaction: Some(HaneulTransactionBlock {
+                data: HaneulTransactionBlockData::try_from(data1, &&mut NoOpsModuleResolver).unwrap(),
                 tx_signatures: signatures.clone(),
             }),
             raw_transaction,

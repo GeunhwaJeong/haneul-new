@@ -15,7 +15,7 @@ use serde_json::Value;
 use strum_macros::EnumIter;
 use strum_macros::EnumString;
 
-use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionKind};
+use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockKind};
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
@@ -411,15 +411,15 @@ pub enum OperationType {
     ProgrammableTransaction,
 }
 
-impl From<&HaneulTransactionKind> for OperationType {
-    fn from(tx: &HaneulTransactionKind) -> Self {
+impl From<&HaneulTransactionBlockKind> for OperationType {
+    fn from(tx: &HaneulTransactionBlockKind) -> Self {
         match tx {
-            HaneulTransactionKind::ChangeEpoch(_) => OperationType::EpochChange,
-            HaneulTransactionKind::Genesis(_) => OperationType::Genesis,
-            HaneulTransactionKind::ConsensusCommitPrologue(_) => {
+            HaneulTransactionBlockKind::ChangeEpoch(_) => OperationType::EpochChange,
+            HaneulTransactionBlockKind::Genesis(_) => OperationType::Genesis,
+            HaneulTransactionBlockKind::ConsensusCommitPrologue(_) => {
                 OperationType::ConsensusCommitPrologue
             }
-            HaneulTransactionKind::ProgrammableTransaction(_) => {
+            HaneulTransactionBlockKind::ProgrammableTransaction(_) => {
                 OperationType::ProgrammableTransaction
             }
         }

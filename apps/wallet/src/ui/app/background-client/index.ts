@@ -26,7 +26,7 @@ import { setPermissions } from '_redux/slices/permissions';
 import { setTransactionRequests } from '_redux/slices/transaction-requests';
 import { type SerializedLedgerAccount } from '_src/background/keyring/LedgerAccount';
 
-import type { HaneulAddress, HaneulTransactionResponse } from '@haneullabs/haneul.js';
+import type { HaneulAddress, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import type { Message } from '_messages';
 import type { KeyringPayload } from '_payloads/keyring';
 import type {
@@ -98,7 +98,7 @@ export class BackgroundClient {
     public sendTransactionRequestResponse(
         txID: string,
         approved: boolean,
-        txResult?: HaneulTransactionResponse | SignedMessage,
+        txResult?: HaneulTransactionBlockResponse | SignedMessage,
         txResultError?: string,
         txSigned?: SignedTransaction
     ) {

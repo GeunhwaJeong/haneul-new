@@ -28,7 +28,7 @@ use haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulTransactionEffects, HaneulTransactionEffectsAPI,
+    HaneulObjectResponseQuery, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_macros::sim_test;
@@ -977,7 +977,7 @@ async fn test_package_upgrade_command() -> Result<(), anyhow::Error> {
         unreachable!("Invalid response");
     };
 
-    let HaneulTransactionEffects::V1(effects) = response.effects.unwrap();
+    let HaneulTransactionBlockEffects::V1(effects) = response.effects.unwrap();
 
     assert!(effects.status.is_ok());
     let package = effects
@@ -1045,7 +1045,7 @@ async fn test_package_upgrade_command() -> Result<(), anyhow::Error> {
     let HaneulClientCommandResult::Upgrade(response) = resp else {
         unreachable!("Invalid upgrade response");
     };
-    let HaneulTransactionEffects::V1(effects) = response.effects.unwrap();
+    let HaneulTransactionBlockEffects::V1(effects) = response.effects.unwrap();
 
     assert!(effects.status.is_ok());
 

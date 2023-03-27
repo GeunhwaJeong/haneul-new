@@ -7,7 +7,7 @@ use tracing::{error, info, warn};
 
 use haneul_indexer::new_rpc_client;
 use haneul_json_rpc_types::{
-    BigInt, CheckpointId, ObjectChange, HaneulObjectDataOptions, HaneulTransactionResponseOptions,
+    BigInt, CheckpointId, ObjectChange, HaneulObjectDataOptions, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
@@ -87,7 +87,7 @@ pub async fn check_transactions(
     tx_vec: Vec<TransactionDigest>,
 ) -> Result<(), anyhow::Error> {
     for digest in tx_vec {
-        let fetch_options = HaneulTransactionResponseOptions::full_content();
+        let fetch_options = HaneulTransactionBlockResponseOptions::full_content();
         let fn_haneul_tx_response = fn_client
             .read_api()
             .get_transaction_with_options(digest, fetch_options.clone())

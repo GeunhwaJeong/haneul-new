@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use jsonrpsee::rpc_params;
 use tracing::info;
 
-use haneul_json_rpc_types::HaneulTransactionResponse;
+use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
@@ -68,7 +68,7 @@ impl TestCaseImpl for NativeTransferTest {
 impl NativeTransferTest {
     async fn examine_response(
         ctx: &TestContext,
-        response: &mut HaneulTransactionResponse,
+        response: &mut HaneulTransactionBlockResponse,
         signer: HaneulAddress,
         recipient: HaneulAddress,
         obj_to_transfer_id: ObjectID,

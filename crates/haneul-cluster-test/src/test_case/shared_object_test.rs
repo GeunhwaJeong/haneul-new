@@ -4,7 +4,7 @@
 use crate::{helper::ObjectChecker, TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use haneul::client_commands::WalletContext;
-use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionEffectsAPI};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_types::object::Owner;
 use test_utils::transaction::{increment_counter, publish_basics_package_and_make_counter};
 use tracing::info;

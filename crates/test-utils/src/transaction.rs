@@ -15,8 +15,8 @@ pub use haneul_core::test_utils::{
     compile_basics_package, compile_nfts_package, wait_for_all_txes, wait_for_tx,
 };
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulTransactionDataAPI, HaneulTransactionEffectsAPI,
-    HaneulTransactionResponse, HaneulTransactionResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulTransactionBlockDataAPI,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
@@ -139,7 +139,7 @@ pub async fn publish_package_with_wallet(
         .quorum_driver()
         .execute_transaction_block(
             transaction,
-            HaneulTransactionResponseOptions::new().with_effects(),
+            HaneulTransactionBlockResponseOptions::new().with_effects(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -168,7 +168,7 @@ pub async fn submit_move_transaction(
     arguments: Vec<HaneulJsonValue>,
     sender: HaneulAddress,
     gas_object: Option<ObjectID>,
-) -> HaneulTransactionResponse {
+) -> HaneulTransactionBlockResponse {
     debug!(?package_id, ?arguments, "move_transaction");
     let client = context.get_client().await.unwrap();
     let data = client
@@ -202,7 +202,7 @@ pub async fn submit_move_transaction(
         .quorum_driver()
         .execute_transaction_block(
             tx,
-            HaneulTransactionResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -250,7 +250,7 @@ pub async fn increment_counter(
     gas_object: Option<ObjectID>,
     package_id: ObjectID,
     counter_id: ObjectID,
-) -> HaneulTransactionResponse {
+) -> HaneulTransactionBlockResponse {
     submit_move_transaction(
         context,
         "counter",
@@ -444,7 +444,7 @@ pub async fn delete_devnet_nft(
     sender: &HaneulAddress,
     nfts_package: ObjectID,
     nft_to_delete: ObjectRef,
-) -> HaneulTransactionResponse {
+) -> HaneulTransactionBlockResponse {
     let gas = get_gas_object_with_wallet_context(context, sender)
         .await
         .unwrap_or_else(|| panic!("Expect {sender} to have at least one gas object"));
@@ -474,7 +474,7 @@ pub async fn delete_devnet_nft(
         .quorum_driver()
         .execute_transaction_block(
             tx,
-            HaneulTransactionResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await

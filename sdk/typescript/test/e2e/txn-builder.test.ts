@@ -9,7 +9,7 @@ import {
   getTransactionDigest,
   ObjectId,
   RawSigner,
-  HaneulTransactionResponse,
+  HaneulTransactionBlockResponse,
   HANEUL_SYSTEM_STATE_OBJECT_ID,
   TransactionBlock,
   HaneulObjectData,
@@ -27,7 +27,7 @@ import {
 describe('Transaction Builders', () => {
   let toolbox: TestToolbox;
   let packageId: ObjectId;
-  let publishTxn: HaneulTransactionResponse;
+  let publishTxn: HaneulTransactionBlockResponse;
   let sharedObjectId: ObjectId;
 
   beforeAll(async () => {

@@ -13,7 +13,7 @@ import {
     getTransactionSender,
     type ProgrammableTransaction,
     HANEUL_TYPE_ARG,
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import clsx from 'clsx';
 import { useMemo, useState } from 'react';
@@ -49,7 +49,7 @@ import { ReactComponent as ChevronDownIcon } from '~/ui/icons/chevron_down.svg';
 
 const MAX_RECIPIENTS_PER_PAGE = 10;
 
-function generateMutatedCreated(tx: HaneulTransactionResponse) {
+function generateMutatedCreated(tx: HaneulTransactionBlockResponse) {
     return [
         ...(tx.effects!.mutated?.length
             ? [
@@ -117,7 +117,7 @@ function GasAmount({
 export function TransactionView({
     transaction,
 }: {
-    transaction: HaneulTransactionResponse;
+    transaction: HaneulTransactionBlockResponse;
 }) {
     const sender = getTransactionSender(transaction)!;
     const gasUsed = transaction?.effects!.gasUsed;

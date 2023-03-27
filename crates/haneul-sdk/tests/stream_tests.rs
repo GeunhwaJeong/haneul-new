@@ -17,7 +17,7 @@ use test_utils::network::TestClusterBuilder;
 //     let client = HaneulClientBuilder::default().build(rpc_url).await?;
 //     let txs = client
 //         .read_api()
-//         .get_transactions_stream(HaneulTransactionResponseQuery::default(), None, true)
+//         .get_transactions_stream(HaneulTransactionBlockResponseQuery::default(), None, true)
 //         .collect::<Vec<_>>()
 //         .await;
 
@@ -36,7 +36,7 @@ use test_utils::network::TestClusterBuilder;
 
 //     let txs = client
 //         .read_api()
-//         .get_transactions_stream(HaneulTransactionResponseQuery::default(), None, true)
+//         .get_transactions_stream(HaneulTransactionBlockResponseQuery::default(), None, true)
 //         .collect::<Vec<_>>()
 //         .await;
 

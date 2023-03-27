@@ -9,7 +9,7 @@ import {
     getTransactionSignature,
     normalizeHaneulAddress,
     type HaneulAddress,
-    type HaneulTransactionResponse,
+    type HaneulTransactionBlockResponse,
     type SignaturePubkeyPair,
 } from '@haneullabs/haneul.js';
 
@@ -65,7 +65,7 @@ function getSignatureFromAddress(
 }
 
 interface Props {
-    transaction: HaneulTransactionResponse;
+    transaction: HaneulTransactionBlockResponse;
 }
 
 export function Signatures({ transaction }: Props) {

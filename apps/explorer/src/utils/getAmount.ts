@@ -4,9 +4,9 @@
 import { getTransactionKind, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 
 import type {
-    HaneulTransactionKind,
+    HaneulTransactionBlockKind,
     TransactionEffects,
-    HaneulTransactionResponse,
+    HaneulTransactionBlockResponse,
     TransactionEvents,
 } from '@haneullabs/haneul.js';
 
@@ -35,7 +35,7 @@ type FormattedBalance = {
 
 // For TransferObject, TransferHaneul, Pay, PayHaneul, transactions get the amount from the transfer data
 export function getTransfersAmount(
-    txnData: HaneulTransactionKind,
+    txnData: HaneulTransactionBlockKind,
     txnEffect?: TransactionEffects,
     events?: TransactionEvents
 ): FormattedBalance[] | null {
@@ -90,7 +90,7 @@ export function getAmount({
     txnData,
     haneulCoinOnly = false,
 }: {
-    txnData: HaneulTransactionResponse;
+    txnData: HaneulTransactionBlockResponse;
     haneulCoinOnly?: boolean;
 }) {
     const { effects } = txnData;
