@@ -752,17 +752,11 @@ impl ToFromBytes for Signature {
         match bytes.first() {
             Some(x) => {
                 if x == &Ed25519HaneulSignature::SCHEME.flag() {
-                    Ok(<Ed25519HaneulSignature as ToFromBytes>::from_bytes(bytes)
-                        .map_err(|_| signature::Error::new())?
-                        .into())
+                    Ok(<Ed25519HaneulSignature as ToFromBytes>::from_bytes(bytes)?.into())
                 } else if x == &Secp256k1HaneulSignature::SCHEME.flag() {
-                    Ok(<Secp256k1HaneulSignature as ToFromBytes>::from_bytes(bytes)
-                        .map_err(|_| signature::Error::new())?
-                        .into())
+                    Ok(<Secp256k1HaneulSignature as ToFromBytes>::from_bytes(bytes)?.into())
                 } else if x == &Secp256r1HaneulSignature::SCHEME.flag() {
-                    Ok(<Secp256r1HaneulSignature as ToFromBytes>::from_bytes(bytes)
-                        .map_err(|_| signature::Error::new())?
-                        .into())
+                    Ok(<Secp256r1HaneulSignature as ToFromBytes>::from_bytes(bytes)?.into())
                 } else {
                     Err(FastCryptoError::InvalidInput)
                 }
