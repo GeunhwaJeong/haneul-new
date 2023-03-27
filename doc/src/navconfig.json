@@ -114,7 +114,7 @@
 				"fileName": "build/install"
 			},
 			{
-				"label": "Connect to Haneul Devnet",
+				"label": "Connect to a Haneul Network",
 				"fileName": "build/devnet"
 			},
 			{
