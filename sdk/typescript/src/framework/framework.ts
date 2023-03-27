@@ -24,6 +24,8 @@ export const OBJECT_MODULE_NAME = 'object';
 export const UID_STRUCT_NAME = 'UID';
 export const ID_STRUCT_NAME = 'ID';
 export const HANEUL_TYPE_ARG = `${HANEUL_FRAMEWORK_ADDRESS}::haneul::HANEUL`;
+export const VALIDATORS_EVENTS_QUERY =
+  '0x3::validator_set::ValidatorEpochInfoEvent';
 
 export const HANEUL_CLOCK_OBJECT_ID = normalizeHaneulObjectId('0x6');
 
