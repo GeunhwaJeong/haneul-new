@@ -1,7 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type CoinStruct, HANEUL_TYPE_ARG, Transaction } from '@haneullabs/haneul.js';
+import {
+    type CoinStruct,
+    HANEUL_TYPE_ARG,
+    TransactionBlock,
+} from '@haneullabs/haneul.js';
 
 import { parseAmount } from '_src/ui/app/helpers';
 
@@ -22,7 +26,7 @@ export function createTokenTransferTransaction({
     coinDecimals,
     isPayAllHaneul,
 }: Options) {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
 
     if (isPayAllHaneul && coinType === HANEUL_TYPE_ARG) {
         tx.transferObjects([tx.gas], tx.pure(to));

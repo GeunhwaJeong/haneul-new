@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCoinDecimals } from '@haneullabs/core';
-import { type Transaction } from '@haneullabs/haneul.js';
+import { type TransactionBlock } from '@haneullabs/haneul.js';
 
 import { Text } from '_app/shared/text';
 import { TxnAddress } from '_components/receipt-card/TxnAddress';
@@ -17,7 +17,7 @@ export type PreviewTransferProps = {
     to: string;
     amount: string;
     approximation?: boolean;
-    transaction: Transaction | null;
+    transaction: TransactionBlock | null;
 };
 
 export function PreviewTransfer({

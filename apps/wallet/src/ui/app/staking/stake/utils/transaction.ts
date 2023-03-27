@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HANEUL_SYSTEM_STATE_OBJECT_ID, Transaction } from '@haneullabs/haneul.js';
+import { HANEUL_SYSTEM_STATE_OBJECT_ID, TransactionBlock } from '@haneullabs/haneul.js';
 
 export function createStakeTransaction(amount: bigint, validator: string) {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
     const stakeCoin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
     tx.moveCall({
         target: '0x3::haneul_system::request_add_stake',
@@ -18,7 +18,7 @@ export function createStakeTransaction(amount: bigint, validator: string) {
 }
 
 export function createUnstakeTransaction(stakedHaneulId: string) {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
     tx.moveCall({
         target: '0x3::haneul_system::request_withdraw_stake',
         arguments: [

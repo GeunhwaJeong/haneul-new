@@ -4,7 +4,7 @@
 import {
     formatAddress,
     type HaneulAddress,
-    type Transaction,
+    type TransactionBlock,
 } from '@haneullabs/haneul.js';
 
 import { DescriptionItem, DescriptionList } from './DescriptionList';
@@ -14,7 +14,7 @@ import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 
 interface Props {
     sender?: HaneulAddress;
-    transaction: Transaction;
+    transaction: TransactionBlock;
 }
 
 export function GasFees({ sender, transaction }: Props) {

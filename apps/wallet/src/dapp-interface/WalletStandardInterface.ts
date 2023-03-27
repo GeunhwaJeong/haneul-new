@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress, toB64, Transaction } from '@haneullabs/haneul.js';
+import { type HaneulAddress, toB64, TransactionBlock } from '@haneullabs/haneul.js';
 import {
     HANEUL_CHAINS,
     ReadonlyWalletAccount,
@@ -225,7 +225,7 @@ export class HaneulWallet implements Wallet {
     };
 
     #signTransaction: HaneulSignTransactionMethod = async (input) => {
-        if (!Transaction.is(input.transaction)) {
+        if (!TransactionBlock.is(input.transactionBlock)) {
             throw new Error(
                 'Unexpect transaction format found. Ensure that you are using the `Transaction` class.'
             );
@@ -242,7 +242,7 @@ export class HaneulWallet implements Wallet {
                         input.account?.address ||
                         this.#accounts[0]?.address ||
                         '',
-                    transaction: input.transaction.serialize(),
+                    transaction: input.transactionBlock.serialize(),
                 },
             }),
             (response) => response.result
@@ -252,7 +252,7 @@ export class HaneulWallet implements Wallet {
     #signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (
         input
     ) => {
-        if (!Transaction.is(input.transaction)) {
+        if (!TransactionBlock.is(input.transactionBlock)) {
             throw new Error(
                 'Unexpect transaction format found. Ensure that you are using the `Transaction` class.'
             );
@@ -263,7 +263,7 @@ export class HaneulWallet implements Wallet {
                 type: 'execute-transaction-request',
                 transaction: {
                     type: 'transaction',
-                    data: input.transaction.serialize(),
+                    data: input.transactionBlock.serialize(),
                     options: input.options,
                     // account might be undefined if previous version of adapters is used
                     // in that case use the first account address

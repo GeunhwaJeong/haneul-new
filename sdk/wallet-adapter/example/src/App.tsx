@@ -3,10 +3,10 @@
 
 import "./App.css";
 import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
-import { Transaction } from "@haneullabs/haneul.js";
+import { TransactionBlock } from "@haneullabs/haneul.js";
 import { useEffect } from "react";
 
-const transaction = new Transaction();
+const transaction = new TransactionBlock();
 transaction.moveCall({
   target: `0x2::devnet_nft::mint`,
   arguments: [

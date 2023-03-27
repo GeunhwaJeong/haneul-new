@@ -131,12 +131,12 @@ function StakingCard() {
                 name: 'stake',
             });
             try {
-                const transaction = createStakeTransaction(
+                const transactionBlock = createStakeTransaction(
                     amount,
                     validatorAddress
                 );
                 return await signer.signAndExecuteTransaction({
-                    transaction,
+                    transactionBlock,
                     options: {
                         showInput: true,
                         showEffects: true,
@@ -161,9 +161,9 @@ function StakingCard() {
                 name: 'stake',
             });
             try {
-                const transaction = createUnstakeTransaction(stakedHaneulId);
+                const transactionBlock = createUnstakeTransaction(stakedHaneulId);
                 return await signer.signAndExecuteTransaction({
-                    transaction,
+                    transactionBlock,
                     options: {
                         showInput: true,
                         showEffects: true,

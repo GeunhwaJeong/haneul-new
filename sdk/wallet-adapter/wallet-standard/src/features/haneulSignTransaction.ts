@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SignedTransaction, Transaction } from "@haneullabs/haneul.js";
+import type { SignedTransaction, TransactionBlock } from "@haneullabs/haneul.js";
 import type { IdentifierString, WalletAccount } from "@wallet-standard/core";
 
 /** The latest API version of the signTransaction API. */
@@ -26,7 +26,7 @@ export type HaneulSignTransactionMethod = (
 
 /** Input for signing transactions. */
 export interface HaneulSignTransactionInput {
-  transaction: Transaction;
+  transactionBlock: TransactionBlock;
   account: WalletAccount;
   chain: IdentifierString;
 }

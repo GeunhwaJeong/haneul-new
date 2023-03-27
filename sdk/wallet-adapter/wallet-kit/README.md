@@ -44,14 +44,14 @@ function ConnectToWallet() {
 To get access to the currently connected wallet, use the `useWalletKit()` hook to interact with the wallet, such as proposing transactions:
 
 ```tsx
-import { Transaction } from "@haneullabs/haneul.js";
+import { TransactionBlock } from "@haneullabs/haneul.js";
 import { useWalletKit } from "@haneullabs/wallet-kit";
 
 export function SendTransaction() {
   const { signAndExecuteTransaction } = useWalletKit();
 
   const handleClick = async () => {
-    const tx = new Transaction();
+    const tx = new TransactionBlock();
     tx.moveCall({
       target: "0x2::devnet_nft::mint",
       arguments: [
@@ -62,7 +62,7 @@ export function SendTransaction() {
         ),
       ],
     });
-    await signAndExecuteTransaction({ transaction: tx });
+    await signAndExecuteTransaction({ transactionBlock: tx });
   };
 
   return (
