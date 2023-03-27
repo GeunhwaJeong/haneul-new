@@ -4,7 +4,6 @@
 import { ErrorResponse, HttpHeaders, JsonRpcClient } from '../rpc/client';
 import {
   ExecuteTransactionRequestType,
-  GetTxnDigestsResponse,
   ObjectId,
   PaginatedTransactionResponse,
   SubscriptionId,
@@ -472,62 +471,6 @@ export class JsonRpcProvider {
       PaginatedTransactionResponse,
       this.options.skipDataValidation,
     );
-  }
-
-  /**
-   * @deprecated this method will be removed by April 2023.
-   * Use `queryTransactions` instead
-   */
-  async queryTransactionsForObjectDeprecated(
-    objectID: ObjectId,
-    descendingOrder: boolean = true,
-  ): Promise<GetTxnDigestsResponse> {
-    const filters = [{ InputObject: objectID }, { ChangedObject: objectID }];
-    if (!objectID || !isValidHaneulObjectId(normalizeHaneulObjectId(objectID))) {
-      throw new Error('Invalid Haneul Object id');
-    }
-    const results = await Promise.all(
-      filters.map((filter) =>
-        this.client.requestWithType(
-          'haneulx_queryTransactions',
-          [{ filter }, null, null, descendingOrder],
-          PaginatedTransactionResponse,
-          this.options.skipDataValidation,
-        ),
-      ),
-    );
-    return [
-      ...results[0].data.map((r) => r.digest),
-      ...results[1].data.map((r) => r.digest),
-    ];
-  }
-
-  /**
-   * @deprecated this method will be removed by April 2023.
-   * Use `queryTransactions` instead
-   */
-  async queryTransactionsForAddressDeprecated(
-    addressID: HaneulAddress,
-    descendingOrder: boolean = true,
-  ): Promise<GetTxnDigestsResponse> {
-    const filters = [{ ToAddress: addressID }, { FromAddress: addressID }];
-    if (!addressID || !isValidHaneulAddress(normalizeHaneulAddress(addressID))) {
-      throw new Error('Invalid Haneul address');
-    }
-    const results = await Promise.all(
-      filters.map((filter) =>
-        this.client.requestWithType(
-          'haneulx_queryTransactions',
-          [{ filter }, null, null, descendingOrder],
-          PaginatedTransactionResponse,
-          this.options.skipDataValidation,
-        ),
-      ),
-    );
-    return [
-      ...results[0].data.map((r) => r.digest),
-      ...results[1].data.map((r) => r.digest),
-    ];
   }
 
   async getTransaction(input: {

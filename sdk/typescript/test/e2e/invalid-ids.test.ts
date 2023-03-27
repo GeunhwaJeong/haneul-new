@@ -17,11 +17,6 @@ describe('Object id/Address/Transaction digest validation', () => {
     expect(
       toolbox.provider.getOwnedObjects({ owner: '' }),
     ).rejects.toThrowError(/Invalid Haneul address/);
-
-    //wrong id
-    expect(
-      toolbox.provider.queryTransactionsForAddressDeprecated('Wrong'),
-    ).rejects.toThrowError(/Invalid Haneul address/);
   });
 
   it('Test all functions with invalid Object Id', async () => {
@@ -36,11 +31,6 @@ describe('Object id/Address/Transaction digest validation', () => {
         parentId:
           '0x0000000000000000000000004ce52ee7b659b610d59a1ced129291b3d0d4216322',
       }),
-    ).rejects.toThrowError(/Invalid Haneul Object id/);
-    expect(
-      toolbox.provider.queryTransactionsForObjectDeprecated(
-        '0000000000000000000000004ce52ee7b659b610d59a1ced129291b3d0d421632',
-      ),
     ).rejects.toThrowError(/Invalid Haneul Object id/);
 
     //wrong batch request
