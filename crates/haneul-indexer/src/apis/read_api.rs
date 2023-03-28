@@ -53,7 +53,7 @@ impl<S: IndexerStore> ReadApi<S> {
             .get_transaction_by_digest(&digest.base58_encode())?;
         let haneul_tx_resp = self
             .state
-            .compose_haneul_transaction_block_response(tx, options.clone())
+            .compose_haneul_transaction_block_response(tx, options.as_ref())
             .await?;
         let haneul_transaction_response = HaneulTransactionBlockResponseWithOptions {
             response: haneul_tx_resp,
@@ -89,7 +89,7 @@ impl<S: IndexerStore> ReadApi<S> {
         }
         let haneul_tx_resp_futures = ordered_tx_vec.into_iter().map(|tx| {
             self.state
-                .compose_haneul_transaction_block_response(tx, options.clone())
+                .compose_haneul_transaction_block_response(tx, options.as_ref())
         });
         let haneul_tx_resp_vec = join_all(haneul_tx_resp_futures)
             .await
