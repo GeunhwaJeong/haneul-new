@@ -22,8 +22,10 @@ module haneul_system::governance_test_utils {
     use haneul::test_utils;
     use haneul::balance::Balance;
 
+    const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
+
     public fun create_validator_for_testing(
-        addr: address, init_stake_amount: u64, ctx: &mut TxContext
+        addr: address, init_stake_amount_in_haneul: u64, ctx: &mut TxContext
     ): Validator {
         let validator = validator::new_for_testing(
             addr,
@@ -39,7 +41,7 @@ module haneul_system::governance_test_utils {
             b"/ip4/127.0.0.1/udp/80",
             b"/ip4/127.0.0.1/udp/80",
             b"/ip4/127.0.0.1/udp/80",
-            option::some(balance::create_for_testing<HANEUL>(init_stake_amount)),
+            option::some(balance::create_for_testing<HANEUL>(init_stake_amount_in_haneul * GEUNHWA_PER_HANEUL)),
             1,
             0,
             true,
@@ -76,7 +78,7 @@ module haneul_system::governance_test_utils {
         );
 
         let stake_subsidy = stake_subsidy::create(
-            balance::create_for_testing<HANEUL>(haneul_supply_amount), // haneul_supply
+            balance::create_for_testing<HANEUL>(haneul_supply_amount * GEUNHWA_PER_HANEUL), // haneul_supply
             0,   // stake subsidy initial distribution amount
             10,  // stake_subsidy_period_length
             0,   // stake_subsidy_decrease_rate
@@ -86,7 +88,7 @@ module haneul_system::governance_test_utils {
         haneul_system::create(
             object::new(ctx), // it doesn't matter what ID haneul system state has in tests
             validators,
-            balance::create_for_testing<HANEUL>(storage_fund_amount), // storage_fund
+            balance::create_for_testing<HANEUL>(storage_fund_amount * GEUNHWA_PER_HANEUL), // storage_fund
             1,   // protocol version
             0,   // chain_start_timestamp_ms
             system_parameters,
@@ -133,7 +135,7 @@ module haneul_system::governance_test_utils {
     public fun advance_epoch_with_reward_amounts(
         storage_charge: u64, computation_charge: u64, scenario: &mut Scenario
     ) {
-        let storage_rebate = advance_epoch_with_reward_amounts_return_rebate(storage_charge, computation_charge, 0, 0, scenario);
+        let storage_rebate = advance_epoch_with_reward_amounts_return_rebate(storage_charge * GEUNHWA_PER_HANEUL, computation_charge * GEUNHWA_PER_HANEUL, 0, 0, scenario);
         test_utils::destroy(storage_rebate)
     }
 
@@ -150,7 +152,7 @@ module haneul_system::governance_test_utils {
         let ctx = test_scenario::ctx(scenario);
 
         let storage_rebate = haneul_system::advance_epoch_for_testing(
-            &mut system_state, new_epoch, 1, storage_charge, computation_charge, 0, 0, 0, reward_slashing_rate, 0, ctx
+            &mut system_state, new_epoch, 1, storage_charge * GEUNHWA_PER_HANEUL, computation_charge * GEUNHWA_PER_HANEUL, 0, 0, 0, reward_slashing_rate, 0, ctx
         );
         test_utils::destroy(storage_rebate);
         test_scenario::return_shared(system_state);
@@ -183,7 +185,7 @@ module haneul_system::governance_test_utils {
 
         let ctx = test_scenario::ctx(scenario);
 
-        haneul_system::request_add_stake(&mut system_state, coin::mint_for_testing(amount, ctx), validator, ctx);
+        haneul_system::request_add_stake(&mut system_state, coin::mint_for_testing(amount * GEUNHWA_PER_HANEUL, ctx), validator, ctx);
         test_scenario::return_shared(system_state);
     }
 
@@ -224,7 +226,7 @@ module haneul_system::governance_test_utils {
             0,
             ctx
         );
-        haneul_system::request_add_stake(&mut system_state, coin::mint_for_testing<HANEUL>(init_stake_amount, ctx), validator, ctx);
+        haneul_system::request_add_stake(&mut system_state, coin::mint_for_testing<HANEUL>(init_stake_amount * GEUNHWA_PER_HANEUL, ctx), validator, ctx);
         haneul_system::request_add_validator_for_testing(&mut system_state, 0, ctx);
         test_scenario::return_shared(system_state);
     }
@@ -317,7 +319,8 @@ module haneul_system::governance_test_utils {
 
             test_scenario::next_tx(scenario, validator_addr);
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-            assert!(haneul_system::validator_stake_amount(&mut system_state, validator_addr) == amount, 0);
+            let validator_amount = haneul_system::validator_stake_amount(&mut system_state, validator_addr);
+            assert!(validator_amount == amount, validator_amount);
             test_scenario::return_shared(system_state);
             i = i + 1;
         };
@@ -331,7 +334,7 @@ module haneul_system::governance_test_utils {
             test_scenario::next_tx(scenario, validator_addr);
             let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
             let non_self_stake_amount = haneul_system::validator_stake_amount(&mut system_state, validator_addr) - stake_plus_current_rewards_for_validator(validator_addr, &mut system_state, scenario);
-            assert!(non_self_stake_amount == amount, 0);
+            assert_eq(non_self_stake_amount, amount);
             test_scenario::return_shared(system_state);
             i = i + 1;
         };
