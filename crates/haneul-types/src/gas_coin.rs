@@ -33,6 +33,8 @@ pub const TOTAL_SUPPLY_GEUNHWA: u64 = TOTAL_SUPPLY_HANEUL * GEUNHWA_PER_HANEUL;
 pub const GAS_MODULE_NAME: &IdentStr = ident_str!("haneul");
 pub const GAS_STRUCT_NAME: &IdentStr = ident_str!("HANEUL");
 
+haneul_macros::checked_arithmetic! {
+
 pub struct GAS {}
 impl GAS {
     pub fn type_() -> StructTag {
@@ -142,4 +144,6 @@ impl Display for GasCoin {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "Coin {{ id: {}, value: {} }}", self.id(), self.value())
     }
+}
+
 }

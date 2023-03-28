@@ -22,6 +22,8 @@ use haneul_types::{
     TypeTag,
 };
 
+haneul_macros::checked_arithmetic! {
+
 pub trait StorageView:
     ResourceResolver<Error = HaneulError>
     + ModuleResolver<Error = HaneulError>
@@ -328,4 +330,6 @@ pub fn command_argument_error(e: CommandArgumentError, arg_idx: usize) -> Execut
         e,
         arg_idx as u16,
     ))
+}
+
 }

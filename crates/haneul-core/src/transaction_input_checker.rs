@@ -5,6 +5,7 @@ use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::AuthorityStore;
 use std::collections::{BTreeMap, HashSet};
 use haneul_adapter::adapter::run_metered_move_bytecode_verifier;
+use haneul_macros::checked_arithmetic;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::{UserInputError, UserInputResult};
@@ -22,6 +23,8 @@ use haneul_types::{
 };
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 use tracing::instrument;
+
+checked_arithmetic! {
 
 // Entry point for all checks related to gas.
 // Called on both signing and execution.
@@ -399,4 +402,6 @@ pub fn check_non_system_packages_to_be_published(
     }
 
     Ok(())
+}
+
 }
