@@ -179,7 +179,7 @@ curl localhost:1337/logging -d "info"
 
 Public dashboard for network wide visibility:
 
-- [Haneul Testnet Validators](https://metrics.testnet.haneul.io/public-dashboards/49484483fe0a40e9ae5d0fad331cda5b)
+- [Haneul Testnet Validators](https://metrics.haneul.io/public-dashboards/9b841d63c9bf43fe8acec4f0fa991f5e)
 
 ## Software Updates
 
