@@ -23,7 +23,6 @@ runs:
         isRust:
           - 'crates/**'
           - 'narwhal/**'
-          - 'haneul_programmability/**'
           - '.github/workflows/bench.yml'
           - '.github/workflows/codecov.yml'
           - '.github/workflows/rust.yml'
@@ -32,6 +31,9 @@ runs:
           - '*.md'
           - '.github/workflows/docs.yml'
         isMove:
-          - 'crates/haneul-framework/sources/**'
-          - 'crates/haneul/src/haneul_move/**'
+          - 'crates/haneul-framework/**'
+          - 'crates/haneul-framework-build/**'
+          - 'crates/haneul-framework-tests/**'
+          - 'crates/haneul_move/**'
           - 'Cargo.toml'
+          - 'haneul_programmability/**'
