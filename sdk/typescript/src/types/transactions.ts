@@ -67,17 +67,17 @@ export const HaneulArgument = union([
 ]);
 export type HaneulArgument = Infer<typeof HaneulArgument>;
 
-export const MoveCallHaneulCommand = object({
+export const MoveCallHaneulTransaction = object({
   arguments: optional(array(HaneulArgument)),
   type_arguments: optional(array(string())),
   package: ObjectId,
   module: string(),
   function: string(),
 });
-export type MoveCallHaneulCommand = Infer<typeof MoveCallHaneulCommand>;
+export type MoveCallHaneulTransaction = Infer<typeof MoveCallHaneulTransaction>;
 
-export const HaneulCommand = union([
-  object({ MoveCall: MoveCallHaneulCommand }),
+export const HaneulTransaction = union([
+  object({ MoveCall: MoveCallHaneulTransaction }),
   object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
   object({ SplitCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
@@ -109,11 +109,11 @@ export const HaneulCallArg = union([
 export type HaneulCallArg = Infer<typeof HaneulCallArg>;
 
 export const ProgrammableTransaction = object({
-  commands: array(HaneulCommand),
+  transactions: array(HaneulTransaction),
   inputs: array(HaneulCallArg),
 });
 export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
-export type ProgrammableTransactionCommand = Infer<typeof HaneulCommand>;
+export type HaneulTransaction = Infer<typeof HaneulTransaction>;
 
 /**
  * 1. WaitForEffectsCert: waits for TransactionEffectsCert and then returns to the client.

@@ -46,7 +46,7 @@ describe('utils.ts', () => {
                 '[Result(0), Result(1), Result(2), Result(3), Result(4)], Input(0)'
             );
         });
-        it('should flatten MergeCoinsHaneulCommand data', () => {
+        it('should flatten MergeCoinsHaneulTransaction data', () => {
             expect(
                 flattenHaneulArguments([
                     {

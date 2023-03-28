@@ -1,17 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { type ProgrammableTransactionCommand } from '@haneullabs/haneul.js';
+import { type HaneulTransaction } from '@haneullabs/haneul.js';
 
 import { Command } from './Command';
 
 import { TableHeader } from '~/ui/TableHeader';
 
 interface Props {
-    commands: ProgrammableTransactionCommand[];
+    transactions: HaneulTransaction[];
 }
 
-export function Commands({ commands }: Props) {
-    if (!commands?.length) {
+export function Commands({ transactions }: Props) {
+    if (!transactions?.length) {
         return null;
     }
 
@@ -19,7 +19,7 @@ export function Commands({ commands }: Props) {
         <>
             <TableHeader>Commands</TableHeader>
             <ul className="flex flex-col gap-8">
-                {commands.map((command, index) => {
+                {transactions.map((command, index) => {
                     const commandName = Object.keys(command)[0];
                     const commandData =
                         command[commandName as keyof typeof command];

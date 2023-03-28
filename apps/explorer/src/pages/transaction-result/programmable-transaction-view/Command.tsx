@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    type MoveCallHaneulCommand,
+    type MoveCallHaneulTransaction,
     type HaneulArgument,
     type HaneulMovePackage,
 } from '@haneullabs/haneul.js';
@@ -55,7 +55,7 @@ function ArrayArgument({
     );
 }
 
-function MoveCall({ type, data }: CommandProps<MoveCallHaneulCommand>) {
+function MoveCall({ type, data }: CommandProps<MoveCallHaneulTransaction>) {
     const {
         module,
         package: movePackage,
@@ -81,10 +81,10 @@ export function Command({
     type,
     data,
 }: CommandProps<
-    (HaneulArgument | HaneulArgument[])[] | MoveCallHaneulCommand | HaneulMovePackage
+    (HaneulArgument | HaneulArgument[])[] | MoveCallHaneulTransaction | HaneulMovePackage
 >) {
     if (type === 'MoveCall') {
-        return <MoveCall type={type} data={data as MoveCallHaneulCommand} />;
+        return <MoveCall type={type} data={data as MoveCallHaneulTransaction} />;
     }
 
     return (
