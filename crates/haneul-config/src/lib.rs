@@ -22,7 +22,7 @@ pub use swarm::FullnodeConfigBuilder;
 pub use swarm::NetworkConfig;
 
 const HANEUL_DIR: &str = ".haneul";
-const HANEUL_CONFIG_DIR: &str = "haneul_config";
+pub const HANEUL_CONFIG_DIR: &str = "haneul_config";
 pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
