@@ -24,7 +24,7 @@ use haneul_types::object::Owner;
 use haneul_types::storage::{DeleteKind, WriteKind};
 
 use crate::errors::IndexerError;
-use crate::types::HaneulTransactionBlockFullResponse;
+use crate::types::CheckpointTransactionBlockResponse;
 use crate::PgPoolConnection;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -81,7 +81,7 @@ pub fn drop_all_tables(conn: &mut PgConnection) -> Result<(), diesel::result::Er
 pub async fn multi_get_full_transactions(
     read_api: &HaneulReadApi,
     digests: Vec<TransactionDigest>,
-) -> Result<Vec<HaneulTransactionBlockFullResponse>, IndexerError> {
+) -> Result<Vec<CheckpointTransactionBlockResponse>, IndexerError> {
     let haneul_transactions = read_api
         .multi_get_transactions_with_options(
             digests.clone(),
@@ -100,9 +100,9 @@ pub async fn multi_get_full_transactions(
                 e
             ))
         })?;
-    let haneul_full_transactions: Vec<HaneulTransactionBlockFullResponse> = haneul_transactions
+    let haneul_full_transactions: Vec<CheckpointTransactionBlockResponse> = haneul_transactions
         .into_iter()
-        .map(HaneulTransactionBlockFullResponse::try_from)
+        .map(CheckpointTransactionBlockResponse::try_from)
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| {
             IndexerError::FullNodeReadingError(format!(

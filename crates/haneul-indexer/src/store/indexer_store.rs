@@ -5,7 +5,8 @@ use async_trait::async_trait;
 
 use haneul_json_rpc_types::{
     Checkpoint as RpcCheckpoint, CheckpointId, EpochInfo, EventFilter, EventPage, MoveCallMetrics,
-    NetworkMetrics, HaneulObjectData, HaneulObjectDataFilter, HaneulTransactionBlockResponseOptions,
+    NetworkMetrics, HaneulObjectData, HaneulObjectDataFilter, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber};
 use haneul_types::digests::CheckpointDigest;
@@ -25,7 +26,7 @@ use crate::models::packages::Package;
 use crate::models::system_state::{DBSystemStateSummary, DBValidatorSummary};
 use crate::models::transaction_index::{InputObject, MoveCall, Recipient};
 use crate::models::transactions::Transaction;
-use crate::types::HaneulTransactionBlockFullResponse;
+use crate::types::CheckpointTransactionBlockResponse;
 
 #[async_trait]
 pub trait IndexerStore {
@@ -70,11 +71,11 @@ pub trait IndexerStore {
         tx_digests: &[String],
     ) -> Result<Vec<Transaction>, IndexerError>;
 
-    async fn compose_full_transaction_response(
+    async fn compose_haneul_transaction_block_response(
         &self,
         tx: Transaction,
         options: Option<HaneulTransactionBlockResponseOptions>,
-    ) -> Result<HaneulTransactionBlockFullResponse, IndexerError>;
+    ) -> Result<HaneulTransactionBlockResponse, IndexerError>;
 
     fn get_all_transaction_digest_page(
         &self,
@@ -176,6 +177,7 @@ pub trait IndexerStore {
     fn get_network_metrics(&self) -> Result<NetworkMetrics, IndexerError>;
     fn get_move_call_metrics(&self) -> Result<MoveCallMetrics, IndexerError>;
 
+    fn persist_fast_path(&self, tx: Transaction) -> Result<usize, IndexerError>;
     fn persist_checkpoint(&self, data: &TemporaryCheckpointStore) -> Result<usize, IndexerError>;
     fn persist_epoch(&self, data: &TemporaryEpochStore) -> Result<(), IndexerError>;
 
@@ -194,7 +196,7 @@ pub trait IndexerStore {
 #[derive(Clone, Debug)]
 pub struct CheckpointData {
     pub checkpoint: RpcCheckpoint,
-    pub transactions: Vec<HaneulTransactionBlockFullResponse>,
+    pub transactions: Vec<CheckpointTransactionBlockResponse>,
     pub changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
 }
 

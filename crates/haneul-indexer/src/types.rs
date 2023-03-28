@@ -15,22 +15,18 @@ use crate::errors::IndexerError;
 use crate::models::addresses::Address;
 use crate::models::transaction_index::{InputObject, MoveCall, Recipient};
 
-#[derive(Debug, Clone)]
-pub struct HaneulTransactionBlockFullResponse {
+pub struct FastPathTransactionBlockResponse {
     pub digest: TransactionDigest,
-    /// Transaction input data
     pub transaction: HaneulTransactionBlock,
     pub raw_transaction: Vec<u8>,
     pub effects: HaneulTransactionBlockEffects,
     pub events: HaneulTransactionBlockEvents,
-    pub object_changes: Option<Vec<ObjectChange>>,
-    pub balance_changes: Option<Vec<BalanceChange>>,
-    pub timestamp_ms: u64,
+    pub object_changes: Vec<ObjectChange>,
+    pub balance_changes: Vec<BalanceChange>,
     pub confirmed_local_execution: Option<bool>,
-    pub checkpoint: CheckpointSequenceNumber,
 }
 
-impl TryFrom<HaneulTransactionBlockResponse> for HaneulTransactionBlockFullResponse {
+impl TryFrom<HaneulTransactionBlockResponse> for FastPathTransactionBlockResponse {
     type Error = anyhow::Error;
 
     fn try_from(response: HaneulTransactionBlockResponse) -> Result<Self, Self::Error> {
@@ -42,6 +38,88 @@ impl TryFrom<HaneulTransactionBlockResponse> for HaneulTransactionBlockFullRespo
             events,
             object_changes,
             balance_changes,
+            timestamp_ms: _,
+            confirmed_local_execution,
+            checkpoint: _,
+            errors,
+        } = response;
+
+        let transaction = transaction.ok_or_else(|| {
+            anyhow::anyhow!(
+                "Transaction is None in FastPathTransactionBlockResponse of digest {:?}.",
+                digest
+            )
+        })?;
+        let effects = effects.ok_or_else(|| {
+            anyhow::anyhow!(
+                "Effects is None in FastPathTransactionBlockResponse of digest {:?}.",
+                digest
+            )
+        })?;
+        let events = events.ok_or_else(|| {
+            anyhow::anyhow!(
+                "Events is None in FastPathTransactionBlockResponse of digest {:?}.",
+                digest
+            )
+        })?;
+        let object_changes = object_changes.ok_or_else(|| {
+            anyhow::anyhow!(
+                "ObjectChanges is None in FastPathTransactionBlockResponse of digest {:?}.",
+                digest
+            )
+        })?;
+        let balance_changes = balance_changes.ok_or_else(|| {
+            anyhow::anyhow!(
+                "BalanceChanges is None in FastPathTransactionBlockResponse of digest {:?}.",
+                digest
+            )
+        })?;
+        if !errors.is_empty() {
+            return Err(anyhow::anyhow!(
+                "Errors in HaneulTransactionFullResponse of digest {:?}: {:?}",
+                digest,
+                errors
+            ));
+        }
+
+        Ok(FastPathTransactionBlockResponse {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            object_changes,
+            balance_changes,
+            confirmed_local_execution,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CheckpointTransactionBlockResponse {
+    pub digest: TransactionDigest,
+    /// Transaction input data
+    pub transaction: HaneulTransactionBlock,
+    pub raw_transaction: Vec<u8>,
+    pub effects: HaneulTransactionBlockEffects,
+    pub events: HaneulTransactionBlockEvents,
+    pub timestamp_ms: u64,
+    pub confirmed_local_execution: Option<bool>,
+    pub checkpoint: CheckpointSequenceNumber,
+}
+
+impl TryFrom<HaneulTransactionBlockResponse> for CheckpointTransactionBlockResponse {
+    type Error = anyhow::Error;
+
+    fn try_from(response: HaneulTransactionBlockResponse) -> Result<Self, Self::Error> {
+        let HaneulTransactionBlockResponse {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            object_changes: _,
+            balance_changes: _,
             timestamp_ms,
             confirmed_local_execution,
             checkpoint,
@@ -92,14 +170,12 @@ impl TryFrom<HaneulTransactionBlockResponse> for HaneulTransactionBlockFullRespo
             ));
         }
 
-        Ok(HaneulTransactionBlockFullResponse {
+        Ok(CheckpointTransactionBlockResponse {
             digest,
             transaction,
             raw_transaction,
             effects,
             events,
-            object_changes,
-            balance_changes,
             timestamp_ms,
             confirmed_local_execution,
             checkpoint,
@@ -107,72 +183,7 @@ impl TryFrom<HaneulTransactionBlockResponse> for HaneulTransactionBlockFullRespo
     }
 }
 
-impl From<HaneulTransactionBlockFullResponse> for HaneulTransactionBlockResponse {
-    fn from(response: HaneulTransactionBlockFullResponse) -> Self {
-        let HaneulTransactionBlockFullResponse {
-            digest,
-            transaction,
-            effects,
-            events,
-            object_changes,
-            balance_changes,
-            timestamp_ms,
-            confirmed_local_execution,
-            checkpoint,
-            raw_transaction,
-        } = response;
-
-        HaneulTransactionBlockResponse {
-            digest,
-            transaction: Some(transaction),
-            raw_transaction,
-            effects: Some(effects),
-            events: Some(events),
-            object_changes,
-            balance_changes,
-            timestamp_ms: Some(timestamp_ms),
-            confirmed_local_execution,
-            checkpoint: Some(checkpoint),
-            errors: vec![],
-        }
-    }
-}
-
-pub struct HaneulTransactionBlockFullResponseWithOptions {
-    pub response: HaneulTransactionBlockFullResponse,
-    pub options: HaneulTransactionBlockResponseOptions,
-}
-
-impl From<HaneulTransactionBlockFullResponseWithOptions> for HaneulTransactionBlockResponse {
-    fn from(value: HaneulTransactionBlockFullResponseWithOptions) -> Self {
-        let HaneulTransactionBlockFullResponseWithOptions { response, options } = value;
-
-        HaneulTransactionBlockResponse {
-            digest: response.digest,
-            transaction: options.show_input.then_some(response.transaction),
-            raw_transaction: options
-                .show_raw_input
-                .then_some(response.raw_transaction)
-                .unwrap_or_default(),
-            effects: options.show_effects.then_some(response.effects),
-            events: options.show_events.then_some(response.events),
-            object_changes: options
-                .show_object_changes
-                .then_some(response.object_changes)
-                .unwrap_or_default(),
-            balance_changes: options
-                .show_balance_changes
-                .then_some(response.balance_changes)
-                .unwrap_or_default(),
-            timestamp_ms: Some(response.timestamp_ms),
-            confirmed_local_execution: response.confirmed_local_execution,
-            checkpoint: Some(response.checkpoint),
-            errors: vec![],
-        }
-    }
-}
-
-impl HaneulTransactionBlockFullResponse {
+impl CheckpointTransactionBlockResponse {
     pub fn get_input_objects(&self, epoch: u64) -> Result<Vec<InputObject>, IndexerError> {
         let raw_tx = self.raw_transaction.clone();
         let sender_signed_data: SenderSignedData = bcs::from_bytes(&raw_tx).map_err(|err| {
@@ -270,5 +281,110 @@ impl HaneulTransactionBlockFullResponse {
                 first_appearance_time: self.timestamp_ms as i64,
             })
             .collect::<Vec<Address>>()
+    }
+}
+
+pub struct TemporaryTransactionBlockResponseStore {
+    pub digest: TransactionDigest,
+    /// Transaction input data
+    pub transaction: HaneulTransactionBlock,
+    pub raw_transaction: Vec<u8>,
+    pub effects: HaneulTransactionBlockEffects,
+    pub events: HaneulTransactionBlockEvents,
+    pub object_changes: Option<Vec<ObjectChange>>,
+    pub balance_changes: Option<Vec<BalanceChange>>,
+    pub timestamp_ms: Option<u64>,
+    pub confirmed_local_execution: Option<bool>,
+    pub checkpoint: Option<CheckpointSequenceNumber>,
+}
+
+impl From<FastPathTransactionBlockResponse> for TemporaryTransactionBlockResponseStore {
+    fn from(value: FastPathTransactionBlockResponse) -> Self {
+        let FastPathTransactionBlockResponse {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            object_changes,
+            balance_changes,
+            confirmed_local_execution,
+        } = value;
+
+        TemporaryTransactionBlockResponseStore {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            object_changes: Some(object_changes),
+            balance_changes: Some(balance_changes),
+            timestamp_ms: None,
+            confirmed_local_execution,
+            checkpoint: None,
+        }
+    }
+}
+
+impl From<CheckpointTransactionBlockResponse> for TemporaryTransactionBlockResponseStore {
+    fn from(value: CheckpointTransactionBlockResponse) -> Self {
+        let CheckpointTransactionBlockResponse {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            timestamp_ms,
+            confirmed_local_execution,
+            checkpoint,
+        } = value;
+
+        TemporaryTransactionBlockResponseStore {
+            digest,
+            transaction,
+            raw_transaction,
+            effects,
+            events,
+            object_changes: None,
+            balance_changes: None,
+            timestamp_ms: Some(timestamp_ms),
+            confirmed_local_execution,
+            checkpoint: Some(checkpoint),
+        }
+    }
+}
+
+// HaneulTransactionBlockResponseWithOptions is only used on the reading path
+pub struct HaneulTransactionBlockResponseWithOptions {
+    pub response: HaneulTransactionBlockResponse,
+    pub options: HaneulTransactionBlockResponseOptions,
+}
+
+impl From<HaneulTransactionBlockResponseWithOptions> for HaneulTransactionBlockResponse {
+    fn from(value: HaneulTransactionBlockResponseWithOptions) -> Self {
+        let HaneulTransactionBlockResponseWithOptions { response, options } = value;
+
+        HaneulTransactionBlockResponse {
+            digest: response.digest,
+            transaction: options.show_input.then_some(response.transaction).flatten(),
+            raw_transaction: options
+                .show_raw_input
+                .then_some(response.raw_transaction)
+                .unwrap_or_default(),
+            effects: options.show_effects.then_some(response.effects).flatten(),
+            events: options.show_events.then_some(response.events).flatten(),
+            object_changes: options
+                .show_object_changes
+                .then_some(response.object_changes)
+                .flatten(),
+            balance_changes: options
+                .show_balance_changes
+                .then_some(response.balance_changes)
+                .flatten(),
+            timestamp_ms: response.timestamp_ms,
+            confirmed_local_execution: response.confirmed_local_execution,
+            checkpoint: response.checkpoint,
+            errors: vec![],
+        }
     }
 }
