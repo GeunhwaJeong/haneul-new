@@ -28,7 +28,6 @@ use haneul_json_rpc_types::{
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::error::HaneulError;
 use haneul_types::messages::TransactionEvents;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::{
@@ -50,6 +49,7 @@ use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
 };
+use haneul_types::{error::HaneulError, gas::GasCostSummary};
 use tokio::{task::JoinSet, time::timeout};
 use tracing::{error, info};
 
@@ -151,6 +151,25 @@ impl ExecutionEffects {
                 haneul_tx_effects.status().is_ok()
             }
         }
+    }
+
+    pub fn gas_cost_summary(&self) -> GasCostSummary {
+        match self {
+            crate::ExecutionEffects::CertifiedTransactionEffects(a, _) => {
+                a.data().gas_cost_summary().clone()
+            }
+            crate::ExecutionEffects::HaneulTransactionBlockEffects(b) => {
+                std::convert::Into::<GasCostSummary>::into(b.gas_cost_summary().clone())
+            }
+        }
+    }
+
+    pub fn gas_used(&self) -> u64 {
+        self.gas_cost_summary().gas_used()
+    }
+
+    pub fn net_gas_used(&self) -> i64 {
+        self.gas_cost_summary().net_gas_usage()
     }
 }
 
