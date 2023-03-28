@@ -1,6 +1,8 @@
 ---
-title: Haneul Validator nodes and staking
+title: Haneul Validator nodes
 ---
+
+Learn how to set up, configure, and manage a Haneul Validator node, including staking, reference gas price, and tallying rules. 
 
 ## Requirements to run a validator on Haneul
 

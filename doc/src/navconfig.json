@@ -6,8 +6,8 @@
 				"link": "doc-updates/haneul-migration-guide"
 			},
 			{
-				"label": "Haneul Breaking Changes",
-				"link": "doc-updates/haneul-breaking-changes"
+				"label": "Haneul Doc Updates",
+				"link": "doc-updates"
 			},
 			{
 				"label": "Haneul Developer Forums",
@@ -84,6 +84,33 @@
 				"items": [{
 						"label": "Haneul Token",
 						"fileName": "learn/tokenomics/haneul-token"
+					},
+					{
+						"label": "Haneul Gas Pricing",
+						"fileName": "learn/tokenomics/gas-pricing"
+					},
+					{
+						"label": "Haneul Storage Fund",
+						"fileName": "learn/tokenomics/storage-fund"
+					},
+					{
+						"label": "Proof-of-Stake",
+						"fileName": "learn/tokenomics/proof-of-stake"
+					},
+					{
+						"label": "Tokenomics White Paper",
+						"link": "https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/tokenomics.pdf",
+						"external": true
+					}
+				]
+			},
+			{
+				"label": "Haneul Cryptography",
+				"fileName": "learn/cryptography/index",
+				"title": "Haneul Cryptography",
+				"items": [{
+						"label": "Haneul Intent Signing",
+						"fileName": "learn/cryptography/"
 					},
 					{
 						"label": "Haneul Gas Pricing",
