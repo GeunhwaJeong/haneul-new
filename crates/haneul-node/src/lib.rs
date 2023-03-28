@@ -17,7 +17,7 @@ use anyhow::Result;
 use arc_swap::ArcSwap;
 use futures::TryFutureExt;
 use prometheus::Registry;
-use haneul_core::consensus_adapter::{LazyNarwhalClient, SubmitToConsensus};
+use haneul_core::consensus_adapter::LazyNarwhalClient;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::sync::broadcast;
@@ -877,18 +877,9 @@ impl HaneulNode {
                             .await,
                     ));
                 info!(?transaction, "submitting capabilities to consensus");
-                if let Err(e) = components
+                components
                     .consensus_adapter
-                    .submit_to_consensus(&transaction, &cur_epoch_store)
-                    .await
-                {
-                    warn!(
-                        ?transaction,
-                        "failed to submit capabilities to consensus {e}"
-                    );
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                    continue;
-                };
+                    .submit(transaction, None, &cur_epoch_store)?;
             }
 
             checkpoint_executor.run_epoch(cur_epoch_store.clone()).await;
