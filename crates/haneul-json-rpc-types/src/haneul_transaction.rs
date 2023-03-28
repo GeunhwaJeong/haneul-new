@@ -70,7 +70,11 @@ impl Display for BigInt {
 pub type HaneulEpochId = BigInt;
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Default)]
-#[serde(rename_all = "camelCase", rename = "TransactionResponseQuery", default)]
+#[serde(
+    rename_all = "camelCase",
+    rename = "TransactionBlockResponseQuery",
+    default
+)]
 pub struct HaneulTransactionBlockResponseQuery {
     /// If None, no filter will be applied
     pub filter: Option<TransactionFilter>,
@@ -99,7 +103,7 @@ pub type TransactionBlocksPage = Page<HaneulTransactionBlockResponse, Transactio
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq, Default)]
 #[serde(
     rename_all = "camelCase",
-    rename = "TransactionResponseOptions",
+    rename = "TransactionBlockResponseOptions",
     default
 )]
 pub struct HaneulTransactionBlockResponseOptions {
@@ -196,7 +200,7 @@ impl HaneulTransactionBlockResponseOptions {
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, Default)]
-#[serde(rename_all = "camelCase", rename = "TransactionResponse")]
+#[serde(rename_all = "camelCase", rename = "TransactionBlockResponse")]
 pub struct HaneulTransactionBlockResponse {
     pub digest: TransactionDigest,
     /// Transaction input data
@@ -253,7 +257,7 @@ impl PartialEq for HaneulTransactionBlockResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
-#[serde(rename = "TransactionKind", tag = "kind")]
+#[serde(rename = "TransactionBlockKind", tag = "kind")]
 pub enum HaneulTransactionBlockKind {
     /// A system transaction that will update epoch information on-chain.
     ChangeEpoch(HaneulChangeEpoch),
@@ -355,7 +359,7 @@ pub struct HaneulChangeEpoch {
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[enum_dispatch(HaneulTransactionBlockEffectsAPI)]
 #[serde(
-    rename = "TransactionEffects",
+    rename = "TransactionBlockEffects",
     rename_all = "camelCase",
     tag = "messageVersion"
 )]
@@ -390,7 +394,7 @@ pub trait HaneulTransactionBlockEffectsAPI {
 
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(
-    rename = "TransactionEffectsModifiedAtVersions",
+    rename = "TransactionBlockEffectsModifiedAtVersions",
     rename_all = "camelCase"
 )]
 pub struct HaneulTransactionBlockEffectsModifiedAtVersions {
@@ -400,7 +404,7 @@ pub struct HaneulTransactionBlockEffectsModifiedAtVersions {
 
 /// The response from processing a transaction or a certified transaction
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "TransactionEffectsV1", rename_all = "camelCase")]
+#[serde(rename = "TransactionBlockEffectsV1", rename_all = "camelCase")]
 pub struct HaneulTransactionBlockEffectsV1 {
     /// The status of the execution
     pub status: HaneulExecutionStatus,
@@ -650,7 +654,7 @@ impl Display for HaneulTransactionBlockEffects {
 
 #[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct DryRunTransactionResponse {
+pub struct DryRunTransactionBlockResponse {
     pub effects: HaneulTransactionBlockEffects,
     pub events: HaneulTransactionBlockEvents,
     pub object_changes: Vec<ObjectChange>,
@@ -658,7 +662,7 @@ pub struct DryRunTransactionResponse {
 }
 
 #[derive(Eq, PartialEq, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "TransactionEvents", transparent)]
+#[serde(rename = "TransactionBlockEvents", transparent)]
 pub struct HaneulTransactionBlockEvents {
     pub data: Vec<HaneulEvent>,
 }
@@ -865,7 +869,7 @@ pub struct HaneulGasData {
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
 #[enum_dispatch(HaneulTransactionBlockDataAPI)]
 #[serde(
-    rename = "TransactionData",
+    rename = "TransactionBlockData",
     rename_all = "camelCase",
     tag = "messageVersion"
 )]
@@ -881,7 +885,7 @@ pub trait HaneulTransactionBlockDataAPI {
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
-#[serde(rename = "TransactionDataV1", rename_all = "camelCase")]
+#[serde(rename = "TransactionBlockDataV1", rename_all = "camelCase")]
 pub struct HaneulTransactionBlockDataV1 {
     pub transaction: HaneulTransactionBlockKind,
     pub sender: HaneulAddress,
@@ -972,7 +976,7 @@ impl HaneulTransactionBlockData {
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
-#[serde(rename = "Transaction", rename_all = "camelCase")]
+#[serde(rename = "TransactionBlock", rename_all = "camelCase")]
 pub struct HaneulTransactionBlock {
     pub data: HaneulTransactionBlockData,
     pub tx_signatures: Vec<GenericSignature>,
@@ -1012,20 +1016,6 @@ pub struct HaneulConsensusCommitPrologue {
     pub epoch: u64,
     pub round: u64,
     pub commit_timestamp_ms: u64,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "TransferObject", rename_all = "camelCase")]
-pub struct HaneulTransferObject {
-    pub recipient: HaneulAddress,
-    pub object_ref: HaneulObjectRef,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename = "TransferHaneul", rename_all = "camelCase")]
-pub struct HaneulTransferHaneul {
-    pub recipient: HaneulAddress,
-    pub amount: Option<u64>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize, JsonSchema)]

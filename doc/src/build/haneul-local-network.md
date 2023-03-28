@@ -13,20 +13,22 @@ Install the necessary [prerequisites](../build/install.md#prerequisites) for Han
 Use the steps in this section to install the `haneul-test-validator` to run a local network. To install Haneul to build or for other purposes, use the steps in the [Install Haneul](install.md) topic.
 
 If you previously installed Haneul, do one of the following:
- * Use the same branch for the commands in this topic that you used to install Haneul
- * Install Haneul again using the branch you intend to use for your local network
+
+- Use the same branch for the commands in this topic that you used to install Haneul
+- Install Haneul again using the branch you intend to use for your local network
 
 You have two options to install Haneul:
- * Clone the Haneul GitHub repository locally, and then install Haneul from your local drive
- * Install Haneul directly from the remote Haneul repository.
+
+- Clone the Haneul GitHub repository locally, and then install Haneul from your local drive
+- Install Haneul directly from the remote Haneul repository.
 
 If you clone the repository and install Haneul from your local drive, you can also start a local Haneul Explorer and Haneul Wallet that works with your local network.
- 
+
 When you install `haneul-test-validator` but don't have libpq installed, you might see the following message:
 
 `ld: library not found for -lpq`
 
-To resolve this, use Brew to install `libpq` with the following command: 
+To resolve this, use Brew to install `libpq` with the following command:
 
 ```shell
 brew install libpq
@@ -105,7 +107,7 @@ curl --location --request POST 'http://127.0.0.1:9000' \
 --data-raw '{
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "haneul_getTotalTransactionNumber",
+  "method": "haneul_getTotalTransactionBlocks",
   "params": []
 }'
 ```
@@ -168,7 +170,8 @@ Use the active address to get test HANEUL to use on your local network. Use the 
 
 Transactions on your local network require HANEUL coins to pay for gas fees just like other networks. To send coins to a Haneul Wallet connected to your local network, see [Set up a local Haneul Wallet](#set-up-a-local-haneul-wallet). You can use the address for the local Haneul Wallet with the faucet.
 
-Use the following cURL command to get test coins from the local faucet. 
+Use the following cURL command to get test coins from the local faucet.
+
 ```bash
 curl --location --request POST 'http://127.0.0.1:9123/gas' \
 --header 'Content-Type: application/json' \
@@ -216,12 +219,14 @@ If successful, the response resembles the following:
 
 ### Check the gas coin objects for the active address
 
-After yoo get coins from the faucet, use the following command to view the coin objects for the address: 
+After yoo get coins from the faucet, use the following command to view the coin objects for the address:
+
 ```shell
 haneul client gas
 ```
 
 The response resembles the following, but with different IDs:
+
 ```
                              Object ID                              |  Gas Value
 --------------------------------------------------------------------------------
@@ -233,16 +238,18 @@ The response resembles the following, but with different IDs:
 
 ```
 
-## Install Haneul Wallet and Haneul Explorer locally 
+## Install Haneul Wallet and Haneul Explorer locally
 
 To install and use the apps locally, you must first install [pnpm](https://pnpm.io/installation). Use the instructions appropriate for your operating system.
 
 After you install `pnpm`, use the following command to install the required dependencies in your workspace:
+
 ```shell
 pnpm install
 ```
 
 After the installation completes, run the following command to install Haneul Wallet and Haneul Explorer:
+
 ```shell
 pnpm turbo build
 ```
@@ -281,7 +288,7 @@ pnpm wallet start
 
 ### Add local Haneul Wallet to Chrome
 
-After you build your local version of Haneul Wallet, you can add the extension to Chrome: 
+After you build your local version of Haneul Wallet, you can add the extension to Chrome:
 
 1. Open a Chrome browser to `chrome://extensions`.
 1. Click the **Developer mode** toggle to enable, if it's not already on.
@@ -291,24 +298,25 @@ Consult the Haneul Wallet [Readme](https://github.com/GeunhwaJeong/haneul/blob/m
 
 ## Generate example data
 
-Use the TypeScript SDK to add example data to your network. 
+Use the TypeScript SDK to add example data to your network.
 
 **Note:** To run the command you must complete the `Pre-requisites for Building Apps locally` section first.
 
-Run the following command from the `haneul` root folder: 
+Run the following command from the `haneul` root folder:
 
 ```bash
 pnpm sdk test:e2e
 ```
+
 For additional information about example data for testing, see [https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing).
 
 ## Troubleshooting
 
 If you do not use [Node.js 18](https://nodejs.org/de/blog/announcements/v18-release-announce), you might see the following message:
- 
+
 `Retrying requesting from faucet: Retry failed: fetch is not defined`
 
-To resolve this, switch or update to Node.js 18 and then try again. 
+To resolve this, switch or update to Node.js 18 and then try again.
 
 ## Test with the Haneul TypeScript SDK
 

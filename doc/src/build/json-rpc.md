@@ -20,9 +20,9 @@ To configure your own Haneul Full node, see [Configure a Haneul Full node](fulln
 
 You can sign transactions and interact with the Haneul network using any of the following:
 
- * [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
- * [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
- * [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
+- [Haneul Rust SDK](rust-sdk.md), a collection of Rust language JSON-RPC wrapper and crypto utilities.
+- [Haneul TypeScript SDK](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript) and [reference files](https://www.npmjs.com/package/@haneullabs/haneul.js).
+- [Haneul API Reference](https://docs.haneul.io/haneul-jsonrpc) for all available methods.
 
 ## Haneul JSON-RPC examples
 
@@ -65,24 +65,26 @@ curl --location --request POST $HANEUL_RPC_HOST \
     "{{to_address}}"],
 }' | json_pp
 ```
+
 A response resembles the following:
+
 ```json
 {
-  "id" : 1,
-  "jsonrpc" : "2.0",
-  "result" : {
-    "tx_bytes" : "VHJhbnNhY3Rpb25EYXRhOjoAAFHe8jecgzoGWyGlZ1sJ2KBFN8aZF7NIkDsM+3X8mrVCa7adg9HnVqUBAAAAAAAAACDOlrjlT0A18D0DqJLTU28ChUfRFtgHprmuOGCHYdv8YVHe8jecgzoGWyGlZ1sJ2KBFN8aZdZnY6h3kyWFtB38Wyg6zjN7KzAcBAAAAAAAAACDxI+LSHrFUxU0G8bPMXhF+46hpchJ22IHlpPv4FgNvGOgDAAAAAAAA="
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "tx_bytes": "VHJhbnNhY3Rpb25EYXRhOjoAAFHe8jecgzoGWyGlZ1sJ2KBFN8aZF7NIkDsM+3X8mrVCa7adg9HnVqUBAAAAAAAAACDOlrjlT0A18D0DqJLTU28ChUfRFtgHprmuOGCHYdv8YVHe8jecgzoGWyGlZ1sJ2KBFN8aZdZnY6h3kyWFtB38Wyg6zjN7KzAcBAAAAAAAAACDxI+LSHrFUxU0G8bPMXhF+46hpchJ22IHlpPv4FgNvGOgDAAAAAAAA="
   }
 }
-
 ```
+
 #### Sign a transaction using the Haneul keytool
 
 ```shell
 haneul keytool sign --address <owner_address> --data <tx_bytes>
 ```
-The keytool creates a key and then returns the signature and public key information.
 
+The keytool creates a key and then returns the signature and public key information.
 
 #### Execute a transaction with a serialized signature
 
@@ -92,7 +94,7 @@ curl --location --request POST $HANEUL_RPC_HOST \
 --data-raw '{
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "haneul_executeTransactionSerializedSig",
+  "method": "haneul_executeTransactionBlockSerializedSig",
   "params": [
     "{{tx_bytes}}",
     "{{signature}}",
@@ -100,11 +102,13 @@ curl --location --request POST $HANEUL_RPC_HOST \
   ]
 }' | json_pp
 ```
+
 `signature` is a Base64 encoded `flag || signature || pubkey`.
 
 Native transfer by `haneul_transferObject` supports any object that allows for public transfers. Some objects cannot be transferred natively and require a [Move call](#haneul_movecall). See [Transactions](../learn/transactions.md#native-transaction) for more information about native transfers.
 
 ### Invoke Move functions
+
 The example command in this section demonstrate how to call Move functions.
 
 #### Execute a Move call transaction
@@ -134,7 +138,7 @@ curl --location --request POST $HANEUL_RPC_HOST \
 ```
 
 Arguments are passed in, and type is inferred from the function
-signature.  Gas usage is capped by the `gas_budget`. The `transfer`
+signature. Gas usage is capped by the `gas_budget`. The `transfer`
 function is described in more detail in the [Haneul CLI client](cli-client.md#calling-move-code) documentation.
 
 The `transfer` function in the `Coin` module serves the same

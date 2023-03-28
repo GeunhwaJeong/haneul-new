@@ -46,8 +46,8 @@ use haneul_config::genesis::Genesis;
 use haneul_config::node::{AuthorityStorePruningConfig, DBCheckpointConfig};
 use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{
-    Checkpoint, DevInspectResults, DryRunTransactionResponse, EventFilter, HaneulEvent, HaneulMoveValue,
-    HaneulObjectDataFilter, HaneulTransactionBlockEvents,
+    Checkpoint, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
+    HaneulMoveValue, HaneulObjectDataFilter, HaneulTransactionBlockEvents,
 };
 use haneul_macros::{fail_point, fail_point_async, nondeterministic};
 use haneul_protocol_config::SupportedProtocolVersions;
@@ -1019,7 +1019,7 @@ impl AuthorityState {
         transaction_digest: TransactionDigest,
     ) -> Result<
         (
-            DryRunTransactionResponse,
+            DryRunTransactionBlockResponse,
             BTreeMap<ObjectID, (ObjectRef, Object, WriteKind)>,
             TransactionEffects,
         ),
@@ -1105,7 +1105,7 @@ impl AuthorityState {
         let balance_changes = Vec::new();
 
         Ok((
-            DryRunTransactionResponse {
+            DryRunTransactionBlockResponse {
                 effects: effects.clone().try_into()?,
                 events: HaneulTransactionBlockEvents::try_from(
                     inner_temp_store.events.clone(),

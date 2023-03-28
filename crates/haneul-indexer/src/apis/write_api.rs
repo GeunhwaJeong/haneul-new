@@ -9,7 +9,7 @@ use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{WriteApiClient, WriteApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionBlockResponse,
+    BigInt, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
@@ -57,7 +57,7 @@ impl WriteApiServer for WriteApi {
     async fn dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
-    ) -> RpcResult<DryRunTransactionResponse> {
+    ) -> RpcResult<DryRunTransactionBlockResponse> {
         self.fullnode.dry_run_transaction_block(tx_bytes).await
     }
 }

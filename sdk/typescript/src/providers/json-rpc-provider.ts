@@ -38,7 +38,7 @@ import {
   CheckpointDigest,
   Checkpoint,
   CommitteeInfo,
-  DryRunTransactionResponse,
+  DryRunTransactionBlockResponse,
   HaneulObjectDataOptions,
   HaneulSystemStateSummary,
   HaneulTransactionBlockResponseOptions,
@@ -460,7 +460,7 @@ export class JsonRpcProvider {
       OrderArguments,
   ): Promise<PaginatedTransactionResponse> {
     return await this.client.requestWithType(
-      'haneulx_queryTransactions',
+      'haneulx_queryTransactionBlocks',
       [
         {
           filter: input.filter,
@@ -483,7 +483,7 @@ export class JsonRpcProvider {
       throw new Error('Invalid Transaction digest');
     }
     return await this.client.requestWithType(
-      'haneul_getTransaction',
+      'haneul_getTransactionBlock',
       [input.digest, input.options],
       HaneulTransactionBlockResponse,
       this.options.skipDataValidation,
@@ -506,7 +506,7 @@ export class JsonRpcProvider {
     }
 
     return await this.client.requestWithType(
-      'haneul_multiGetTransactions',
+      'haneul_multiGetTransactionBlocks',
       [input.digests, input.options],
       array(HaneulTransactionBlockResponse),
       this.options.skipDataValidation,
@@ -520,7 +520,7 @@ export class JsonRpcProvider {
     requestType?: ExecuteTransactionRequestType;
   }): Promise<HaneulTransactionBlockResponse> {
     return await this.client.requestWithType(
-      'haneul_executeTransaction',
+      'haneul_executeTransactionBlock',
       [
         typeof input.transactionBlock === 'string'
           ? input.transactionBlock
@@ -540,7 +540,7 @@ export class JsonRpcProvider {
 
   async getTotalTransactionBlocks(): Promise<bigint> {
     const resp = await this.client.requestWithType(
-      'haneul_getTotalTransactionNumber',
+      'haneul_getTotalTransactionBlocks',
       [],
       string(),
       this.options.skipDataValidation,
@@ -683,7 +683,7 @@ export class JsonRpcProvider {
     }
 
     return await this.client.requestWithType(
-      'haneul_devInspectTransaction',
+      'haneul_devInspectTransactionBlock',
       [input.sender, devInspectTxBytes, input.gasPrice, input.epoch],
       DevInspectResults,
       this.options.skipDataValidation,
@@ -695,15 +695,15 @@ export class JsonRpcProvider {
    */
   async dryRunTransactionBlock(input: {
     transactionBlock: Uint8Array | string;
-  }): Promise<DryRunTransactionResponse> {
+  }): Promise<DryRunTransactionBlockResponse> {
     return await this.client.requestWithType(
-      'haneul_dryRunTransaction',
+      'haneul_dryRunTransactionBlock',
       [
         typeof input.transactionBlock === 'string'
           ? input.transactionBlock
           : toB64(input.transactionBlock),
       ],
-      DryRunTransactionResponse,
+      DryRunTransactionBlockResponse,
       this.options.skipDataValidation,
     );
   }

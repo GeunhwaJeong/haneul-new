@@ -16,7 +16,7 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionResponse, HaneulTransactionBlock,
+    BigInt, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
     HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
@@ -156,7 +156,7 @@ impl TransactionExecutionApi {
     async fn dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
-    ) -> Result<DryRunTransactionResponse, Error> {
+    ) -> Result<DryRunTransactionBlockResponse, Error> {
         let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
         let (resp, written_objects, transaction_effects) = self
             .state
@@ -174,7 +174,7 @@ impl TransactionExecutionApi {
         )
         .await?;
 
-        Ok(DryRunTransactionResponse {
+        Ok(DryRunTransactionBlockResponse {
             effects: resp.effects,
             events: resp.events,
             object_changes,
@@ -215,7 +215,7 @@ impl WriteApiServer for TransactionExecutionApi {
     async fn dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
-    ) -> RpcResult<DryRunTransactionResponse> {
+    ) -> RpcResult<DryRunTransactionBlockResponse> {
         Ok(self.dry_run_transaction_block(tx_bytes).await?)
     }
 }

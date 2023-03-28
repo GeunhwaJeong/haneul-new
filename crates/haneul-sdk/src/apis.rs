@@ -16,7 +16,7 @@ use haneul_json_rpc::api::IndexerApiClient;
 use haneul_json_rpc::api::MoveUtilsClient;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, CheckpointedObjectID, Coin, CoinPage, DelegatedStake,
-    DryRunTransactionResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
+    DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
@@ -230,7 +230,7 @@ impl ReadApi {
     pub async fn dry_run_transaction_block(
         &self,
         tx: TransactionData,
-    ) -> HaneulRpcResult<DryRunTransactionResponse> {
+    ) -> HaneulRpcResult<DryRunTransactionBlockResponse> {
         Ok(self
             .api
             .http

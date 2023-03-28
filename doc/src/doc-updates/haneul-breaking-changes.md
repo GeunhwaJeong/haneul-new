@@ -78,17 +78,17 @@ New entries added 03/20/23.
 
 **[Major API breaking changes]** - `GetTransaction` API refactoring
 
-- [RPC] `haneul_getTransaction` and `haneul_multiGetTransaction` now take in an additional optional parameter called `options` that specifies which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, these operations return only the transaction digest.
+- [RPC] `haneul_getTransactionBlock` and `haneul_multiGetTransaction` now take in an additional optional parameter called `options` that specifies which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, these operations return only the transaction digest.
 - [TS SDK] Renamed `provider.getTransactionWithEffects` to `provider.getTransactionResponse`. The new method takes in an additional parameter, `HaneulTransactionBlockResponseOptions`, to configure which fields to retrieve (such as `transaction`, `effects`, `events`, etc). By default, this method returns only the transaction digest.
 
 For more information, see [PR 8888](https://github.com/GeunhwaJeong/haneul/pull/8888).
 
 ---
 
-**[Major API breaking changes] haneul_executeTransaction refactoring**
+**[Major API breaking changes] haneul_executeTransactionBlock refactoring**
 
-- Removed `haneul_executeTransactionSerializedSig` and `haneul_submitTransaction` operations.
-- The `haneul_executeTransaction` operation now takes a vector of signatures instead of a single signature to support Sponsored Transactions.
+- Removed `haneul_executeTransactionBlockSerializedSig` and `haneul_submitTransaction` operations.
+- The `haneul_executeTransactionBlock` operation now takes a vector of signatures instead of a single signature to support Sponsored Transactions.
 
 To learn more, see [PR 9068](https://github.com/GeunhwaJeong/haneul/pull/9068).
 
@@ -132,7 +132,7 @@ Added 03/20/23
 
 ---
 
-**[API breaking change]** - To reduce the size of Haneul Full node synchronization payloads, this release removes events from `TransactionEffect`. The events are still included in the `HaneulTransactionBlockResponse` returned by `haneul_getTransaction` and `haneul_submitTransaction` endpoints. For more information, see [PR 7822](https://github.com/GeunhwaJeong/haneul/pull/7822).
+**[API breaking change]** - To reduce the size of Haneul Full node synchronization payloads, this release removes events from `TransactionEffect`. The events are still included in the `HaneulTransactionBlockResponse` returned by `haneul_getTransactionBlock` and `haneul_submitTransaction` endpoints. For more information, see [PR 7822](https://github.com/GeunhwaJeong/haneul/pull/7822).
 
 ---
 

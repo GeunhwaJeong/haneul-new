@@ -2,4 +2,4 @@
 "@haneullabs/haneul.js": minor
 ---
 
-Change functions in json-rpc-provider.ts of ts-sdk such that: `getTotalTransactionNumber`, `getReferenceGasPrice` return a `bigint`, `getLatestCheckpointSequenceNumber` returns a `string`, `gasPrice` of `devInspectTransaction` is defined as a `string`, checkpoint sequence number of `getCheckpoint` is defined as a `string`, `cursor` of `getCheckpoints` is defined as a `string`. Introduce `HaneulCheckpointSequenceNumber` type in haneul-json-rpc-types that is a `BigInt` to use instead of `CheckpointSequenceNumber` of haneul-types.
+Change functions in json-rpc-provider.ts of ts-sdk such that: `getTotalTransactionBlocks`, `getReferenceGasPrice` return a `bigint`, `getLatestCheckpointSequenceNumber` returns a `string`, `gasPrice` of `devInspectTransactionBlock` is defined as a `string`, checkpoint sequence number of `getCheckpoint` is defined as a `string`, `cursor` of `getCheckpoints` is defined as a `string`. Introduce `HaneulCheckpointSequenceNumber` type in haneul-json-rpc-types that is a `BigInt` to use instead of `CheckpointSequenceNumber` of haneul-types.

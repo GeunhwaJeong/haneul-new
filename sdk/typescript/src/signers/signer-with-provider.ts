@@ -13,7 +13,7 @@ import {
   getTotalGasUsedUpperBound,
   HaneulAddress,
   DevInspectResults,
-  DryRunTransactionResponse,
+  DryRunTransactionBlockResponse,
   HaneulTransactionBlockResponse,
   HaneulTransactionBlockResponseOptions,
 } from '../types';
@@ -180,7 +180,7 @@ export abstract class SignerWithProvider implements Signer {
    */
   async dryRunTransactionBlock(input: {
     transactionBlock: TransactionBlock | string | Uint8Array;
-  }): Promise<DryRunTransactionResponse> {
+  }): Promise<DryRunTransactionBlockResponse> {
     let dryRunTxBytes: Uint8Array;
     if (TransactionBlock.is(input.transactionBlock)) {
       input.transactionBlock.setSenderIfNotSet(await this.getAddress());

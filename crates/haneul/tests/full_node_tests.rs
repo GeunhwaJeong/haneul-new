@@ -823,7 +823,7 @@ async fn test_execute_tx_with_serialized_signature() -> Result<(), anyhow::Error
             ExecuteTransactionRequestType::WaitForLocalExecution
         ];
         let response: HaneulTransactionBlockResponse = jsonrpc_client
-            .request("haneul_executeTransaction", params)
+            .request("haneul_executeTransactionBlock", params)
             .await
             .unwrap();
 
@@ -864,7 +864,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
         ExecuteTransactionRequestType::WaitForLocalExecution
     ];
     let response: HaneulTransactionBlockResponse = jsonrpc_client
-        .request("haneul_executeTransaction", params)
+        .request("haneul_executeTransactionBlock", params)
         .await
         .unwrap();
 
@@ -877,7 +877,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     assert!(confirmed_local_execution.unwrap());
 
     let _response: HaneulTransactionBlockResponse = jsonrpc_client
-        .request("haneul_getTransaction", rpc_params![*tx_digest])
+        .request("haneul_getTransactionBlock", rpc_params![*tx_digest])
         .await
         .unwrap();
 
@@ -890,7 +890,7 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
         ExecuteTransactionRequestType::WaitForEffectsCert
     ];
     let response: HaneulTransactionBlockResponse = jsonrpc_client
-        .request("haneul_executeTransaction", params)
+        .request("haneul_executeTransactionBlock", params)
         .await
         .unwrap();
 
