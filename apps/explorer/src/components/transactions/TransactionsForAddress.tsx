@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '@haneullabs/core';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 import { genTableDataFromTxData } from './TxCardUtils';
@@ -41,9 +42,18 @@ export function TransactionsForAddress({ address, type }: Props) {
                 )
             );
 
-            return [...results[0].data, ...results[1].data].sort(
-                (a, b) => (b.timestampMs ?? 0) - (a.timestampMs ?? 0)
-            );
+            const inserted = new Map();
+            const uniqueList: HaneulTransactionBlockResponse[] = [];
+
+            [...results[0].data, ...results[1].data]
+                .sort((a, b) => (b.timestampMs ?? 0) - (a.timestampMs ?? 0))
+                .forEach((txb) => {
+                    if (inserted.get(txb.digest)) return;
+                    uniqueList.push(txb);
+                    inserted.set(txb.digest, true);
+                });
+
+            return uniqueList;
         }
     );
 

@@ -12,12 +12,12 @@ import { flattenHaneulArguments } from './utils';
 
 import { ObjectLink } from '~/ui/InternalLink';
 
-export interface CommandProps<T> {
+export interface TransactionProps<T> {
     type: string;
     data: T;
 }
 
-function CommandContent({
+function TransactionContent({
     type,
     children,
 }: {
@@ -26,17 +26,11 @@ function CommandContent({
 }) {
     return (
         <>
-            <div
-                data-testid="programmable-transactions-command-label"
-                className="text-heading6 font-semibold text-steel-darker"
-            >
+            <div className="text-heading6 font-semibold text-steel-darker">
                 {type}
             </div>
             {children && (
-                <div
-                    data-testid="programmable-transactions-command-content"
-                    className="text-bodyMedium pt-2 font-medium text-steel-dark"
-                >
+                <div className="text-bodyMedium pt-2 font-medium text-steel-dark">
                     {children}
                 </div>
             )}
@@ -47,15 +41,15 @@ function CommandContent({
 function ArrayArgument({
     type,
     data,
-}: CommandProps<(HaneulArgument | HaneulArgument[])[] | undefined>) {
+}: TransactionProps<(HaneulArgument | HaneulArgument[])[] | undefined>) {
     return (
-        <CommandContent type={type}>
+        <TransactionContent type={type}>
             {data && <>({flattenHaneulArguments(data)})</>}
-        </CommandContent>
+        </TransactionContent>
     );
 }
 
-function MoveCall({ type, data }: CommandProps<MoveCallHaneulTransaction>) {
+function MoveCall({ type, data }: TransactionProps<MoveCallHaneulTransaction>) {
     const {
         module,
         package: movePackage,
@@ -64,7 +58,7 @@ function MoveCall({ type, data }: CommandProps<MoveCallHaneulTransaction>) {
         type_arguments: typeArgs,
     } = data;
     return (
-        <CommandContent type={type}>
+        <TransactionContent type={type}>
             (package: <ObjectLink objectId={movePackage} />, module:{' '}
             <ObjectLink
                 objectId={`${movePackage}?module=${module}`}
@@ -73,14 +67,14 @@ function MoveCall({ type, data }: CommandProps<MoveCallHaneulTransaction>) {
             , function: <span className="text-haneul-dark">{func}</span>
             {args && <>, arguments: [{flattenHaneulArguments(args!)}]</>}
             {typeArgs && <>, type_arguments: {typeArgs}</>})
-        </CommandContent>
+        </TransactionContent>
     );
 }
 
-export function Command({
+export function Transaction({
     type,
     data,
-}: CommandProps<
+}: TransactionProps<
     (HaneulArgument | HaneulArgument[])[] | MoveCallHaneulTransaction | HaneulMovePackage
 >) {
     if (type === 'MoveCall') {
