@@ -4,14 +4,14 @@
 import {
   SignedTransaction,
   HaneulTransactionBlockResponse,
-  Transaction,
+  TransactionBlock,
 } from "@haneullabs/haneul.js";
 import { ConnectButton, useWalletKit } from "@haneullabs/wallet-kit";
 import { ComponentProps, ReactNode, useState } from "react";
 import { provider } from "./utils/rpc";
 import { sponsorTransaction } from "./utils/sponsorTransaction";
 
-const tx = new Transaction();
+const tx = new TransactionBlock();
 tx.moveCall({
   target: "0x2::devnet_nft::mint",
   arguments: [tx.pure("foo"), tx.pure("bar"), tx.pure("baz")],
