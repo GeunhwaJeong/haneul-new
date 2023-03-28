@@ -3,6 +3,42 @@
 
 # Module `0x3::haneul_system`
 
+Haneul System State Type Upgrade Guide
+<code><a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a></code> is a thin wrapper around <code>HaneulSystemStateInner</code> that provides a versioned interface.
+The <code><a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a></code> object has a fixed ID 0x5, and the <code>HaneulSystemStateInner</code> object is stored as a dynamic field.
+There are a few different ways to upgrade the <code>HaneulSystemStateInner</code> type:
+
+The simplest and one that doesn't involve a real upgrade is to just add dynamic fields to the <code>extra_fields</code> field
+of <code>HaneulSystemStateInner</code> or any of its sub type. This is useful when we are in a rush, or making a small change,
+or still experimenting a new field.
+
+To properly upgrade the <code>HaneulSystemStateInner</code> type, we need to ship a new framework that does the following:
+1. Define a new <code>HaneulSystemStateInner</code>type (e.g. <code>HaneulSystemStateInnerV2</code>).
+2. Define a data migration function that migrates the old <code>HaneulSystemStateInner</code> to the new one (i.e. HaneulSystemStateInnerV2).
+3. Replace all uses of <code>HaneulSystemStateInner</code> with <code>HaneulSystemStateInnerV2</code> in both haneul_system.move and haneul_system_state_inner.move,
+with the exception of the <code><a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_create">haneul_system_state_inner::create</a></code> function, which should always return the genesis type.
+4. Inside <code>load_inner_maybe_upgrade</code> function, check the current version in the wrapper, and if it's not the latest version,
+call the data migration function to upgrade the inner object. Make sure to also update the version in the wrapper.
+A detailed example can be found in haneul/tests/framework_upgrades/mock_haneul_systems/shallow_upgrade.
+Along with the Move change, we also need to update the Rust code to support the new type. This includes:
+1. Define a new <code>HaneulSystemStateInner</code> struct type that matches the new Move type, and implement the HaneulSystemStateTrait.
+2. Update the <code><a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a></code> struct to include the new version as a new enum variant.
+3. Update the <code>get_haneul_system_state</code> function to handle the new version.
+To test that the upgrade will be successful, we need to modify <code>haneul_system_state_production_upgrade_test</code> test in
+protocol_version_tests and trigger a real upgrade using the new framework. We will need to keep this directory as old version,
+put the new framework in a new directory, and run the test to exercise the upgrade.
+
+To upgrade Validator type, besides everything above, we also need to:
+1. Define a new Validator type (e.g. ValidatorV2).
+2. Define a data migration function that migrates the old Validator to the new one (i.e. ValidatorV2).
+3. Replace all uses of Validator with ValidatorV2 except the genesis creation function.
+4. In validator_wrapper::upgrade_to_latest, check the current version in the wrapper, and if it's not the latest version,
+call the data migration function to upgrade it.
+In Rust, we also need to add a new case in <code>get_validator_from_table</code>.
+Note that it is possible to upgrade HaneulSystemStateInner without upgrading Validator, but not the other way around.
+And when we only upgrade HaneulSystemStateInner, the version of Validator in the wrapper will not be updated, and hence may become
+inconsistent with the version of HaneulSystemStateInner. This is fine as long as we don't use the Validator version to determine
+the HaneulSystemStateInner version, or vice versa.
 
 
 -  [Resource `HaneulSystemState`](#0x3_haneul_system_HaneulSystemState)
@@ -1344,11 +1380,17 @@ version
 
 
 <pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInner {
-    <b>let</b> version = self.version;
     // TODO: This is <b>where</b> we check the version and perform upgrade <b>if</b> necessary.
+    // <b>if</b> (self.version == 1) {
+    //   <b>let</b> v1 = <a href="_remove">dynamic_field::remove</a>(&<b>mut</b> self.id, self.version);
+    //   <b>let</b> v2 = haneul_system_state_inner::v1_to_v2(v1);
+    //   <b>assert</b>!(v2.system_state_version = 2, 0);
+    //   self.version = 2;
+    //   <a href="_add">dynamic_field::add</a>(&<b>mut</b> self.id, self.version, v2);
+    // }
 
-    <b>let</b> inner: &<b>mut</b> HaneulSystemStateInner = <a href="_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, version);
-    <b>assert</b>!(<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_system_state_version">haneul_system_state_inner::system_state_version</a>(inner) == version, 0);
+    <b>let</b> inner: &<b>mut</b> HaneulSystemStateInner = <a href="_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, self.version);
+    <b>assert</b>!(<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_system_state_version">haneul_system_state_inner::system_state_version</a>(inner) == self.version, 0);
     inner
 }
 </code></pre>
