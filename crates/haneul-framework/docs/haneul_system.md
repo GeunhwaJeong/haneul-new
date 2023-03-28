@@ -42,6 +42,7 @@ the HaneulSystemStateInner version, or vice versa.
 
 
 -  [Resource `HaneulSystemState`](#0x3_haneul_system_HaneulSystemState)
+-  [Constants](#@Constants_0)
 -  [Function `create`](#0x3_haneul_system_create)
 -  [Function `request_add_validator_candidate`](#0x3_haneul_system_request_add_validator_candidate)
 -  [Function `request_remove_validator_candidate`](#0x3_haneul_system_request_remove_validator_candidate)
@@ -131,6 +132,29 @@ the HaneulSystemStateInner version, or vice versa.
 
 
 </details>
+
+<a name="@Constants_0"></a>
+
+## Constants
+
+
+<a name="0x3_haneul_system_ENotSystemAddress"></a>
+
+
+
+<pre><code><b>const</b> <a href="haneul_system.md#0x3_haneul_system_ENotSystemAddress">ENotSystemAddress</a>: u64 = 0;
+</code></pre>
+
+
+
+<a name="0x3_haneul_system_EWrongInnerVersion"></a>
+
+
+
+<pre><code><b>const</b> <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>: u64 = 1;
+</code></pre>
+
+
 
 <a name="0x3_haneul_system_create"></a>
 
@@ -1242,7 +1266,7 @@ gas coins.
 ) : Balance&lt;HANEUL&gt; {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     // Validator will make a special system call <b>with</b> sender set <b>as</b> 0x0.
-    <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, 0);
+    <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, <a href="haneul_system.md#0x3_haneul_system_ENotSystemAddress">ENotSystemAddress</a>);
     <b>let</b> storage_rebate = <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch">haneul_system_state_inner::advance_epoch</a>(
         self,
         new_epoch,
@@ -1298,7 +1322,7 @@ version
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     // Validator will make a special system call <b>with</b> sender set <b>as</b> 0x0.
-    <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, 0);
+    <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, <a href="haneul_system.md#0x3_haneul_system_ENotSystemAddress">ENotSystemAddress</a>);
     <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch_safe_mode">haneul_system_state_inner::advance_epoch_safe_mode</a>(
         self,
         new_epoch,
@@ -1384,13 +1408,13 @@ version
     // <b>if</b> (self.version == 1) {
     //   <b>let</b> v1 = <a href="_remove">dynamic_field::remove</a>(&<b>mut</b> self.id, self.version);
     //   <b>let</b> v2 = haneul_system_state_inner::v1_to_v2(v1);
-    //   <b>assert</b>!(v2.system_state_version = 2, 0);
+    //   <b>assert</b>!(v2.system_state_version = 2, <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
     //   self.version = 2;
     //   <a href="_add">dynamic_field::add</a>(&<b>mut</b> self.id, self.version, v2);
     // }
 
     <b>let</b> inner: &<b>mut</b> HaneulSystemStateInner = <a href="_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, self.version);
-    <b>assert</b>!(<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_system_state_version">haneul_system_state_inner::system_state_version</a>(inner) == self.version, 0);
+    <b>assert</b>!(<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_system_state_version">haneul_system_state_inner::system_state_version</a>(inner) == self.version, <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
     inner
 }
 </code></pre>

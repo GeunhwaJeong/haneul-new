@@ -71,6 +71,9 @@ module haneul_system::haneul_system {
         version: u64,
     }
 
+    const ENotSystemAddress: u64 = 0;
+    const EWrongInnerVersion: u64 = 1;
+
     // ==== functions that can only be called by genesis ====
 
     /// Create a new HaneulSystemState object and make it shared.
@@ -513,7 +516,7 @@ module haneul_system::haneul_system {
     ) : Balance<HANEUL> {
         let self = load_system_state_mut(wrapper);
         // Validator will make a special system call with sender set as 0x0.
-        assert!(tx_context::sender(ctx) == @0x0, 0);
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
         let storage_rebate = haneul_system_state_inner::advance_epoch(
             self,
             new_epoch,
@@ -549,7 +552,7 @@ module haneul_system::haneul_system {
     ) {
         let self = load_system_state_mut(wrapper);
         // Validator will make a special system call with sender set as 0x0.
-        assert!(tx_context::sender(ctx) == @0x0, 0);
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
         haneul_system_state_inner::advance_epoch_safe_mode(
             self,
             new_epoch,
@@ -575,13 +578,13 @@ module haneul_system::haneul_system {
         // if (self.version == 1) {
         //   let v1 = dynamic_field::remove(&mut self.id, self.version);
         //   let v2 = haneul_system_state_inner::v1_to_v2(v1);
-        //   assert!(v2.system_state_version = 2, 0);
+        //   assert!(v2.system_state_version = 2, EWrongInnerVersion);
         //   self.version = 2;
         //   dynamic_field::add(&mut self.id, self.version, v2);
         // }
 
         let inner: &mut HaneulSystemStateInner = dynamic_field::borrow_mut(&mut self.id, self.version);
-        assert!(haneul_system_state_inner::system_state_version(inner) == self.version, 0);
+        assert!(haneul_system_state_inner::system_state_version(inner) == self.version, EWrongInnerVersion);
         inner
     }
 
