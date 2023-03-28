@@ -40,3 +40,4 @@ haneul-simulator = { path = "../haneul-simulator" }
 [dev-dependencies]
 insta = { version = "1.21.1", features = ["redactions", "yaml"] }
 tempfile = "3.3.0"
+haneul-types = { path = "../haneul-types", features = ["test-utils"] }

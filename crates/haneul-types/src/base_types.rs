@@ -8,8 +8,7 @@ use crate::coin::COIN_MODULE_NAME;
 use crate::coin::COIN_STRUCT_NAME;
 pub use crate::committee::EpochId;
 use crate::crypto::{
-    AuthorityPublicKeyBytes, DefaultHash, KeypairTraits, PublicKey, SignatureScheme, HaneulPublicKey,
-    HaneulSignature,
+    AuthorityPublicKeyBytes, DefaultHash, PublicKey, SignatureScheme, HaneulPublicKey, HaneulSignature,
 };
 pub use crate::digests::{ObjectDigest, TransactionDigest, TransactionEffectsDigest};
 use crate::dynamic_field::DynamicFieldInfo;
@@ -39,6 +38,7 @@ use anyhow::anyhow;
 use fastcrypto::encoding::decode_bytes_hex;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::hash::HashFunction;
+use fastcrypto::traits::AllowedRng;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
@@ -388,16 +388,18 @@ pub struct HaneulAddress(
 impl HaneulAddress {
     pub const ZERO: Self = Self([0u8; HANEUL_ADDRESS_LENGTH]);
 
+    /// Convert the address to a byte buffer.
     pub fn to_vec(&self) -> Vec<u8> {
         self.0.to_vec()
     }
 
-    // for testing
+    #[cfg(feature = "test-utils")]
+    /// Return a random HaneulAddress.
     pub fn random_for_testing_only() -> Self {
-        let random_bytes = rand::thread_rng().gen::<[u8; HANEUL_ADDRESS_LENGTH]>();
-        Self(random_bytes)
+        AccountAddress::random().into()
     }
 
+    /// Serialize an Option<HaneulAddress> in Hex.
     pub fn optional_address_as_hex<S>(
         key: &Option<HaneulAddress>,
         serializer: S,
@@ -408,6 +410,7 @@ impl HaneulAddress {
         serializer.serialize_str(&key.map(Hex::encode).unwrap_or_default())
     }
 
+    /// Deserialize into an Option<HaneulAddress>.
     pub fn optional_address_from_hex<'de, D>(
         deserializer: D,
     ) -> Result<Option<HaneulAddress>, D::Error>
@@ -419,8 +422,16 @@ impl HaneulAddress {
         Ok(Some(value))
     }
 
+    /// Return the underlying byte array of a HaneulAddress.
     pub fn to_inner(self) -> [u8; HANEUL_ADDRESS_LENGTH] {
         self.0
+    }
+
+    /// Parse a HaneulAddress from a byte array or buffer.
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, HaneulError> {
+        <[u8; HANEUL_ADDRESS_LENGTH]>::try_from(bytes.as_ref())
+            .map_err(|_| HaneulError::InvalidAddress)
+            .map(HaneulAddress)
     }
 }
 
@@ -436,13 +447,34 @@ impl From<AccountAddress> for HaneulAddress {
     }
 }
 
+impl TryFrom<&[u8]> for HaneulAddress {
+    type Error = HaneulError;
+
+    /// Tries to convert the provided byte array into a HaneulAddress.
+    fn try_from(bytes: &[u8]) -> Result<Self, HaneulError> {
+        Self::from_bytes(bytes)
+    }
+}
+
 impl TryFrom<Vec<u8>> for HaneulAddress {
     type Error = HaneulError;
 
+    /// Tries to convert the provided byte buffer into a HaneulAddress.
     fn try_from(bytes: Vec<u8>) -> Result<Self, HaneulError> {
-        let arr: [u8; HANEUL_ADDRESS_LENGTH] =
-            bytes.try_into().map_err(|_| HaneulError::InvalidAddress)?;
-        Ok(Self(arr))
+        Self::from_bytes(bytes)
+    }
+}
+
+impl AsRef<[u8]> for HaneulAddress {
+    fn as_ref(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl FromStr for HaneulAddress {
+    type Err = anyhow::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        decode_bytes_hex(s).map_err(|e| anyhow!(e))
     }
 }
 
@@ -466,10 +498,12 @@ impl From<&PublicKey> for HaneulAddress {
     }
 }
 
-/// A MultiSig address is the 32 bytes of the hash of
-/// `flag_MultiSig || threshold || flag_1 || pk_1 || weight_1 || ... || flag_n || pk_n || weight_n`
-/// of all participating public keys and its weight.
 impl From<MultiSigPublicKey> for HaneulAddress {
+    /// Derive a HaneulAddress from [struct MultiSigPublicKey]. A MultiSig address
+    /// is defined as the 32-byte Blake2b hash of serializing the flag, the
+    /// threshold, concatenation of each participating flag, public keys and
+    /// its weight. `flag_MultiSig || threshold || flag_1 || pk_1 || weight_1
+    /// || ... || flag_n || pk_n || weight_n`.
     fn from(multisig_pk: MultiSigPublicKey) -> Self {
         let mut hasher = DefaultHash::default();
         hasher.update([SignatureScheme::MultiSig.flag()]);
@@ -479,13 +513,13 @@ impl From<MultiSigPublicKey> for HaneulAddress {
             hasher.update(pk.as_ref());
             hasher.update(w.to_le_bytes());
         });
-        let g_arr = hasher.finalize();
-        HaneulAddress(g_arr.digest)
+        HaneulAddress(hasher.finalize().digest)
     }
 }
 
 impl TryFrom<&GenericSignature> for HaneulAddress {
     type Error = HaneulError;
+    /// Derive a HaneulAddress from a serialized signature in Haneul [GenericSignature].
     fn try_from(sig: &GenericSignature) -> HaneulResult<Self> {
         Ok(match sig {
             GenericSignature::Signature(sig) => {
@@ -503,20 +537,23 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
     }
 }
 
-impl TryFrom<&[u8]> for HaneulAddress {
-    type Error = HaneulError;
-
-    fn try_from(bytes: &[u8]) -> Result<Self, HaneulError> {
-        let arr: [u8; HANEUL_ADDRESS_LENGTH] =
-            bytes.try_into().map_err(|_| HaneulError::InvalidAddress)?;
-        Ok(Self(arr))
+impl fmt::Display for HaneulAddress {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{}", Hex::encode(self.0))
     }
 }
 
-impl AsRef<[u8]> for HaneulAddress {
-    fn as_ref(&self) -> &[u8] {
-        &self.0[..]
+impl fmt::Debug for HaneulAddress {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "0x{}", Hex::encode(self.0))
     }
+}
+
+#[cfg(feature = "test-utils")]
+/// Generate a fake HaneulAddress with repeated one byte.
+pub fn dbg_addr(name: u8) -> HaneulAddress {
+    let addr = [name; HANEUL_ADDRESS_LENGTH];
+    HaneulAddress(addr)
 }
 
 #[derive(
@@ -677,7 +714,8 @@ impl TxContext {
         Ok(())
     }
 
-    // for testing
+    #[cfg(feature = "test-utils")]
+    // Generate a random TxContext for testing.
     pub fn random_for_testing_only() -> Self {
         Self::new(
             &HaneulAddress::random_for_testing_only(),
@@ -686,74 +724,11 @@ impl TxContext {
         )
     }
 
-    // for testing
+    #[cfg(feature = "test-utils")]
+    /// Generate a TxContext for testing with a specific sender.
     pub fn with_sender_for_testing_only(sender: &HaneulAddress) -> Self {
         Self::new(sender, &TransactionDigest::random(), &EpochData::new_test())
     }
-}
-
-pub fn get_new_address<K: KeypairTraits>() -> HaneulAddress
-where
-    <K as KeypairTraits>::PubKey: HaneulPublicKey,
-{
-    crate::crypto::get_key_pair::<K>().0
-}
-
-pub fn bytes_as_hex<B, S>(bytes: B, serializer: S) -> Result<S::Ok, S::Error>
-where
-    B: AsRef<[u8]>,
-    S: serde::ser::Serializer,
-{
-    serializer.serialize_str(&Hex::encode(bytes))
-}
-
-pub fn bytes_from_hex<'de, T, D>(deserializer: D) -> Result<T, D::Error>
-where
-    T: for<'a> TryFrom<&'a [u8]>,
-    D: serde::de::Deserializer<'de>,
-{
-    let s = String::deserialize(deserializer)?;
-    let value = decode_bytes_hex(&s).map_err(serde::de::Error::custom)?;
-    Ok(value)
-}
-
-impl fmt::Display for HaneulAddress {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:#x}", self)
-    }
-}
-
-impl fmt::Debug for HaneulAddress {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:#x}", self)
-    }
-}
-
-impl fmt::LowerHex for HaneulAddress {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if f.alternate() {
-            write!(f, "0x")?;
-        }
-        write!(f, "{}", Hex::encode(self))
-    }
-}
-
-impl fmt::UpperHex for HaneulAddress {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if f.alternate() {
-            write!(f, "0x")?;
-        }
-        write!(f, "{}", Hex::encode(self).to_uppercase())
-    }
-}
-
-pub fn dbg_addr(name: u8) -> HaneulAddress {
-    let addr = [name; HANEUL_ADDRESS_LENGTH];
-    HaneulAddress(addr)
-}
-
-pub fn dbg_object_id(name: u8) -> ObjectID {
-    ObjectID::from_bytes([name; ObjectID::LENGTH]).unwrap()
 }
 
 // TODO: rename to version
@@ -833,7 +808,7 @@ impl ObjectID {
     /// Hex address: 0x0
     pub const ZERO: Self = Self::new([0u8; Self::LENGTH]);
     pub const MAX: Self = Self::new([0xff; Self::LENGTH]);
-    /// Creates a new ObjectID
+    /// Create a new ObjectID
     pub const fn new(obj_id: [u8; Self::LENGTH]) -> Self {
         Self(AccountAddress::new(obj_id))
     }
@@ -843,28 +818,46 @@ impl ObjectID {
         Self(addr)
     }
 
-    /// Random ObjectID
+    /// Return a random ObjectID.
     pub fn random() -> Self {
         Self::from(AccountAddress::random())
     }
 
-    // Random for testing
+    /// Return a random ObjectID from a given RNG.
     pub fn random_from_rng<R>(rng: &mut R) -> Self
     where
-        R: rand::CryptoRng + rand::RngCore,
+        R: AllowedRng,
     {
         let buf: [u8; Self::LENGTH] = rng.gen();
         ObjectID::new(buf)
     }
 
+    /// Return the underlying bytes buffer of the ObjectID.
+    pub fn to_vec(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    /// Parse the ObjectID from byte array or buffer.
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, ObjectIDParseError> {
+        <[u8; Self::LENGTH]>::try_from(bytes.as_ref())
+            .map_err(|_| ObjectIDParseError::TryFromSliceError)
+            .map(ObjectID::new)
+    }
+
+    /// Return the underlying bytes array of the ObjectID.
+    pub fn into_bytes(self) -> [u8; Self::LENGTH] {
+        self.0.into_bytes()
+    }
+
+    /// Make an ObjectID with padding 0s before the single byte.
     pub const fn from_single_byte(byte: u8) -> ObjectID {
         let mut bytes = [0u8; Self::LENGTH];
         bytes[Self::LENGTH - 1] = byte;
         ObjectID::new(bytes)
     }
 
-    /// Converts from hex string to ObjectID where the string is prefixed with 0x
-    /// Its okay if the strings are less than expected
+    /// Convert from hex string to ObjectID where the string is prefixed with 0x
+    /// Padding 0s if the string is too short.
     pub fn from_hex_literal(literal: &str) -> Result<Self, ObjectIDParseError> {
         if !literal.starts_with("0x") {
             return Err(ObjectIDParseError::HexLiteralPrefixMissing);
@@ -899,15 +892,9 @@ impl ObjectID {
         ObjectID::try_from(&hash.as_ref()[0..ObjectID::LENGTH]).unwrap()
     }
 
-    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, ObjectIDParseError> {
-        <[u8; Self::LENGTH]>::try_from(bytes.as_ref())
-            .map_err(|_| ObjectIDParseError::TryFromSliceError)
-            .map(ObjectID::from)
-    }
-
     /// Incremenent the ObjectID by usize IDs, assuming the ObjectID hex is a number represented as an array of bytes
     pub fn advance(&self, step: usize) -> Result<ObjectID, anyhow::Error> {
-        let mut curr_vec = self.as_slice().to_vec();
+        let mut curr_vec = self.to_vec();
         let mut step_copy = step;
 
         let mut carry = 0;
@@ -928,12 +915,12 @@ impl ObjectID {
         if carry > 0 {
             return Err(anyhow!("Increment will cause overflow"));
         }
-        ObjectID::from_bytes(curr_vec).map_err(|w| w.into())
+        ObjectID::try_from(curr_vec).map_err(|w| w.into())
     }
 
-    /// Incremenent the ObjectID by one, assuming the ObjectID hex is a number represented as an array of bytes
+    /// Increment the ObjectID by one, assuming the ObjectID hex is a number represented as an array of bytes
     pub fn next_increment(&self) -> Result<ObjectID, anyhow::Error> {
-        let mut prev_val = self.as_slice().to_vec();
+        let mut prev_val = self.to_vec();
         let mx = [0xFF; Self::LENGTH];
 
         if prev_val == mx {
@@ -949,7 +936,7 @@ impl ObjectID {
                 break;
             };
         }
-        ObjectID::from_bytes(prev_val.clone()).map_err(|w| w.into())
+        ObjectID::try_from(prev_val.clone()).map_err(|w| w.into())
     }
 
     /// Create `count` object IDs starting with one at `offset`
@@ -965,34 +952,10 @@ impl ObjectID {
         Ok(ret)
     }
 
-    /// Returns the full hex string with 0x prefix without removing trailing 0s. Prefer this
+    /// Return the full hex string with 0x prefix without removing trailing 0s. Prefer this
     /// over [fn to_hex_literal] if the string needs to be fully preserved.
     pub fn to_hex_uncompressed(&self) -> String {
-        format!("0x{:x}", self)
-    }
-}
-
-#[derive(PartialEq, Eq, Clone, Debug, thiserror::Error)]
-pub enum ObjectIDParseError {
-    #[error("ObjectID hex literal must start with 0x")]
-    HexLiteralPrefixMissing,
-
-    #[error("ObjectID hex string should only contain 0-9, A-F, a-f")]
-    InvalidHexCharacter,
-
-    #[error("hex string must be even-numbered. Two chars maps to one byte.")]
-    OddLength,
-
-    #[error("ObjectID must be {} bytes long.", ObjectID::LENGTH)]
-    InvalidLength,
-
-    #[error("Could not convert from bytes slice")]
-    TryFromSliceError,
-}
-
-impl From<[u8; ObjectID::LENGTH]> for ObjectID {
-    fn from(bytes: [u8; ObjectID::LENGTH]) -> Self {
-        Self::new(bytes)
+        format!("{self}")
     }
 }
 
@@ -1003,75 +966,21 @@ impl From<HaneulAddress> for ObjectID {
     }
 }
 
-impl std::ops::Deref for ObjectID {
-    type Target = AccountAddress;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
 impl From<AccountAddress> for ObjectID {
     fn from(address: AccountAddress) -> Self {
         Self(address)
     }
 }
 
-impl From<ObjectID> for AccountAddress {
-    fn from(obj_id: ObjectID) -> Self {
-        obj_id.0
-    }
-}
-
-impl From<HaneulAddress> for AccountAddress {
-    fn from(address: HaneulAddress) -> Self {
-        Self::new(address.0)
-    }
-}
-
 impl fmt::Display for ObjectID {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:#x}", self)
-    }
-}
-
-impl fmt::Display for MoveObjectType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        let s: StructTag = self.clone().into();
-        write!(f, "{}", s)
-    }
-}
-
-impl fmt::Display for ObjectType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ObjectType::Package => write!(f, "{}", PACKAGE),
-            ObjectType::Struct(t) => write!(f, "{}", t),
-        }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "0x{}", Hex::encode(self.0))
     }
 }
 
 impl fmt::Debug for ObjectID {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:#x}", self)
-    }
-}
-
-impl fmt::LowerHex for ObjectID {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if f.alternate() {
-            write!(f, "0x")?;
-        }
-        write!(f, "{}", Hex::encode(self))
-    }
-}
-
-impl fmt::UpperHex for ObjectID {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if f.alternate() {
-            write!(f, "0x")?;
-        }
-        write!(f, "{}", Hex::encode(self).to_uppercase())
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "0x{}", Hex::encode(self.0))
     }
 }
 
@@ -1099,26 +1008,62 @@ impl TryFrom<Vec<u8>> for ObjectID {
     }
 }
 
-impl TryFrom<String> for ObjectID {
-    type Error = ObjectIDParseError;
-
-    fn try_from(s: String) -> Result<ObjectID, ObjectIDParseError> {
-        Self::from_str(&s).or_else(|_| Self::from_hex_literal(&s))
-    }
-}
-
-impl FromStr for HaneulAddress {
-    type Err = anyhow::Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        decode_bytes_hex(s).map_err(|e| anyhow!(e))
-    }
-}
-
 impl FromStr for ObjectID {
     type Err = ObjectIDParseError;
 
+    /// Parse ObjectID from hex string with or without 0x prefix, pad with 0s if needed.
     fn from_str(s: &str) -> Result<Self, ObjectIDParseError> {
-        // Try to match both the literal (0xABC..) and the normal (ABC)
         decode_bytes_hex(s).or_else(|_| Self::from_hex_literal(s))
+    }
+}
+
+impl std::ops::Deref for ObjectID {
+    type Target = AccountAddress;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[cfg(feature = "test-utils")]
+/// Generate a fake ObjectID with repeated one byte.
+pub fn dbg_object_id(name: u8) -> ObjectID {
+    ObjectID::new([name; ObjectID::LENGTH])
+}
+
+#[derive(PartialEq, Eq, Clone, Debug, thiserror::Error)]
+pub enum ObjectIDParseError {
+    #[error("ObjectID hex literal must start with 0x")]
+    HexLiteralPrefixMissing,
+
+    #[error("Could not convert from bytes slice")]
+    TryFromSliceError,
+}
+
+impl From<ObjectID> for AccountAddress {
+    fn from(obj_id: ObjectID) -> Self {
+        obj_id.0
+    }
+}
+
+impl From<HaneulAddress> for AccountAddress {
+    fn from(address: HaneulAddress) -> Self {
+        Self::new(address.0)
+    }
+}
+
+impl fmt::Display for MoveObjectType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        let s: StructTag = self.clone().into();
+        write!(f, "{}", s)
+    }
+}
+
+impl fmt::Display for ObjectType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ObjectType::Package => write!(f, "{}", PACKAGE),
+            ObjectType::Struct(t) => write!(f, "{}", t),
+        }
     }
 }

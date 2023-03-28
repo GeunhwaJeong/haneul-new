@@ -19,7 +19,7 @@ serde_json = "1.0.88"
 rand = "0.8.5"
 haneul = { path = "../haneul" }
 haneul-config = { path = "../haneul-config" }
-haneul-core = { path = "../haneul-core" }
+haneul-core = { path = "../haneul-core", features = ["test-utils"] }
 haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
@@ -27,7 +27,7 @@ haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-node = { path = "../haneul-node" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-swarm = { path = "../haneul-swarm" }
-haneul-types = { path = "../haneul-types" }
+haneul-types = { path = "../haneul-types", features = ["test-utils"] }
 haneul-keys = { path = "../haneul-keys" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneullabs-metrics = { path = "../haneullabs-metrics"}

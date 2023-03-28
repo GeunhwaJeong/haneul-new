@@ -15,6 +15,7 @@ use clap::*;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::{KeyPair, ToFromBytes};
 use move_core_types::ident_str;
+use shared_crypto::intent::Intent;
 use std::path::{Path, PathBuf};
 use haneul_config::node::KeyPairWithPath;
 use haneul_config::utils;
@@ -24,9 +25,8 @@ use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockRespons
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
-use haneul_types::messages::{CallArg, ObjectArg, TransactionData};
+use haneul_types::messages::{CallArg, ObjectArg, Transaction, TransactionData};
 use haneul_types::multiaddr::{Multiaddr, Protocol};
-use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{committee::EpochId, crypto::get_authority_key_pair};
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use tracing::info;
@@ -336,7 +336,12 @@ async fn execute_tx(
     tx_data: TransactionData,
     action: &str,
 ) -> anyhow::Result<()> {
-    let tx = to_sender_signed_transaction(tx_data, config.account_key_pair());
+    let tx = Transaction::from_data_and_signer(
+        tx_data,
+        Intent::default(),
+        vec![config.account_key_pair()],
+    )
+    .verify()?;
     info!("Executing {:?}", tx.digest());
     let tx_digest = *tx.digest();
     let resp = haneul_client
