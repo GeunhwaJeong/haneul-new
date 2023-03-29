@@ -1,12 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::cmp::Ordering;
-use std::collections::BTreeMap;
-use std::fmt;
-use std::fmt::Write;
-use std::fmt::{Display, Formatter};
-
 use anyhow::anyhow;
 use colored::Colorize;
 use fastcrypto::encoding::Base64;
@@ -20,6 +14,12 @@ use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
 use serde_with::DisplayFromStr;
+use std::cmp::Ordering;
+use std::collections::BTreeMap;
+use std::fmt;
+use std::fmt::Write;
+use std::fmt::{Display, Formatter};
+use haneul_types::haneul_serde::HaneulStructTag;
 
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
@@ -816,7 +816,7 @@ pub trait HaneulMoveObject: Sized {
 #[serde(rename = "MoveObject", rename_all = "camelCase")]
 pub struct HaneulParsedMoveObject {
     #[serde(rename = "type")]
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "HaneulStructTag")]
     #[schemars(with = "String")]
     pub type_: StructTag,
     pub has_public_transfer: bool,
@@ -868,7 +868,7 @@ pub fn type_and_fields_from_move_struct(
 pub struct HaneulRawMoveObject {
     #[schemars(with = "String")]
     #[serde(rename = "type")]
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "HaneulStructTag")]
     pub type_: StructTag,
     pub has_public_transfer: bool,
     pub version: SequenceNumber,
@@ -1056,7 +1056,7 @@ pub enum HaneulObjectDataFilter {
     /// Query by type
     StructType(
         #[schemars(with = "String")]
-        #[serde_as(as = "DisplayFromStr")]
+        #[serde_as(as = "HaneulStructTag")]
         StructTag,
     ),
     AddressOwner(HaneulAddress),

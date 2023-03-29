@@ -16,7 +16,7 @@ use haneul_types::error::HaneulResult;
 use haneul_types::event::{Event, EventEnvelope, EventID};
 
 use crate::{type_and_fields_from_move_struct, Page};
-
+use haneul_types::haneul_serde::HaneulStructTag;
 pub type EventPage = Page<HaneulEvent, EventID>;
 
 #[serde_as]
@@ -38,7 +38,7 @@ pub struct HaneulEvent {
     /// Sender's Haneul address.
     pub sender: HaneulAddress,
     #[schemars(with = "String")]
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "HaneulStructTag")]
     /// Move event type.
     pub type_: StructTag,
     /// Parsed json value of the event
@@ -131,7 +131,7 @@ pub enum EventFilter {
     /// Return events with the given move event struct name
     MoveEventType(
         #[schemars(with = "String")]
-        #[serde_as(as = "DisplayFromStr")]
+        #[serde_as(as = "HaneulStructTag")]
         StructTag,
     ),
     MoveEventField {

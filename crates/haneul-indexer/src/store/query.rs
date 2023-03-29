@@ -139,10 +139,10 @@ mod test {
     use std::str::FromStr;
 
     use move_core_types::ident_str;
-    use move_core_types::parser::parse_struct_tag;
 
     use haneul_json_rpc_types::HaneulObjectDataFilter;
     use haneul_types::base_types::{ObjectID, HaneulAddress};
+    use haneul_types::parse_haneul_struct_tag;
 
     use crate::store::query::DBFilter;
 
@@ -222,7 +222,7 @@ LIMIT 100;";
                 )
                 .unwrap(),
             ),
-            HaneulObjectDataFilter::StructType(parse_struct_tag("0x2::test::Test").unwrap()),
+            HaneulObjectDataFilter::StructType(parse_haneul_struct_tag("0x2::test::Test").unwrap()),
         ]);
 
         let expected_sql = "SELECT t1.*

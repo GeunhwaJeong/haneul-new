@@ -9,7 +9,6 @@ use fastcrypto::traits::EncodeDecodeBase64;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::ModuleId;
 use move_core_types::language_storage::StructTag;
-use move_core_types::parser::parse_struct_tag;
 use move_core_types::resolver::ModuleResolver;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
@@ -48,7 +47,7 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
+use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_OBJECT_ID};
 
 struct Examples {
     function_name: String,
@@ -468,7 +467,7 @@ impl RpcExampleProvider {
         let object_change = ObjectChange::Transferred {
             sender: signer,
             recipient: Owner::AddressOwner(recipient),
-            object_type: parse_struct_tag("0x2::example::Object").unwrap(),
+            object_type: parse_haneul_struct_tag("0x2::example::Object").unwrap(),
             object_id: object_ref.0,
             version: object_ref.1,
             digest: ObjectDigest::new(self.rng.gen()),
@@ -547,7 +546,7 @@ impl RpcExampleProvider {
             package_id: ObjectID::new(self.rng.gen()),
             transaction_module: Identifier::from_str("test_module").unwrap(),
             sender: HaneulAddress::from(ObjectID::new(self.rng.gen())),
-            type_: parse_struct_tag("0x9::test::TestEvent").unwrap(),
+            type_: parse_haneul_struct_tag("0x9::test::TestEvent").unwrap(),
             parsed_json: json! ({"test": "example value"}),
             bcs: vec![],
             timestamp_ms: None,

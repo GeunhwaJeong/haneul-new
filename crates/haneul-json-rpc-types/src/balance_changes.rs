@@ -5,8 +5,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use serde_with::DisplayFromStr;
-
 use haneul_types::object::Owner;
+use haneul_types::haneul_serde::HaneulTypeTag;
 
 #[serde_as]
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, PartialEq, Eq)]
@@ -15,7 +15,7 @@ pub struct BalanceChange {
     /// Owner of the balance change
     pub owner: Owner,
     #[schemars(with = "String")]
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "HaneulTypeTag")]
     pub coin_type: TypeTag,
     /// The amount indicate the balance value changes,
     /// negative amount means spending coin value and positive means receiving coin value.

@@ -38,6 +38,7 @@ use haneul_types::storage::{DeleteKind, WriteKind};
 use crate::balance_changes::BalanceChange;
 use crate::object_changes::ObjectChange;
 use crate::{Page, HaneulEvent, HaneulMovePackage, HaneulObjectRef};
+use haneul_types::haneul_serde::HaneulTypeTag as AsHaneulTypeTag;
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq, Eq, Copy)]
@@ -1544,7 +1545,7 @@ impl HaneulCallArg {
 #[serde(rename_all = "camelCase")]
 pub struct HaneulPureValue {
     #[schemars(with = "Option<String>")]
-    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde_as(as = "Option<AsHaneulTypeTag>")]
     value_type: Option<TypeTag>,
     value: HaneulJsonValue,
 }
