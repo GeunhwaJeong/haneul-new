@@ -37,32 +37,34 @@ export function validatorsTableData(
     rollingAverageApys: ApyByValidator | null
 ) {
     return {
-        data: validators.map((validator) => {
-            const validatorName = validator.name;
-            const totalStake = validator.stakingPoolHaneulBalance;
-            const img = validator.imageUrl;
+        data: [...validators]
+            .sort(() => 0.5 - Math.random())
+            .map((validator) => {
+                const validatorName = validator.name;
+                const totalStake = validator.stakingPoolHaneulBalance;
+                const img = validator.imageUrl;
 
-            const event = getValidatorMoveEvent(
-                validatorEvents,
-                validator.haneulAddress
-            );
-            return {
-                name: {
-                    name: validatorName,
-                    logo: validator.imageUrl,
-                },
-                stake: totalStake,
-                apy: rollingAverageApys?.[validator.haneulAddress] || 0,
-                nextEpochGasPrice: validator.nextEpochGasPrice,
-                commission: +validator.commissionRate / 100,
-                img: img,
-                address: validator.haneulAddress,
-                lastReward: +event?.pool_staking_reward || 0,
-                atRisk: atRiskValidators.some(
-                    ([address]) => address === validator.haneulAddress
-                ),
-            };
-        }),
+                const event = getValidatorMoveEvent(
+                    validatorEvents,
+                    validator.haneulAddress
+                );
+                return {
+                    name: {
+                        name: validatorName,
+                        logo: validator.imageUrl,
+                    },
+                    stake: totalStake,
+                    apy: rollingAverageApys?.[validator.haneulAddress] || 0,
+                    nextEpochGasPrice: validator.nextEpochGasPrice,
+                    commission: +validator.commissionRate / 100,
+                    img: img,
+                    address: validator.haneulAddress,
+                    lastReward: +event?.pool_staking_reward || 0,
+                    atRisk: atRiskValidators.some(
+                        ([address]) => address === validator.haneulAddress
+                    ),
+                };
+            }),
         columns: [
             {
                 header: '#',
@@ -242,8 +244,6 @@ function ValidatorPageResult() {
         );
     }, [data, validatorEvents, rollingAverageApys]);
 
-    const defaultSorting = [{ id: 'stake', desc: false }];
-
     if (isError || validatorEventError) {
         return (
             <Banner variant="error" fullWidth>
@@ -334,7 +334,6 @@ function ValidatorPageResult() {
                             data={validatorsTable.data}
                             columns={validatorsTable.columns}
                             sortTable
-                            defaultSorting={defaultSorting}
                         />
                     )}
                 </ErrorBoundary>
