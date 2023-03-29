@@ -1348,7 +1348,7 @@ version
 
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state">load_system_state</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state">load_system_state</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>
 </code></pre>
 
 
@@ -1357,7 +1357,7 @@ version
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state">load_system_state</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &HaneulSystemStateInner {
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state">load_system_state</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &HaneulSystemStateInnerV2 {
     <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self)
 }
 </code></pre>
@@ -1372,7 +1372,7 @@ version
 
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>
 </code></pre>
 
 
@@ -1381,7 +1381,7 @@ version
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInner {
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInnerV2 {
     <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self)
 }
 </code></pre>
@@ -1396,7 +1396,7 @@ version
 
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>
 </code></pre>
 
 
@@ -1405,17 +1405,15 @@ version
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInner {
-    // TODO: This is <b>where</b> we check the version and perform upgrade <b>if</b> necessary.
-    // <b>if</b> (self.version == 1) {
-    //   <b>let</b> v1 = <a href="_remove">dynamic_field::remove</a>(&<b>mut</b> self.id, self.version);
-    //   <b>let</b> v2 = haneul_system_state_inner::v1_to_v2(v1);
-    //   <b>assert</b>!(v2.system_state_version = 2, <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
-    //   self.version = 2;
-    //   <a href="_add">dynamic_field::add</a>(&<b>mut</b> self.id, self.version, v2);
-    // }
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInnerV2 {
+    <b>if</b> (self.version == 1) {
+      <b>let</b> v1 = <a href="_remove">dynamic_field::remove</a>(&<b>mut</b> self.id, self.version);
+      <b>let</b> v2 = <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_v1_to_v2">haneul_system_state_inner::v1_to_v2</a>(v1);
+      self.version = 2;
+      <a href="_add">dynamic_field::add</a>(&<b>mut</b> self.id, self.version, v2);
+    };
 
-    <b>let</b> inner: &<b>mut</b> HaneulSystemStateInner = <a href="_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, self.version);
+    <b>let</b> inner = <a href="_borrow_mut">dynamic_field::borrow_mut</a>(&<b>mut</b> self.id, self.version);
     <b>assert</b>!(<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_system_state_version">haneul_system_state_inner::system_state_version</a>(inner) == self.version, <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
     inner
 }

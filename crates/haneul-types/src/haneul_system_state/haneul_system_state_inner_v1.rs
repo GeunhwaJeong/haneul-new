@@ -455,7 +455,6 @@ pub struct StorageFundV1 {
 }
 
 /// Rust version of the Move haneul_system::haneul_system::HaneulSystemStateInner type
-/// We want to keep it named as HaneulSystemState in Rust since this is the primary interface type.
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct HaneulSystemStateInnerV1 {
     pub epoch: u64,

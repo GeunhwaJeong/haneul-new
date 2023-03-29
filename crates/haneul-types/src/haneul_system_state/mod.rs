@@ -7,6 +7,7 @@ use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::HaneulError;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
+use crate::haneul_system_state::haneul_system_state_inner_v2::HaneulSystemStateInnerV2;
 use crate::versioned::Versioned;
 use crate::{id::UID, MoveTypeTagTrait, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
 use anyhow::Result;
@@ -21,6 +22,7 @@ use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidato
 
 pub mod epoch_start_haneul_system_state;
 pub mod haneul_system_state_inner_v1;
+pub mod haneul_system_state_inner_v2;
 pub mod haneul_system_state_summary;
 
 #[cfg(msim)]
@@ -91,6 +93,7 @@ pub trait HaneulSystemStateTrait {
 #[enum_dispatch(HaneulSystemStateTrait)]
 pub enum HaneulSystemState {
     V1(HaneulSystemStateInnerV1),
+    V2(HaneulSystemStateInnerV2),
     #[cfg(msim)]
     SimTestV1(SimTestHaneulSystemStateInnerV1),
     #[cfg(msim)]
@@ -111,7 +114,6 @@ impl HaneulSystemState {
     pub fn into_genesis_version_for_tooling(self) -> HaneulSystemStateInnerGenesis {
         match self {
             HaneulSystemState::V1(inner) => inner,
-            #[cfg(msim)]
             _ => unreachable!(),
         }
     }
@@ -159,6 +161,18 @@ where
                     },
                 )?;
             Ok(HaneulSystemState::V1(result))
+        }
+        2 => {
+            let result: HaneulSystemStateInnerV2 =
+                get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
+                    |err| {
+                        HaneulError::DynamicFieldReadError(format!(
+                            "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
+                            id, wrapper.version, err
+                        ))
+                    },
+                )?;
+            Ok(HaneulSystemState::V2(result))
         }
         #[cfg(msim)]
         HANEUL_SYSTEM_STATE_SIM_TEST_V1 => {
