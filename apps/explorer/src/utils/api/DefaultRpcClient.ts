@@ -20,7 +20,7 @@ const CONNECTIONS: Record<Network, Connection> = {
         fullnode: 'https://explorer-rpc.devnet.haneul.io:443',
     }),
     [Network.TESTNET]: new Connection({
-        fullnode: 'https://fullnode-explorer.testnet.haneul.io:443',
+        fullnode: 'https://explorer-rpc.testnet.haneul.io:443',
     }),
 };
 
