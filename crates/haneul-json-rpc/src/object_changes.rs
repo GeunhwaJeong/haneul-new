@@ -4,10 +4,7 @@
 use std::collections::BTreeMap;
 
 use haneul_json_rpc_types::ObjectChange;
-use haneul_types::base_types::{MoveObjectType, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
-use haneul_types::coin::Coin;
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::governance::StakedHaneul;
+use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::object::Owner;
 use haneul_types::storage::{DeleteKind, WriteKind};
 
@@ -30,12 +27,7 @@ pub async fn get_object_changes<P: ObjectProvider<Error = E>, E>(
     for ((id, version, digest), owner, kind) in all_changed_objects {
         let o = object_provider.get_object(id, version).await?;
         if let Some(type_) = o.type_() {
-            let object_type = match type_ {
-                MoveObjectType::Other(type_) => type_.clone(),
-                MoveObjectType::StakedHaneul => StakedHaneul::type_(),
-                MoveObjectType::GasCoin => GasCoin::type_(),
-                MoveObjectType::Coin(t) => Coin::type_(t.clone()),
-            };
+            let object_type = type_.clone().into();
 
             match kind {
                 WriteKind::Mutate => object_changes.push(ObjectChange::Mutated {
@@ -76,12 +68,8 @@ pub async fn get_object_changes<P: ObjectProvider<Error = E>, E>(
             .await?;
         if let Some(o) = o {
             if let Some(type_) = o.type_() {
-                let type_ = match type_ {
-                    MoveObjectType::Other(type_) => Some(type_.clone()),
-                    MoveObjectType::StakedHaneul => Some(StakedHaneul::type_()),
-                    _ => None,
-                };
-                if let Some(object_type) = type_ {
+                if !type_.is_coin() {
+                    let object_type = type_.clone().into();
                     match kind {
                         DeleteKind::Normal => object_changes.push(ObjectChange::Deleted {
                             sender,

@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::BalanceChange;
-use haneul_types::base_types::{MoveObjectType, ObjectID, ObjectRef, SequenceNumber};
+use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::coin::Coin;
 use haneul_types::error::HaneulError;
 use haneul_types::gas_coin::GAS;
@@ -98,20 +98,15 @@ async fn fetch_coins<P: ObjectProvider<Error = E>, E>(
         // TODO: use multi get object
         if let Ok(o) = object_provider.get_object(id, version).await {
             if let Some(type_) = o.type_() {
-                match type_ {
-                    MoveObjectType::GasCoin => all_mutated_coins.push((
+                if type_.is_coin() {
+                    let [coin_type]: [TypeTag; 1] =
+                        type_.clone().into_type_params().try_into().unwrap();
+                    all_mutated_coins.push((
                         o.owner,
-                        GAS::type_tag(),
+                        coin_type,
                         // we know this is a coin, safe to unwrap
                         Coin::extract_balance_if_coin(&o).unwrap().unwrap(),
-                    )),
-                    MoveObjectType::Coin(coin_type) => all_mutated_coins.push((
-                        o.owner,
-                        coin_type.clone(),
-                        // we know this is a coin, safe to unwrap
-                        Coin::extract_balance_if_coin(&o).unwrap().unwrap(),
-                    )),
-                    _ => {}
+                    ))
                 }
             }
         }

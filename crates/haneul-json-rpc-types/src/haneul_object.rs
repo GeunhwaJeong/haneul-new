@@ -23,8 +23,8 @@ use haneul_types::haneul_serde::HaneulStructTag;
 
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
-    MoveObjectType, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
-    HaneulAddress, TransactionDigest,
+    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber, HaneulAddress,
+    TransactionDigest,
 };
 use haneul_types::error::{HaneulObjectResponseError, UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
@@ -209,7 +209,7 @@ impl HaneulObjectData {
 
     pub fn is_gas_coin(&self) -> bool {
         match self.type_.as_ref() {
-            Some(ObjectType::Struct(MoveObjectType::GasCoin)) => true,
+            Some(ObjectType::Struct(ty)) if ty.is_gas_coin() => true,
             Some(_) => false,
             None => false,
         }
