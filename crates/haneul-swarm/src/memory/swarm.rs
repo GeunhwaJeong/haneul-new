@@ -18,6 +18,7 @@ use haneul_config::builder::{
 use haneul_config::genesis_config::{GenesisConfig, ValidatorConfigInfo};
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::NetworkConfig;
+use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::object::Object;
@@ -315,6 +316,12 @@ impl Swarm {
     /// Return an iterator over shared references of all Validators.
     pub fn validators(&self) -> impl Iterator<Item = &Node> {
         self.validators.values()
+    }
+
+    pub fn validator_node_handles(&self) -> Vec<HaneulNodeHandle> {
+        self.validators()
+            .map(|node| node.get_node_handle().unwrap())
+            .collect()
     }
 
     /// Attempt to lookup and return a shared reference to the Fullnode with the provided `name`.
