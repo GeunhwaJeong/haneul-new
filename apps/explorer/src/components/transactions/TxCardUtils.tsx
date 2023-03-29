@@ -14,7 +14,6 @@ import {
 import clsx from 'clsx';
 import { type ReactNode } from 'react';
 
-import { getAmount } from '../../utils/getAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
 
 import styles from './RecentTxCard.module.css';
@@ -76,13 +75,6 @@ export const genTableDataFromTxData = (
 ) => ({
     data: results.map((transaction) => {
         const status = getExecutionStatusType(transaction);
-        const transfer = getAmount({
-            txnData: transaction,
-            haneulCoinOnly: true,
-        })[0];
-
-        // use only absolute value of haneul amount
-        const haneulAmount = transfer?.amount ? Math.abs(transfer.amount) : null;
         const sender = getTransactionSender(transaction);
 
         return {
@@ -105,9 +97,13 @@ export const genTableDataFromTxData = (
                     />
                 </TxTableCol>
             ),
-            amounts: (
+            txns: (
                 <TxTableCol>
-                    <HaneulAmount amount={haneulAmount} />
+                    {transaction.transaction?.data.transaction.kind ===
+                    'ProgrammableTransaction'
+                        ? transaction.transaction.data.transaction.transactions
+                              .length
+                        : '--'}
                 </TxTableCol>
             ),
             gas: (
@@ -132,8 +128,8 @@ export const genTableDataFromTxData = (
             accessorKey: 'sender',
         },
         {
-            header: () => <TxTableHeader label="Amount" />,
-            accessorKey: 'amounts',
+            header: () => <TxTableHeader label="Txns" />,
+            accessorKey: 'txns',
         },
         {
             header: () => <TxTableHeader label="Gas" />,
