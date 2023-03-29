@@ -43,7 +43,7 @@ It's now time to look at some Haneul Move code. You can either keep reading for 
 
 ## First look at Move source code
 
-The Haneul platform includes the Haneul Framework, which includes the core on-chain libraries that Haneul Move developers  need to bootstrap Haneul operations. In particular, Haneul supports multiple user-defined coin types, which are custom assets the Haneul Move language defines. Haneul Framework code contains the `Coin` module supporting creation and management of custom coins. The `Coin` module is located in the [coin.move](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/coin.move) file. As you might expect, the manifest file describing how to build the package containing the `Coin` module is located in the corresponding
+The Haneul platform includes the Haneul Framework, which includes the core on-chain libraries that Haneul Move developers  need to bootstrap Haneul operations. In particular, Haneul supports multiple user-defined coin types, which are custom assets the Haneul Move language defines. Haneul Framework code contains the `Coin` module supporting creation and management of custom coins. The `Coin` module is located in the [coin.move](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/coin.move) file. As you might expect, the manifest file describing how to build the package containing the `Coin` module is located in the corresponding
 [Move.toml](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/Move.toml) file.
 
 Let's see how module definition appears in the `Coin` module file:

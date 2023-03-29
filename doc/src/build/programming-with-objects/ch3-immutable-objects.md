@@ -8,7 +8,7 @@ Objects in Haneul can have different types of [ownership](../objects.md#object-o
 
 ### Create immutable object
 
-To convert an object into an immutable object, call the following function in the [transfer module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/transfer.move):
+To convert an object into an immutable object, call the following function in the [transfer module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/transfer.move):
 
 ```rust
 public native fun freeze_object<T: key>(obj: T);

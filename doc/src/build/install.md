@@ -306,7 +306,6 @@ git clone https://github.com/GeunhwaJeong/haneul.git --branch devnet
 
 The following primary directories offer a good starting point for exploring Haneul's source code:
  * [haneul](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul) - Haneul, including the Haneul CLI Client
- * [haneul_framework](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/sources) - Haneul Move core smart contracts (e.g., coin.move, object.move, test_scenario.move, ...)
  * [haneul_programmability](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability) - Haneul Move code examples (games, defi, nfts, ...)
  * [haneul_core](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-core) - Core Haneul components
  * [haneul-types](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-types) - Haneul object types, such as coins and gas
