@@ -7,7 +7,7 @@ import {
     type ApyByValidator,
     useGetValidatorsEvents,
 } from '@haneullabs/core';
-import { type HaneulSystemStateSummary, type HaneulEvent } from '@haneullabs/haneul.js';
+import { type HaneulEvent, type HaneulValidatorSummary } from '@haneullabs/haneul.js';
 import { lazy, Suspense, useMemo } from 'react';
 
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
@@ -31,12 +31,13 @@ const APY_DECIMALS = 3;
 const NodeMap = lazy(() => import('../../components/node-map'));
 
 export function validatorsTableData(
-    systemState: HaneulSystemStateSummary,
+    validators: HaneulValidatorSummary[],
+    atRiskValidators: [string, number][],
     validatorEvents: HaneulEvent[],
     rollingAverageApys: ApyByValidator | null
 ) {
     return {
-        data: systemState.activeValidators.map((validator) => {
+        data: validators.map((validator) => {
             const validatorName = validator.name;
             const totalStake = validator.stakingPoolHaneulBalance;
             const img = validator.imageUrl;
@@ -57,7 +58,7 @@ export function validatorsTableData(
                 img: img,
                 address: validator.haneulAddress,
                 lastReward: +event?.pool_staking_reward || 0,
-                atRisk: systemState.atRiskValidators.some(
+                atRisk: atRiskValidators.some(
                     ([address]) => address === validator.haneulAddress
                 ),
             };
@@ -119,7 +120,7 @@ export function validatorsTableData(
                 cell: (props: any) => <StakeColumn stake={props.getValue()} />,
             },
             {
-                header: 'Next Epoch Gas Price',
+                header: 'Proposed Next Epoch Gas Price',
                 accessorKey: 'nextEpochGasPrice',
                 enableSorting: true,
                 cell: (props: any) => <StakeColumn stake={props.getValue()} />,
@@ -234,7 +235,8 @@ function ValidatorPageResult() {
     const validatorsTable = useMemo(() => {
         if (!data || !validatorEvents) return null;
         return validatorsTableData(
-            data,
+            data.activeValidators,
+            data.atRiskValidators,
             validatorEvents.data,
             rollingAverageApys
         );
