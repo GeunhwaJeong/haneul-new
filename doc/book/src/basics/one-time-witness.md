@@ -5,7 +5,7 @@ One Time Witness (OTW) is a special instance of a type which is created only in 
 - Named after the module but uppercased
 - Has only `drop` ability
 
-> To check whether an instance is an OTW, [`haneul::types::is_one_time_witness(witness)`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/types.move) should be used.
+To check whether an instance is an OTW, [`haneul::types::is_one_time_witness(witness)`](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/types.move) should be used.
 
 To get an instance of this type, you need to add it as the first argument to the `init()` function: Haneul runtime supplies both initializer arguments automatically.
 

@@ -44,7 +44,7 @@ It's now time to look at some Haneul Move code. You can either keep reading for 
 ## First look at Move source code
 
 The Haneul platform includes the Haneul Framework, which includes the core on-chain libraries that Haneul Move developers  need to bootstrap Haneul operations. In particular, Haneul supports multiple user-defined coin types, which are custom assets the Haneul Move language defines. Haneul Framework code contains the `Coin` module supporting creation and management of custom coins. The `Coin` module is located in the [coin.move](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/coin.move) file. As you might expect, the manifest file describing how to build the package containing the `Coin` module is located in the corresponding
-[Move.toml](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/Move.toml) file.
+[Move.toml](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-framework/Move.toml) file.
 
 Let's see how module definition appears in the `Coin` module file:
 
@@ -88,7 +88,7 @@ Haneul Move's struct type is similar to struct types defined in other programmin
 You can read more about Move [primitive types](https://github.com/move-language/move/blob/main/language/documentation/book/src/SUMMARY.md#primitive-types) and [structs](https://github.com/move-language/move/blob/main/language/documentation/book/src/structs-and-resources.md) in the Move book.
 
 For a Haneul Move struct type to define a Haneul object type, such as `Coin`, its first field must be `id: UID`, which is a
-struct type defined in the [object module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move). The Move struct type must also have the `key` ability, which allows Haneul's global storage to persist the object. Abilities of a Move struct are listed after the `has` keyword in the struct definition, and their existence (or lack thereof) helps the compiler enforce various properties on a definition or on instances of a given struct.
+struct type defined in the [object module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/object.move). The Move struct type must also have the `key` ability, which allows Haneul's global storage to persist the object. Abilities of a Move struct are listed after the `has` keyword in the struct definition, and their existence (or lack thereof) helps the compiler enforce various properties on a definition or on instances of a given struct.
 
 You can read more about struct [abilities](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md) in the Move book.
 
@@ -97,7 +97,7 @@ The reason that the `Coin` struct can represent different types of coin is that 
 Learn about Move type parameters known as [generics](https://github.com/move-language/move/blob/main/language/documentation/book/src/generics.md) and the optional [phantom keyword](https://github.com/move-language/move/blob/main/language/documentation/book/src/generics.md#phantom-type-parameters) at your leisure.
 
 In particular, one type of custom coin already defined in Haneul is `Coin<HANEUL>`, which represents a token used to pay for Haneul
-computations (more generally known as _gas_) - in this case, the concrete type used to parameterize the `Coin` struct is the `HANEUL` struct in the [HANEUL module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/haneul.move):
+computations (more generally known as _gas_) - in this case, the concrete type used to parameterize the `Coin` struct is the `HANEUL` struct in the [HANEUL module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/haneul.move):
 
 ``` rust
 struct HANEUL has drop {}
@@ -107,7 +107,7 @@ The [Write a Haneul Move Package](write-package.md) topic shows how to define an
 
 ### Move functions
 
-Similar to other popular programming languages, the main unit of computation in Move is a function. Let us look at one of the simplest functions defined in the [Coin module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/coin.move), that is the `value` function.
+Similar to other popular programming languages, the main unit of computation in Move is a function. Let us look at one of the simplest functions defined in the [Coin module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/coin.move), that is the `value` function.
 
 ``` rust
 public fun value<T>(self: &Coin<T>): u64 {
@@ -127,7 +127,7 @@ The Haneul dialect of the Move language also defines _entry functions_. These mu
 
 #### Entry functions
 
-One of the basic operations in Haneul is a gas object transfer between [addresses](https://github.com/move-language/move/blob/main/language/documentation/book/src/address.md) representing individual users. The gas object transfer implementation in the [HANEUL module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/haneul.move) is also an example of the use of an entry function:
+One of the basic operations in Haneul is a gas object transfer between [addresses](https://github.com/move-language/move/blob/main/language/documentation/book/src/address.md) representing individual users. The gas object transfer implementation in the [HANEUL module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/haneul.move) is also an example of the use of an entry function:
 
 ```rust
 public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address, _ctx: &mut TxContext) {
@@ -142,7 +142,7 @@ In general, an entry function must satisfy the following properties:
 
 - Has the `entry` modifier. The visibility does not matter. The function can be `public`, `public(friend)`, or `internal`.
 - Has no return value
-- (Optional) Has a mutable reference to an instance of the `TxContext` struct defined in the [TxContext module](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/tx_context.move) as the last parameter.
+- (Optional) Has a mutable reference to an instance of the `TxContext` struct defined in the [TxContext module](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/tx_context.move) as the last parameter.
 
 More concretely, the `transfer` function is `public`, has no return value, and has three parameters:
 

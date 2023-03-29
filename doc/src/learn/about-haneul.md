@@ -2,23 +2,19 @@
 title: About Haneul
 ---
 
-Haneul is the first permissionless Layer 1 blockchain designed from the ground up to enable creators and developers to build experiences that cater to the next billion users in web3. Haneul is horizontally scalable to support a wide range of application development with unrivaled speed at low cost.
-
-## What Haneul is
-
 Haneul is a [smart contract](haneul-glossary.md#smart-contract) platform maintained by a permissionless set of [validators](haneul-glossary.md#validator) that play a role similar to validators or miners in other blockchain systems.
 
 Haneul offers scalability and unprecedented low-latency for simple use cases. Haneul makes most transactions processable in parallel. This better utilizes processing resources and offers the option to increase throughput by adding more resources. Haneul forgoes consensus to instead use simpler and lower-latency primitives for simple use cases, such as payment transactions and assets transfer. This is unprecedented in the blockchain world and enables a number of new latency-sensitive distributed applications ranging from gaming to retail payment at physical points of sale.
 
 Haneul is written in [Rust](https://www.rust-lang.org) and supports smart contracts written in Haneul Move, a dialect of the [Move programming language](https://golden.com/wiki/Move_(programming_language)-MNA4DZ6), to define assets that may have an owner. Haneul Move programs define operations on these assets, including: custom rules for their creation, the transfer of these assets to new owners, and operations that mutate assets. To learn about the differences between core Move and Haneul move, see [How Haneul Move differs from Core Move](../learn/haneul-move-diffs.md).
 
-### Haneul tokens and validators
+## Haneul tokens and validators
 
 Haneul has a native token called HANEUL, with a fixed supply. The HANEUL token is used to pay for gas, and users can stake their HANEUL tokens with validators in a [Delegated Proof-of-Stake](https://learn.bybit.com/blockchain/delegated-proof-of-stake-dpos/) model within an epoch. The voting power of validators within this epoch is a function of the amount of HANEUL in their staking pool, including both validator and user HANEUL tokens. In any epoch, the set of validators is [Byzantine fault tolerant](https://pmg.csail.mit.edu/papers/osdi99.pdf). At the end of the epoch, fees collected through all transactions processed are distributed to validators according to their contribution to the operation of the network. Validators can in turn share some of the fees as rewards to users that stake their HANEUL with them.
 
 Haneul is backed by a number of state-of-the-art [peer-reviewed works](../contribute/research-papers.md) and years of open source development.
 
-### Transactions
+## Transactions
 
 A transaction in Haneul is a change to the blockchain. This may be a *simple transaction* affecting only single-owner, single-address objects, such as minting an NFT or transferring an NFT or a different token. These *simple transactions* may bypass the consensus protocol in Haneul.
 
@@ -32,7 +28,7 @@ Haneul takes a significant leap in scalability by enabling parallel agreement on
 
 This breakthrough is possible only with Haneul's novel data model. Thanks to its object-centric view, and Move’s strong ownership types, dependencies are explicitly encoded. As a result, Haneul both agrees on, and executes transactions on many objects in parallel. Meanwhile, transactions that affect shared state are ordered via Byzantine Fault Tolerant consensus and executed in parallel.
 
-### Haneul highlights
+## Haneul highlights
 
 - Unmatched scalability, instant settlement
 - A safe smart contract language accessible to mainstream developers

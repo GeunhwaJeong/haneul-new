@@ -92,7 +92,7 @@ test_scenario::end(scenario_val);
 
 You can also pass objects by value into an entry function. By doing so, the object is moved out of Haneul storage. It is then up to the Haneul Move code to decide where this object should go.
 
-Since every [Haneul object struct type](./ch1-object-basics.md#define-haneul-object) must include `UID` as its first field, and the [UID struct](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) does not have the `drop` ability, the Haneul object struct type cannot have the [drop](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#drop) ability either. Hence, any Haneul object cannot be arbitrarily dropped and must be either consumed (for example, transferred to another owner) or deleted by [unpacking](https://move-book.com/advanced-topics/struct.html#destructing-structures), as described in the following sections.
+Since every [Haneul object struct type](./ch1-object-basics.md#define-haneul-object) must include `UID` as its first field, and the [UID struct](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/object.move) does not have the `drop` ability, the Haneul object struct type cannot have the [drop](https://github.com/move-language/move/blob/main/language/documentation/book/src/abilities.md#drop) ability either. Hence, any Haneul object cannot be arbitrarily dropped and must be either consumed (for example, transferred to another owner) or deleted by [unpacking](https://move-book.com/advanced-topics/struct.html#destructing-structures), as described in the following sections.
 
 There are two ways to handle a pass-by-value Haneul object in Move:
  * delete the object
@@ -102,7 +102,7 @@ There are two ways to handle a pass-by-value Haneul object in Move:
 
 If the intention is to actually delete the object, unpack it. You can do this only in the module that defined the struct type, due to Move's [privileged struct operations rules](https://github.com/move-language/move/blob/main/language/documentation/book/src/structs-and-resources.md#privileged-struct-operations). If any field is also of struct type, you must use recursive unpacking and deletion when you unpack the object.
 
-However, the `id` field of a Haneul object requires special handling. You must call the following API in the [object](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/sources/object.move) module to signal Haneul that we intend to delete this object:
+However, the `id` field of a Haneul object requires special handling. You must call the following API in the [object](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/object.move) module to signal Haneul that we intend to delete this object:
 
 ```rust
 public fun delete(id: UID) { ... }
