@@ -24,7 +24,7 @@ The Haneul repository includes two primary branches, `devnet` and `main`.
 
 ## Documentation in the Haneul repository
 
-The source for the documentation published on this site also resides in the Haneul repository. The content differs between the branches of the repository just like the Haneul source code. Use the version of the documentation that corresponds to the Haneul network you plan to use. For example, to use the Haneul Devnet network, use the **Devnet** version of the documentation. To use the latest Haneul updates, use the **Latest build** version of the documentation.
+The source for the documentation published on this site also resides in the Haneul repository. The content differs between the branches of the repository just like the Haneul source code. Use the version of the documentation that corresponds to the Haneul network you plan to use. For example, to use the Haneul Devnet network, use the **Devnet** version of the documentation. To use the Haneul Testnet network, use the **Testnet** version of the documentation.
 
 
 ## Supported operating systems

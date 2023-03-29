@@ -95,30 +95,27 @@ To get a Full node with indexer running in Docker, follow the instructions in th
 
 You must get the latest source files from the Haneul GitHub repository.
 
-1. Set up your fork of the Haneul repository:
-     1. Go to the [Haneul repository](https://github.com/GeunhwaJeong/haneul) on GitHub
-       and click the *Fork* button in the top right-hand corner of the screen.
-     1. Clone your personal fork of the Haneul repository to your local machine
-       (ensure that you insert your GitHub username into the URL):
-       ```shell
-       git clone https://github.com/<YOUR-GITHUB-USERNAME>/haneul.git
-       ```
- 1. `cd` into your `haneul` repository:
-    ```shell
-    cd haneul
-    ```
- 1. Set up the Haneul repository as a git remote:
-    ```shell
-    git remote add upstream https://github.com/GeunhwaJeong/haneul
-    ```
- 1. Sync your fork:
-    ```shell
-    git fetch upstream
-    ```
- 1. Check out the branch associated with the network version you want to run (for example, `devnet` to run a Devnet Full node):
-    ```shell
-    git checkout --track upstream/<BRANCH-NAME>
-    ```
+1. To set up your fork of the Haneul repository, go to the [Haneul repository](https://github.com/GeunhwaJeong/haneul) on GitHub and click the **Fork** button in the top right-hand corner of the screen.
+1. Clone your personal fork of the Haneul repository to your local machine (ensure that you insert your GitHub username into the URL):
+   ```shell
+   git clone https://github.com/<YOUR-GITHUB-USERNAME>/haneul.git
+   ```
+1. `cd` into your `haneul` repository:
+   ```shell
+   cd haneul
+   ```
+1. Set up the Haneul repository as a git remote:
+   ```shell
+   git remote add upstream https://github.com/GeunhwaJeong/haneul
+   ```
+1. Sync your fork:
+   ```shell
+   git fetch upstream
+   ```
+1. Check out the branch associated with the network version you want to run (for example, `devnet` to run a Devnet Full node):
+   ```shell
+   git checkout --track upstream/<BRANCH-NAME>
+   ```
 
 ### Setting up a Full node from source
 

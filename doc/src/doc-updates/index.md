@@ -4,6 +4,26 @@ title: Haneul Documentation Updates
 
 This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information.
 
+## Week ending 03/25/23
+
+| Topic | Update | 
+| :------ | :------- |
+| Numerous topics. | Updates to reflect the changes included in Haneul releases .28 and .29. |
+| [Haneul Local Network](../build/haneul-local-network.md) | Updated installation instructions to include the haneul-test-validator, which lets you use a local faucet, wallet, and explorer on your local network. |
+| [Connect to a Haneul Network](../build/devnet.md) | Updated the topic to include instructions for connecting to Haneul Testnet. Topic title changed from "Connect to Haneul Devnet". |
+| [Haneul Full Node](../build/fullnode.md) | Updated to include instructions for using Haneul Indexer. |
+| [Haneul Object Display Standard](../build/haneul-object-display.md) | New topic about using the Haneul Object Display standard. |
+| [Haneul Programmable Transaction Blocks](../build/prog-trans-ts-sdk.md) | New topic about how to use the new Programmable Transaction blocks. |
+| [Haneul Cryptography](../learn/cryptography/index.md) | New section of topics about creating signatures for Haneul. |
+| [Object and Package Versioning](../learn/object-package-versions.md) | New topic that describes versioning in Haneul. |
+| [Move.toml File](../build/move/manifest.md) | New topic about Move manifest files. |
+| [Move.lock File](../build/move/lock-file.md) | New topic about Move lock files. |
+| [Accessing Time in Haneul Move](../build/move/time.md) | New topic that describes how to access time in Haneul Move. |
+| [Haneul Validator Node](../build/validator-node.md) | New topic about running a Haneul Validator node. |
+| [Database Snapshots](../build/snapshot.md) | New topic that describes how to use snapshots to restore transaction history for an epoch. |
+
+
+
 ## Week ending 03/05/23
 
 | Topic | Update | 
