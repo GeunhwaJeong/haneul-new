@@ -222,7 +222,7 @@
 				"title": "Connect to Haneul",
 				"items": [
 					{
-						"label": "Programmable Transactions with TypeScript SDK",
+						"label": "Programmable Transaction Blocks with TypeScript SDK",
 						"fileName": "build/prog-trans-ts-sdk"
 					},
 					{
@@ -239,12 +239,16 @@
 						"external": true
 					},
 					{
-						"label": "Haneul Full node",
+						"label": "Haneul Full Node",
 						"fileName": "build/fullnode"
 					},
 					{
-						"label": "Haneul Validator node",
+						"label": "Haneul Validator Node",
 						"fileName": "build/validator-node"
+					},
+					{
+						"label": "Database Snapshots",
+						"fileName": "build/snapshot"
 					},
 					{
 						"label": "Event Query and Subscription",
