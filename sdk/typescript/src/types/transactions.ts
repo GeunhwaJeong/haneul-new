@@ -81,7 +81,7 @@ export const HaneulTransaction = union([
   object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
   object({ SplitCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
-  object({ Publish: HaneulMovePackage }),
+  object({ Publish: tuple([HaneulMovePackage, array(ObjectId)]) }),
   object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
 ]);
 
