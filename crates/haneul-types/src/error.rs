@@ -238,6 +238,9 @@ pub enum HaneulError {
     #[error("There are already {queue_len} transactions pending, above threshold of {threshold}")]
     TooManyTransactionsPendingExecution { queue_len: usize, threshold: usize },
 
+    #[error("There are too many transactions pending in consensus")]
+    TooManyTransactionsPendingConsensus,
+
     #[error("Input {object_id} already has {queue_len} transactions pending, above threshold of {threshold}")]
     TooManyTransactionsPendingOnObject {
         object_id: ObjectID,
@@ -395,6 +398,8 @@ pub enum HaneulError {
     TransactionOrchestratorLocalExecutionError { error: String },
 
     // Errors returned by authority and client read API's
+    #[error("Failure serializing transaction in the requested format: {:?}", error)]
+    TransactionSerializationError { error: String },
     #[error("Failure serializing object in the requested format: {:?}", error)]
     ObjectSerializationError { error: String },
     #[error("Failure deserializing object in the requested format: {:?}", error)]
@@ -432,6 +437,10 @@ pub enum HaneulError {
     KeyConversionError(String),
     #[error("Invalid Private Key provided")]
     InvalidPrivateKey,
+
+    // Unsupported Operations on Fullnode
+    #[error("Fullnode does not support handle_certificate")]
+    FullNodeCantHandleCertificate,
 
     // Epoch related errors.
     #[error("Validator temporarily stopped processing transactions due to epoch change")]
@@ -629,6 +638,7 @@ impl HaneulError {
             // Overload errors
             HaneulError::TooManyTransactionsPendingExecution { .. } => (true, true),
             HaneulError::TooManyTransactionsPendingOnObject { .. } => (true, true),
+            HaneulError::TooManyTransactionsPendingConsensus => (true, true),
 
             // Non retryable error
             HaneulError::ExecutionError(..) => (false, true),
@@ -659,6 +669,7 @@ impl HaneulError {
             self,
             HaneulError::TooManyTransactionsPendingExecution { .. }
                 | HaneulError::TooManyTransactionsPendingOnObject { .. }
+                | HaneulError::TooManyTransactionsPendingConsensus
         )
     }
 }
