@@ -285,6 +285,7 @@ pub fn make_pay_haneul_transaction(
     sender: HaneulAddress,
     keypair: &AccountKeyPair,
     gas_price: Option<u64>,
+    gas_budget: Option<u64>,
 ) -> VerifiedTransaction {
     let data = TransactionData::new_pay_haneul(
         sender,
@@ -292,7 +293,7 @@ pub fn make_pay_haneul_transaction(
         recipients,
         amounts,
         gas_object,
-        MAX_GAS,
+        gas_budget.unwrap_or(MAX_GAS),
         gas_price.unwrap_or(DUMMY_GAS_PRICE),
     )
     .unwrap();
