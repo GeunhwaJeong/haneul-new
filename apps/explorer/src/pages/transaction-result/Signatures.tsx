@@ -39,9 +39,7 @@ function SignaturePanel({
                 <DescriptionItem title="Address">
                     <AddressLink
                         noTruncate
-                        address={normalizeHaneulAddress(
-                            signature.pubKey.toHaneulAddress()
-                        )}
+                        address={signature.pubKey.toHaneulAddress()}
                     />
                 </DescriptionItem>
                 <DescriptionItem title="Signature">
