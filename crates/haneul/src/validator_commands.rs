@@ -554,7 +554,9 @@ async fn call_0x5(
         .quorum_driver()
         .execute_transaction_block(
             transaction,
-            HaneulTransactionBlockResponseOptions::full_content(),
+            HaneulTransactionBlockResponseOptions::new()
+                .with_input()
+                .with_effects(),
             Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
