@@ -88,17 +88,25 @@ impl HaneulNodeProvider {
             .body(request.to_string())
             .send()
             .await
-            .context("unable to perform rpc")?;
+            .context("unable to perform json rpc")?;
+
+        let raw = response
+            .bytes()
+            .await
+            .context("unable to extract body bytes from json rpc")?;
 
         #[derive(Debug, Deserialize)]
         struct ResponseBody {
             result: HaneulSystemStateSummary,
         }
 
-        let body = match response.json::<ResponseBody>().await {
+        let body: ResponseBody = match serde_json::from_slice(&raw) {
             Ok(b) => b,
             Err(error) => {
-                bail!("unable to decode json: {error}")
+                bail!(
+                    "unable to decode json: {error} response from json rpc: {:?}",
+                    raw
+                )
             }
         };
 
