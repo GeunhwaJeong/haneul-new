@@ -350,6 +350,9 @@ pub struct HaneulGasStatus<'a> {
     /// was the storage cost paid when the object was last mutated. It is not affected
     /// by the current storage gas unit price.
     storage_rebate: HaneulGas,
+    /// Amount of storage rebate accumulated when we are running in unmetered mode (i.e. system transaction).
+    /// This allows us to track how much storage rebate we need to retain in system transactions.
+    unmetered_storage_rebate: HaneulGas,
 
     cost_table: HaneulCostTable,
 }
@@ -400,6 +403,10 @@ impl<'a> HaneulGasStatus<'a> {
         self.storage_rebate.into()
     }
 
+    pub fn unmetered_storage_rebate(&self) -> u64 {
+        self.unmetered_storage_rebate.into()
+    }
+
     pub fn storage_gas_units(&self) -> u64 {
         self.storage_gas_units.into()
     }
@@ -433,6 +440,7 @@ impl<'a> HaneulGasStatus<'a> {
     pub fn reset_storage_cost_and_rebate(&mut self) {
         self.storage_gas_units = GasQuantity::zero();
         self.storage_rebate = GasQuantity::zero();
+        self.unmetered_storage_rebate = GasQuantity::zero();
     }
 
     /// Try to charge the minimal amount of gas from the gas object.
@@ -470,6 +478,7 @@ impl<'a> HaneulGasStatus<'a> {
         storage_rebate: HaneulGas,
     ) -> Result<u64, ExecutionError> {
         if self.is_unmetered() {
+            self.unmetered_storage_rebate.add_assign(storage_rebate);
             return Ok(0);
         }
 
@@ -533,6 +542,7 @@ impl<'a> HaneulGasStatus<'a> {
             storage_gas_unit_price: ComputeGasPricePerUnit::new(storage_gas_unit_price),
             storage_gas_units: GasUnits::new(0),
             storage_rebate: 0.into(),
+            unmetered_storage_rebate: 0.into(),
             cost_table,
         }
     }
