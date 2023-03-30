@@ -4,7 +4,7 @@
 module haneul_system::validator_cap {
     use haneul::object::{Self, ID, UID};
     use haneul::transfer;
-    use haneul::tx_context::TxContext;
+    use haneul::tx_context::{Self, TxContext};
     friend haneul_system::haneul_system_state_inner;
     friend haneul_system::validator;
     friend haneul_system::validator_set;
@@ -50,13 +50,11 @@ module haneul_system::validator_cap {
         validator_address: address,
         ctx: &mut TxContext,
     ): ID {
-        // MUSTFIX: update all tests to use @0x0 to create validators so we can
-        // enforce the assert below.
         // This function needs to be called only by the validator itself, except
         // 1. in genesis where all valdiators are created by @0x0
         // 2. in tests where @0x0 could be used to simplify the setup
-        // let sender_address = tx_context::sender(ctx);
-        // assert!(sender_address == @0x0 || sender_address == validator_address, 0);
+        let sender_address = tx_context::sender(ctx);
+        assert!(sender_address == @0x0 || sender_address == validator_address, 0);
 
         let operation_cap = UnverifiedValidatorOperationCap {
             id: object::new(ctx),
