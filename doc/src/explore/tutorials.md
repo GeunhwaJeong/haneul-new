@@ -95,15 +95,15 @@ export PLAYER_O=0x4ab708d1a4160fa0fdbf359691764e16380444ddb48d2b8856a169594a9baa
 
 Next, determine the gas objects associated with each address:
 ```bash
-haneul client gas --address $ADMIN
+haneul client gas $ADMIN
 ```
 
 ```bash
-haneul client gas --address $PLAYER_X
+haneul client gas $PLAYER_X
 ```
 
 ```bash
-haneul client gas --address $PLAYER_0
+haneul client gas $PLAYER_0
 ```
 
 The tutorial uses only one gas object per address. Choose the object to use, and then create variables for them as well.
