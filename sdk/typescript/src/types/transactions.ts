@@ -411,7 +411,7 @@ export type HaneulTransactionBlockResponseOptions = Infer<
 
 export const PaginatedTransactionResponse = object({
   data: array(HaneulTransactionBlockResponse),
-  nextCursor: union([TransactionDigest, literal(null)]),
+  nextCursor: nullable(TransactionDigest),
   hasNextPage: boolean(),
 });
 export type PaginatedTransactionResponse = Infer<
