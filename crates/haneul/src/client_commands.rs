@@ -37,8 +37,8 @@ use haneul_framework_build::compiled_package::{
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
@@ -1263,39 +1263,40 @@ impl WalletContext {
         address: HaneulAddress,
     ) -> Result<Vec<(u64, HaneulObjectData)>, anyhow::Error> {
         let client = self.get_client().await?;
-        let objects = client
-            .read_api()
-            .get_owned_objects(
-                address,
-                Some(HaneulObjectResponseQuery::new_with_options(
-                    HaneulObjectDataOptions::full_content(),
-                )),
-                None,
-                None,
-            )
-            .await?
-            .data;
+
+        let mut objects: Vec<HaneulObjectResponse> = Vec::new();
+        let mut cursor = None;
+        loop {
+            let response = client
+                .read_api()
+                .get_owned_objects(
+                    address,
+                    Some(HaneulObjectResponseQuery::new(
+                        Some(HaneulObjectDataFilter::StructType(GasCoin::type_())),
+                        Some(HaneulObjectDataOptions::full_content()),
+                    )),
+                    cursor,
+                    None,
+                )
+                .await?;
+
+            objects.extend(response.data);
+
+            if response.has_next_page {
+                cursor = response.next_cursor;
+            } else {
+                break;
+            }
+        }
+
         // TODO: We should ideally fetch the objects from local cache
         let mut values_objects = Vec::new();
 
-        let oref_ids = objects
-            .into_iter()
-            .map(|o| o.object().unwrap().object_id)
-            .collect();
-
-        let responses = client
-            .read_api()
-            .multi_get_object_with_options(oref_ids, HaneulObjectDataOptions::full_content())
-            .await?;
-
-        for object in responses {
+        for object in objects {
             let o = object.data;
             if let Some(o) = o {
-                if matches!( &o.type_, Some(type_)  if type_.is_gas_coin()) {
-                    // Okay to unwrap() since we already checked type
-                    let gas_coin = GasCoin::try_from(&o)?;
-                    values_objects.push((gas_coin.value(), o.clone()));
-                }
+                let gas_coin = GasCoin::try_from(&o)?;
+                values_objects.push((gas_coin.value(), o.clone()));
             }
         }
 
