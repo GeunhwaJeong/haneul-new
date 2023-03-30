@@ -1927,7 +1927,7 @@ system running and continue making epoch changes.
 version
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(self: &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>, new_epoch: u64, next_protocol_version: u64, storage_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, computation_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, storage_rebate: u64, non_refundable_storage_fee: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_advance_epoch_safe_mode">advance_epoch_safe_mode</a>(self: &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInner">haneul_system_state_inner::HaneulSystemStateInner</a>, new_epoch: u64, next_protocol_version: u64, storage_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, computation_reward: <a href="_Balance">balance::Balance</a>&lt;<a href="_HANEUL">haneul::HANEUL</a>&gt;, storage_rebate: u64, non_refundable_storage_fee: u64, epoch_start_timestamp_ms: u64, ctx: &<b>mut</b> <a href="_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1944,11 +1944,13 @@ version
     computation_reward: Balance&lt;HANEUL&gt;,
     storage_rebate: u64,
     non_refundable_storage_fee: u64,
+    epoch_start_timestamp_ms: u64,
     ctx: &<b>mut</b> TxContext,
 ) {
     // Validator will make a special system call <b>with</b> sender set <b>as</b> 0x0.
     <b>assert</b>!(<a href="_sender">tx_context::sender</a>(ctx) == @0x0, <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_ENotSystemAddress">ENotSystemAddress</a>);
 
+    self.epoch_start_timestamp_ms = epoch_start_timestamp_ms;
     self.epoch = new_epoch;
     self.protocol_version = next_protocol_version;
 

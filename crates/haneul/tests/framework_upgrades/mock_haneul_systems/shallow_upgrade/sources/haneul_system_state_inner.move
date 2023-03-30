@@ -110,8 +110,10 @@ module haneul_system::haneul_system_state_inner {
         storage_reward: Balance<HANEUL>,
         computation_reward: Balance<HANEUL>,
         _storage_rebate: u64,
+        epoch_start_timestamp_ms: u64,
         _ctx: &mut TxContext,
     ) {
+        self.epoch_start_timestamp_ms = epoch_start_timestamp_ms;
         self.epoch = new_epoch;
         self.protocol_version = next_protocol_version;
         self.safe_mode = true;
