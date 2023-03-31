@@ -646,6 +646,7 @@ impl HaneulError {
             HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
                 (false, true)
             }
+            HaneulError::ObjectLockConflict { .. } => (false, true),
 
             _ => (false, false),
         }
