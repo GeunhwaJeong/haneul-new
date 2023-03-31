@@ -12,13 +12,12 @@ use haneul_config::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::HaneulAddress,
     committee::ProtocolVersion,
     crypto::{
         generate_proof_of_possession, AuthorityKeyPair, KeypairTraits, NetworkKeyPair, HaneulKeyPair,
     },
     message_envelope::Message,
-    object::Object,
 };
 
 use haneul_keys::keypair_file::{
@@ -79,15 +78,6 @@ pub enum CeremonyCommand {
     },
 
     ListValidators,
-
-    AddGasObject {
-        #[clap(long)]
-        address: HaneulAddress,
-        #[clap(long)]
-        object_id: Option<ObjectID>,
-        #[clap(long)]
-        value: u64,
-    },
 
     BuildUnsignedCheckpoint,
 
@@ -190,20 +180,6 @@ pub fn run(cmd: Ceremony) -> Result<()> {
             for (name, address) in validators {
                 writer.write_record([&name, &address])?;
             }
-        }
-
-        CeremonyCommand::AddGasObject {
-            address,
-            object_id,
-            value,
-        } => {
-            let mut builder = Builder::load(&dir)?;
-
-            let object_id = object_id.unwrap_or_else(ObjectID::random);
-            let object = Object::with_id_owner_gas_for_testing(object_id, address, value);
-            builder = builder.add_object(object);
-
-            builder.save(dir)?;
         }
 
         CeremonyCommand::BuildUnsignedCheckpoint => {
