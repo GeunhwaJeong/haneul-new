@@ -76,6 +76,11 @@ pub const HANEUL_FRAMEWORK_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_F
 pub const HANEUL_SYSTEM_ADDRESS: AccountAddress = address_from_single_byte(3);
 pub const HANEUL_SYSTEM_PACKAGE_ID: ObjectID = ObjectID::from_address(HANEUL_SYSTEM_ADDRESS);
 
+/// 0xdee9-- account address where DeepBook modules are stored
+/// Same as the ObjectID
+pub const DEEPBOOK_ADDRESS: AccountAddress = deepbook_addr();
+pub const DEEPBOOK_OBJECT_ID: ObjectID = ObjectID::from_address(DEEPBOOK_ADDRESS);
+
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
 pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
@@ -95,13 +100,24 @@ pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERS
 pub fn is_system_package(id: ObjectID) -> bool {
     matches!(
         id,
-        MOVE_STDLIB_OBJECT_ID | HANEUL_FRAMEWORK_OBJECT_ID | HANEUL_SYSTEM_PACKAGE_ID
+        MOVE_STDLIB_OBJECT_ID
+            | HANEUL_FRAMEWORK_OBJECT_ID
+            | HANEUL_SYSTEM_PACKAGE_ID
+            | DEEPBOOK_OBJECT_ID
     )
 }
 
 const fn address_from_single_byte(b: u8) -> AccountAddress {
     let mut addr = [0u8; AccountAddress::LENGTH];
     addr[AccountAddress::LENGTH - 1] = b;
+    AccountAddress::new(addr)
+}
+
+/// return 0x0...dee9
+const fn deepbook_addr() -> AccountAddress {
+    let mut addr = [0u8; AccountAddress::LENGTH];
+    addr[AccountAddress::LENGTH - 2] = 0xde;
+    addr[AccountAddress::LENGTH - 1] = 0xe9;
     AccountAddress::new(addr)
 }
 
@@ -121,6 +137,7 @@ pub fn parse_haneul_type_tag(s: &str) -> anyhow::Result<TypeTag> {
 
 fn resolve_address(addr: &str) -> Option<AccountAddress> {
     match addr {
+        "deepbook" => Some(DEEPBOOK_ADDRESS),
         "std" => Some(MOVE_STDLIB_ADDRESS),
         "haneul" => Some(HANEUL_FRAMEWORK_ADDRESS),
         "haneul_system" => Some(HANEUL_SYSTEM_ADDRESS),

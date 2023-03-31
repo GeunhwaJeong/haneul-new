@@ -11,6 +11,7 @@ use std::path::Path;
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
 use haneul_types::base_types::ObjectRef;
 use haneul_types::storage::ObjectStore;
+use haneul_types::DEEPBOOK_OBJECT_ID;
 use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
@@ -120,6 +121,11 @@ impl BuiltInFramework {
                 HANEUL_SYSTEM_PACKAGE_ID,
                 "haneul-system",
                 [MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]
+            ),
+            (
+                DEEPBOOK_OBJECT_ID,
+                "deepbook",
+                [MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]
             )
         ])
         .iter()
@@ -183,8 +189,20 @@ pub async fn compare_system_package<S: ObjectStore>(
         Ok(Some(cur_object)) => cur_object,
 
         Ok(None) => {
-            error!("No framework package at {id}");
-            return None;
+            // creating a new framework package--nothing to check
+            return Some(
+                Object::new_system_package(
+                    modules,
+                    // note: execution_engine assumes any system package with version OBJECT_START_VERSION is freshly created
+                    // rather than upgraded
+                    OBJECT_START_VERSION,
+                    dependencies,
+                    // Genesis is fine here, we only use it to calculate an object ref that we can use
+                    // for all validators to commit to the same bytes in the update
+                    TransactionDigest::genesis(),
+                )
+                .compute_object_reference(),
+            );
         }
 
         Err(e) => {

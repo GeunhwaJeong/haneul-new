@@ -20,20 +20,37 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let packages_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("packages");
 
+    let deepbook_path = packages_path.join("deepbook");
     let haneul_system_path = packages_path.join("haneul-system");
     let haneul_framework_path = packages_path.join("haneul-framework");
+    let deepbook_path_clone = deepbook_path.clone();
     let haneul_system_path_clone = haneul_system_path.clone();
     let haneul_framework_path_clone = haneul_framework_path.clone();
     let move_stdlib_path = packages_path.join("move-stdlib");
 
     Builder::new()
         .stack_size(16 * 1024 * 1024) // build_move_package require bigger stack size on windows.
-        .spawn(move || build_packages(haneul_system_path_clone, haneul_framework_path_clone, out_dir))
+        .spawn(move || {
+            build_packages(
+                deepbook_path_clone,
+                haneul_system_path_clone,
+                haneul_framework_path_clone,
+                out_dir,
+            )
+        })
         .unwrap()
         .join()
         .unwrap();
 
     println!("cargo:rerun-if-changed=build.rs");
+    println!(
+        "cargo:rerun-if-changed={}",
+        deepbook_path.join("Move.toml").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        deepbook_path.join("sources").display()
+    );
     println!(
         "cargo:rerun-if-changed={}",
         haneul_system_path.join("Move.toml").display()
@@ -60,7 +77,12 @@ fn main() {
     );
 }
 
-fn build_packages(haneul_system_path: PathBuf, haneul_framework_path: PathBuf, out_dir: PathBuf) {
+fn build_packages(
+    deepbook_path: PathBuf,
+    haneul_system_path: PathBuf,
+    haneul_framework_path: PathBuf,
+    out_dir: PathBuf,
+) {
     let config = MoveBuildConfig {
         generate_docs: true,
         install_dir: Some(PathBuf::from(".")),
@@ -68,9 +90,11 @@ fn build_packages(haneul_system_path: PathBuf, haneul_framework_path: PathBuf, o
     };
     debug_assert!(!config.test_mode);
     build_packages_with_move_config(
+        deepbook_path.clone(),
         haneul_system_path.clone(),
         haneul_framework_path.clone(),
         out_dir.clone(),
+        "deepbook",
         "haneul-system",
         "haneul-framework",
         "move-stdlib",
@@ -83,9 +107,11 @@ fn build_packages(haneul_system_path: PathBuf, haneul_framework_path: PathBuf, o
         ..Default::default()
     };
     build_packages_with_move_config(
+        deepbook_path,
         haneul_system_path,
         haneul_framework_path,
         out_dir,
+        "deepbook-test",
         "haneul-system-test",
         "haneul-framework-test",
         "move-stdlib-test",
@@ -94,9 +120,11 @@ fn build_packages(haneul_system_path: PathBuf, haneul_framework_path: PathBuf, o
 }
 
 fn build_packages_with_move_config(
+    deepbook_path: PathBuf,
     haneul_system_path: PathBuf,
     haneul_framework_path: PathBuf,
     out_dir: PathBuf,
+    deepbook_dir: &str,
     system_dir: &str,
     framework_dir: &str,
     stdlib_dir: &str,
@@ -110,28 +138,41 @@ fn build_packages_with_move_config(
     .build(haneul_framework_path)
     .unwrap();
     let system_pkg = BuildConfig {
-        config,
+        config: config.clone(),
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
     }
     .build(haneul_system_path)
     .unwrap();
+    let deepbook_pkg = BuildConfig {
+        config,
+        run_bytecode_verifier: true,
+        print_diags_to_stderr: false,
+    }
+    .build(deepbook_path)
+    .unwrap();
 
     let haneul_system = system_pkg.get_haneul_system_modules();
     let haneul_framework = framework_pkg.get_haneul_framework_modules();
+    let deepbook = deepbook_pkg.get_deepbook_modules();
     let move_stdlib = framework_pkg.get_stdlib_modules();
 
     serialize_modules_to_file(haneul_system, &out_dir.join(system_dir)).unwrap();
     serialize_modules_to_file(haneul_framework, &out_dir.join(framework_dir)).unwrap();
+    serialize_modules_to_file(deepbook, &out_dir.join(deepbook_dir)).unwrap();
     serialize_modules_to_file(move_stdlib, &out_dir.join(stdlib_dir)).unwrap();
     // write out generated docs
     // TODO: remove docs of deleted files
+    for (fname, doc) in deepbook_pkg.package.compiled_docs.unwrap() {
+        let mut dst_path = PathBuf::from(DOCS_DIR);
+        dst_path.push(fname);
+        fs::write(dst_path, doc).unwrap();
+    }
     for (fname, doc) in system_pkg.package.compiled_docs.unwrap() {
         let mut dst_path = PathBuf::from(DOCS_DIR);
         dst_path.push(fname);
         fs::write(dst_path, doc).unwrap();
     }
-
     for (fname, doc) in framework_pkg.package.compiled_docs.unwrap() {
         let mut dst_path = PathBuf::from(DOCS_DIR);
         dst_path.push(fname);

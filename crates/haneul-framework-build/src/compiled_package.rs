@@ -44,7 +44,7 @@ use haneul_types::{
     base_types::ObjectID,
     error::{HaneulError, HaneulResult},
     move_package::{FnInfo, FnInfoKey, FnInfoMap, MovePackage},
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
+    DEEPBOOK_ADDRESS, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
@@ -346,6 +346,12 @@ impl CompiledPackage {
             .values()
             .map(|object_id| object_id.to_hex_uncompressed())
             .collect()
+    }
+
+    /// Get bytecode modules from DeepBook that are used by this package
+    pub fn get_deepbook_modules(&self) -> impl Iterator<Item = &CompiledModule> {
+        self.get_modules_and_deps()
+            .filter(|m| *m.self_id().address() == DEEPBOOK_ADDRESS)
     }
 
     /// Get bytecode modules from the Haneul System that are used by this package
