@@ -85,8 +85,8 @@ export const DEFAULT_CLIENT_OPTIONS: WebsocketClientOptions = {
   maxReconnects: 5,
 };
 
-const SUBSCRIBE_EVENT_METHOD = 'haneul_subscribeEvent';
-const UNSUBSCRIBE_EVENT_METHOD = 'haneul_unsubscribeEvent';
+const SUBSCRIBE_EVENT_METHOD = 'haneulx_subscribeEvent';
+const UNSUBSCRIBE_EVENT_METHOD = 'haneulx_unsubscribeEvent';
 
 /**
  * Interface with a Haneul node's websocket capabilities
