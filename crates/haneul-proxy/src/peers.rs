@@ -79,7 +79,7 @@ impl HaneulNodeProvider {
         let client = reqwest::Client::builder().build().unwrap();
         let request = serde_json::json!({
             "jsonrpc": "2.0",
-            "method":"haneul_getLatestHaneulSystemState",
+            "method":"haneulx_getLatestHaneulSystemState",
             "id":1,
         });
         let response = client
