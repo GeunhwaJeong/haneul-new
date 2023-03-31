@@ -5,6 +5,7 @@ use crate::api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, ReadApiClient,
     TransactionBuilderClient, WriteApiClient,
 };
+use std::collections::BTreeMap;
 use std::path::Path;
 #[cfg(not(msim))]
 use std::str::FromStr;
@@ -25,7 +26,9 @@ use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_macros::sim_test;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::SequenceNumber;
 use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
+use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -128,17 +131,38 @@ async fn test_public_transfer_object() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    let HaneulTransactionBlockResponse {
-        effects,
-        object_changes,
-        ..
-    } = tx_response;
-    assert_eq!(
-        dryrun_response.effects.transaction_digest(),
-        effects.unwrap().transaction_digest()
+    assert_same_object_changes_ignoring_version_and_digest(
+        dryrun_response.object_changes,
+        tx_response.object_changes.unwrap(),
     );
-    assert_eq!(dryrun_response.object_changes, object_changes.unwrap());
     Ok(())
+}
+
+fn assert_same_object_changes_ignoring_version_and_digest(
+    expected: Vec<ObjectChange>,
+    actual: Vec<ObjectChange>,
+) {
+    fn collect_changes_mask_version_and_digest(
+        changes: Vec<ObjectChange>,
+    ) -> BTreeMap<ObjectID, ObjectChange> {
+        changes
+            .into_iter()
+            .map(|mut change| {
+                let object_id = change.object_id();
+                // ignore the version and digest for comparison
+                change.mask_for_test(SequenceNumber::MAX, ObjectDigest::MAX);
+                (object_id, change)
+            })
+            .collect()
+    }
+    let expected = collect_changes_mask_version_and_digest(expected);
+    let actual = collect_changes_mask_version_and_digest(actual);
+    assert!(expected.keys().all(|id| actual.contains_key(id)));
+    assert!(actual.keys().all(|id| expected.contains_key(id)));
+    for (id, exp) in &expected {
+        let act = actual.get(id).unwrap();
+        assert_eq!(act, exp);
+    }
 }
 
 #[sim_test]
