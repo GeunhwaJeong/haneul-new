@@ -264,7 +264,7 @@ The command installs Haneul components in the `~/.cargo/bin` folder.
 
 ### Confirm the installation
 
-To confirm that Haneul installed correctly, type `haneul` and press Enter. YOu should see a message about the Haneul version installed and help for using Haneul commands.
+To confirm that Haneul installed correctly, type `haneul` and press Enter. You should see a message about the Haneul version installed and help for using Haneul commands.
 
 ## Integrated development environment
 
