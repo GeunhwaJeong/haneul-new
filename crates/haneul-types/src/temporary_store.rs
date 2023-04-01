@@ -18,7 +18,9 @@ use crate::coin::Coin;
 use crate::committee::EpochId;
 use crate::messages::TransactionEvents;
 use crate::storage::ObjectStore;
-use crate::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
+use crate::haneul_system_state::{
+    get_haneul_system_state, get_haneul_system_state_wrapper, AdvanceEpochParams, HaneulSystemState,
+};
 use crate::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
@@ -1107,6 +1109,15 @@ impl<S: ObjectStore> TemporaryStore<S> {
 //==============================================================================
 // Charge gas current - end
 //==============================================================================
+
+impl<S: ObjectStore> TemporaryStore<S> {
+    pub fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
+        let wrapper = get_haneul_system_state_wrapper(&self.store)
+            .expect("System state wrapper object must exist");
+        let new_object = wrapper.advance_epoch_safe_mode(params, &self.store);
+        self.write_object(new_object, WriteKind::Mutate);
+    }
+}
 
 impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
     fn get_input_haneul(

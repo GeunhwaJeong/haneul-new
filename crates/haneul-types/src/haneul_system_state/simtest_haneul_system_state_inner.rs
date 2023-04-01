@@ -12,7 +12,7 @@ use crate::haneul_system_state::epoch_start_haneul_system_state::{
 use crate::haneul_system_state::haneul_system_state_summary::{
     HaneulSystemStateSummary, HaneulValidatorSummary,
 };
-use crate::haneul_system_state::HaneulSystemStateTrait;
+use crate::haneul_system_state::{AdvanceEpochParams, HaneulSystemStateTrait};
 use fastcrypto::traits::ToFromBytes;
 use haneullabs_network::Multiaddr;
 use once_cell::sync::OnceCell;
@@ -154,6 +154,13 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV1 {
         self.safe_mode
     }
 
+    fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
+        self.epoch = params.epoch;
+        self.safe_mode = true;
+        self.epoch_start_timestamp_ms = params.epoch_start_timestamp_ms;
+        self.protocol_version = params.next_protocol_version.as_u64();
+    }
+
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata {
         let mut voting_rights = BTreeMap::new();
         let mut network_metadata = BTreeMap::new();
@@ -252,6 +259,13 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerShallowV2 {
 
     fn safe_mode(&self) -> bool {
         self.safe_mode
+    }
+
+    fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
+        self.epoch = params.epoch;
+        self.safe_mode = true;
+        self.epoch_start_timestamp_ms = params.epoch_start_timestamp_ms;
+        self.protocol_version = params.next_protocol_version.as_u64();
     }
 
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata {
@@ -381,6 +395,13 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerDeepV2 {
 
     fn safe_mode(&self) -> bool {
         self.safe_mode
+    }
+
+    fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
+        self.epoch = params.epoch;
+        self.safe_mode = true;
+        self.epoch_start_timestamp_ms = params.epoch_start_timestamp_ms;
+        self.protocol_version = params.next_protocol_version.as_u64();
     }
 
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata {
