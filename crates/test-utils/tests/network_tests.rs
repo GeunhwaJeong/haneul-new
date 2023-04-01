@@ -6,7 +6,7 @@ use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage}
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;
 use haneul_types::{
-    base_types::ObjectID, digests::TransactionDigest, object::Object, HANEUL_FRAMEWORK_ADDRESS,
+    base_types::ObjectID, digests::TransactionDigest, object::Object, HANEUL_SYSTEM_ADDRESS,
 };
 use test_utils::network::TestClusterBuilder;
 
@@ -43,19 +43,19 @@ async fn test_package_override() {
     };
 
     let modified_ref = {
-        let mut framework_modules = HaneulSystem::as_modules();
+        let mut framework_modules = HaneulSystem::as_modules().to_owned();
 
         // Create an empty module that is pretending to be part of the haneul framework.
         let mut test_module = move_binary_format::file_format::empty_module();
         let address_idx = test_module.self_handle().address.0 as usize;
-        test_module.address_identifiers[address_idx] = HANEUL_FRAMEWORK_ADDRESS;
+        test_module.address_identifiers[address_idx] = HANEUL_SYSTEM_ADDRESS;
 
         // Add the dummy module to the rest of the haneul-frameworks.  We can't replace the framework
         // entirely because we will call into it for genesis.
         framework_modules.push(test_module);
 
         let package_override = Object::new_package_for_testing(
-            framework_modules,
+            &framework_modules,
             TransactionDigest::genesis(),
             &[MoveStdlib::as_package(), HaneulFramework::as_package()],
         )

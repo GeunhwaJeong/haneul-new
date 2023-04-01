@@ -25,7 +25,6 @@ use haneul_types::crypto::{AuthorityKeyPair, Signer};
 use haneul_types::messages::{
     SignedTransaction, TransactionData, VerifiedTransaction, DUMMY_GAS_PRICE,
 };
-use haneul_types::object::OBJECT_START_VERSION;
 use haneul_types::utils::create_fake_transaction;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
@@ -155,14 +154,9 @@ async fn init_genesis(
     ObjectID,
 ) {
     // add object_basics package object to genesis
-    let modules = compile_basics_package()
-        .get_modules()
-        .into_iter()
-        .cloned()
-        .collect();
+    let modules: Vec<_> = compile_basics_package().get_modules().cloned().collect();
     let pkg = Object::new_package(
-        modules,
-        OBJECT_START_VERSION,
+        &modules,
         TransactionDigest::genesis(),
         ProtocolConfig::get_for_max_version().max_move_package_size(),
         &haneul_framework::make_system_packages(),

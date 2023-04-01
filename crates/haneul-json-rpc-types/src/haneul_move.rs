@@ -139,10 +139,12 @@ impl From<NormalizedModule> for HaneulMoveNormalizedModule {
                 .map(|(name, struct_)| (name.to_string(), HaneulMoveNormalizedStruct::from(struct_)))
                 .collect::<BTreeMap<String, HaneulMoveNormalizedStruct>>(),
             exposed_functions: module
-                .exposed_functions
+                .functions
                 .into_iter()
-                .map(|(name, function)| {
-                    (name.to_string(), HaneulMoveNormalizedFunction::from(function))
+                .filter_map(|(name, function)| {
+                    // TODO: Do we want to expose the private functions as well?
+                    (function.is_entry || function.visibility != Visibility::Private)
+                        .then(|| (name.to_string(), HaneulMoveNormalizedFunction::from(function)))
                 })
                 .collect::<BTreeMap<String, HaneulMoveNormalizedFunction>>(),
         }
