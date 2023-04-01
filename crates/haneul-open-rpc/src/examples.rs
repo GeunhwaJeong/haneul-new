@@ -43,6 +43,7 @@ use haneul_types::messages::{
 };
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Owner;
+use haneul_types::object::MAX_GAS_BUDGET_FOR_TESTING;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
@@ -453,7 +454,11 @@ impl RpcExampleProvider {
         );
 
         let data = TransactionData::new_transfer_with_dummy_gas_price(
-            recipient, object_ref, signer, gas_ref, 1000,
+            recipient,
+            object_ref,
+            signer,
+            gas_ref,
+            MAX_GAS_BUDGET_FOR_TESTING,
         );
         let data1 = data.clone();
         let data2 = data.clone();

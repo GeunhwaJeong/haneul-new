@@ -25,7 +25,7 @@ haneul-core = { path = "../haneul-core"}
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-json = { path = "../haneul-json" }
-haneul-types = { path = "../haneul-types" }
+haneul-types = { path = "../haneul-types", features = ["test-utils"] }
 rand = "0.8.5"
 
 move-core-types.workspace = true

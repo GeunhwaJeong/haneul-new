@@ -9,7 +9,6 @@ use haneul_macros::checked_arithmetic;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::{UserInputError, UserInputResult};
-use haneul_types::gas::HaneulCostTable;
 use haneul_types::messages::{
     TransactionKind, VerifiedExecutableTransaction, VersionedProtocolMessage,
 };
@@ -17,7 +16,7 @@ use haneul_types::{
     base_types::{SequenceNumber, HaneulAddress},
     error::HaneulResult,
     fp_ensure,
-    gas::{self, HaneulGasStatus},
+    gas::{HaneulCostTable, HaneulGasStatus},
     messages::{InputObjectKind, InputObjects, TransactionData, TransactionDataAPI},
     object::{Object, Owner},
 };
@@ -174,8 +173,9 @@ async fn check_gas(
     gas_price: u64,
     tx_kind: &TransactionKind,
 ) -> HaneulResult<HaneulGasStatus<'static>> {
+    let protocol_config = epoch_store.protocol_config();
     if tx_kind.is_system_tx() {
-        Ok(HaneulGasStatus::new_unmetered())
+        Ok(HaneulGasStatus::new_unmetered(protocol_config))
     } else {
         // gas price must be bigger or equal to reference gas price
         let reference_gas_price = epoch_store.reference_gas_price();
@@ -206,20 +206,13 @@ async fn check_gas(
         }
 
         // check balance and coins consistency
-        let protocol_config = epoch_store.protocol_config();
         let cost_table = HaneulCostTable::new(protocol_config);
-        gas::check_gas_balance(
-            gas_object,
-            more_gas_objects,
+        cost_table.check_gas_balance(gas_object, more_gas_objects, gas_budget, gas_price)?;
+        Ok(HaneulGasStatus::new_with_budget(
             gas_budget,
             gas_price,
-            &cost_table,
-        )?;
-
-        // make the gas status to be used by execution
-        let storage_gas_price = protocol_config.storage_gas_price();
-        gas::start_gas_metering(gas_budget, gas_price, storage_gas_price, cost_table)
-            .map_err(|e| e.into())
+            protocol_config,
+        ))
     }
 }
 

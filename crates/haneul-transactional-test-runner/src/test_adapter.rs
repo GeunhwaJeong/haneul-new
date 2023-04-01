@@ -41,8 +41,6 @@ use haneul_framework::{
     make_system_modules, make_system_objects, system_package_ids, DEFAULT_FRAMEWORK_PATH,
 };
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::gas::{GasCostSummary, HaneulCostTable};
-use haneul_types::id::UID;
 use haneul_types::messages::CallArg;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -50,7 +48,6 @@ use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
     crypto::{get_key_pair_from_rng, AccountKeyPair},
     event::Event,
-    gas,
     messages::{
         ExecutionStatus, TransactionData, TransactionDataAPI, TransactionEffectsAPI,
         VerifiedTransaction,
@@ -63,6 +60,11 @@ use haneul_types::{
 use haneul_types::{clock::Clock, HANEUL_SYSTEM_ADDRESS};
 use haneul_types::{epoch_data::EpochData, messages::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
+use haneul_types::{
+    gas::{GasCostSummary, HaneulCostTable},
+    object::GAS_VALUE_FOR_TESTING,
+};
+use haneul_types::{id::UID, object::MAX_GAS_BUDGET_FOR_TESTING};
 use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
 
 pub(crate) type FakeID = u64;
@@ -78,8 +80,8 @@ const RNG_SEED: [u8; 32] = [
     179, 179, 65, 9, 31, 249, 221, 123, 225, 112, 199, 247,
 ];
 
-const DEFAULT_GAS_BUDGET: u64 = 10_000;
-const GAS_FOR_TESTING: u64 = 3_000_000;
+const DEFAULT_GAS_BUDGET: u64 = MAX_GAS_BUDGET_FOR_TESTING;
+const GAS_FOR_TESTING: u64 = GAS_VALUE_FOR_TESTING;
 
 pub struct HaneulTestAdapter<'a> {
     vm: Arc<MoveVM>,
@@ -92,6 +94,7 @@ pub struct HaneulTestAdapter<'a> {
     rng: StdRng,
 }
 
+#[derive(Debug)]
 struct TxnSummary {
     created: Vec<ObjectID>,
     mutated: Vec<ObjectID>,
@@ -627,10 +630,9 @@ impl<'a> HaneulTestAdapter<'a> {
         gas_budget: u64,
     ) -> anyhow::Result<TxnSummary> {
         let gas_status = if transaction.inner().is_system_tx() {
-            HaneulGasStatus::new_unmetered()
+            HaneulGasStatus::new_unmetered(&PROTOCOL_CONSTANTS)
         } else {
-            gas::start_gas_metering(gas_budget, 1, 1, HaneulCostTable::new(&PROTOCOL_CONSTANTS))
-                .unwrap()
+            HaneulCostTable::new(&PROTOCOL_CONSTANTS).into_gas_status_for_testing(gas_budget, 1, 1)
         };
         transaction
             .data()
