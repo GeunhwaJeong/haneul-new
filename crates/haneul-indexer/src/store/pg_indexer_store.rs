@@ -371,7 +371,7 @@ impl IndexerStore for PgIndexerStore {
 
         let mut haneul_event_vec = events_vec
             .into_iter()
-            .map(|event| event.try_into())
+            .map(|event| event.try_into(&self.module_cache))
             .collect::<Result<Vec<HaneulEvent>, _>>()?;
         // reset to original limit for checking and truncating
         page_limit -= 1;
