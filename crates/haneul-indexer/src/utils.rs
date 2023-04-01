@@ -7,15 +7,16 @@ use anyhow::anyhow;
 use diesel::migration::MigrationSource;
 use diesel::{PgConnection, RunQueryDsl};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use jsonrpsee::http_client::HttpClient;
 use tracing::info;
 
+use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc::{get_balance_changes, ObjectProvider};
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_json_rpc_types::{
     BalanceChange, HaneulExecutionStatus, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_json_rpc_types::{ObjectChange, OwnedObjectRef, HaneulObjectRef};
-use haneul_sdk::apis::ReadApi as HaneulReadApi;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::gas::GasCostSummary;
@@ -79,18 +80,20 @@ pub fn drop_all_tables(conn: &mut PgConnection) -> Result<(), diesel::result::Er
 }
 
 pub async fn multi_get_full_transactions(
-    read_api: &HaneulReadApi,
+    http_client: HttpClient,
     digests: Vec<TransactionDigest>,
 ) -> Result<Vec<CheckpointTransactionBlockResponse>, IndexerError> {
-    let haneul_transactions = read_api
-        .multi_get_transactions_with_options(
+    let haneul_transactions = http_client
+        .multi_get_transaction_blocks(
             digests.clone(),
             // MUSTFIX(gegaowp): avoid double fetching both input and raw_input
-            HaneulTransactionBlockResponseOptions::new()
-                .with_input()
-                .with_effects()
-                .with_events()
-                .with_raw_input(),
+            Some(
+                HaneulTransactionBlockResponseOptions::new()
+                    .with_input()
+                    .with_effects()
+                    .with_events()
+                    .with_raw_input(),
+            ),
         )
         .await
         .map_err(|e| {
