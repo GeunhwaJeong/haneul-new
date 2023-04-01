@@ -10,7 +10,7 @@ Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::object::UID {i
 
 task 2 'run'. lines 10-10:
 created: object(107)
-written: object(104), object(106)
+mutated: object(104), object(106)
 
 task 3 'view-object'. lines 12-12:
 Owner: Account Address ( B )
