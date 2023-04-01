@@ -46,6 +46,9 @@ mod move_package_upgrade_tests;
 #[path = "unit_tests/pay_haneul_tests.rs"]
 mod pay_haneul_tests;
 pub mod test_authority_clients;
+#[cfg(test)]
+#[path = "unit_tests/type_param_tests.rs"]
+mod type_param_tests;
 
 pub mod signature_verifier;
 
