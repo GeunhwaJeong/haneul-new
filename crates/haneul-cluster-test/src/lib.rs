@@ -19,7 +19,7 @@ use haneul_json_rpc_types::{
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
-use test_utils::messages::make_transactions_with_wallet_context_and_rgp;
+use test_utils::messages::make_transactions_with_wallet_context_and_budget;
 
 use shared_crypto::intent::Intent;
 use haneul_sdk::HaneulClient;
@@ -117,8 +117,17 @@ impl TestContext {
 
     /// See `make_transactions_with_wallet_context` for potential caveats
     /// of this helper function.
-    pub async fn make_transactions(&mut self, max_txn_num: usize) -> Vec<VerifiedTransaction> {
-        make_transactions_with_wallet_context_and_rgp(self.get_wallet_mut(), max_txn_num).await
+    pub async fn make_transactions(
+        &mut self,
+        max_txn_num: usize,
+        gas_budget: u64,
+    ) -> Vec<VerifiedTransaction> {
+        make_transactions_with_wallet_context_and_budget(
+            self.get_wallet_mut(),
+            max_txn_num,
+            gas_budget,
+        )
+        .await
     }
 
     pub async fn build_transaction_remotely(
