@@ -117,22 +117,6 @@ module haneul_system::haneul_system_state_inner {
         storage_rebate
     }
 
-    public(friend) fun advance_epoch_safe_mode(
-        self: &mut HaneulSystemStateInnerV2,
-        new_epoch: u64,
-        next_protocol_version: u64,
-        storage_reward: Balance<HANEUL>,
-        computation_reward: Balance<HANEUL>,
-        _storage_rebate: u64,
-        _ctx: &mut TxContext,
-    ) {
-        self.epoch = new_epoch;
-        self.protocol_version = next_protocol_version;
-        self.safe_mode = true;
-        balance::join(&mut self.storage_fund, computation_reward);
-        balance::join(&mut self.storage_fund, storage_reward);
-    }
-
     public(friend) fun protocol_version(self: &HaneulSystemStateInnerV2): u64 { self.protocol_version }
     public(friend) fun system_state_version(self: &HaneulSystemStateInnerV2): u64 { self.system_state_version }
     public(friend) fun genesis_system_state_version(): u64 {

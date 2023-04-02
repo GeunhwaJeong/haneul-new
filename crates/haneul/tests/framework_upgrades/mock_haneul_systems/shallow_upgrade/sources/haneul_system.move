@@ -74,32 +74,6 @@ module haneul_system::haneul_system {
         storage_rebate
     }
 
-    fun advance_epoch_safe_mode(
-        storage_reward: Balance<HANEUL>,
-        computation_reward: Balance<HANEUL>,
-        wrapper: &mut HaneulSystemState,
-        new_epoch: u64,
-        next_protocol_version: u64,
-        storage_rebate: u64,
-        _non_refundable_storage_fee: u64,
-        epoch_start_timestamp_ms: u64,
-        ctx: &mut TxContext,
-    ) {
-        let self = load_system_state_mut(wrapper);
-        // Validator will make a special system call with sender set as 0x0.
-        assert!(tx_context::sender(ctx) == @0x0, 0);
-        haneul_system_state_inner::advance_epoch_safe_mode(
-            self,
-            new_epoch,
-            next_protocol_version,
-            storage_reward,
-            computation_reward,
-            storage_rebate,
-            epoch_start_timestamp_ms,
-            ctx
-        )
-    }
-
     fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInnerV2 {
         load_inner_maybe_upgrade(self)
     }
