@@ -72,6 +72,9 @@ pub struct AuthorityStore {
     pub(crate) objects_lock_table: Arc<RwLockTable<ObjectContentDigest>>,
 
     indirect_objects_threshold: usize,
+
+    /// Whether to enable expensive HANEUL conservation check at epoch boundaries.
+    enable_epoch_haneul_conservation_check: bool,
 }
 
 pub type ExecutionLockReadGuard<'a> = RwLockReadGuard<'a, EpochId>;
@@ -86,6 +89,7 @@ impl AuthorityStore {
         genesis: &Genesis,
         committee_store: &Arc<CommitteeStore>,
         indirect_objects_threshold: usize,
+        enable_epoch_haneul_conservation_check: bool,
     ) -> HaneulResult<Self> {
         let perpetual_tables = Arc::new(AuthorityPerpetualTables::open(path, db_options.clone()));
         if perpetual_tables.database_is_empty()? {
@@ -106,6 +110,7 @@ impl AuthorityStore {
             perpetual_tables,
             &committee,
             indirect_objects_threshold,
+            enable_epoch_haneul_conservation_check,
         )
         .await
     }
@@ -126,6 +131,7 @@ impl AuthorityStore {
             perpetual_tables,
             committee,
             indirect_objects_threshold,
+            true,
         )
         .await
     }
@@ -135,6 +141,7 @@ impl AuthorityStore {
         perpetual_tables: Arc<AuthorityPerpetualTables>,
         committee: &Committee,
         indirect_objects_threshold: usize,
+        enable_epoch_haneul_conservation_check: bool,
     ) -> HaneulResult<Self> {
         let epoch = committee.epoch;
 
@@ -147,6 +154,7 @@ impl AuthorityStore {
             execution_lock: RwLock::new(epoch),
             objects_lock_table: Arc::new(RwLockTable::new(NUM_SHARDS)),
             indirect_objects_threshold,
+            enable_epoch_haneul_conservation_check,
         };
         // Only initialize an empty database.
         if store
@@ -183,6 +191,13 @@ impl AuthorityStore {
                 .enumerate()
                 .map(|(i, e)| ((event_digests, i), e));
             store.perpetual_tables.events.multi_insert(events).unwrap();
+            // When we are opening the db table, the only time when it's safe to
+            // check HANEUL conservation is at genesis. Otherwise we may be in the middle of
+            // an epoch and the HANEUL conservation check will fail. This also initialize
+            // the expected_network_haneul_amount table.
+            store
+                .expensive_check_haneul_conservation()
+                .expect("HANEUL conservation check cannot fail at genesis");
         }
 
         Ok(store)
@@ -1359,6 +1374,65 @@ impl AuthorityStore {
 
     pub fn iter_live_object_set(&self) -> impl Iterator<Item = LiveObject> + '_ {
         self.perpetual_tables.iter_live_object_set()
+    }
+
+    pub fn expensive_check_haneul_conservation(&self) -> HaneulResult {
+        if !self.enable_epoch_haneul_conservation_check {
+            return Ok(());
+        }
+
+        let mut total_storage_rebate = 0;
+        let mut total_haneul = 0;
+        for o in self.iter_live_object_set() {
+            match o {
+                LiveObject::Normal(object) => {
+                    total_storage_rebate += object.storage_rebate;
+                    // get_total_haneul includes storage rebate, however all storage rebate is
+                    // also stored in the storage fund, so we need to subtract it here.
+                    total_haneul += object.get_total_haneul(self)? - object.storage_rebate;
+                }
+                LiveObject::Wrapped(_) => (),
+            }
+        }
+        let system_state = self
+            .get_haneul_system_state_object()
+            .expect("Reading haneul system state object cannot fail")
+            .into_haneul_system_state_summary();
+
+        let storage_fund_balance = system_state.storage_fund_total_object_storage_rebates;
+        fp_ensure!(
+            total_storage_rebate == storage_fund_balance,
+            HaneulError::from(
+                format!(
+                    "Inconsistent state detected at epoch {}: total storage rebate: {}, storage fund balance: {}",
+                    system_state.epoch, total_storage_rebate, storage_fund_balance
+                ).as_str()
+            )
+        );
+        if let Some(expected_haneul) = self
+            .perpetual_tables
+            .expected_network_haneul_amount
+            .get(&())
+            .expect("DB read cannot fail")
+        {
+            fp_ensure!(
+                total_haneul == expected_haneul,
+                HaneulError::from(
+                    format!(
+                        "Inconsistent state detected at epoch {}: total haneul: {}, expecting {}",
+                        system_state.epoch, total_haneul, expected_haneul
+                    )
+                    .as_str()
+                )
+            );
+        } else {
+            self.perpetual_tables
+                .expected_network_haneul_amount
+                .insert(&(), &total_haneul)
+                .expect("DB write cannot fail");
+        }
+
+        Ok(())
     }
 }
 
