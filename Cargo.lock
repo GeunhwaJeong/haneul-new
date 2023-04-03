@@ -9642,6 +9642,8 @@ dependencies = [
  "serde_json",
  "shared-crypto",
  "shellexpand",
+ "strum",
+ "strum_macros",
  "haneul",
  "haneul-config",
  "haneul-json-rpc",

@@ -7,18 +7,18 @@ mod pay_haneul;
 mod query_transactions;
 mod rpc_command_processor;
 mod validation;
+use strum_macros::EnumString;
 
 use anyhow::Result;
 use async_trait::async_trait;
 use core::default::Default;
-use std::str::FromStr;
 use std::time::Duration;
 
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::{base_types::HaneulAddress, messages_checkpoint::CheckpointSequenceNumber};
 
 use crate::load_test::LoadTestConfig;
-pub use rpc_command_processor::RpcCommandProcessor;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+pub use rpc_command_processor::{load_addresses_from_file, RpcCommandProcessor};
+use haneul_types::base_types::ObjectID;
 
 #[derive(Default, Clone)]
 pub struct SignerInfo {
@@ -91,15 +91,15 @@ impl Command {
     }
 
     pub fn new_query_transaction_blocks(
-        from_address: Option<String>,
-        to_address: Option<String>,
+        address_type: AddressQueryType,
+        addresses: Vec<HaneulAddress>,
     ) -> Self {
-        let query_transactions = QueryTransactions {
-            from_address: from_address.map(|addr| HaneulAddress::from_str(&addr).unwrap()),
-            to_address: to_address.map(|addr| HaneulAddress::from_str(&addr).unwrap()),
+        let query_transactions = QueryTransactionBlocks {
+            address_type,
+            addresses,
         };
         Self {
-            data: CommandData::QueryTransactions(query_transactions),
+            data: CommandData::QueryTransactionBlocks(query_transactions),
             ..Default::default()
         }
     }
@@ -121,7 +121,7 @@ pub enum CommandData {
     DryRun(DryRun),
     GetCheckpoints(GetCheckpoints),
     PayHaneul(PayHaneul),
-    QueryTransactions(QueryTransactions),
+    QueryTransactionBlocks(QueryTransactionBlocks),
 }
 
 impl Default for CommandData {
@@ -148,9 +148,23 @@ pub struct GetCheckpoints {
 pub struct PayHaneul {}
 
 #[derive(Clone, Default)]
-pub struct QueryTransactions {
-    pub from_address: Option<HaneulAddress>,
-    pub to_address: Option<HaneulAddress>,
+pub struct QueryTransactionBlocks {
+    pub address_type: AddressQueryType,
+    pub addresses: Vec<HaneulAddress>,
+}
+
+#[derive(Clone, EnumString)]
+#[strum(serialize_all = "lowercase")]
+pub enum AddressQueryType {
+    From,
+    To,
+    Both,
+}
+
+impl Default for AddressQueryType {
+    fn default() -> Self {
+        AddressQueryType::From
+    }
 }
 
 #[async_trait]
