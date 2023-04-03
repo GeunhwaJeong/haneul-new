@@ -1018,7 +1018,8 @@ pub struct HaneulMovePackage {
     pub disassembled: BTreeMap<String, Value>,
 }
 
-pub type ObjectsPage = Page<HaneulObjectResponse, CheckpointedObjectID>;
+pub type QueryObjectsPage = Page<HaneulObjectResponse, CheckpointedObjectID>;
+pub type ObjectsPage = Page<HaneulObjectResponse, ObjectID>;
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Copy, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]

@@ -54,10 +54,17 @@ pub trait IndexerStore {
         version: Option<SequenceNumber>,
     ) -> Result<ObjectRead, IndexerError>;
 
-    fn query_objects(
+    fn query_objects_history(
         &self,
         filter: HaneulObjectDataFilter,
         at_checkpoint: CheckpointSequenceNumber,
+        cursor: Option<ObjectID>,
+        limit: usize,
+    ) -> Result<Vec<ObjectRead>, IndexerError>;
+
+    fn query_latest_objects(
+        &self,
+        filter: HaneulObjectDataFilter,
         cursor: Option<ObjectID>,
         limit: usize,
     ) -> Result<Vec<ObjectRead>, IndexerError>;

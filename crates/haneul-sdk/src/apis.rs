@@ -1,21 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::error::{Error, HaneulRpcResult};
-use crate::{RpcClient, WAIT_FOR_TX_TIMEOUT_SEC};
-use fastcrypto::encoding::Base64;
-use futures::stream;
-use futures_core::Stream;
-use jsonrpsee::core::client::Subscription;
 use std::collections::BTreeMap;
 use std::future;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+
+use fastcrypto::encoding::Base64;
+use futures::stream;
+use futures::StreamExt;
+use futures_core::Stream;
+use jsonrpsee::core::client::Subscription;
+
 use haneul_json_rpc::api::GovernanceReadApiClient;
-use haneul_json_rpc::api::IndexerApiClient;
-use haneul_json_rpc::api::MoveUtilsClient;
+use haneul_json_rpc::api::{
+    CoinReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient, WriteApiClient,
+};
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, CheckpointedObjectID, Coin, CoinPage, DelegatedStake,
+    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
@@ -29,10 +31,10 @@ use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-
-use futures::StreamExt;
-use haneul_json_rpc::api::{CoinReadApiClient, ReadApiClient, WriteApiClient};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+
+use crate::error::{Error, HaneulRpcResult};
+use crate::{RpcClient, WAIT_FOR_TX_TIMEOUT_SEC};
 
 #[derive(Debug)]
 pub struct ReadApi {
@@ -48,7 +50,7 @@ impl ReadApi {
         &self,
         address: HaneulAddress,
         query: Option<HaneulObjectResponseQuery>,
-        cursor: Option<CheckpointedObjectID>,
+        cursor: Option<ObjectID>,
         limit: Option<usize>,
     ) -> HaneulRpcResult<ObjectsPage> {
         Ok(self
