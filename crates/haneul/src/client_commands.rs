@@ -539,14 +539,14 @@ impl HaneulClientCommands {
                         gas_budget,
                     )
                     .await?;
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&sender, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &sender,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -591,14 +591,14 @@ impl HaneulClientCommands {
                     )));
                 }
 
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&sender, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &sender,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -667,10 +667,10 @@ impl HaneulClientCommands {
                     context
                         .config
                         .keystore
-                        .sign_secure(&from, &data, Intent::default())?;
+                        .sign_secure(&from, &data, Intent::haneul_transaction())?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -704,10 +704,10 @@ impl HaneulClientCommands {
                     context
                         .config
                         .keystore
-                        .sign_secure(&from, &data, Intent::default())?;
+                        .sign_secure(&from, &data, Intent::haneul_transaction())?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -753,10 +753,10 @@ impl HaneulClientCommands {
                     context
                         .config
                         .keystore
-                        .sign_secure(&from, &data, Intent::default())?;
+                        .sign_secure(&from, &data, Intent::haneul_transaction())?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -800,14 +800,14 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .pay_haneul(signer, input_coins, recipients, amounts, gas_budget)
                     .await?;
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&signer, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &signer,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -839,14 +839,14 @@ impl HaneulClientCommands {
                     .pay_all_haneul(signer, input_coins, recipient, gas_budget)
                     .await?;
 
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&signer, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &signer,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -945,14 +945,14 @@ impl HaneulClientCommands {
                         return Err(anyhow!("Exactly one of `count` and `amounts` must be present for split-coin command."));
                     }
                 };
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&signer, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &signer,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -970,14 +970,14 @@ impl HaneulClientCommands {
                     .transaction_builder()
                     .merge_coins(signer, primary_coin, coin_to_merge, gas, gas_budget)
                     .await?;
-                let signature =
-                    context
-                        .config
-                        .keystore
-                        .sign_secure(&signer, &data, Intent::default())?;
+                let signature = context.config.keystore.sign_secure(
+                    &signer,
+                    &data,
+                    Intent::haneul_transaction(),
+                )?;
                 let response = context
                     .execute_transaction_block(
-                        Transaction::from_data(data, Intent::default(), vec![signature])
+                        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
                             .verify()?,
                     )
                     .await?;
@@ -1045,7 +1045,8 @@ impl HaneulClientCommands {
                     );
                 }
                 let verified =
-                    Transaction::from_generic_sig_data(data, Intent::default(), sigs).verify()?;
+                    Transaction::from_generic_sig_data(data, Intent::haneul_transaction(), sigs)
+                        .verify()?;
 
                 let response = context.execute_transaction_block(verified).await?;
                 HaneulClientCommandResult::ExecuteSignedTx(response)
@@ -1614,11 +1615,13 @@ pub async fn call_move(
             gas_budget,
         )
         .await?;
-    let signature = context
-        .config
-        .keystore
-        .sign_secure(&sender, &data, Intent::default())?;
-    let transaction = Transaction::from_data(data, Intent::default(), vec![signature]).verify()?;
+    let signature =
+        context
+            .config
+            .keystore
+            .sign_secure(&sender, &data, Intent::haneul_transaction())?;
+    let transaction =
+        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature]).verify()?;
 
     let response = context.execute_transaction_block(transaction).await?;
     let effects = response

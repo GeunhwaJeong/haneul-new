@@ -36,13 +36,14 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Sign transaction
     let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-    let signature = keystore.sign_secure(&my_address, &transfer_tx, Intent::default())?;
+    let signature = keystore.sign_secure(&my_address, &transfer_tx, Intent::haneul_transaction())?;
 
     // Execute the transaction
     let transaction_response = haneul
         .quorum_driver()
         .execute_transaction_block(
-            Transaction::from_data(transfer_tx, Intent::default(), vec![signature]).verify()?,
+            Transaction::from_data(transfer_tx, Intent::haneul_transaction(), vec![signature])
+                .verify()?,
             HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )

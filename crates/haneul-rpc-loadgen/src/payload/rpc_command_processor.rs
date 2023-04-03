@@ -537,13 +537,15 @@ pub(crate) async fn sign_and_execute(
     txn_data: TransactionData,
     request_type: ExecuteTransactionRequestType,
 ) -> HaneulTransactionBlockResponse {
-    let signature =
-        Signature::new_secure(&IntentMessage::new(Intent::default(), &txn_data), keypair);
+    let signature = Signature::new_secure(
+        &IntentMessage::new(Intent::haneul_transaction(), &txn_data),
+        keypair,
+    );
 
     let transaction_response = match client
         .quorum_driver()
         .execute_transaction_block(
-            Transaction::from_data(txn_data, Intent::default(), vec![signature])
+            Transaction::from_data(txn_data, Intent::haneul_transaction(), vec![signature])
                 .verify()
                 .expect("signature error"),
             HaneulTransactionBlockResponseOptions::new().with_effects(),

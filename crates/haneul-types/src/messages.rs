@@ -1987,7 +1987,7 @@ impl VerifiedTransaction {
             .pipe(|data| {
                 SenderSignedData::new_from_sender_signature(
                     data,
-                    Intent::default(),
+                    Intent::haneul_transaction(),
                     Ed25519HaneulSignature::from_bytes(&[0; Ed25519HaneulSignature::LENGTH])
                         .unwrap()
                         .into(),

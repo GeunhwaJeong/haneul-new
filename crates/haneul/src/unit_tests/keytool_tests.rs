@@ -59,7 +59,7 @@ fn test_flag_in_signature_and_keypair() -> Result<(), anyhow::Error> {
 
     for pk in keystore.keys() {
         let pk1 = pk.clone();
-        let sig = keystore.sign_secure(&(&pk).into(), b"hello", Intent::default())?;
+        let sig = keystore.sign_secure(&(&pk).into(), b"hello", Intent::haneul_transaction())?;
         match sig {
             Signature::Ed25519HaneulSignature(_) => {
                 // signature contains corresponding flag
@@ -367,7 +367,7 @@ fn test_sign_command() -> Result<(), anyhow::Error> {
     KeyToolCommand::Sign {
         address: *sender,
         data: Base64::encode(bcs::to_bytes(&tx_data)?),
-        intent: Some(Intent::default().with_scope(IntentScope::PersonalMessage)),
+        intent: Some(Intent::haneul_app(IntentScope::PersonalMessage)),
     }
     .execute(&mut keystore)?;
 
