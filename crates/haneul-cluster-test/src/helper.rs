@@ -131,6 +131,9 @@ impl ObjectChecker {
                 }
                 Ok(CheckerResultObject::new(None, Some(object)))
             }
+            (None, Some(HaneulObjectResponseError::DisplayError { error })) => {
+                panic!("Display Error: {error:?}");
+            }
             (None, None) | (None, Some(HaneulObjectResponseError::Unknown)) => {
                 panic!("Unexpected response: object not found and no specific error provided");
             }
