@@ -81,6 +81,7 @@ impl RpcCommandProcessor {
             CommandData::GetCheckpoints(ref v) => self.process(v, signer_info).await,
             CommandData::PayHaneul(ref v) => self.process(v, signer_info).await,
             CommandData::QueryTransactionBlocks(ref v) => self.process(v, signer_info).await,
+            CommandData::MultiGetObjects(ref v) => self.process(v, signer_info).await,
         }
     }
 
@@ -338,6 +339,12 @@ pub fn load_addresses_from_file(filepath: String) -> Vec<HaneulAddress> {
     let path = format!("{}/{}", filepath, CacheType::HaneulAddress);
     let addresses: Vec<HaneulAddress> = read_data_from_file(&path).expect("Failed to read addresses");
     addresses
+}
+
+pub fn load_objects_from_file(filepath: String) -> Vec<ObjectID> {
+    let path = format!("{}/{}", filepath, CacheType::ObjectID);
+    let objects: Vec<ObjectID> = read_data_from_file(&path).expect("Failed to read objects");
+    objects
 }
 
 fn read_data_from_file<T: DeserializeOwned>(file_path: &str) -> Result<T, anyhow::Error> {
