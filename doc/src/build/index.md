@@ -21,3 +21,7 @@ Read about [Programming with Objects](../build/programming-with-objects/), inclu
 ## Haneul Full node
 
 Learn how to set up and run a [Haneul Full node](fullnode.md).
+
+## Limits on transactions, objects, and data
+
+Haneul has some limits on transactions and data used in transactions, such as a maximum size and number of objects used. To view the full list of limits in source code, see [Transaction input limits](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs#L154).

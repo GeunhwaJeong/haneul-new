@@ -101,7 +101,7 @@ flowchart LR
 
 ## Limits on transactions, objects, and data
 
-Haneul has some limits on transactions and data used in transactions, such as a maximum size and number of objects used. To view the full list of limits in source code, see [Transaction input limits](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs#L143).
+Haneul has some limits on transactions and data used in transactions, such as a maximum size and number of objects used. To view the full list of limits in source code, see [Transaction input limits](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs#L154).
 
 ## Further reading
 
