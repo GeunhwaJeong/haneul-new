@@ -15,6 +15,8 @@ export function flattenHaneulArguments(
                 return value;
             } else if (Array.isArray(value)) {
                 return `[${flattenHaneulArguments(value)}]`;
+            } else if (value === null) {
+                return 'Null';
             } else if (typeof value === 'object') {
                 if ('Input' in value) {
                     return `Input(${value.Input})`;

@@ -10,6 +10,7 @@ import { type ReactNode } from 'react';
 
 import { flattenHaneulArguments } from './utils';
 
+import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
 import { ObjectLink } from '~/ui/InternalLink';
 
 export interface TransactionProps<T> {
@@ -78,17 +79,23 @@ export function Transaction({
     (HaneulArgument | HaneulArgument[])[] | MoveCallHaneulTransaction | HaneulMovePackage
 >) {
     if (type === 'MoveCall') {
-        return <MoveCall type={type} data={data as MoveCallHaneulTransaction} />;
+        return (
+            <ErrorBoundary>
+                <MoveCall type={type} data={data as MoveCallHaneulTransaction} />
+            </ErrorBoundary>
+        );
     }
 
     return (
-        <ArrayArgument
-            type={type}
-            data={
-                type !== 'Publish'
-                    ? (data as (HaneulArgument | HaneulArgument[])[])
-                    : undefined
-            }
-        />
+        <ErrorBoundary>
+            <ArrayArgument
+                type={type}
+                data={
+                    type !== 'Publish'
+                        ? (data as (HaneulArgument | HaneulArgument[])[])
+                        : undefined
+                }
+            />
+        </ErrorBoundary>
     );
 }
