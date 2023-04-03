@@ -870,19 +870,29 @@ impl HaneulClientCommands {
             HaneulClientCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
                 let client = context.get_client().await?;
-                let address_object = client
-                    .read_api()
-                    .get_owned_objects(
-                        address,
-                        Some(HaneulObjectResponseQuery::new_with_options(
-                            HaneulObjectDataOptions::full_content(),
-                        )),
-                        None,
-                        None,
-                    )
-                    .await?;
-                // TODO: paginate here
-                HaneulClientCommandResult::Objects(address_object.data)
+                let mut objects: Vec<HaneulObjectResponse> = Vec::new();
+                let mut cursor = None;
+                loop {
+                    let response = client
+                        .read_api()
+                        .get_owned_objects(
+                            address,
+                            Some(HaneulObjectResponseQuery::new_with_options(
+                                HaneulObjectDataOptions::full_content(),
+                            )),
+                            cursor,
+                            None,
+                        )
+                        .await?;
+                    objects.extend(response.data);
+
+                    if response.has_next_page {
+                        cursor = response.next_cursor;
+                    } else {
+                        break;
+                    }
+                }
+                HaneulClientCommandResult::Objects(objects)
             }
 
             HaneulClientCommands::NewAddress {
