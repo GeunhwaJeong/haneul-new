@@ -56,7 +56,7 @@ module haneul::coin {
 
 Don't worry about the rest of the module contents for now; you can read more about [modules](https://github.com/move-language/move/blob/main/language/documentation/book/src/modules-and-scripts.md#modules) in the Move book later.
 
-**Important:** In Haneul Move, package names are always in CamelCase, while the address alias is lowercase, for example `haneul = 0x2` and `std = 0x1`. So: `Haneul` = name of the imported package (Haneul = haneul framework), `haneul` = address alias of `0x2`, `haneul::haneul` = module haneul under the address `0x2`, and `haneul::haneul::HANEUL` = type in the module above.
+**Important:** In Haneul Move, package names are always in PascalCase, while the address alias is lowercase, for example `haneul = 0x2` and `std = 0x1`. So: `Haneul` = name of the imported package (Haneul = haneul framework), `haneul` = address alias of `0x2`, `haneul::haneul` = module haneul under the address `0x2`, and `haneul::haneul::HANEUL` = type in the module above.
 
 When you define a module, specify the module name (`coin`) preceded by the name of the package where this module resides (`haneul`). The combination of the package name and the module name uniquely identifies a module in Haneul Move source code. The package name is globally unique, but different packages can contain modules with the same name. While module names are not unique, when they combine with their unique package name they result in a unique combination.
 
