@@ -660,6 +660,7 @@ pub struct DryRunTransactionBlockResponse {
     pub events: HaneulTransactionBlockEvents,
     pub object_changes: Vec<ObjectChange>,
     pub balance_changes: Vec<BalanceChange>,
+    pub input: HaneulTransactionBlockData,
 }
 
 #[derive(Eq, PartialEq, Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]

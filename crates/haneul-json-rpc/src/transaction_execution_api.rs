@@ -17,7 +17,8 @@ use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
     BigInt, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
-    HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockData, HaneulTransactionBlockEvents, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{EpochId, HaneulAddress};
@@ -158,6 +159,12 @@ impl TransactionExecutionApi {
         tx_bytes: Base64,
     ) -> Result<DryRunTransactionBlockResponse, Error> {
         let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
+        let module_cache = self
+            .state
+            .load_epoch_store_one_call_per_task()
+            .module_cache()
+            .clone();
+        let input = HaneulTransactionBlockData::try_from(txn_data.clone(), &module_cache)?;
         let (resp, written_objects, transaction_effects) = self
             .state
             .dry_exec_transaction(txn_data.clone(), txn_digest)
@@ -179,6 +186,7 @@ impl TransactionExecutionApi {
             events: resp.events,
             object_changes,
             balance_changes,
+            input,
         })
     }
 }

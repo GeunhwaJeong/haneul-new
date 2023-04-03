@@ -47,7 +47,7 @@ use haneul_config::node::{AuthorityStorePruningConfig, DBCheckpointConfig};
 use haneul_framework::{MoveStdlib, HaneulFramework, HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{
     Checkpoint, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
-    HaneulMoveValue, HaneulObjectDataFilter, HaneulTransactionBlockEvents,
+    HaneulMoveValue, HaneulObjectDataFilter, HaneulTransactionBlockData, HaneulTransactionBlockEvents,
 };
 use haneul_macros::{fail_point, fail_point_async, nondeterministic};
 use haneul_protocol_config::SupportedProtocolVersions;
@@ -1102,6 +1102,7 @@ impl AuthorityState {
 
         Ok((
             DryRunTransactionBlockResponse {
+                input: HaneulTransactionBlockData::try_from(transaction.clone(), &module_cache)?,
                 effects: effects.clone().try_into()?,
                 events: HaneulTransactionBlockEvents::try_from(
                     inner_temp_store.events.clone(),

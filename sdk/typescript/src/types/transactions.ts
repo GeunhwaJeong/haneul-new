@@ -422,6 +422,8 @@ export const DryRunTransactionBlockResponse = object({
   events: TransactionEvents,
   objectChanges: array(HaneulObjectChange),
   balanceChanges: array(BalanceChange),
+  // TODO: Remove optional when this is rolled out to all networks:
+  input: optional(HaneulTransactionBlockData),
 });
 export type DryRunTransactionBlockResponse = Infer<
   typeof DryRunTransactionBlockResponse
