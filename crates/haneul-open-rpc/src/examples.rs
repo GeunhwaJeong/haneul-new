@@ -33,7 +33,7 @@ use haneul_types::base_types::{
     MoveObjectType, ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress,
     TransactionDigest,
 };
-use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair};
+use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AggregateAuthoritySignature};
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
@@ -295,6 +295,7 @@ impl RpcExampleProvider {
             end_of_epoch_data: None,
             transactions: vec![TransactionDigest::new(self.rng.gen())],
             checkpoint_commitments: vec![],
+            validator_signature: AggregateAuthoritySignature::default(),
         };
 
         Examples::new(

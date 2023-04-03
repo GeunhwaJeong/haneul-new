@@ -21,6 +21,7 @@ use haneul_indexer::store::{
 use haneul_indexer::utils::reset_database;
 use haneul_json_rpc_types::CheckpointId;
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::TransactionData;
@@ -60,6 +61,7 @@ fn create_checkpoint(sequence_number: i64) -> TemporaryCheckpointStore {
             transactions: vec![],
             previous_checkpoint_digest: Some(CheckpointDigest::random().base58_encode()),
             end_of_epoch: false,
+            validator_signature: AggregateAuthoritySignature::default().to_string(),
             total_gas_cost: i64::MAX,
             total_computation_cost: i64::MAX,
             total_storage_cost: i64::MAX,
