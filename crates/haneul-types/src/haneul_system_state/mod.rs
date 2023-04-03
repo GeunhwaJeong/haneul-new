@@ -19,7 +19,7 @@ use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructT
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use haneul_protocol_config::ProtocolVersion;
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 
 use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorV1};
 use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
@@ -77,6 +77,7 @@ impl HaneulSystemStateWrapper {
         &self,
         params: &AdvanceEpochParams,
         object_store: &S,
+        protocol_config: &ProtocolConfig,
     ) -> Object
     where
         S: ObjectStore,
@@ -90,16 +91,25 @@ impl HaneulSystemStateWrapper {
             .expect("Dynamic field object must be a Move object");
         match self.version {
             1 => {
-                Self::advance_epoch_safe_mode_impl::<HaneulSystemStateInnerV1>(move_object, params);
+                Self::advance_epoch_safe_mode_impl::<HaneulSystemStateInnerV1>(
+                    move_object,
+                    params,
+                    protocol_config,
+                );
             }
             2 => {
-                Self::advance_epoch_safe_mode_impl::<HaneulSystemStateInnerV1>(move_object, params);
+                Self::advance_epoch_safe_mode_impl::<HaneulSystemStateInnerV2>(
+                    move_object,
+                    params,
+                    protocol_config,
+                );
             }
             #[cfg(msim)]
             HANEUL_SYSTEM_STATE_SIM_TEST_V1 => {
                 Self::advance_epoch_safe_mode_impl::<SimTestHaneulSystemStateInnerV1>(
                     move_object,
                     params,
+                    protocol_config,
                 );
             }
             #[cfg(msim)]
@@ -107,6 +117,7 @@ impl HaneulSystemStateWrapper {
                 Self::advance_epoch_safe_mode_impl::<SimTestHaneulSystemStateInnerShallowV2>(
                     move_object,
                     params,
+                    protocol_config,
                 );
             }
             #[cfg(msim)]
@@ -114,6 +125,7 @@ impl HaneulSystemStateWrapper {
                 Self::advance_epoch_safe_mode_impl::<SimTestHaneulSystemStateInnerDeepV2>(
                     move_object,
                     params,
+                    protocol_config,
                 );
             }
             _ => unreachable!(),
@@ -121,8 +133,11 @@ impl HaneulSystemStateWrapper {
         field_object
     }
 
-    fn advance_epoch_safe_mode_impl<T>(move_object: &mut MoveObject, params: &AdvanceEpochParams)
-    where
+    fn advance_epoch_safe_mode_impl<T>(
+        move_object: &mut MoveObject,
+        params: &AdvanceEpochParams,
+        protocol_config: &ProtocolConfig,
+    ) where
         T: Serialize + DeserializeOwned + HaneulSystemStateTrait,
     {
         let mut field: Field<u64, T> =
@@ -141,7 +156,9 @@ impl HaneulSystemStateWrapper {
             field.value.system_state_version()
         );
         let new_contents = bcs::to_bytes(&field).expect("bcs serialization should never fail");
-        move_object.update_contents_at_safe_mode(new_contents);
+        move_object
+            .update_contents(new_contents, protocol_config)
+            .expect("Update haneul system object content cannot fail since it should be small");
     }
 }
 
