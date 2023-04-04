@@ -1043,6 +1043,7 @@ pub struct HaneulGetPastObjectRequest {
 pub enum HaneulObjectDataFilter {
     MatchAll(Vec<HaneulObjectDataFilter>),
     MatchAny(Vec<HaneulObjectDataFilter>),
+    MatchNone(Vec<HaneulObjectDataFilter>),
     /// Query by type a specified Package.
     Package(ObjectID),
     /// Query by type a specified Move module.
@@ -1079,11 +1080,15 @@ impl HaneulObjectDataFilter {
     pub fn or(self, other: Self) -> Self {
         Self::MatchAny(vec![self, other])
     }
+    pub fn not(self, other: Self) -> Self {
+        Self::MatchNone(vec![self, other])
+    }
 
     pub fn matches(&self, object: &ObjectInfo) -> bool {
         match self {
             HaneulObjectDataFilter::MatchAll(filters) => !filters.iter().any(|f| !f.matches(object)),
             HaneulObjectDataFilter::MatchAny(filters) => filters.iter().any(|f| f.matches(object)),
+            HaneulObjectDataFilter::MatchNone(filters) => !filters.iter().any(|f| f.matches(object)),
             HaneulObjectDataFilter::StructType(s) => {
                 let obj_tag: StructTag = match &object.type_ {
                     ObjectType::Package => return false,
