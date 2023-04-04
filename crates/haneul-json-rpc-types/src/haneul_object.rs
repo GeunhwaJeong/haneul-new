@@ -155,6 +155,12 @@ impl TryFrom<HaneulObjectResponse> for ObjectInfo {
     }
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq)]
+pub struct DisplayFieldsResponse {
+    pub data: Option<BTreeMap<String, String>>,
+    pub error: Option<HaneulObjectResponseError>,
+}
+
 #[serde_as]
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, Eq, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "ObjectData")]
@@ -186,7 +192,7 @@ pub struct HaneulObjectData {
     /// This can also be None if the struct type does not have Display defined
     /// See more details in <https://forums.haneul.io/t/nft-object-display-proposal/4872>
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub display: Option<BTreeMap<String, String>>,
+    pub display: Option<DisplayFieldsResponse>,
     /// Move object content or package content, default to be None unless HaneulObjectDataOptions.showContent is set to true
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<HaneulParsedData>,
@@ -542,7 +548,7 @@ impl
         Object,
         Option<MoveStructLayout>,
         HaneulObjectDataOptions,
-        Option<BTreeMap<String, String>>,
+        Option<DisplayFieldsResponse>,
     )> for HaneulObjectData
 {
     type Error = anyhow::Error;
@@ -553,7 +559,7 @@ impl
             Object,
             Option<MoveStructLayout>,
             HaneulObjectDataOptions,
-            Option<BTreeMap<String, String>>,
+            Option<DisplayFieldsResponse>,
         ),
     ) -> Result<Self, Self::Error> {
         let show_display = options.show_display;

@@ -8,6 +8,7 @@ import {
     getObjectOwner,
     getObjectFields,
     getObjectPreviousTransactionDigest,
+    getObjectDisplay,
 } from '@haneullabs/haneul.js';
 
 import { parseObjectType } from '../../utils/objectUtils';
@@ -52,11 +53,7 @@ export function translate(o: HaneulObjectResponse): DataType {
                 contents: getObjectFields(o) ?? getMovePackageContent(o)!,
                 tx_digest: getObjectPreviousTransactionDigest(o),
             },
-            display:
-                (typeof o.data === 'object' &&
-                    'display' in o.data &&
-                    o.data.display) ||
-                undefined,
+            display: getObjectDisplay(o).data || undefined,
         };
     } else {
         throw new Error(`${o.error}`);

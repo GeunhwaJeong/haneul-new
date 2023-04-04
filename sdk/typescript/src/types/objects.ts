@@ -111,6 +111,27 @@ export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
 export const ObjectDigest = string();
 export type ObjectDigest = Infer<typeof ObjectDigest>;
+export const HaneulObjectResponseError = object({
+  code: string(),
+  error: optional(string()),
+  object_id: optional(ObjectId),
+  version: optional(SequenceNumber),
+  digest: optional(ObjectDigest),
+});
+export type HaneulObjectResponseError = Infer<typeof HaneulObjectResponseError>;
+export const DisplayFieldsResponse = object({
+  data: nullable(record(string(), string())),
+  error: nullable(HaneulObjectResponseError),
+});
+export type DisplayFieldsResponse = Infer<typeof DisplayFieldsResponse>;
+// TODO: remove after all envs support the new DisplayFieldsResponse;
+export const DisplayFieldsBackwardCompatibleResponse = union([
+  DisplayFieldsResponse,
+  optional(record(string(), string())),
+]);
+export type DisplayFieldsBackwardCompatibleResponse = Infer<
+  typeof DisplayFieldsBackwardCompatibleResponse
+>;
 
 export const HaneulObjectData = object({
   objectId: ObjectId,
@@ -149,7 +170,7 @@ export const HaneulObjectData = object({
    * This can also be None if the struct type does not have Display defined
    * See more details in https://forums.haneul.io/t/nft-object-display-proposal/4872
    */
-  display: optional(record(string(), string())),
+  display: optional(DisplayFieldsBackwardCompatibleResponse),
 });
 export type HaneulObjectData = Infer<typeof HaneulObjectData>;
 
@@ -183,14 +204,6 @@ export type ObjectStatus = Infer<typeof ObjectStatus>;
 
 export const GetOwnedObjectsResponse = array(HaneulObjectInfo);
 export type GetOwnedObjectsResponse = Infer<typeof GetOwnedObjectsResponse>;
-
-export const HaneulObjectResponseError = object({
-  tag: string(),
-  object_id: optional(ObjectId),
-  version: optional(SequenceNumber),
-  digest: optional(ObjectDigest),
-});
-export type HaneulObjectResponseError = Infer<typeof HaneulObjectResponseError>;
 
 export const HaneulObjectResponse = object({
   data: optional(HaneulObjectData),
@@ -331,8 +344,18 @@ export function getObjectOwner(
 
 export function getObjectDisplay(
   resp: HaneulObjectResponse,
-): Record<string, string> | undefined {
-  return getHaneulObjectData(resp)?.display;
+): DisplayFieldsResponse {
+  const display = getHaneulObjectData(resp)?.display;
+  if (!display) {
+    return { data: null, error: null };
+  }
+  if (is(display, DisplayFieldsResponse)) {
+    return display;
+  }
+  return {
+    data: display,
+    error: null,
+  };
 }
 
 export function getSharedObjectInitialVersion(

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { is, HaneulObjectData } from '@haneullabs/haneul.js';
+import { getObjectDisplay } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { useGetObject } from './useGetObject';
@@ -16,10 +16,12 @@ export function useGetNFTMeta(objectID: string) {
     const resp = useGetObject(objectID);
     const nftMeta = useMemo(() => {
         if (!resp.data) return null;
-        const { data } = resp.data || {};
-        if (!is(data, HaneulObjectData) || !data.display) return null;
+        const display = getObjectDisplay(resp.data);
+        if (!display.data) {
+            return null;
+        }
         const { name, description, creator, image_url, link, project_url } =
-            data.display;
+            display.data;
         return {
             name: name || null,
             description: description || null,
