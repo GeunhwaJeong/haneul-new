@@ -45,11 +45,31 @@ export const Inputs = {
       ),
     };
   },
-  ObjectRef(ref: HaneulObjectRef): ObjectCallArg {
-    return { Object: { ImmOrOwned: ref } };
+  ObjectRef({ objectId, digest, version }: HaneulObjectRef): ObjectCallArg {
+    return {
+      Object: {
+        ImmOrOwned: {
+          digest,
+          version,
+          objectId: normalizeHaneulAddress(objectId),
+        },
+      },
+    };
   },
-  SharedObjectRef(ref: SharedObjectRef): ObjectCallArg {
-    return { Object: { Shared: ref } };
+  SharedObjectRef({
+    objectId,
+    mutable,
+    initialSharedVersion,
+  }: SharedObjectRef): ObjectCallArg {
+    return {
+      Object: {
+        Shared: {
+          mutable,
+          initialSharedVersion,
+          objectId: normalizeHaneulAddress(objectId),
+        },
+      },
+    };
   },
 };
 
@@ -58,9 +78,9 @@ export function getIdFromCallArg(arg: ObjectId | ObjectCallArg) {
     return normalizeHaneulAddress(arg);
   }
   if ('ImmOrOwned' in arg.Object) {
-    return arg.Object.ImmOrOwned.objectId;
+    return normalizeHaneulAddress(arg.Object.ImmOrOwned.objectId);
   }
-  return arg.Object.Shared.objectId;
+  return normalizeHaneulAddress(arg.Object.Shared.objectId);
 }
 
 export function getSharedObjectInput(
