@@ -117,8 +117,12 @@
 						"fileName": "learn/cryptography/haneul-offline-signing"
 					},
 					{
-						"label": "Haneul Multi-Signature",
+						"label": "Haneul Multisig",
 						"fileName": "learn/cryptography/haneul-multisig"
+					},
+					{
+						"label": "Haneul Keys and Addresses",
+						"fileName": "learn/cryptography/haneul-wallet-specs"
 					}
 				]
 			},
