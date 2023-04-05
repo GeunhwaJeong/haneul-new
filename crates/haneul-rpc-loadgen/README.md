@@ -53,6 +53,11 @@ cargo run --bin haneul-rpc-loadgen -- --urls "http://127.0.0.1:9000" --num-threa
 cargo run --bin haneul-rpc-loadgen -- --urls "http://127.0.0.1:9000" "http://127.0.0.1:9000" --num-threads 4 query-transaction-blocks --address-type from
 ```
 
+### Multi Get Transaction Blocks
+```bash
+cargo run --bin haneul-rpc-loadgen -- --urls "http://127.0.0.1:9000" "http://127.0.0.1:9000" --num-threads 4 multi-get-transaction-blocks
+```
+
 ### Multi Get Objects
 
 ```bash
