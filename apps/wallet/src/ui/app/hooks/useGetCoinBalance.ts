@@ -1,21 +1,29 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useRpcClient } from '@haneullabs/core';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
+
+import { FEATURES } from '_src/shared/experimentation/features';
 
 export function useGetCoinBalance(
     coinType: string,
     address?: HaneulAddress | null
 ) {
     const rpc = useRpcClient();
+    const refetchInterval = useFeatureValue(
+        FEATURES.WALLET_BALANCE_REFETCH_INTERVAL,
+        8_000
+    );
+
     return useQuery(
         ['coin-balance', address, coinType],
         () => rpc.getBalance({ owner: address!, coinType }),
         {
             enabled: !!address && !!coinType,
-            refetchInterval: 4000,
+            refetchInterval,
         }
     );
 }

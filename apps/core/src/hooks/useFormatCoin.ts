@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Coin } from '@haneullabs/haneul.js';
+import { Coin, CoinMetadata, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
@@ -47,6 +47,20 @@ export function useCoinDecimals(coinType?: string | null) {
                 throw new Error(
                     'Fetching coin denomination should be disabled when coin type is disabled.'
                 );
+            }
+
+            // Optimize the known case of HANEUL to avoid a network call:
+            if (coinType === HANEUL_TYPE_ARG) {
+                const metadata: CoinMetadata = {
+                    id: null,
+                    decimals: 9,
+                    description: '',
+                    iconUrl: null,
+                    name: 'Haneul',
+                    symbol: 'HANEUL',
+                };
+
+                return metadata;
             }
 
             return rpc.getCoinMetadata({ coinType });

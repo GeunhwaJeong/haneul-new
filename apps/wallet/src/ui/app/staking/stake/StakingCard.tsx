@@ -55,7 +55,7 @@ function StakingCard() {
     const coinType = HANEUL_TYPE_ARG;
     const accountAddress = useActiveAddress();
     const { data: haneulBalance, isLoading: loadingHaneulBalances } =
-        useGetCoinBalance(coinType, accountAddress);
+        useGetCoinBalance(HANEUL_TYPE_ARG, accountAddress);
     const coinBalance = BigInt(haneulBalance?.totalBalance || 0);
     const [searchParams] = useSearchParams();
     const validatorAddress = searchParams.get('address');
