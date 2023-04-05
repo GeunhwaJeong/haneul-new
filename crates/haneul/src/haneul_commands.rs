@@ -149,7 +149,7 @@ pub enum HaneulCommand {
 
 impl HaneulCommand {
     pub async fn execute(self) -> Result<(), anyhow::Error> {
-        move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
+        move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
         match self {
             HaneulCommand::Start {
                 config,

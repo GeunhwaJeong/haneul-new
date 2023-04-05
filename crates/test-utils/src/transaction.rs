@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use move_core_types::language_storage::StructTag;
 use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -15,7 +16,7 @@ pub use haneul_core::test_utils::{
     compile_basics_package, compile_nfts_package, wait_for_all_txes, wait_for_tx,
 };
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulTransactionBlockDataAPI,
+    ObjectChange, HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulTransactionBlockDataAPI,
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
@@ -31,7 +32,9 @@ use haneul_types::messages::{
     TransactionEffects, TransactionEffectsAPI, TransactionEvents, VerifiedTransaction,
 };
 use haneul_types::messages::{ExecuteTransactionRequestType, HandleCertificateResponse};
+use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::{Object, Owner};
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 
 use crate::authority::get_client;
@@ -95,7 +98,7 @@ pub async fn publish_nfts_package(
         package.get_dependency_original_package_ids(),
     )
     .await;
-    (result.0 .0, result.1)
+    (result.0 .0, result.2)
 }
 /// Helper function to publish basic package.
 pub async fn publish_basics_package(context: &WalletContext, sender: HaneulAddress) -> ObjectRef {
@@ -116,7 +119,7 @@ pub async fn publish_package_with_wallet(
     sender: HaneulAddress,
     all_module_bytes: Vec<Vec<u8>>,
     dep_ids: Vec<ObjectID>,
-) -> (ObjectRef, TransactionDigest) {
+) -> (ObjectRef, ObjectRef, TransactionDigest) {
     let client = context.get_client().await.unwrap();
     let gas_price = context.get_reference_gas_price().await.unwrap();
     let transaction = {
@@ -146,7 +149,83 @@ pub async fn publish_package_with_wallet(
         .quorum_driver()
         .execute_transaction_block(
             transaction,
-            HaneulTransactionBlockResponseOptions::new().with_effects(),
+            HaneulTransactionBlockResponseOptions::new().with_object_changes(),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
+        .await
+        .unwrap();
+
+    assert!(resp.confirmed_local_execution.unwrap());
+    let changes = resp.object_changes.unwrap();
+    (
+        changes
+            .iter()
+            .find(|change| matches!(change, ObjectChange::Published { .. }))
+            .unwrap()
+            .object_ref(),
+        changes
+            .iter()
+            .find(|change| {
+                matches!(change, ObjectChange::Created {
+                    owner: Owner::AddressOwner(_),
+                    object_type: StructTag {
+                        address: HANEUL_FRAMEWORK_ADDRESS,
+                        module,
+                        name,
+                        ..
+                    },
+                    ..
+                } if module.as_str() == "package" && name.as_str() == "UpgradeCap")
+            })
+            .unwrap()
+            .object_ref(),
+        resp.digest,
+    )
+}
+
+pub async fn upgrade_package_with_wallet(
+    context: &WalletContext,
+    sender: HaneulAddress,
+    package_id: ObjectID,
+    upgrade_cap: ObjectID,
+    all_module_bytes: Vec<Vec<u8>>,
+    dep_ids: Vec<ObjectID>,
+    digest: Vec<u8>,
+) -> (ObjectRef, TransactionDigest) {
+    let client = context.get_client().await.unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    let transaction = {
+        let data = client
+            .transaction_builder()
+            .upgrade(
+                sender,
+                package_id,
+                all_module_bytes,
+                dep_ids,
+                upgrade_cap,
+                UpgradePolicy::COMPATIBLE,
+                digest,
+                None,
+                GAS_BUDGET_IN_UNIT * gas_price,
+            )
+            .await
+            .unwrap();
+
+        let signature = context
+            .config
+            .keystore
+            .sign_secure(&sender, &data, Intent::haneul_transaction())
+            .unwrap();
+        Transaction::from_data(data, Intent::haneul_transaction(), vec![signature])
+            .verify()
+            .unwrap()
+    };
+
+    let resp = client
+        .quorum_driver()
+        .execute_transaction_block(
+            transaction,
+            HaneulTransactionBlockResponseOptions::new().with_object_changes(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
@@ -154,14 +233,12 @@ pub async fn publish_package_with_wallet(
 
     assert!(resp.confirmed_local_execution.unwrap());
     (
-        resp.effects
+        resp.object_changes
             .unwrap()
-            .created()
             .iter()
-            .find(|obj_ref| obj_ref.owner == Owner::Immutable)
+            .find(|change| matches!(change, ObjectChange::Published { .. }))
             .unwrap()
-            .reference
-            .to_object_ref(),
+            .object_ref(),
         resp.digest,
     )
 }
