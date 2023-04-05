@@ -51,12 +51,10 @@ impl GovernanceReadApi {
         &self,
         staked_haneul_ids: Vec<ObjectID>,
     ) -> Result<Vec<DelegatedStake>, Error> {
-        let stakes_read = futures::future::try_join_all(
-            staked_haneul_ids
-                .iter()
-                .map(|id| self.state.get_object_read(id)),
-        )
-        .await?;
+        let stakes_read = staked_haneul_ids
+            .iter()
+            .map(|id| self.state.get_object_read(id))
+            .collect::<Result<Vec<_>, _>>()?;
         if stakes_read.is_empty() {
             return Ok(vec![]);
         }
