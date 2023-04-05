@@ -3,6 +3,7 @@
 
 use std::fmt::{self, Display, Formatter, Write};
 
+use enum_dispatch::enum_dispatch;
 use fastcrypto::encoding::Base64;
 use move_binary_format::access::ModuleAccess;
 use move_binary_format::binary_views::BinaryIndexedView;
@@ -11,11 +12,10 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::{ModuleId, TypeTag};
 use move_core_types::value::MoveTypeLayout;
-use serde_with::{serde_as, DisplayFromStr};
-
-use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
+
 use haneul_json::{primitive_type, HaneulJsonValue};
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::digests::{ObjectDigest, TransactionEventsDigest};
@@ -34,11 +34,11 @@ use haneul_types::parse_haneul_type_tag;
 use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{DeleteKind, WriteKind};
+use haneul_types::haneul_serde::HaneulTypeTag as AsHaneulTypeTag;
 
 use crate::balance_changes::BalanceChange;
 use crate::object_changes::ObjectChange;
 use crate::{Page, HaneulEvent, HaneulMovePackage, HaneulObjectRef};
-use haneul_types::haneul_serde::HaneulTypeTag as AsHaneulTypeTag;
 
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq, Eq, Copy)]
@@ -1091,20 +1091,26 @@ impl HaneulProgrammableTransactionBlock {
                         return result_types;
                     };
                     for (arg, type_) in c.arguments.iter().zip(types) {
-                        if let &Argument::Input(i) = arg {
-                            result_types[i as usize] = type_;
+                        if let (&Argument::Input(i), Some(type_)) = (arg, type_) {
+                            if let Some(x) = result_types.get_mut(i as usize) {
+                                x.replace(type_);
+                            }
                         }
                     }
                 }
                 Command::SplitCoins(_, amounts) => {
                     for arg in amounts {
                         if let &Argument::Input(i) = arg {
-                            result_types[i as usize] = Some(MoveTypeLayout::U64);
+                            if let Some(x) = result_types.get_mut(i as usize) {
+                                x.replace(MoveTypeLayout::U64);
+                            }
                         }
                     }
                 }
                 Command::TransferObjects(_, Argument::Input(i)) => {
-                    result_types[(*i) as usize] = Some(MoveTypeLayout::Address);
+                    if let Some(x) = result_types.get_mut((*i) as usize) {
+                        x.replace(MoveTypeLayout::Address);
+                    }
                 }
                 _ => {}
             }
