@@ -38,3 +38,8 @@ export const devnetConnection = new Connection({
   fullnode: 'https://fullnode.devnet.haneul.io:443/',
   faucet: 'https://faucet.devnet.haneul.io/gas',
 });
+
+export const testnetConnection = new Connection({
+  fullnode: 'https://fullnode.testnet.haneul.io:443/',
+  faucet: 'https://faucet.testnet.haneul.io/gas',
+});
