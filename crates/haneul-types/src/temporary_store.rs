@@ -1141,7 +1141,7 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                     )
                 })?
             } else {
-                0
+                obj.storage_rebate
             };
             Ok((input_haneul, obj.storage_rebate))
         } else {
@@ -1169,7 +1169,7 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                     )
                 })?
             } else {
-                0
+                obj.storage_rebate
             };
             Ok((input_haneul, obj.storage_rebate))
         }
@@ -1197,17 +1197,13 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
         let mut total_input_haneul = 0;
         // total amount of HANEUL in output objects, including both coins and storage rebates
         let mut total_output_haneul = 0;
-        // total amount of HANEUL in storage rebate of input objects
-        let mut total_input_rebate = 0;
-        // total amount of HANEUL in storage rebate of output objects
-        let mut total_output_rebate = 0;
         for (id, (output_obj, kind)) in &self.written {
             match kind {
                 WriteKind::Mutate => {
                     // note: output_obj.version has not yet been increased by the tx, so output_obj.version
                     // is the object version at tx input
                     let input_version = output_obj.version();
-                    let (input_haneul, input_storage_rebate) =
+                    let (input_haneul, _input_storage_rebate) =
                         self.get_input_haneul(id, input_version, do_expensive_checks)?;
                     total_input_haneul += input_haneul;
                     if do_expensive_checks {
@@ -1216,9 +1212,9 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                                 "Failed looking up output HANEUL in HANEUL conservation checking",
                             )
                         })?;
+                    } else {
+                        total_output_haneul += output_obj.storage_rebate
                     }
-                    total_input_rebate += input_storage_rebate;
-                    total_output_rebate += output_obj.storage_rebate;
                 }
                 WriteKind::Create => {
                     // created objects did not exist at input, and thus contribute 0 to input HANEUL
@@ -1229,7 +1225,6 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                             )
                         })?;
                     }
-                    total_output_rebate += output_obj.storage_rebate;
                 }
                 WriteKind::Unwrap => {
                     // an unwrapped object was either:
@@ -1242,26 +1237,25 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                                 "Failed looking up output HANEUL in HANEUL conservation checking",
                             )
                         })?;
+                    } else {
+                        total_output_haneul += output_obj.storage_rebate
                     }
-                    total_output_rebate += output_obj.storage_rebate;
                 }
             }
         }
         for (id, (input_version, kind)) in &self.deleted {
             match kind {
                 DeleteKind::Normal => {
-                    let (input_haneul, input_storage_rebate) =
+                    let (input_haneul, _input_storage_rebate) =
                         self.get_input_haneul(id, *input_version, do_expensive_checks)?;
                     total_input_haneul += input_haneul;
-                    total_input_rebate += input_storage_rebate;
                 }
                 DeleteKind::Wrap => {
                     // wrapped object was a tx input or dynamic field--need to account for it in input HANEUL
                     // note: if an object is created by the tx, then wrapped, it will not appear here
-                    let (input_haneul, input_storage_rebate) =
+                    let (input_haneul, _input_storage_rebate) =
                         self.get_input_haneul(id, *input_version, do_expensive_checks)?;
                     total_input_haneul += input_haneul;
-                    total_input_rebate += input_storage_rebate;
                     // else, the wrapped object was either:
                     // 1. freshly created, which means it has 0 contribution to input HANEUL
                     // 2. unwrapped from another object A, which means its contribution to input HANEUL will be captured by looking at A
@@ -1280,45 +1274,20 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
             .map(|(_, summary)| summary.clone())
             .unwrap_or_default();
 
-        if do_expensive_checks {
-            // note: storage_cost flows into the storage_rebate field of the output objects, which is why it is not accounted for here.
-            // similarly, all of the storage_rebate *except* the storage_fund_rebate_inflow gets credited to the gas coin
-            // both computation costs and storage rebate inflow are
-            total_output_haneul +=
-                gas_summary.computation_cost + gas_summary.non_refundable_storage_fee;
-            if let Some((epoch_fees, epoch_rebates)) = advance_epoch_gas_summary {
-                total_input_haneul += epoch_fees;
-                total_output_haneul += epoch_rebates;
-            }
-            if total_input_haneul != total_output_haneul {
-                return Err(ExecutionError::invariant_violation(
+        // note: storage_cost flows into the storage_rebate field of the output objects, which is why it is not accounted for here.
+        // similarly, all of the storage_rebate *except* the storage_fund_rebate_inflow gets credited to the gas coin
+        // both computation costs and storage rebate inflow are
+        total_output_haneul += gas_summary.computation_cost + gas_summary.non_refundable_storage_fee;
+        if let Some((epoch_fees, epoch_rebates)) = advance_epoch_gas_summary {
+            total_input_haneul += epoch_fees;
+            total_output_haneul += epoch_rebates;
+        }
+        if total_input_haneul != total_output_haneul {
+            return Err(ExecutionError::invariant_violation(
                 format!("HANEUL conservation failed: input={}, output={}, this transaction either mints or burns HANEUL",
                 total_input_haneul,
                 total_output_haneul))
             );
-            }
-        }
-
-        // all HANEUL in storage rebate fields of input objects should flow either to the transaction storage rebate, or the non-refundable
-        // storage rebate pool
-        if total_input_rebate != gas_summary.storage_rebate + gas_summary.non_refundable_storage_fee
-        {
-            // TODO: re-enable once we fix the edge case with OOG, gas smashing, and storage rebate
-            /*return Err(ExecutionError::invariant_violation(
-                format!("HANEUL conservation failed--{} HANEUL in storage rebate field of input objects, {} HANEUL in tx storage rebate or tx non-refundable storage rebate",
-                total_input_rebate,
-                gas_summary.non_refundable_storage_fee))
-            );*/
-        }
-
-        // all HANEUL charged for storage should flow into the storage rebate field of some output object
-        if gas_summary.storage_cost != total_output_rebate {
-            // TODO: re-enable once we fix the edge case with OOG, gas smashing, and storage rebate
-            /*return Err(ExecutionError::invariant_violation(
-                format!("HANEUL conservation failed--{} HANEUL charged for storage, {} HANEUL in storage rebate field of output objects",
-                gas_summary.storage_cost,
-                total_output_rebate))
-            );*/
         }
         Ok(())
     }
