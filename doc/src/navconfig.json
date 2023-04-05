@@ -90,6 +90,10 @@
 						"fileName": "learn/tokenomics/gas-pricing"
 					},
 					{
+						"label": "Gas in Haneul",
+						"fileName": "learn/tokenomics/gas-in-haneul"
+					},
+					{
 						"label": "Haneul Storage Fund",
 						"fileName": "learn/tokenomics/storage-fund"
 					},
