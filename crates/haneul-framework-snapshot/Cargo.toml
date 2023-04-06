@@ -1,0 +1,20 @@
+[package]
+name = "haneul-framework-snapshot"
+version = "0.1.0"
+edition = "2021"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "Tool to create a bytecode snapshot of the current haneul-framework"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+anyhow = { version = "1.0.64", features = ["backtrace"] }
+bcs = "0.1.4"
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.88"
+
+haneul-framework = { path = "../haneul-framework" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-types = { path = "../haneul-types" }
+
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
