@@ -2,7 +2,7 @@
 [Ledger Developer Portal](https://developers.ledger.com/),
 [Ledger Developer Discord](https://developers.ledger.com/discord-pro)
 
-# ledgerjs-hw-haneul-app
+# ledgerjs-hw-app-haneul
 
 [Ledger Hardware Wallet](https://www.ledger.com/) JavaScript bindings for [Haneul](https://haneul.io/), based on [LedgerJS](https://github.com/LedgerHQ/ledgerjs).
 
@@ -12,7 +12,7 @@ Here is a sample app for Node:
 
 ```javascript
 const Transport = require('@ledgerhq/hw-transport').default;
-const Haneul = require('@haneullabs/ledgerjs-hw-haneul-app').default;
+const Haneul = require('@haneullabs/ledgerjs-hw-app-haneul').default;
 
 const getPublicKey = async () => {
     const haneul = new Haneul(await Transport.create());
@@ -68,7 +68,7 @@ doAll().catch((err) => console.log(err));
 ### Examples
 
 ```javascript
-import Haneul from 'ledgerjs-hw-haneul-app';
+import Haneul from 'ledgerjs-hw-app-haneul';
 const haneul = new Haneul(transport);
 ```
 
