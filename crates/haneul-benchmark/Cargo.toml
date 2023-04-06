@@ -48,6 +48,8 @@ test-utils = { path = "../test-utils" }
 sysinfo = "0.27.5"
 
 [target.'cfg(msim)'.dependencies]
+haneul-framework = { path = "../haneul-framework" }
+haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
 typed-store = { path = "../typed-store" }

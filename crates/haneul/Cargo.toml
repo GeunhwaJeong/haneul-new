@@ -32,6 +32,7 @@ haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
 haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
