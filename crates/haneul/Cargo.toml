@@ -28,6 +28,7 @@ rand = "0.8.5"
 tap = "1.0"
 inquire = "0.6.0"
 
+haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
 haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }

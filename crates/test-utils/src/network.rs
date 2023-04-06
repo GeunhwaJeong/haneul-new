@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::future::join_all;
-use move_core_types::ident_str;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::time::Duration;
@@ -16,7 +15,6 @@ use tokio::time::timeout;
 use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
 
-use crate::messages::get_haneul_gas_object_with_wallet_context;
 use haneullabs_metrics::RegistryService;
 use haneul::config::HaneulEnv;
 use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
@@ -25,8 +23,6 @@ use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
-use haneul_core::test_utils::MAX_GAS;
-use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNode;
@@ -37,17 +33,12 @@ use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::EpochId;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::crypto::{AccountKeyPair, KeypairTraits};
-use haneul_types::messages::CallArg;
-use haneul_types::messages::ObjectArg;
-use haneul_types::messages::TransactionData;
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
-use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION;
 
 const NUM_VALIDAOTR: usize = 4;
 
@@ -174,38 +165,18 @@ impl TestCluster {
         .expect("Timed out waiting for cluster to target epoch")
     }
 
-    pub async fn request_add_stake(
+    pub async fn execute_transaction(
         &self,
-        validator_address: HaneulAddress,
-        sender: HaneulAddress,
-        sender_keypair: &AccountKeyPair,
+        transaction: VerifiedTransaction,
     ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
-        let objects = get_haneul_gas_object_with_wallet_context(&self.wallet, &sender).await;
-        let stake_tx_data = TransactionData::new_move_call_with_dummy_gas_price(
-            sender,
-            HaneulSystem::ID,
-            ident_str!("haneul_system").to_owned(),
-            ident_str!("request_add_stake").to_owned(),
-            vec![],
-            objects[0].1,
-            vec![
-                CallArg::Object(ObjectArg::SharedObject {
-                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                    mutable: true,
-                }),
-                CallArg::Object(ObjectArg::ImmOrOwnedObject(objects[1].1)),
-                CallArg::Pure(bcs::to_bytes(&validator_address).unwrap()),
-            ],
-            MAX_GAS,
-        )
-        .unwrap();
-        let transaction = to_sender_signed_transaction(stake_tx_data, sender_keypair);
-
         self.fullnode_handle
             .haneul_client
             .quorum_driver()
-            .execute_transaction_block(transaction, HaneulTransactionBlockResponseOptions::new(), None)
+            .execute_transaction_block(
+                transaction,
+                HaneulTransactionBlockResponseOptions::new().with_effects(),
+                None,
+            )
             .await
     }
 
