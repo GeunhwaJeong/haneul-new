@@ -156,6 +156,10 @@
 				"fileName": "build/haneul-local-network"
 			},
 			{
+				"label": "Haneul Gas Charges",
+				"fileName": "build/haneul-gas-charges"
+			},
+			{
 				"label": "Haneul Object Display Standard",
 				"fileName": "build/haneul-object-display"
 			},
