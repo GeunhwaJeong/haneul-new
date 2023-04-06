@@ -65,6 +65,8 @@ module haneul_system::haneul_system {
 
     #[test_only]
     friend haneul_system::governance_test_utils;
+    #[test_only]
+    friend haneul_system::haneul_system_tests;
 
     struct HaneulSystemState has key {
         id: UID,
@@ -651,6 +653,12 @@ module haneul_system::haneul_system {
     public fun get_storage_fund_object_rebates(wrapper: &mut HaneulSystemState): u64 {
         let self = load_system_state(wrapper);
         haneul_system_state_inner::get_storage_fund_object_rebates(self)
+    }
+
+    #[test_only]
+    public fun get_stake_subsidy_distribution_counter(wrapper: &mut HaneulSystemState): u64 {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::get_stake_subsidy_distribution_counter(self)
     }
 
     // CAUTION: THIS CODE IS ONLY FOR TESTING AND THIS MACRO MUST NEVER EVER BE REMOVED.  Creates a

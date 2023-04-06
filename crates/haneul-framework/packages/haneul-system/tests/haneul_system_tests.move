@@ -20,11 +20,12 @@ module haneul_system::haneul_system_tests {
     use haneul::table;
     use std::vector;
     use haneul::balance;
-    use haneul::test_utils::assert_eq;
+    use haneul::test_utils::{assert_eq, destroy};
     use std::option::Self;
     use haneul::url;
     use std::string;
     use std::ascii;
+    use haneul::tx_context;
 
     #[test]
     fun test_report_validator() {
@@ -956,5 +957,35 @@ module haneul_system::haneul_system_tests {
         );
         test_scenario::return_shared(system_state);
         test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    fun test_skip_stake_subsidy() {
+        let scenario_val = test_scenario::begin(@0x0);
+        let scenario = &mut scenario_val;
+        // Epoch duration is set to be 42 here.
+        set_up_haneul_system_state(vector[@0x1, @0x2]);
+
+        // If the epoch length is less than 42 then the stake subsidy distribution counter should not be incremented. Otherwise it should.
+        advance_epoch_and_check_distribution_counter(scenario, 42, true);
+        advance_epoch_and_check_distribution_counter(scenario, 32, false);
+        advance_epoch_and_check_distribution_counter(scenario, 52, true);
+        test_scenario::end(scenario_val);
+    }
+
+    fun advance_epoch_and_check_distribution_counter(scenario: &mut Scenario, epoch_length: u64, should_increment_counter: bool) {
+        test_scenario::next_tx(scenario, @0x0);
+        let new_epoch = tx_context::epoch(test_scenario::ctx(scenario)) + 1;
+        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let prev_epoch_time = haneul_system::epoch_start_timestamp_ms(&mut system_state);
+        let prev_counter = haneul_system::get_stake_subsidy_distribution_counter(&mut system_state);
+
+        let rebate = haneul_system::advance_epoch_for_testing(
+            &mut system_state, new_epoch, 1, 0, 0, 0, 0, 0, 0, prev_epoch_time + epoch_length, test_scenario::ctx(scenario)
+        );
+        destroy(rebate);
+        assert_eq(haneul_system::get_stake_subsidy_distribution_counter(&mut system_state), prev_counter + (if (should_increment_counter) 1 else 0));
+        test_scenario::return_shared(system_state);
+        test_scenario::next_epoch(scenario, @0x0);
     }
 }
