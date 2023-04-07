@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::ValidatorInfo;
+use haneul_framework::BuiltInFramework;
 use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{random_object_ref, ObjectID};
@@ -155,11 +156,12 @@ async fn init_genesis(
 ) {
     // add object_basics package object to genesis
     let modules: Vec<_> = compile_basics_package().get_modules().cloned().collect();
+    let genesis_move_packages: Vec<_> = BuiltInFramework::genesis_move_packages().collect();
     let pkg = Object::new_package(
         &modules,
         TransactionDigest::genesis(),
         ProtocolConfig::get_for_max_version().max_move_package_size(),
-        &haneul_framework::make_system_packages(),
+        &genesis_move_packages,
     )
     .unwrap();
     let pkg_id = pkg.id();

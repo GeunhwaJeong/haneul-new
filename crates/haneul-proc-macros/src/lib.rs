@@ -35,12 +35,9 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
             // be very important for being able to reproduce a failure that occurs in the Nth
             // iteration of a multi-iteration test run.
             std::thread::spawn(|| {
-                use haneul_simulator::haneul_framework::SystemPackage;
                 use haneul_protocol_config::ProtocolConfig;
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
-                ::haneul_simulator::haneul_framework::MoveStdlib::as_modules();
-                ::haneul_simulator::haneul_framework::HaneulFramework::as_modules();
-                ::haneul_simulator::haneul_framework::HaneulSystem::as_modules();
+                ::haneul_simulator::haneul_framework::BuiltInFramework::all_package_ids();
                 ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered(
                     &ProtocolConfig::get_for_min_version(),
                 );

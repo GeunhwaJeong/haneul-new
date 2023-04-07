@@ -10,7 +10,6 @@ use std::{
     path::PathBuf,
 };
 use haneul_config::genesis::GenesisValidatorInfo;
-use haneul_framework::{HaneulSystem, SystemPackage};
 
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
@@ -21,6 +20,7 @@ use haneul_types::{
         haneul_system_state_inner_v1::{UnverifiedValidatorOperationCapV1, ValidatorV1},
         haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary},
     },
+    HANEUL_SYSTEM_PACKAGE_ID,
 };
 use tap::tap::TapOptional;
 
@@ -564,7 +564,7 @@ async fn call_0x5(
     let gas_obj_ref = get_gas_obj_ref(sender, &haneul_client, gas_budget).await?;
     let tx_data = TransactionData::new_move_call(
         sender,
-        HaneulSystem::ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
         vec![],

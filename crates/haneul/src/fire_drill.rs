@@ -21,7 +21,6 @@ use std::path::{Path, PathBuf};
 use haneul_config::node::KeyPairWithPath;
 use haneul_config::utils;
 use haneul_config::{node::AuthorityKeyPairWithPath, Config, NodeConfig, PersistedConfig};
-use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockResponseOptions};
 use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
@@ -29,7 +28,7 @@ use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
 use haneul_types::messages::{CallArg, ObjectArg, Transaction, TransactionData};
 use haneul_types::multiaddr::{Multiaddr, Protocol};
-use haneul_types::{committee::EpochId, crypto::get_authority_key_pair};
+use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_PACKAGE_ID};
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use tracing::info;
 
@@ -316,7 +315,7 @@ async fn update_metadata_on_chain(
     args.extend(call_args);
     let tx_data = TransactionData::new_move_call(
         haneul_address,
-        HaneulSystem::ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
         vec![],
