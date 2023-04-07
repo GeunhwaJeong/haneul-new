@@ -100,8 +100,6 @@ impl HaneulNodeProvider {
 
     /// get_validators will retrieve known validators
     async fn get_validators(url: String) -> Result<HaneulSystemStateSummary> {
-        // TODO convert get_validators to a struct and add a drop impl for timer
-        // tracking
         let rpc_method = "haneulx_getLatestHaneulSystemState";
         let observe = || {
             let timer = JSON_RPC_DURATION
