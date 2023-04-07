@@ -23,12 +23,11 @@ use haneul_core::{
     },
 };
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
-    HaneulTransactionBlockResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockEffects,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::base_types::SequenceNumber;
 use haneul_types::messages::Argument;
 use haneul_types::messages::CallArg;
 use haneul_types::messages::ObjectArg;
@@ -50,6 +49,7 @@ use haneul_types::{
     object::Object,
 };
 use haneul_types::{base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo, object::Owner};
+use haneul_types::{base_types::SequenceNumber, gas_coin::GasCoin};
 use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
@@ -158,6 +158,17 @@ impl ExecutionEffects {
         }
     }
 
+    pub fn status(&self) -> String {
+        match self {
+            ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
+                format!("{:#?}", certified_effects.data().status())
+            }
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                format!("{:#?}", haneul_tx_effects.status())
+            }
+        }
+    }
+
     pub fn gas_cost_summary(&self) -> GasCostSummary {
         match self {
             crate::ExecutionEffects::CertifiedTransactionEffects(a, _) => {
@@ -176,11 +187,35 @@ impl ExecutionEffects {
     pub fn net_gas_used(&self) -> i64 {
         self.gas_cost_summary().net_gas_usage()
     }
+
+    pub fn print_gas_summary(&self) {
+        let gas_object = self.gas_object();
+        let sender = self.sender();
+        let status = self.status();
+        let gas_cost_summary = self.gas_cost_summary();
+        let gas_used = self.gas_used();
+        let net_gas_used = self.net_gas_used();
+
+        info!(
+            "Summary:\n\
+             Gas Object: {gas_object:?}\n\
+             Sender: {sender:?}\n\
+             status: {status}\n\
+             Gas Cost Summary: {gas_cost_summary:#?}\n\
+             Gas Used: {gas_used}\n\
+             Net Gas Used: {net_gas_used}"
+        );
+    }
 }
 
 #[async_trait]
 pub trait ValidatorProxy {
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error>;
+
+    async fn get_owned_objects(
+        &self,
+        account_address: HaneulAddress,
+    ) -> Result<Vec<(u64, Object)>, anyhow::Error>;
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error>;
 
@@ -298,6 +333,13 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
         Ok(auth_agg
             .get_latest_object_version_for_testing(object_id)
             .await?)
+    }
+
+    async fn get_owned_objects(
+        &self,
+        _account_address: HaneulAddress,
+    ) -> Result<Vec<(u64, Object)>, anyhow::Error> {
+        unimplemented!("Not available for local proxy");
     }
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
@@ -587,6 +629,49 @@ impl ValidatorProxy for FullNodeProxy {
         } else {
             bail!("Object {:?} not found and no error provided", object_id)
         }
+    }
+
+    async fn get_owned_objects(
+        &self,
+        account_address: HaneulAddress,
+    ) -> Result<Vec<(u64, Object)>, anyhow::Error> {
+        let mut objects: Vec<HaneulObjectResponse> = Vec::new();
+        let mut cursor = None;
+        loop {
+            let response = self
+                .haneul_client
+                .read_api()
+                .get_owned_objects(
+                    account_address,
+                    Some(HaneulObjectResponseQuery::new_with_options(
+                        HaneulObjectDataOptions::bcs_lossless(),
+                    )),
+                    cursor,
+                    None,
+                )
+                .await?;
+
+            objects.extend(response.data);
+
+            if response.has_next_page {
+                cursor = response.next_cursor;
+            } else {
+                break;
+            }
+        }
+
+        let mut values_objects = Vec::new();
+
+        for object in objects {
+            let o = object.data;
+            if let Some(o) = o {
+                let temp: Object = o.clone().try_into()?;
+                let gas_coin = GasCoin::try_from(&temp)?;
+                values_objects.push((gas_coin.value(), o.clone().try_into()?));
+            }
+        }
+
+        Ok(values_objects)
     }
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
