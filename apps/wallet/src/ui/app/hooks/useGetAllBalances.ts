@@ -3,7 +3,7 @@
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { Coin, type HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 import { FEATURES } from '_src/shared/experimentation/features';
@@ -17,7 +17,11 @@ export function useGetAllBalances(address?: HaneulAddress | null) {
 
     return useQuery(
         ['get-all-balance', address],
-        () => rpc.getAllBalances({ owner: address! }),
+        async () =>
+            (await rpc.getAllBalances({ owner: address! })).sort(
+                ({ coinType: a }, { coinType: b }) =>
+                    Coin.getCoinSymbol(a).localeCompare(Coin.getCoinSymbol(b))
+            ),
         { enabled: !!address, refetchInterval }
     );
 }
