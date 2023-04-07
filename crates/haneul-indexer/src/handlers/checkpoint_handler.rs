@@ -21,9 +21,8 @@ use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::event_handler::EventHandler;
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::{
-    OwnedObjectRef, HaneulCheckpointSequenceNumber, HaneulGetPastObjectRequest, HaneulObjectData,
-    HaneulObjectDataOptions, HaneulRawData, HaneulTransactionBlockDataAPI, HaneulTransactionBlockEffects,
-    HaneulTransactionBlockEffectsAPI,
+    OwnedObjectRef, HaneulGetPastObjectRequest, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData,
+    HaneulTransactionBlockDataAPI, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_sdk::error::Error;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
@@ -425,7 +424,7 @@ where
                     .map(|(status, o)| {
                         Object::from(
                             checkpoint.epoch,
-                            Some(<u64>::from(checkpoint.sequence_number)),
+                            Some(checkpoint.sequence_number),
                             status,
                             o,
                         )
@@ -457,23 +456,21 @@ where
             .collect::<Vec<_>>();
         let move_calls = transactions
             .iter()
-            .flat_map(|tx| tx.get_move_calls(checkpoint.epoch, checkpoint.sequence_number.into()))
+            .flat_map(|tx| tx.get_move_calls(checkpoint.epoch, checkpoint.sequence_number))
             .collect();
         let recipients = transactions
             .iter()
-            .flat_map(|tx| tx.get_recipients(checkpoint.epoch, checkpoint.sequence_number.into()))
+            .flat_map(|tx| tx.get_recipients(checkpoint.epoch, checkpoint.sequence_number))
             .collect();
 
         // Index addresses
         let addresses = transactions
             .iter()
-            .flat_map(|tx| {
-                tx.get_addresses(checkpoint.epoch, <u64>::from(checkpoint.sequence_number))
-            })
+            .flat_map(|tx| tx.get_addresses(checkpoint.epoch, checkpoint.sequence_number))
             .collect();
 
         // Index epoch
-        let epoch_index = if checkpoint.epoch == 0 && <u64>::from(checkpoint.sequence_number) == 0 {
+        let epoch_index = if checkpoint.epoch == 0 && checkpoint.sequence_number == 0 {
             // very first epoch
             let system_state = get_haneul_system_state(data)?;
             let system_state: HaneulSystemStateSummary = system_state.into_haneul_system_state_summary();
@@ -543,7 +540,7 @@ where
                 last_epoch: Some(DBEpochInfo {
                     epoch: system_state.epoch as i64 - 1,
                     first_checkpoint_id: 0,
-                    last_checkpoint_id: Some(<u64>::from(checkpoint.sequence_number) as i64),
+                    last_checkpoint_id: Some(checkpoint.sequence_number as i64),
                     epoch_start_timestamp: 0,
                     epoch_end_timestamp: Some(checkpoint.timestamp_ms as i64),
                     epoch_total_transactions: 0,
@@ -568,7 +565,7 @@ where
                 }),
                 new_epoch: DBEpochInfo {
                     epoch: system_state.epoch as i64,
-                    first_checkpoint_id: <u64>::from(checkpoint.sequence_number) as i64 + 1,
+                    first_checkpoint_id: checkpoint.sequence_number as i64 + 1,
                     epoch_start_timestamp: system_state.epoch_start_timestamp_ms as i64,
                     ..Default::default()
                 },
@@ -703,7 +700,7 @@ pub async fn fetch_changed_objects(
 pub fn to_changed_db_objects(
     changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
     epoch: u64,
-    checkpoint: Option<HaneulCheckpointSequenceNumber>,
+    checkpoint: Option<CheckpointSequenceNumber>,
 ) -> Vec<Object> {
     changed_objects
         .into_iter()
@@ -714,7 +711,7 @@ pub fn to_changed_db_objects(
 pub fn get_deleted_db_objects(
     effects: &HaneulTransactionBlockEffects,
     epoch: EpochId,
-    checkpoint: Option<HaneulCheckpointSequenceNumber>,
+    checkpoint: Option<CheckpointSequenceNumber>,
 ) -> Vec<DeletedObject> {
     let deleted = effects.deleted().iter();
     let deleted = deleted.map(|o| (ObjectStatus::Deleted, o));

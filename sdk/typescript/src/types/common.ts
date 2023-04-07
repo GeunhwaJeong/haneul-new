@@ -28,7 +28,7 @@ export type ObjectId = Infer<typeof ObjectId>;
 export const HaneulAddress = string();
 export type HaneulAddress = Infer<typeof HaneulAddress>;
 
-export const SequenceNumber = number();
+export const SequenceNumber = string();
 export type SequenceNumber = Infer<typeof SequenceNumber>;
 
 export const ObjectOwner = union([

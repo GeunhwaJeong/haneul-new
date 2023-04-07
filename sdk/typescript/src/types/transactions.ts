@@ -38,17 +38,17 @@ export const EpochId = string();
 
 export const HaneulChangeEpoch = object({
   epoch: EpochId,
-  storage_charge: number(),
-  computation_charge: number(),
-  storage_rebate: number(),
-  epoch_start_timestamp_ms: optional(number()),
+  storage_charge: string(),
+  computation_charge: string(),
+  storage_rebate: string(),
+  epoch_start_timestamp_ms: optional(string()),
 });
 export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
 
 export const HaneulConsensusCommitPrologue = object({
-  epoch: number(),
-  round: number(),
-  commit_timestamp_ms: number(),
+  epoch: EpochId,
+  round: string(),
+  commit_timestamp_ms: string(),
 });
 export type HaneulConsensusCommitPrologue = Infer<
   typeof HaneulConsensusCommitPrologue
@@ -155,7 +155,7 @@ export const HaneulTransactionBlockData = object({
   messageVersion: literal('v1'),
   transaction: HaneulTransactionBlockKind,
   sender: HaneulAddress,
-  gasData: HaneulGasData,
+  gasData: HaneulGasData, // this shit is diff bw wallet and explorer
 });
 export type HaneulTransactionBlockData = Infer<typeof HaneulTransactionBlockData>;
 
@@ -380,8 +380,8 @@ export const HaneulTransactionBlockResponse = object({
   transaction: optional(HaneulTransactionBlock),
   effects: optional(TransactionEffects),
   events: optional(TransactionEvents),
-  timestampMs: optional(number()),
-  checkpoint: optional(number()),
+  timestampMs: optional(string()),
+  checkpoint: optional(string()),
   confirmedLocalExecution: optional(boolean()),
   objectChanges: optional(array(HaneulObjectChange)),
   balanceChanges: optional(array(BalanceChange)),
@@ -582,7 +582,7 @@ export function getCreatedObjects(
 
 export function getTimestampFromTransactionResponse(
   data: HaneulTransactionBlockResponse,
-): number | undefined {
+): string | undefined {
   return data.timestampMs ?? undefined;
 }
 

@@ -31,6 +31,7 @@ use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
 use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 use crate::error::{Error, HaneulRpcResult};
@@ -119,7 +120,7 @@ impl ReadApi {
     }
 
     pub async fn get_total_transaction_blocks(&self) -> HaneulRpcResult<u64> {
-        Ok(self.api.http.get_total_transaction_blocks().await?.into())
+        Ok(*self.api.http.get_total_transaction_blocks().await?)
     }
 
     pub async fn get_transaction_with_options(
@@ -146,7 +147,10 @@ impl ReadApi {
             .await?)
     }
 
-    pub async fn get_committee_info(&self, epoch: Option<EpochId>) -> HaneulRpcResult<HaneulCommittee> {
+    pub async fn get_committee_info(
+        &self,
+        epoch: Option<BigInt<u64>>,
+    ) -> HaneulRpcResult<HaneulCommittee> {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
@@ -173,12 +177,11 @@ impl ReadApi {
     pub async fn get_latest_checkpoint_sequence_number(
         &self,
     ) -> HaneulRpcResult<CheckpointSequenceNumber> {
-        Ok(self
+        Ok(*self
             .api
             .http
             .get_latest_checkpoint_sequence_number()
-            .await?
-            .into())
+            .await?)
     }
 
     pub fn get_transactions_stream(
@@ -226,7 +229,7 @@ impl ReadApi {
 
     // TODO(devx): we can probably cache this given an epoch
     pub async fn get_reference_gas_price(&self) -> HaneulRpcResult<u64> {
-        Ok(self.api.http.get_reference_gas_price().await?.into())
+        Ok(*self.api.http.get_reference_gas_price().await?)
     }
 
     pub async fn dry_run_transaction_block(
@@ -532,7 +535,10 @@ impl GovernanceApi {
 
     /// Return the committee information for the asked `epoch`.
     /// `epoch`: The epoch of interest. If None, default to the latest epoch
-    pub async fn get_committee_info(&self, epoch: Option<EpochId>) -> HaneulRpcResult<HaneulCommittee> {
+    pub async fn get_committee_info(
+        &self,
+        epoch: Option<BigInt<u64>>,
+    ) -> HaneulRpcResult<HaneulCommittee> {
         Ok(self.api.http.get_committee_info(epoch).await?)
     }
 
@@ -543,6 +549,6 @@ impl GovernanceApi {
 
     /// Return the reference gas price for the network
     pub async fn get_reference_gas_price(&self) -> HaneulRpcResult<u64> {
-        Ok(self.api.http.get_reference_gas_price().await?.into())
+        Ok(*self.api.http.get_reference_gas_price().await?)
     }
 }

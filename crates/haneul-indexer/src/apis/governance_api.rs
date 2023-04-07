@@ -5,12 +5,14 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
+
 use haneul_json_rpc::api::{GovernanceReadApiClient, GovernanceReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_types::DelegatedStake;
 use haneul_json_rpc_types::HaneulCommittee;
-use haneul_json_rpc_types::{BigInt, DelegatedStake};
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{EpochId, ObjectID, HaneulAddress};
+use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
 pub(crate) struct GovernanceReadApi {
@@ -37,7 +39,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         self.fullnode.get_stakes(owner).await
     }
 
-    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<HaneulCommittee> {
+    async fn get_committee_info(&self, epoch: Option<BigInt<u64>>) -> RpcResult<HaneulCommittee> {
         self.fullnode.get_committee_info(epoch).await
     }
 
@@ -45,7 +47,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         self.fullnode.get_latest_haneul_system_state().await
     }
 
-    async fn get_reference_gas_price(&self) -> RpcResult<BigInt> {
+    async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>> {
         self.fullnode.get_reference_gas_price().await
     }
 }

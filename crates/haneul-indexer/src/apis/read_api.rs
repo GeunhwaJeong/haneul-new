@@ -11,13 +11,14 @@ use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{ReadApiClient, ReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    BigInt, Checkpoint, CheckpointId, CheckpointPage, HaneulCheckpointSequenceNumber, HaneulEvent,
-    HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
-    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    Checkpoint, CheckpointId, CheckpointPage, HaneulEvent, HaneulGetPastObjectRequest,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::digests::TransactionDigest;
+use haneul_types::haneul_serde::BigInt;
 
 use crate::errors::IndexerError;
 use crate::store::IndexerStore;
@@ -146,7 +147,7 @@ where
         block_on(async { self.fullnode.multi_get_objects(object_ids, options).await })
     }
 
-    async fn get_total_transaction_blocks(&self) -> RpcResult<BigInt> {
+    async fn get_total_transaction_blocks(&self) -> RpcResult<BigInt<u64>> {
         if !self
             .migrated_methods
             .contains(&"get_total_transaction_blocks".to_string())
@@ -210,9 +211,7 @@ where
         )
     }
 
-    async fn get_latest_checkpoint_sequence_number(
-        &self,
-    ) -> RpcResult<HaneulCheckpointSequenceNumber> {
+    async fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<BigInt<u64>> {
         if !self
             .migrated_methods
             .contains(&"get_latest_checkpoint_sequence_number".to_string())
@@ -237,8 +236,8 @@ where
 
     fn get_checkpoints(
         &self,
-        cursor: Option<HaneulCheckpointSequenceNumber>,
-        limit: Option<usize>,
+        cursor: Option<BigInt<u64>>,
+        limit: Option<BigInt<u64>>,
         descending_order: bool,
     ) -> RpcResult<CheckpointPage> {
         return block_on(

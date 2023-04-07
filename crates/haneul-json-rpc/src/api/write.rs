@@ -4,14 +4,15 @@
 use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
+
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlockResponse,
+    DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
-
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::{EpochId, HaneulAddress};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::ExecuteTransactionRequestType;
+use haneul_types::haneul_serde::BigInt;
 
 #[open_rpc(namespace = "haneul", tag = "Write API")]
 #[rpc(server, client, namespace = "haneul")]
@@ -49,9 +50,9 @@ pub trait WriteApi {
         /// BCS encoded TransactionKind(as opposed to TransactionData, which include gasBudget and gasPrice)
         tx_bytes: Base64,
         /// Gas is not charged, but gas usage is still calculated. Default to use reference gas price
-        gas_price: Option<BigInt>,
+        gas_price: Option<BigInt<u64>>,
         /// The epoch to perform the call. Will be set from the system state object if not provided
-        epoch: Option<EpochId>,
+        epoch: Option<BigInt<u64>>,
     ) -> RpcResult<DevInspectResults>;
 
     /// Return transaction execution effects including the gas cost summary,

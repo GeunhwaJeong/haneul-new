@@ -35,7 +35,7 @@ const NodeMap = lazy(() => import('../../components/node-map'));
 
 export function validatorsTableData(
     validators: HaneulValidatorSummary[],
-    atRiskValidators: [string, number][],
+    atRiskValidators: [string, string][],
     validatorEvents: HaneulEvent[],
     rollingAverageApys: ApyByValidator | null
 ) {
@@ -71,7 +71,7 @@ export function validatorsTableData(
                     address: validator.haneulAddress,
                     lastReward: +event?.pool_staking_reward || 0,
                     atRisk: isAtRisk
-                        ? VALIDATOR_LOW_STAKE_GRACE_PERIOD - atRiskValidator[1]
+                        ? VALIDATOR_LOW_STAKE_GRACE_PERIOD - +atRiskValidator[1]
                         : null,
                 };
             }),

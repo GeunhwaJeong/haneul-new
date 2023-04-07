@@ -16,20 +16,20 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_json_rpc_types::{
-    BigInt, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
+    DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
     HaneulTransactionBlockData, HaneulTransactionBlockEvents, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{EpochId, HaneulAddress};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, TransactionEffectsAPI,
     TransactionKind,
 };
-
 use haneul_types::messages::{ExecuteTransactionResponse, Transaction};
 use haneul_types::messages::{TransactionData, TransactionDataAPI};
 use haneul_types::signature::GenericSignature;
+use haneul_types::haneul_serde::BigInt;
 
 use crate::api::WriteApiServer;
 use crate::error::Error;
@@ -209,14 +209,14 @@ impl WriteApiServer for TransactionExecutionApi {
         &self,
         sender_address: HaneulAddress,
         tx_bytes: Base64,
-        gas_price: Option<BigInt>,
-        _epoch: Option<EpochId>,
+        gas_price: Option<BigInt<u64>>,
+        _epoch: Option<BigInt<u64>>,
     ) -> RpcResult<DevInspectResults> {
         let tx_kind: TransactionKind =
             bcs::from_bytes(&tx_bytes.to_vec().map_err(|e| anyhow!(e))?).map_err(|e| anyhow!(e))?;
         Ok(self
             .state
-            .dev_inspect_transaction_block(sender_address, tx_kind, gas_price.map(<u64>::from))
+            .dev_inspect_transaction_block(sender_address, tx_kind, gas_price.map(|i| *i))
             .await?)
     }
 

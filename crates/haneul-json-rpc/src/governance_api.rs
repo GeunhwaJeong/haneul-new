@@ -10,7 +10,7 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 
 use haneul_core::authority::AuthorityState;
-use haneul_json_rpc_types::{BigInt, HaneulCommittee};
+use haneul_json_rpc_types::HaneulCommittee;
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{MoveObjectType, ObjectID, HaneulAddress};
@@ -20,6 +20,7 @@ use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::governance::StakedHaneul;
 use haneul_types::id::ID;
 use haneul_types::object::ObjectRead;
+use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -158,8 +159,8 @@ impl GovernanceReadApi {
                 delegations.push(Stake {
                     staked_haneul_id: stake.id(),
                     // TODO: this might change when we implement warm up period.
-                    stake_request_epoch: (stake.activation_epoch() - 1).into(),
-                    stake_active_epoch: stake.activation_epoch().into(),
+                    stake_request_epoch: stake.activation_epoch() - 1,
+                    stake_active_epoch: stake.activation_epoch(),
                     principal: stake.principal(),
                     status,
                 })
@@ -236,11 +237,11 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         Ok(self.get_stakes(owner).await?)
     }
 
-    async fn get_committee_info(&self, epoch: Option<EpochId>) -> RpcResult<HaneulCommittee> {
+    async fn get_committee_info(&self, epoch: Option<BigInt<u64>>) -> RpcResult<HaneulCommittee> {
         Ok(self
             .state
             .committee_store()
-            .get_or_latest_committee(epoch)
+            .get_or_latest_committee(epoch.map(|e| *e))
             .map(|committee| committee.into())
             .map_err(Error::from)?)
     }
@@ -254,7 +255,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .into_haneul_system_state_summary())
     }
 
-    async fn get_reference_gas_price(&self) -> RpcResult<BigInt> {
+    async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>> {
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
         Ok(epoch_store.reference_gas_price().into())
     }
