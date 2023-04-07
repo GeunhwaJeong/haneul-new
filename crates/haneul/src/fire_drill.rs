@@ -8,6 +8,7 @@
 //! Example usage:
 //! haneul fire-drill metadata-rotation \
 //! --haneul-node-config-path validator.yaml \
+//! --account-key-path account.key \
 //! --fullnode-rpc-url http://fullnode-my-local-net:9000
 
 use anyhow::bail;
@@ -22,6 +23,7 @@ use haneul_config::utils;
 use haneul_config::{node::AuthorityKeyPairWithPath, Config, NodeConfig, PersistedConfig};
 use haneul_framework::{HaneulSystem, SystemPackage};
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockResponseOptions};
+use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
@@ -38,9 +40,12 @@ pub enum FireDrill {
 
 #[derive(Parser)]
 pub struct MetadataRotation {
-    /// Path to the existing haneul node config.
+    /// Path to haneul node config.
     #[clap(long = "haneul-node-config-path")]
     haneul_node_config_path: PathBuf,
+    /// Path to account key file.
+    #[clap(long = "account-key-path")]
+    account_key_path: PathBuf,
     /// Jsonrpc url for a reliable fullnode.
     #[clap(long = "fullnode-rpc-url")]
     fullnode_rpc_url: String,
@@ -58,9 +63,10 @@ pub async fn run_fire_drill(fire_drill: FireDrill) -> anyhow::Result<()> {
 async fn run_metadata_rotation(metadata_rotation: MetadataRotation) -> anyhow::Result<()> {
     let MetadataRotation {
         haneul_node_config_path,
+        account_key_path,
         fullnode_rpc_url,
     } = metadata_rotation;
-
+    let account_key = read_keypair_from_file(&account_key_path)?;
     let config: NodeConfig = PersistedConfig::read(&haneul_node_config_path).map_err(|err| {
         err.context(format!(
             "Cannot open Haneul Node Config file at {:?}",
@@ -69,13 +75,14 @@ async fn run_metadata_rotation(metadata_rotation: MetadataRotation) -> anyhow::R
     })?;
 
     let haneul_client = HaneulClientBuilder::default().build(fullnode_rpc_url).await?;
-    let haneul_address = config.haneul_address();
+    let haneul_address = HaneulAddress::from(&account_key.public());
     let starting_epoch = current_epoch(&haneul_client).await?;
     info!("Running Metadata Rotation fire drill for validator address {haneul_address} in epoch {starting_epoch}.");
 
     // Prepare new metadata for next epoch
     let new_config_path =
-        update_next_epoch_metadata(&haneul_node_config_path, &config, &haneul_client).await?;
+        update_next_epoch_metadata(&haneul_node_config_path, &config, &haneul_client, &account_key)
+            .await?;
 
     let current_epoch = current_epoch(&haneul_client).await?;
     if current_epoch > starting_epoch {
@@ -114,6 +121,7 @@ async fn update_next_epoch_metadata(
     haneul_node_config_path: &Path,
     config: &NodeConfig,
     haneul_client: &HaneulClient,
+    account_key: &HaneulKeyPair,
 ) -> anyhow::Result<PathBuf> {
     // Save backup config just in case
     let mut backup_config_path = haneul_node_config_path.to_path_buf();
@@ -122,14 +130,14 @@ async fn update_next_epoch_metadata(
     let backup_config = config.clone();
     backup_config.persisted(&backup_config_path).save()?;
 
-    let haneul_address = config.haneul_address();
+    let haneul_address = HaneulAddress::from(&account_key.public());
 
     let mut new_config = config.clone();
 
     // protocol key
     let new_protocol_key_pair = get_authority_key_pair().1;
     let new_protocol_key_pair_copy = new_protocol_key_pair.copy();
-    let pop = generate_proof_of_possession(&new_protocol_key_pair, config.haneul_address());
+    let pop = generate_proof_of_possession(&new_protocol_key_pair, haneul_address);
     new_config.protocol_key_pair = AuthorityKeyPairWithPath::new(new_protocol_key_pair);
 
     // network key
@@ -217,7 +225,7 @@ async fn update_next_epoch_metadata(
 
     // update protocol pubkey on chain
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_protocol_pubkey",
         vec![
             CallArg::Pure(
@@ -225,73 +233,66 @@ async fn update_next_epoch_metadata(
             ),
             CallArg::Pure(bcs::to_bytes(&pop.as_bytes().to_vec()).unwrap()),
         ],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update network pubkey on chain
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_network_pubkey",
         vec![CallArg::Pure(
             bcs::to_bytes(&new_network_key_pair_copy.public().as_bytes().to_vec()).unwrap(),
         )],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update worker pubkey on chain
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_worker_pubkey",
         vec![CallArg::Pure(
             bcs::to_bytes(&new_worker_key_pair_copy.public().as_bytes().to_vec()).unwrap(),
         )],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update network address
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_network_address",
         vec![CallArg::Pure(bcs::to_bytes(&new_network_address).unwrap())],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update p2p address
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_p2p_address",
         vec![CallArg::Pure(bcs::to_bytes(&new_external_address).unwrap())],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update primary address
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_primary_address",
         vec![CallArg::Pure(
             bcs::to_bytes(&new_primary_addresses).unwrap(),
         )],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
 
     // update worker address
     update_metadata_on_chain(
-        config,
+        account_key,
         "update_validator_next_epoch_worker_address",
         vec![CallArg::Pure(bcs::to_bytes(&new_worker_addresses).unwrap())],
-        config.haneul_address(),
         haneul_client,
     )
     .await?;
@@ -300,12 +301,12 @@ async fn update_next_epoch_metadata(
 }
 
 async fn update_metadata_on_chain(
-    config: &NodeConfig,
+    account_key: &HaneulKeyPair,
     function: &'static str,
     call_args: Vec<CallArg>,
-    haneul_address: HaneulAddress,
     haneul_client: &HaneulClient,
 ) -> anyhow::Result<()> {
+    let haneul_address = HaneulAddress::from(&account_key.public());
     let gas_obj_ref = get_gas_obj_ref(haneul_address, haneul_client, 10000 * 100).await?;
     let mut args = vec![CallArg::Object(ObjectArg::SharedObject {
         id: HANEUL_SYSTEM_STATE_OBJECT_ID,
@@ -314,7 +315,7 @@ async fn update_metadata_on_chain(
     })];
     args.extend(call_args);
     let tx_data = TransactionData::new_move_call(
-        config.haneul_address(),
+        haneul_address,
         HaneulSystem::ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
@@ -325,23 +326,20 @@ async fn update_metadata_on_chain(
         1,
     )
     .unwrap();
-    execute_tx(config, haneul_client, tx_data, function).await?;
+    execute_tx(account_key, haneul_client, tx_data, function).await?;
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     Ok(())
 }
 
 async fn execute_tx(
-    config: &NodeConfig,
+    account_key: &HaneulKeyPair,
     haneul_client: &HaneulClient,
     tx_data: TransactionData,
     action: &str,
 ) -> anyhow::Result<()> {
-    let tx = Transaction::from_data_and_signer(
-        tx_data,
-        Intent::haneul_transaction(),
-        vec![config.account_key_pair()],
-    )
-    .verify()?;
+    let tx =
+        Transaction::from_data_and_signer(tx_data, Intent::haneul_transaction(), vec![account_key])
+            .verify()?;
     info!("Executing {:?}", tx.digest());
     let tx_digest = *tx.digest();
     let resp = haneul_client

@@ -6,6 +6,7 @@ use std::sync::{Arc, Weak};
 use std::thread;
 use haneul_config::NodeConfig;
 use haneul_node::{metrics, HaneulNode, HaneulNodeHandle};
+use haneul_types::crypto::{AuthorityPublicKeyBytes, KeypairTraits};
 use tracing::{info, trace};
 
 use super::node::RuntimeType;
@@ -46,7 +47,7 @@ impl Container {
             let span = tracing::span!(
                 tracing::Level::INFO,
                 "node",
-                name =% config.haneul_address()
+                name =% AuthorityPublicKeyBytes::from(config.protocol_key_pair().public()).concise(),
             );
             let _guard = span.enter();
 

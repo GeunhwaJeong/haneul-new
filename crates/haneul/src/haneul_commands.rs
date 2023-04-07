@@ -222,7 +222,7 @@ impl HaneulCommand {
                         println!(
                             "{} - {}",
                             validator.network_address(),
-                            validator.haneul_address()
+                            validator.protocol_key_pair().public(),
                         );
                     }
                 }
