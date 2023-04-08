@@ -9197,6 +9197,7 @@ dependencies = [
  "haneul-framework-build",
  "haneul-protocol-config",
  "haneul-types",
+ "tracing",
  "workspace-hack",
 ]
 
@@ -9231,6 +9232,7 @@ dependencies = [
  "haneul-framework",
  "haneul-protocol-config",
  "haneul-types",
+ "tokio",
  "workspace-hack",
 ]
 
