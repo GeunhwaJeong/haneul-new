@@ -5,7 +5,7 @@ use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 
 use haneul_types::epoch_data::EpochData;
-use haneul_types::messages_checkpoint::CheckpointDigest;
+use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointTimestamp};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
     EpochStartSystemState, EpochStartSystemStateTrait,
 };
@@ -41,6 +41,10 @@ impl EpochStartConfiguration {
             self.epoch_start_state().epoch_start_timestamp_ms(),
             self.epoch_digest(),
         )
+    }
+
+    pub fn epoch_start_timestamp_ms(&self) -> CheckpointTimestamp {
+        self.epoch_start_state().epoch_start_timestamp_ms()
     }
 }
 
