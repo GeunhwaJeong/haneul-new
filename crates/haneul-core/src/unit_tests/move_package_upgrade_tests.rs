@@ -15,7 +15,7 @@ use haneul_types::{
     move_package::UpgradePolicy,
     object::{Object, Owner},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
-    storage::BackingPackageStore,
+    storage::{BackingPackageStore, ObjectStore},
     MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID,
 };
 

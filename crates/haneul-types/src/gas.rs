@@ -60,7 +60,7 @@ impl<'a> HaneulGasStatus<'a> {
                 gas_price,
                 config,
             )),
-            2 => Self::V2(HaneulGasStatusV2::new_with_budget(
+            2 | 3 => Self::V2(HaneulGasStatusV2::new_with_budget(
                 gas_budget,
                 gas_price,
                 config,
@@ -72,7 +72,7 @@ impl<'a> HaneulGasStatus<'a> {
     pub fn new_unmetered(config: &ProtocolConfig) -> Self {
         match config.gas_model_version() {
             1 => Self::V1(HaneulGasStatusV1::new_unmetered()),
-            2 => Self::V2(HaneulGasStatusV2::new_unmetered()),
+            2 | 3 => Self::V2(HaneulGasStatusV2::new_unmetered()),
             _ => panic!("unknown gas model version"),
         }
     }
@@ -87,7 +87,7 @@ impl HaneulCostTable {
     pub fn new(config: &ProtocolConfig) -> Self {
         match config.gas_model_version() {
             1 => Self::V1(HaneulCostTableV1::new(config)),
-            2 => Self::V2(HaneulCostTableV2::new(config)),
+            2 | 3 => Self::V2(HaneulCostTableV2::new(config)),
             _ => panic!("unknown gas model version"),
         }
     }
@@ -99,7 +99,7 @@ impl HaneulCostTable {
     pub fn unmetered(config: &ProtocolConfig) -> Self {
         match config.gas_model_version() {
             1 => Self::V1(HaneulCostTableV1::unmetered()),
-            2 => Self::V2(HaneulCostTableV2::unmetered()),
+            2 | 3 => Self::V2(HaneulCostTableV2::unmetered()),
             _ => panic!("unknown gas model version"),
         }
     }

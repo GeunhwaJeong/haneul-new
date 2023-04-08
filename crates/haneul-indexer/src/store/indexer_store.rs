@@ -8,7 +8,7 @@ use haneul_json_rpc_types::{
     NetworkMetrics, HaneulObjectData, HaneulObjectDataFilter, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
-use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber};
+use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber, VersionNumber};
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::error::HaneulError;
 use haneul_types::event::EventID;
@@ -219,6 +219,24 @@ impl ObjectStore for CheckpointData {
             .iter()
             .find_map(|(status, o)| match status {
                 ObjectStatus::Created | ObjectStatus::Mutated if &o.object_id == object_id => {
+                    o.clone().try_into().ok()
+                }
+                _ => None,
+            }))
+    }
+
+    fn get_object_by_key(
+        &self,
+        object_id: &ObjectID,
+        version: VersionNumber,
+    ) -> Result<Option<haneul_types::object::Object>, HaneulError> {
+        Ok(self
+            .changed_objects
+            .iter()
+            .find_map(|(status, o)| match status {
+                ObjectStatus::Created | ObjectStatus::Mutated
+                    if &o.object_id == object_id && o.version == version =>
+                {
                     o.clone().try_into().ok()
                 }
                 _ => None,
