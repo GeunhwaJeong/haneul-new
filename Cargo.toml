@@ -91,6 +91,7 @@ members = [
     "crates/haneul-open-rpc-macros",
     "crates/haneul-proc-macros",
     "crates/haneul-protocol-config",
+    "crates/haneul-protocol-config-macros",
     "crates/haneul-proxy",
     "crates/haneul-rosetta",
     "crates/haneul-rpc-loadgen",
