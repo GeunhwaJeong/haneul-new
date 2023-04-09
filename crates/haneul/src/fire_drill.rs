@@ -26,7 +26,9 @@ use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
-use haneul_types::messages::{CallArg, ObjectArg, Transaction, TransactionData};
+use haneul_types::messages::{
+    CallArg, ObjectArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+};
 use haneul_types::multiaddr::{Multiaddr, Protocol};
 use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_PACKAGE_ID};
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
@@ -307,6 +309,10 @@ async fn update_metadata_on_chain(
 ) -> anyhow::Result<()> {
     let haneul_address = HaneulAddress::from(&account_key.public());
     let gas_obj_ref = get_gas_obj_ref(haneul_address, haneul_client, 10000 * 100).await?;
+    let rgp = haneul_client
+        .governance_api()
+        .get_reference_gas_price()
+        .await?;
     let mut args = vec![CallArg::Object(ObjectArg::SharedObject {
         id: HANEUL_SYSTEM_STATE_OBJECT_ID,
         initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
@@ -321,8 +327,8 @@ async fn update_metadata_on_chain(
         vec![],
         gas_obj_ref,
         args,
-        5000,
-        1,
+        rgp * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+        rgp,
     )
     .unwrap();
     execute_tx(account_key, haneul_client, tx_data, function).await?;

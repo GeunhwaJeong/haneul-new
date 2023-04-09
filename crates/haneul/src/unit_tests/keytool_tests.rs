@@ -31,6 +31,7 @@ use haneul_types::crypto::SignatureScheme;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::crypto::HaneulSignatureInner;
 use haneul_types::messages::TransactionData;
+use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
 use tempfile::TempDir;
 
 const TEST_MNEMONIC: &str = "result crisp session latin must fruit genuine question prevent start coconut brave speak student dismiss";
@@ -354,13 +355,15 @@ fn test_sign_command() -> Result<(), anyhow::Error> {
         SequenceNumber::new(),
         ObjectDigest::random(),
     );
-    let tx_data = TransactionData::new_pay_haneul_with_dummy_gas_price(
+    let gas_price = 1;
+    let tx_data = TransactionData::new_pay_haneul(
         *sender,
         vec![gas],
         vec![HaneulAddress::random_for_testing_only()],
         vec![10000],
         gas,
-        1000,
+        gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+        gas_price,
     )
     .unwrap();
 

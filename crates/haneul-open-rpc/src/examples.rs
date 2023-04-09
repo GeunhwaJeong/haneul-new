@@ -39,12 +39,10 @@ use haneul_types::event::EventID;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages::ObjectArg;
-use haneul_types::messages::{
-    CallArg, ExecuteTransactionRequestType, TransactionData, TransactionKind,
-};
+use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
+use haneul_types::messages::{CallArg, ExecuteTransactionRequestType, TransactionData};
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Owner;
-use haneul_types::object::MAX_GAS_BUDGET_FOR_TESTING;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::query::TransactionFilter;
 use haneul_types::signature::GenericSignature;
@@ -145,15 +143,17 @@ impl RpcExampleProvider {
                 .unwrap();
             builder.finish()
         };
-        let data = TransactionData::new_with_dummy_gas_price(
-            TransactionKind::programmable(pt),
+        let gas_price = 10;
+        let data = TransactionData::new_programmable(
             signer,
-            (
+            vec![(
                 gas_id,
                 SequenceNumber::from_u64(1),
                 ObjectDigest::new(self.rng.gen()),
-            ),
-            1000,
+            )],
+            pt,
+            TEST_ONLY_GAS_UNIT_FOR_TRANSFER * gas_price,
+            gas_price,
         );
 
         let result = TransactionBlockBytes::from_data(data).unwrap();
@@ -455,12 +455,13 @@ impl RpcExampleProvider {
             ObjectDigest::new(self.rng.gen()),
         );
 
-        let data = TransactionData::new_transfer_with_dummy_gas_price(
+        let data = TransactionData::new_transfer(
             recipient,
             object_ref,
             signer,
             gas_ref,
-            MAX_GAS_BUDGET_FOR_TESTING,
+            TEST_ONLY_GAS_UNIT_FOR_TRANSFER * 10,
+            10,
         );
         let data1 = data.clone();
         let data2 = data.clone();

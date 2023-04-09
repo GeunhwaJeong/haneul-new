@@ -96,7 +96,10 @@ impl WriteAheadLog {
 
 #[cfg(test)]
 mod tests {
-    use haneul_types::base_types::{random_object_ref, ObjectRef};
+    use haneul_types::{
+        base_types::{random_object_ref, ObjectRef},
+        messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    };
 
     use super::*;
 
@@ -214,17 +217,19 @@ mod tests {
     }
 
     fn random_request(coin: ObjectRef) -> (HaneulAddress, TransactionData) {
+        let gas_price = 1;
         let send = HaneulAddress::random_for_testing_only();
         let recv = HaneulAddress::random_for_testing_only();
         (
             recv,
-            TransactionData::new_pay_haneul_with_dummy_gas_price(
+            TransactionData::new_pay_haneul(
                 send,
                 vec![coin],
                 vec![recv],
                 vec![1000],
                 coin,
-                1000,
+                gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+                gas_price,
             )
             .unwrap(),
         )

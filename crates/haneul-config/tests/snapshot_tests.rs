@@ -21,6 +21,7 @@ use insta::assert_yaml_snapshot;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use haneul_config::genesis::{GenesisCeremonyParameters, TokenDistributionScheduleBuilder};
+use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
 use haneul_config::ValidatorInfo;
 use haneul_config::{genesis::Builder, genesis_config::GenesisConfig};
 use haneul_types::base_types::HaneulAddress;
@@ -63,8 +64,8 @@ fn populated_genesis_snapshot_matches() {
         worker_key: worker_key.public().clone(),
         account_address: HaneulAddress::from(account_key.public()),
         network_key: network_key.public().clone(),
-        gas_price: ValidatorInfo::DEFAULT_GAS_PRICE,
-        commission_rate: ValidatorInfo::DEFAULT_COMMISSION_RATE,
+        gas_price: DEFAULT_VALIDATOR_GAS_PRICE,
+        commission_rate: DEFAULT_COMMISSION_RATE,
         network_address: "/ip4/127.0.0.1/tcp/80".parse().unwrap(),
         p2p_address: "/ip4/127.0.0.1/udp/80".parse().unwrap(),
         narwhal_primary_address: "/ip4/127.0.0.1/udp/80".parse().unwrap(),

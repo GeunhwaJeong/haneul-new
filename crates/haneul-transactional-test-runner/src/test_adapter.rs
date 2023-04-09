@@ -40,6 +40,7 @@ use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::transaction_input_checker::check_objects;
 use haneul_framework::{BuiltInFramework, DEFAULT_FRAMEWORK_PATH};
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::id::UID;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
     crypto::{get_key_pair_from_rng, AccountKeyPair},
@@ -60,7 +61,6 @@ use haneul_types::{
     gas::{GasCostSummary, HaneulCostTable},
     object::GAS_VALUE_FOR_TESTING,
 };
-use haneul_types::{id::UID, object::MAX_GAS_BUDGET_FOR_TESTING};
 use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
 use haneul_types::{messages::CallArg, MOVE_STDLIB_OBJECT_ID};
 use haneul_types::{
@@ -87,7 +87,7 @@ const RNG_SEED: [u8; 32] = [
     179, 179, 65, 9, 31, 249, 221, 123, 225, 112, 199, 247,
 ];
 
-const DEFAULT_GAS_BUDGET: u64 = MAX_GAS_BUDGET_FOR_TESTING;
+const DEFAULT_GAS_BUDGET: u64 = 5_000_000_000;
 const GAS_FOR_TESTING: u64 = GAS_VALUE_FOR_TESTING;
 
 pub struct HaneulTestAdapter<'a> {
@@ -370,12 +370,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 builder.publish_immutable(vec![module_bytes], dependencies);
             };
             let pt = builder.finish();
-            TransactionData::new_programmable_with_dummy_gas_price(
-                sender,
-                vec![gas],
-                pt,
-                gas_budget,
-            )
+            TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, 1)
         };
         let transaction = self.sign_txn(sender, data);
         let summary = self.execute_txn(transaction, gas_budget)?;
@@ -457,12 +452,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 arguments,
             ));
             let pt = builder.finish();
-            TransactionData::new_programmable_with_dummy_gas_price(
-                sender,
-                vec![gas],
-                pt,
-                gas_budget,
-            )
+            TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, 1)
         };
         let transaction = self.sign_txn(sender, data);
         let summary = self.execute_txn(transaction, gas_budget)?;
@@ -583,12 +573,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                         rec_arg,
                     ));
                     let pt = builder.finish();
-                    TransactionData::new_programmable_with_dummy_gas_price(
-                        sender,
-                        vec![gas],
-                        pt,
-                        gas_budget,
-                    )
+                    TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, 1)
                 });
                 let summary = self.execute_txn(transaction, gas_budget)?;
                 let output = self.object_summary_output(&summary, false, view_gas_used);
@@ -627,11 +612,12 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                     .collect::<anyhow::Result<Vec<Command>>>()?;
                 let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
                 let transaction = self.sign_txn(sender, |sender, gas| {
-                    TransactionData::new_programmable_with_dummy_gas_price(
+                    TransactionData::new_programmable(
                         sender,
                         vec![gas],
                         ProgrammableTransaction { inputs, commands },
                         gas_budget,
+                        1,
                     )
                 });
                 let summary = self.execute_txn(transaction, gas_budget)?;

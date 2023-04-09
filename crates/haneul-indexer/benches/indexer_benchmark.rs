@@ -25,7 +25,7 @@ use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAdd
 use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::TransactionData;
+use haneul_types::messages::{TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Object;
 
@@ -92,6 +92,7 @@ fn create_checkpoint(sequence_number: i64) -> TemporaryCheckpointStore {
 }
 
 fn create_transaction(sequence_number: i64) -> Transaction {
+    let gas_price = 1000;
     let tx = TransactionData::new_pay_haneul(
         HaneulAddress::random_for_testing_only(),
         vec![],
@@ -102,8 +103,8 @@ fn create_transaction(sequence_number: i64) -> Transaction {
             SequenceNumber::new(),
             ObjectDigest::random(),
         ),
-        100000,
-        10000,
+        gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+        gas_price,
     )
     .unwrap();
 
