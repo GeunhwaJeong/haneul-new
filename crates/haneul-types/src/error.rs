@@ -8,7 +8,6 @@ use crate::{
     messages::{CommandIndex, ExecutionFailureStatus, MoveLocation, MoveLocationOpt},
     object::Owner,
 };
-use fastcrypto::error::FastCryptoError;
 use move_binary_format::{access::ModuleAccess, errors::VMError};
 use move_binary_format::{errors::Location, file_format::FunctionDefinitionIndex};
 use move_core_types::{
@@ -572,16 +571,16 @@ impl From<&str> for HaneulError {
     }
 }
 
-impl From<FastCryptoError> for HaneulError {
-    fn from(kind: FastCryptoError) -> Self {
-        match kind {
-            FastCryptoError::InvalidSignature => HaneulError::InvalidSignature {
-                error: "Invalid signature".to_string(),
-            },
-            _ => HaneulError::Unknown("Unknown cryptography error".to_string()),
-        }
-    }
-}
+// impl From<FastCryptoError> for HaneulError {
+//     fn from(kind: FastCryptoError) -> Self {
+//         match kind {
+//             FastCryptoError::InvalidSignature => HaneulError::InvalidSignature {
+//                 error: "Invalid signature".to_string(),
+//             },
+//             _ => HaneulError::Unknown("Unknown cryptography error".to_string()),
+//         }
+//     }
+// }
 
 impl TryFrom<HaneulError> for UserInputError {
     type Error = anyhow::Error;
