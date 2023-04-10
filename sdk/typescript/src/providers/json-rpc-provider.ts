@@ -819,6 +819,7 @@ export class JsonRpcProvider {
       'haneulx_getNetworkMetrics',
       [],
       NetworkMetrics,
+      this.options.skipDataValidation,
     );
   }
   /**
