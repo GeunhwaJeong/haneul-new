@@ -194,6 +194,7 @@ impl HaneulNode {
                 config
                     .expensive_safety_check_config
                     .enable_epoch_haneul_conservation_check(),
+                &prometheus_registry,
             )
             .await?,
         );
