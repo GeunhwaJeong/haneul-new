@@ -103,7 +103,7 @@ haneul client gas $PLAYER_X
 ```
 
 ```bash
-haneul client gas $PLAYER_0
+haneul client gas $PLAYER_O
 ```
 
 The tutorial uses only one gas object per address. Choose the object to use, and then create variables for them as well.
