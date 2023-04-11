@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useGetObject } from '@haneullabs/core';
 import {
     is,
     HaneulObjectData,
@@ -8,8 +9,6 @@ import {
     type HaneulAddress,
 } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
-
-import { useGetObject } from './useGetObject';
 
 export function useOwnedNFT(
     nftObjectId: string | null,

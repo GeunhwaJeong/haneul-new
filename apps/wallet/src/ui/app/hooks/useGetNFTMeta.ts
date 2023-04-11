@@ -1,10 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useGetObject } from '@haneullabs/core';
 import { getObjectDisplay } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
-
-import { useGetObject } from './useGetObject';
 
 export type NFTMetadata = {
     name: string | null;
