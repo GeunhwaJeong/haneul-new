@@ -242,26 +242,23 @@ import {
   JsonRpcProvider,
   RawSigner,
   TransactionBlock,
-  normalizeHaneulObjectId,
 } from '@haneullabs/haneul.js';
 const { execSync } = require('child_process');
 // Generate a new Keypair
 const keypair = new Ed25519Keypair();
 const provider = new JsonRpcProvider();
 const signer = new RawSigner(keypair, provider);
-const compiledModulesAndDeps = JSON.parse(
+const { modules, dependencies } = JSON.parse(
   execSync(
     `${cliPath} move build --dump-bytecode-as-base64 --path ${packagePath}`,
     { encoding: 'utf-8' },
   ),
 );
 const tx = new TransactionBlock();
-const [upgradeCap] = tx.publish(
-  compiledModulesAndDeps.modules.map((m: any) => Array.from(fromB64(m))),
-  compiledModulesAndDeps.dependencies.map((addr: string) =>
-    normalizeHaneulObjectId(addr),
-  ),
-);
+const [upgradeCap] = tx.publish({
+  modules,
+  dependencies,
+});
 tx.transferObjects([upgradeCap], tx.pure(await signer.getAddress()));
 const result = await signer.signAndExecuteTransactionBlock({
   transactionBlock: tx,
