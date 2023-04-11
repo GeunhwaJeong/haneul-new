@@ -108,6 +108,7 @@ members = [
     "crates/haneul-transaction-builder",
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
+    "crates/haneul-upgrade-compatibility-transactional-tests",
     "crates/haneul-verifier",
     "crates/haneul-verifier-transactional-tests",
     "crates/telemetry-subscribers",
