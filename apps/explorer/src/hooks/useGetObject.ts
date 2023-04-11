@@ -5,11 +5,6 @@ import { useRpcClient } from '@haneullabs/core';
 import { type HaneulObjectResponse, normalizeHaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-export function useGetSystemObject() {
-    const rpc = useRpcClient();
-    return useQuery(['system', 'state'], () => rpc.getLatestHaneulSystemState());
-}
-
 export function useGetObject(
     objectId?: string | null
 ): UseQueryResult<HaneulObjectResponse, unknown> {
