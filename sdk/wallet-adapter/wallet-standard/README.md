@@ -69,7 +69,11 @@ class YourWallet implements Wallet {
       },
       "haneul:signAndExecuteTransactionBlock": {
         version: "1.1.0",
-        signAndExecuteTransactionBlock: this.#signAndExecuteTransaction,
+        signAndExecuteTransactionBlock: this.#signAndExecuteTransactionBlock,
+      },
+      'haneul:signMessage': {
+        version: '1.0.0',
+        signMessage: this.#signMessage,
       },
     };
   },
@@ -87,6 +91,10 @@ class YourWallet implements Wallet {
   };
 
   #signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod = () => {
+    // Your wallet's implementation
+  };
+
+  #signMessage: HaneulSignMessageMethod = () => {
     // Your wallet's implementation
   };
 }
