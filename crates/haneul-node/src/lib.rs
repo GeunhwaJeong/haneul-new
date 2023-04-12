@@ -39,6 +39,7 @@ use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
+use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_server::ValidatorService;
@@ -1071,10 +1072,8 @@ impl HaneulNode {
             .get_epoch_last_checkpoint(cur_epoch_store.epoch())
             .expect("Error loading last checkpoint for current epoch")
             .expect("Could not load last checkpoint for current epoch");
-        let epoch_start_configuration = EpochStartConfiguration::new_v1(
-            next_epoch_start_system_state,
-            *last_checkpoint.digest(),
-        );
+        let epoch_start_configuration =
+            EpochStartConfiguration::new(next_epoch_start_system_state, *last_checkpoint.digest());
 
         let new_epoch_store = self
             .state
@@ -1091,6 +1090,10 @@ impl HaneulNode {
             .expect("Reconfigure authority state cannot fail");
         info!(next_epoch, "Node State has been reconfigured");
         assert_eq!(next_epoch, new_epoch_store.epoch());
+        self.state.database.update_epoch_flags_metrics(
+            cur_epoch_store.epoch_start_config().flags(),
+            new_epoch_store.epoch_start_config().flags(),
+        );
         new_epoch_store
     }
 }
