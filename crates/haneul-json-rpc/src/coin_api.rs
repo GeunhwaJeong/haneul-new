@@ -294,19 +294,6 @@ impl CoinReadApiServer for CoinReadApi {
 
     async fn get_coin_metadata(&self, coin_type: String) -> RpcResult<HaneulCoinMetadata> {
         let coin_struct = parse_haneul_struct_tag(&coin_type)?;
-        if GAS::is_gas(&coin_struct) {
-            // TODO: We need to special case for `CoinMetadata<0x2::haneul::HANEUL> because `get_transaction`
-            // will fail for genesis transaction. However, instead of hardcoding the values here, We
-            // can store the object id for `CoinMetadata<0x2::haneul::HANEUL>` in the Haneul System object
-            return Ok(HaneulCoinMetadata {
-                id: None,
-                decimals: 9,
-                symbol: "HANEUL".to_string(),
-                name: "Haneul".to_string(),
-                description: "".to_string(),
-                icon_url: None,
-            });
-        }
 
         let metadata_object = self
             .find_package_object(
