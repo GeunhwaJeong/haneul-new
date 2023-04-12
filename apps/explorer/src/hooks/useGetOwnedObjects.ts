@@ -3,13 +3,15 @@
 
 import { useRpcClient } from '@haneullabs/core';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+
+const MAX_OBJECTS_PER_REQ = 6;
 
 export function useGetOwnedObjects(address?: HaneulAddress | null) {
     const rpc = useRpcClient();
-    return useQuery(
+    return useInfiniteQuery(
         ['get-owned-objects', address],
-        async () =>
+        async ({ pageParam }) =>
             await rpc.getOwnedObjects({
                 owner: address!,
                 options: {
@@ -17,7 +19,18 @@ export function useGetOwnedObjects(address?: HaneulAddress | null) {
                     showContent: true,
                     showDisplay: true,
                 },
+                limit: MAX_OBJECTS_PER_REQ,
+                cursor: pageParam ? pageParam.cursor : null,
             }),
-        { enabled: !!address }
+        {
+            staleTime: 10 * 60 * 1000,
+            enabled: !!address,
+            getNextPageParam: (lastPage) =>
+                lastPage?.hasNextPage
+                    ? {
+                          cursor: lastPage.nextCursor,
+                      }
+                    : false,
+        }
     );
 }
