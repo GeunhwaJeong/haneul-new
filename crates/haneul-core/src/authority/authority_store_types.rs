@@ -4,13 +4,14 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use serde_with::Bytes;
-use std::convert::TryFrom;
 use haneul_types::base_types::MoveObjectType;
 use haneul_types::base_types::{ObjectDigest, SequenceNumber, TransactionDigest};
+use haneul_types::coin::Coin;
 use haneul_types::crypto::{default_hash, Signable};
 use haneul_types::error::HaneulError;
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, Owner};
+use haneul_types::storage::ObjectKey;
 
 pub type ObjectContentDigest = ObjectDigest;
 
@@ -105,6 +106,7 @@ pub enum StoreData {
     Move(MoveObject),
     Package(MovePackage),
     IndirectObject(IndirectObjectMetadata),
+    Coin(u64),
 }
 
 /// Metadata of stored moved object
@@ -215,6 +217,13 @@ pub(crate) fn get_store_object_pair(
                 let digest = move_object.digest();
                 indirect_object = Some(move_object);
                 StoreData::IndirectObject(IndirectObjectMetadata { version, digest })
+            } else if move_obj.type_().is_gas_coin() {
+                StoreData::Coin(
+                    Coin::from_bcs_bytes(move_obj.contents())
+                        .expect("failed to deserialize coin")
+                        .balance
+                        .value(),
+                )
             } else {
                 StoreData::Move(move_obj)
             }
@@ -232,38 +241,44 @@ pub(crate) fn get_store_object_pair(
     )
 }
 
-pub struct MigratedStoreObjectPair(pub StoreObjectValue, pub Option<StoreMoveObject>);
-impl TryFrom<MigratedStoreObjectPair> for Object {
-    type Error = HaneulError;
+pub(crate) fn try_construct_object(
+    object_key: &ObjectKey,
+    store_object: StoreObjectValue,
+    indirect_object: Option<StoreMoveObject>,
+) -> Result<Object, HaneulError> {
+    let data = match (store_object.data, indirect_object) {
+        (StoreData::Move(object), None) => Data::Move(object),
+        (StoreData::Package(package), None) => Data::Package(package),
+        (StoreData::IndirectObject(metadata), Some(indirect_obj)) => unsafe {
+            Data::Move(MoveObject::new_from_execution_with_limit(
+                indirect_obj.type_,
+                indirect_obj.has_public_transfer,
+                metadata.version,
+                indirect_obj.contents,
+                // verification is already done during initial execution
+                u64::MAX,
+            )?)
+        },
+        (StoreData::Coin(balance), None) => unsafe {
+            Data::Move(MoveObject::new_from_execution_with_limit(
+                MoveObjectType::gas_coin(),
+                true,
+                object_key.1,
+                bcs::to_bytes(&(object_key.0, balance)).expect("serialization failed"),
+                u64::MAX,
+            )?)
+        },
+        _ => {
+            return Err(HaneulError::StorageCorruptedFieldError(
+                "inconsistent object representation".to_string(),
+            ))
+        }
+    };
 
-    fn try_from(object: MigratedStoreObjectPair) -> Result<Self, Self::Error> {
-        let MigratedStoreObjectPair(store_object, indirect_object) = object;
-
-        let data = match (store_object.data, indirect_object) {
-            (StoreData::Move(object), None) => Data::Move(object),
-            (StoreData::Package(package), None) => Data::Package(package),
-            (StoreData::IndirectObject(metadata), Some(indirect_obj)) => unsafe {
-                Data::Move(MoveObject::new_from_execution_with_limit(
-                    indirect_obj.type_,
-                    indirect_obj.has_public_transfer,
-                    metadata.version,
-                    indirect_obj.contents,
-                    // verification is already done during initial execution
-                    u64::MAX,
-                )?)
-            },
-            _ => {
-                return Err(HaneulError::StorageCorruptedFieldError(
-                    "inconsistent object representation".to_string(),
-                ))
-            }
-        };
-
-        Ok(Self {
-            data,
-            owner: store_object.owner,
-            previous_transaction: store_object.previous_transaction,
-            storage_rebate: store_object.storage_rebate,
-        })
-    }
+    Ok(Object {
+        data,
+        owner: store_object.owner,
+        previous_transaction: store_object.previous_transaction,
+        storage_rebate: store_object.storage_rebate,
+    })
 }
