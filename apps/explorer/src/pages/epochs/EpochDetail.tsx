@@ -31,7 +31,7 @@ function HaneulStats({
 
     return (
         <Stats postfix={symbol} {...props}>
-            {formattedAmount}
+            {formattedAmount || '--'}
         </Stats>
     );
 }

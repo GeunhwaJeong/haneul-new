@@ -1,48 +1,21 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFormatCoin } from '@haneullabs/core';
 import { X12, Dot12 } from '@haneullabs/icons';
 import {
     getExecutionStatusType,
     getTotalGasUsed,
     getTransactionSender,
     type JsonRpcProvider,
-    HANEUL_TYPE_ARG,
     type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import clsx from 'clsx';
 import { type ReactNode } from 'react';
 
+import { HaneulAmount } from '../Table/HaneulAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
 
-import styles from './RecentTxCard.module.css';
-
 import { AddressLink, TransactionLink } from '~/ui/InternalLink';
-
-/** @deprecated This styling is not correct, use `<Text>` to create the correctly styled components */
-export function HaneulAmount({
-    amount,
-}: {
-    amount: bigint | number | string | undefined | null;
-}) {
-    const [formattedAmount, coinType] = useFormatCoin(amount, HANEUL_TYPE_ARG);
-
-    if (amount) {
-        const HaneulSuffix = <abbr className={styles.haneulsuffix}>{coinType}</abbr>;
-
-        return (
-            <section>
-                <span className={styles.haneulamount}>
-                    {formattedAmount}
-                    {HaneulSuffix}
-                </span>
-            </section>
-        );
-    }
-
-    return <span className={styles.haneulamount}>--</span>;
-}
 
 function TxTableHeader({ label }: { label: string }) {
     return <div className="pl-3">{label}</div>;
