@@ -64,10 +64,10 @@ fi
 if [[ ! -f "${HANEUL_RUN_PATH}/fullnode.yaml" ]]; then
     echo "Generating fullnode.yaml at ${HANEUL_RUN_PATH}/fullnode.yaml"
     cp crates/haneul-config/data/fullnode-template.yaml ${HANEUL_RUN_PATH}/fullnode.yaml
-    sed -i '' "s|genesis.blob|${HANEUL_RUN_PATH}/genesis.blob|g" ${HANEUL_RUN_PATH}/fullnode.yaml
-    sed -i '' "s|haneuldb|${HANEUL_RUN_PATH}/haneuldb|g" ${HANEUL_RUN_PATH}/fullnode.yaml
+    sed -i "s|genesis.blob|${HANEUL_RUN_PATH}/genesis.blob|g" ${HANEUL_RUN_PATH}/fullnode.yaml
+    sed -i "s|haneuldb|${HANEUL_RUN_PATH}/haneuldb|g" ${HANEUL_RUN_PATH}/fullnode.yaml
 
-    if [[ ! $NETWORK == "devnet" ]]; then
+    if [[ $NETWORK != "devnet" ]]; then
         cat >> "$HANEUL_RUN_PATH/fullnode.yaml" <<- EOM
 
 p2p-config:
@@ -108,3 +108,4 @@ fi
 
 kill $HANEUL_NODE_PID
 exit 0
+
