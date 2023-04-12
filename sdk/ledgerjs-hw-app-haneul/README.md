@@ -16,20 +16,18 @@ const Haneul = require('@haneullabs/ledgerjs-hw-app-haneul').default;
 
 const getPublicKey = async () => {
     const haneul = new Haneul(await Transport.create());
-    return await haneul.getPublicKey("44'/8282'/0'/0/0");
+    return await haneul.getPublicKey("44'/8282'/0'/0'/0'");
 };
 
 const signTransaction = async () => {
-    const transport = await Transport.create();
     const haneul = new Haneul(await Transport.create());
     return await haneul.signTransaction(
-        "44'/8282'/0'/0/0",
+        "44'/8282'/0'/0'/0'",
         '<transaction contents>'
     );
 };
 
 const getVersion = async () => {
-    const transport = await Transport.create();
     const haneul = new Haneul(await Transport.create());
     return await haneul.getVersion();
 };
@@ -69,6 +67,8 @@ doAll().catch((err) => console.log(err));
 
 ```javascript
 import Haneul from 'ledgerjs-hw-app-haneul';
+
+const transport = await Transport.create();
 const haneul = new Haneul(transport);
 ```
 
@@ -83,7 +83,7 @@ Get Haneul address for a given BIP-32 path.
 #### Examples
 
 ```javascript
-const publicKey = await haneul.getPublicKey("44'/8282'/0'/0/0");
+const publicKey = await haneul.getPublicKey("44'/8282'/0'/0'/0'");
 ```
 
 Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)>** an object with a public key.
@@ -100,7 +100,7 @@ Sign a transaction with a given BIP-32 path.
 
 ```javascript
 const publicKey = await haneul.signTransaction(
-    "44'/8282'/0'/0/0",
+    "44'/8282'/0'/0'/0'",
     '<transaction contents>'
 );
 ```
