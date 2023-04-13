@@ -651,7 +651,14 @@ impl HaneulClientCommands {
                     .read_api()
                     .get_transaction_with_options(
                         digest,
-                        HaneulTransactionBlockResponseOptions::full_content(),
+                        HaneulTransactionBlockResponseOptions {
+                            show_input: true,
+                            show_raw_input: false,
+                            show_effects: true,
+                            show_events: true,
+                            show_object_changes: true,
+                            show_balance_changes: false,
+                        },
                     )
                     .await?;
                 HaneulClientCommandResult::TransactionBlock(tx_read)
@@ -1751,6 +1758,34 @@ impl HaneulClientCommandResult {
             // Logs write to a file on the side.  Print to stdout and also log to file, for tests to pass.
             println!("{line}");
             info!("{line}")
+        }
+    }
+
+    pub fn tx_block_response(&self) -> Option<&HaneulTransactionBlockResponse> {
+        use HaneulClientCommandResult::*;
+        match self {
+            Upgrade(b)
+            | Publish(b)
+            | TransactionBlock(b)
+            | Call(b)
+            | Transfer(_, b)
+            | TransferHaneul(b)
+            | Pay(b)
+            | PayHaneul(b)
+            | PayAllHaneul(b)
+            | SplitCoin(b)
+            | MergeCoin(b)
+            | ExecuteSignedTx(b) => Some(b),
+            _ => None,
+        }
+    }
+
+    pub fn objects_response(&self) -> Option<Vec<HaneulObjectResponse>> {
+        use HaneulClientCommandResult::*;
+        match self {
+            Object(o) | RawObject(o) => Some(vec![o.clone()]),
+            Objects(o) => Some(o.clone()),
+            _ => None,
         }
     }
 }
