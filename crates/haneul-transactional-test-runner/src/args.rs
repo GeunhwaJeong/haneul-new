@@ -9,6 +9,7 @@ use move_command_line_common::{parser::Parser as MoveCLParser, values::ValueToke
 use move_core_types::identifier::Identifier;
 use move_core_types::u256::U256;
 use move_core_types::value::{MoveStruct, MoveValue};
+use move_transactional_test_runner::tasks::SyntaxChoice;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{Argument, CallArg, ObjectArg};
 use haneul_types::object::Owner;
@@ -96,6 +97,26 @@ pub struct ProgrammableTransactionCommand {
 }
 
 #[derive(Debug, clap::Parser)]
+pub struct UpgradePackageCommand {
+    #[clap(long = "package")]
+    pub package: String,
+    #[clap(long = "upgrade-capability", parse(try_from_str = parse_fake_id))]
+    pub upgrade_capability: FakeID,
+    #[clap(
+        long = "dependencies",
+        multiple_values(true),
+        multiple_occurrences(false)
+    )]
+    pub dependencies: Vec<String>,
+    #[clap(long = "sender")]
+    pub sender: String,
+    #[clap(long = "gas-budget")]
+    pub gas_budget: Option<u64>,
+    #[clap(long = "syntax")]
+    pub syntax: Option<SyntaxChoice>,
+}
+
+#[derive(Debug, clap::Parser)]
 pub enum HaneulSubcommand {
     #[clap(name = "view-object")]
     ViewObject(ViewObjectCommand),
@@ -105,6 +126,8 @@ pub enum HaneulSubcommand {
     ConsensusCommitPrologue(ConsensusCommitPrologueCommand),
     #[clap(name = "programmable")]
     ProgrammableTransaction(ProgrammableTransactionCommand),
+    #[clap(name = "upgrade")]
+    UpgradePackage(UpgradePackageCommand),
 }
 
 #[derive(Debug)]
