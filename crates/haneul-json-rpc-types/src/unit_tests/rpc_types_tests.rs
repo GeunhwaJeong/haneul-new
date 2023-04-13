@@ -8,6 +8,7 @@ use move_core_types::ident_str;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::value::{MoveStruct, MoveValue};
+use serde_json::json;
 
 use haneul_types::base_types::{ObjectDigest, SequenceNumber};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -116,7 +117,7 @@ fn test_move_value_to_url() {
 #[test]
 fn test_serde() {
     let test_values = [
-        HaneulMoveValue::Number(u64::MAX),
+        HaneulMoveValue::Number(u32::MAX),
         HaneulMoveValue::UID {
             id: ObjectID::random(),
         },
@@ -142,6 +143,32 @@ fn test_serde() {
             value, serde_value
         )
     }
+}
+
+#[test]
+fn test_serde_bytearray() {
+    // ensure that we serialize byte arrays as number array
+    let test_values = MoveValue::Vector(vec![MoveValue::U8(1), MoveValue::U8(2), MoveValue::U8(3)]);
+    let haneul_move_value = HaneulMoveValue::from(test_values);
+    let json = serde_json::to_value(&haneul_move_value).unwrap();
+    assert_eq!(json, json!([1, 2, 3]));
+}
+
+#[test]
+fn test_serde_number() {
+    // ensure that we serialize byte arrays as number array
+    let test_values = MoveValue::U8(1);
+    let haneul_move_value = HaneulMoveValue::from(test_values);
+    let json = serde_json::to_value(&haneul_move_value).unwrap();
+    assert_eq!(json, json!(1));
+    let test_values = MoveValue::U16(1);
+    let haneul_move_value = HaneulMoveValue::from(test_values);
+    let json = serde_json::to_value(&haneul_move_value).unwrap();
+    assert_eq!(json, json!(1));
+    let test_values = MoveValue::U32(1);
+    let haneul_move_value = HaneulMoveValue::from(test_values);
+    let json = serde_json::to_value(&haneul_move_value).unwrap();
+    assert_eq!(json, json!(1));
 }
 
 #[test]

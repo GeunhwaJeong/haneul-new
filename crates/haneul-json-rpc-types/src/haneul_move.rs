@@ -18,7 +18,6 @@ use serde_with::serde_as;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::{Display, Formatter, Write};
-use haneul_types::haneul_serde::BigInt;
 use tracing::warn;
 
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -288,18 +287,13 @@ pub enum MoveFunctionArgType {
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(untagged, rename = "MoveValue")]
 pub enum HaneulMoveValue {
-    Number(
-        #[schemars(with = "BigInt<u64>")]
-        #[serde_as(as = "BigInt<u64>")]
-        u64,
-    ),
+    // u64 and u128 are converted to String to avoid overflow
+    Number(u32),
     Bool(bool),
     Address(HaneulAddress),
     Vector(Vec<HaneulMoveValue>),
     String(String),
-    UID {
-        id: ObjectID,
-    },
+    UID { id: ObjectID },
     Struct(HaneulMoveStruct),
     Option(Box<Option<HaneulMoveValue>>),
 }
@@ -348,7 +342,7 @@ impl From<MoveValue> for HaneulMoveValue {
         match value {
             MoveValue::U8(value) => HaneulMoveValue::Number(value.into()),
             MoveValue::U16(value) => HaneulMoveValue::Number(value.into()),
-            MoveValue::U32(value) => HaneulMoveValue::Number(value.into()),
+            MoveValue::U32(value) => HaneulMoveValue::Number(value),
             MoveValue::U64(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::U128(value) => HaneulMoveValue::String(format!("{value}")),
             MoveValue::U256(value) => HaneulMoveValue::String(format!("{value}")),

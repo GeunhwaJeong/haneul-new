@@ -306,20 +306,12 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     fn try_from(move_struct: &HaneulMoveStruct) -> Result<Self, Self::Error> {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
-                match fields.get("balance") {
-                    Some(HaneulMoveValue::Number(balance)) => {
+                if let Some(HaneulMoveValue::String(balance)) = fields.get("balance") {
+                    if let Ok(balance) = balance.parse::<u64>() {
                         if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
-                            return Ok(GasCoin::new(*id, *balance));
+                            return Ok(GasCoin::new(*id, balance));
                         }
                     }
-                    Some(HaneulMoveValue::String(balance)) => {
-                        if let Ok(balance) = balance.parse::<u64>() {
-                            if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
-                                return Ok(GasCoin::new(*id, balance));
-                            }
-                        }
-                    }
-                    _ => {}
                 }
             }
             _ => {}
