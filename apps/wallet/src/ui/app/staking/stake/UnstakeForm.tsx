@@ -19,7 +19,7 @@ export type StakeFromProps = {
     stakedHaneulId: string;
     coinBalance: bigint;
     coinType: string;
-    stakingReward?: number;
+    stakingReward?: string;
     epoch: number;
 };
 
