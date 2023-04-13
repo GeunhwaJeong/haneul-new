@@ -17,7 +17,7 @@ use std::usize;
 use haneul_keys::keypair_file::{read_authority_keypair_from_file, read_keypair_from_file};
 use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_storage::object_store::ObjectStoreConfig;
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::NetworkKeyPair;
@@ -105,6 +105,9 @@ pub struct NodeConfig {
 
     #[serde(default)]
     pub expensive_safety_check_config: ExpensiveSafetyCheckConfig,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name_service_resolver_object_id: Option<ObjectID>,
 }
 
 fn default_authority_store_pruning_config() -> AuthorityStorePruningConfig {
