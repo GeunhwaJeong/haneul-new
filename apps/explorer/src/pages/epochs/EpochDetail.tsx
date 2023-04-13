@@ -71,62 +71,64 @@ export default function EpochDetail() {
             </Banner>
         );
 
+    const fundInflow = epochData.endOfEpochInfo
+        ? BigInt(epochData.endOfEpochInfo.storageFundReinvestment) +
+          BigInt(epochData.endOfEpochInfo.storageCharge) +
+          BigInt(epochData.endOfEpochInfo.leftoverStorageFundInflow)
+        : null;
+
+    const fundOutflow = epochData.endOfEpochInfo
+        ? BigInt(epochData.endOfEpochInfo.storageRebate)
+        : null;
+
+    const netInflow =
+        fundInflow && fundOutflow ? fundInflow - fundOutflow : null;
+
     return (
         <div className="flex flex-col space-y-16">
             <div className="grid grid-flow-row gap-4 sm:gap-2 md:flex md:gap-6">
                 <EpochProgress
-                    epoch={epochData?.epoch}
+                    epoch={epochData.epoch}
                     inProgress={isCurrentEpoch}
-                    start={Number(epochData?.epochStartTimestamp)}
+                    start={Number(epochData.epochStartTimestamp)}
                     end={Number(
-                        epochData?.endOfEpochInfo?.epochEndTimestamp ?? 0
+                        epochData.endOfEpochInfo?.epochEndTimestamp ?? 0
                     )}
                 />
 
-                <EpochStats label="Activity">
+                <EpochStats label="Rewards">
                     <HaneulStats
-                        label="Gas Revenue"
-                        tooltip="Gas Revenue"
-                        amount={epochData.endOfEpochInfo?.totalGasFees}
+                        label="Total Stake"
+                        tooltip=""
+                        amount={epochData.endOfEpochInfo?.totalStake}
                     />
                     <HaneulStats
-                        label="Storage Revenue"
-                        tooltip="Storage Revenue"
-                        amount={epochData?.endOfEpochInfo?.storageCharge}
+                        label="Stake Subsidies"
+                        amount={epochData.endOfEpochInfo?.stakeSubsidyAmount}
                     />
                     <HaneulStats
                         label="Stake Rewards"
-                        tooltip="Stake Rewards"
                         amount={
-                            epochData?.endOfEpochInfo
+                            epochData.endOfEpochInfo
                                 ?.totalStakeRewardsDistributed
                         }
                     />
-                </EpochStats>
-
-                <EpochStats label="Rewards">
                     <HaneulStats
-                        label="Stake Subsidies"
-                        tooltip="Stake Subsidies"
-                        amount={epochData?.endOfEpochInfo?.stakeSubsidyAmount}
-                    />
-                    <HaneulStats
-                        label="Total Rewards"
-                        tooltip="Total Rewards"
-                        amount={
-                            epochData?.endOfEpochInfo
-                                ?.totalStakeRewardsDistributed
-                        }
-                    />
-
-                    <HaneulStats
-                        label="Storage Fund Earnings"
-                        tooltip="Storage Fund Earnings"
-                        amount={
-                            epochData?.endOfEpochInfo?.leftoverStorageFundInflow
-                        }
+                        label="Gas Fees"
+                        amount={epochData.endOfEpochInfo?.totalGasFees}
                     />
                 </EpochStats>
+
+                <EpochStats label="Storage Fund Balance">
+                    <HaneulStats
+                        label="Fund Size"
+                        amount={epochData.endOfEpochInfo?.storageFundBalance}
+                    />
+                    <HaneulStats label="Net Inflow" amount={netInflow} />
+                    <HaneulStats label="Fund Inflow" amount={fundInflow} />
+                    <HaneulStats label="Fund Outflow" amount={fundOutflow} />
+                </EpochStats>
+
                 {isCurrentEpoch ? (
                     <Card spacing="lg">
                         <ValidatorStatus />
@@ -142,8 +144,10 @@ export default function EpochDetail() {
                 <TabPanels className="mt-4">
                     <TabPanel>
                         <CheckpointsTable
-                            initialCursor={epochData?.endOfEpochInfo?.lastCheckpointId.toString()}
-                            maxCursor={epochData?.firstCheckpointId.toString()}
+                            initialCursor={
+                                epochData.endOfEpochInfo?.lastCheckpointId
+                            }
+                            maxCursor={epochData.firstCheckpointId}
                             initialLimit={20}
                         />
                     </TabPanel>
