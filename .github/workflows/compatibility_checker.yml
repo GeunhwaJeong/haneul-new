@@ -46,10 +46,13 @@ jobs:
           # valid for. This is optional and defaults to "1h"
           certificate-ttl: 12h
 
-      # Cargo clean and git restore on any left over files from git checkout
-      - name: Environment clean
-        run: |
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@fullnode-compat-test-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && cargo clean && git restore ."
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get latest CI-tagged binary commit hash
+        run: echo "CI_COMMIT_HASH=$(git for-each-ref --sort=creatordate refs/tags | grep -E 'haneul_v(.*)_ci' | tail -1 | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+        id: get-ci-tag
 
       # Wipe database from previous runs
       - name: Wipe HaneulDB
@@ -58,18 +61,22 @@ jobs:
           tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@fullnode-compat-test-01 "sudo rm -rf /var/lib/haneul/haneuldb || true"
 
       # Checkout the latest haneul repo
-      # TODO(william) instead download the latest build binary from s3
       - name: Checkout haneul repo
         run: |
           tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 10 ssh ubuntu@fullnode-compat-test-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git fetch origin main && git rebase origin/main"
 
-      - name: Build haneul-node
+      # Cargo clean and git restore on any left over files from git checkout
+      - name: Environment clean
         run: |
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 30 ssh ubuntu@fullnode-compat-test-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && CARGO_INCREMENTAL=0 cargo build --release --bin haneul-node"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@fullnode-compat-test-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && cargo clean && git restore ."
+
+      - name: Fetch haneul-node binary
+        run: |
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 30 ssh ubuntu@fullnode-compat-test-01 "mkdir -p /var/lib/haneul/bin && cd /var/lib/haneul/bin && wget https://haneul-releases.s3.us-east-1.amazonaws.com/${{ steps.get-ci-tag.outputs.CI_COMMIT_HASH }}/haneul-node && chmod +x haneul-node"
 
       - name: Run sync script
         run: |
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 720 ssh ubuntu@fullnode-compat-test-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && CARGO_TERM_COLOR=always ./scripts/fullnode-sync.sh -p ./target/release/haneul-node -n testnet ${{ github.event.inputs.verbose == true && '-v' || '' }}"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 720 ssh ubuntu@fullnode-compat-test-01 "cd ~/haneul && echo "Running compatibility checker against binary built at commit hash ${{ steps.get-ci-tag.outputs.CI_COMMIT_HASH }}" && CARGO_TERM_COLOR=always ./scripts/fullnode-sync.sh -p /var/lib/haneul/bin/haneul-node -n testnet ${{ github.event.inputs.verbose == true && '-v' || '' }}"
 
   notify:
     name: Notify
