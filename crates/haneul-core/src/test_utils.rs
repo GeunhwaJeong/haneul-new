@@ -140,6 +140,10 @@ pub fn compile_nfts_package() -> CompiledPackage {
     compile_example_package("../../haneul_programmability/examples/nfts")
 }
 
+pub fn compile_managed_coin_package() -> CompiledPackage {
+    compile_example_package("../../crates/haneul-core/src/unit_tests/data/managed_coin")
+}
+
 pub fn compile_example_package(relative_path: &str) -> CompiledPackage {
     move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
