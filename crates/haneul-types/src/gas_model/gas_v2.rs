@@ -247,6 +247,7 @@ impl HaneulGasStatus {
                 haneul_cost_table.execution_cost_table.clone(),
                 computation_budget,
                 gas_price,
+                config.gas_model_version(),
             ),
             gas_budget,
             true,
@@ -263,7 +264,8 @@ impl HaneulGasStatus {
         storage_gas_price: u64,
         cost_table: HaneulCostTable,
     ) -> HaneulGasStatus {
-        let rebate_rate = ProtocolConfig::get_for_max_version().storage_rebate_rate();
+        let protocol_config = ProtocolConfig::get_for_max_version();
+        let rebate_rate = protocol_config.storage_rebate_rate();
         let max_computation_budget = 5_000_000; // fixed number for now
         let computation_budget = if gas_budget > max_computation_budget {
             max_computation_budget
@@ -275,6 +277,7 @@ impl HaneulGasStatus {
                 cost_table.execution_cost_table.clone(),
                 computation_budget,
                 gas_price,
+                protocol_config.gas_model_version(),
             ),
             gas_budget,
             true,
