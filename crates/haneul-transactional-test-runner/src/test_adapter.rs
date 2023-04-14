@@ -403,7 +403,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, gas_price)
         };
         let transaction = self.sign_txn(sender, data);
-        let summary = self.execute_txn(transaction, gas_budget)?;
+        let summary = self.execute_txn(transaction, gas_budget, false)?;
         let created_package = summary
             .created
             .iter()
@@ -471,6 +471,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             sender,
             gas_price,
             protocol_version,
+            uncharged,
         } = extra;
         let mut builder = ProgrammableTransactionBuilder::new();
         let arguments = args
@@ -498,7 +499,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             // override protocol version, just for this call
             self.protocol_config = ProtocolConfig::get_for_version(protocol_version.into())
         }
-        let summary = self.execute_txn(transaction, gas_budget)?;
+        let summary = self.execute_txn(transaction, gas_budget, uncharged)?;
         let output = self.object_summary_output(&summary);
         // restore old protocol version (if needed)
         if protocol_version.is_some() {
@@ -621,7 +622,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                     let pt = builder.finish();
                     TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, 1)
                 });
-                let summary = self.execute_txn(transaction, gas_budget)?;
+                let summary = self.execute_txn(transaction, gas_budget, false)?;
                 let output = self.object_summary_output(&summary);
                 Ok(output)
             }
@@ -630,7 +631,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             }) => {
                 let transaction =
                     VerifiedTransaction::new_consensus_commit_prologue(0, 0, timestamp_ms);
-                let summary = self.execute_txn(transaction, DEFAULT_GAS_BUDGET)?;
+                let summary = self.execute_txn(transaction, DEFAULT_GAS_BUDGET, false)?;
                 let output = self.object_summary_output(&summary);
                 Ok(output)
             }
@@ -666,7 +667,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                         gas_price,
                     )
                 });
-                let summary = self.execute_txn(transaction, gas_budget)?;
+                let summary = self.execute_txn(transaction, gas_budget, false)?;
                 let output = self.object_summary_output(&summary);
                 Ok(output)
             }
@@ -821,7 +822,7 @@ impl<'a> HaneulTestAdapter<'a> {
             |sender, gas| TransactionData::new_programmable(sender, vec![gas], pt, gas_budget, 1);
 
         let transaction = self.sign_txn(Some(sender), data);
-        let summary = self.execute_txn(transaction, gas_budget)?;
+        let summary = self.execute_txn(transaction, gas_budget, false)?;
         let created_package = summary
             .created
             .iter()
@@ -874,8 +875,9 @@ impl<'a> HaneulTestAdapter<'a> {
         &mut self,
         transaction: VerifiedTransaction,
         gas_budget: u64,
+        uncharged: bool,
     ) -> anyhow::Result<TxnSummary> {
-        let gas_status = if transaction.inner().is_system_tx() {
+        let mut gas_status = if transaction.inner().is_system_tx() {
             HaneulGasStatus::new_unmetered(&self.protocol_config)
         } else {
             HaneulCostTable::new(&self.protocol_config).into_gas_status_for_testing(
@@ -884,6 +886,18 @@ impl<'a> HaneulTestAdapter<'a> {
                 self.protocol_config.storage_gas_price(),
             )
         };
+        // Unmetered is set in the transaction run without metering. NB that this will still keep
+        // in place the normal transaction execution limits.
+        if uncharged {
+            match &mut gas_status {
+                HaneulGasStatus::V1(gas_status) => {
+                    gas_status.gas_status.set_metering(false);
+                }
+                HaneulGasStatus::V2(gas_status) => {
+                    gas_status.gas_status.set_metering(false);
+                }
+            }
+        }
         transaction
             .data()
             .transaction_data()
