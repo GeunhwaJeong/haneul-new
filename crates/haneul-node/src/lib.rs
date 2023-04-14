@@ -24,7 +24,7 @@ use haneul_json_rpc::api::JsonRpcMetrics;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::sync::broadcast;
-use tokio::sync::oneshot::Sender;
+use tokio::sync::oneshot;
 use tokio::sync::{watch, Mutex};
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
@@ -134,7 +134,7 @@ pub struct HaneulNode {
     /// Broadcast channel to notify state-sync for new validator peers.
     trusted_peer_change_tx: watch::Sender<TrustedPeerChangeEvent>,
 
-    _db_checkpoint_handle: Option<Sender<()>>,
+    _db_checkpoint_handle: Option<oneshot::Sender<()>>,
 
     #[cfg(msim)]
     sim_node: haneul_simulator::runtime::NodeHandle,
@@ -156,6 +156,16 @@ impl HaneulNode {
         config: &NodeConfig,
         registry_service: RegistryService,
     ) -> Result<Arc<HaneulNode>> {
+        let (sender, receiver) = oneshot::channel();
+        Self::start_async(config, registry_service, sender).await?;
+        Ok(receiver.await?)
+    }
+
+    pub async fn start_async(
+        config: &NodeConfig,
+        registry_service: RegistryService,
+        node_sender: oneshot::Sender<Arc<HaneulNode>>,
+    ) -> Result<()> {
         let mut config = config.clone();
         if config.supported_protocol_versions.is_none() {
             info!(
@@ -429,7 +439,10 @@ impl HaneulNode {
         let node_copy = node.clone();
         spawn_monitored_task!(async move { Self::monitor_reconfiguration(node_copy).await });
 
-        Ok(node)
+        node_sender
+            .send(node)
+            .map_err(|_e| anyhow!("Failed to send node"))?;
+        Ok(())
     }
 
     pub fn subscribe_to_epoch_change(&self) -> broadcast::Receiver<HaneulSystemState> {
