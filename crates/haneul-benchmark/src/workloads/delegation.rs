@@ -15,6 +15,7 @@ use std::sync::Arc;
 use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
+use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use haneul_types::messages::VerifiedTransaction;
 use test_utils::messages::make_staking_transaction;
 use tracing::error;
@@ -69,7 +70,7 @@ impl Payload for DelegationTestPayload {
             None => make_transfer_haneul_transaction(
                 self.gas,
                 self.sender,
-                Some(1),
+                Some(GEUNHWA_PER_HANEUL),
                 self.sender,
                 &self.keypair,
                 self.system_state_observer

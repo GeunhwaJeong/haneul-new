@@ -1,22 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::system_state_observer::SystemStateObserver;
+use crate::workloads::payload::Payload;
+use crate::workloads::{Gas, GasCoinConfig};
+use crate::ValidatorProxy;
 use async_trait::async_trait;
 use std::sync::Arc;
+use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 
-use crate::system_state_observer::SystemStateObserver;
-use crate::workloads::{Gas, GasCoinConfig};
-
-use crate::workloads::payload::Payload;
-use crate::ValidatorProxy;
+pub const MIN_HANEUL_PER_WORKLOAD: u64 = 10_000_000 * GEUNHWA_PER_HANEUL;
 
 // This is the maximum gas we will transfer from primary coin into any gas coin
 // for running the benchmark
-pub const MAX_GAS_FOR_TESTING: u64 = 1_000_000_000_000;
+pub const MAX_GAS_FOR_TESTING: u64 = 1_000 * GEUNHWA_PER_HANEUL;
 
 // TODO: get this information from protocol config
 // This is the maximum budget that can be set for a transaction. 50 HANEUL.
-pub const MAX_BUDGET: u64 = 50_000_000_000;
+pub const MAX_BUDGET: u64 = 50 * GEUNHWA_PER_HANEUL;
 // (COIN_BYTES_SIZE * STORAGE_PRICE * STORAGE_UNITS_PER_BYTE)
 pub const STORAGE_COST_PER_COIN: u64 = 130 * 76 * 100;
 // (COUNTER_BYTES_SIZE * STORAGE_PRICE * STORAGE_UNITS_PER_BYTE)

@@ -14,6 +14,7 @@ use std::sync::Arc;
 use haneul_core::test_utils::make_pay_haneul_transaction;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::digests::ObjectDigest;
+use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},
@@ -25,7 +26,7 @@ use tracing::{debug, error};
 /// Value of each address's "primary coin" in geunhwa. The first transaction gives
 /// each address a coin worth PRIMARY_COIN_VALUE, and all subsequent transfers
 /// send TRANSFER_AMOUNT coins each time
-const PRIMARY_COIN_VALUE: u64 = 100_000_000_000;
+const PRIMARY_COIN_VALUE: u64 = 100 * GEUNHWA_PER_HANEUL;
 
 /// Number of geunhwa sent to each address on each batch transfer
 const BATCH_TRANSFER_AMOUNT: u64 = 1;

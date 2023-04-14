@@ -8884,6 +8884,7 @@ dependencies = [
  "itertools",
  "move-core-types",
  "move-package",
+ "haneullabs-metrics",
  "narwhal-node",
  "prometheus",
  "rand 0.8.5",
