@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFormatCoin } from '@haneullabs/core';
+import { useFormatCoin, useGetSystemState } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -30,7 +30,7 @@ function HaneulStats({
     const [formattedAmount, symbol] = useFormatCoin(amount, HANEUL_TYPE_ARG);
 
     return (
-        <Stats postfix={symbol} {...props}>
+        <Stats postfix={formattedAmount && symbol} {...props}>
             {formattedAmount || '--'}
         </Stats>
     );
@@ -39,6 +39,7 @@ function HaneulStats({
 export default function EpochDetail() {
     const { id } = useParams();
     const enhancedRpc = useEnhancedRpcClient();
+    const { data: systemState } = useGetSystemState();
     const { data, isLoading, isError } = useQuery(['epoch', id], async () =>
         enhancedRpc.getEpochs({
             // todo: endpoint returns no data for epoch 0
@@ -48,7 +49,10 @@ export default function EpochDetail() {
     );
 
     const [epochData] = data?.data ?? [];
-    const isCurrentEpoch = !epochData?.endOfEpochInfo;
+    const isCurrentEpoch = useMemo(
+        () => systemState?.epoch === epochData?.epoch,
+        [systemState, epochData]
+    );
 
     const validatorsTable = useMemo(() => {
         if (!epochData?.validators) return null;
