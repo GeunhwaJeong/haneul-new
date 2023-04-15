@@ -1047,6 +1047,12 @@ All the other parameters of the StakedHaneul like <code>stake_activation_epoch</
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_split">split</a>(self: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a>, split_amount: u64, ctx: &<b>mut</b> TxContext): <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
+    <b>let</b> original_amount = <a href="../../../.././build/Haneul/docs/balance.md#0x2_balance_value">balance::value</a>(&self.principal);
+    <b>assert</b>!(split_amount &lt;= original_amount, <a href="staking_pool.md#0x3_staking_pool_EInsufficientHaneulTokenBalance">EInsufficientHaneulTokenBalance</a>);
+    <b>let</b> remaining_amount = original_amount - split_amount;
+    // Both resulting parts should have at least <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>.
+    <b>assert</b>!(remaining_amount &gt;= <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>, <a href="staking_pool.md#0x3_staking_pool_EStakedHaneulBelowThreshold">EStakedHaneulBelowThreshold</a>);
+    <b>assert</b>!(split_amount &gt;= <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>, <a href="staking_pool.md#0x3_staking_pool_EStakedHaneulBelowThreshold">EStakedHaneulBelowThreshold</a>);
     <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> {
         id: <a href="../../../.././build/Haneul/docs/object.md#0x2_object_new">object::new</a>(ctx),
         pool_id: self.pool_id,
@@ -1078,12 +1084,6 @@ transfer the newly split part to the sender address.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_split_staked_haneul">split_staked_haneul</a>(stake: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a>, split_amount: u64, ctx: &<b>mut</b> TxContext) {
-    <b>let</b> original_amount = <a href="../../../.././build/Haneul/docs/balance.md#0x2_balance_value">balance::value</a>(&stake.principal);
-    <b>assert</b>!(split_amount &lt;= original_amount, <a href="staking_pool.md#0x3_staking_pool_EInsufficientHaneulTokenBalance">EInsufficientHaneulTokenBalance</a>);
-    <b>let</b> remaining_amount = original_amount - split_amount;
-    // Both resulting parts should have at least <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>.
-    <b>assert</b>!(remaining_amount &gt;= <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>, <a href="staking_pool.md#0x3_staking_pool_EStakedHaneulBelowThreshold">EStakedHaneulBelowThreshold</a>);
-    <b>assert</b>!(split_amount &gt;= <a href="staking_pool.md#0x3_staking_pool_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>, <a href="staking_pool.md#0x3_staking_pool_EStakedHaneulBelowThreshold">EStakedHaneulBelowThreshold</a>);
     <a href="../../../.././build/Haneul/docs/transfer.md#0x2_transfer_transfer">transfer::transfer</a>(<a href="staking_pool.md#0x3_staking_pool_split">split</a>(stake, split_amount, ctx), <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_sender">tx_context::sender</a>(ctx));
 }
 </code></pre>

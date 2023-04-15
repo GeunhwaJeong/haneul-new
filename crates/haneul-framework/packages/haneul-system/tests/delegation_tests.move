@@ -9,6 +9,7 @@ module haneul_system::stake_tests {
     use haneul_system::staking_pool::{Self, StakedHaneul};
     use haneul::test_utils::assert_eq;
     use haneul_system::validator_set;
+    use haneul::test_utils;
     use std::vector;
 
     use haneul_system::governance_test_utils::{
@@ -119,6 +120,27 @@ module haneul_system::stake_tests {
             let ctx = test_scenario::ctx(scenario);
             // The remaining amount after splitting is below the threshold so this should fail.
             staking_pool::split_staked_haneul(&mut staked_haneul, 1 * GEUNHWA_PER_HANEUL + 1, ctx);
+            test_scenario::return_to_sender(scenario, staked_haneul);
+        };
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    #[expected_failure(abort_code = staking_pool::EStakedHaneulBelowThreshold)]
+    fun test_split_nonentry_below_threshold() {
+        set_up_haneul_system_state();
+        let scenario_val = test_scenario::begin(STAKER_ADDR_1);
+        let scenario = &mut scenario_val;
+        // Stake 2 HANEUL
+        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 2, scenario);
+
+        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        {
+            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
+            let ctx = test_scenario::ctx(scenario);
+            // The remaining amount after splitting is below the threshold so this should fail.
+            let stake = staking_pool::split(&mut staked_haneul, 1 * GEUNHWA_PER_HANEUL + 1, ctx);
+            test_utils::destroy(stake);
             test_scenario::return_to_sender(scenario, staked_haneul);
         };
         test_scenario::end(scenario_val);

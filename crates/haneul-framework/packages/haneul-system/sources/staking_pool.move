@@ -336,6 +336,12 @@ module haneul_system::staking_pool {
     /// and the remaining principal is left in `self`.
     /// All the other parameters of the StakedHaneul like `stake_activation_epoch` or `pool_id` remain the same.
     public fun split(self: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext): StakedHaneul {
+        let original_amount = balance::value(&self.principal);
+        assert!(split_amount <= original_amount, EInsufficientHaneulTokenBalance);
+        let remaining_amount = original_amount - split_amount;
+        // Both resulting parts should have at least MIN_STAKING_THRESHOLD.
+        assert!(remaining_amount >= MIN_STAKING_THRESHOLD, EStakedHaneulBelowThreshold);
+        assert!(split_amount >= MIN_STAKING_THRESHOLD, EStakedHaneulBelowThreshold);
         StakedHaneul {
             id: object::new(ctx),
             pool_id: self.pool_id,
@@ -347,12 +353,6 @@ module haneul_system::staking_pool {
     /// Split the given StakedHaneul to the two parts, one with principal `split_amount`,
     /// transfer the newly split part to the sender address.
     public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext) {
-        let original_amount = balance::value(&stake.principal);
-        assert!(split_amount <= original_amount, EInsufficientHaneulTokenBalance);
-        let remaining_amount = original_amount - split_amount;
-        // Both resulting parts should have at least MIN_STAKING_THRESHOLD.
-        assert!(remaining_amount >= MIN_STAKING_THRESHOLD, EStakedHaneulBelowThreshold);
-        assert!(split_amount >= MIN_STAKING_THRESHOLD, EStakedHaneulBelowThreshold);
         transfer::transfer(split(stake, split_amount, ctx), tx_context::sender(ctx));
     }
 
