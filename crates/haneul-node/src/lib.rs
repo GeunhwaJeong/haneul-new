@@ -332,7 +332,7 @@ impl HaneulNode {
                 ),
             );
             state
-                .try_execute_immediately(&transaction, &epoch_store)
+                .try_execute_immediately(&transaction, None, &epoch_store)
                 .instrument(span)
                 .await
                 .unwrap();
