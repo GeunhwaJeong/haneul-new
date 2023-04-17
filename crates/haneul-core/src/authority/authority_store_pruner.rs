@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::{sync::Arc, time::Duration};
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_storage::mutex_table::RwLockTable;
+use haneul_types::base_types::SequenceNumber;
 use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::{
@@ -22,7 +23,7 @@ use haneul_types::{
 use tokio::sync::oneshot::{self, Sender};
 use tokio::time::Instant;
 use tracing::log::{debug, error};
-use typed_store::Map;
+use typed_store::{Map, TypedStoreError};
 
 use super::authority_store_tables::AuthorityPerpetualTables;
 
@@ -287,6 +288,13 @@ impl AuthorityStorePruner {
                 AuthorityStorePruningMetrics::new(registry),
             ),
         }
+    }
+
+    pub fn compact(perpetual_db: &Arc<AuthorityPerpetualTables>) -> Result<(), TypedStoreError> {
+        perpetual_db.objects.compact_range(
+            &ObjectKey(ObjectID::ZERO, SequenceNumber::MIN),
+            &ObjectKey(ObjectID::MAX, SequenceNumber::MAX),
+        )
     }
 }
 
