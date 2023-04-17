@@ -9,8 +9,6 @@ use async_trait::async_trait;
 use std::sync::Arc;
 use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 
-pub const MIN_HANEUL_PER_WORKLOAD: u64 = 10_000_000 * GEUNHWA_PER_HANEUL;
-
 // This is the maximum gas we will transfer from primary coin into any gas coin
 // for running the benchmark
 pub const MAX_GAS_FOR_TESTING: u64 = 1_000 * GEUNHWA_PER_HANEUL;
