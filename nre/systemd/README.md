@@ -49,8 +49,6 @@ Add the paths to your private keys to validator.yaml. If you chose to put them i
 ```
 protocol-key-pair: 
   path: /opt/haneul/key-pairs/protocol.key
-account-key-pair: 
-  path: /opt/haneul/key-pairs/account.key
 worker-key-pair: 
   path: /opt/haneul/key-pairs/worker.key
 network-key-pair: 

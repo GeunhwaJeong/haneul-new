@@ -41,14 +41,6 @@
     group: "haneul"
     mode: 0600
 
-- name: Copy account.key
-  copy:
-    src: "{{ keypair_path }}account.key"
-    dest: /opt/haneul/key-pairs/account.key
-    owner: "haneul"
-    group: "haneul"
-    mode: 0600
-
 - name: Copy network.key
   copy:
     src: "{{ keypair_path }}network.key"
