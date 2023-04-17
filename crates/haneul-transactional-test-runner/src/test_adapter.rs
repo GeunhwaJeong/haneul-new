@@ -43,6 +43,7 @@ use haneul_core::transaction_input_checker::check_objects;
 use haneul_framework::BuiltInFramework;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::DEEPBOOK_OBJECT_ID;
 use haneul_types::MOVE_STDLIB_OBJECT_ID;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
@@ -70,7 +71,6 @@ use haneul_types::{
     messages::{Argument, CallArg},
     move_package::MovePackage,
 };
-use haneul_types::{move_package::UpgradePolicy, DEEPBOOK_OBJECT_ID};
 use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_OBJECT_ID,
 };
@@ -679,6 +679,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 sender,
                 gas_budget,
                 syntax,
+                policy,
             }) => {
                 let syntax = syntax.unwrap_or_else(|| self.default_syntax());
                 let data = data.ok_or_else(|| {
@@ -724,6 +725,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                     dependencies,
                     sender,
                     gas_budget,
+                    policy,
                 )?;
                 match syntax {
                     SyntaxChoice::Source => {
@@ -763,6 +765,7 @@ impl<'a> HaneulTestAdapter<'a> {
         dependencies: Vec<String>,
         sender: String,
         gas_budget: Option<u64>,
+        policy: u8,
     ) -> anyhow::Result<Option<String>> {
         let modules_bytes = modules
             .iter()
@@ -791,7 +794,7 @@ impl<'a> HaneulTestAdapter<'a> {
         let mut builder = ProgrammableTransactionBuilder::new();
 
         HaneulValue::Object(upgrade_capability).into_argument(&mut builder, self)?; // Argument::Input(0)
-        let upgrade_arg = builder.pure(UpgradePolicy::COMPATIBLE).unwrap();
+        let upgrade_arg = builder.pure(policy).unwrap();
         let digest: Vec<u8> =
             MovePackage::compute_digest_for_modules_and_deps(&modules_bytes, &dependencies).into();
         let digest_arg = builder.pure(digest).unwrap();
