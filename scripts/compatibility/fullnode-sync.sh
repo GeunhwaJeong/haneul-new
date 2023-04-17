@@ -7,7 +7,7 @@ set -e
 DEFAULT_NETWORK="testnet"
 CLEAN=0
 LOG_LEVEL="info"
-HANEUL_RUN_PATH="/var/lib/haneul"
+HANEUL_RUN_PATH="/opt/haneul"
 VERBOSE=""
 
 function cleanup {
@@ -17,7 +17,7 @@ function cleanup {
 
 trap cleanup EXIT
 
-while getopts "hvn:e:p:" OPT; do
+while getopts "hvn:e:p:t:" OPT; do
     case $OPT in
         p) 
             HANEUL_BIN_PATH=$OPTARG ;;
@@ -74,7 +74,7 @@ if [[ ! -f "${HANEUL_RUN_PATH}/fullnode.yaml" ]]; then
     sed -i "s|haneuldb|${HANEUL_RUN_PATH}/haneuldb|g" ${HANEUL_RUN_PATH}/fullnode.yaml
 
     if [[ $NETWORK != "devnet" ]]; then
-        cat >> "$HANEUL_RUN_PATH/fullnode.yaml" <<- EOM
+        cat >> "${HANEUL_RUN_PATH}/fullnode.yaml" <<- EOM
 
 p2p-config:
   seed-peers:
