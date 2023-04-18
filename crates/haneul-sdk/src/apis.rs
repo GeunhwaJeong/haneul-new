@@ -12,10 +12,13 @@ use futures::StreamExt;
 use futures_core::Stream;
 use jsonrpsee::core::client::Subscription;
 
+use crate::error::{Error, HaneulRpcResult};
+use crate::{RpcClient, WAIT_FOR_TX_TIMEOUT_SEC};
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc::api::{
     CoinReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient, WriteApiClient,
 };
+use haneul_json_rpc_types::HaneulLoadedChildObjectsResponse;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
@@ -33,9 +36,6 @@ use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData, Ver
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
-
-use crate::error::{Error, HaneulRpcResult};
-use crate::{RpcClient, WAIT_FOR_TX_TIMEOUT_SEC};
 
 #[derive(Debug)]
 pub struct ReadApi {
@@ -241,6 +241,13 @@ impl ReadApi {
             .http
             .dry_run_transaction_block(Base64::from_bytes(&bcs::to_bytes(&tx)?))
             .await?)
+    }
+
+    pub async fn get_loaded_child_objects(
+        &self,
+        digest: TransactionDigest,
+    ) -> HaneulRpcResult<HaneulLoadedChildObjectsResponse> {
+        Ok(self.api.http.get_loaded_child_objects(digest).await?)
     }
 }
 

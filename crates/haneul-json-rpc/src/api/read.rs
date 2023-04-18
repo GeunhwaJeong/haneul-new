@@ -4,6 +4,7 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
+use haneul_json_rpc_types::HaneulLoadedChildObjectsResponse;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, HaneulEvent, HaneulGetPastObjectRequest,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
@@ -85,6 +86,12 @@ pub trait ReadApi {
         /// options for specifying the content to be returned
         options: Option<HaneulObjectDataOptions>,
     ) -> RpcResult<Vec<HaneulPastObjectResponse>>;
+
+    #[method(name = "getLoadedChildObjects", blocking)]
+    fn get_loaded_child_objects(
+        &self,
+        digest: TransactionDigest,
+    ) -> RpcResult<HaneulLoadedChildObjectsResponse>;
 
     /// Return a checkpoint
     #[method(name = "getCheckpoint")]

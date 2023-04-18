@@ -22,13 +22,30 @@ eyre = "0.6.8"
 ron = "0.8.0"
 comfy-table = "6.1.3"
 hex = "0.4.3"
+bcs = "0.1.4"
+tracing = "0.1.36"
+similar = "2.2.0"
 
+haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-framework = { path = "../haneul-framework" }
 narwhal-types = { path = "../../narwhal/types" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-core = { path = "../haneul-core" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-network = { path = "../haneul-network" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
+haneul-sdk = { path = "../haneul-sdk" }
+haneul-adapter = { path = "../haneul-adapter" }
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.88"
+thiserror = "1.0.34"
+
+move-core-types.workspace = true
+move-bytecode-utils.workspace = true
+move-package.workspace = true
+move-binary-format.workspace = true
 
 anemo-cli.workspace = true
 telemetry-subscribers.workspace = true

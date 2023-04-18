@@ -12,9 +12,7 @@ use anyhow::anyhow;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{ModuleId, StructTag};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use haneul_types::temporary_store::TxCoins;
-use tracing::{debug, trace};
-
+use std::collections::BTreeMap;
 use haneul_json_rpc_types::HaneulObjectDataFilter;
 use haneul_types::base_types::{
     ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
@@ -26,6 +24,8 @@ use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::TransactionEvents;
 use haneul_types::object::Owner;
 use haneul_types::query::TransactionFilter;
+use haneul_types::temporary_store::TxCoins;
+use tracing::{debug, trace};
 use typed_store::rocks::{
     default_db_options, read_size_from_env, DBBatch, DBMap, DBOptions, MetricConf, ReadWriteOptions,
 };
@@ -114,6 +114,9 @@ pub struct IndexStoreTables {
     /// by a specific object, and their object reference.
     #[default_options_override_fn = "dynamic_field_index_table_default_config"]
     dynamic_field_index: DBMap<DynamicFieldKey, DynamicFieldInfo>,
+
+    /// This is an index of all the versions of loaded child objects
+    loaded_child_object_versions: DBMap<TransactionDigest, Vec<(ObjectID, SequenceNumber)>>,
 
     #[default_options_override_fn = "index_table_default_config"]
     event_order: DBMap<EventId, EventIndex>,
@@ -288,6 +291,7 @@ impl IndexStore {
         digest: &TransactionDigest,
         timestamp_ms: u64,
         tx_coins: Option<TxCoins>,
+        loaded_child_objects: BTreeMap<ObjectID, SequenceNumber>,
     ) -> HaneulResult<u64> {
         let sequence = self.next_sequence_number.fetch_add(1, Ordering::SeqCst);
 
@@ -419,6 +423,13 @@ impl IndexStore {
             }),
         )?;
 
+        // Loaded child objects table
+        let loaded_child_objects: Vec<_> = loaded_child_objects.into_iter().collect();
+        batch.insert_batch(
+            &self.tables.loaded_child_object_versions,
+            std::iter::once((*digest, loaded_child_objects)),
+        )?;
+
         batch.write()?;
         Ok(sequence)
     }
@@ -493,6 +504,17 @@ impl IndexStore {
                 }
             }
         }
+    }
+
+    /// Return loaded child objects table for a tx
+    pub fn loaded_child_object_versions(
+        &self,
+        transaction_digest: &TransactionDigest,
+    ) -> HaneulResult<Option<Vec<(ObjectID, SequenceNumber)>>> {
+        self.tables
+            .loaded_child_object_versions
+            .get(transaction_digest)
+            .map_err(|err| err.into())
     }
 
     /// Returns unix timestamp for a transaction if it exists
