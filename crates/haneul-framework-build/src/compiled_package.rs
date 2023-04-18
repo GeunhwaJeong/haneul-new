@@ -43,12 +43,11 @@ use serde_reflection::Registry;
 use haneul_types::{
     base_types::ObjectID,
     error::{HaneulError, HaneulResult},
+    is_system_package,
     move_package::{FnInfo, FnInfoKey, FnInfoMap, MovePackage},
     DEEPBOOK_ADDRESS, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;
-
-use crate::{MOVE_STDLIB_PACKAGE_NAME, HANEUL_PACKAGE_NAME, HANEUL_SYSTEM_PACKAGE_NAME};
 
 /// Wrapper around the core Move `CompiledPackage` with some Haneul-specific traits and info
 #[derive(Debug)]
@@ -440,10 +439,11 @@ impl CompiledPackage {
 
     /// Checks whether this package corresponds to a built-in framework
     pub fn is_system_package(&self) -> bool {
-        let package_name = self.package.compiled_package_info.package_name.as_str();
-        package_name == HANEUL_SYSTEM_PACKAGE_NAME
-            || package_name == HANEUL_PACKAGE_NAME
-            || package_name == MOVE_STDLIB_PACKAGE_NAME
+        let Ok(published_at) = self.published_at else {
+            return false
+        };
+
+        is_system_package(published_at)
     }
 
     /// Checks for root modules with non-zero package addresses.  Returns an arbitrary one, if one

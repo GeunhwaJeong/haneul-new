@@ -74,7 +74,7 @@ use haneul_types::{
 use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_OBJECT_ID,
 };
-use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_OBJECT_ID};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum FakeID {
@@ -86,7 +86,7 @@ const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
     MOVE_STDLIB_OBJECT_ID,
     DEEPBOOK_OBJECT_ID,
     HANEUL_FRAMEWORK_OBJECT_ID,
-    HANEUL_SYSTEM_PACKAGE_ID,
+    HANEUL_SYSTEM_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_CLOCK_OBJECT_ID,
 ];

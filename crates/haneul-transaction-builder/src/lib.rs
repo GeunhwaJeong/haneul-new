@@ -35,7 +35,7 @@ use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
-    coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_PACKAGE_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 
@@ -730,7 +730,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
                     .unwrap(),
             ];
             builder.command(Command::move_call(
-                HANEUL_SYSTEM_PACKAGE_ID,
+                HANEUL_SYSTEM_OBJECT_ID,
                 HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                 ADD_STAKE_MUL_COIN_FUN_NAME.to_owned(),
                 vec![],
@@ -761,7 +761,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             .await?;
         TransactionData::new_move_call(
             signer,
-            HANEUL_SYSTEM_PACKAGE_ID,
+            HANEUL_SYSTEM_OBJECT_ID,
             HANEUL_SYSTEM_MODULE_NAME.to_owned(),
             WITHDRAW_STAKE_FUN_NAME.to_owned(),
             vec![],

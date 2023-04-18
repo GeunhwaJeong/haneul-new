@@ -74,7 +74,7 @@ pub const HANEUL_FRAMEWORK_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_F
 /// 0x3-- account address where haneul system modules are stored
 /// Same as the ObjectID
 pub const HANEUL_SYSTEM_ADDRESS: AccountAddress = address_from_single_byte(3);
-pub const HANEUL_SYSTEM_PACKAGE_ID: ObjectID = ObjectID::from_address(HANEUL_SYSTEM_ADDRESS);
+pub const HANEUL_SYSTEM_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_SYSTEM_ADDRESS);
 
 /// 0xdee9-- account address where DeepBook modules are stored
 /// Same as the ObjectID
@@ -100,10 +100,7 @@ pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERS
 pub fn is_system_package(id: ObjectID) -> bool {
     matches!(
         id,
-        MOVE_STDLIB_OBJECT_ID
-            | HANEUL_FRAMEWORK_OBJECT_ID
-            | HANEUL_SYSTEM_PACKAGE_ID
-            | DEEPBOOK_OBJECT_ID
+        MOVE_STDLIB_OBJECT_ID | HANEUL_FRAMEWORK_OBJECT_ID | HANEUL_SYSTEM_OBJECT_ID | DEEPBOOK_OBJECT_ID
     )
 }
 

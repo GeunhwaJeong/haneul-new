@@ -14,7 +14,7 @@ fn generate_struct_layouts() {
         .to_path_buf()
         .join("haneul-framework")
         .join("packages")
-        .join("haneul-system");
+        .join("haneul-framework");
     let pkg = BuildConfig::new_for_testing().build(path).unwrap();
     let registry = pkg.generate_struct_layouts();
     // check for a couple of types that aren't likely to go away

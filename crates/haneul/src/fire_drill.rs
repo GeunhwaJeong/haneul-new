@@ -30,7 +30,7 @@ use haneul_types::messages::{
     CallArg, ObjectArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
 };
 use haneul_types::multiaddr::{Multiaddr, Protocol};
-use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_OBJECT_ID};
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use tracing::info;
 
@@ -321,7 +321,7 @@ async fn update_metadata_on_chain(
     args.extend(call_args);
     let tx_data = TransactionData::new_move_call(
         haneul_address,
-        HANEUL_SYSTEM_PACKAGE_ID,
+        HANEUL_SYSTEM_OBJECT_ID,
         ident_str!("haneul_system").to_owned(),
         ident_str!(function).to_owned(),
         vec![],
