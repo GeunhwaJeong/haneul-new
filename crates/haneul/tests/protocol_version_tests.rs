@@ -66,9 +66,9 @@ mod sim_only_tests {
     use std::sync::Arc;
     use haneul_core::authority::framework_injection;
     use haneul_framework::BuiltInFramework;
-    use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
     use haneul_json_rpc::api::WriteApiClient;
     use haneul_macros::*;
+    use haneul_move_build::{BuildConfig, CompiledPackage};
     use haneul_protocol_config::SupportedProtocolVersions;
     use haneul_types::base_types::ObjectID;
     use haneul_types::id::ID;

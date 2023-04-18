@@ -30,7 +30,6 @@ inquire = "0.6.0"
 
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
-haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
@@ -41,6 +40,7 @@ haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-source-validation = { path = "../haneul-source-validation" }
 haneul-move = { path = "../haneul-move", features = ["all"] }
+haneul-move-build = { path = "../haneul-move-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 shared-crypto = { path = "../shared-crypto" }
 

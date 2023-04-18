@@ -29,7 +29,7 @@ haneul-faucet = { path = "../haneul-faucet" }
 haneul-swarm = { path = "../haneul-swarm" }
 haneul = { path = "../haneul" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
-haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-move-build = { path = "../haneul-move-build" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-types = { path = "../haneul-types" }

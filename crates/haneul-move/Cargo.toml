@@ -19,7 +19,7 @@ once_cell = { version = "1.16", optional = true }
 
 haneul-core = { path = "../haneul-core", optional = true }
 haneul-framework = { path = "../haneul-framework" }
-haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-move-build = { path = "../haneul-move-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-cost-tables = { path = "../haneul-cost-tables" }

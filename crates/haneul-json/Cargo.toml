@@ -30,4 +30,4 @@ workspace-hack.workspace = true
 haneul-types = { path = "../haneul-types", features = ["test-utils"] }
 
 haneul-adapter = { path = "../haneul-adapter" }
-haneul-framework-build = { path = "../haneul-framework-build" }
+haneul-move-build = { path = "../haneul-move-build" }

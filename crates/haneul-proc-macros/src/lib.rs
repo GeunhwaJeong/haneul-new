@@ -52,7 +52,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                     // Initialize the static initializers here:
                     // https://github.com/move-language/move/blob/652badf6fd67e1d4cc2aa6dc69d63ad14083b673/language/tools/move-package/src/package_lock.rs#L12
                     use std::path::PathBuf;
-                    use haneul_simulator::haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
+                    use haneul_simulator::haneul_move_build::{BuildConfig, HaneulPackageHooks};
                     use haneul_simulator::tempfile::TempDir;
                     use haneul_simulator::move_package::package_hooks::register_package_hooks;
 

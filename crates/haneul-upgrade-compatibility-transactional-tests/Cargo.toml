@@ -15,7 +15,7 @@ move-compiler.workspace = true
 move-package.workspace = true
 move-binary-format.workspace = true
 move-command-line-common.workspace = true
-haneul-framework-build = { path = "../haneul-framework-build/" }
+haneul-move-build = { path = "../haneul-move-build/" }
 
 [[test]]
 name = "tests"

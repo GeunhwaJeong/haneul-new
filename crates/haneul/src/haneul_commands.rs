@@ -11,7 +11,7 @@ use clap::*;
 use fastcrypto::traits::KeyPair;
 use move_package::BuildConfig;
 use haneul_config::genesis_config::DEFAULT_NUMBER_OF_AUTHORITIES;
-use haneul_framework_build::compiled_package::HaneulPackageHooks;
+use haneul_move_build::HaneulPackageHooks;
 use tracing::info;
 
 use haneul_config::{

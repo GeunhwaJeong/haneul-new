@@ -13,7 +13,7 @@ use move_core_types::{
 };
 use serde_json::{json, Value};
 use haneul_framework::BuiltInFramework;
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_move_build::BuildConfig;
 use test_fuzz::runtime::num_traits::ToPrimitive;
 
 use crate::ResolvedCallArg;

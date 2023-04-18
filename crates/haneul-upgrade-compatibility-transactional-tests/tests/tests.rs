@@ -7,7 +7,7 @@ use move_binary_format::{
     compatibility::{Compatibility, InclusionCheck},
     normalized, CompiledModule,
 };
-use haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
+use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 
 pub const TEST_DIR: &str = "tests";
 

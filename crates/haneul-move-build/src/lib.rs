@@ -49,6 +49,10 @@ use haneul_types::{
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
+#[cfg(test)]
+#[path = "unit_tests/build_tests.rs"]
+mod build_tests;
+
 /// Wrapper around the core Move `CompiledPackage` with some Haneul-specific traits and info
 #[derive(Debug)]
 pub struct CompiledPackage {
@@ -439,6 +443,7 @@ impl CompiledPackage {
 
     /// Checks whether this package corresponds to a built-in framework
     pub fn is_system_package(&self) -> bool {
+        // System packages always have "published-at" addresses
         let Ok(published_at) = self.published_at else {
             return false
         };

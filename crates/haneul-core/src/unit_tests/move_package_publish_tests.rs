@@ -18,9 +18,7 @@ use haneul_types::{
 };
 
 use move_package::source_package::manifest_parser;
-use haneul_framework_build::compiled_package::{
-    check_unpublished_dependencies, gather_published_ids, BuildConfig,
-};
+use haneul_move_build::{check_unpublished_dependencies, gather_published_ids, BuildConfig};
 use haneul_types::{
     crypto::{get_key_pair, AccountKeyPair},
     error::HaneulError,

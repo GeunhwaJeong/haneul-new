@@ -4,7 +4,7 @@
 use move_binary_format::file_format::CompiledModule;
 
 use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode_verifier_impl};
-use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
+use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::ObjectID,

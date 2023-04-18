@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::{fs, io, path::Path};
 use std::{path::PathBuf, str};
 use haneul::client_commands::WalletContext;
-use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage, HaneulPackageHooks};
+use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_types::base_types::ObjectID;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},

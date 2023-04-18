@@ -13,7 +13,6 @@ use std::time::Duration;
 use haneul_config::genesis_config::DEFAULT_GAS_AMOUNT;
 use haneul_config::genesis_config::DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT;
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
-use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json::{call_args, type_args};
 use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::ObjectsPage;
@@ -24,6 +23,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_macros::sim_test;
+use haneul_move_build::BuildConfig;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;

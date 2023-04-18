@@ -15,12 +15,12 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 
 use crate::operations::Operations;
 use shared_crypto::intent::Intent;
-use haneul_framework_build::compiled_package::BuildConfig;
 use haneul_json_rpc_types::{
     ObjectChange, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponseQuery,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
+use haneul_move_build::BuildConfig;
 use haneul_sdk::rpc_types::{
     OwnedObjectRef, HaneulData, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
     HaneulTransactionBlockResponse,

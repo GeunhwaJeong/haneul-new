@@ -6,7 +6,7 @@ use futures::future;
 use move_binary_format::access::ModuleAccess;
 use move_binary_format::CompiledModule;
 use std::{collections::HashMap, fmt::Debug};
-use haneul_framework_build::compiled_package::CompiledPackage;
+use haneul_move_build::CompiledPackage;
 use haneul_types::error::HaneulObjectResponseError;
 use thiserror::Error;
 

@@ -3,7 +3,7 @@
 
 use move_core_types::{account_address::AccountAddress, ident_str, language_storage::StructTag};
 use move_symbol_pool::Symbol;
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_move_build::BuildConfig;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},

@@ -16,7 +16,7 @@ futures = "0.3.25"
 
 haneul-types = { path = "../haneul-types" }
 haneul-sdk = { path = "../../crates/haneul-sdk" }
-haneul-framework-build = { path = "../../crates/haneul-framework-build" }
+haneul-move-build = { path = "../../crates/haneul-move-build" }
 
 move-binary-format.workspace = true
 move-compiler.workspace = true

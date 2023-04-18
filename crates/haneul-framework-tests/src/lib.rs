@@ -6,8 +6,8 @@ mod test {
     use move_cli::base::test::UnitTestResult;
     use move_unit_test::UnitTestingConfig;
     use std::path::PathBuf;
-    use haneul_framework_build::compiled_package::BuildConfig;
     use haneul_move::unit_test::run_move_unit_tests;
+    use haneul_move_build::BuildConfig;
 
     #[test]
     #[cfg_attr(msim, ignore)]

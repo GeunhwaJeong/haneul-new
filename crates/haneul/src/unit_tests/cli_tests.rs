@@ -29,7 +29,6 @@ use haneul_config::{
     NetworkConfig, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
     HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
-use haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
@@ -37,6 +36,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_macros::sim_test;
+use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     Ed25519HaneulSignature, Secp256k1HaneulSignature, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,

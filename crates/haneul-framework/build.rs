@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use haneul_framework_build::compiled_package::{BuildConfig, HaneulPackageHooks};
+use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 
 const DOCS_DIR: &str = "docs";
 

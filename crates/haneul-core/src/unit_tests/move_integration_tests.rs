@@ -21,7 +21,7 @@ use haneul_types::{
 
 use move_core_types::language_storage::TypeTag;
 
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_move_build::BuildConfig;
 use haneul_types::{
     crypto::{get_key_pair, AccountKeyPair},
     error::HaneulError,

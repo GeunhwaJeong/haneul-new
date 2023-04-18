@@ -1,9 +1,9 @@
 [package]
-name = "haneul-framework-build"
+name = "haneul-move-build"
 version = "0.0.0"
 edition = "2021"
 authors = ["Haneul Labs <eng@haneul-labs.com>"]
-description = "Move framework for haneul platform"
+description = "Logic for building Haneul Move Packages"
 license = "Apache-2.0"
 publish = false
 
@@ -14,7 +14,7 @@ tempfile = "3.3.0"
 
 serde-reflection = "0.3.6"
 haneul-types = { path = "../haneul-types" }
-haneul-verifier = { path = "../../crates/haneul-verifier" }
+haneul-verifier = { path = "../haneul-verifier" }
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true

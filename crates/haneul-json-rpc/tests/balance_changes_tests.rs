@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::path::Path;
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_move_build::BuildConfig;
 use haneul_sdk::HaneulClient;
 use haneul_types::messages::{TransactionData, TransactionKind};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;

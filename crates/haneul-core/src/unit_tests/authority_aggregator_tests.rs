@@ -11,7 +11,7 @@ use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use haneul_framework_build::compiled_package::BuildConfig;
+use haneul_move_build::BuildConfig;
 use haneul_types::crypto::get_key_pair_from_rng;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
 use haneul_types::crypto::{AuthoritySignature, Signer};
