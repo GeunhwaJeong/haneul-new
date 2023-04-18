@@ -7,15 +7,12 @@ use move_core_types::gas_algebra::InternalGas;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
-use std::path::Path;
-use haneul_framework_build::compiled_package::{BuildConfig, CompiledPackage};
 use haneul_types::base_types::ObjectRef;
 use haneul_types::storage::ObjectStore;
 use haneul_types::DEEPBOOK_OBJECT_ID;
 use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
-    error::HaneulResult,
     move_package::MovePackage,
     object::{Object, OBJECT_START_VERSION},
     MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_PACKAGE_ID,
@@ -152,19 +149,6 @@ pub const DEFAULT_FRAMEWORK_PATH: &str = env!("CARGO_MANIFEST_DIR");
 
 pub fn legacy_test_cost() -> InternalGas {
     InternalGas::new(0)
-}
-
-/// Wrapper of the build command that verifies the framework version. Should eventually be removed once we can
-/// do this in the obvious way (via version checks)
-pub fn build_move_package(path: &Path, config: BuildConfig) -> HaneulResult<CompiledPackage> {
-    //let test_mode = config.config.test_mode;
-    let pkg = config.build(path.to_path_buf())?;
-    /*if test_mode {
-        pkg.verify_framework_version(get_haneul_framework_test(), get_move_stdlib_test())?;
-    } else {
-        pkg.verify_framework_version(get_haneul_framework(), get_move_stdlib())?;
-    }*/
-    Ok(pkg)
 }
 
 /// Check whether the framework defined by `modules` is compatible with the framework that is

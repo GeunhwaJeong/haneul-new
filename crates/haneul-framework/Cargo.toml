@@ -19,7 +19,6 @@ tracing = "0.1.36"
 fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true
 
-haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-types = { path = "../haneul-types" }
 
 move-binary-format.workspace = true

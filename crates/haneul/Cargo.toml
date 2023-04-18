@@ -30,7 +30,6 @@ inquire = "0.6.0"
 
 haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
-haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }
 haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-config = { path = "../haneul-config" }
@@ -80,6 +79,7 @@ expect-test = "1.4.0"
 move-binary-format.workspace = true
 move-package.workspace = true
 haneul-core = { path = "../haneul-core" }
+haneul-framework = { path = "../haneul-framework" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-node = { path = "../haneul-node" }
 haneul-macros = { path = "../haneul-macros" }

@@ -9,7 +9,6 @@ publish = false
 
 [dev-dependencies]
 haneul-move = { path = "../haneul-move", features = ["unit_test"] }
-haneul-framework = { path = "../haneul-framework" }
 haneul-framework-build = { path = "../haneul-framework-build" }
 
 move-cli.workspace = true

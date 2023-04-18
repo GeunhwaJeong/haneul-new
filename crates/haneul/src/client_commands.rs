@@ -25,7 +25,6 @@ use prettytable::Table;
 use prettytable::{row, table};
 use serde::Serialize;
 use serde_json::{json, Value};
-use haneul_framework::build_move_package;
 use haneul_move::build::resolve_lock_file_path;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 use haneul_types::digests::TransactionDigest;
@@ -1123,15 +1122,12 @@ impl HaneulClientCommands {
 
                 let build_config =
                     resolve_lock_file_path(build_config, Some(package_path.clone()))?;
-
-                let compiled_package = build_move_package(
-                    &package_path,
-                    BuildConfig {
-                        config: build_config,
-                        run_bytecode_verifier: true,
-                        print_diags_to_stderr: true,
-                    },
-                )?;
+                let compiled_package = BuildConfig {
+                    config: build_config,
+                    run_bytecode_verifier: true,
+                    print_diags_to_stderr: true,
+                }
+                .build(package_path)?;
 
                 let client = context.get_client().await?;
 
