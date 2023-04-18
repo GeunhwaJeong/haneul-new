@@ -27,7 +27,7 @@ function TransactionContent({
 }) {
     return (
         <>
-            <div className="text-heading6 font-semibold text-steel-darker">
+            <div className="break-all text-heading6 font-semibold text-steel-darker">
                 {type}
             </div>
             {children && (
@@ -45,7 +45,9 @@ function ArrayArgument({
 }: TransactionProps<(HaneulArgument | HaneulArgument[])[] | undefined>) {
     return (
         <TransactionContent type={type}>
-            {data && <>({flattenHaneulArguments(data)})</>}
+            {data && (
+                <span className="break-all">({flattenHaneulArguments(data)})</span>
+            )}
         </TransactionContent>
     );
 }
@@ -65,9 +67,16 @@ function MoveCall({ type, data }: TransactionProps<MoveCallHaneulTransaction>) {
                 objectId={`${movePackage}?module=${module}`}
                 label={`'${module}'`}
             />
-            , function: <span className="text-haneul-dark">{func}</span>
-            {args && <>, arguments: [{flattenHaneulArguments(args!)}]</>}
-            {typeArgs && <>, type_arguments: {typeArgs}</>})
+            , function: <span className="break-all text-haneul-dark">{func}</span>
+            {args && (
+                <span className="break-all">
+                    , arguments: [{flattenHaneulArguments(args!)}]
+                </span>
+            )}
+            {typeArgs && (
+                <span className="break-all">, type_arguments: {typeArgs}</span>
+            )}
+            )
         </TransactionContent>
     );
 }
