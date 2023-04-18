@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeature } from '@growthbook/growthbook-react';
+import { ArrowUpRight16 } from '@haneullabs/icons';
 import cl from 'classnames';
 import { useMemo } from 'react';
 
@@ -10,6 +11,8 @@ import { permissionsSelectors } from '../../redux/slices/permissions';
 import { HaneulApp, type DAppEntry } from './HaneulApp';
 import { HaneulAppEmpty } from './HaneulAppEmpty';
 import { Button } from '_app/shared/ButtonUI';
+import { Heading } from '_app/shared/heading';
+import { Text } from '_app/shared/text';
 import { ExplorerLinkType } from '_components/explorer-link/ExplorerLinkType';
 import { useAppSelector } from '_hooks';
 import { FEATURES } from '_src/shared/experimentation/features';
@@ -41,28 +44,36 @@ function AppsPlayGround() {
     });
     return (
         <div className={cl(st.container)}>
-            <h4 className={st.activeSectionTitle}>Playground</h4>
-            <div className={st.groupButtons}>
+            <div className="flex justify-center">
+                <Heading variant="heading6" color="gray-90" weight="semibold">
+                    Playground
+                </Heading>
+            </div>
+            <div className="my-4">
                 <Button
-                    size="tall"
                     variant="outline"
                     href={accountOnExplorerHref!}
-                    text="View account on Haneul Explorer"
+                    text={
+                        <div className="flex gap-1">
+                            View your account on Haneul Explorer <ArrowUpRight16 />
+                        </div>
+                    }
                     onClick={() => {
                         trackEvent('ViewExplorerAccount');
                     }}
                 />
             </div>
-            <div className={st.desc}>
-                <div className={st.title}>Builders in haneul ecosystem</div>
-                {ecosystemApps?.length ? (
-                    <>
-                        Apps here are actively curated but do not indicate any
+
+            {ecosystemApps?.length ? (
+                <div className="p-4 bg-gray-40 rounded-xl">
+                    <Text variant="pBodySmall" color="gray-75" weight="normal">
+                        Apps below are actively curated but do not indicate any
                         endorsement or relationship with Haneul Wallet. Please
                         DYOR.
-                    </>
-                ) : null}
-            </div>
+                    </Text>
+                </div>
+            ) : null}
+
             {ecosystemApps?.length ? (
                 <div className={st.apps}>
                     {ecosystemApps.map((app) => (
