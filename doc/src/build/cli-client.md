@@ -46,7 +46,7 @@ Use `haneul client -h` to see a list of supported commands.
 
 Use `haneul help <command>` to see more information on each command.
 
-You can start the client in two modes: interactive shell or command line interface [Configure Haneul client](../build/devnet.md#configure-haneul-client).
+You can start the client in two modes: interactive shell or command line interface [Configure Haneul client](../build/connect-haneul-network.md#configure-haneul-client).
 
 ### Interactive shell
 

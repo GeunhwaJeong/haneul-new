@@ -12,7 +12,7 @@ Follow the instructions to [install Haneul binaries](install.md#install-haneul-b
 
 ## Connect to a Haneul network
 
-You can connect to a Haneul Full node on a Haneul network. Follow the guidance in the [Connect to Haneul Devnet](../build/devnet.md) topic to start making RPC calls to the Haneul network.
+You can connect to a Haneul Full node on a Haneul network. Follow the guidance in the [Connect to a Haneul Network](../build/connect-haneul-network.md) topic to start making RPC calls to the Haneul network.
 
 To configure your own Haneul Full node, see [Configure a Haneul Full node](fullnode.md).
 

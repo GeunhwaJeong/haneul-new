@@ -141,7 +141,7 @@
 			},
 			{
 				"label": "Connect to a Haneul Network",
-				"fileName": "build/devnet"
+				"fileName": "build/connect-haneul-network"
 			},
 			{
 				"label": "Haneul Client CLI",

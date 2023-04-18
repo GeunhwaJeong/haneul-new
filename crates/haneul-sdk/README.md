@@ -8,7 +8,7 @@ This directory contains examples of interacting with a Move language smart contr
 
 #### 1. Prepare the environment 
    1. Install `haneul` binary following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md##install-haneul-binaries) docs.
-   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/devnet.md).
+   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/connect-haneul-network.md).
    1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/cli-client.md#add-existing-accounts-to-clientyaml) by using the `new-address` command to create new addresses:
       ```shell
       haneul client new-address ed25519

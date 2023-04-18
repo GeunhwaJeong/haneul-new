@@ -10,7 +10,7 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 | :------ | :------- |
 | Numerous topics. | Updates to reflect the changes included in Haneul releases .28 and .29. |
 | [Haneul Local Network](../build/haneul-local-network.md) | Updated installation instructions to include the haneul-test-validator, which lets you use a local faucet, wallet, and explorer on your local network. |
-| [Connect to a Haneul Network](../build/devnet.md) | Updated the topic to include instructions for connecting to Haneul Testnet. Topic title changed from "Connect to Haneul Devnet". |
+| [Connect to a Haneul Network](../build/connect-haneul-network.md) | Updated the topic to include instructions for connecting to Haneul Testnet. Topic title changed from "Connect to Haneul Devnet". |
 | [Haneul Full Node](../build/fullnode.md) | Updated to include instructions for using Haneul Indexer. |
 | [Haneul Object Display Standard](../build/haneul-object-display.md) | New topic about using the Haneul Object Display standard. |
 | [Haneul Programmable Transaction Blocks](../build/prog-trans-ts-sdk.md) | New topic about how to use the new Programmable Transaction blocks. |
@@ -57,7 +57,7 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 | :------ | :------- |
 | [Explore Haneul](../explore/index.md) | Added [Haneul Capys](https://docs.haneul.io/) and [Satoshi Flip](https://satoshi-flip.haneul.io/) apps. |
 | [Event API](../build/event_api.md) | [Copyedit and reformat for readability](https://github.com/GeunhwaJeong/haneul/pull/6718). |
-| [Connect to Devnet](../build/devnet.md) | [Copyedit and updates for style consistency](https://github.com/GeunhwaJeong/haneul/pull/6715/files#diff-33791b72aa9e90e09f1b9f85972b29b605e388dff5130b2cdd9417a6946c8012).
+| [Connect to a Haneul Network](../build/connect-haneul-network.md) | [Copyedit and updates for style consistency](https://github.com/GeunhwaJeong/haneul/pull/6715/files#diff-33791b72aa9e90e09f1b9f85972b29b605e388dff5130b2cdd9417a6946c8012).
 | Multiple | Removed $ from example commands. Changed style for keyboard key names to use **bold** instead of `code` format. |
 
 
