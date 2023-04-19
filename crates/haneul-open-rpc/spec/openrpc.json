@@ -1298,7 +1298,6 @@
       ],
       "result": {
         "name": "HaneulCoinMetadata",
-        "required": true,
         "schema": {
           "$ref": "#/components/schemas/HaneulCoinMetadata"
         }

@@ -353,7 +353,10 @@ impl CoinReadApi {
         Ok(self.api.http.get_all_balances(owner).await?)
     }
 
-    pub async fn get_coin_metadata(&self, coin_type: String) -> HaneulRpcResult<HaneulCoinMetadata> {
+    pub async fn get_coin_metadata(
+        &self,
+        coin_type: String,
+    ) -> HaneulRpcResult<Option<HaneulCoinMetadata>> {
         Ok(self.api.http.get_coin_metadata(coin_type).await?)
     }
 
