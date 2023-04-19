@@ -3,14 +3,14 @@
 
 use crate::{
     db_tool::{execute_db_tool_command, print_db_all_tables, DbToolCommand},
-    get_object, get_transaction_block, make_clients,
-    replay::{execute_replay_command, ReplayToolCommand},
-    restore_from_db_checkpoint, ConciseObjectOutput, GroupedObjectOutput, VerboseObjectOutput,
+    get_object, get_transaction_block, make_clients, restore_from_db_checkpoint,
+    ConciseObjectOutput, GroupedObjectOutput, VerboseObjectOutput,
 };
 use anyhow::Result;
 use std::path::PathBuf;
 use haneul_config::genesis::Genesis;
 use haneul_core::authority_client::AuthorityAPI;
+use haneul_replay::{execute_replay_command, ReplayToolCommand};
 
 use haneul_types::{base_types::*, object::Owner};
 
