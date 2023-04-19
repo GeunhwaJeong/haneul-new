@@ -14,7 +14,7 @@ use move_core_types::{
 };
 use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use move_vm_types::loaded_data::runtime_types::Type;
-use haneul_framework::natives::object_runtime::{max_event_error, ObjectRuntime, RuntimeResults};
+use haneul_move_natives::object_runtime::{max_event_error, ObjectRuntime, RuntimeResults};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     balance::Balance,

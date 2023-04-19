@@ -8,58 +8,55 @@ edition = "2021"
 
 [dependencies]
 anyhow = { version = "1.0.64", features = ["backtrace"] }
-tokio = { workspace = true, features = ["full"] }
-tracing = "0.1.36"
 clap = { version = "3.2.17", features = ["derive"] }
+colored = "2.0.0"
+const-str = "0.5.3"
+git-version = "0.3.5"
+once_cell = { version = "1.16", optional = true }
 serde_json = "1.0.88"
 serde_yaml = "0.8.26"
-git-version = "0.3.5"
-const-str = "0.5.3"
-once_cell = { version = "1.16", optional = true }
-
-haneul-core = { path = "../haneul-core", optional = true }
-haneul-framework = { path = "../haneul-framework" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-types = { path = "../haneul-types" }
-haneul-cost-tables = { path = "../haneul-cost-tables" }
+tracing = "0.1.36"
 
 fastcrypto.workspace = true
-colored = "2.0.0"
-
-telemetry-subscribers.workspace = true
-
 move-binary-format.workspace = true
+move-cli.workspace = true
 move-disassembler.workspace = true
 move-ir-types.workspace = true
-move-prover.workspace = true
+move-package.workspace = true
 move-prover-boogie-backend.workspace = true
+move-prover.workspace = true
 move-unit-test.workspace = true
 move-vm-runtime.workspace = true
 move-vm-test-utils.workspace = true
-move-cli.workspace = true
-move-package.workspace = true
+telemetry-subscribers.workspace = true
+tokio = { workspace = true, features = ["full"] }
+
+haneul-core = { path = "../haneul-core", optional = true }
+haneul-cost-tables = { path = "../haneul-cost-tables" }
+haneul-move-build = { path = "../haneul-move-build" }
+haneul-move-natives = { path = "../haneul-move-natives" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-types = { path = "../haneul-types" }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemalloc-ctl = "^0.5"
 
 [dev-dependencies]
-tempfile = "3.3.0"
-futures = "0.3.23"
-prometheus = "0.13.3"
-
-jsonrpsee = { version = "0.16.2", features = ["jsonrpsee-core"] }
-
-test-utils = { path = "../test-utils" }
-rand = "0.8.5"
-move-package.workspace = true
-haneul-core = { path = "../haneul-core" }
-haneul-node = { path = "../haneul-node" }
-haneul-macros = { path = "../haneul-macros" }
-haneul-simulator = { path = "../haneul-simulator" }
-haneullabs-metrics = { path = "../haneullabs-metrics" }
-
 assert_cmd = "2.0.6"
+futures = "0.3.23"
+jsonrpsee = { version = "0.16.2", features = ["jsonrpsee-core"] }
+prometheus = "0.13.3"
+rand = "0.8.5"
+tempfile = "3.3.0"
+
+move-package.workspace = true
+
+haneullabs-metrics = { path = "../haneullabs-metrics" }
+haneul-core = { path = "../haneul-core" }
+haneul-macros = { path = "../haneul-macros" }
+haneul-node = { path = "../haneul-node" }
+haneul-simulator = { path = "../haneul-simulator" }
+test-utils = { path = "../test-utils" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemalloc-ctl"]

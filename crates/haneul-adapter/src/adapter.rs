@@ -32,7 +32,7 @@ use crate::{
     execution_mode::ExecutionMode,
     programmable_transactions::execution::{bcs_argument_validate, PrimitiveArgumentLayout},
 };
-use haneul_framework::natives::{object_runtime::ObjectRuntime, NativesCostTable};
+use haneul_move_natives::{object_runtime::ObjectRuntime, NativesCostTable};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::*,

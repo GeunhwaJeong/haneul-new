@@ -7,34 +7,48 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anemo.workspace = true
 anyhow = { version = "1.0.64", features = ["backtrace"] }
-tokio = { workspace = true, features = ["full"] }
+bcs = "0.1.4"
 clap = { version = "4.1.4", features = ["derive"] }
-
-itertools = { version = "0.10.3", features = ["use_alloc"] }
-futures = "0.3.23"
-rocksdb = "0.20.1"
-tempfile = "3.3.0"
-strum_macros = "^0.24"
-strum = "0.24.1"
-eyre = "0.6.8"
-ron = "0.8.0"
+colored = "2.0.0"
 comfy-table = "6.1.3"
+eyre = "0.6.8"
+futures = "0.3.23"
 hex = "0.4.3"
-
-narwhal-types = { path = "../../narwhal/types" }
-haneul-storage = { path = "../haneul-storage" }
-haneul-core = { path = "../haneul-core" }
-haneul-config = { path = "../haneul-config" }
-haneul-types = { path = "../haneul-types" }
-haneul-network = { path = "../haneul-network" }
-haneul-replay = { path = "../haneul-replay" }
-
+itertools = { version = "0.10.3", features = ["use_alloc"] }
+rocksdb = "0.20.1"
+ron = "0.8.0"
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.88"
+similar = "2.2.0"
+strum = "0.24.1"
+strum_macros = "^0.24"
+tempfile = "3.3.0"
+thiserror = "1.0.34"
+tracing = "0.1.36"
 
 anemo-cli.workspace = true
+anemo.workspace = true
+move-binary-format.workspace = true
+move-bytecode-utils.workspace = true
+move-core-types.workspace = true
+move-package.workspace = true
 telemetry-subscribers.workspace = true
+tokio = { workspace = true, features = ["full"] }
 typed-store.workspace = true
 
-colored = "2.0.0"
+narwhal-types = { path = "../../narwhal/types" }
+haneul-adapter = { path = "../haneul-adapter" }
+haneul-config = { path = "../haneul-config" }
+haneul-core = { path = "../haneul-core" }
+haneul-framework = { path = "../haneul-framework" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
+haneul-network = { path = "../haneul-network" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-replay = { path = "../haneul-replay" }
+haneul-sdk = { path = "../haneul-sdk" }
+haneul-storage = { path = "../haneul-storage" }
+haneul-types = { path = "../haneul-types" }
+
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

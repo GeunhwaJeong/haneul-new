@@ -254,7 +254,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
 
         let mut named_address_mapping = NAMED_ADDRESSES.clone();
 
-        let native_functions = haneul_framework::natives::all_natives(/* silent */ false);
+        let native_functions = haneul_move_natives::all_natives(/* silent */ false);
         let mut objects = clone_genesis_packages();
         objects.extend(clone_genesis_objects());
         let mut account_objects = BTreeMap::new();

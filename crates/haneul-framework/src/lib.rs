@@ -19,8 +19,6 @@ use haneul_types::{
 };
 use tracing::error;
 
-pub mod natives;
-
 /// Represents a system package in the framework, that's built from the source code inside
 /// haneul-framework.
 #[derive(Clone, Serialize, PartialEq, Eq, Deserialize)]

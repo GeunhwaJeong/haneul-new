@@ -86,6 +86,7 @@ members = [
     "crates/haneul-macros",
     "crates/haneul-move",
     "crates/haneul-move-build",
+    "crates/haneul-move-natives",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-open-rpc",
