@@ -22,7 +22,8 @@ use haneul_core::authority::TemporaryStore;
 use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_types::{
     EventFilter, HaneulEvent, HaneulGetPastObjectRequest, HaneulObjectData, HaneulObjectDataOptions,
-    HaneulObjectRef, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockResponseOptions,
+    HaneulObjectRef, HaneulPastObjectResponse, HaneulTransactionBlockEffectsV1,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{
     HaneulObjectResponse, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
@@ -42,7 +43,7 @@ use haneul_types::storage::get_module_by_id;
 use haneul_types::storage::{BackingPackageStore, ChildObjectResolver, ObjectStore, ParentSync};
 use haneul_types::DEEPBOOK_OBJECT_ID;
 use thiserror::Error;
-use tracing::{error, info};
+use tracing::{error, warn};
 
 // TODO: add persistent cache. But perf is good enough already.
 // TODO: handle safe mode
@@ -107,6 +108,24 @@ pub enum LocalExecError {
     #[error("ObjectNotExist: {:#?}", id)]
     ObjectNotExist { id: ObjectID },
 
+    #[error("ObjectVersionNotFound: {:#?} version {}", id, version)]
+    ObjectVersionNotFound {
+        id: ObjectID,
+        version: SequenceNumber,
+    },
+
+    #[error(
+        "ObjectVersionTooHigh: {:#?}, requested version {}, latest version found {}",
+        id,
+        asked_version,
+        latest_version
+    )]
+    ObjectVersionTooHigh {
+        id: ObjectID,
+        asked_version: SequenceNumber,
+        latest_version: SequenceNumber,
+    },
+
     #[error(
         "ObjectDeleted: {:#?} at version {:#?} digest {:#?}",
         id,
@@ -130,6 +149,9 @@ pub enum LocalExecError {
         on_chain: Box<HaneulTransactionBlockEffectsV1>,
         local: Box<HaneulTransactionBlockEffectsV1>,
     },
+
+    #[error("Genesis replay not supported digest {:#?}", digest)]
+    GenesisReplayNotSupported { digest: TransactionDigest },
 }
 
 impl From<HaneulObjectResponseError> for LocalExecError {
@@ -149,6 +171,30 @@ impl From<HaneulObjectResponseError> for LocalExecError {
             },
             _ => LocalExecError::HaneulObjectResponseError { err },
         }
+    }
+}
+
+fn convert_past_obj_response(resp: HaneulPastObjectResponse) -> Result<Object, LocalExecError> {
+    match resp {
+        HaneulPastObjectResponse::VersionFound(o) => obj_from_haneul_obj_data(&o),
+        HaneulPastObjectResponse::ObjectDeleted(r) => Err(LocalExecError::ObjectDeleted {
+            id: r.object_id,
+            version: r.version,
+            digest: r.digest,
+        }),
+        HaneulPastObjectResponse::ObjectNotExists(id) => Err(LocalExecError::ObjectNotExist { id }),
+        HaneulPastObjectResponse::VersionNotFound(id, version) => {
+            Err(LocalExecError::ObjectVersionNotFound { id, version })
+        }
+        HaneulPastObjectResponse::VersionTooHigh {
+            object_id,
+            asked_version,
+            latest_version,
+        } => Err(LocalExecError::ObjectVersionTooHigh {
+            id: object_id,
+            asked_version,
+            latest_version,
+        }),
     }
 }
 
@@ -249,14 +295,7 @@ impl LocalExec {
 
         let objects: Vec<_> = objects
             .iter()
-            .map(|o| match o {
-                haneul_json_rpc_types::HaneulPastObjectResponse::VersionFound(o) => {
-                    obj_from_haneul_obj_data(o)
-                }
-                e => Err(LocalExecError::GeneralError {
-                    err: format!("Obj deleted {:#?} ", e),
-                }),
-            })
+            .map(|o| convert_past_obj_response(o.clone()))
             .collect::<Result<Vec<_>, _>>()?;
         Ok(objects)
     }
@@ -374,13 +413,7 @@ impl LocalExec {
         })
         .map_err(|q| LocalExecError::HaneulRpcError { err: q.to_string() })?;
 
-        let o = match object {
-            haneul_json_rpc_types::HaneulPastObjectResponse::VersionFound(o) => obj_from_haneul_obj_data(&o),
-
-            e => Err(LocalExecError::GeneralError {
-                err: format!("Obj deleted {:#?} ", e),
-            }),
-        }?;
+        let o = convert_past_obj_response(object)?;
         let o_ref = o.compute_object_reference();
         self.object_version_cache
             .lock()
@@ -396,7 +429,7 @@ impl LocalExec {
         object_id: &ObjectID,
     ) -> Result<Option<Object>, LocalExecError> {
         block_on({
-            info!("Downloading latest object {object_id}");
+            //info!("Downloading latest object {object_id}");
             self.download_latest_object_impl(object_id)
         })
     }
@@ -460,7 +493,7 @@ impl LocalExec {
         &mut self,
         tx_digest: &TransactionDigest,
         expensive_safety_check_config: ExpensiveSafetyCheckConfig,
-    ) -> Result<Vec<TransactionDigest>, LocalExecError> {
+    ) -> Result<HaneulTransactionBlockEffectsV1, LocalExecError> {
         let tx_info = self.resolve_tx_components(tx_digest).await?;
 
         // We need this for other activities in this session
@@ -468,7 +501,7 @@ impl LocalExec {
         // A lot of the logic here isnt designed for genesis
         if tx_info.sender == HaneulAddress::ZERO {
             // Genesis.
-            return Ok(vec![]);
+            return Err(LocalExecError::GenesisReplayNotSupported { digest: *tx_digest });
         }
 
         // Download the objects at the version right before the execution of this TX
@@ -540,7 +573,7 @@ impl LocalExec {
             });
         }
 
-        Ok(new_effects.dependencies)
+        Ok(new_effects)
     }
 
     fn system_package_ids(&self) -> Vec<ObjectID> {
@@ -764,17 +797,40 @@ impl LocalExec {
                 .collect();
             system_package_objs = match self.multi_download(&previous_ver_refs).await {
                 Ok(packages) => packages,
-                Err(e) => {
-                    if e.to_string().contains("Obj deleted") {
-                        // This happens when the RPC server prunes older object
-                        // Replays in the current protocol version will work but old ones might not
-                        // as we cannot fetch the package
-                        error!("Object deleted from RPC server. This might be due to pruning: {:#?}. Historical replays might not work", e);
-                        break;
-                    } else {
-                        return Err(e);
-                    }
+                Err(LocalExecError::ObjectNotExist { id }) => {
+                    // This happens when the RPC server prunes older object
+                    // Replays in the current protocol version will work but old ones might not
+                    // as we cannot fetch the package
+                    warn!("Object {} does not exist on RPC server. This might be due to pruning. Historical replays might not work", id);
+                    break;
                 }
+                Err(LocalExecError::ObjectVersionNotFound { id, version }) => {
+                    // This happens when the RPC server prunes older object
+                    // Replays in the current protocol version will work but old ones might not
+                    // as we cannot fetch the package
+                    warn!("Object {} at version {} does not exist on RPC server. This might be due to pruning. Historical replays might not work", id, version);
+                    break;
+                }
+                Err(LocalExecError::ObjectVersionTooHigh {
+                    id,
+                    asked_version,
+                    latest_version,
+                }) => {
+                    warn!("Object {} at version {} does not exist on RPC server. Latest version is {}. This might be due to pruning. Historical replays might not work", id, asked_version,latest_version );
+                    break;
+                }
+                Err(LocalExecError::ObjectDeleted {
+                    id,
+                    version,
+                    digest,
+                }) => {
+                    // This happens when the RPC server prunes older object
+                    // Replays in the current protocol version will work but old ones might not
+                    // as we cannot fetch the package
+                    warn!("Object {} at version {} digest {} deleted from RPC server. This might be due to pruning. Historical replays might not work", id, version, digest);
+                    break;
+                }
+                Err(e) => return Err(e),
             };
         }
         Ok(mapping)
