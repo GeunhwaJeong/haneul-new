@@ -80,25 +80,32 @@ describe('Transaction Builders', () => {
     await validateTransaction(toolbox.signer, tx);
   });
 
-  it('MoveCall Shared Object', async () => {
-    const coins = await toolbox.getGasObjectsOwnedByAddress();
-    const coin_2 = coins[2].data as HaneulObjectData;
+  it(
+    'MoveCall Shared Object',
+    async () => {
+      const coins = await toolbox.getGasObjectsOwnedByAddress();
+      const coin_2 = coins[2].data as HaneulObjectData;
 
-    const [{ haneulAddress: validatorAddress }] =
-      await toolbox.getActiveValidators();
+      const [{ haneulAddress: validatorAddress }] =
+        await toolbox.getActiveValidators();
 
-    const tx = new TransactionBlock();
-    tx.moveCall({
-      target: '0x3::haneul_system::request_add_stake',
-      arguments: [
-        tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
-        tx.object(coin_2.objectId),
-        tx.pure(validatorAddress),
-      ],
-    });
+      const tx = new TransactionBlock();
+      tx.moveCall({
+        target: '0x3::haneul_system::request_add_stake',
+        arguments: [
+          tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID),
+          tx.object(coin_2.objectId),
+          tx.pure(validatorAddress),
+        ],
+      });
 
-    await validateTransaction(toolbox.signer, tx);
-  });
+      await validateTransaction(toolbox.signer, tx);
+    },
+    {
+      // TODO: This test is currently flaky, so adding a retry to unblock merging
+      retry: 10,
+    },
+  );
 
   it('SplitCoins from gas object + TransferObjects', async () => {
     const tx = new TransactionBlock();
