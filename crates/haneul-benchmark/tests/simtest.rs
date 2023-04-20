@@ -3,7 +3,6 @@
 
 #[cfg(msim)]
 mod test {
-    use fastcrypto::ed25519::Ed25519KeyPair;
     use move_core_types::language_storage::StructTag;
     use rand::{distributions::uniform::SampleRange, thread_rng, Rng};
     use std::path::PathBuf;
@@ -26,18 +25,12 @@ mod test {
     use haneul_core::authority::framework_injection;
     use haneul_core::checkpoints::CheckpointStore;
     use haneul_framework::BuiltInFramework;
-    use haneul_json_rpc_types::HaneulExecutionStatus;
-    use haneul_json_rpc_types::HaneulObjectDataOptions;
-    use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
     use haneul_macros::{register_fail_point_async, register_fail_points, sim_test};
     use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_types::base_types::{ObjectRef, HaneulAddress};
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
-    use haneul_types::DEEPBOOK_OBJECT_ID;
-    use test_utils::messages::{
-        create_publish_move_package_transaction, get_haneul_gas_object_with_wallet_context,
-    };
+    use test_utils::messages::get_haneul_gas_object_with_wallet_context;
     use test_utils::network::{TestCluster, TestClusterBuilder};
     use tracing::{error, info};
     use typed_store::traits::Map;
@@ -327,44 +320,10 @@ mod test {
                 }
                 info!("Framework injected");
                 test_cluster
-                    .upgrade_protocol(SupportedProtocolVersions::new_for_testing(
-                        min_ver,
-                        next_version,
-                    ))
-                    .await;
-                // TODO: move these DeepBook-specific checks into their own test or remove them
-                // make sure we can read the DeepBook package
-                assert!(test_cluster
-                    .haneul_client()
-                    .read_api()
-                    .get_object_with_options(
-                        DEEPBOOK_OBJECT_ID,
-                        HaneulObjectDataOptions::default().with_type()
+                    .update_validator_supported_versions(
+                        SupportedProtocolVersions::new_for_testing(min_ver, next_version),
                     )
-                    .await
-                    .unwrap()
-                    .data
-                    .unwrap()
-                    .type_
-                    .unwrap()
-                    .is_package());
-
-                let keypair = test_init_data.keypair();
-                let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-                path.push("tests/data/deepbook_client");
-                let tx = create_publish_move_package_transaction(
-                    test_init_data.all_gas[1].1,
-                    path,
-                    test_init_data.sender,
-                    &keypair,
-                    1_000_000_000,
-                    1000,
-                );
-                let response = test_cluster.execute_transaction(tx).await.unwrap();
-                assert_eq!(
-                    *response.effects.unwrap().status(),
-                    HaneulExecutionStatus::Success
-                );
+                    .await;
             }
             finished_clone.store(true, Ordering::SeqCst);
         });
@@ -424,13 +383,6 @@ mod test {
                     .await,
                 sender,
             }
-        }
-
-        pub fn keypair(&self) -> Arc<Ed25519KeyPair> {
-            Arc::new(
-                get_ed25519_keypair_from_keystore(self.keystore_path.clone(), &self.sender)
-                    .unwrap(),
-            )
         }
     }
 
