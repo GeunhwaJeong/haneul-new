@@ -17,6 +17,7 @@ use haneul_config::genesis::Genesis;
 use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
 };
+use haneul_config::transaction_deny_config::TransactionDenyConfig;
 use haneul_macros::nondeterministic;
 use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_storage::IndexStore;
@@ -29,6 +30,7 @@ use haneul_types::object::Object;
 pub struct TestAuthorityBuilder {
     // TODO: Add more configurable fields.
     store_base_path: PathBuf,
+    transaction_deny_config: TransactionDenyConfig,
 }
 
 impl Default for TestAuthorityBuilder {
@@ -36,7 +38,10 @@ impl Default for TestAuthorityBuilder {
         let dir = std::env::temp_dir();
         let store_base_path = dir.join(format!("DB_{:?}", nondeterministic!(ObjectID::random())));
         std::fs::create_dir(&store_base_path).unwrap();
-        Self { store_base_path }
+        Self {
+            store_base_path,
+            transaction_deny_config: TransactionDenyConfig::default(),
+        }
     }
 }
 
@@ -47,6 +52,11 @@ impl TestAuthorityBuilder {
 
     pub fn with_store_base_path(mut self, path: PathBuf) -> Self {
         self.store_base_path = path;
+        self
+    }
+
+    pub fn with_transaction_deny_config(mut self, config: TransactionDenyConfig) -> Self {
+        self.transaction_deny_config = config;
         self
     }
 
@@ -135,6 +145,7 @@ impl TestAuthorityBuilder {
             genesis_objects,
             &DBCheckpointConfig::default(),
             ExpensiveSafetyCheckConfig::new_enable_all(),
+            self.transaction_deny_config,
         )
         .await
     }
