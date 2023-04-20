@@ -15,7 +15,6 @@ use haneul_config::genesis::Genesis;
 use haneul_types::messages::TransactionEvents;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
-    committee::Committee,
     crypto::AuthorityKeyPair,
     error::HaneulError,
     messages::{
@@ -114,9 +113,10 @@ impl AuthorityAPI for LocalAuthorityClient {
 }
 
 impl LocalAuthorityClient {
-    pub async fn new(committee: Committee, secret: AuthorityKeyPair, genesis: &Genesis) -> Self {
+    pub async fn new(secret: AuthorityKeyPair, genesis: &Genesis) -> Self {
         let state = TestAuthorityBuilder::new()
-            .build(committee, &secret, genesis)
+            .with_genesis_and_keypair(genesis, &secret)
+            .build()
             .await;
         Self {
             state,
