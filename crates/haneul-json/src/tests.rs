@@ -12,17 +12,19 @@ use move_core_types::{
     account_address::AccountAddress, ident_str, identifier::Identifier, value::MoveTypeLayout,
 };
 use serde_json::{json, Value};
-use haneul_framework::BuiltInFramework;
-use haneul_move_build::BuildConfig;
 use test_fuzz::runtime::num_traits::ToPrimitive;
 
-use crate::ResolvedCallArg;
+use haneul_framework::BuiltInFramework;
+use haneul_move_build::BuildConfig;
 use haneul_types::base_types::{
     ObjectID, HaneulAddress, TransactionDigest, STD_ASCII_MODULE_NAME, STD_ASCII_STRUCT_NAME,
     STD_OPTION_MODULE_NAME, STD_OPTION_STRUCT_NAME,
 };
+use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Object;
 use haneul_types::MOVE_STDLIB_ADDRESS;
+
+use crate::ResolvedCallArg;
 
 use super::{check_valid_homogeneous, HEX_PREFIX};
 use super::{resolve_move_function_args, HaneulJsonValue};
@@ -80,6 +82,15 @@ fn test_json_is_homogeneous() {
     for arg in checks {
         assert!(check_valid_homogeneous(&arg).is_ok());
     }
+}
+
+#[test]
+fn test_json_struct_homogeneous() {
+    let positive = json!({"inner_vec":[1, 2, 3, 4, 5, 6, 7]});
+    assert!(HaneulJsonValue::new(positive).is_ok());
+
+    let negative = json!({"inner_vec":[1, 2, 3, true, 5, 6, 7]});
+    assert!(HaneulJsonValue::new(negative).is_err());
 }
 
 #[test]
@@ -859,4 +870,22 @@ fn test_haneul_call_arg_option_type() {
 
     let s = HaneulJsonValue::from_str("[test, test2]").unwrap();
     println!("{s:?}");
+}
+
+#[test]
+fn test_convert_struct() {
+    let layout = MoveTypeLayout::Struct(GasCoin::layout());
+
+    let value = json!({"id":"0xf1416fe18c7baa1673187375777a7606708481311cb3548509ec91a5871c6b9a", "balance": "1000000"});
+    let haneul_json = HaneulJsonValue::new(value).unwrap();
+
+    let bcs = haneul_json.to_bcs_bytes(&layout).unwrap();
+
+    let coin: GasCoin = bcs::from_bytes(&bcs).unwrap();
+    assert_eq!(
+        coin.0.id.id.bytes,
+        ObjectID::from_str("0xf1416fe18c7baa1673187375777a7606708481311cb3548509ec91a5871c6b9a")
+            .unwrap()
+    );
+    assert_eq!(coin.0.balance.value(), 1000000);
 }
