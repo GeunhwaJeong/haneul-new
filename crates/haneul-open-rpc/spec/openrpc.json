@@ -1788,7 +1788,6 @@
       ],
       "result": {
         "name": "HaneulAddress",
-        "required": true,
         "schema": {
           "$ref": "#/components/schemas/HaneulAddress"
         }

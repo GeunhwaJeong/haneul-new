@@ -458,7 +458,7 @@ where
         Ok(())
     }
 
-    async fn resolve_name_service_address(&self, _name: String) -> RpcResult<HaneulAddress> {
+    async fn resolve_name_service_address(&self, _name: String) -> RpcResult<Option<HaneulAddress>> {
         // TODO(gegaowp): implement name service resolver in indexer
         todo!()
     }

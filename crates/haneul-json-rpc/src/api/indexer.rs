@@ -99,7 +99,7 @@ pub trait IndexerApi {
         &self,
         /// The name to resolve
         name: String,
-    ) -> RpcResult<HaneulAddress>;
+    ) -> RpcResult<Option<HaneulAddress>>;
 
     /// Return the resolved names given address,
     /// if multiple names are resolved, the first one is the primary name.
