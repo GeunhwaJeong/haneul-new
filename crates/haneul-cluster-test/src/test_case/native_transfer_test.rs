@@ -32,11 +32,12 @@ impl TestCaseImpl for NativeTransferTest {
     async fn run(&self, ctx: &mut TestContext) -> Result<(), anyhow::Error> {
         info!("Testing gas coin transfer");
         let mut haneul_objs = ctx.get_haneul_from_faucet(Some(1)).await;
-        let gas_obj = haneul_objs.swap_remove(0);
+        let gas_obj = ctx.get_haneul_from_faucet(Some(1)).await.swap_remove(0);
+
         let signer = ctx.get_wallet_address();
         let (recipient_addr, _): (_, AccountKeyPair) = get_key_pair();
         // Test transfer object
-        let obj_to_transfer = *haneul_objs.swap_remove(0).id();
+        let obj_to_transfer: ObjectID = *haneul_objs.swap_remove(0).id();
         let params = rpc_params![
             signer,
             obj_to_transfer,
@@ -51,11 +52,12 @@ impl TestCaseImpl for NativeTransferTest {
 
         Self::examine_response(ctx, &mut response, signer, recipient_addr, obj_to_transfer).await;
 
+        let mut haneul_objs_2 = ctx.get_haneul_from_faucet(Some(1)).await;
         // Test transfer haneul
-        let obj_to_transfer = *haneul_objs.swap_remove(0).id();
+        let obj_to_transfer_2 = *haneul_objs_2.swap_remove(0).id();
         let params = rpc_params![
             signer,
-            obj_to_transfer,
+            obj_to_transfer_2,
             (2_000_000).to_string(),
             recipient_addr,
             None::<u64>
