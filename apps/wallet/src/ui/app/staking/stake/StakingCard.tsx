@@ -323,12 +323,13 @@ function StakingCard() {
                                                 color="steel-dark"
                                                 weight="normal"
                                             >
-                                                The staked HANEUL starts earning
-                                                reward at the end of the Epoch
-                                                in which it was staked. The
-                                                rewards will become available at
-                                                the end of one full Epoch of
-                                                staking.
+                                                Staked HANEUL starts counting as
+                                                validator’s stake at the end of
+                                                the Epoch in which it was
+                                                staked. Rewards are earned
+                                                separately for each Epoch and
+                                                become available at the end of
+                                                each Epoch.
                                             </Text>
                                         </Collapse>
                                     </div>
