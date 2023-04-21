@@ -24,7 +24,7 @@ test('Apps tab', async ({ page, extensionUrl }) => {
         .click();
 
     await expect(page.getByRole('main')).toHaveText(
-        /Builders in haneul ecosystem/i
+        /Apps below are actively curated but do not indicate any endorsement or relationship with Haneul Wallet. Please DYOR./i
     );
 });
 

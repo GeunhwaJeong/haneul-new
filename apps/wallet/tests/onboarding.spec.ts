@@ -21,7 +21,7 @@ test('import wallet', async ({ page, extensionUrl }) => {
     await page.getByLabel('Create Password').fill('haneullabs');
     await page.getByLabel('Confirm Password').fill('haneullabs');
     await page.getByRole('button', { name: /Import/ }).click();
-    await page.getByRole('button', { name: /Open Haneul Wallet/ }).click();
+    await page.getByRole('link', { name: /Open Haneul Wallet/ }).click();
     await expect(page.getByTestId('coin-page')).toBeVisible();
     await expect(
         page.getByText(keypair.getPublicKey().toHaneulAddress().slice(0, 6))
