@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFormatCoin } from '@haneullabs/core';
+import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { Form } from 'formik';
 import { useMemo } from 'react';
@@ -9,7 +9,6 @@ import { useMemo } from 'react';
 import { useTransactionGasBudget, useActiveAddress } from '../../hooks';
 import { GAS_SYMBOL } from '../../redux/slices/haneul-objects/Coin';
 import { Heading } from '../../shared/heading';
-import { useGetTimeBeforeEpochNumber } from '../useGetTimeBeforeEpochNumber';
 import { createUnstakeTransaction } from './utils/transaction';
 import { Card } from '_app/shared/card';
 import { Text } from '_app/shared/text';
