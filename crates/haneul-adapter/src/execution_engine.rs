@@ -32,8 +32,11 @@ use haneul_types::messages::{
     ProgrammableTransaction, TransactionKind,
 };
 use haneul_types::storage::{ChildObjectResolver, ObjectStore, ParentSync, WriteKind};
+#[cfg(msim)]
+use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;
 use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
 use haneul_types::temporary_store::InnerTemporaryStore;
+use haneul_types::temporary_store::TemporaryStore;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     gas::HaneulGasStatus,
@@ -47,11 +50,6 @@ use haneul_types::{
     is_system_package, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
-
-use haneul_types::temporary_store::TemporaryStore;
-
-#[cfg(msim)]
-use self::advance_epoch_result_injection::maybe_modify_result;
 
 checked_arithmetic! {
 
@@ -792,31 +790,4 @@ fn setup_consensus_commit<S: BackingPackageStore + ParentSync + ChildObjectResol
     )
 }
 
-}
-
-#[cfg(msim)]
-pub mod advance_epoch_result_injection {
-    use std::cell::RefCell;
-    use haneul_types::error::{ExecutionError, ExecutionErrorKind};
-
-    thread_local! {
-        static OVERRIDE: RefCell<bool>  = RefCell::new(false);
-    }
-
-    pub fn set_override(value: bool) {
-        OVERRIDE.with(|o| *o.borrow_mut() = value);
-    }
-
-    /// This function is used to modify the result of advance_epoch transaction for testing.
-    /// If the override is set, the result will be an execution error, otherwise the original result will be returned.
-    pub fn maybe_modify_result(result: Result<(), ExecutionError>) -> Result<(), ExecutionError> {
-        if OVERRIDE.with(|o| *o.borrow()) {
-            Err::<(), ExecutionError>(ExecutionError::new(
-                ExecutionErrorKind::FunctionNotFound,
-                None,
-            ))
-        } else {
-            result
-        }
-    }
 }

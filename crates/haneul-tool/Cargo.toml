@@ -39,7 +39,6 @@ tokio = { workspace = true, features = ["full"] }
 typed-store.workspace = true
 
 narwhal-types = { path = "../../narwhal/types" }
-haneul-adapter = { path = "../haneul-adapter" }
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
 haneul-framework = { path = "../haneul-framework" }
