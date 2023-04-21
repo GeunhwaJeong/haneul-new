@@ -4,7 +4,7 @@
   "URL": "https://docs.haneul.io/",
   "baseUrl": "/",
   "favIcon": "/favicon2.png",
-  "organizationName": "Haneul Labs",
+  "organizationName": "Haneul Foundation",
   "projectName": "Dev Portal",
   "footerData": {
     "copyRight": "©2023 Copyright Haneul Foundation. All rights reserved.",
@@ -31,11 +31,6 @@
           "external": true
         },
         {
-          "title": "Medium",
-          "link": "https://medium.com/haneullabs-labs/",
-          "external": true
-        },
-        {
           "title": "GitHub",
           "link": "https://github.com/GeunhwaJeong",
           "external": true
@@ -52,8 +47,8 @@
           "arrow": true
         },
         {
-          "title": "Haneul Resources",
-          "link": "https://haneul.io/resources/",
+          "title": "Haneul Blog",
+          "link": "https://blog.haneul.io/",
           "external": true,
           "arrow": true
         },
@@ -68,12 +63,6 @@
       {
       "title": "Send Feedback",
       "listItems": [
-        {
-          "title": "Contact us (Email)",
-          "link": "mailto:doc@haneul-labs.com",
-          "external": true,
-          "arrow": true
-        },
         {
           "title": "Create an Issue (GitHub)",
           "link": "https://github.com/GeunhwaJeong/haneul/issues/new/choose",
@@ -131,14 +120,6 @@
         "name": "What's New",
         "sublist": [
           {
-            "name": "Haneul Migration Guide",
-            "url": "/doc-updates/haneul-migration-guide"
-          },
-          {
-            "name": "Haneul Breaking Changes",
-            "url": "/doc-updates/haneul-breaking-changes"
-          },
-          {
             "name": "Haneul Announcements (Discord)",
             "url": "https://discord.com/channels/916379725201563759/925109817834631189",
             "external": true            
@@ -170,8 +151,8 @@
         "name": "More About Haneul",
         "sublist": [
           {
-            "name": "Haneul Resources",
-            "url": "https://haneul.io/resources/",
+            "name": "Haneul Blog",
+            "url": "https://blog.haneul.io/",
             "external": true
           },
           {

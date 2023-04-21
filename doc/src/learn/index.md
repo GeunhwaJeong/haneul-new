@@ -22,7 +22,7 @@ Check for the latest release of Haneul, including Release Notes, on the [Haneul 
 
 ### Doc updates
 
-We list changes and updates to the documentation in the [Haneul documentation updates](../doc-updates/index.md) topic.
+See a list changes and updates to the documentation in the [Haneul documentation updates](../doc-updates/index.md) topic.
 
 See the [docs-related commit history](https://github.com/GeunhwaJeong/haneul/commits/main/doc/src) in the Haneul repo.
 

@@ -4,7 +4,7 @@ title: Programming Objects Tutorial Series
 
 Haneul is a blockchain centered on [objects](../../learn/objects.md). Once you start programming non-trivial [smart contracts](../../build/move/index.md) on Haneul, you will begin dealing with Haneul objects in the code. Haneul includes a rich, comprehensive library and testing framework to allow you to interact with objects in a safe yet flexible way.
 
-In this tutorial series, we will walk through all the powerful ways to interact with objects in [Haneul Move](../../learn/haneul-move-diffs.md). At the end, we will also explore the designs of a few (close-to-)real-world examples to demonstrate the tradeoffs of using different object types and ownership relationships.
+This tutorial series walks through all the powerful ways to interact with objects in [Haneul Move](../../learn/haneul-move-diffs.md). At the end, it also explores the designs of a few (close-to-)real-world examples to demonstrate the tradeoffs of using different object types and ownership relationships.
 
 ## Prerequisites
 

@@ -23,7 +23,7 @@ The Haneul economy has five core components:
 * The [proof-of-stake mechanism](../tokenomics/proof-of-stake.md) is used to select, incentivize, and reward honest behavior by Haneul Validators and the HANEUL owners that stake with them.
 * On-chain voting is used for governance and protocol upgrades.
 
-Throughout, we use the visual representation in the following figure to aid the discussion. 
+Throughout, use the visual representation in the following figure to aid the discussion. 
 
 ![Haneul tokenomics flow](../../../static/haneul-tokenomics-flow.png "See staking and tokenomics in Haneul")
 *Visualize staking and tokenomics in Haneul*

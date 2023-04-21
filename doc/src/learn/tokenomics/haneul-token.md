@@ -2,7 +2,7 @@
 title: The HANEUL Token
 ---
 
-Haneul’s native asset is called HANEUL and we generally use the capitalized version of HANEUL to distinguish the token from the Haneul platform.
+Haneul’s native asset is called HANEUL. The token uses the capitalized version of HANEUL to distinguish the token from the Haneul platform.
 
 The total supply of HANEUL is capped at 10,000,000,000 (i.e. ten billion tokens). A share of HANEUL’s total supply will be liquid at Mainnet launch, with the remaining tokens vesting over the coming years or distributed as future stake reward subsidies.
 

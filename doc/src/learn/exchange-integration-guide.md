@@ -9,11 +9,11 @@ This topic describes how to integrate HANEUL, the token native to the Haneul net
 The requirements to configure a HANEUL integration include:
  * A Haneul Full node. You can operate your own Haneul Full node or use a Full node from a node operator.
  * Suggested hardware requirements to run a Haneul Full node:
-    * CPU: 10 core
-    * RAM: 32 GB
-    * Storage: 2 TB SSD
+    * CPU: 10 physical cores / 20 vCPUs
+    * RAM: 128 GB
+    * Storage (SSD): 2 TB NVMe drive
 
-We recommend running Haneul Full nodes on Linux. Haneul supports the Ubuntu and Debian distributions.
+For best results, run Haneul Full nodes on Linux. Haneul supports the Ubuntu and Debian distributions. You can also fun a Full node on macOS.
 
 ## Configure a Haneul Full node
 

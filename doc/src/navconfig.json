@@ -1,10 +1,7 @@
 {
 	"sideMenu": {
 		"title": "QUICK LINKS",
-		"items": [{
-				"label": "Haneul Migration Guide",
-				"link": "doc-updates/haneul-migration-guide"
-			},
+		"items": [
 			{
 				"label": "Haneul Doc Updates",
 				"link": "doc-updates"

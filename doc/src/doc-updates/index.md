@@ -4,6 +4,12 @@ title: Haneul Documentation Updates
 
 This topic lists the significant updates to the [Haneul documentation](https://docs.haneul.io) site so that you can easily identify new or updated information.
 
+## Week ending 04/22/23
+
+| Topic | Update | 
+| :------ | :------- |
+| [Haneul Full Node](../build/fullnode.md#hardware-requirements). | Updated hardware requirements. |
+
 ## Week ending 03/25/23
 
 | Topic | Update | 
@@ -48,8 +54,6 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 | Topic | Update | 
 | :------ | :------- |
 | [Haneul Move by Example](../explore/move-examples/index.md) | [Relocated this content](https://github.com/GeunhwaJeong/haneul/pull/6957) from examples.haneul.io to the Explore section of docs.haneul.io. |
-| [Haneul Framework Reference](../reference/framework/index.md) | [Added links to each module topic in the Framework Reference](https://github.com/GeunhwaJeong/haneul/pull/6958) folder in the repo until we can properly add them to the Docs site. |
-
 
 ## Week ending 12/17/22
 
@@ -100,7 +104,6 @@ This topic lists the significant updates to the [Haneul documentation](https://d
 
 | Topic | Update | 
 | :------ | :------- |
-| [Install Haneul](../build/install.md) | Removed the setup script (haneul-setup.sh) until we can resolve the errors with the latest version of Haneul. |
 | [Explore Haneul](../explore/index.md) | General copyedits for style, removed some stale images and examples. |
 
 ## Week ending 10/01/22

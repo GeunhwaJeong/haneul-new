@@ -10,7 +10,7 @@ Within each epoch, operations are processed by a fixed set of validators, each w
 
 ## Economic model
 
-We now discuss how the different components of the Haneul economy interact with each other in order to introduce Haneul’s Delegated Proof-of-Stake system. As a complementary reference, see the Staking and Tokenomics diagram in the [Haneul Tokenomics](../tokenomics/index.md) overview.
+This section covers how the different components of the Haneul economy interact with each other in order to introduce Haneul’s Delegated Proof-of-Stake system. As a complementary reference, see the Staking and Tokenomics diagram in the [Haneul Tokenomics](../tokenomics/index.md) overview.
 
 The Haneul economic model works as follows:
 
