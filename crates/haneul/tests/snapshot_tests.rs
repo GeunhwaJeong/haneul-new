@@ -59,8 +59,12 @@ async fn basic_read_cmd_snapshot_tests() -> Result<(), anyhow::Error> {
     let cmds = vec![
         "haneul client objects {ME}", // valid addr
         "haneul client objects 0x0000000000000000000000000000000000000000000000000000000000000000", // empty addr
-        "haneul client object 0x3b5121a0603ef7ab4cb57827fceca17db3338ef2cd76126cc1523b681df27cee", // valid object
-        "haneul client object 0x3b5121a0603ef7ab4cb57827fceca17db3338ef2cd76126cc1523b681df27cee --bcs", // valid object BCS
+        "haneul client object 0x5",       // valid object
+        "haneul client object 0x5 --bcs", // valid object BCS
+        // Simtest object IDs are not stable so these object IDs may or may not exist currently --
+        // commenting them out for now.
+        // "haneul client object 0x3b5121a0603ef7ab4cb57827fceca17db3338ef2cd76126cc1523b681df27cee", // valid object
+        // "haneul client object 0x3b5121a0603ef7ab4cb57827fceca17db3338ef2cd76126cc1523b681df27cee --bcs", // valid object BCS
         "haneul client object 0x0000000000000000000000000000000000000000000000000000000000000000", // non-existent object
         "haneul client tx-block Duwr9uSk9ZvNdEa8oDHunx345i6oyrp3e78MYHVAbYdv", // valid tx digest
         "haneul client tx-block EgMTHQygMi6SRsBqrPHAEKZCNrpShXurCp9rcb9qbSg8", // non-existent tx digest
