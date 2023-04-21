@@ -728,7 +728,7 @@ impl ValidatorProxy for FullNodeProxy {
             // HaneulClient times out after 60s
             match self
                 .haneul_client
-                .quorum_driver()
+                .quorum_driver_api()
                 .execute_transaction_block(
                     tx.clone(),
                     HaneulTransactionBlockResponseOptions::new().with_effects(),

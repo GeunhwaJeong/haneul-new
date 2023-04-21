@@ -238,7 +238,7 @@ impl TestCluster {
     ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
         self.fullnode_handle
             .haneul_client
-            .quorum_driver()
+            .quorum_driver_api()
             .execute_transaction_block(
                 transaction,
                 HaneulTransactionBlockResponseOptions::new().with_effects(),
