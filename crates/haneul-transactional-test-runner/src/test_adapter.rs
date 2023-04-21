@@ -43,7 +43,6 @@ use haneul_core::transaction_input_checker::check_objects;
 use haneul_framework::BuiltInFramework;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::DEEPBOOK_OBJECT_ID;
 use haneul_types::MOVE_STDLIB_OBJECT_ID;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
@@ -71,6 +70,7 @@ use haneul_types::{
     messages::{Argument, CallArg},
     move_package::MovePackage,
 };
+use haneul_types::{metrics::LimitsMetrics, DEEPBOOK_OBJECT_ID};
 use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_OBJECT_ID,
 };
@@ -111,6 +111,7 @@ pub struct HaneulTestAdapter<'a> {
     rng: StdRng,
     gas_price: u64,
     protocol_config: ProtocolConfig,
+    metrics: Arc<LimitsMetrics>,
 }
 
 struct TestAccount {
@@ -295,6 +296,10 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             named_address_mapping.insert(name, addr);
         }
 
+        // Use a throwaway metrics registry for testing.
+        let registry = prometheus::Registry::new();
+        let metrics = Arc::new(LimitsMetrics::new(&registry));
+
         let enable_move_vm_paranoid_checks = false;
         let mut test_adapter = Self {
             vm: Arc::new(
@@ -323,6 +328,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             // TODO: make this configurable
             gas_price: 1000,
             protocol_config,
+            metrics,
         };
         for well_known in WELL_KNOWN_OBJECTS.iter().copied() {
             test_adapter
@@ -974,6 +980,7 @@ impl<'a> HaneulTestAdapter<'a> {
             // TODO: Support different epochs in transactional tests.
             &EpochData::new_test(),
             &self.protocol_config,
+            self.metrics.clone(),
             false, // enable_expensive_checks
         );
         let mut created_ids: Vec<_> = effects
