@@ -74,11 +74,12 @@ const haneul = new Haneul(transport);
 
 ### getPublicKey
 
-Get Haneul address for a given BIP-32 path.
+Gets the Haneul address for a given BIP-32 path.
 
 #### Parameters
 
 -   `path` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** a path in BIP-32 format
+-   `displayOnDevice` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** whether or not to display the address on the Ledger device.
 
 #### Examples
 

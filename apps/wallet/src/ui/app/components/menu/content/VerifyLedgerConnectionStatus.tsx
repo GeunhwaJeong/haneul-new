@@ -3,7 +3,7 @@
 
 import { Check12, X12 } from '@haneullabs/icons';
 import { Ed25519PublicKey, type HaneulAddress } from '@haneullabs/haneul.js';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { useHaneulLedgerClient } from '../../ledger/HaneulLedgerClientProvider';
@@ -37,10 +37,6 @@ export function VerifyLedgerConnectionStatus({
     );
     const timeoutIdRef = useRef<number>();
 
-    useEffect(() => {
-        return () => clearTimeout(timeoutIdRef.current);
-    }, []);
-
     switch (verificationStatus) {
         case VerificationStatus.UNKNOWN:
             return (
@@ -51,7 +47,8 @@ export function VerifyLedgerConnectionStatus({
                             const haneulLedgerClient = await connectToLedger();
                             const publicKeyResult =
                                 await haneulLedgerClient.getPublicKey(
-                                    derivationPath
+                                    derivationPath,
+                                    true
                                 );
                             const publicKey = new Ed25519PublicKey(
                                 publicKeyResult.publicKey
