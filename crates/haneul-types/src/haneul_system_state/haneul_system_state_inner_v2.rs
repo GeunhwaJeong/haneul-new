@@ -5,7 +5,10 @@ use crate::balance::Balance;
 use crate::base_types::HaneulAddress;
 use crate::collection_types::{Bag, Table, TableVec, VecMap, VecSet};
 use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata};
+use crate::error::HaneulError;
+use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
+use crate::haneul_system_state::get_validators_from_table_vec;
 use crate::haneul_system_state::haneul_system_state_inner_v1::{
     StakeSubsidyV1, StorageFundV1, ValidatorSetV1,
 };
@@ -13,7 +16,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 use super::epoch_start_haneul_system_state::EpochStartValidatorInfoV1;
-use super::haneul_system_state_summary::HaneulSystemStateSummary;
+use super::haneul_system_state_inner_v1::ValidatorV1;
+use super::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
 use super::{AdvanceEpochParams, HaneulSystemStateTrait};
 
 /// Rust version of the Move haneul::haneul_system::SystemParametersV2 type
@@ -134,6 +138,20 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV2 {
             committee: Committee::new(self.epoch, voting_rights),
             network_metadata,
         }
+    }
+
+    fn get_pending_active_validators<S: ObjectStore>(
+        &self,
+        object_store: &S,
+    ) -> Result<Vec<HaneulValidatorSummary>, HaneulError> {
+        let table_id = self.validators.pending_active_validators.contents.id;
+        let table_size = self.validators.pending_active_validators.contents.size;
+        let validators: Vec<ValidatorV1> =
+            get_validators_from_table_vec(object_store, table_id, table_size)?;
+        Ok(validators
+            .into_iter()
+            .map(|v| v.into_haneul_validator_summary())
+            .collect())
     }
 
     fn into_epoch_start_state(self) -> EpochStartSystemState {
