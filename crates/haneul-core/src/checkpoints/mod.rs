@@ -1325,7 +1325,7 @@ mod tests {
     use async_trait::async_trait;
     use std::collections::{BTreeMap, HashMap};
     use std::ops::Deref;
-    use haneul_types::base_types::{ObjectID, SequenceNumber};
+    use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionEffectsDigest};
     use haneul_types::crypto::Signature;
     use haneul_types::messages::{GenesisObject, VerifiedTransaction};
     use haneul_types::messages_checkpoint::SignedCheckpointSummary;
@@ -1515,6 +1515,20 @@ mod tests {
             Ok(digests
                 .into_iter()
                 .map(|d| self.get(&d).expect("effects not found").clone())
+                .collect())
+        }
+
+        async fn notify_read_executed_effects_digests(
+            &self,
+            digests: Vec<TransactionDigest>,
+        ) -> HaneulResult<Vec<TransactionEffectsDigest>> {
+            Ok(digests
+                .into_iter()
+                .map(|d| {
+                    self.get(&d)
+                        .map(|fx| fx.digest())
+                        .expect("effects not found")
+                })
                 .collect())
         }
 
