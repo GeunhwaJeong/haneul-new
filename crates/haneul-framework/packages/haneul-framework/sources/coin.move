@@ -86,7 +86,7 @@ module haneul::coin {
     }
 
     /// Get immutable reference to the treasury's `Supply`.
-    public fun supply<T>(treasury: &mut TreasuryCap<T>): &Supply<T> {
+    public fun supply_immut<T>(treasury: &TreasuryCap<T>): &Supply<T> {
         &treasury.total_supply
     }
 
@@ -428,4 +428,12 @@ module haneul::coin {
         object::delete(id);
         balance::destroy_for_testing(balance)
     }
+
+    // === Deprecated code ===
+
+    // oops, wanted treasury: &TreasuryCap<T>
+    public fun supply<T>(treasury: &mut TreasuryCap<T>): &Supply<T> {
+        &treasury.total_supply
+    }
+
 }
