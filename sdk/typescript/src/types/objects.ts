@@ -456,9 +456,17 @@ export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;
 
 // mirrors haneul_json_rpc_types:: HaneulObjectDataFilter
 export type HaneulObjectDataFilter =
+  | { MatchAll: HaneulObjectDataFilter[] }
+  | { MatchAny: HaneulObjectDataFilter[] }
+  | { MatchNone: HaneulObjectDataFilter[] }
   | { Package: ObjectId }
   | { MoveModule: { package: ObjectId; module: string } }
-  | { StructType: string };
+  | { StructType: string }
+  | { AddressOwner: string }
+  | { ObjectOwner: string }
+  | { ObjectId: string }
+  | { ObjectIds: string[] }
+  | { Version: string };
 
 export type HaneulObjectResponseQuery = {
   filter?: HaneulObjectDataFilter;

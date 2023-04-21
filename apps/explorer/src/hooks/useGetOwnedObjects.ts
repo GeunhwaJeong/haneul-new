@@ -2,35 +2,37 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulObjectDataFilter, type HaneulAddress } from '@haneullabs/haneul.js';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 const MAX_OBJECTS_PER_REQ = 6;
 
-export function useGetOwnedObjects(address?: HaneulAddress | null) {
+export function useGetOwnedObjects(
+    address?: HaneulAddress | null,
+    filter?: HaneulObjectDataFilter
+) {
     const rpc = useRpcClient();
     return useInfiniteQuery(
-        ['get-owned-objects', address],
+        ['get-owned-objects', address, filter],
         async ({ pageParam }) =>
             await rpc.getOwnedObjects({
                 owner: address!,
+                filter,
                 options: {
                     showType: true,
                     showContent: true,
                     showDisplay: true,
                 },
                 limit: MAX_OBJECTS_PER_REQ,
-                cursor: pageParam ? pageParam.cursor : null,
+                cursor: pageParam,
             }),
         {
             staleTime: 10 * 60 * 1000,
             enabled: !!address,
-            getNextPageParam: (lastPage) =>
-                lastPage?.hasNextPage
-                    ? {
-                          cursor: lastPage.nextCursor,
-                      }
-                    : false,
+            getNextPageParam: (lastPage) => {
+                console.log({ lastPage });
+                return lastPage?.hasNextPage ? lastPage.nextCursor : null;
+            },
         }
     );
 }
