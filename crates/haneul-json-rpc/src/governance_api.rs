@@ -27,6 +27,7 @@ use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{
     get_validator_from_table, haneul_system_state_summary::get_validator_by_pool_id, HaneulSystemState,
 };
+use tracing::{info, instrument};
 
 use crate::api::{GovernanceReadApiServer, JsonRpcMetrics};
 use crate::error::Error;
@@ -234,18 +235,24 @@ impl GovernanceReadApi {
 
 #[async_trait]
 impl GovernanceReadApiServer for GovernanceReadApi {
+    #[instrument(skip(self))]
     async fn get_stakes_by_ids(
         &self,
         staked_haneul_ids: Vec<ObjectID>,
     ) -> RpcResult<Vec<DelegatedStake>> {
+        info!("get_stakes_by_ids");
         Ok(self.get_stakes_by_ids(staked_haneul_ids).await?)
     }
 
+    #[instrument(skip(self))]
     async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
+        info!("get_stakes");
         Ok(self.get_stakes(owner).await?)
     }
 
+    #[instrument(skip(self))]
     async fn get_committee_info(&self, epoch: Option<BigInt<u64>>) -> RpcResult<HaneulCommittee> {
+        info!("get_committee_info");
         Ok(self
             .state
             .committee_store()
@@ -254,7 +261,9 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .map_err(Error::from)?)
     }
 
+    #[instrument(skip(self))]
     async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary> {
+        info!("get_latest_haneul_system_state");
         Ok(self
             .state
             .database
@@ -263,7 +272,9 @@ impl GovernanceReadApiServer for GovernanceReadApi {
             .into_haneul_system_state_summary())
     }
 
+    #[instrument(skip(self))]
     async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>> {
+        info!("get_reference_gas_price");
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
         Ok(epoch_store.reference_gas_price().into())
     }
