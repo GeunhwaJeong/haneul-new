@@ -33,6 +33,8 @@ async fn test_get_staked_haneul() {
     let (rosetta_client, _handle) =
         start_rosetta_test_server(client.clone(), test_cluster.swarm.dir()).await;
 
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
     let network_identifier = NetworkIdentifier {
         blockchain: "haneul".to_string(),
         network: HaneulEnv::LocalNet,

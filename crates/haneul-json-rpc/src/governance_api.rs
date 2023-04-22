@@ -8,7 +8,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+use tracing::{info, instrument};
 
+use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::HaneulCommittee;
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
@@ -27,11 +29,10 @@ use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{
     get_validator_from_table, haneul_system_state_summary::get_validator_by_pool_id, HaneulSystemState,
 };
-use tracing::{info, instrument};
 
 use crate::api::{GovernanceReadApiServer, JsonRpcMetrics};
 use crate::error::Error;
-use crate::HaneulRpcModule;
+use crate::{ObjectProvider, HaneulRpcModule};
 
 pub struct GovernanceReadApi {
     state: Arc<AuthorityState>,
@@ -44,10 +45,14 @@ impl GovernanceReadApi {
     }
 
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> Result<Vec<StakedHaneul>, Error> {
-        let result = self
-            .state
-            .get_move_objects(owner, MoveObjectType::staked_haneul())
-            .await?;
+        let state = self.state.clone();
+        let result = spawn_monitored_task!(async move {
+            state
+                .get_move_objects(owner, MoveObjectType::staked_haneul())
+                .await
+        })
+        .await??;
+
         self.metrics
             .get_stake_haneul_result_size
             .report(result.len() as u64);
@@ -61,10 +66,15 @@ impl GovernanceReadApi {
         &self,
         staked_haneul_ids: Vec<ObjectID>,
     ) -> Result<Vec<DelegatedStake>, Error> {
-        let stakes_read = staked_haneul_ids
-            .iter()
-            .map(|id| self.state.get_object_read(id))
-            .collect::<Result<Vec<_>, _>>()?;
+        let state = self.state.clone();
+        let stakes_read = spawn_monitored_task!(async move {
+            staked_haneul_ids
+                .iter()
+                .map(|id| state.get_object_read(id))
+                .collect::<Result<Vec<_>, _>>()
+        })
+        .await??;
+
         if stakes_read.is_empty() {
             return Ok(vec![]);
         }
@@ -77,8 +87,8 @@ impl GovernanceReadApi {
                 ObjectRead::Deleted(oref) => {
                     match self
                         .state
-                        .database
-                        .find_object_lt_or_eq_version(oref.0, oref.1.one_before().unwrap())
+                        .find_object_lt_or_eq_version(&oref.0, &oref.1.one_before().unwrap())
+                        .await?
                     {
                         Some(o) => stakes.push((StakedHaneul::try_from(&o)?, false)),
                         None => {
