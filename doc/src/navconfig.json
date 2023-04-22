@@ -194,6 +194,10 @@
 						"fileName": "build/package-upgrades"
 					},
 					{
+						"label": "Custom Upgrade Policies",
+						"fileName": "build/custom-upgrade-policy"
+					},
+					{
 						"label": "Haneul Move Library",
 						"fileName": "build/move/haneul-move-library"
 					}
