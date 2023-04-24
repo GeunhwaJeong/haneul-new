@@ -65,14 +65,8 @@ export function SendTokenForm({
         activeAddress!
     );
 
-    const haneulCoins = haneulCoinsData?.filter(
-        ({ lockedUntilEpoch }) => !lockedUntilEpoch
-    );
-
-    // filter out locked lockedUntilEpoch
-    const coins = coinsData?.filter(
-        ({ lockedUntilEpoch }) => !lockedUntilEpoch
-    );
+    const haneulCoins = haneulCoinsData;
+    const coins = coinsData;
     const coinBalance = CoinAPI.totalBalance(coins || []);
 
     const coinSymbol = (coinType && CoinAPI.getCoinSymbol(coinType)) || '';

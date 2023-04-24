@@ -151,6 +151,7 @@ export type DelegationData = HaneulMoveObject & {
       id: string;
       version: number;
     };
+    // TODO (jian): clean up after 0.34
     coin_locked_until_epoch: Option<HaneulMoveObject>;
     ending_epoch: Option<number>;
   };
