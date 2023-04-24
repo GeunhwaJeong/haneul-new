@@ -1,13 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Coins16 } from '@haneullabs/icons';
+import { Haneul, Unstaked } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import Icon, { HaneulIcons } from '_components/icon';
-
-const imageStyle = cva(['rounded-full flex bg-haneul'], {
+const imageStyle = cva(['rounded-full flex rounded-full'], {
     variants: {
         size: {
             sm: 'w-6 h-6',
@@ -35,13 +33,10 @@ export function CoinIcon({ coinType, ...styleProps }: CoinIconProps) {
     return (
         <div className={imageStyle(styleProps)}>
             {coinType === HANEUL_TYPE_ARG ? (
-                <Icon
-                    icon={HaneulIcons.HaneulLogoIcon}
-                    className="flex h-full w-full items-center justify-center text-white text-body"
-                />
+                <Haneul className="flex items-center w-full h-full justify-center text-white text-body p-1.5 bg-haneul rounded-full" />
             ) : (
-                <div className="flex h-full w-full items-center justify-center text-white">
-                    <Coins16 />
+                <div className="flex h-full w-full items-center justify-center text-white bg-steel rounded-full">
+                    <Unstaked />
                 </div>
             )}
         </div>

@@ -6,8 +6,7 @@ import cl from 'classnames';
 import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Icon, { HaneulIcons } from '_components/icon';
-import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
+import { CoinIcon } from '_components/coin-icon';
 
 import st from './CoinBalance.module.scss';
 
@@ -20,8 +19,6 @@ export type CoinProps = {
 
 function CoinBalance({ type, balance, mode = 'row-item' }: CoinProps) {
     const [formatted, symbol] = useFormatCoin(balance, type);
-    const icon = type === GAS_TYPE_ARG ? HaneulIcons.HaneulLogoIcon : HaneulIcons.Tokens;
-
     const navigate = useNavigate();
 
     // TODO: use a different logic to differentiate between view types
@@ -43,12 +40,8 @@ function CoinBalance({ type, balance, mode = 'row-item' }: CoinProps) {
         >
             {mode === 'row-item' ? (
                 <>
-                    <Icon
-                        icon={icon}
-                        className={cl(st.coinIcon, {
-                            [st.haneul]: type === GAS_TYPE_ARG,
-                        })}
-                    />
+                    <CoinIcon coinType={type} />
+
                     <div className={cl(st.coinNameContainer, st[mode])}>
                         <span className={st.coinName}>
                             {symbol.toLocaleLowerCase()}

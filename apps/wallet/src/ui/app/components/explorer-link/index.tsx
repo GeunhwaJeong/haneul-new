@@ -1,12 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { ArrowUpRight16 } from '@haneullabs/icons';
+
 import {
     type ExplorerLinkConfig,
     useExplorerLink,
 } from '../../hooks/useExplorerLink';
 import ExternalLink from '_components/external-link';
-import Icon, { HaneulIcons } from '_components/icon';
 import { trackEvent } from '_src/shared/plausible';
 
 import type { ReactNode } from 'react';
@@ -39,7 +40,6 @@ function ExplorerLink({
             href={explorerHref}
             className={className}
             title={title}
-            showIcon={false}
             onClick={() => {
                 if (track) {
                     trackEvent('ViewExplorerAccount');
@@ -48,12 +48,7 @@ function ExplorerLink({
         >
             <>
                 {children}{' '}
-                {showIcon && (
-                    <Icon
-                        icon={HaneulIcons.ArrowLeft}
-                        className={st.explorerIcon}
-                    />
-                )}
+                {showIcon && <ArrowUpRight16 className={st.explorerIcon} />}
             </>
         </ExternalLink>
     );

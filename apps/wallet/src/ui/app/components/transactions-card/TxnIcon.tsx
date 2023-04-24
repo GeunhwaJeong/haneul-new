@@ -6,10 +6,10 @@ import {
     ArrowRight16,
     Info16,
     Swap16,
+    Unstaked,
+    Haneul,
 } from '@haneullabs/icons';
 import cl from 'classnames';
-
-import Icon, { HaneulIcons } from '_components/icon';
 
 // TODO: use update icons lib
 const icons = {
@@ -28,18 +28,8 @@ const icons = {
     Staked: (
         <WalletActionStake24 className="text-gradient-blue-start text-heading2 bg-transparent" />
     ),
-    Unstaked: (
-        <Icon
-            icon={HaneulIcons.Tokens}
-            className="text-gradient-blue-start text-heading3"
-        />
-    ),
-    Rewards: (
-        <Icon
-            icon={HaneulIcons.HaneulLogoIcon}
-            className="text-gradient-blue-start text-body"
-        />
-    ),
+    Unstaked: <Unstaked className="text-gradient-blue-start text-heading3" />,
+    Rewards: <Haneul className="text-gradient-blue-start text-body" />,
     Swapped: <Swap16 className="text-gradient-blue-start text-heading6" />,
     Failed: <Info16 className="text-issue-dark text-heading6" />,
 };

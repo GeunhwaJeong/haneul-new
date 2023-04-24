@@ -1,9 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { Haneul, ThumbUpFill32 } from '@haneullabs/icons';
+
 import { Heading } from '_app/shared/heading';
 import { Text } from '_app/shared/text';
-import Icon, { HaneulIcons } from '_components/icon';
 
 import type { ReactNode } from 'react';
 
@@ -27,19 +28,13 @@ export function CardLayout({
             {icon === 'success' ? (
                 <div className="rounded-full w-12 h-12 border-dotted border-success border-2 flex items-center justify-center mb-2.5 p-1">
                     <div className="bg-success rounded-full h-8 w-8 flex items-center justify-center">
-                        <Icon
-                            icon={HaneulIcons.ThumbsUp}
-                            className="text-white text-2xl"
-                        />
+                        <ThumbUpFill32 className="text-white text-2xl" />
                     </div>
                 </div>
             ) : null}
             {icon === 'haneul' ? (
                 <div className="flex flex-col flex-nowrap items-center justify-center rounded-full w-16 h-16 bg-haneul mb-7">
-                    <Icon
-                        icon={HaneulIcons.HaneulLogoIcon}
-                        className="text-white text-4xl"
-                    />
+                    <Haneul className="text-white text-4xl" />
                 </div>
             ) : null}
             {headerCaption ? (

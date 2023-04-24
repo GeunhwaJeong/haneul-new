@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { Haneul, HaneulLogoTxt } from '@haneullabs/icons';
 import cl from 'classnames';
 
 import { Text } from '../../shared/text';
-import Icon, { HaneulIcons } from '_components/icon';
 import { API_ENV } from '_src/shared/api-env';
 
 const networkNames: Record<API_ENV, string> = {
@@ -21,9 +21,9 @@ type LogoProps = {
 const Logo = ({ networkName }: LogoProps) => {
     return (
         <div className="inline-flex flex-nowrap items-center text-2xl">
-            <Icon icon={HaneulIcons.HaneulLogoIcon} />
+            <Haneul className="h-10 w-7" />
             <div className={cl('flex flex-col', { 'mb-2': !!networkName })}>
-                <Icon icon={HaneulIcons.HaneulLogoTxt} />
+                <HaneulLogoTxt className="my-1" />
                 {networkName && (
                     <div className="-mt-2 ml-0.5 whitespace-nowrap">
                         <Text variant="subtitleSmallExtra">

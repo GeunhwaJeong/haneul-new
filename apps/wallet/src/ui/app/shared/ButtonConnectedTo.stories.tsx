@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { StakeAdd16 } from '@haneullabs/icons';
 import { type Meta, type StoryObj } from '@storybook/react';
 
-import Icon, { HaneulIcons } from '../components/icon';
 import { ButtonConnectedTo } from './ButtonConnectedTo';
 
 export default {
@@ -42,7 +42,7 @@ export const LongText: StoryObj<typeof ButtonConnectedTo> = {
     args: {
         text: 'Button with very long text',
         bgOnHover: 'grey',
-        iconBefore: <Icon icon={HaneulIcons.Add} />,
-        iconAfter: <Icon icon={HaneulIcons.Add} />,
+        iconBefore: <StakeAdd16 />,
+        iconAfter: <StakeAdd16 />,
     },
 };
