@@ -426,6 +426,8 @@ async fn execute_pay_all_haneul(
 ) -> PayHaneulTransactionBlockExecutionResult {
     let dir = tempfile::TempDir::new().unwrap();
     let network_config = haneul_config::builder::ConfigBuilder::new(&dir)
+        // TODO: fix numbers in tests to not depend on rgp being 1
+        .with_reference_gas_price(1)
         .with_objects(
             input_coin_objects
                 .clone()
