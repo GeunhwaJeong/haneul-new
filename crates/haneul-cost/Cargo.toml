@@ -21,6 +21,6 @@ haneul-core = { path = "../haneul-core" }
 insta = { version = "1.21.1", features = ["redactions", "json"] }
 test-utils = { path = "../test-utils" }
 haneul-config = {path = "../haneul-config"}
+haneul-move-build = { path = "../haneul-move-build" }
 move-cli.workspace = true
 move-disassembler.workspace = true
-move-package.workspace = true

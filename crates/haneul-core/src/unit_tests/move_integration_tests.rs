@@ -23,7 +23,7 @@ use haneul_types::{
 
 use move_core_types::language_storage::TypeTag;
 
-use haneul_move_build::BuildConfig;
+use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_types::{
     crypto::{get_key_pair, AccountKeyPair},
     error::HaneulError,
@@ -2800,6 +2800,7 @@ pub async fn build_and_try_publish_test_package(
     gas_price: u64,
     with_unpublished_deps: bool,
 ) -> (Transaction, SignedTransactionEffects) {
+    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.extend(["src", "unit_tests", "data", test_dir]);
 

@@ -4,7 +4,7 @@
 use move_binary_format::file_format::CompiledModule;
 
 use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode_verifier_impl};
-use haneul_move_build::{BuildConfig, CompiledPackage};
+use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::ObjectID,
@@ -445,6 +445,7 @@ pub fn build_test_modules(test_dir: &str) -> Vec<CompiledModule> {
 
 #[tokio::test]
 async fn test_metered_move_bytecode_verifier() {
+    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     let path =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../haneul-framework/packages/haneul-framework");
     let compiled_package = BuildConfig::new_for_testing().build(path).unwrap();
