@@ -58,7 +58,7 @@ Unlike most existing blockchain systems (and as the reader may have guessed from
 
 [Narwhal and Bullshark](architecture/consensus.md) represent the latest variant of decades of work on multi-proposer, high-throughput consensus algorithms that reaches throughputs more than 130,000 transactions per second on a WAN, with production cryptography, permanent storage, and a scaled-out primary-worker architecture.
 
-The [Narwhal mempool](https://github.com/GeunhwaJeong/narwhal) offers a high-throughput data availability engine and a scaled architecture, splitting the disk I/O and networking requirements across several workers. And Bullshark is a zero-message overhead consensus algorithm, leveraging graph traversals.
+The [Narwhal mempool](https://github.com/GeunhwaJeong/haneul/tree/main/narwhal) offers a high-throughput data availability engine and a scaled architecture, splitting the disk I/O and networking requirements across several workers. And Bullshark is a zero-message overhead consensus algorithm, leveraging graph traversals.
 
 ## Where Haneul excels
 
@@ -126,4 +126,4 @@ Haneul uses the state commitment that arrives upon epoch change. Haneul requires
 
 In summary, Haneul offers many performance and usability gains at the cost of some complexity in less simple use cases. Direct sender transactions excel in Haneul. And complex smart contracts may benefit from shared objects where more than one user can mutate those objects (following smart contract specific rules). In this case, Haneul totally orders all transactions involving shared objects using a [consensus](architecture/consensus.md) protocol.
 
-Haneul uses a novel peer-reviewed consensus protocol based on [Narwhal and Bullshark](https://github.com/GeunhwaJeong/narwhal), which provides a DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus. This is state-of-the-art in terms of both performance and robustness.
+Haneul uses a novel peer-reviewed consensus protocol based on [Narwhal and Bullshark](https://github.com/GeunhwaJeong/haneul/tree/main/narwhal), which provides a DAG-based mempool and efficient Byzantine Fault Tolerant (BFT) consensus. This is state-of-the-art in terms of both performance and robustness.
