@@ -3,6 +3,9 @@
 
 use std::fmt::{self, Display, Formatter, Write};
 
+use crate::balance_changes::BalanceChange;
+use crate::object_changes::ObjectChange;
+use crate::{Page, HaneulEvent, HaneulMovePackage, HaneulObjectRef};
 use enum_dispatch::enum_dispatch;
 use fastcrypto::encoding::Base64;
 use move_binary_format::access::ModuleAccess;
@@ -38,10 +41,6 @@ use haneul_types::storage::{DeleteKind, WriteKind};
 use haneul_types::haneul_serde::{
     BigInt, SequenceNumber as AsSequenceNumber, HaneulTypeTag as AsHaneulTypeTag,
 };
-
-use crate::balance_changes::BalanceChange;
-use crate::object_changes::ObjectChange;
-use crate::{Page, HaneulEvent, HaneulMovePackage, HaneulObjectRef};
 
 // similar to EpochId of haneul-types but BigInt
 pub type HaneulEpochId = BigInt<u64>;
