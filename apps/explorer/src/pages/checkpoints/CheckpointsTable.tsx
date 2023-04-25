@@ -1,6 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { useRpcClient } from '@haneullabs/core';
+import {
+    useRpcClient,
+    useGetLatestCheckpointSequenceNumber,
+} from '@haneullabs/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -31,9 +34,7 @@ export function CheckpointsTable({
     const [limit, setLimit] = useState(initialLimit);
     const [cursor, setCursor] = useState(initialCursor);
 
-    const countQuery = useQuery(['checkpoints', 'count'], () =>
-        rpc.getLatestCheckpointSequenceNumber()
-    );
+    const countQuery = useGetLatestCheckpointSequenceNumber();
     const pagination = useBoundedPaginationStack<string>(
         initialCursor,
         maxCursor
