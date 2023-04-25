@@ -40,6 +40,7 @@ use move_package::{
 };
 use move_symbol_pool::Symbol;
 use serde_reflection::Registry;
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_types::{
     base_types::ObjectID,
     error::{HaneulError, HaneulResult},
@@ -199,7 +200,12 @@ pub fn build_from_resolution_graph(
                     error: err.to_string(),
                 }
             })?;
-            haneul_bytecode_verifier::verify_module(m, &fn_info)?;
+            // TODO make this configurable
+            haneul_bytecode_verifier::verify_module(
+                &ProtocolConfig::get_for_version(ProtocolVersion::MAX),
+                m,
+                &fn_info,
+            )?;
         }
         // TODO(https://github.com/GeunhwaJeong/haneul/issues/69): Run Move linker
     }

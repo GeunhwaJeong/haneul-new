@@ -15,3 +15,4 @@ move-core-types.workspace = true
 
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }

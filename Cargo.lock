@@ -9496,6 +9496,7 @@ dependencies = [
  "move-package",
  "move-symbol-pool",
  "serde-reflection",
+ "haneul-protocol-config",
  "haneul-types",
  "haneul-verifier",
  "tempfile",
@@ -10199,6 +10200,7 @@ dependencies = [
  "move-bytecode-utils",
  "move-bytecode-verifier",
  "move-core-types",
+ "haneul-protocol-config",
  "haneul-types",
  "workspace-hack",
 ]

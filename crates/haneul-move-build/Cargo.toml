@@ -15,6 +15,7 @@ tempfile = "3.3.0"
 serde-reflection = "0.3.6"
 haneul-types = { path = "../haneul-types" }
 haneul-verifier = { path = "../haneul-verifier" }
+haneul-protocol-config = { path = "../haneul-protocol-config" }
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
