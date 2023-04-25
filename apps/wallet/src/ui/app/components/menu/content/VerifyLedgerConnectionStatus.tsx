@@ -3,10 +3,11 @@
 
 import { Check12, X12 } from '@haneullabs/icons';
 import { Ed25519PublicKey, type HaneulAddress } from '@haneullabs/haneul.js';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { useHaneulLedgerClient } from '../../ledger/HaneulLedgerClientProvider';
+import LoadingIndicator from '../../loading/LoadingIndicator';
 import {
     getLedgerConnectionErrorMessage,
     getHaneulApplicationErrorMessage,
@@ -25,24 +26,40 @@ enum VerificationStatus {
     NOT_VERIFIED = 'NOT_VERIFIED',
 }
 
-const resetVerificationStatusTimeout = 5000;
+const resetVerificationStatusDelay = 5000;
+const loadingStateDelay = 200;
 
 export function VerifyLedgerConnectionStatus({
     accountAddress,
     derivationPath,
 }: VerifyLedgerConnectionLinkProps) {
     const { connectToLedger } = useHaneulLedgerClient();
+    const [isLoading, setLoading] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState(
         VerificationStatus.UNKNOWN
     );
-    const timeoutIdRef = useRef<number>();
 
     switch (verificationStatus) {
         case VerificationStatus.UNKNOWN:
+            if (isLoading) {
+                return (
+                    <div className="flex gap-1 text-hero-dark">
+                        <LoadingIndicator color="inherit" />
+                        <Text variant="bodySmall">
+                            Please confirm on your Ledger...
+                        </Text>
+                    </div>
+                );
+            }
+
             return (
                 <Link
                     text="Verify Ledger connection"
                     onClick={async () => {
+                        const loadingTimeoutId = setTimeout(() => {
+                            setLoading(true);
+                        }, loadingStateDelay);
+
                         try {
                             const haneulLedgerClient = await connectToLedger();
                             const publicKeyResult =
@@ -60,18 +77,25 @@ export function VerifyLedgerConnectionStatus({
                                     ? VerificationStatus.VERIFIED
                                     : VerificationStatus.NOT_VERIFIED
                             );
-
-                            timeoutIdRef.current = window.setTimeout(() => {
-                                setVerificationStatus(
-                                    VerificationStatus.UNKNOWN
-                                );
-                            }, resetVerificationStatusTimeout);
                         } catch (error) {
                             const errorMessage =
                                 getLedgerConnectionErrorMessage(error) ||
                                 getHaneulApplicationErrorMessage(error) ||
                                 'Something went wrong';
                             toast.error(errorMessage);
+
+                            setVerificationStatus(
+                                VerificationStatus.NOT_VERIFIED
+                            );
+                        } finally {
+                            clearTimeout(loadingTimeoutId);
+                            setLoading(false);
+
+                            window.setTimeout(() => {
+                                setVerificationStatus(
+                                    VerificationStatus.UNKNOWN
+                                );
+                            }, resetVerificationStatusDelay);
                         }
                     }}
                     color="heroDark"
