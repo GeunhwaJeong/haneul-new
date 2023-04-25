@@ -1,5 +1,14 @@
 # @haneullabs/wallet-adapter-all-wallets
 
+## 0.5.4
+
+### Patch Changes
+
+- b4f0bfc76: Fix type definitions for package exports.
+- Updated dependencies [b4f0bfc76]
+  - @haneullabs/wallet-adapter-wallet-standard@0.7.4
+  - @haneullabs/wallet-adapter-unsafe-burner@0.8.4
+
 ## 0.5.3
 
 ### Patch Changes
