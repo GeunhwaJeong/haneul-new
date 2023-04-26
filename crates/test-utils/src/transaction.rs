@@ -6,7 +6,6 @@ use serde_json::json;
 use shared_crypto::intent::Intent;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use haneul::client_commands::WalletContext;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_core::authority_client::AuthorityAPI;
 pub use haneul_core::test_utils::{
@@ -20,6 +19,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::json::HaneulJsonValue;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::committee::Committee;

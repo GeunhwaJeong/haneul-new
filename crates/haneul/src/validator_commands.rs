@@ -24,7 +24,6 @@ use haneul_types::{
 };
 use tap::tap::TapOptional;
 
-use crate::client_commands::WalletContext;
 use crate::fire_drill::get_gas_obj_ref;
 use clap::*;
 use colored::Colorize;
@@ -46,6 +45,7 @@ use haneul_keys::{
         write_authority_keypair_to_file, write_keypair_to_file,
     },
 };
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_authority_key_pair, AuthorityPublicKeyBytes,

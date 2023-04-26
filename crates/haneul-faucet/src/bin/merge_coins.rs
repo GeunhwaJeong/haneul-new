@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 use shared_crypto::intent::Intent;
 use std::{str::FromStr, time::Duration};
-use haneul::client_commands::WalletContext;
 use haneul_config::{haneul_config_dir, HANEUL_CLIENT_CONFIG};
 use haneul_faucet::FaucetError;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::{
     base_types::ObjectID,
     gas_coin::GasCoin,

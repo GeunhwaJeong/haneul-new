@@ -18,11 +18,11 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use haneul::client_commands::WalletContext;
 use haneul_config::{haneul_config_dir, HANEUL_CLIENT_CONFIG};
 use haneul_faucet::{
     Faucet, FaucetConfig, FaucetRequest, FaucetResponse, RequestMetricsLayer, SimpleFaucet,
 };
+use haneul_sdk::wallet_context::WalletContext;
 use tower::{limit::RateLimitLayer, ServiceBuilder};
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{info, warn};

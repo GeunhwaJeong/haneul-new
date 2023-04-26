@@ -3,8 +3,9 @@
 
 use clap::Parser;
 use insta::assert_json_snapshot;
-use haneul::{client_commands::WalletContext, haneul_commands::HaneulCommand};
+use haneul::haneul_commands::HaneulCommand;
 use haneul_macros::sim_test;
+use haneul_sdk::wallet_context::WalletContext;
 use test_utils::network::TestClusterBuilder;
 
 // special constants for substitution in commands

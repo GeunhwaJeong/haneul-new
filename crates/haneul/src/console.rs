@@ -10,15 +10,16 @@ use clap::CommandFactory;
 use clap::FromArgMatches;
 use clap::Parser;
 use colored::Colorize;
+use haneul_sdk::wallet_context::WalletContext;
 
 use crate::client_commands::SwitchResponse;
-use crate::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
+use crate::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use crate::shell::{
     install_shell_plugins, AsyncHandler, CacheKey, CommandStructure, CompletionCache, Shell,
 };
 
-const HANEUL: &str = "   _____       _    ______                       __   
-  / ___/__  __(_)  / ____/___  ____  _________  / /__ 
+const HANEUL: &str = "   _____       _    ______                       __
+  / ___/__  __(_)  / ____/___  ____  _________  / /__
   \\__ \\/ / / / /  / /   / __ \\/ __ \\/ ___/ __ \\/ / _ \\
  ___/ / /_/ / /  / /___/ /_/ / / / (__  ) /_/ / /  __/
 /____/\\__,_/_/   \\____/\\____/_/ /_/____/\\____/_/\\___/";

@@ -10,12 +10,12 @@ use helper::ObjectChecker;
 use jsonrpsee::core::params::ArrayParams;
 use jsonrpsee::{core::client::ClientT, http_client::HttpClientBuilder};
 use std::sync::Arc;
-use haneul::client_commands::WalletContext;
 use haneul_faucet::CoinInfo;
 use haneul_json_rpc_types::{
     HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions, TransactionBlockBytes,
 };
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;

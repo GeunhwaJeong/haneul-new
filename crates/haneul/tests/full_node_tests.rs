@@ -12,7 +12,7 @@ use move_core_types::value::MoveStructLayout;
 use haneullabs_metrics::RegistryService;
 use prometheus::Registry;
 use serde_json::json;
-use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext};
+use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_json_rpc_types::EventFilter;
 use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, HaneulEvent, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
@@ -21,6 +21,7 @@ use haneul_json_rpc_types::{
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
 use haneul_node::HaneulNode;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_tool::restore_from_db_checkpoint;
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};

@@ -6,8 +6,8 @@ use move_core_types::account_address::AccountAddress;
 use std::collections::HashMap;
 use std::{fs, io, path::Path};
 use std::{path::PathBuf, str};
-use haneul::client_commands::WalletContext;
 use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::ObjectID;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},

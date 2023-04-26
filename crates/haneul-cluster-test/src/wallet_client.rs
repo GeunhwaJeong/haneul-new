@@ -5,8 +5,8 @@ use crate::cluster::new_wallet_context_from_cluster;
 
 use super::Cluster;
 use shared_crypto::intent::Intent;
-use haneul::client_commands::WalletContext;
 use haneul_keys::keystore::AccountKeystore;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, Signature};

@@ -2,11 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use core::fmt;
-use std::sync::Arc;
 use std::{
-    collections::BTreeSet,
     fmt::{Debug, Display, Formatter, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
     time::Instant,
 };
 
@@ -30,12 +28,10 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::error::HaneulError;
 
 use shared_crypto::intent::Intent;
-use haneul_config::{Config, PersistedConfig};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions,
+    DynamicFieldPage, HaneulData, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -44,20 +40,20 @@ use haneul_move_build::{
     gather_published_ids, BuildConfig, CompiledPackage, PackageDependencies, PublishedAtError,
 };
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::move_package::UpgradeCap;
 use haneul_types::signature::GenericSignature;
 use haneul_types::{
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
-    messages::{Transaction, VerifiedTransaction},
+    messages::Transaction,
     object::Owner,
     parse_haneul_type_tag,
 };
-use tokio::sync::RwLock;
-use tracing::{info, warn};
+use tracing::info;
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -1287,197 +1283,6 @@ async fn compile_package(
         eprintln!("{}", "Skipping dependency verification".bold().yellow());
     }
     Ok((dependencies, compiled_modules, compiled_package, package_id))
-}
-
-pub struct WalletContext {
-    pub config: PersistedConfig<HaneulClientConfig>,
-    request_timeout: Option<std::time::Duration>,
-    client: Arc<RwLock<Option<HaneulClient>>>,
-}
-
-impl WalletContext {
-    pub async fn new(
-        config_path: &Path,
-        request_timeout: Option<std::time::Duration>,
-    ) -> Result<Self, anyhow::Error> {
-        let config: HaneulClientConfig = PersistedConfig::read(config_path).map_err(|err| {
-            anyhow!(
-                "Cannot open wallet config file at {:?}. Err: {err}",
-                config_path
-            )
-        })?;
-
-        let config = config.persisted(config_path);
-        let context = Self {
-            config,
-            request_timeout,
-            client: Default::default(),
-        };
-        Ok(context)
-    }
-
-    pub async fn get_client(&self) -> Result<HaneulClient, anyhow::Error> {
-        let read = self.client.read().await;
-
-        Ok(if let Some(client) = read.as_ref() {
-            client.clone()
-        } else {
-            drop(read);
-            let client = self
-                .config
-                .get_active_env()?
-                .create_rpc_client(self.request_timeout)
-                .await?;
-            if let Err(e) = client.check_api_version() {
-                warn!("{e}");
-                eprintln!("{}", format!("[warn] {e}").yellow().bold());
-            }
-            self.client.write().await.insert(client).clone()
-        })
-    }
-
-    pub fn active_address(&mut self) -> Result<HaneulAddress, anyhow::Error> {
-        if self.config.keystore.addresses().is_empty() {
-            return Err(anyhow!(
-                "No managed addresses. Create new address with `new-address` command."
-            ));
-        }
-
-        // Ok to unwrap because we checked that config addresses not empty
-        // Set it if not exists
-        self.config.active_address = Some(
-            self.config
-                .active_address
-                .unwrap_or(*self.config.keystore.addresses().get(0).unwrap()),
-        );
-
-        Ok(self.config.active_address.unwrap())
-    }
-
-    /// Get the latest object reference given a object id
-    pub async fn get_object_ref(&self, object_id: ObjectID) -> Result<ObjectRef, anyhow::Error> {
-        let client = self.get_client().await?;
-        Ok(client
-            .read_api()
-            .get_object_with_options(object_id, HaneulObjectDataOptions::new())
-            .await?
-            .into_object()?
-            .object_ref())
-    }
-
-    /// Get all the gas objects (and conveniently, gas amounts) for the address
-    pub async fn gas_objects(
-        &self,
-        address: HaneulAddress,
-    ) -> Result<Vec<(u64, HaneulObjectData)>, anyhow::Error> {
-        let client = self.get_client().await?;
-
-        let mut objects: Vec<HaneulObjectResponse> = Vec::new();
-        let mut cursor = None;
-        loop {
-            let response = client
-                .read_api()
-                .get_owned_objects(
-                    address,
-                    Some(HaneulObjectResponseQuery::new(
-                        Some(HaneulObjectDataFilter::StructType(GasCoin::type_())),
-                        Some(HaneulObjectDataOptions::full_content()),
-                    )),
-                    cursor,
-                    None,
-                )
-                .await?;
-
-            objects.extend(response.data);
-
-            if response.has_next_page {
-                cursor = response.next_cursor;
-            } else {
-                break;
-            }
-        }
-
-        // TODO: We should ideally fetch the objects from local cache
-        let mut values_objects = Vec::new();
-
-        for object in objects {
-            let o = object.data;
-            if let Some(o) = o {
-                let gas_coin = GasCoin::try_from(&o)?;
-                values_objects.push((gas_coin.value(), o.clone()));
-            }
-        }
-
-        Ok(values_objects)
-    }
-
-    pub async fn get_object_owner(&self, id: &ObjectID) -> Result<HaneulAddress, anyhow::Error> {
-        let client = self.get_client().await?;
-        let object = client
-            .read_api()
-            .get_object_with_options(*id, HaneulObjectDataOptions::new().with_owner())
-            .await?
-            .into_object()?;
-        Ok(object
-            .owner
-            .ok_or_else(|| anyhow!("Owner field is None"))?
-            .get_owner_address()?)
-    }
-
-    pub async fn try_get_object_owner(
-        &self,
-        id: &Option<ObjectID>,
-    ) -> Result<Option<HaneulAddress>, anyhow::Error> {
-        if let Some(id) = id {
-            Ok(Some(self.get_object_owner(id).await?))
-        } else {
-            Ok(None)
-        }
-    }
-
-    /// Find a gas object which fits the budget
-    pub async fn gas_for_owner_budget(
-        &self,
-        address: HaneulAddress,
-        budget: u64,
-        forbidden_gas_objects: BTreeSet<ObjectID>,
-    ) -> Result<(u64, HaneulObjectData), anyhow::Error> {
-        for o in self.gas_objects(address).await.unwrap() {
-            if o.0 >= budget && !forbidden_gas_objects.contains(&o.1.object_id) {
-                return Ok((o.0, o.1));
-            }
-        }
-        Err(anyhow!(
-            "No non-argument gas objects found with value >= budget {budget}"
-        ))
-    }
-
-    pub async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error> {
-        let client = self.get_client().await?;
-        let gas_price = client.governance_api().get_reference_gas_price().await?;
-        Ok(gas_price)
-    }
-
-    pub async fn execute_transaction_block(
-        &self,
-        tx: VerifiedTransaction,
-    ) -> anyhow::Result<HaneulTransactionBlockResponse> {
-        let client = self.get_client().await?;
-        Ok(client
-            .quorum_driver_api()
-            .execute_transaction_block(
-                tx,
-                HaneulTransactionBlockResponseOptions::new()
-                    .with_effects()
-                    .with_events()
-                    .with_input()
-                    .with_events()
-                    .with_object_changes()
-                    .with_balance_changes(),
-                Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
-            )
-            .await?)
-    }
 }
 
 impl Display for HaneulClientCommandResult {

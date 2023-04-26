@@ -17,7 +17,7 @@ use tokio::time::sleep;
 
 use haneul::client_commands::SwitchResponse;
 use haneul::{
-    client_commands::{HaneulClientCommandResult, HaneulClientCommands, WalletContext},
+    client_commands::{HaneulClientCommandResult, HaneulClientCommands},
     haneul_commands::HaneulCommand,
 };
 use haneul_config::{
@@ -37,6 +37,7 @@ use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_macros::sim_test;
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::haneul_client_config::HaneulClientConfig;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     Ed25519HaneulSignature, Secp256k1HaneulSignature, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,

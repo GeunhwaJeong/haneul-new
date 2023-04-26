@@ -34,6 +34,7 @@ haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
 haneul-keys = { path = "../haneul-keys" }
+haneul-sdk = { path = "../haneul-sdk" }
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 telemetry-subscribers.workspace = true
 typed-store.workspace = true

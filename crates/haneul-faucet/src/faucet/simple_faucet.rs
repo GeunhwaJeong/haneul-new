@@ -13,12 +13,12 @@ use std::collections::HashSet;
 use std::path::Path;
 use typed_store::Map;
 
-use haneul::client_commands::WalletContext;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
@@ -597,6 +597,7 @@ impl Faucet for SimpleFaucet {
 mod tests {
     use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
     use haneul_json_rpc_types::HaneulExecutionStatus;
+    use haneul_sdk::wallet_context::WalletContext;
     use test_utils::network::TestClusterBuilder;
 
     use super::*;
