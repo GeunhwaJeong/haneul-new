@@ -47,16 +47,20 @@ use std::future::Future;
 use std::sync::Arc;
 
 /// Wrap HaneulNode to allow correct access to HaneulNode in simulator tests.
-pub struct HaneulNodeHandle(Arc<HaneulNode>);
+pub struct HaneulNodeHandle(Option<Arc<HaneulNode>>);
 
 impl HaneulNodeHandle {
     pub fn new(node: Arc<HaneulNode>) -> Self {
-        Self(node)
+        Self(Some(node))
+    }
+
+    fn inner(&self) -> &Arc<HaneulNode> {
+        self.0.as_ref().unwrap()
     }
 
     pub fn with<T>(&self, cb: impl FnOnce(&HaneulNode) -> T) -> T {
         let _guard = self.guard();
-        cb(&self.0)
+        cb(self.inner())
     }
 }
 
@@ -72,14 +76,14 @@ impl HaneulNodeHandle {
         F: FnOnce(&'a HaneulNode) -> R,
         R: Future<Output = T>,
     {
-        cb(&self.0).await
+        cb(self.inner()).await
     }
 }
 
 #[cfg(msim)]
 impl HaneulNodeHandle {
     fn guard(&self) -> haneul_simulator::runtime::NodeEnterGuard {
-        self.0.sim_node.enter_node()
+        self.inner().sim_node.enter_node()
     }
 
     pub async fn with_async<'a, F, R, T>(&'a self, cb: F) -> T
@@ -87,8 +91,23 @@ impl HaneulNodeHandle {
         F: FnOnce(&'a HaneulNode) -> R,
         R: Future<Output = T>,
     {
-        let fut = cb(&self.0);
-        self.0.sim_node.await_future_in_node(fut).await
+        let fut = cb(self.0.as_ref().unwrap());
+        self.inner().sim_node.await_future_in_node(fut).await
+    }
+}
+
+#[cfg(msim)]
+impl Drop for HaneulNodeHandle {
+    fn drop(&mut self) {
+        let node_id = self.inner().sim_node.id();
+        // Shut down the sim node, but only if we were the last holder of a reference to the haneul
+        // node.
+        let haneul_node_arc = self.0.take().unwrap();
+        let haneul_node = Arc::downgrade(&haneul_node_arc);
+        drop(haneul_node_arc);
+        if haneul_node.upgrade().is_none() {
+            haneul_simulator::runtime::Handle::try_current().map(|h| h.delete_node(node_id));
+        }
     }
 }
 
