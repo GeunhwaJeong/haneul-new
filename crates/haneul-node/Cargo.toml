@@ -35,6 +35,7 @@ haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-telemetry = { path = "../haneul-telemetry" }
 haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
+haneullabs-common = { path = "../haneullabs-common" }
 narwhal-network = { path = "../../narwhal/network" }
 narwhal-types = { path = "../../narwhal/types" }
 typed-store.workspace = true
