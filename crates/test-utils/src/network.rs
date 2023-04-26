@@ -16,10 +16,11 @@ use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
 
 use haneullabs_metrics::RegistryService;
+use shared_crypto::intent::Intent;
 use haneul::config::HaneulEnv;
 use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
 use haneul_config::builder::{ProtocolVersionsConfig, SupportedProtocolVersionsCallback};
-use haneul_config::genesis_config::GenesisConfig;
+use haneul_config::genesis_config::{AccountConfig, GenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
@@ -31,11 +32,11 @@ use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
 use haneul_sdk::error::HaneulRpcResult;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
-use haneul_types::base_types::{AuthorityName, HaneulAddress};
+use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::messages::VerifiedTransaction;
+use haneul_types::messages::{SenderSignedData, Transaction, TransactionData, VerifiedTransaction};
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -109,6 +110,27 @@ impl TestCluster {
             .unwrap()
     }
 
+    // Sign a transaction with a key currently managed by the WalletContext
+    pub fn sign_transaction(
+        &self,
+        signer_address: &HaneulAddress,
+        data: &TransactionData,
+    ) -> VerifiedTransaction {
+        let sig = self
+            .wallet
+            .config
+            .keystore
+            .sign_secure(signer_address, data, Intent::haneul_transaction())
+            .unwrap();
+        VerifiedTransaction::new_unchecked(Transaction::new(
+            SenderSignedData::new_from_sender_signature(
+                data.clone(),
+                Intent::haneul_transaction(),
+                sig,
+            ),
+        ))
+    }
+
     pub fn fullnode_config_builder(&self) -> FullnodeConfigBuilder {
         self.swarm.config().fullnode_config_builder()
     }
@@ -154,6 +176,15 @@ impl TestCluster {
             .get_reference_gas_price()
             .await
             .expect("failed to get reference gas price")
+    }
+
+    pub async fn get_object_from_fullnode_store(&self, object_id: &ObjectID) -> Option<Object> {
+        self.fullnode_handle
+            .haneul_node
+            .state()
+            .get_object(object_id)
+            .await
+            .unwrap()
     }
 
     /// To detect whether the network has reached such state, we use the fullnode as the
@@ -422,6 +453,11 @@ impl TestClusterBuilder {
     ) -> Self {
         self.validator_supported_protocol_versions_config =
             ProtocolVersionsConfig::PerValidator(func);
+        self
+    }
+
+    pub fn with_accounts(mut self, accounts: Vec<AccountConfig>) -> Self {
+        self.get_or_init_genesis_config().accounts = accounts;
         self
     }
 
