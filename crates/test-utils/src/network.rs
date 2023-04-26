@@ -579,7 +579,7 @@ pub async fn start_fullnode_from_config(
     config: NodeConfig,
 ) -> Result<FullNodeHandle, anyhow::Error> {
     let registry_service = RegistryService::new(Registry::new());
-    let haneul_node = HaneulNode::start(&config, registry_service).await?;
+    let haneul_node = HaneulNode::start(&config, registry_service, None).await?;
 
     let rpc_url = format!("http://{}", config.json_rpc_address);
     let rpc_client = HttpClientBuilder::default().build(&rpc_url)?;
