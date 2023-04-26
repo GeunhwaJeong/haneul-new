@@ -276,6 +276,9 @@ export type HaneulTransactionBlockResponseQuery = {
 };
 
 export type TransactionFilter =
+  | { Checkpoint: string }
+  | { FromAndToAddress: { from: string; to: string } }
+  | { TransactionKind: string }
   | {
       MoveFunction: {
         package: ObjectId;
