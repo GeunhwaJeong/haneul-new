@@ -19,7 +19,7 @@ always requires the Ed25519 key, but also one of the ECDSA secp256r1 keys to sig
 structure is using mobile secure enclave stored keys as 2FA; note that currently iPhone and high-end Android devices 
 support ECDSA secp256r1 enclave-stored keys only.
 
-![Haneul tokenomics flow](../../../static/cryptography/haneul_multisig_structures_old.png "Multisig Haneul supported structures")
+![Haneul tokenomics flow](../../../static/cryptography/haneul_multisig_structures.png "Multisig Haneul supported structures")
 *Examples of Haneul supported multisig structures.*
 
 ## Step 1: Add keys to Haneul keystore
