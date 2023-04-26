@@ -17,8 +17,7 @@ use tracing::info;
 
 use haneullabs_metrics::RegistryService;
 use shared_crypto::intent::Intent;
-use haneul::config::HaneulEnv;
-use haneul::{client_commands::WalletContext, config::HaneulClientConfig};
+use haneul::client_commands::WalletContext;
 use haneul_config::builder::{ProtocolVersionsConfig, SupportedProtocolVersionsCallback};
 use haneul_config::genesis_config::{AccountConfig, GenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
@@ -30,6 +29,7 @@ use haneul_node::HaneulNode;
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
 use haneul_sdk::error::HaneulRpcResult;
+use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
 use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress};

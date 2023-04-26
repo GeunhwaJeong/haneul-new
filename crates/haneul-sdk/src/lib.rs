@@ -33,6 +33,7 @@ use crate::error::{Error, HaneulRpcResult};
 
 pub mod apis;
 pub mod error;
+pub mod haneul_client_config;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
 const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 60;
 

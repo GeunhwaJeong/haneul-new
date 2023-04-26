@@ -10,7 +10,6 @@ use std::{
     time::Instant,
 };
 
-use crate::config::{Config, PersistedConfig, HaneulClientConfig, HaneulEnv};
 use anyhow::{anyhow, ensure};
 use bip32::DerivationPath;
 use clap::*;
@@ -31,6 +30,7 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::error::HaneulError;
 
 use shared_crypto::intent::Intent;
+use haneul_config::{Config, PersistedConfig};
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectResponse,
@@ -43,6 +43,7 @@ use haneul_move_build::{
     build_from_resolution_graph, check_invalid_dependencies, check_unpublished_dependencies,
     gather_published_ids, BuildConfig, CompiledPackage, PackageDependencies, PublishedAtError,
 };
+use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::dynamic_field::DynamicFieldType;

@@ -28,13 +28,13 @@ use haneul_swarm::memory::Swarm;
 use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};
 
 use crate::client_commands::{HaneulClientCommands, WalletContext};
-use crate::config::{HaneulClientConfig, HaneulEnv};
 use crate::console::start_console;
 use crate::fire_drill::{run_fire_drill, FireDrill};
 use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
 use crate::validator_commands::HaneulValidatorCommand;
 use haneul_move::{self, execute_move_command};
+use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Parser)]

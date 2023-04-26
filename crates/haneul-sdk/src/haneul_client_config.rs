@@ -1,4 +1,3 @@
-// Copyright (c) 2021, Facebook, Inc. and its affiliates
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -8,13 +7,10 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-pub use haneul_config::utils;
-pub use haneul_config::Config;
-pub use haneul_config::PersistedConfig;
-use haneul_config::HANEUL_DEV_NET_URL;
+use crate::{HaneulClient, HaneulClientBuilder};
+use haneul_config::{Config, HANEUL_DEV_NET_URL};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
-use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::*;
 
 #[serde_as]
