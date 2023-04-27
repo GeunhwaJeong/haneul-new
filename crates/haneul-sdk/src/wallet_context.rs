@@ -47,6 +47,10 @@ impl WalletContext {
         Ok(context)
     }
 
+    pub fn get_addresses(&self) -> Vec<HaneulAddress> {
+        self.config.keystore.addresses()
+    }
+
     pub async fn get_client(&self) -> clap::Result<HaneulClient, anyhow::Error> {
         let read = self.client.read().await;
 
@@ -67,6 +71,7 @@ impl WalletContext {
         })
     }
 
+    // TODO: Ger rid of mut
     pub fn active_address(&mut self) -> clap::Result<HaneulAddress, anyhow::Error> {
         if self.config.keystore.addresses().is_empty() {
             return Err(anyhow!(
@@ -184,6 +189,57 @@ impl WalletContext {
         Err(anyhow!(
             "No non-argument gas objects found with value >= budget {budget}"
         ))
+    }
+
+    /// Given an address, return one gas object owned by this address.
+    /// The actual implementation just returns the first one returned by the read api.
+    pub async fn get_one_gas_object_owned_by_address(
+        &self,
+        address: HaneulAddress,
+    ) -> anyhow::Result<Option<ObjectRef>> {
+        let client = self.get_client().await?;
+        let mut response = client
+            .read_api()
+            .get_owned_objects(
+                address,
+                Some(HaneulObjectResponseQuery::new(
+                    Some(HaneulObjectDataFilter::StructType(GasCoin::type_())),
+                    Some(HaneulObjectDataOptions::full_content()),
+                )),
+                None,
+                Some(1),
+            )
+            .await?;
+        Ok(response
+            .data
+            .pop()
+            .and_then(|r| r.data.map(|o| o.object_ref())))
+    }
+
+    /// Return a gas object owned by an arbitrary address managed by the wallet.
+    pub async fn get_one_gas_object(&self) -> anyhow::Result<Option<(HaneulAddress, ObjectRef)>> {
+        for address in self.get_addresses() {
+            if let Some(gas_object) = self.get_one_gas_object_owned_by_address(address).await? {
+                return Ok(Some((address, gas_object)));
+            }
+        }
+        Ok(None)
+    }
+
+    pub async fn get_all_accounts_and_gas_objects(
+        &self,
+    ) -> anyhow::Result<Vec<(HaneulAddress, Vec<ObjectRef>)>> {
+        let mut result = vec![];
+        for address in self.get_addresses() {
+            let objects = self
+                .gas_objects(address)
+                .await?
+                .into_iter()
+                .map(|(_, o)| o.object_ref())
+                .collect();
+            result.push((address, objects));
+        }
+        Ok(result)
     }
 
     pub async fn get_reference_gas_price(&self) -> clap::Result<u64, anyhow::Error> {
