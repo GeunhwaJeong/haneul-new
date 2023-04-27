@@ -45,7 +45,7 @@ Follow the instructions here to run your own Haneul Full.
 
 Suggested minimum hardware to run a Haneul Full node:
 
-- CPUs: 10 physical cores / 20 vCPUs
+- CPUs: 8 physical cores / 16 vCPUs
 - RAM: 128 GB
 - Storage (SSD): 2 TB NVMe drive
 
