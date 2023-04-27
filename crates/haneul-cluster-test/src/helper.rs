@@ -93,6 +93,18 @@ impl ObjectChecker {
             }
             (
                 None,
+                Some(HaneulObjectResponseError::DynamicFieldNotFound {
+                    parent_object_id: object_id,
+                }),
+            ) => {
+                panic!(
+                    "Node can't find dynamic field for {} with client {:?}",
+                    object_id,
+                    client.read_api()
+                )
+            }
+            (
+                None,
                 Some(HaneulObjectResponseError::Deleted {
                     object_id,
                     version: _,
