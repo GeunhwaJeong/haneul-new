@@ -27,7 +27,12 @@ import {
   TransactionEventDigest,
 } from './common';
 import { HaneulEvent } from './events';
-import { ObjectDigest, HaneulGasData, HaneulObjectRef } from './objects';
+import {
+  ObjectDigest,
+  HaneulGasData,
+  HaneulMovePackage,
+  HaneulObjectRef,
+} from './objects';
 
 export const EpochId = string();
 
@@ -76,9 +81,19 @@ export const HaneulTransaction = union([
   object({ TransferObjects: tuple([array(HaneulArgument), HaneulArgument]) }),
   object({ SplitCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
   object({ MergeCoins: tuple([HaneulArgument, array(HaneulArgument)]) }),
-  object({ Publish: array(ObjectId) }),
   object({
-    Upgrade: tuple([array(ObjectId), ObjectId, HaneulArgument]),
+    Publish: union([
+      // TODO: Remove this after 0.34 is released:
+      tuple([HaneulMovePackage, array(ObjectId)]),
+      array(ObjectId),
+    ]),
+  }),
+  object({
+    Upgrade: union([
+      // TODO: Remove this after 0.34 is released:
+      tuple([HaneulMovePackage, array(ObjectId), ObjectId, HaneulArgument]),
+      tuple([array(ObjectId), ObjectId, HaneulArgument]),
+    ]),
   }),
   object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
 ]);
