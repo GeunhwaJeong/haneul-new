@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Haneul, HaneulLogoTxt } from '@haneullabs/icons';
-import cl from 'classnames';
 
 import { Text } from '../../shared/text';
 import { API_ENV } from '_src/shared/api-env';
@@ -20,12 +19,12 @@ type LogoProps = {
 
 const Logo = ({ networkName }: LogoProps) => {
     return (
-        <div className="inline-flex flex-nowrap items-center text-2xl">
-            <Haneul className="h-10 w-7" />
-            <div className={cl('flex flex-col', { 'mb-2': !!networkName })}>
-                <HaneulLogoTxt className="my-1" />
+        <div className="inline-flex flex-nowrap items-center gap-0.5 text-gray-90">
+            <Haneul className="h-[26px] w-5" />
+            <div className="flex flex-col">
+                <HaneulLogoTxt className="w-5 h-[13px]" />
                 {networkName && (
-                    <div className="-mt-2 ml-0.5 whitespace-nowrap">
+                    <div className="whitespace-nowrap">
                         <Text variant="subtitleSmallExtra">
                             {networkNames[networkName]}
                         </Text>
