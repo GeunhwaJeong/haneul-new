@@ -124,6 +124,10 @@
 					{
 						"label": "Haneul Keys and Addresses",
 						"fileName": "learn/cryptography/haneul-wallet-specs"
+					},
+					{
+						"label": "Haneul Crypto Agility and Signatures",
+						"fileName": "learn/cryptography/haneul-signatures"
 					}
 				]
 			},

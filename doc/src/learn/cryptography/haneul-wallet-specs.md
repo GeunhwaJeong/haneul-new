@@ -2,7 +2,7 @@
 title: Haneul Wallet Specifications - Keys and Addresses
 ---
 
-Haneul Wallet adheres to widely accepted wallet specifications in the cryptocurrency industry, including [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) (and its variation, [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md)) and its variation [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki), and [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki), to facilitate key management for users. At present, Haneul supports Ed25519, ECDSA Secp256k1, ECDSA Secp256r1, and [multisig](https://github.com/GeunhwaJeong/haneul/blob/6780cf62150893285f5db11f40f793fc440ec08b/doc/src/learn/cryptography/haneul-multisig.md) for signed transactions.
+Haneul Wallet adheres to widely accepted wallet specifications in the cryptocurrency industry, including [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) (and its variation, [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md)) and its variation [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki), and [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki), to facilitate key management for users. At present, Haneul supports pure Ed25519, ECDSA Secp256k1, ECDSA Secp256r1, and [MultiSig](haneul-multisig.md) for signed transactions.
 
 
 ## Key Derivation Scheme
@@ -38,7 +38,7 @@ After Haneul defines the deterministic way to derive the master key from a seed,
 
 ## Address Format
 
-For deriving a 32-byte Haneul address, Haneul hashes the signature scheme flag 1-byte concatenated with public key bytes using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function. Haneul address currently supports pure Ed25519, Secp256k1, Secp256r1, and multisig with corresponding flag bytes of 0x00, 0x01, 0x02, and 0x03, respectively. 
+For deriving a 32-byte Haneul address, Haneul hashes the signature scheme flag 1-byte concatenated with public key bytes using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function. Haneul address currently supports pure Ed25519, Secp256k1, Secp256r1, and MultiSig with corresponding flag bytes of 0x00, 0x01, 0x02, and 0x03, respectively. 
 
 ## Example 
 

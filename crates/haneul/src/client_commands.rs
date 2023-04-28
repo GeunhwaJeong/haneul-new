@@ -347,7 +347,6 @@ pub enum HaneulClientCommands {
     /// Pay HANEUL coins to recipients following following specified amounts, with input coins.
     /// Length of recipients must be the same as that of amounts.
     /// The input coins also include the coin for gas payment, so no extra gas coin is required.
-    #[clap(name = "pay_haneul")]
     PayHaneul {
         /// The input coins to be used for pay recipients, including the gas coin.
         #[clap(long, multiple_occurrences = false, multiple_values = true)]
@@ -372,7 +371,6 @@ pub enum HaneulClientCommands {
 
     /// Pay all residual HANEUL coins to the recipient with input coins, after deducting the gas cost.
     /// The input coins also include the coin for gas payment, so no extra gas coin is required.
-    #[clap(name = "pay_all_haneul")]
     PayAllHaneul {
         /// The input coins to be used for pay recipients, including the gas coin.
         #[clap(long, multiple_occurrences = false, multiple_values = true)]

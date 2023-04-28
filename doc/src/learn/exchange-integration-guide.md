@@ -90,7 +90,7 @@ Currently, Haneul address supports these signature schemes: pure Ed25519, Secp25
 The following code sample demonstrates how to derive a Haneul address in Rust:
 
 ```rust
-let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1, 0x03 = Multisig
+let flag = 0x00; // 0x00 = ED25519, 0x01 = Secp256k1, 0x02 = Secp256r1, 0x03 = MultiSig
 // Hash the [flag, public key] bytearray using Blake2b
 let mut hasher = DefaultHash::default();
 hasher.update([flag]);
@@ -231,9 +231,7 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
 ## Signing Transactions
 
-Please refer to [offline signing](https://github.com/GeunhwaJeong/haneul/blob/d0aceaea613b33fc969f7ca2cdd84b8a35e87de3/crates/haneul/offline_signing.md) for more details on signature validity requirements.
-
-A native weighted multi-sig multi-scheme signature is also supported. Please see [multisig](https://github.com/GeunhwaJeong/haneul/blob/d0aceaea613b33fc969f7ca2cdd84b8a35e87de3/crates/haneul/multisig.md) for details. 
+Please refer to [Haneul Signatures](../learn/cryptography/haneul-signatures.md) for more details on signature validity requirements.
 
 ## HANEUL Staking
 
