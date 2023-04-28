@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useTransactionSummary } from '@haneullabs/core';
 import {
     getExecutionStatusError,
     getExecutionStatusType,
@@ -8,17 +9,14 @@ import {
     getTransactionKindName,
     getTransactionKind,
     getTransactionSender,
-    HANEUL_TYPE_ARG,
 } from '@haneullabs/haneul.js';
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { TxnTypeLabel } from './TxnActionLabel';
 import { TxnIcon } from './TxnIcon';
-import { CoinBalance } from '_app/shared/coin-balance';
 import { DateCard } from '_app/shared/date-card';
 import { Text } from '_app/shared/text';
-import { useGetTransferAmount, useGetTxnRecipientAddress } from '_hooks';
+import { useGetTxnRecipientAddress } from '_hooks';
 
 import type {
     HaneulAddress,
@@ -26,20 +24,6 @@ import type {
     HaneulTransactionBlockResponse,
     // TransactionEvents,
 } from '@haneullabs/haneul.js';
-
-// export const getTxnEffectsEventID = (
-//     events: TransactionEvents,
-//     address: string
-// ): string[] => {
-//     return events
-//         ?.map((event: HaneulEvent) => {
-//             const data = Object.values(event).find(
-//                 (itm) => itm?.recipient?.AddressOwner === address
-//             );
-//             return data?.objectId;
-//         })
-//         .filter(notEmpty);
-// };
 
 export function TransactionCard({
     txn,
@@ -52,38 +36,12 @@ export function TransactionCard({
     const executionStatus = getExecutionStatusType(txn);
     getTransactionKindName(transaction);
 
-    // const objectId = useMemo(() => {
-    //     return getTxnEffectsEventID(txn.events!, address)[0];
-    // }, [address, txn.events]);
-
-    const transfer = useGetTransferAmount({
-        txn,
-        activeAddress: address,
+    const summary = useTransactionSummary({
+        transaction: txn,
+        currentAddress: address,
     });
 
     // we only show Haneul Transfer amount or the first non-Haneul transfer amount
-    const transferAmount = useMemo(() => {
-        // Find HANEUL transfer amount
-        const amountTransfersHaneul = transfer?.find(
-            ({ coinType }) => coinType === HANEUL_TYPE_ARG
-        );
-
-        // Find non-HANEUL transfer amount
-        const amountTransfersNonHaneul = transfer?.find(
-            ({ coinType }) => coinType !== HANEUL_TYPE_ARG
-        );
-
-        return {
-            amount:
-                amountTransfersHaneul?.amount ||
-                amountTransfersNonHaneul?.amount ||
-                null,
-            coinType:
-                amountTransfersHaneul?.coinType ||
-                amountTransfersNonHaneul?.coinType ||
-                null,
-        };
-    }, [transfer]);
 
     const recipientAddress = useGetTxnRecipientAddress({ txn, address });
 
@@ -95,21 +53,10 @@ export function TransactionCard({
     // Epoch change without amount is delegation object
     // Special case for staking and unstaking move call transaction,
     // For other transaction show Sent or Received
-    const txnLabel = useMemo(() => {
-        return isSender ? 'Sent' : 'Received';
-    }, [/*txnKind,transferAmount.amount,*/ isSender]);
 
     // TODO: Support programmable tx:
     // Show haneul symbol only if transfer transferAmount coinType is HANEUL_TYPE_ARG, staking or unstaking
     const showHaneulSymbol = false;
-
-    const transferAmountComponent = transferAmount.coinType &&
-        transferAmount.amount && (
-            <CoinBalance
-                amount={Math.abs(transferAmount.amount)}
-                coinType={transferAmount.coinType}
-            />
-        );
 
     const timestamp = txn.timestampMs;
 
@@ -146,14 +93,14 @@ export function TransactionCard({
                                     </Text>
                                 </div>
                             </div>
-                            {transferAmountComponent}
+                            {/* {transferAmountComponent} */}
                         </div>
                     ) : (
                         <>
                             <div className="flex w-full justify-between">
                                 <div className="flex gap-1 align-middle items-baseline">
                                     <Text color="gray-90" weight="semibold">
-                                        {txnLabel}
+                                        {summary?.label}
                                     </Text>
                                     {showHaneulSymbol && (
                                         <Text
@@ -165,7 +112,7 @@ export function TransactionCard({
                                         </Text>
                                     )}
                                 </div>
-                                {transferAmountComponent}
+                                {/* {transferAmountComponent} */}
                             </div>
 
                             {/* TODO: Support programmable tx: */}
