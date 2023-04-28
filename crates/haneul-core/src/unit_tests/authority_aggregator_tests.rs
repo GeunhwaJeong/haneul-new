@@ -35,6 +35,7 @@ use tokio::time::Instant;
 
 #[cfg(msim)]
 use haneul_simulator::configs::constant_latency_ms;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 
 pub fn get_local_client(
     authorities: &mut AuthorityAggregator<LocalAuthorityClient>,

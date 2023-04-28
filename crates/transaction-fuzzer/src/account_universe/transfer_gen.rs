@@ -15,20 +15,18 @@ use proptest_derive::Arbitrary;
 use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::{
     base_types::HaneulAddress,
     error::{HaneulError, UserInputError},
-    messages::{
-        ExecutionFailureStatus, ExecutionStatus, GasData, TransactionData, TransactionKind,
-        VerifiedTransaction,
-    },
+    messages::{GasData, TransactionData, TransactionKind, VerifiedTransaction},
     object::Object,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     utils::{to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers},
 };
 
 const GAS_UNIT_PRICE: u64 = 2;
-const DEAFULT_TRANSFER_AMOUNT: u64 = 1;
+const DEFAULT_TRANSFER_AMOUNT: u64 = 1;
 const P2P_COMPUTE_GAS_USAGE: u64 = 1000;
 const P2P_SUCCESS_STORAGE_USAGE: u64 = 1976000;
 const P2P_FAILURE_STORAGE_USAGE: u64 = 988000;
@@ -296,7 +294,7 @@ impl AUTransactionGen for P2PTransferGenGasPriceInRange {
     ) -> (VerifiedTransaction, ExecutionResult) {
         P2PTransferGenRandomGasRandomPriceRandomSponsorship {
             sender_receiver: self.sender_receiver.clone(),
-            amount: DEAFULT_TRANSFER_AMOUNT,
+            amount: DEFAULT_TRANSFER_AMOUNT,
             gas: p2p_success_gas(self.gas_price),
             gas_price: self.gas_price,
             gas_coins: 1,

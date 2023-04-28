@@ -34,6 +34,7 @@ use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::error::UserInputError;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Data;

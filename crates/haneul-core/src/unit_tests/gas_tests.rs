@@ -12,6 +12,7 @@ use move_core_types::ident_str;
 use once_cell::sync::Lazy;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::crypto::AccountKeyPair;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::GAS_VALUE_FOR_TESTING;

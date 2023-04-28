@@ -17,7 +17,7 @@ use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 use haneul_types::{
     gas::GasCostSummary,
-    messages::{CallArg, ExecutionStatus, ObjectArg},
+    messages::{CallArg, ObjectArg},
 };
 use test_utils::authority::spawn_test_authorities;
 use test_utils::messages::move_transaction_with_type_tags;
@@ -35,6 +35,7 @@ use test_utils::{
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 use strum_macros::EnumString;
+use haneul_types::execution_status::ExecutionStatus;
 
 #[derive(
     Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Ord, PartialOrd, Clone, Display, EnumString,

@@ -8,9 +8,10 @@ use haneul_macros::*;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::error::HaneulResult;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::messages::{
-    CallArg, ExecutionFailureStatus, ExecutionStatus, ObjectArg, TransactionEffects,
-    TransactionEffectsAPI, TransactionEvents, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+    CallArg, ObjectArg, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
+    TEST_ONLY_GAS_UNIT_FOR_GENERIC,
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::{generate_test_gas_objects, Object, Owner, OBJECT_START_VERSION};

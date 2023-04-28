@@ -19,13 +19,14 @@ use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use move_vm_types::loaded_data::runtime_types::Type;
 use haneul_move_natives::object_runtime::{max_event_error, ObjectRuntime, RuntimeResults};
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::execution_status::CommandArgumentError;
 use haneul_types::{
     balance::Balance,
     base_types::{ObjectID, SequenceNumber, HaneulAddress, TxContext},
     coin::Coin,
     error::{ExecutionError, ExecutionErrorKind},
     gas::{HaneulGasStatus, HaneulGasStatusAPI},
-    messages::{Argument, CallArg, CommandArgumentError, ObjectArg},
+    messages::{Argument, CallArg, ObjectArg},
     metrics::LimitsMetrics,
     move_package::MovePackage,
     object::{MoveObject, Object, Owner},
@@ -769,7 +770,7 @@ impl<'vm, 'state, 'a, S: StorageView> ExecutionContext<'vm, 'state, 'a, S> {
     /// Special case errors for type arguments to Move functions
     pub fn convert_type_argument_error(&self, idx: usize, error: VMError) -> ExecutionError {
         use move_core_types::vm_status::StatusCode;
-        use haneul_types::messages::TypeArgumentError;
+        use haneul_types::execution_status::TypeArgumentError;
         match error.major_status() {
             StatusCode::NUMBER_OF_TYPE_ARGUMENTS_MISMATCH => {
                 ExecutionErrorKind::TypeArityMismatch.into()

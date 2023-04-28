@@ -6,8 +6,7 @@ use std::time::{Duration, SystemTime};
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_types::messages::{
-    CallArg, CommandArgumentError, ExecutionFailureStatus, ExecutionStatus, ObjectArg,
-    ObjectInfoRequest, TransactionEffectsAPI, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+    CallArg, ObjectArg, ObjectInfoRequest, TransactionEffectsAPI, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
 };
 use test_utils::authority::get_client;
 use test_utils::transaction::{
@@ -20,6 +19,7 @@ use test_utils::{
 
 use haneul_macros::sim_test;
 use haneul_types::event::Event;
+use haneul_types::execution_status::{CommandArgumentError, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 

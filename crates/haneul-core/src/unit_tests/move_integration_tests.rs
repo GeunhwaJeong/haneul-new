@@ -27,11 +27,11 @@ use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_types::{
     crypto::{get_key_pair, AccountKeyPair},
     error::HaneulError,
-    messages::ExecutionStatus,
 };
 
 use std::{collections::HashSet, path::PathBuf};
 use std::{env, str::FromStr};
+use haneul_types::execution_status::{CommandArgumentError, ExecutionFailureStatus, ExecutionStatus};
 
 #[tokio::test]
 #[cfg_attr(msim, ignore)]

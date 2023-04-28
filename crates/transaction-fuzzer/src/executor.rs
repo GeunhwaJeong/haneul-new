@@ -13,9 +13,7 @@ use haneul_types::object::Owner;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     error::HaneulError,
-    messages::{
-        ExecutionFailureStatus, ExecutionStatus, TransactionEffectsAPI, VerifiedTransaction,
-    },
+    messages::{TransactionEffectsAPI, VerifiedTransaction},
     object::Object,
 };
 use tokio::runtime::Runtime;
@@ -24,6 +22,7 @@ use crate::account_universe::{AccountCurrent, INITIAL_BALANCE};
 
 use std::path::PathBuf;
 use haneul_move_build::BuildConfig;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 
 pub type ExecutionResult = Result<ExecutionStatus, HaneulError>;
 

@@ -10,12 +10,12 @@ use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
     error::{ExecutionErrorKind, HaneulError},
-    messages::PackageUpgradeError,
     move_package::{MovePackage, TypeOrigin, UpgradeInfo},
     object::{Data, Object, OBJECT_START_VERSION},
 };
 
 use std::{collections::BTreeMap, path::PathBuf};
+use haneul_types::execution_status::PackageUpgradeError;
 
 macro_rules! type_origin_table {
     {} => { Vec::new() };

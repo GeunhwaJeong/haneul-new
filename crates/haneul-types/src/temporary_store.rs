@@ -15,6 +15,7 @@ use haneul_protocol_config::ProtocolConfig;
 use tracing::trace;
 
 use crate::committee::EpochId;
+use crate::execution_status::ExecutionStatus;
 use crate::messages::TransactionEvents;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::{
@@ -28,7 +29,7 @@ use crate::{
     event::Event,
     fp_bail, gas,
     gas::{GasCostSummary, HaneulGasStatus, HaneulGasStatusAPI},
-    messages::{ExecutionStatus, InputObjects, TransactionEffects},
+    messages::{InputObjects, TransactionEffects},
     object::Owner,
     object::{Data, Object},
     storage::{

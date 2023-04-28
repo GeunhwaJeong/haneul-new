@@ -9,10 +9,7 @@ use crate::authority::{
 use haneul_types::{
     base_types::ObjectID,
     error::UserInputError,
-    messages::{
-        ExecutionFailureStatus, TransactionData, TransactionEffectsAPI,
-        TEST_ONLY_GAS_UNIT_FOR_PUBLISH,
-    },
+    messages::{TransactionData, TransactionEffectsAPI, TEST_ONLY_GAS_UNIT_FOR_PUBLISH},
     object::{Data, ObjectRead, Owner},
     utils::to_sender_signed_transaction,
 };
@@ -22,7 +19,6 @@ use haneul_move_build::{check_unpublished_dependencies, gather_published_ids, Bu
 use haneul_types::{
     crypto::{get_key_pair, AccountKeyPair},
     error::HaneulError,
-    messages::ExecutionStatus,
 };
 
 use expect_test::expect;
@@ -31,6 +27,7 @@ use std::fs::File;
 use std::io::Read;
 use std::{collections::HashSet, path::PathBuf};
 use haneul_framework::BuiltInFramework;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 
 #[tokio::test]
 #[cfg_attr(msim, ignore)]
