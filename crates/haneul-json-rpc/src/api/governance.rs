@@ -4,7 +4,7 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::{DelegatedStake, HaneulCommittee};
+use haneul_json_rpc_types::{DelegatedStake, HaneulCommittee, ValidatorApys};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::BigInt;
@@ -39,4 +39,8 @@ pub trait GovernanceReadApi {
     /// Return the reference gas price for the network
     #[method(name = "getReferenceGasPrice")]
     async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>>;
+
+    /// Return the validator APY
+    #[method(name = "getValidatorsApy")]
+    async fn get_validators_apy(&self) -> RpcResult<ValidatorApys>;
 }

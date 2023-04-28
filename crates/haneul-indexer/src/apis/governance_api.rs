@@ -8,8 +8,8 @@ use jsonrpsee::RpcModule;
 
 use haneul_json_rpc::api::{GovernanceReadApiClient, GovernanceReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
-use haneul_json_rpc_types::DelegatedStake;
 use haneul_json_rpc_types::HaneulCommittee;
+use haneul_json_rpc_types::{DelegatedStake, ValidatorApys};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::BigInt;
@@ -49,6 +49,10 @@ impl GovernanceReadApiServer for GovernanceReadApi {
 
     async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>> {
         self.fullnode.get_reference_gas_price().await
+    }
+
+    async fn get_validators_apy(&self) -> RpcResult<ValidatorApys> {
+        self.fullnode.get_validators_apy().await
     }
 }
 
