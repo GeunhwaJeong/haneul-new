@@ -10,13 +10,18 @@ export const HANEUL_TESTNET_CHAIN = "haneul:testnet";
 /** Haneul Localnet */
 export const HANEUL_LOCALNET_CHAIN = "haneul:localnet";
 
+/** Haneul Mainnet */
+export const HANEUL_MAINNET_CHAIN = "haneul:mainnet";
+
 export const HANEUL_CHAINS = [
   HANEUL_DEVNET_CHAIN,
   HANEUL_TESTNET_CHAIN,
   HANEUL_LOCALNET_CHAIN,
+  HANEUL_MAINNET_CHAIN,
 ] as const;
 
 export type HaneulChain =
   | typeof HANEUL_DEVNET_CHAIN
   | typeof HANEUL_TESTNET_CHAIN
-  | typeof HANEUL_LOCALNET_CHAIN;
+  | typeof HANEUL_LOCALNET_CHAIN
+  | typeof HANEUL_MAINNET_CHAIN;

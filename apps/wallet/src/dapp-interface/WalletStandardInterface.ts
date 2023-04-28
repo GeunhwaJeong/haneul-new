@@ -18,6 +18,7 @@ import {
     type StandardEventsListeners,
     type HaneulSignTransactionBlockMethod,
     type HaneulSignMessageMethod,
+    HANEUL_MAINNET_CHAIN,
 } from '@haneullabs/wallet-standard';
 import mitt, { type Emitter } from 'mitt';
 import { filter, map, type Observable } from 'rxjs';
@@ -88,6 +89,7 @@ const API_ENV_TO_CHAIN: Record<
     [API_ENV.local]: HANEUL_LOCALNET_CHAIN,
     [API_ENV.devNet]: HANEUL_DEVNET_CHAIN,
     [API_ENV.testNet]: HANEUL_TESTNET_CHAIN,
+    [API_ENV.mainnet]: HANEUL_MAINNET_CHAIN,
 };
 
 export class HaneulWallet implements Wallet {
