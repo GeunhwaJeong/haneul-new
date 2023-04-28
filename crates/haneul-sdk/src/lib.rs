@@ -14,7 +14,6 @@ use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 use serde_json::Value;
 
 use move_core_types::language_storage::StructTag;
-use haneul_adapter::execution_mode::Normal;
 pub use haneul_json as json;
 use haneul_json_rpc::{
     CLIENT_SDK_TYPE_HEADER, CLIENT_SDK_VERSION_HEADER, CLIENT_TARGET_API_VERSION_HEADER,
@@ -175,7 +174,7 @@ impl HaneulClientBuilder {
 #[derive(Clone)]
 pub struct HaneulClient {
     api: Arc<RpcClient>,
-    transaction_builder: TransactionBuilder<Normal>,
+    transaction_builder: TransactionBuilder,
     read_api: Arc<ReadApi>,
     coin_read_api: CoinReadApi,
     event_api: EventApi,
@@ -232,7 +231,7 @@ impl HaneulClient {
 }
 
 impl HaneulClient {
-    pub fn transaction_builder(&self) -> &TransactionBuilder<Normal> {
+    pub fn transaction_builder(&self) -> &TransactionBuilder {
         &self.transaction_builder
     }
     pub fn read_api(&self) -> &ReadApi {

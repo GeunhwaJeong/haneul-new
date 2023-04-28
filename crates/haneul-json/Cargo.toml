@@ -26,8 +26,5 @@ workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
 test-fuzz = "3.0.4"
-workspace-hack.workspace = true
 haneul-types = { path = "../haneul-types", features = ["test-utils"] }
-
-haneul-adapter = { path = "../haneul-adapter" }
 haneul-move-build = { path = "../haneul-move-build" }

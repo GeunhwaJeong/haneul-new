@@ -16,7 +16,6 @@ move-binary-format.workspace = true
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
-haneul-adapter =  { path = "../haneul-adapter" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 
 move-core-types.workspace = true

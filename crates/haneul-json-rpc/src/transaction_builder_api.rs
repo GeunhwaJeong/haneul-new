@@ -9,7 +9,6 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 use move_core_types::language_storage::StructTag;
 
-use haneul_adapter::execution_mode::{DevInspect, Normal};
 use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulObjectDataFilter};
@@ -20,27 +19,18 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 use haneul_types::base_types::ObjectInfo;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::BigInt;
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
-    messages::TransactionData,
-};
 
 use crate::api::TransactionBuilderServer;
 use crate::HaneulRpcModule;
 
-pub struct TransactionBuilderApi {
-    builder: TransactionBuilder<Normal>,
-    dev_inspect_builder: TransactionBuilder<DevInspect>,
-}
+pub struct TransactionBuilderApi(TransactionBuilder);
 
 impl TransactionBuilderApi {
     pub fn new(state: Arc<AuthorityState>) -> Self {
         let reader = Arc::new(AuthorityStateDataReader::new(state));
-        Self {
-            builder: TransactionBuilder::new(reader.clone()),
-            dev_inspect_builder: TransactionBuilder::new(reader),
-        }
+        Self(TransactionBuilder::new(reader))
     }
 }
 
@@ -96,7 +86,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         recipient: HaneulAddress,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .transfer_object(signer, object_id, gas, *gas_budget, recipient)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -111,7 +101,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         amount: Option<BigInt<u64>>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .transfer_haneul(
                 signer,
                 haneul_object_id,
@@ -133,7 +123,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .pay(
                 signer,
                 input_coins,
@@ -155,7 +145,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .pay_haneul(
                 signer,
                 input_coins,
@@ -175,7 +165,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .pay_all_haneul(signer, input_coins, recipient, *gas_budget)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -194,7 +184,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
             .map(|data| data.to_vec().map_err(|e| anyhow::anyhow!(e)))
             .collect::<Result<Vec<_>, _>>()?;
         let data = self
-            .builder
+            .0
             .publish(sender, compiled_modules, dependencies, gas, *gas_budget)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -210,7 +200,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
     ) -> RpcResult<TransactionBlockBytes> {
         let split_amounts = split_amounts.into_iter().map(|a| *a).collect();
         let data = self
-            .builder
+            .0
             .split_coin(signer, coin_object_id, split_amounts, gas, *gas_budget)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -225,7 +215,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .split_coin_equal(signer, coin_object_id, *split_count, gas, *gas_budget)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -240,7 +230,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         let data = self
-            .builder
+            .0
             .merge_coins(signer, primary_coin, coin_to_merge, gas, *gas_budget)
             .await?;
         Ok(TransactionBlockBytes::from_data(data)?)
@@ -256,40 +246,22 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         rpc_arguments: Vec<HaneulJsonValue>,
         gas: Option<ObjectID>,
         gas_budget: BigInt<u64>,
-        txn_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
+        _txn_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
     ) -> RpcResult<TransactionBlockBytes> {
-        let mode = txn_builder_mode.unwrap_or(HaneulTransactionBlockBuilderMode::Commit);
-        let data: TransactionData = match mode {
-            HaneulTransactionBlockBuilderMode::DevInspect => {
-                self.dev_inspect_builder
-                    .move_call(
-                        signer,
-                        package_object_id,
-                        &module,
-                        &function,
-                        type_arguments,
-                        rpc_arguments,
-                        gas,
-                        *gas_budget,
-                    )
-                    .await?
-            }
-            HaneulTransactionBlockBuilderMode::Commit => {
-                self.builder
-                    .move_call(
-                        signer,
-                        package_object_id,
-                        &module,
-                        &function,
-                        type_arguments,
-                        rpc_arguments,
-                        gas,
-                        *gas_budget,
-                    )
-                    .await?
-            }
-        };
-        Ok(TransactionBlockBytes::from_data(data)?)
+        Ok(TransactionBlockBytes::from_data(
+            self.0
+                .move_call(
+                    signer,
+                    package_object_id,
+                    &module,
+                    &function,
+                    type_arguments,
+                    rpc_arguments,
+                    gas,
+                    *gas_budget,
+                )
+                .await?,
+        )?)
     }
 
     async fn batch_transaction(
@@ -298,22 +270,13 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         params: Vec<RPCTransactionRequestParams>,
         gas: Option<ObjectID>,
         gas_budget: BigInt<u64>,
-        txn_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
+        _txn_builder_mode: Option<HaneulTransactionBlockBuilderMode>,
     ) -> RpcResult<TransactionBlockBytes> {
-        let mode = txn_builder_mode.unwrap_or(HaneulTransactionBlockBuilderMode::Commit);
-        let data = match mode {
-            HaneulTransactionBlockBuilderMode::DevInspect => {
-                self.dev_inspect_builder
-                    .batch_transaction(signer, params, gas, *gas_budget)
-                    .await?
-            }
-            HaneulTransactionBlockBuilderMode::Commit => {
-                self.builder
-                    .batch_transaction(signer, params, gas, *gas_budget)
-                    .await?
-            }
-        };
-        Ok(TransactionBlockBytes::from_data(data)?)
+        Ok(TransactionBlockBytes::from_data(
+            self.0
+                .batch_transaction(signer, params, gas, *gas_budget)
+                .await?,
+        )?)
     }
 
     async fn request_add_stake(
@@ -327,7 +290,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
     ) -> RpcResult<TransactionBlockBytes> {
         let amount = amount.map(|a| *a);
         Ok(TransactionBlockBytes::from_data(
-            self.builder
+            self.0
                 .request_add_stake(signer, coins, amount, validator, gas, *gas_budget)
                 .await?,
         )?)
@@ -341,7 +304,7 @@ impl TransactionBuilderServer for TransactionBuilderApi {
         gas_budget: BigInt<u64>,
     ) -> RpcResult<TransactionBlockBytes> {
         Ok(TransactionBlockBytes::from_data(
-            self.builder
+            self.0
                 .request_withdraw_stake(signer, staked_haneul, gas, *gas_budget)
                 .await?,
         )?)
