@@ -9981,6 +9981,7 @@ dependencies = [
  "rocksdb",
  "serde 1.0.152",
  "haneul-json-rpc-types",
+ "haneul-protocol-config",
  "haneul-simulator",
  "haneul-types",
  "tap",
