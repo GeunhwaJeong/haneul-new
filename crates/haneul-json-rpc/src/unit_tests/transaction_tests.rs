@@ -3,6 +3,7 @@
 
 use haneul_config::HANEUL_KEYSTORE_FILENAME;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseQuery;
+use haneul_json_rpc_types::TransactionFilter;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions, TransactionBlockBytes,
@@ -10,7 +11,6 @@ use haneul_json_rpc_types::{
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_macros::sim_test;
 use haneul_types::messages::{ExecuteTransactionRequestType, SenderSignedData};
-use haneul_types::query::TransactionFilter;
 use haneul_types::utils::to_sender_signed_transaction;
 use test_utils::network::TestClusterBuilder;
 

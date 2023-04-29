@@ -39,7 +39,7 @@ use errors::IndexerError;
 use handlers::checkpoint_handler::CheckpointHandler;
 use haneullabs_metrics::{spawn_monitored_task, RegistryService};
 use store::IndexerStore;
-use haneul_core::event_handler::EventHandler;
+use haneul_core::event_handler::SubscriptionHandler;
 use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle, CLIENT_SDK_TYPE_HEADER};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
@@ -192,7 +192,7 @@ impl Indexer {
             "Haneul indexer of version {:?} started...",
             env!("CARGO_PKG_VERSION")
         );
-        let event_handler = Arc::new(EventHandler::default());
+        let event_handler = Arc::new(SubscriptionHandler::default());
 
         if config.rpc_server_worker && config.fullnode_sync_worker {
             info!("Starting indexer with both fullnode sync and RPC server");
@@ -403,7 +403,7 @@ pub async fn get_async_pg_pool_connection(
 pub async fn build_json_rpc_server<S: IndexerStore + Sync + Send + 'static + Clone>(
     prometheus_registry: &Registry,
     state: S,
-    event_handler: Arc<EventHandler>,
+    event_handler: Arc<SubscriptionHandler>,
     config: &IndexerConfig,
     custom_runtime: Option<Handle>,
 ) -> Result<ServerHandle, IndexerError> {

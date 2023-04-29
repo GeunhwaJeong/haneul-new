@@ -12,7 +12,7 @@ use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee::{RpcModule, SubscriptionSink};
 
 use move_core_types::identifier::Identifier;
-use haneul_core::event_handler::EventHandler;
+use haneul_core::event_handler::SubscriptionHandler;
 use haneul_json_rpc::api::{
     validate_limit, IndexerApiClient, IndexerApiServer, QUERY_MAX_RESULT_LIMIT,
 };
@@ -21,14 +21,13 @@ use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulObjectDataFilter,
     HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockResponseQuery,
-    TransactionBlocksPage,
+    TransactionBlocksPage, TransactionFilter,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::event::EventID;
-use haneul_types::query::TransactionFilter;
 
 use crate::errors::IndexerError;
 use crate::store::IndexerStore;
@@ -36,7 +35,7 @@ use crate::store::IndexerStore;
 pub(crate) struct IndexerApi<S> {
     state: S,
     fullnode: HttpClient,
-    event_handler: Arc<EventHandler>,
+    subscription_handler: Arc<SubscriptionHandler>,
     migrated_methods: Vec<String>,
 }
 
@@ -44,13 +43,13 @@ impl<S: IndexerStore> IndexerApi<S> {
     pub fn new(
         state: S,
         fullnode_client: HttpClient,
-        event_handler: Arc<EventHandler>,
+        event_handler: Arc<SubscriptionHandler>,
         migrated_methods: Vec<String>,
     ) -> Self {
         Self {
             state,
             fullnode: fullnode_client,
-            event_handler,
+            subscription_handler: event_handler,
             migrated_methods,
         }
     }
@@ -434,7 +433,19 @@ where
     }
 
     fn subscribe_event(&self, sink: SubscriptionSink, filter: EventFilter) -> SubscriptionResult {
-        spawn_subscription(sink, self.event_handler.subscribe(filter));
+        spawn_subscription(sink, self.subscription_handler.subscribe_events(filter));
+        Ok(())
+    }
+
+    fn subscribe_transaction(
+        &self,
+        sink: SubscriptionSink,
+        filter: TransactionFilter,
+    ) -> SubscriptionResult {
+        spawn_subscription(
+            sink,
+            self.subscription_handler.subscribe_transactions(filter),
+        );
         Ok(())
     }
 

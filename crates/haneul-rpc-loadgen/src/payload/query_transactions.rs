@@ -11,11 +11,10 @@ use async_trait::async_trait;
 use futures::future::join_all;
 use haneul_json_rpc_types::{
     Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    HaneulTransactionBlockResponseQuery, TransactionBlocksPage, TransactionFilter,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::query::TransactionFilter;
 use tracing::log::warn;
 
 #[async_trait]

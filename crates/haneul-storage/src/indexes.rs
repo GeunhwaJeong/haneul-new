@@ -21,7 +21,7 @@ use tokio::sync::OwnedMutexGuard;
 
 use crate::mutex_table::MutexTable;
 use crate::sharded_lru::ShardedLruCache;
-use haneul_json_rpc_types::HaneulObjectDataFilter;
+use haneul_json_rpc_types::{HaneulObjectDataFilter, TransactionFilter};
 use haneul_types::base_types::{
     ObjectDigest, ObjectID, SequenceNumber, HaneulAddress, TransactionDigest, TxSequenceNumber,
 };
@@ -32,7 +32,6 @@ use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::messages::TransactionEvents;
 use haneul_types::object::Owner;
 use haneul_types::parse_haneul_struct_tag;
-use haneul_types::query::TransactionFilter;
 use haneul_types::temporary_store::TxCoins;
 use tokio::task::spawn_blocking;
 use tracing::{debug, trace};

@@ -17,7 +17,7 @@ use tokio::task::JoinHandle;
 use tracing::{error, info, warn};
 
 use haneullabs_metrics::spawn_monitored_task;
-use haneul_core::event_handler::EventHandler;
+use haneul_core::event_handler::SubscriptionHandler;
 use haneul_json_rpc::api::{GovernanceReadApiClient, ReadApiClient};
 use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulGetPastObjectRequest, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData,
@@ -26,6 +26,7 @@ use haneul_json_rpc_types::{
 use haneul_sdk::error::Error;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::committee::EpochId;
+use haneul_types::messages::SenderSignedData;
 use haneul_types::messages_checkpoint::{CheckpointCommitment, CheckpointSequenceNumber};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
@@ -56,7 +57,7 @@ const EPOCH_QUEUE_LIMIT: usize = 2;
 pub struct CheckpointHandler<S> {
     state: S,
     http_client: HttpClient,
-    event_handler: Arc<EventHandler>,
+    event_handler: Arc<SubscriptionHandler>,
     metrics: IndexerMetrics,
     config: IndexerConfig,
     checkpoint_sender: Arc<Mutex<Sender<TemporaryCheckpointStore>>>,
@@ -75,7 +76,7 @@ where
     pub fn new(
         state: S,
         http_client: HttpClient,
-        event_handler: Arc<EventHandler>,
+        event_handler: Arc<SubscriptionHandler>,
         metrics: IndexerMetrics,
         config: &IndexerConfig,
     ) -> Self {
@@ -397,8 +398,9 @@ where
             for checkpoint in &downloaded_checkpoints {
                 let ws_guard = self.metrics.subscription_process_latency.start_timer();
                 for tx in &checkpoint.transactions {
+                    let data: SenderSignedData = bcs::from_bytes(&tx.raw_transaction)?;
                     self.event_handler
-                        .process_events(&tx.effects, &tx.events)
+                        .process_tx(data.transaction_data(), &tx.effects, &tx.events)
                         .await?;
                 }
                 ws_guard.stop_and_record();

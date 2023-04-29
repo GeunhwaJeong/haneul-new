@@ -4,9 +4,11 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
+use haneul_json_rpc_types::HaneulTransactionBlockEffects;
 use haneul_json_rpc_types::{
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulEvent, HaneulObjectResponse,
     HaneulObjectResponseQuery, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    TransactionFilter,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
@@ -70,6 +72,10 @@ pub trait IndexerApi {
         /// the filter criteria of the event stream, see the [Haneul docs](https://docs.haneul.io/build/pubsub#event-filters) for detailed examples.
         filter: EventFilter,
     );
+
+    /// Subscribe to a stream of Haneul transaction effects
+    #[subscription(name = "subscribeTransaction", item = HaneulTransactionBlockEffects)]
+    fn subscribe_transaction(&self, filter: TransactionFilter);
 
     /// Return the list of dynamic field objects owned by an object.
     #[method(name = "getDynamicFields")]

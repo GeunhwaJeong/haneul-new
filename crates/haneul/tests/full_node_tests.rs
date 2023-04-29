@@ -13,11 +13,11 @@ use haneullabs_metrics::RegistryService;
 use prometheus::Registry;
 use serde_json::json;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
-use haneul_json_rpc_types::EventFilter;
 use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, HaneulEvent, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
     HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
+use haneul_json_rpc_types::{EventFilter, TransactionFilter};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
 use haneul_node::HaneulNode;
@@ -35,7 +35,6 @@ use haneul_types::messages::{
 };
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::query::TransactionFilter;
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
