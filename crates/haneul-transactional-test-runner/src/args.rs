@@ -9,6 +9,7 @@ use move_command_line_common::{parser::Parser as MoveCLParser, values::ValueToke
 use move_core_types::identifier::Identifier;
 use move_core_types::u256::U256;
 use move_core_types::value::{MoveStruct, MoveValue};
+use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::SyntaxChoice;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::messages::{Argument, CallArg, ObjectArg};
@@ -122,6 +123,25 @@ pub struct UpgradePackageCommand {
 }
 
 #[derive(Debug, clap::Parser)]
+pub struct StagePackageCommand {
+    #[clap(long = "syntax")]
+    pub syntax: Option<SyntaxChoice>,
+    #[clap(
+        long = "dependencies",
+        multiple_values(true),
+        multiple_occurrences(false)
+    )]
+    pub dependencies: Vec<String>,
+}
+
+#[derive(Debug, clap::Parser)]
+pub struct SetAddressCommand {
+    pub address: String,
+    #[clap(parse(try_from_str = ParsedValue::parse))]
+    pub input: ParsedValue<HaneulExtraValueArgs>,
+}
+
+#[derive(Debug, clap::Parser)]
 pub enum HaneulSubcommand {
     #[clap(name = "view-object")]
     ViewObject(ViewObjectCommand),
@@ -133,21 +153,27 @@ pub enum HaneulSubcommand {
     ProgrammableTransaction(ProgrammableTransactionCommand),
     #[clap(name = "upgrade")]
     UpgradePackage(UpgradePackageCommand),
+    #[clap(name = "stage-package")]
+    StagePackage(StagePackageCommand),
+    #[clap(name = "set-address")]
+    SetAddress(SetAddressCommand),
 }
 
 #[derive(Debug)]
 pub enum HaneulExtraValueArgs {
     Object(FakeID),
+    Digest(String),
 }
 
 pub enum HaneulValue {
     MoveValue(MoveValue),
     Object(FakeID),
     ObjVec(Vec<FakeID>),
+    Digest(String),
 }
 
 impl HaneulExtraValueArgs {
-    fn parse_value_impl<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+    fn parse_object_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
         parser: &mut MoveCLParser<'a, ValueToken, I>,
     ) -> anyhow::Result<Self> {
         let contents = parser.advance(ValueToken::Ident)?;
@@ -172,6 +198,17 @@ impl HaneulExtraValueArgs {
         parser.advance(ValueToken::RParen)?;
         Ok(HaneulExtraValueArgs::Object(fake_id))
     }
+
+    fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
+        let contents = parser.advance(ValueToken::Ident)?;
+        ensure!(contents == "digest");
+        parser.advance(ValueToken::LParen)?;
+        let package = parser.advance(ValueToken::Ident)?;
+        parser.advance(ValueToken::RParen)?;
+        Ok(HaneulExtraValueArgs::Digest(package.to_owned()))
+    }
 }
 
 impl HaneulValue {
@@ -180,6 +217,7 @@ impl HaneulValue {
             HaneulValue::MoveValue(v) => v,
             HaneulValue::Object(_) => panic!("unexpected nested Haneul object in args"),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
+            HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
         }
     }
 
@@ -188,6 +226,7 @@ impl HaneulValue {
             HaneulValue::MoveValue(_) => panic!("unexpected nested non-object value in args"),
             HaneulValue::Object(v) => v,
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
+            HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
         }
     }
 
@@ -220,6 +259,13 @@ impl HaneulValue {
             HaneulValue::Object(fake_id) => CallArg::Object(Self::object_arg(fake_id, test_adapter)?),
             HaneulValue::MoveValue(v) => CallArg::Pure(v.simple_serialize().unwrap()),
             HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
+            HaneulValue::Digest(pkg) => {
+                let pkg = Symbol::from(pkg);
+                let Some(staged) = test_adapter.staged_modules.get(&pkg) else {
+                    bail!("Unbound staged package '{pkg}'")
+                };
+                CallArg::Pure(bcs::to_bytes(&staged.digest).unwrap())
+            }
         })
     }
 
@@ -228,17 +274,17 @@ impl HaneulValue {
         builder: &mut ProgrammableTransactionBuilder,
         test_adapter: &HaneulTestAdapter,
     ) -> anyhow::Result<Argument> {
-        Ok(match self {
-            HaneulValue::Object(fake_id) => builder.obj(Self::object_arg(fake_id, test_adapter)?)?,
+        match self {
             HaneulValue::ObjVec(vec) => builder.make_obj_vec(
                 vec.iter()
                     .map(|fake_id| Self::object_arg(*fake_id, test_adapter))
                     .collect::<Result<Vec<ObjectArg>, _>>()?,
-            )?,
-            HaneulValue::MoveValue(v) => {
-                builder.input(CallArg::Pure(v.simple_serialize().unwrap()))?
+            ),
+            value => {
+                let call_arg = value.into_call_arg(test_adapter)?;
+                builder.input(call_arg)
             }
-        })
+        }
     }
 }
 
@@ -249,7 +295,8 @@ impl ParsableValue for HaneulExtraValueArgs {
         parser: &mut MoveCLParser<'a, ValueToken, I>,
     ) -> Option<anyhow::Result<Self>> {
         match parser.peek()? {
-            (ValueToken::Ident, "object") => Some(Self::parse_value_impl(parser)),
+            (ValueToken::Ident, "object") => Some(Self::parse_object_value(parser)),
+            (ValueToken::Ident, "digest") => Some(Self::parse_digest_value(parser)),
             _ => None,
         }
     }
@@ -292,6 +339,7 @@ impl ParsableValue for HaneulExtraValueArgs {
     ) -> anyhow::Result<Self::ConcreteValue> {
         match self {
             HaneulExtraValueArgs::Object(id) => Ok(HaneulValue::Object(id)),
+            HaneulExtraValueArgs::Digest(pkg) => Ok(HaneulValue::Digest(pkg)),
         }
     }
 }
