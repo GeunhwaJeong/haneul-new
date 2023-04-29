@@ -1,4 +1,6 @@
-# title: Haneul Dev Cheat Sheet
+---
+title: Haneul Developer Cheat Sheet
+---
 
 Quick reference on best practices for Haneul Network developers.
 
