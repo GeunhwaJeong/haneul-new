@@ -9,16 +9,21 @@ use crate::authority::authority_test_utils::{
 };
 use crate::authority::test_authority_builder::TestAuthorityBuilder;
 use crate::authority::AuthorityState;
+use crate::test_utils::make_transfer_haneul_transaction;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::KeyPair;
 use move_core_types::ident_str;
+use haneul_config::certificate_deny_config::CertificateDenyConfigBuilder;
 use haneul_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_config::transaction_deny_config::{TransactionDenyConfig, TransactionDenyConfigBuilder};
 use haneul_config::NetworkConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::messages::{
-    CallArg, HandleTransactionResponse, TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    CallArg, CertifiedTransaction, HandleTransactionResponse, TransactionData, VerifiedCertificate,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
@@ -391,7 +396,49 @@ async fn test_package_denied() {
     )
     .await;
     assert!(result.is_ok());
+}
 
-    // TODO: We will need to upgrade c to c', and publish a new package b' that depends on c'.
-    // Then we could test that calling c' and b' would both succeed.
+#[tokio::test]
+async fn test_certificate_deny() {
+    let (network_config, state) = setup_test(TransactionDenyConfig::default()).await;
+    let (sender, key, gas_objects) = get_accounts_and_coins(&network_config, &state)
+        .pop()
+        .unwrap();
+    let tx = make_transfer_haneul_transaction(
+        gas_objects[0],
+        sender,
+        None,
+        sender,
+        &key,
+        state.reference_gas_price_for_testing().unwrap(),
+    );
+    let digest = *tx.digest();
+    let state = TestAuthorityBuilder::new()
+        .with_network_config(&network_config)
+        .with_certificate_deny_config(
+            CertificateDenyConfigBuilder::new()
+                .add_certificate_deny(digest)
+                .build(),
+        )
+        .build()
+        .await;
+    let epoch_store = state.epoch_store_for_testing();
+    let signature = state
+        .handle_transaction(&epoch_store, tx.clone())
+        .await
+        .unwrap()
+        .status
+        .into_signed_for_testing();
+    let cert = VerifiedCertificate::new_unchecked(
+        CertifiedTransaction::new(tx.into_message(), vec![signature], epoch_store.committee())
+            .unwrap(),
+    );
+    let (effects, _) = state.try_execute_for_test(&cert).await.unwrap();
+    assert!(matches!(
+        effects.status(),
+        &ExecutionStatus::Failure {
+            error: ExecutionFailureStatus::CertificateDenied,
+            ..
+        }
+    ));
 }

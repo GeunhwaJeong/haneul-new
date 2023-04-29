@@ -37,9 +37,11 @@ use narwhal_config::{
     Committee as ConsensusCommittee, WorkerCache as ConsensusWorkerCache,
     WorkerId as ConsensusWorkerId,
 };
+use once_cell::sync::OnceCell;
 use shared_crypto::intent::{Intent, IntentScope};
 use haneul_adapter::execution_engine;
 use haneul_adapter::{adapter, execution_mode};
+use haneul_config::certificate_deny_config::CertificateDenyConfig;
 use haneul_config::genesis::Genesis;
 use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
@@ -62,6 +64,10 @@ use haneul_types::crypto::{
 };
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType, Field};
+use haneul_types::effects::{
+    SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
+    VerifiedCertifiedTransactionEffects, VerifiedSignedTransactionEffects,
+};
 use haneul_types::error::{ExecutionError, UserInputError};
 use haneul_types::event::{Event, EventID};
 use haneul_types::gas::{GasCostSummary, HaneulGasStatus};
@@ -133,11 +139,6 @@ mod batch_verification_tests;
 
 #[cfg(feature = "test-utils")]
 pub mod authority_test_utils;
-use once_cell::sync::OnceCell;
-use haneul_types::effects::{
-    SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
-    VerifiedCertifiedTransactionEffects, VerifiedSignedTransactionEffects,
-};
 
 pub mod authority_per_epoch_store;
 pub mod authority_per_epoch_store_pruner;
@@ -514,6 +515,8 @@ pub struct AuthorityState {
     expensive_safety_check_config: ExpensiveSafetyCheckConfig,
 
     transaction_deny_config: TransactionDenyConfig,
+
+    certificate_deny_config: CertificateDenyConfig,
 }
 
 /// The authority state encapsulates all state, drives execution, and ensures safety.
@@ -1063,6 +1066,7 @@ impl AuthorityState {
                 // cyclic dependency w/ haneul-adapter
                 self.expensive_safety_check_config
                     .enable_deep_per_tx_haneul_conservation_check(),
+                self.certificate_deny_config.certificate_deny_set(),
             );
 
         Ok((inner_temp_store, effects, execution_error_opt.err()))
@@ -1168,6 +1172,7 @@ impl AuthorityState {
                 epoch_store.protocol_config(),
                 self.metrics.limits_metrics.clone(),
                 false, // enable_expensive_checks
+                self.certificate_deny_config.certificate_deny_set(),
             );
         let tx_digest = *effects.transaction_digest();
 
@@ -1284,6 +1289,7 @@ impl AuthorityState {
                 protocol_config,
                 self.metrics.limits_metrics.clone(),
                 false, // enable_expensive_checks
+                self.certificate_deny_config.certificate_deny_set(),
             );
 
         let module_cache =
@@ -1756,6 +1762,7 @@ impl AuthorityState {
         db_checkpoint_config: &DBCheckpointConfig,
         expensive_safety_check_config: ExpensiveSafetyCheckConfig,
         transaction_deny_config: TransactionDenyConfig,
+        certificate_deny_config: CertificateDenyConfig,
         indirect_objects_threshold: usize,
     ) -> Arc<Self> {
         Self::check_protocol_version(supported_protocol_versions, epoch_store.protocol_version());
@@ -1798,6 +1805,7 @@ impl AuthorityState {
             db_checkpoint_config: db_checkpoint_config.clone(),
             expensive_safety_check_config,
             transaction_deny_config,
+            certificate_deny_config,
         });
 
         // Start a task to execute ready certificates.
