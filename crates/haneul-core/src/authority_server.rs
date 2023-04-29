@@ -12,6 +12,7 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
+use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{error::*, messages::*};
@@ -318,7 +319,7 @@ impl ValidatorService {
             Arc::clone(&consensus_adapter),
             transaction.data(),
         )?;
-        let _handel_tx_metrics_guard = metrics.handle_transaction_latency.start_timer();
+        let _handle_tx_metrics_guard = metrics.handle_transaction_latency.start_timer();
 
         let tx_verif_metrics_guard = metrics.tx_verification_latency.start_timer();
         let transaction = epoch_store

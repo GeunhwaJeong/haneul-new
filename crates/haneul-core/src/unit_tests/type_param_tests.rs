@@ -10,10 +10,10 @@ use crate::authority::{
 
 use move_core_types::language_storage::TypeTag;
 
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::{
     base_types::ObjectID,
     crypto::{get_key_pair, AccountKeyPair},
-    messages::TransactionEffectsAPI,
 };
 
 #[tokio::test]

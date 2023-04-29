@@ -14,6 +14,7 @@ use prometheus::{
 use std::collections::HashSet;
 use std::sync::Arc;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
+use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };

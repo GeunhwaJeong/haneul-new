@@ -3,7 +3,8 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::storage::ObjectKey;
 use tracing::trace;
 
@@ -196,6 +197,7 @@ mod tests {
     use super::*;
     use haneul_types::base_types::ObjectDigest;
     use haneul_types::base_types::{ObjectID, SequenceNumber};
+    use haneul_types::effects::TransactionEffects;
 
     #[test]
     pub fn test_casual_order() {

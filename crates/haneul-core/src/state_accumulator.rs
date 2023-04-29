@@ -19,8 +19,9 @@ use std::sync::Arc;
 
 use fastcrypto::hash::MultisetHash;
 use haneul_types::accumulator::Accumulator;
+use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, ECMHLiveObjectSetDigest};
 use typed_store::rocks::TypedStoreError;
 

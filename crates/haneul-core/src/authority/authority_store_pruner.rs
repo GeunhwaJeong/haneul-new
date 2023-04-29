@@ -14,7 +14,8 @@ use std::{sync::Arc, time::Duration};
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_storage::mutex_table::RwLockTable;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::{
     base_types::{ObjectID, VersionNumber},
@@ -324,7 +325,8 @@ mod tests {
     use prometheus::Registry;
     use haneul_storage::mutex_table::RwLockTable;
     use haneul_types::base_types::{ObjectDigest, VersionNumber};
-    use haneul_types::messages::{TransactionEffects, TransactionEffectsAPI};
+    use haneul_types::effects::TransactionEffects;
+    use haneul_types::effects::TransactionEffectsAPI;
     use haneul_types::{
         base_types::{ObjectID, SequenceNumber},
         object::Object,

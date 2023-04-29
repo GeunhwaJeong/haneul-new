@@ -31,13 +31,11 @@ use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{EpochId, TransactionDigest};
 use haneul_types::crypto::{AuthoritySignInfo, AuthorityStrongQuorumSignInfo};
 use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::{
-    ConsensusTransactionKey, TransactionDataAPI, TransactionEffects, TransactionEffectsAPI,
-    TransactionKind,
-};
+use haneul_types::messages::{ConsensusTransactionKey, TransactionDataAPI, TransactionKind};
 use haneul_types::messages_checkpoint::SignedCheckpointSummary;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
@@ -1386,6 +1384,7 @@ mod tests {
     use std::ops::Deref;
     use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionEffectsDigest};
     use haneul_types::crypto::Signature;
+    use haneul_types::effects::TransactionEffects;
     use haneul_types::messages::{GenesisObject, VerifiedTransaction};
     use haneul_types::messages_checkpoint::SignedCheckpointSummary;
     use haneul_types::move_package::MovePackage;

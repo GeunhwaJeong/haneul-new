@@ -10,7 +10,7 @@ use move_binary_format::CompiledModule;
 use haneul_types::{
     base_types::ObjectID,
     error::UserInputError,
-    messages::{TransactionData, TransactionEffectsAPI, TEST_ONLY_GAS_UNIT_FOR_PUBLISH},
+    messages::{TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH},
     object::{Data, ObjectRead, Owner},
     utils::to_sender_signed_transaction,
 };
@@ -28,6 +28,7 @@ use std::fs::File;
 use std::io::Read;
 use std::{collections::HashSet, path::PathBuf};
 use haneul_framework::BuiltInFramework;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 
 #[tokio::test]

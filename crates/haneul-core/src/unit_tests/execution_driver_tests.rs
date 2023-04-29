@@ -18,10 +18,9 @@ use itertools::Itertools;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::{
-    TransactionEffects, TransactionEffectsAPI, VerifiedCertificate, VerifiedTransaction,
-};
+use haneul_types::messages::{VerifiedCertificate, VerifiedTransaction};
 use haneul_types::object::{Object, Owner};
 use test_utils::messages::{make_counter_create_transaction, make_counter_increment_transaction};
 use tokio::sync::mpsc::UnboundedReceiver;

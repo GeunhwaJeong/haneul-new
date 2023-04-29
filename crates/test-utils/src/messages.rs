@@ -17,8 +17,8 @@ use haneul_types::crypto::{
     deterministic_random_account_key, get_key_pair, AccountKeyPair, AuthorityKeyPair,
     AuthorityPublicKeyBytes, AuthoritySignInfo, KeypairTraits, Signature, Signer,
 };
+use haneul_types::effects::SignedTransactionEffects;
 use haneul_types::messages::CallArg;
-use haneul_types::messages::SignedTransactionEffects;
 use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_GENERIC;
 use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
 use haneul_types::messages::{

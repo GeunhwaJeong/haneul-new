@@ -23,8 +23,8 @@ use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     AuthorityCapabilities, CertifiedTransaction, ConsensusTransaction, ConsensusTransactionKey,
     ConsensusTransactionKind, SenderSignedData, SharedInputObject, TransactionData,
-    TransactionDataAPI, TransactionEffects, TransactionEffectsAPI, TrustedExecutableTransaction,
-    VerifiedCertificate, VerifiedExecutableTransaction, VerifiedSignedTransaction,
+    TransactionDataAPI, TrustedExecutableTransaction, VerifiedCertificate,
+    VerifiedExecutableTransaction, VerifiedSignedTransaction,
 };
 use haneul_types::signature::GenericSignature;
 use tracing::{debug, error, info, trace, warn};
@@ -60,6 +60,7 @@ use haneul_adapter::adapter;
 use haneul_macros::fail_point;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_storage::mutex_table::{MutexGuard, MutexTable};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::message_envelope::TrustedEnvelope;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSignatureMessage, CheckpointSummary,

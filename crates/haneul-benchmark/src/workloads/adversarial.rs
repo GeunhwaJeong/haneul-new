@@ -25,8 +25,9 @@ use std::sync::Arc;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages::Command;
-use haneul_types::messages::{CallArg, ObjectArg, TransactionEffectsAPI};
+use haneul_types::messages::{CallArg, ObjectArg};
 use haneul_types::{base_types::ObjectID, object::Owner};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, messages::VerifiedTransaction};
 use haneul_types::{
@@ -100,7 +101,7 @@ impl FromStr for AdversarialPayloadType {
 
 impl Distribution<AdversarialPayloadType> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> AdversarialPayloadType {
-        // Excluse the "Random" variant
+        // Exclude the "Random" variant
         let n = rng.gen_range(1..AdversarialPayloadType::COUNT);
         AdversarialPayloadType::iter().nth(n).unwrap()
     }

@@ -8,6 +8,7 @@ use std::path::Path;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::digests::TransactionEventsDigest;
+use haneul_types::effects::TransactionEffects;
 use haneul_types::storage::ObjectStore;
 use typed_store::metrics::SamplingInterval;
 use typed_store::rocks::util::{empty_compaction_filter, reference_count_merge_operator};

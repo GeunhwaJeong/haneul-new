@@ -21,9 +21,9 @@ use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::coin::{CoinMetadata, TreasuryCap};
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::HaneulError;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::TransactionEffectsAPI;
 use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_struct_tag;
 

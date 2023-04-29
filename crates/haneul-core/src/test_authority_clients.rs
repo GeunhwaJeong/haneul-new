@@ -12,15 +12,14 @@ use crate::{authority::AuthorityState, authority_client::AuthorityAPI};
 use async_trait::async_trait;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
-use haneul_types::messages::TransactionEvents;
+use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
     crypto::AuthorityKeyPair,
     error::HaneulError,
     messages::{
         CertifiedTransaction, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
-        SystemStateRequest, Transaction, TransactionEffectsAPI, TransactionInfoRequest,
-        TransactionInfoResponse,
+        SystemStateRequest, Transaction, TransactionInfoRequest, TransactionInfoResponse,
     },
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
 };

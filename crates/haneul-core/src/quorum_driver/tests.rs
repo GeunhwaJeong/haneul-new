@@ -12,7 +12,8 @@ use std::time::Duration;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::crypto::{deterministic_random_account_key, get_key_pair, AccountKeyPair};
-use haneul_types::messages::{TransactionEffectsAPI, VerifiedTransaction};
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::quorum_driver_types::{QuorumDriverError, QuorumDriverResponse, QuorumDriverResult};
 

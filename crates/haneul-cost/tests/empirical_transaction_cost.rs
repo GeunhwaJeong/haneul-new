@@ -11,8 +11,8 @@ use haneul_types::coin::PAY_JOIN_FUNC_NAME;
 use haneul_types::coin::PAY_MODULE_NAME;
 use haneul_types::coin::PAY_SPLIT_VEC_FUNC_NAME;
 use haneul_types::crypto::{deterministic_random_account_key, AccountKeyPair};
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_GENERIC;
-use haneul_types::messages::{TransactionEffectsAPI, VerifiedTransaction};
 use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 use haneul_types::{
@@ -35,6 +35,7 @@ use test_utils::{
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 use strum_macros::EnumString;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::ExecutionStatus;
 
 #[derive(

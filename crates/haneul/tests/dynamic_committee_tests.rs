@@ -20,12 +20,12 @@ use haneul_core::{
 };
 use haneul_node::HaneulNodeHandle;
 
+use haneul_types::effects::{CertifiedTransactionEffects, TransactionEffects, TransactionEffectsAPI};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
     messages::{
-        Argument, CertifiedTransactionEffects, Command, ObjectArg, ProgrammableTransaction,
-        TransactionData, TransactionEffects, TransactionEffectsAPI, VerifiedTransaction,
+        Argument, Command, ObjectArg, ProgrammableTransaction, TransactionData, VerifiedTransaction,
     },
     object::{Object, Owner},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
@@ -348,6 +348,7 @@ impl StressTestRunner {
 
 mod add_stake {
     use super::*;
+    use haneul_types::effects::TransactionEffects;
 
     pub struct RequestAddStakeGen;
 

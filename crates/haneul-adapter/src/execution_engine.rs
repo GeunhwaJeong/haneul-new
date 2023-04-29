@@ -24,6 +24,7 @@ use haneul_macros::checked_arithmetic;
 use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
 use haneul_types::clock::{CLOCK_MODULE_NAME, CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME};
 use haneul_types::committee::EpochId;
+use haneul_types::effects::TransactionEffects;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::error::{ExecutionError, ExecutionErrorKind};
 use haneul_types::execution_status::ExecutionStatus;
@@ -41,7 +42,7 @@ use haneul_types::temporary_store::TemporaryStore;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     gas::HaneulGasStatus,
-    messages::{CallArg, ChangeEpoch, TransactionEffects},
+    messages::{CallArg, ChangeEpoch},
     object::Object,
     storage::BackingPackageStore,
     haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},

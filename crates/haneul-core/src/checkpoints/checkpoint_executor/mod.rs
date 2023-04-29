@@ -30,11 +30,12 @@ use haneullabs_metrics::{spawn_monitored_task, MonitoredFutureExt};
 use prometheus::Registry;
 use haneul_config::node::CheckpointExecutorConfig;
 use haneul_macros::{fail_point, fail_point_async};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages::VerifiedExecutableTransaction;
 use haneul_types::{
     base_types::{ExecutionDigests, TransactionDigest, TransactionEffectsDigest},
-    messages::{TransactionEffects, TransactionEffectsAPI, VerifiedTransaction},
+    messages::VerifiedTransaction,
     messages_checkpoint::{CheckpointSequenceNumber, VerifiedCheckpoint},
 };
 use haneul_types::{error::HaneulResult, messages::TransactionDataAPI};
