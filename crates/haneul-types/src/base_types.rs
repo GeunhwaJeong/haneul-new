@@ -34,6 +34,7 @@ use crate::signature::GenericSignature;
 use crate::haneul_serde::HexAccountAddress;
 use crate::haneul_serde::Readable;
 use crate::MOVE_STDLIB_ADDRESS;
+use crate::HANEUL_CLOCK_OBJECT_ID;
 use crate::HANEUL_FRAMEWORK_ADDRESS;
 use crate::HANEUL_SYSTEM_ADDRESS;
 use anyhow::anyhow;
@@ -1077,6 +1078,10 @@ impl ObjectID {
     /// over [fn to_hex_literal] if the string needs to be fully preserved.
     pub fn to_hex_uncompressed(&self) -> String {
         format!("{self}")
+    }
+
+    pub fn is_clock(&self) -> bool {
+        *self == HANEUL_CLOCK_OBJECT_ID
     }
 }
 

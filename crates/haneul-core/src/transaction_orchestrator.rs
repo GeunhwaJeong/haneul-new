@@ -28,11 +28,12 @@ use haneul_types::base_types::TransactionDigest;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
-    FinalizedEffects, QuorumDriverResponse, TransactionEffectsAPI,
-    VerifiedCertifiedTransactionEffects, VerifiedExecutableTransaction,
+    FinalizedEffects, TransactionEffectsAPI, VerifiedCertifiedTransactionEffects,
+    VerifiedExecutableTransaction,
 };
+use haneul_types::object::Object;
 use haneul_types::quorum_driver_types::{
-    QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResult,
+    QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResponse, QuorumDriverResult,
 };
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tokio::sync::broadcast::error::RecvError;
@@ -204,7 +205,11 @@ where
             Err(err) => Err(err),
             Ok(response) => {
                 good_response_metrics.inc();
-                let QuorumDriverResponse { effects_cert, .. } = response;
+                let QuorumDriverResponse {
+                    effects_cert,
+                    objects,
+                    ..
+                } = response;
                 if !wait_for_local_execution {
                     return Ok(ExecuteTransactionResponse::EffectsCert(Box::new((
                         FinalizedEffects::new_from_effects_cert(effects_cert.into()),
@@ -221,6 +226,7 @@ where
                     &self.validator_state,
                     &executable_tx,
                     &effects_cert,
+                    &objects,
                     &self.metrics,
                 )
                 .await
@@ -265,6 +271,7 @@ where
         validator_state: &Arc<AuthorityState>,
         transaction: &VerifiedExecutableTransaction,
         effects_cert: &VerifiedCertifiedTransactionEffects,
+        objects: &Vec<Object>,
         metrics: &TransactionOrchestratorMetrics,
     ) -> HaneulResult {
         let epoch_store = validator_state.load_epoch_store_one_call_per_task();
@@ -297,6 +304,7 @@ where
             validator_state.fullnode_execute_certificate_with_effects(
                 transaction,
                 effects_cert,
+                objects,
                 &epoch_store,
             ),
         )
@@ -337,7 +345,14 @@ where
     ) {
         loop {
             match effects_receiver.recv().await {
-                Ok(Ok((transaction, QuorumDriverResponse { effects_cert, .. }))) => {
+                Ok(Ok((
+                    transaction,
+                    QuorumDriverResponse {
+                        effects_cert,
+                        objects,
+                        ..
+                    },
+                ))) => {
                     let executable_tx = VerifiedExecutableTransaction::new_from_quorum_execution(
                         transaction,
                         effects_cert.executed_epoch(),
@@ -353,6 +368,7 @@ where
                         &validator_state,
                         &executable_tx,
                         &effects_cert,
+                        &objects,
                         &metrics,
                     )
                     .await;
