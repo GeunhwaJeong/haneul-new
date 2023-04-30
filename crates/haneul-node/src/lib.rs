@@ -40,6 +40,7 @@ use haneullabs_network::server::ServerBuilder;
 use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use haneul_config::node::DBCheckpointConfig;
+use haneul_config::node_config_metrics::NodeConfigMetrics;
 use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
@@ -177,6 +178,8 @@ impl HaneulNode {
         node_once_cell: Arc<AsyncOnceCell<Arc<HaneulNode>>>,
         custom_rpc_runtime: Option<Handle>,
     ) -> Result<()> {
+        NodeConfigMetrics::new(&registry_service.default_registry()).record_metrics(config);
+
         let mut config = config.clone();
         if config.supported_protocol_versions.is_none() {
             info!(
