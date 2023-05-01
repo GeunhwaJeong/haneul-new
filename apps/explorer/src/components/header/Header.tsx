@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactComponent as HaneulLogo } from '../../assets/Haneul Logo.svg';
+import { Haneul, HaneulLogoTxt } from '@haneullabs/icons';
+
 import NetworkSelect from '../network/Network';
 import Search from '../search/Search';
 
@@ -12,8 +13,13 @@ function Header() {
         <header className="relative z-20 h-header overflow-visible bg-headerNav">
             <div className="mx-auto flex h-full max-w-[1440px] items-center px-5 2xl:p-0">
                 <div className="mr-8">
-                    <LinkWithQuery data-testid="nav-logo-button" to="/">
-                        <HaneulLogo />
+                    <LinkWithQuery
+                        data-testid="nav-logo-button"
+                        to="/"
+                        className="flex flex-nowrap items-center gap-1 text-white"
+                    >
+                        <Haneul className="h-[26px] w-5" />
+                        <HaneulLogoTxt className="h-[17px] w-[27px]" />
                     </LinkWithQuery>
                 </div>
 
