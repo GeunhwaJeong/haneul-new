@@ -3,7 +3,7 @@
 
 import {
     roundFloat,
-    useGetRollingAverageApys,
+    useGetValidatorsApy,
     useGetSystemState,
 } from '@haneullabs/core';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
@@ -21,9 +21,7 @@ type DelegatedAPYProps = {
 
 export function DelegatedAPY({ stakedValidators }: DelegatedAPYProps) {
     const { data, isLoading } = useGetSystemState();
-    const { data: rollingAverageApys } = useGetRollingAverageApys(
-        data?.activeValidators.length || null
-    );
+    const { data: rollingAverageApys } = useGetValidatorsApy();
 
     const averageNetworkAPY = useMemo(() => {
         if (!data || !rollingAverageApys) return null;

@@ -43,6 +43,7 @@ import {
   HaneulEvent,
   PaginatedObjectsResponse,
   HaneulObjectResponseQuery,
+  ValidatorsApy,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -795,6 +796,17 @@ export class JsonRpcProvider {
       'haneulx_getCurrentEpoch',
       [],
       EpochInfo,
+    );
+  }
+
+  /**
+   * Return the Validators APYs
+   */
+  async getValidatorsApy(): Promise<ValidatorsApy> {
+    return await this.client.requestWithType(
+      'haneulx_getValidatorsApy',
+      [],
+      ValidatorsApy,
     );
   }
 

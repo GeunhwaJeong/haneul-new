@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeature } from '@growthbook/growthbook-react';
-import { useGetRollingAverageApys, useGetSystemState } from '@haneullabs/core';
+import { useGetValidatorsApy, useGetSystemState } from '@haneullabs/core';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
 import { useMemo } from 'react';
 
@@ -44,9 +44,7 @@ export function DelegationDetailCard({
         isError,
     } = useGetDelegatedStake(accountAddress || '');
 
-    const { data: rollingAverageApys } = useGetRollingAverageApys(
-        system?.activeValidators.length || null
-    );
+    const { data: rollingAverageApys } = useGetValidatorsApy();
 
     const validatorData = useMemo(() => {
         if (!system) return null;
