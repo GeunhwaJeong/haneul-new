@@ -126,11 +126,15 @@
 						"fileName": "learn/cryptography/haneul-wallet-specs"
 					},
 					{
+						"label": "Verifying Groth16 zk-SNARKs",
+						"fileName": "learn/cryptography/groth16"
+          },
+          {
 						"label": "Haneul Crypto Agility and Signatures",
 						"fileName": "learn/cryptography/haneul-signatures"
 					},
 					{
-						"label": "Verifiable random function (VRF)",
+						"label": "Verifiable Random Function (VRF)",
 						"fileName": "learn/cryptography/ecvrf"
 					}
 				]
