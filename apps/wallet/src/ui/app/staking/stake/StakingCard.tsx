@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { useCoinDecimals, useGetSystemState } from '@haneullabs/core';
+import { useCoinMetadata, useGetSystemState } from '@haneullabs/core';
 import { ArrowLeft16 } from '@haneullabs/icons';
 import {
     getTransactionDigest,
@@ -91,7 +91,8 @@ function StakingCard() {
 
     const haneulEarned = stakeData?.estimatedReward || '0';
 
-    const [coinDecimals] = useCoinDecimals(coinType);
+    const { data: metadata } = useCoinMetadata(coinType);
+    const coinDecimals = metadata?.decimals ?? 0;
     // set minimum stake amount to 1 HANEUL
     const minimumStake = parseAmount('1', coinDecimals);
 

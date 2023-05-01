@@ -5,11 +5,10 @@ import {
     CoinFormat,
     formatBalance,
     formatDate,
-    useCoinDecimals,
     useGetReferenceGasPrice,
     useRpcClient,
 } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_DECIMALS } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 import { ParentSize } from '@visx/responsive';
 import clsx from 'clsx';
@@ -89,11 +88,10 @@ function useGasPriceAverage(totalEpochs: number) {
 }
 
 function useGasPriceFormat(gasPrice: bigint | null, unit: 'GEUNHWA' | 'HANEUL') {
-    const [haneulDecimals] = useCoinDecimals(HANEUL_TYPE_ARG);
     return gasPrice !== null
         ? formatBalance(
               gasPrice,
-              unit === 'GEUNHWA' ? 0 : haneulDecimals,
+              unit === 'GEUNHWA' ? 0 : HANEUL_DECIMALS,
               CoinFormat.FULL
           )
         : null;

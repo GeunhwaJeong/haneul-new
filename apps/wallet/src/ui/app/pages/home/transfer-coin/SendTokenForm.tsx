@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCoinDecimals, useFormatCoin, CoinFormat } from '@haneullabs/core';
+import { useCoinMetadata, useFormatCoin, CoinFormat } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG, Coin as CoinAPI, type CoinStruct } from '@haneullabs/haneul.js';
 import { Field, Form, useFormikContext, Formik } from 'formik';
@@ -123,7 +123,8 @@ export function SendTokenForm({
     const haneulBalance = CoinAPI.totalBalance(haneulCoinsData || []);
 
     const coinSymbol = (coinType && CoinAPI.getCoinSymbol(coinType)) || '';
-    const [coinDecimals, coinDecimalsQueryResult] = useCoinDecimals(coinType);
+    const coinMetadata = useCoinMetadata(coinType);
+    const coinDecimals = coinMetadata.data?.decimals ?? 0;
 
     const validationSchemaStepOne = useMemo(
         () =>
@@ -149,7 +150,7 @@ export function SendTokenForm({
         <Loading
             loading={
                 queryResult.isLoading ||
-                coinDecimalsQueryResult.isLoading ||
+                coinMetadata.isLoading ||
                 haneulCoinsIsLoading ||
                 coinsIsLoading
             }

@@ -107,6 +107,8 @@ export const HaneulRawData = union([
 ]);
 export type HaneulRawData = Infer<typeof HaneulRawData>;
 
+export const HANEUL_DECIMALS = 9;
+
 export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
 export const ObjectDigest = string();
