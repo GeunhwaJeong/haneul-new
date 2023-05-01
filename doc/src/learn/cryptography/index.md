@@ -7,3 +7,4 @@ Learn about cryptography in Haneul:
 * [Haneul Offline Signing](../cryptography/haneul-offline-signing.md)
 * [Haneul Multi-Signature](../cryptography/haneul-multisig.md)
 * [Haneul Signatures and Crypto Agility](../cryptography/haneul-signatures.md)
+* [Verifiable Random Function](../cryptography/ecvrf.md)
