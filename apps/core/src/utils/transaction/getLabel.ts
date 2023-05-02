@@ -3,11 +3,15 @@
 import {
     HaneulTransactionBlockResponse,
     getTransactionSender,
+    type HaneulAddress,
 } from '@haneullabs/haneul.js';
 
 // todo: add more logic for deriving transaction label
-export const getLabel = (transaction: HaneulTransactionBlockResponse) => {
-    const isSender = getTransactionSender(transaction);
-
-    return isSender ? 'Send' : 'Receive';
+export const getLabel = (
+    transaction: HaneulTransactionBlockResponse,
+    currentAddress?: HaneulAddress
+) => {
+    const isSender = getTransactionSender(transaction) === currentAddress;
+    // Rename to "Send" to Transaction
+    return isSender ? 'Transaction' : 'Receive';
 };
