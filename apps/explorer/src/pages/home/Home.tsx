@@ -55,7 +55,7 @@ function Home() {
                 <Checkpoint />
             </div>
             <div style={{ gridArea: 'gas-price' }}>
-                <GasPriceCard />
+                <GasPriceCard useLargeSpacing={!isHaneulTokenCardEnabled} />
             </div>
             <div
                 style={{ gridArea: 'node-map' }}
