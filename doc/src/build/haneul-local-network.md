@@ -67,7 +67,7 @@ Use the following command to install Haneul directly from the Haneul GitHub repo
 cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch main haneul-test-validator haneul
 ```
 
-Note that the command uses the `main` branch of the Haneul repository. To use a different branch, change the value for the `--branch` switch. For example, to use the `devnet` branch, specify `--branch devnet`.
+The command uses the `main` branch of the Haneul repository. To use a different branch, change the value for the `--branch` switch. For example, to use the `devnet` branch, specify `--branch devnet`.
 
 ## Start the local network
 
@@ -258,7 +258,7 @@ If you encounter an error from turbo build, confirm that there is no `package-lo
 
 ### Set up Haneul Explorer on your local network
 
-To connect the live Haneul Explorer to your local network, open the URL:[https://explorer.haneul.io/?network=local](https://explorer.haneul.io/?network=local). The live version of Haneul Explorer may not include recent updates added to the `main` branch of the Haneul repo. To use Haneul Explorer that includes the most recent updates, install and run Haneul Explorer from your local clone of the Haneul repo.
+To connect the live Haneul Explorer to your local network, open the URL:[https://haneulexplorer.com/?network=local](https://haneulexplorer.com/?network=local). The live version of Haneul Explorer may not include recent updates added to the `main` branch of the Haneul repo. To use Haneul Explorer that includes the most recent updates, install and run Haneul Explorer from your local clone of the Haneul repo.
 
 Run the following command from the `haneul` root folder:
 

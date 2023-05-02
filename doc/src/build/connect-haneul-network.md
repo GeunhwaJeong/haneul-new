@@ -2,16 +2,16 @@
 title: Connect to a Haneul Network
 ---
 
-Haneul has Testnet and Devnet networks available. Use one of the on-chain networks to experiment with the version of Haneul running on that network. You can also spin up a [local Haneul network](haneul-local-network.md) for local development. 
+Haneul has Mainnet, Devnet, and Testnet networks available. You can use one of the test networks, Devnet or Testnet, to experiment with the version of Haneul running on that network. You can also spin up a [local Haneul network](haneul-local-network.md) for local development. 
 
 The Haneul Testnet and Devnet networks consist of:
 
  * Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: `https://fullnode.<HANEUL-NETWORK-VERSION>.haneul.io:443` using [JSON-RPC](../build/json-rpc.md).
- * A public network [Haneul Explorer](https://explorer.haneul.io) for browsing transaction history.
+ * A public network [Haneul Explorer](https://haneulexplorer.com/) for browsing transaction history.
 
-You can [request test HANEUL tokens](#request-test-tokens) through the Haneul [devnet-faucet](https://discordapp.com/channels/916379725201563759/971488439931392130) and [testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966) Discord channels, depending on which version of the network you're working with. If connected to Localnet, use cURL to request tokens from your [local faucet](haneul-local-network.md#use-the-local-faucet). The coins on these networks have no financial value. With each Haneul release, the network resets and removes all assets (coins and NFTs).
+You can [request test HANEUL tokens](#request-test-tokens) through the Haneul [devnet-faucet](https://discordapp.com/channels/916379725201563759/971488439931392130) and [testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966) Discord channels, depending on which version of the network you use. If connected to Localnet, use cURL to request tokens from your [local faucet](haneul-local-network.md#use-the-local-faucet). The coins on these networks have no financial value. For obvious reasons, there is no faucet service for Mainnet.
 
-See announcements about Haneul Devnet in the [#devnet-updates](https://discord.com/channels/916379725201563759/1004638487078772736) Discord channel.
+See announcements about Haneul in the [#announcements](https://discord.com/channels/916379725201563759/925109817834631189) Discord channel.
 
 See the [terms of service](https://haneul.io/terms/) for using Haneul networks.
 
@@ -63,7 +63,7 @@ Press **y** and then press **Enter**. The process then requests the RPC server U
 Haneul Full node server URL (Defaults to Haneul Devnet if not specified) :
 ```
 
-Press **Enter** to connect to Haneul Devnet. To use a custom RPC server or Haneul Testnet, enter the URL to the correct RPC endpoint and then press **Enter**.
+Press **Enter** to connect to Haneul Devnet. To use a custom RPC server, Haneul Testnet, or Haneul Mainnet, enter the URL to the correct RPC endpoint and then press **Enter**.
 
 If you enter a URL, the process prompts for an alias for the environment:
 
@@ -342,7 +342,7 @@ Go to the Haneul Explorer to observe a newly created object. You should see a sw
 ![Object view in Haneul Explorer](../../static/build-explorer-object.png)
 *Explorer view of example sword object*
 
-To see your object in the current [Haneul Explorer](https://explorer.haneul.io), paste the object ID of the created object you observed in your own command output in the search field and press **Enter**. If your Haneul Explorer doesn't find your object, make sure it's pointing to the right network. 
+To see your object in the current [Haneul Explorer](https://haneulexplorer.com/), paste the object ID of the created object you observed in your own command output in the search field and press **Enter**. If your Haneul Explorer doesn't find your object, make sure it's pointing to the right network. 
 
 Related topics:
  * [Create Smart Contracts with Move](../build/move/index.md)

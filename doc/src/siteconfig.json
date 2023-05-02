@@ -32,7 +32,7 @@
         },
         {
           "title": "GitHub",
-          "link": "https://github.com/GeunhwaJeong",
+          "link": "https://github.com/GeunhwaJeong/haneul",
           "external": true
         }
       ]
@@ -123,6 +123,11 @@
             "name": "Haneul Announcements (Discord)",
             "url": "https://discord.com/channels/916379725201563759/925109817834631189",
             "external": true            
+          },
+          {
+            "name": "Haneul Developer Portal",
+            "url": "https://haneul.io/developers",
+            "external": true
           }
         ]
       },

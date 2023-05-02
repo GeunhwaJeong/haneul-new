@@ -12,7 +12,7 @@ Finally, Haneul’s [Storage mechanics](https://docs.haneul.io/learn/tokenomics/
 
 `net_gas_fees = computation_gas_fee + storage_gas_fee - storage_rebate`
 
-The information on net gas fees displays in [Haneul Explorer](https://explorer.haneul.io/) for each transaction block:
+The information on net gas fees displays in [Haneul Explorer](https://haneulexplorer.com/) for each transaction block:
 
 ![Gas Fees displayed on Haneul Explorer](../../static/gas-fees-explorer.png "The Gas Fees section displayed on Haneul Explorer")
 *The Gas Fees section for a transaction block displayed on Haneul Explorer*

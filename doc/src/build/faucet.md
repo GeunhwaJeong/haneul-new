@@ -2,25 +2,22 @@
 title: Requesting Gas Tokens from Faucet
 ---
 
-Haneul faucet is a helpful tool where Haneul developers can get free test HANEUL tokens to deploy and interact with their programs on Haneul's Devnet and Testnet.
-
-You can request test tokens in the following ways:
+Haneul faucet is a helpful tool where Haneul developers can get free test HANEUL tokens to deploy and interact with their programs on Haneul's Devnet and Testnet networks. There is no faucet for Haneul Mainnet.
 
 ## Prerequisites
 
-To request tokens from the faucet, you must own a wallet address that can receive the HANEUL tokens. You can generate an address via the [Haneul CLI tool](../build/cli-client.md#active-address) or the [Haneul wallet](../explore/wallet-browser.md).
+To request tokens from the faucet, you must own a wallet address that can receive the HANEUL tokens. You can generate an address via the [Haneul CLI tool](../build/cli-client.md#active-address) or the [Haneul wallet](https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneullabs-haneul-wallet.md).
 
 ## 1. Request test tokens through Discord
 
 1. Join [Discord](https://discord.gg/haneul).
    If you try to join the Haneul Discord channel using a newly created Discord account, you may need to wait a few days for validation.
-1. Request test HANEUL tokens in the Haneul [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) or [#testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966) Discord channels. Note that the Testnet faucet is only available while Testnet is live.
-   Send the following message to the channel with your client address:
+1. Request test HANEUL tokens in the Haneul [#devnet-faucet](https://discord.com/channels/916379725201563759/971488439931392130) or [#testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966) Discord channels. Send the following message to the channel with your client address:
    `!faucet <Your client address>`
 
 ## 2. Request test tokens through wallet
 
-You can request test tokens within [Haneul Wallet](../explore/wallet-browser.md#add-haneul-tokens-to-your-haneul-wallet).
+You can request test tokens within [Haneul Wallet](https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneullabs-haneul-wallet.md#add-haneul-tokens-to-your-haneul-wallet).
 
 ## 3. Request test tokens through cURL
 

@@ -214,6 +214,10 @@
 						"fileName": "build/custom-upgrade-policy"
 					},
 					{
+						"label": "Dependency Overrides",
+						"fileName": "build/dependency-overrides"
+					},
+					{
 						"label": "Haneul Move Library",
 						"fileName": "build/move/haneul-move-library"
 					}
@@ -308,14 +312,7 @@
 				"fileName": "reference/framework/index"
 			}
 		],
-		"explore": [{
-				"label": "Haneul Explorer",
-				"fileName": "explore/haneul-explorer"
-			},
-			{
-				"label": "Haneul Wallet",
-				"fileName": "explore/wallet-browser"
-			},
+		"explore": [
 			{
 				"label": "Tutorials",
 				"fileName": "explore/tutorials"
@@ -325,7 +322,8 @@
 				"fileName": "explore/examples"
 			}
 		],
-		"contribute": [{
+		"contribute": [
+			{
 				"label": "Frequently Asked Questions",
 				"fileName": "contribute/faq"
 			},
