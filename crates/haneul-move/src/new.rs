@@ -4,12 +4,11 @@
 use clap::Parser;
 use move_cli::base::new;
 use std::path::PathBuf;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 const HANEUL_PKG_NAME: &str = "Haneul";
 
 // Use testnet by default. Probably want to add options to make this configurable later
-const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"testnet\" }";
+const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"framework/testnet\" }";
 
 #[derive(Parser)]
 pub struct New {
@@ -24,13 +23,7 @@ impl New {
             path,
             "0.0.1",
             [(HANEUL_PKG_NAME, HANEUL_PKG_PATH)],
-            [
-                (name, "0x0"),
-                (
-                    &HANEUL_PKG_NAME.to_lowercase(),
-                    &HANEUL_FRAMEWORK_ADDRESS.to_string(),
-                ),
-            ],
+            [(name, "0x0")],
             "",
         )?;
         Ok(())

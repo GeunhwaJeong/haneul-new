@@ -21,7 +21,7 @@ name = "my_first_package"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework", rev = "devnet" }
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/devnet" }
 
 [addresses]
 my_first_package = "0x0"
@@ -106,4 +106,4 @@ The comments in the preceding code highlight different parts of a typical Haneul
 
     These functions allow the fields of the module's structs to be read from other modules.
 
-After you save the file, you have a complete Haneul Move package. Next, you learn to build and test your package to get it ready for publishing. 
+After you save the file, you have a complete Haneul Move package. Next, you learn to build and test your package to get it ready for publishing.

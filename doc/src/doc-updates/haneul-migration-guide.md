@@ -46,7 +46,7 @@ version = "0.0.1"
 published-at = "0x42"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir="crates/haneul-framework/packages/haneul-framework/", rev = "devnet" }
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir="crates/haneul-framework/packages/haneul-framework/", rev = "framework/devnet" }
 
 [addresses]
 example = "0x42"
