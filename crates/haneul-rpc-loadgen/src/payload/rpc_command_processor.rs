@@ -26,7 +26,8 @@ use crate::load_test::LoadTestConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, EncodeDecodeBase64, Signature, HaneulKeyPair};
-use haneul_types::messages::{ExecuteTransactionRequestType, Transaction, TransactionData};
+use haneul_types::messages::{Transaction, TransactionData};
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 
 use crate::payload::checkpoint_utils::get_latest_checkpoint_stats;
 use crate::payload::validation::chunk_entities;

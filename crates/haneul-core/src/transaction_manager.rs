@@ -9,11 +9,12 @@ use std::{
 
 use haneullabs_metrics::monitored_scope;
 use parking_lot::RwLock;
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::{
     base_types::ObjectID,
     committee::EpochId,
     digests::TransactionEffectsDigest,
-    messages::{TransactionDataAPI, VerifiedCertificate, VerifiedExecutableTransaction},
+    messages::{TransactionDataAPI, VerifiedCertificate},
 };
 use haneul_types::{base_types::TransactionDigest, error::HaneulResult};
 use tokio::sync::mpsc::UnboundedSender;

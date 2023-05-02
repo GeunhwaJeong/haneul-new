@@ -11,7 +11,7 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::authority_client::NetworkAuthorityClient;
 pub use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::base_types::ObjectID;
-use haneul_types::messages::ObjectInfoRequest;
+use haneul_types::messages_grpc::ObjectInfoRequest;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Object;
 

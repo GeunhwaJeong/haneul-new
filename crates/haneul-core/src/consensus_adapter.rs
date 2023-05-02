@@ -28,10 +28,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
-use haneul_types::{
-    error::{HaneulError, HaneulResult},
-    messages::ConsensusTransaction,
-};
+use haneul_types::error::{HaneulError, HaneulResult};
 
 use tap::prelude::*;
 use tokio::sync::{Semaphore, SemaphorePermit};
@@ -44,7 +41,8 @@ use haneullabs_metrics::{spawn_monitored_task, GaugeGuard, GaugeGuardFutureExt};
 use haneul_simulator::anemo::PeerId;
 use haneul_simulator::narwhal_network::connectivity::ConnectionStatus;
 use haneul_types::base_types::AuthorityName;
-use haneul_types::messages::ConsensusTransactionKind;
+use haneul_types::messages_consensus::ConsensusTransaction;
+use haneul_types::messages_consensus::ConsensusTransactionKind;
 use tokio::time::Duration;
 use tracing::{debug, info, warn};
 

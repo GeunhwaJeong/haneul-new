@@ -17,6 +17,7 @@ use haneul_types::execution_status::{
     CommandArgumentError, ExecutionFailureStatus, ExecutionStatus, PackageUpgradeError,
     TypeArgumentError,
 };
+use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::{
     base_types::MoveObjectType_,
     crypto::Signer,
@@ -34,7 +35,7 @@ use haneul_types::{
         get_key_pair, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
         AuthorityPublicKeyBytes, AuthoritySignature, KeypairTraits, Signature, HaneulKeyPair,
     },
-    messages::{Argument, CallArg, Command, ObjectArg, ObjectInfoRequestKind, TransactionKind},
+    messages::{Argument, CallArg, Command, ObjectArg, TransactionKind},
     multisig::{MultiSig, MultiSigPublicKey},
     object::{Data, Owner},
     signature::GenericSignature,

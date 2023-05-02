@@ -17,8 +17,8 @@ use haneul_json_rpc_types::{
 };
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use test_utils::messages::make_transactions_with_wallet_context;
 

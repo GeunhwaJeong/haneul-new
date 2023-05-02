@@ -588,7 +588,7 @@ async fn call_0x5(
             HaneulTransactionBlockResponseOptions::new()
                 .with_input()
                 .with_effects(),
-            Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
+            Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
         .map_err(|err| anyhow::anyhow!(err.to_string()))

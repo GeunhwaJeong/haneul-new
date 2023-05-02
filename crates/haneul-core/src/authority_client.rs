@@ -16,6 +16,11 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{error::HaneulError, messages::*};
 
 use haneul_network::tonic::transport::Channel;
+use haneul_types::messages_grpc::{
+    HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
+    ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest, TransactionInfoRequest,
+    TransactionInfoResponse,
+};
 
 #[async_trait]
 pub trait AuthorityAPI {

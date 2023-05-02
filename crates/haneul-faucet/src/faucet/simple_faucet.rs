@@ -20,10 +20,11 @@ use haneul_json_rpc_types::{
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::object::Owner;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     gas_coin::GasCoin,
-    messages::{ExecuteTransactionRequestType, Transaction, TransactionData, VerifiedTransaction},
+    messages::{Transaction, TransactionData, VerifiedTransaction},
 };
 use tokio::sync::{
     mpsc::{self, Receiver, Sender},

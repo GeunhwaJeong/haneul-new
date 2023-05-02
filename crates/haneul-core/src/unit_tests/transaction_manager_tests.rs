@@ -3,11 +3,12 @@
 
 use std::{time::Duration, vec};
 
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::{
     base_types::ObjectID,
     crypto::deterministic_random_account_key,
     digests::TransactionEffectsDigest,
-    messages::{CallArg, ObjectArg, VerifiedExecutableTransaction, TEST_ONLY_GAS_UNIT_FOR_GENERIC},
+    messages::{CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_GENERIC},
     object::Object,
     HANEUL_FRAMEWORK_OBJECT_ID,
 };

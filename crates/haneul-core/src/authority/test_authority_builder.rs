@@ -26,7 +26,8 @@ use haneul_storage::IndexStore;
 use haneul_types::base_types::{AuthorityName, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::{VerifiedExecutableTransaction, VerifiedTransaction};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 

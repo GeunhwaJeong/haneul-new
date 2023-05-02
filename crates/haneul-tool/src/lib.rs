@@ -14,10 +14,14 @@ use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use haneul_network::default_haneullabs_network_config;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::ObjectFormatOptions;
-use haneul_types::{base_types::*, messages::*, object::Owner};
+use haneul_types::{base_types::*, object::Owner};
 use tokio::time::Instant;
 
 use anyhow::anyhow;
+use haneul_types::messages_grpc::{
+    ObjectInfoRequest, ObjectInfoRequestKind, ObjectInfoResponse, TransactionInfoRequest,
+    TransactionStatus,
+};
 
 pub mod commands;
 pub mod db_tool;

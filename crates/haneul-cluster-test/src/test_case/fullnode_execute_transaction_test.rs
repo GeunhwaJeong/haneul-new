@@ -7,7 +7,9 @@ use haneul_json_rpc_types::{
     HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::HaneulClient;
-use haneul_types::{base_types::TransactionDigest, messages::ExecuteTransactionRequestType};
+use haneul_types::{
+    base_types::TransactionDigest, quorum_driver_types::ExecuteTransactionRequestType,
+};
 use tracing::info;
 
 pub struct FullNodeExecuteTransactionTest;

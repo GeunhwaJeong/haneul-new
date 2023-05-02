@@ -10,7 +10,8 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_macros::sim_test;
-use haneul_types::messages::{ExecuteTransactionRequestType, SenderSignedData};
+use haneul_types::messages::SenderSignedData;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use test_utils::network::TestClusterBuilder;
 

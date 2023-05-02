@@ -28,12 +28,13 @@ use std::hash::{Hash, Hasher};
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
-use haneul_types::messages::{
-    ConsensusTransaction, ConsensusTransactionKey, ConsensusTransactionKind,
-    VerifiedExecutableTransaction, VerifiedTransaction,
-};
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::storage::ParentSync;
 
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages_consensus::{
+    ConsensusTransaction, ConsensusTransactionKey, ConsensusTransactionKind,
+};
 use tracing::{debug, error, info, instrument};
 
 pub struct ConsensusHandler<T> {
@@ -531,7 +532,7 @@ mod tests {
     use narwhal_types::Certificate;
     use haneul_protocol_config::SupportedProtocolVersions;
     use haneul_types::base_types::AuthorityName;
-    use haneul_types::messages::{
+    use haneul_types::messages_consensus::{
         AuthorityCapabilities, ConsensusTransaction, ConsensusTransactionKind,
     };
 

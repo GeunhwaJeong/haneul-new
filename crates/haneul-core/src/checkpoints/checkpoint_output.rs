@@ -10,11 +10,11 @@ use std::sync::Arc;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::error::HaneulResult;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::ConsensusTransaction;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSignatureMessage, CheckpointSummary,
     SignedCheckpointSummary, VerifiedCheckpoint,
 };
+use haneul_types::messages_consensus::ConsensusTransaction;
 use tracing::{debug, info, trace};
 
 use super::CheckpointMetrics;
@@ -68,7 +68,7 @@ impl<T: SubmitToConsensus + ReconfigurationInitiator> CheckpointOutput
         let checkpoint_seq = summary.sequence_number;
         let checkpoint_timestamp = summary.timestamp_ms;
         debug!(
-            "Sending checkpoint signature at sequence {checkpoint_seq} to consensus, timestamp {checkpoint_timestamp}. 
+            "Sending checkpoint signature at sequence {checkpoint_seq} to consensus, timestamp {checkpoint_timestamp}.
             {}ms left till end of epoch at timestamp {}",
             self.next_reconfiguration_timestamp_ms.saturating_sub(checkpoint_timestamp), self.next_reconfiguration_timestamp_ms
         );

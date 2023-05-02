@@ -19,7 +19,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::messages::ExecuteTransactionRequestType;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 
 // TODO(gegaowp): temp. disable fast-path

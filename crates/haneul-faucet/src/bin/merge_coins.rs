@@ -7,11 +7,8 @@ use haneul_faucet::FaucetError;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::wallet_context::WalletContext;
-use haneul_types::{
-    base_types::ObjectID,
-    gas_coin::GasCoin,
-    messages::{ExecuteTransactionRequestType, Transaction},
-};
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
+use haneul_types::{base_types::ObjectID, gas_coin::GasCoin, messages::Transaction};
 use tracing::info;
 
 #[tokio::main]

@@ -23,22 +23,25 @@ use haneul_macros::*;
 use haneul_node::HaneulNode;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_tool::restore_from_db_checkpoint;
+use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
 use haneul_types::event::{Event, EventID};
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::QuorumDriverResponse;
 use haneul_types::messages::{
-    CallArg, ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
-    GasData, ObjectArg, TransactionData, TransactionKind, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS,
-    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    CallArg, GasData, ObjectArg, TransactionData, TransactionKind,
+    TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
+use haneul_types::messages_grpc::TransactionInfoRequest;
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::quorum_driver_types::{
+    ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
+    QuorumDriverResponse,
+};
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
-use haneul_types::{base_types::ObjectID, messages::TransactionInfoRequest};
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 use test_utils::authority::test_and_configure_authority_configs;
 use test_utils::messages::make_transactions_with_wallet_context;

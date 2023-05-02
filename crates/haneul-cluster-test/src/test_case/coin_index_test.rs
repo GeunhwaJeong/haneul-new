@@ -14,8 +14,8 @@ use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{Balance, HaneulTransactionBlockResponseOptions};
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::ExecuteTransactionRequestType;
 use haneul_types::object::Owner;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use test_utils::messages::make_staking_transaction_with_wallet_context;
 use tracing::info;
 

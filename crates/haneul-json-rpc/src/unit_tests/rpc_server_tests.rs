@@ -30,7 +30,7 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
 use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::ExecuteTransactionRequestType;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;

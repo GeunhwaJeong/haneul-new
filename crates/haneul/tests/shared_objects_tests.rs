@@ -5,7 +5,7 @@ use futures::{stream, StreamExt};
 use std::time::{Duration, SystemTime};
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::consensus_adapter::position_submit_certificate;
-use haneul_types::messages::{CallArg, ObjectArg, ObjectInfoRequest, TEST_ONLY_GAS_UNIT_FOR_GENERIC};
+use haneul_types::messages::{CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_GENERIC};
 use test_utils::authority::get_client;
 use test_utils::transaction::{
     publish_counter_package, submit_shared_object_transaction, submit_single_owner_transaction,
@@ -19,6 +19,7 @@ use haneul_macros::sim_test;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::event::Event;
 use haneul_types::execution_status::{CommandArgumentError, ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::messages_grpc::ObjectInfoRequest;
 use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 

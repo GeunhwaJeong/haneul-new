@@ -352,7 +352,7 @@ async fn execute_tx(
         .execute_transaction_block(
             tx,
             HaneulTransactionBlockResponseOptions::full_content(),
-            Some(haneul_types::messages::ExecuteTransactionRequestType::WaitForLocalExecution),
+            Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
         )
         .await
         .unwrap();

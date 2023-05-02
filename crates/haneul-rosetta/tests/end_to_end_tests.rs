@@ -15,7 +15,7 @@ use haneul_rosetta::types::{
     SubAccount, SubAccountType, HaneulEnv,
 };
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
-use haneul_types::messages::ExecuteTransactionRequestType;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use test_utils::network::TestClusterBuilder;
 

@@ -11,7 +11,7 @@ use crate::transaction_manager::TransactionManager;
 use async_trait::async_trait;
 use narwhal_types::BatchAPI;
 use narwhal_worker::TransactionValidator;
-use haneul_types::messages::{ConsensusTransaction, ConsensusTransactionKind};
+use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
 use tap::TapFallible;
 use tokio::runtime::Handle;
 use tracing::{info, warn};
@@ -149,11 +149,12 @@ mod tests {
     };
     use narwhal_types::Batch;
     use narwhal_worker::TransactionValidator;
-    use haneul_types::{messages::ConsensusTransaction, signature::GenericSignature};
+    use haneul_types::signature::GenericSignature;
 
     use crate::authority::test_authority_builder::TestAuthorityBuilder;
     use haneul_macros::sim_test;
     use haneul_types::crypto::Ed25519HaneulSignature;
+    use haneul_types::messages_consensus::ConsensusTransaction;
     use haneul_types::object::Object;
 
     #[sim_test]

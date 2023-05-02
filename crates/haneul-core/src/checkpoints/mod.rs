@@ -35,13 +35,14 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::{ConsensusTransactionKey, TransactionDataAPI, TransactionKind};
+use haneul_types::messages::{TransactionDataAPI, TransactionKind};
 use haneul_types::messages_checkpoint::SignedCheckpointSummary;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
     CheckpointSignatureMessage, CheckpointSummary, CheckpointTimestamp, EndOfEpochData,
     FullCheckpointContents, TrustedCheckpoint, VerifiedCheckpoint, VerifiedCheckpointContents,
 };
+use haneul_types::messages_consensus::ConsensusTransactionKey;
 use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 use tokio::{

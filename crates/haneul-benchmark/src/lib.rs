@@ -31,6 +31,7 @@ use haneul_json_rpc_types::{
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::effects::{CertifiedTransactionEffects, TransactionEffectsAPI, TransactionEvents};
+use haneul_types::messages::Argument;
 use haneul_types::messages::CallArg;
 use haneul_types::messages::ObjectArg;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -43,7 +44,7 @@ use haneul_types::{
         AuthoritySignature,
     },
     message_envelope::Envelope,
-    messages::{CertifiedTransaction, HandleCertificateResponse, Transaction, TransactionStatus},
+    messages::{CertifiedTransaction, Transaction},
     object::Object,
 };
 use haneul_types::{base_types::ObjectRef, crypto::AuthorityStrongQuorumSignInfo, object::Owner};
@@ -53,7 +54,6 @@ use haneul_types::{
     haneul_system_state::HaneulSystemStateTrait,
 };
 use haneul_types::{error::HaneulError, gas::GasCostSummary};
-use haneul_types::{messages::Argument, messages::QuorumDriverResponse};
 use tokio::{
     task::JoinSet,
     time::{sleep, timeout},
@@ -71,6 +71,8 @@ pub mod system_state_observer;
 pub mod util;
 pub mod workloads;
 use futures::FutureExt;
+use haneul_types::messages_grpc::{HandleCertificateResponse, TransactionStatus};
+use haneul_types::quorum_driver_types::QuorumDriverResponse;
 
 #[derive(Debug)]
 /// A wrapper on execution results to accommodate different types of

@@ -41,10 +41,10 @@ use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::error::ExecutionError;
 use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::messages::CertifiedTransaction;
 use haneul_types::messages::Transaction;
-use haneul_types::messages::VerifiedExecutableTransaction;
 use haneul_types::messages::VerifiedTransaction;
 use haneul_types::messages::{InputObjectKind, InputObjects, TransactionKind};
 use haneul_types::messages::{SenderSignedData, TransactionDataAPI};
@@ -644,7 +644,7 @@ impl LocalExec {
     }
 
     /// Must be called after `init_for_execution`
-    /// This excutes from `haneul_core::authority::AuthorityState::try_execute_immediately`
+    /// This executes from `haneul_core::authority::AuthorityState::try_execute_immediately`
     pub async fn certificate_execute(
         &mut self,
         tx_digest: &TransactionDigest,
@@ -1709,15 +1709,15 @@ async fn create_epoch_store(
     let registry = Registry::new();
     let cache_metrics = Arc::new(ResolverMetrics::new(&registry));
     let signature_verifier_metrics = SignatureVerifierMetrics::new(&registry);
-    let mut committe = authority_state.committee_store().get_latest_committee();
+    let mut committee = authority_state.committee_store().get_latest_committee();
 
     // Overwrite the epoch so it matches this TXs
-    committe.epoch = tx_info.executed_epoch;
+    committee.epoch = tx_info.executed_epoch;
 
-    let name = committe.names().next().unwrap();
+    let name = committee.names().next().unwrap();
     AuthorityPerEpochStore::new(
         *name,
-        Arc::new(committe.clone()),
+        Arc::new(committee.clone()),
         &path,
         None,
         EpochMetrics::new(&registry),

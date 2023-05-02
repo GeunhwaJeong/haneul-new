@@ -33,9 +33,9 @@ use haneul_types::error::{ExecutionError, ExecutionErrorKind};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatusAPI};
 use haneul_types::messages::{
-    Argument, Command, ConsensusCommitPrologue, GenesisTransaction, ObjectArg,
-    ProgrammableTransaction, TransactionKind,
+    Argument, Command, GenesisTransaction, ObjectArg, ProgrammableTransaction, TransactionKind,
 };
+use haneul_types::messages_consensus::ConsensusCommitPrologue;
 use haneul_types::storage::{ChildObjectResolver, ObjectStore, ParentSync, WriteKind};
 #[cfg(msim)]
 use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;

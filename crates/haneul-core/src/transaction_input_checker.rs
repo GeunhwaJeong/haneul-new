@@ -13,9 +13,8 @@ use haneul_macros::checked_arithmetic;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::{UserInputError, UserInputResult};
-use haneul_types::messages::{
-    TransactionKind, VerifiedExecutableTransaction, VersionedProtocolMessage,
-};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages::{TransactionKind, VersionedProtocolMessage};
 use haneul_types::{
     base_types::{SequenceNumber, HaneulAddress},
     error::HaneulResult,

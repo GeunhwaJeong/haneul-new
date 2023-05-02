@@ -7,7 +7,8 @@ use std::{
 };
 
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
-use haneul_types::{digests::TransactionEffectsDigest, messages::VerifiedExecutableTransaction};
+use haneul_types::digests::TransactionEffectsDigest;
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use tokio::{
     sync::{mpsc::UnboundedReceiver, oneshot, Semaphore},
     time::sleep,

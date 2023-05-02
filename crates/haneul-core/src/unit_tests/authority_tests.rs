@@ -38,6 +38,7 @@ use haneul_types::error::UserInputError;
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas::HaneulCostTable;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::messages_consensus::ConsensusCommitPrologue;
 use haneul_types::object::Data;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;

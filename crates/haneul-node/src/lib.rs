@@ -91,7 +91,7 @@ use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::{AuthorityCapabilities, ConsensusTransaction};
+use haneul_types::messages_consensus::{AuthorityCapabilities, ConsensusTransaction};
 use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
@@ -355,12 +355,13 @@ impl HaneulNode {
         if epoch_store.epoch() == 0 {
             let txn = &genesis.transaction();
             let span = error_span!("genesis_txn", tx_digest = ?txn.digest());
-            let transaction = haneul_types::messages::VerifiedExecutableTransaction::new_unchecked(
-                haneul_types::messages::ExecutableTransaction::new_from_data_and_sig(
-                    genesis.transaction().data().clone(),
-                    haneul_types::certificate_proof::CertificateProof::Checkpoint(0, 0),
-                ),
-            );
+            let transaction =
+                haneul_types::executable_transaction::VerifiedExecutableTransaction::new_unchecked(
+                    haneul_types::executable_transaction::ExecutableTransaction::new_from_data_and_sig(
+                        genesis.transaction().data().clone(),
+                        haneul_types::executable_transaction::CertificateProof::Checkpoint(0, 0),
+                    ),
+                );
             state
                 .try_execute_immediately(&transaction, None, &epoch_store)
                 .instrument(span)

@@ -13,6 +13,12 @@ use haneul_network::{
     tonic,
 };
 use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
+use haneul_types::messages_consensus::ConsensusTransaction;
+use haneul_types::messages_grpc::{
+    HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
+    ObjectInfoRequest, ObjectInfoResponse, SubmitCertificateResponse, SystemStateRequest,
+    TransactionInfoRequest, TransactionInfoResponse,
+};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{error::*, messages::*};

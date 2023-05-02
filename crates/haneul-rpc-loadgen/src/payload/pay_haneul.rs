@@ -7,7 +7,8 @@ use async_trait::async_trait;
 use futures::future::join_all;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{EncodeDecodeBase64, HaneulKeyPair};
-use haneul_types::messages::{ExecuteTransactionRequestType, TransactionData};
+use haneul_types::messages::TransactionData;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use tracing::debug;
 
 #[async_trait]

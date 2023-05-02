@@ -27,13 +27,12 @@ use haneul_storage::write_path_pending_tx_log::WritePathPendingTransactionLog;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::effects::{TransactionEffectsAPI, VerifiedCertifiedTransactionEffects};
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::{
-    ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
-    FinalizedEffects, VerifiedExecutableTransaction,
-};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::object::Object;
 use haneul_types::quorum_driver_types::{
-    QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResponse, QuorumDriverResult,
+    ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
+    FinalizedEffects, QuorumDriverEffectsQueueResult, QuorumDriverError, QuorumDriverResponse,
+    QuorumDriverResult,
 };
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tokio::sync::broadcast::error::RecvError;

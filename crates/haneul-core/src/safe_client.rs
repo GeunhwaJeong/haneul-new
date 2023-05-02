@@ -18,6 +18,11 @@ use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
+use haneul_types::messages_grpc::{
+    HandleCertificateResponse, HandleCertificateResponseV2, ObjectInfoRequest, ObjectInfoResponse,
+    PlainTransactionInfoResponse, SystemStateRequest, TransactionInfoRequest, TransactionStatus,
+    VerifiedObjectInfoResponse,
+};
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 use haneul_types::{

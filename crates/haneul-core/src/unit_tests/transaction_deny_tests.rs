@@ -22,9 +22,10 @@ use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::messages::{
-    CallArg, CertifiedTransaction, HandleTransactionResponse, TransactionData, VerifiedCertificate,
+    CallArg, CertifiedTransaction, TransactionData, VerifiedCertificate,
     TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
+use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };

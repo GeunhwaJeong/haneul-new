@@ -26,7 +26,7 @@ use haneul_sdk::{
     },
     HaneulClient, HaneulClientBuilder,
 };
-use haneul_types::messages::ExecuteTransactionRequestType;
+use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
