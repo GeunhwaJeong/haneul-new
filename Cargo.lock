@@ -9769,6 +9769,7 @@ dependencies = [
  "haneul-framework",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
+ "haneul-macros",
  "haneul-move-natives",
  "haneul-protocol-config",
  "haneul-sdk",

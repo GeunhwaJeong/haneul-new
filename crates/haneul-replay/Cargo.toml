@@ -40,5 +40,6 @@ haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-types = { path = "../haneul-types" }
+haneul-macros = { path = "../haneul-macros" }
 
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
