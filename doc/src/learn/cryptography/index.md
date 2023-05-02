@@ -11,3 +11,4 @@ Learn about cryptography in Haneul:
 * [Hashing in Haneul](../cryptography/hashing.md)
 * [Groth16 verifier](../cryptography/groth16.md)
 * [Verifiable Random Function](../cryptography/ecvrf.md)
+* [Haneul On-Chain Signatures Verification in Move](../cryptography/haneul-move-signatures.md)
