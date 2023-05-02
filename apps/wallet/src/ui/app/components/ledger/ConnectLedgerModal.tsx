@@ -62,11 +62,10 @@ export function ConnectLedgerModal({
                             >
                                 Need more help?&nbsp;
                             </Text>
-                            {/* TODO: Replace this link with the final URL once the tutorial is ready */}
                             <span>
                                 <Link
                                     underline="hover"
-                                    href="https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneul-wallet-with-ledger.md"
+                                    href="https://support.ledger.com/hc/articles/10136570195101"
                                     text="View tutorial."
                                     color="heroDark"
                                 />
