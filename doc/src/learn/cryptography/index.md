@@ -9,4 +9,4 @@ Learn about cryptography in Haneul:
 * [Groth16 verifier](../cryptography/groth16.md)
 * [Haneul Signatures and Crypto Agility](../cryptography/haneul-signatures.md)
 * [Verifiable Random Function](../cryptography/ecvrf.md)
-
+* [Hashing in Haneul](../cryptography/hashing.md)
