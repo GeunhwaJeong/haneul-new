@@ -12,39 +12,26 @@ import { flattenHaneulArguments } from './utils';
 
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
 import { ObjectLink } from '~/ui/InternalLink';
+import { Text } from '~/ui/Text';
 
 export interface TransactionProps<T> {
     type: string;
     data: T;
 }
 
-function TransactionContent({
-    type,
-    children,
-}: {
-    type: string;
-    children?: ReactNode;
-}) {
+function TransactionContent({ children }: { children?: ReactNode }) {
     return (
-        <>
-            <div className="break-all text-heading6 font-semibold text-steel-darker">
-                {type}
-            </div>
-            {children && (
-                <div className="text-bodyMedium pt-2 font-medium text-steel-dark">
-                    {children}
-                </div>
-            )}
-        </>
+        <Text variant="pBody/normal" color="steel-dark">
+            {children}
+        </Text>
     );
 }
 
 function ArrayArgument({
-    type,
     data,
 }: TransactionProps<(HaneulArgument | HaneulArgument[])[] | undefined>) {
     return (
-        <TransactionContent type={type}>
+        <TransactionContent>
             {data && (
                 <span className="break-all">({flattenHaneulArguments(data)})</span>
             )}
@@ -60,8 +47,9 @@ function MoveCall({ type, data }: TransactionProps<MoveCallHaneulTransaction>) {
         arguments: args,
         type_arguments: typeArgs,
     } = data;
+
     return (
-        <TransactionContent type={type}>
+        <TransactionContent>
             (package: <ObjectLink objectId={movePackage} />, module:{' '}
             <ObjectLink
                 objectId={`${movePackage}?module=${module}`}
