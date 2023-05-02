@@ -12,6 +12,7 @@ export enum Network {
     LOCAL = 'LOCAL',
     DEVNET = 'DEVNET',
     TESTNET = 'TESTNET',
+    MAINNET = 'MAINNET',
 }
 
 const CONNECTIONS: Record<Network, Connection> = {
@@ -21,6 +22,9 @@ const CONNECTIONS: Record<Network, Connection> = {
     }),
     [Network.TESTNET]: new Connection({
         fullnode: 'https://explorer-rpc.testnet.haneul.io:443',
+    }),
+    [Network.MAINNET]: new Connection({
+        fullnode: 'https://explorer-rpc.mainnet.haneul.io:443',
     }),
 };
 
