@@ -30,7 +30,6 @@
 module kiosk::royalty_rule {
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::tx_context::TxContext;
     use haneul::transfer_policy::{
         Self as policy,
         TransferPolicy,
@@ -78,16 +77,14 @@ module kiosk::royalty_rule {
     public fun pay<T: key + store>(
         policy: &mut TransferPolicy<T>,
         request: &mut TransferRequest<T>,
-        payment: &mut Coin<HANEUL>,
-        ctx: &mut TxContext
+        payment: Coin<HANEUL>
     ) {
         let paid = policy::paid(request);
         let amount = fee_amount(policy, paid);
 
-        assert!(coin::value(payment) >= amount, EInsufficientAmount);
+        assert!(coin::value(&payment) == amount, EInsufficientAmount);
 
-        let fee = coin::split(payment, amount, ctx);
-        policy::add_to_balance(Rule {}, policy, fee);
+        policy::add_to_balance(Rule {}, policy, payment);
         policy::add_receipt(Rule {}, request)
     }
 
