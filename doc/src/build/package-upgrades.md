@@ -261,7 +261,7 @@ When you use the Haneul Client CLI, the `upgrade` command handles generating the
 
 You develop a package named `haneul_package`. Its manifest looks like the following:
 
-```move
+```toml
 [package]
 name = "haneul_package"
 version = "0.0.0"
