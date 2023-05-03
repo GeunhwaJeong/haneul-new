@@ -148,6 +148,10 @@
 				]
 			},
 			{
+				"label": "Haneul Bridging",
+				"fileName": "learn/haneul-bridging"
+			},
+			{
 				"label": "Haneul Exchange Integration Guide",
 				"fileName": "learn/exchange-integration-guide"
 			}
