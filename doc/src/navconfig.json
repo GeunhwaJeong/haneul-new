@@ -110,36 +110,40 @@
 				"fileName": "learn/cryptography/index",
 				"title": "Haneul Cryptography",
 				"items": [{
-						"label": "Haneul Intent Signing",
-						"fileName": "learn/cryptography/haneul-intent-signing"
-					},
-					{
-						"label": "Haneul Offline Signing",
-						"fileName": "learn/cryptography/haneul-offline-signing"
-					},
-					{
-						"label": "Haneul Multisig",
-						"fileName": "learn/cryptography/haneul-multisig"
-					},
-					{
-						"label": "Haneul Keys and Addresses",
-						"fileName": "learn/cryptography/haneul-wallet-specs"
-					},
-					{
-						"label": "Verifying Groth16 zk-SNARKs",
-						"fileName": "learn/cryptography/groth16"
+					"label": "Haneul Keys and Addresses",
+					"fileName": "learn/cryptography/haneul-wallet-specs"
 					},
 					{
 						"label": "Haneul Crypto Agility and Signatures",
 						"fileName": "learn/cryptography/haneul-signatures"
 					},
 					{
-						"label": "Verifiable Random Function (VRF)",
-						"fileName": "learn/cryptography/ecvrf"
+						"label": "Haneul Multisig",
+						"fileName": "learn/cryptography/haneul-multisig"
+					},
+					{
+						"label": "Haneul Offline Signing",
+						"fileName": "learn/cryptography/haneul-offline-signing"
+					},
+					{
+						"label": "Haneul Intent Signing",
+						"fileName": "learn/cryptography/haneul-intent-signing"
+					},
+					{
+						"label": "Signature schemes in Move contracts",
+						"fileName": "learn/cryptography/haneul-move-signatures"
 					},
 					{
 						"label": "Hashing in Haneul",
 						"fileName": "learn/cryptography/hashing"
+					},
+					{
+						"label": "Verifying Groth16 zk-SNARKs",
+						"fileName": "learn/cryptography/groth16"
+					},
+					{
+						"label": "Verifiable Random Function (VRF)",
+						"fileName": "learn/cryptography/ecvrf"
 					}
 				]
 			},
