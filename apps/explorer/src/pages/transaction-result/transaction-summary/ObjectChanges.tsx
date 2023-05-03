@@ -191,7 +191,8 @@ function ObjectChangeEntries({
 interface ObjectChangeEntryUpdatedProps extends ObjectChangeEntryBaseProps {
     data:
         | ObjectChangeEntryData<HaneulObjectChangeMutated>
-        | ObjectChangeEntryData<HaneulObjectChangeTransferred>;
+        | ObjectChangeEntryData<HaneulObjectChangeTransferred>
+        | ObjectChangeEntryData<HaneulObjectChangeCreated>;
 }
 
 export function ObjectChangeEntryUpdated({
@@ -279,21 +280,12 @@ export function ObjectChanges({ objectSummary }: ObjectChangesProps) {
     return (
         <>
             {objectSummary?.created?.length ? (
-                <TransactionBlockCard shadow title="Changes" size="sm">
-                    <div className="flex flex-col gap-3">
-                        {Object.values(createdChangesByOwner).map(
-                            (data, index) => (
-                                <ObjectChangeEntries
-                                    key={index}
-                                    type="created"
-                                    changeEntries={
-                                        data as unknown as HaneulObjectChangeCreated[]
-                                    }
-                                />
-                            )
-                        )}
-                    </div>
-                </TransactionBlockCard>
+                <ObjectChangeEntryUpdated
+                    type="created"
+                    data={
+                        createdChangesByOwner as unknown as ObjectChangeEntryData<HaneulObjectChangeCreated>
+                    }
+                />
             ) : null}
 
             {objectSummary.mutated?.length ? (
