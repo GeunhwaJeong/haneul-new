@@ -62,8 +62,9 @@ export function DelegationDetailCard({
     const totalStake = BigInt(delegationData?.principal || 0n);
 
     const haneulEarned = BigInt(delegationData?.estimatedReward || 0n);
-
-    const apy = rollingAverageApys?.[validatorAddress] || 0;
+    const { apy, isApyApproxZero } = rollingAverageApys?.[validatorAddress] ?? {
+        apy: 0,
+    };
 
     const delegationId =
         delegationData?.status === 'Active' && delegationData?.stakedHaneulId;
@@ -160,6 +161,7 @@ export function DelegationDetailCard({
                                                 color="gray-90"
                                                 leading="none"
                                             >
+                                                {isApyApproxZero ? '~' : ''}
                                                 {apy}
                                             </Heading>
 

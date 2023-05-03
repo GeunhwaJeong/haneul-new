@@ -60,15 +60,21 @@ export function SelectValidatorCard() {
         [data?.activeValidators]
     );
     const validatorList = useMemo(() => {
-        const sortedAsc = validatorsRandomOrder.map((validator) => ({
-            name: validator.name,
-            address: validator.haneulAddress,
-            apy: rollingAverageApys?.[validator.haneulAddress] ?? null,
-            stakeShare: calculateStakeShare(
-                BigInt(validator.stakingPoolHaneulBalance),
-                BigInt(totalStake)
-            ),
-        }));
+        const sortedAsc = validatorsRandomOrder.map((validator) => {
+            const { apy, isApyApproxZero } = rollingAverageApys?.[
+                validator.haneulAddress
+            ] ?? { apy: null };
+            return {
+                name: validator.name,
+                address: validator.haneulAddress,
+                apy,
+                isApyApproxZero,
+                stakeShare: calculateStakeShare(
+                    BigInt(validator.stakingPoolHaneulBalance),
+                    BigInt(totalStake)
+                ),
+            };
+        });
         if (sortKey) {
             sortedAsc.sort((a, b) => {
                 if (sortKey === 'name') {
@@ -189,7 +195,8 @@ export function SelectValidatorCard() {
                                         !sortKey || sortKey === 'name'
                                             ? null
                                             : validator[sortKey],
-                                        '-'
+                                        '-',
+                                        validator?.isApyApproxZero
                                     )}
                                 />
                             </div>
