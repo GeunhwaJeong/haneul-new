@@ -44,7 +44,7 @@ export const socialLinks = [
                 <SocialDiscord24 />
             </FooterIcon>
         ),
-        href: 'https://discord.gg/haneul',
+        href: 'https://discord.gg/BK6WFhud',
     },
     {
         children: (
@@ -52,7 +52,7 @@ export const socialLinks = [
                 <SocialTwitter24 />
             </FooterIcon>
         ),
-        href: 'https://twitter.com/HaneulNetwork',
+        href: 'https://twitter.com/Haneul_Labs',
     },
     {
         children: (
