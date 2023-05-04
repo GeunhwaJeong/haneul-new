@@ -155,12 +155,12 @@ module haneul_system::rewards_distribution_tests {
         governance_test_utils::advance_epoch(scenario);
         // V1: 200, V2: 300, V3: 300, V4: 400
 
-        set_commission_rate_and_advance_epoch(VALIDATOR_ADDR_2, 5000, scenario); // 50% commission
+        set_commission_rate_and_advance_epoch(VALIDATOR_ADDR_2, 2000, scenario); // 50% commission
         advance_epoch_with_reward_amounts(0, 120, scenario);
         // V1: 230, V2: 330, V3: 330, V4: 430
-        // 5 HANEUL, or 50 % of staker_2's rewards, goes to validator_2
-        assert_validator_non_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 105 * GEUNHWA_PER_HANEUL, 0, 0], scenario);
-        assert_validator_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 225 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL], scenario);
+        // 2 HANEUL, or 20 % of staker_2's rewards, goes to validator_2
+        assert_validator_non_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 108 * GEUNHWA_PER_HANEUL, 0, 0], scenario);
+        assert_validator_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 222 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL], scenario);
 
         set_commission_rate_and_advance_epoch(VALIDATOR_ADDR_1, 1000, scenario); // 10% commission
 
@@ -170,10 +170,10 @@ module haneul_system::rewards_distribution_tests {
         // Staker 1 rewards in the recent distribution is 0.9 x 30 = 27 HANEUL
         // Validator 1 rewards in the recent distribution is 60 - 27 = 33 HANEUL
 
-        // Staker 2 amounts for 0.5 * 60 * (105 / 330) + 105 = 114.545 HANEUL
-        // Validator 2 amounts for 390 - 114.545 = 275.454 HANEUL
-        assert_validator_non_self_stake_amounts(validator_addrs(), vector[142 * GEUNHWA_PER_HANEUL, 114545454547, 0, 0], scenario);
-        assert_validator_self_stake_amounts(validator_addrs(), vector[148 * GEUNHWA_PER_HANEUL, 275454545453, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL], scenario);
+        // Staker 2 amounts for 0.8 * 60 * (108 / 330) + 108 = 123.709 HANEUL
+        // Validator 2 amounts for 390 - 123.709 = 266.291 HANEUL
+        assert_validator_non_self_stake_amounts(validator_addrs(), vector[142 * GEUNHWA_PER_HANEUL, 123709090909, 0, 0], scenario);
+        assert_validator_self_stake_amounts(validator_addrs(), vector[148 * GEUNHWA_PER_HANEUL, 266290909091, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL], scenario);
 
         test_scenario::end(scenario_val);
     }
