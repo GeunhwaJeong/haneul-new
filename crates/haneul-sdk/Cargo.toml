@@ -22,6 +22,7 @@ bcs = "0.1.4"
 thiserror = "1.0.37"
 
 haneul-json-rpc = { path = "../haneul-json-rpc" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }

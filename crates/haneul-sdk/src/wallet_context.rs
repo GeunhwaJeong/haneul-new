@@ -15,6 +15,7 @@ use haneul_json_rpc_types::{
     HaneulObjectResponseQuery, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
+use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::gas_coin::GasCoin;
@@ -328,5 +329,21 @@ impl WalletContext {
             }
         }
         res
+    }
+
+    pub async fn make_staking_transaction(
+        &self,
+        validator_address: HaneulAddress,
+    ) -> VerifiedTransaction {
+        let accounts_and_objs = self.get_all_accounts_and_gas_objects().await.unwrap();
+        let sender = accounts_and_objs[0].0;
+        let gas_object = accounts_and_objs[0].1[0];
+        let stake_object = accounts_and_objs[0].1[1];
+        let gas_price = self.get_reference_gas_price().await.unwrap();
+        self.sign_transaction(
+            &TestTransactionBuilder::new(sender, gas_object, gas_price)
+                .call_staking(stake_object, validator_address)
+                .build(),
+        )
     }
 }

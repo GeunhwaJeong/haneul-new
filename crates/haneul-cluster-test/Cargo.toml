@@ -36,6 +36,7 @@ haneul-types = { path = "../haneul-types" }
 haneul-core = { path = "../haneul-core" }
 haneul-json = { path = "../haneul-json" }
 haneul-config = { path = "../haneul-config" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 telemetry-subscribers.workspace = true
 
 test-utils = { path = "../test-utils" }

@@ -22,6 +22,7 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
 use haneul_node::HaneulNode;
 use haneul_sdk::wallet_context::WalletContext;
+use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_tool::restore_from_db_checkpoint;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
@@ -44,7 +45,6 @@ use haneul_types::utils::{
 };
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
 use test_utils::authority::test_and_configure_authority_configs;
-use test_utils::messages::make_transfer_object_transaction_with_wallet_context;
 use test_utils::network::{start_fullnode_from_config, TestClusterBuilder};
 use test_utils::transaction::{
     create_devnet_nft, delete_devnet_nft, increment_counter, publish_basics_package,
@@ -968,13 +968,10 @@ async fn test_get_objects_read() -> Result<(), anyhow::Error> {
         .await
         .unwrap()
         .unwrap();
-    let nft_transfer_tx = make_transfer_object_transaction_with_wallet_context(
-        object_ref_v1,
-        gas_ref,
-        context,
-        sender,
-        recipient,
-        rgp,
+    let nft_transfer_tx = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_ref, rgp)
+            .transfer(object_ref_v1, recipient)
+            .build(),
     );
     context
         .execute_transaction_block(nft_transfer_tx)

@@ -11,7 +11,11 @@ use haneul_types::messages::{
     CallArg, ObjectArg, Transaction, TransactionData, VerifiedTransaction,
     TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_PUBLISH,
 };
-use haneul_types::TypeTag;
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::{
+    TypeTag, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+};
 
 pub struct TestTransactionBuilder {
     test_data: TestTransactionData,
@@ -70,6 +74,23 @@ impl TestTransactionBuilder {
         )
     }
 
+    pub fn call_staking(self, stake_coin: ObjectRef, validator: HaneulAddress) -> Self {
+        self.move_call(
+            HANEUL_SYSTEM_OBJECT_ID,
+            HANEUL_SYSTEM_MODULE_NAME.as_str(),
+            "request_add_stake",
+            vec![
+                CallArg::Object(ObjectArg::SharedObject {
+                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+                    mutable: true,
+                }),
+                CallArg::Object(ObjectArg::ImmOrOwnedObject(stake_coin)),
+                CallArg::Pure(bcs::to_bytes(&validator).unwrap()),
+            ],
+        )
+    }
+
     pub fn with_type_args(mut self, type_args: Vec<TypeTag>) -> Self {
         if let TestTransactionData::Move(data) = &mut self.test_data {
             assert!(data.type_args.is_empty());
@@ -77,6 +98,11 @@ impl TestTransactionBuilder {
         } else {
             panic!("Cannot set type args for non-move call");
         }
+        self
+    }
+
+    pub fn transfer(mut self, object: ObjectRef, recipient: HaneulAddress) -> Self {
+        self.test_data = TestTransactionData::Transfer(TransferData { object, recipient });
         self
     }
 
@@ -106,6 +132,14 @@ impl TestTransactionBuilder {
                 self.gas_price,
             )
             .unwrap(),
+            TestTransactionData::Transfer(data) => TransactionData::new_transfer(
+                data.recipient,
+                data.object,
+                self.sender,
+                self.gas_object,
+                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+                self.gas_price,
+            ),
             TestTransactionData::Publish(data) => {
                 let compiled_package = BuildConfig::new_for_testing().build(data.path).unwrap();
                 let all_module_bytes =
@@ -138,6 +172,7 @@ impl TestTransactionBuilder {
 
 enum TestTransactionData {
     Move(MoveData),
+    Transfer(TransferData),
     Publish(PublishData),
     Empty,
 }
@@ -152,4 +187,9 @@ struct MoveData {
 
 struct PublishData {
     path: PathBuf,
+}
+
+struct TransferData {
+    object: ObjectRef,
+    recipient: HaneulAddress,
 }

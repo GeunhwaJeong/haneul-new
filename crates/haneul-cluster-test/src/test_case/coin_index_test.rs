@@ -16,7 +16,6 @@ use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::gas_coin::GAS;
 use haneul_types::object::Owner;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
-use test_utils::messages::make_staking_transaction_with_wallet_context;
 use tracing::info;
 
 pub struct CoinIndexTest;
@@ -104,9 +103,10 @@ impl TestCaseImpl for CoinIndexTest {
             .get(0)
             .unwrap()
             .haneul_address;
-        let txn =
-            make_staking_transaction_with_wallet_context(ctx.get_wallet_mut(), validator_addr)
-                .await;
+        let txn = ctx
+            .get_wallet()
+            .make_staking_transaction(validator_addr)
+            .await;
 
         let response = client
             .quorum_driver_api()
