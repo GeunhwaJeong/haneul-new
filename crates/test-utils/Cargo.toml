@@ -30,6 +30,7 @@ haneul-swarm = { path = "../haneul-swarm" }
 haneul-types = { path = "../haneul-types", features = ["test-utils"] }
 haneul-keys = { path = "../haneul-keys" }
 haneul-sdk = { path = "../haneul-sdk" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 haneullabs-metrics = { path = "../haneullabs-metrics"}
 shared-crypto = { path = "../shared-crypto" }
 

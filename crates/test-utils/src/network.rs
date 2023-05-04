@@ -16,7 +16,6 @@ use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
 
 use haneullabs_metrics::RegistryService;
-use shared_crypto::intent::Intent;
 use haneul_config::builder::{ProtocolVersionsConfig, SupportedProtocolVersionsCallback};
 use haneul_config::genesis_config::{AccountConfig, GenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
@@ -36,7 +35,7 @@ use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::messages::{SenderSignedData, Transaction, TransactionData, VerifiedTransaction};
+use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -108,27 +107,6 @@ impl TestCluster {
             .get(2)
             .cloned()
             .unwrap()
-    }
-
-    // Sign a transaction with a key currently managed by the WalletContext
-    pub fn sign_transaction(
-        &self,
-        signer_address: &HaneulAddress,
-        data: &TransactionData,
-    ) -> VerifiedTransaction {
-        let sig = self
-            .wallet
-            .config
-            .keystore
-            .sign_secure(signer_address, data, Intent::haneul_transaction())
-            .unwrap();
-        VerifiedTransaction::new_unchecked(Transaction::new(
-            SenderSignedData::new_from_sender_signature(
-                data.clone(),
-                Intent::haneul_transaction(),
-                sig,
-            ),
-        ))
     }
 
     pub fn fullnode_config_builder(&self) -> FullnodeConfigBuilder {

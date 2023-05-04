@@ -1,0 +1,16 @@
+[package]
+name = "haneul-test-transaction-builder"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+shared-crypto = { path = "../shared-crypto" }
+haneul-move-build = { path = "../haneul-move-build" }
+haneul-types = { path = "../haneul-types" }
+
+move-core-types.workspace = true
+
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

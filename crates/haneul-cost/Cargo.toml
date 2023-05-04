@@ -16,6 +16,7 @@ strum = { version = "0.24", features = ["derive"] }
 strum_macros = "0.24"
 bcs = "0.1.4"
 haneul-core = { path = "../haneul-core" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 
 [dev-dependencies]
 insta = { version = "1.21.1", features = ["redactions", "json"] }

@@ -105,6 +105,7 @@ members = [
     "crates/haneul-surfer",
     "crates/haneul-swarm",
     "crates/haneul-telemetry",
+    "crates/haneul-test-transaction-builder",
     "crates/haneul-test-validator",
     "crates/haneul-tls",
     "crates/haneul-tool",

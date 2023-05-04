@@ -75,6 +75,7 @@ haneul-network = { path = "../haneul-network" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-simulator = { path = "../haneul-simulator" }
 haneul-storage = { path = "../haneul-storage" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 haneul-types = { path = "../haneul-types" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 

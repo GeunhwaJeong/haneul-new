@@ -36,6 +36,7 @@ haneul-keys = { path = "../haneul-keys" }
 haneul-node = { path = "../haneul-node" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 telemetry-subscribers.workspace = true
 roaring = "0.10.1"
 regex = "1.7.1"
