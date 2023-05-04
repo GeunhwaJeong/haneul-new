@@ -71,6 +71,7 @@ impl HaneulEnv {
     pub async fn create_rpc_client(
         &self,
         request_timeout: Option<std::time::Duration>,
+        max_concurrent_requests: Option<u64>,
     ) -> Result<HaneulClient, anyhow::Error> {
         let mut builder = HaneulClientBuilder::default();
         if let Some(request_timeout) = request_timeout {
@@ -78,6 +79,10 @@ impl HaneulEnv {
         }
         if let Some(ws_url) = &self.ws {
             builder = builder.ws_url(ws_url);
+        }
+
+        if let Some(max_concurrent_requests) = max_concurrent_requests {
+            builder = builder.max_concurrent_requests(max_concurrent_requests as usize);
         }
         Ok(builder.build(&self.rpc).await?)
     }
