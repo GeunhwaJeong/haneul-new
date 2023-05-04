@@ -7,12 +7,14 @@ import {
     HaneulObjectChangeTransferred,
     HaneulObjectChangeCreated,
     HaneulObjectChangeMutated,
+    HaneulObjectChangePublished,
 } from '@haneullabs/haneul.js';
 
 export type ObjectChangeSummary = {
     mutated: HaneulObjectChangeMutated[];
     created: HaneulObjectChangeCreated[];
     transferred: HaneulObjectChangeTransferred[];
+    published: HaneulObjectChangePublished[];
 };
 
 export const getObjectChangeSummary = (
@@ -37,9 +39,14 @@ export const getObjectChangeSummary = (
         (change) => change.type === 'transferred'
     ) as HaneulObjectChangeTransferred[];
 
+    const published = objectChanges.filter(
+        (change) => change.type === 'published'
+    ) as HaneulObjectChangePublished[];
+
     return {
         mutated,
         created,
         transferred,
+        published,
     };
 };
