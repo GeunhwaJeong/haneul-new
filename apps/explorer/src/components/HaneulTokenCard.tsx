@@ -13,14 +13,8 @@ import { Text } from '~/ui/Text';
 
 export function HaneulTokenCard() {
     const { data, isLoading } = useHaneulCoinData();
-    const {
-        priceChangePercentageOver24H,
-        currentPrice,
-        totalSupply,
-        marketCap,
-    } = data || {};
+    const { currentPrice, totalSupply, marketCap } = data || {};
 
-    const isPriceChangePositive = Number(priceChangePercentageOver24H) > 0;
     const formattedPrice = currentPrice
         ? currentPrice.toLocaleString('en', {
               style: 'currency',
@@ -44,20 +38,6 @@ export function HaneulTokenCard() {
                             >
                                 1 HANEUL = {formattedPrice}
                             </Heading>
-                            {priceChangePercentageOver24H ? (
-                                <Heading
-                                    as="div"
-                                    variant="heading6/medium"
-                                    color={
-                                        isPriceChangePositive
-                                            ? 'success'
-                                            : 'issue'
-                                    }
-                                >
-                                    {isPriceChangePositive ? '+' : null}
-                                    {priceChangePercentageOver24H.toFixed(2)}%
-                                </Heading>
-                            ) : null}
                         </div>
                         <Text variant="subtitleSmallExtra/medium" color="steel">
                             via CoinGecko
