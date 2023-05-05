@@ -4,12 +4,12 @@
 use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
-use haneul_json_rpc_types::HaneulLoadedChildObjectsResponse;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, HaneulEvent, HaneulGetPastObjectRequest,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
+use haneul_json_rpc_types::{ProtocolConfigResponse, HaneulLoadedChildObjectsResponse};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest};
 use haneul_types::haneul_serde::BigInt;
@@ -139,4 +139,13 @@ pub trait ReadApi {
     /// Return the sequence number of the latest checkpoint that has been executed
     #[method(name = "getLatestCheckpointSequenceNumber")]
     async fn get_latest_checkpoint_sequence_number(&self) -> RpcResult<BigInt<u64>>;
+
+    /// Return the protocol config table for the given version number.
+    /// If the version number is not specified, If none is specified, the node uses the version of the latest epoch it has processed.
+    #[method(name = "getProtocolConfig")]
+    async fn get_protocol_config(
+        &self,
+        /// An optional protocol version specifier. If omitted, the latest protocol config table for the node will be returned.
+        version: Option<BigInt<u64>>,
+    ) -> RpcResult<ProtocolConfigResponse>;
 }

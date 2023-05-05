@@ -13,6 +13,7 @@ pub use haneul_extended::*;
 pub use haneul_governance::*;
 pub use haneul_move::*;
 pub use haneul_object::*;
+pub use haneul_protocol::*;
 pub use haneul_transaction::*;
 use haneul_types::base_types::ObjectID;
 use haneul_types::dynamic_field::DynamicFieldInfo;
@@ -30,6 +31,7 @@ mod haneul_extended;
 mod haneul_governance;
 mod haneul_move;
 mod haneul_object;
+mod haneul_protocol;
 mod haneul_transaction;
 
 pub type DynamicFieldPage = Page<DynamicFieldInfo, ObjectID>;

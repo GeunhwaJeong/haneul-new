@@ -10,9 +10,9 @@ use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{ReadApiClient, ReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    Checkpoint, CheckpointId, CheckpointPage, HaneulEvent, HaneulGetPastObjectRequest,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions,
+    Checkpoint, CheckpointId, CheckpointPage, ProtocolConfigResponse, HaneulEvent,
+    HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
@@ -352,6 +352,20 @@ where
         let dyn_fields_resp = self.fullnode.get_loaded_child_objects(digest).await;
         dynamic_fields_load_obj_guard.stop_and_record();
         dyn_fields_resp
+    }
+
+    async fn get_protocol_config(
+        &self,
+        version: Option<BigInt<u64>>,
+    ) -> RpcResult<ProtocolConfigResponse> {
+        let protocol_config_guard = self
+            .state
+            .indexer_metrics()
+            .get_protocol_config_latency
+            .start_timer();
+        let protocol_config_resp = self.fullnode.get_protocol_config(version).await;
+        protocol_config_guard.stop_and_record();
+        protocol_config_resp
     }
 }
 

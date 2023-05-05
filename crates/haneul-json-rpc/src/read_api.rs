@@ -24,12 +24,14 @@ use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVer
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{
     BalanceChange, Checkpoint, CheckpointId, CheckpointPage, DisplayFieldsResponse, EventFilter,
-    ObjectChange, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveStruct, HaneulMoveValue,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlock,
-    HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    ObjectChange, ProtocolConfigResponse, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveStruct,
+    HaneulMoveValue, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
+    HaneulTransactionBlock, HaneulTransactionBlockEvents, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse};
 use haneul_open_rpc::Module;
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionDigest};
 use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::default_hash;
@@ -898,6 +900,29 @@ impl ReadApiServer for ReadApi {
                     None => vec![],
                 },
             })
+        })
+    }
+
+    #[instrument(skip(self))]
+    async fn get_protocol_config(
+        &self,
+        version: Option<BigInt<u64>>,
+    ) -> RpcResult<ProtocolConfigResponse> {
+        with_tracing!("get_protocol_config", async move {
+            Ok(version
+                .map(|v| {
+                    ProtocolConfig::get_for_version_if_supported((*v).into()).ok_or(anyhow!(
+                    "Unsupported protocol version requested. Min supported: {}, max supported: {}",
+                    ProtocolVersion::MIN.as_u64(),
+                    ProtocolVersion::MAX.as_u64()
+                ))
+                })
+                .unwrap_or(Ok(self
+                    .state
+                    .load_epoch_store_one_call_per_task()
+                    .protocol_config()
+                    .clone()))
+                .map(ProtocolConfigResponse::from)?)
         })
     }
 }

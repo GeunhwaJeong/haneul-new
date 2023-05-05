@@ -21,10 +21,10 @@ use haneul_json_rpc::api::{
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
-    HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
+    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulPastObjectResponse, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
 };
 use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
@@ -262,6 +262,13 @@ impl ReadApi {
         digest: TransactionDigest,
     ) -> HaneulRpcResult<HaneulLoadedChildObjectsResponse> {
         Ok(self.api.http.get_loaded_child_objects(digest).await?)
+    }
+
+    pub async fn get_protocol_config(
+        &self,
+        version: Option<BigInt<u64>>,
+    ) -> HaneulRpcResult<ProtocolConfigResponse> {
+        Ok(self.api.http.get_protocol_config(version).await?)
     }
 }
 
