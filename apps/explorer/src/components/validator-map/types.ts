@@ -49,7 +49,7 @@ interface ValidatorIpInfo {
 }
 
 export interface ValidatorMapData {
-    ipInfo: ValidatorIpInfo;
+    ipInfo?: ValidatorIpInfo;
     haneulAddress: string;
     name: string;
     votingPower: string;
