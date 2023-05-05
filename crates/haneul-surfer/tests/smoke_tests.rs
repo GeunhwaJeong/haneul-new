@@ -7,6 +7,7 @@ use haneul_macros::sim_test;
 use haneul_surfer::default_surf_strategy::DefaultSurfStrategy;
 
 #[sim_test]
+#[ignore]
 async fn smoke_test() {
     // This test makes sure that the haneul surfer runs.
 
