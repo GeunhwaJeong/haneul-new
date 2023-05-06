@@ -22,7 +22,7 @@ use haneul_sdk::{
     types::{
         base_types::{ObjectID, HaneulAddress},
         id::UID,
-        messages::Transaction,
+        transaction::Transaction,
     },
     HaneulClient, HaneulClientBuilder,
 };

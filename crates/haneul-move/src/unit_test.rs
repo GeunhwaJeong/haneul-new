@@ -17,8 +17,8 @@ use haneul_cost_tables::bytecode_tables::initial_cost_schedule_for_unit_tests;
 use haneul_move_natives::{object_runtime::ObjectRuntime, NativesCostTable};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
-    digests::TransactionDigest, in_memory_storage::InMemoryStorage, messages::InputObjects,
-    metrics::LimitsMetrics,
+    digests::TransactionDigest, in_memory_storage::InMemoryStorage, metrics::LimitsMetrics,
+    transaction::InputObjects,
 };
 
 // Move unit tests will halt after executing this many steps. This is a protection to avoid divergence

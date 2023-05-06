@@ -43,15 +43,15 @@ use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::dynamic_field::DynamicFieldType;
-use haneul_types::messages::{SenderSignedData, TransactionData};
 use haneul_types::move_package::UpgradeCap;
 use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::{SenderSignedData, TransactionData, TransactionDataAPI};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     gas_coin::GasCoin,
-    messages::{Transaction, TransactionDataAPI},
     object::Owner,
     parse_haneul_type_tag,
+    transaction::Transaction,
 };
 use tracing::info;
 

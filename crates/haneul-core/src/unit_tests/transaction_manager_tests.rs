@@ -9,8 +9,8 @@ use haneul_types::{
     base_types::ObjectID,
     crypto::deterministic_random_account_key,
     digests::TransactionEffectsDigest,
-    messages::{CallArg, ObjectArg},
     object::Object,
+    transaction::{CallArg, ObjectArg},
     HANEUL_FRAMEWORK_OBJECT_ID,
 };
 use tokio::{

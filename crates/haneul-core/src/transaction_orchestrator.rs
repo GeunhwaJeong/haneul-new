@@ -42,7 +42,7 @@ use tokio::task::JoinHandle;
 use tokio::time::timeout;
 use tracing::{debug, error, error_span, info, instrument, warn, Instrument};
 
-use haneul_types::messages::VerifiedTransaction;
+use haneul_types::transaction::VerifiedTransaction;
 
 // How long to wait for local execution (including parents) before a timeout
 // is returned to client.

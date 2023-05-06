@@ -8,10 +8,10 @@ use std::{fmt::Debug, sync::Arc};
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_core::{authority::AuthorityState, test_utils::send_and_confirm_transaction};
 use haneul_types::base_types::ObjectRef;
-use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
+use haneul_types::transaction::TransactionData;
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{error::HaneulError, messages::VerifiedTransaction, object::Object};
+use haneul_types::{error::HaneulError, object::Object, transaction::VerifiedTransaction};
 use tokio::runtime::Runtime;
 
 use crate::account_universe::{AccountCurrent, INITIAL_BALANCE};

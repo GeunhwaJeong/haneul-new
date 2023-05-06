@@ -13,7 +13,7 @@ use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{error::HaneulError, messages::*};
+use haneul_types::{error::HaneulError, transaction::*};
 
 use haneul_network::tonic::transport::Channel;
 use haneul_types::messages_grpc::{

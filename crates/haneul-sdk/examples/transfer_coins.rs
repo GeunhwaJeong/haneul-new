@@ -7,7 +7,7 @@ use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::{
     types::{
         base_types::{ObjectID, HaneulAddress},
-        messages::Transaction,
+        transaction::Transaction,
     },
     HaneulClientBuilder,
 };

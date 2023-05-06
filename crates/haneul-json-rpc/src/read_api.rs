@@ -39,12 +39,12 @@ use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::display::DisplayVersionUpdatedEvent;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::{HaneulObjectResponseError, UserInputError};
-use haneul_types::messages::TransactionDataAPI;
-use haneul_types::messages::{TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointTimestamp};
 use haneul_types::move_package::normalize_modules;
 use haneul_types::object::{Data, Object, ObjectRead, PastObjectRead};
 use haneul_types::haneul_serde::BigInt;
+use haneul_types::transaction::TransactionDataAPI;
+use haneul_types::transaction::{TransactionData, VerifiedTransaction};
 
 use crate::api::JsonRpcMetrics;
 use crate::api::{validate_limit, ReadApiServer};

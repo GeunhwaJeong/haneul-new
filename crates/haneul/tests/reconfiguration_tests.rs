@@ -27,11 +27,6 @@ use haneul_types::effects::{CertifiedTransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::{
-    CallArg, ObjectArg, TransactionData, TransactionDataAPI, TransactionExpiration,
-    VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_STAKING,
-    TEST_ONLY_GAS_UNIT_FOR_TRANSFER, TEST_ONLY_GAS_UNIT_FOR_VALIDATOR,
-};
 use haneul_types::object::{
     generate_test_gas_objects_with_owner, generate_test_gas_objects_with_owner_and_value, Object,
 };
@@ -39,6 +34,11 @@ use haneul_types::haneul_system_state::haneul_system_state_inner_v1::VerifiedVal
 use haneul_types::haneul_system_state::{
     get_validator_from_table, haneul_system_state_summary::get_validator_by_pool_id,
     HaneulSystemStateTrait,
+};
+use haneul_types::transaction::{
+    CallArg, ObjectArg, TransactionData, TransactionDataAPI, TransactionExpiration,
+    VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_STAKING,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER, TEST_ONLY_GAS_UNIT_FOR_VALIDATOR,
 };
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{

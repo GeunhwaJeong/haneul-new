@@ -20,7 +20,7 @@ use haneul_core::test_utils::make_transfer_object_transaction;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
-    messages::VerifiedTransaction,
+    transaction::VerifiedTransaction,
 };
 
 /// TODO: This should be the amount that is being transferred instead of MAX_GAS.

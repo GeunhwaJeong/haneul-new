@@ -11,12 +11,12 @@ use haneul_types::coin::PAY_JOIN_FUNC_NAME;
 use haneul_types::coin::PAY_MODULE_NAME;
 use haneul_types::coin::PAY_SPLIT_VEC_FUNC_NAME;
 use haneul_types::crypto::{deterministic_random_account_key, AccountKeyPair};
-use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::{generate_test_gas_objects, Object};
+use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 use haneul_types::{
     gas::GasCostSummary,
-    messages::{CallArg, ObjectArg},
+    transaction::{CallArg, ObjectArg},
 };
 use test_utils::authority::spawn_test_authorities;
 use test_utils::transaction::make_publish_package;

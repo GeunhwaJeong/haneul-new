@@ -35,11 +35,11 @@ use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::messages::VerifiedTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::transaction::VerifiedTransaction;
 
 const NUM_VALIDAOTR: usize = 4;
 

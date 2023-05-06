@@ -22,8 +22,8 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::{VerifiedCertificate, VerifiedTransaction};
 use haneul_types::object::{Object, Owner};
+use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::time::{sleep, timeout};
 

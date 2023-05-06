@@ -12,10 +12,10 @@ use move_core_types::value::{MoveStruct, MoveValue};
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::SyntaxChoice;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::messages::{Argument, CallArg, ObjectArg};
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{Argument, CallArg, ObjectArg};
 
 use crate::test_adapter::{FakeID, HaneulTestAdapter};
 

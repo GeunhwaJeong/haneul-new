@@ -11,14 +11,14 @@ use narwhal_types::TransactionsServer;
 use narwhal_types::{Empty, TransactionProto};
 use haneul_network::tonic;
 use haneul_types::crypto::deterministic_random_account_key;
-use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS;
 use haneul_types::multiaddr::Multiaddr;
+use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
 use haneul_types::{
     base_types::ObjectID,
-    messages::{CallArg, CertifiedTransaction, ObjectArg, TransactionData},
     object::Object,
+    transaction::{CallArg, CertifiedTransaction, ObjectArg, TransactionData},
 };
 use tokio::sync::mpsc::channel;
 use tokio::sync::mpsc::{Receiver, Sender};

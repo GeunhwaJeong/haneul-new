@@ -32,9 +32,6 @@ use haneul_types::epoch_data::EpochData;
 use haneul_types::error::{ExecutionError, ExecutionErrorKind};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatusAPI};
-use haneul_types::messages::{
-    Argument, Command, GenesisTransaction, ObjectArg, ProgrammableTransaction, TransactionKind,
-};
 use haneul_types::messages_consensus::ConsensusCommitPrologue;
 use haneul_types::storage::{ChildObjectResolver, ObjectStore, ParentSync, WriteKind};
 #[cfg(msim)]
@@ -42,13 +39,16 @@ use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_mod
 use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
 use haneul_types::temporary_store::InnerTemporaryStore;
 use haneul_types::temporary_store::TemporaryStore;
+use haneul_types::transaction::{
+    Argument, Command, GenesisTransaction, ObjectArg, ProgrammableTransaction, TransactionKind,
+};
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
     gas::HaneulGasStatus,
-    messages::{CallArg, ChangeEpoch},
     object::Object,
     storage::BackingPackageStore,
     haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
+    transaction::{CallArg, ChangeEpoch},
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use haneul_types::{
@@ -486,7 +486,7 @@ fn execution_loop<
 
             for genesis_object in objects {
                 match genesis_object {
-                    haneul_types::messages::GenesisObject::RawObject { data, owner } => {
+                    haneul_types::transaction::GenesisObject::RawObject { data, owner } => {
                         let object = Object {
                             data,
                             owner,

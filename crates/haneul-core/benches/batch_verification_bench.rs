@@ -12,7 +12,7 @@ use std::sync::Arc;
 use haneul_core::test_utils::{make_cert_with_large_committee, make_dummy_tx};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
-use haneul_types::messages::CertifiedTransaction;
+use haneul_types::transaction::CertifiedTransaction;
 
 use haneul_core::signature_verifier::*;
 

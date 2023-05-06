@@ -8,7 +8,7 @@ use crate::executor::{ExecutionResult, Executor};
 use once_cell::sync::Lazy;
 use proptest::{prelude::*, strategy::Union};
 use std::{fmt, sync::Arc};
-use haneul_types::{messages::VerifiedTransaction, storage::ObjectStore};
+use haneul_types::{storage::ObjectStore, transaction::VerifiedTransaction};
 
 mod account;
 mod helpers;

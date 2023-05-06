@@ -12,9 +12,9 @@ use haneul_types::crypto::deterministic_random_account_key;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::HaneulResult;
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
-use haneul_types::messages::{CallArg, ObjectArg};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::{generate_test_gas_objects, Object, Owner, OBJECT_START_VERSION};
+use haneul_types::transaction::{CallArg, ObjectArg};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_utils::authority::{spawn_test_authorities, test_authority_configs_with_objects};
 use test_utils::transaction::{

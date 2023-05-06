@@ -19,7 +19,7 @@ use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},
     crypto::get_key_pair,
-    messages::VerifiedTransaction,
+    transaction::VerifiedTransaction,
 };
 use tracing::{debug, error};
 

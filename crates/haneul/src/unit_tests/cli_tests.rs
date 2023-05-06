@@ -7,12 +7,12 @@ use std::{fmt::Write, fs::read_dir, path::PathBuf, str, thread, time::Duration};
 
 use expect_test::expect;
 use serde_json::json;
-use haneul_types::messages::{
+use haneul_types::object::Owner;
+use haneul_types::transaction::{
     TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS,
     TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN,
     TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
-use haneul_types::object::Owner;
 use tokio::time::sleep;
 
 use haneul::client_commands::SwitchResponse;

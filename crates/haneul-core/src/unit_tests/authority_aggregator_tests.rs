@@ -19,8 +19,8 @@ use haneul_types::crypto::{KeypairTraits, Signature};
 use haneul_types::utils::create_fake_transaction;
 
 use haneul_macros::sim_test;
-use haneul_types::messages::*;
 use haneul_types::object::Object;
+use haneul_types::transaction::*;
 
 use super::*;
 use crate::authority_client::AuthorityAPI;

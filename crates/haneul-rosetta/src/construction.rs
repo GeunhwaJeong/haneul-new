@@ -17,8 +17,8 @@ use haneul_sdk::rpc_types::HaneulExecutionStatus;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{DefaultHash, SignatureScheme, ToFromBytes};
 use haneul_types::error::HaneulError;
-use haneul_types::messages::{Transaction, TransactionData, TransactionDataAPI};
 use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI};
 
 use crate::errors::Error;
 use crate::types::{

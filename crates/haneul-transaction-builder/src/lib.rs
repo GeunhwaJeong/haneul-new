@@ -23,13 +23,13 @@ use haneul_types::base_types::{ObjectID, ObjectInfo, ObjectRef, ObjectType, Hane
 use haneul_types::error::UserInputError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::governance::{ADD_STAKE_MUL_COIN_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
-use haneul_types::messages::{
-    Argument, CallArg, Command, InputObjectKind, ObjectArg, TransactionData, TransactionKind,
-};
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::transaction::{
+    Argument, CallArg, Command, InputObjectKind, ObjectArg, TransactionData, TransactionKind,
+};
 use haneul_types::{
     coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,

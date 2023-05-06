@@ -31,7 +31,7 @@ use haneul_types::{
     base_types::*,
     committee::{Committee, ProtocolVersion},
     error::{HaneulError, HaneulResult},
-    messages::*,
+    transaction::*,
 };
 use thiserror::Error;
 use tracing::{debug, error, info, trace, warn, Instrument};

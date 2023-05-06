@@ -26,10 +26,10 @@ use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
-use haneul_types::messages::{
+use haneul_types::multiaddr::{Multiaddr, Protocol};
+use haneul_types::transaction::{
     CallArg, ObjectArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
 };
-use haneul_types::multiaddr::{Multiaddr, Protocol};
 use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_OBJECT_ID};
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use tracing::info;

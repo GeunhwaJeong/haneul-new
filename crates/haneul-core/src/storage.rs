@@ -8,7 +8,6 @@ use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::{TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::messages::VerifiedTransaction;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -18,6 +17,7 @@ use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
 use haneul_types::storage::ReadStore;
 use haneul_types::storage::WriteStore;
+use haneul_types::transaction::VerifiedTransaction;
 use typed_store::Map;
 
 use crate::authority::AuthorityStore;

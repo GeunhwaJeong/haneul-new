@@ -10,7 +10,7 @@ use proptest::collection::vec;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 
 use haneul_types::digests::ObjectDigest;
-use haneul_types::messages::{
+use haneul_types::transaction::{
     GasData, TransactionData, TransactionDataV1, TransactionExpiration, TransactionKind,
 };
 

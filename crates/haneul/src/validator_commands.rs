@@ -50,8 +50,8 @@ use haneul_sdk::HaneulClient;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_authority_key_pair, AuthorityPublicKeyBytes,
 };
-use haneul_types::messages::Transaction;
-use haneul_types::messages::{CallArg, ObjectArg, TransactionData};
+use haneul_types::transaction::Transaction;
+use haneul_types::transaction::{CallArg, ObjectArg, TransactionData};
 use haneul_types::{
     crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair},
     HANEUL_SYSTEM_OBJ_CALL_ARG,

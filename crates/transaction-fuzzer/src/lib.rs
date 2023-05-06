@@ -18,7 +18,7 @@ use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::object::{MoveObject, Object, Owner, OBJECT_START_VERSION};
-use haneul_types::{gas_coin::TOTAL_SUPPLY_GEUNHWA, messages::GasData};
+use haneul_types::{gas_coin::TOTAL_SUPPLY_GEUNHWA, transaction::GasData};
 
 use proptest::prelude::*;
 use rand::{rngs::StdRng, SeedableRng};

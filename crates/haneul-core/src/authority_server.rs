@@ -21,7 +21,7 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{error::*, messages::*};
+use haneul_types::{error::*, transaction::*};
 use haneul_types::{
     fp_ensure,
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},

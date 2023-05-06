@@ -7,8 +7,8 @@ use proptest::arbitrary::*;
 use proptest::prelude::*;
 
 use haneul_types::base_types::ObjectID;
-use haneul_types::messages::{ProgrammableTransaction, TransactionData, TransactionKind};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{ProgrammableTransaction, TransactionData, TransactionKind};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{TypeTag, HANEUL_FRAMEWORK_OBJECT_ID};
 

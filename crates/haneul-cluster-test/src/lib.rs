@@ -26,7 +26,7 @@ use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{
     base_types::HaneulAddress,
-    messages::{Transaction, TransactionData, VerifiedTransaction},
+    transaction::{Transaction, TransactionData, VerifiedTransaction},
 };
 use test_case::{
     coin_index_test::CoinIndexTest, coin_merge_split_test::CoinMergeSplitTest,

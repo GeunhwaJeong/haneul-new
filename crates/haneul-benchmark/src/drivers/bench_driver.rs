@@ -31,7 +31,7 @@ use crate::ValidatorProxy;
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_types::messages::{TransactionDataAPI, VerifiedTransaction};
+use haneul_types::transaction::{TransactionDataAPI, VerifiedTransaction};
 use sysinfo::{CpuExt, System, SystemExt};
 use tokio::sync::Barrier;
 use tokio::{time, time::Instant};

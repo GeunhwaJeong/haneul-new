@@ -26,9 +26,9 @@ use haneul_json_rpc_types::{
 use haneul_sdk::error::Error;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::committee::EpochId;
-use haneul_types::messages::SenderSignedData;
 use haneul_types::messages_checkpoint::{CheckpointCommitment, CheckpointSequenceNumber};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use haneul_types::transaction::SenderSignedData;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
 
 use crate::errors::IndexerError;
@@ -1108,12 +1108,12 @@ pub async fn fetch_changed_objects(
     .await
     .into_iter()
     .try_fold(vec![], |mut acc, chunk| {
-        let object_datas = chunk.0?.into_iter().try_fold(vec![], |mut acc, resp| {
+        let object_data = chunk.0?.into_iter().try_fold(vec![], |mut acc, resp| {
             let object_data = resp.into_object()?;
             acc.push(object_data);
             Ok::<Vec<HaneulObjectData>, Error>(acc)
         })?;
-        let mutated_object_chunk = chunk.1.into_iter().zip(object_datas);
+        let mutated_object_chunk = chunk.1.into_iter().zip(object_data);
         acc.extend(mutated_object_chunk);
         Ok::<_, Error>(acc)
     })

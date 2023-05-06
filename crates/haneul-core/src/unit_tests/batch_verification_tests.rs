@@ -12,10 +12,10 @@ use haneul_macros::sim_test;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
 use haneul_types::gas::GasCostSummary;
-use haneul_types::messages::CertifiedTransaction;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSummary, SignedCheckpointSummary,
 };
+use haneul_types::transaction::CertifiedTransaction;
 
 // TODO consolidate with `gen_certs` in batch_verification_bench.rs
 fn gen_certs(

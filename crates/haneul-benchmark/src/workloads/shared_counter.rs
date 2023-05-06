@@ -19,7 +19,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::{
     base_types::{ObjectDigest, ObjectID, SequenceNumber},
-    messages::VerifiedTransaction,
+    transaction::VerifiedTransaction,
 };
 use tracing::{debug, error, info};
 

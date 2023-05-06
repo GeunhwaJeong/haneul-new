@@ -33,8 +33,8 @@ use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
 use haneullabs_metrics::{spawn_monitored_task, GaugeGuard};
 use std::fmt::Write;
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::{VerifiedCertificate, VerifiedTransaction};
 use haneul_types::messages_grpc::PlainTransactionInfoResponse;
+use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
 
 use self::reconfig_observer::ReconfigObserver;
 

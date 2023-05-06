@@ -38,7 +38,6 @@ use haneul_types::gas_coin::{GasCoin, TOTAL_SUPPLY_GEUNHWA};
 use haneul_types::governance::StakedHaneul;
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::{CallArg, Command, InputObjectKind, InputObjects, Transaction};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };
@@ -51,6 +50,7 @@ use haneul_types::haneul_system_state::{
     HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
+use haneul_types::transaction::{CallArg, Command, InputObjectKind, InputObjects, Transaction};
 use haneul_types::{
     base_types::TxContext,
     committee::{Committee, EpochId, ProtocolVersion},
@@ -1341,14 +1341,14 @@ fn create_genesis_transaction(
                     *initial_shared_version = SequenceNumber::MIN;
                 }
 
-                haneul_types::messages::GenesisObject::RawObject {
+                haneul_types::transaction::GenesisObject::RawObject {
                     data: object.data,
                     owner: object.owner,
                 }
             })
             .collect();
 
-        haneul_types::messages::VerifiedTransaction::new_genesis_transaction(genesis_objects)
+        haneul_types::transaction::VerifiedTransaction::new_genesis_transaction(genesis_objects)
             .into_inner()
     };
 

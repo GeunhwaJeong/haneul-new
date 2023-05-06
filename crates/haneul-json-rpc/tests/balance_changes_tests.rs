@@ -4,8 +4,8 @@
 use std::path::Path;
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::HaneulClient;
-use haneul_types::messages::{TransactionData, TransactionKind};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{TransactionData, TransactionKind};
 use test_utils::network::TestClusterBuilder;
 
 #[tokio::test]

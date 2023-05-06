@@ -24,7 +24,7 @@ use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TransactionDigest},
     gas_coin::GasCoin,
-    messages::{Transaction, TransactionData, VerifiedTransaction},
+    transaction::{Transaction, TransactionData, VerifiedTransaction},
 };
 use tokio::sync::{
     mpsc::{self, Receiver, Sender},

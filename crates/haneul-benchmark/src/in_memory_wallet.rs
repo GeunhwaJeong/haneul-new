@@ -7,14 +7,14 @@ use move_core_types::{identifier::Identifier, language_storage::TypeTag};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
     crypto::AccountKeyPair,
-    messages::{CallArg, TransactionData, TransactionDataAPI, VerifiedTransaction},
     object::Owner,
+    transaction::{CallArg, TransactionData, TransactionDataAPI, VerifiedTransaction},
     utils::to_sender_signed_transaction,
 };
 
 use crate::ProgrammableTransactionBuilder;
 use crate::{convert_move_call_args, workloads::Gas, BenchMoveCallArg, ExecutionEffects};
-use haneul_types::messages::Command;
+use haneul_types::transaction::Command;
 
 /// A Haneul account and all of the objects it owns
 #[derive(Debug)]

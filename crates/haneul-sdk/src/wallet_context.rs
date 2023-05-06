@@ -19,9 +19,9 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::TransactionDataAPI;
-use haneul_types::messages::{
-    Transaction, TransactionData, VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+use haneul_types::transaction::{
+    Transaction, TransactionData, TransactionDataAPI, VerifiedTransaction,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use tokio::sync::RwLock;
 use tracing::warn;

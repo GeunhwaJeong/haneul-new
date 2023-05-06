@@ -41,10 +41,10 @@ pub mod pg_integration_test {
     use haneul_types::digests::{ObjectDigest, TransactionDigest};
     use haneul_types::error::HaneulObjectResponseError;
     use haneul_types::gas_coin::GasCoin;
-    use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
     use haneul_types::object::ObjectFormatOptions;
     use haneul_types::query::TransactionFilter;
     use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
+    use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
     use haneul_types::utils::to_sender_signed_transaction;
     use test_utils::network::{TestCluster, TestClusterBuilder};
     use test_utils::transaction::{create_devnet_nft, delete_devnet_nft, publish_nfts_package};

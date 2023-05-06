@@ -27,11 +27,6 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, Transacti
 use haneul_types::error::{ExecutionError, HaneulError};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
-use haneul_types::messages::{
-    Argument, CallArg, Command, GenesisObject, InputObjectKind, ObjectArg, ProgrammableMoveCall,
-    ProgrammableTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
-    TransactionKind, VersionedProtocolMessage,
-};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Owner;
 use haneul_types::parse_haneul_type_tag;
@@ -41,6 +36,11 @@ use haneul_types::storage::{DeleteKind, WriteKind};
 use haneul_types::haneul_serde::Readable;
 use haneul_types::haneul_serde::{
     BigInt, SequenceNumber as AsSequenceNumber, HaneulTypeTag as AsHaneulTypeTag,
+};
+use haneul_types::transaction::{
+    Argument, CallArg, Command, GenesisObject, InputObjectKind, ObjectArg, ProgrammableMoveCall,
+    ProgrammableTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
+    TransactionKind, VersionedProtocolMessage,
 };
 
 // similar to EpochId of haneul-types but BigInt

@@ -21,11 +21,11 @@ use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::{
     base_types::MoveObjectType_,
     crypto::Signer,
-    messages::TransactionExpiration,
     messages_checkpoint::{
         CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSummary,
         FullCheckpointContents,
     },
+    transaction::TransactionExpiration,
 };
 use haneul_types::{
     base_types::{
@@ -35,11 +35,11 @@ use haneul_types::{
         get_key_pair, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
         AuthorityPublicKeyBytes, AuthoritySignature, KeypairTraits, Signature, HaneulKeyPair,
     },
-    messages::{Argument, CallArg, Command, ObjectArg, TransactionKind},
     multisig::{MultiSig, MultiSigPublicKey},
     object::{Data, Owner},
     signature::GenericSignature,
     storage::DeleteKind,
+    transaction::{Argument, CallArg, Command, ObjectArg, TransactionKind},
 };
 use typed_store::rocks::TypedStoreError;
 

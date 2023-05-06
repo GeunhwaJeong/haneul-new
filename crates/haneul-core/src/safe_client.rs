@@ -27,7 +27,7 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 use haneul_types::{
     error::{HaneulError, HaneulResult},
-    messages::*,
+    transaction::*,
 };
 use tap::TapFallible;
 use tracing::{debug, error, warn};

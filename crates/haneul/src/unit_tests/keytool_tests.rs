@@ -30,8 +30,8 @@ use haneul_types::crypto::Signature;
 use haneul_types::crypto::SignatureScheme;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::crypto::HaneulSignatureInner;
-use haneul_types::messages::TransactionData;
-use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
+use haneul_types::transaction::TransactionData;
+use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
 use tempfile::TempDir;
 
 const TEST_MNEMONIC: &str = "result crisp session latin must fruit genuine question prevent start coconut brave speak student dismiss";

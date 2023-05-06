@@ -14,9 +14,9 @@ use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBloc
 use haneul_move_build::BuildConfig;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
-use haneul_types::messages::{CallArg, ObjectArg, TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH};
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::WriteKind;
+use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH};
 use haneul_types::{Identifier, HANEUL_FRAMEWORK_ADDRESS};
 use test_utils::network::TestCluster;
 use tokio::sync::RwLock;

@@ -16,13 +16,13 @@ use haneul_types::{
     digests::CertificateDigest,
     error::{HaneulError, HaneulResult},
     message_envelope::Message,
-    messages::{CertifiedTransaction, VerifiedCertificate},
     messages_checkpoint::SignedCheckpointSummary,
+    transaction::{CertifiedTransaction, VerifiedCertificate},
 };
 
 use haneullabs_metrics::monitored_scope;
 use haneul_types::digests::SenderSignedDataDigest;
-use haneul_types::messages::SenderSignedData;
+use haneul_types::transaction::SenderSignedData;
 use tap::TapFallible;
 use tokio::runtime::Handle;
 use tokio::{

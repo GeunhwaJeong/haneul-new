@@ -15,7 +15,7 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
     crypto::{AccountKeyPair, AuthorityKeyPair, KeypairTraits},
-    messages::VerifiedTransaction,
+    transaction::VerifiedTransaction,
 };
 
 use super::test_authority_builder::TestAuthorityBuilder;

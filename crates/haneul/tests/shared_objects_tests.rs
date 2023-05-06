@@ -5,7 +5,7 @@ use futures::{stream, StreamExt};
 use std::time::{Duration, SystemTime};
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_core::consensus_adapter::position_submit_certificate;
-use haneul_types::messages::{CallArg, ObjectArg};
+use haneul_types::transaction::{CallArg, ObjectArg};
 use test_utils::authority::get_client;
 use test_utils::authority::{spawn_test_authorities, test_authority_configs_with_objects};
 use test_utils::transaction::{

@@ -13,15 +13,15 @@ use haneul_sdk::error::Error as HaneulRpcError;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::digests::{ObjectDigest, TransactionDigest};
 use haneul_types::error::{HaneulError, HaneulObjectResponseError, HaneulResult, UserInputError};
-use haneul_types::messages::{InputObjectKind, SenderSignedData, TransactionKind};
 use haneul_types::object::Object;
+use haneul_types::transaction::{InputObjectKind, SenderSignedData, TransactionKind};
 use thiserror::Error;
 use tokio::time::Duration;
 use tracing::error;
 
 // These are very testnet specific
 pub(crate) const TESTNET_GENESIX_TX_DIGEST: &str = "Cgww1sn7XViCPSdDcAPmVcARueWuexJ8af8zD842Ff43";
-pub(crate) const SAFE_MODE_TX_1_DIGEST: &str = "AGBCaUGj4iGpGYyQvto9Bke1EwouY8LGMoTzzuPMx4nd";
+pub(crate) const SAFE_MODE_TX_1_DIGEST: &str = "AGBCaUGj4iGpGYyQvto9Bke1EwouY8LGMoTzzuPMx4and";
 
 // TODO: make these configurable
 pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(10_000);

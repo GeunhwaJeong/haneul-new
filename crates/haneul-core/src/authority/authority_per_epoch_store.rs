@@ -20,11 +20,11 @@ use haneul_types::base_types::{AuthorityName, EpochId, ObjectID, SequenceNumber,
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{AuthoritySignInfo, AuthorityStrongQuorumSignInfo};
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages::{
+use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::{
     CertifiedTransaction, SenderSignedData, SharedInputObject, TransactionData, TransactionDataAPI,
     VerifiedCertificate, VerifiedSignedTransaction,
 };
-use haneul_types::signature::GenericSignature;
 use tracing::{debug, error, info, trace, warn};
 use typed_store::rocks::{
     default_db_options, DBBatch, DBMap, DBOptions, MetricConf, TypedStoreError,

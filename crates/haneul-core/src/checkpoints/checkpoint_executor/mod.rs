@@ -35,10 +35,10 @@ use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::message_envelope::Message;
 use haneul_types::{
     base_types::{ExecutionDigests, TransactionDigest, TransactionEffectsDigest},
-    messages::VerifiedTransaction,
     messages_checkpoint::{CheckpointSequenceNumber, VerifiedCheckpoint},
+    transaction::VerifiedTransaction,
 };
-use haneul_types::{error::HaneulResult, messages::TransactionDataAPI};
+use haneul_types::{error::HaneulResult, transaction::TransactionDataAPI};
 use tap::{TapFallible, TapOptional};
 use tokio::{
     sync::broadcast::{self, error::RecvError},

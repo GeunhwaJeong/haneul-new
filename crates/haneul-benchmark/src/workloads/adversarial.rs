@@ -28,11 +28,11 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{random_object_ref, ObjectRef};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::messages::Command;
-use haneul_types::messages::{CallArg, ObjectArg};
+use haneul_types::transaction::Command;
+use haneul_types::transaction::{CallArg, ObjectArg};
 use haneul_types::{base_types::ObjectID, object::Owner};
-use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, messages::VerifiedTransaction};
-use haneul_types::{messages::TransactionData, utils::to_sender_signed_transaction};
+use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::VerifiedTransaction};
+use haneul_types::{transaction::TransactionData, utils::to_sender_signed_transaction};
 use tracing::debug;
 
 /// Number of vectors to create in LargeTransientRuntimeVectors workload

@@ -23,8 +23,8 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
     crypto::AuthorityKeyPair,
     error::HaneulError,
-    messages::{CertifiedTransaction, Transaction},
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
+    transaction::{CertifiedTransaction, Transaction},
 };
 
 #[derive(Clone, Copy, Default)]

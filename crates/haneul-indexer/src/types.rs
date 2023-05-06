@@ -7,9 +7,9 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockKind, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_types::digests::TransactionDigest;
-use haneul_types::messages::{SenderSignedData, TransactionDataAPI};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Owner;
+use haneul_types::transaction::{SenderSignedData, TransactionDataAPI};
 
 use crate::errors::IndexerError;
 use crate::models::addresses::Address;

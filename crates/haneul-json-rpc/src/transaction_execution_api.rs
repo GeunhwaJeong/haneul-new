@@ -22,12 +22,12 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::messages::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
 use haneul_types::quorum_driver_types::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
 };
 use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_serde::BigInt;
+use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
 
 use crate::api::JsonRpcMetrics;
 use crate::api::WriteApiServer;

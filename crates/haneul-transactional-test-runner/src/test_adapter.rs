@@ -55,26 +55,26 @@ use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
     crypto::{get_key_pair_from_rng, AccountKeyPair},
     event::Event,
-    messages::{TransactionData, TransactionDataAPI, VerifiedTransaction},
     object::{self, Object, ObjectFormatOptions},
     object::{MoveObject, Owner},
+    transaction::{TransactionData, TransactionDataAPI, VerifiedTransaction},
     MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use haneul_types::{clock::Clock, HANEUL_SYSTEM_ADDRESS};
-use haneul_types::{epoch_data::EpochData, messages::Command};
+use haneul_types::{epoch_data::EpochData, transaction::Command};
 use haneul_types::{gas::HaneulGasStatus, temporary_store::TemporaryStore};
 use haneul_types::{
     gas::{GasCostSummary, HaneulCostTable},
     object::GAS_VALUE_FOR_TESTING,
 };
 use haneul_types::{id::UID, DEEPBOOK_ADDRESS};
-use haneul_types::{in_memory_storage::InMemoryStorage, messages::ProgrammableTransaction};
-use haneul_types::{
-    messages::{Argument, CallArg},
-    move_package::MovePackage,
-};
+use haneul_types::{in_memory_storage::InMemoryStorage, transaction::ProgrammableTransaction};
 use haneul_types::{metrics::LimitsMetrics, DEEPBOOK_OBJECT_ID};
+use haneul_types::{
+    move_package::MovePackage,
+    transaction::{Argument, CallArg},
+};
 use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_OBJECT_ID,
 };
@@ -635,7 +635,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
                 let transaction = self.sign_txn(sender, |sender, gas| {
                     let rec_arg = builder.pure(recipient).unwrap();
-                    builder.command(haneul_types::messages::Command::TransferObjects(
+                    builder.command(haneul_types::transaction::Command::TransferObjects(
                         vec![obj_arg],
                         rec_arg,
                     ));

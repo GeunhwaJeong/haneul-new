@@ -31,11 +31,11 @@ use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::error::TRANSACTION_NOT_FOUND_MSG_PREFIX;
 use haneul_types::event::EventID;
-use haneul_types::messages::{TransactionData, VerifiedTransaction};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use haneul_types::transaction::{TransactionData, VerifiedTransaction};
 
 #[derive(Debug)]
 pub struct ReadApi {

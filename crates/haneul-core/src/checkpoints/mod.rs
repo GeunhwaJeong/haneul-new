@@ -35,7 +35,6 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::{TransactionDataAPI, TransactionKind};
 use haneul_types::messages_checkpoint::SignedCheckpointSummary;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
@@ -45,6 +44,7 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::messages_consensus::ConsensusTransactionKey;
 use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
+use haneul_types::transaction::{TransactionDataAPI, TransactionKind};
 use tokio::{
     sync::{watch, Notify},
     time::timeout,
@@ -1392,10 +1392,10 @@ mod tests {
     use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionEffectsDigest};
     use haneul_types::crypto::Signature;
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::messages::{GenesisObject, VerifiedTransaction};
     use haneul_types::messages_checkpoint::SignedCheckpointSummary;
     use haneul_types::move_package::MovePackage;
     use haneul_types::object;
+    use haneul_types::transaction::{GenesisObject, VerifiedTransaction};
     use tokio::sync::mpsc;
 
     #[tokio::test]

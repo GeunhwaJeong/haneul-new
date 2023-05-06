@@ -18,10 +18,10 @@ use clap::*;
 use fastcrypto::encoding::Encoding;
 use haneul_config::Config;
 use haneul_core::authority_aggregator::AuthorityAggregatorBuilder;
-use haneul_types::messages::{SenderSignedData, Transaction};
 use haneul_types::messages_checkpoint::{
     CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
+use haneul_types::transaction::{SenderSignedData, Transaction};
 
 #[derive(Parser, Clone, ValueEnum)]
 pub enum Verbosity {

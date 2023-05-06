@@ -24,9 +24,9 @@ use haneul_sdk::rpc_types::{
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::gas_coin::{GasCoin, GAS};
 use haneul_types::governance::{ADD_STAKE_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
-use haneul_types::messages::TransactionData;
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::transaction::TransactionData;
 use haneul_types::{HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_OBJECT_ID};
 
 use crate::types::{

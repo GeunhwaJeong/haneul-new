@@ -10,7 +10,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
-use haneul_types::messages::{TransactionData, VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
+use haneul_types::transaction::{
+    TransactionData, VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+};
 use haneul_types::utils::to_sender_signed_transaction;
 
 use crate::workloads::Gas;

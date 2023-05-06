@@ -27,9 +27,9 @@ use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAdd
 use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages::{TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::Object;
+use haneul_types::transaction::{TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
 
 fn indexer_benchmark(c: &mut Criterion) {
     let pg_host = env::var("POSTGRES_HOST").unwrap_or_else(|_| "localhost".into());

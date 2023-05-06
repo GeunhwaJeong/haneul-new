@@ -14,7 +14,7 @@ use haneul_types::{
     base_types::ObjectID,
     committee::EpochId,
     digests::TransactionEffectsDigest,
-    messages::{TransactionDataAPI, VerifiedCertificate},
+    transaction::{TransactionDataAPI, VerifiedCertificate},
 };
 use haneul_types::{base_types::TransactionDigest, error::HaneulResult};
 use tokio::sync::mpsc::UnboundedSender;

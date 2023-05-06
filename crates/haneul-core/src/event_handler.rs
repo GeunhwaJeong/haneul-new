@@ -11,7 +11,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_json_rpc_types::{HaneulEvent, HaneulTransactionBlockEffectsAPI};
 use haneul_types::error::HaneulResult;
-use haneul_types::messages::TransactionData;
+use haneul_types::transaction::TransactionData;
 
 #[cfg(test)]
 #[path = "unit_tests/event_handler_tests.rs"]

@@ -19,9 +19,9 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas_coin::GAS;
-use haneul_types::messages::InputObjectKind;
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::WriteKind;
+use haneul_types::transaction::InputObjectKind;
 
 pub async fn get_balance_changes_from_effect<P: ObjectProvider<Error = E>, E>(
     object_provider: &P,

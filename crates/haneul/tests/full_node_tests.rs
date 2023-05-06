@@ -29,17 +29,17 @@ use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
 use haneul_types::event::{Event, EventID};
 use haneul_types::message_envelope::Message;
-use haneul_types::messages::TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN;
-use haneul_types::messages::{
-    CallArg, GasData, ObjectArg, TransactionData, TransactionKind,
-    TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
-};
 use haneul_types::messages_grpc::TransactionInfoRequest;
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
     QuorumDriverResponse,
+};
+use haneul_types::transaction::{
+    CallArg, GasData, ObjectArg, TransactionData, TransactionKind,
+    TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS, TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,

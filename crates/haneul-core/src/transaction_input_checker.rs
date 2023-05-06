@@ -15,14 +15,16 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::{UserInputError, UserInputResult};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::messages::{TransactionKind, VersionedProtocolMessage};
 use haneul_types::metrics::BytecodeVerifierMetrics;
+use haneul_types::transaction::{
+    InputObjectKind, InputObjects, TransactionData, TransactionDataAPI, TransactionKind,
+    VersionedProtocolMessage,
+};
 use haneul_types::{
     base_types::{SequenceNumber, HaneulAddress},
     error::HaneulResult,
     fp_ensure,
     gas::{HaneulCostTable, HaneulGasStatus},
-    messages::{InputObjectKind, InputObjects, TransactionData, TransactionDataAPI},
     object::{Object, Owner},
 };
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};

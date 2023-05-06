@@ -28,8 +28,8 @@ use std::hash::{Hash, Hasher};
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
-use haneul_types::messages::VerifiedTransaction;
 use haneul_types::storage::ParentSync;
+use haneul_types::transaction::VerifiedTransaction;
 
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::{

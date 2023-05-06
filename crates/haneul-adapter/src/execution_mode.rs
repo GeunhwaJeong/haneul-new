@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_core_types::language_storage::TypeTag;
-use haneul_types::{error::ExecutionError, messages::Argument};
+use haneul_types::{error::ExecutionError, transaction::Argument};
 
 use crate::programmable_transactions::{
     context::ExecutionContext,
