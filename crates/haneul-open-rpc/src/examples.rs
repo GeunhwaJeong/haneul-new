@@ -9,25 +9,29 @@ use std::str::FromStr;
 use fastcrypto::traits::EncodeDecodeBase64;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::ModuleId;
-use move_core_types::language_storage::StructTag;
+use move_core_types::language_storage::{StructTag, TypeTag};
 use move_core_types::resolver::ModuleResolver;
+use move_core_types::value::MoveStructLayout;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use serde_json::json;
 
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::error::Error;
+use haneul_json_rpc_types::DevInspectResults;
+use haneul_json_rpc_types::EventFilter;
 use haneul_json_rpc_types::ProtocolConfigResponse;
+use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::TransactionFilter;
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, EventPage, MoveCallParams,
-    ObjectChange, OwnedObjectRef, RPCTransactionRequestParams, HaneulCommittee, HaneulData, HaneulEvent,
-    HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectRef,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData, HaneulPastObjectResponse,
-    HaneulTransactionBlock, HaneulTransactionBlockData, HaneulTransactionBlockEffects,
-    HaneulTransactionBlockEffectsV1, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlockBytes, TransactionBlocksPage,
-    TransferObjectParams,
+    Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DynamicFieldPage, EventPage,
+    MoveCallParams, ObjectChange, OwnedObjectRef, RPCTransactionRequestParams, HaneulCommittee,
+    HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataFilter,
+    HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
+    HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlockBytes,
+    TransactionBlocksPage, TransferObjectParams,
 };
 use haneul_json_rpc_types::{HaneulTypeTag, ValidatorApy, ValidatorApys};
 use haneul_open_rpc::ExamplePairing;
@@ -42,11 +46,13 @@ use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AggregateAuthoritySignature};
 use haneul_types::digests::TransactionEventsDigest;
+use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType};
 use haneul_types::event::EventID;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::id::UID;
 use haneul_types::messages_checkpoint::CheckpointDigest;
+use haneul_types::object::MoveObject;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -98,6 +104,8 @@ impl RpcExampleProvider {
             self.query_transaction_blocks(),
             self.get_events(),
             self.execute_transaction_example(),
+            self.dry_run_transaction_block(),
+            self.dev_inspect_transaction_block(),
             self.get_checkpoint_example(),
             self.get_checkpoints(),
             self.haneul_get_committee_info(),
@@ -112,6 +120,11 @@ impl RpcExampleProvider {
             self.multi_get_objects_example(),
             self.multi_get_transaction_blocks(),
             self.haneulx_get_validators_apy(),
+            self.haneulx_get_dynamic_fields(),
+            self.haneulx_get_dynamic_field_object(),
+            self.haneulx_get_owned_objects(),
+            self.haneulx_query_events(),
+            self.haneulx_get_latest_haneul_system_state(),
             self.get_protocol_config(),
         ]
         .into_iter()
@@ -228,6 +241,48 @@ impl RpcExampleProvider {
                     ),
                 ],
                 json!(result),
+            )],
+        )
+    }
+
+    fn dry_run_transaction_block(&mut self) -> Examples {
+        let (data, _, _, _, result) = self.get_transfer_data_response();
+        let tx_bytes = TransactionBlockBytes::from_data(data).unwrap();
+
+        Examples::new(
+            "haneul_dryRunTransactionBlock",
+            vec![ExamplePairing::new(
+                "Dry run a transaction block to get back estimated gas fees and other potential effects.",
+                vec![
+                    ("tx_bytes", json!(tx_bytes.tx_bytes)),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn dev_inspect_transaction_block(&mut self) -> Examples {
+        let (data, _, _, _, result) = self.get_transfer_data_response();
+        let tx_bytes = TransactionBlockBytes::from_data(data).unwrap();
+
+        let dev_inspect_results = DevInspectResults {
+            effects: result.effects.unwrap(),
+            events: HaneulTransactionBlockEvents { data: vec![] },
+            results: None,
+            error: None,
+        };
+
+        Examples::new(
+            "haneul_devInspectTransactionBlock",
+            vec![ExamplePairing::new(
+                "Runs the transaction in dev-inspect mode. Which allows for nearly any transaction (or Move call) with any arguments. Detailed results are provided, including both the transaction effects and any return values.",
+                vec![
+                    ("sender_address", json!(HaneulAddress::from(ObjectID::new(self.rng.gen())))),
+                    ("tx_bytes", json!(tx_bytes.tx_bytes)),
+                    ("gas_price", json!(1000)),
+                    ("epoch", json!(8888)),
+                ],
+                json!(dev_inspect_results),
             )],
         )
     }
@@ -551,6 +606,16 @@ impl RpcExampleProvider {
         range
             .into_iter()
             .map(|_| TransactionDigest::new(self.rng.gen()))
+            .collect()
+    }
+
+    fn get_event_ids(&mut self, range: Range<u64>) -> Vec<EventID> {
+        range
+            .into_iter()
+            .map(|_| EventID {
+                tx_digest: TransactionDigest::new(self.rng.gen()),
+                event_seq: 1,
+            })
             .collect()
     }
 
@@ -944,6 +1009,202 @@ impl RpcExampleProvider {
                     apys: result,
                     epoch: 420
                 }),
+            )],
+        )
+    }
+
+    fn haneulx_get_dynamic_fields(&mut self) -> Examples {
+        let object_id = ObjectID::new(self.rng.gen());
+        let dynamic_fields = (0..3)
+            .map(|_| DynamicFieldInfo {
+                name: DynamicFieldName {
+                    type_: TypeTag::from_str("0x9::test::TestField").unwrap(),
+                    value: serde_json::Value::String("some_value".to_string()),
+                },
+                bcs_name: bcs::to_bytes("0x9::test::TestField").unwrap(),
+                type_: DynamicFieldType::DynamicField,
+                object_type: "test".to_string(),
+                object_id: ObjectID::new(self.rng.gen()),
+                version: SequenceNumber::from_u64(1),
+                digest: ObjectDigest::new(self.rng.gen()),
+            })
+            .collect::<Vec<_>>();
+
+        let next_cursor = dynamic_fields.last().unwrap().object_id;
+
+        let page = DynamicFieldPage {
+            data: dynamic_fields,
+            next_cursor: Some(next_cursor),
+            has_next_page: true,
+        };
+
+        Examples::new("haneulx_getDynamicFields",             
+        vec![ExamplePairing::new(
+            "Get all the dynamic fields of a particular object. Return a paginated list of `limit` results per page. The current limit is 50 per page.",
+            vec![
+                ("parent_object_id", json!(object_id)),
+                ("cursor", json!(ObjectID::new(self.rng.gen()))),
+                ("limit", json!(3)),
+            ],
+            json!(page),
+        )],)
+    }
+
+    fn haneulx_get_dynamic_field_object(&mut self) -> Examples {
+        let parent_object_id = ObjectID::new(self.rng.gen());
+        let field_name = DynamicFieldName {
+            type_: TypeTag::from_str("0x9::test::TestField").unwrap(),
+            value: serde_json::Value::String("some_value".to_string()),
+        };
+
+        let resp = HaneulObjectResponse::new_with_data(HaneulObjectData {
+            content: Some(
+                HaneulParsedData::try_from_object(
+                    unsafe {
+                        MoveObject::new_from_execution_with_limit(
+                            MoveObjectType::from(
+                                parse_haneul_struct_tag("0x9::test::TestField").unwrap(),
+                            ),
+                            true,
+                            SequenceNumber::from_u64(1),
+                            Vec::new(),
+                            5,
+                        )
+                        .unwrap()
+                    },
+                    MoveStructLayout::WithFields(Vec::new()),
+                )
+                .unwrap(),
+            ),
+            owner: Some(Owner::AddressOwner(HaneulAddress::from(ObjectID::new(
+                self.rng.gen(),
+            )))),
+            previous_transaction: Some(TransactionDigest::new(self.rng.gen())),
+            storage_rebate: Some(100),
+            object_id: parent_object_id,
+            version: SequenceNumber::from_u64(1),
+            digest: ObjectDigest::new(self.rng.gen()),
+            type_: Some(ObjectType::Struct(MoveObjectType::from(
+                parse_haneul_struct_tag("0x9::test::TestField").unwrap(),
+            ))),
+            bcs: None,
+            display: None,
+        });
+        Examples::new(
+            "haneulx_getDynamicFieldObject",
+            vec![ExamplePairing::new(
+                "Gets a particular dynamic field data of the parent object.",
+                vec![
+                    ("parent_object_id", json!(parent_object_id)),
+                    ("name", json!(field_name)),
+                ],
+                json!(resp),
+            )],
+        )
+    }
+
+    fn haneulx_get_owned_objects(&mut self) -> Examples {
+        let owner = HaneulAddress::from(ObjectID::new(self.rng.gen()));
+        let result = (0..4)
+            .map(|_| HaneulObjectData {
+                object_id: ObjectID::new(self.rng.gen()),
+                version: Default::default(),
+                digest: ObjectDigest::new(self.rng.gen()),
+                type_: Some(ObjectType::Struct(MoveObjectType::gas_coin())),
+                owner: Some(Owner::AddressOwner(owner)),
+                previous_transaction: Some(TransactionDigest::new(self.rng.gen())),
+                storage_rebate: None,
+                display: None,
+                content: None,
+                bcs: None,
+            })
+            .collect::<Vec<_>>();
+
+        Examples::new(
+            "haneulx_getOwnedObjects",
+            vec![ExamplePairing::new(
+                "Get objects owned by the address in the request.",
+                vec![
+                    ("address", json!(owner)),
+                    (
+                        "query",
+                        json!(HaneulObjectResponseQuery {
+                            filter: Some(HaneulObjectDataFilter::StructType(
+                                StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap()
+                            )),
+                            options: Some(
+                                HaneulObjectDataOptions::new()
+                                    .with_type()
+                                    .with_owner()
+                                    .with_previous_transaction()
+                            )
+                        }),
+                    ),
+                    ("cursor", json!(ObjectID::new(self.rng.gen()))),
+                    ("limit", json!(100)),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_query_events(&mut self) -> Examples {
+        let package_id = ObjectID::new(self.rng.gen());
+        let identifier = Identifier::from_str("test").unwrap();
+        let mut event_ids = self.get_event_ids(5..9);
+        let has_next_page = event_ids.len() > (9 - 5);
+        event_ids.truncate(9 - 5);
+        let next_cursor = event_ids.last().cloned();
+        let cursor = event_ids.last().cloned();
+
+        let data = event_ids
+            .into_iter()
+            .map(|event_id| HaneulEvent {
+                id: event_id,
+                package_id,
+                transaction_module: identifier.clone(),
+                sender: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+                type_: StructTag::from_str("0x3::test::Test<0x3::test::Test>").unwrap(),
+                parsed_json: serde_json::Value::String("some_value".to_string()),
+                bcs: vec![],
+                timestamp_ms: None,
+            })
+            .collect();
+
+        let result = EventPage {
+            data,
+            next_cursor,
+            has_next_page,
+        };
+        Examples::new(
+            "haneulx_queryEvents",
+            vec![ExamplePairing::new(
+                "Return the events for a specified query criteria.",
+                vec![
+                    (
+                        "query",
+                        json!(EventFilter::MoveModule {
+                            package: ObjectID::new(self.rng.gen()),
+                            module: Identifier::from_str("test").unwrap(),
+                        }),
+                    ),
+                    ("cursor", json!(cursor)),
+                    ("limit", json!(100)),
+                    ("descending_order", json!(false)),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_get_latest_haneul_system_state(&mut self) -> Examples {
+        let result = "some_system_state";
+        Examples::new(
+            "haneulx_getLatestHaneulSystemState",
+            vec![ExamplePairing::new(
+                "Get objects owned by the address in the request.",
+                vec![],
+                json!(result),
             )],
         )
     }
