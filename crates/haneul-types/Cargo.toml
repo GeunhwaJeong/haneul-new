@@ -48,6 +48,7 @@ haneul-cost-tables = { path = "../haneul-cost-tables"}
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 shared-crypto = { path = "../shared-crypto" }
 haneullabs-network = { path = "../haneullabs-network" }
+haneullabs-metrics = { path = "../haneullabs-metrics" }
 haneul-macros = { path = "../haneul-macros" }
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
