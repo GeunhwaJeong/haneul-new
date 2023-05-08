@@ -34,7 +34,7 @@ const splitPanels = [
     },
     {
         panel: (
-            <div key={3} className="h-full w-[1000px] w-full bg-haneul">
+            <div key={3} className="h-full w-[1000px] bg-haneul">
                 Third
             </div>
         ),
