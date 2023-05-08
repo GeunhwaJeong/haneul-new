@@ -35,7 +35,6 @@ pub mod error;
 pub mod haneul_client_config;
 pub mod wallet_context;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
-const WAIT_FOR_TX_TIMEOUT_SEC: u64 = 60;
 
 pub struct HaneulClientBuilder {
     request_timeout: Duration,
