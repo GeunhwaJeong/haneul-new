@@ -43,3 +43,7 @@ export const testnetConnection = new Connection({
   fullnode: 'https://fullnode.testnet.haneul.io:443/',
   faucet: 'https://faucet.testnet.haneul.io/gas',
 });
+
+export const mainnetConnection = new Connection({
+  fullnode: 'https://fullnode.mainnet.haneul.io:443/',
+});
