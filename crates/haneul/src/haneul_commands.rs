@@ -252,7 +252,7 @@ impl HaneulCommand {
                 let keystore_path =
                     keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
                 let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-                cmd.execute(&mut keystore)
+                cmd.execute(&mut keystore).await
             }
             HaneulCommand::Console { config } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));

@@ -27,6 +27,9 @@ const-str = "0.5.3"
 rand = "0.8.5"
 tap = "1.0"
 inquire = "0.6.0"
+rusoto_core = { version = "0.48.0", default_features=false, features=["rustls"] }
+rusoto_kms = { version = "0.48.0", default_features=false, features=["rustls"] }
+aws-config = "0.55.1"
 
 haneul-core = { path = "../haneul-core" }
 haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
@@ -86,6 +89,7 @@ haneul-macros = { path = "../haneul-macros" }
 haneul-simulator = { path = "../haneul-simulator" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 haneul-tool = { path = "../haneul-tool" }
+tokio = { version = "1", features = ["full"] }
 
 assert_cmd = "2.0.6"
 
