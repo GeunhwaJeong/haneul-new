@@ -10368,6 +10368,7 @@ dependencies = [
  "move-symbol-pool",
  "rand 0.8.5",
  "haneul",
+ "haneul-json-rpc-types",
  "haneul-move-build",
  "haneul-sdk",
  "haneul-types",

@@ -12,18 +12,17 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, TransactionFilter,
 };
 use test_utils::network::TestClusterBuilder;
-use test_utils::transaction::{create_devnet_nft, publish_nfts_package};
 
 #[tokio::test]
 async fn test_subscribe_transaction() -> Result<(), anyhow::Error> {
     let cluster = TestClusterBuilder::new().build().await.unwrap();
 
     let address = &cluster.accounts[0];
-    let mut wallet = cluster.wallet;
+    let wallet = cluster.wallet;
 
     let ws_client = cluster.fullnode_handle.ws_client;
 
-    let package_id = publish_nfts_package(&mut wallet).await.0;
+    let package_id = wallet.publish_nfts_package().await.0;
 
     let mut sub: Subscription<HaneulTransactionBlockEffects> = ws_client
         .subscribe(
@@ -34,7 +33,7 @@ async fn test_subscribe_transaction() -> Result<(), anyhow::Error> {
         .await
         .unwrap();
 
-    let (_, _, digest) = create_devnet_nft(&mut wallet, package_id).await?;
+    let (_, _, digest) = wallet.create_devnet_nft(package_id).await;
     wait_for_tx(digest, cluster.fullnode_handle.haneul_node.state().clone()).await;
 
     // Wait for streaming

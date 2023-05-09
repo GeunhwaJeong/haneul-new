@@ -14,6 +14,7 @@ anyhow = { version = "1.0.64", features = ["backtrace"] }
 thiserror = "1.0.34"
 futures = "0.3.25"
 
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-types = { path = "../haneul-types" }
 haneul-sdk = { path = "../../crates/haneul-sdk" }
 haneul-move-build = { path = "../../crates/haneul-move-build" }
