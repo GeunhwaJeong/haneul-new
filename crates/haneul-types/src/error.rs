@@ -688,6 +688,18 @@ impl HaneulError {
     }
 }
 
+impl Ord for HaneulError {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        Ord::cmp(self.as_ref(), other.as_ref())
+    }
+}
+
+impl PartialOrd for HaneulError {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 pub type ExecutionErrorKind = ExecutionFailureStatus;
