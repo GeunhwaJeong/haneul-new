@@ -28,8 +28,8 @@ Quick reference on best practices for Haneul Network developers.
 
 ### Testing
 
-- Use [`haneul::test_scenario`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-framework/sources/test/test_scenario.move)` to mimic multi-transaction, multi-sender test scenarios
-- Use the [`haneul::test_utils`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-framework/sources/test/test_utils.move#L5)` module for better test error messages via `assert_eq`, debug printing via `print`, and test-only destruction via `destroy`.
+- Use [`haneul::test_scenario`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-framework/sources/test/test_scenario.move) to mimic multi-transaction, multi-sender test scenarios.
+- Use the [`haneul::test_utils`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-framework/sources/test/test_utils.move#L5) module for better test error messages via `assert_eq`, debug printing via `print`, and test-only destruction via `destroy`.
 - Use `haneul move test --coverage` to compute code coverage information for your tests, and `haneul move coverage source --module <name>` to see uncovered lines highlighted in red. Push coverage all the way to 100% if feasible.
 
 # Apps
