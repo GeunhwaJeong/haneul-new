@@ -28,10 +28,9 @@ use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
 use haneul_types::multiaddr::{Multiaddr, Protocol};
 use haneul_types::transaction::{
-    CallArg, ObjectArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+    CallArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
 };
 use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_OBJECT_ID};
-use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION};
 use tracing::info;
 
 #[derive(Parser)]
@@ -313,11 +312,7 @@ async fn update_metadata_on_chain(
         .governance_api()
         .get_reference_gas_price()
         .await?;
-    let mut args = vec![CallArg::Object(ObjectArg::SharedObject {
-        id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-        initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-        mutable: true,
-    })];
+    let mut args = vec![CallArg::HANEUL_SYSTEM_MUT];
     args.extend(call_args);
     let tx_data = TransactionData::new_move_call(
         haneul_address,

@@ -41,9 +41,7 @@ use haneul_types::transaction::{
     TEST_ONLY_GAS_UNIT_FOR_TRANSFER, TEST_ONLY_GAS_UNIT_FOR_VALIDATOR,
 };
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{
-    HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-};
+use haneul_types::HANEUL_SYSTEM_OBJECT_ID;
 use test_utils::authority::start_node;
 use test_utils::{
     authority::{
@@ -638,11 +636,7 @@ async fn test_inactive_validator_pool_read() {
         ident_str!("request_remove_validator").to_owned(),
         vec![],
         gas_objects[0].compute_object_reference(),
-        vec![CallArg::Object(ObjectArg::SharedObject {
-            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-            mutable: true,
-        })],
+        vec![CallArg::HANEUL_SYSTEM_MUT],
         rgp * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
         rgp,
     )
@@ -1210,11 +1204,7 @@ async fn execute_add_validator_candidate_tx(
         vec![],
         gas_object,
         vec![
-            CallArg::Object(ObjectArg::SharedObject {
-                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                mutable: true,
-            }),
+            CallArg::HANEUL_SYSTEM_MUT,
             CallArg::Pure(bcs::to_bytes(val.protocol_pubkey.as_bytes()).unwrap()),
             CallArg::Pure(bcs::to_bytes(val.network_pubkey.as_bytes()).unwrap()),
             CallArg::Pure(bcs::to_bytes(val.worker_pubkey.as_bytes()).unwrap()),
@@ -1277,11 +1267,7 @@ async fn execute_join_committee_txes(
         vec![],
         gas_objects[1],
         vec![
-            CallArg::Object(ObjectArg::SharedObject {
-                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                mutable: true,
-            }),
+            CallArg::HANEUL_SYSTEM_MUT,
             CallArg::Object(ObjectArg::ImmOrOwnedObject(stake)),
             CallArg::Pure(bcs::to_bytes(&sender).unwrap()),
         ],
@@ -1305,11 +1291,7 @@ async fn execute_join_committee_txes(
         ident_str!("request_add_validator").to_owned(),
         vec![],
         gas_objects[2],
-        vec![CallArg::Object(ObjectArg::SharedObject {
-            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-            mutable: true,
-        })],
+        vec![CallArg::HANEUL_SYSTEM_MUT],
         rgp * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
         rgp,
     )
@@ -1340,11 +1322,7 @@ async fn execute_leave_committee_tx(
         ident_str!("request_remove_validator").to_owned(),
         vec![],
         gas,
-        vec![CallArg::Object(ObjectArg::SharedObject {
-            id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-            initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-            mutable: true,
-        })],
+        vec![CallArg::HANEUL_SYSTEM_MUT],
         rgp * TEST_ONLY_GAS_UNIT_FOR_VALIDATOR,
         rgp,
     )

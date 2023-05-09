@@ -50,12 +50,8 @@ use haneul_sdk::HaneulClient;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_authority_key_pair, AuthorityPublicKeyBytes,
 };
-use haneul_types::transaction::Transaction;
-use haneul_types::transaction::{CallArg, ObjectArg, TransactionData};
-use haneul_types::{
-    crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair},
-    HANEUL_SYSTEM_OBJ_CALL_ARG,
-};
+use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair};
+use haneul_types::transaction::{CallArg, ObjectArg, Transaction, TransactionData};
 
 const DEFAULT_GAS_BUDGET: u64 = 200_000_000; // 0.2 HANEUL
 
@@ -554,7 +550,7 @@ async fn call_0x5(
 ) -> anyhow::Result<HaneulTransactionBlockResponse> {
     let sender = context.active_address()?;
     let haneul_client = context.get_client().await?;
-    let mut args = vec![HANEUL_SYSTEM_OBJ_CALL_ARG];
+    let mut args = vec![CallArg::HANEUL_SYSTEM_MUT];
     args.extend(call_args);
     let rgp = haneul_client
         .governance_api()

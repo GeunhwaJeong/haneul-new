@@ -12,10 +12,7 @@ use haneul_types::transaction::{
     CallArg, ObjectArg, Transaction, TransactionData, VerifiedTransaction,
     TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_PUBLISH,
 };
-use haneul_types::{
-    TypeTag, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-};
+use haneul_types::{TypeTag, HANEUL_SYSTEM_OBJECT_ID};
 
 pub struct TestTransactionBuilder {
     test_data: TestTransactionData,
@@ -80,11 +77,7 @@ impl TestTransactionBuilder {
             HANEUL_SYSTEM_MODULE_NAME.as_str(),
             "request_add_stake",
             vec![
-                CallArg::Object(ObjectArg::SharedObject {
-                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                    mutable: true,
-                }),
+                CallArg::HANEUL_SYSTEM_MUT,
                 CallArg::Object(ObjectArg::ImmOrOwnedObject(stake_coin)),
                 CallArg::Pure(bcs::to_bytes(&validator).unwrap()),
             ],

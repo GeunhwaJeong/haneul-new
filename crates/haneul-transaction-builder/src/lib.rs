@@ -30,10 +30,7 @@ use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     Argument, CallArg, Command, InputObjectKind, ObjectArg, TransactionData, TransactionKind,
 };
-use haneul_types::{
-    coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-};
+use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID};
 
 #[async_trait]
 pub trait DataReader {
@@ -696,13 +693,7 @@ impl TransactionBuilder {
         let pt = {
             let mut builder = ProgrammableTransactionBuilder::new();
             let arguments = vec![
-                builder
-                    .input(CallArg::Object(ObjectArg::SharedObject {
-                        id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                        initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                        mutable: true,
-                    }))
-                    .unwrap(),
+                builder.input(CallArg::HANEUL_SYSTEM_MUT).unwrap(),
                 builder.make_obj_vec(obj_vec)?,
                 builder
                     .input(CallArg::Pure(bcs::to_bytes(&amount)?))
@@ -749,11 +740,7 @@ impl TransactionBuilder {
             vec![],
             gas,
             vec![
-                CallArg::Object(ObjectArg::SharedObject {
-                    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                    mutable: true,
-                }),
+                CallArg::HANEUL_SYSTEM_MUT,
                 CallArg::Object(ObjectArg::ImmOrOwnedObject(staked_haneul)),
             ],
             gas_budget,

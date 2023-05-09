@@ -37,14 +37,13 @@ use haneul_types::quorum_driver_types::{
     QuorumDriverResponse,
 };
 use haneul_types::transaction::{
-    CallArg, GasData, ObjectArg, TransactionData, TransactionKind,
-    TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS, TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN,
-    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    CallArg, GasData, TransactionData, TransactionKind, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS,
+    TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
-use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
+use haneul_types::HANEUL_CLOCK_OBJECT_ID;
 use test_utils::authority::test_and_configure_authority_configs;
 use test_utils::network::{start_fullnode_from_config, TestClusterBuilder};
 use test_utils::transaction::{
@@ -1131,11 +1130,7 @@ async fn test_pass_back_clock_object() -> Result<(), anyhow::Error> {
         ident_str!("use_clock").to_owned(),
         /* type_args */ vec![],
         gas_obj,
-        vec![CallArg::Object(ObjectArg::SharedObject {
-            id: HANEUL_CLOCK_OBJECT_ID,
-            initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-            mutable: false,
-        })],
+        vec![CallArg::CLOCK_IMM],
         TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS * rgp,
         rgp,
     )

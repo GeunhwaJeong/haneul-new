@@ -7,21 +7,19 @@
     rust_2021_compatibility
 )]
 
-use base_types::{SequenceNumber, HaneulAddress, RESOLVED_ASCII_STR, RESOLVED_UTF8_STR};
-use move_binary_format::{
-    binary_views::BinaryIndexedView,
-    file_format::{AbilitySet, SignatureToken},
-};
+use base_types::{SequenceNumber, HaneulAddress};
+use move_binary_format::binary_views::BinaryIndexedView;
+use move_binary_format::file_format::{AbilitySet, SignatureToken};
 use move_bytecode_utils::resolve_struct;
 use move_core_types::{account_address::AccountAddress, language_storage::StructTag};
 pub use move_core_types::{identifier::Identifier, language_storage::TypeTag};
 use object::OBJECT_START_VERSION;
-use transaction::{CallArg, ObjectArg};
 
 use base_types::ObjectID;
 
 pub use haneullabs_network::multiaddr;
 
+use crate::base_types::{RESOLVED_ASCII_STR, RESOLVED_UTF8_STR};
 use crate::{base_types::RESOLVED_STD_OPTION, id::RESOLVED_HANEUL_ID};
 
 #[macro_use]
@@ -95,12 +93,6 @@ pub const DEEPBOOK_OBJECT_ID: ObjectID = ObjectID::from_address(DEEPBOOK_ADDRESS
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_single_byte(5);
 pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
-
-pub const HANEUL_SYSTEM_OBJ_CALL_ARG: CallArg = CallArg::Object(ObjectArg::SharedObject {
-    id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-    initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-    mutable: true,
-});
 
 /// 0x6: hardcoded object ID for the singleton clock object.
 pub const HANEUL_CLOCK_OBJECT_ID: ObjectID = ObjectID::from_single_byte(6);

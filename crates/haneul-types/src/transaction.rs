@@ -64,6 +64,20 @@ pub enum CallArg {
     Object(ObjectArg),
 }
 
+impl CallArg {
+    pub const HANEUL_SYSTEM_MUT: Self = Self::Object(ObjectArg::HANEUL_SYSTEM_MUT);
+    pub const CLOCK_IMM: Self = Self::Object(ObjectArg::SharedObject {
+        id: HANEUL_CLOCK_OBJECT_ID,
+        initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        mutable: false,
+    });
+    pub const CLOCK_MUT: Self = Self::Object(ObjectArg::SharedObject {
+        id: HANEUL_CLOCK_OBJECT_ID,
+        initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        mutable: true,
+    });
+}
+
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum ObjectArg {
     // A Move object, either immutable, or owned mutable.
@@ -294,6 +308,12 @@ impl From<ObjectRef> for CallArg {
 }
 
 impl ObjectArg {
+    pub const HANEUL_SYSTEM_MUT: Self = Self::SharedObject {
+        id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+        initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+        mutable: true,
+    };
+
     pub fn id(&self) -> ObjectID {
         match self {
             ObjectArg::ImmOrOwnedObject((id, _, _)) | ObjectArg::SharedObject { id, .. } => *id,
@@ -765,6 +785,12 @@ pub struct SharedInputObject {
 }
 
 impl SharedInputObject {
+    pub const HANEUL_SYSTEM_OBJ: Self = Self {
+        id: HANEUL_SYSTEM_STATE_OBJECT_ID,
+        initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+        mutable: true,
+    };
+
     pub fn id(&self) -> ObjectID {
         self.id
     }
@@ -810,11 +836,9 @@ impl TransactionKind {
     /// It covers both Call and ChangeEpoch transaction kind, because both makes Move calls.
     pub fn shared_input_objects(&self) -> impl Iterator<Item = SharedInputObject> + '_ {
         match &self {
-            Self::ChangeEpoch(_) => Either::Left(Either::Left(iter::once(SharedInputObject {
-                id: HANEUL_SYSTEM_STATE_OBJECT_ID,
-                initial_shared_version: HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
-                mutable: true,
-            }))),
+            Self::ChangeEpoch(_) => {
+                Either::Left(Either::Left(iter::once(SharedInputObject::HANEUL_SYSTEM_OBJ)))
+            }
 
             Self::ConsensusCommitPrologue(_) => {
                 Either::Left(Either::Right(iter::once(SharedInputObject {
