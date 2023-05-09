@@ -51,6 +51,23 @@ pub enum Error {
 
 impl From<Error> for RpcError {
     fn from(e: Error) -> Self {
-        RpcError::Call(CallError::Failed(e.into()))
+        e.to_rpc_error()
+    }
+}
+
+impl Error {
+    pub fn to_rpc_error(self) -> RpcError {
+        match self {
+            Error::UserInputError(user_input_error) => {
+                RpcError::Call(CallError::InvalidParams(user_input_error.into()))
+            }
+            Error::HaneulError(haneul_error) => match haneul_error {
+                HaneulError::TransactionNotFound { .. } | HaneulError::TransactionsNotFound { .. } => {
+                    RpcError::Call(CallError::InvalidParams(haneul_error.into()))
+                }
+                _ => RpcError::Call(CallError::Failed(haneul_error.into())),
+            },
+            _ => RpcError::Call(CallError::Failed(self.into())),
+        }
     }
 }
