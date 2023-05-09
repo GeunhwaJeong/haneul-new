@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
     let registry_service = metrics::start_prometheus_server(metrics_listener);
     let prometheus_registry = registry_service.default_registry();
     prometheus_registry
-        .register(haneullabs_metrics::uptime_metric(VERSION))
+        .register(haneullabs_metrics::uptime_metric(VERSION, "haneul-proxy"))
         .unwrap();
     let app = app(
         Labels {
