@@ -2,7 +2,7 @@
   "openrpc": "1.2.6",
   "info": {
     "title": "Haneul JSON-RPC",
-    "description": "Haneul JSON-RPC API for interaction with Haneul Full node.",
+    "description": "Haneul JSON-RPC API for interaction with Haneul Full node. Make RPC calls using https://fullnode.NETWORK.haneul.io:443, where NETWORK is the network you want to use (testnet, devnet, mainnet). By default, local networks use port 9000.",
     "contact": {
       "name": "Haneul Labs",
       "url": "https://haneul-labs.com",

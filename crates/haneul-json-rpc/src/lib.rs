@@ -66,7 +66,7 @@ pub fn haneul_rpc_doc(version: &str) -> Project {
     Project::new(
         version,
         "Haneul JSON-RPC",
-        "Haneul JSON-RPC API for interaction with Haneul Full node.",
+        "Haneul JSON-RPC API for interaction with Haneul Full node. Make RPC calls using https://fullnode.NETWORK.haneul.io:443, where NETWORK is the network you want to use (testnet, devnet, mainnet). By default, local networks use port 9000.",
         "Haneul Labs",
         "https://haneul-labs.com",
         "build@haneul-labs.com",
