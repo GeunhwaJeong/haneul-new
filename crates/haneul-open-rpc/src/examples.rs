@@ -29,13 +29,13 @@ use haneul_json_rpc_types::{
     ObjectValueKind::ByMutableReference, ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef,
     RPCTransactionRequestParams, HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus,
     HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility, HaneulMoveAbilitySet,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData,
-    HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulParsedData, HaneulPastObjectResponse, HaneulTransactionBlock,
-    HaneulTransactionBlockData, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1,
-    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlockBytes, TransactionBlocksPage,
-    TransferObjectParams,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter,
+    HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
+    HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlockBytes,
+    TransactionBlocksPage, TransferObjectParams,
 };
 use haneul_json_rpc_types::{HaneulTypeTag, ValidatorApy, ValidatorApys};
 use haneul_open_rpc::ExamplePairing;
@@ -127,6 +127,9 @@ impl RpcExampleProvider {
             self.haneul_get_loaded_child_objects(),
             self.haneul_get_move_function_arg_types(),
             self.haneul_get_normalized_move_function(),
+            self.haneul_get_normalized_move_module(),
+            self.haneul_get_normalized_move_modules_by_package(),
+            self.haneul_get_normalized_move_struct(),
             self.multi_get_objects_example(),
             self.multi_get_transaction_blocks(),
             self.haneulx_get_validators_apy(),
@@ -211,7 +214,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_batchTransaction",
             vec![ExamplePairing::new(
-                "Create unsigned batch transaction data.",
+                "Creates unsigned batch transaction data.",
                 vec![
                     ("signer", json!(signer)),
                     ("single_transaction_params", json!(tx_params)),
@@ -231,7 +234,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_executeTransactionBlock",
             vec![ExamplePairing::new(
-                "Execute a transaction with serialized signatures.",
+                "Executes a transaction with serialized signatures.",
                 vec![
                     ("tx_bytes", json!(tx_bytes.tx_bytes)),
                     (
@@ -262,7 +265,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_dryRunTransactionBlock",
             vec![ExamplePairing::new(
-                "Dry run a transaction block to get back estimated gas fees and other potential effects.",
+                "Dry runs a transaction block to get back estimated gas fees and other potential effects.",
                 vec![
                     ("tx_bytes", json!(tx_bytes.tx_bytes)),
                 ],
@@ -306,7 +309,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_multiGetObjects",
             vec![ExamplePairing::new(
-                "Get objects by IDs.",
+                "Gets objects by IDs.",
                 vec![
                     ("object_ids", json!(object_ids)),
                     ("options", json!(HaneulObjectDataOptions::full_content())),
@@ -351,7 +354,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getObject",
             vec![ExamplePairing::new(
-                "Get Object data for the ID in the request.",
+                "Gets Object data for the ID in the request.",
                 vec![
                     ("object_id", json!(result.object_id().unwrap())),
                     ("options", json!(HaneulObjectDataOptions::full_content())),
@@ -390,7 +393,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_tryGetPastObject",
             vec![ExamplePairing::new(
-                "Get Past Object data.",
+                "Gets Past Object data.",
                 vec![
                     ("object_id", json!(object_id)),
                     ("version", json!(4)),
@@ -419,7 +422,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getCheckpoint",
             vec![ExamplePairing::new(
-                "Get checkpoint information for the checkpoint ID in the request.",
+                "Gets checkpoint information for the checkpoint ID in the request.",
                 vec![("id", json!(CheckpointId::SequenceNumber(1000)))],
                 json!(result),
             )],
@@ -455,7 +458,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getCheckpoints",
             vec![ExamplePairing::new(
-                "Get a paginated list in descending order of all checkpoints starting at the provided cursor. Each page of results has a maximum number of checkpoints set by the provided limit.",
+                "Gets a paginated list in descending order of all checkpoints starting at the provided cursor. Each page of results has a maximum number of checkpoints set by the provided limit.",
                 vec![(
                          "cursor", json!(seq.to_string()),
                      ),
@@ -492,7 +495,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getOwnedObjects",
             vec![ExamplePairing::new(
-                "Get objects owned by the address in the request.",
+                "Gets objects owned by the address in the request.",
                 vec![
                     ("address", json!(owner)),
                     (
@@ -522,7 +525,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getTotalTransactionBlocks",
             vec![ExamplePairing::new(
-                "Get total number of transactions on the network.",
+                "Gets total number of transactions on the network.",
                 vec![],
                 json!("2451485"),
             )],
@@ -534,7 +537,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getTransactionBlock",
             vec![ExamplePairing::new(
-                "Return the transaction response object for specified transaction digest.",
+                "Returns the transaction response object for specified transaction digest.",
                 vec![
                     ("digest", json!(result.digest)),
                     (
@@ -568,7 +571,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_queryTransactionBlocks",
             vec![ExamplePairing::new(
-                "Return the transaction digest for specified query criteria.",
+                "Returns the transaction digest for specified query criteria.",
                 vec![
                     (
                         "query",
@@ -596,7 +599,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_multiGetTransactionBlocks",
             vec![ExamplePairing::new(
-                "Return the transaction data for specified digest.",
+                "Returns the transaction data for specified digest.",
                 vec![
                     ("digests", json!(digests)),
                     (
@@ -634,7 +637,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getProtocolConfig",
             vec![ExamplePairing::new(
-                "Return the protocol config for the given protocol version. If none is specified, the node uses the version of the latest epoch it has processed",
+                "Returns the protocol config for the given protocol version. If none is specified, the node uses the version of the latest epoch it has processed",
                 vec![
                     ("version", json!(version)),
                 ],
@@ -789,7 +792,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getEvents",
             vec![ExamplePairing::new(
-                "Return the events the transaction in the request emits.",
+                "Returns the events the transaction in the request emits.",
                 vec![("transaction_digest", json!(tx_dig))],
                 json!(page),
             )],
@@ -808,7 +811,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getCommitteeInfo",
             vec![ExamplePairing::new(
-                "Get committee information for epoch 5000.",
+                "Gets committee information for epoch 5000.",
                 vec![("epoch", json!(epoch.to_string()))],
                 json!(haneulcomm),
             )],
@@ -820,7 +823,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getReferenceGasPrice",
             vec![ExamplePairing::new(
-                "Get reference gas price information for the network.",
+                "Gets reference gas price information for the network.",
                 vec![],
                 json!(result),
             )],
@@ -839,7 +842,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getAllBalances",
             vec![ExamplePairing::new(
-                "Get all balances for the address in the request.",
+                "Gets all balances for the address in the request.",
                 vec![("owner", json!(address))],
                 json!(vec![result]),
             )],
@@ -871,7 +874,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getAllCoins",
             vec![ExamplePairing::new(
-                "Get all coins for the address in the request body. Begin listing the coins that are after the provided `cursor` value and return only the `limit` amount of results per page.",
+                "Gets all coins for the address in the request body. Begin listing the coins that are after the provided `cursor` value and return only the `limit` amount of results per page.",
                 vec![
                     ("owner", json!(owner)),
                     ("cursor", json!(cursor)),
@@ -895,7 +898,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getBalance",
             vec![ExamplePairing::new(
-                "Get the balance of the specified type of coin for the address in the request.",
+                "Gets the balance of the specified type of coin for the address in the request.",
                 vec![("owner", json!(owner)), ("coin_type", json!(coin_type))],
                 json!(result),
             )],
@@ -917,7 +920,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getCoinMetadata",
             vec![ExamplePairing::new(
-                "Get the metadata for the coin type in the request.",
+                "Gets the metadata for the coin type in the request.",
                 vec![(
                     "coin_type",
                     json!("0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC".to_string()),
@@ -932,7 +935,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getLatestCheckpointSequenceNumber",
             vec![ExamplePairing::new(
-                "Get the sequence number for the latest checkpoint.",
+                "Gets the sequence number for the latest checkpoint.",
                 vec![],
                 json!(result),
             )],
@@ -965,7 +968,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getCoins",
             vec![ExamplePairing::new(
-                "Get all HANEUL coins owned by the address provided. Return a paginated list of `limit` results per page. Similar to `haneulx_getAllCoins`, but provides a way to filter by coin type.",
+                "Gets all HANEUL coins owned by the address provided. Return a paginated list of `limit` results per page. Similar to `haneulx_getAllCoins`, but provides a way to filter by coin type.",
                 vec![
                     ("owner", json!(owner)),
                     ("coin_type", json!(coin_type)),
@@ -986,7 +989,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getTotalSupply",
             vec![ExamplePairing::new(
-                "Get total supply for the type of coin provided.",
+                "Gets total supply for the type of coin provided.",
                 vec![("coin_type", json!(coin))],
                 json!(result),
             )],
@@ -1013,7 +1016,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getLoadedChildObjects",
             vec![ExamplePairing::new(
-                "Get loaded child objects associated with the transaction the request provides.",
+                "Gets loaded child objects associated with the transaction the request provides.",
                 vec![("digest", json!(ObjectDigest::new(self.rng.gen())))],
                 json!(result),
             )],
@@ -1034,7 +1037,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getMoveFunctionArgTypes",
             vec![ExamplePairing::new(
-                "Return the argument types for the package and function the request provides.",
+                "Returns the argument types for the package and function the request provides.",
                 vec![
                     ("package", json!(ObjectID::new(self.rng.gen()))),
                     ("module", json!("haneulfrens".to_string())),
@@ -1061,11 +1064,82 @@ impl RpcExampleProvider {
         Examples::new(
             "haneul_getNormalizedMoveFunction",
             vec![ExamplePairing::new(
-                "Return the structured representation of the function the request provides.",
+                "Returns the structured representation of the function the request provides.",
                 vec![
                     ("package", json!(ObjectID::new(self.rng.gen()))),
                     ("module_name", json!("moduleName".to_string())),
                     ("function_name", json!("functionName".to_string())),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneul_get_normalized_move_module(&mut self) -> Examples {
+        let result = HaneulMoveNormalizedModule {
+            address: ObjectID::new(self.rng.gen()).to_string(),
+            exposed_functions: BTreeMap::new(),
+            file_format_version: 6,
+            friends: vec![],
+            name: "module".to_string(),
+            structs: BTreeMap::new(),
+        };
+
+        Examples::new(
+            "haneul_getNormalizedMoveModule",
+            vec![ExamplePairing::new(
+                "Gets a structured representation of the Move module for the package in the request.",
+                vec![
+                    ("package", json!(ObjectID::new(self.rng.gen()))),
+                    ("module_name", json!("module".to_string())),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneul_get_normalized_move_modules_by_package(&mut self) -> Examples {
+        let result = HaneulMoveNormalizedModule {
+            address: ObjectID::new(self.rng.gen()).to_string(),
+            exposed_functions: BTreeMap::new(),
+            file_format_version: 6,
+            friends: vec![],
+            name: "module".to_string(),
+            structs: BTreeMap::new(),
+        };
+
+        Examples::new(
+            "haneul_getNormalizedMoveModulesByPackage",
+            vec![ExamplePairing::new(
+                "Gets structured representations of all the modules for the package in the request.",
+                vec![
+                    ("package", json!(ObjectID::new(self.rng.gen()))),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneul_get_normalized_move_struct(&mut self) -> Examples {
+        let abilities = HaneulMoveAbilitySet {
+            abilities: vec![HaneulMoveAbility::Store, HaneulMoveAbility::Key],
+        };
+        let fields = vec![].into_iter().collect::<Vec<_>>();
+        let type_parameters = vec![].into_iter().collect::<Vec<_>>();
+        let result = HaneulMoveNormalizedStruct {
+            abilities,
+            fields,
+            type_parameters,
+        };
+
+        Examples::new(
+            "haneul_getNormalizedMoveStruct",
+            vec![ExamplePairing::new(
+                "Gets a structured representation of the struct in the request.",
+                vec![
+                    ("package", json!(ObjectID::new(self.rng.gen()))),
+                    ("module_name", json!("module".to_string())),
+                    ("struct_name", json!("StructName".to_string())),
                 ],
                 json!(result),
             )],
@@ -1091,7 +1165,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getValidatorsApy",
             vec![ExamplePairing::new(
-                "Get the APY for all validators.",
+                "Gets the APY for all validators.",
                 vec![],
                 json!(ValidatorApys {
                     apys: result,
@@ -1128,7 +1202,7 @@ impl RpcExampleProvider {
 
         Examples::new("haneulx_getDynamicFields",
         vec![ExamplePairing::new(
-            "Get dynamic fields for the object the request provides in a paginated list of `limit` dynamic field results per page. The default limit is 50.",
+            "Gets dynamic fields for the object the request provides in a paginated list of `limit` dynamic field results per page. The default limit is 50.",
             vec![
                 ("parent_object_id", json!(object_id)),
                 ("cursor", json!(ObjectID::new(self.rng.gen()))),
@@ -1181,7 +1255,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getDynamicFieldObject",
             vec![ExamplePairing::new(
-                "Get the information for the dynamic field the request provides.",
+                "Gets the information for the dynamic field the request provides.",
                 vec![
                     ("parent_object_id", json!(parent_object_id)),
                     ("name", json!(field_name)),
@@ -1237,7 +1311,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getOwnedObjects",
             vec![ExamplePairing::new(
-                "Return all the objects the address provided in the request owns and that match the filter. By default, only the digest value is returned, but the request returns additional information by setting the relevant keys to true. A cursor value is also provided, so the list of results begin after that value.",
+                "Returns all the objects the address provided in the request owns and that match the filter. By default, only the digest value is returned, but the request returns additional information by setting the relevant keys to true. A cursor value is also provided, so the list of results begin after that value.",
                 vec![
                     ("address", json!(owner)),
                     ("query", json!(query)),
@@ -1280,7 +1354,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_queryEvents",
             vec![ExamplePairing::new(
-                "Return the events for a specified query criteria.",
+                "Returns the events for a specified query criteria.",
                 vec![
                     (
                         "query",
@@ -1303,7 +1377,7 @@ impl RpcExampleProvider {
         Examples::new(
             "haneulx_getLatestHaneulSystemState",
             vec![ExamplePairing::new(
-                "Get objects owned by the address in the request.",
+                "Gets objects owned by the address in the request.",
                 vec![],
                 json!(result),
             )],
