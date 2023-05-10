@@ -19,7 +19,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use haneul_network::tonic::Code;
 
 use haneullabs_metrics::RegistryService;
-use tracing::warn;
+use tracing::{error, warn};
 
 const METRICS_ROUTE: &str = "/metrics";
 
@@ -142,11 +142,18 @@ pub fn start_metrics_push_task(config: &haneul_config::NodeConfig, registry: Reg
         let encoder = prometheus::ProtobufEncoder::new();
         encoder.encode(&metric_families, &mut buf)?;
 
+        let mut s = snap::raw::Encoder::new();
+        let compressed = s.compress_vec(&buf).map_err(|err| {
+            error!("unable to snappy encode; {err}");
+            err
+        })?;
+
         let response = client
             .client()
             .post(url.to_owned())
+            .header(reqwest::header::CONTENT_ENCODING, "snappy")
             .header(header::CONTENT_TYPE, PROTOBUF_FORMAT)
-            .body(buf)
+            .body(compressed)
             .send()
             .await?;
 
