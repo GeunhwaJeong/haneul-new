@@ -11,6 +11,7 @@ use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     CallArg, ObjectArg, Transaction, TransactionData, VerifiedTransaction,
     TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_PUBLISH,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::{TypeTag, HANEUL_SYSTEM_OBJECT_ID};
 
@@ -123,6 +124,11 @@ impl TestTransactionBuilder {
         self
     }
 
+    pub fn transfer_haneul(mut self, amount: Option<u64>, recipient: HaneulAddress) -> Self {
+        self.test_data = TestTransactionData::TransferHaneul(TransferHaneulData { amount, recipient });
+        self
+    }
+
     pub fn publish(mut self, path: PathBuf) -> Self {
         assert!(matches!(self.test_data, TestTransactionData::Empty));
         self.test_data = TestTransactionData::Publish(PublishData {
@@ -166,7 +172,15 @@ impl TestTransactionBuilder {
                 data.object,
                 self.sender,
                 self.gas_object,
-                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+                self.gas_price,
+            ),
+            TestTransactionData::TransferHaneul(data) => TransactionData::new_transfer_haneul(
+                data.recipient,
+                self.sender,
+                data.amount,
+                self.gas_object,
+                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
                 self.gas_price,
             ),
             TestTransactionData::Publish(data) => {
@@ -202,6 +216,7 @@ impl TestTransactionBuilder {
 enum TestTransactionData {
     Move(MoveData),
     Transfer(TransferData),
+    TransferHaneul(TransferHaneulData),
     Publish(PublishData),
     Empty,
 }
@@ -222,5 +237,10 @@ struct PublishData {
 
 struct TransferData {
     object: ObjectRef,
+    recipient: HaneulAddress,
+}
+
+struct TransferHaneulData {
+    amount: Option<u64>,
     recipient: HaneulAddress,
 }
