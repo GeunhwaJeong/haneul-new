@@ -15,6 +15,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use haneul_config::certificate_deny_config::CertificateDenyConfig;
 use haneul_config::genesis::Genesis;
+use haneul_config::node::StateDebugDumpConfig;
 use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
 };
@@ -30,6 +31,7 @@ use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::transaction::VerifiedTransaction;
+use tempfile::tempdir;
 
 #[derive(Default)]
 pub struct TestAuthorityBuilder<'a> {
@@ -214,6 +216,9 @@ impl<'a> TestAuthorityBuilder<'a> {
             transaction_deny_config,
             certificate_deny_config,
             usize::MAX,
+            StateDebugDumpConfig {
+                dump_file_directory: Some(tempdir().unwrap().into_path()),
+            },
         )
         .await;
         // For any type of local testing that does not actually spawn a node, the checkpoint executor
