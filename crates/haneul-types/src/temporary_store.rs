@@ -5,7 +5,7 @@ use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::language_storage::{ModuleId, StructTag};
-use move_core_types::resolver::{LinkageResolver, ModuleResolver, ResourceResolver};
+use move_core_types::resolver::{ModuleResolver, ResourceResolver};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -17,6 +17,7 @@ use tracing::trace;
 use crate::committee::EpochId;
 use crate::effects::{TransactionEffects, TransactionEvents};
 use crate::execution_status::ExecutionStatus;
+use crate::layout_resolver::LayoutResolver;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_wrapper, AdvanceEpochParams, HaneulSystemState,
@@ -1236,17 +1237,25 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
         &self,
         id: &ObjectID,
         expected_version: SequenceNumber,
+        layout_resolver: &mut impl LayoutResolver,
         do_expensive_checks: bool,
     ) -> Result<(u64, u64), ExecutionError> {
         if let Some(obj) = self.input_objects.get(id) {
             // the assumption here is that if it is in the input objects must be the right one
             if obj.version() != expected_version {
-                return Err(ExecutionError::invariant_violation(format!("Version mismatching when resolving input object to check conservation--expected {}, got {}", expected_version, obj.version())));
+                invariant_violation!(
+                    "Version mismatching when resolving input object to check conservation--\
+                     expected {}, got {}",
+                    expected_version,
+                    obj.version(),
+                );
             }
             let input_haneul = if do_expensive_checks {
-                obj.get_total_haneul(&self).map_err(|_e| {
-                    ExecutionError::invariant_violation(
-                        "Failed looking up output HANEUL in HANEUL conservation checking",
+                obj.get_total_haneul(layout_resolver).map_err(|e| {
+                    make_invariant_violation!(
+                        "Failed looking up input HANEUL in HANEUL conservation checking for input with \
+                         type {:?}: {e:#?}",
+                        obj.struct_tag(),
                     )
                 })?
             } else {
@@ -1256,26 +1265,25 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
         } else {
             // not in input objects, must be a dynamic field
             if self.protocol_config.gas_model_version() < 2 {
-                let obj = self
-                    .store
-                    .get_object(id)
-                    .map_err(|_e| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up input object in HANEUL conservation checking",
-                        )
-                    })?
-                    .ok_or_else(|| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up input object in HANEUL conservation checking",
-                        )
-                    })?;
+                let Ok(Some(obj)) = self.store.get_object(id) else {
+                    invariant_violation!(
+                        "Failed looking up dynamic field {id} in HANEUL conservation checking"
+                    );
+                };
                 if obj.version() != expected_version {
-                    return Err(ExecutionError::invariant_violation(format!("Version mismatching when resolving dynamic field to check conservation--expected {}, got {}", expected_version, obj.version())));
+                    invariant_violation!(
+                        "Version mismatching when resolving dynamic field to check conservation--\
+                         expected {}, got {}",
+                        expected_version,
+                        obj.version(),
+                    );
                 }
                 let input_haneul = if do_expensive_checks {
-                    obj.get_total_haneul(&self).map_err(|_e| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up output HANEUL in HANEUL conservation checking",
+                    obj.get_total_haneul(layout_resolver).map_err(|e| {
+                        make_invariant_violation!(
+                            "Failed looking up input HANEUL in HANEUL conservation checking for type \
+                             {:?}: {e:#?}",
+                            obj.struct_tag(),
                         )
                     })?
                 } else {
@@ -1283,23 +1291,17 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                 };
                 Ok((input_haneul, obj.storage_rebate))
             } else {
-                let obj = self
-                    .store
-                    .get_object_by_key(id, expected_version)
-                    .map_err(|_e| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up input object in HANEUL conservation checking",
-                        )
-                    })?
-                    .ok_or_else(|| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up input object in HANEUL conservation checking",
-                        )
-                    })?;
+                let Ok(Some(obj))= self.store.get_object_by_key(id, expected_version) else {
+                    invariant_violation!(
+                        "Failed looking up dynamic field {id} in HANEUL conservation checking"
+                    );
+                };
                 let input_haneul = if do_expensive_checks {
-                    obj.get_total_haneul(&self).map_err(|_e| {
-                        ExecutionError::invariant_violation(
-                            "Failed looking up output HANEUL in HANEUL conservation checking",
+                    obj.get_total_haneul(layout_resolver).map_err(|e| {
+                        make_invariant_violation!(
+                            "Failed looking up input HANEUL in HANEUL conservation checking for type \
+                             {:?}: {e:#?}",
+                            obj.struct_tag(),
                         )
                     })?
                 } else {
@@ -1310,22 +1312,32 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
         }
     }
 
-    /// Check that this transaction neither creates nor destroys HANEUL. This should hold for all txes except
-    /// the epoch change tx, which mints staking rewards equal to the gas fees burned in the previous epoch.
-    /// Specifically, this checks two key invariants about storage fees and storage rebate:
-    /// 1. all HANEUL in storage rebate fields of input objects should flow either to the transaction storage rebate, or the transaction non-refundable storage rebate
-    /// 2. all HANEUL charged for storage should flow into the storage rebate field of some output object
+    /// Check that this transaction neither creates nor destroys HANEUL. This should hold for all txes
+    /// except the epoch change tx, which mints staking rewards equal to the gas fees burned in the
+    /// previous epoch.  Specifically, this checks two key invariants about storage fees and storage
+    /// rebate:
+    ///
+    /// 1. all HANEUL in storage rebate fields of input objects should flow either to the transaction
+    ///    storage rebate, or the transaction non-refundable storage rebate
+    /// 2. all HANEUL charged for storage should flow into the storage rebate field of some output
+    ///    object
+    ///
     /// If `do_expensive_checks` is true, this will also check a third invariant:
-    /// 3. all HANEUL in input objects (including coins etc in the Move part of an object) should flow either to an output object, or be burned as part of computation fees or non-refundable storage rebate
-    /// This function is intended to be called *after* we have charged for gas + applied the storage rebate to the gas object,
-    /// but *before* we have updated object versions.
-    /// if `do_expensive_checks` is false, this function will only check conservation of object storage rea
-    /// `epoch_fees` and `epoch_rebates` are only set for advance epoch transactions.
-    /// The advance epoch transaction would mint `epoch_fees` amount of HANEUL, and burn
-    /// `epoch_rebates` amount of HANEUL. We need these information for conservation check.
+    ///
+    /// 3. all HANEUL in input objects (including coins etc in the Move part of an object) should flow
+    ///    either to an output object, or be burned as part of computation fees or non-refundable
+    ///    storage rebate
+    ///
+    /// This function is intended to be called *after* we have charged for gas + applied the storage
+    /// rebate to the gas object, but *before* we have updated object versions.  If
+    /// `do_expensive_checks` is false, this function will only check conservation of object storage
+    /// rea `epoch_fees` and `epoch_rebates` are only set for advance epoch transactions.  The
+    /// advance epoch transaction would mint `epoch_fees` amount of HANEUL, and burn `epoch_rebates`
+    /// amount of HANEUL. We need these information for conservation check.
     pub fn check_haneul_conserved(
         &self,
         advance_epoch_gas_summary: Option<(u64, u64)>,
+        layout_resolver: &mut impl LayoutResolver,
         do_expensive_checks: bool,
     ) -> Result<(), ExecutionError> {
         // total amount of HANEUL in input objects, including both coins and storage rebates
@@ -1342,15 +1354,22 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                     // note: output_obj.version has not yet been increased by the tx, so output_obj.version
                     // is the object version at tx input
                     let input_version = output_obj.version();
-                    let (input_haneul, input_storage_rebate) =
-                        self.get_input_haneul(id, input_version, do_expensive_checks)?;
+                    let (input_haneul, input_storage_rebate) = self.get_input_haneul(
+                        id,
+                        input_version,
+                        layout_resolver,
+                        do_expensive_checks,
+                    )?;
                     total_input_haneul += input_haneul;
                     if do_expensive_checks {
-                        total_output_haneul += output_obj.get_total_haneul(&self).map_err(|_e| {
-                            ExecutionError::invariant_violation(
-                                "Failed looking up output HANEUL in HANEUL conservation checking",
-                            )
-                        })?;
+                        total_output_haneul +=
+                            output_obj.get_total_haneul(layout_resolver).map_err(|e| {
+                                make_invariant_violation!(
+                                    "Failed looking up output HANEUL in HANEUL conservation checking for \
+                                     mutated type {:?}: {e:#?}",
+                                    output_obj.struct_tag(),
+                                )
+                            })?;
                     }
                     total_input_rebate += input_storage_rebate;
                     total_output_rebate += output_obj.storage_rebate;
@@ -1358,11 +1377,14 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                 WriteKind::Create => {
                     // created objects did not exist at input, and thus contribute 0 to input HANEUL
                     if do_expensive_checks {
-                        total_output_haneul += output_obj.get_total_haneul(&self).map_err(|_e| {
-                            ExecutionError::invariant_violation(
-                                "Failed looking up output HANEUL in HANEUL conservation checking",
-                            )
-                        })?;
+                        total_output_haneul +=
+                            output_obj.get_total_haneul(layout_resolver).map_err(|e| {
+                                make_invariant_violation!(
+                                    "Failed looking up output HANEUL in HANEUL conservation checking for \
+                                     created type {:?}: {e:#?}",
+                                    output_obj.struct_tag()
+                                )
+                            })?;
                     }
                     total_output_rebate += output_obj.storage_rebate;
                 }
@@ -1372,11 +1394,14 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
                     // 2. wrapped in a dynamic field A, or itself a dynamic field
                     // in both cases, its contribution to input HANEUL will be captured by looking at A
                     if do_expensive_checks {
-                        total_output_haneul += output_obj.get_total_haneul(&self).map_err(|_e| {
-                            ExecutionError::invariant_violation(
-                                "Failed looking up output HANEUL in HANEUL conservation checking",
-                            )
-                        })?;
+                        total_output_haneul +=
+                            output_obj.get_total_haneul(layout_resolver).map_err(|e| {
+                                make_invariant_violation!(
+                                    "Failed looking up output HANEUL in HANEUL conservation checking for \
+                                     unwrapped type {:?}: {e:#?}",
+                                    output_obj.struct_tag(),
+                                )
+                            })?;
                     }
                     total_output_rebate += output_obj.storage_rebate;
                 }
@@ -1385,16 +1410,24 @@ impl<S: GetModule + ObjectStore + BackingPackageStore> TemporaryStore<S> {
         for (id, (input_version, kind)) in &self.deleted {
             match kind {
                 DeleteKind::Normal => {
-                    let (input_haneul, input_storage_rebate) =
-                        self.get_input_haneul(id, *input_version, do_expensive_checks)?;
+                    let (input_haneul, input_storage_rebate) = self.get_input_haneul(
+                        id,
+                        *input_version,
+                        layout_resolver,
+                        do_expensive_checks,
+                    )?;
                     total_input_haneul += input_haneul;
                     total_input_rebate += input_storage_rebate;
                 }
                 DeleteKind::Wrap => {
                     // wrapped object was a tx input or dynamic field--need to account for it in input HANEUL
                     // note: if an object is created by the tx, then wrapped, it will not appear here
-                    let (input_haneul, input_storage_rebate) =
-                        self.get_input_haneul(id, *input_version, do_expensive_checks)?;
+                    let (input_haneul, input_storage_rebate) = self.get_input_haneul(
+                        id,
+                        *input_version,
+                        layout_resolver,
+                        do_expensive_checks,
+                    )?;
                     total_input_haneul += input_haneul;
                     total_input_rebate += input_storage_rebate;
                     // else, the wrapped object was either:
@@ -1499,25 +1532,24 @@ impl<S: ChildObjectResolver> Storage for TemporaryStore<S> {
     }
 }
 
-impl<S: BackingPackageStore> BackingPackageStore for TemporaryStore<S> {
+impl<S: BackingPackageStore> BackingPackageStore for &TemporaryStore<S> {
     fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
-        self.store.get_package_object(package_id).map(|obj| {
-            // Track object but leave unchanged
-            if let Some(v) = obj.clone() {
-                // Can this lock ever block execution?
-                self.runtime_read_objects.write().insert(*package_id, v);
-            }
-            obj
-        })
+        if let Some((obj, _)) = self.written.get(package_id) {
+            Ok(Some(obj.clone()))
+        } else {
+            self.store.get_package_object(package_id).map(|obj| {
+                // Track object but leave unchanged
+                if let Some(v) = obj.clone() {
+                    // Can this lock ever block execution?
+                    self.runtime_read_objects.write().insert(*package_id, v);
+                }
+                obj
+            })
+        }
     }
 }
 
-/// TODO: Proper implementation of re-linking (currently the default implementation does nothing).
-impl<S> LinkageResolver for TemporaryStore<S> {
-    type Error = HaneulError;
-}
-
-impl<S: BackingPackageStore> ModuleResolver for TemporaryStore<S> {
+impl<S: BackingPackageStore> ModuleResolver for &TemporaryStore<S> {
     type Error = HaneulError;
     fn get_module(&self, module_id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
         let package_id = &ObjectID::from(*module_id.address());
@@ -1546,7 +1578,7 @@ impl<S: BackingPackageStore> ModuleResolver for TemporaryStore<S> {
     }
 }
 
-impl<S> ResourceResolver for TemporaryStore<S> {
+impl<S> ResourceResolver for &TemporaryStore<S> {
     type Error = HaneulError;
 
     fn get_resource(

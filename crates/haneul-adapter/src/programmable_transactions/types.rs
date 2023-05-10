@@ -26,26 +26,19 @@ use super::{context::load_type, linkage_view::LinkageView};
 
 haneul_macros::checked_arithmetic! {
 
-pub trait StorageView:
-    ResourceResolver<Error = HaneulError>
-    + ModuleResolver<Error = HaneulError>
-    + BackingPackageStore
-    + Storage
-    + ParentSync
-    + ChildObjectResolver
+pub trait HaneulResolver:
+    ResourceResolver<Error = HaneulError> + ModuleResolver<Error = HaneulError> + BackingPackageStore
 {
 }
 
 impl<
-        T: ResourceResolver<Error = HaneulError>
-            + ModuleResolver<Error = HaneulError>
-            + BackingPackageStore
-            + Storage
-            + ParentSync
-            + ChildObjectResolver,
-    > StorageView for T
+        T: ResourceResolver<Error = HaneulError> + ModuleResolver<Error = HaneulError> + BackingPackageStore,
+    > HaneulResolver for T
 {
 }
+
+pub trait StorageView: Storage + ParentSync + ChildObjectResolver {}
+impl<T: Storage + ParentSync + ChildObjectResolver> StorageView for T {}
 
 pub struct ExecutionResults {
     pub object_changes: BTreeMap<ObjectID, ObjectChange>,
@@ -192,12 +185,15 @@ impl Value {
 impl ObjectValue {
     pub fn new<'vm, 'state, S: StorageView>(
         vm: &'vm MoveVM,
-        session: &mut Session<'state, 'vm, LinkageView<'state, S>>,
+        session: &mut Session<'state, 'vm, LinkageView<&'state S>>,
         type_: MoveObjectType,
         has_public_transfer: bool,
         used_in_non_entry_move_call: bool,
         contents: &[u8],
-    ) -> Result<Self, ExecutionError> {
+    ) -> Result<Self, ExecutionError>
+    where
+        &'state S: HaneulResolver,
+    {
         let contents = if type_.is_coin() {
             let Ok(coin) = Coin::from_bcs_bytes(contents) else{
                 invariant_violation!("Could not deserialize a coin")
@@ -219,9 +215,12 @@ impl ObjectValue {
 
     pub fn from_object<'vm, 'state, S: StorageView>(
         vm: &'vm MoveVM,
-        session: &mut Session<'state, 'vm, LinkageView<'state, S>>,
+        session: &mut Session<'state, 'vm, LinkageView<&'state S>>,
         object: &Object,
-    ) -> Result<Self, ExecutionError> {
+    ) -> Result<Self, ExecutionError>
+    where
+        &'state S: HaneulResolver,
+    {
         let Object { data, .. } = object;
         match data {
             Data::Package(_) => invariant_violation!("Expected a Move object"),
@@ -231,9 +230,12 @@ impl ObjectValue {
 
     pub fn from_move_object<'vm, 'state, S: StorageView>(
         vm: &'vm MoveVM,
-        session: &mut Session<'state, 'vm, LinkageView<'state, S>>,
+        session: &mut Session<'state, 'vm, LinkageView<&'state S>>,
         object: &MoveObject,
-    ) -> Result<Self, ExecutionError> {
+    ) -> Result<Self, ExecutionError>
+    where
+        &'state S: HaneulResolver,
+    {
         Self::new(
             vm,
             session,

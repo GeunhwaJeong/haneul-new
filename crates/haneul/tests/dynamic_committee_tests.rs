@@ -20,6 +20,8 @@ use haneul_core::{
 };
 use haneul_node::HaneulNodeHandle;
 
+use haneul_adapter::type_layout_resolver::TypeLayoutResolver;
+use haneul_core::authority::AuthorityState;
 use haneul_types::effects::{CertifiedTransactionEffects, TransactionEffects, TransactionEffectsAPI};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
@@ -246,6 +248,9 @@ impl StressTestRunner {
         println!("CREATED:");
         self.nodes[0].with(|node| {
             let state = node.state();
+            let epoch_store = state.load_epoch_store_one_call_per_task();
+            let move_vm = epoch_store.move_vm();
+            let mut layout_resolver = TypeLayoutResolver::new(move_vm, state.database.as_ref());
             for (obj_ref, _) in &effects.created {
                 let object_opt = state
                     .database
@@ -254,7 +259,7 @@ impl StressTestRunner {
                 let Some(object) = object_opt else { continue };
                 let struct_tag = object.struct_tag().unwrap();
                 let total_haneul =
-                    object.get_total_haneul(&state.database).unwrap() - object.storage_rebate;
+                    object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
                 println!(">> {struct_tag} TOTAL_HANEUL: {total_haneul}");
             }
 
@@ -267,7 +272,7 @@ impl StressTestRunner {
                     .unwrap();
                 let struct_tag = object.struct_tag().unwrap();
                 let total_haneul =
-                    object.get_total_haneul(&state.database).unwrap() - object.storage_rebate;
+                    object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
                 println!(">> {struct_tag} TOTAL_HANEUL: {total_haneul}");
             }
 
@@ -280,7 +285,7 @@ impl StressTestRunner {
                     .unwrap();
                 let struct_tag = object.struct_tag().unwrap();
                 let total_haneul =
-                    object.get_total_haneul(&state.database).unwrap() - object.storage_rebate;
+                    object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
                 println!(">> {struct_tag} TOTAL_HANEUL: {total_haneul}");
             }
         })
@@ -288,6 +293,10 @@ impl StressTestRunner {
 
     pub async fn db(&self) -> Arc<AuthorityStore> {
         self.nodes[0].with(|node| node.state().db())
+    }
+
+    pub async fn state(&self) -> Arc<AuthorityState> {
+        self.nodes[0].with(|node| node.state())
     }
 
     pub async fn change_epoch(&mut self) {
@@ -405,8 +414,13 @@ mod add_stake {
                 .get_created_object_of_type_name(effects, "StakedHaneul")
                 .await
                 .unwrap();
+            let store = runner.db().await;
+            let state = runner.state().await;
+            let epoch_store = state.load_epoch_store_one_call_per_task();
+            let move_vm = epoch_store.move_vm();
+            let mut layout_resolver = TypeLayoutResolver::new(move_vm, store.as_ref());
             let staked_amount =
-                object.get_total_haneul(&runner.db().await).unwrap() - object.storage_rebate;
+                object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
             assert_eq!(staked_amount, self.stake_amount);
             assert_eq!(object.owner.get_owner_address().unwrap(), self.sender);
             runner.display_effects(effects);

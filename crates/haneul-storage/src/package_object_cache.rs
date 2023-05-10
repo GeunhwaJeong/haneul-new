@@ -5,13 +5,14 @@ use lru::LruCache;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::language_storage::ModuleId;
+use move_core_types::resolver::ModuleResolver;
 use parking_lot::RwLock;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::object::Object;
-use haneul_types::storage::{get_module_by_id, BackingPackageStore, ObjectStore};
+use haneul_types::storage::{get_module, get_module_by_id, BackingPackageStore, ObjectStore};
 
 pub struct PackageObjectCache<S> {
     cache: RwLock<LruCache<ObjectID, Object>>,
@@ -38,6 +39,15 @@ impl<S: ObjectStore> GetModule for PackageObjectCache<S> {
     }
 }
 
+impl<S: BackingPackageStore> ModuleResolver for PackageObjectCache<S> {
+    type Error = HaneulError;
+
+    fn get_module(&self, id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
+        get_module(&self.store, id)
+    }
+}
+
+// impl<S: ObjectStore + BackingPackageStore + ModuleResolver<Error = HaneulError>> BackingPackageStore for PackageObjectCache<S> {
 impl<S: ObjectStore> BackingPackageStore for PackageObjectCache<S> {
     fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
         // TODO: Here the use of `peek` doesn't update the internal use record,

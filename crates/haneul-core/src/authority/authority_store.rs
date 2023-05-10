@@ -3,7 +3,6 @@
 
 use std::cmp::Ordering;
 use std::ops::Not;
-use std::path::Path;
 use std::sync::Arc;
 use std::{iter, mem, thread};
 
@@ -12,8 +11,8 @@ use fastcrypto::hash::MultisetHash;
 use futures::stream::FuturesUnordered;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::resolver::ModuleResolver;
+use move_vm_runtime::move_vm::MoveVM;
 use once_cell::sync::OnceCell;
-use rocksdb::Options;
 use serde::{Deserialize, Serialize};
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
@@ -44,6 +43,7 @@ use crate::authority::epoch_start_configuration::{EpochFlag, EpochStartConfigura
 use super::authority_store_tables::LiveObject;
 use super::{authority_store_tables::AuthorityPerpetualTables, *};
 use haneullabs_common::sync::notify_read::NotifyRead;
+use haneul_adapter::type_layout_resolver::TypeLayoutResolver;
 use haneul_storage::package_object_cache::PackageObjectCache;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
@@ -140,15 +140,13 @@ impl AuthorityStore {
     /// Open an authority store by directory path.
     /// If the store is empty, initialize it using genesis.
     pub async fn open(
-        path: &Path,
-        db_options: Option<Options>,
+        perpetual_tables: Arc<AuthorityPerpetualTables>,
         genesis: &Genesis,
         committee_store: &Arc<CommitteeStore>,
         indirect_objects_threshold: usize,
         enable_epoch_haneul_conservation_check: bool,
         registry: &Registry,
     ) -> HaneulResult<Arc<Self>> {
-        let perpetual_tables = Arc::new(AuthorityPerpetualTables::open(path, db_options.clone()));
         let epoch_start_configuration = if perpetual_tables.database_is_empty()? {
             info!("Creating new epoch start config from genesis");
             let epoch_start_configuration = EpochStartConfiguration::new(
@@ -201,8 +199,7 @@ impl AuthorityStore {
     }
 
     pub async fn open_with_committee_for_testing(
-        path: &Path,
-        db_options: Option<Options>,
+        perpetual_tables: Arc<AuthorityPerpetualTables>,
         committee: &Committee,
         genesis: &Genesis,
         indirect_objects_threshold: usize,
@@ -210,7 +207,6 @@ impl AuthorityStore {
         // TODO: Since we always start at genesis, the committee should be technically the same
         // as the genesis committee.
         assert_eq!(committee.epoch, 0);
-        let perpetual_tables = Arc::new(AuthorityPerpetualTables::open(path, db_options.clone()));
         Self::open_inner(
             genesis,
             perpetual_tables,
@@ -280,13 +276,6 @@ impl AuthorityStore {
                 .enumerate()
                 .map(|(i, e)| ((event_digests, i), e));
             store.perpetual_tables.events.multi_insert(events).unwrap();
-            // When we are opening the db table, the only time when it's safe to
-            // check HANEUL conservation is at genesis. Otherwise we may be in the middle of
-            // an epoch and the HANEUL conservation check will fail. This also initialize
-            // the expected_network_haneul_amount table.
-            store
-                .expensive_check_haneul_conservation()
-                .expect("HANEUL conservation check cannot fail at genesis");
         }
 
         Ok(store)
@@ -1521,7 +1510,7 @@ impl AuthorityStore {
         self.perpetual_tables.iter_live_object_set()
     }
 
-    pub fn expensive_check_haneul_conservation(self: &Arc<Self>) -> HaneulResult {
+    pub fn expensive_check_haneul_conservation(self: &Arc<Self>, move_vm: &Arc<MoveVM>) -> HaneulResult {
         if !self.enable_epoch_haneul_conservation_check {
             return Ok(());
         }
@@ -1530,8 +1519,9 @@ impl AuthorityStore {
                 .expect("Read haneul system state object cannot fail")
                 .protocol_version(),
         );
+        let protocol_config = ProtocolConfig::get_for_version(protocol_version);
         // Prior to gas model v2, HANEUL conservation is not guaranteed.
-        if ProtocolConfig::get_for_version(protocol_version).gas_model_version() <= 1 {
+        if protocol_config.gas_model_version() <= 1 {
             return Ok(());
         }
 
@@ -1552,6 +1542,8 @@ impl AuthorityStore {
                             mem::swap(&mut pending_objects, &mut task_objects);
                             let package_cache_clone = package_cache.clone();
                             pending_tasks.push(s.spawn(move || {
+                                let mut layout_resolver =
+                                    TypeLayoutResolver::new(move_vm, &package_cache_clone);
                                 let mut total_storage_rebate = 0;
                                 let mut total_haneul = 0;
                                 for object in task_objects {
@@ -1559,7 +1551,7 @@ impl AuthorityStore {
                                     // get_total_haneul includes storage rebate, however all storage rebate is
                                     // also stored in the storage fund, so we need to subtract it here.
                                     total_haneul +=
-                                        object.get_total_haneul(&package_cache_clone).unwrap()
+                                        object.get_total_haneul(&mut layout_resolver).unwrap()
                                             - object.storage_rebate;
                                 }
                                 if count % 50_000_000 == 0 {
@@ -1577,9 +1569,11 @@ impl AuthorityStore {
                 (init.0 + result.0, init.1 + result.1)
             })
         });
+        let mut layout_resolver = TypeLayoutResolver::new(move_vm, self.as_ref());
         for object in pending_objects {
             total_storage_rebate += object.storage_rebate;
-            total_haneul += object.get_total_haneul(self).unwrap() - object.storage_rebate;
+            total_haneul +=
+                object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
         }
         info!(
             "Scanned {} live objects, took {:?}",

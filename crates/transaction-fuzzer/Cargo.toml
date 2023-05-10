@@ -19,6 +19,7 @@ tracing = "0.1.36"
 
 test-utils = { path = "../test-utils" }
 once_cell = "1.16"
+haneul-adapter = { path = "../haneul-adapter" }
 haneul-core = { path = "../haneul-core" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types", features = ["fuzzing"] }

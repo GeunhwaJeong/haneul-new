@@ -11635,6 +11635,7 @@ dependencies = [
  "proptest",
  "proptest-derive",
  "rand 0.8.5",
+ "haneul-adapter",
  "haneul-core",
  "haneul-move-build",
  "haneul-protocol-config",
