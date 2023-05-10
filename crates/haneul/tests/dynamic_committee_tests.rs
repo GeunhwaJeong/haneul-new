@@ -35,7 +35,7 @@ use haneul_types::{
         Argument, Command, ObjectArg, ProgrammableTransaction, TransactionData, VerifiedTransaction,
     },
     utils::to_sender_signed_transaction,
-    HANEUL_SYSTEM_OBJECT_ID,
+    HANEUL_SYSTEM_PACKAGE_ID,
 };
 use test_utils::authority::spawn_test_authorities;
 use test_utils::authority::test_authority_configs_with_objects;
@@ -385,7 +385,7 @@ mod add_stake {
                 let coin = StressTestRunner::split_off(&mut builder, self.stake_amount);
                 move_call! {
                     builder,
-                    (HANEUL_SYSTEM_OBJECT_ID)::haneul_system::request_add_stake(Argument::Input(0), coin, Argument::Input(1))
+                    (HANEUL_SYSTEM_PACKAGE_ID)::haneul_system::request_add_stake(Argument::Input(0), coin, Argument::Input(1))
                 };
                 builder.finish()
             };

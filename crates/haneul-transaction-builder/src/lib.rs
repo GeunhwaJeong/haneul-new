@@ -30,7 +30,7 @@ use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     Argument, CallArg, Command, InputObjectKind, ObjectArg, TransactionData, TransactionKind,
 };
-use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID};
+use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID};
 
 #[async_trait]
 pub trait DataReader {
@@ -498,7 +498,7 @@ impl TransactionBuilder {
 
         TransactionData::new_move_call(
             signer,
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             coin::PAY_MODULE_NAME.to_owned(),
             coin::PAY_SPLIT_VEC_FUNC_NAME.to_owned(),
             type_args,
@@ -536,7 +536,7 @@ impl TransactionBuilder {
 
         TransactionData::new_move_call(
             signer,
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             coin::PAY_MODULE_NAME.to_owned(),
             coin::PAY_SPLIT_N_FUNC_NAME.to_owned(),
             type_args,
@@ -581,7 +581,7 @@ impl TransactionBuilder {
 
         TransactionData::new_move_call(
             signer,
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             coin::PAY_MODULE_NAME.to_owned(),
             coin::PAY_JOIN_FUNC_NAME.to_owned(),
             type_args,
@@ -703,7 +703,7 @@ impl TransactionBuilder {
                     .unwrap(),
             ];
             builder.command(Command::move_call(
-                HANEUL_SYSTEM_OBJECT_ID,
+                HANEUL_SYSTEM_PACKAGE_ID,
                 HANEUL_SYSTEM_MODULE_NAME.to_owned(),
                 ADD_STAKE_MUL_COIN_FUN_NAME.to_owned(),
                 vec![],
@@ -734,7 +734,7 @@ impl TransactionBuilder {
             .await?;
         TransactionData::new_move_call(
             signer,
-            HANEUL_SYSTEM_OBJECT_ID,
+            HANEUL_SYSTEM_PACKAGE_ID,
             HANEUL_SYSTEM_MODULE_NAME.to_owned(),
             WITHDRAW_STAKE_FUN_NAME.to_owned(),
             vec![],

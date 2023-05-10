@@ -10,7 +10,7 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ProgrammableTransaction, TransactionData, TransactionKind};
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{TypeTag, HANEUL_FRAMEWORK_OBJECT_ID};
+use haneul_types::{TypeTag, HANEUL_FRAMEWORK_PACKAGE_ID};
 
 use crate::account_universe::AccountCurrent;
 use crate::executor::{assert_is_acceptable_result, Executor};
@@ -134,7 +134,7 @@ pub fn pt_for_tags(type_tags: Vec<TypeTag>) -> ProgrammableTransaction {
     let mut builder = ProgrammableTransactionBuilder::new();
     builder
         .move_call(
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             Identifier::new("random_type_tag_fuzzing").unwrap(),
             Identifier::new("random_type_tag_fuzzing_fn").unwrap(),
             type_tags,

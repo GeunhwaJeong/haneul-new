@@ -10,13 +10,13 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::storage::ObjectStore;
-use haneul_types::DEEPBOOK_OBJECT_ID;
+use haneul_types::DEEPBOOK_PACKAGE_ID;
 use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
     move_package::MovePackage,
     object::{Object, OBJECT_START_VERSION},
-    MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID, HANEUL_SYSTEM_OBJECT_ID,
+    MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID,
 };
 use tracing::error;
 
@@ -107,21 +107,21 @@ impl BuiltInFramework {
         // place we need to worry about if any of them changes.
         // TODO: Is it possible to derive dependencies from the bytecode instead of manually specifying them?
         define_system_packages!([
-            (MOVE_STDLIB_OBJECT_ID, "move-stdlib", []),
+            (MOVE_STDLIB_PACKAGE_ID, "move-stdlib", []),
             (
-                HANEUL_FRAMEWORK_OBJECT_ID,
+                HANEUL_FRAMEWORK_PACKAGE_ID,
                 "haneul-framework",
-                [MOVE_STDLIB_OBJECT_ID]
+                [MOVE_STDLIB_PACKAGE_ID]
             ),
             (
-                HANEUL_SYSTEM_OBJECT_ID,
+                HANEUL_SYSTEM_PACKAGE_ID,
                 "haneul-system",
-                [MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]
+                [MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID]
             ),
             (
-                DEEPBOOK_OBJECT_ID,
+                DEEPBOOK_PACKAGE_ID,
                 "deepbook",
-                [MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]
+                [MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID]
             )
         ])
         .iter()

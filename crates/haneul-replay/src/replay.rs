@@ -55,7 +55,7 @@ use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::transaction::{InputObjectKind, InputObjects, TransactionKind};
 use haneul_types::transaction::{SenderSignedData, TransactionDataAPI};
-use haneul_types::DEEPBOOK_OBJECT_ID;
+use haneul_types::DEEPBOOK_PACKAGE_ID;
 use tracing::{error, warn};
 
 // TODO: add persistent cache. But perf is good enough already.
@@ -836,7 +836,7 @@ impl LocalExec {
         let mut ids = BuiltInFramework::all_package_ids();
 
         if protocol_version < 5 {
-            ids.retain(|id| *id != DEEPBOOK_OBJECT_ID)
+            ids.retain(|id| *id != DEEPBOOK_PACKAGE_ID)
         }
         ids
     }

@@ -65,7 +65,7 @@ use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
 use haneul_types::transaction::{CallArg, TransactionData};
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_OBJECT_ID};
+use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_PACKAGE_ID};
 
 struct Examples {
     function_name: String,
@@ -152,7 +152,7 @@ impl RpcExampleProvider {
 
         let tx_params = vec![
             RPCTransactionRequestParams::MoveCallRequestParams(MoveCallParams {
-                package_object_id: HANEUL_FRAMEWORK_OBJECT_ID,
+                package_object_id: HANEUL_FRAMEWORK_PACKAGE_ID,
                 module: "pay".to_string(),
                 function: "split".to_string(),
                 type_arguments: vec![HaneulTypeTag::new("0x2::haneul::HANEUL".to_string())],
@@ -171,7 +171,7 @@ impl RpcExampleProvider {
             let mut builder = ProgrammableTransactionBuilder::new();
             builder
                 .move_call(
-                    HANEUL_FRAMEWORK_OBJECT_ID,
+                    HANEUL_FRAMEWORK_PACKAGE_ID,
                     Identifier::from_str("pay").unwrap(),
                     Identifier::from_str("split").unwrap(),
                     vec![],
@@ -1126,7 +1126,7 @@ impl RpcExampleProvider {
             has_next_page: true,
         };
 
-        Examples::new("haneulx_getDynamicFields",             
+        Examples::new("haneulx_getDynamicFields",
         vec![ExamplePairing::new(
             "Get dynamic fields for the object the request provides in a paginated list of `limit` dynamic field results per page. The default limit is 50.",
             vec![

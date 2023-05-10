@@ -27,7 +27,7 @@ use haneul_types::governance::{ADD_STAKE_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::TransactionData;
-use haneul_types::{HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_OBJECT_ID};
+use haneul_types::{HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID};
 
 use crate::types::{
     AccountIdentifier, Amount, CoinAction, CoinChange, CoinID, CoinIdentifier, InternalOperation,
@@ -440,13 +440,13 @@ impl Operations {
     }
 
     fn is_stake_call(tx: &HaneulProgrammableMoveCall) -> bool {
-        tx.package == HANEUL_SYSTEM_OBJECT_ID
+        tx.package == HANEUL_SYSTEM_PACKAGE_ID
             && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
             && tx.function == ADD_STAKE_FUN_NAME.as_str()
     }
 
     fn is_unstake_call(tx: &HaneulProgrammableMoveCall) -> bool {
-        tx.package == HANEUL_SYSTEM_OBJECT_ID
+        tx.package == HANEUL_SYSTEM_PACKAGE_ID
             && tx.module == HANEUL_SYSTEM_MODULE_NAME.as_str()
             && tx.function == WITHDRAW_STAKE_FUN_NAME.as_str()
     }

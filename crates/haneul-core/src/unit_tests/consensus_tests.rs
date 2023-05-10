@@ -14,7 +14,7 @@ use haneul_types::crypto::deterministic_random_account_key;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS;
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::HANEUL_FRAMEWORK_OBJECT_ID;
+use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::{
     base_types::ObjectID,
     object::Object,
@@ -64,7 +64,7 @@ pub async fn test_certificates(authority: &AuthorityState) -> Vec<CertifiedTrans
 
         let data = TransactionData::new_move_call(
             sender,
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             ident_str!(module).to_owned(),
             ident_str!(function).to_owned(),
             /* type_args */ vec![],

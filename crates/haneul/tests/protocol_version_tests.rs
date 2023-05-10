@@ -83,8 +83,8 @@ mod sim_only_tests {
     use haneul_types::{
         base_types::SequenceNumber, digests::TransactionDigest, object::Object,
         programmable_transaction_builder::ProgrammableTransactionBuilder, storage::ObjectStore,
-        transaction::TransactionKind, MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID,
-        HANEUL_SYSTEM_OBJECT_ID,
+        transaction::TransactionKind, MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
     };
     use test_utils::network::{TestCluster, TestClusterBuilder};
     use tokio::time::{sleep, Duration};
@@ -447,7 +447,7 @@ mod sim_only_tests {
         dev_inspect_call(
             cluster,
             ProgrammableMoveCall {
-                package: HANEUL_SYSTEM_OBJECT_ID,
+                package: HANEUL_SYSTEM_PACKAGE_ID,
                 module: ident_str!("msim_extra_1").to_owned(),
                 function: ident_str!("canary").to_owned(),
                 type_arguments: vec![],
@@ -495,17 +495,17 @@ mod sim_only_tests {
     async fn get_framework_upgrade_versions(
         cluster: &TestCluster,
     ) -> (Option<SequenceNumber>, Option<SequenceNumber>) {
-        let effects = get_framework_upgrade_effects(cluster, &HANEUL_SYSTEM_OBJECT_ID).await;
+        let effects = get_framework_upgrade_effects(cluster, &HANEUL_SYSTEM_PACKAGE_ID).await;
 
         let modified_at = effects
             .modified_at_versions()
             .iter()
-            .find_map(|(id, v)| (id == &HANEUL_SYSTEM_OBJECT_ID).then_some(*v));
+            .find_map(|(id, v)| (id == &HANEUL_SYSTEM_PACKAGE_ID).then_some(*v));
 
         let mutated_to = effects
             .mutated()
             .iter()
-            .find_map(|((id, v, _), _)| (id == &HANEUL_SYSTEM_OBJECT_ID).then_some(*v));
+            .find_map(|((id, v, _), _)| (id == &HANEUL_SYSTEM_PACKAGE_ID).then_some(*v));
 
         (modified_at, mutated_to)
     }
@@ -834,11 +834,11 @@ mod sim_only_tests {
     }
 
     fn override_haneul_system_modules(path: &str) {
-        framework_injection::set_override(HANEUL_SYSTEM_OBJECT_ID, haneul_system_modules(path));
+        framework_injection::set_override(HANEUL_SYSTEM_PACKAGE_ID, haneul_system_modules(path));
     }
 
     fn override_haneul_system_modules_cb(f: framework_injection::PackageUpgradeCallback) {
-        framework_injection::set_override_cb(HANEUL_SYSTEM_OBJECT_ID, f)
+        framework_injection::set_override_cb(HANEUL_SYSTEM_PACKAGE_ID, f)
     }
 
     /// Get compiled modules for Haneul System, built from fixture `fixture` in the
@@ -857,8 +857,8 @@ mod sim_only_tests {
             TransactionDigest::genesis(),
             u64::MAX,
             &[
-                BuiltInFramework::get_package_by_id(&MOVE_STDLIB_OBJECT_ID).genesis_move_package(),
-                BuiltInFramework::get_package_by_id(&HANEUL_FRAMEWORK_OBJECT_ID)
+                BuiltInFramework::get_package_by_id(&MOVE_STDLIB_PACKAGE_ID).genesis_move_package(),
+                BuiltInFramework::get_package_by_id(&HANEUL_FRAMEWORK_PACKAGE_ID)
                     .genesis_move_package(),
             ],
         )

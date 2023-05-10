@@ -50,7 +50,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::ExecutionStatus;
-use haneul_types::MOVE_STDLIB_OBJECT_ID;
+use haneul_types::MOVE_STDLIB_PACKAGE_ID;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
     crypto::{get_key_pair_from_rng, AccountKeyPair},
@@ -70,15 +70,15 @@ use haneul_types::{
 };
 use haneul_types::{id::UID, DEEPBOOK_ADDRESS};
 use haneul_types::{in_memory_storage::InMemoryStorage, transaction::ProgrammableTransaction};
-use haneul_types::{metrics::LimitsMetrics, DEEPBOOK_OBJECT_ID};
+use haneul_types::{metrics::LimitsMetrics, DEEPBOOK_PACKAGE_ID};
 use haneul_types::{
     move_package::MovePackage,
     transaction::{Argument, CallArg},
 };
 use haneul_types::{
-    programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_OBJECT_ID,
+    programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_PACKAGE_ID,
 };
-use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_OBJECT_ID};
+use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
 use tempfile::NamedTempFile;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -88,10 +88,10 @@ pub enum FakeID {
 }
 
 const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
-    MOVE_STDLIB_OBJECT_ID,
-    DEEPBOOK_OBJECT_ID,
-    HANEUL_FRAMEWORK_OBJECT_ID,
-    HANEUL_SYSTEM_OBJECT_ID,
+    MOVE_STDLIB_PACKAGE_ID,
+    DEEPBOOK_PACKAGE_ID,
+    HANEUL_FRAMEWORK_PACKAGE_ID,
+    HANEUL_SYSTEM_PACKAGE_ID,
     HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_CLOCK_OBJECT_ID,
 ];
@@ -410,7 +410,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         let gas_price = self.gas_price;
         // we are assuming that all packages depend on Move Stdlib and Haneul Framework, so these
         // don't have to be provided explicitly as parameters
-        dependencies.extend([MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]);
+        dependencies.extend([MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID]);
         let data = |sender, gas| {
             let mut builder = ProgrammableTransactionBuilder::new();
             if upgradeable {
@@ -949,7 +949,7 @@ impl<'a> HaneulTestAdapter<'a> {
         let digest_arg = builder.pure(digest).unwrap();
 
         let upgrade_ticket = builder.programmable_move_call(
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             ident_str!("package").to_owned(),
             ident_str!("authorize_upgrade").to_owned(),
             vec![],
@@ -961,7 +961,7 @@ impl<'a> HaneulTestAdapter<'a> {
             builder.upgrade(package_id, upgrade_ticket, dependencies, modules_bytes);
 
         builder.programmable_move_call(
-            HANEUL_FRAMEWORK_OBJECT_ID,
+            HANEUL_FRAMEWORK_PACKAGE_ID,
             ident_str!("package").to_owned(),
             ident_str!("commit_upgrade").to_owned(),
             vec![],
@@ -1422,7 +1422,7 @@ impl<'a> HaneulTestAdapter<'a> {
         // we are assuming that all packages depend on Move Stdlib and Haneul Framework, so these
         // don't have to be provided explicitly as parameters
         if include_std {
-            dependencies.extend([MOVE_STDLIB_OBJECT_ID, HANEUL_FRAMEWORK_OBJECT_ID]);
+            dependencies.extend([MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID]);
         }
         Ok(dependencies)
     }
