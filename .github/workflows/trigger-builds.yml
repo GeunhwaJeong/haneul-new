@@ -6,9 +6,8 @@ on:
     branches: 
       - 'devnet'
       - 'testnet'
+      - 'mainnet'
       - 'releases/haneul-*-release'
-    tags:
-      - haneul-v**
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
