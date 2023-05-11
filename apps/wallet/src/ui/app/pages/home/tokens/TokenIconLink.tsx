@@ -5,14 +5,11 @@ import { useFeature } from '@growthbook/growthbook-react';
 import { useFormatCoin } from '@haneullabs/core';
 import { WalletActionStake24 } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG, type HaneulAddress } from '@haneullabs/haneul.js';
-import { cx } from 'class-variance-authority';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 
+import { LargeButton } from '_app/shared/LargeButton';
 import { DelegatedAPY } from '_app/shared/delegated-apy';
-import { Text } from '_app/shared/text';
 import { useGetDelegatedStake } from '_app/staking/useGetDelegatedStake';
-import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { FEATURES } from '_src/shared/experimentation/features';
 import { trackEvent } from '_src/shared/plausible';
 
@@ -49,57 +46,33 @@ export function TokenIconLink({
     );
 
     return (
-        <Link
+        <LargeButton
             to="/stake"
             onClick={() => {
                 trackEvent('StakingFromHome');
             }}
-            className={cx(
-                stakingEnabled ? '' : '!bg-gray-40',
-                'flex rounded-2xl w-full p-3.75 justify-between no-underline bg-haneul/10'
-            )}
             tabIndex={!stakingEnabled ? -1 : undefined}
-        >
-            {isLoading || queryResult.isLoading ? (
-                <div className="p-2 w-full flex justify-start items-center h-full">
-                    <LoadingIndicator />
-                </div>
-            ) : (
-                <div className="flex gap-2.5 items-center">
-                    <WalletActionStake24
-                        className={cx(
-                            'text-heading2 bg-transparent',
-                            stakingEnabled ? 'text-hero-dark ' : 'text-gray-60'
-                        )}
-                    />
-
-                    <div className="flex flex-col gap-1.25">
-                        <Text
-                            variant="body"
-                            weight="semibold"
-                            color={stakingEnabled ? 'hero-dark' : 'gray-60'}
-                        >
-                            {totalActivePendingStake
-                                ? 'Currently Staked'
-                                : 'Stake & Earn HANEUL'}
-                        </Text>
-                        {!!totalActivePendingStake && (
-                            <Text
-                                variant="body"
-                                weight="semibold"
-                                color={stakingEnabled ? 'hero-dark' : 'gray-60'}
-                            >
-                                {formatted} {symbol}
-                            </Text>
-                        )}
-                    </div>
-                </div>
-            )}
-            <div className="flex">
-                {stakingEnabled && (
+            loading={isLoading || queryResult.isLoading}
+            disabled={!stakingEnabled}
+            before={<WalletActionStake24 />}
+            after={
+                stakingEnabled && (
                     <DelegatedAPY stakedValidators={stakedValidators} />
+                )
+            }
+        >
+            <div className="flex flex-col gap-1.25">
+                <div>
+                    {totalActivePendingStake
+                        ? 'Currently Staked'
+                        : 'Stake & Earn HANEUL'}
+                </div>
+                {!!totalActivePendingStake && (
+                    <div>
+                        {formatted} {symbol}
+                    </div>
                 )}
             </div>
-        </Link>
+        </LargeButton>
     );
 }
