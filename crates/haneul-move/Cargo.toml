@@ -32,10 +32,11 @@ move-vm-test-utils.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
 
+haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
+
 haneul-core = { path = "../haneul-core", optional = true }
 haneul-cost-tables = { path = "../haneul-cost-tables" }
 haneul-move-build = { path = "../haneul-move-build" }
-haneul-move-natives = { path = "../haneul-move-natives" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types" }
 

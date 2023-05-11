@@ -32,7 +32,8 @@ rusoto_kms = { version = "0.48.0", default_features=false, features=["rustls"] }
 aws-config = "0.55.1"
 prometheus = "0.13.3"
 
-haneul-adapter = { path = "../haneul-adapter" }
+haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
+
 haneul-core = { path = "../haneul-core" }
 haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-config = { path = "../haneul-config" }

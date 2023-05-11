@@ -9302,7 +9302,7 @@ dependencies = [
  "shared-crypto",
  "shell-words",
  "signature 1.6.4",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-config",
  "haneul-core",
  "haneul-framework",
@@ -9334,7 +9334,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-adapter"
+name = "haneul-adapter-latest"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -9351,10 +9351,10 @@ dependencies = [
  "once_cell",
  "serde 1.0.152",
  "haneul-macros",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-protocol-config",
  "haneul-types",
- "haneul-verifier",
+ "haneul-verifier-latest",
  "tracing",
  "workspace-hack",
 ]
@@ -9481,10 +9481,10 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "shared-crypto",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-framework",
  "haneul-keys",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-protocol-config",
  "haneul-simulator",
  "haneul-storage",
@@ -9552,20 +9552,20 @@ dependencies = [
  "serde_yaml",
  "shared-crypto",
  "signature 1.6.4",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-config",
  "haneul-framework",
  "haneul-json-rpc-types",
  "haneul-macros",
  "haneul-move-build",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-network",
  "haneul-protocol-config",
  "haneul-simulator",
  "haneul-storage",
  "haneul-test-transaction-builder",
  "haneul-types",
- "haneul-verifier",
+ "haneul-verifier-latest",
  "tap",
  "telemetry-subscribers",
  "tempfile",
@@ -9918,7 +9918,7 @@ dependencies = [
  "haneul-cost-tables",
  "haneul-macros",
  "haneul-move-build",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-node",
  "haneul-protocol-config",
  "haneul-simulator",
@@ -9944,16 +9944,16 @@ dependencies = [
  "move-package",
  "move-symbol-pool",
  "serde-reflection",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-protocol-config",
  "haneul-types",
- "haneul-verifier",
+ "haneul-verifier-latest",
  "tempfile",
  "workspace-hack",
 ]
 
 [[package]]
-name = "haneul-move-natives"
+name = "haneul-move-natives-latest"
 version = "0.1.0"
 dependencies = [
  "bcs",
@@ -10182,14 +10182,14 @@ dependencies = [
  "serde 1.0.152",
  "serde_json",
  "similar",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-config",
  "haneul-core",
  "haneul-framework",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-macros",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-protocol-config",
  "haneul-sdk",
  "haneul-storage",
@@ -10344,7 +10344,7 @@ dependencies = [
  "move-package",
  "msim",
  "narwhal-network",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-framework",
  "haneul-move-build",
  "haneul-types",
@@ -10628,10 +10628,10 @@ dependencies = [
  "once_cell",
  "prometheus",
  "rand 0.8.5",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-core",
  "haneul-framework",
- "haneul-move-natives",
+ "haneul-move-natives-latest",
  "haneul-protocol-config",
  "haneul-types",
  "tempfile",
@@ -10710,7 +10710,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-verifier"
+name = "haneul-verifier-latest"
 version = "0.1.0"
 dependencies = [
  "move-binary-format",
@@ -11638,7 +11638,7 @@ dependencies = [
  "proptest",
  "proptest-derive",
  "rand 0.8.5",
- "haneul-adapter",
+ "haneul-adapter-latest",
  "haneul-core",
  "haneul-move-build",
  "haneul-protocol-config",

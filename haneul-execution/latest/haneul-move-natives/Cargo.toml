@@ -1,5 +1,5 @@
 [package]
-name = "haneul-move-natives"
+name = "haneul-move-natives-latest"
 version = "0.1.0"
 edition = "2021"
 authors = ["Haneul Labs <eng@haneul-labs.com>"]
@@ -13,15 +13,14 @@ bcs = "0.1.4"
 linked-hash-map = "0.5.6"
 smallvec = "1.9.0"
 
-fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true
-
-haneul-types = { path = "../haneul-types" }
-
+fastcrypto.workspace = true
 move-binary-format.workspace = true
 move-core-types.workspace = true
 move-stdlib.workspace = true
 move-vm-runtime.workspace = true
 move-vm-types.workspace = true
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
+
+haneul-protocol-config = { path = "../../../crates/haneul-protocol-config" }
+haneul-types = { path = "../../../crates/haneul-types" }
+workspace-hack = { version = "0.1", path = "../../../crates/workspace-hack" }

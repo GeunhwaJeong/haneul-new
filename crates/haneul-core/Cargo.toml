@@ -55,6 +55,10 @@ telemetry-subscribers.workspace = true
 typed-store-derive.workspace = true
 typed-store.workspace = true
 
+# TODO use haneul-execution versioned crate
+haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
+haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
+
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-config = { path = "../../narwhal/config" }
 narwhal-crypto = { path = "../../narwhal/crypto" }
@@ -64,13 +68,11 @@ narwhal-node = { path = "../../narwhal/node" }
 narwhal-types = { path = "../../narwhal/types" }
 narwhal-worker = { path = "../../narwhal/worker" }
 shared-crypto = { path = "../shared-crypto" }
-haneul-adapter = { path = "../haneul-adapter" }
 haneul-config = { path = "../haneul-config" }
 haneul-framework = { path = "../haneul-framework" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-move-build = { path = "../haneul-move-build" }
-haneul-move-natives = { path = "../haneul-move-natives" }
 haneul-network = { path = "../haneul-network" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-simulator = { path = "../haneul-simulator" }
@@ -91,9 +93,11 @@ serde_yaml = "0.8.26"
 
 move-symbol-pool.workspace = true
 
+# TODO use haneul-execution versioned crate
+haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
+
 narwhal-test-utils = { path = "../../narwhal/test-utils" }
 haneul-types = { path = "../haneul-types", features = ["test-utils"] }
-haneul-verifier = { path = "../haneul-verifier" }
 
 [target.'cfg(not(target_env = "msvc"))'.dev-dependencies]
 pprof = { version = "0.11.0", features = ["cpp", "frame-pointer"] }

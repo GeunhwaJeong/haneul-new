@@ -1,5 +1,5 @@
 [package]
-name = "haneul-verifier"
+name = "haneul-verifier-latest"
 version = "0.1.0"
 edition = "2021"
 authors = ["Haneul Labs <eng@haneul-labs.com>"]
@@ -13,6 +13,6 @@ move-bytecode-utils.workspace = true
 move-bytecode-verifier.workspace = true
 move-core-types.workspace = true
 
-haneul-types = { path = "../haneul-types" }
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-types = { path = "../../../crates/haneul-types" }
+workspace-hack = { version = "0.1", path = "../../../crates/workspace-hack" }
+haneul-protocol-config = { path = "../../../crates/haneul-protocol-config" }

@@ -66,7 +66,6 @@ members = [
     "crates/prometheus-closure-metric",
     "crates/shared-crypto",
     "crates/haneul",
-    "crates/haneul-adapter",
     "crates/haneul-adapter-transactional-tests",
     "crates/haneul-benchmark",
     "crates/haneul-cluster-test",
@@ -86,7 +85,6 @@ members = [
     "crates/haneul-macros",
     "crates/haneul-move",
     "crates/haneul-move-build",
-    "crates/haneul-move-natives",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-open-rpc",
@@ -113,7 +111,6 @@ members = [
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
     "crates/haneul-upgrade-compatibility-transactional-tests",
-    "crates/haneul-verifier",
     "crates/haneul-verifier-transactional-tests",
     "crates/telemetry-subscribers",
     "crates/test-utils",
@@ -135,6 +132,9 @@ members = [
     "narwhal/test-utils",
     "narwhal/types",
     "narwhal/worker",
+    "haneul-execution/latest/haneul-adapter",
+    "haneul-execution/latest/haneul-move-natives",
+    "haneul-execution/latest/haneul-verifier",
 ]
 
 [workspace.package]
