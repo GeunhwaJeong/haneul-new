@@ -24,7 +24,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::digests::{ObjectDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
-use haneul_types::error::{ExecutionError, HaneulError};
+use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -706,7 +706,7 @@ impl HaneulTransactionBlockEvents {
         tx_digest: TransactionDigest,
         timestamp_ms: Option<u64>,
         resolver: &impl GetModule,
-    ) -> Result<Self, HaneulError> {
+    ) -> HaneulResult<Self> {
         Ok(Self {
             data: events
                 .data
@@ -761,7 +761,7 @@ impl DevInspectResults {
         events: TransactionEvents,
         return_values: Result<Vec<ExecutionResult>, ExecutionError>,
         resolver: &impl GetModule,
-    ) -> Result<Self, anyhow::Error> {
+    ) -> HaneulResult<Self> {
         let tx_digest = *effects.transaction_digest();
         let mut error = None;
         let mut results = None;
