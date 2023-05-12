@@ -33,13 +33,17 @@ function ArrayArgument({
     return (
         <TransactionContent>
             {data && (
-                <span className="break-all">({flattenHaneulArguments(data)})</span>
+                <span className="break-all">
+                    <Text variant="pBody/medium">
+                        ({flattenHaneulArguments(data)})
+                    </Text>
+                </span>
             )}
         </TransactionContent>
     );
 }
 
-function MoveCall({ type, data }: TransactionProps<MoveCallHaneulTransaction>) {
+function MoveCall({ data }: TransactionProps<MoveCallHaneulTransaction>) {
     const {
         module,
         package: movePackage,
@@ -50,21 +54,26 @@ function MoveCall({ type, data }: TransactionProps<MoveCallHaneulTransaction>) {
 
     return (
         <TransactionContent>
-            (package: <ObjectLink objectId={movePackage} />, module:{' '}
-            <ObjectLink
-                objectId={`${movePackage}?module=${module}`}
-                label={`'${module}'`}
-            />
-            , function: <span className="break-all text-haneul-dark">{func}</span>
-            {args && (
-                <span className="break-all">
-                    , arguments: [{flattenHaneulArguments(args!)}]
-                </span>
-            )}
-            {typeArgs && (
-                <span className="break-all">, type_arguments: {typeArgs}</span>
-            )}
-            )
+            <Text variant="pBody/medium">
+                (package: <ObjectLink objectId={movePackage} />, module:{' '}
+                <ObjectLink
+                    objectId={`${movePackage}?module=${module}`}
+                    label={`'${module}'`}
+                />
+                , function:{' '}
+                <span className="break-all text-haneul-dark">{func}</span>
+                {args && (
+                    <span className="break-all">
+                        , arguments: [{flattenHaneulArguments(args!)}]
+                    </span>
+                )}
+                {typeArgs && (
+                    <span className="break-all">
+                        , type_arguments: {typeArgs}
+                    </span>
+                )}
+                )
+            </Text>
         </TransactionContent>
     );
 }
