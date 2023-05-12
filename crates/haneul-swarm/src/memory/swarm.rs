@@ -15,7 +15,7 @@ use std::{
 use haneul_config::builder::{
     CommitteeConfig, ConfigBuilder, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
 };
-use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ValidatorConfigInfo};
+use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ValidatorGenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::NetworkConfig;
 use haneul_node::HaneulNodeHandle;
@@ -90,7 +90,7 @@ impl<R> SwarmBuilder<R> {
         self
     }
 
-    pub fn with_validators(mut self, validators: Vec<ValidatorConfigInfo>) -> Self {
+    pub fn with_validators(mut self, validators: Vec<ValidatorGenesisConfig>) -> Self {
         self.committee = CommitteeConfig::Validators(validators);
         self
     }
