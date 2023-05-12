@@ -41,9 +41,11 @@ git fetch upstream devnet && git reset --hard upstream/devnet
 3. Start indexer binary, under `haneul/crates/haneul-indexer` run:
 ```sh
 # Change the RPC_CLIENT_URL to http://0.0.0.0:9000 to run indexer against local validator & fullnode
-cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443"
+cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --reset-db --fullnode-sync-worker
 ```
-### DB reset in case of restarting indexer
+Note that `haneul-indexer` can run as a `fullnode-sync-worker`, which pulls data from fullnode and writes data to DB; `haneul-indexer` can also run as a RPC server with flag `--rpc-server-worker`, more flags info can be found in this [file](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-indexer/src/lib.rs#L83-L123).
+### DB reset
+Run this command under `haneul/crates/haneul-indexer`, which will wipe DB; In case of schema changes in `.sql` files, this will also update corresponding `schema.rs` file.
 ```sh
 diesel database reset --database-url="<DATABASE_URL>"
 ```
