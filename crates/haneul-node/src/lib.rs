@@ -345,6 +345,7 @@ impl HaneulNode {
                         .unwrap_or(true),
                     config.indirect_objects_threshold,
                     config.authority_store_pruning_config,
+                    &prometheus_registry,
                 )?;
                 Some(handler.start())
             }
