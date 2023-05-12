@@ -39,6 +39,7 @@ ARG PROFILE=release
 ARG GIT_REVISION
 COPY Cargo.toml Cargo.lock ./
 COPY crates crates
+COPY haneul-execution haneul-execution
 COPY narwhal narwhal
 COPY external-crates external-crates
 RUN cargo build --profile $PROFILE --bin haneul-node
