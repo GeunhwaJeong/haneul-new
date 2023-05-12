@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient } from '@haneullabs/core';
+import { useRpcClient, useGetSystemState } from '@haneullabs/core';
 import {
     isValidTransactionDigest,
     isValidHaneulAddress,
@@ -11,6 +11,7 @@ import {
     HaneulObjectData,
     type JsonRpcProvider,
     getTransactionDigest,
+    type HaneulSystemStateSummary,
 } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
@@ -108,8 +109,41 @@ const getResultsForAddress = async (rpc: JsonRpcProvider, query: string) => {
     };
 };
 
+// Query for validator by pool id or haneul address.
+const getResultsForValidatorByPoolIdOrHaneulAddress = async (
+    systemStateSummery: HaneulSystemStateSummary | null,
+    query: string
+) => {
+    const normalized = normalizeHaneulObjectId(query);
+    if (
+        (!isValidHaneulAddress(normalized) && !isValidHaneulObjectId(normalized)) ||
+        !systemStateSummery
+    )
+        return null;
+
+    // find validator by pool id or haneul address
+    const validator = systemStateSummery.activeValidators?.find(
+        ({ stakingPoolId, haneulAddress }) =>
+            stakingPoolId === normalized || haneulAddress === query
+    );
+
+    if (!validator) return null;
+
+    return {
+        label: 'validator',
+        results: [
+            {
+                id: validator.haneulAddress || validator.stakingPoolId,
+                label: normalized,
+                type: 'validator',
+            },
+        ],
+    };
+};
+
 export function useSearch(query: string) {
     const rpc = useRpcClient();
+    const { data: systemStateSummery } = useGetSystemState();
 
     return useQuery(
         ['search', query],
@@ -120,6 +154,10 @@ export function useSearch(query: string) {
                     getResultsForCheckpoint(rpc, query),
                     getResultsForAddress(rpc, query),
                     getResultsForObject(rpc, query),
+                    getResultsForValidatorByPoolIdOrHaneulAddress(
+                        systemStateSummery || null,
+                        query
+                    ),
                 ])
             ).filter(
                 (r) => r.status === 'fulfilled' && r.value
