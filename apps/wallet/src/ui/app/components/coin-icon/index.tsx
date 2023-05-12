@@ -1,9 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCoinMetadata } from '@haneullabs/core';
 import { Haneul, Unstaked } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { cva, type VariantProps } from 'class-variance-authority';
+
+import { ImageIcon } from '_app/shared/image-icon';
 
 const imageStyle = cva(['rounded-full flex rounded-full'], {
     variants: {
@@ -20,24 +23,45 @@ const imageStyle = cva(['rounded-full flex rounded-full'], {
     },
 });
 
+function HaneulCoin() {
+    return (
+        <Haneul className="flex items-center w-full h-full justify-center text-white text-body p-1.5 bg-haneul rounded-full" />
+    );
+}
+
+type NonHaneulCoinProps = {
+    coinType: string;
+};
+
+function NonHaneulCoin({ coinType }: NonHaneulCoinProps) {
+    const { data: coinMeta } = useCoinMetadata(coinType);
+    return (
+        <div className="flex h-full w-full items-center justify-center text-white bg-steel rounded-full">
+            {coinMeta?.iconUrl ? (
+                <ImageIcon
+                    src={coinMeta.iconUrl}
+                    label={coinMeta.name || coinType}
+                    fallback={coinMeta.name || coinType}
+                    circle
+                />
+            ) : (
+                <Unstaked />
+            )}
+        </div>
+    );
+}
+
 export interface CoinIconProps extends VariantProps<typeof imageStyle> {
     coinType: string;
 }
-
-// fetch the coin metadata
-// show the coin icon
-// fallback to the coin name if the icon is not available
-// TODO: (jibz) use getCoinMetadata to get the coin metadata and use haneul icons
 
 export function CoinIcon({ coinType, ...styleProps }: CoinIconProps) {
     return (
         <div className={imageStyle(styleProps)}>
             {coinType === HANEUL_TYPE_ARG ? (
-                <Haneul className="flex items-center w-full h-full justify-center text-white text-body p-1.5 bg-haneul rounded-full" />
+                <HaneulCoin />
             ) : (
-                <div className="flex h-full w-full items-center justify-center text-white bg-steel rounded-full">
-                    <Unstaked />
-                </div>
+                <NonHaneulCoin coinType={coinType} />
             )}
         </div>
     );
