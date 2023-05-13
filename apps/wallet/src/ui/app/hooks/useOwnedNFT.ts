@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetObject } from '@haneullabs/core';
+import { useGetObject, useGetOriginByteKioskContents } from '@haneullabs/core';
 import {
     is,
     HaneulObjectData,
@@ -15,17 +15,23 @@ export function useOwnedNFT(
     address: HaneulAddress | null
 ) {
     const data = useGetObject(nftObjectId);
+    const { data: kioskContents } = useGetOriginByteKioskContents(address);
     const { data: objectData } = data;
     const objectDetails = useMemo(() => {
         if (!objectData || !is(objectData.data, HaneulObjectData) || !address)
             return null;
+        const ownedKioskObjectIds =
+            kioskContents?.map(({ data }) => data?.objectId) || [];
         const objectOwner = getObjectOwner(objectData);
-        return objectOwner &&
-            objectOwner !== 'Immutable' &&
-            'AddressOwner' in objectOwner &&
-            objectOwner.AddressOwner === address
-            ? objectData.data
-            : null;
-    }, [address, objectData]);
+        const isOwner =
+            ownedKioskObjectIds.includes(objectData.data.objectId) ||
+            (objectOwner &&
+                objectOwner !== 'Immutable' &&
+                'AddressOwner' in objectOwner &&
+                objectOwner.AddressOwner === address)
+                ? objectData.data
+                : null;
+        return isOwner;
+    }, [address, objectData, kioskContents]);
     return { ...data, data: objectDetails };
 }
