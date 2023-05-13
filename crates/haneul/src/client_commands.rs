@@ -16,7 +16,7 @@ use fastcrypto::{
     encoding::{Base64, Encoding},
     traits::ToFromBytes,
 };
-use move_bytecode_verifier::meter::BoundMeter;
+use move_bytecode_verifier::meter::Scope;
 use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig as MoveBuildConfig;
 use prettytable::Table;
@@ -30,6 +30,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 use haneul_types::error::HaneulError;
 use haneul_types::{digests::TransactionDigest, metrics::BytecodeVerifierMetrics};
+use haneul_verifier::meter::HaneulVerifierMeter;
 
 use shared_crypto::intent::Intent;
 use haneul_json::HaneulJsonValue;
@@ -201,8 +202,8 @@ pub enum HaneulClientCommands {
     },
 
     /// Run the bytecode verifer on the package
-    #[clap(name = "verify-bytecode")]
-    VerifyBytecode {
+    #[clap(name = "verify-bytecode-meter")]
+    VerifyBytecodeMeter {
         /// Path to directory containing a Move package
         #[clap(
             name = "package_path",
@@ -749,7 +750,7 @@ impl HaneulClientCommands {
                 )
             }
 
-            HaneulClientCommands::VerifyBytecode {
+            HaneulClientCommands::VerifyBytecodeMeter {
                 package_path,
                 build_config,
             } => {
@@ -759,9 +760,17 @@ impl HaneulClientCommands {
 
                 let package = compile_package_simple(build_config, package_path)?;
                 let modules: Vec<_> = package.get_modules().cloned().collect();
-                let metered_verifier_config =
+                let mut metered_verifier_config =
                     default_verifier_config(&protocol_config, true /* enable metering */);
-                let mut meter = BoundMeter::new(&metered_verifier_config);
+                // These are the actual system limits
+                let fun_limits = metered_verifier_config.max_per_fun_meter_units.unwrap();
+                let mod_limits = metered_verifier_config.max_per_mod_meter_units.unwrap();
+                // We want the test to run unmetered so we can know the true limit
+                // Unset the limits
+                metered_verifier_config.max_per_fun_meter_units = None;
+                metered_verifier_config.max_per_mod_meter_units = None;
+                let mut meter = HaneulVerifierMeter::new(&metered_verifier_config);
+                println!("Running bytecode verifier for {} modules", modules.len());
                 run_metered_move_bytecode_verifier_impl(
                     &modules,
                     &protocol_config,
@@ -769,7 +778,16 @@ impl HaneulClientCommands {
                     &mut meter,
                     &bytecode_verifier_metrics,
                 )?;
-                HaneulClientCommandResult::VerifyBytecode
+                // Get the actual meter ticks used
+                let function = meter.get_usage(Scope::Function);
+                let module = meter.get_usage(Scope::Module);
+
+                HaneulClientCommandResult::VerifyBytecodeMeter {
+                    max_module_ticks: mod_limits,
+                    max_function_ticks: fun_limits,
+                    used_function_ticks: function,
+                    used_module_ticks: module,
+                }
             }
 
             HaneulClientCommands::Object { id, bcs } => {
@@ -1519,8 +1537,36 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::VerifySource => {
                 writeln!(writer, "Source verification succeeded!")?;
             }
-            HaneulClientCommandResult::VerifyBytecode => {
-                writeln!(writer, "Bytecode verification succeeded!")?;
+            HaneulClientCommandResult::VerifyBytecodeMeter {
+                max_module_ticks,
+                max_function_ticks,
+                used_function_ticks,
+                used_module_ticks,
+            } => {
+                writeln!(
+                    writer,
+                    "{0: ^15} | {1: ^15} | {2: ^15}",
+                    "", "Module", "Function"
+                )?;
+                writeln!(writer, "------------------------------------------------")?;
+                writeln!(
+                    writer,
+                    "{0: ^15} | {1: ^15} | {2: ^15}",
+                    "Max", max_module_ticks, max_function_ticks,
+                )?;
+                writeln!(
+                    writer,
+                    "{0: ^15} | {1: ^15} | {2: ^15}",
+                    "Used", used_module_ticks, used_function_ticks,
+                )?;
+
+                if (used_module_ticks > max_module_ticks)
+                    || (used_function_ticks > max_function_ticks)
+                {
+                    writeln!(writer, "Module will NOT pass metering check!")?;
+                } else {
+                    writeln!(writer, "Module will pass metering check!")?;
+                }
             }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
@@ -1676,7 +1722,12 @@ impl HaneulClientCommandResult {
 pub enum HaneulClientCommandResult {
     Upgrade(HaneulTransactionBlockResponse),
     Publish(HaneulTransactionBlockResponse),
-    VerifyBytecode,
+    VerifyBytecodeMeter {
+        max_module_ticks: u128,
+        max_function_ticks: u128,
+        used_function_ticks: u128,
+        used_module_ticks: u128,
+    },
     VerifySource,
     Object(HaneulObjectResponse),
     RawObject(HaneulObjectResponse),

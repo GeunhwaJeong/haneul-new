@@ -46,6 +46,7 @@ haneul-move = { path = "../haneul-move", features = ["all"] }
 haneul-move-build = { path = "../haneul-move-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
+haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 shared-crypto = { path = "../shared-crypto" }
 
 fastcrypto.workspace = true

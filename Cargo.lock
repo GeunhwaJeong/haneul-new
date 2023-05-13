@@ -9348,6 +9348,7 @@ dependencies = [
  "haneul-test-transaction-builder",
  "haneul-tool",
  "haneul-types",
+ "haneul-verifier-latest",
  "tap",
  "telemetry-subscribers",
  "tempfile",
