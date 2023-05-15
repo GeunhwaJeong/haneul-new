@@ -55,7 +55,6 @@ haneul-core = { path = "../haneul-core" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-node = { path = "../haneul-node" }
 haneul-simulator = { path = "../haneul-simulator" }
-test-utils = { path = "../test-utils" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemalloc-ctl"]
