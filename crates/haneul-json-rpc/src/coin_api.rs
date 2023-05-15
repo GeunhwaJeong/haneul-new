@@ -19,12 +19,12 @@ use haneul_json_rpc_types::{Balance, Coin as HaneulCoin};
 use haneul_json_rpc_types::{CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin::{CoinMetadata, TreasuryCap};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::HaneulError;
 use haneul_types::gas_coin::GAS;
-use haneul_types::object::{Object, Owner};
+use haneul_types::object::Object;
 use haneul_types::parse_haneul_struct_tag;
 
 use crate::api::{cap_page_limit, CoinReadApiServer, JsonRpcMetrics};
@@ -118,32 +118,19 @@ async fn find_package_object_id(
             .get_executed_transaction_and_effects(publish_txn_digest)
             .await?;
 
-        async fn find_object_with_type(
-            state: &Arc<AuthorityState>,
-            created: &[(ObjectRef, Owner)],
-            object_struct_tag: &StructTag,
-            package_id: &ObjectID,
-        ) -> Result<ObjectID, anyhow::Error> {
-            for ((id, version, _), _) in created {
-                if let Ok(past_object) = state.get_past_object_read(id, *version) {
-                    if let Ok(object) = past_object.into_object() {
-                        if matches!(object.type_(), Some(type_) if type_.is(object_struct_tag)) {
-                            return Ok(*id);
-                        }
+        for ((id, _, _), _) in effect.created() {
+            if let Ok(object_read) = state.get_object_read(id) {
+                if let Ok(object) = object_read.into_object() {
+                    if matches!(object.type_(), Some(type_) if type_.is(&object_struct_tag)) {
+                        return Ok(*id);
                     }
                 }
             }
-            Err(anyhow!(
-                "Cannot find object [{}] from [{}] package event.",
-                object_struct_tag,
-                package_id
-            ))
         }
-
-        let object_id =
-            find_object_with_type(&state, effect.created(), &object_struct_tag, &package_id)
-                .await?;
-        Ok(object_id)
+        Err(Error::UnexpectedError(format!(
+            "Cannot find object [{}] from [{}] package event.",
+            object_struct_tag, package_id,
+        )))
     })
     .await?
 }
