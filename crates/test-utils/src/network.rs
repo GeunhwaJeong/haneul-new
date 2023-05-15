@@ -18,13 +18,9 @@ use tracing::info;
 
 use haneullabs_metrics::RegistryService;
 
-use haneul_config::builder::{ProtocolVersionsConfig, SupportedProtocolVersionsCallback};
-use haneul_config::genesis_config::{AccountConfig, GenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
-use haneul_config::{
-    haneul_cluster_test_config_dir, Config, NetworkConfig, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG,
-};
-use haneul_config::{FullnodeConfigBuilder, NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
+use haneul_config::{haneul_cluster_test_config_dir, Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
+use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_json_rpc_types::{HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNode;
@@ -35,6 +31,11 @@ use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_swarm::memory::{Swarm, SwarmBuilder};
+use haneul_swarm_config::genesis_config::{AccountConfig, GenesisConfig};
+use haneul_swarm_config::network_config::NetworkConfig;
+use haneul_swarm_config::network_config_builder::{
+    FullnodeConfigBuilder, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
+};
 use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
@@ -114,7 +115,7 @@ impl TestCluster {
     }
 
     pub fn fullnode_config_builder(&self) -> FullnodeConfigBuilder {
-        self.swarm.config().fullnode_config_builder()
+        FullnodeConfigBuilder::new(self.swarm.config())
     }
 
     /// Convenience method to start a new fullnode in the test cluster.
@@ -534,9 +535,7 @@ impl TestClusterBuilder {
         let mut wallet_conf: HaneulClientConfig =
             PersistedConfig::read(&working_dir.join(HANEUL_CLIENT_CONFIG))?;
 
-        let fullnode_config = swarm
-            .config()
-            .fullnode_config_builder()
+        let fullnode_config = FullnodeConfigBuilder::new(swarm.config())
             .with_supported_protocol_versions_config(
                 self.fullnode_supported_protocol_versions_config
                     .clone()

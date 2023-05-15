@@ -16,10 +16,10 @@ use haneullabs_metrics::{monitored_future, spawn_monitored_task, GaugeGuard};
 use haneullabs_network::config::Config;
 use std::convert::AsRef;
 use haneul_config::genesis::Genesis;
-use haneul_config::NetworkConfig;
 use haneul_network::{
     default_haneullabs_network_config, DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC,
 };
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::crypto::{AuthorityPublicKeyBytes, AuthoritySignInfo};
 use haneul_types::error::UserInputError;
 use haneul_types::fp_ensure;

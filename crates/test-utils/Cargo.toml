@@ -21,6 +21,7 @@ haneul = { path = "../haneul" }
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core", features = ["test-utils"] }
 haneul-framework = { path = "../haneul-framework" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-move-build = { path = "../haneul-move-build" }

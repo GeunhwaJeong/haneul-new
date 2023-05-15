@@ -17,8 +17,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
-use haneul_config::ValidatorInfo;
 use haneul_framework::BuiltInFramework;
+use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{random_object_ref, ObjectID};
@@ -101,7 +101,7 @@ where
     R: rand::CryptoRng + rand::RngCore,
 {
     let dir = tempfile::TempDir::new().unwrap();
-    let network_config = haneul_config::builder::ConfigBuilder::new(&dir)
+    let network_config = haneul_swarm_config::network_config_builder::ConfigBuilder::new(&dir)
         .rng(rng)
         .build();
     let genesis = network_config.genesis;
@@ -216,7 +216,7 @@ async fn init_genesis(
     let pkg_id = pkg.id();
     genesis_objects.push(pkg);
 
-    let mut builder = haneul_config::genesis::Builder::new().add_objects(genesis_objects);
+    let mut builder = haneul_genesis_builder::Builder::new().add_objects(genesis_objects);
     let mut key_pairs = Vec::new();
     for i in 0..committee_size {
         let key_pair: AuthorityKeyPair = get_key_pair().1;

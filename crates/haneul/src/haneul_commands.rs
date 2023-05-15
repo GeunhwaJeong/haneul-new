@@ -1,41 +1,39 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::io::{stderr, stdout, Write};
-use std::num::NonZeroUsize;
-use std::path::{Path, PathBuf};
-use std::{fs, io};
-
-use anyhow::{anyhow, bail};
-use clap::*;
-use fastcrypto::traits::KeyPair;
-use move_package::BuildConfig;
-use haneul_config::genesis_config::DEFAULT_NUMBER_OF_AUTHORITIES;
-use haneul_move_build::HaneulPackageHooks;
-use tracing::info;
-
-use haneul_config::{
-    builder::ConfigBuilder, NetworkConfig, HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME,
-    HANEUL_KEYSTORE_FILENAME,
-};
-use haneul_config::{genesis_config::GenesisConfig, HANEUL_GENESIS_FILENAME};
-use haneul_config::{
-    haneul_config_dir, Config, PersistedConfig, FULL_NODE_DB_PATH, HANEUL_CLIENT_CONFIG,
-    HANEUL_FULLNODE_CONFIG, HANEUL_NETWORK_CONFIG,
-};
-use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
-use haneul_swarm::memory::Swarm;
-use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};
-
 use crate::client_commands::HaneulClientCommands;
 use crate::console::start_console;
 use crate::fire_drill::{run_fire_drill, FireDrill};
 use crate::genesis_ceremony::{run, Ceremony};
 use crate::keytool::KeyToolCommand;
 use crate::validator_commands::HaneulValidatorCommand;
+use anyhow::{anyhow, bail};
+use clap::*;
+use fastcrypto::traits::KeyPair;
+use move_package::BuildConfig;
+use std::io::{stderr, stdout, Write};
+use std::num::NonZeroUsize;
+use std::path::{Path, PathBuf};
+use std::{fs, io};
+use haneul_config::{
+    haneul_config_dir, Config, PersistedConfig, FULL_NODE_DB_PATH, HANEUL_CLIENT_CONFIG,
+    HANEUL_FULLNODE_CONFIG, HANEUL_NETWORK_CONFIG,
+};
+use haneul_config::{
+    HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME, HANEUL_GENESIS_FILENAME, HANEUL_KEYSTORE_FILENAME,
+};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_move::{self, execute_move_command};
+use haneul_move_build::HaneulPackageHooks;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
+use haneul_swarm::memory::Swarm;
+use haneul_swarm_config::genesis_config::{GenesisConfig, DEFAULT_NUMBER_OF_AUTHORITIES};
+use haneul_swarm_config::network_config::NetworkConfig;
+use haneul_swarm_config::network_config_builder::ConfigBuilder;
+use haneul_swarm_config::network_config_builder::FullnodeConfigBuilder;
+use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};
+use tracing::info;
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Parser)]
@@ -441,8 +439,7 @@ pub async fn genesis(
 
     info!("Client keystore is stored in {:?}.", keystore_path);
 
-    let mut fullnode_config = network_config
-        .fullnode_config_builder()
+    let mut fullnode_config = FullnodeConfigBuilder::new(&network_config)
         .with_event_store()
         .with_dir(FULL_NODE_DB_PATH.into())
         .build()?;

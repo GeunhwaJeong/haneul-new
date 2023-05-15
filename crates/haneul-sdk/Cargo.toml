@@ -21,6 +21,7 @@ tokio = { workspace = true }
 bcs = "0.1.4"
 thiserror = "1.0.37"
 
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
 haneul-transaction-builder = { path = "../haneul-transaction-builder" }

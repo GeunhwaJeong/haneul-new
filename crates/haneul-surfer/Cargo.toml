@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 haneul-config = { path = "../haneul-config" }
 haneul-core = { path = "../haneul-core" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-move-build = { path = "../haneul-move-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }

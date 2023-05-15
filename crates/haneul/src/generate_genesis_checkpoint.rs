@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use camino::Utf8PathBuf;
-use haneul_config::genesis::Builder;
 use haneul_config::utils;
-use haneul_config::ValidatorInfo;
+use haneul_genesis_builder::validator_info::ValidatorInfo;
+use haneul_genesis_builder::Builder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,

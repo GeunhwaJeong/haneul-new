@@ -35,6 +35,8 @@ haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", packag
 haneul-core = { path = "../haneul-core" }
 haneul-framework-snapshot = { path = "../haneul-framework-snapshot" }
 haneul-config = { path = "../haneul-config" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
+haneul-genesis-builder = { path = "../haneul-genesis-builder" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 haneul-swarm = { path = "../haneul-swarm" }

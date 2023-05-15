@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::PathBuf;
-use std::sync::Arc;
-
 use crate::authority::authority_test_utils::{
     publish_package_on_single_authority, upgrade_package_on_single_authority,
 };
@@ -13,10 +10,12 @@ use crate::test_utils::make_transfer_haneul_transaction;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::KeyPair;
 use move_core_types::ident_str;
+use std::path::PathBuf;
+use std::sync::Arc;
 use haneul_config::certificate_deny_config::CertificateDenyConfigBuilder;
-use haneul_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_config::transaction_deny_config::{TransactionDenyConfig, TransactionDenyConfigBuilder};
-use haneul_config::NetworkConfig;
+use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::effects::TransactionEffectsAPI;
@@ -35,15 +34,16 @@ const ACCOUNT_NUM: usize = 5;
 const GAS_OBJECT_COUNT: usize = 15;
 
 async fn setup_test(deny_config: TransactionDenyConfig) -> (NetworkConfig, Arc<AuthorityState>) {
-    let network_config = haneul_config::builder::ConfigBuilder::new_with_temp_dir()
-        .with_accounts(vec![
-            AccountConfig {
-                address: None,
-                gas_amounts: vec![DEFAULT_GAS_AMOUNT; GAS_OBJECT_COUNT],
-            };
-            ACCOUNT_NUM
-        ])
-        .build();
+    let network_config =
+        haneul_swarm_config::network_config_builder::ConfigBuilder::new_with_temp_dir()
+            .with_accounts(vec![
+                AccountConfig {
+                    address: None,
+                    gas_amounts: vec![DEFAULT_GAS_AMOUNT; GAS_OBJECT_COUNT],
+                };
+                ACCOUNT_NUM
+            ])
+            .build();
     let state = TestAuthorityBuilder::new()
         .with_transaction_deny_config(deny_config)
         .with_network_config(&network_config)

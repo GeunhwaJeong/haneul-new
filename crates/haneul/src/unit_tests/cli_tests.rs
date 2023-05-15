@@ -20,12 +20,9 @@ use haneul::{
     client_commands::{HaneulClientCommandResult, HaneulClientCommands},
     haneul_commands::HaneulCommand,
 };
+use haneul_config::{Config, NodeConfig, HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME};
 use haneul_config::{
-    genesis_config::{AccountConfig, GenesisConfig},
-    Config, NodeConfig, HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME,
-};
-use haneul_config::{
-    NetworkConfig, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
+    PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
     HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
@@ -38,6 +35,8 @@ use haneul_macros::sim_test;
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::haneul_client_config::HaneulClientConfig;
 use haneul_sdk::wallet_context::WalletContext;
+use haneul_swarm_config::genesis_config::{AccountConfig, GenesisConfig};
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     Ed25519HaneulSignature, Secp256k1HaneulSignature, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,

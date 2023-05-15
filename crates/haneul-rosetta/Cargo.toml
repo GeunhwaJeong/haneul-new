@@ -30,6 +30,7 @@ typed-store.workspace = true
 typed-store-derive.workspace = true
 tempfile = "3.3.0"
 fastcrypto.workspace = true
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-node = { path = "../haneul-node" }

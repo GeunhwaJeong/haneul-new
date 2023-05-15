@@ -7,18 +7,18 @@ use anyhow::Result;
 use fastcrypto::traits::KeyPair;
 use rand::{rngs::StdRng, SeedableRng};
 use serde::{Deserialize, Serialize};
-use haneul_types::multiaddr::Multiaddr;
-use tracing::info;
-
+use haneul_config::genesis::{GenesisCeremonyParameters, TokenAllocation};
+use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
+use haneul_config::utils;
+use haneul_config::Config;
+use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::{
-    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair,
+    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes,
+    NetworkKeyPair, NetworkPublicKey, PublicKey, HaneulKeyPair,
 };
-
-use crate::genesis::{GenesisCeremonyParameters, TokenAllocation};
-use crate::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
-use crate::utils;
-use crate::Config;
+use haneul_types::multiaddr::Multiaddr;
+use tracing::info;
 
 // All information needed to build a NodeConfig for a validator.
 #[derive(Serialize, Deserialize)]
@@ -163,6 +163,31 @@ impl ValidatorGenesisConfig {
                 network_key_pair,
                 gas_price,
             )
+        }
+    }
+
+    pub fn to_validator_info(&self, name: String) -> ValidatorInfo {
+        let protocol_key: AuthorityPublicKeyBytes = self.key_pair.public().into();
+        let account_key: PublicKey = self.account_key_pair.public();
+        let network_key: NetworkPublicKey = self.network_key_pair.public().clone();
+        let worker_key: NetworkPublicKey = self.worker_key_pair.public().clone();
+        let network_address = self.network_address.clone();
+
+        ValidatorInfo {
+            name,
+            protocol_key,
+            worker_key,
+            network_key,
+            account_address: HaneulAddress::from(&account_key),
+            gas_price: self.gas_price,
+            commission_rate: self.commission_rate,
+            network_address,
+            p2p_address: self.p2p_address.clone(),
+            narwhal_primary_address: self.narwhal_primary_address.clone(),
+            narwhal_worker_address: self.narwhal_worker_address.clone(),
+            description: String::new(),
+            image_url: String::new(),
+            project_url: String::new(),
         }
     }
 }

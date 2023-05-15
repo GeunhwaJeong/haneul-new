@@ -10,7 +10,6 @@ use rand::{rngs::StdRng, SeedableRng};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use haneul_config::builder::ConfigBuilder;
 use haneul_config::NodeConfig;
 use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
 use haneul_core::consensus_adapter::position_submit_certificate;
@@ -18,6 +17,7 @@ use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
+use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{

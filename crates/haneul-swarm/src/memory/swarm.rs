@@ -12,14 +12,15 @@ use std::{
     mem, ops,
     path::{Path, PathBuf},
 };
-use haneul_config::builder::{
-    CommitteeConfig, ConfigBuilder, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
-};
-use haneul_config::genesis_config::{AccountConfig, GenesisConfig, ValidatorGenesisConfig};
 use haneul_config::node::DBCheckpointConfig;
-use haneul_config::NetworkConfig;
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
+use haneul_swarm_config::genesis_config::{AccountConfig, GenesisConfig, ValidatorGenesisConfig};
+use haneul_swarm_config::network_config::NetworkConfig;
+use haneul_swarm_config::network_config_builder::FullnodeConfigBuilder;
+use haneul_swarm_config::network_config_builder::{
+    CommitteeConfig, ConfigBuilder, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
+};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::object::Object;
 use tempfile::TempDir;
@@ -203,8 +204,7 @@ impl<R: rand::RngCore + rand::CryptoRng> SwarmBuilder<R> {
             (0..self.fullnode_count).for_each(|_| {
                 let spvc = self.supported_protocol_versions_config.clone();
                 //let spvc = spvc.clone();
-                let mut config = network_config
-                    .fullnode_config_builder()
+                let mut config = FullnodeConfigBuilder::new(&network_config)
                     .with_supported_protocol_versions_config(spvc)
                     .with_db_checkpoint_config(self.db_checkpoint_config.clone())
                     .with_random_dir()
@@ -240,8 +240,7 @@ impl<R: rand::RngCore + rand::CryptoRng> SwarmBuilder<R> {
             .collect();
 
         let fullnodes = if let Some(fullnode_rpc_addr) = self.fullnode_rpc_addr {
-            let mut config = network_config
-                .fullnode_config_builder()
+            let mut config = FullnodeConfigBuilder::new(&network_config)
                 .with_supported_protocol_versions_config(self.supported_protocol_versions_config)
                 .set_event_store(self.with_event_store)
                 .with_random_dir()

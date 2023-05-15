@@ -3,9 +3,9 @@
 
 use std::path::PathBuf;
 use std::time::Duration;
-use haneul_config::NetworkConfig;
 use haneul_macros::*;
 use haneul_node::HaneulNodeHandle;
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::crypto::deterministic_random_account_key;

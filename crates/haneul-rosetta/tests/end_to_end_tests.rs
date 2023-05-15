@@ -6,7 +6,6 @@ use std::time::Duration;
 use serde_json::json;
 
 use rosetta_client::start_rosetta_test_server;
-use haneul_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
@@ -15,6 +14,7 @@ use haneul_rosetta::types::{
     SubAccount, SubAccountType, HaneulEnv,
 };
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
+use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
 use test_utils::network::TestClusterBuilder;

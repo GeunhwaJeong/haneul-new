@@ -424,7 +424,7 @@ async fn execute_pay_all_haneul(
     gas_budget: u64,
 ) -> PayHaneulTransactionBlockExecutionResult {
     let dir = tempfile::TempDir::new().unwrap();
-    let network_config = haneul_config::builder::ConfigBuilder::new(&dir)
+    let network_config = haneul_swarm_config::network_config_builder::ConfigBuilder::new(&dir)
         // TODO: fix numbers in tests to not depend on rgp being 1
         .with_reference_gas_price(1)
         .with_objects(

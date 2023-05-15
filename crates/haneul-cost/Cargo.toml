@@ -21,7 +21,8 @@ haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" 
 [dev-dependencies]
 insta = { version = "1.21.1", features = ["redactions", "json"] }
 test-utils = { path = "../test-utils" }
-haneul-config = {path = "../haneul-config"}
+haneul-config = { path = "../haneul-config" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-move-build = { path = "../haneul-move-build" }
 move-cli.workspace = true
 move-disassembler.workspace = true

@@ -69,6 +69,8 @@ narwhal-worker = { path = "../../narwhal/worker" }
 shared-crypto = { path = "../shared-crypto" }
 haneul-config = { path = "../haneul-config" }
 haneul-framework = { path = "../haneul-framework" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
+haneul-genesis-builder = { path = "../haneul-genesis-builder" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-macros = { path = "../haneul-macros" }
 haneul-move-build = { path = "../haneul-move-build" }

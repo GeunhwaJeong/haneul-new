@@ -21,10 +21,10 @@ use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
 };
 use haneul_config::transaction_deny_config::TransactionDenyConfig;
-use haneul_config::NetworkConfig;
 use haneul_macros::nondeterministic;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::IndexStore;
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::{AuthorityName, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::error::HaneulResult;
@@ -127,10 +127,11 @@ impl<'a> TestAuthorityBuilder<'a> {
     }
 
     pub async fn build(self) -> Arc<AuthorityState> {
-        let local_network_config = haneul_config::builder::ConfigBuilder::new_with_temp_dir()
-            // TODO: change the default to 1000 instead after fixing tests.
-            .with_reference_gas_price(self.reference_gas_price.unwrap_or(1))
-            .build();
+        let local_network_config =
+            haneul_swarm_config::network_config_builder::ConfigBuilder::new_with_temp_dir()
+                // TODO: change the default to 1000 instead after fixing tests.
+                .with_reference_gas_price(self.reference_gas_price.unwrap_or(1))
+                .build();
         let genesis = &self.genesis.unwrap_or(&local_network_config.genesis);
         let genesis_committee = genesis.committee().unwrap();
         let path = self.store_base_path.unwrap_or_else(|| {

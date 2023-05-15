@@ -28,6 +28,7 @@ haneul-indexer = { path = "../haneul-indexer" }
 haneul-faucet = { path = "../haneul-faucet" }
 haneul-swarm = { path = "../haneul-swarm" }
 haneul = { path = "../haneul" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
 haneul-move-build = { path = "../haneul-move-build" }
 haneul-sdk = { path = "../haneul-sdk" }

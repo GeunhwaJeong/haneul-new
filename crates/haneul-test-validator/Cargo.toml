@@ -21,4 +21,6 @@ haneul = { path = "../haneul" }
 haneul-cluster-test = { path = "../haneul-cluster-test" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-config = { path = "../haneul-config" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
+
 telemetry-subscribers.workspace = true

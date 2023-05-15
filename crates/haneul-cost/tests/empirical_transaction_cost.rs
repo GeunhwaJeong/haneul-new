@@ -3,9 +3,9 @@
 
 use insta::assert_json_snapshot;
 use std::{collections::BTreeMap, path::PathBuf};
-use haneul_config::NetworkConfig;
 use haneul_core::test_utils::make_transfer_object_transaction;
 use haneul_core::test_utils::make_transfer_haneul_transaction;
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::coin::PAY_JOIN_FUNC_NAME;
 use haneul_types::coin::PAY_MODULE_NAME;

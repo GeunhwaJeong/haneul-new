@@ -36,6 +36,7 @@ once_cell = "1.16"
 tap = "1.0"
 
 haneul-core = { path = "../haneul-core" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 haneul-storage = {path = "../haneul-storage" }
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }

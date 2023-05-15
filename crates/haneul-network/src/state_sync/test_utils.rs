@@ -3,7 +3,7 @@
 
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 use std::collections::HashMap;
-use haneul_config::NetworkConfig;
+use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::{
     base_types::AuthorityName,
     committee::{Committee, EpochId, StakeUnit},

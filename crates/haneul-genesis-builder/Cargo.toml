@@ -1,5 +1,5 @@
 [package]
-name = "haneul-config"
+name = "haneul-genesis-builder"
 version = "0.0.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
@@ -10,11 +10,13 @@ edition = "2021"
 anemo.workspace = true
 anyhow = { version = "1.0.64", features = ["backtrace"] }
 bcs = "0.1.4"
+camino = "1.1.1"
 csv = "1.2.1"
 dirs = "4.0.0"
 fastcrypto.workspace = true
 move-binary-format.workspace = true
 move-core-types.workspace = true
+move-vm-runtime.workspace = true
 once_cell = "1.16"
 rand = "0.8.5"
 serde = { version = "1.0.144", features = ["derive", "rc"] }
@@ -24,8 +26,14 @@ tempfile = "3.3.0"
 tracing = "0.1.36"
 prometheus = "0.13.3"
 
+# TODO use haneul-execution versioned crate
+haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
+haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
+
 narwhal-config = { path = "../../narwhal/config" }
 shared-crypto = { path = "../shared-crypto" }
+haneul-config = { path = "../haneul-config" }
+haneul-framework = { path = "../haneul-framework" }
 haneul-keys = { path = "../haneul-keys" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-storage = { path = "../haneul-storage" }

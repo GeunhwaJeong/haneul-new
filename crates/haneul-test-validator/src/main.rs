@@ -16,10 +16,10 @@ use haneul_cluster_test::{
     config::{ClusterTestOpt, Env},
     faucet::{FaucetClient, FaucetClientFactory},
 };
-use haneul_config::genesis_config::GenesisConfig;
 use haneul_config::{haneul_cluster_test_config_dir, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG};
 use haneul_faucet::{FaucetRequest, FixedAmountRequest};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
+use haneul_swarm_config::genesis_config::GenesisConfig;
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 

@@ -18,6 +18,7 @@ tower = "0.4.13"
 haneul-types = { path = "../haneul-types" }
 haneul-config = { path = "../haneul-config" }
 shared-crypto = { path = "../shared-crypto" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 
 haneullabs-network.workspace = true
 

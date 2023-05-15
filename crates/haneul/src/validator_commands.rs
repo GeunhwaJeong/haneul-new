@@ -9,7 +9,7 @@ use std::{
     fs,
     path::PathBuf,
 };
-use haneul_config::genesis::GenesisValidatorInfo;
+use haneul_genesis_builder::validator_info::GenesisValidatorInfo;
 
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
@@ -234,7 +234,7 @@ impl HaneulValidatorCommand {
                 let pop =
                     generate_proof_of_possession(&keypair, (&account_keypair.public()).into());
                 let validator_info = GenesisValidatorInfo {
-                    info: haneul_config::ValidatorInfo {
+                    info: haneul_genesis_builder::validator_info::ValidatorInfo {
                         name,
                         protocol_key: keypair.public().into(),
                         worker_key: worker_keypair.public().clone(),
