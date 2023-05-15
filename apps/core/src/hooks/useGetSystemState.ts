@@ -6,5 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 
 export function useGetSystemState() {
     const rpc = useRpcClient();
-    return useQuery(['system', 'state'], () => rpc.getLatestHaneulSystemState());
+    return useQuery({
+        queryKey: ['system', 'state'],
+        queryFn: () => rpc.getLatestHaneulSystemState(),
+    });
 }
