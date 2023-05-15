@@ -61,7 +61,7 @@ function MoveCall({ data }: TransactionProps<MoveCallHaneulTransaction>) {
                     label={`'${module}'`}
                 />
                 , function:{' '}
-                <span className="break-all text-haneul-dark">{func}</span>
+                <span className="break-all text-hero-dark">{func}</span>
                 {args && (
                     <span className="break-all">
                         , arguments: [{flattenHaneulArguments(args!)}]
