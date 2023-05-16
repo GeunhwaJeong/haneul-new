@@ -17,15 +17,15 @@ Additional resources:
  * [Haneul Compared to Other Blockchains](../learn/haneul-compared.md)
  * [Narwhal and Bullshark, Haneul's Consensus Engine](../learn/architecture/consensus.md)
 
-## Can I buy Haneul tokens?
+## Can I buy HANEUL tokens?
 
-HANEUL will be listed on public exchanges after the Mainnet launch.
+HANEUL is listed on public exchanges following the Mainnet launch.
 
 ## How can I join the Haneul network? How do I participate in the Haneul project?
 
 Join our [Discord](https://discord.gg/haneul) and follow our [Twitter](https://twitter.com/HaneulNetwork) for the latest updates and announcements.
 
-You can also join the [Move](https://discord.gg/8prNjUqyFj) and [Haneul](https://discord.gg/CVcnUzKYCB) developer channels in Discord.
+You can also join the [Move](https://discord.com/channels/916379725201563759/925108748551323649) and [Haneul](https://discord.com/channels/916379725201563759/955861929346355290) developer channels in Discord.
 
 ## Are you looking for partners?
 
