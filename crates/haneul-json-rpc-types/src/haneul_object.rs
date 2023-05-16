@@ -93,14 +93,15 @@ impl PartialOrd for HaneulObjectResponse {
 
 impl HaneulObjectResponse {
     pub fn move_object_bcs(&self) -> Option<&Vec<u8>> {
-        if let Some(data) = &self.data {
-            match &data.bcs {
-                Some(HaneulRawData::MoveObject(obj)) => Some(&obj.bcs_bytes),
-                _ => None,
-            };
+        match &self.data {
+            Some(HaneulObjectData {
+                bcs: Some(HaneulRawData::MoveObject(obj)),
+                ..
+            }) => Some(&obj.bcs_bytes),
+            _ => None,
         }
-        None
     }
+
     pub fn owner(&self) -> Option<Owner> {
         if let Some(data) = &self.data {
             return data.owner;
