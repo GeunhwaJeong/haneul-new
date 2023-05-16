@@ -31,4 +31,3 @@ haneul-move-build = { path = "../haneul-move-build" }
 haneul-core = { path = "../haneul-core", features = ["test-utils"] }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types", features = ["test-utils"] }
-haneul-replay = { path = "../haneul-replay" }

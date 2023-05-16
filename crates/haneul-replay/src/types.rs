@@ -20,8 +20,8 @@ use tokio::time::Duration;
 use tracing::error;
 
 // TODO: make these configurable
-pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(10_000);
-pub(crate) const RPC_TIMEOUT_ERR_NUM_RETRIES: u32 = 3;
+pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(1_000);
+pub(crate) const RPC_TIMEOUT_ERR_NUM_RETRIES: u32 = 2;
 pub(crate) const MAX_CONCURRENT_REQUESTS: usize = 1_000;
 
 // Struct tag used in system epoch change events
@@ -52,7 +52,7 @@ pub struct OnChainTransactionInfo {
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Error, Clone)]
-pub enum LocalExecError {
+pub enum ReplayEngineError {
     #[error("HaneulError: {:#?}", err)]
     HaneulError { err: HaneulError },
 
@@ -153,61 +153,64 @@ pub enum LocalExecError {
 
     #[error("Error getting dynamic fields loaded objects: {}", rpc_err)]
     UnableToGetDynamicFieldLoadedObjects { rpc_err: String },
+
+    #[error("Unsupported epoch in replay engine: {epoch}")]
+    EpochNotSupported { epoch: u64 },
 }
 
-impl From<HaneulObjectResponseError> for LocalExecError {
+impl From<HaneulObjectResponseError> for ReplayEngineError {
     fn from(err: HaneulObjectResponseError) -> Self {
         match err {
             HaneulObjectResponseError::NotExists { object_id } => {
-                LocalExecError::ObjectNotExist { id: object_id }
+                ReplayEngineError::ObjectNotExist { id: object_id }
             }
             HaneulObjectResponseError::Deleted {
                 object_id,
                 digest,
                 version,
-            } => LocalExecError::ObjectDeleted {
+            } => ReplayEngineError::ObjectDeleted {
                 id: object_id,
                 version,
                 digest,
             },
-            _ => LocalExecError::HaneulObjectResponseError { err },
+            _ => ReplayEngineError::HaneulObjectResponseError { err },
         }
     }
 }
 
-impl From<LocalExecError> for HaneulError {
-    fn from(err: LocalExecError) -> Self {
+impl From<ReplayEngineError> for HaneulError {
+    fn from(err: ReplayEngineError) -> Self {
         HaneulError::Unknown(format!("{:#?}", err))
     }
 }
 
-impl From<HaneulError> for LocalExecError {
+impl From<HaneulError> for ReplayEngineError {
     fn from(err: HaneulError) -> Self {
-        LocalExecError::HaneulError { err }
+        ReplayEngineError::HaneulError { err }
     }
 }
-impl From<HaneulRpcError> for LocalExecError {
+impl From<HaneulRpcError> for ReplayEngineError {
     fn from(err: HaneulRpcError) -> Self {
         match err {
             HaneulRpcError::RpcError(JsonRpseeError::RequestTimeout) => {
-                LocalExecError::HaneulRpcRequestTimeout
+                ReplayEngineError::HaneulRpcRequestTimeout
             }
-            _ => LocalExecError::HaneulRpcError {
+            _ => ReplayEngineError::HaneulRpcError {
                 err: format!("{:?}", err),
             },
         }
     }
 }
 
-impl From<UserInputError> for LocalExecError {
+impl From<UserInputError> for ReplayEngineError {
     fn from(err: UserInputError) -> Self {
-        LocalExecError::UserInputError { err }
+        ReplayEngineError::UserInputError { err }
     }
 }
 
-impl From<anyhow::Error> for LocalExecError {
+impl From<anyhow::Error> for ReplayEngineError {
     fn from(err: anyhow::Error) -> Self {
-        LocalExecError::GeneralError {
+        ReplayEngineError::GeneralError {
             err: format!("{:#?}", err),
         }
     }
@@ -232,11 +235,11 @@ pub enum ExecutionStoreEvent {
     ResourceResolverGetResource {
         address: AccountAddress,
         typ: StructTag,
-        result: Result<Option<Vec<u8>>, LocalExecError>,
+        result: Result<Option<Vec<u8>>, ReplayEngineError>,
     },
     ModuleResolverGetModule {
         module_id: ModuleId,
-        result: Result<Option<Vec<u8>>, LocalExecError>,
+        result: Result<Option<Vec<u8>>, ReplayEngineError>,
     },
     ObjectStoreGetObject {
         object_id: ObjectID,
@@ -249,6 +252,6 @@ pub enum ExecutionStoreEvent {
     },
     GetModuleGetModuleByModuleId {
         id: ModuleId,
-        result: Result<Option<CompiledModule>, LocalExecError>,
+        result: Result<Option<CompiledModule>, ReplayEngineError>,
     },
 }

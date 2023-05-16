@@ -11781,7 +11781,6 @@ dependencies = [
  "haneul-core",
  "haneul-move-build",
  "haneul-protocol-config",
- "haneul-replay",
  "haneul-types",
  "test-utils",
  "tokio",
