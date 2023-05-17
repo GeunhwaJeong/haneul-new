@@ -356,6 +356,8 @@ ExecutionFailureStatus:
           - max_size: U64
     29:
       CertificateDenied: UNIT
+    30:
+      HaneulMoveVerificationTimedout: UNIT
 ExecutionStatus:
   ENUM:
     0:

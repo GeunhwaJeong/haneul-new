@@ -29,10 +29,42 @@ pub fn haneul_verify_module_metered(
     one_time_witness_verifier::verify_module(module, fn_info_map)
 }
 
+/// Runs the Haneul verifier and checks if the error counts as a Haneul verifier timeout
+/// NOTE: this function only check if the verifier error is a timeout
+/// All other errors are ignored
+pub fn haneul_verify_module_metered_check_timeout_only(
+    config: &ProtocolConfig,
+    module: &CompiledModule,
+    fn_info_map: &FnInfoMap,
+    meter: &mut impl Meter,
+) -> Result<(), ExecutionError> {
+    // Checks if the error counts as a Haneul verifier timeout
+    if let Err(error) = haneul_verify_module_metered(config, module, fn_info_map, meter) {
+        if matches!(
+            error.kind(),
+            haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
+        ) {
+            return Err(error);
+        }
+    }
+    // Any other scenario, including a non-timeout error counts as Ok
+    Ok(())
+}
+
 pub fn haneul_verify_module_unmetered(
     config: &ProtocolConfig,
     module: &CompiledModule,
     fn_info_map: &FnInfoMap,
 ) -> Result<(), ExecutionError> {
-    haneul_verify_module_metered(config, module, fn_info_map, &mut DummyMeter)
+    haneul_verify_module_metered(config, module, fn_info_map, &mut DummyMeter).map_err(|err| {
+        // We must never see timeout error in execution
+        debug_assert!(
+            !matches!(
+                err.kind(),
+                haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
+            ),
+            "Unexpected timeout error in execution"
+        );
+        err
+    })
 }

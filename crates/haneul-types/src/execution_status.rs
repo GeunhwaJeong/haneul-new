@@ -171,6 +171,12 @@ pub enum ExecutionFailureStatus {
 
     #[error("Certificate is on the deny list")]
     CertificateDenied,
+
+    #[error(
+        "Haneul Move Bytecode Verification Timeout. \
+        Please run the Haneul Move Verifier for more information."
+    )]
+    HaneulMoveVerificationTimedout,
     // NOTE: if you want to add a new enum,
     // please add it at the end for Rust SDK backward compatibility.
 }
