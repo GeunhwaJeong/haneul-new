@@ -3,9 +3,10 @@
 Releases for the Haneul Devnet network are based on the `devnet` branch.
 
 ## Current Release
-* 23-05-08: [1.1.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-v1.1.0)
+* 23-05-17: [1.1.0](https://github.com/GeunhwaJeong/haneul/releases/tag/mainnet-v1.1.0)
 
 ## Past Releases
+* 23-05-08: [1.1.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-v1.1.0)
 * 23-05-02: [1.0.0](https://github.com/GeunhwaJeong/haneul/releases/tag/haneul-v1.0.0)
 * 23-04-24: [0.33.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.33.0)
 * 23-04-17: [0.32.0](https://github.com/GeunhwaJeong/haneul/releases/tag/devnet-0.32.0)
