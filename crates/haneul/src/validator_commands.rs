@@ -53,6 +53,10 @@ use haneul_types::crypto::{
 use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair};
 use haneul_types::transaction::{CallArg, ObjectArg, Transaction, TransactionData};
 
+#[path = "unit_tests/validator_tests.rs"]
+#[cfg(test)]
+mod validator_tests;
+
 const DEFAULT_GAS_BUDGET: u64 = 200_000_000; // 0.2 HANEUL
 
 #[derive(Parser)]
@@ -144,6 +148,21 @@ pub enum HaneulValidatorCommand {
         #[clap(name = "protocol-public-key", long)]
         protocol_public_key: AuthorityPublicKeyBytes,
     },
+    /// Print out the serialized data of a transaction that sets the gas price quote for a validator.
+    DisplayGasPriceUpdateRawTxn {
+        /// Address of the transaction sender.
+        #[clap(name = "sender-address", long)]
+        sender_address: HaneulAddress,
+        /// Object ID of a validator's OperationCap, used for setting gas price and reportng validators.
+        #[clap(name = "operation-cap-id", long)]
+        operation_cap_id: ObjectID,
+        /// Gas price to be set to.
+        #[clap(name = "new-gas-price", long)]
+        new_gas_price: u64,
+        /// Gas budget for this transaction.
+        #[clap(name = "gas-budget", long)]
+        gas_budget: Option<u64>,
+    },
 }
 
 #[derive(Serialize)]
@@ -158,6 +177,10 @@ pub enum HaneulValidatorCommandResponse {
     UpdateGasPrice(HaneulTransactionBlockResponse),
     ReportValidator(HaneulTransactionBlockResponse),
     SerializedPayload(String),
+    DisplayGasPriceUpdateRawTxn {
+        data: TransactionData,
+        serialized_data: String,
+    },
 }
 
 fn make_key_files(
@@ -402,6 +425,35 @@ impl HaneulValidatorCommand {
                 DEFAULT_EPOCH_ID.write(&mut intent_msg_bytes);
                 HaneulValidatorCommandResponse::SerializedPayload(Base64::encode(&intent_msg_bytes))
             }
+
+            HaneulValidatorCommand::DisplayGasPriceUpdateRawTxn {
+                sender_address,
+                operation_cap_id,
+                new_gas_price,
+                gas_budget,
+            } => {
+                let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
+                let (_status, _summary, cap_obj_ref) =
+                    get_cap_object_ref(context, Some(operation_cap_id)).await?;
+
+                let args = vec![
+                    CallArg::Object(ObjectArg::ImmOrOwnedObject(cap_obj_ref)),
+                    CallArg::Pure(bcs::to_bytes(&new_gas_price).unwrap()),
+                ];
+                let data = construct_unsigned_0x5_txn(
+                    context,
+                    sender_address,
+                    "request_set_gas_price",
+                    args,
+                    gas_budget,
+                )
+                .await?;
+                let serialized_data = Base64::encode(bcs::to_bytes(&data)?);
+                HaneulValidatorCommandResponse::DisplayGasPriceUpdateRawTxn {
+                    data,
+                    serialized_data,
+                }
+            }
         });
         ret
     }
@@ -542,13 +594,13 @@ async fn get_validator_summary_from_cap_id(
     Ok((status, summary))
 }
 
-async fn call_0x5(
+async fn construct_unsigned_0x5_txn(
     context: &mut WalletContext,
+    sender: HaneulAddress,
     function: &'static str,
     call_args: Vec<CallArg>,
     gas_budget: u64,
-) -> anyhow::Result<HaneulTransactionBlockResponse> {
-    let sender = context.active_address()?;
+) -> anyhow::Result<TransactionData> {
     let haneul_client = context.get_client().await?;
     let mut args = vec![CallArg::HANEUL_SYSTEM_MUT];
     args.extend(call_args);
@@ -558,7 +610,7 @@ async fn call_0x5(
         .await?;
 
     let gas_obj_ref = get_gas_obj_ref(sender, &haneul_client, gas_budget).await?;
-    let tx_data = TransactionData::new_move_call(
+    TransactionData::new_move_call(
         sender,
         HANEUL_SYSTEM_PACKAGE_ID,
         ident_str!("haneul_system").to_owned(),
@@ -569,7 +621,17 @@ async fn call_0x5(
         gas_budget,
         rgp,
     )
-    .unwrap();
+}
+
+async fn call_0x5(
+    context: &mut WalletContext,
+    function: &'static str,
+    call_args: Vec<CallArg>,
+    gas_budget: u64,
+) -> anyhow::Result<HaneulTransactionBlockResponse> {
+    let sender = context.active_address()?;
+    let tx_data =
+        construct_unsigned_0x5_txn(context, sender, function, call_args, gas_budget).await?;
     let signature =
         context
             .config
@@ -577,6 +639,7 @@ async fn call_0x5(
             .sign_secure(&sender, &tx_data, Intent::haneul_transaction())?;
     let transaction =
         Transaction::from_data(tx_data, Intent::haneul_transaction(), vec![signature]).verify()?;
+    let haneul_client = context.get_client().await?;
     haneul_client
         .quorum_driver_api()
         .execute_transaction_block(
@@ -616,6 +679,16 @@ impl Display for HaneulValidatorCommandResponse {
             }
             HaneulValidatorCommandResponse::SerializedPayload(response) => {
                 write!(writer, "Serialized payload: {}", response)?;
+            }
+            HaneulValidatorCommandResponse::DisplayGasPriceUpdateRawTxn {
+                data,
+                serialized_data,
+            } => {
+                write!(
+                    writer,
+                    "Transaction: {:?}, \nSerialized transaction: {:?}",
+                    data, serialized_data
+                )?;
             }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
@@ -681,7 +754,7 @@ pub enum ValidatorStatus {
     Pending,
 }
 
-async fn get_validator_summary(
+pub async fn get_validator_summary(
     client: &HaneulClient,
     validator_address: HaneulAddress,
 ) -> anyhow::Result<Option<(ValidatorStatus, HaneulValidatorSummary)>> {
