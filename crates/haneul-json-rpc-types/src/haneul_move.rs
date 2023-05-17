@@ -118,6 +118,14 @@ pub struct HaneulMoveNormalizedModule {
     pub exposed_functions: BTreeMap<String, HaneulMoveNormalizedFunction>,
 }
 
+impl PartialEq for HaneulMoveNormalizedModule {
+    fn eq(&self, other: &Self) -> bool {
+        self.file_format_version == other.file_format_version
+            && self.address == other.address
+            && self.name == other.name
+    }
+}
+
 impl From<NormalizedModule> for HaneulMoveNormalizedModule {
     fn from(module: NormalizedModule) -> Self {
         Self {
