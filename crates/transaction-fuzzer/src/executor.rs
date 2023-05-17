@@ -4,22 +4,21 @@
 // Copyright (c) The Diem Core Contributors
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{fmt::Debug, sync::Arc};
+use std::{fmt::Debug, path::PathBuf, sync::Arc};
+
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_core::{authority::AuthorityState, test_utils::send_and_confirm_transaction};
-use haneul_types::base_types::ObjectRef;
-use haneul_types::object::Owner;
-use haneul_types::transaction::TransactionData;
+use haneul_move_build::BuildConfig;
+use haneul_types::base_types::ObjectID;
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::error::HaneulError;
+use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::object::Object;
+use haneul_types::transaction::{TransactionData, VerifiedTransaction};
 use haneul_types::utils::to_sender_signed_transaction;
-use haneul_types::{error::HaneulError, object::Object, transaction::VerifiedTransaction};
 use tokio::runtime::Runtime;
 
 use crate::account_universe::{AccountCurrent, INITIAL_BALANCE};
-
-use std::path::PathBuf;
-use haneul_move_build::BuildConfig;
-use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 
 pub type ExecutionResult = Result<ExecutionStatus, HaneulError>;
 
@@ -28,7 +27,8 @@ fn build_test_modules(test_dir: &str) -> (Vec<u8>, Vec<Vec<u8>>) {
     path.extend(["data", test_dir]);
     let with_unpublished_deps = false;
     let hash_modules = true;
-    let package = BuildConfig::new_for_testing().build(path).unwrap();
+    let config = BuildConfig::new_for_testing();
+    let package = config.build(path).unwrap();
     (
         package
             .get_package_digest(with_unpublished_deps, hash_modules)
@@ -113,8 +113,9 @@ impl Executor {
     pub fn publish(
         &mut self,
         package_name: &str,
+        dep_ids: Vec<ObjectID>,
         account: &mut AccountCurrent,
-    ) -> (ObjectRef, ObjectRef) {
+    ) -> TransactionEffects {
         let (_, modules) = build_test_modules(package_name);
         // let gas_obj_ref = account.current_coins.last().unwrap().compute_object_reference();
         let gas_object = account.new_gas_object(self);
@@ -122,7 +123,7 @@ impl Executor {
             account.initial_data.account.address,
             gas_object.compute_object_reference(),
             modules,
-            vec![],
+            dep_ids,
             INITIAL_BALANCE,
             1,
         );
@@ -139,19 +140,7 @@ impl Executor {
             "{:?}",
             effects.status()
         );
-
-        let package = effects
-            .created()
-            .iter()
-            .find(|(_, owner)| matches!(owner, Owner::Immutable))
-            .unwrap();
-        let upgrade_cap = effects
-            .created()
-            .iter()
-            .find(|(_, owner)| matches!(owner, Owner::AddressOwner(_)))
-            .unwrap();
-
-        (package.0, upgrade_cap.0)
+        effects
     }
 
     pub fn execute_transactions(
