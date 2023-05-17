@@ -32,7 +32,7 @@ use haneul_types::multiaddr::Multiaddr;
 pub const DEFAULT_GRPC_CONCURRENCY_LIMIT: usize = 20000000000;
 
 /// Default gas price of 100 Geunhwa
-pub const DEFAULT_VALIDATOR_GAS_PRICE: u64 = 1000;
+pub const DEFAULT_VALIDATOR_GAS_PRICE: u64 = haneul_types::transaction::DEFAULT_VALIDATOR_GAS_PRICE;
 
 /// Default commission rate of 2%
 pub const DEFAULT_COMMISSION_RATE: u64 = 200;
