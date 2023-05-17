@@ -11,14 +11,32 @@ mod test {
 
     #[test]
     #[cfg_attr(msim, ignore)]
-    fn run_framework_move_unit_tests() {
-        for package in ["haneul-framework", "haneul-system"] {
-            check_move_unit_tests({
-                let mut buf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-                buf.extend(["..", "haneul-framework", "packages", package]);
-                buf
-            });
-        }
+    fn run_haneul_framework_tests() {
+        check_move_unit_tests({
+            let mut buf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            buf.extend(["..", "haneul-framework", "packages", "haneul-framework"]);
+            buf
+        });
+    }
+
+    #[test]
+    #[cfg_attr(msim, ignore)]
+    fn run_haneul_system_tests() {
+        check_move_unit_tests({
+            let mut buf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            buf.extend(["..", "haneul-framework", "packages", "haneul-system"]);
+            buf
+        });
+    }
+
+    #[test]
+    #[cfg_attr(msim, ignore)]
+    fn run_deepbook_tests() {
+        check_move_unit_tests({
+            let mut buf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            buf.extend(["..", "haneul-framework", "packages", "deepbook"]);
+            buf
+        });
     }
 
     #[test]
