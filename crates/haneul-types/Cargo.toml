@@ -51,6 +51,7 @@ shared-crypto = { path = "../shared-crypto" }
 haneullabs-network = { path = "../haneullabs-network" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 haneul-macros = { path = "../haneul-macros" }
+haneul-enum-compat-util = { path = "../haneul-enum-compat-util" }
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
 

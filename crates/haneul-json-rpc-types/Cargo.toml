@@ -18,6 +18,8 @@ itertools = "0.10.5"
 tracing = "0.1.36"
 bcs = "0.1.4"
 haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-macros = { path = "../haneul-macros" }
+haneul-enum-compat-util = { path = "../haneul-enum-compat-util" }
 enum_dispatch = "^0.3"
 
 move-binary-format.workspace = true
@@ -27,3 +29,6 @@ move-bytecode-utils.workspace = true
 haneul-types = { path = "../haneul-types" }
 haneul-json = { path = "../haneul-json" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
+
+[dev-dependencies]
+haneul-types = { path = "../haneul-types", features = ["test-utils"] }

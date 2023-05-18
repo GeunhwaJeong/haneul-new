@@ -18,12 +18,17 @@ use serde_with::serde_as;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::{Display, Formatter, Write};
+use haneul_macros::EnumVariantOrder;
 use tracing::warn;
 
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::HaneulStructTag;
 
 pub type HaneulMoveTypeParameterIndex = u16;
+
+#[cfg(test)]
+#[path = "unit_tests/haneul_move_tests.rs"]
+mod haneul_move_tests;
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub enum HaneulMoveAbility {
@@ -292,7 +297,7 @@ pub enum MoveFunctionArgType {
 }
 
 #[serde_as]
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq, EnumVariantOrder)]
 #[serde(untagged, rename = "MoveValue")]
 pub enum HaneulMoveValue {
     // u64 and u128 are converted to String to avoid overflow
@@ -393,7 +398,7 @@ fn to_bytearray(value: &[MoveValue]) -> Option<Vec<u8>> {
 }
 
 #[serde_as]
-#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq, EnumVariantOrder)]
 #[serde(untagged, rename = "MoveStruct")]
 pub enum HaneulMoveStruct {
     Runtime(Vec<HaneulMoveValue>),
