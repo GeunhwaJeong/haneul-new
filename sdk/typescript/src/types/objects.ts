@@ -16,6 +16,7 @@ import {
   union,
   is,
   nullable,
+  tuple,
 } from 'superstruct';
 import {
   ObjectId,
@@ -474,3 +475,31 @@ export type HaneulObjectResponseQuery = {
   filter?: HaneulObjectDataFilter;
   options?: HaneulObjectDataOptions;
 };
+
+export const ObjectRead = union([
+  object({
+    details: HaneulObjectData,
+    status: literal('VersionFound'),
+  }),
+  object({
+    details: ObjectId,
+    status: literal('ObjectNotExists'),
+  }),
+  object({
+    details: HaneulObjectRef,
+    status: literal('ObjectDeleted'),
+  }),
+  object({
+    details: tuple([ObjectId, number()]),
+    status: literal('VersionNotFound'),
+  }),
+  object({
+    details: object({
+      asked_version: number(),
+      latest_version: number(),
+      object_id: ObjectId,
+    }),
+    status: literal('VersionTooHigh'),
+  }),
+]);
+export type ObjectRead = Infer<typeof ObjectRead>;

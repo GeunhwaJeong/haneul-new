@@ -45,6 +45,7 @@ import {
   HaneulObjectResponseQuery,
   ValidatorsApy,
   MoveCallMetrics,
+  ObjectRead,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -391,6 +392,18 @@ export class JsonRpcProvider {
       'haneul_getObject',
       [input.id, input.options],
       HaneulObjectResponse,
+    );
+  }
+
+  async tryGetPastObject(input: {
+    id: ObjectId;
+    version: number;
+    options?: HaneulObjectDataOptions;
+  }): Promise<ObjectRead> {
+    return await this.client.requestWithType(
+      'haneul_tryGetPastObject',
+      [input.id, input.version, input.options],
+      ObjectRead,
     );
   }
 
