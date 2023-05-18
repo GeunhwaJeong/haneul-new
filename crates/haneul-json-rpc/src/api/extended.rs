@@ -5,8 +5,8 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee_proc_macros::rpc;
 
 use haneul_json_rpc_types::{
-    CheckpointedObjectID, EpochInfo, EpochPage, MoveCallMetrics, NetworkMetrics, QueryObjectsPage,
-    HaneulObjectResponseQuery,
+    AddressMetrics, CheckpointedObjectID, EpochInfo, EpochPage, MoveCallMetrics, NetworkMetrics,
+    QueryObjectsPage, HaneulObjectResponseQuery,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::haneul_serde::BigInt;
@@ -49,4 +49,10 @@ pub trait ExtendedApi {
     /// Return Network metrics
     #[method(name = "getMoveCallMetrics")]
     async fn get_move_call_metrics(&self) -> RpcResult<MoveCallMetrics>;
+
+    /// Address related metrics
+    #[method(name = "getLatestAddressMetrics")]
+    async fn get_latest_address_metrics(&self) -> RpcResult<AddressMetrics>;
+    #[method(name = "getCheckpointAddressMetrics")]
+    async fn get_checkpoint_address_metrics(&self, checkpoint: u64) -> RpcResult<AddressMetrics>;
 }
