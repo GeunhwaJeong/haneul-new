@@ -613,6 +613,10 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         signatures: Vec<String>,
     },
+
+    /// Query the chain identifier from the rpc endpoint.
+    #[clap(name = "chain-identifier")]
+    ChainIdentifier,
 }
 
 impl HaneulClientCommands {
@@ -1069,6 +1073,15 @@ impl HaneulClientCommands {
                     .collect();
                 HaneulClientCommandResult::Gas(coins)
             }
+            HaneulClientCommands::ChainIdentifier => {
+                let ci = context
+                    .get_client()
+                    .await?
+                    .read_api()
+                    .get_chain_identifier()
+                    .await?;
+                HaneulClientCommandResult::ChainIdentifier(ci)
+            }
             HaneulClientCommands::SplitCoin {
                 coin_id,
                 amounts,
@@ -1501,6 +1514,9 @@ impl Display for HaneulClientCommandResult {
                     writeln!(writer, " {0: ^66} | {1: ^11}", gas.id(), gas.value())?;
                 }
             }
+            HaneulClientCommandResult::ChainIdentifier(ci) => {
+                writeln!(writer, "{}", ci)?;
+            }
             HaneulClientCommandResult::SplitCoin(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
@@ -1746,6 +1762,7 @@ pub enum HaneulClientCommandResult {
     SyncClientState,
     NewAddress((HaneulAddress, String, SignatureScheme)),
     Gas(Vec<GasCoin>),
+    ChainIdentifier(String),
     SplitCoin(HaneulTransactionBlockResponse),
     MergeCoin(HaneulTransactionBlockResponse),
     Switch(SwitchResponse),

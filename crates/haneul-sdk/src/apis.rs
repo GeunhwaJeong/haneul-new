@@ -169,6 +169,10 @@ impl ReadApi {
             .await?)
     }
 
+    pub async fn get_chain_identifier(&self) -> HaneulRpcResult<String> {
+        Ok(self.api.http.get_chain_identifier().await?)
+    }
+
     /// Return a checkpoint
     pub async fn get_checkpoint(&self, id: CheckpointId) -> HaneulRpcResult<Checkpoint> {
         Ok(self.api.http.get_checkpoint(id).await?)
