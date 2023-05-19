@@ -101,7 +101,7 @@ export const HaneulTransaction = union([
 export const HaneulCallArg = union([
   object({
     type: literal('pure'),
-    valueType: optional(string()),
+    valueType: nullable(string()),
     value: HaneulJsonValue,
   }),
   object({
@@ -168,7 +168,7 @@ export const HaneulTransactionBlockData = object({
   messageVersion: literal('v1'),
   transaction: HaneulTransactionBlockKind,
   sender: HaneulAddress,
-  gasData: HaneulGasData, // this shit is diff bw wallet and explorer
+  gasData: HaneulGasData,
 });
 export type HaneulTransactionBlockData = Infer<typeof HaneulTransactionBlockData>;
 
