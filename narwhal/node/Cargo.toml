@@ -36,6 +36,7 @@ worker = { path = "../worker", package = "narwhal-worker" }
 eyre = "0.6.8"
 haneul-keys = { path = "../../crates/haneul-keys" }
 haneul-types = { path = "../../crates/haneul-types" }
+haneul-protocol-config = { path = "../../crates/haneul-protocol-config" }
 
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 haneullabs-network.workspace = true
