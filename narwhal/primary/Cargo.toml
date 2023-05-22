@@ -41,7 +41,6 @@ store = { path = "../../crates/typed-store", package = "typed-store" }
 haneul-macros = { path = "../../crates/haneul-macros" }
 haneullabs-network.workspace = true
 workspace-hack = { version = "0.1", path = "../../crates/workspace-hack" }
-haneul-protocol-config = { path = "../../crates/haneul-protocol-config" }
 
 haneullabs-common.workspace = true
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
