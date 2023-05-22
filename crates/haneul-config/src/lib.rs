@@ -21,7 +21,6 @@ pub use node::{ConsensusConfig, NodeConfig};
 
 const HANEUL_DIR: &str = ".haneul";
 pub const HANEUL_CONFIG_DIR: &str = "haneul_config";
-pub const HANEUL_CLUSTER_TEST_CONFIG_DIR: &str = "haneul_cluster_test_config";
 pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
@@ -39,25 +38,6 @@ pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {
         Some(config_env) => Ok(config_env.into()),
         None => match dirs::home_dir() {
             Some(v) => Ok(v.join(HANEUL_DIR).join(HANEUL_CONFIG_DIR)),
-            None => anyhow::bail!("Cannot obtain home directory path"),
-        },
-    }
-    .and_then(|dir| {
-        if !dir.exists() {
-            fs::create_dir_all(dir.clone())?;
-        }
-        Ok(dir)
-    })
-}
-
-pub fn haneul_cluster_test_config_dir() -> Result<PathBuf, anyhow::Error> {
-    match std::env::var_os("HANEUL_CONFIG_DIR") {
-        Some(config_env) => Ok(config_env.into()),
-        None => match dirs::home_dir() {
-            Some(v) => Ok(v
-                .join(HANEUL_DIR)
-                .join(HANEUL_CONFIG_DIR)
-                .join(HANEUL_CLUSTER_TEST_CONFIG_DIR)),
             None => anyhow::bail!("Cannot obtain home directory path"),
         },
     }

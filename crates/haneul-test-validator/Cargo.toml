@@ -17,10 +17,5 @@ http = { version = "0.2.8" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 haneul-faucet = { path = "../haneul-faucet" }
-haneul = { path = "../haneul" }
 haneul-cluster-test = { path = "../haneul-cluster-test" }
-haneul-keys = { path = "../haneul-keys" }
-haneul-config = { path = "../haneul-config" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
-
 telemetry-subscribers.workspace = true
