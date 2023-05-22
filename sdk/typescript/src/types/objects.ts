@@ -103,7 +103,7 @@ export type HaneulRawMovePackage = Infer<typeof HaneulRawMovePackage>;
 
 // TODO(chris): consolidate HaneulRawParsedData and HaneulRawObject using generics
 export const HaneulRawData = union([
-  assign(HaneulMoveObject, object({ dataType: literal('moveObject') })),
+  assign(HaneulRawMoveObject, object({ dataType: literal('moveObject') })),
   assign(HaneulRawMovePackage, object({ dataType: literal('package') })),
 ]);
 export type HaneulRawData = Infer<typeof HaneulRawData>;
