@@ -4,6 +4,7 @@
 import { SentryRpcClient } from '@haneullabs/core';
 import { Connection, JsonRpcProvider } from '@haneullabs/haneul.js';
 
+import { type WalletSigner } from './WalletSigner';
 import { BackgroundServiceSigner } from './background-client/BackgroundServiceSigner';
 import { queryClient } from './helpers/queryClient';
 import {
@@ -152,7 +153,7 @@ export default class ApiProvider {
     public getBackgroundSignerInstance(
         address: HaneulAddress,
         backgroundClient: BackgroundClient
-    ): SignerWithProvider {
+    ): WalletSigner {
         if (!this._signerByAddress.has(address)) {
             this._signerByAddress.set(
                 address,

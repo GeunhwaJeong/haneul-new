@@ -5,15 +5,16 @@ import {
     Ed25519PublicKey,
     type SerializedSignature,
     type SignatureScheme,
-    SignerWithProvider,
     type HaneulAddress,
     toSerializedSignature,
     type JsonRpcProvider,
 } from '@haneullabs/haneul.js';
 
+import { WalletSigner } from './WalletSigner';
+
 import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
 
-export class LedgerSigner extends SignerWithProvider {
+export class LedgerSigner extends WalletSigner {
     #haneulLedgerClient: HaneulLedgerClient | null;
     readonly #connectToLedger: () => Promise<HaneulLedgerClient>;
     readonly #derivationPath: string;
@@ -70,7 +71,7 @@ export class LedgerSigner extends SignerWithProvider {
         });
     }
 
-    connect(provider: JsonRpcProvider): SignerWithProvider {
+    connect(provider: JsonRpcProvider) {
         return new LedgerSigner(
             this.#connectToLedger,
             this.#derivationPath,

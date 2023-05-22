@@ -51,7 +51,6 @@ export function useGetNFTs(address?: HaneulAddress | null) {
             .filter(hasDisplayData)
             .map(({ data }) => data as HaneulObjectData) || []),
     ];
-
     return {
         data: nfts,
         isInitialLoading,
