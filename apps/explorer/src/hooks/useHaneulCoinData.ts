@@ -16,10 +16,10 @@ type CoinData = {
 };
 
 export function useHaneulCoinData() {
-    const makeAppsBackendRequest = useAppsBackend();
+    const { request } = useAppsBackend();
     return useQuery({
         queryKey: ['haneul-coin-data'],
-        queryFn: () => makeAppsBackendRequest<CoinData>('coins/haneul', {}),
+        queryFn: () => request<CoinData>('coins/haneul', {}),
         cacheTime: 24 * 60 * 60 * 1000,
         staleTime: Infinity,
     });

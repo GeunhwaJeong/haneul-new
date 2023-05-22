@@ -48,9 +48,14 @@ interface ValidatorIpInfo {
     isEU: boolean;
 }
 
-export interface ValidatorMapData {
+export interface ValidatorMapValidator {
     ipInfo?: ValidatorIpInfo;
     haneulAddress: string;
     name: string;
     votingPower: string;
+}
+
+export interface ValidatorMapResponse {
+    validators: ValidatorMapValidator[];
+    nodeCount?: number | null;
 }
