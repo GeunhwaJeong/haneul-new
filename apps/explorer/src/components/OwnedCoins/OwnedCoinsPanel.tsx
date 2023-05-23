@@ -1,12 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useOnScreen } from '@haneullabs/core';
+import { useOnScreen, useGetCoins } from '@haneullabs/core';
 import { useEffect, useRef } from 'react';
 
 import CoinItem from './CoinItem';
 
-import { useGetCoins } from '~/hooks/useGetCoins';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 
 type CoinsPanelProps = {

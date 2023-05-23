@@ -8,10 +8,10 @@ import type { HaneulAddress, PaginatedCoins, CoinStruct } from '@haneullabs/hane
 const MAX_COINS_PER_REQUEST = 100;
 
 // Fetch all coins for an address, this will keep calling the API until all coins are fetched
-export function useGetCoins(coinType: string, address?: HaneulAddress | null) {
+export function useGetAllCoins(coinType: string, address?: HaneulAddress | null) {
     const rpc = useRpcClient();
     return useQuery({
-        queryKey: ['get-coins', address, coinType],
+        queryKey: ['get-all-coins', address, coinType],
         queryFn: async () => {
             let cursor: string | null = null;
             const allData: CoinStruct[] = [];
@@ -36,5 +36,6 @@ export function useGetCoins(coinType: string, address?: HaneulAddress | null) {
             return allData;
         },
         enabled: !!address,
+        initialData: [],
     });
 }
