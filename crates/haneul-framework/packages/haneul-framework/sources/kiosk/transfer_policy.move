@@ -26,7 +26,7 @@ module haneul::transfer_policy {
     use std::option::{Self, Option};
     use std::type_name::{Self, TypeName};
     use haneul::package::{Self, Publisher};
-    use haneul::tx_context::TxContext;
+    use haneul::tx_context::{sender, TxContext};
     use haneul::object::{Self, ID, UID};
     use haneul::vec_set::{Self, VecSet};
     use haneul::dynamic_field as df;
@@ -109,10 +109,10 @@ module haneul::transfer_policy {
         TransferRequest { item, paid, from, receipts: vec_set::empty() }
     }
 
-    /// Register a type in the Kiosk system and receive an `TransferPolicyCap`
-    /// which is required to confirm kiosk deals for the `T`. If there's no
-    /// `TransferPolicyCap` available for use, the type can not be traded in
-    /// kiosks.
+    /// Register a type in the Kiosk system and receive a `TransferPolicy` and
+    /// a `TransferPolicyCap` for the type. The `TransferPolicy` is required to
+    /// confirm kiosk deals for the `T`. If there's no `TransferPolicy`
+    /// available for use, the type can not be traded in kiosks.
     public fun new<T>(
         pub: &Publisher, ctx: &mut TxContext
     ): (TransferPolicy<T>, TransferPolicyCap<T>) {
@@ -126,6 +126,15 @@ module haneul::transfer_policy {
             TransferPolicy { id, rules: vec_set::empty(), balance: balance::zero() },
             TransferPolicyCap { id: object::new(ctx), policy_id }
         )
+    }
+
+    /// Initialize the Tranfer Policy in the default scenario: Create and share
+    /// the `TransferPolicy`, transfer `TransferPolicyCap` to the transaction
+    /// sender.
+    entry fun default<T>(pub: &Publisher, ctx: &mut TxContext) {
+        let (policy, cap) = new<T>(pub, ctx);
+        haneul::transfer::share_object(policy);
+        haneul::transfer::transfer(cap, sender(ctx));
     }
 
     /// Withdraw some amount of profits from the `TransferPolicy`. If amount
