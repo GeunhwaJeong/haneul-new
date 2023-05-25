@@ -90,7 +90,7 @@ export const HaneulRawMoveObject = object({
   type: string(),
   hasPublicTransfer: boolean(),
   version: SequenceNumber,
-  bcsBytes: array(number()),
+  bcsBytes: string(),
 });
 export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
 
