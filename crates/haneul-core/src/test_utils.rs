@@ -17,6 +17,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
+use haneul_config::local_ip_utils;
 use haneul_framework::BuiltInFramework;
 use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
@@ -233,10 +234,10 @@ async fn init_genesis(
             network_key: network_key_pair.public().clone(),
             gas_price: 1,
             commission_rate: 0,
-            network_address: haneul_config::utils::new_tcp_network_address(),
-            p2p_address: haneul_config::utils::new_udp_network_address(),
-            narwhal_primary_address: haneul_config::utils::new_udp_network_address(),
-            narwhal_worker_address: haneul_config::utils::new_udp_network_address(),
+            network_address: local_ip_utils::new_local_tcp_address_for_testing(),
+            p2p_address: local_ip_utils::new_local_udp_address_for_testing(),
+            narwhal_primary_address: local_ip_utils::new_local_udp_address_for_testing(),
+            narwhal_worker_address: local_ip_utils::new_local_udp_address_for_testing(),
             description: String::new(),
             image_url: String::new(),
             project_url: String::new(),

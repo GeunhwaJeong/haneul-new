@@ -45,8 +45,10 @@
 use super::HaneulNode;
 use std::future::Future;
 use std::sync::Arc;
+use haneul_core::authority::AuthorityState;
 
 /// Wrap HaneulNode to allow correct access to HaneulNode in simulator tests.
+#[derive(Clone)]
 pub struct HaneulNodeHandle(Option<Arc<HaneulNode>>);
 
 impl HaneulNodeHandle {
@@ -61,6 +63,10 @@ impl HaneulNodeHandle {
     pub fn with<T>(&self, cb: impl FnOnce(&HaneulNode) -> T) -> T {
         let _guard = self.guard();
         cb(self.inner())
+    }
+
+    pub fn state(&self) -> Arc<AuthorityState> {
+        self.with(|haneul_node| haneul_node.state())
     }
 }
 

@@ -18,9 +18,8 @@ use fastcrypto::traits::{KeyPair, ToFromBytes};
 use move_core_types::ident_str;
 use shared_crypto::intent::Intent;
 use std::path::{Path, PathBuf};
-use haneul_config::node::KeyPairWithPath;
-use haneul_config::utils;
-use haneul_config::{node::AuthorityKeyPairWithPath, Config, NodeConfig, PersistedConfig};
+use haneul_config::node::{AuthorityKeyPairWithPath, KeyPairWithPath};
+use haneul_config::{local_ip_utils, Config, NodeConfig, PersistedConfig};
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockResponseOptions};
 use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
@@ -166,7 +165,8 @@ async fn update_next_epoch_metadata(
     let http = new_network_address.pop().unwrap();
     // pop out tcp
     new_network_address.pop().unwrap();
-    let new_port = utils::get_available_port("127.0.0.1");
+    let localhost = local_ip_utils::localhost_for_testing();
+    let new_port = local_ip_utils::get_available_port(&localhost);
     new_network_address.push(Protocol::Tcp(new_port));
     new_network_address.push(http);
     info!("New network address: {:?}", new_network_address);
@@ -177,7 +177,7 @@ async fn update_next_epoch_metadata(
     info!("Current P2P external address: {:?}", new_external_address);
     // pop out udp
     new_external_address.pop().unwrap();
-    let new_port = utils::get_available_port("127.0.0.1");
+    let new_port = local_ip_utils::get_available_port(&localhost);
     new_external_address.push(Protocol::Udp(new_port));
     info!("New P2P external address: {:?}", new_external_address);
     new_config.p2p_config.external_address = Some(new_external_address.clone());
@@ -194,7 +194,7 @@ async fn update_next_epoch_metadata(
     info!("Current primary address: {:?}", new_primary_addresses);
     // pop out udp
     new_primary_addresses.pop().unwrap();
-    let new_port = utils::get_available_port("127.0.0.1");
+    let new_port = local_ip_utils::get_available_port(&localhost);
     new_primary_addresses.push(Protocol::Udp(new_port));
     info!("New primary address: {:?}", new_primary_addresses);
 
@@ -211,7 +211,7 @@ async fn update_next_epoch_metadata(
     info!("Current worker address: {:?}", new_worker_addresses);
     // pop out udp
     new_worker_addresses.pop().unwrap();
-    let new_port = utils::get_available_port("127.0.0.1");
+    let new_port = local_ip_utils::get_available_port(&localhost);
     new_worker_addresses.push(Protocol::Udp(new_port));
     info!("New worker address:: {:?}", new_worker_addresses);
 

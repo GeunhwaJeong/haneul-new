@@ -35,8 +35,6 @@ haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" 
 haneullabs-metrics = { path = "../haneullabs-metrics"}
 shared-crypto = { path = "../shared-crypto" }
 
-haneullabs-network.workspace = true
-
 move-binary-format.workspace = true
 move-core-types.workspace = true
 move-package.workspace = true

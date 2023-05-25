@@ -36,6 +36,7 @@ haneul-storage = { path = "../haneul-storage" }
 haneul-types = { path = "../haneul-types" }
 haneul-genesis-builder = { path = "../haneul-genesis-builder" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
+
 [target.'cfg(msim)'.dependencies]
 haneul-simulator = { path = "../haneul-simulator" }
 

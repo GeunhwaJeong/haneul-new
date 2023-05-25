@@ -1187,6 +1187,11 @@ impl HaneulNode {
         );
         new_epoch_store
     }
+
+    #[cfg(msim)]
+    pub fn get_sim_node_id(&self) -> haneul_simulator::task::NodeId {
+        self.sim_node.id()
+    }
 }
 
 /// Notify state-sync that a new list of trusted peers are now available.
