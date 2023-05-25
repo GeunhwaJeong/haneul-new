@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFormatCoin } from '@haneullabs/core';
+import { useFormatCoin, useGetCoinBalance } from '@haneullabs/core';
 import { CheckFill16 } from '@haneullabs/icons';
 import { formatAddress, type HaneulAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 
-import { useGetCoinBalance } from '../../hooks';
+import { useCoinsReFetchingConfig } from '../../hooks';
 import { Text } from '_src/ui/app/shared/text';
 
 type LedgerAccountRowProps = {
@@ -18,7 +18,13 @@ export function LedgerAccountRow({
     isSelected,
     address,
 }: LedgerAccountRowProps) {
-    const { data: coinBalance } = useGetCoinBalance(HANEUL_TYPE_ARG, address);
+    const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
+    const { data: coinBalance } = useGetCoinBalance(
+        HANEUL_TYPE_ARG,
+        address,
+        refetchInterval,
+        staleTime
+    );
     const [totalAmount, totalAmountSymbol] = useFormatCoin(
         coinBalance?.totalBalance ?? 0,
         HANEUL_TYPE_ARG

@@ -6,6 +6,7 @@ import {
     useGetValidatorsApy,
     useGetSystemState,
     useCoinMetadata,
+    useGetCoinBalance,
 } from '@haneullabs/core';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
@@ -25,7 +26,7 @@ import { Text } from '_app/shared/text';
 import { IconTooltip } from '_app/shared/tooltip';
 import Alert from '_components/alert';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
-import { useAppSelector, useGetCoinBalance } from '_hooks';
+import { useAppSelector, useCoinsReFetchingConfig } from '_hooks';
 import { API_ENV } from '_src/shared/api-env';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import { FEATURES } from '_src/shared/experimentation/features';
@@ -55,9 +56,12 @@ export function DelegationDetailCard({
     } = useGetDelegatedStake(accountAddress || '');
 
     const apiEnv = useAppSelector(({ app }) => app.apiEnv);
+    const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
     const { data: haneulCoinBalance } = useGetCoinBalance(
         HANEUL_TYPE_ARG,
-        accountAddress
+        accountAddress,
+        refetchInterval,
+        staleTime
     );
     const { data: metadata } = useCoinMetadata(HANEUL_TYPE_ARG);
     // set minimum stake amount to 1 HANEUL
