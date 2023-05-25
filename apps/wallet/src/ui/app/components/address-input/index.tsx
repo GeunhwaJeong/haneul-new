@@ -7,7 +7,7 @@ import { useField, useFormikContext } from 'formik';
 import { useCallback, useMemo } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
-import { HANEUL_ADDRESS_VALIDATION } from './validation';
+import { useHaneulAddressValidation } from './validation';
 import { Text } from '_app/shared/text';
 import Alert from '_src/ui/app/components/alert';
 
@@ -27,19 +27,20 @@ export function AddressInput({
     const [field, meta] = useField(name);
 
     const { isSubmitting, setFieldValue } = useFormikContext();
+    const haneulAddressValidation = useHaneulAddressValidation();
 
     const disabled =
         forcedDisabled !== undefined ? forcedDisabled : isSubmitting;
     const handleOnChange = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(
         (e) => {
             const address = e.currentTarget.value;
-            setFieldValue(name, HANEUL_ADDRESS_VALIDATION.cast(address));
+            setFieldValue(name, haneulAddressValidation.cast(address));
         },
-        [setFieldValue, name]
+        [setFieldValue, name, haneulAddressValidation]
     );
     const formattedValue = useMemo(
-        () => HANEUL_ADDRESS_VALIDATION.cast(field?.value),
-        [field?.value]
+        () => haneulAddressValidation.cast(field?.value),
+        [field?.value, haneulAddressValidation]
     );
 
     const clearAddress = useCallback(() => {

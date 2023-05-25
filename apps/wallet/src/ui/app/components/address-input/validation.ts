@@ -1,22 +1,50 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
+import { type JsonRpcProvider, isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { useMemo } from 'react';
 import * as Yup from 'yup';
 
-export const HANEUL_ADDRESS_VALIDATION = Yup.string()
-    .ensure()
-    .trim()
-    .required()
-    .transform((value: string) =>
-        value.startsWith('0x') || value === '' || value === '0'
-            ? value
-            : `0x${value}`
-    )
-    .test(
-        'is-haneul-address',
-        // eslint-disable-next-line no-template-curly-in-string
-        'Invalid address. Please check again.',
-        (value) => isValidHaneulAddress(value)
-    )
-    .label("Recipient's address");
+export function createHaneulAddressValidation(
+    rpc: JsonRpcProvider,
+    haneulNSEnabled: boolean
+) {
+    const resolveCache = new Map<string, boolean>();
+
+    return Yup.string()
+        .ensure()
+        .trim()
+        .required()
+        .test(
+            'is-haneul-address',
+            'Invalid address. Please check again.',
+            async (value) => {
+                if (haneulNSEnabled && isHaneulNSName(value)) {
+                    if (resolveCache.has(value)) {
+                        return resolveCache.get(value)!;
+                    }
+
+                    const address = await rpc.resolveNameServiceAddress({
+                        name: value,
+                    });
+
+                    resolveCache.set(value, !!address);
+
+                    return !!address;
+                }
+
+                return isValidHaneulAddress(value);
+            }
+        )
+        .label("Recipient's address");
+}
+
+export function useHaneulAddressValidation() {
+    const rpc = useRpcClient();
+    const haneulNSEnabled = useHaneulNSEnabled();
+
+    return useMemo(() => {
+        return createHaneulAddressValidation(rpc, haneulNSEnabled);
+    }, [rpc, haneulNSEnabled]);
+}

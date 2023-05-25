@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Copy12 } from '@haneullabs/icons';
 import { formatAddress, type HaneulAddress } from '@haneullabs/haneul.js';
 
@@ -20,10 +21,12 @@ export function AccountAddress({ copyable, address }: AccountAddressProps) {
         copySuccessMessage: 'Address copied',
     });
 
+    const { data: domainName } = useResolveHaneulNSName(addressToShow);
+
     return addressToShow ? (
         <div className="flex flex-nowrap flex-row items-center gap-1">
             <Text variant="bodySmall" weight="medium" color="haneul-dark" mono>
-                {formatAddress(addressToShow)}
+                {domainName ?? formatAddress(addressToShow)}
             </Text>
             {copyable ? (
                 <Copy12

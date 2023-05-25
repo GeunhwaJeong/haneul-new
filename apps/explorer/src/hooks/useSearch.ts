@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient, useGetSystemState } from '@haneullabs/core';
+import {
+    useRpcClient,
+    useGetSystemState,
+    isHaneulNSName,
+    useHaneulNSEnabled,
+} from '@haneullabs/core';
 import {
     isValidTransactionDigest,
     isValidHaneulAddress,
@@ -79,7 +84,26 @@ const getResultsForCheckpoint = async (rpc: JsonRpcProvider, query: string) => {
     };
 };
 
-const getResultsForAddress = async (rpc: JsonRpcProvider, query: string) => {
+const getResultsForAddress = async (
+    rpc: JsonRpcProvider,
+    query: string,
+    haneulNSEnabled: boolean
+) => {
+    if (haneulNSEnabled && isHaneulNSName(query)) {
+        const resolved = await rpc.resolveNameServiceAddress({ name: query });
+        if (!resolved) return null;
+        return {
+            label: 'address',
+            results: [
+                {
+                    id: resolved,
+                    label: resolved,
+                    type: 'address',
+                },
+            ],
+        };
+    }
+
     const normalized = normalizeHaneulObjectId(query);
     if (!isValidHaneulAddress(normalized) || isGenesisLibAddress(normalized))
         return null;
@@ -144,6 +168,7 @@ const getResultsForValidatorByPoolIdOrHaneulAddress = async (
 export function useSearch(query: string) {
     const rpc = useRpcClient();
     const { data: systemStateSummery } = useGetSystemState();
+    const haneulNSEnabled = useHaneulNSEnabled();
 
     return useQuery({
         // eslint-disable-next-line @tanstack/query/exhaustive-deps
@@ -153,7 +178,7 @@ export function useSearch(query: string) {
                 await Promise.allSettled([
                     getResultsForTransaction(rpc, query),
                     getResultsForCheckpoint(rpc, query),
-                    getResultsForAddress(rpc, query),
+                    getResultsForAddress(rpc, query, haneulNSEnabled),
                     getResultsForObject(rpc, query),
                     getResultsForValidatorByPoolIdOrHaneulAddress(
                         systemStateSummery || null,

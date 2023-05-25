@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { isHaneulNSName } from '@haneullabs/core';
 import { formatAddress } from '@haneullabs/haneul.js';
 
 import ExplorerLink from '_components/explorer-link';
@@ -18,7 +19,7 @@ export function TxnAddressLink({ address }: TxnAddressLinkProps) {
             title="View on Haneul Explorer"
             showIcon={false}
         >
-            {formatAddress(address)}
+            {isHaneulNSName(address) ? address : formatAddress(address)}
         </ExplorerLink>
     );
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { getTransactionDigest, TransactionBlock } from '@haneullabs/haneul.js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,7 +25,11 @@ import { useQredoTransaction } from '_src/ui/app/hooks/useQredoTransaction';
 
 export function TransferNFTForm({ objectId }: { objectId: string }) {
     const activeAddress = useActiveAddress();
+    const rpc = useRpcClient();
+    const haneulNSEnabled = useHaneulNSEnabled();
     const validationSchema = createValidationSchema(
+        rpc,
+        haneulNSEnabled,
         activeAddress || '',
         objectId
     );
@@ -37,6 +42,17 @@ export function TransferNFTForm({ objectId }: { objectId: string }) {
             if (!to || !signer) {
                 throw new Error('Missing data');
             }
+
+            if (haneulNSEnabled && isHaneulNSName(to)) {
+                const address = await rpc.resolveNameServiceAddress({
+                    name: to,
+                });
+                if (!address) {
+                    throw new Error('HaneulNS name not found.');
+                }
+                to = address;
+            }
+
             const tx = new TransactionBlock();
             tx.transferObjects([tx.object(objectId)], tx.pure(to));
 
