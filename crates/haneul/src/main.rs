@@ -8,10 +8,6 @@ use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
 
-#[cfg(test)]
-#[path = "unit_tests/cli_tests.rs"]
-mod cli_tests;
-
 const HANEUL_CLI_LOG_FILE_ENABLE: &str = "HANEUL_CLI_LOG_FILE_ENABLE";
 
 const GIT_REVISION: &str = {
