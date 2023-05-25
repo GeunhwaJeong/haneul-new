@@ -3,7 +3,8 @@ name = "Examples"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { local = "../../../../../haneul-framework/packages/haneul-framework" }
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
+Invalid = { local = "../module_dependency_invalid" }
 Unpublished = { local = "../module_dependency_unpublished" }
 
 [addresses]
