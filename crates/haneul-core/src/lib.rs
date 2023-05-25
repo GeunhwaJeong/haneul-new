@@ -54,5 +54,3 @@ pub mod signature_verifier;
 
 pub mod runtime;
 mod transaction_signing_filter;
-
-pub const HANEUL_CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
