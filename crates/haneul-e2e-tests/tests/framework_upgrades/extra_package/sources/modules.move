@@ -7,7 +7,7 @@ module haneul_extra::msim_extra_1 {
     use haneul::tx_context::TxContext;
 
     struct S has key { id: UID }
-    
+
     fun init(ctx: &mut TxContext) {
         transfer::share_object(S {
             id: object::new(ctx)

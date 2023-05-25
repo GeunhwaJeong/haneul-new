@@ -75,6 +75,7 @@ members = [
     "crates/haneul-core",
     "crates/haneul-cost",
     "crates/haneul-cost-tables",
+    "crates/haneul-e2e-tests",
     "crates/haneul-enum-compat-util",
     "crates/haneul-faucet",
     "crates/haneul-framework",
