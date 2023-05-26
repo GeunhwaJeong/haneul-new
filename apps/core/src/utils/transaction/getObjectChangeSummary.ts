@@ -1,27 +1,37 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import {
-    type HaneulTransactionBlockResponse,
     type HaneulAddress,
-    type DryRunTransactionBlockResponse,
     HaneulObjectChangeTransferred,
     HaneulObjectChangeCreated,
     HaneulObjectChangeMutated,
     HaneulObjectChangePublished,
+    HaneulObjectChange,
+    DisplayFieldsResponse,
+    HaneulObjectChangeDeleted,
+    HaneulObjectChangeWrapped,
 } from '@haneullabs/haneul.js';
+import { groupByOwner } from './groupByOwner';
+import { HaneulObjectChangeTypes } from './types';
+
+export type WithDisplayFields<T> = T & { display?: DisplayFieldsResponse };
+export type HaneulObjectChangeWithDisplay = WithDisplayFields<HaneulObjectChange>;
+
+export type ObjectChanges = {
+    changesWithDisplay: HaneulObjectChangeWithDisplay[];
+    changes: HaneulObjectChange[];
+    ownerType: string;
+};
+export type ObjectChangesByOwner = Record<string, ObjectChanges>;
 
 export type ObjectChangeSummary = {
-    mutated: HaneulObjectChangeMutated[];
-    created: HaneulObjectChangeCreated[];
-    transferred: HaneulObjectChangeTransferred[];
-    published: HaneulObjectChangePublished[];
+    [K in HaneulObjectChangeTypes]: ObjectChangesByOwner;
 };
 
 export const getObjectChangeSummary = (
-    transaction: DryRunTransactionBlockResponse | HaneulTransactionBlockResponse,
+    objectChanges: HaneulObjectChangeWithDisplay[],
     currentAddress?: HaneulAddress | null
 ) => {
-    const { objectChanges } = transaction;
     if (!objectChanges) return null;
 
     const mutated = objectChanges.filter(
@@ -43,10 +53,20 @@ export const getObjectChangeSummary = (
         (change) => change.type === 'published'
     ) as HaneulObjectChangePublished[];
 
+    const wrapped = objectChanges.filter(
+        (change) => change.type === 'wrapped'
+    ) as HaneulObjectChangeWrapped[];
+
+    const deleted = objectChanges.filter(
+        (change) => change.type === 'deleted'
+    ) as HaneulObjectChangeDeleted[];
+
     return {
-        mutated,
-        created,
-        transferred,
-        published,
+        transferred: groupByOwner(transferred),
+        created: groupByOwner(created),
+        mutated: groupByOwner(mutated),
+        published: groupByOwner(published),
+        wrapped: groupByOwner(wrapped),
+        deleted: groupByOwner(deleted),
     };
 };

@@ -4,17 +4,11 @@
 import {
     useGetOwnedObjects,
     useGetOriginByteKioskContents,
+    hasDisplayData,
 } from '@haneullabs/core';
-import {
-    getObjectDisplay,
-    type HaneulObjectData,
-    type HaneulAddress,
-    type HaneulObjectResponse,
-} from '@haneullabs/haneul.js';
+import { type HaneulObjectData, type HaneulAddress } from '@haneullabs/haneul.js';
 
 import useAppSelector from './useAppSelector';
-
-const hasDisplayData = (obj: HaneulObjectResponse) => !!getObjectDisplay(obj).data;
 
 export function useGetNFTs(address?: HaneulAddress | null) {
     const {
