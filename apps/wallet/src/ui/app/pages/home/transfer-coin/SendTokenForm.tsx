@@ -157,8 +157,8 @@ export function SendTokenForm({
 
     const haneulCoins = haneulCoinsData;
     const coins = coinsData;
-    const coinBalance = CoinAPI.totalBalance(coins);
-    const haneulBalance = CoinAPI.totalBalance(haneulCoins);
+    const coinBalance = CoinAPI.totalBalance(coins || []);
+    const haneulBalance = CoinAPI.totalBalance(haneulCoins || []);
 
     const coinMetadata = useCoinMetadata(coinType);
     const coinDecimals = coinMetadata.data?.decimals ?? 0;

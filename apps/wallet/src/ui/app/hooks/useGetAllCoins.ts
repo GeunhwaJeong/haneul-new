@@ -35,8 +35,6 @@ export function useGetAllCoins(coinType: string, address?: HaneulAddress | null)
 
             return allData;
         },
-        enabled: !!address && !!coinType,
-        staleTime: 5000,
-        initialData: [],
+        enabled: !!address,
     });
 }
