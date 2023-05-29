@@ -208,7 +208,6 @@ export class HaneulWallet implements Wallet {
                 this.#events.emit('change', { accounts: this.accounts });
             }
         });
-        this.#connected();
     }
 
     #on: StandardEventsOnMethod = (event, listener) => {
