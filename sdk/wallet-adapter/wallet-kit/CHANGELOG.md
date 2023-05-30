@@ -1,5 +1,26 @@
 # @haneullabs/wallet-kit
 
+## 0.4.8
+
+### Patch Changes
+
+- 519d1a9d8d: fix key prop warning for accounts list dropdown
+- Updated dependencies [4ea96d909a]
+- Updated dependencies [bcbb178c44]
+- Updated dependencies [470c27af50]
+- Updated dependencies [83c7328d9b]
+- Updated dependencies [03828224c9]
+- Updated dependencies [671faefe3c]
+- Updated dependencies [9ce7e051b4]
+- Updated dependencies [9ce7e051b4]
+- Updated dependencies [bb50698551]
+  - @haneullabs/haneul.js@0.35.0
+  - @haneullabs/wallet-kit-core@0.4.8
+  - @haneullabs/wallet-adapter-base@0.7.8
+  - @haneullabs/wallet-adapter-unsafe-burner@0.8.8
+  - @haneullabs/wallet-adapter-wallet-standard@0.7.8
+  - @haneullabs/wallet-standard@0.5.8
+
 ## 0.4.7
 
 ### Patch Changes
