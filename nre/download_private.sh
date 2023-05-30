@@ -19,8 +19,8 @@ curl $url/haneul-indexer -o haneul-indexer
 curl $url/haneul-node -o haneul-node
 curl $url/haneul-tool -o haneul-tool
 
-echo "[+] Verifying haneul docker artifacts for $commit_sha ..."
+echo "[+] Verifying haneul binaries for $commit_sha ..."
 cosign verify-blob --insecure-ignore-tlog --key $pub_key --signature $url/haneul.sig haneul
 cosign verify-blob --insecure-ignore-tlog --key $pub_key --signature $url/haneul-indexer.sig haneul-indexer
 cosign verify-blob --insecure-ignore-tlog --key $pub_key --signature $url/haneul-node.sig haneul-node
-
+cosign verify-blob --insecure-ignore-tlog --key $pub_key --signature $url/haneul-tool.sig haneul-tool
