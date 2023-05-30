@@ -772,6 +772,7 @@ impl HaneulNode {
         narwhal_manager
             .start(
                 new_epoch_start_state.get_narwhal_committee(),
+                epoch_store.protocol_config().clone(),
                 worker_cache,
                 consensus_handler,
                 HaneulTxValidator::new(
