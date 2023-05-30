@@ -2,4 +2,4 @@
 title: Haneul Explorer
 ---
 
-This content moved to [Haneul Explorer](https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneullabs-haneul-explorer.md).
+This content moved to [Haneul Explorer](https://docs.haneul-labs.com/explorer).

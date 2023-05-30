@@ -28,7 +28,7 @@ export const footerLinks = [
     },
     {
         title: 'Docs',
-        href: 'https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneullabs-haneul-explorer.md',
+        href: 'https://docs.haneul-labs.com/explorer',
     },
     {
         title: 'GitHub',
