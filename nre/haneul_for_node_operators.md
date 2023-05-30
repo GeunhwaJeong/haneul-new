@@ -18,7 +18,7 @@ This document is focused on running the Haneul Node software as a Validator.
 - [Software Updates](#software-updates)
 - [State Sync](#state-sync)
 - [Chain Operations](#chain-operations)
-- [Private Security Fixes](#security-fixes)
+- [Private Security Fixes](#private-security-fixes)
 
 ## Deployment
 
@@ -68,7 +68,7 @@ Haneul Node uses the following ports by default:
 | ------------- | ---------------- | --------------------------------- |
 | TCP/8080      | inbound          | protocol/transaction interface    |
 | UDP/8081      | inbound/outbound | narwhal primary interface         |
-| UDP/8082      | inbound/outbound | narwhal worker interface         |
+| UDP/8082      | inbound/outbound | narwhal worker interface          |
 | TCP/8083      | localhost        | haneul -> narwhal interface          |
 | UDP/8084      | inbound/outbound | peer to peer state sync interface |
 | TCP/8443      | outbound         | metrics pushing                   |
@@ -195,7 +195,7 @@ Checkpoints in Haneul contain the permanent history of the network. They are com
 
 These checkpoints are synchronized between validators and fullnodes via a dedicated peer to peer state sync interface.
 
-Inter-validator state sync is always permitted however there are controls available to limit what fullnodes are allowed to sync from a specific validator. 
+Inter-validator state sync is always permitted however there are controls available to limit what fullnodes are allowed to sync from a specific validator.
 
 The default and recommended `max-concurrent-connections: 0` configuration does not affect inter-validator state sync, but will restrict all fullnodes from syncing. The Haneul Node [configuration](#configuration) can be modified to allow a known fullnode to sync from a validator:
 
@@ -231,10 +231,11 @@ It is recommended and often required that the `haneul` binary release/version ma
 You can leverage [Validator Tool](validator_tool.md) to perform majority of the following tasks.
 
 An active/pending validator can update its on-chain metadata by submitting a transaction. Some metadata changes take effect immediately, including:
-* name
-* description
-* image url
-* project url
+
+- name
+- description
+- image url
+- project url
 
 Other metadata (keys, addresses etc) only come into effect at the next epoch.
 
@@ -298,6 +299,7 @@ haneul client call --package 0x2 --module haneul_system --function request_add_v
 ```
 
 After an address becomes a validator candidate, any address (including the candidate address itself) can start staking with the candidate's staking pool. Refer to our dedicated staking FAQ on how staking works. Once a candidate's staking pool has accumulated at least `haneul_system::MIN_VALIDATOR_JOINING_STAKE` amount of stake, the candidate can call `haneul_system::request_add_validator` to officially add themselves to next epoch's active validator set:
+
 ```
 haneul client call --package 0x2 --module haneul_system --function request_add_validator --args 0x5 --gas-budget 10000
 ```
@@ -305,6 +307,7 @@ haneul client call --package 0x2 --module haneul_system --function request_add_v
 ### Leaving the Validator Set
 
 To leave the validator set starting next epoch, the sender needs to be an active validator in the current epoch and should call `haneul_system::request_remove_validator`:
+
 ```
 haneul client call --package 0x2 --module haneul_system --function request_remove_validator --args 0x5 --gas-budget 10000
 ```
@@ -321,4 +324,4 @@ Our public key to verify these binaries would be stored [here](https://haneul-pr
 We will also release a script that downloads all the necessary signed binaries and docker artifacts incorporating the security fixes.
 
 Usage
-```./download_private.sh <directory-name>```
+`./download_private.sh <directory-name>`
