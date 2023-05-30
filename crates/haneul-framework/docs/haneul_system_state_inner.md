@@ -1291,7 +1291,7 @@ Add stake to a validator's staking pool using multiple coins.
 Withdraw some portion of a stake from a validator's staking pool.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_withdraw_stake">request_withdraw_stake</a>(self: &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_withdraw_stake">request_withdraw_stake</a>(self: &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../../../.././build/Haneul/docs/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../../../.././build/Haneul/docs/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
 </code></pre>
 
 
@@ -1304,14 +1304,14 @@ Withdraw some portion of a stake from a validator's staking pool.
     self: &<b>mut</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>,
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
-) {
+) : Balance&lt;HANEUL&gt; {
     <b>assert</b>!(
         stake_activation_epoch(&staked_haneul) &lt;= <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx),
         <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_EStakeWithdrawBeforeActivation">EStakeWithdrawBeforeActivation</a>
     );
     <a href="validator_set.md#0x3_validator_set_request_withdraw_stake">validator_set::request_withdraw_stake</a>(
         &<b>mut</b> self.validators, staked_haneul, ctx,
-    );
+    )
 }
 </code></pre>
 

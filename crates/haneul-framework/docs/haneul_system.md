@@ -55,6 +55,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `request_add_stake`](#0x3_haneul_system_request_add_stake)
 -  [Function `request_add_stake_mul_coin`](#0x3_haneul_system_request_add_stake_mul_coin)
 -  [Function `request_withdraw_stake`](#0x3_haneul_system_request_withdraw_stake)
+-  [Function `request_withdraw_stake_non_entry`](#0x3_haneul_system_request_withdraw_stake_non_entry)
 -  [Function `report_validator`](#0x3_haneul_system_report_validator)
 -  [Function `undo_report_validator`](#0x3_haneul_system_undo_report_validator)
 -  [Function `rotate_operation_cap`](#0x3_haneul_system_rotate_operation_cap)
@@ -571,6 +572,36 @@ Withdraw some portion of a stake from a validator's staking pool.
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
 ) {
+    <b>let</b> withdrawn_stake = <a href="haneul_system.md#0x3_haneul_system_request_withdraw_stake_non_entry">request_withdraw_stake_non_entry</a>(wrapper, staked_haneul, ctx);
+    <a href="../../../.././build/Haneul/docs/transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(<a href="../../../.././build/Haneul/docs/coin.md#0x2_coin_from_balance">coin::from_balance</a>(withdrawn_stake, ctx), <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_sender">tx_context::sender</a>(ctx));
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_request_withdraw_stake_non_entry"></a>
+
+## Function `request_withdraw_stake_non_entry`
+
+Non-entry version of <code>request_withdraw_stake</code> that returns the withdrawn HANEUL instead of transferring it to the sender.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_request_withdraw_stake_non_entry">request_withdraw_stake_non_entry</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../../../.././build/Haneul/docs/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../../../.././build/Haneul/docs/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_request_withdraw_stake_non_entry">request_withdraw_stake_non_entry</a>(
+    wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    staked_haneul: StakedHaneul,
+    ctx: &<b>mut</b> TxContext,
+) : Balance&lt;HANEUL&gt; {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_withdraw_stake">haneul_system_state_inner::request_withdraw_stake</a>(self, staked_haneul, ctx)
 }

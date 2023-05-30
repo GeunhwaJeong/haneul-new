@@ -138,10 +138,9 @@ module haneul_system::staking_pool {
         pool: &mut StakingPool,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext
-    ) : u64 {
+    ) : Balance<HANEUL> {
         let (pool_token_withdraw_amount, principal_withdraw) =
             withdraw_from_principal(pool, staked_haneul);
-        let staker = tx_context::sender(ctx);
         let principal_withdraw_amount = balance::value(&principal_withdraw);
 
         let rewards_withdraw = withdraw_rewards(
@@ -157,8 +156,7 @@ module haneul_system::staking_pool {
 
         // TODO: implement withdraw bonding period here.
         balance::join(&mut principal_withdraw, rewards_withdraw);
-        transfer::public_transfer(coin::from_balance(principal_withdraw, ctx), staker);
-        total_haneul_withdraw_amount
+        principal_withdraw
     }
 
     /// Withdraw the principal HANEUL stored in the StakedHaneul object, and calculate the corresponding amount of pool

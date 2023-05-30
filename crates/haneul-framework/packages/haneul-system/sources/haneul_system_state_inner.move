@@ -533,14 +533,14 @@ module haneul_system::haneul_system_state_inner {
         self: &mut HaneulSystemStateInnerV2,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
-    ) {
+    ) : Balance<HANEUL> {
         assert!(
             stake_activation_epoch(&staked_haneul) <= tx_context::epoch(ctx),
             EStakeWithdrawBeforeActivation
         );
         validator_set::request_withdraw_stake(
             &mut self.validators, staked_haneul, ctx,
-        );
+        )
     }
 
     /// Report a validator as a bad or non-performant actor in the system.

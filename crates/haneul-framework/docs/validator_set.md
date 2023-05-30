@@ -918,7 +918,7 @@ staking pool's pending stake withdraw entries, processed at the end of the epoch
 the stake and any rewards corresponding to it will be immediately processed.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator_set.md#0x3_validator_set_request_withdraw_stake">request_withdraw_stake</a>(self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">validator_set::ValidatorSet</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator_set.md#0x3_validator_set_request_withdraw_stake">request_withdraw_stake</a>(self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">validator_set::ValidatorSet</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../../../.././build/Haneul/docs/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../../../.././build/Haneul/docs/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
 </code></pre>
 
 
@@ -931,19 +931,18 @@ the stake and any rewards corresponding to it will be immediately processed.
     self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">ValidatorSet</a>,
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
-) {
+) : Balance&lt;HANEUL&gt; {
     <b>let</b> staking_pool_id = pool_id(&staked_haneul);
-    // This is an active <a href="validator.md#0x3_validator">validator</a>.
-    <b>if</b> (<a href="../../../.././build/Haneul/docs/table.md#0x2_table_contains">table::contains</a>(&self.staking_pool_mappings, staking_pool_id)) {
-        <b>let</b> validator_address = *<a href="../../../.././build/Haneul/docs/table.md#0x2_table_borrow">table::borrow</a>(&self.staking_pool_mappings, pool_id(&staked_haneul));
-        <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="validator_set.md#0x3_validator_set_get_candidate_or_active_validator_mut">get_candidate_or_active_validator_mut</a>(self, validator_address);
-        <a href="validator.md#0x3_validator_request_withdraw_stake">validator::request_withdraw_stake</a>(<a href="validator.md#0x3_validator">validator</a>, staked_haneul, ctx);
-    } <b>else</b> { // This is an inactive pool.
-        <b>assert</b>!(<a href="../../../.././build/Haneul/docs/table.md#0x2_table_contains">table::contains</a>(&self.inactive_validators, staking_pool_id), <a href="validator_set.md#0x3_validator_set_ENoPoolFound">ENoPoolFound</a>);
-        <b>let</b> wrapper = <a href="../../../.././build/Haneul/docs/table.md#0x2_table_borrow_mut">table::borrow_mut</a>(&<b>mut</b> self.inactive_validators, staking_pool_id);
-        <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="validator_wrapper.md#0x3_validator_wrapper_load_validator_maybe_upgrade">validator_wrapper::load_validator_maybe_upgrade</a>(wrapper);
-        <a href="validator.md#0x3_validator_request_withdraw_stake">validator::request_withdraw_stake</a>(<a href="validator.md#0x3_validator">validator</a>, staked_haneul, ctx);
-    }
+    <b>let</b> <a href="validator.md#0x3_validator">validator</a> =
+        <b>if</b> (<a href="../../../.././build/Haneul/docs/table.md#0x2_table_contains">table::contains</a>(&self.staking_pool_mappings, staking_pool_id)) { // This is an active <a href="validator.md#0x3_validator">validator</a>.
+            <b>let</b> validator_address = *<a href="../../../.././build/Haneul/docs/table.md#0x2_table_borrow">table::borrow</a>(&self.staking_pool_mappings, pool_id(&staked_haneul));
+            <a href="validator_set.md#0x3_validator_set_get_candidate_or_active_validator_mut">get_candidate_or_active_validator_mut</a>(self, validator_address)
+        } <b>else</b> { // This is an inactive pool.
+            <b>assert</b>!(<a href="../../../.././build/Haneul/docs/table.md#0x2_table_contains">table::contains</a>(&self.inactive_validators, staking_pool_id), <a href="validator_set.md#0x3_validator_set_ENoPoolFound">ENoPoolFound</a>);
+            <b>let</b> wrapper = <a href="../../../.././build/Haneul/docs/table.md#0x2_table_borrow_mut">table::borrow_mut</a>(&<b>mut</b> self.inactive_validators, staking_pool_id);
+            <a href="validator_wrapper.md#0x3_validator_wrapper_load_validator_maybe_upgrade">validator_wrapper::load_validator_maybe_upgrade</a>(wrapper)
+        };
+    <a href="validator.md#0x3_validator_request_withdraw_stake">validator::request_withdraw_stake</a>(<a href="validator.md#0x3_validator">validator</a>, staked_haneul, ctx)
 }
 </code></pre>
 

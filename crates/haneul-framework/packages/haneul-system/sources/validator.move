@@ -354,11 +354,12 @@ module haneul_system::validator {
         self: &mut Validator,
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
-    ) {
+    ) : Balance<HANEUL> {
         let principal_amount = staking_pool::staked_haneul_amount(&staked_haneul);
         let stake_activation_epoch = staking_pool::stake_activation_epoch(&staked_haneul);
-        let withdraw_amount = staking_pool::request_withdraw_stake(
+        let withdrawn_stake = staking_pool::request_withdraw_stake(
                 &mut self.staking_pool, staked_haneul, ctx);
+        let withdraw_amount = balance::value(&withdrawn_stake);
         let reward_amount = withdraw_amount - principal_amount;
         self.next_epoch_stake = self.next_epoch_stake - withdraw_amount;
         event::emit(
@@ -371,7 +372,8 @@ module haneul_system::validator {
                 principal_amount,
                 reward_amount,
             }
-        )
+        );
+        withdrawn_stake
     }
 
     /// Request to set new gas price for the next epoch.

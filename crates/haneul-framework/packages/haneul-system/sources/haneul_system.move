@@ -41,7 +41,7 @@
 module haneul_system::haneul_system {
     use haneul::balance::Balance;
 
-    use haneul::coin::Coin;
+    use haneul::coin::{Self, Coin};
     use haneul::object::UID;
     use haneul_system::staking_pool::StakedHaneul;
     use haneul::haneul::HANEUL;
@@ -261,6 +261,16 @@ module haneul_system::haneul_system {
         staked_haneul: StakedHaneul,
         ctx: &mut TxContext,
     ) {
+        let withdrawn_stake = request_withdraw_stake_non_entry(wrapper, staked_haneul, ctx);
+        transfer::public_transfer(coin::from_balance(withdrawn_stake, ctx), tx_context::sender(ctx));
+    }
+
+    /// Non-entry version of `request_withdraw_stake` that returns the withdrawn HANEUL instead of transferring it to the sender.
+    public fun request_withdraw_stake_non_entry(
+        wrapper: &mut HaneulSystemState,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ) : Balance<HANEUL> {
         let self = load_system_state_mut(wrapper);
         haneul_system_state_inner::request_withdraw_stake(self, staked_haneul, ctx)
     }
