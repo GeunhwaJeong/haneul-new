@@ -89,7 +89,7 @@ export const HaneulRawMoveObject = object({
   /** Move type (e.g., "0x2::coin::Coin<0x2::haneul::HANEUL>") */
   type: string(),
   hasPublicTransfer: boolean(),
-  version: SequenceNumber,
+  version: number(),
   bcsBytes: string(),
 });
 export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
