@@ -10,12 +10,14 @@ use crate::crypto::{
     ToFromBytes,
 };
 use crate::digests::{CertificateDigest, SenderSignedDataDigest};
-use crate::message_envelope::{Envelope, Message, TrustedEnvelope, VerifiedEnvelope};
+use crate::message_envelope::{
+    get_google_jwk_bytes, Envelope, Message, TrustedEnvelope, VerifiedEnvelope,
+};
 use crate::messages_checkpoint::CheckpointTimestamp;
 use crate::messages_consensus::ConsensusCommitPrologue;
 use crate::object::{MoveObject, Object, Owner};
 use crate::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use crate::signature::{AuthenticatorTrait, GenericSignature};
+use crate::signature::{AuthenticatorTrait, AuxVerifyData, GenericSignature};
 use crate::{
     HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_PACKAGE_ID,
     HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
@@ -57,6 +59,7 @@ pub const DEFAULT_VALIDATOR_GAS_PRICE: u64 = 1000;
 const BLOCKED_MOVE_FUNCTIONS: [(ObjectID, &str, &str); 0] = [];
 
 #[cfg(test)]
+#[cfg(feature = "test-utils")]
 #[path = "unit_tests/messages_tests.rs"]
 mod messages_tests;
 
@@ -1733,7 +1736,7 @@ impl Message for SenderSignedData {
         TransactionDigest::new(default_hash(&self.intent_message().value))
     }
 
-    fn verify(&self, _sig_epoch: Option<EpochId>) -> HaneulResult {
+    fn verify(&self, sig_epoch: Option<EpochId>) -> HaneulResult {
         fp_ensure!(
             self.0.len() == 1,
             HaneulError::UserInputError {
@@ -1768,7 +1771,14 @@ impl Message for SenderSignedData {
 
         // Verify all present signatures.
         for (signer, signature) in present_sigs {
-            signature.verify_secure_generic(self.intent_message(), signer)?;
+            signature.verify_secure_generic(
+                self.intent_message(),
+                signer,
+                AuxVerifyData::new(
+                    sig_epoch,
+                    Some(get_google_jwk_bytes().read().unwrap().clone()),
+                ),
+            )?;
         }
         Ok(())
     }
