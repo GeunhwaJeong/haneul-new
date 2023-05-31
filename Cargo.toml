@@ -69,6 +69,7 @@ members = [
     "crates/shared-crypto",
     "crates/haneul",
     "crates/haneul-adapter-transactional-tests",
+    "crates/haneul-archival",
     "crates/haneul-benchmark",
     "crates/haneul-cluster-test",
     "crates/haneul-config",

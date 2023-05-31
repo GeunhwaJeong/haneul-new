@@ -19,7 +19,7 @@ use crate::authority::test_authority_builder::TestAuthorityBuilder;
 use crate::{
     authority::AuthorityState, checkpoints::CheckpointStore, state_accumulator::StateAccumulator,
 };
-use haneul_network::state_sync::test_utils::{empty_contents, CommitteeFixture};
+use haneul_swarm_config::test_utils::{empty_contents, CommitteeFixture};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 
 /// Test checkpoint executor happy path, test that checkpoint executor correctly
