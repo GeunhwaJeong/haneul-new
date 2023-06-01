@@ -33,6 +33,7 @@ use crate::haneul_serde::Readable;
 use crate::haneul_serde::{to_haneul_struct_tag_string, HexAccountAddress};
 use crate::transaction::Transaction;
 use crate::transaction::VerifiedTransaction;
+use crate::zk_login_authenticator::ZkLoginAuthenticator;
 use crate::MOVE_STDLIB_ADDRESS;
 use crate::HANEUL_CLOCK_OBJECT_ID;
 use crate::HANEUL_FRAMEWORK_ADDRESS;
@@ -42,6 +43,7 @@ use fastcrypto::encoding::decode_bytes_hex;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::AllowedRng;
+use fastcrypto_zkp::bn254::zk_login::big_int_str_to_bytes;
 use move_binary_format::binary_views::BinaryIndexedView;
 use move_binary_format::file_format::SignatureToken;
 use move_bytecode_utils::resolve_struct;
@@ -581,6 +583,20 @@ impl From<&MultiSigPublicKey> for HaneulAddress {
     }
 }
 
+/// Haneul address for [struct ZkLoginAuthenticator] is defined as the black2b hash of
+/// [zklogin_flag || bcs bytes of AddressParams || address seed in bytes] where
+/// AddressParams contains iss and key_claim_name.
+impl From<&ZkLoginAuthenticator> for HaneulAddress {
+    fn from(authenticator: &ZkLoginAuthenticator) -> Self {
+        let mut hasher = DefaultHash::default();
+        hasher.update([SignatureScheme::ZkLoginAuthenticator.flag()]);
+        // unwrap is safe here
+        hasher.update(bcs::to_bytes(&authenticator.get_address_params()).unwrap());
+        hasher.update(big_int_str_to_bytes(authenticator.get_address_seed()));
+        HaneulAddress(hasher.finalize().digest)
+    }
+}
+
 impl TryFrom<&GenericSignature> for HaneulAddress {
     type Error = HaneulError;
     /// Derive a HaneulAddress from a serialized signature in Haneul [GenericSignature].
@@ -597,6 +613,7 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
                 HaneulAddress::from(&pub_key)
             }
             GenericSignature::MultiSig(ms) => ms.get_pk().into(),
+            GenericSignature::ZkLoginAuthenticator(zklogin) => zklogin.into(),
         })
     }
 }
