@@ -38,8 +38,8 @@ use std::{
     path::Path,
     sync::Arc,
 };
+use haneul_adapter::adapter::new_move_vm;
 use haneul_adapter::execution_engine;
-use haneul_adapter::{adapter::new_move_vm, execution_mode};
 use haneul_core::{
     state_accumulator::{accumulate_effects, WrappedObject},
     transaction_input_checker::check_objects,
@@ -49,6 +49,7 @@ use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::execution_mode;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::MOVE_STDLIB_PACKAGE_ID;
 use haneul_types::{

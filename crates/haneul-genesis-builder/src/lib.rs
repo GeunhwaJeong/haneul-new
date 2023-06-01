@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
-use haneul_adapter::{adapter, execution_mode, programmable_transactions};
+use haneul_adapter::{adapter, programmable_transactions};
 use haneul_config::genesis::{
     Genesis, GenesisCeremonyParameters, GenesisChainParameters, TokenDistributionSchedule,
     UnsignedGenesis,
@@ -30,6 +30,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::epoch_data::EpochData;
+use haneul_types::execution_mode;
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::governance::StakedHaneul;

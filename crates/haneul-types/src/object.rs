@@ -23,8 +23,8 @@ use crate::error::{ExecutionError, ExecutionErrorKind, UserInputError, UserInput
 use crate::error::{HaneulError, HaneulResult};
 use crate::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use crate::is_system_package;
-use crate::layout_resolver::LayoutResolver;
 use crate::move_package::MovePackage;
+use crate::type_resolver::LayoutResolver;
 use crate::{
     base_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,

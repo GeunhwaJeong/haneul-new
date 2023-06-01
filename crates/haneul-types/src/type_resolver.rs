@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    error::HaneulError,
+    error::{ExecutionError, HaneulError},
     object::{MoveObject, ObjectFormatOptions},
 };
-use move_core_types::value::MoveStructLayout;
+use move_core_types::{language_storage::TypeTag, value::MoveStructLayout};
+use move_vm_types::loaded_data::runtime_types::Type;
 
 pub trait LayoutResolver {
     fn get_layout(
@@ -13,4 +14,8 @@ pub trait LayoutResolver {
         object: &MoveObject,
         format: ObjectFormatOptions,
     ) -> Result<MoveStructLayout, HaneulError>;
+}
+
+pub trait TypeTagResolver {
+    fn get_type_tag(&self, type_: &Type) -> Result<TypeTag, ExecutionError>;
 }

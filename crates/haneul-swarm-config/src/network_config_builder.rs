@@ -346,10 +346,10 @@ mod tests {
 mod test {
     use std::collections::HashSet;
     use std::sync::Arc;
-    use haneul_adapter::execution_mode;
     use haneul_config::genesis::Genesis;
     use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
     use haneul_types::epoch_data::EpochData;
+    use haneul_types::execution_mode;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::metrics::LimitsMetrics;
     use haneul_types::haneul_system_state::HaneulSystemStateTrait;

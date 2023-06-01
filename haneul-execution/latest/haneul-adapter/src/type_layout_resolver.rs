@@ -17,8 +17,8 @@ use haneul_types::object::Object;
 use haneul_types::storage::BackingPackageStore;
 use haneul_types::{
     error::HaneulError,
-    layout_resolver::LayoutResolver,
     object::{MoveObject, ObjectFormatOptions},
+    type_resolver::LayoutResolver,
 };
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
