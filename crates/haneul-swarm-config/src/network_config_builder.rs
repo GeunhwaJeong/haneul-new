@@ -348,7 +348,7 @@ mod test {
     use std::sync::Arc;
     use haneul_adapter::execution_mode;
     use haneul_config::genesis::Genesis;
-    use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+    use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
     use haneul_types::epoch_data::EpochData;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::metrics::LimitsMetrics;
@@ -375,7 +375,7 @@ mod test {
         let network_config = builder.build();
         let genesis = network_config.genesis;
         let protocol_version = ProtocolVersion::new(genesis.haneul_system_object().protocol_version());
-        let protocol_config = ProtocolConfig::get_for_version(protocol_version);
+        let protocol_config = ProtocolConfig::get_for_version(protocol_version, Chain::Unknown);
 
         let genesis_transaction = genesis.transaction().clone();
 

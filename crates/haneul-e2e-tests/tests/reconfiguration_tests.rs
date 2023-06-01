@@ -17,6 +17,7 @@ use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress};
@@ -279,7 +280,11 @@ async fn reconfig_with_revert_end_to_end_test() {
 #[sim_test]
 async fn test_passive_reconfig() {
     telemetry_subscribers::init_for_testing();
-    haneul_protocol_config::ProtocolConfig::poison_get_for_min_version();
+    let _commit_root_state_digest = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+        config.set_commit_root_state_digest_supported(true);
+        config
+    });
+    ProtocolConfig::poison_get_for_min_version();
 
     let test_cluster = TestClusterBuilder::new()
         .with_epoch_duration_ms(1000)
@@ -307,7 +312,7 @@ async fn test_passive_reconfig() {
                 .get_epoch_state_commitments(0)
                 .unwrap()
                 .unwrap();
-            assert_eq!(commitments.len(), 0);
+            assert_eq!(commitments.len(), 1);
         });
 }
 

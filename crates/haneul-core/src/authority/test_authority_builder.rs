@@ -27,6 +27,7 @@ use haneul_storage::IndexStore;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::{AuthorityName, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
+use haneul_types::digests::ChainIdentifier;
 use haneul_types::error::HaneulResult;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::object::Object;
@@ -193,6 +194,7 @@ impl<'a> TestAuthorityBuilder<'a> {
             cache_metrics,
             signature_verifier_metrics,
             &expensive_safety_checks,
+            ChainIdentifier::from(*genesis.checkpoint().digest()),
         );
 
         let committee_store = Arc::new(CommitteeStore::new(

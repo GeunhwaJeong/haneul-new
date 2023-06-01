@@ -36,10 +36,12 @@ use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
+use haneul_protocol_config::Chain;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::committee::EpochId;
+use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::error::ExecutionError;
@@ -1229,7 +1231,7 @@ impl LocalExec {
             .iter()
             .rev()
             .find(|(_, rg)| epoch_id >= rg.epoch_start)
-            .map(|(p, _rg)| Ok(ProtocolConfig::get_for_version((*p).into())))
+            .map(|(p, _rg)| Ok(ProtocolConfig::get_for_version((*p).into(), Chain::Unknown)))
             .unwrap_or_else(|| Err(ReplayEngineError::ProtocolVersionNotFound { epoch: epoch_id }))
     }
 
@@ -1387,8 +1389,10 @@ impl LocalExec {
 
         let epoch_id = dp.node_state_dump.executed_epoch;
 
-        let protocol_config =
-            ProtocolConfig::get_for_version(dp.node_state_dump.protocol_version.into());
+        let protocol_config = ProtocolConfig::get_for_version(
+            dp.node_state_dump.protocol_version.into(),
+            Chain::Unknown,
+        );
         // Extract the epoch start timestamp
         let (epoch_start_timestamp, reference_gas_price) =
             self.get_epoch_start_timestamp_and_rgp(epoch_id).await?;
@@ -1913,5 +1917,8 @@ async fn create_epoch_store(
         cache_metrics,
         signature_verifier_metrics,
         &ExpensiveSafetyCheckConfig::default(),
+        // TODO(william) use correct chain ID and generally make replayer
+        // work with chain specific configs
+        ChainIdentifier::from(CheckpointDigest::random()),
     )
 }

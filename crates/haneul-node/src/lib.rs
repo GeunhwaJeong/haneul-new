@@ -301,6 +301,7 @@ impl HaneulNode {
             cache_metrics,
             signature_verifier_metrics,
             &config.expensive_safety_check_config,
+            ChainIdentifier::from(*genesis.checkpoint().digest()),
         );
 
         // the database is empty at genesis time
@@ -310,7 +311,7 @@ impl HaneulNode {
             // an epoch and the HANEUL conservation check will fail. This also initialize
             // the expected_network_haneul_amount table.
             store
-                .expensive_check_haneul_conservation(epoch_store.move_vm())
+                .expensive_check_haneul_conservation(&epoch_store)
                 .expect("HANEUL conservation check cannot fail at genesis");
         }
 
