@@ -132,10 +132,19 @@ pub trait IndexerStore {
         is_descending: bool,
     ) -> Result<Vec<Transaction>, IndexerError>;
 
-    async fn get_transaction_page_by_sender_recipient_address(
+    async fn get_transaction_page_by_recipient_address(
         &self,
         sender_address: Option<HaneulAddress>,
         recipient_address: HaneulAddress,
+        start_sequence: Option<i64>,
+        limit: usize,
+        is_descending: bool,
+    ) -> Result<Vec<Transaction>, IndexerError>;
+
+    // `address` can be either sender or recipient address of the transaction
+    async fn get_transaction_page_by_address(
+        &self,
+        address: HaneulAddress,
         start_sequence: Option<i64>,
         limit: usize,
         is_descending: bool,
