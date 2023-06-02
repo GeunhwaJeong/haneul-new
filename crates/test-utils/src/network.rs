@@ -14,11 +14,10 @@ use rand::{distributions::*, rngs::OsRng, seq::SliceRandom};
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
-use haneul_json_rpc_types::{HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions};
+use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
-use haneul_sdk::error::HaneulRpcResult;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
@@ -329,19 +328,13 @@ impl TestCluster {
         }
     }
 
+    /// Execute a transaction on the network and wait for it to be executed on the rpc fullnode.
+    /// Also expects the effects status to be ExecutionStatus::Success.
     pub async fn execute_transaction(
         &self,
-        transaction: VerifiedTransaction,
-    ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
-        self.fullnode_handle
-            .haneul_client
-            .quorum_driver_api()
-            .execute_transaction_block(
-                transaction,
-                HaneulTransactionBlockResponseOptions::new().with_effects(),
-                None,
-            )
-            .await
+        tx: VerifiedTransaction,
+    ) -> HaneulTransactionBlockResponse {
+        self.wallet.execute_transaction_must_succeed(tx).await
     }
 
     #[cfg(msim)]

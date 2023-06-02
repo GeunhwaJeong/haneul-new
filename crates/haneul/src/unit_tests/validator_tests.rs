@@ -7,7 +7,6 @@ use crate::validator_commands::{
 use anyhow::Ok;
 use fastcrypto::encoding::{Base64, Encoding};
 use shared_crypto::intent::{Intent, IntentMessage};
-use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::transaction::TransactionData;
 use haneul_types::{
@@ -61,8 +60,7 @@ async fn test_print_raw_rgp_txn() -> Result<(), anyhow::Error> {
         Intent::haneul_transaction(),
         vec![signature],
     ));
-    let res: HaneulTransactionBlockResponse = context.execute_transaction_block(signed_txn).await?;
-    assert!(res.status_ok().unwrap());
+    context.execute_transaction_must_succeed(signed_txn).await;
     let (_, summary) = get_validator_summary(&haneul_client, validator_address)
         .await?
         .unwrap();

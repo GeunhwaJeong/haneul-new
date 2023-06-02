@@ -84,7 +84,7 @@ macro_rules! serialize_or_execute {
                 HaneulClientCommandResult::SerializedSignedTransaction(sender_signed_data)
             } else {
                 let transaction = Transaction::new(sender_signed_data).verify()?;
-                let response = $context.execute_transaction_block(transaction).await?;
+                let response = $context.execute_transaction_may_fail(transaction).await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
                     anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
                 })?;
@@ -201,7 +201,7 @@ pub enum HaneulClientCommands {
         serialize_signed_transaction: bool,
     },
 
-    /// Run the bytecode verifer on the package
+    /// Run the bytecode verifier on the package
     #[clap(name = "verify-bytecode-meter")]
     VerifyBytecodeMeter {
         /// Path to directory containing a Move package
@@ -1190,7 +1190,7 @@ impl HaneulClientCommands {
                     Transaction::from_generic_sig_data(data, Intent::haneul_transaction(), sigs)
                         .verify()?;
 
-                let response = context.execute_transaction_block(verified).await?;
+                let response = context.execute_transaction_may_fail(verified).await?;
                 HaneulClientCommandResult::ExecuteSignedTx(response)
             }
             HaneulClientCommands::NewEnv { alias, rpc, ws } => {
