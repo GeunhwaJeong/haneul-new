@@ -185,6 +185,10 @@
 				"fileName": "build/haneul-object-display"
 			},
 			{
+				"label": "Haneul Kiosk",
+				"fileName": "build/haneul-kiosk"
+			},
+			{
 				"label": "Create Smart Contracts with Move",
 				"fileName": "build/move/index",
 				"title": "Smart Contracts with Move",
