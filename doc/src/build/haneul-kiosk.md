@@ -12,7 +12,7 @@ To extend and customize Kiosk functionality, Haneul Kiosk also supports building
 A Haneul Kiosk is a single, typically shared `Kiosk` object. Each `Kiosk` object has a owned capability, `KioskOwnerCap`, to manage it. The `Kiosk` object provides a rich base for building custom extensions, such as creating a marketplace for your digital assets, while maintaining strong security and protected ownership of your assets . 
 
 
-To see all of the properties supported in Haneul Kiosk, see [Haneul Kiosk] (https://github.com/GeunhwaJeong/haneul/edit/main/crates/haneul-framework/docs/kiosk.md) in the Haneul Framework documentation.
+To see all of the properties supported in Haneul Kiosk, see [Haneul Kiosk](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/docs/kiosk.md) in the Haneul Framework documentation.
 
 ## Haneul Kiosk design principles
 
