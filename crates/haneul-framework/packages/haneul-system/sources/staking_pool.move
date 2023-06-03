@@ -8,7 +8,6 @@ module haneul_system::staking_pool {
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
     use haneul::object::{Self, ID, UID};
-    use haneul::coin;
     use haneul::math;
     use haneul::table::{Self, Table};
     use haneul::bag::Bag;
@@ -271,30 +270,6 @@ module haneul_system::staking_pool {
         assert!(!is_inactive(pool), EActivationOfInactivePool);
         // Fill in the active epoch.
         option::fill(&mut pool.activation_epoch, activation_epoch);
-    }
-
-    /// Withdraw stake from a preactive staking pool.
-    public(friend) fun request_withdraw_stake_preactive(
-        pool: &mut StakingPool,
-        staked_haneul: StakedHaneul,
-        ctx: &mut TxContext
-    ) : u64 {
-        // Check that the stake information matches the pool.
-        assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
-
-        assert!(is_preactive(pool), EPoolNotPreactive);
-
-        let staker = tx_context::sender(ctx);
-
-        let principal = unwrap_staked_haneul(staked_haneul);
-        let withdraw_amount = balance::value(&principal);
-        // The exchange rate is always 1:1 for a preactive pool so we decrement the
-        // same amount for both haneul_balance and pool_token_balance.
-        pool.haneul_balance = pool.haneul_balance - withdraw_amount;
-        pool.pool_token_balance = pool.pool_token_balance - withdraw_amount;
-
-        transfer::public_transfer(coin::from_balance(principal, ctx), staker);
-        withdraw_amount
     }
 
     // ==== inactive pool related ====
