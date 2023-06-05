@@ -24,12 +24,13 @@ use haneul_json_rpc_types::ProtocolConfigResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::TransactionFilter;
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DynamicFieldPage, EventPage,
-    MoveCallParams, MoveFunctionArgType, ObjectChange, ObjectValueKind::ByImmutableReference,
-    ObjectValueKind::ByMutableReference, ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef,
-    RPCTransactionRequestParams, HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus,
-    HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility, HaneulMoveAbilitySet,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DelegatedStake,
+    DynamicFieldPage, EventPage, MoveCallParams, MoveFunctionArgType, ObjectChange,
+    ObjectValueKind::ByImmutableReference, ObjectValueKind::ByMutableReference,
+    ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef, Page, RPCTransactionRequestParams,
+    Stake, StakeStatus, HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus,
+    HaneulGetPastObjectRequest, HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility,
+    HaneulMoveAbilitySet, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter,
     HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
     HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
@@ -140,6 +141,12 @@ impl RpcExampleProvider {
             self.haneulx_query_events(),
             self.haneulx_get_latest_haneul_system_state(),
             self.get_protocol_config(),
+            self.haneul_get_chain_identifier(),
+            self.haneulx_get_stakes(),
+            self.haneulx_get_stakes_by_ids(),
+            self.haneulx_resolve_name_service_address(),
+            self.haneulx_resolve_name_service_names(),
+            self.haneul_try_multi_get_past_objects(),
         ]
         .into_iter()
         .map(|example| (example.function_name, example.examples))
@@ -1380,6 +1387,200 @@ impl RpcExampleProvider {
             vec![ExamplePairing::new(
                 "Gets objects owned by the address in the request.",
                 vec![],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneul_get_chain_identifier(&mut self) -> Examples {
+        let result = "4c78adac".to_string();
+        Examples::new(
+            "haneul_getChainIdentifier",
+            vec![ExamplePairing::new(
+                "Gets the identifier for the chain receiving the POST.",
+                vec![],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_get_stakes(&mut self) -> Examples {
+        let principal = 200000000000;
+        let owner = HaneulAddress::from(ObjectID::new(self.rng.gen()));
+        let result = DelegatedStake {
+            validator_address: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+            staking_pool: ObjectID::new(self.rng.gen()),
+            stakes: vec![
+                Stake {
+                    staked_haneul_id: ObjectID::new(self.rng.gen()),
+                    stake_request_epoch: 62,
+                    stake_active_epoch: 63,
+                    principal,
+                    status: StakeStatus::Active {
+                        estimated_reward: (principal as f64 * 0.0026) as u64,
+                    },
+                },
+                Stake {
+                    staked_haneul_id: ObjectID::new(self.rng.gen()),
+                    stake_request_epoch: 142,
+                    stake_active_epoch: 143,
+                    principal,
+                    status: StakeStatus::Pending,
+                },
+                Stake {
+                    staked_haneul_id: ObjectID::new(self.rng.gen()),
+                    stake_request_epoch: 244,
+                    stake_active_epoch: 245,
+                    principal,
+                    status: StakeStatus::Unstaked,
+                },
+            ],
+        };
+        Examples::new(
+            "haneulx_getStakes",
+            vec![ExamplePairing::new(
+                "Returns the staking information for the address the request provides.",
+                vec![("owner", json!(owner))],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_get_stakes_by_ids(&mut self) -> Examples {
+        let principal = 200000000000;
+        let stake1 = ObjectID::new(self.rng.gen());
+        let stake2 = ObjectID::new(self.rng.gen());
+        let result = DelegatedStake {
+            validator_address: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+            staking_pool: ObjectID::new(self.rng.gen()),
+            stakes: vec![
+                Stake {
+                    staked_haneul_id: stake1,
+                    stake_request_epoch: 62,
+                    stake_active_epoch: 63,
+                    principal,
+                    status: StakeStatus::Active {
+                        estimated_reward: (principal as f64 * 0.0026) as u64,
+                    },
+                },
+                Stake {
+                    staked_haneul_id: stake2,
+                    stake_request_epoch: 244,
+                    stake_active_epoch: 245,
+                    principal,
+                    status: StakeStatus::Unstaked,
+                },
+            ],
+        };
+        Examples::new(
+            "haneulx_getStakesByIds",
+            vec![ExamplePairing::new(
+                "Returns the staking information for the address the request provides.",
+                vec![("staked_haneul_ids", json!(vec![stake1, stake2]))],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_resolve_name_service_address(&mut self) -> Examples {
+        let result = ObjectID::new(self.rng.gen());
+        Examples::new(
+            "haneulx_resolveNameServiceAddress",
+            vec![ExamplePairing::new(
+                "Returns the resolved address for the name the request provides.",
+                vec![("name", json!("example.haneul".to_string()))],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneulx_resolve_name_service_names(&mut self) -> Examples {
+        let next_cursor = Some(ObjectID::new(self.rng.gen()));
+        let object_id = ObjectID::new(self.rng.gen());
+        let result = Page {
+            data: vec!["example.haneul".to_string()],
+            next_cursor,
+            has_next_page: false,
+        };
+        Examples::new(
+            "haneulx_resolveNameServiceNames",
+            vec![ExamplePairing::new(
+                "Returns the HaneulNS name for the address the request provides. Currently, the API returns only the first name in cases where there are multiple. Future support will use the cursor ID and limit values in the request to control pagination of the response for addresses with multiple names.",
+                vec![
+                    ("address", json!(object_id)),
+                    ("cursor", json!(next_cursor)),
+                    ("limit", json!(3)),
+                ],
+                json!(result),
+            )],
+        )
+    }
+
+    fn haneul_try_multi_get_past_objects(&mut self) -> Examples {
+        let object_id = ObjectID::new(self.rng.gen());
+        let object_id2 = ObjectID::new(self.rng.gen());
+        let version = SequenceNumber::from_u64(4);
+        let version2 = SequenceNumber::from_u64(12);
+        let objects = vec![
+            HaneulGetPastObjectRequest { object_id, version },
+            HaneulGetPastObjectRequest {
+                object_id: object_id2,
+                version: version2,
+            },
+        ];
+        let coin = GasCoin::new(object_id, 10000);
+        let coin2 = GasCoin::new(object_id, 20000);
+        let result = vec![
+            HaneulPastObjectResponse::VersionFound(HaneulObjectData {
+                content: Some(
+                    HaneulParsedData::try_from_object(
+                        coin.to_object(SequenceNumber::from_u64(1)),
+                        GasCoin::layout(),
+                    )
+                    .unwrap(),
+                ),
+                owner: Some(Owner::AddressOwner(HaneulAddress::from(ObjectID::new(
+                    self.rng.gen(),
+                )))),
+                previous_transaction: Some(TransactionDigest::new(self.rng.gen())),
+                storage_rebate: Some(100),
+                object_id,
+                version: SequenceNumber::from_u64(4),
+                digest: ObjectDigest::new(self.rng.gen()),
+                type_: Some(ObjectType::Struct(MoveObjectType::gas_coin())),
+                bcs: None,
+                display: None,
+            }),
+            HaneulPastObjectResponse::VersionFound(HaneulObjectData {
+                content: Some(
+                    HaneulParsedData::try_from_object(
+                        coin2.to_object(SequenceNumber::from_u64(4)),
+                        GasCoin::layout(),
+                    )
+                    .unwrap(),
+                ),
+                owner: Some(Owner::AddressOwner(HaneulAddress::from(ObjectID::new(
+                    self.rng.gen(),
+                )))),
+                previous_transaction: Some(TransactionDigest::new(self.rng.gen())),
+                storage_rebate: Some(100),
+                object_id: object_id2,
+                version: version2,
+                digest: ObjectDigest::new(self.rng.gen()),
+                type_: Some(ObjectType::Struct(MoveObjectType::gas_coin())),
+                bcs: None,
+                display: None,
+            }),
+        ];
+
+        Examples::new(
+            "haneul_tryMultiGetPastObjects",
+            vec![ExamplePairing::new(
+                "Gets Past Object data for a vector of objects.",
+                vec![
+                    ("past_objects", json!(objects)),
+                    ("options", json!(HaneulObjectDataOptions::full_content())),
+                ],
                 json!(result),
             )],
         )
