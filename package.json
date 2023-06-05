@@ -13,6 +13,7 @@
     "sdk": "pnpm --filter ./sdk/typescript",
     "bcs": "pnpm --filter ./sdk/bcs",
     "kiosk": "pnpm --filter ./sdk/kiosk",
+    "haneulns": "pnpm --filter ./sdk/haneulns-toolkit",
     "changeset-version": "pnpm changeset version && pnpm sdk codegen:version"
   },
   "pnpm": {

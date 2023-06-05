@@ -1,11 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getObjectType, type ObjectOwner } from '@haneullabs/haneul.js';
+import {
+    getObjectType,
+    type ObjectOwner,
+    type HaneulObjectResponse,
+} from '@haneullabs/haneul.js';
 
 import { findIPFSvalue } from './stringUtils';
-
-import type { HaneulObjectResponse } from '@haneullabs/haneul.js';
 
 export function parseImageURL(display?: Record<string, string> | null) {
     const url = display?.image_url;

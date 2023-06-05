@@ -118,6 +118,7 @@ export const HaneulObjectResponseError = object({
   code: string(),
   error: optional(string()),
   object_id: optional(ObjectId),
+  parent_object_id: optional(ObjectId),
   version: optional(number()),
   digest: optional(ObjectDigest),
 });
