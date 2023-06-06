@@ -19,7 +19,7 @@ use haneul_json_rpc::api::{
     CoinReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient, WriteApiClient,
 };
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake,
+    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
     HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
@@ -34,7 +34,7 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
-use haneul_types::transaction::{TransactionData, VerifiedTransaction};
+use haneul_types::transaction::{TransactionData, TransactionKind, VerifiedTransaction};
 
 const WAIT_FOR_LOCAL_EXECUTION_RETRY_COUNT: u8 = 3;
 
@@ -259,6 +259,25 @@ impl ReadApi {
             .api
             .http
             .dry_run_transaction_block(Base64::from_bytes(&bcs::to_bytes(&tx)?))
+            .await?)
+    }
+
+    pub async fn dev_inspect_transaction_block(
+        &self,
+        sender_address: HaneulAddress,
+        tx: TransactionKind,
+        gas_price: Option<BigInt<u64>>,
+        epoch: Option<BigInt<u64>>,
+    ) -> HaneulRpcResult<DevInspectResults> {
+        Ok(self
+            .api
+            .http
+            .dev_inspect_transaction_block(
+                sender_address,
+                Base64::from_bytes(&bcs::to_bytes(&tx)?),
+                gas_price,
+                epoch,
+            )
             .await?)
     }
 
