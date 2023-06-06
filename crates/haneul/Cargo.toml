@@ -30,9 +30,11 @@ rusoto_kms = { version = "0.48.0", default_features=false, features=["rustls"] }
 prometheus = "0.13.3"
 git-version = "0.3.5"
 const-str = "0.5.3"
-
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 num-bigint = "0.4.3"
+
+move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
+haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
+haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 
 haneul-config = { path = "../haneul-config" }
 haneul-swarm-config = { path = "../haneul-swarm-config" }
@@ -47,7 +49,6 @@ haneul-source-validation = { path = "../haneul-source-validation" }
 haneul-move = { path = "../haneul-move", features = ["all"] }
 haneul-move-build = { path = "../haneul-move-build" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 shared-crypto = { path = "../shared-crypto" }
 
 fastcrypto.workspace = true
@@ -65,7 +66,6 @@ telemetry-subscribers.workspace = true
 
 move-core-types.workspace = true
 move-package.workspace = true
-move-bytecode-verifier.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 csv = "1.2.1"
 

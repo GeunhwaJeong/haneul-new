@@ -354,10 +354,7 @@ impl MoveObject {
     }
 
     /// Get the total amount of HANEUL embedded in `self`. Intended for testing purposes
-    pub fn get_total_haneul(
-        &self,
-        layout_resolver: &mut impl LayoutResolver,
-    ) -> Result<u64, HaneulError> {
+    pub fn get_total_haneul(&self, layout_resolver: &mut dyn LayoutResolver) -> Result<u64, HaneulError> {
         if self.type_.is_gas_coin() {
             // Fast path without deserialization.
             return Ok(self.get_coin_value_unsafe());
@@ -832,10 +829,7 @@ impl Object {
 // Testing-related APIs.
 impl Object {
     /// Get the total amount of HANEUL embedded in `self`, including both Move objects and the storage rebate
-    pub fn get_total_haneul(
-        &self,
-        layout_resolver: &mut impl LayoutResolver,
-    ) -> Result<u64, HaneulError> {
+    pub fn get_total_haneul(&self, layout_resolver: &mut dyn LayoutResolver) -> Result<u64, HaneulError> {
         Ok(self.storage_rebate
             + match &self.data {
                 Data::Move(m) => m.get_total_haneul(layout_resolver)?,

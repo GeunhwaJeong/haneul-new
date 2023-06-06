@@ -27,11 +27,11 @@ move-package.workspace = true
 move-prover-boogie-backend.workspace = true
 move-prover.workspace = true
 move-unit-test.workspace = true
-move-vm-runtime.workspace = true
 move-vm-test-utils.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
 
+move-vm-runtime = { path = "../../external-crates/move/move-vm/runtime" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
 
 haneul-core = { path = "../haneul-core", optional = true }

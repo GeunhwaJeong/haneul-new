@@ -1,0 +1,23 @@
+[package]
+name = "haneul-execution"
+version = "0.1.0"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "Multiplexer to choose between multiple versions of haneul and move execution crates."
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+haneul-protocol-config = { path = "../crates/haneul-protocol-config" }
+haneul-types = { path = "../crates/haneul-types" }
+
+move-bytecode-utils.workspace = true
+move-core-types.workspace = true
+
+haneul-adapter-latest = { path = "latest/haneul-adapter" }
+haneul-move-natives-latest = { path = "latest/haneul-move-natives" }
+haneul-verifier-latest = { path = "latest/haneul-verifier" }
+
+move-vm-runtime-latest = { path = "../external-crates/move/move-vm/runtime", package = "move-vm-runtime" }
+
+workspace-hack = { version = "0.1", path = "../crates/workspace-hack" }

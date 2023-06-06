@@ -13,6 +13,7 @@ use move_core_types::value::{MoveStructLayout, MoveTypeLayout};
 use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
+use haneul_types::execution::TypeLayoutStore;
 use haneul_types::object::Object;
 use haneul_types::storage::BackingPackageStore;
 use haneul_types::{
@@ -24,33 +25,25 @@ use haneul_types::{
 /// Retrieve a `MoveStructLayout` from a `Type`.
 /// Invocation into the `Session` to leverage the `LinkageView` implementation
 /// common to the runtime.
-pub struct TypeLayoutResolver<
-    'state,
-    'vm,
-    S: BackingPackageStore + ModuleResolver<Error = HaneulError>,
-> {
-    session: Session<'state, 'vm, LinkageView<NullHaneulResolver<S>>>,
+pub struct TypeLayoutResolver<'state, 'vm> {
+    session: Session<'state, 'vm, LinkageView<'state>>,
 }
 
 /// Implements HaneulResolver traits by providing null implementations for module and resource
-/// resolution and delegating backing package resolution to the wrapped type.
-struct NullHaneulResolver<S: BackingPackageStore + ModuleResolver<Error = HaneulError>>(S);
+/// resolution and delegating backing package resolution to the trait object.
+struct NullHaneulResolver<'state>(Box<dyn TypeLayoutStore + 'state>);
 
-impl<'state, 'vm, S: BackingPackageStore + ModuleResolver<Error = HaneulError>>
-    TypeLayoutResolver<'state, 'vm, S>
-{
-    pub fn new(vm: &'vm MoveVM, state_view: S) -> Self {
+impl<'state, 'vm> TypeLayoutResolver<'state, 'vm> {
+    pub fn new(vm: &'vm MoveVM, state_view: Box<dyn TypeLayoutStore + 'state>) -> Self {
         let session = new_session_for_linkage(
             vm,
-            LinkageView::new(NullHaneulResolver(state_view), LinkageInfo::Unset),
+            LinkageView::new(Box::new(NullHaneulResolver(state_view)), LinkageInfo::Unset),
         );
         Self { session }
     }
 }
 
-impl<'state, 'vm, S: BackingPackageStore + ModuleResolver<Error = HaneulError>> LayoutResolver
-    for TypeLayoutResolver<'state, 'vm, S>
-{
+impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
     fn get_layout(
         &mut self,
         object: &MoveObject,
@@ -77,17 +70,13 @@ impl<'state, 'vm, S: BackingPackageStore + ModuleResolver<Error = HaneulError>> 
     }
 }
 
-impl<S: BackingPackageStore + ModuleResolver<Error = HaneulError>> BackingPackageStore
-    for NullHaneulResolver<S>
-{
+impl<'state> BackingPackageStore for NullHaneulResolver<'state> {
     fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
         self.0.get_package_object(package_id)
     }
 }
 
-impl<S: BackingPackageStore + ModuleResolver<Error = HaneulError>> ModuleResolver
-    for NullHaneulResolver<S>
-{
+impl<'state> ModuleResolver for NullHaneulResolver<'state> {
     type Error = HaneulError;
 
     fn get_module(&self, id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
@@ -95,9 +84,7 @@ impl<S: BackingPackageStore + ModuleResolver<Error = HaneulError>> ModuleResolve
     }
 }
 
-impl<S: BackingPackageStore + ModuleResolver<Error = HaneulError>> ResourceResolver
-    for NullHaneulResolver<S>
-{
+impl<'state> ResourceResolver for NullHaneulResolver<'state> {
     type Error = HaneulError;
 
     fn get_resource(

@@ -14,23 +14,22 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::resolver::ModuleResolver;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
-use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
-use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
-use tokio::time::Instant;
-use tracing::{debug, info, trace};
-
 use haneul_protocol_config::ProtocolConfig;
 use haneul_storage::mutex_table::{MutexGuard, MutexTable, RwLockGuard, RwLockTable};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::error::UserInputError;
 use haneul_types::message_envelope::Message;
+use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::object::Owner;
 use haneul_types::storage::{
     get_module_by_id, BackingPackageStore, ChildObjectResolver, DeleteKind, ObjectKey, ObjectStore,
 };
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
+use tokio::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
+use tokio::time::Instant;
+use tracing::{debug, info, trace};
 use typed_store::rocks::{DBBatch, DBMap, TypedStoreError};
 use typed_store::traits::Map;
 
@@ -43,7 +42,6 @@ use crate::authority::epoch_start_configuration::{EpochFlag, EpochStartConfigura
 use super::authority_store_tables::LiveObject;
 use super::{authority_store_tables::AuthorityPerpetualTables, *};
 use haneullabs_common::sync::notify_read::NotifyRead;
-use haneul_adapter::type_layout_resolver::TypeLayoutResolver;
 use haneul_storage::package_object_cache::PackageObjectCache;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
@@ -1608,7 +1606,7 @@ impl AuthorityStore {
             return Ok(());
         }
 
-        let move_vm = old_epoch_store.move_vm();
+        let executor = old_epoch_store.executor();
         let chain_identifier = old_epoch_store.get_chain_identifier();
 
         let protocol_version = ProtocolVersion::new(
@@ -1641,7 +1639,7 @@ impl AuthorityStore {
                             let package_cache_clone = package_cache.clone();
                             pending_tasks.push(s.spawn(move || {
                                 let mut layout_resolver =
-                                    TypeLayoutResolver::new(move_vm, &package_cache_clone);
+                                    executor.type_layout_resolver(Box::new(&package_cache_clone));
                                 let mut total_storage_rebate = 0;
                                 let mut total_haneul = 0;
                                 for object in task_objects {
@@ -1649,7 +1647,7 @@ impl AuthorityStore {
                                     // get_total_haneul includes storage rebate, however all storage rebate is
                                     // also stored in the storage fund, so we need to subtract it here.
                                     total_haneul +=
-                                        object.get_total_haneul(&mut layout_resolver).unwrap()
+                                        object.get_total_haneul(layout_resolver.as_mut()).unwrap()
                                             - object.storage_rebate;
                                 }
                                 if count % 50_000_000 == 0 {
@@ -1667,11 +1665,11 @@ impl AuthorityStore {
                 (init.0 + result.0, init.1 + result.1)
             })
         });
-        let mut layout_resolver = TypeLayoutResolver::new(move_vm, self.as_ref());
+        let mut layout_resolver = executor.type_layout_resolver(Box::new(self.as_ref()));
         for object in pending_objects {
             total_storage_rebate += object.storage_rebate;
             total_haneul +=
-                object.get_total_haneul(&mut layout_resolver).unwrap() - object.storage_rebate;
+                object.get_total_haneul(layout_resolver.as_mut()).unwrap() - object.storage_rebate;
         }
         info!(
             "Scanned {} live objects, took {:?}",

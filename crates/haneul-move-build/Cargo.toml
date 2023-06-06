@@ -12,6 +12,7 @@ anyhow = { version = "1.0.64", features = ["backtrace"] }
 fastcrypto = { workspace = true }
 tempfile = "3.3.0"
 
+move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 
@@ -21,7 +22,6 @@ haneul-protocol-config = { path = "../haneul-protocol-config" }
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
-move-bytecode-verifier.workspace = true
 move-compiler.workspace = true
 move-core-types.workspace = true
 move-package.workspace = true

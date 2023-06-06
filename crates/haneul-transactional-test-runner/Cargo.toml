@@ -23,11 +23,11 @@ move-bytecode-utils.workspace = true
 move-command-line-common.workspace = true
 move-compiler.workspace = true
 move-core-types.workspace = true
-move-stdlib.workspace = true
 move-symbol-pool.workspace = true
 move-transactional-test-runner.workspace = true
-move-vm-runtime.workspace = true
 
+move-stdlib = { path = "../../external-crates/move/move-stdlib" }
+move-vm-runtime = { path = "../../external-crates/move/move-vm/runtime" }
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
 

@@ -18,12 +18,13 @@ use crate::{
     error::{ExecutionError, ExecutionErrorKind, HaneulError},
     execution_status::CommandArgumentError,
     object::Owner,
-    storage::{BackingPackageStore, ObjectChange},
+    storage::{BackingPackageStore, ChildObjectResolver, ObjectChange, StorageView},
 };
 
 pub trait HaneulResolver:
     ResourceResolver<Error = HaneulError> + ModuleResolver<Error = HaneulError> + BackingPackageStore
 {
+    fn as_backing_package_store(&self) -> &dyn BackingPackageStore;
 }
 
 impl<T> HaneulResolver for T
@@ -31,6 +32,38 @@ where
     T: ResourceResolver<Error = HaneulError>,
     T: ModuleResolver<Error = HaneulError>,
     T: BackingPackageStore,
+{
+    fn as_backing_package_store(&self) -> &dyn BackingPackageStore {
+        self
+    }
+}
+
+/// Interface with the store necessary to execute a programmable transaction
+pub trait ExecutionState: StorageView + HaneulResolver {
+    fn as_haneul_resolver(&self) -> &dyn HaneulResolver;
+    fn as_child_resolver(&self) -> &dyn ChildObjectResolver;
+}
+
+impl<T> ExecutionState for T
+where
+    T: StorageView,
+    T: HaneulResolver,
+{
+    fn as_haneul_resolver(&self) -> &dyn HaneulResolver {
+        self
+    }
+
+    fn as_child_resolver(&self) -> &dyn ChildObjectResolver {
+        self
+    }
+}
+
+/// View of the store necessary to produce the layouts of types.
+pub trait TypeLayoutStore: BackingPackageStore + ModuleResolver<Error = HaneulError> {}
+impl<T> TypeLayoutStore for T
+where
+    T: BackingPackageStore,
+    T: ModuleResolver<Error = HaneulError>,
 {
 }
 
