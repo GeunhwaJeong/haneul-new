@@ -3,12 +3,9 @@
 
 use clap::*;
 use colored::Colorize;
-use std::env;
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
-
-const HANEUL_CLI_LOG_FILE_ENABLE: &str = "HANEUL_CLI_LOG_FILE_ENABLE";
 
 const GIT_REVISION: &str = {
     if let Some(revision) = option_env!("GIT_REVISION") {
@@ -26,10 +23,6 @@ const GIT_REVISION: &str = {
     }
 };
 const VERSION: &str = const_str::concat!(env!("CARGO_PKG_VERSION"), "-", GIT_REVISION);
-
-pub fn read_log_file_flag_env() -> Option<u8> {
-    env::var(HANEUL_CLI_LOG_FILE_ENABLE).ok()?.parse::<u8>().ok()
-}
 
 #[derive(Parser)]
 #[clap(
@@ -53,13 +46,10 @@ async fn main() {
     let args = Args::parse();
     let _guard = match args.command {
         HaneulCommand::Console { .. } | HaneulCommand::Client { .. } => {
-            let mut t = telemetry_subscribers::TelemetryConfig::new().with_env();
-            if let Some(flag) = read_log_file_flag_env() {
-                if flag > 0 {
-                    t = t.with_log_file(&format!("{bin_name}.log"));
-                }
-            };
-            t.init()
+            telemetry_subscribers::TelemetryConfig::new()
+                .with_log_file(&format!("{bin_name}.log"))
+                .with_env()
+                .init()
         }
         _ => telemetry_subscribers::TelemetryConfig::new()
             .with_env()
