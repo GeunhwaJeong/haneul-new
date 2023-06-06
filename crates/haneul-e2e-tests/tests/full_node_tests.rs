@@ -1,18 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::sync::Arc;
-
 use futures::future;
 use jsonrpsee::core::client::{ClientT, Subscription, SubscriptionClientT};
 use jsonrpsee::rpc_params;
 use move_core_types::ident_str;
 use move_core_types::parser::parse_struct_tag;
 use move_core_types::value::MoveStructLayout;
-use haneullabs_metrics::RegistryService;
-use prometheus::Registry;
 use rand::rngs::OsRng;
 use serde_json::json;
+use std::sync::Arc;
 use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
 use haneul_json_rpc_types::{
     type_and_fields_from_move_struct, EventPage, HaneulEvent, HaneulExecutionStatus,
@@ -21,7 +18,7 @@ use haneul_json_rpc_types::{
 use haneul_json_rpc_types::{EventFilter, TransactionFilter};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
-use haneul_node::{HaneulNode, HaneulNodeHandle};
+use haneul_node::HaneulNodeHandle;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_tool::restore_from_db_checkpoint;
@@ -45,7 +42,6 @@ use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
 use haneul_types::HANEUL_CLOCK_OBJECT_ID;
-use test_utils::authority::test_and_configure_authority_configs;
 use test_utils::network::TestClusterBuilder;
 use test_utils::transaction::{wait_for_all_txes, wait_for_tx};
 use tokio::sync::Mutex;
@@ -843,17 +839,18 @@ async fn test_full_node_transaction_orchestrator_basic() -> Result<(), anyhow::E
 /// Test a validator node does not have transaction orchestrator
 #[tokio::test]
 async fn test_validator_node_has_no_transaction_orchestrator() {
-    let configs = test_and_configure_authority_configs(1);
-    let validator_config = &configs.validator_configs()[0];
-    let registry_service = RegistryService::new(Registry::new());
-    let node = HaneulNode::start(validator_config, registry_service, None)
-        .await
-        .unwrap();
-    assert!(node.transaction_orchestrator().is_none());
-    assert!(node
-        .subscribe_to_transaction_orchestrator_effects()
-        .is_err());
-    assert!(node.get_google_jwk_bytes().is_ok());
+    let test_cluster = TestClusterBuilder::new()
+        .with_num_validators(1)
+        .build()
+        .await;
+    let node_handle = test_cluster.swarm.validator_node_handles().pop().unwrap();
+    node_handle.with(|node| {
+        assert!(node.transaction_orchestrator().is_none());
+        assert!(node
+            .subscribe_to_transaction_orchestrator_effects()
+            .is_err());
+        assert!(node.get_google_jwk_bytes().is_ok());
+    });
 }
 
 #[sim_test]
