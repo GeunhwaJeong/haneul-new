@@ -10,11 +10,11 @@ use serde::{Deserialize, Serialize};
 use haneul_config::genesis::{GenesisCeremonyParameters, TokenAllocation};
 use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
 use haneul_config::{local_ip_utils, Config};
-use haneul_genesis_builder::validator_info::ValidatorInfo;
+use haneul_genesis_builder::validator_info::{GenesisValidatorInfo, ValidatorInfo};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes,
-    NetworkKeyPair, NetworkPublicKey, PublicKey, HaneulKeyPair,
+    generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
+    AuthorityPublicKeyBytes, NetworkKeyPair, NetworkPublicKey, PublicKey, HaneulKeyPair,
 };
 use haneul_types::multiaddr::Multiaddr;
 use tracing::info;
@@ -44,14 +44,14 @@ pub struct ValidatorGenesisConfig {
 }
 
 impl ValidatorGenesisConfig {
-    pub fn to_validator_info(&self, name: String) -> ValidatorInfo {
+    pub fn to_validator_info(&self, name: String) -> GenesisValidatorInfo {
         let protocol_key: AuthorityPublicKeyBytes = self.key_pair.public().into();
         let account_key: PublicKey = self.account_key_pair.public();
         let network_key: NetworkPublicKey = self.network_key_pair.public().clone();
         let worker_key: NetworkPublicKey = self.worker_key_pair.public().clone();
         let network_address = self.network_address.clone();
 
-        ValidatorInfo {
+        let info = ValidatorInfo {
             name,
             protocol_key,
             worker_key,
@@ -66,7 +66,18 @@ impl ValidatorGenesisConfig {
             description: String::new(),
             image_url: String::new(),
             project_url: String::new(),
+        };
+        let proof_of_possession =
+            generate_proof_of_possession(&self.key_pair, (&self.account_key_pair.public()).into());
+        GenesisValidatorInfo {
+            info,
+            proof_of_possession,
         }
+    }
+
+    /// Use validator public key as validator name.
+    pub fn to_validator_info_with_random_name(&self) -> GenesisValidatorInfo {
+        self.to_validator_info(self.key_pair.public().to_string())
     }
 }
 

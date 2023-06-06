@@ -4,13 +4,14 @@
 use move_core_types::ident_str;
 use shared_crypto::intent::Intent;
 use std::path::PathBuf;
+use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::BuildConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::{Signature, Signer};
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     CallArg, ObjectArg, Transaction, TransactionData, VerifiedTransaction,
-    TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    DEFAULT_VALIDATOR_GAS_PRICE, TEST_ONLY_GAS_UNIT_FOR_GENERIC, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::{TypeTag, HANEUL_SYSTEM_PACKAGE_ID};
 
@@ -105,6 +106,52 @@ impl TestTransactionBuilder {
                 CallArg::Object(ObjectArg::ImmOrOwnedObject(stake_coin)),
                 CallArg::Pure(bcs::to_bytes(&validator).unwrap()),
             ],
+        )
+    }
+
+    pub fn call_request_add_validator(self) -> Self {
+        self.move_call(
+            HANEUL_SYSTEM_PACKAGE_ID,
+            HANEUL_SYSTEM_MODULE_NAME.as_str(),
+            "request_add_validator",
+            vec![CallArg::HANEUL_SYSTEM_MUT],
+        )
+    }
+
+    pub fn call_request_add_validator_candidate(
+        self,
+        validator: &GenesisValidatorMetadata,
+    ) -> Self {
+        self.move_call(
+            HANEUL_SYSTEM_PACKAGE_ID,
+            HANEUL_SYSTEM_MODULE_NAME.as_str(),
+            "request_add_validator_candidate",
+            vec![
+                CallArg::HANEUL_SYSTEM_MUT,
+                CallArg::Pure(bcs::to_bytes(&validator.protocol_public_key).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.network_public_key).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.worker_public_key).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.proof_of_possession).unwrap()),
+                CallArg::Pure(bcs::to_bytes(validator.name.as_bytes()).unwrap()),
+                CallArg::Pure(bcs::to_bytes(validator.description.as_bytes()).unwrap()),
+                CallArg::Pure(bcs::to_bytes(validator.image_url.as_bytes()).unwrap()),
+                CallArg::Pure(bcs::to_bytes(validator.project_url.as_bytes()).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.network_address).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.p2p_address).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.primary_address).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&validator.worker_address).unwrap()),
+                CallArg::Pure(bcs::to_bytes(&DEFAULT_VALIDATOR_GAS_PRICE).unwrap()), // gas_price
+                CallArg::Pure(bcs::to_bytes(&0u64).unwrap()), // commission_rate
+            ],
+        )
+    }
+
+    pub fn call_request_remove_validator(self) -> Self {
+        self.move_call(
+            HANEUL_SYSTEM_PACKAGE_ID,
+            HANEUL_SYSTEM_MODULE_NAME.as_str(),
+            "request_remove_validator",
+            vec![CallArg::HANEUL_SYSTEM_MUT],
         )
     }
 

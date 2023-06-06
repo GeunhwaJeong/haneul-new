@@ -10462,6 +10462,7 @@ dependencies = [
  "bcs",
  "move-core-types",
  "shared-crypto",
+ "haneul-genesis-builder",
  "haneul-move-build",
  "haneul-types",
  "workspace-hack",

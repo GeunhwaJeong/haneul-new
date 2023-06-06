@@ -10,6 +10,7 @@ edition = "2021"
 bcs = "0.1.4"
 
 shared-crypto = { path = "../shared-crypto" }
+haneul-genesis-builder = { path = "../haneul-genesis-builder" }
 haneul-move-build = { path = "../haneul-move-build" }
 haneul-types = { path = "../haneul-types" }
 
