@@ -44,6 +44,7 @@ use haneullabs_network::server::ServerBuilder;
 use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
 use haneul_archival::writer::ArchiveWriterV1;
+use haneul_archival::StorageFormat;
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::node_config_metrics::NodeConfigMetrics;
 use haneul_config::{ConsensusConfig, NodeConfig};
@@ -388,6 +389,7 @@ impl HaneulNode {
                     local_store_config,
                     remote_store_config.clone(),
                     FileCompression::Zstd,
+                    StorageFormat::Blob,
                     Duration::from_secs(600),
                     1024 * 1024 * 1024,
                     &prometheus_registry,
