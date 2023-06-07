@@ -24,4 +24,4 @@ CHANGELOG.md
 
 /crates/haneul-core/src/consensus_adapter.rs @laura-makdah
 
-apps/* @HaneulLabs/fe-and-apps
+apps/ @HaneulLabs/fe-and-apps
