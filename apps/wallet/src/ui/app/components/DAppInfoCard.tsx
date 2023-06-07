@@ -4,13 +4,13 @@
 import { ArrowUpRight12 } from '@haneullabs/icons';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { cx } from 'class-variance-authority';
-import { useMemo } from 'react';
 
 import { Link } from '../shared/Link';
 import { Heading } from '../shared/heading';
 import { Text } from '../shared/text';
 import { AccountAddress } from './AccountAddress';
 import { SummaryCard } from './SummaryCard';
+import { getValidDAppUrl } from '_src/shared/utils';
 
 export type DAppInfoCardProps = {
     name: string;
@@ -18,20 +18,16 @@ export type DAppInfoCardProps = {
     iconUrl?: string;
     connectedAddress?: HaneulAddress;
 };
+
 export function DAppInfoCard({
     name,
     url,
     iconUrl,
     connectedAddress,
 }: DAppInfoCardProps) {
-    const hostname = useMemo(() => {
-        try {
-            return new URL(url).hostname;
-        } catch (e) {
-            // do nothing
-        }
-        return url;
-    }, [url]);
+    const validDAppUrl = getValidDAppUrl(url);
+    const appHostname = validDAppUrl?.hostname ?? url;
+
     return (
         <SummaryCard
             minimalPadding
@@ -62,7 +58,7 @@ export function DAppInfoCard({
                                 weight="medium"
                                 color="steel-dark"
                             >
-                                {hostname}
+                                {appHostname}
                             </Text>
                         </div>
                     </div>
@@ -74,7 +70,7 @@ export function DAppInfoCard({
                     >
                         <div>
                             <Link
-                                href={url}
+                                href={validDAppUrl?.toString() ?? url}
                                 title={name}
                                 text="View Website"
                                 after={<ArrowUpRight12 />}

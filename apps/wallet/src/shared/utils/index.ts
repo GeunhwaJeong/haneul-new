@@ -7,11 +7,14 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Browser from 'webextension-polyfill';
 
+import { getUrlWithDeviceId } from '../analytics/amplitude';
 import { trackPageview, trackEvent } from '../plausible';
 import { useAppSelector } from '_hooks';
 import { setAttributes } from '_src/shared/experimentation/features';
 
 export const MAIN_UI_URL = Browser.runtime.getURL('ui.html');
+
+const HANEULLABS_LABS_DAPPS = ['haneulfrens.com', 'haneulns.io'];
 
 export function openInNewTab() {
     return Browser.tabs.create({ url: MAIN_UI_URL });
@@ -53,6 +56,21 @@ export function isValidUrl(url: string | null) {
     } catch (e) {
         return false;
     }
+}
+
+export function getDAppUrl(appUrl: string) {
+    const url = new URL(appUrl);
+    const isHaneulLabsDApp = HANEULLABS_LABS_DAPPS.includes(url.hostname);
+    return isHaneulLabsDApp ? getUrlWithDeviceId(url) : url;
+}
+
+export function getValidDAppUrl(appUrl: string) {
+    try {
+        return getDAppUrl(appUrl);
+    } catch (error) {
+        /* empty */
+    }
+    return null;
 }
 
 export function prepareLinkToCompare(link: string) {

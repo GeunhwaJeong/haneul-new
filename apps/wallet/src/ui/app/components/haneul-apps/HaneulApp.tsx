@@ -7,6 +7,7 @@ import { useState } from 'react';
 import DisconnectApp from './DisconnectApp';
 import ExternalLink from '_components/external-link';
 import { trackEvent } from '_src/shared/plausible';
+import { getDAppUrl } from '_src/shared/utils';
 
 import st from './HaneulApp.module.scss';
 
@@ -33,7 +34,9 @@ export function HaneulApp({
     permissionID,
 }: HaneulAppProps) {
     const [showDisconnectApp, setShowDisconnectApp] = useState(false);
-    const originLabel = new URL(link).hostname;
+    const appUrl = getDAppUrl(link);
+    const originLabel = appUrl.hostname;
+
     const AppDetails = (
         <div className={cl(st.haneulApp, st[displayType])}>
             <div className={st.icon}>
@@ -85,7 +88,7 @@ export function HaneulApp({
                 </div>
             ) : (
                 <ExternalLink
-                    href={link}
+                    href={appUrl?.toString() ?? link}
                     title={name}
                     className={st.ecosystemApp}
                     onClick={() => {
