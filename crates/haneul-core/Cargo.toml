@@ -53,11 +53,6 @@ telemetry-subscribers.workspace = true
 typed-store-derive.workspace = true
 typed-store.workspace = true
 
-# TODO use haneul-execution versioned crate
-move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
-haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
-
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 narwhal-config = { path = "../../narwhal/config" }
 narwhal-crypto = { path = "../../narwhal/crypto" }

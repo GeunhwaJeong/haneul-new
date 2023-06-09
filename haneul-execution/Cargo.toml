@@ -11,8 +11,10 @@ edition = "2021"
 haneul-protocol-config = { path = "../crates/haneul-protocol-config" }
 haneul-types = { path = "../crates/haneul-types" }
 
+move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
 move-core-types.workspace = true
+move-vm-config.workspace = true
 
 haneul-adapter-latest = { path = "latest/haneul-adapter" }
 haneul-move-natives-latest = { path = "latest/haneul-move-natives" }

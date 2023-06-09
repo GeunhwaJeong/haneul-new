@@ -9326,7 +9326,6 @@ dependencies = [
  "more-asserts",
  "move-binary-format",
  "move-bytecode-utils",
- "move-bytecode-verifier",
  "move-core-types",
  "move-package",
  "move-symbol-pool",
@@ -9358,7 +9357,6 @@ dependencies = [
  "serde_yaml",
  "shared-crypto",
  "signature 1.6.4",
- "haneul-adapter-latest",
  "haneul-config",
  "haneul-execution",
  "haneul-framework",
@@ -9373,7 +9371,6 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-types",
- "haneul-verifier-latest",
  "tap",
  "telemetry-subscribers",
  "tempfile",
@@ -9488,8 +9485,10 @@ dependencies = [
 name = "haneul-execution"
 version = "0.1.0"
 dependencies = [
+ "move-binary-format",
  "move-bytecode-utils",
  "move-core-types",
+ "move-vm-config",
  "move-vm-runtime",
  "haneul-adapter-latest",
  "haneul-move-natives-latest",
@@ -9576,11 +9575,18 @@ dependencies = [
 name = "haneul-framework-tests"
 version = "0.1.0"
 dependencies = [
+ "move-bytecode-verifier",
  "move-cli",
  "move-package",
  "move-unit-test",
+ "prometheus",
+ "haneul-adapter-latest",
+ "haneul-framework",
  "haneul-move",
  "haneul-move-build",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-latest",
  "workspace-hack",
 ]
 

@@ -24,7 +24,7 @@ use prettytable::{row, table};
 use prometheus::Registry;
 use serde::Serialize;
 use serde_json::{json, Value};
-use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode_verifier_impl};
+use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode_verifier};
 use haneul_move::build::resolve_lock_file_path;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
@@ -775,7 +775,7 @@ impl HaneulClientCommands {
                 metered_verifier_config.max_per_mod_meter_units = None;
                 let mut meter = HaneulVerifierMeter::new(&metered_verifier_config);
                 println!("Running bytecode verifier for {} modules", modules.len());
-                run_metered_move_bytecode_verifier_impl(
+                run_metered_move_bytecode_verifier(
                     &modules,
                     &protocol_config,
                     &metered_verifier_config,
