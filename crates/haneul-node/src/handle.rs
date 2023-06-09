@@ -48,16 +48,21 @@ use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 
 /// Wrap HaneulNode to allow correct access to HaneulNode in simulator tests.
-#[derive(Clone)]
-pub struct HaneulNodeHandle(Option<Arc<HaneulNode>>);
+pub struct HaneulNodeHandle {
+    node: Option<Arc<HaneulNode>>,
+    shutdown_on_drop: bool,
+}
 
 impl HaneulNodeHandle {
     pub fn new(node: Arc<HaneulNode>) -> Self {
-        Self(Some(node))
+        Self {
+            node: Some(node),
+            shutdown_on_drop: false,
+        }
     }
 
-    fn inner(&self) -> &Arc<HaneulNode> {
-        self.0.as_ref().unwrap()
+    pub fn inner(&self) -> &Arc<HaneulNode> {
+        self.node.as_ref().unwrap()
     }
 
     pub fn with<T>(&self, cb: impl FnOnce(&HaneulNode) -> T) -> T {
@@ -67,6 +72,19 @@ impl HaneulNodeHandle {
 
     pub fn state(&self) -> Arc<AuthorityState> {
         self.with(|haneul_node| haneul_node.state())
+    }
+
+    pub fn shutdown_on_drop(&mut self) {
+        self.shutdown_on_drop = true;
+    }
+}
+
+impl Clone for HaneulNodeHandle {
+    fn clone(&self) -> Self {
+        Self {
+            node: self.node.clone(),
+            shutdown_on_drop: false,
+        }
     }
 }
 
@@ -89,7 +107,7 @@ impl HaneulNodeHandle {
 #[cfg(msim)]
 impl HaneulNodeHandle {
     fn guard(&self) -> haneul_simulator::runtime::NodeEnterGuard {
-        self.inner().sim_node.enter_node()
+        self.inner().sim_state.sim_node.enter_node()
     }
 
     pub async fn with_async<'a, F, R, T>(&'a self, cb: F) -> T
@@ -97,21 +115,20 @@ impl HaneulNodeHandle {
         F: FnOnce(&'a HaneulNode) -> R,
         R: Future<Output = T>,
     {
-        let fut = cb(self.0.as_ref().unwrap());
-        self.inner().sim_node.await_future_in_node(fut).await
+        let fut = cb(self.node.as_ref().unwrap());
+        self.inner()
+            .sim_state
+            .sim_node
+            .await_future_in_node(fut)
+            .await
     }
 }
 
 #[cfg(msim)]
 impl Drop for HaneulNodeHandle {
     fn drop(&mut self) {
-        let node_id = self.inner().sim_node.id();
-        // Shut down the sim node, but only if we were the last holder of a reference to the haneul
-        // node.
-        let haneul_node_arc = self.0.take().unwrap();
-        let haneul_node = Arc::downgrade(&haneul_node_arc);
-        drop(haneul_node_arc);
-        if haneul_node.upgrade().is_none() {
+        if self.shutdown_on_drop {
+            let node_id = self.inner().sim_state.sim_node.id();
             haneul_simulator::runtime::Handle::try_current().map(|h| h.delete_node(node_id));
         }
     }
