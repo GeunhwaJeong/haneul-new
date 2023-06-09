@@ -143,6 +143,7 @@ members = [
     "narwhal/types",
     "narwhal/worker",
     "haneul-execution",
+    "haneul-execution/cut",
     "haneul-execution/latest/haneul-adapter",
     "haneul-execution/latest/haneul-move-natives",
     "haneul-execution/latest/haneul-verifier",
