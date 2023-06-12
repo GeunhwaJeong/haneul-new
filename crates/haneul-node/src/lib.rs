@@ -43,8 +43,7 @@ use haneullabs_metrics::{spawn_monitored_task, RegistryService};
 use haneullabs_network::server::ServerBuilder;
 use narwhal_network::metrics::MetricsMakeCallbackHandler;
 use narwhal_network::metrics::{NetworkConnectionMetrics, NetworkMetrics};
-use haneul_archival::writer::ArchiveWriterV1;
-use haneul_archival::StorageFormat;
+use haneul_archival::writer::ArchiveWriter;
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::node_config_metrics::NodeConfigMetrics;
 use haneul_config::{ConsensusConfig, NodeConfig};
@@ -94,7 +93,7 @@ use haneul_network::discovery::TrustedPeerChangeEvent;
 use haneul_network::state_sync;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
-use haneul_storage::{FileCompression, IndexStore};
+use haneul_storage::{FileCompression, IndexStore, StorageFormat};
 use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
@@ -389,7 +388,7 @@ impl HaneulNode {
                     directory: Some(config.archive_path()),
                     ..Default::default()
                 };
-                let archive_writer = ArchiveWriterV1::new(
+                let archive_writer = ArchiveWriter::new(
                     local_store_config,
                     remote_store_config.clone(),
                     FileCompression::Zstd,
