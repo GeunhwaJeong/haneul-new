@@ -70,10 +70,6 @@ function prepareHaneulAddress(address: string) {
   return normalizeHaneulAddress(address).replace('0x', '');
 }
 
-// NOTE: This value should be kept in sync with the corresponding value in
-// crates/haneul-protocol-config/src/lib.rs
-const TRANSACTION_DATA_MAX_SIZE = 128 * 1024;
-
 export class TransactionBlockDataBuilder {
   static fromKindBytes(bytes: Uint8Array) {
     const kind = builder.de('TransactionKind', bytes);
@@ -172,9 +168,11 @@ export class TransactionBlockDataBuilder {
   }
 
   build({
+    maxSizeBytes = Infinity,
     overrides,
     onlyTransactionKind,
   }: {
+    maxSizeBytes?: number;
     overrides?: Pick<
       Partial<TransactionBlockDataBuilder>,
       'sender' | 'gasConfig' | 'expiration'
@@ -196,7 +194,7 @@ export class TransactionBlockDataBuilder {
 
     if (onlyTransactionKind) {
       return builder
-        .ser('TransactionKind', kind, { maxSize: TRANSACTION_DATA_MAX_SIZE })
+        .ser('TransactionKind', kind, { maxSize: maxSizeBytes })
         .toBytes();
     }
 
@@ -241,7 +239,7 @@ export class TransactionBlockDataBuilder {
       .ser(
         'TransactionData',
         { V1: transactionData },
-        { maxSize: TRANSACTION_DATA_MAX_SIZE },
+        { maxSize: maxSizeBytes },
       )
       .toBytes();
   }

@@ -49,6 +49,7 @@ import {
   TransactionEffects,
   Unsubscribe,
   ResolvedNameServiceNames,
+  ProtocolConfig,
 } from '../types';
 import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields';
 import {
@@ -862,6 +863,16 @@ export class JsonRpcProvider {
       'haneulx_resolveNameServiceNames',
       [input.address],
       ResolvedNameServiceNames,
+    );
+  }
+
+  async getProtocolConfig(input?: {
+    version?: string;
+  }): Promise<ProtocolConfig> {
+    return await this.client.requestWithType(
+      'haneul_getProtocolConfig',
+      [input?.version],
+      ProtocolConfig,
     );
   }
 
