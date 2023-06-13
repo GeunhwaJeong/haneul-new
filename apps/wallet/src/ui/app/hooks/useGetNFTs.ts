@@ -3,7 +3,7 @@
 
 import {
     useGetOwnedObjects,
-    useGetOriginByteKioskContents,
+    useGetKioskContents,
     hasDisplayData,
 } from '@haneullabs/core';
 import { type HaneulObjectData, type HaneulAddress } from '@haneullabs/haneul.js';
@@ -29,17 +29,16 @@ export function useGetNFTs(address?: HaneulAddress | null) {
     );
     const { apiEnv } = useAppSelector((state) => state.app);
 
-    const shouldFetchKioskContents = apiEnv === 'mainnet';
-    const { data: obKioskContents, isLoading: areKioskContentsLoading } =
-        useGetOriginByteKioskContents(address, !shouldFetchKioskContents);
+    const disableOriginByteKiosk = apiEnv !== 'mainnet';
+    const { data: kioskContents, isLoading: areKioskContentsLoading } =
+        useGetKioskContents(address, disableOriginByteKiosk);
 
-    const filteredKioskContents =
-        obKioskContents
-            ?.filter(hasDisplayData)
-            .map(({ data }) => data as HaneulObjectData) || [];
+    const filteredKioskContents = kioskContents
+        ?.filter(hasDisplayData)
+        .map((data) => data.data as HaneulObjectData);
 
     const nfts = [
-        ...filteredKioskContents,
+        ...(filteredKioskContents ?? []),
         ...(data?.pages
             .flatMap((page) => page.data)
             .filter(hasDisplayData)
@@ -51,8 +50,7 @@ export function useGetNFTs(address?: HaneulAddress | null) {
         hasNextPage,
         isFetchingNextPage,
         fetchNextPage,
-        isLoading:
-            isLoading || (shouldFetchKioskContents && areKioskContentsLoading),
+        isLoading: isLoading || areKioskContentsLoading,
         isError: isError,
         error,
     };
