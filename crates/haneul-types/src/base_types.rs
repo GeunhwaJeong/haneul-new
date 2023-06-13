@@ -26,6 +26,7 @@ use crate::governance::STAKED_HANEUL_STRUCT_NAME;
 use crate::governance::STAKING_POOL_MODULE_NAME;
 use crate::messages_checkpoint::CheckpointTimestamp;
 use crate::multisig::MultiSigPublicKey;
+use crate::multisig_legacy::MultiSigPublicKeyLegacy;
 use crate::object::{Object, Owner};
 use crate::parse_haneul_struct_tag;
 use crate::signature::GenericSignature;
@@ -564,6 +565,25 @@ impl From<&PublicKey> for HaneulAddress {
     }
 }
 
+impl From<&MultiSigPublicKeyLegacy> for HaneulAddress {
+    /// Derive a HaneulAddress from [struct MultiSigPublicKey]. A MultiSig address
+    /// is defined as the 32-byte Blake2b hash of serializing the flag, the
+    /// threshold, concatenation of all n flag, public keys and
+    /// its weight. `flag_MultiSig || threshold || flag_1 || pk_1 || weight_1
+    /// || ... || flag_n || pk_n || weight_n`.
+    fn from(multisig_pk: &MultiSigPublicKeyLegacy) -> Self {
+        let mut hasher = DefaultHash::default();
+        hasher.update([SignatureScheme::MultiSig.flag()]);
+        hasher.update(multisig_pk.threshold().to_le_bytes());
+        multisig_pk.pubkeys().iter().for_each(|(pk, w)| {
+            hasher.update([pk.flag()]);
+            hasher.update(pk.as_ref());
+            hasher.update(w.to_le_bytes());
+        });
+        HaneulAddress(hasher.finalize().digest)
+    }
+}
+
 impl From<&MultiSigPublicKey> for HaneulAddress {
     /// Derive a HaneulAddress from [struct MultiSigPublicKey]. A MultiSig address
     /// is defined as the 32-byte Blake2b hash of serializing the flag, the
@@ -613,6 +633,7 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
                 HaneulAddress::from(&pub_key)
             }
             GenericSignature::MultiSig(ms) => ms.get_pk().into(),
+            GenericSignature::MultiSigLegacy(ms) => ms.get_pk().into(),
             GenericSignature::ZkLoginAuthenticator(zklogin) => zklogin.into(),
         })
     }

@@ -53,6 +53,11 @@ export interface PublicKey {
    * Return the Haneul address associated with this public key
    */
   toHaneulAddress(): string;
+
+  /**
+   * Return signature scheme flag of the public key
+   */
+  flag(): number;
 }
 
 export function publicKeyFromSerialized(
