@@ -149,7 +149,7 @@ impl HaneulCostTable {
         gas_budget: u64,
         gas_price: u64,
         storage_price: u64,
-        gas_rounding_step: u64,
+        gas_rounding_step: Option<u64>,
     ) -> HaneulGasStatus {
         match self {
             Self::V1(cost_table) => HaneulGasStatus::V1(HaneulGasStatusV1::new_for_testing(
