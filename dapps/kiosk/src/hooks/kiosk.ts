@@ -1,5 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @tanstack/query/exhaustive-deps */
 
 import { useWalletKit } from '@haneullabs/wallet-kit';
 import { useQuery } from '@tanstack/react-query';
@@ -36,9 +37,9 @@ export function useOwnedKiosk() {
   const provider = useRpc();
 
   return useQuery({
-    queryKey: [TANSTACK_OWNED_KIOSK_KEY, currentAccount?.address],
     refetchOnMount: false,
     retry: false,
+    queryKey: [TANSTACK_OWNED_KIOSK_KEY, currentAccount?.address],
     queryFn: async (): Promise<{
       kioskId: HaneulAddress | null;
       kioskCap: HaneulAddress | null;
