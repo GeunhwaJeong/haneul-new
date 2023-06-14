@@ -99,7 +99,6 @@ test-fuzz = "3.0.4"
 
 haneul-macros = { path = "../haneul-macros" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
-test-utils = { path = "../test-utils" }
 
 [[example]]
 name = "generate-format"
