@@ -16,6 +16,8 @@ once_cell = "1.16"
 rand = "0.8.5"
 prometheus = "0.13.3"
 tempfile = "3.2.0"
+async-trait = "0.1.61"
+tokio = "1.27.0"
 
 fastcrypto.workspace = true
 move-binary-format.workspace = true
@@ -28,11 +30,15 @@ move-transactional-test-runner.workspace = true
 
 move-stdlib = { path = "../../external-crates/move/move-stdlib" }
 move-vm-runtime = { path = "../../external-crates/move/move-vm/runtime" }
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
-haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
-
-haneul-core = { path = "../haneul-core" }
+haneul-config = { path = "../haneul-config" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
+haneul-core = { path = "../haneul-core", features = ["test-utils"] }
 haneul-framework = { path = "../haneul-framework" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 haneul-types = { path = "../haneul-types", features = ["test-utils"]}
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
+haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
+haneul-json-rpc = { path = "../haneul-json-rpc" }
+
+[target.'cfg(msim)'.dependencies]
+msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "e4b1466fbe8212ee113e88022df5b4bfd966a689", package = "msim" }

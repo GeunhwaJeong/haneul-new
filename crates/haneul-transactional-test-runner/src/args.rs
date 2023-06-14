@@ -15,6 +15,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::{Argument, CallArg, ObjectArg};
 
 use crate::test_adapter::{FakeID, HaneulTestAdapter};
@@ -27,13 +28,8 @@ pub struct HaneulRunArgs {
     pub sender: Option<String>,
     #[clap(long = "gas-price")]
     pub gas_price: Option<u64>,
-    /// If set, this will override the protocol version
-    /// specified elsewhere (e.g., in init). Use with
-    /// caution!
-    #[clap(long = "protocol-version")]
-    pub protocol_version: Option<u64>,
-    #[clap(long = "uncharged")]
-    pub uncharged: bool,
+    #[clap(long = "summarize")]
+    pub summarize: bool,
 }
 
 #[derive(Debug, clap::Parser)]
@@ -54,8 +50,10 @@ pub struct HaneulPublishArgs {
 pub struct HaneulInitArgs {
     #[clap(long = "accounts", multiple_values(true), multiple_occurrences(false))]
     pub accounts: Option<Vec<String>>,
-    #[clap(long = "protocol_version")]
+    #[clap(long = "protocol-version")]
     pub protocol_version: Option<u64>,
+    #[clap(long = "max-gas")]
+    pub max_gas: Option<u64>,
 }
 
 #[derive(Debug, clap::Parser)]
@@ -235,9 +233,9 @@ impl HaneulValue {
             Some(id) => id,
             None => bail!("INVALID TEST. Unknown object, object({})", fake_id),
         };
-        let obj = match test_adapter.storage.get_object(&id) {
-            Some(obj) => obj,
-            None => bail!("INVALID TEST. Could not load object argument {}", id),
+        let obj = match test_adapter.validator.database.get_object(&id) {
+            Ok(Some(obj)) => obj,
+            Err(_) | Ok(None) => bail!("INVALID TEST. Could not load object argument {}", id),
         };
         match obj.owner {
             Owner::Shared {

@@ -72,6 +72,18 @@ impl From<EventEnvelope> for HaneulEvent {
     }
 }
 
+impl From<HaneulEvent> for Event {
+    fn from(val: HaneulEvent) -> Self {
+        Event {
+            package_id: val.package_id,
+            transaction_module: val.transaction_module,
+            sender: val.sender,
+            type_: val.type_,
+            contents: val.bcs,
+        }
+    }
+}
+
 impl HaneulEvent {
     pub fn try_from(
         event: Event,

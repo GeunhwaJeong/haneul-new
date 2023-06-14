@@ -31,7 +31,7 @@ module test::m1 {
 //> test::m1::t2<haneul::coin::Coin<haneul::haneul::HANEUL>>(Gas)
 
 // cannot merge gas coin
-//# programmable --sender A --inputs 10  --gas-budget 100000000000000
+//# programmable --sender A --inputs 10  --gas-budget 10000000000
 //> 0: SplitCoins(Gas, [Input(0)]);
 //> MergeCoins(Result(0), [Gas])
 
