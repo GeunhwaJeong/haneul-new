@@ -94,7 +94,7 @@ use haneul_network::state_sync;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
 use haneul_storage::{FileCompression, IndexStore, StorageFormat};
-use haneul_types::base_types::{AuthorityName, EpochId, TransactionDigest};
+use haneul_types::base_types::{AuthorityName, EpochId};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
@@ -640,15 +640,6 @@ impl HaneulNode {
     pub async fn close_epoch_for_testing(&self) -> HaneulResult {
         let epoch_store = self.state.epoch_store_for_testing();
         self.close_epoch(&epoch_store).await
-    }
-
-    pub fn is_transaction_executed_in_checkpoint(
-        &self,
-        digest: &TransactionDigest,
-    ) -> HaneulResult<bool> {
-        self.state
-            .database
-            .is_transaction_executed_in_checkpoint(digest)
     }
 
     fn create_p2p_network(
