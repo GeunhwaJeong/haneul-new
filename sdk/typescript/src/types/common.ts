@@ -14,7 +14,7 @@ import {
   union,
 } from 'superstruct';
 import { CallArg } from './haneul-bcs';
-import { fromB58 } from '@haneullabs/bcs';
+import { fromB58, splitGenericParameters } from '@haneullabs/bcs';
 
 export const TransactionDigest = string();
 export type TransactionDigest = Infer<typeof TransactionDigest>;
@@ -124,10 +124,9 @@ export function parseStructTag(type: string): StructTag {
   const rest = type.slice(address.length + module.length + 4);
   const name = rest.includes('<') ? rest.slice(0, rest.indexOf('<')) : rest;
   const typeParams = rest.includes('<')
-    ? rest
-        .slice(rest.indexOf('<') + 1, rest.lastIndexOf('>'))
-        .split(',')
-        .map((typeParam) => parseTypeTag(typeParam.trim()))
+    ? splitGenericParameters(
+        rest.slice(rest.indexOf('<') + 1, rest.lastIndexOf('>')),
+      ).map((typeParam) => parseTypeTag(typeParam.trim()))
     : [];
 
   return {
