@@ -6,18 +6,18 @@ import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 export function useGetCoinBalance(
-    coinType: string,
-    address?: HaneulAddress | null,
-    refetchInterval?: number,
-    staleTime?: number
+	coinType: string,
+	address?: HaneulAddress | null,
+	refetchInterval?: number,
+	staleTime?: number,
 ) {
-    const rpc = useRpcClient();
+	const rpc = useRpcClient();
 
-    return useQuery({
-        queryKey: ['coin-balance', address, coinType],
-        queryFn: () => rpc.getBalance({ owner: address!, coinType }),
-        enabled: !!address && !!coinType,
-        refetchInterval,
-        staleTime,
-    });
+	return useQuery({
+		queryKey: ['coin-balance', address, coinType],
+		queryFn: () => rpc.getBalance({ owner: address!, coinType }),
+		enabled: !!address && !!coinType,
+		refetchInterval,
+		staleTime,
+	});
 }

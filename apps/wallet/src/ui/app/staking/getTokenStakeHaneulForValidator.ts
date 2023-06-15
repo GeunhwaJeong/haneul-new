@@ -5,18 +5,15 @@ import { type DelegatedStake } from '@haneullabs/haneul.js';
 
 // Get total Stake HANEUL for a specific validator address
 export const getTokenStakeHaneulForValidator = (
-    allDelegation: DelegatedStake[],
-    validatorAddress?: string | null
+	allDelegation: DelegatedStake[],
+	validatorAddress?: string | null,
 ) => {
-    return (
-        allDelegation.reduce((acc, curr) => {
-            if (validatorAddress === curr.validatorAddress) {
-                return curr.stakes.reduce(
-                    (total, { principal }) => total + BigInt(principal),
-                    acc
-                );
-            }
-            return acc;
-        }, 0n) || 0n
-    );
+	return (
+		allDelegation.reduce((acc, curr) => {
+			if (validatorAddress === curr.validatorAddress) {
+				return curr.stakes.reduce((total, { principal }) => total + BigInt(principal), acc);
+			}
+			return acc;
+		}, 0n) || 0n
+	);
 };

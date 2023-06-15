@@ -1,20 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import {
-    DryRunTransactionBlockResponse,
-    type HaneulAddress,
-    type HaneulTransactionBlockResponse,
-    is,
-    getExecutionStatusType,
-    getTransactionDigest,
-    getTransactionSender,
+	DryRunTransactionBlockResponse,
+	type HaneulAddress,
+	type HaneulTransactionBlockResponse,
+	is,
+	getExecutionStatusType,
+	getTransactionDigest,
+	getTransactionSender,
 } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { getBalanceChangeSummary } from '../utils/transaction/getBalanceChangeSummary';
 import {
-    HaneulObjectChangeWithDisplay,
-    getObjectChangeSummary,
+	HaneulObjectChangeWithDisplay,
+	getObjectChangeSummary,
 } from '../utils/transaction/getObjectChangeSummary';
 import { getLabel } from '../utils/transaction/getLabel';
 import { getGasSummary } from '../utils/transaction/getGasSummary';
@@ -22,59 +22,55 @@ import { useMultiGetObjects } from './useMultiGetObjects';
 import { getObjectDisplayLookup } from '../utils/transaction/getObjectDisplayLookup';
 
 export function useTransactionSummary({
-    transaction,
-    currentAddress,
+	transaction,
+	currentAddress,
 }: {
-    transaction?: HaneulTransactionBlockResponse | DryRunTransactionBlockResponse;
-    currentAddress?: HaneulAddress;
+	transaction?: HaneulTransactionBlockResponse | DryRunTransactionBlockResponse;
+	currentAddress?: HaneulAddress;
 }) {
-    const { objectChanges } = transaction ?? {};
+	const { objectChanges } = transaction ?? {};
 
-    const objectIds = objectChanges
-        ?.map((change) => 'objectId' in change && change.objectId)
-        .filter(Boolean) as string[];
+	const objectIds = objectChanges
+		?.map((change) => 'objectId' in change && change.objectId)
+		.filter(Boolean) as string[];
 
-    const { data } = useMultiGetObjects(objectIds, { showDisplay: true });
-    const lookup = getObjectDisplayLookup(data);
+	const { data } = useMultiGetObjects(objectIds, { showDisplay: true });
+	const lookup = getObjectDisplayLookup(data);
 
-    const objectChangesWithDisplay = useMemo(
-        () =>
-            [...(objectChanges ?? [])].map((change) => ({
-                ...change,
-                display:
-                    'objectId' in change ? lookup?.get(change.objectId) : null,
-            })),
-        [lookup, objectChanges]
-    ) as HaneulObjectChangeWithDisplay[];
+	const objectChangesWithDisplay = useMemo(
+		() =>
+			[...(objectChanges ?? [])].map((change) => ({
+				...change,
+				display: 'objectId' in change ? lookup?.get(change.objectId) : null,
+			})),
+		[lookup, objectChanges],
+	) as HaneulObjectChangeWithDisplay[];
 
-    const summary = useMemo(() => {
-        if (!transaction) return null;
-        const objectSummary = getObjectChangeSummary(
-            objectChangesWithDisplay,
-            currentAddress
-        );
-        const balanceChangeSummary = getBalanceChangeSummary(transaction);
-        const gas = getGasSummary(transaction);
+	const summary = useMemo(() => {
+		if (!transaction) return null;
+		const objectSummary = getObjectChangeSummary(objectChangesWithDisplay, currentAddress);
+		const balanceChangeSummary = getBalanceChangeSummary(transaction);
+		const gas = getGasSummary(transaction);
 
-        if (is(transaction, DryRunTransactionBlockResponse)) {
-            return {
-                gas,
-                objectSummary,
-                balanceChanges: balanceChangeSummary,
-            };
-        } else {
-            return {
-                gas,
-                sender: getTransactionSender(transaction),
-                balanceChanges: balanceChangeSummary,
-                digest: getTransactionDigest(transaction),
-                label: getLabel(transaction, currentAddress),
-                objectSummary,
-                status: getExecutionStatusType(transaction),
-                timestamp: transaction.timestampMs,
-            };
-        }
-    }, [transaction, currentAddress, objectChangesWithDisplay]);
+		if (is(transaction, DryRunTransactionBlockResponse)) {
+			return {
+				gas,
+				objectSummary,
+				balanceChanges: balanceChangeSummary,
+			};
+		} else {
+			return {
+				gas,
+				sender: getTransactionSender(transaction),
+				balanceChanges: balanceChangeSummary,
+				digest: getTransactionDigest(transaction),
+				label: getLabel(transaction, currentAddress),
+				objectSummary,
+				status: getExecutionStatusType(transaction),
+				timestamp: transaction.timestampMs,
+			};
+		}
+	}, [transaction, currentAddress, objectChangesWithDisplay]);
 
-    return summary;
+	return summary;
 }

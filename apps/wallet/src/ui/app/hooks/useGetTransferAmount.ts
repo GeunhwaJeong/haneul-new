@@ -9,37 +9,37 @@ import { getAmount } from '_helpers';
 import type { HaneulTransactionBlockResponse, HaneulAddress } from '@haneullabs/haneul.js';
 
 export function useGetTransferAmount({
-    txn,
-    activeAddress,
+	txn,
+	activeAddress,
 }: {
-    txn: HaneulTransactionBlockResponse;
-    activeAddress: HaneulAddress;
+	txn: HaneulTransactionBlockResponse;
+	activeAddress: HaneulAddress;
 }) {
-    const { effects, events } = txn;
-    // const { coins } = getEventsSummary(events!, activeAddress);
+	const { effects, events } = txn;
+	// const { coins } = getEventsSummary(events!, activeAddress);
 
-    const haneulTransfer = useMemo(() => {
-        const txdetails = getTransactionKind(txn)!;
-        return getAmount(txdetails, effects!, events!)?.map(
-            ({ amount, coinType, recipientAddress }) => {
-                return {
-                    amount: amount || 0,
-                    coinType: coinType || HANEUL_TYPE_ARG,
-                    receiverAddress: recipientAddress,
-                };
-            }
-        );
-    }, [txn, effects, events]);
+	const haneulTransfer = useMemo(() => {
+		const txdetails = getTransactionKind(txn)!;
+		return getAmount(txdetails, effects!, events!)?.map(
+			({ amount, coinType, recipientAddress }) => {
+				return {
+					amount: amount || 0,
+					coinType: coinType || HANEUL_TYPE_ARG,
+					receiverAddress: recipientAddress,
+				};
+			},
+		);
+	}, [txn, effects, events]);
 
-    // MUSTFIX(chris)
-    // const transferAmount = useMemo(() => {
-    //     return haneulTransfer?.length
-    //         ? haneulTransfer
-    //         : coins.filter(
-    //               ({ receiverAddress }) => receiverAddress === activeAddress
-    //           );
-    // }, [haneulTransfer, coins, activeAddress]);
+	// MUSTFIX(chris)
+	// const transferAmount = useMemo(() => {
+	//     return haneulTransfer?.length
+	//         ? haneulTransfer
+	//         : coins.filter(
+	//               ({ receiverAddress }) => receiverAddress === activeAddress
+	//           );
+	// }, [haneulTransfer, coins, activeAddress]);
 
-    // return haneulTransfer ?? transferAmount;
-    return haneulTransfer;
+	// return haneulTransfer ?? transferAmount;
+	return haneulTransfer;
 }

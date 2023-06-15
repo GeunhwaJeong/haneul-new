@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    toB64,
-    fromSerializedSignature,
-    getGasData,
-    getTransactionSender,
-    getTransactionSignature,
-    normalizeHaneulAddress,
-    type HaneulAddress,
-    type HaneulTransactionBlockResponse,
-    type SignaturePubkeyPair,
+	toB64,
+	fromSerializedSignature,
+	getGasData,
+	getTransactionSender,
+	getTransactionSignature,
+	normalizeHaneulAddress,
+	type HaneulAddress,
+	type HaneulTransactionBlockResponse,
+	type SignaturePubkeyPair,
 } from '@haneullabs/haneul.js';
 
 import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
@@ -18,97 +18,66 @@ import { AddressLink } from '~/ui/InternalLink';
 import { Tab, TabGroup, TabList } from '~/ui/Tabs';
 import { Text } from '~/ui/Text';
 
-function SignaturePanel({
-    title,
-    signature,
-}: {
-    title: string;
-    signature: SignaturePubkeyPair;
-}) {
-    return (
-        <TabGroup>
-            <TabList>
-                <Tab>{title}</Tab>
-            </TabList>
-            <DescriptionList>
-                <DescriptionItem title="Scheme" align="start" labelWidth="sm">
-                    <Text variant="pBody/medium" color="steel-darker">
-                        {signature.signatureScheme}
-                    </Text>
-                </DescriptionItem>
-                <DescriptionItem title="Address" align="start" labelWidth="sm">
-                    <AddressLink
-                        noTruncate
-                        address={signature.pubKey.toHaneulAddress()}
-                    />
-                </DescriptionItem>
-                <DescriptionItem
-                    title="Signature"
-                    align="start"
-                    labelWidth="sm"
-                >
-                    <Text variant="pBody/medium" color="steel-darker">
-                        {toB64(signature.signature)}
-                    </Text>
-                </DescriptionItem>
-            </DescriptionList>
-        </TabGroup>
-    );
+function SignaturePanel({ title, signature }: { title: string; signature: SignaturePubkeyPair }) {
+	return (
+		<TabGroup>
+			<TabList>
+				<Tab>{title}</Tab>
+			</TabList>
+			<DescriptionList>
+				<DescriptionItem title="Scheme" align="start" labelWidth="sm">
+					<Text variant="pBody/medium" color="steel-darker">
+						{signature.signatureScheme}
+					</Text>
+				</DescriptionItem>
+				<DescriptionItem title="Address" align="start" labelWidth="sm">
+					<AddressLink noTruncate address={signature.pubKey.toHaneulAddress()} />
+				</DescriptionItem>
+				<DescriptionItem title="Signature" align="start" labelWidth="sm">
+					<Text variant="pBody/medium" color="steel-darker">
+						{toB64(signature.signature)}
+					</Text>
+				</DescriptionItem>
+			</DescriptionList>
+		</TabGroup>
+	);
 }
 
-function getSignatureFromAddress(
-    signatures: SignaturePubkeyPair[],
-    haneulAddress: HaneulAddress
-) {
-    return signatures.find(
-        (signature) =>
-            signature.pubKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress)
-    );
+function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddress: HaneulAddress) {
+	return signatures.find(
+		(signature) => signature.pubKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress),
+	);
 }
 
 interface Props {
-    transaction: HaneulTransactionBlockResponse;
+	transaction: HaneulTransactionBlockResponse;
 }
 
 export function Signatures({ transaction }: Props) {
-    const sender = getTransactionSender(transaction);
-    const gasData = getGasData(transaction);
-    const transactionSignatures = getTransactionSignature(transaction);
+	const sender = getTransactionSender(transaction);
+	const gasData = getGasData(transaction);
+	const transactionSignatures = getTransactionSignature(transaction);
 
-    if (!transactionSignatures) return null;
+	if (!transactionSignatures) return null;
 
-    const isSponsoredTransaction = gasData?.owner !== sender;
+	const isSponsoredTransaction = gasData?.owner !== sender;
 
-    const deserializedTransactionSignatures = transactionSignatures.map(
-        (signature) => fromSerializedSignature(signature)
-    );
+	const deserializedTransactionSignatures = transactionSignatures.map((signature) =>
+		fromSerializedSignature(signature),
+	);
 
-    const userSignature = getSignatureFromAddress(
-        deserializedTransactionSignatures,
-        sender!
-    );
+	const userSignature = getSignatureFromAddress(deserializedTransactionSignatures, sender!);
 
-    const sponsorSignature = isSponsoredTransaction
-        ? getSignatureFromAddress(
-              deserializedTransactionSignatures,
-              gasData!.owner
-          )
-        : null;
+	const sponsorSignature = isSponsoredTransaction
+		? getSignatureFromAddress(deserializedTransactionSignatures, gasData!.owner)
+		: null;
 
-    return (
-        <div className="flex flex-col gap-8">
-            {userSignature && (
-                <SignaturePanel
-                    title="User Signature"
-                    signature={userSignature}
-                />
-            )}
-            {sponsorSignature && (
-                <SignaturePanel
-                    title="Sponsor Signature"
-                    signature={sponsorSignature}
-                />
-            )}
-        </div>
-    );
+	return (
+		<div className="flex flex-col gap-8">
+			{userSignature && <SignaturePanel title="User Signature" signature={userSignature} />}
+			{sponsorSignature && (
+				<SignaturePanel title="Sponsor Signature" signature={sponsorSignature} />
+			)}
+		</div>
+	);
 }

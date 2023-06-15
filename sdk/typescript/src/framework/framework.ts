@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  getObjectFields,
-  HaneulObjectResponse,
-  HaneulMoveObject,
-  HaneulObjectInfo,
-  HaneulObjectData,
-  getObjectId,
-  getObjectType,
+	getObjectFields,
+	HaneulObjectResponse,
+	HaneulMoveObject,
+	HaneulObjectInfo,
+	HaneulObjectData,
+	getObjectId,
+	getObjectType,
 } from '../types/objects';
 import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from '../types/common';
 
@@ -24,8 +24,7 @@ export const OBJECT_MODULE_NAME = 'object';
 export const UID_STRUCT_NAME = 'UID';
 export const ID_STRUCT_NAME = 'ID';
 export const HANEUL_TYPE_ARG = `${HANEUL_FRAMEWORK_ADDRESS}::haneul::HANEUL`;
-export const VALIDATORS_EVENTS_QUERY =
-  '0x3::validator_set::ValidatorEpochInfoEventV2';
+export const VALIDATORS_EVENTS_QUERY = '0x3::validator_set::ValidatorEpochInfoEventV2';
 
 export const HANEUL_CLOCK_OBJECT_ID = normalizeHaneulObjectId('0x6');
 
@@ -38,19 +37,17 @@ export const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
 type ObjectData = ObjectDataFull | HaneulObjectInfo;
 type ObjectDataFull = HaneulObjectResponse | HaneulMoveObject;
 
-export function isObjectDataFull(
-  resp: ObjectData | ObjectDataFull,
-): resp is HaneulObjectResponse {
-  return !!(resp as HaneulObjectResponse).data || !!(resp as HaneulMoveObject).type;
+export function isObjectDataFull(resp: ObjectData | ObjectDataFull): resp is HaneulObjectResponse {
+	return !!(resp as HaneulObjectResponse).data || !!(resp as HaneulMoveObject).type;
 }
 
 export const CoinMetadataStruct = object({
-  decimals: number(),
-  name: string(),
-  symbol: string(),
-  description: string(),
-  iconUrl: nullable(string()),
-  id: nullable(ObjectId),
+	decimals: number(),
+	name: string(),
+	symbol: string(),
+	description: string(),
+	iconUrl: nullable(string()),
+	id: nullable(ObjectId),
 });
 
 export type CoinMetadata = Infer<typeof CoinMetadataStruct>;
@@ -60,151 +57,149 @@ export type CoinMetadata = Infer<typeof CoinMetadataStruct>;
  * as defined in https://github.com/GeunhwaJeong/haneul/blob/ca9046fd8b1a9e8634a4b74b0e7dabdc7ea54475/haneul_programmability/framework/sources/Coin.move#L4
  */
 export class Coin {
-  static isCoin(data: ObjectData): boolean {
-    return Coin.getType(data)?.match(COIN_TYPE_ARG_REGEX) != null;
-  }
+	static isCoin(data: ObjectData): boolean {
+		return Coin.getType(data)?.match(COIN_TYPE_ARG_REGEX) != null;
+	}
 
-  static getCoinType(type: string) {
-    const [, res] = type.match(COIN_TYPE_ARG_REGEX) ?? [];
-    return res || null;
-  }
+	static getCoinType(type: string) {
+		const [, res] = type.match(COIN_TYPE_ARG_REGEX) ?? [];
+		return res || null;
+	}
 
-  static getCoinTypeArg(obj: ObjectData) {
-    const type = Coin.getType(obj);
-    return type ? Coin.getCoinType(type) : null;
-  }
+	static getCoinTypeArg(obj: ObjectData) {
+		const type = Coin.getType(obj);
+		return type ? Coin.getCoinType(type) : null;
+	}
 
-  static isHANEUL(obj: ObjectData) {
-    const arg = Coin.getCoinTypeArg(obj);
-    return arg ? Coin.getCoinSymbol(arg) === 'HANEUL' : false;
-  }
+	static isHANEUL(obj: ObjectData) {
+		const arg = Coin.getCoinTypeArg(obj);
+		return arg ? Coin.getCoinSymbol(arg) === 'HANEUL' : false;
+	}
 
-  static getCoinSymbol(coinTypeArg: string) {
-    return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
-  }
+	static getCoinSymbol(coinTypeArg: string) {
+		return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
+	}
 
-  static getCoinStructTag(coinTypeArg: string): StructTag {
-    return {
-      address: normalizeHaneulObjectId(coinTypeArg.split('::')[0]),
-      module: coinTypeArg.split('::')[1],
-      name: coinTypeArg.split('::')[2],
-      typeParams: [],
-    };
-  }
+	static getCoinStructTag(coinTypeArg: string): StructTag {
+		return {
+			address: normalizeHaneulObjectId(coinTypeArg.split('::')[0]),
+			module: coinTypeArg.split('::')[1],
+			name: coinTypeArg.split('::')[2],
+			typeParams: [],
+		};
+	}
 
-  public static getID(obj: ObjectData): ObjectId {
-    if ('fields' in obj) {
-      return obj.fields.id.id;
-    }
-    return getObjectId(obj);
-  }
+	public static getID(obj: ObjectData): ObjectId {
+		if ('fields' in obj) {
+			return obj.fields.id.id;
+		}
+		return getObjectId(obj);
+	}
 
-  static totalBalance(coins: CoinStruct[]): bigint {
-    return coins.reduce(
-      (partialSum, c) => partialSum + Coin.getBalanceFromCoinStruct(c),
-      BigInt(0),
-    );
-  }
+	static totalBalance(coins: CoinStruct[]): bigint {
+		return coins.reduce(
+			(partialSum, c) => partialSum + Coin.getBalanceFromCoinStruct(c),
+			BigInt(0),
+		);
+	}
 
-  /**
-   * Sort coin by balance in an ascending order
-   */
-  static sortByBalance(coins: CoinStruct[]): CoinStruct[] {
-    return [...coins].sort((a, b) =>
-      Coin.getBalanceFromCoinStruct(a) < Coin.getBalanceFromCoinStruct(b)
-        ? -1
-        : Coin.getBalanceFromCoinStruct(a) > Coin.getBalanceFromCoinStruct(b)
-        ? 1
-        : 0,
-    );
-  }
+	/**
+	 * Sort coin by balance in an ascending order
+	 */
+	static sortByBalance(coins: CoinStruct[]): CoinStruct[] {
+		return [...coins].sort((a, b) =>
+			Coin.getBalanceFromCoinStruct(a) < Coin.getBalanceFromCoinStruct(b)
+				? -1
+				: Coin.getBalanceFromCoinStruct(a) > Coin.getBalanceFromCoinStruct(b)
+				? 1
+				: 0,
+		);
+	}
 
-  static getBalanceFromCoinStruct(coin: CoinStruct): bigint {
-    return BigInt(coin.balance);
-  }
+	static getBalanceFromCoinStruct(coin: CoinStruct): bigint {
+		return BigInt(coin.balance);
+	}
 
-  static getBalance(data: ObjectDataFull): bigint | undefined {
-    if (!Coin.isCoin(data)) {
-      return undefined;
-    }
-    const balance = getObjectFields(data)?.balance;
-    return BigInt(balance);
-  }
+	static getBalance(data: ObjectDataFull): bigint | undefined {
+		if (!Coin.isCoin(data)) {
+			return undefined;
+		}
+		const balance = getObjectFields(data)?.balance;
+		return BigInt(balance);
+	}
 
-  private static getType(data: ObjectData): string | undefined {
-    if (isObjectDataFull(data)) {
-      return getObjectType(data);
-    }
-    return data.type;
-  }
+	private static getType(data: ObjectData): string | undefined {
+		if (isObjectDataFull(data)) {
+			return getObjectType(data);
+		}
+		return data.type;
+	}
 }
 
 export type DelegationData = HaneulMoveObject & {
-  dataType: 'moveObject';
-  type: '0x2::delegation::Delegation';
-  fields: {
-    active_delegation: Option<number>;
-    delegate_amount: number;
-    next_reward_unclaimed_epoch: number;
-    validator_address: HaneulAddress;
-    info: {
-      id: string;
-      version: number;
-    };
-    // TODO (jian): clean up after 0.34
-    coin_locked_until_epoch: Option<HaneulMoveObject>;
-    ending_epoch: Option<number>;
-  };
+	dataType: 'moveObject';
+	type: '0x2::delegation::Delegation';
+	fields: {
+		active_delegation: Option<number>;
+		delegate_amount: number;
+		next_reward_unclaimed_epoch: number;
+		validator_address: HaneulAddress;
+		info: {
+			id: string;
+			version: number;
+		};
+		// TODO (jian): clean up after 0.34
+		coin_locked_until_epoch: Option<HaneulMoveObject>;
+		ending_epoch: Option<number>;
+	};
 };
 
 export type DelegationHaneulObject = Omit<HaneulObjectData, 'data'> & {
-  data: DelegationData;
+	data: DelegationData;
 };
 
 // Class for delegation.move
 // see https://github.com/GeunhwaJeong/fastnft/blob/161aa27fe7eb8ecf2866ec9eb192e768f25da768/crates/haneul-framework/sources/governance/delegation.move
 export class Delegation {
-  public static readonly HANEUL_OBJECT_TYPE = '0x2::delegation::Delegation';
-  private haneulObject: DelegationHaneulObject;
+	public static readonly HANEUL_OBJECT_TYPE = '0x2::delegation::Delegation';
+	private haneulObject: DelegationHaneulObject;
 
-  public static isDelegationHaneulObject(
-    obj: HaneulObjectData,
-  ): obj is DelegationHaneulObject {
-    return 'type' in obj && obj.type === Delegation.HANEUL_OBJECT_TYPE;
-  }
+	public static isDelegationHaneulObject(obj: HaneulObjectData): obj is DelegationHaneulObject {
+		return 'type' in obj && obj.type === Delegation.HANEUL_OBJECT_TYPE;
+	}
 
-  constructor(obj: DelegationHaneulObject) {
-    this.haneulObject = obj;
-  }
+	constructor(obj: DelegationHaneulObject) {
+		this.haneulObject = obj;
+	}
 
-  public nextRewardUnclaimedEpoch() {
-    return this.haneulObject.data.fields.next_reward_unclaimed_epoch;
-  }
+	public nextRewardUnclaimedEpoch() {
+		return this.haneulObject.data.fields.next_reward_unclaimed_epoch;
+	}
 
-  public activeDelegation() {
-    return BigInt(getOption(this.haneulObject.data.fields.active_delegation) || 0);
-  }
+	public activeDelegation() {
+		return BigInt(getOption(this.haneulObject.data.fields.active_delegation) || 0);
+	}
 
-  public delegateAmount() {
-    return this.haneulObject.data.fields.delegate_amount;
-  }
+	public delegateAmount() {
+		return this.haneulObject.data.fields.delegate_amount;
+	}
 
-  public endingEpoch() {
-    return getOption(this.haneulObject.data.fields.ending_epoch);
-  }
+	public endingEpoch() {
+		return getOption(this.haneulObject.data.fields.ending_epoch);
+	}
 
-  public validatorAddress() {
-    return this.haneulObject.data.fields.validator_address;
-  }
+	public validatorAddress() {
+		return this.haneulObject.data.fields.validator_address;
+	}
 
-  public isActive() {
-    return this.activeDelegation() > 0 && !this.endingEpoch();
-  }
+	public isActive() {
+		return this.activeDelegation() > 0 && !this.endingEpoch();
+	}
 
-  public hasUnclaimedRewards(epoch: number) {
-    return (
-      this.nextRewardUnclaimedEpoch() <= epoch &&
-      (this.isActive() || (this.endingEpoch() || 0) > epoch)
-    );
-  }
+	public hasUnclaimedRewards(epoch: number) {
+		return (
+			this.nextRewardUnclaimedEpoch() <= epoch &&
+			(this.isActive() || (this.endingEpoch() || 0) > epoch)
+		);
+	}
 }

@@ -5,5 +5,5 @@ import preset from '@haneullabs/core/tailwind.config';
 import { type Config } from 'tailwindcss';
 
 export default {
-    presets: [preset],
+	presets: [preset],
 } satisfies Partial<Config>;

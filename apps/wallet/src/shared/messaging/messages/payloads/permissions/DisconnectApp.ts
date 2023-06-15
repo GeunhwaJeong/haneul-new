@@ -8,11 +8,11 @@ import { isBasePayload } from '_payloads';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface DisconnectApp extends BasePayload {
-    type: 'disconnect-app';
-    origin: string;
-    specificAccounts?: HaneulAddress[];
+	type: 'disconnect-app';
+	origin: string;
+	specificAccounts?: HaneulAddress[];
 }
 
 export function isDisconnectApp(payload: Payload): payload is DisconnectApp {
-    return isBasePayload(payload) && payload.type === 'disconnect-app';
+	return isBasePayload(payload) && payload.type === 'disconnect-app';
 }

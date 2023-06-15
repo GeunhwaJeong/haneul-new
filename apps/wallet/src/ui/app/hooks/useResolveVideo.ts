@@ -1,26 +1,21 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    type HaneulObjectResponse,
-    getObjectDisplay,
-    getObjectType,
-} from '@haneullabs/haneul.js';
+import { type HaneulObjectResponse, getObjectDisplay, getObjectType } from '@haneullabs/haneul.js';
 
 import { useRecognizedPackages } from './useRecognizedPackages';
 
 export function useResolveVideo(object?: HaneulObjectResponse | null) {
-    const recognizedPackages = useRecognizedPackages();
+	const recognizedPackages = useRecognizedPackages();
 
-    if (!object) return null;
+	if (!object) return null;
 
-    const objectType = getObjectType(object);
-    const isRecognized =
-        objectType && recognizedPackages.includes(objectType.split('::')[0]);
+	const objectType = getObjectType(object);
+	const isRecognized = objectType && recognizedPackages.includes(objectType.split('::')[0]);
 
-    if (!isRecognized) return null;
+	if (!isRecognized) return null;
 
-    const display = getObjectDisplay(object)?.data;
+	const display = getObjectDisplay(object)?.data;
 
-    return display?.video_url;
+	return display?.video_url;
 }

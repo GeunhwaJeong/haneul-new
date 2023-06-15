@@ -2,63 +2,57 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-    type HaneulSignAndExecuteTransactionBlockInput,
-    type HaneulSignMessageOutput,
+	type HaneulSignAndExecuteTransactionBlockInput,
+	type HaneulSignMessageOutput,
 } from '@haneullabs/wallet-standard';
 
-import type {
-    SignedTransaction,
-    HaneulAddress,
-    HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
+import type { SignedTransaction, HaneulAddress, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 
 export type TransactionDataType = {
-    type: 'transaction';
-    data: string;
-    account: HaneulAddress;
-    justSign?: boolean;
-    requestType?: HaneulSignAndExecuteTransactionBlockInput['requestType'];
-    options?: HaneulSignAndExecuteTransactionBlockInput['options'];
+	type: 'transaction';
+	data: string;
+	account: HaneulAddress;
+	justSign?: boolean;
+	requestType?: HaneulSignAndExecuteTransactionBlockInput['requestType'];
+	options?: HaneulSignAndExecuteTransactionBlockInput['options'];
 };
 
 export type SignMessageDataType = {
-    type: 'sign-message';
-    message: string;
-    accountAddress: HaneulAddress;
+	type: 'sign-message';
+	message: string;
+	accountAddress: HaneulAddress;
 };
 
 export type ApprovalRequest = {
-    id: string;
-    approved: boolean | null;
-    origin: string;
-    originFavIcon?: string;
-    txResult?: HaneulTransactionBlockResponse | HaneulSignMessageOutput;
-    txResultError?: string;
-    txSigned?: SignedTransaction;
-    createdDate: string;
-    tx: TransactionDataType | SignMessageDataType;
+	id: string;
+	approved: boolean | null;
+	origin: string;
+	originFavIcon?: string;
+	txResult?: HaneulTransactionBlockResponse | HaneulSignMessageOutput;
+	txResultError?: string;
+	txSigned?: SignedTransaction;
+	createdDate: string;
+	tx: TransactionDataType | SignMessageDataType;
 };
 
-export interface SignMessageApprovalRequest
-    extends Omit<ApprovalRequest, 'txResult' | 'tx'> {
-    tx: SignMessageDataType;
-    txResult?: HaneulSignMessageOutput;
+export interface SignMessageApprovalRequest extends Omit<ApprovalRequest, 'txResult' | 'tx'> {
+	tx: SignMessageDataType;
+	txResult?: HaneulSignMessageOutput;
 }
 
-export interface TransactionApprovalRequest
-    extends Omit<ApprovalRequest, 'txResult' | 'tx'> {
-    tx: TransactionDataType;
-    txResult?: HaneulTransactionBlockResponse;
+export interface TransactionApprovalRequest extends Omit<ApprovalRequest, 'txResult' | 'tx'> {
+	tx: TransactionDataType;
+	txResult?: HaneulTransactionBlockResponse;
 }
 
 export function isSignMessageApprovalRequest(
-    request: ApprovalRequest
+	request: ApprovalRequest,
 ): request is SignMessageApprovalRequest {
-    return request.tx.type === 'sign-message';
+	return request.tx.type === 'sign-message';
 }
 
 export function isTransactionApprovalRequest(
-    request: ApprovalRequest
+	request: ApprovalRequest,
 ): request is TransactionApprovalRequest {
-    return request.tx.type !== 'sign-message';
+	return request.tx.type !== 'sign-message';
 }

@@ -2,53 +2,47 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  object,
-  string,
-  Infer,
-  array,
-  record,
-  any,
-  optional,
-  boolean,
-  nullable,
+	object,
+	string,
+	Infer,
+	array,
+	record,
+	any,
+	optional,
+	boolean,
+	nullable,
 } from 'superstruct';
-import {
-  ObjectId,
-  HaneulAddress,
-  TransactionDigest,
-  HaneulJsonValue,
-  SequenceNumber,
-} from './common';
+import { ObjectId, HaneulAddress, TransactionDigest, HaneulJsonValue, SequenceNumber } from './common';
 
 export const EventId = object({
-  txDigest: TransactionDigest,
-  eventSeq: SequenceNumber,
+	txDigest: TransactionDigest,
+	eventSeq: SequenceNumber,
 });
 
 // event types mirror those in "haneul-json-rpc-types/src/haneul_event.rs"
 
 export const HaneulEvent = object({
-  id: EventId,
-  // Move package where this event was emitted.
-  packageId: ObjectId,
-  // Move module where this event was emitted.
-  transactionModule: string(),
-  // Sender's Haneul address.
-  sender: HaneulAddress,
-  // Move event type.
-  type: string(),
-  // Parsed json value of the event
-  parsedJson: optional(record(string(), any())),
-  // Base 58 encoded bcs bytes of the move event
-  bcs: optional(string()),
-  timestampMs: optional(string()),
+	id: EventId,
+	// Move package where this event was emitted.
+	packageId: ObjectId,
+	// Move module where this event was emitted.
+	transactionModule: string(),
+	// Sender's Haneul address.
+	sender: HaneulAddress,
+	// Move event type.
+	type: string(),
+	// Parsed json value of the event
+	parsedJson: optional(record(string(), any())),
+	// Base 58 encoded bcs bytes of the move event
+	bcs: optional(string()),
+	timestampMs: optional(string()),
 });
 
 export type HaneulEvent = Infer<typeof HaneulEvent>;
 
 export type MoveEventField = {
-  path: string;
-  value: HaneulJsonValue;
+	path: string;
+	value: HaneulJsonValue;
 };
 
 /**
@@ -62,38 +56,38 @@ export type EventId = Infer<typeof EventId>;
 
 // mirrors haneul_json_rpc_types::HaneulEventFilter
 export type HaneulEventFilter =
-  | { Package: ObjectId }
-  | { MoveModule: { package: ObjectId; module: string } }
-  | { MoveEventType: string }
-  | { MoveEventField: MoveEventField }
-  | { Transaction: TransactionDigest }
-  | {
-      TimeRange: {
-        // left endpoint of time interval, milliseconds since epoch, inclusive
-        start_time: number;
-        // right endpoint of time interval, milliseconds since epoch, exclusive
-        end_time: number;
-      };
-    }
-  | { Sender: HaneulAddress }
-  | { All: HaneulEventFilter[] }
-  | { Any: HaneulEventFilter[] }
-  | { And: [HaneulEventFilter, HaneulEventFilter] }
-  | { Or: [HaneulEventFilter, HaneulEventFilter] };
+	| { Package: ObjectId }
+	| { MoveModule: { package: ObjectId; module: string } }
+	| { MoveEventType: string }
+	| { MoveEventField: MoveEventField }
+	| { Transaction: TransactionDigest }
+	| {
+			TimeRange: {
+				// left endpoint of time interval, milliseconds since epoch, inclusive
+				start_time: number;
+				// right endpoint of time interval, milliseconds since epoch, exclusive
+				end_time: number;
+			};
+	  }
+	| { Sender: HaneulAddress }
+	| { All: HaneulEventFilter[] }
+	| { Any: HaneulEventFilter[] }
+	| { And: [HaneulEventFilter, HaneulEventFilter] }
+	| { Or: [HaneulEventFilter, HaneulEventFilter] };
 
 export const PaginatedEvents = object({
-  data: array(HaneulEvent),
-  nextCursor: nullable(EventId),
-  hasNextPage: boolean(),
+	data: array(HaneulEvent),
+	nextCursor: nullable(EventId),
+	hasNextPage: boolean(),
 });
 export type PaginatedEvents = Infer<typeof PaginatedEvents>;
 
 /* ------------------------------- EventData ------------------------------ */
 
 export function getEventSender(event: HaneulEvent): HaneulAddress {
-  return event.sender;
+	return event.sender;
 }
 
 export function getEventPackage(event: HaneulEvent): ObjectId {
-  return event.packageId;
+	return event.packageId;
 }

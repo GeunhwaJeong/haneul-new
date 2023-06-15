@@ -8,19 +8,14 @@ import { getNormalizedFunctionParameterTypeDetails } from '../utils';
 import type { HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
 
 export function useFunctionParamsDetails(
-    params: HaneulMoveNormalizedType[],
-    functionTypeArgNames?: string[]
+	params: HaneulMoveNormalizedType[],
+	functionTypeArgNames?: string[],
 ) {
-    return useMemo(
-        () =>
-            params
-                .map((aParam) =>
-                    getNormalizedFunctionParameterTypeDetails(
-                        aParam,
-                        functionTypeArgNames
-                    )
-                )
-                .filter(({ isTxContext }) => !isTxContext),
-        [params, functionTypeArgNames]
-    );
+	return useMemo(
+		() =>
+			params
+				.map((aParam) => getNormalizedFunctionParameterTypeDetails(aParam, functionTypeArgNames))
+				.filter(({ isTxContext }) => !isTxContext),
+		[params, functionTypeArgNames],
+	);
 }

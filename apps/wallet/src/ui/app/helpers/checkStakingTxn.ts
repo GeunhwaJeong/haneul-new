@@ -5,5 +5,5 @@ import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 
 // TODO: Support programmable transactions:
 export function checkStakingTxn(_txn: HaneulTransactionBlockResponse) {
-    return false;
+	return false;
 }

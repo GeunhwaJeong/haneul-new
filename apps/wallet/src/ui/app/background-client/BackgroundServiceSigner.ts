@@ -9,32 +9,24 @@ import type { BackgroundClient } from '.';
 import type { JsonRpcProvider, HaneulAddress } from '@haneullabs/haneul.js';
 
 export class BackgroundServiceSigner extends WalletSigner {
-    readonly #address: HaneulAddress;
-    readonly #backgroundClient: BackgroundClient;
+	readonly #address: HaneulAddress;
+	readonly #backgroundClient: BackgroundClient;
 
-    constructor(
-        address: HaneulAddress,
-        backgroundClient: BackgroundClient,
-        provider: JsonRpcProvider
-    ) {
-        super(provider);
-        this.#address = address;
-        this.#backgroundClient = backgroundClient;
-    }
+	constructor(address: HaneulAddress, backgroundClient: BackgroundClient, provider: JsonRpcProvider) {
+		super(provider);
+		this.#address = address;
+		this.#backgroundClient = backgroundClient;
+	}
 
-    async getAddress(): Promise<string> {
-        return this.#address;
-    }
+	async getAddress(): Promise<string> {
+		return this.#address;
+	}
 
-    signData(data: Uint8Array): Promise<SerializedSignature> {
-        return this.#backgroundClient.signData(this.#address, data);
-    }
+	signData(data: Uint8Array): Promise<SerializedSignature> {
+		return this.#backgroundClient.signData(this.#address, data);
+	}
 
-    connect(provider: JsonRpcProvider) {
-        return new BackgroundServiceSigner(
-            this.#address,
-            this.#backgroundClient,
-            provider
-        );
-    }
+	connect(provider: JsonRpcProvider) {
+		return new BackgroundServiceSigner(this.#address, this.#backgroundClient, provider);
+	}
 }

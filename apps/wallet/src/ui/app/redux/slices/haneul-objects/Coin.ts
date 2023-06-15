@@ -13,33 +13,33 @@ export const GAS_SYMBOL = 'HANEUL';
 
 // TODO use sdk
 export class Coin {
-    public static isCoin(obj: HaneulObjectData) {
-        return getObjectType(obj)?.startsWith(COIN_TYPE) ?? false;
-    }
+	public static isCoin(obj: HaneulObjectData) {
+		return getObjectType(obj)?.startsWith(COIN_TYPE) ?? false;
+	}
 
-    public static getCoinTypeArg(obj: HaneulMoveObject) {
-        const res = obj.type.match(COIN_TYPE_ARG_REGEX);
-        return res ? res[1] : null;
-    }
+	public static getCoinTypeArg(obj: HaneulMoveObject) {
+		const res = obj.type.match(COIN_TYPE_ARG_REGEX);
+		return res ? res[1] : null;
+	}
 
-    public static isHANEUL(obj: HaneulMoveObject) {
-        const arg = Coin.getCoinTypeArg(obj);
-        return arg ? Coin.getCoinSymbol(arg) === 'HANEUL' : false;
-    }
+	public static isHANEUL(obj: HaneulMoveObject) {
+		const arg = Coin.getCoinTypeArg(obj);
+		return arg ? Coin.getCoinSymbol(arg) === 'HANEUL' : false;
+	}
 
-    public static getCoinSymbol(coinTypeArg: string) {
-        return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
-    }
+	public static getCoinSymbol(coinTypeArg: string) {
+		return coinTypeArg.substring(coinTypeArg.lastIndexOf(':') + 1);
+	}
 
-    public static getBalance(obj: HaneulMoveObject): bigint {
-        return BigInt(obj.fields.balance);
-    }
+	public static getBalance(obj: HaneulMoveObject): bigint {
+		return BigInt(obj.fields.balance);
+	}
 
-    public static getID(obj: HaneulMoveObject): ObjectId {
-        return obj.fields.id.id;
-    }
+	public static getID(obj: HaneulMoveObject): ObjectId {
+		return obj.fields.id.id;
+	}
 
-    public static getCoinTypeFromArg(coinTypeArg: string) {
-        return `${COIN_TYPE}<${coinTypeArg}>`;
-    }
+	public static getCoinTypeFromArg(coinTypeArg: string) {
+		return `${COIN_TYPE}<${coinTypeArg}>`;
+	}
 }

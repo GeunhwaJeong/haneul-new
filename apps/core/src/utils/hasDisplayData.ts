@@ -3,5 +3,4 @@
 
 import { HaneulObjectResponse, getObjectDisplay } from '@haneullabs/haneul.js';
 
-export const hasDisplayData = (obj: HaneulObjectResponse) =>
-    !!getObjectDisplay(obj).data;
+export const hasDisplayData = (obj: HaneulObjectResponse) => !!getObjectDisplay(obj).data;

@@ -1,33 +1,31 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "incremental": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "rootDir": ".",
-    "paths": {
-      "@haneullabs/wallet-standard": ["../wallet-standard/src"],
-      "@haneullabs/wallet-adapter-base": ["../adapters/base-adapter/src"],
-      "@haneullabs/wallet-adapter-unsafe-burner": ["../adapters/unsafe-burner/src"],
-      "@haneullabs/wallet-adapter-wallet-standard": [
-        "../adapters/wallet-standard-adapter/src"
-      ],
-      "@haneullabs/wallet-kit": ["../wallet-kit/src"],
-      "@haneullabs/wallet-kit-core": ["../wallet-kit-core/src"],
-      "@haneullabs/haneul.js": ["../../typescript/src"],
-      "@haneullabs/bcs": ["../../bcs/src"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+	"compilerOptions": {
+		"target": "es5",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": false,
+		"forceConsistentCasingInFileNames": true,
+		"noEmit": true,
+		"incremental": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"rootDir": ".",
+		"paths": {
+			"@haneullabs/wallet-standard": ["../wallet-standard/src"],
+			"@haneullabs/wallet-adapter-base": ["../adapters/base-adapter/src"],
+			"@haneullabs/wallet-adapter-unsafe-burner": ["../adapters/unsafe-burner/src"],
+			"@haneullabs/wallet-adapter-wallet-standard": ["../adapters/wallet-standard-adapter/src"],
+			"@haneullabs/wallet-kit": ["../wallet-kit/src"],
+			"@haneullabs/wallet-kit-core": ["../wallet-kit-core/src"],
+			"@haneullabs/haneul.js": ["../../typescript/src"],
+			"@haneullabs/bcs": ["../../bcs/src"]
+		}
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+	"exclude": ["node_modules"]
 }

@@ -7,27 +7,27 @@ import { type Account, AccountType } from './Account';
 import { AccountKeypair } from './AccountKeypair';
 
 export type SerializedImportedAccount = {
-    type: AccountType.IMPORTED;
-    address: HaneulAddress;
-    derivationPath: null;
+	type: AccountType.IMPORTED;
+	address: HaneulAddress;
+	derivationPath: null;
 };
 
 export class ImportedAccount implements Account {
-    readonly accountKeypair: AccountKeypair;
-    readonly type: AccountType;
-    readonly address: HaneulAddress;
+	readonly accountKeypair: AccountKeypair;
+	readonly type: AccountType;
+	readonly address: HaneulAddress;
 
-    constructor({ keypair }: { keypair: Keypair }) {
-        this.type = AccountType.IMPORTED;
-        this.accountKeypair = new AccountKeypair(keypair);
-        this.address = this.accountKeypair.publicKey.toHaneulAddress();
-    }
+	constructor({ keypair }: { keypair: Keypair }) {
+		this.type = AccountType.IMPORTED;
+		this.accountKeypair = new AccountKeypair(keypair);
+		this.address = this.accountKeypair.publicKey.toHaneulAddress();
+	}
 
-    toJSON(): SerializedImportedAccount {
-        return {
-            type: AccountType.IMPORTED,
-            address: this.address,
-            derivationPath: null,
-        };
-    }
+	toJSON(): SerializedImportedAccount {
+		return {
+			type: AccountType.IMPORTED,
+			address: this.address,
+			derivationPath: null,
+		};
+	}
 }

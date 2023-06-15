@@ -3,13 +3,10 @@
 
 import { type HaneulEvent } from '@haneullabs/haneul.js';
 
-export function getValidatorMoveEvent(
-    validatorsEvent: HaneulEvent[],
-    validatorAddress: string
-) {
-    const event = validatorsEvent.find(
-        ({ parsedJson }) => parsedJson!.validator_address === validatorAddress
-    );
+export function getValidatorMoveEvent(validatorsEvent: HaneulEvent[], validatorAddress: string) {
+	const event = validatorsEvent.find(
+		({ parsedJson }) => parsedJson!.validator_address === validatorAddress,
+	);
 
-    return event && event.parsedJson;
+	return event && event.parsedJson;
 }

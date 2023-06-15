@@ -7,18 +7,18 @@ import { GasSummaryType } from './getGasSummary';
 import { ObjectChangeSummary } from './getObjectChangeSummary';
 
 export type TransactionSummary = {
-    digest?: string;
-    sender?: HaneulAddress;
-    timestamp?: string;
-    balanceChanges: BalanceChangeSummary;
-    gas?: GasSummaryType;
-    objectSummary: ObjectChangeSummary | null;
+	digest?: string;
+	sender?: HaneulAddress;
+	timestamp?: string;
+	balanceChanges: BalanceChangeSummary;
+	gas?: GasSummaryType;
+	objectSummary: ObjectChangeSummary | null;
 } | null;
 
 export type HaneulObjectChangeTypes =
-    | 'published'
-    | 'transferred'
-    | 'mutated'
-    | 'deleted'
-    | 'wrapped'
-    | 'created';
+	| 'published'
+	| 'transferred'
+	| 'mutated'
+	| 'deleted'
+	| 'wrapped'
+	| 'created';

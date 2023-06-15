@@ -5,16 +5,14 @@ import type { DelegatedStake } from '@haneullabs/haneul.js';
 
 // Helper function to get the delegation by stakedHaneulId
 export const getDelegationDataByStakeId = (
-    delegationsStake: DelegatedStake[],
-    stakeHaneulId: string
+	delegationsStake: DelegatedStake[],
+	stakeHaneulId: string,
 ) => {
-    let stake = null;
-    for (const { stakes } of delegationsStake) {
-        stake =
-            stakes.find(({ stakedHaneulId }) => stakedHaneulId === stakeHaneulId) ||
-            null;
-        if (stake) return stake;
-    }
+	let stake = null;
+	for (const { stakes } of delegationsStake) {
+		stake = stakes.find(({ stakedHaneulId }) => stakedHaneulId === stakeHaneulId) || null;
+		if (stake) return stake;
+	}
 
-    return stake;
+	return stake;
 };

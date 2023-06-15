@@ -4,11 +4,11 @@
 import { ConnectButton } from '@haneullabs/wallet-kit';
 
 export function HaneulConnectButton() {
-  return (
-    <ConnectButton
-      style={{
-        backgroundColor: '#101827',
-      }}
-    />
-  );
+	return (
+		<ConnectButton
+			style={{
+				backgroundColor: '#101827',
+			}}
+		/>
+	);
 }

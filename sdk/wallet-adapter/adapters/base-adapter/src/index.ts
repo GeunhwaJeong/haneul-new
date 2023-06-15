@@ -1,51 +1,42 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { SignedTransaction, HaneulTransactionBlockResponse, SignedMessage } from '@haneullabs/haneul.js';
 import {
-  SignedTransaction,
-  HaneulTransactionBlockResponse,
-  SignedMessage,
-} from "@haneullabs/haneul.js";
-import {
-  HaneulSignTransactionBlockInput,
-  HaneulSignAndExecuteTransactionBlockInput,
-  WalletAccount,
-  HaneulSignMessageInput,
-} from "@haneullabs/wallet-standard";
+	HaneulSignTransactionBlockInput,
+	HaneulSignAndExecuteTransactionBlockInput,
+	WalletAccount,
+	HaneulSignMessageInput,
+} from '@haneullabs/wallet-standard';
 
 export interface WalletAdapterEvents {
-  change(changes: {
-    connected?: boolean;
-    accounts?: readonly WalletAccount[];
-  }): void;
+	change(changes: { connected?: boolean; accounts?: readonly WalletAccount[] }): void;
 }
 
 export interface WalletAdapter {
-  // Metadata
-  name: string;
-  icon?: string;
+	// Metadata
+	name: string;
+	icon?: string;
 
-  connected: boolean;
-  connecting: boolean;
-  // Connection Management
-  connect: () => Promise<void>;
-  disconnect: () => Promise<void>;
-  on: <E extends keyof WalletAdapterEvents>(
-    event: E,
-    callback: WalletAdapterEvents[E]
-  ) => () => void;
-  signMessage(messageInput: HaneulSignMessageInput): Promise<SignedMessage>;
-  signTransactionBlock(
-    transactionInput: HaneulSignTransactionBlockInput
-  ): Promise<SignedTransaction>;
-  /**
-   * Suggest a transaction for the user to sign. Supports all valid transaction types.
-   */
-  signAndExecuteTransactionBlock(
-    transactionInput: HaneulSignAndExecuteTransactionBlockInput
-  ): Promise<HaneulTransactionBlockResponse>;
+	connected: boolean;
+	connecting: boolean;
+	// Connection Management
+	connect: () => Promise<void>;
+	disconnect: () => Promise<void>;
+	on: <E extends keyof WalletAdapterEvents>(
+		event: E,
+		callback: WalletAdapterEvents[E],
+	) => () => void;
+	signMessage(messageInput: HaneulSignMessageInput): Promise<SignedMessage>;
+	signTransactionBlock(transactionInput: HaneulSignTransactionBlockInput): Promise<SignedTransaction>;
+	/**
+	 * Suggest a transaction for the user to sign. Supports all valid transaction types.
+	 */
+	signAndExecuteTransactionBlock(
+		transactionInput: HaneulSignAndExecuteTransactionBlockInput,
+	): Promise<HaneulTransactionBlockResponse>;
 
-  getAccounts: () => Promise<readonly WalletAccount[]>;
+	getAccounts: () => Promise<readonly WalletAccount[]>;
 }
 
 type WalletAdapterProviderUnsubscribe = () => void;
@@ -55,28 +46,21 @@ type WalletAdapterProviderUnsubscribe = () => void;
  * cases where the list of wallet adapters is dynamic.
  */
 export interface WalletAdapterProvider {
-  /** Get a list of wallet adapters from this provider. */
-  get(): WalletAdapter[];
-  /** Detect changes to the list of wallet adapters. */
-  on(
-    eventName: "changed",
-    callback: () => void
-  ): WalletAdapterProviderUnsubscribe;
+	/** Get a list of wallet adapters from this provider. */
+	get(): WalletAdapter[];
+	/** Detect changes to the list of wallet adapters. */
+	on(eventName: 'changed', callback: () => void): WalletAdapterProviderUnsubscribe;
 }
 
 export type WalletAdapterOrProvider = WalletAdapterProvider | WalletAdapter;
 export type WalletAdapterList = WalletAdapterOrProvider[];
 
-export function isWalletAdapter(
-  wallet: WalletAdapterOrProvider
-): wallet is WalletAdapter {
-  return "connect" in wallet;
+export function isWalletAdapter(wallet: WalletAdapterOrProvider): wallet is WalletAdapter {
+	return 'connect' in wallet;
 }
 
-export function isWalletProvider(
-  wallet: WalletAdapterOrProvider
-): wallet is WalletAdapterProvider {
-  return !isWalletAdapter(wallet);
+export function isWalletProvider(wallet: WalletAdapterOrProvider): wallet is WalletAdapterProvider {
+	return !isWalletAdapter(wallet);
 }
 
 /**
@@ -84,11 +68,11 @@ export function isWalletProvider(
  * flat list of wallet adapters.
  */
 export function resolveAdapters(adapterAndProviders: WalletAdapterList) {
-  return adapterAndProviders.flatMap((adapter) => {
-    if (isWalletProvider(adapter)) {
-      return adapter.get();
-    }
+	return adapterAndProviders.flatMap((adapter) => {
+		if (isWalletProvider(adapter)) {
+			return adapter.get();
+		}
 
-    return adapter;
-  });
+		return adapter;
+	});
 }

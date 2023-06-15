@@ -5,6 +5,6 @@ import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload } from '_payloads';
 
 export interface GetAccountResponse extends BasePayload {
-    type: 'get-account-response';
-    accounts: HaneulAddress[];
+	type: 'get-account-response';
+	accounts: HaneulAddress[];
 }

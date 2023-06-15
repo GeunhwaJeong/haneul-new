@@ -8,12 +8,12 @@ import { createHaneulAddressValidation } from '_components/address-input/validat
 import { createTokenValidation } from '_src/shared/validation';
 
 export function createValidationSchemaStepOne(
-    rpc: JsonRpcProvider,
-    haneulNSEnabled: boolean,
-    ...args: Parameters<typeof createTokenValidation>
+	rpc: JsonRpcProvider,
+	haneulNSEnabled: boolean,
+	...args: Parameters<typeof createTokenValidation>
 ) {
-    return Yup.object({
-        to: createHaneulAddressValidation(rpc, haneulNSEnabled),
-        amount: createTokenValidation(...args),
-    });
+	return Yup.object({
+		to: createHaneulAddressValidation(rpc, haneulNSEnabled),
+		amount: createTokenValidation(...args),
+	});
 }

@@ -1,58 +1,55 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import {
-    DryRunTransactionBlockResponse,
-    GasCostSummary,
-    HaneulTransactionBlockResponse,
-    getGasData,
-    getTotalGasUsed,
-    getTransactionSender,
-    is,
-    HaneulGasData,
+	DryRunTransactionBlockResponse,
+	GasCostSummary,
+	HaneulTransactionBlockResponse,
+	getGasData,
+	getTotalGasUsed,
+	getTransactionSender,
+	is,
+	HaneulGasData,
 } from '@haneullabs/haneul.js';
 
 type Optional<T> = {
-    [K in keyof T]?: T[K];
+	[K in keyof T]?: T[K];
 };
 
 export type GasSummaryType =
-    | (GasCostSummary &
-          Optional<HaneulGasData> & {
-              totalGas?: string;
-              owner?: string;
-              isSponsored: boolean;
-              gasUsed: GasCostSummary;
-          })
-    | null;
+	| (GasCostSummary &
+			Optional<HaneulGasData> & {
+				totalGas?: string;
+				owner?: string;
+				isSponsored: boolean;
+				gasUsed: GasCostSummary;
+			})
+	| null;
 
 export function getGasSummary(
-    transaction: HaneulTransactionBlockResponse | DryRunTransactionBlockResponse
+	transaction: HaneulTransactionBlockResponse | DryRunTransactionBlockResponse,
 ): GasSummaryType {
-    const { effects } = transaction;
-    if (!effects) return null;
-    const totalGas = getTotalGasUsed(effects);
+	const { effects } = transaction;
+	if (!effects) return null;
+	const totalGas = getTotalGasUsed(effects);
 
-    let sender = is(transaction, HaneulTransactionBlockResponse)
-        ? getTransactionSender(transaction)
-        : undefined;
+	let sender = is(transaction, HaneulTransactionBlockResponse)
+		? getTransactionSender(transaction)
+		: undefined;
 
-    const owner = is(transaction, HaneulTransactionBlockResponse)
-        ? getGasData(transaction)?.owner
-        : typeof effects.gasObject.owner === 'object' &&
-          'AddressOwner' in effects.gasObject.owner
-        ? effects.gasObject.owner.AddressOwner
-        : '';
+	const owner = is(transaction, HaneulTransactionBlockResponse)
+		? getGasData(transaction)?.owner
+		: typeof effects.gasObject.owner === 'object' && 'AddressOwner' in effects.gasObject.owner
+		? effects.gasObject.owner.AddressOwner
+		: '';
 
-    const gasData = is(transaction, HaneulTransactionBlockResponse)
-        ? getGasData(transaction)
-        : {};
+	const gasData = is(transaction, HaneulTransactionBlockResponse) ? getGasData(transaction) : {};
 
-    return {
-        ...effects.gasUsed,
-        ...gasData,
-        owner,
-        totalGas: totalGas?.toString(),
-        isSponsored: !!owner && !!sender && owner !== sender,
-        gasUsed: transaction?.effects!.gasUsed,
-    };
+	return {
+		...effects.gasUsed,
+		...gasData,
+		owner,
+		totalGas: totalGas?.toString(),
+		isSponsored: !!owner && !!sender && owner !== sender,
+		gasUsed: transaction?.effects!.gasUsed,
+	};
 }

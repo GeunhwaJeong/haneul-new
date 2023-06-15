@@ -9,24 +9,24 @@ A suite of standard utilities for implementing wallets and libraries based on th
 You need to create a class that represents your wallet. You can use the `Wallet` interface from `@haneullabs/wallet-standard` to help ensure your class adheres to the standard.
 
 ```typescript
-import { Wallet, HANEUL_DEVNET_CHAIN } from "@haneullabs/wallet-standard";
+import { Wallet, HANEUL_DEVNET_CHAIN } from '@haneullabs/wallet-standard';
 
 class YourWallet implements Wallet {
-  get version() {
-    // Return the version of the Wallet Standard this implements (in this case, 1.0.0).
-    return "1.0.0";
-  }
-  get name() {
-    return "Wallet Name";
-  }
-  get icon() {
-    return "some-icon-data-url";
-  }
+	get version() {
+		// Return the version of the Wallet Standard this implements (in this case, 1.0.0).
+		return '1.0.0';
+	}
+	get name() {
+		return 'Wallet Name';
+	}
+	get icon() {
+		return 'some-icon-data-url';
+	}
 
-  // Return the Haneul chains that your wallet supports.
-  get chains() {
-    return [HANEUL_DEVNET_CHAIN];
-  }
+	// Return the Haneul chains that your wallet supports.
+	get chains() {
+		return [HANEUL_DEVNET_CHAIN];
+	}
 }
 ```
 
@@ -107,25 +107,25 @@ The last requirement of the wallet interface is to expose an `acccounts` interfa
 The accounts can use the `ReadonlyWalletAccount` class to easily construct an account matching the required interface.
 
 ```typescript
-import { ReadonlyWalletAccount } from "@haneullabs/wallet-standard";
+import { ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 
 class YourWallet implements Wallet {
-  get accounts() {
-    // Assuming we already have some internal representation of accounts:
-    return someWalletAccounts.map(
-      (walletAccount) =>
-        // Return
-        new ReadonlyWalletAccount({
-          address: walletAccount.haneulAddress,
-          publicKey: walletAccount.pubkey,
-          // The Haneul chains that your wallet supports.
-          chains: [HANEUL_DEVNET_CHAIN],
-          // The features that this account supports. This can be a subset of the wallet's supported features.
-          // These features must exist on the wallet as well.
-          features: ["haneul:signAndExecuteTransactionBlock"],
-        })
-    );
-  }
+	get accounts() {
+		// Assuming we already have some internal representation of accounts:
+		return someWalletAccounts.map(
+			(walletAccount) =>
+				// Return
+				new ReadonlyWalletAccount({
+					address: walletAccount.haneulAddress,
+					publicKey: walletAccount.pubkey,
+					// The Haneul chains that your wallet supports.
+					chains: [HANEUL_DEVNET_CHAIN],
+					// The features that this account supports. This can be a subset of the wallet's supported features.
+					// These features must exist on the wallet as well.
+					features: ['haneul:signAndExecuteTransactionBlock'],
+				}),
+		);
+	}
 }
 ```
 
@@ -134,7 +134,7 @@ class YourWallet implements Wallet {
 Once you have a compatible interface for your wallet, you can register it using the `registerWallet` function.
 
 ```typescript
-import { registerWallet } from "@haneullabs/wallet-standard";
+import { registerWallet } from '@haneullabs/wallet-standard';
 
 registerWallet(new YourWallet());
 ```
