@@ -9571,6 +9571,7 @@ dependencies = [
  "haneul-protocol-config",
  "haneul-sdk",
  "haneul-simulator",
+ "haneul-swarm",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-tool",
