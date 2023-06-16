@@ -54,9 +54,13 @@ const keypair = Ed25519Keypair.deriveKeypair(
 const address = keypair.getPublicKey().toHaneulAddress();
 ```
 
-In CLI: 
+You can use the CLI to import a mnemonic or a private key from the wallet:
 ```bash
-haneul keytool import "TEST_MNEMONIC" ed25519 "m/44'/8282'/0'/0'/0'"
+# imports an account using this mnemonic, the ed25519 signature scheme, and (an optional) derivation path
+haneul keytool import "TEST_MNEMONIC" ed25519 "m/44'/8282'/0'/0'/0'" 
+# imports an account using the given private key and the ed25519 signature scheme
+haneul keytool import "private_key" ed25519
+# creates a new address using the ed25519 signature scheme and (an optional) derivation path
 haneul client new-address ed25519 "m/44'/8282'/0'/0'/0'"
 ```
 
