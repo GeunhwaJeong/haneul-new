@@ -38,7 +38,7 @@ use test_utils::network::TestClusterBuilder;
 
 #[tokio::test]
 async fn test_transfer_haneul() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -68,7 +68,7 @@ async fn test_transfer_haneul() {
 
 #[tokio::test]
 async fn test_transfer_haneul_whole_coin() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -98,7 +98,7 @@ async fn test_transfer_haneul_whole_coin() {
 
 #[tokio::test]
 async fn test_transfer_object() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -129,7 +129,7 @@ async fn test_transfer_object() {
 
 #[tokio::test]
 async fn test_publish_and_move_call() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -219,7 +219,7 @@ async fn test_publish_and_move_call() {
 
 #[tokio::test]
 async fn test_split_coin() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -252,7 +252,7 @@ async fn test_split_coin() {
 
 #[tokio::test]
 async fn test_merge_coin() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -286,7 +286,7 @@ async fn test_merge_coin() {
 
 #[tokio::test]
 async fn test_pay() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -319,7 +319,7 @@ async fn test_pay() {
 
 #[tokio::test]
 async fn test_pay_multiple_coin_multiple_recipient() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -358,7 +358,7 @@ async fn test_pay_multiple_coin_multiple_recipient() {
 
 #[tokio::test]
 async fn test_pay_haneul_multiple_coin_same_recipient() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -395,7 +395,7 @@ async fn test_pay_haneul_multiple_coin_same_recipient() {
 
 #[tokio::test]
 async fn test_pay_haneul() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -430,7 +430,7 @@ async fn test_pay_haneul() {
 
 #[tokio::test]
 async fn test_failed_pay_haneul() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -465,7 +465,7 @@ async fn test_failed_pay_haneul() {
 
 #[tokio::test]
 async fn test_stake_haneul() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -513,7 +513,7 @@ async fn test_stake_haneul() {
 
 #[tokio::test]
 async fn test_stake_haneul_with_none_amount() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -561,7 +561,7 @@ async fn test_stake_haneul_with_none_amount() {
 
 #[tokio::test]
 async fn test_pay_all_haneul() {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let client = network.wallet.get_client().await.unwrap();
     let keystore = &network.wallet.config.keystore;
     let rgp = network.get_reference_gas_price().await;
@@ -593,7 +593,7 @@ async fn test_pay_all_haneul() {
 
 #[tokio::test]
 async fn test_delegation_parsing() -> Result<(), anyhow::Error> {
-    let network = TestClusterBuilder::new().build().await.unwrap();
+    let network = TestClusterBuilder::new().build().await;
     let rgp = network.get_reference_gas_price().await;
     let client = network.wallet.get_client().await.unwrap();
     let sender = get_random_address(&network.get_addresses(), vec![]);
