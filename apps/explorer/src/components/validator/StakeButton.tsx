@@ -46,7 +46,6 @@ export function StakeButton() {
 		return (
 			<Button
 				size="lg"
-				variant="outline"
 				href="https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil"
 			>
 				Install Haneul Wallet to stake HANEUL
@@ -67,7 +66,6 @@ export function StakeButton() {
 		return (
 			<Button
 				size="lg"
-				variant="outline"
 				onClick={() => {
 					// Always just assume we should connect to the first stake supported wallet for now:
 					connect(stakeSupportedWallets[0].name);
