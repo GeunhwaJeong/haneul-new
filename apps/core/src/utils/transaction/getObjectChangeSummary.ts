@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import {
-	type HaneulAddress,
 	HaneulObjectChangeTransferred,
 	HaneulObjectChangeCreated,
 	HaneulObjectChangeMutated,
@@ -28,10 +27,7 @@ export type ObjectChangeSummary = {
 	[K in HaneulObjectChangeTypes]: ObjectChangesByOwner;
 };
 
-export const getObjectChangeSummary = (
-	objectChanges: HaneulObjectChangeWithDisplay[],
-	currentAddress?: HaneulAddress | null,
-) => {
+export const getObjectChangeSummary = (objectChanges: HaneulObjectChangeWithDisplay[]) => {
 	if (!objectChanges) return null;
 
 	const mutated = objectChanges.filter(
@@ -39,9 +35,7 @@ export const getObjectChangeSummary = (
 	) as HaneulObjectChangeMutated[];
 
 	const created = objectChanges.filter(
-		(change) =>
-			change.type === 'created' &&
-			(typeof currentAddress === 'undefined' || change.sender === currentAddress),
+		(change) => change.type === 'created',
 	) as HaneulObjectChangeCreated[];
 
 	const transferred = objectChanges.filter(
