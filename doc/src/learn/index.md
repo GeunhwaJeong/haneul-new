@@ -10,7 +10,7 @@ For a deep dive into Haneul technology, see the [Haneul Smart Contracts Platform
 
 ## Documentation versions
 
-This site is available in two versions. You can choose which version to view using the drop-down menu at top left.
+This site is available in three versions. You can choose which version to view using the drop-down menu at top left.
  * **Devnet** reflects the version of Haneul running on the Haneul Devnet network.  
  * **Testnet** reflects the version of Haneul running on the Haneul Testnet network. 
  * **Mainnet** reflects the version of Haneul running on the Haneul Mainnet network.
