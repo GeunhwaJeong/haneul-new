@@ -8,13 +8,13 @@ license = "Apache-2.0"
 publish = false
 
 [dev-dependencies]
-prometheus = "0.13.3"
+prometheus.workspace = true
 
-haneul-framework = { path = "../haneul-framework" }
-haneul-move = { path = "../haneul-move", features = ["unit_test"] }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-types = { path = "../haneul-types" }
+haneul-framework.workspace = true
+haneul-move = { workspace = true, features = ["unit_test"] }
+haneul-move-build.workspace = true
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true
 
 move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }

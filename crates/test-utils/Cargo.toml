@@ -7,33 +7,33 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-futures = "0.3.23"
-tempfile = "3.3.0"
-tracing = "0.1.36"
-bcs = "0.1.4"
-jsonrpsee = { git="https://github.com/wlmyng/jsonrpsee.git", rev= "b1b300784795f6a64d0fcdf8f03081a9bc38bde8", features = ["http-client"] }
-prometheus = "0.13.3"
+anyhow.workspace = true
+futures.workspace = true
+tempfile.workspace = true
+tracing.workspace = true
+bcs.workspace = true
+jsonrpsee.workspace = true
+prometheus.workspace = true
 tokio = { workspace = true, features = ["full", "tracing", "test-util"] }
-serde_json = "1.0.88"
-rand = "0.8.5"
-haneul = { path = "../haneul" }
-haneul-config = { path = "../haneul-config" }
-haneul-core = { path = "../haneul-core", features = ["test-utils"] }
-haneul-framework = { path = "../haneul-framework" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
-haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-node = { path = "../haneul-node" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-swarm = { path = "../haneul-swarm" }
-haneul-types = { path = "../haneul-types", features = ["test-utils"] }
-haneul-keys = { path = "../haneul-keys" }
-haneul-sdk = { path = "../haneul-sdk" }
-haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
-haneullabs-metrics = { path = "../haneullabs-metrics"}
-shared-crypto = { path = "../shared-crypto" }
+serde_json.workspace = true
+rand.workspace = true
+haneul.workspace = true
+haneul-config.workspace = true
+haneul-core = { workspace = true, features = ["test-utils"] }
+haneul-framework.workspace = true
+haneul-swarm-config.workspace = true
+haneul-json-rpc.workspace = true
+haneul-json-rpc-types.workspace = true
+haneul-move-build.workspace = true
+haneul-node.workspace = true
+haneul-protocol-config.workspace = true
+haneul-swarm.workspace = true
+haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-keys.workspace = true
+haneul-sdk.workspace = true
+haneul-test-transaction-builder.workspace = true
+haneullabs-metrics.workspace = true
+shared-crypto.workspace = true
 
 move-binary-format.workspace = true
 move-core-types.workspace = true
@@ -41,7 +41,7 @@ move-package.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [target.'cfg(msim)'.dependencies]
-haneul-simulator = { path = "../haneul-simulator" }
+haneul-simulator.workspace = true
 
 [dev-dependencies]
-haneul-macros = { path = "../haneul-macros" }
+haneul-macros.workspace = true

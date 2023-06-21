@@ -12,18 +12,18 @@ move-package.workspace = true
 
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 
-haneul-framework = { path = "../haneul-framework" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-types = { path = "../haneul-types" }
-tempfile = "3.3.0"
-tracing = "0.1"
+haneul-framework.workspace = true
+haneul-move-build.workspace = true
+haneul-types.workspace = true
+tempfile.workspace = true
+tracing.workspace = true
 anemo.workspace = true
 anemo-tower.workspace = true
-narwhal-network = { path = "../../narwhal/network" }
+narwhal-network.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 telemetry-subscribers.workspace = true
-tower = "0.4.13"
-lru = "0.10"
+tower.workspace = true
+lru.workspace = true
 
 [target.'cfg(msim)'.dependencies]
-msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "bd870b9a11870a2618c55ba703d58fafd41d686c", package = "msim" }
+msim.workspace = true

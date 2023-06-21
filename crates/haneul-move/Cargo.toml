@@ -7,16 +7,16 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-clap = { version = "3.2.17", features = ["derive"] }
-colored = "2.0.0"
-once_cell = { version = "1.16", optional = true }
-serde_json = "1.0.88"
-serde_yaml = "0.8.26"
-tracing = "0.1.36"
-prometheus = "0.13.3"
-git-version = "0.3.5"
-const-str = "0.5.3"
+anyhow.workspace = true
+clap.workspace = true
+colored.workspace = true
+once_cell = { workspace = true, optional = true }
+serde_json.workspace = true
+serde_yaml.workspace = true
+tracing.workspace = true
+prometheus.workspace = true
+git-version.workspace = true
+const-str.workspace = true
 
 fastcrypto.workspace = true
 move-binary-format.workspace = true
@@ -34,29 +34,29 @@ tokio = { workspace = true, features = ["full"] }
 move-vm-runtime = { path = "../../external-crates/move/move-vm/runtime" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
 
-haneul-core = { path = "../haneul-core", optional = true }
-haneul-cost-tables = { path = "../haneul-cost-tables" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-types = { path = "../haneul-types" }
+haneul-core = { workspace = true, optional = true }
+haneul-cost-tables.workspace = true
+haneul-move-build.workspace = true
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemalloc-ctl = "^0.5"
+jemalloc-ctl.workspace = true
 
 [dev-dependencies]
-assert_cmd = "2.0.6"
-futures = "0.3.23"
-jsonrpsee = { git="https://github.com/wlmyng/jsonrpsee.git", rev= "b1b300784795f6a64d0fcdf8f03081a9bc38bde8", features = ["jsonrpsee-core"] }
-rand = "0.8.5"
-tempfile = "3.3.0"
+assert_cmd.workspace = true
+futures.workspace = true
+jsonrpsee.workspace = true
+rand.workspace = true
+tempfile.workspace = true
 
 move-package.workspace = true
 
-haneullabs-metrics = { path = "../haneullabs-metrics" }
-haneul-core = { path = "../haneul-core" }
-haneul-macros = { path = "../haneul-macros" }
-haneul-node = { path = "../haneul-node" }
-haneul-simulator = { path = "../haneul-simulator" }
+haneullabs-metrics.workspace = true
+haneul-core.workspace = true
+haneul-macros.workspace = true
+haneul-node.workspace = true
+haneul-simulator.workspace = true
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemalloc-ctl"]

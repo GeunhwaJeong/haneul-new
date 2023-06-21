@@ -7,34 +7,33 @@ publish = false
 edition = "2021"
 
 [dependencies]
-haneul-config = { path = "../haneul-config" }
-haneul-core = { path = "../haneul-core" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
-haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-swarm = { path = "../haneul-swarm" }
-haneul-types = { path = "../haneul-types" }
-test-utils = { path = "../test-utils" }
+haneul-config.workspace = true
+haneul-core.workspace = true
+haneul-swarm-config.workspace = true
+haneul-json-rpc-types.workspace = true
+haneul-move-build.workspace = true
+haneul-protocol-config.workspace = true
+haneul-swarm.workspace = true
+haneul-types.workspace = true
+test-utils.workspace = true
 
-async-trait = "0.1.61"
-bcs = "0.1.4"
-clap = { version = "3.2.17", features = ["derive"] }
-futures = "0.3.23"
-indexmap = "1.9.3"
-rand = "0.8.5"
+async-trait.workspace = true
+bcs.workspace = true
+clap.workspace = true
+futures.workspace = true
+indexmap.workspace = true
+rand.workspace = true
 tokio = { workspace = true, features = ["full", "tracing", "test-util"] }
-tracing = "0.1.36"
+tracing.workspace = true
 
 move-binary-format.workspace = true
 move-core-types.workspace = true
 telemetry-subscribers.workspace = true
-
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
-prometheus = "0.13.3"
-haneul-macros = { path = "../haneul-macros" }
-haneul-simulator = { path = "../haneul-simulator" }
+prometheus.workspace = true
+haneul-macros.workspace = true
+haneul-simulator.workspace = true
 
 move-package.workspace = true

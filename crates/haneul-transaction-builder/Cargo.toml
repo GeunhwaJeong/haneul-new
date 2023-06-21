@@ -7,16 +7,16 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.64"
-async-trait = "0.1.61"
-futures = "0.3.23"
-bcs = "0.1.4"
+anyhow.workspace = true
+async-trait.workspace = true
+futures.workspace = true
+bcs.workspace = true
 
 move-binary-format.workspace = true
-haneul-json-rpc-types= { path = "../haneul-json-rpc-types" }
-haneul-types = { path = "../haneul-types" }
-haneul-json = { path = "../haneul-json" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
+haneul-json-rpc-types.workspace = true
+haneul-types.workspace = true
+haneul-json.workspace = true
+haneul-protocol-config.workspace = true
 
 move-core-types.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

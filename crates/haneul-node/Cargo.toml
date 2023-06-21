@@ -9,37 +9,37 @@ edition = "2021"
 [dependencies]
 anemo.workspace = true
 anemo-tower.workspace = true
-arc-swap = "1.5.1"
+arc-swap.workspace = true
 axum.workspace = true
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-clap = { version = "3.2.17", features = ["derive"] }
-prometheus = "0.13.3"
+anyhow.workspace = true
+clap.workspace = true
+prometheus.workspace = true
 tokio = { workspace = true, features = ["full"] }
-tracing = "0.1.36"
-futures = "0.3.23"
-tower = "0.4.13"
-reqwest = { version = "0.11.13", default_features= false, features = ["blocking", "json", "rustls-tls"] }
-tap = "1.0.1"
-serde = { version = "1.0.144", features = ["derive"] }
-snap = "1.1.0"
-git-version = "0.3.5"
-const-str = "0.5.3"
+tracing.workspace = true
+futures.workspace = true
+tower.workspace = true
+reqwest.workspace = true
+tap.workspace = true
+serde.workspace = true
+snap.workspace = true
+git-version.workspace = true
+const-str.workspace = true
 
-haneul-archival = { path = "../haneul-archival" }
-haneul-tls = { path = "../haneul-tls" }
-haneul-macros = { path = "../haneul-macros" }
-haneul-config = { path = "../haneul-config" }
-haneul-core = { path = "../haneul-core" }
-haneul-storage = { path = "../haneul-storage" }
-haneul-network = { path = "../haneul-network" }
-haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-telemetry = { path = "../haneul-telemetry" }
-haneul-types = { path = "../haneul-types" }
-haneullabs-metrics = { path = "../haneullabs-metrics" }
-haneullabs-common = { path = "../haneullabs-common" }
-narwhal-network = { path = "../../narwhal/network" }
-narwhal-types = { path = "../../narwhal/types" }
+haneul-archival.workspace = true
+haneul-tls.workspace = true
+haneul-macros.workspace = true
+haneul-config.workspace = true
+haneul-core.workspace = true
+haneul-storage.workspace = true
+haneul-network.workspace = true
+haneul-json-rpc.workspace = true
+haneul-protocol-config.workspace = true
+haneul-telemetry.workspace = true
+haneul-types.workspace = true
+haneullabs-metrics.workspace = true
+haneullabs-common.workspace = true
+narwhal-network.workspace = true
+narwhal-types.workspace = true
 typed-store.workspace = true
 haneullabs-network.workspace = true
 telemetry-subscribers.workspace = true
@@ -47,4 +47,4 @@ fastcrypto.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [target.'cfg(msim)'.dependencies]
-haneul-simulator = { path = "../haneul-simulator" }
+haneul-simulator.workspace = true

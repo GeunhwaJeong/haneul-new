@@ -8,8 +8,8 @@ publish = false
 edition = "2021"
 
 [dependencies]
-haneul-protocol-config = { path = "../crates/haneul-protocol-config" }
-haneul-types = { path = "../crates/haneul-types" }
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true

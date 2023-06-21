@@ -7,27 +7,27 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-bcs = "0.1.4"
+anyhow.workspace = true
+bcs.workspace = true
 clap = { version = "4.1.4", features = ["derive"] }
-colored = "2.0.0"
-comfy-table = "6.1.3"
-eyre = "0.6.8"
-futures = "0.3.23"
-hex = "0.4.3"
-itertools = { version = "0.10.3", features = ["use_alloc"] }
-rocksdb = "0.21.0"
-ron = "0.8.0"
-serde = { version = "1.0.144", features = ["derive"] }
-serde_json = "1.0.88"
-similar = "2.2.0"
-strum = "0.24.1"
-strum_macros = "^0.24"
-tempfile = "3.3.0"
-thiserror = "1.0.34"
-tracing = "0.1.36"
-prometheus = "0.13.3"
-indicatif = "0.17.2"
+colored.workspace = true
+comfy-table.workspace = true
+eyre.workspace = true
+futures.workspace = true
+hex.workspace = true
+itertools.workspace = true
+rocksdb.workspace = true
+ron.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+similar.workspace = true
+strum.workspace = true
+strum_macros.workspace = true
+tempfile.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+prometheus.workspace = true
+indicatif.workspace = true
 
 anemo-cli.workspace = true
 anemo.workspace = true
@@ -40,18 +40,17 @@ tokio = { workspace = true, features = ["full"] }
 typed-store.workspace = true
 fastcrypto.workspace = true
 
-narwhal-types = { path = "../../narwhal/types" }
-haneul-config = { path = "../haneul-config" }
-haneul-core = { path = "../haneul-core" }
-haneul-framework = { path = "../haneul-framework" }
-haneul-json-rpc = { path = "../haneul-json-rpc" }
-haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-haneul-network = { path = "../haneul-network" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-replay = { path = "../haneul-replay" }
-haneul-sdk = { path = "../haneul-sdk" }
-haneul-storage = { path = "../haneul-storage" }
-haneul-types = { path = "../haneul-types" }
-haneul-archival = { path = "../haneul-archival" }
-
+narwhal-types.workspace = true
+haneul-config.workspace = true
+haneul-core.workspace = true
+haneul-framework.workspace = true
+haneul-json-rpc.workspace = true
+haneul-json-rpc-types.workspace = true
+haneul-network.workspace = true
+haneul-protocol-config.workspace = true
+haneul-replay.workspace = true
+haneul-sdk.workspace = true
+haneul-storage.workspace = true
+haneul-types.workspace = true
+haneul-archival.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

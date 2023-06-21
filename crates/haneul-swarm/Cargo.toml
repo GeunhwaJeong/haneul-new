@@ -7,26 +7,26 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-rand = "0.8.5"
-tracing = "0.1.36"
+anyhow.workspace = true
+rand.workspace = true
+tracing.workspace = true
 tokio = { workspace = true, features = ["full"] }
-futures = "0.3.23"
-tempfile = "3.3.0"
-tonic-health = "0.8.0"
-tap = "1.0.1"
-prometheus = "0.13.3"
+futures.workspace = true
+tempfile.workspace = true
+tonic-health.workspace = true
+tap.workspace = true
+prometheus.workspace = true
 
-haneul-config = { path = "../haneul-config" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
-haneul-node = { path = "../haneul-node" }
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-types = { path = "../haneul-types" }
-haneullabs-metrics = { path = "../haneullabs-metrics" }
+haneul-config.workspace = true
+haneul-swarm-config.workspace = true
+haneul-node.workspace = true
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true
+haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
 telemetry-subscribers.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [target.'cfg(msim)'.dependencies]
-haneul-simulator = { path = "../haneul-simulator" }
+haneul-simulator.workspace = true
 

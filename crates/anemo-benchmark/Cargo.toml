@@ -9,14 +9,14 @@ edition = "2021"
 [dependencies]
 anemo.workspace = true
 anemo-tower.workspace = true
-anyhow = "1.0.65"
+anyhow.workspace = true
 clap = { version = "4.1.4", features = ["derive"] }
 haneullabs-network.workspace = true
-rand = "0.8.5"
-haneul-types = { path = "../haneul-types" }
+rand.workspace= true
+haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
-tracing = "0.1.37"
+tracing.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [build-dependencies]

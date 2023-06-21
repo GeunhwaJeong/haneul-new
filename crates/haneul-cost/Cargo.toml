@@ -8,21 +8,21 @@ edition = "2021"
 
 [dependencies]
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
-haneul-types = {path = "../haneul-types"}
-anyhow = { version = "1.0.64", features = ["backtrace"] }
+haneul-types.workspace = true
+anyhow.workspace = true
 tokio = { workspace = true, features = ["full"] }
-serde = { version = "1.0.144", features = ["derive"] }
-strum = { version = "0.24", features = ["derive"] }
-strum_macros = "0.24"
-bcs = "0.1.4"
-haneul-core = { path = "../haneul-core" }
-haneul-test-transaction-builder = { path = "../haneul-test-transaction-builder" }
+serde.workspace = true
+strum.workspace = true
+strum_macros.workspace = true
+bcs.workspace = true
+haneul-core.workspace = true
+haneul-test-transaction-builder.workspace = true
 
 [dev-dependencies]
-insta = { version = "1.21.1", features = ["redactions", "json"] }
-test-utils = { path = "../test-utils" }
-haneul-config = { path = "../haneul-config" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
-haneul-move-build = { path = "../haneul-move-build" }
+insta.workspace = true
+test-utils.workspace = true
+haneul-config.workspace = true
+haneul-swarm-config.workspace = true
+haneul-move-build.workspace = true
 move-cli.workspace = true
 move-disassembler.workspace = true

@@ -7,28 +7,28 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.64"
+anyhow.workspace = true
 fastcrypto.workspace = true
-schemars = { version = "0.8.10", features = ["either"] }
-serde = { version = "1.0.144", features = ["derive"] }
-serde_json = "1.0.88"
-serde_with = { version = "2.1.0", features = ["hex"] }
-colored = "2.0.0"
-itertools = "0.10.5"
-tracing = "0.1.36"
-bcs = "0.1.4"
-haneul-protocol-config = { path = "../haneul-protocol-config" }
-haneul-macros = { path = "../haneul-macros" }
-haneul-enum-compat-util = { path = "../haneul-enum-compat-util" }
-enum_dispatch = "^0.3"
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_with.workspace = true
+colored.workspace = true
+itertools.workspace = true
+tracing.workspace = true
+bcs.workspace = true
+haneul-protocol-config.workspace = true
+haneul-macros.workspace = true
+haneul-enum-compat-util.workspace = true
+enum_dispatch.workspace = true
 
 move-binary-format.workspace = true
 move-core-types.workspace = true
 move-bytecode-utils.workspace = true
 
-haneul-types = { path = "../haneul-types" }
-haneul-json = { path = "../haneul-json" }
+haneul-types.workspace = true
+haneul-json.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
-haneul-types = { path = "../haneul-types", features = ["test-utils"] }
+haneul-types = { workspace = true, features = ["test-utils"] }

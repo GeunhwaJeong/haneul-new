@@ -8,8 +8,8 @@ publish = false
 edition = "2021"
 
 [dev-dependencies]
-datatest-stable = "0.1.2"
-haneul-transactional-test-runner = { path = "../haneul-transactional-test-runner" }
+datatest-stable.workspace = true
+haneul-transactional-test-runner.workspace = true
 
 [[test]]
 name = "tests"

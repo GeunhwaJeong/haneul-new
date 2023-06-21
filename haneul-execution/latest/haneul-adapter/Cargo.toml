@@ -8,12 +8,12 @@ publish = false
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-bcs = "0.1.4"
-leb128 = "0.2.5"
-once_cell = "1.16"
-tracing = "0.1.36"
-serde = { version = "1.0.140", features = ["derive"] }
+anyhow = { workspace = true, features = ["backtrace"] }
+bcs.workspace = true
+leb128.workspace = true
+once_cell.workspace = true
+tracing.workspace = true
+serde.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
@@ -26,10 +26,10 @@ move-vm-runtime = { path = "../../../external-crates/move/move-vm/runtime" }
 haneul-move-natives = { path = "../haneul-move-natives", package = "haneul-move-natives-latest" }
 haneul-verifier = { path = "../haneul-verifier", package = "haneul-verifier-latest" }
 
-haneullabs-metrics = { path = "../../../crates/haneullabs-metrics" }
-haneul-macros = { path = "../../../crates/haneul-macros" }
-haneul-protocol-config = { path = "../../../crates/haneul-protocol-config" }
-haneul-types = { path = "../../../crates/haneul-types" }
+haneullabs-metrics.workspace = true
+haneul-macros.workspace = true
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true
 workspace-hack = { version = "0.1", path = "../../../crates/workspace-hack" }
 
 [dev-dependencies]

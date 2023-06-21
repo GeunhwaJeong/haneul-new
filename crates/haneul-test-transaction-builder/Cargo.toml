@@ -7,13 +7,12 @@ publish = false
 edition = "2021"
 
 [dependencies]
-bcs = "0.1.4"
+bcs.workspace = true
 
-shared-crypto = { path = "../shared-crypto" }
-haneul-genesis-builder = { path = "../haneul-genesis-builder" }
-haneul-move-build = { path = "../haneul-move-build" }
-haneul-types = { path = "../haneul-types" }
+shared-crypto.workspace = true
+haneul-genesis-builder.workspace = true
+haneul-move-build.workspace = true
+haneul-types.workspace = true
 
 move-core-types.workspace = true
-
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
