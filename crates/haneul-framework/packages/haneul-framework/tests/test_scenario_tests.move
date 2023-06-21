@@ -4,7 +4,7 @@
 #[test_only]
 module haneul::test_scenarioTests {
     use haneul::object;
-    use haneul::test_scenario::{Self as ts, Scenario};
+    use haneul::test_scenario::Self as ts;
     use haneul::transfer;
     use haneul::tx_context;
 
@@ -762,14 +762,5 @@ module haneul::test_scenarioTests {
         haneul::dynamic_object_field::add(&mut parent, b"", obj);
         ts::next_tx(&mut scenario, sender);
         abort 42
-    }
-
-    /// Create an object and transfer it to the sender of `scenario`.
-    fun create_and_transfer_object(scenario: &mut Scenario, value: u64) {
-        let object = Object {
-            id: ts::new_object(scenario),
-            value,
-        };
-        transfer::public_transfer(object, ts::sender(scenario));
     }
 }

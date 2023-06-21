@@ -72,6 +72,7 @@ module haneul::object {
 
     // === uid ===
 
+    #[allow(unused_function)]
     /// Create the `UID` for the singleton `HaneulSystemState` object.
     /// This should only be called once from `haneul_system`.
     fun haneul_system_state(ctx: &TxContext): UID {
