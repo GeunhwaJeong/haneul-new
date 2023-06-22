@@ -7,9 +7,8 @@ import { HANEUL_DECIMALS } from '@haneullabs/haneul.js';
 import { type EpochGasInfo, type GraphDurationsType } from './types';
 
 export const UNITS = ['GEUNHWA', 'HANEUL'] as const;
-export const GRAPH_DURATIONS = ['7 Epochs', '30 Epochs'] as const;
+export const GRAPH_DURATIONS = ['30 Epochs'] as const;
 export const GRAPH_DURATIONS_MAP: Record<GraphDurationsType, number> = {
-	'7 Epochs': 7,
 	'30 Epochs': 30,
 };
 
