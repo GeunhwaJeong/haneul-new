@@ -3,14 +3,20 @@
 
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import { toB64 } from '@haneullabs/bcs';
 import HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { useAccounts } from '../../hooks/useAccounts';
+import { useBackgroundClient } from '../../hooks/useBackgroundClient';
 import {
 	convertErrorToLedgerConnectionFailedError,
 	LedgerDeviceNotFoundError,
 	LedgerNoTransportMechanismError,
 } from './ledgerErrors';
+import { AccountType, type SerializedAccount } from '_src/background/keyring/Account';
+import { type SerializedLedgerAccount } from '_src/background/keyring/LedgerAccount';
+import { type AccountsPublicInfoUpdates } from '_src/background/keyring/accounts';
 
 type HaneulLedgerClientProviderProps = {
 	children: React.ReactNode;
@@ -22,9 +28,16 @@ type HaneulLedgerClientContextValue = {
 };
 
 const HaneulLedgerClientContext = createContext<HaneulLedgerClientContextValue | undefined>(undefined);
-
+function filterLedger(account: SerializedAccount): account is SerializedLedgerAccount {
+	return account.type === AccountType.LEDGER;
+}
 export function HaneulLedgerClientProvider({ children }: HaneulLedgerClientProviderProps) {
 	const [haneulLedgerClient, setHaneulLedgerClient] = useState<HaneulLedgerClient>();
+	const accounts = useAccounts();
+	const allLedgerWithoutPublicKey = useMemo(
+		() => accounts.filter(filterLedger).filter(({ publicKey }) => !publicKey),
+		[accounts],
+	);
 
 	const resetHaneulLedgerClient = useCallback(async () => {
 		await haneulLedgerClient?.transport.close();
@@ -55,6 +68,42 @@ export function HaneulLedgerClientProvider({ children }: HaneulLedgerClientProvi
 		},
 		[resetHaneulLedgerClient],
 	);
+	const backgroundClient = useBackgroundClient();
+
+	useEffect(() => {
+		// update ledger accounts without the public key
+		(async () => {
+			if (allLedgerWithoutPublicKey.length) {
+				try {
+					if (!haneulLedgerClient) {
+						await connectToLedger();
+						return;
+					}
+					const updates: AccountsPublicInfoUpdates = [];
+					for (const { derivationPath, address } of allLedgerWithoutPublicKey) {
+						if (derivationPath) {
+							try {
+								const { publicKey } = await haneulLedgerClient.getPublicKey(derivationPath);
+								updates.push({
+									accountAddress: address,
+									changes: {
+										publicKey: toB64(publicKey),
+									},
+								});
+							} catch (e) {
+								// do nothing
+							}
+						}
+					}
+					if (updates.length) {
+						await backgroundClient.updateAccountsPublicInfo(updates);
+					}
+				} catch (e) {
+					// do nothing
+				}
+			}
+		})();
+	}, [allLedgerWithoutPublicKey, haneulLedgerClient, backgroundClient, connectToLedger]);
 
 	const contextValue: HaneulLedgerClientContextValue = useMemo(() => {
 		return {

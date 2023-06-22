@@ -6,5 +6,5 @@ import type { BasePayload } from '_payloads';
 
 export interface GetAccountResponse extends BasePayload {
 	type: 'get-account-response';
-	accounts: HaneulAddress[];
+	accounts: { address: HaneulAddress; publicKey: string | null }[];
 }

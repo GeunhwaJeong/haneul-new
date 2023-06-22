@@ -25,6 +25,7 @@ export interface Account {
 	readonly type: AccountType;
 	readonly address: HaneulAddress;
 	toJSON(): SerializedAccount;
+	getPublicKey(): string | null;
 }
 
 export function isImportedOrDerivedAccount(
