@@ -1,15 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::path::PathBuf;
+
+use clap::Parser;
+
 use haneul_config::{haneul_config_dir, HANEUL_CLIENT_CONFIG};
 use haneul_sdk::wallet_context::WalletContext;
-use haneul_source_validation_service::{initialize, serve};
+
+use haneul_source_validation_service::{initialize, parse_config, serve};
+
+#[derive(Parser, Debug)]
+struct Args {
+    config_path: PathBuf,
+}
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    let config = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
-    let context = WalletContext::new(&config, None, None).await?;
-    let package_paths = vec![];
-    initialize(&context, package_paths).await?;
+pub async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+    let package_config = parse_config(args.config_path)?;
+    let haneul_config = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
+    let context = WalletContext::new(&haneul_config, None, None).await?;
+    initialize(&context, &package_config).await?;
     serve()?.await.map_err(anyhow::Error::from)
 }

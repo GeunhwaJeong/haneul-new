@@ -1,0 +1,8 @@
+[[packages]]
+repository = "https://github.com/GeunhwaJeong/haneul"
+paths = [
+    "crates/haneul-framework/packages/deepbook",
+    "crates/haneul-framework/packages/move-stdlib",
+    "crates/haneul-framework/packages/haneul-framework",
+    "crates/haneul-framework/packages/haneul-system",
+]
