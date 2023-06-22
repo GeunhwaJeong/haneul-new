@@ -1,0 +1,36 @@
+[package]
+name = "haneul-source-validation-service"
+version = "0.1.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "haneul-source-validation-service"
+
+[dependencies]
+actix-web = { version = "4", features = ["rustls"] }
+anyhow = { version = "1.0.64", features = ["backtrace"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "1.0.88"
+
+haneul-config = { path = "../../crates/haneul-config" }
+haneul-move = { path = "../../crates/haneul-move", features = ["all"] }
+haneul-move-build = { path = "../../crates/haneul-move-build" }
+haneul-sdk = { path = "../../crates/haneul-sdk" }
+haneul-source-validation = { path = "../haneul-source-validation" }
+
+move-package.workspace = true
+workspace-hack = { version = "0.1", path = "../../crates/workspace-hack" }
+
+[dev-dependencies]
+expect-test = "1.4.0"
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
+
+test-utils = { path = "../test-utils" }

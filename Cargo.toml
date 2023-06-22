@@ -109,6 +109,7 @@ members = [
     "crates/haneul-simulator",
     "crates/haneul-snapshot",
     "crates/haneul-source-validation",
+    "crates/haneul-source-validation-service",
     "crates/haneul-storage",
     "crates/haneul-surfer",
     "crates/haneul-swarm",
