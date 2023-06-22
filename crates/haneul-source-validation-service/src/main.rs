@@ -21,6 +21,7 @@ pub async fn main() -> anyhow::Result<()> {
     let package_config = parse_config(args.config_path)?;
     let haneul_config = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
     let context = WalletContext::new(&haneul_config, None, None).await?;
-    initialize(&context, &package_config).await?;
+    let tmp_dir = tempfile::tempdir()?;
+    initialize(&context, &package_config, tmp_dir.path()).await?;
     serve()?.await.map_err(anyhow::Error::from)
 }

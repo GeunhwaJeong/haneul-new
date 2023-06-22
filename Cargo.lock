@@ -10746,9 +10746,11 @@ dependencies = [
  "haneul-move-build",
  "haneul-sdk",
  "haneul-source-validation",
+ "tempfile",
  "test-utils",
  "tokio",
  "toml 0.7.4",
+ "url",
  "workspace-hack",
 ]
 
