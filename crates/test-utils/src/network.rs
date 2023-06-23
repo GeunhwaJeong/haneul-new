@@ -14,6 +14,8 @@ use std::time::Duration;
 use haneul_config::node::DBCheckpointConfig;
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
+use haneul_core::authority_aggregator::AuthorityAggregator;
+use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
@@ -395,6 +397,12 @@ impl TestCluster {
         self.wallet.execute_transaction_must_succeed(tx).await
     }
 
+    pub fn authority_aggregator(&self) -> Arc<AuthorityAggregator<NetworkAuthorityClient>> {
+        self.fullnode_handle
+            .haneul_node
+            .with(|node| node.clone_authority_aggregator().unwrap())
+    }
+
     /// Execute a transaction on specified list of validators, and bypassing authority aggregator.
     /// This allows us to obtain the return value directly from validators, so that we can access more
     /// information directly such as the original effects, events and extra objects returned.
@@ -405,10 +413,7 @@ impl TestCluster {
         tx: VerifiedTransaction,
         pubkeys: &[AuthorityName],
     ) -> (TransactionEffects, TransactionEvents, Vec<Object>) {
-        let agg = self
-            .fullnode_handle
-            .haneul_node
-            .with(|node| node.clone_authority_aggregator().unwrap());
+        let agg = self.authority_aggregator();
         let certificate = agg
             .process_transaction(tx)
             .await
