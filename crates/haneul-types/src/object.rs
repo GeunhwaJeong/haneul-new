@@ -23,6 +23,7 @@ use crate::coin::Coin;
 use crate::crypto::{default_hash, deterministic_random_account_key};
 use crate::error::{ExecutionError, ExecutionErrorKind, UserInputError, UserInputResult};
 use crate::error::{HaneulError, HaneulResult};
+use crate::gas_coin::GAS;
 use crate::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use crate::is_system_package;
 use crate::move_package::MovePackage;
@@ -357,46 +358,8 @@ impl MoveObject {
 
     /// Get the total amount of HANEUL embedded in `self`. Intended for testing purposes
     pub fn get_total_haneul(&self, layout_resolver: &mut dyn LayoutResolver) -> Result<u64, HaneulError> {
-        if self.type_.is_gas_coin() {
-            // Fast path without deserialization.
-            return Ok(self.get_coin_value_unsafe());
-        }
-        // If this is a coin but not a HANEUL coin, the HANEUL balance must be 0.
-        if self.type_.is_coin() {
-            return Ok(0);
-        }
-        let layout = layout_resolver.get_layout(self, ObjectFormatOptions::with_types())?;
-        let move_struct = self.to_move_struct(&layout)?;
-        Ok(Self::get_total_haneul_in_struct(&move_struct, 0))
-    }
-
-    /// Get all HANEUL in `s`, either directly or in its (transitive) fields. Intended for testing purposes
-    fn get_total_haneul_in_struct(s: &MoveStruct, acc: u64) -> u64 {
-        match s {
-            MoveStruct::WithTypes { type_, fields } => {
-                if GasCoin::is_gas_balance(type_) {
-                    match fields[0].1 {
-                        MoveValue::U64(n) => acc + n,
-                        _ => unreachable!(), // a Balance<HANEUL> object should have exactly one field, of type int
-                    }
-                } else {
-                    fields
-                        .iter()
-                        .fold(acc, |acc, (_, v)| Self::get_total_haneul_in_value(v, acc))
-                }
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    fn get_total_haneul_in_value(v: &MoveValue, acc: u64) -> u64 {
-        match v {
-            MoveValue::Struct(s) => Self::get_total_haneul_in_struct(s, acc),
-            MoveValue::Vector(vec) => vec
-                .iter()
-                .fold(acc, |acc, v| Self::get_total_haneul_in_value(v, acc)),
-            _ => acc,
-        }
+        let balances = self.get_coin_balances(layout_resolver)?;
+        Ok(balances.get(&GAS::type_tag()).copied().unwrap_or(0))
     }
 }
 
