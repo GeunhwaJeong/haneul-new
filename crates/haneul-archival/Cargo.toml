@@ -25,7 +25,6 @@ zstd = "0.12.3"
 typed-store.workspace = true
 typed-store-derive.workspace = true
 haneul-types = { path = "../haneul-types" }
-haneul-core = { path = "../haneul-core" }
 haneul-storage = { path = "../haneul-storage" }
 haneul-protocol-config = { path = "../haneul-protocol-config" }
 fastcrypto = { workspace = true, features = ["copy_key"] }
