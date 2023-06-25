@@ -123,6 +123,7 @@
 		"@metamask/browser-passworder": "^4.1.0",
 		"@haneullabs/core": "workspace:*",
 		"@haneullabs/icons": "workspace:*",
+		"@haneullabs/kiosk": "workspace:*",
 		"@haneullabs/ledgerjs-hw-app-haneul": "workspace:*",
 		"@haneullabs/haneul.js": "workspace:*",
 		"@haneullabs/wallet-standard": "workspace:*",

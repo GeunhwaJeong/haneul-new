@@ -44,6 +44,7 @@
 			"_utils": ["./src/ui/styles/utils"],
 			"_utils/*": ["./src/ui/styles/utils/*"],
 			"@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
+			"@haneullabs/kiosk": ["../../sdk/kiosk/src/index.ts"],
 			"@haneullabs/bcs": ["../../sdk/bcs/src/"],
 			"@haneullabs/ledgerjs-hw-app-haneul": ["../../sdk/ledgerjs-hw-app-haneul/src/Haneul.ts"],
 			"@haneullabs/wallet-standard": ["../../sdk/wallet-adapter/wallet-standard/src/"]

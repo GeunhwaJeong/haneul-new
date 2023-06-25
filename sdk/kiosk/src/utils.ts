@@ -12,7 +12,7 @@ import {
 	TransactionBlock,
 	getObjectFields,
 } from '@haneullabs/haneul.js';
-import { DynamicFieldInfo } from '@haneullabs/haneul.js/dist/types/dynamic_fields';
+import { type DynamicFieldInfo } from '@haneullabs/haneul.js';
 import { bcs } from './bcs';
 import { KIOSK_TYPE, Kiosk, KioskData, KioskListing, RulesEnvironmentParam } from './types';
 import { MAINNET_RULES_PACKAGE_ADDRESS, TESTNET_RULES_PACKAGE_ADDRESS } from './constants';
