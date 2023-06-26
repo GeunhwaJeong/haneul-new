@@ -8,7 +8,7 @@ import {
 	useGetCoinBalance,
 } from '@haneullabs/core';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
 
@@ -26,6 +26,7 @@ import { IconTooltip } from '_app/shared/tooltip';
 import Alert from '_components/alert';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { useAppSelector, useCoinsReFetchingConfig } from '_hooks';
+import { ampli } from '_src/shared/analytics/ampli';
 import { API_ENV } from '_src/shared/api-env';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
@@ -196,6 +197,12 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 									to={stakeByValidatorAddress}
 									before={<StakeAdd16 />}
 									text="Stake HANEUL"
+									onClick={() => {
+										ampli.clickedStakeHaneul({
+											isCurrentlyStaking: true,
+											sourceFlow: 'Delegation detail card',
+										});
+									}}
 									disabled={showRequestMoreHaneulToken}
 								/>
 							) : null}
@@ -206,6 +213,12 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 									size="tall"
 									variant="outline"
 									to={stakeByValidatorAddress + '&unstake=true'}
+									onClick={() => {
+										ampli.clickedUnstakeHaneul({
+											stakedAmount: Number(totalStake / GEUNHWA_PER_HANEUL),
+											validatorAddress,
+										});
+									}}
 									text="Unstake HANEUL"
 									before={<StakeRemove16 />}
 								/>
