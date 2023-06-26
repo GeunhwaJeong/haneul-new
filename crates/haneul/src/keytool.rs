@@ -35,7 +35,8 @@ use haneul_types::crypto::{
 };
 use haneul_types::crypto::{DefaultHash, PublicKey, Signature};
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey, ThresholdUnit, WeightUnit};
-use haneul_types::signature::GenericSignature;
+use haneul_types::multisig_legacy::{MultiSigLegacy, MultiSigPublicKeyLegacy};
+use haneul_types::signature::{AuthenticatorTrait, AuxVerifyData, GenericSignature};
 use haneul_types::transaction::TransactionData;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 use haneul_types::zk_login_util::AddressParams;
@@ -167,10 +168,24 @@ pub enum KeyToolCommand {
         threshold: ThresholdUnit,
     },
 
+    MultiSigCombinePartialSigLegacy {
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        sigs: Vec<Signature>,
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        pks: Vec<PublicKey>,
+        #[clap(long, multiple_occurrences = false, multiple_values = true)]
+        weights: Vec<WeightUnit>,
+        #[clap(long)]
+        threshold: ThresholdUnit,
+    },
+
     /// Given a Base64 encoded MultiSig signature, decode its components.
+    /// If tx_bytes is passed in, verify the multisig.
     DecodeMultiSig {
         #[clap(long)]
         multisig: MultiSig,
+        #[clap(long)]
+        tx_bytes: Option<String>,
     },
 
     /// Given a Base64 encoded transaction bytes, decode its components.
@@ -545,7 +560,25 @@ impl KeyToolCommand {
                 println!("MultiSig serialized: {:?}", generic_sig.encode_base64());
             }
 
-            KeyToolCommand::DecodeMultiSig { multisig } => {
+            KeyToolCommand::MultiSigCombinePartialSigLegacy {
+                sigs,
+                pks,
+                weights,
+                threshold,
+            } => {
+                let multisig_pk = MultiSigPublicKeyLegacy::new(pks, weights, threshold)?;
+                let address: HaneulAddress = (&multisig_pk).into();
+                let multisig = MultiSigLegacy::combine(sigs, multisig_pk)?;
+                let generic_sig: GenericSignature = multisig.into();
+                println!("MultiSig address: {address}");
+                println!("MultiSig legacy parsed: {:?}", generic_sig);
+                println!(
+                    "MultiSig legacy serialized: {:?}",
+                    generic_sig.encode_base64()
+                );
+            }
+
+            KeyToolCommand::DecodeMultiSig { multisig, tx_bytes } => {
                 let pks = multisig.get_pk().pubkeys();
                 let sigs = multisig.get_sigs();
                 let bitmap = multisig.get_indices()?;
@@ -573,10 +606,21 @@ impl KeyToolCommand {
                         w
                     );
                 }
-                println!(
-                    "Multisig address: {:?}",
-                    HaneulAddress::from(multisig.get_pk())
-                );
+
+                let author = HaneulAddress::from(multisig.get_pk());
+                println!("Multisig address: {:?}", author);
+
+                if tx_bytes.is_some() {
+                    let tx_bytes = Base64::decode(&tx_bytes.unwrap())
+                        .map_err(|e| anyhow!("Invalid base64 tx bytes: {:?}", e))?;
+                    let tx_data: TransactionData = bcs::from_bytes(&tx_bytes)?;
+                    let res = GenericSignature::MultiSig(multisig).verify_secure_generic(
+                        &IntentMessage::new(Intent::haneul_transaction(), tx_data),
+                        author,
+                        AuxVerifyData::default(),
+                    );
+                    println!("Verify multisig: {:?}", res);
+                };
             }
 
             KeyToolCommand::DecodeTxBytes { tx_bytes } => {
