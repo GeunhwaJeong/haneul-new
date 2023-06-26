@@ -25,9 +25,9 @@ import {
 	HaneulJsonValue,
 	TransactionDigest,
 	TransactionEventDigest,
-} from './common';
-import { HaneulEvent } from './events';
-import { ObjectDigest, HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects';
+} from './common.js';
+import { HaneulEvent } from './events.js';
+import { ObjectDigest, HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects.js';
 
 export const EpochId = string();
 

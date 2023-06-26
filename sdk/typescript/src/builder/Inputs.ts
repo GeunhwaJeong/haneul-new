@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { array, boolean, Infer, integer, object, string, union } from 'superstruct';
-import { normalizeHaneulAddress, ObjectId, SharedObjectRef, HaneulObjectRef } from '../types';
-import { builder } from './bcs';
+import { normalizeHaneulAddress, ObjectId, SharedObjectRef, HaneulObjectRef } from '../types/index.js';
+import { builder } from './bcs.js';
 
 const ObjectArg = union([
 	object({ ImmOrOwned: HaneulObjectRef }),

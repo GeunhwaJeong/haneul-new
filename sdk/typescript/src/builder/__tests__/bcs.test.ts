@@ -10,7 +10,7 @@ import {
 	TRANSACTION,
 	TransferObjectsTransaction,
 } from '..';
-import { normalizeHaneulAddress } from '../../types';
+import { normalizeHaneulAddress } from '../../types/index.js';
 
 // Oooh-weeee we nailed it!
 it('can serialize simplified programmable call struct', () => {

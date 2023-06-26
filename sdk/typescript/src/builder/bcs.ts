@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BCS, TypeName } from '@haneullabs/bcs';
-import { bcs } from '../types/haneul-bcs';
-import { normalizeHaneulAddress, TypeTag } from '../types';
-import { TypeTagSerializer } from '../signers/txn-data-serializers/type-tag-serializer';
-import { TransactionArgument, MoveCallTransaction } from './Transactions';
+import { bcs } from '../types/haneul-bcs.js';
+import { normalizeHaneulAddress, TypeTag } from '../types/index.js';
+import { TypeTagSerializer } from '../signers/txn-data-serializers/type-tag-serializer.js';
+import { TransactionArgument, MoveCallTransaction } from './Transactions.js';
 
 export const ARGUMENT_INNER = 'Argument';
 export const VECTOR = 'vector';

@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { FaucetResponse, HaneulAddress } from '../types';
-import { FaucetRateLimitError } from '../utils/errors';
-import { HttpHeaders } from './client';
+import { FaucetResponse, HaneulAddress } from '../types/index.js';
+import { FaucetRateLimitError } from '../utils/errors.js';
+import { HttpHeaders } from './client.js';
 
 export async function requestHaneulFromFaucet(
 	endpoint: string,

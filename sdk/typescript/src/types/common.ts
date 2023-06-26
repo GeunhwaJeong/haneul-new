@@ -13,7 +13,7 @@ import {
 	string,
 	union,
 } from 'superstruct';
-import { CallArg } from './haneul-bcs';
+import { CallArg } from './haneul-bcs.js';
 import { fromB58, splitGenericParameters } from '@haneullabs/bcs';
 
 export const TransactionDigest = string();

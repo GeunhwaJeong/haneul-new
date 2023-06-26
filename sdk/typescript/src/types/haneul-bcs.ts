@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BCS, EnumTypeDefinition, getHaneulMoveConfig, StructTypeDefinition } from '@haneullabs/bcs';
-import { HaneulObjectRef } from './objects';
+import { HaneulObjectRef } from './objects.js';
 
 /**
  * A reference to a shared object.

@@ -14,8 +14,8 @@ import {
 	tuple,
 	optional,
 } from 'superstruct';
-import { ObjectId, HaneulAddress } from './common';
-import { AuthorityName, EpochId } from './transactions';
+import { ObjectId, HaneulAddress } from './common.js';
+import { AuthorityName, EpochId } from './transactions.js';
 
 /* -------------- Types for the HaneulSystemState Rust definition -------------- */
 

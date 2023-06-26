@@ -9,12 +9,12 @@ import {
 	HaneulObjectData,
 	getObjectId,
 	getObjectType,
-} from '../types/objects';
-import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from '../types/common';
+} from '../types/objects.js';
+import { normalizeHaneulObjectId, ObjectId, HaneulAddress } from '../types/common.js';
 
-import { getOption, Option } from '../types/option';
-import { CoinStruct } from '../types/coin';
-import { StructTag } from '../types/haneul-bcs';
+import { getOption, Option } from '../types/option.js';
+import { CoinStruct } from '../types/coin.js';
+import { StructTag } from '../types/haneul-bcs.js';
 import { Infer, nullable, number, object, string } from 'superstruct';
 
 export const HANEUL_SYSTEM_ADDRESS = '0x3';

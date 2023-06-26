@@ -12,7 +12,7 @@ import {
 	boolean,
 	nullable,
 } from 'superstruct';
-import { ObjectId, HaneulAddress, TransactionDigest, HaneulJsonValue, SequenceNumber } from './common';
+import { ObjectId, HaneulAddress, TransactionDigest, HaneulJsonValue, SequenceNumber } from './common.js';
 
 export const EventId = object({
 	txDigest: TransactionDigest,
