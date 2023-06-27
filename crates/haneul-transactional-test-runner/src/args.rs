@@ -11,7 +11,7 @@ use move_core_types::u256::U256;
 use move_core_types::value::{MoveStruct, MoveValue};
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::SyntaxChoice;
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -88,6 +88,8 @@ pub struct ProgrammableTransactionCommand {
     pub gas_budget: Option<u64>,
     #[clap(long = "gas-price")]
     pub gas_price: Option<u64>,
+    #[clap(long = "dev-inspect")]
+    pub dev_inspect: bool,
     #[clap(
         long = "inputs",
         parse(try_from_str = ParsedValue::parse),
@@ -159,14 +161,14 @@ pub enum HaneulSubcommand {
 
 #[derive(Debug)]
 pub enum HaneulExtraValueArgs {
-    Object(FakeID),
+    Object(FakeID, Option<SequenceNumber>),
     Digest(String),
 }
 
 pub enum HaneulValue {
     MoveValue(MoveValue),
-    Object(FakeID),
-    ObjVec(Vec<FakeID>),
+    Object(FakeID, Option<SequenceNumber>),
+    ObjVec(Vec<(FakeID, Option<SequenceNumber>)>),
     Digest(String),
 }
 
@@ -194,7 +196,15 @@ impl HaneulExtraValueArgs {
             FakeID::Known(address.into())
         };
         parser.advance(ValueToken::RParen)?;
-        Ok(HaneulExtraValueArgs::Object(fake_id))
+        let version = if let Some(ValueToken::AtSign) = parser.peek_tok() {
+            parser.advance(ValueToken::AtSign)?;
+            let v_str = parser.advance(ValueToken::Number)?;
+            let (v, _) = parse_u64(v_str)?;
+            Some(SequenceNumber::from_u64(v))
+        } else {
+            None
+        };
+        Ok(HaneulExtraValueArgs::Object(fake_id, version))
     }
 
     fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
@@ -213,27 +223,36 @@ impl HaneulValue {
     fn assert_move_value(self) -> MoveValue {
         match self {
             HaneulValue::MoveValue(v) => v,
-            HaneulValue::Object(_) => panic!("unexpected nested Haneul object in args"),
+            HaneulValue::Object(_, _) => panic!("unexpected nested Haneul object in args"),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
         }
     }
 
-    fn assert_object(self) -> FakeID {
+    fn assert_object(self) -> (FakeID, Option<SequenceNumber>) {
         match self {
             HaneulValue::MoveValue(_) => panic!("unexpected nested non-object value in args"),
-            HaneulValue::Object(v) => v,
+            HaneulValue::Object(id, version) => (id, version),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
         }
     }
 
-    fn object_arg(fake_id: FakeID, test_adapter: &HaneulTestAdapter) -> anyhow::Result<ObjectArg> {
+    fn object_arg(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<ObjectArg> {
         let id = match test_adapter.fake_to_real_object_id(fake_id) {
             Some(id) => id,
             None => bail!("INVALID TEST. Unknown object, object({})", fake_id),
         };
-        let obj = match test_adapter.validator.database.get_object(&id) {
+        let obj_res = if let Some(v) = version {
+            test_adapter.validator.database.get_object_by_key(&id, v)
+        } else {
+            test_adapter.validator.database.get_object(&id)
+        };
+        let obj = match obj_res {
             Ok(Some(obj)) => obj,
             Err(_) | Ok(None) => bail!("INVALID TEST. Could not load object argument {}", id),
         };
@@ -254,7 +273,9 @@ impl HaneulValue {
 
     pub(crate) fn into_call_arg(self, test_adapter: &HaneulTestAdapter) -> anyhow::Result<CallArg> {
         Ok(match self {
-            HaneulValue::Object(fake_id) => CallArg::Object(Self::object_arg(fake_id, test_adapter)?),
+            HaneulValue::Object(fake_id, version) => {
+                CallArg::Object(Self::object_arg(fake_id, version, test_adapter)?)
+            }
             HaneulValue::MoveValue(v) => CallArg::Pure(v.simple_serialize().unwrap()),
             HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
             HaneulValue::Digest(pkg) => {
@@ -275,7 +296,7 @@ impl HaneulValue {
         match self {
             HaneulValue::ObjVec(vec) => builder.make_obj_vec(
                 vec.iter()
-                    .map(|fake_id| Self::object_arg(*fake_id, test_adapter))
+                    .map(|(fake_id, version)| Self::object_arg(*fake_id, *version, test_adapter))
                     .collect::<Result<Vec<ObjectArg>, _>>()?,
             ),
             value => {
@@ -304,7 +325,7 @@ impl ParsableValue for HaneulExtraValueArgs {
     }
 
     fn concrete_vector(elems: Vec<Self::ConcreteValue>) -> anyhow::Result<Self::ConcreteValue> {
-        if !elems.is_empty() && matches!(elems[0], HaneulValue::Object(_)) {
+        if !elems.is_empty() && matches!(elems[0], HaneulValue::Object(_, _)) {
             Ok(HaneulValue::ObjVec(
                 elems.into_iter().map(HaneulValue::assert_object).collect(),
             ))
@@ -336,7 +357,7 @@ impl ParsableValue for HaneulExtraValueArgs {
         _mapping: &impl Fn(&str) -> Option<move_core_types::account_address::AccountAddress>,
     ) -> anyhow::Result<Self::ConcreteValue> {
         match self {
-            HaneulExtraValueArgs::Object(id) => Ok(HaneulValue::Object(id)),
+            HaneulExtraValueArgs::Object(id, version) => Ok(HaneulValue::Object(id, version)),
             HaneulExtraValueArgs::Digest(pkg) => Ok(HaneulValue::Digest(pkg)),
         }
     }
