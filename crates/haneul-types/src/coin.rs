@@ -151,8 +151,8 @@ pub struct TreasuryCap {
 impl TreasuryCap {
     /// Create a TreasuryCap from BCS bytes
     pub fn from_bcs_bytes(content: &[u8]) -> Result<Self, HaneulError> {
-        bcs::from_bytes(content).map_err(|err| HaneulError::TypeError {
-            error: format!("Unable to deserialize TreasuryCap object: {:?}", err),
+        bcs::from_bytes(content).map_err(|err| HaneulError::ObjectDeserializationError {
+            error: format!("Unable to deserialize TreasuryCap object: {}", err),
         })
     }
 
@@ -207,8 +207,8 @@ impl CoinMetadata {
 
     /// Create a coin from BCS bytes
     pub fn from_bcs_bytes(content: &[u8]) -> Result<Self, HaneulError> {
-        bcs::from_bytes(content).map_err(|err| HaneulError::TypeError {
-            error: format!("Unable to deserialize CoinMetadata object: {:?}", err),
+        bcs::from_bytes(content).map_err(|err| HaneulError::ObjectDeserializationError {
+            error: format!("Unable to deserialize CoinMetadata object: {}", err),
         })
     }
 
