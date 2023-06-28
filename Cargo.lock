@@ -9580,6 +9580,7 @@ dependencies = [
  "strum_macros",
  "haneul-config",
  "haneul-core",
+ "haneul-json-rpc-types",
  "haneul-move-build",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
