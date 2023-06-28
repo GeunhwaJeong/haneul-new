@@ -23,6 +23,7 @@ move-vm-types.workspace = true
 
 move-bytecode-verifier = { path = "../../../external-crates/move/move-bytecode-verifier" }
 move-vm-runtime = { path = "../../../external-crates/move/move-vm/runtime" }
+move-vm-profiler = { path = "../../../external-crates/move/move-vm/profiler" }
 haneul-move-natives = { path = "../haneul-move-natives", package = "haneul-move-natives-latest" }
 haneul-verifier = { path = "../haneul-verifier", package = "haneul-verifier-latest" }
 
