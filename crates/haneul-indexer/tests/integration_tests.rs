@@ -42,7 +42,7 @@ pub mod pg_integration_test {
     use haneul_types::object::ObjectFormatOptions;
     use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
     use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
-    use test_utils::network::{TestCluster, TestClusterBuilder};
+    use test_cluster::{TestCluster, TestClusterBuilder};
 
     const WAIT_UNTIL_TIME_LIMIT: u64 = 60;
 

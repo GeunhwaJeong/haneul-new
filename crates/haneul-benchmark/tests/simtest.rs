@@ -30,7 +30,7 @@ mod test {
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_types::base_types::{ObjectRef, HaneulAddress};
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
-    use test_utils::network::{TestCluster, TestClusterBuilder};
+    use test_cluster::{TestCluster, TestClusterBuilder};
     use tracing::{error, info};
     use typed_store::traits::Map;
 

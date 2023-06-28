@@ -14,7 +14,7 @@ use haneul_types::{
     crypto::Signature,
     transaction::{Transaction, VerifiedTransaction},
 };
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 #[tokio::test]
 async fn test_print_raw_rgp_txn() -> Result<(), anyhow::Error> {

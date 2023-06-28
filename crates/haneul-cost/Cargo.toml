@@ -20,7 +20,7 @@ haneul-test-transaction-builder.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
-test-utils.workspace = true
+test-cluster.workspace = true
 haneul-config.workspace = true
 haneul-swarm-config.workspace = true
 haneul-move-build.workspace = true

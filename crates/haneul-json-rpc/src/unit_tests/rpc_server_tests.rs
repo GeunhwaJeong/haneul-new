@@ -29,7 +29,7 @@ use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 use tokio::time::sleep;
 
 #[sim_test]

@@ -18,7 +18,7 @@ use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TransactionDigest},
     HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 use crate::{BytecodeSourceVerifier, SourceMode};
 

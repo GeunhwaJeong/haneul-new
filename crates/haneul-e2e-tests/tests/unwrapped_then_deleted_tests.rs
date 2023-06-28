@@ -10,7 +10,7 @@ mod sim_only_tests {
     use haneul_node::HaneulNode;
     use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
     use haneul_types::base_types::ObjectID;
-    use test_utils::network::{TestCluster, TestClusterBuilder};
+    use test_cluster::{TestCluster, TestClusterBuilder};
 
     // This test exercise the protocol upgrade where we flip the feature flag
     // simplified_unwrap_then_delete. It demonstrates the behavior difference before and after

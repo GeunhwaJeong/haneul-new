@@ -1,23 +1,21 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::Result;
-use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
-use haneul_types::{base_types::HaneulAddress, crypto::HaneulKeyPair};
-
+use crate::workloads::Gas;
 use crate::ValidatorProxy;
+use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
+use haneul_types::crypto::{AccountKeyPair, KeypairTraits};
+use haneul_types::object::Owner;
 use haneul_types::transaction::{
     TransactionData, VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::utils::to_sender_signed_transaction;
-
-use crate::workloads::Gas;
-use haneul_types::crypto::{AccountKeyPair, KeypairTraits};
-use test_utils::transaction::parse_package_ref;
+use haneul_types::{base_types::HaneulAddress, crypto::HaneulKeyPair};
 
 // This is the maximum gas we will transfer from primary coin into any gas coin
 // for running the benchmark
@@ -70,5 +68,10 @@ pub async fn publish_basics_package(
         .execute_transaction_block(transaction.into())
         .await
         .unwrap();
-    parse_package_ref(&effects.created()).unwrap()
+    effects
+        .created()
+        .iter()
+        .find(|(_, owner)| matches!(owner, Owner::Immutable))
+        .map(|(reference, _)| *reference)
+        .unwrap()
 }

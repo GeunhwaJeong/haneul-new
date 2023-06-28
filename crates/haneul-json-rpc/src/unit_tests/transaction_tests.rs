@@ -10,7 +10,7 @@ use haneul_json_rpc_types::{
 use haneul_macros::sim_test;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::transaction::SenderSignedData;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 use crate::api::{IndexerApiClient, TransactionBuilderClient, WriteApiClient};
 

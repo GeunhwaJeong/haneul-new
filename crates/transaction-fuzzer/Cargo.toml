@@ -19,7 +19,7 @@ tracing.workspace = true
 
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 
-test-utils.workspace = true
+test-cluster.workspace = true
 once_cell.workspace = true
 haneul-core.workspace = true
 haneul-protocol-config.workspace = true

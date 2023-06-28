@@ -11,11 +11,12 @@ use rand::{
     Rng,
 };
 use std::collections::{HashMap, HashSet};
+use haneul_core::authority::EffectsNotifyRead;
 use tokio::time::{sleep, Duration, Instant};
 use tracing::{debug, trace};
 
 use haneul_macros::*;
-use test_utils::{network::TestClusterBuilder, transaction::wait_for_tx};
+use test_cluster::TestClusterBuilder;
 
 async fn make_fut(i: usize) -> usize {
     let count_dist = Uniform::from(1..5);
@@ -136,5 +137,11 @@ async fn test_net_determinism() {
 
     let handle = test_cluster.spawn_new_fullnode().await;
 
-    wait_for_tx(digest, handle.haneul_node.state()).await;
+    handle
+        .haneul_node
+        .state()
+        .db()
+        .notify_read_executed_effects(vec![digest])
+        .await
+        .unwrap();
 }

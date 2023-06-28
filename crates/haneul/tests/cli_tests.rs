@@ -43,7 +43,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 const TEST_DATA_DIR: &str = "tests/data/";
 

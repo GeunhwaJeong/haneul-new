@@ -6,7 +6,7 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::utils::make_zklogin_tx;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 async fn do_zklogin_test() -> HaneulResult {
     let test_cluster = TestClusterBuilder::new().build().await;

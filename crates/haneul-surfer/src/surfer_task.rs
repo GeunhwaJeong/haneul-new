@@ -9,7 +9,7 @@ use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},
     object::Owner,
 };
-use test_utils::network::TestCluster;
+use test_cluster::TestCluster;
 use tokio::sync::{watch, RwLock};
 
 use crate::{

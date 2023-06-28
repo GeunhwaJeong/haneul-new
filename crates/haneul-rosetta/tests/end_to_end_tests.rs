@@ -17,7 +17,7 @@ use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffects
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::to_sender_signed_transaction;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 use crate::rosetta_client::RosettaEndpoint;
 

@@ -11,7 +11,7 @@ use haneul_core::test_utils::wait_for_tx;
 use haneul_json_rpc_types::{
     HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, TransactionFilter,
 };
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 #[tokio::test]
 async fn test_subscribe_transaction() -> Result<(), anyhow::Error> {

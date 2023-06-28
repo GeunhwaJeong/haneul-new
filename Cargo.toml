@@ -129,7 +129,7 @@ members = [
     "crates/haneul-upgrade-compatibility-transactional-tests",
     "crates/haneul-verifier-transactional-tests",
     "crates/telemetry-subscribers",
-    "crates/test-utils",
+    "crates/test-cluster",
     "crates/transaction-fuzzer",
     "crates/typed-store",
     "crates/typed-store-derive",
@@ -477,7 +477,7 @@ haneul-types = { path = "crates/haneul-types" }
 haneul-upgrade-compatibility-transactional-tests = { path = "crates/haneul-upgrade-compatibility-transactional-tests" }
 haneul-verifier-transactional-tests = { path = "crates/haneul-verifier-transactional-tests" }
 telemetry-subscribers = { path = "crates/telemetry-subscribers" }
-test-utils = { path = "crates/test-utils" }
+test-cluster = { path = "crates/test-cluster" }
 transaction-fuzzer = { path = "crates/transaction-fuzzer" }
 typed-store = { path = "crates/typed-store" }
 typed-store-derive = { path = "crates/typed-store-derive" }

@@ -18,7 +18,7 @@ use haneul_types::object::{Object, Owner};
 use haneul_types::storage::WriteKind;
 use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH};
 use haneul_types::{Identifier, HANEUL_FRAMEWORK_ADDRESS};
-use test_utils::network::TestCluster;
+use test_cluster::TestCluster;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info};
 

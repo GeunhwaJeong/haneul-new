@@ -1,5 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
 use super::config::{ClusterTestOpt, Env};
 use async_trait::async_trait;
 use clap::*;
@@ -18,7 +19,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
-use test_utils::network::{TestCluster, TestClusterBuilder};
+use test_cluster::{TestCluster, TestClusterBuilder};
 use tracing::info;
 
 const DEVNET_FAUCET_ADDR: &str = "https://faucet.devnet.haneul.io:443";

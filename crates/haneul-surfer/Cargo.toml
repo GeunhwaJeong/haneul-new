@@ -15,7 +15,7 @@ haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-swarm.workspace = true
 haneul-types.workspace = true
-test-utils.workspace = true
+test-cluster.workspace = true
 
 async-trait.workspace = true
 bcs.workspace = true

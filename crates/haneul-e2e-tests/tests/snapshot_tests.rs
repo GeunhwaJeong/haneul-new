@@ -6,7 +6,7 @@ use insta::assert_json_snapshot;
 use haneul::haneul_commands::HaneulCommand;
 use haneul_macros::sim_test;
 use haneul_sdk::wallet_context::WalletContext;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 // special constants for substitution in commands
 const ME: &str = "{ME}";

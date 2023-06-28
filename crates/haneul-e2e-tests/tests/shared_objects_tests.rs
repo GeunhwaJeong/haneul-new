@@ -13,7 +13,7 @@ use haneul_types::execution_status::{CommandArgumentError, ExecutionFailureStatu
 use haneul_types::messages_grpc::ObjectInfoRequest;
 use haneul_types::transaction::{CallArg, ObjectArg};
 use haneul_types::HANEUL_CLOCK_OBJECT_ID;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 
 /// Send a simple shared object transaction to Haneul and ensures the client gets back a response.
 #[sim_test]

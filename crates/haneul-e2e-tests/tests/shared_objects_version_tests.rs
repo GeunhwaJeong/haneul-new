@@ -10,7 +10,7 @@ use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::{Object, Owner, OBJECT_START_VERSION};
 use haneul_types::transaction::{CallArg, ObjectArg};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-use test_utils::network::{TestCluster, TestClusterBuilder};
+use test_cluster::{TestCluster, TestClusterBuilder};
 
 #[sim_test]
 async fn fresh_shared_object_initial_version_matches_current() {

@@ -24,8 +24,7 @@ use haneul_types::haneul_system_state::{
     HaneulSystemStateTrait,
 };
 use haneul_types::transaction::{TransactionDataAPI, TransactionExpiration};
-use test_utils::network::TestCluster;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::{TestCluster, TestClusterBuilder};
 use tokio::time::sleep;
 
 #[sim_test]

@@ -6,7 +6,7 @@ use haneul_core::authority_aggregator::AuthAggMetrics;
 use haneul_core::quorum_driver::reconfig_observer::OnsiteReconfigObserver;
 use haneul_core::quorum_driver::reconfig_observer::ReconfigObserver;
 use haneul_core::safe_client::SafeClientMetricsBase;
-use test_utils::network::TestClusterBuilder;
+use test_cluster::TestClusterBuilder;
 use tracing::info;
 
 use haneul_macros::sim_test;

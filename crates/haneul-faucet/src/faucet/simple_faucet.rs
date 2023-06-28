@@ -1001,7 +1001,7 @@ mod tests {
     use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
     use haneul_json_rpc_types::HaneulExecutionStatus;
     use haneul_sdk::wallet_context::WalletContext;
-    use test_utils::network::TestClusterBuilder;
+    use test_cluster::TestClusterBuilder;
 
     use super::*;
 

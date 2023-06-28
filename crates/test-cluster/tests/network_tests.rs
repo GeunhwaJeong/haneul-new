@@ -5,13 +5,12 @@ use move_binary_format::access::ModuleAccess;
 use haneul_framework::BuiltInFramework;
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;
+use haneul_macros::sim_test;
 use haneul_types::{
     base_types::ObjectID, digests::TransactionDigest, object::Object, MOVE_STDLIB_PACKAGE_ID,
     HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID,
 };
-use test_utils::network::TestClusterBuilder;
-
-use haneul_macros::sim_test;
+use test_cluster::TestClusterBuilder;
 
 #[sim_test]
 async fn test_additional_objects() {
