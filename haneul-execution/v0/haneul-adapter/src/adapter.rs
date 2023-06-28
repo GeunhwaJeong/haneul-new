@@ -16,6 +16,7 @@ use move_vm_runtime::{
     move_vm::MoveVM, native_extensions::NativeContextExtensions,
     native_functions::NativeFunctionTable,
 };
+use haneul_move_natives::object_runtime;
 use haneul_types::metrics::BytecodeVerifierMetrics;
 use haneul_verifier::check_for_verifier_timeout;
 use tracing::instrument;
@@ -27,7 +28,6 @@ use haneul_types::{
     error::ExecutionError,
     error::{ExecutionErrorKind, HaneulError},
     metrics::LimitsMetrics,
-    object::Owner,
     storage::ChildObjectResolver,
 };
 use haneul_verifier::verifier::haneul_verify_module_metered_check_timeout_only;
@@ -110,7 +110,7 @@ pub fn new_move_vm(
 
 pub fn new_native_extensions<'r>(
     child_resolver: &'r dyn ChildObjectResolver,
-    input_objects: BTreeMap<ObjectID, Owner>,
+    input_objects: BTreeMap<ObjectID, object_runtime::InputObject>,
     is_metered: bool,
     protocol_config: &ProtocolConfig,
     metrics: Arc<LimitsMetrics>,
