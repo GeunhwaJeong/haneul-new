@@ -860,7 +860,6 @@ fn publish_and_verify_modules(
         // Run Haneul bytecode verifier, which runs some additional checks that assume the Move
         // bytecode verifier has passed.
         haneul_verifier::verifier::haneul_verify_module_unmetered(
-            context.protocol_config,
             module,
             &BTreeMap::new(),
         )?;
