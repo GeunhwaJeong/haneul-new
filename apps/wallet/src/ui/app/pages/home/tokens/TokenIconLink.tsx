@@ -10,7 +10,6 @@ import { LargeButton } from '_app/shared/LargeButton';
 import { DelegatedAPY } from '_app/shared/delegated-apy';
 import { useGetDelegatedStake } from '_app/staking/useGetDelegatedStake';
 import { ampli } from '_src/shared/analytics/ampli';
-import { trackEvent } from '_src/shared/plausible';
 
 export function TokenIconLink({ accountAddress }: { accountAddress: HaneulAddress }) {
 	const { data: delegatedStake, isLoading } = useGetDelegatedStake(accountAddress);
@@ -34,7 +33,6 @@ export function TokenIconLink({ accountAddress }: { accountAddress: HaneulAddres
 		<LargeButton
 			to="/stake"
 			onClick={() => {
-				trackEvent('StakingFromHome');
 				ampli.clickedStakeHaneul({
 					isCurrentlyStaking: totalActivePendingStake > 0,
 					sourceFlow: 'Home page',
