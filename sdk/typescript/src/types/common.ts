@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Infer } from 'superstruct';
 import {
 	boolean,
 	define,
-	Infer,
 	literal,
 	nullable,
 	number,
@@ -13,7 +13,7 @@ import {
 	string,
 	union,
 } from 'superstruct';
-import { CallArg } from './haneul-bcs.js';
+import type { CallArg } from './haneul-bcs.js';
 import { fromB58, splitGenericParameters } from '@haneullabs/bcs';
 
 export const TransactionDigest = string();

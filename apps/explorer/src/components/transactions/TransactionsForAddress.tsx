@@ -6,7 +6,6 @@ import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 import { genTableDataFromTxData } from './TxCardUtils';
-
 import { Banner } from '~/ui/Banner';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { TableCard } from '~/ui/TableCard';

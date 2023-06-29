@@ -5,7 +5,6 @@ import { Haneul, HaneulLogoTxt } from '@haneullabs/icons';
 
 import NetworkSelect from '../network/Network';
 import Search from '../search/Search';
-
 import { LinkWithQuery } from '~/ui/utils/LinkWithQuery';
 
 function Header() {

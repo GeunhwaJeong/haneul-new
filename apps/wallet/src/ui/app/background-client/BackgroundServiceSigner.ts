@@ -1,12 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type SerializedSignature } from '@haneullabs/haneul.js';
+import { type SerializedSignature, type JsonRpcProvider, type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { WalletSigner } from '../WalletSigner';
 
 import type { BackgroundClient } from '.';
-import type { JsonRpcProvider, HaneulAddress } from '@haneullabs/haneul.js';
 
 export class BackgroundServiceSigner extends WalletSigner {
 	readonly #address: HaneulAddress;

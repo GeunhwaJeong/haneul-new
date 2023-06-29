@@ -5,7 +5,6 @@ import { useOnScreen, useGetCoins } from '@haneullabs/core';
 import { useEffect, useRef } from 'react';
 
 import CoinItem from './CoinItem';
-
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 
 type CoinsPanelProps = {

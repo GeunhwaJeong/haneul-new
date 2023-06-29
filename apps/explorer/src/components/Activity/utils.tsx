@@ -5,7 +5,6 @@ import { type EpochPage } from '@haneullabs/haneul.js/src/types/epochs';
 
 import { HaneulAmount } from '../Table/HaneulAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
-
 import { HighlightedTableCol } from '~/components/Table/HighlightedTableCol';
 import { CheckpointSequenceLink, EpochLink } from '~/ui/InternalLink';
 import { Text } from '~/ui/Text';

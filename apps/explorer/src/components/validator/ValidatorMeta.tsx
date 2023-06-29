@@ -5,7 +5,6 @@ import { ArrowUpRight12 } from '@haneullabs/icons';
 import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
 
 import { StakeButton } from './StakeButton';
-
 import { CopyToClipboard } from '~/ui/CopyToClipboard';
 import { DescriptionList, DescriptionItem } from '~/ui/DescriptionList';
 import { Heading } from '~/ui/Heading';

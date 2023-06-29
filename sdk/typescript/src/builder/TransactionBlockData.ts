@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { toB58 } from '@haneullabs/bcs';
+import type { Infer } from 'superstruct';
 import {
 	array,
 	assert,
 	define,
-	Infer,
 	integer,
 	is,
 	literal,

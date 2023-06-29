@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG, type HaneulAddress } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG, type HaneulAddress, type StakeObject } from '@haneullabs/haneul.js';
 import { cx, cva, type VariantProps } from 'class-variance-authority';
 import { Link } from 'react-router-dom';
 
@@ -12,7 +12,6 @@ import { CountDownTimer } from '_src/ui/app/shared/countdown-timer';
 import { Text } from '_src/ui/app/shared/text';
 import { IconTooltip } from '_src/ui/app/shared/tooltip';
 
-import type { StakeObject } from '@haneullabs/haneul.js';
 import type { ReactNode } from 'react';
 
 export enum StakeState {

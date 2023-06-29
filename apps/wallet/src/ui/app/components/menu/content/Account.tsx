@@ -7,8 +7,8 @@ import { ChevronDown16, Copy16 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js';
 import { cx } from 'class-variance-authority';
 
-import { AccountBadge } from '../../AccountBadge';
 import { AccountActions } from './AccountActions';
+import { AccountBadge } from '../../AccountBadge';
 import { type SerializedAccount } from '_src/background/keyring/Account';
 import { useCopyToClipboard } from '_src/ui/app/hooks/useCopyToClipboard';
 import { Text } from '_src/ui/app/shared/text';

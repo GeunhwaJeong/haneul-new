@@ -5,7 +5,6 @@ import { type MoveCallHaneulTransaction, type HaneulArgument, type HaneulMovePac
 import { type ReactNode } from 'react';
 
 import { flattenHaneulArguments } from './utils';
-
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
 import { ObjectLink } from '~/ui/InternalLink';
 import { Text } from '~/ui/Text';

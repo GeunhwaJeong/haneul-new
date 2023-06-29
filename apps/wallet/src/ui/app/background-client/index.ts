@@ -7,6 +7,8 @@ import {
 	type SignedTransaction,
 	type ExportedKeypair,
 	type SignedMessage,
+	type HaneulAddress,
+	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import { lastValueFrom, map, take } from 'rxjs';
 
@@ -32,7 +34,6 @@ import {
 	type QredoConnectPayload,
 } from '_src/shared/messaging/messages/payloads/QredoConnect';
 
-import type { HaneulAddress, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import type { Message } from '_messages';
 import type { KeyringPayload } from '_payloads/keyring';
 import type { GetPermissionRequests, PermissionResponse } from '_payloads/permissions';

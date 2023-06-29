@@ -1,8 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { BCS, EnumTypeDefinition, getHaneulMoveConfig, StructTypeDefinition } from '@haneullabs/bcs';
-import { HaneulObjectRef } from './objects.js';
+import type { EnumTypeDefinition, StructTypeDefinition } from '@haneullabs/bcs';
+import { BCS, getHaneulMoveConfig } from '@haneullabs/bcs';
+import type { HaneulObjectRef } from './objects.js';
 
 /**
  * A reference to a shared object.

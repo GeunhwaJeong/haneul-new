@@ -4,7 +4,6 @@
 import { useProductAnalyticsConfig } from '@haneullabs/core';
 
 import { legalLinks } from './footerLinks';
-
 import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
 

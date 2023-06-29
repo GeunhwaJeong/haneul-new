@@ -5,7 +5,6 @@ import { type TransactionFilter } from '@haneullabs/haneul.js';
 import { useReducer, useState } from 'react';
 
 import { genTableDataFromTxData } from '../transactions/TxCardUtils';
-
 import {
 	DEFAULT_TRANSACTIONS_LIMIT,
 	useGetTransactionBlocks,

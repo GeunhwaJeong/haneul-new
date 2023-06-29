@@ -5,7 +5,6 @@ import { useGetKioskContents, useGetOwnedObjects } from '@haneullabs/core';
 import { useMemo, useState } from 'react';
 
 import OwnedObject from './OwnedObject';
-
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { Pagination, useCursorPagination } from '~/ui/Pagination';
 import { RadioGroup, RadioOption } from '~/ui/Radio';

@@ -5,7 +5,6 @@ import { formatAmount } from '@haneullabs/core';
 import { Haneul } from '@haneullabs/icons';
 
 import { StatsWrapper } from './HomeMetrics/FormattedStatsAmount';
-
 import { useHaneulCoinData } from '~/hooks/useHaneulCoinData';
 import { Card } from '~/ui/Card';
 import { Heading } from '~/ui/Heading';

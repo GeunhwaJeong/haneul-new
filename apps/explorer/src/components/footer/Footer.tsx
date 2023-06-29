@@ -1,10 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactComponent as HaneulLabsRed } from '../../assets/HaneulLabs_Red.svg';
 import { LegalLinks, LegalText } from './Legal';
 import { footerLinks, socialLinks } from './footerLinks';
-
+import { ReactComponent as HaneulLabsRed } from '../../assets/HaneulLabs_Red.svg';
 import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
 

@@ -5,7 +5,6 @@ import { useGetDynamicFieldObject, useGetNormalizedMoveStruct } from '@haneullab
 import { getObjectFields, getObjectType } from '@haneullabs/haneul.js';
 
 import { FieldItem } from './FieldItem';
-
 import { Banner } from '~/ui/Banner';
 import { LoadingSpinner } from '~/ui/LoadingSpinner';
 

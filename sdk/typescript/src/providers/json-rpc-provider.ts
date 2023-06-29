@@ -1,26 +1,37 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HttpHeaders, JsonRpcClient } from '../rpc/client.js';
-import {
+import type { HttpHeaders } from '../rpc/client.js';
+import { JsonRpcClient } from '../rpc/client.js';
+import type {
 	ExecuteTransactionRequestType,
 	ObjectId,
+	HaneulEventFilter,
+	TransactionDigest,
+	HaneulTransactionBlockResponseQuery,
+	FaucetResponse,
+	Order,
+	CoinMetadata,
+	CheckpointDigest,
+	HaneulObjectDataOptions,
+	HaneulTransactionBlockResponseOptions,
+	HaneulEvent,
+	HaneulObjectResponseQuery,
+	TransactionFilter,
+	TransactionEffects,
+	Unsubscribe,
+} from '../types/index.js';
+import {
 	PaginatedTransactionResponse,
 	HaneulAddress,
-	HaneulEventFilter,
 	HaneulMoveFunctionArgTypes,
 	HaneulMoveNormalizedFunction,
 	HaneulMoveNormalizedModule,
 	HaneulMoveNormalizedModules,
 	HaneulMoveNormalizedStruct,
 	HaneulTransactionBlockResponse,
-	TransactionDigest,
-	HaneulTransactionBlockResponseQuery,
 	PaginatedEvents,
-	FaucetResponse,
-	Order,
 	DevInspectResults,
-	CoinMetadata,
 	isValidTransactionDigest,
 	isValidHaneulAddress,
 	isValidHaneulObjectId,
@@ -32,36 +43,27 @@ import {
 	DelegatedStake,
 	CoinBalance,
 	CoinSupply,
-	CheckpointDigest,
 	Checkpoint,
 	CommitteeInfo,
 	DryRunTransactionBlockResponse,
-	HaneulObjectDataOptions,
 	HaneulSystemStateSummary,
-	HaneulTransactionBlockResponseOptions,
-	HaneulEvent,
 	PaginatedObjectsResponse,
-	HaneulObjectResponseQuery,
 	ValidatorsApy,
 	MoveCallMetrics,
 	ObjectRead,
-	TransactionFilter,
-	TransactionEffects,
-	Unsubscribe,
 	ResolvedNameServiceNames,
 	ProtocolConfig,
 } from '../types/index.js';
-import { DynamicFieldName, DynamicFieldPage } from '../types/dynamic_fields.js';
-import {
-	DEFAULT_CLIENT_OPTIONS,
-	WebsocketClient,
-	WebsocketClientOptions,
-} from '../rpc/websocket-client.js';
+import type { DynamicFieldName } from '../types/dynamic_fields.js';
+import { DynamicFieldPage } from '../types/dynamic_fields.js';
+import type { WebsocketClientOptions } from '../rpc/websocket-client.js';
+import { DEFAULT_CLIENT_OPTIONS, WebsocketClient } from '../rpc/websocket-client.js';
 import { requestHaneulFromFaucet } from '../rpc/faucet-client.js';
 import { any, array, string, nullable } from 'superstruct';
 import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
-import { SerializedSignature } from '../cryptography/signature.js';
-import { Connection, devnetConnection } from '../rpc/connection.js';
+import type { SerializedSignature } from '../cryptography/signature.js';
+import type { Connection } from '../rpc/connection.js';
+import { devnetConnection } from '../rpc/connection.js';
 import { TransactionBlock } from '../builder/index.js';
 import { CheckpointPage } from '../types/checkpoints.js';
 import { NetworkMetrics, AddressMetrics } from '../types/metrics.js';

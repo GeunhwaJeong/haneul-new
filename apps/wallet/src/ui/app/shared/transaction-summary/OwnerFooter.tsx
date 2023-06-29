@@ -3,8 +3,8 @@
 
 import { formatAddress, isValidHaneulAddress, type HaneulAddress } from '@haneullabs/haneul.js';
 
-import { Text } from '../text';
 import { SummaryCardFooter } from './Card';
+import { Text } from '../text';
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { useActiveAddress } from '_src/ui/app/hooks';

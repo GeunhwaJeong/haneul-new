@@ -5,11 +5,11 @@ import { ArrowUpRight12 } from '@haneullabs/icons';
 import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { cx } from 'class-variance-authority';
 
+import { AccountAddress } from './AccountAddress';
+import { SummaryCard } from './SummaryCard';
 import { Link } from '../shared/Link';
 import { Heading } from '../shared/heading';
 import { Text } from '../shared/text';
-import { AccountAddress } from './AccountAddress';
-import { SummaryCard } from './SummaryCard';
 import { getValidDAppUrl } from '_src/shared/utils';
 
 export type DAppInfoCardProps = {

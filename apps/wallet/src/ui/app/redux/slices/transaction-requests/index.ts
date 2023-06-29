@@ -6,13 +6,13 @@ import {
 	TransactionBlock,
 	type SignedMessage,
 	type SignedTransaction,
+	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
 import { type WalletSigner } from '_src/ui/app/WalletSigner';
 import { getSignerOperationErrorMessage } from '_src/ui/app/helpers/errorMessages';
 
-import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { ApprovalRequest } from '_payloads/transactions/ApprovalRequest';
 import type { RootState } from '_redux/RootReducer';

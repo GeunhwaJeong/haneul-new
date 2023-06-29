@@ -4,7 +4,6 @@
 import { type HaneulTransaction } from '@haneullabs/haneul.js';
 
 import { Transaction } from './Transaction';
-
 import { ProgrammableTxnBlockCard } from '~/components/transactions/ProgTxnBlockCard';
 import { TransactionBlockCardSection } from '~/ui/TransactionBlockCard';
 

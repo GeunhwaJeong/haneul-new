@@ -4,7 +4,6 @@
 import { type HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
 
 import { getFieldTypeValue } from './utils';
-
 import { SyntaxHighlighter } from '~/components/SyntaxHighlighter';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
 import { Link } from '~/ui/Link';

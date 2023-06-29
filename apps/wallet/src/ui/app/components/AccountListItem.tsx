@@ -5,10 +5,10 @@ import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Check12, Copy12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js';
 
+import { AccountBadge } from './AccountBadge';
 import { useActiveAddress } from '../hooks/useActiveAddress';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 import { Text } from '../shared/text';
-import { AccountBadge } from './AccountBadge';
 import { type SerializedAccount } from '_src/background/keyring/Account';
 
 export type AccountItemProps = {

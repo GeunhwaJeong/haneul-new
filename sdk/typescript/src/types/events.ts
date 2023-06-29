@@ -1,18 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	object,
-	string,
-	Infer,
-	array,
-	record,
-	any,
-	optional,
-	boolean,
-	nullable,
-} from 'superstruct';
-import { ObjectId, HaneulAddress, TransactionDigest, HaneulJsonValue, SequenceNumber } from './common.js';
+import type { Infer } from 'superstruct';
+import { object, string, array, record, any, optional, boolean, nullable } from 'superstruct';
+import type { HaneulJsonValue } from './common.js';
+import { ObjectId, HaneulAddress, TransactionDigest, SequenceNumber } from './common.js';
 
 export const EventId = object({
 	txDigest: TransactionDigest,
