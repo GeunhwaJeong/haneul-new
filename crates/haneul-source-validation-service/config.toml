@@ -1,5 +1,6 @@
 [[packages]]
 repository = "https://github.com/GeunhwaJeong/haneul"
+branch = "mainnet-v1.3.1"
 paths = [
     "crates/haneul-framework/packages/deepbook",
     "crates/haneul-framework/packages/move-stdlib",
