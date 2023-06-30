@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useGetKioskContents } from '@haneullabs/core';
 import { ArrowUpRight12, ArrowRight16 } from '@haneullabs/icons';
 import { hasPublicTransfer, formatAddress } from '@haneullabs/haneul.js';
@@ -31,10 +30,6 @@ function NFTDetailsPage() {
 	const address = useActiveAddress();
 	const { data } = useGetKioskContents(address);
 	const isContainedInHaneulKiosk = data?.kiosks.haneul.some((k) => k.data?.objectId === nftId);
-	const marketplaceLinks = useFeatureValue('kiosk-marketplace-links', [
-		{ href: 'https://docs.haneul.io/build/haneul-kiosk', text: 'Learn more about Kiosks' },
-		{ href: 'https://haneul.directory/?_project_type=marketplace', text: 'Explore Haneul Marketplaces' },
-	]);
 
 	// Extract either the attributes, or use the top-level NFT fields:
 	const metaFields =
@@ -164,15 +159,18 @@ function NFTDetailsPage() {
 
 							{isContainedInHaneulKiosk ? (
 								<div className="flex flex-col gap-2 mb-3">
-									{marketplaceLinks.map(({ href, text }) => (
-										<Button
-											key={href}
-											after={<ArrowUpRight12 />}
-											variant="outline"
-											href={href}
-											text={text}
-										/>
-									))}
+									<Button
+										after={<ArrowUpRight12 />}
+										variant="outline"
+										href="https://docs.haneul.io/build/haneul-kiosk"
+										text="Learn more about Kiosks"
+									/>
+									<Button
+										after={<ArrowUpRight12 />}
+										variant="outline"
+										href={`https://haneul.hyperspace.xyz/wallet/haneul/${accountAddress}?tokenAddress=${nftId}`}
+										text="Marketplace"
+									/>
 								</div>
 							) : (
 								<div className="mb-3 flex flex-1 items-end">
