@@ -1,5 +1,14 @@
 # @haneullabs/wallet-adapter-unsafe-burner
 
+## 0.8.12
+
+### Patch Changes
+
+- Updated dependencies [34cc7d610]
+  - @haneullabs/haneul.js@0.37.1
+  - @haneullabs/wallet-adapter-base@0.7.12
+  - @haneullabs/wallet-standard@0.5.12
+
 ## 0.8.11
 
 ### Patch Changes
