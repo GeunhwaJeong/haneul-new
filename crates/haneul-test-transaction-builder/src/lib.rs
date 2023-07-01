@@ -6,8 +6,14 @@ use shared_crypto::intent::Intent;
 use std::path::PathBuf;
 use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::BuildConfig;
+use haneul_sdk::rpc_types::{
+    get_new_package_obj_from_response, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+};
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
-use haneul_types::crypto::{Signature, Signer};
+use haneul_types::crypto::{get_key_pair, AccountKeyPair, Signature, Signer};
+use haneul_types::digests::TransactionDigest;
+use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     CallArg, ObjectArg, ProgrammableTransaction, Transaction, TransactionData,
@@ -305,4 +311,245 @@ struct TransferData {
 struct TransferHaneulData {
     amount: Option<u64>,
     recipient: HaneulAddress,
+}
+
+/// A helper function to make Transactions with controlled accounts in WalletContext.
+/// Particularly, the wallet needs to own gas objects for transactions.
+/// However, if this function is called multiple times without any "sync" actions
+/// on gas object management, txns may fail and objects may be locked.
+///
+/// The param is called `max_txn_num` because it does not always return the exact
+/// same amount of Transactions, for example when there are not enough gas objects
+/// controlled by the WalletContext. Caller should rely on the return value to
+/// check the count.
+pub async fn batch_make_transfer_transactions(
+    context: &WalletContext,
+    max_txn_num: usize,
+) -> Vec<Transaction> {
+    let recipient = get_key_pair::<AccountKeyPair>().0;
+    let accounts_and_objs = context.get_all_accounts_and_gas_objects().await.unwrap();
+    let mut res = Vec::with_capacity(max_txn_num);
+
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    for (address, objs) in accounts_and_objs {
+        for obj in objs {
+            if res.len() >= max_txn_num {
+                return res;
+            }
+            let data = TransactionData::new_transfer_haneul(
+                recipient,
+                address,
+                Some(2),
+                obj,
+                gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+                gas_price,
+            );
+            let tx = context.sign_transaction(&data);
+            res.push(tx);
+        }
+    }
+    res
+}
+
+pub async fn make_transfer_haneul_transaction(
+    context: &WalletContext,
+    recipient: Option<HaneulAddress>,
+    amount: Option<u64>,
+) -> Transaction {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .transfer_haneul(amount, recipient.unwrap_or(sender))
+            .build(),
+    )
+}
+
+pub async fn make_staking_transaction(
+    context: &WalletContext,
+    validator_address: HaneulAddress,
+) -> Transaction {
+    let accounts_and_objs = context.get_all_accounts_and_gas_objects().await.unwrap();
+    let sender = accounts_and_objs[0].0;
+    let gas_object = accounts_and_objs[0].1[0];
+    let stake_object = accounts_and_objs[0].1[1];
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .call_staking(stake_object, validator_address)
+            .build(),
+    )
+}
+
+pub async fn make_publish_transaction(context: &WalletContext, path: PathBuf) -> Transaction {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .publish(path)
+            .build(),
+    )
+}
+
+pub async fn make_publish_transaction_with_deps(
+    context: &WalletContext,
+    path: PathBuf,
+) -> Transaction {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .publish_with_deps(path)
+            .build(),
+    )
+}
+
+pub async fn publish_package(context: &WalletContext, path: PathBuf) -> ObjectRef {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .publish(path)
+            .build(),
+    );
+    let resp = context.execute_transaction_must_succeed(txn).await;
+    get_new_package_obj_from_response(&resp).unwrap()
+}
+
+/// Executes a transaction to publish the `basics` package and returns the package object ref.
+pub async fn publish_basics_package(context: &WalletContext) -> ObjectRef {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .publish_examples("basics")
+            .build(),
+    );
+    let resp = context.execute_transaction_must_succeed(txn).await;
+    get_new_package_obj_from_response(&resp).unwrap()
+}
+
+/// Executes a transaction to publish the `basics` package and another one to create a counter.
+/// Returns the package object ref and the counter object ref.
+pub async fn publish_basics_package_and_make_counter(
+    context: &WalletContext,
+) -> (ObjectRef, ObjectRef) {
+    let package_ref = publish_basics_package(context).await;
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    let counter_creation_txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .call_counter_create(package_ref.0)
+            .build(),
+    );
+    let resp = context
+        .execute_transaction_must_succeed(counter_creation_txn)
+        .await;
+    let counter_ref = resp
+        .effects
+        .unwrap()
+        .created()
+        .iter()
+        .find(|obj_ref| matches!(obj_ref.owner, Owner::Shared { .. }))
+        .unwrap()
+        .reference
+        .to_object_ref();
+    (package_ref, counter_ref)
+}
+
+/// Executes a transaction to increment a counter object.
+/// Must be called after calling `publish_basics_package_and_make_counter`.
+pub async fn increment_counter(
+    context: &WalletContext,
+    sender: HaneulAddress,
+    gas_object_id: Option<ObjectID>,
+    package_id: ObjectID,
+    counter_id: ObjectID,
+    initial_shared_version: SequenceNumber,
+) -> HaneulTransactionBlockResponse {
+    let gas_object = if let Some(gas_object_id) = gas_object_id {
+        context.get_object_ref(gas_object_id).await.unwrap()
+    } else {
+        context
+            .get_one_gas_object_owned_by_address(sender)
+            .await
+            .unwrap()
+            .unwrap()
+    };
+    let rgp = context.get_reference_gas_price().await.unwrap();
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, rgp)
+            .call_counter_increment(package_id, counter_id, initial_shared_version)
+            .build(),
+    );
+    context.execute_transaction_must_succeed(txn).await
+}
+
+/// Executes a transaction to publish the `nfts` package and returns the package id, id of the gas
+/// object used, and the digest of the transaction.
+pub async fn publish_nfts_package(
+    context: &WalletContext,
+) -> (ObjectID, ObjectID, TransactionDigest) {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let gas_id = gas_object.0;
+    let gas_price = context.get_reference_gas_price().await.unwrap();
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, gas_price)
+            .publish_examples("nfts")
+            .build(),
+    );
+    let resp = context.execute_transaction_must_succeed(txn).await;
+    let package_id = get_new_package_obj_from_response(&resp).unwrap().0;
+    (package_id, gas_id, resp.digest)
+}
+
+/// Pre-requisite: `publish_nfts_package` must be called before this function.  Executes a
+/// transaction to create an NFT and returns the sender address, the object id of the NFT, and the
+/// digest of the transaction.
+pub async fn create_devnet_nft(
+    context: &WalletContext,
+    package_id: ObjectID,
+) -> (HaneulAddress, ObjectID, TransactionDigest) {
+    let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
+    let rgp = context.get_reference_gas_price().await.unwrap();
+
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas_object, rgp)
+            .call_nft_create(package_id)
+            .build(),
+    );
+    let resp = context.execute_transaction_must_succeed(txn).await;
+
+    let object_id = resp
+        .effects
+        .as_ref()
+        .unwrap()
+        .created()
+        .first()
+        .unwrap()
+        .reference
+        .object_id;
+
+    (sender, object_id, resp.digest)
+}
+
+/// Executes a transaction to delete the given NFT.
+pub async fn delete_devnet_nft(
+    context: &WalletContext,
+    sender: HaneulAddress,
+    package_id: ObjectID,
+    nft_to_delete: ObjectRef,
+) -> HaneulTransactionBlockResponse {
+    let gas = context
+        .get_one_gas_object_owned_by_address(sender)
+        .await
+        .unwrap()
+        .unwrap_or_else(|| panic!("Expect {sender} to have at least one gas object"));
+    let rgp = context.get_reference_gas_price().await.unwrap();
+    let txn = context.sign_transaction(
+        &TestTransactionBuilder::new(sender, gas, rgp)
+            .call_nft_delete(package_id, nft_to_delete)
+            .build(),
+    );
+    context.execute_transaction_must_succeed(txn).await
 }

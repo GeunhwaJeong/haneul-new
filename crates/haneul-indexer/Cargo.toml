@@ -57,6 +57,7 @@ pg_integration = []
 [dev-dependencies]
 haneul-keys.workspace = true
 haneul-move-build.workspace = true
+haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 ntest.workspace = true
 criterion.workspace = true

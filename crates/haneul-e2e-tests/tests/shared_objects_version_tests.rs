@@ -3,6 +3,7 @@
 
 use std::path::PathBuf;
 use haneul_macros::*;
+use haneul_test_transaction_builder::publish_package;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -221,5 +222,5 @@ impl TestEnvironment {
 async fn publish_move_package(test_cluster: &TestCluster) -> ObjectRef {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("tests/move_test_code");
-    test_cluster.wallet.publish_package(path).await
+    publish_package(&test_cluster.wallet, path).await
 }

@@ -12,6 +12,7 @@ bcs.workspace = true
 shared-crypto.workspace = true
 haneul-genesis-builder.workspace = true
 haneul-move-build.workspace = true
+haneul-sdk.workspace = true
 haneul-types.workspace = true
 
 move-core-types.workspace = true

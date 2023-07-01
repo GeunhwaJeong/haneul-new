@@ -55,6 +55,7 @@ cached.workspace = true
 haneul-config.workspace = true
 haneul-keys.workspace = true
 haneul-move-build.workspace = true
+haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 haneul-sdk.workspace = true
 rand.workspace = true

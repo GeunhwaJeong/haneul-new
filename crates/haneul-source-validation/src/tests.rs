@@ -11,6 +11,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_sdk::wallet_context::WalletContext;
+use haneul_test_transaction_builder::{make_publish_transaction, make_publish_transaction_with_deps};
 use haneul_types::base_types::ObjectID;
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_PUBLISH;
@@ -580,7 +581,7 @@ fn sanitize_id(mut message: String, m: &HashMap<HaneulAddress, &str>) -> String 
 
 /// Compile and publish package at absolute path `package` to chain.
 async fn publish_package(context: &WalletContext, package: PathBuf) -> (ObjectRef, ObjectRef) {
-    let txn = context.make_publish_transaction(package).await;
+    let txn = make_publish_transaction(context, package).await;
     let response = context.execute_transaction_must_succeed(txn).await;
     let package = get_new_package_obj_from_response(&response).unwrap();
     let cap = get_new_package_upgrade_cap_from_response(&response).unwrap();
@@ -617,7 +618,7 @@ async fn upgrade_package(
 /// Compile and publish package at absolute path `package` to chain, along with its unpublished
 /// dependencies.
 async fn publish_package_and_deps(context: &WalletContext, package: PathBuf) -> ObjectRef {
-    let txn = context.make_publish_transaction_with_deps(package).await;
+    let txn = make_publish_transaction_with_deps(context, package).await;
     let response = context.execute_transaction_must_succeed(txn).await;
     get_new_package_obj_from_response(&response).unwrap()
 }

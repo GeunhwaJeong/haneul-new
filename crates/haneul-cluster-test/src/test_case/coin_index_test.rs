@@ -12,6 +12,7 @@ use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{Balance, HaneulTransactionBlockResponseOptions};
+use haneul_test_transaction_builder::make_staking_transaction;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::gas_coin::GAS;
 use haneul_types::object::Owner;
@@ -103,10 +104,7 @@ impl TestCaseImpl for CoinIndexTest {
             .get(0)
             .unwrap()
             .haneul_address;
-        let txn = ctx
-            .get_wallet()
-            .make_staking_transaction(validator_addr)
-            .await;
+        let txn = make_staking_transaction(ctx.get_wallet(), validator_addr).await;
 
         let response = client
             .quorum_driver_api()
