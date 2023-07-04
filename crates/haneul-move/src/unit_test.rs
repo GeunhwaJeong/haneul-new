@@ -13,12 +13,11 @@ use move_vm_runtime::native_extensions::NativeContextExtensions;
 use once_cell::sync::Lazy;
 use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
 use haneul_core::authority::TemporaryStore;
-use haneul_cost_tables::bytecode_tables::initial_cost_schedule_for_unit_tests;
 use haneul_move_natives::{object_runtime::ObjectRuntime, NativesCostTable};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
-    digests::TransactionDigest, in_memory_storage::InMemoryStorage, metrics::LimitsMetrics,
-    transaction::InputObjects,
+    digests::TransactionDigest, gas_model::tables::initial_cost_schedule_for_unit_tests,
+    in_memory_storage::InMemoryStorage, metrics::LimitsMetrics, transaction::InputObjects,
 };
 
 // Move unit tests will halt after executing this many steps. This is a protection to avoid divergence

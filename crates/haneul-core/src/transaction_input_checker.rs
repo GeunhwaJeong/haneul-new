@@ -21,7 +21,7 @@ use haneul_types::{
     base_types::{SequenceNumber, HaneulAddress},
     error::HaneulResult,
     fp_ensure,
-    gas::{HaneulCostTable, HaneulGasStatus},
+    gas::HaneulGasStatus,
     object::{Object, Owner},
 };
 use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
@@ -39,17 +39,10 @@ async fn get_gas_status(
     epoch_store: &AuthorityPerEpochStore,
     transaction: &TransactionData,
 ) -> HaneulResult<HaneulGasStatus> {
-    // Get the first coin (possibly the only one) and make it "the gas coin", then
-    // keep track of all others that can contribute to gas (gas smashing).
-    let gas_object_ref = gas.get(0).unwrap();
-    // all other gas coins
-    let more_gas_object_refs = gas[1..].to_vec();
-
     check_gas(
         objects,
         epoch_store,
-        gas_object_ref,
-        more_gas_object_refs,
+        gas,
         transaction.gas_budget(),
         transaction.gas_price(),
         transaction.kind(),
@@ -187,59 +180,33 @@ pub async fn check_certificate_input(
 async fn check_gas(
     objects: &[Object],
     epoch_store: &AuthorityPerEpochStore,
-    gas_payment: &ObjectRef,
-    more_gas_object_refs: Vec<ObjectRef>,
+    gas: &[ObjectRef],
     gas_budget: u64,
     gas_price: u64,
     tx_kind: &TransactionKind,
 ) -> HaneulResult<HaneulGasStatus> {
-    let protocol_config = epoch_store.protocol_config();
     if tx_kind.is_system_tx() {
-        Ok(HaneulGasStatus::new_unmetered(protocol_config))
+        Ok(HaneulGasStatus::new_unmetered())
     } else {
-        // gas price must be bigger or equal to reference gas price
+        let protocol_config = epoch_store.protocol_config();
         let reference_gas_price = epoch_store.reference_gas_price();
-        if gas_price < reference_gas_price {
-            return Err(UserInputError::GasPriceUnderRGP {
-                gas_price,
-                reference_gas_price,
-            }
-            .into());
-        }
-        if protocol_config.gas_model_version() >= 4 && gas_price >= protocol_config.max_gas_price()
-        {
-            return Err(UserInputError::GasPriceTooHigh {
-                max_gas_price: protocol_config.max_gas_price(),
-            }
-            .into());
-        }
+        let gas_status =
+            HaneulGasStatus::new(gas_budget, gas_price, reference_gas_price, protocol_config)?;
 
+        // check balance and coins consistency
         // load all gas coins
         let objects: BTreeMap<_, _> = objects.iter().map(|o| (o.id(), o)).collect();
-
-        let gas_object = objects.get(&gas_payment.0);
-        let gas_object = *gas_object.ok_or(UserInputError::ObjectNotFound {
-            object_id: gas_payment.0,
-            version: Some(gas_payment.1),
-        })?;
-        let mut more_gas_objects = vec![];
-        for obj_ref in more_gas_object_refs.iter() {
+        let mut gas_objects = vec![];
+        for obj_ref in gas {
             let obj = objects.get(&obj_ref.0);
             let obj = *obj.ok_or(UserInputError::ObjectNotFound {
                 object_id: obj_ref.0,
                 version: Some(obj_ref.1),
             })?;
-            more_gas_objects.push(obj);
+            gas_objects.push(obj);
         }
-
-        // check balance and coins consistency
-        let cost_table = HaneulCostTable::new(protocol_config);
-        cost_table.check_gas_balance(gas_object, more_gas_objects, gas_budget, gas_price)?;
-        Ok(HaneulGasStatus::new_with_budget(
-            gas_budget,
-            gas_price,
-            protocol_config,
-        ))
+        gas_status.check_gas_balance(&gas_objects, gas_budget)?;
+        Ok(gas_status)
     }
 }
 

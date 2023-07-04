@@ -45,7 +45,7 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::error::ExecutionError;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::gas::HaneulGasStatus;
+use haneul_types::gas::{GasCharger, HaneulGasStatus};
 use haneul_types::metrics::LimitsMetrics;
 use haneul_types::object::{Data, Object, Owner};
 use haneul_types::storage::get_module_by_id;
@@ -700,13 +700,9 @@ impl LocalExec {
         let metrics = self.metrics.clone();
 
         // Extract the epoch start timestamp
-        let (epoch_start_timestamp, _) = self
+        let (epoch_start_timestamp, rgp) = self
             .get_epoch_start_timestamp_and_rgp(tx_info.executed_epoch)
             .await?;
-
-        // Create the gas status
-        let gas_status =
-            HaneulGasStatus::new_with_budget(tx_info.gas_budget, tx_info.gas_price, protocol_config);
 
         let ov = self.executor_version_override;
 
@@ -720,22 +716,27 @@ impl LocalExec {
         // All prep done
         let expensive_checks = true;
         let certificate_deny_set = HashSet::new();
-        let res = executor.execute_transaction_to_effects(
-            protocol_config,
-            metrics,
-            expensive_checks,
-            &certificate_deny_set,
-            &tx_info.executed_epoch,
-            epoch_start_timestamp,
-            temporary_store,
-            tx_info.shared_object_refs.clone(),
-            gas_status,
-            &tx_info.gas,
-            override_transaction_kind.unwrap_or(tx_info.kind.clone()),
-            tx_info.sender,
-            *tx_digest,
-            tx_info.dependencies.clone().into_iter().collect(),
-        );
+        let res = if let Ok(gas_status) =
+            HaneulGasStatus::new(tx_info.gas_budget, tx_info.gas_price, rgp, protocol_config)
+        {
+            executor.execute_transaction_to_effects(
+                protocol_config,
+                metrics,
+                expensive_checks,
+                &certificate_deny_set,
+                &tx_info.executed_epoch,
+                epoch_start_timestamp,
+                temporary_store,
+                tx_info.shared_object_refs.clone(),
+                &mut GasCharger::new(*tx_digest, tx_info.gas.clone(), gas_status, protocol_config),
+                override_transaction_kind.unwrap_or(tx_info.kind.clone()),
+                tx_info.sender,
+                *tx_digest,
+                tx_info.dependencies.clone().into_iter().collect(),
+            )
+        } else {
+            unreachable!("Transaction was valid so gas status must be valid");
+        };
 
         let all_required_objects = self.storage.all_objects();
         let effects =

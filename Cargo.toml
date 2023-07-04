@@ -81,7 +81,6 @@ members = [
     "crates/haneul-config",
     "crates/haneul-core",
     "crates/haneul-cost",
-    "crates/haneul-cost-tables",
     "crates/haneul-e2e-tests",
     "crates/haneul-enum-compat-util",
     "crates/haneul-faucet",
@@ -391,7 +390,7 @@ move-disassembler = { path = "external-crates/move/tools/move-disassembler" }
 move-package = { path = "external-crates/move/tools/move-package" }
 move-unit-test = { path = "external-crates/move/tools/move-unit-test" }
 move-vm-config = { path = "external-crates/move/move-vm/config" }
-move-vm-test-utils = { path = "external-crates/move/move-vm/test-utils" }
+move-vm-test-utils = { path = "external-crates/move/move-vm/test-utils", features = ["tiered-gas"] }
 move-vm-types = { path = "external-crates/move/move-vm/types" }
 move-vm-profiler = { path = "external-crates/move/move-vm/profiler" }
 move-command-line-common = { path = "external-crates/move/move-command-line-common" }
@@ -429,7 +428,6 @@ haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
-haneul-cost-tables = { path = "crates/haneul-cost-tables" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }

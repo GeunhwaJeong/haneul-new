@@ -40,9 +40,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
                 ::haneul_simulator::haneul_adapter::execution_engine::get_denied_certificates();
                 ::haneul_simulator::haneul_framework::BuiltInFramework::all_package_ids();
-                ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered(
-                    &ProtocolConfig::get_for_min_version(),
-                );
+                ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
 
                 // For reasons I can't understand, LruCache causes divergent behavior the second
                 // time one is constructed and inserted into, so construct one before the first

@@ -9610,21 +9610,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-cost-tables"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "move-binary-format",
- "move-core-types",
- "move-vm-profiler",
- "move-vm-test-utils",
- "move-vm-types",
- "once_cell",
- "serde 1.0.152",
- "workspace-hack",
-]
-
-[[package]]
 name = "haneul-e2e-tests"
 version = "0.1.0"
 dependencies = [
@@ -10085,7 +10070,6 @@ dependencies = [
  "serde_json",
  "serde_yaml 0.8.26",
  "haneul-core",
- "haneul-cost-tables",
  "haneul-macros",
  "haneul-move-build",
  "haneul-move-natives-latest",
@@ -10977,6 +10961,7 @@ dependencies = [
  "move-disassembler",
  "move-ir-types",
  "move-vm-profiler",
+ "move-vm-test-utils",
  "move-vm-types",
  "haneullabs-metrics",
  "haneullabs-network",
@@ -11000,7 +10985,6 @@ dependencies = [
  "static_assertions",
  "strum",
  "strum_macros",
- "haneul-cost-tables",
  "haneul-enum-compat-util",
  "haneul-macros",
  "haneul-protocol-config",

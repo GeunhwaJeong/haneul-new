@@ -35,7 +35,6 @@ move-vm-runtime = { path = "../../external-crates/move/move-vm/runtime" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
 
 haneul-core = { workspace = true, optional = true }
-haneul-cost-tables.workspace = true
 haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
