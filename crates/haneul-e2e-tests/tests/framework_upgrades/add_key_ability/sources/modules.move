@@ -5,7 +5,7 @@ module haneul_system::msim_extra_1 {
     use haneul::object::UID;
     use haneul::tx_context::TxContext;
 
-    struct Type {
+    struct Type has drop {
         x: u64,
     }
 
@@ -13,12 +13,12 @@ module haneul_system::msim_extra_1 {
         id: UID,
     }
 
-    struct AlmostObj {
+    struct AlmostObj has key {
         id: UID,
     }
 
     public fun canary(): u64 {
-        private_function(44)
+        private_function(42)
     }
 
     entry fun mint(_ctx: &mut TxContext) {}
@@ -26,7 +26,7 @@ module haneul_system::msim_extra_1 {
     entry fun entry_fun() {}
 
     fun private_function(x: u64): u64 {
-        x + 1
+        private_function_2(x) + 1
     }
 
     fun private_function_2(x: u64): u64 { x }

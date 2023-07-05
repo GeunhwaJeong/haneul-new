@@ -2,12 +2,31 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul_system::msim_extra_1 {
+    use haneul::object::{Self, UID};
+    use haneul::transfer;
+    use haneul::tx_context::{Self, TxContext};
+
     struct Type has drop {
         x: u64,
     }
 
+    struct Obj has key {
+        id: UID,
+    }
+
+    struct AlmostObj {
+        id: UID,
+    }
+
     public fun canary(): u64 {
         private_function(41)
+    }
+
+    entry fun mint(ctx: &mut TxContext) {
+        transfer::transfer(
+            Obj { id: object::new(ctx) },
+            tx_context::sender(ctx),
+        )
     }
 
     entry fun entry_fun() {}
