@@ -11,13 +11,12 @@ use futures::{StreamExt, TryStreamExt};
 use object_store::DynObjectStore;
 use rand::seq::SliceRandom;
 use std::future;
-use std::num::NonZeroUsize;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
+use haneul_config::node::ArchiveReaderConfig;
 use haneul_storage::object_store::util::get;
-use haneul_storage::object_store::ObjectStoreConfig;
 use haneul_storage::{make_iterator, verify_checkpoint};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointSequenceNumber,
@@ -27,13 +26,6 @@ use haneul_types::storage::{ReadStore, WriteStore};
 use tokio::sync::oneshot::Sender;
 use tokio::sync::{oneshot, Mutex};
 use tracing::info;
-
-#[derive(Debug, Clone)]
-pub struct ArchiveReaderConfig {
-    pub remote_store_config: ObjectStoreConfig,
-    pub download_concurrency: NonZeroUsize,
-    pub use_for_pruning_watermark: bool,
-}
 
 // ArchiveReaderBalancer selects archives for reading based on whether they can fulfill a checkpoint request
 #[derive(Default, Debug, Clone)]

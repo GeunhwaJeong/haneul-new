@@ -7,6 +7,7 @@ license = "Apache-2.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 
 [dependencies]
+indicatif.workspace = true
 integer-encoding.workspace = true
 anyhow.workspace = true
 serde.workspace = true
@@ -24,6 +25,7 @@ prometheus.workspace = true
 zstd.workspace = true
 typed-store.workspace = true
 typed-store-derive.workspace = true
+haneul-config.workspace = true
 haneul-types.workspace = true
 haneul-storage.workspace = true
 haneul-protocol-config.workspace = true
