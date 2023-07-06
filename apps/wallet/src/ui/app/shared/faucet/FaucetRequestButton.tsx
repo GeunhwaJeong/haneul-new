@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { FaucetRateLimitError } from '@haneullabs/haneul.js';
+import { FaucetRateLimitError } from '@haneullabs/haneul.js/faucet';
 import { toast } from 'react-hot-toast';
 
 import FaucetMessageInfo from './FaucetMessageInfo';

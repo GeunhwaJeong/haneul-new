@@ -9,7 +9,6 @@ import type {
 	HaneulEventFilter,
 	TransactionDigest,
 	HaneulTransactionBlockResponseQuery,
-	FaucetResponse,
 	Order,
 	CoinMetadata,
 	CheckpointDigest,
@@ -58,7 +57,6 @@ import type { DynamicFieldName } from '../types/dynamic_fields.js';
 import { DynamicFieldPage } from '../types/dynamic_fields.js';
 import type { WebsocketClientOptions } from '../rpc/websocket-client.js';
 import { DEFAULT_CLIENT_OPTIONS, WebsocketClient } from '../rpc/websocket-client.js';
-import { requestHaneulFromFaucet } from '../rpc/faucet-client.js';
 import { any, array, string, nullable } from 'superstruct';
 import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
 import type { SerializedSignature } from '../cryptography/signature.js';
@@ -68,6 +66,7 @@ import { TransactionBlock } from '../builder/index.js';
 import { CheckpointPage } from '../types/checkpoints.js';
 import { NetworkMetrics, AddressMetrics } from '../types/metrics.js';
 import { EpochInfo, EpochPage } from '../types/epochs.js';
+import { requestHaneulFromFaucetV0 } from '../faucet/index.js';
 
 export interface PaginationArguments<Cursor> {
 	/** Optional paging cursor */
@@ -153,14 +152,13 @@ export class JsonRpcProvider {
 		return undefined;
 	}
 
-	async requestHaneulFromFaucet(
-		recipient: HaneulAddress,
-		httpHeaders?: HttpHeaders,
-	): Promise<FaucetResponse> {
+	/** @deprecated Use `@haneullabs/haneul.js/faucet` instead. */
+	async requestHaneulFromFaucet(recipient: HaneulAddress, headers?: HttpHeaders) {
 		if (!this.connection.faucet) {
 			throw new Error('Faucet URL is not specified');
 		}
-		return requestHaneulFromFaucet(this.connection.faucet, recipient, httpHeaders);
+
+		return requestHaneulFromFaucetV0({ host: this.connection.faucet, recipient, headers });
 	}
 
 	/**

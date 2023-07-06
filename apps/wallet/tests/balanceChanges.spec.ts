@@ -3,7 +3,7 @@
 
 import { expect, test } from './fixtures';
 import { createWallet, importWallet } from './utils/auth';
-import { generateKeypairFromMnemonic, requestingHaneulFromFaucet } from './utils/localnet';
+import { generateKeypairFromMnemonic, requestHaneulFromFaucet } from './utils/localnet';
 
 const receivedAddressMnemonic = [
 	'beef',
@@ -55,7 +55,7 @@ test('send 20 HANEUL to an address', async ({ page, extensionUrl }) => {
 
 	await importWallet(page, extensionUrl, currentWalletMnemonic);
 
-	await requestingHaneulFromFaucet(originAddress);
+	await requestHaneulFromFaucet(originAddress);
 	await expect(page.getByTestId('coin-balance')).not.toHaveText('0HANEUL');
 
 	const originalBalance = await page.getByTestId('coin-balance').textContent();
@@ -78,7 +78,7 @@ test('check balance changes in Activity', async ({ page, extensionUrl }) => {
 
 	await importWallet(page, extensionUrl, currentWalletMnemonic);
 
-	await requestingHaneulFromFaucet(originAddress);
+	await requestHaneulFromFaucet(originAddress);
 	await page.getByTestId('nav-activity').click();
 	await page
 		.getByText(/Transaction/i)
