@@ -26,7 +26,7 @@ use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{
     base_types::HaneulAddress,
-    transaction::{Transaction, TransactionData, VerifiedTransaction},
+    transaction::{Transaction, TransactionData},
 };
 use test_case::{
     coin_index_test::CoinIndexTest, coin_merge_split_test::CoinMergeSplitTest,
@@ -127,7 +127,7 @@ impl TestContext {
 
     /// See `make_transactions_with_wallet_context` for potential caveats
     /// of this helper function.
-    pub async fn make_transactions(&self, max_txn_num: usize) -> Vec<VerifiedTransaction> {
+    pub async fn make_transactions(&self, max_txn_num: usize) -> Vec<Transaction> {
         self.get_wallet()
             .batch_make_transfer_transactions(max_txn_num)
             .await
@@ -155,9 +155,7 @@ impl TestContext {
             .get_fullnode_client()
             .quorum_driver_api()
             .execute_transaction_block(
-                Transaction::from_data(txn_data, Intent::haneul_transaction(), vec![signature])
-                    .verify()
-                    .unwrap(),
+                Transaction::from_data(txn_data, Intent::haneul_transaction(), vec![signature]),
                 HaneulTransactionBlockResponseOptions::new()
                     .with_object_changes()
                     .with_balance_changes()

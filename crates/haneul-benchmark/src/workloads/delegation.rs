@@ -17,7 +17,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
-use haneul_types::transaction::VerifiedTransaction;
+use haneul_types::transaction::Transaction;
 use tracing::error;
 
 #[derive(Debug)]
@@ -54,7 +54,7 @@ impl Payload for DelegationTestPayload {
     /// delegation flow is split into two phases
     /// first `make_transaction` call creates separate coin object for future delegation
     /// followup call creates delegation transaction itself
-    fn make_transaction(&mut self) -> VerifiedTransaction {
+    fn make_transaction(&mut self) -> Transaction {
         match self.coin {
             Some(coin) => TestTransactionBuilder::new(
                 self.sender,

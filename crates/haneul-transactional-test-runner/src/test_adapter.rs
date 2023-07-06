@@ -60,7 +60,7 @@ use haneul_types::{
     event::Event,
     object::{self, Object, ObjectFormatOptions},
     object::{MoveObject, Owner},
-    transaction::{TransactionData, TransactionDataAPI, VerifiedTransaction},
+    transaction::{Transaction, TransactionData, TransactionDataAPI, VerifiedTransaction},
     MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
@@ -653,7 +653,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             }) => {
                 let transaction =
                     VerifiedTransaction::new_consensus_commit_prologue(0, 0, timestamp_ms);
-                let summary = self.execute_txn(transaction).await?;
+                let summary = self.execute_txn(transaction.into()).await?;
                 let output = self.object_summary_output(&summary, /* summarize */ false);
                 Ok(output)
             }
@@ -1058,7 +1058,7 @@ impl<'a> HaneulTestAdapter<'a> {
         &self,
         sender: Option<String>,
         txn_data: impl FnOnce(/* sender */ HaneulAddress, /* gas */ ObjectRef) -> TransactionData,
-    ) -> VerifiedTransaction {
+    ) -> Transaction {
         let test_account = self.get_sender(sender);
         let gas_payment = self
             .get_object(&test_account.gas, None)
@@ -1078,10 +1078,7 @@ impl<'a> HaneulTestAdapter<'a> {
         }
     }
 
-    async fn execute_txn(
-        &mut self,
-        transaction: VerifiedTransaction,
-    ) -> anyhow::Result<TxnSummary> {
+    async fn execute_txn(&mut self, transaction: Transaction) -> anyhow::Result<TxnSummary> {
         let with_shared = transaction
             .data()
             .intent_message()

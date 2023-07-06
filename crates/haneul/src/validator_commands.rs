@@ -637,8 +637,7 @@ async fn call_0x5(
             .config
             .keystore
             .sign_secure(&sender, &tx_data, Intent::haneul_transaction())?;
-    let transaction =
-        Transaction::from_data(tx_data, Intent::haneul_transaction(), vec![signature]).verify()?;
+    let transaction = Transaction::from_data(tx_data, Intent::haneul_transaction(), vec![signature]);
     let haneul_client = context.get_client().await?;
     haneul_client
         .quorum_driver_api()

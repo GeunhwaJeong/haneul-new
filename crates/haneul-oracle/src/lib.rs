@@ -25,7 +25,7 @@ use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_type_tag;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::NON_RECOVERABLE_ERROR_MSG;
-use haneul_types::transaction::{Argument, VerifiedTransaction};
+use haneul_types::transaction::{Argument, Transaction};
 use haneul_types::transaction::{Command, ObjectArg};
 use haneul_types::Identifier;
 use haneul_types::{
@@ -558,10 +558,7 @@ impl OnChainDataUploader {
         }
     }
 
-    async fn execute(
-        &mut self,
-        tx: VerifiedTransaction,
-    ) -> anyhow::Result<HaneulTransactionBlockResponse> {
+    async fn execute(&mut self, tx: Transaction) -> anyhow::Result<HaneulTransactionBlockResponse> {
         let tx_digest = tx.digest();
         let mut retry_attempts = 3;
         loop {

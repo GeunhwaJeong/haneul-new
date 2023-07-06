@@ -107,8 +107,7 @@ impl TicTacToe {
                     create_game_call,
                     Intent::haneul_transaction(),
                     vec![signature],
-                )
-                .verify()?,
+                ),
                 HaneulTransactionBlockResponseOptions::full_content(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
@@ -212,8 +211,7 @@ impl TicTacToe {
                         place_mark_call,
                         Intent::haneul_transaction(),
                         vec![signature],
-                    )
-                    .verify()?,
+                    ),
                     HaneulTransactionBlockResponseOptions::new().with_effects(),
                     Some(ExecuteTransactionRequestType::WaitForLocalExecution),
                 )

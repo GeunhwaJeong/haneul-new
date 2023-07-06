@@ -15,12 +15,9 @@ use haneul_types::crypto::{deterministic_random_account_key, get_key_pair, Accou
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::object::{generate_test_gas_objects, Object};
 use haneul_types::quorum_driver_types::{QuorumDriverError, QuorumDriverResponse, QuorumDriverResult};
-use haneul_types::transaction::VerifiedTransaction;
+use haneul_types::transaction::Transaction;
 
-async fn setup() -> (
-    AuthorityAggregator<LocalAuthorityClient>,
-    VerifiedTransaction,
-) {
+async fn setup() -> (AuthorityAggregator<LocalAuthorityClient>, Transaction) {
     let (sender, keypair): (_, AccountKeyPair) = get_key_pair();
     let gas_object = Object::with_owner_for_testing(sender);
     let (aggregator, authorities, genesis, _) =
@@ -45,7 +42,7 @@ fn make_tx(
     sender: HaneulAddress,
     keypair: &AccountKeyPair,
     gas_price: u64,
-) -> VerifiedTransaction {
+) -> Transaction {
     make_transfer_haneul_transaction(
         gas.compute_object_reference(),
         HaneulAddress::random_for_testing_only(),

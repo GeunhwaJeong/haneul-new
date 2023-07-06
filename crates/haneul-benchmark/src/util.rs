@@ -11,9 +11,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::crypto::{AccountKeyPair, KeypairTraits};
 use haneul_types::object::Owner;
-use haneul_types::transaction::{
-    TransactionData, VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
-};
+use haneul_types::transaction::{Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{base_types::HaneulAddress, crypto::HaneulKeyPair};
 
@@ -41,7 +39,7 @@ pub fn make_pay_tx(
     gas: ObjectRef,
     keypair: &AccountKeyPair,
     gas_price: u64,
-) -> Result<VerifiedTransaction> {
+) -> Result<Transaction> {
     let pay = TransactionData::new_pay(
         sender,
         input_coins,
@@ -64,10 +62,7 @@ pub async fn publish_basics_package(
     let transaction = TestTransactionBuilder::new(sender, gas, gas_price)
         .publish_examples("basics")
         .build_and_sign(keypair);
-    let effects = proxy
-        .execute_transaction_block(transaction.into())
-        .await
-        .unwrap();
+    let effects = proxy.execute_transaction_block(transaction).await.unwrap();
     effects
         .created()
         .iter()

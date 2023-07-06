@@ -34,7 +34,7 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
-use haneul_types::transaction::{TransactionData, TransactionKind, VerifiedTransaction};
+use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
 
 const WAIT_FOR_LOCAL_EXECUTION_RETRY_COUNT: u8 = 3;
 
@@ -502,7 +502,7 @@ impl QuorumDriverApi {
     /// still fails, it will return an error.
     pub async fn execute_transaction_block(
         &self,
-        tx: VerifiedTransaction,
+        tx: Transaction,
         options: HaneulTransactionBlockResponseOptions,
         request_type: Option<ExecuteTransactionRequestType>,
     ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {

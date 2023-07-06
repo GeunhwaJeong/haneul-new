@@ -5,6 +5,7 @@ use std::{time::Duration, vec};
 
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::{
     base_types::ObjectID,
     crypto::deterministic_random_account_key,
@@ -57,7 +58,7 @@ fn make_transaction(gas_object: Object, input: Vec<CallArg>) -> VerifiedExecutab
         TestTransactionBuilder::new(sender, gas_object.compute_object_reference(), rgp)
             .move_call(HANEUL_FRAMEWORK_PACKAGE_ID, "counter", "assert_value", input)
             .build_and_sign(&keypair);
-    VerifiedExecutableTransaction::new_system(transaction, 0)
+    VerifiedExecutableTransaction::new_system(VerifiedTransaction::new_unchecked(transaction), 0)
 }
 
 fn get_input_keys(objects: &[Object]) -> Vec<InputKey> {

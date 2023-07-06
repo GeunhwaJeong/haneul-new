@@ -83,7 +83,7 @@ macro_rules! serialize_or_execute {
             if $serialize_signed {
                 HaneulClientCommandResult::SerializedSignedTransaction(sender_signed_data)
             } else {
-                let transaction = Transaction::new(sender_signed_data).verify()?;
+                let transaction = Transaction::new(sender_signed_data);
                 let response = $context.execute_transaction_may_fail(transaction).await?;
                 let effects = response.effects.as_ref().ok_or_else(|| {
                     anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
@@ -1197,11 +1197,10 @@ impl HaneulClientCommands {
                         .map_err(|e| anyhow!(e))?,
                     );
                 }
-                let verified =
-                    Transaction::from_generic_sig_data(data, Intent::haneul_transaction(), sigs)
-                        .verify()?;
+                let transaction =
+                    Transaction::from_generic_sig_data(data, Intent::haneul_transaction(), sigs);
 
-                let response = context.execute_transaction_may_fail(verified).await?;
+                let response = context.execute_transaction_may_fail(transaction).await?;
                 HaneulClientCommandResult::ExecuteSignedTx(response)
             }
             HaneulClientCommands::NewEnv { alias, rpc, ws } => {

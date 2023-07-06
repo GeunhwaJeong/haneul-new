@@ -19,7 +19,7 @@ use haneul_types::object::Owner;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},
     crypto::get_key_pair,
-    transaction::VerifiedTransaction,
+    transaction::Transaction,
 };
 use tracing::{debug, error};
 
@@ -70,7 +70,7 @@ impl Payload for BatchPaymentTestPayload {
         self.num_payments += self.state.num_addresses();
     }
 
-    fn make_transaction(&mut self) -> VerifiedTransaction {
+    fn make_transaction(&mut self) -> Transaction {
         let addrs = self.state.addresses().cloned().collect::<Vec<HaneulAddress>>();
         let num_recipients = addrs.len();
         let sender = if self.num_payments == 0 {
