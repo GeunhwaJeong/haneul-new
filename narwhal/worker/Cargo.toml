@@ -32,6 +32,7 @@ store = { path = "../../crates/typed-store", package = "typed-store" }
 haneullabs-network = { path = "../../crates/haneullabs-network"}
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 haneul-protocol-config = { path = "../../crates/haneul-protocol-config" }
+consensus = { path = "../consensus", package = "narwhal-consensus" }
 
 anemo.workspace = true
 anemo-tower.workspace = true
