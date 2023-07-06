@@ -101,6 +101,7 @@ members = [
     "crates/haneul-node",
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
+    "crates/haneul-oracle",
     "crates/haneul-proc-macros",
     "crates/haneul-protocol-config",
     "crates/haneul-protocol-config-macros",
