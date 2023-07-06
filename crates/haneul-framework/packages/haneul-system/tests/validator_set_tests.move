@@ -53,12 +53,13 @@ module haneul_system::validator_set_tests {
         let scenario = &mut scenario_val;
         {
             let ctx1 = test_scenario::ctx(scenario);
-            validator_set::request_add_stake(
+            let stake = validator_set::request_add_stake(
                 &mut validator_set,
                 @0x1,
                 coin::into_balance(coin::mint_for_testing(500 * GEUNHWA_PER_HANEUL, ctx1)),
                 ctx1,
             );
+            transfer::public_transfer(stake, @0x1);
             // Adding stake to existing active validator during the epoch
             // should not change total stake.
             assert!(validator_set::total_stake(&validator_set) == 100 * GEUNHWA_PER_HANEUL, 0);
@@ -162,12 +163,13 @@ module haneul_system::validator_set_tests {
         let scenario = &mut scenario_val;
         let ctx1 = test_scenario::ctx(scenario);
 
-        validator_set::request_add_stake(
+        let stake = validator_set::request_add_stake(
             &mut validator_set,
             @0x1,
             balance::create_for_testing(GEUNHWA_PER_HANEUL - 1), // 1 GEUNHWA lower than the threshold
             ctx1,
         );
+        transfer::public_transfer(stake, @0x1);
         test_utils::destroy(validator_set);
         test_scenario::end(scenario_val);
     }
@@ -186,12 +188,13 @@ module haneul_system::validator_set_tests {
         let scenario_val = test_scenario::begin(@0x1);
         let scenario = &mut scenario_val;
         let ctx1 = test_scenario::ctx(scenario);
-        validator_set::request_add_stake(
+        let stake = validator_set::request_add_stake(
             &mut validator_set,
             @0x1,
             balance::create_for_testing(GEUNHWA_PER_HANEUL), // min possible stake
             ctx1,
         );
+        transfer::public_transfer(stake, @0x1);
 
         advance_epoch_with_dummy_rewards(&mut validator_set, scenario);
         assert!(validator_set::total_stake(&validator_set) == 101 * GEUNHWA_PER_HANEUL, 0);
@@ -224,12 +227,13 @@ module haneul_system::validator_set_tests {
         test_scenario::next_tx(scenario, @0x42);
         {
             let ctx = test_scenario::ctx(scenario);
-            validator_set::request_add_stake(
+            let stake = validator_set::request_add_stake(
                 &mut validator_set,
                 @0x2,
                 balance::create_for_testing(500 * GEUNHWA_PER_HANEUL),
                 ctx,
             );
+            transfer::public_transfer(stake, @0x42);
             // Adding stake to a preactive validator should not change total stake.
             assert_eq(validator_set::total_stake(&validator_set), 100 * GEUNHWA_PER_HANEUL);
         };
@@ -265,12 +269,13 @@ module haneul_system::validator_set_tests {
         test_scenario::next_tx(scenario, @0x42);
         {
             let ctx = test_scenario::ctx(scenario);
-            validator_set::request_add_stake(
+            let stake = validator_set::request_add_stake(
                 &mut validator_set,
                 @0x2,
                 balance::create_for_testing(500 * GEUNHWA_PER_HANEUL),
                 ctx,
             );
+            transfer::public_transfer(stake, @0x42);
             // Adding stake to a preactive validator should not change total stake.
             assert_eq(validator_set::total_stake(&validator_set), 100 * GEUNHWA_PER_HANEUL);
         };
@@ -357,12 +362,13 @@ module haneul_system::validator_set_tests {
         test_scenario::next_tx(scenario, @0x42);
         {
             let ctx = test_scenario::ctx(scenario);
-            validator_set::request_add_stake(
+            let stake = validator_set::request_add_stake(
                 &mut validator_set,
                 @0x4,
                 balance::create_for_testing(500 * GEUNHWA_PER_HANEUL),
                 ctx,
             );
+            transfer::public_transfer(stake, @0x42);
         };
 
         // So only @0x2 will be kicked out.

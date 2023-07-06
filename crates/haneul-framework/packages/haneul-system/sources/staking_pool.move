@@ -77,7 +77,7 @@ module haneul_system::staking_pool {
     }
 
     /// A self-custodial object holding the staked HANEUL tokens.
-    struct StakedHaneul has key {
+    struct StakedHaneul has key, store {
         id: UID,
         /// ID of the staking pool we are staking with.
         pool_id: ID,
@@ -113,10 +113,9 @@ module haneul_system::staking_pool {
     public(friend) fun request_add_stake(
         pool: &mut StakingPool,
         stake: Balance<HANEUL>,
-        staker: address,
         stake_activation_epoch: u64,
         ctx: &mut TxContext
-    ) {
+    ) : StakedHaneul {
         let haneul_amount = balance::value(&stake);
         assert!(!is_inactive(pool), EDelegationToInactivePool);
         assert!(haneul_amount > 0, EDelegationOfZeroHaneul);
@@ -127,11 +126,11 @@ module haneul_system::staking_pool {
             principal: stake,
         };
         pool.pending_stake = pool.pending_stake + haneul_amount;
-        transfer::transfer(staked_haneul, staker);
+        staked_haneul
     }
 
     /// Request to withdraw the given stake plus rewards from a staking pool.
-    /// Both the principal and corresponding rewards in HANEUL are withdrawn and transferred to the staker.
+    /// Both the principal and corresponding rewards in HANEUL are withdrawn.
     /// A proportional amount of pool token withdraw is recorded and processed at epoch change time.
     public(friend) fun request_withdraw_stake(
         pool: &mut StakingPool,

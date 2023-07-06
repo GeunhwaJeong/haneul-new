@@ -53,6 +53,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `request_set_commission_rate`](#0x3_haneul_system_request_set_commission_rate)
 -  [Function `set_candidate_validator_commission_rate`](#0x3_haneul_system_set_candidate_validator_commission_rate)
 -  [Function `request_add_stake`](#0x3_haneul_system_request_add_stake)
+-  [Function `request_add_stake_non_entry`](#0x3_haneul_system_request_add_stake_non_entry)
 -  [Function `request_add_stake_mul_coin`](#0x3_haneul_system_request_add_stake_mul_coin)
 -  [Function `request_withdraw_stake`](#0x3_haneul_system_request_withdraw_stake)
 -  [Function `request_withdraw_stake_non_entry`](#0x3_haneul_system_request_withdraw_stake_non_entry)
@@ -510,6 +511,37 @@ Add stake to a validator's staking pool.
     validator_address: <b>address</b>,
     ctx: &<b>mut</b> TxContext,
 ) {
+    <b>let</b> staked_haneul = <a href="haneul_system.md#0x3_haneul_system_request_add_stake_non_entry">request_add_stake_non_entry</a>(wrapper, stake, validator_address, ctx);
+    <a href="../../../.././build/Haneul/docs/transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(staked_haneul, <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_sender">tx_context::sender</a>(ctx));
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_request_add_stake_non_entry"></a>
+
+## Function `request_add_stake_non_entry`
+
+The non-entry version of <code>request_add_stake</code>, which returns the staked HANEUL instead of transferring it to the sender.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_request_add_stake_non_entry">request_add_stake_non_entry</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, stake: <a href="../../../.././build/Haneul/docs/coin.md#0x2_coin_Coin">coin::Coin</a>&lt;<a href="../../../.././build/Haneul/docs/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, validator_address: <b>address</b>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_request_add_stake_non_entry">request_add_stake_non_entry</a>(
+    wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    stake: Coin&lt;HANEUL&gt;,
+    validator_address: <b>address</b>,
+    ctx: &<b>mut</b> TxContext,
+): StakedHaneul {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_add_stake">haneul_system_state_inner::request_add_stake</a>(self, stake, validator_address, ctx)
 }
@@ -543,7 +575,8 @@ Add stake to a validator's staking pool using multiple coins.
     ctx: &<b>mut</b> TxContext,
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
-    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_add_stake_mul_coin">haneul_system_state_inner::request_add_stake_mul_coin</a>(self, stakes, stake_amount, validator_address, ctx)
+    <b>let</b> staked_haneul = <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_add_stake_mul_coin">haneul_system_state_inner::request_add_stake_mul_coin</a>(self, stakes, stake_amount, validator_address, ctx);
+    <a href="../../../.././build/Haneul/docs/transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(staked_haneul, <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_sender">tx_context::sender</a>(ctx));
 }
 </code></pre>
 
@@ -555,7 +588,7 @@ Add stake to a validator's staking pool using multiple coins.
 
 ## Function `request_withdraw_stake`
 
-Withdraw some portion of a stake from a validator's staking pool.
+Withdraw stake from a validator's staking pool.
 
 
 <pre><code><b>public</b> entry <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_request_withdraw_stake">request_withdraw_stake</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)

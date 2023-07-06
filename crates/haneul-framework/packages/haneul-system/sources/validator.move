@@ -14,6 +14,7 @@ module haneul_system::validator {
     use std::option::{Option, Self};
     use haneul_system::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
     use std::string::{Self, String};
+    use haneul::transfer;
     use haneul::url::Url;
     use haneul::url;
     use haneul::event;
@@ -302,12 +303,12 @@ module haneul_system::validator {
         stake: Balance<HANEUL>,
         staker_address: address,
         ctx: &mut TxContext,
-    ) {
+    ) : StakedHaneul {
         let stake_amount = balance::value(&stake);
         assert!(stake_amount > 0, EInvalidStakeAmount);
         let stake_epoch = tx_context::epoch(ctx) + 1;
-        staking_pool::request_add_stake(
-            &mut self.staking_pool, stake, staker_address, stake_epoch, ctx
+        let staked_haneul = staking_pool::request_add_stake(
+            &mut self.staking_pool, stake, stake_epoch, ctx
         );
         // Process stake right away if staking pool is preactive.
         if (staking_pool::is_preactive(&self.staking_pool)) {
@@ -323,6 +324,7 @@ module haneul_system::validator {
                 amount: stake_amount,
             }
         );
+        staked_haneul
     }
 
     /// Request to add stake to the validator's staking pool at genesis
@@ -336,13 +338,14 @@ module haneul_system::validator {
         let stake_amount = balance::value(&stake);
         assert!(stake_amount > 0, EInvalidStakeAmount);
 
-        staking_pool::request_add_stake(
+        let staked_haneul = staking_pool::request_add_stake(
             &mut self.staking_pool,
             stake,
-            staker_address,
             0, // epoch 0 -- genesis
             ctx
         );
+
+        transfer::public_transfer(staked_haneul, staker_address);
 
         // Process stake right away
         staking_pool::process_pending_stake(&mut self.staking_pool);

@@ -507,13 +507,13 @@ module haneul_system::haneul_system_state_inner {
         stake: Coin<HANEUL>,
         validator_address: address,
         ctx: &mut TxContext,
-    ) {
+    ) : StakedHaneul {
         validator_set::request_add_stake(
             &mut self.validators,
             validator_address,
             coin::into_balance(stake),
             ctx,
-        );
+        )
     }
 
     /// Add stake to a validator's staking pool using multiple coins.
@@ -523,9 +523,9 @@ module haneul_system::haneul_system_state_inner {
         stake_amount: option::Option<u64>,
         validator_address: address,
         ctx: &mut TxContext,
-    ) {
+    ) : StakedHaneul {
         let balance = extract_coin_balance(stakes, stake_amount, ctx);
-        validator_set::request_add_stake(&mut self.validators, validator_address, balance, ctx);
+        validator_set::request_add_stake(&mut self.validators, validator_address, balance, ctx)
     }
 
     /// Withdraw some portion of a stake from a validator's staking pool.
