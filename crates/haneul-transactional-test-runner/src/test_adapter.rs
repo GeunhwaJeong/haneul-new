@@ -48,7 +48,7 @@ use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::{
     DevInspectResults, EventFilter, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
 };
-use haneul_protocol_config::{Chain, ProtocolConfig};
+use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::DEEPBOOK_PACKAGE_ID;
@@ -156,12 +156,19 @@ pub fn clone_genesis_compiled_modules() -> Vec<Vec<CompiledModule>> {
     GENESIS.modules.clone()
 }
 
-pub fn clone_genesis_packages() -> Vec<Object> {
-    GENESIS.packages.clone()
-}
-
 pub fn clone_genesis_objects() -> Vec<Object> {
     GENESIS.objects.clone()
+}
+
+fn genesis_module_objects_for_protocol_version(protocol_version: ProtocolVersion) -> Vec<Object> {
+    if protocol_version == ProtocolVersion::max() {
+        return GENESIS.packages.clone();
+    }
+    haneul_framework_snapshot::load_bytecode_snapshot(protocol_version.as_u64())
+        .expect("Unable to load bytecode snapshot")
+        .into_iter()
+        .map(|pkg| pkg.genesis_object())
+        .collect()
 }
 
 /// Create and return objects wrapping the genesis modules for haneul
@@ -270,7 +277,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
 
         let mut named_address_mapping = NAMED_ADDRESSES.clone();
 
-        let mut objects = clone_genesis_packages();
+        let mut objects = genesis_module_objects_for_protocol_version(protocol_config.version);
         objects.extend(clone_genesis_objects());
         let mut account_objects = BTreeMap::new();
         let mut accounts = BTreeMap::new();
