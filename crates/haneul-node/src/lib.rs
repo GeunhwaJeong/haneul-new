@@ -873,6 +873,7 @@ impl HaneulNode {
                 consensus_handler,
                 HaneulTxValidator::new(
                     epoch_store,
+                    checkpoint_service.clone(),
                     state.transaction_manager().clone(),
                     haneul_tx_validator_metrics.clone(),
                 ),
