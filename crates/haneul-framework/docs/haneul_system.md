@@ -78,6 +78,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `update_candidate_validator_worker_pubkey`](#0x3_haneul_system_update_candidate_validator_worker_pubkey)
 -  [Function `update_validator_next_epoch_network_pubkey`](#0x3_haneul_system_update_validator_next_epoch_network_pubkey)
 -  [Function `update_candidate_validator_network_pubkey`](#0x3_haneul_system_update_candidate_validator_network_pubkey)
+-  [Function `pool_exchange_rates`](#0x3_haneul_system_pool_exchange_rates)
 -  [Function `advance_epoch`](#0x3_haneul_system_advance_epoch)
 -  [Function `load_system_state`](#0x3_haneul_system_load_system_state)
 -  [Function `load_system_state_mut`](#0x3_haneul_system_load_system_state_mut)
@@ -90,6 +91,7 @@ the HaneulSystemStateInner version, or vice versa.
 <b>use</b> <a href="../../../.././build/Haneul/docs/dynamic_field.md#0x2_dynamic_field">0x2::dynamic_field</a>;
 <b>use</b> <a href="../../../.././build/Haneul/docs/object.md#0x2_object">0x2::object</a>;
 <b>use</b> <a href="../../../.././build/Haneul/docs/haneul.md#0x2_haneul">0x2::haneul</a>;
+<b>use</b> <a href="../../../.././build/Haneul/docs/table.md#0x2_table">0x2::table</a>;
 <b>use</b> <a href="../../../.././build/Haneul/docs/transfer.md#0x2_transfer">0x2::transfer</a>;
 <b>use</b> <a href="../../../.././build/Haneul/docs/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
 <b>use</b> <a href="stake_subsidy.md#0x3_stake_subsidy">0x3::stake_subsidy</a>;
@@ -1284,6 +1286,35 @@ Update candidate validator's public key of network key.
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self);
     <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_update_candidate_validator_network_pubkey">haneul_system_state_inner::update_candidate_validator_network_pubkey</a>(self, network_pubkey, ctx)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_pool_exchange_rates"></a>
+
+## Function `pool_exchange_rates`
+
+Getter of the pool token exchange rate of a staking pool. Works for both active and inactive pools.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_pool_exchange_rates">pool_exchange_rates</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, pool_id: &<a href="../../../.././build/Haneul/docs/object.md#0x2_object_ID">object::ID</a>): &<a href="../../../.././build/Haneul/docs/table.md#0x2_table_Table">table::Table</a>&lt;u64, <a href="staking_pool.md#0x3_staking_pool_PoolTokenExchangeRate">staking_pool::PoolTokenExchangeRate</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_pool_exchange_rates">pool_exchange_rates</a>(
+    wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    pool_id: &ID
+): &Table&lt;u64, PoolTokenExchangeRate&gt;  {
+    <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
+    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_pool_exchange_rates">haneul_system_state_inner::pool_exchange_rates</a>(self, pool_id)
 }
 </code></pre>
 

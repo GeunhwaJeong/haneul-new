@@ -47,16 +47,17 @@ module haneul_system::haneul_system {
     use haneul::haneul::HANEUL;
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
+    use haneul::object::ID;
+    use haneul::table::Table;
     use haneul_system::validator::Validator;
     use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
     use haneul_system::haneul_system_state_inner::{Self, SystemParameters, HaneulSystemStateInnerV2};
     use haneul_system::stake_subsidy::StakeSubsidy;
+    use haneul_system::staking_pool::PoolTokenExchangeRate;
     use std::option;
     use haneul::dynamic_field;
 
     #[test_only] use haneul::balance;
-    #[test_only] use haneul::object::ID;
-    #[test_only] use haneul::table::Table;
     #[test_only] use haneul_system::validator_set::ValidatorSet;
     #[test_only] use haneul_system::validator_set;
     #[test_only] use haneul::vec_set::VecSet;
@@ -515,6 +516,15 @@ module haneul_system::haneul_system {
     ) {
         let self = load_system_state_mut(self);
         haneul_system_state_inner::update_candidate_validator_network_pubkey(self, network_pubkey, ctx)
+    }
+
+    /// Getter of the pool token exchange rate of a staking pool. Works for both active and inactive pools.
+    public fun pool_exchange_rates(
+        wrapper: &mut HaneulSystemState,
+        pool_id: &ID
+    ): &Table<u64, PoolTokenExchangeRate>  {
+        let self = load_system_state_mut(wrapper);
+        haneul_system_state_inner::pool_exchange_rates(self, pool_id)
     }
 
     /// This function should be called at the end of an epoch, and advances the system to the next epoch.

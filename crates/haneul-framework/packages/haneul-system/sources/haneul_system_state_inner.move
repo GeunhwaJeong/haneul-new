@@ -14,6 +14,7 @@ module haneul_system::haneul_system_state_inner {
     use haneul_system::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
     use haneul_system::stake_subsidy::{Self, StakeSubsidy};
     use haneul_system::storage_fund::{Self, StorageFund};
+    use haneul_system::staking_pool::PoolTokenExchangeRate;
     use haneul::vec_map::{Self, VecMap};
     use haneul::vec_set::{Self, VecSet};
     use std::option;
@@ -1036,6 +1037,14 @@ module haneul_system::haneul_system_state_inner {
 
     public(friend) fun get_storage_fund_object_rebates(self: &HaneulSystemStateInnerV2): u64 {
         storage_fund::total_object_storage_rebates(&self.storage_fund)
+    }
+
+    public(friend) fun pool_exchange_rates(
+        self: &mut HaneulSystemStateInnerV2,
+        pool_id: &ID
+    ): &Table<u64, PoolTokenExchangeRate>  {
+        let validators = &mut self.validators;
+        validator_set::pool_exchange_rates(validators, pool_id)
     }
 
     /// Extract required Balance from vector of Coin<HANEUL>, transfer the remainder back to sender.
