@@ -1219,6 +1219,29 @@ module deepbook::clob_test {
             test::return_shared(clock);
             test::return_to_address<AccountCap>(bob, account_cap);
         };
+
+        // bob passes in 600haneul, and sells 100haneul of it through market ask order
+        // Bob should receive the remaining 500haneul,
+        // and 199 usdt (excluding handling fee) for selling 100haneul at a unit price of 2
+        next_tx(&mut test, bob);
+        {
+            let pool = test::take_shared<Pool<HANEUL, USD>>(&mut test);
+            let clock = test::take_shared<Clock>(&mut test);
+            let account_cap = test::take_from_address<AccountCap>(&test, bob);
+            let (coin1, coin2) =clob::place_market_order<HANEUL, USD>(&mut pool, &account_cap, CLIENT_ID_BOB, 100,
+                false,
+                mint_for_testing<HANEUL>(600, ctx(&mut test)),
+                mint_for_testing<USD>(0, ctx(&mut test)),
+                &clock,
+                ctx(&mut test));
+            assert!(coin::value<HANEUL>(&coin1) == 500, 0);
+            assert!(coin::value<USD>(&coin2) == 199, 0);
+            burn_for_testing(coin1);
+            burn_for_testing(coin2);
+            test::return_shared(pool);
+            test::return_shared(clock);
+            test::return_to_address<AccountCap>(bob, account_cap);
+        };
         end(test)
     }
 
