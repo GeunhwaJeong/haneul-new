@@ -52,7 +52,7 @@ use haneul_types::{
 };
 use haneul_verifier::verifier as haneul_bytecode_verifier;
 
-use crate::linters::share_owned::ShareOwnedVerifier;
+use crate::linters::{self_transfer::SelfTransferVerifier, share_owned::ShareOwnedVerifier};
 
 #[cfg(test)]
 #[path = "unit_tests/build_tests.rs"]
@@ -131,7 +131,7 @@ impl BuildConfig {
         let mut fn_info = None;
         let compiled_pkg = build_plan.compile_with_driver(writer, |compiler| {
             let (files, units_res) = if lint {
-                let lint_visitors = vec![ShareOwnedVerifier.into()];
+                let lint_visitors = vec![ShareOwnedVerifier.into(), SelfTransferVerifier.into()];
                 compiler.add_visitors(lint_visitors).build()?
             } else {
                 compiler.build()?
