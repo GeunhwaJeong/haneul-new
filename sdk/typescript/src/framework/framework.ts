@@ -9,7 +9,7 @@ import type {
 } from '../types/objects.js';
 import { getObjectFields, getObjectId, getObjectType } from '../types/objects.js';
 import type { HaneulAddress } from '../types/common.js';
-import { normalizeHaneulObjectId, ObjectId } from '../types/common.js';
+import { ObjectId } from '../types/common.js';
 
 import type { Option } from '../types/option.js';
 import { getOption } from '../types/option.js';
@@ -17,6 +17,7 @@ import type { CoinStruct } from '../types/coin.js';
 import type { StructTag } from '../types/haneul-bcs.js';
 import type { Infer } from 'superstruct';
 import { nullable, number, object, string } from 'superstruct';
+import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 
 export const HANEUL_SYSTEM_ADDRESS = '0x3';
 export const HANEUL_FRAMEWORK_ADDRESS = '0x2';

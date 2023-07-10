@@ -17,11 +17,12 @@ import {
 	union,
 } from 'superstruct';
 import { hashTypedData } from '../cryptography/hash.js';
-import { normalizeHaneulAddress, HaneulObjectRef } from '../types/index.js';
+import { HaneulObjectRef } from '../types/index.js';
 import { builder } from './bcs.js';
 import { TransactionType, TransactionBlockInput } from './Transactions.js';
 import { BuilderCallArg, PureCallArg } from './Inputs.js';
 import { create } from './utils.js';
+import { normalizeHaneulAddress } from '../utils/haneul-types.js';
 
 export const TransactionExpiration = optional(
 	nullable(

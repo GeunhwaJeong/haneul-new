@@ -5,7 +5,7 @@ import { toB58 } from '@haneullabs/bcs';
 import { it, expect } from 'vitest';
 import type { MoveCallTransaction, TransferObjectsTransaction } from '../index.js';
 import { builder, PROGRAMMABLE_CALL, TRANSACTION } from '../index.js';
-import { normalizeHaneulAddress } from '../../types/index.js';
+import { normalizeHaneulAddress } from '../../utils/haneul-types.js';
 
 // Oooh-weeee we nailed it!
 it('can serialize simplified programmable call struct', () => {

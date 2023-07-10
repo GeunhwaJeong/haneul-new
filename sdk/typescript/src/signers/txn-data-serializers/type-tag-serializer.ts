@@ -3,7 +3,7 @@
 
 import { splitGenericParameters } from '@haneullabs/bcs';
 import type { TypeTag } from '../../types/index.js';
-import { normalizeHaneulAddress } from '../../types/index.js';
+import { normalizeHaneulAddress } from '../../utils/haneul-types.js';
 
 const VECTOR_REGEX = /^vector<(.+)>$/;
 const STRUCT_REGEX = /^([^:]+)::([^:]+)::([^<]+)(<(.+)>)?/;

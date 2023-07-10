@@ -6,8 +6,8 @@ import { fromB64, toB64 } from '@haneullabs/bcs';
 import type { PublicKeyInitData } from '../../cryptography/publickey.js';
 import { bytesEqual } from '../../cryptography/publickey.js';
 import { SIGNATURE_SCHEME_TO_FLAG } from '../../cryptography/signature.js';
-import { normalizeHaneulAddress, HANEUL_ADDRESS_LENGTH } from '../../types/index.js';
 import { bytesToHex } from '@noble/hashes/utils';
+import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../../utils/haneul-types.js';
 
 const PUBLIC_KEY_SIZE = 32;
 

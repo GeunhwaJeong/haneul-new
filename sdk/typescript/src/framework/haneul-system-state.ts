@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import { TransactionBlock } from '../builder/index.js';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
 import type { ObjectId, HaneulAddress } from '../types/index.js';
-import { getObjectReference, normalizeHaneulObjectId, HANEUL_SYSTEM_ADDRESS } from '../types/index.js';
+import { getObjectReference, HANEUL_SYSTEM_ADDRESS } from '../types/index.js';
 
 /**
  * Address of the Haneul System object.

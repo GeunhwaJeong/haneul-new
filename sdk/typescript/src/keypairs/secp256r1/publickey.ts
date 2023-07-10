@@ -4,10 +4,10 @@
 import { fromB64, toB64 } from '@haneullabs/bcs';
 import { blake2b } from '@noble/hashes/blake2b';
 import { bytesToHex } from '@noble/hashes/utils';
-import { normalizeHaneulAddress, HANEUL_ADDRESS_LENGTH } from '../../types/index.js';
 import type { PublicKey, PublicKeyInitData } from '../../cryptography/publickey.js';
 import { bytesEqual } from '../../cryptography/publickey.js';
 import { SIGNATURE_SCHEME_TO_FLAG } from '../../cryptography/signature.js';
+import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../../utils/haneul-types.js';
 
 const SECP256R1_PUBLIC_KEY_SIZE = 33;
 
