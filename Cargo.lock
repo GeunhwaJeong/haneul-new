@@ -10109,6 +10109,7 @@ dependencies = [
  "haneul-network",
  "haneul-protocol-config",
  "haneul-simulator",
+ "haneul-snapshot",
  "haneul-storage",
  "haneul-telemetry",
  "haneul-tls",
