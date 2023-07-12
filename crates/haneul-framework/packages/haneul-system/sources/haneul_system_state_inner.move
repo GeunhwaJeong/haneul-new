@@ -1047,6 +1047,11 @@ module haneul_system::haneul_system_state_inner {
         validator_set::pool_exchange_rates(validators, pool_id)
     }
 
+    public(friend) fun active_validator_addresses(self: &HaneulSystemStateInnerV2): vector<address> {
+        let validator_set = &self.validators;
+        validator_set::active_validator_addresses(validator_set)
+    }
+
     /// Extract required Balance from vector of Coin<HANEUL>, transfer the remainder back to sender.
     fun extract_coin_balance(coins: vector<Coin<HANEUL>>, amount: option::Option<u64>, ctx: &mut TxContext): Balance<HANEUL> {
         let merged_coin = vector::pop_back(&mut coins);

@@ -61,6 +61,7 @@
 -  [Function `get_storage_fund_total_balance`](#0x3_haneul_system_state_inner_get_storage_fund_total_balance)
 -  [Function `get_storage_fund_object_rebates`](#0x3_haneul_system_state_inner_get_storage_fund_object_rebates)
 -  [Function `pool_exchange_rates`](#0x3_haneul_system_state_inner_pool_exchange_rates)
+-  [Function `active_validator_addresses`](#0x3_haneul_system_state_inner_active_validator_addresses)
 -  [Function `extract_coin_balance`](#0x3_haneul_system_state_inner_extract_coin_balance)
 -  [Module Specification](#@Module_Specification_1)
 
@@ -2533,6 +2534,31 @@ Returns all the validators who are currently reporting <code>addr</code>
 ): &Table&lt;u64, PoolTokenExchangeRate&gt;  {
     <b>let</b> validators = &<b>mut</b> self.validators;
     <a href="validator_set.md#0x3_validator_set_pool_exchange_rates">validator_set::pool_exchange_rates</a>(validators, pool_id)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_state_inner_active_validator_addresses"></a>
+
+## Function `active_validator_addresses`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_addresses">active_validator_addresses</a>(self: &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>): <a href="">vector</a>&lt;<b>address</b>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_addresses">active_validator_addresses</a>(self: &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>): <a href="">vector</a>&lt;<b>address</b>&gt; {
+    <b>let</b> <a href="validator_set.md#0x3_validator_set">validator_set</a> = &self.validators;
+    <a href="validator_set.md#0x3_validator_set_active_validator_addresses">validator_set::active_validator_addresses</a>(<a href="validator_set.md#0x3_validator_set">validator_set</a>)
 }
 </code></pre>
 
