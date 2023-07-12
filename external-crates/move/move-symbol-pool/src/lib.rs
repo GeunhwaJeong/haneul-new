@@ -50,6 +50,16 @@ static_symbols!(
     "legacy",
     "2024",
     "alpha",
+    "haneul",
+    "object",
+    "new",
+    "new_uid_from_hash",
+    "test_scenario",
+    "new_object",
+    "UID",
+    "haneul_system",
+    "create",
+    "clock",
 );
 
 /// The global, unique cache of strings.

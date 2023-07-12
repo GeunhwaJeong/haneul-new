@@ -174,18 +174,15 @@ impl BuildConfig {
     pub fn resolution_graph(mut self, path: &Path) -> HaneulResult<ResolvedGraph> {
         use move_compiler::editions::Flavor;
 
-        if let Some(flavor) = &self.config.default_flavor {
-            if flavor != &Flavor::Haneul {
-                return Err(HaneulError::ModuleBuildFailure {
-                    error: format!(
-                        "The flavor of the Move compiler cannot be overridden with anything but \
+        let flavor = self.config.default_flavor.get_or_insert(Flavor::Haneul);
+        if flavor != &Flavor::Haneul {
+            return Err(HaneulError::ModuleBuildFailure {
+                error: format!(
+                    "The flavor of the Move compiler cannot be overridden with anything but \
                         \"{}\", but the default override was set to: \"{flavor}\"",
-                        Flavor::Haneul,
-                    ),
-                });
-            }
-        } else {
-            self.config.default_flavor = Some(Flavor::Haneul);
+                    Flavor::Haneul,
+                ),
+            });
         }
 
         if self.print_diags_to_stderr {
