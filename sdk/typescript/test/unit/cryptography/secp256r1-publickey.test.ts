@@ -10,12 +10,14 @@ import { INVALID_SECP256R1_PUBLIC_KEY, VALID_SECP256R1_PUBLIC_KEY } from './secp
 // cargo build --bin haneul
 // ../haneul/target/debug/haneul client new-address secp256r1
 // ../haneul/target/debug/haneul keytool list
-let SECP_TEST_CASES = new Map<string, string>([
-	[
-		'A8Ju2r5X3EZ3aYuZzH+Ofs6cd1j2WOwY7lhoJQenulBl',
-		'0xafd0f5a4f41c5770c201879518740b83743164ed2445016fbba9ae98e04af8a5',
-	],
-]);
+const TEST_CASES = [
+	{
+		rawPublicKey: 'A8Ju2r5X3EZ3aYuZzH+Ofs6cd1j2WOwY7lhoJQenulBl',
+		haneulPublicKey: 'AgPCbtq+V9xGd2mLmcx/jn7OnHdY9ljsGO5YaCUHp7pQZQ==',
+		haneulAddress: '0xafd0f5a4f41c5770c201879518740b83743164ed2445016fbba9ae98e04af8a5',
+	},
+];
+
 describe('Secp256r1PublicKey', () => {
 	it('invalid', () => {
 		expect(() => {
@@ -55,10 +57,15 @@ describe('Secp256r1PublicKey', () => {
 		expect(new Secp256r1PublicKey(key.toBytes()).equals(key)).toBe(true);
 	});
 
-	SECP_TEST_CASES.forEach((address, base64) => {
-		it(`toHaneulAddress from base64 public key ${address}`, () => {
-			const key = new Secp256r1PublicKey(base64);
-			expect(key.toHaneulAddress()).toEqual(address);
+	TEST_CASES.forEach(({ rawPublicKey, haneulPublicKey, haneulAddress }) => {
+		it(`toHaneulAddress from base64 public key ${haneulAddress}`, () => {
+			const key = new Secp256r1PublicKey(rawPublicKey);
+			expect(key.toHaneulAddress()).toEqual(haneulAddress);
+		});
+
+		it(`toHaneulPublicKey from base64 public key ${haneulAddress}`, () => {
+			const key = new Secp256r1PublicKey(rawPublicKey);
+			expect(key.toHaneulPublicKey()).toEqual(haneulPublicKey);
 		});
 	});
 });

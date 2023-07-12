@@ -30,6 +30,11 @@ function SignaturePanel({ title, signature }: { title: string; signature: Signat
 				<DescriptionItem title="Address" align="start" labelWidth="sm">
 					<AddressLink noTruncate address={signature.pubKey.toHaneulAddress()} />
 				</DescriptionItem>
+				<DescriptionItem title="Haneul Public Key" align="start" labelWidth="sm">
+					<Text variant="pBody/medium" color="steel-darker">
+						{signature.pubKey.toHaneulPublicKey()}
+					</Text>
+				</DescriptionItem>
 				<DescriptionItem title="Signature" align="start" labelWidth="sm">
 					<Text variant="pBody/medium" color="steel-darker">
 						{toB64(signature.signature)}

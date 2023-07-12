@@ -80,6 +80,18 @@ export class Secp256k1PublicKey implements PublicKey {
 	}
 
 	/**
+	 * Return the Haneul representation of the public key encoded in
+	 * base-64. A Haneul public key is formed by the concatenation
+	 * of the scheme flag with the raw bytes of the public key
+	 */
+	toHaneulPublicKey(): string {
+		const haneulPublicKey = new Uint8Array(this.data.length + 1);
+		haneulPublicKey.set([this.flag()]);
+		haneulPublicKey.set(this.data, 1);
+		return toB64(haneulPublicKey);
+	}
+
+	/**
 	 * Return the Haneul address associated with this Secp256k1 public key
 	 */
 	flag(): number {
