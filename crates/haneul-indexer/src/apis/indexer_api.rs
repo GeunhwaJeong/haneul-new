@@ -12,7 +12,7 @@ use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee::{RpcModule, SubscriptionSink};
 
 use move_core_types::identifier::Identifier;
-use haneul_core::event_handler::SubscriptionHandler;
+use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc::api::{cap_page_limit, IndexerApiClient, IndexerApiServer};
 use haneul_json_rpc::indexer_api::spawn_subscription;
 use haneul_json_rpc::HaneulRpcModule;
@@ -41,13 +41,13 @@ impl<S: IndexerStore> IndexerApi<S> {
     pub fn new(
         state: S,
         fullnode_client: HttpClient,
-        event_handler: Arc<SubscriptionHandler>,
+        subscription_handler: Arc<SubscriptionHandler>,
         migrated_methods: Vec<String>,
     ) -> Self {
         Self {
             state,
             fullnode: fullnode_client,
-            subscription_handler: event_handler,
+            subscription_handler,
             migrated_methods,
         }
     }
