@@ -63,6 +63,7 @@ import { HaneulHTTPTransport } from './http-transport.js';
 import type { HaneulTransport } from './http-transport.js';
 
 export * from './http-transport.js';
+export * from './network.js';
 
 export interface PaginationArguments<Cursor> {
 	/** Optional paging cursor */
