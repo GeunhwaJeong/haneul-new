@@ -920,6 +920,7 @@ impl HaneulNode {
                 worker_cache,
                 consensus_handler,
                 HaneulTxValidator::new(
+                    state.name,
                     epoch_store,
                     checkpoint_service.clone(),
                     state.transaction_manager().clone(),

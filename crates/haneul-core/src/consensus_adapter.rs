@@ -550,7 +550,7 @@ impl ConsensusAdapter {
         lock: Option<&RwLockReadGuard<ReconfigState>>,
         epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult<JoinHandle<()>> {
-        epoch_store.insert_pending_consensus_transactions(&transaction, lock)?;
+        epoch_store.insert_pending_consensus_transactions(&[transaction.clone()], lock)?;
         Ok(self.submit_unchecked(transaction, epoch_store))
     }
 
