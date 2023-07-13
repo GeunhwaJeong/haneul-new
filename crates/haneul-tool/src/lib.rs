@@ -28,7 +28,7 @@ use anyhow::anyhow;
 use eyre::ContextCompat;
 use indicatif::{ProgressBar, ProgressStyle};
 use prometheus::Registry;
-use haneul_archival::reader::ArchiveReader;
+use haneul_archival::reader::{ArchiveReader, ArchiveReaderMetrics};
 use haneul_archival::verify_archive_with_genesis_config;
 use haneul_config::node::ArchiveReaderConfig;
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
@@ -697,7 +697,8 @@ pub async fn state_sync_from_archive(
         download_concurrency: NonZeroUsize::new(concurrency).unwrap(),
         use_for_pruning_watermark: false,
     };
-    let archive_reader = ArchiveReader::new(archive_reader_config)?;
+    let metrics = ArchiveReaderMetrics::new(&Registry::default());
+    let archive_reader = ArchiveReader::new(archive_reader_config, &metrics)?;
     archive_reader.sync_manifest_once().await?;
     let latest_checkpoint_in_archive = archive_reader.latest_available_checkpoint().await?;
     info!(
