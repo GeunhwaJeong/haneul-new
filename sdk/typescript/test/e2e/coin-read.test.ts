@@ -19,31 +19,31 @@ describe('CoinRead API', () => {
 	});
 
 	it('Get coins with/without type', async () => {
-		const haneulCoins = await toolbox.provider.getCoins({
+		const haneulCoins = await toolbox.client.getCoins({
 			owner: toolbox.address(),
 		});
 		expect(haneulCoins.data.length).toEqual(5);
 
-		const testCoins = await toolbox.provider.getCoins({
+		const testCoins = await toolbox.client.getCoins({
 			owner: publishToolbox.address(),
 			coinType: testType,
 		});
 		expect(testCoins.data.length).toEqual(2);
 
-		const allCoins = await toolbox.provider.getAllCoins({
+		const allCoins = await toolbox.client.getAllCoins({
 			owner: toolbox.address(),
 		});
 		expect(allCoins.data.length).toEqual(5);
 		expect(allCoins.hasNextPage).toEqual(false);
 
-		const publisherAllCoins = await toolbox.provider.getAllCoins({
+		const publisherAllCoins = await toolbox.client.getAllCoins({
 			owner: publishToolbox.address(),
 		});
 		expect(publisherAllCoins.data.length).toEqual(3);
 		expect(publisherAllCoins.hasNextPage).toEqual(false);
 
 		//test paging with limit
-		const someHaneulCoins = await toolbox.provider.getCoins({
+		const someHaneulCoins = await toolbox.client.getCoins({
 			owner: toolbox.address(),
 			limit: 3,
 		});
@@ -52,14 +52,14 @@ describe('CoinRead API', () => {
 	});
 
 	it('Get balance with/without type', async () => {
-		const haneulBalance = await toolbox.provider.getBalance({
+		const haneulBalance = await toolbox.client.getBalance({
 			owner: toolbox.address(),
 		});
 		expect(haneulBalance.coinType).toEqual('0x2::haneul::HANEUL');
 		expect(haneulBalance.coinObjectCount).toEqual(5);
 		expect(Number(haneulBalance.totalBalance)).toBeGreaterThan(0);
 
-		const testBalance = await toolbox.provider.getBalance({
+		const testBalance = await toolbox.client.getBalance({
 			owner: publishToolbox.address(),
 			coinType: testType,
 		});
@@ -67,14 +67,14 @@ describe('CoinRead API', () => {
 		expect(testBalance.coinObjectCount).toEqual(2);
 		expect(Number(testBalance.totalBalance)).toEqual(11);
 
-		const allBalances = await toolbox.provider.getAllBalances({
+		const allBalances = await toolbox.client.getAllBalances({
 			owner: publishToolbox.address(),
 		});
 		expect(allBalances.length).toEqual(2);
 	});
 
 	it('Get total supply', async () => {
-		const testSupply = await toolbox.provider.getTotalSupply({
+		const testSupply = await toolbox.client.getTotalSupply({
 			coinType: testType,
 		});
 		expect(Number(testSupply.value)).toEqual(11);

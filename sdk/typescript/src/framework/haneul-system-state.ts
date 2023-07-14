@@ -6,6 +6,7 @@ import { TransactionBlock } from '../builder/index.js';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
 import type { ObjectId, HaneulAddress } from '../types/index.js';
 import { getObjectReference, HANEUL_SYSTEM_ADDRESS } from '../types/index.js';
+import type { HaneulClient } from '../client/index.js';
 
 /**
  * Address of the Haneul System object.
@@ -30,7 +31,7 @@ export class HaneulSystemStateUtil {
 	 * @param gasBudget omittable only for DevInspect mode
 	 */
 	public static async newRequestAddStakeTxn(
-		provider: JsonRpcProvider,
+		client: JsonRpcProvider | HaneulClient,
 		coins: ObjectId[],
 		amount: bigint,
 		validatorAddress: HaneulAddress,
@@ -43,7 +44,7 @@ export class HaneulSystemStateUtil {
 			target: `${HANEUL_SYSTEM_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_STAKE_FUN_NAME}`,
 			arguments: [tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID), coin, tx.pure(validatorAddress)],
 		});
-		const coinObjects = await provider.multiGetObjects({
+		const coinObjects = await client.multiGetObjects({
 			ids: coins,
 			options: {
 				showOwner: true,

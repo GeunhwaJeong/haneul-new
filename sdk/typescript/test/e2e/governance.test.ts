@@ -2,31 +2,31 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { RawSigner, getExecutionStatusType, HaneulSystemStateUtil, HANEUL_TYPE_ARG } from '../../src';
+import { getExecutionStatusType, HaneulSystemStateUtil, HANEUL_TYPE_ARG } from '../../src';
 import { setup, TestToolbox } from './utils/setup';
+import { Keypair } from '../../src/cryptography';
+import { HaneulClient } from '../../src/client';
 
 const DEFAULT_STAKE_AMOUNT = 1000000000;
 
 describe('Governance API', () => {
 	let toolbox: TestToolbox;
-	let signer: RawSigner;
 
 	beforeAll(async () => {
 		toolbox = await setup();
-		signer = new RawSigner(toolbox.keypair, toolbox.provider);
 	});
 
 	it('test requestAddStake', async () => {
-		const result = await addStake(signer);
+		const result = await addStake(toolbox.client, toolbox.keypair);
 		expect(getExecutionStatusType(result)).toEqual('success');
 	});
 
 	it('test getDelegatedStakes', async () => {
-		await addStake(signer);
-		const stakes = await toolbox.provider.getStakes({
+		await addStake(toolbox.client, toolbox.keypair);
+		const stakes = await toolbox.client.getStakes({
 			owner: toolbox.address(),
 		});
-		const stakesById = await toolbox.provider.getStakesByIds({
+		const stakesById = await toolbox.client.getStakesByIds({
 			stakedHaneulIds: [stakes[0].stakes[0].stakedHaneulId],
 		});
 		expect(stakes.length).greaterThan(0);
@@ -38,34 +38,35 @@ describe('Governance API', () => {
 	});
 
 	it('test getCommitteeInfo', async () => {
-		const committeeInfo = await toolbox.provider.getCommitteeInfo({
+		const committeeInfo = await toolbox.client.getCommitteeInfo({
 			epoch: '0',
 		});
 		expect(committeeInfo.validators?.length).greaterThan(0);
 	});
 
 	it('test getLatestHaneulSystemState', async () => {
-		await toolbox.provider.getLatestHaneulSystemState();
+		await toolbox.client.getLatestHaneulSystemState();
 	});
 });
 
-async function addStake(signer: RawSigner) {
-	const coins = await signer.provider.getCoins({
-		owner: await signer.getAddress(),
+async function addStake(client: HaneulClient, signer: Keypair) {
+	const coins = await client.getCoins({
+		owner: await signer.getPublicKey().toHaneulAddress(),
 		coinType: HANEUL_TYPE_ARG,
 	});
 
-	const system = await signer.provider.getLatestHaneulSystemState();
+	const system = await client.getLatestHaneulSystemState();
 	const validators = system.activeValidators;
 
 	const tx = await HaneulSystemStateUtil.newRequestAddStakeTxn(
-		signer.provider,
+		client,
 		[coins.data[0].coinObjectId],
 		BigInt(DEFAULT_STAKE_AMOUNT),
 		validators[0].haneulAddress,
 	);
 
-	return await signer.signAndExecuteTransactionBlock({
+	return await client.signAndExecuteTransactionBlock({
+		signer,
 		transactionBlock: tx,
 		options: {
 			showEffects: true,

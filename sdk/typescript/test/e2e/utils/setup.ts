@@ -9,18 +9,17 @@ import {
 	Ed25519Keypair,
 	getPublishedObjectChanges,
 	getExecutionStatusType,
-	JsonRpcProvider,
 	localnetConnection,
-	Connection,
 	Coin,
 	TransactionBlock,
-	RawSigner,
 	HaneulAddress,
 	ObjectId,
 	UpgradePolicy,
 } from '../../../src';
 import { retry } from 'ts-retry-promise';
-import { FaucetRateLimitError } from '../../../src/faucet';
+import { FaucetRateLimitError, requestHaneulFromFaucetV0 } from '../../../src/faucet';
+import { HaneulClient } from '../../../src/client';
+import { Keypair } from '../../../src/cryptography';
 
 const TEST_ENDPOINTS = localnetConnection;
 const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? TEST_ENDPOINTS.faucet;
@@ -36,13 +35,11 @@ export const DEFAULT_SEND_AMOUNT = 1000;
 
 export class TestToolbox {
 	keypair: Ed25519Keypair;
-	provider: JsonRpcProvider;
-	signer: RawSigner;
+	client: HaneulClient;
 
-	constructor(keypair: Ed25519Keypair, provider: JsonRpcProvider) {
+	constructor(keypair: Ed25519Keypair, client: HaneulClient) {
 		this.keypair = keypair;
-		this.provider = provider;
-		this.signer = new RawSigner(this.keypair, this.provider);
+		this.client = client;
 	}
 
 	address() {
@@ -51,7 +48,7 @@ export class TestToolbox {
 
 	// TODO(chris): replace this with provider.getCoins instead
 	async getGasObjectsOwnedByAddress() {
-		const objects = await this.provider.getOwnedObjects({
+		const objects = await this.client.getOwnedObjects({
 			owner: this.address(),
 			options: {
 				showType: true,
@@ -63,25 +60,21 @@ export class TestToolbox {
 	}
 
 	public async getActiveValidators() {
-		return (await this.provider.getLatestHaneulSystemState()).activeValidators;
+		return (await this.client.getLatestHaneulSystemState()).activeValidators;
 	}
 }
 
-export function getProvider(): JsonRpcProvider {
-	return new JsonRpcProvider(
-		new Connection({
-			fullnode: DEFAULT_FULLNODE_URL,
-			faucet: DEFAULT_FAUCET_URL,
-		}),
-		{},
-	);
+export function getClient(): HaneulClient {
+	return new HaneulClient({
+		url: DEFAULT_FULLNODE_URL,
+	});
 }
 
 export async function setup() {
 	const keypair = Ed25519Keypair.generate();
 	const address = keypair.getPublicKey().toHaneulAddress();
-	const provider = getProvider();
-	await retry(() => provider.requestHaneulFromFaucet(address), {
+	const client = getClient();
+	await retry(() => requestHaneulFromFaucetV0({ host: DEFAULT_FAUCET_URL, recipient: address }), {
 		backoff: 'EXPONENTIAL',
 		// overall timeout in 60 seconds
 		timeout: 1000 * 60,
@@ -89,7 +82,7 @@ export async function setup() {
 		retryIf: (error: any) => !(error instanceof FaucetRateLimitError),
 		logger: (msg) => console.warn('Retrying requesting from faucet: ' + msg),
 	});
-	return new TestToolbox(keypair, provider);
+	return new TestToolbox(keypair, client);
 }
 
 export async function publishPackage(packagePath: string, toolbox?: TestToolbox) {
@@ -116,10 +109,11 @@ export async function publishPackage(packagePath: string, toolbox?: TestToolbox)
 	});
 
 	// Transfer the upgrade capability to the sender so they can upgrade the package later if they want.
-	tx.transferObjects([cap], tx.pure(await toolbox.signer.getAddress()));
+	tx.transferObjects([cap], tx.pure(await toolbox.address()));
 
-	const publishTxn = await toolbox.signer.signAndExecuteTransactionBlock({
+	const publishTxn = await toolbox.client.signAndExecuteTransactionBlock({
 		transactionBlock: tx,
+		signer: toolbox.keypair,
 		options: {
 			showEffects: true,
 			showObjectChanges: true,
@@ -134,7 +128,7 @@ export async function publishPackage(packagePath: string, toolbox?: TestToolbox)
 
 	expect(packageId).toBeTypeOf('string');
 
-	console.info(`Published package ${packageId} from address ${await toolbox.signer.getAddress()}}`);
+	console.info(`Published package ${packageId} from address ${toolbox.address()}}`);
 
 	return { packageId, publishTxn };
 }
@@ -182,8 +176,9 @@ export async function upgradePackage(
 		arguments: [cap, receipt],
 	});
 
-	const result = await toolbox.signer.signAndExecuteTransactionBlock({
+	const result = await toolbox.client.signAndExecuteTransactionBlock({
 		transactionBlock: tx,
+		signer: toolbox.keypair,
 		options: {
 			showEffects: true,
 			showObjectChanges: true,
@@ -203,7 +198,8 @@ export function getRandomAddresses(n: number): HaneulAddress[] {
 }
 
 export async function payHaneul(
-	signer: RawSigner,
+	client: HaneulClient,
+	signer: Keypair,
 	numRecipients: number = 1,
 	recipients?: HaneulAddress[],
 	amounts?: number[],
@@ -219,8 +215,8 @@ export async function payHaneul(
 	coinId =
 		coinId ??
 		(
-			await signer.provider.getCoins({
-				owner: await signer.getAddress(),
+			await client.getCoins({
+				owner: signer.getPublicKey().toHaneulAddress(),
 				coinType: '0x2::haneul::HANEUL',
 			})
 		).data[0].coinObjectId;
@@ -230,8 +226,9 @@ export async function payHaneul(
 		tx.transferObjects([coin], tx.pure(recipient));
 	});
 
-	const txn = await signer.signAndExecuteTransactionBlock({
+	const txn = await client.signAndExecuteTransactionBlock({
 		transactionBlock: tx,
+		signer,
 		options: {
 			showEffects: true,
 			showObjectChanges: true,
@@ -242,7 +239,8 @@ export async function payHaneul(
 }
 
 export async function executePayHaneulNTimes(
-	signer: RawSigner,
+	client: HaneulClient,
+	signer: Keypair,
 	nTimes: number,
 	numRecipientsPerTxn: number = 1,
 	recipients?: HaneulAddress[],
@@ -251,7 +249,7 @@ export async function executePayHaneulNTimes(
 	const txns = [];
 	for (let i = 0; i < nTimes; i++) {
 		// must await here to make sure the txns are executed in order
-		txns.push(await payHaneul(signer, numRecipientsPerTxn, recipients, amounts));
+		txns.push(await payHaneul(client, signer, numRecipientsPerTxn, recipients, amounts));
 	}
 	return txns;
 }

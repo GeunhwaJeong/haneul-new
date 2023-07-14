@@ -16,14 +16,22 @@ import type {
 	HaneulTransactionBlockResponseOptions,
 } from '../types/index.js';
 import { getTotalGasUsedUpperBound } from '../types/index.js';
-import { IntentScope, messageWithIntent } from '../utils/intent.js';
+import { IntentScope, messageWithIntent } from '../cryptography/intent.js';
 import type { Signer } from './signer.js';
 import type { SignedTransaction, SignedMessage } from './types.js';
+import type { HaneulClient } from '../client/index.js';
 
 ///////////////////////////////
 // Exported Abstracts
 export abstract class SignerWithProvider implements Signer {
-	readonly provider: JsonRpcProvider;
+	/**
+	 * @deprecated Use `client` instead.
+	 */
+	get provider(): JsonRpcProvider | HaneulClient {
+		return this.client;
+	}
+
+	readonly client: JsonRpcProvider | HaneulClient;
 
 	///////////////////
 	// Sub-classes MUST implement these
@@ -38,7 +46,7 @@ export abstract class SignerWithProvider implements Signer {
 
 	// Returns a new instance of the Signer, connected to provider.
 	// This MAY throw if changing providers is not supported.
-	abstract connect(provider: JsonRpcProvider): SignerWithProvider;
+	abstract connect(client: HaneulClient | JsonRpcProvider): SignerWithProvider;
 
 	///////////////////
 	// Sub-classes MAY override these
@@ -50,11 +58,15 @@ export abstract class SignerWithProvider implements Signer {
 	 * @deprecated Use `@haneullabs/haneul.js/faucet` instead.
 	 */
 	async requestHaneulFromFaucet(httpHeaders?: HttpHeaders) {
-		return this.provider.requestHaneulFromFaucet(await this.getAddress(), httpHeaders);
+		if (!('requestHaneulFromFaucet' in this.client)) {
+			throw new Error('To request HANEUL from faucet, please use @haneullabs/haneul.js/faucet instead');
+		}
+
+		return this.client.requestHaneulFromFaucet(await this.getAddress(), httpHeaders);
 	}
 
-	constructor(provider: JsonRpcProvider) {
-		this.provider = provider;
+	constructor(client: JsonRpcProvider | HaneulClient) {
+		this.client = client;
 	}
 
 	/**
@@ -77,7 +89,7 @@ export abstract class SignerWithProvider implements Signer {
 			// NOTE: This allows for signing transactions with mis-matched senders, which is important for sponsored transactions.
 			transactionBlock.setSenderIfNotSet(await this.getAddress());
 			return await transactionBlock.build({
-				provider: this.provider,
+				client: this.client,
 			});
 		}
 		if (transactionBlock instanceof Uint8Array) {
@@ -124,7 +136,7 @@ export abstract class SignerWithProvider implements Signer {
 			transactionBlock: input.transactionBlock,
 		});
 
-		return await this.provider.executeTransactionBlock({
+		return await this.client.executeTransactionBlock({
 			transactionBlock: transactionBlockBytes,
 			signature,
 			options: input.options,
@@ -173,7 +185,7 @@ export abstract class SignerWithProvider implements Signer {
 		if (TransactionBlock.is(input.transactionBlock)) {
 			input.transactionBlock.setSenderIfNotSet(await this.getAddress());
 			dryRunTxBytes = await input.transactionBlock.build({
-				provider: this.provider,
+				client: this.client,
 			});
 		} else if (typeof input.transactionBlock === 'string') {
 			dryRunTxBytes = fromB64(input.transactionBlock);
@@ -183,7 +195,7 @@ export abstract class SignerWithProvider implements Signer {
 			throw new Error('Unknown transaction format');
 		}
 
-		return this.provider.dryRunTransactionBlock({
+		return this.client.dryRunTransactionBlock({
 			transactionBlock: dryRunTxBytes,
 		});
 	}
