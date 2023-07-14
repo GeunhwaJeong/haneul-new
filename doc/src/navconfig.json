@@ -326,6 +326,10 @@
 			{
 				"label": "Haneul Framework Reference",
 				"fileName": "reference/framework/index"
+			},
+			{
+				"label": "Haneul Partner Package Matrix",
+				"fileName": "reference/partner-matrix"
 			}
 		],
 		"explore": [
