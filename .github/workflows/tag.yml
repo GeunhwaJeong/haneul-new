@@ -26,8 +26,8 @@ on:
         required: true
 
 env:
-  HANEUL_COMMIT: "${{ github.event.client_payload.haneul_commit || github.event.inputs.haneul_commit }}"
-  TAG_NAME: "${{ github.event.client_payload.tag_name || github.event.inputs.tag_name }}"
+  HANEUL_COMMIT: "${{ github.event.client_payload.haneul_commit || inputs.haneul_commit }}"
+  TAG_NAME: "${{ github.event.client_payload.tag_name || inputs.tag_name }}"
 
 jobs:
   tag:
