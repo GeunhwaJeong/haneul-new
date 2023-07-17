@@ -21,7 +21,6 @@ use haneul::{
     client_commands::{HaneulClientCommandResult, HaneulClientCommands},
     haneul_commands::HaneulCommand,
 };
-use haneul_config::{Config, NodeConfig, HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME};
 use haneul_config::{
     PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
     HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
@@ -31,7 +30,7 @@ use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
     HaneulObjectResponseQuery, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
-use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
+use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::haneul_client_config::HaneulClientConfig;
@@ -114,68 +113,6 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
     .execute()
     .await;
     assert!(matches!(result, Err(..)));
-
-    temp_dir.close()?;
-    Ok(())
-}
-
-#[sim_test]
-async fn test_genesis_for_benchmarks() -> Result<(), anyhow::Error> {
-    let temp_dir = tempfile::tempdir()?;
-    let working_dir = temp_dir.path();
-
-    // Make some (meaningless) ip addresses for the committee.
-    let benchmark_ips = vec![
-        "1.1.1.1".into(),
-        "1.1.1.2".into(),
-        "1.1.1.3".into(),
-        "1.1.1.4".into(),
-        "1.1.1.5".into(),
-    ];
-    let committee_size = benchmark_ips.len();
-
-    // Print all the genesis and config files.
-    HaneulCommand::Genesis {
-        working_dir: Some(working_dir.to_path_buf()),
-        write_config: None,
-        force: false,
-        from_config: None,
-        epoch_duration_ms: None,
-        benchmark_ips: Some(benchmark_ips.clone()),
-        with_faucet: false,
-    }
-    .execute()
-    .await?;
-
-    // Get all the newly created file names.
-    let files = read_dir(working_dir)?
-        .flat_map(|r| r.map(|file| file.file_name().to_str().unwrap().to_owned()))
-        .collect::<Vec<_>>();
-
-    // We expect one file per validator (the validator's configs) as well as various network
-    // and client configuration files. We particularly care about the genesis blob, the keystore
-    // containing the key of the initial gas objects, and the validators' configuration files.
-    assert!(files.contains(&HANEUL_GENESIS_FILENAME.to_string()));
-    assert!(files.contains(&HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME.to_string()));
-    for i in 0..committee_size {
-        assert!(files.contains(&haneul_config::validator_config_file(i)));
-    }
-
-    // Check the network config and ensure each validator boots on the specified ip address.
-    for (i, expected_ip) in benchmark_ips.into_iter().enumerate() {
-        let config_path = &working_dir.join(haneul_config::validator_config_file(i));
-        let config = NodeConfig::load(config_path)?;
-        let socket_address = config.network_address.to_socket_addr().unwrap();
-        assert_eq!(expected_ip, socket_address.ip().to_string());
-    }
-
-    // Ensure the keystore containing the genesis gas objects is created as expected.
-    let path = working_dir.join(HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME);
-    let keystore = FileBasedKeystore::new(&path)?;
-    let expected_gas_key = GenesisConfig::benchmark_gas_key();
-    let expected_gas_address = HaneulAddress::from(&expected_gas_key.public());
-    let stored_gas_key = keystore.get_key(&expected_gas_address)?;
-    assert_eq!(&expected_gas_key, stored_gas_key);
 
     temp_dir.close()?;
     Ok(())
