@@ -135,7 +135,7 @@ impl ExecutionEffects {
     pub fn gas_object(&self) -> (ObjectRef, Owner) {
         match self {
             ExecutionEffects::CertifiedTransactionEffects(certified_effects, ..) => {
-                *certified_effects.data().gas_object()
+                certified_effects.data().gas_object()
             }
             ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
                 let refe = &haneul_tx_effects.gas_object();
