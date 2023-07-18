@@ -4,7 +4,7 @@ import * as Icons from '@haneullabs/icons';
 import { type Meta } from '@storybook/react';
 
 export default {
-	title: 'Icons',
+	title: '@haneullabs/icons',
 } as Meta;
 
 export const AllIcons = {

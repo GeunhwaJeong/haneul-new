@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { X12 } from '@haneullabs/icons';
-import { Text, Heading } from '@haneullabs/ui';
+import { Text, Heading, IconButton } from '@haneullabs/ui';
 
 import { Modal, type ModalProps } from './index';
-import { IconButton } from '../IconButton';
 import { Image } from '../image/Image';
 
 export interface ObjectModalProps extends Omit<ModalProps, 'children'> {
@@ -51,8 +50,9 @@ export function ObjectModal({
 					onClick={onClose}
 					className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-0 bg-gray-90 p-0 text-haneul-light outline-none hover:scale-105 active:scale-100"
 					aria-label="Close"
-					icon={X12}
-				/>
+				>
+					<X12 />
+				</IconButton>
 			</div>
 		</Modal>
 	);
