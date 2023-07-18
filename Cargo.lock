@@ -10529,7 +10529,6 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "haneul-config",
  "haneul-move",
  "haneul-move-build",
  "haneul-sdk",

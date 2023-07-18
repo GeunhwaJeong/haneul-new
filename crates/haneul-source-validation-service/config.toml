@@ -2,7 +2,21 @@
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/haneul"
-branch = "mainnet-v1.3.1"
+branch = "framework/mainnet"
+network = "mainnet"
+paths = [
+    "crates/haneul-framework/packages/deepbook",
+    "crates/haneul-framework/packages/move-stdlib",
+    "crates/haneul-framework/packages/haneul-framework",
+    "crates/haneul-framework/packages/haneul-system",
+]
+
+[[packages]]
+source = "Repository"
+[packages.values]
+repository = "https://github.com/GeunhwaJeong/haneul"
+branch = "framework/testnet"
+network = "testnet"
 paths = [
     "crates/haneul-framework/packages/deepbook",
     "crates/haneul-framework/packages/move-stdlib",
