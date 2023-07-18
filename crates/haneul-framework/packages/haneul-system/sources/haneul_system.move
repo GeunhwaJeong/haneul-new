@@ -253,7 +253,7 @@ module haneul_system::haneul_system {
     ): StakedHaneul {
         let self = load_system_state_mut(wrapper);
         haneul_system_state_inner::request_add_stake(self, stake, validator_address, ctx)
-}
+    }
 
     /// Add stake to a validator's staking pool using multiple coins.
     public entry fun request_add_stake_mul_coin(

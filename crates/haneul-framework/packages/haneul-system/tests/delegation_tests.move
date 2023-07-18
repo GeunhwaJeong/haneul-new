@@ -6,10 +6,11 @@ module haneul_system::stake_tests {
     use haneul::coin;
     use haneul::test_scenario;
     use haneul_system::haneul_system::{Self, HaneulSystemState};
-    use haneul_system::staking_pool::{Self, StakedHaneul};
+    use haneul_system::staking_pool::{Self, StakedHaneul, PoolTokenExchangeRate};
     use haneul::test_utils::assert_eq;
     use haneul_system::validator_set;
     use haneul::test_utils;
+    use haneul::table::{Self, Table};
     use std::vector;
 
     use haneul_system::governance_test_utils::{
@@ -507,6 +508,37 @@ module haneul_system::stake_tests {
         assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL);
 
         test_scenario::end(scenario_val);
+    }
+
+    #[test]
+    fun test_staking_pool_exchange_rate_getter() {
+        set_up_haneul_system_state();
+        let scenario_val = test_scenario::begin(@0x0);
+        let scenario = &mut scenario_val;
+        stake_with(@0x42, @0x2, 100, scenario); // stakes 100 HANEUL with 0x2
+        test_scenario::next_tx(scenario, @0x42);
+        let staked_haneul = test_scenario::take_from_address<StakedHaneul>(scenario, @0x42);
+        let pool_id = staking_pool::pool_id(&staked_haneul);
+        test_scenario::return_to_address(@0x42, staked_haneul);
+        advance_epoch(scenario); // advances epoch to effectuate the stake
+        // Each staking pool gets 10 HANEUL of rewards.
+        advance_epoch_with_reward_amounts(0, 20, scenario);
+        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let rates = haneul_system::pool_exchange_rates(&mut system_state, &pool_id);
+        assert_eq(table::length(rates), 3);
+        assert_exchange_rate_eq(rates, 0, 0, 0);     // no tokens at epoch 0
+        assert_exchange_rate_eq(rates, 1, 200, 200); // 200 HANEUL of self + delegate stake at epoch 1
+        assert_exchange_rate_eq(rates, 2, 210, 200); // 10 HANEUL of rewards at epoch 2
+        test_scenario::return_shared(system_state);
+        test_scenario::end(scenario_val);
+    }
+
+    fun assert_exchange_rate_eq(
+        rates: &Table<u64, PoolTokenExchangeRate>, epoch: u64, haneul_amount: u64, pool_token_amount: u64
+    ) {
+        let rate = table::borrow(rates, epoch);
+        assert_eq(staking_pool::haneul_amount(rate), haneul_amount * GEUNHWA_PER_HANEUL);
+        assert_eq(staking_pool::pool_token_amount(rate), pool_token_amount * GEUNHWA_PER_HANEUL);
     }
 
     fun set_up_haneul_system_state() {
