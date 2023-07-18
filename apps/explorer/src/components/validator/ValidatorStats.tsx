@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { Heading } from '@haneullabs/ui';
 
 import { DelegationAmount } from './DelegationAmount';
 import { Card } from '~/ui/Card';
-import { Heading } from '~/ui/Heading';
 import { Stats } from '~/ui/Stats';
 
 type StatsCardProps = {

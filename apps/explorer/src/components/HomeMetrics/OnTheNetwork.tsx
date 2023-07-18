@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { CoinFormat, formatBalance, useGetReferenceGasPrice } from '@haneullabs/core';
+import { Heading } from '@haneullabs/ui';
 
 import { FormattedStatsAmount, StatsWrapper } from './FormattedStatsAmount';
 import { useGetNetworkMetrics } from '~/hooks/useGetNetworkMetrics';
 import { Card } from '~/ui/Card';
 import { Divider } from '~/ui/Divider';
-import { Heading } from '~/ui/Heading';
 
 export function OnTheNetwork() {
 	const { data: networkMetrics } = useGetNetworkMetrics();

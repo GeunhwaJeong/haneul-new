@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useProductAnalyticsConfig } from '@haneullabs/core';
+import { Text } from '@haneullabs/ui';
 
 import { legalLinks } from './footerLinks';
 import { Link } from '~/ui/Link';
-import { Text } from '~/ui/Text';
 
 export function LegalText() {
 	return (

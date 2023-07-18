@@ -1,8 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { CoinFormat, formatBalance } from '@haneullabs/core';
-
-import { Heading } from '~/ui/Heading';
+import { Heading } from '@haneullabs/ui';
 
 export type AmountProps = {
 	amount: number | string | bigint;

@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type CheckpointPage } from '@haneullabs/haneul.js/src/types/checkpoints';
+import { Text } from '@haneullabs/ui';
 
 import { TxTimeType } from '../tx-time/TxTimeType';
 import { HighlightedTableCol } from '~/components/Table/HighlightedTableCol';
 import { CheckpointLink, CheckpointSequenceLink } from '~/ui/InternalLink';
-import { Text } from '~/ui/Text';
 
 // Generate table data from the checkpoints data
 export const genTableDataFromCheckpointsData = (data: CheckpointPage) => ({

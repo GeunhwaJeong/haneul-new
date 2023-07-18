@@ -4,12 +4,12 @@
 import { useFormatCoin } from '@haneullabs/core';
 import { ArrowShowAndHideRight12 } from '@haneullabs/icons';
 import { type CoinBalance } from '@haneullabs/haneul.js';
+import { Text } from '@haneullabs/ui';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import clsx from 'clsx';
 import { useState } from 'react';
 
 import CoinsPanel from './OwnedCoinsPanel';
-import { Text } from '~/ui/Text';
 
 type OwnedCoinViewProps = {
 	coin: CoinBalance;

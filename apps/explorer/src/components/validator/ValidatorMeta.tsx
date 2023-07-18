@@ -3,14 +3,13 @@
 
 import { ArrowUpRight12 } from '@haneullabs/icons';
 import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { Heading, Text } from '@haneullabs/ui';
 
 import { StakeButton } from './StakeButton';
 import { CopyToClipboard } from '~/ui/CopyToClipboard';
 import { DescriptionList, DescriptionItem } from '~/ui/DescriptionList';
-import { Heading } from '~/ui/Heading';
 import { ImageIcon } from '~/ui/ImageIcon';
 import { AddressLink } from '~/ui/InternalLink';
-import { Text } from '~/ui/Text';
 
 type ValidatorMetaProps = {
 	validatorData: HaneulValidatorSummary;

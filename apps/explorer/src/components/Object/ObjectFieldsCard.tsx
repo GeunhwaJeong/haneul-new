@@ -5,6 +5,7 @@ import { Combobox } from '@headlessui/react';
 import { useGetObject, useGetNormalizedMoveStruct } from '@haneullabs/core';
 import { Search24 } from '@haneullabs/icons';
 import { getObjectFields, getObjectType } from '@haneullabs/haneul.js';
+import { Text, LoadingIndicator } from '@haneullabs/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 
@@ -13,9 +14,7 @@ import { ScrollToViewCard } from './ScrollToViewCard';
 import { getFieldTypeValue } from './utils';
 import { Banner } from '~/ui/Banner';
 import { DisclosureBox } from '~/ui/DisclosureBox';
-import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { TabHeader } from '~/ui/Tabs';
-import { Text } from '~/ui/Text';
 import { ListItem, VerticalList } from '~/ui/VerticalList';
 
 interface ObjectFieldsProps {
@@ -50,7 +49,7 @@ export function ObjectFieldsCard({ id }: ObjectFieldsProps) {
 	if (isLoading || loadingNormalizedStruct) {
 		return (
 			<div className="flex w-full justify-center">
-				<LoadingSpinner text="Loading data" />
+				<LoadingIndicator text="Loading data" />
 			</div>
 		);
 	}

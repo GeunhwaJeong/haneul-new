@@ -12,11 +12,11 @@ import {
 	type HaneulTransactionBlockResponse,
 	type SignaturePubkeyPair,
 } from '@haneullabs/haneul.js';
+import { Text } from '@haneullabs/ui';
 
 import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
 import { AddressLink } from '~/ui/InternalLink';
 import { TabHeader } from '~/ui/Tabs';
-import { Text } from '~/ui/Text';
 
 function SignaturePanel({ title, signature }: { title: string; signature: SignaturePubkeyPair }) {
 	return (

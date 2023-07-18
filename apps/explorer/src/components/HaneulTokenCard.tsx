@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Haneul } from '@haneullabs/icons';
+import { Text } from '@haneullabs/ui';
 
 import { useHaneulCoinData } from '~/hooks/useHaneulCoinData';
 import { Card } from '~/ui/Card';
-import { Text } from '~/ui/Text';
 import { ButtonOrLink } from '~/ui/utils/ButtonOrLink';
 
 const COIN_GECKO_HANEUL_URL = 'https://www.coingecko.com/en/coins/haneul';

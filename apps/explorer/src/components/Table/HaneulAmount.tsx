@@ -3,8 +3,7 @@
 
 import { CoinFormat, useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
-
-import { Text } from '~/ui/Text';
+import { Text } from '@haneullabs/ui';
 
 export function HaneulAmount({
 	amount,

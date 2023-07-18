@@ -3,9 +3,7 @@
 
 import { useFormatCoin, formatBalance, CoinFormat } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
-
-import { Heading } from '~/ui/Heading';
-import { Text } from '~/ui/Text';
+import { Heading, Text } from '@haneullabs/ui';
 
 type DelegationAmountProps = {
 	amount: bigint | number | string;

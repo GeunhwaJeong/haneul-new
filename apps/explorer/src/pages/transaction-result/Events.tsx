@@ -8,6 +8,7 @@ import {
 	type HaneulEvent,
 	type TransactionEvents,
 } from '@haneullabs/haneul.js';
+import { Text } from '@haneullabs/ui';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -17,7 +18,6 @@ import { CopyToClipboard } from '~/ui/CopyToClipboard';
 import { DescriptionItem } from '~/ui/DescriptionList';
 import { Divider } from '~/ui/Divider';
 import { ObjectLink } from '~/ui/InternalLink';
-import { Text } from '~/ui/Text';
 
 function Event({ event, divider }: { event: HaneulEvent; divider: boolean }) {
 	const [open, setOpen] = useState(false);

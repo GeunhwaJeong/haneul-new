@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
+import { Text } from '@haneullabs/ui';
 
 import { getFieldTypeValue } from './utils';
 import { SyntaxHighlighter } from '~/components/SyntaxHighlighter';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
 import { Link } from '~/ui/Link';
-import { Text } from '~/ui/Text';
 
 interface FieldItemProps {
 	value: string | number | object | boolean;

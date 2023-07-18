@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulNSName, useResolveHaneulNSAddress, useResolveHaneulNSName } from '@haneullabs/core';
+import { Heading, LoadingIndicator } from '@haneullabs/ui';
 import { useParams } from 'react-router-dom';
 
 import { ErrorBoundary } from '../../components/error-boundary/ErrorBoundary';
@@ -9,8 +10,6 @@ import { TransactionsForAddress } from '../../components/transactions/Transactio
 import { PageLayout } from '~/components/Layout/PageLayout';
 import { OwnedCoins } from '~/components/OwnedCoins';
 import { OwnedObjects } from '~/components/OwnedObjects';
-import { Heading } from '~/ui/Heading';
-import { LoadingSpinner } from '~/ui/LoadingSpinner';
 import { PageHeader } from '~/ui/PageHeader';
 
 function AddressResult({ address }: { address: string }) {
@@ -53,7 +52,7 @@ function HaneulNSAddressResult({ name }: { name: string }) {
 	const { isFetched, data } = useResolveHaneulNSAddress(name);
 
 	if (!isFetched) {
-		return <LoadingSpinner />;
+		return <LoadingIndicator />;
 	}
 
 	// Fall back into just trying to load the name as an address anyway:

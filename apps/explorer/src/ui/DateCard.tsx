@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { formatDate } from '@haneullabs/core';
-
-import { Text } from '~/ui/Text';
+import { Text } from '@haneullabs/ui';
 
 export interface DateCardProps {
 	date: Date | number;

@@ -3,13 +3,12 @@
 
 import { CoinFormat, type TransactionSummary, useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { Heading, Text } from '@haneullabs/ui';
 
 import { CopyToClipboard } from '~/ui/CopyToClipboard';
 import { DescriptionItem } from '~/ui/DescriptionList';
 import { Divider } from '~/ui/Divider';
-import { Heading } from '~/ui/Heading';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
-import { Text } from '~/ui/Text';
 import { TransactionBlockCard, TransactionBlockCardSection } from '~/ui/TransactionBlockCard';
 
 interface GasProps {

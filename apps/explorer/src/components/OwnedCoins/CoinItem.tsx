@@ -3,9 +3,9 @@
 
 import { useFormatCoin } from '@haneullabs/core';
 import { type CoinStruct } from '@haneullabs/haneul.js';
+import { Text } from '@haneullabs/ui';
 
 import { ObjectLink } from '~/ui/InternalLink';
-import { Text } from '~/ui/Text';
 
 type CoinItemProps = {
 	coin: CoinStruct;
