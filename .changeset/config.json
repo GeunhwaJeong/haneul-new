@@ -12,6 +12,7 @@
     "haneul-wallet",
     "haneul-explorer",
     "@haneullabs/core",
+    "@haneullabs/ui",
     "haneul-wallet-adapter-demo",
     "wallet-kit-site",
     "sponsored-transactions"
