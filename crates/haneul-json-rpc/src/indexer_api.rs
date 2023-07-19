@@ -323,6 +323,7 @@ impl<R: ReadApiServer> IndexerApiServer for IndexerApi<R> {
                 self.read_api
                     .get_object(id, Some(HaneulObjectDataOptions::full_content()))
                     .await
+                    .map_err(Error::from)
             } else {
                 Ok(HaneulObjectResponse::new_with_error(
                     HaneulObjectResponseError::DynamicFieldNotFound { parent_object_id },
