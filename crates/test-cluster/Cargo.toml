@@ -17,7 +17,6 @@ prometheus.workspace = true
 tokio = { workspace = true, features = ["full", "tracing", "test-util"] }
 serde_json.workspace = true
 rand.workspace = true
-haneul.workspace = true
 haneul-config.workspace = true
 haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-framework.workspace = true

@@ -52,15 +52,5 @@ typed-store.workspace = true
 cached.workspace = true
 
 [dev-dependencies]
-haneul-config.workspace = true
-haneul-keys.workspace = true
-haneul-move-build.workspace = true
-haneul-test-transaction-builder.workspace = true
-test-cluster.workspace = true
-haneul-sdk.workspace = true
-rand.workspace = true
-haneul-macros.workspace = true
-haneul-simulator.workspace = true
-reqwest.workspace = true
 mockall.workspace = true
 expect-test.workspace = true
