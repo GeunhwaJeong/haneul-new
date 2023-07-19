@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_ir_types::location::*;
+use move_symbol_pool::Symbol;
 
 use crate::{
     cfgir::{
@@ -24,9 +25,24 @@ use crate::{
 use std::collections::BTreeMap;
 
 use super::{
-    FRESH_ID_FUNCTIONS, FUNCTIONS_TO_SKIP, ID_LEAK_DIAG, OBJECT_MODULE_NAME, HANEUL_ADDR_NAME,
+    CLOCK_MODULE_NAME, ID_LEAK_DIAG, OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH, HANEUL_ADDR_NAME,
+    HANEUL_CLOCK_CREATE, HANEUL_SYSTEM_ADDR_NAME, HANEUL_SYSTEM_CREATE, HANEUL_SYSTEM_MODULE_NAME,
     UID_TYPE_NAME,
 };
+
+pub const FRESH_ID_FUNCTIONS: &[(Symbol, Symbol, Symbol)] = &[
+    (HANEUL_ADDR_NAME, OBJECT_MODULE_NAME, OBJECT_NEW),
+    (HANEUL_ADDR_NAME, OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH),
+    (HANEUL_ADDR_NAME, TEST_SCENARIO_MODULE_NAME, TS_NEW_OBJECT),
+];
+pub const FUNCTIONS_TO_SKIP: &[(Symbol, Symbol, Symbol)] = &[
+    (
+        HANEUL_SYSTEM_ADDR_NAME,
+        HANEUL_SYSTEM_MODULE_NAME,
+        HANEUL_SYSTEM_CREATE,
+    ),
+    (HANEUL_ADDR_NAME, CLOCK_MODULE_NAME, HANEUL_CLOCK_CREATE),
+];
 
 //**************************************************************************************************
 // types
