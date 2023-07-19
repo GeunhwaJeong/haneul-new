@@ -5,6 +5,9 @@ import { toB64 } from '@haneullabs/bcs';
 import { IntentScope, messageWithIntent } from './intent.js';
 import { blake2b } from '@noble/hashes/blake2b';
 import { bcs } from '../types/haneul-bcs.js';
+import type { SerializedSignature } from './index.js';
+import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../utils/haneul-types.js';
+import { bytesToHex } from '@noble/hashes/utils';
 
 /**
  * Value to be converted into public key.
@@ -34,14 +37,14 @@ export abstract class PublicKey {
 	 * Checks if two public keys are equal
 	 */
 	equals(publicKey: PublicKey) {
-		return bytesEqual(this.toBytes(), publicKey.toBytes());
+		return bytesEqual(this.toRawBytes(), publicKey.toRawBytes());
 	}
 
 	/**
 	 * Return the base-64 representation of the public key
 	 */
 	toBase64() {
-		return toB64(this.toBytes());
+		return toB64(this.toRawBytes());
 	}
 
 	/**
@@ -59,16 +62,13 @@ export abstract class PublicKey {
 	 * of the scheme flag with the raw bytes of the public key
 	 */
 	toHaneulPublicKey(): string {
-		const bytes = this.toBytes();
-		const haneulPublicKey = new Uint8Array(bytes.length + 1);
-		haneulPublicKey.set([this.flag()]);
-		haneulPublicKey.set(bytes, 1);
-		return toB64(haneulPublicKey);
+		const bytes = this.toHaneulBytes();
+		return toB64(bytes);
 	}
 
 	verifyWithIntent(
 		bytes: Uint8Array,
-		signature: Uint8Array,
+		signature: Uint8Array | SerializedSignature,
 		intent: IntentScope,
 	): Promise<boolean> {
 		const intentMessage = messageWithIntent(intent, bytes);
@@ -80,7 +80,10 @@ export abstract class PublicKey {
 	/**
 	 * Verifies that the signature is valid for for the provided PersonalMessage
 	 */
-	verifyPersonalMessage(message: Uint8Array, signature: Uint8Array): Promise<boolean> {
+	verifyPersonalMessage(
+		message: Uint8Array,
+		signature: Uint8Array | SerializedSignature,
+	): Promise<boolean> {
 		return this.verifyWithIntent(
 			bcs.ser(['vector', 'u8'], message).toBytes(),
 			signature,
@@ -91,19 +94,47 @@ export abstract class PublicKey {
 	/**
 	 * Verifies that the signature is valid for for the provided TransactionBlock
 	 */
-	verifyTransactionBlock(transactionBlock: Uint8Array, signature: Uint8Array): Promise<boolean> {
+	verifyTransactionBlock(
+		transactionBlock: Uint8Array,
+		signature: Uint8Array | SerializedSignature,
+	): Promise<boolean> {
 		return this.verifyWithIntent(transactionBlock, signature, IntentScope.TransactionData);
+	}
+
+	/**
+	 * Returns the bytes representation of the public key
+	 * prefixed with the signature scheme flag
+	 */
+	toHaneulBytes(): Uint8Array {
+		const rawBytes = this.toRawBytes();
+		const haneulBytes = new Uint8Array(rawBytes.length + 1);
+		haneulBytes.set([this.flag()]);
+		haneulBytes.set(rawBytes, 1);
+
+		return haneulBytes;
+	}
+
+	/**
+	 * @deprecated use `toRawBytes` instead.
+	 */
+	toBytes() {
+		return this.toRawBytes();
+	}
+
+	/**
+	 * Return the Haneul address associated with this Ed25519 public key
+	 */
+	toHaneulAddress(): string {
+		// Each hex char represents half a byte, hence hex address doubles the length
+		return normalizeHaneulAddress(
+			bytesToHex(blake2b(this.toHaneulBytes(), { dkLen: 32 })).slice(0, HANEUL_ADDRESS_LENGTH * 2),
+		);
 	}
 
 	/**
 	 * Return the byte array representation of the public key
 	 */
-	abstract toBytes(): Uint8Array;
-
-	/**
-	 * Return the Haneul address associated with this public key
-	 */
-	abstract toHaneulAddress(): string;
+	abstract toRawBytes(): Uint8Array;
 
 	/**
 	 * Return signature scheme flag of the public key
@@ -113,5 +144,5 @@ export abstract class PublicKey {
 	/**
 	 * Verifies that the signature is valid for for the provided message
 	 */
-	abstract verify(data: Uint8Array, signature: Uint8Array): Promise<boolean>;
+	abstract verify(data: Uint8Array, signature: Uint8Array | SerializedSignature): Promise<boolean>;
 }
