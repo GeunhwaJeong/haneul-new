@@ -3,7 +3,7 @@
 
 use crate::{
     crypto::{CompressedSignature, DefaultHash, SignatureScheme},
-    signature::{AuthenticatorTrait, AuxVerifyData},
+    signature::{AuthenticatorTrait, VerifyParams},
 };
 pub use enum_dispatch::enum_dispatch;
 use fastcrypto::{
@@ -26,7 +26,7 @@ use std::{
 };
 
 use crate::{
-    base_types::HaneulAddress,
+    base_types::{EpochId, HaneulAddress},
     crypto::{PublicKey, Signature},
     error::HaneulError,
 };
@@ -75,11 +75,15 @@ impl Hash for MultiSig {
 }
 
 impl AuthenticatorTrait for MultiSig {
-    fn verify_secure_generic<T>(
+    fn verify_user_authenticator_epoch(&self, _: EpochId) -> Result<(), HaneulError> {
+        Ok(())
+    }
+
+    fn verify_claims<T>(
         &self,
         value: &IntentMessage<T>,
         author: HaneulAddress,
-        _aux_verify_data: AuxVerifyData,
+        _aux_verify_data: &VerifyParams,
     ) -> Result<(), HaneulError>
     where
         T: Serialize,

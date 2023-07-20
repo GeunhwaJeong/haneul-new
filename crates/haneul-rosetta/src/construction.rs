@@ -17,7 +17,7 @@ use haneul_sdk::rpc_types::HaneulExecutionStatus;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{DefaultHash, SignatureScheme, ToFromBytes};
 use haneul_types::error::HaneulError;
-use haneul_types::signature::GenericSignature;
+use haneul_types::signature::{GenericSignature, VerifyParams};
 use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI};
 
 use crate::errors::Error;
@@ -112,7 +112,7 @@ pub async fn combine(
             &[&*flag, &*sig_bytes, &*pub_key].concat(),
         )?],
     );
-    signed_tx.verify_signature()?;
+    signed_tx.verify_signature(&VerifyParams::default())?;
     let signed_tx_bytes = bcs::to_bytes(&signed_tx)?;
 
     Ok(ConstructionCombineResponse {

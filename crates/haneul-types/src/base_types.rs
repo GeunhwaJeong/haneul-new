@@ -651,7 +651,7 @@ impl fmt::Debug for HaneulAddress {
     }
 }
 
-#[cfg(feature = "test-utils")]
+#[cfg(any(test, feature = "test-utils"))]
 /// Generate a fake HaneulAddress with repeated one byte.
 pub fn dbg_addr(name: u8) -> HaneulAddress {
     let addr = [name; HANEUL_ADDRESS_LENGTH];

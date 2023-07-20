@@ -14,7 +14,9 @@ use crate::digests::Digest;
 use crate::effects::{TransactionEffects, TransactionEffectsAPI};
 use crate::error::HaneulResult;
 use crate::gas::GasCostSummary;
-use crate::message_envelope::{Envelope, Message, TrustedEnvelope, VerifiedEnvelope};
+use crate::message_envelope::{
+    Envelope, Message, TrustedEnvelope, UnauthenticatedMessage, VerifiedEnvelope,
+};
 use crate::signature::GenericSignature;
 use crate::storage::ReadStore;
 use crate::haneul_serde::AsProtocolVersion;
@@ -160,17 +162,19 @@ impl Message for CheckpointSummary {
         CheckpointDigest::new(default_hash(self))
     }
 
-    fn verify(&self, sig_epoch: Option<EpochId>) -> HaneulResult {
-        // Signatures over CheckpointSummaries from other epochs are not valid.
-        if let Some(sig_epoch) = sig_epoch {
-            fp_ensure!(
-                self.epoch == sig_epoch,
-                HaneulError::from("Epoch in the summary doesn't match with the signature")
-            );
-        }
+    fn verify_epoch(&self, epoch: EpochId) -> HaneulResult {
+        fp_ensure!(
+            self.epoch == epoch,
+            HaneulError::WrongEpoch {
+                expected_epoch: epoch,
+                actual_epoch: self.epoch,
+            }
+        );
         Ok(())
     }
 }
+
+impl UnauthenticatedMessage for CheckpointSummary {}
 
 impl CheckpointSummary {
     pub fn new(
@@ -262,7 +266,7 @@ impl CertifiedCheckpointSummary {
         committee: &Committee,
         contents: Option<&CheckpointContents>,
     ) -> HaneulResult {
-        self.verify_signature(committee)?;
+        self.verify_authority_signatures(committee)?;
 
         if let Some(contents) = contents {
             let content_digest = *contents.digest();
@@ -295,7 +299,7 @@ pub struct CheckpointSignatureMessage {
 
 impl CheckpointSignatureMessage {
     pub fn verify(&self, committee: &Committee) -> HaneulResult {
-        self.summary.verify_signature(committee)
+        self.summary.verify_authority_signatures(committee)
     }
 }
 
@@ -652,14 +656,15 @@ mod tests {
             })
             .collect();
 
-        signed_checkpoints
-            .iter()
-            .for_each(|c| c.verify_signature(&committee).expect("signature ok"));
+        signed_checkpoints.iter().for_each(|c| {
+            c.verify_authority_signatures(&committee)
+                .expect("signature ok")
+        });
 
         // fails when not signed by member of committee
         signed_checkpoints
             .iter()
-            .for_each(|c| assert!(c.verify_signature(&committee2).is_err()));
+            .for_each(|c| assert!(c.verify_authority_signatures(&committee2).is_err()));
     }
 
     #[test]
@@ -734,7 +739,7 @@ mod tests {
         assert!(
             CertifiedCheckpointSummary::new(summary, sign_infos, &committee)
                 .unwrap()
-                .verify_signature(&committee)
+                .verify_authority_signatures(&committee)
                 .is_err()
         )
     }
