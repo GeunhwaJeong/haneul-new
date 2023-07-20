@@ -40,6 +40,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointCommitment, CheckpointSequenceNumber, ECMHLiveObjectSetDigest, EndOfEpochData,
 };
 use haneul_types::object::ObjectRead;
+use haneul_types::transaction::SenderSignedData;
 
 use crate::errors::{Context, IndexerError};
 use crate::metrics::IndexerMetrics;
@@ -485,13 +486,14 @@ impl PgIndexerStore {
         tx: Transaction,
         options: Option<&HaneulTransactionBlockResponseOptions>,
     ) -> Result<HaneulTransactionBlockResponse, IndexerError> {
-        let transaction: HaneulTransactionBlock =
-            serde_json::from_str(&tx.transaction_content).map_err(|err| {
+        let sender_signed_data: SenderSignedData =
+            bcs::from_bytes(&tx.raw_transaction).map_err(|err| {
                 IndexerError::InsertableParsingError(format!(
-                    "Failed converting transaction JSON {:?} to HaneulTransactionBlock with error: {:?}",
-                    tx.transaction_content, err
+                    "Failed converting transaction BCS to SenderSignedData with error: {:?}",
+                    err
                 ))
             })?;
+        let transaction = HaneulTransactionBlock::try_from(sender_signed_data, &self.module_cache)?;
         let effects: HaneulTransactionBlockEffects = serde_json::from_str(&tx.transaction_effects_content).map_err(|err| {
         IndexerError::InsertableParsingError(format!(
             "Failed converting transaction effect JSON {:?} to HaneulTransactionBlockEffects with error: {:?}",
