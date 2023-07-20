@@ -25,10 +25,10 @@ serde = { version = "1.0.144", features = ["derive"] }
 serde_json = "1.0.88"
 url = "2.3.1"
 
-haneul-move = { path = "../../crates/haneul-move", features = ["all"] }
-haneul-move-build = { path = "../../crates/haneul-move-build" }
-haneul-sdk = { path = "../../crates/haneul-sdk" }
-haneul-source-validation = { path = "../haneul-source-validation" }
+haneul-move.workspace = true
+haneul-move-build.workspace = true
+haneul-sdk.workspace = true
+haneul-source-validation.workspace = true
 
 axum.workspace = true
 move-package.workspace = true
