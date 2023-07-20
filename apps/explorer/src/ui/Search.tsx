@@ -1,9 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { Search16 } from '@haneullabs/icons';
-import { Text } from '@haneullabs/ui';
-
-import { Combobox, ComboboxInput, ComboboxList } from './Combobox';
+import { Text, Combobox, ComboboxInput, ComboboxList } from '@haneullabs/ui';
 
 export type SearchResult = {
 	id: string;
