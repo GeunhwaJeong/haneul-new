@@ -6,6 +6,7 @@ import {
 	CoinFormat,
 	useFormatCoin,
 	type BalanceChange,
+	useResolveHaneulNSName,
 } from '@haneullabs/core';
 import { Heading, Text } from '@haneullabs/ui';
 
@@ -58,6 +59,7 @@ function BalanceChangeEntry({ change }: { change: BalanceChange }) {
 
 function BalanceChangeCard({ changes, owner }: { changes: BalanceChange[]; owner: string }) {
 	const coinTypesSet = new Set(changes.map((change) => change.coinType));
+	const { data: haneulnsDomainName } = useResolveHaneulNSName(owner);
 
 	return (
 		<TransactionBlockCard
@@ -79,7 +81,7 @@ function BalanceChangeCard({ changes, owner }: { changes: BalanceChange[]; owner
 							Owner
 						</Text>
 						<Text variant="pBody/medium" color="hero-dark">
-							<AddressLink address={owner} />
+							<AddressLink label={haneulnsDomainName || undefined} address={owner} />
 						</Text>
 					</div>
 				) : null

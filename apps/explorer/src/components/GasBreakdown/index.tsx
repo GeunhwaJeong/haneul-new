@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { CoinFormat, type TransactionSummary, useFormatCoin } from '@haneullabs/core';
+import {
+	CoinFormat,
+	type TransactionSummary,
+	useFormatCoin,
+	useResolveHaneulNSName,
+} from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { Heading, Text } from '@haneullabs/ui';
 
@@ -90,6 +95,7 @@ interface GasBreakdownProps {
 
 export function GasBreakdown({ summary }: GasBreakdownProps) {
 	const gasData = summary?.gas;
+	const { data: haneulnsDomainName } = useResolveHaneulNSName(gasData?.owner);
 
 	if (!gasData) {
 		return null;
@@ -121,7 +127,7 @@ export function GasBreakdown({ summary }: GasBreakdownProps) {
 						<Text variant="pBody/medium" color="steel-darker">
 							Paid by
 						</Text>
-						<AddressLink address={owner} />
+						<AddressLink label={haneulnsDomainName || undefined} address={owner} />
 					</div>
 				)}
 
