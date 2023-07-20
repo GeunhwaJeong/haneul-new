@@ -29,7 +29,7 @@ use eyre::ContextCompat;
 use indicatif::{ProgressBar, ProgressStyle};
 use prometheus::Registry;
 use haneul_archival::reader::{ArchiveReader, ArchiveReaderMetrics};
-use haneul_archival::verify_archive_with_genesis_config;
+use haneul_archival::{verify_archive_with_checksums, verify_archive_with_genesis_config};
 use haneul_config::node::ArchiveReaderConfig;
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::AuthorityStore;
@@ -625,6 +625,13 @@ pub async fn verify_archive(
     interactive: bool,
 ) -> Result<()> {
     verify_archive_with_genesis_config(genesis, remote_store_config, concurrency, interactive).await
+}
+
+pub async fn verify_archive_by_checksum(
+    remote_store_config: ObjectStoreConfig,
+    concurrency: usize,
+) -> Result<()> {
+    verify_archive_with_checksums(remote_store_config, concurrency).await
 }
 
 pub async fn state_sync_from_archive(
