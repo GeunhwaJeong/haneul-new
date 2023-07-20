@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { formatAddress, type HaneulAddress, type TransactionBlock } from '@haneullabs/haneul.js';
+import { formatAddress, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { DescriptionItem, DescriptionList } from './DescriptionList';
 import { SummaryCard } from './SummaryCard';

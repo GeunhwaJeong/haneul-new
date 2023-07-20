@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type JsonRpcProvider } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { createContext, useContext } from 'react';
 
-export const RpcClientContext = createContext<JsonRpcProvider | undefined>(undefined);
+export const RpcClientContext = createContext<HaneulClient | undefined>(undefined);
 
 export function useRpc() {
 	const rpcClient = useContext(RpcClientContext);

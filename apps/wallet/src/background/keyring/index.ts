@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519Keypair, fromB64 } from '@haneullabs/haneul.js';
+import { fromB64 } from '@haneullabs/haneul.js';
+import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import mitt from 'mitt';
 import { throttle } from 'throttle-debounce';
 
@@ -35,7 +36,8 @@ import {
 import { type Wallet } from '_src/shared/qredo-api';
 
 import type { UiConnection } from '../connections/UiConnection';
-import type { HaneulAddress, ExportedKeypair } from '@haneullabs/haneul.js';
+import type { HaneulAddress } from '@haneullabs/haneul.js';
+import type { ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 import type { Message } from '_messages';
 import type { ErrorPayload } from '_payloads';
 import type { KeyringPayload } from '_payloads/keyring';

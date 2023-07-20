@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type Keypair, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { type Keypair } from '@haneullabs/haneul.js/cryptography';
 
 import { type Account, AccountType } from './Account';
 import { AccountKeypair } from './AccountKeypair';

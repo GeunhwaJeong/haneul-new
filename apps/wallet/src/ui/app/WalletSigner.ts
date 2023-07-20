@@ -3,14 +3,14 @@
 
 import {
 	type ExecuteTransactionRequestType,
-	type SerializedSignature,
 	type SignedMessage,
 	type SignedTransaction,
 	SignerWithProvider,
 	type HaneulTransactionBlockResponse,
 	type HaneulTransactionBlockResponseOptions,
-	type TransactionBlock,
 } from '@haneullabs/haneul.js';
+import { type SerializedSignature } from '@haneullabs/haneul.js/cryptography';
+import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 export abstract class WalletSigner extends SignerWithProvider {
 	abstract signData(data: Uint8Array, clientIdentifier?: string): Promise<SerializedSignature>;

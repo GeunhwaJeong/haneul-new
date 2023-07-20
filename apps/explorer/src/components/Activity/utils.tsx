@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type EpochPage } from '@haneullabs/haneul.js/src/types/epochs';
+import { type EpochPage } from '@haneullabs/haneul.js';
 import { Text } from '@haneullabs/ui';
 
 import { HaneulAmount } from '../Table/HaneulAmount';

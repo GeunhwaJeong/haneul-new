@@ -9,19 +9,19 @@ import {
 	normalizeHaneulObjectId,
 	is,
 	HaneulObjectData,
-	type JsonRpcProvider,
 	getTransactionDigest,
 	type HaneulSystemStateSummary,
 } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { useQuery } from '@tanstack/react-query';
 
 const isGenesisLibAddress = (value: string): boolean => /^(0x|0X)0{0,39}[12]$/.test(value);
 
 type Results = { id: string; label: string; type: string }[];
 
-const getResultsForTransaction = async (rpc: JsonRpcProvider, query: string) => {
+const getResultsForTransaction = async (client: HaneulClient, query: string) => {
 	if (!isValidTransactionDigest(query)) return null;
-	const txdata = await rpc.getTransactionBlock({ digest: query });
+	const txdata = await client.getTransactionBlock({ digest: query });
 	return [
 		{
 			id: getTransactionDigest(txdata),
@@ -31,11 +31,11 @@ const getResultsForTransaction = async (rpc: JsonRpcProvider, query: string) => 
 	];
 };
 
-const getResultsForObject = async (rpc: JsonRpcProvider, query: string) => {
+const getResultsForObject = async (client: HaneulClient, query: string) => {
 	const normalized = normalizeHaneulObjectId(query);
 	if (!isValidHaneulObjectId(normalized)) return null;
 
-	const { data, error } = await rpc.getObject({ id: normalized });
+	const { data, error } = await client.getObject({ id: normalized });
 	if (!is(data, HaneulObjectData) || error) return null;
 
 	return [
@@ -47,11 +47,11 @@ const getResultsForObject = async (rpc: JsonRpcProvider, query: string) => {
 	];
 };
 
-const getResultsForCheckpoint = async (rpc: JsonRpcProvider, query: string) => {
+const getResultsForCheckpoint = async (client: HaneulClient, query: string) => {
 	// Checkpoint digests have the same format as transaction digests:
 	if (!isValidTransactionDigest(query)) return null;
 
-	const { digest } = await rpc.getCheckpoint({ id: query });
+	const { digest } = await client.getCheckpoint({ id: query });
 	if (!digest) return null;
 
 	return [
@@ -63,9 +63,9 @@ const getResultsForCheckpoint = async (rpc: JsonRpcProvider, query: string) => {
 	];
 };
 
-const getResultsForAddress = async (rpc: JsonRpcProvider, query: string, haneulNSEnabled: boolean) => {
+const getResultsForAddress = async (client: HaneulClient, query: string, haneulNSEnabled: boolean) => {
 	if (haneulNSEnabled && isHaneulNSName(query)) {
-		const resolved = await rpc.resolveNameServiceAddress({ name: query });
+		const resolved = await client.resolveNameServiceAddress({ name: query });
 		if (!resolved) return null;
 		return [
 			{
@@ -80,11 +80,11 @@ const getResultsForAddress = async (rpc: JsonRpcProvider, query: string, haneulN
 	if (!isValidHaneulAddress(normalized) || isGenesisLibAddress(normalized)) return null;
 
 	const [from, to] = await Promise.all([
-		rpc.queryTransactionBlocks({
+		client.queryTransactionBlocks({
 			filter: { FromAddress: normalized },
 			limit: 1,
 		}),
-		rpc.queryTransactionBlocks({
+		client.queryTransactionBlocks({
 			filter: { ToAddress: normalized },
 			limit: 1,
 		}),

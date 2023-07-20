@@ -1,19 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type JsonRpcProvider } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import * as Yup from 'yup';
 
 import { createHaneulAddressValidation } from '_components/address-input/validation';
 
 export function createValidationSchema(
-	rpc: JsonRpcProvider,
+	client: HaneulClient,
 	haneulNSEnabled: boolean,
 	senderAddress: string,
 	objectId: string,
 ) {
 	return Yup.object({
-		to: createHaneulAddressValidation(rpc, haneulNSEnabled)
+		to: createHaneulAddressValidation(client, haneulNSEnabled)
 			.test(
 				'sender-address',
 				// eslint-disable-next-line no-template-curly-in-string

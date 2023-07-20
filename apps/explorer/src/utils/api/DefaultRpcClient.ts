@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SentryRpcClient } from '@haneullabs/core';
-import { JsonRpcProvider, Connection, localnetConnection } from '@haneullabs/haneul.js';
+import { SentryHttpTransport } from '@haneullabs/core';
+import { HaneulClient, HaneulHTTPTransport, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
 export enum Network {
 	LOCAL = 'LOCAL',
@@ -11,35 +11,27 @@ export enum Network {
 	MAINNET = 'MAINNET',
 }
 
-const CONNECTIONS: Record<Network, Connection> = {
-	[Network.LOCAL]: localnetConnection,
-	[Network.DEVNET]: new Connection({
-		fullnode: 'https://explorer-rpc.devnet.haneul.io:443',
-	}),
-	[Network.TESTNET]: new Connection({
-		fullnode: 'https://explorer-rpc.testnet.haneul.io:443',
-	}),
-	[Network.MAINNET]: new Connection({
-		fullnode: 'https://explorer-rpc.mainnet.haneul.io:443',
-	}),
+const CONNECTIONS: Record<Network, string> = {
+	[Network.LOCAL]: getFullnodeUrl('localnet'),
+	[Network.DEVNET]: 'https://explorer-rpc.devnet.haneul.io:443',
+	[Network.TESTNET]: 'https://explorer-rpc.testnet.haneul.io:443',
+	[Network.MAINNET]: 'https://explorer-rpc.mainnet.haneul.io:443',
 };
 
-const defaultRpcMap: Map<Network | string, JsonRpcProvider> = new Map();
+const defaultRpcMap: Map<Network | string, HaneulClient> = new Map();
 
 // NOTE: This class should not be used directly in React components, prefer to use the useRpcClient() hook instead
 export const DefaultRpcClient = (network: Network | string) => {
 	const existingClient = defaultRpcMap.get(network);
 	if (existingClient) return existingClient;
 
-	const connection =
-		network in Network ? CONNECTIONS[network as Network] : new Connection({ fullnode: network });
+	const networkUrl = network in Network ? CONNECTIONS[network as Network] : network;
 
-	const provider = new JsonRpcProvider(connection, {
-		rpcClient:
-			// Only instrument mainnet:
+	const provider = new HaneulClient({
+		transport:
 			network in Network && network === Network.MAINNET
-				? new SentryRpcClient(connection.fullnode)
-				: undefined,
+				? new SentryHttpTransport(networkUrl)
+				: new HaneulHTTPTransport({ url: networkUrl }),
 	});
 	defaultRpcMap.set(network, provider);
 	return provider;

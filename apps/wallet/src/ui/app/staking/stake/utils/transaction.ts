@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HANEUL_SYSTEM_STATE_OBJECT_ID, TransactionBlock } from '@haneullabs/haneul.js';
+import { HANEUL_SYSTEM_STATE_OBJECT_ID } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 export function createStakeTransaction(amount: bigint, validator: string) {
 	const tx = new TransactionBlock();

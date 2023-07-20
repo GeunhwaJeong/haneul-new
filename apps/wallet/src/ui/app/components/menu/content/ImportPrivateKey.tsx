@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ArrowRight16 } from '@haneullabs/icons';
-import { type ExportedKeypair, toB64 } from '@haneullabs/haneul.js';
+import { toB64 } from '@haneullabs/haneul.js';
+import { type ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 import { hexToBytes } from '@noble/hashes/utils';
 import { useMutation } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';

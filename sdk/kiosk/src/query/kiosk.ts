@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-	JsonRpcProvider,
 	ObjectId,
-	PaginationArguments,
 	HaneulAddress,
 	HaneulObjectData,
 	HaneulObjectResponse,
@@ -25,9 +23,10 @@ import {
 	OwnedKiosks,
 	PagedKioskData,
 } from '../types';
+import { HaneulClient, PaginationArguments } from '@haneullabs/haneul.js/client';
 
 export async function fetchKiosk(
-	provider: JsonRpcProvider,
+	client: HaneulClient,
 	kioskId: HaneulAddress,
 	pagination: PaginationArguments<string>,
 	options: FetchKioskOptions,
@@ -36,7 +35,7 @@ export async function fetchKiosk(
 	// response, once we have better RPC support for
 	// type filtering & batch fetching.
 	// This can't work with pagination currently.
-	const data = await getAllDynamicFields(provider, kioskId, pagination);
+	const data = await getAllDynamicFields(client, kioskId, pagination);
 
 	const listings: KioskListing[] = [];
 	const lockedItemIds: ObjectId[] = [];
@@ -48,9 +47,9 @@ export async function fetchKiosk(
 	// For items, we usually seek the Display.
 	// For listings we usually seek the DF value (price) / exclusivity.
 	const [kiosk, listingObjects] = await Promise.all([
-		options.withKioskFields ? getKioskObject(provider, kioskId) : Promise.resolve(undefined),
+		options.withKioskFields ? getKioskObject(client, kioskId) : Promise.resolve(undefined),
 		options.withListingPrices
-			? provider.multiGetObjects({
+			? client.multiGetObjects({
 					ids: kioskData.listingIds,
 					options: {
 						showContent: true,
@@ -79,7 +78,7 @@ export async function fetchKiosk(
  * Extra options allow pagination.
  */
 export async function getOwnedKiosks(
-	provider: JsonRpcProvider,
+	client: HaneulClient,
 	address: HaneulAddress,
 	options?: {
 		pagination?: PaginationArguments<string>;
@@ -94,7 +93,7 @@ export async function getOwnedKiosks(
 		};
 
 	// fetch owned kiosk caps, paginated.
-	const { data, hasNextPage, nextCursor } = await provider.getOwnedObjects({
+	const { data, hasNextPage, nextCursor } = await client.getOwnedObjects({
 		owner: address,
 		filter: { StructType: KIOSK_OWNER_CAP },
 		options: {

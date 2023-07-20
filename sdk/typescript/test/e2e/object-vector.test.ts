@@ -9,8 +9,8 @@ import {
 	ObjectId,
 	HaneulObjectData,
 	HANEUL_FRAMEWORK_ADDRESS,
-	TransactionBlock,
 } from '../../src';
+import { TransactionBlock } from '../../src/builder';
 import { publishPackage, setup, TestToolbox } from './utils/setup';
 
 describe('Test Move call with a vector of objects as input', () => {

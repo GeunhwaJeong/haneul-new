@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider, localnetConnection } from '@haneullabs/haneul.js';
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
-export const provider = new JsonRpcProvider(localnetConnection);
+export const provider = new HaneulClient({ url: getFullnodeUrl('testnet') });

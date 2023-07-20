@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { formatDate, useOnScreen } from '@haneullabs/core';
-import { IntentScope, fromB64 } from '@haneullabs/haneul.js';
+import { fromB64 } from '@haneullabs/haneul.js';
+import { IntentScope } from '@haneullabs/haneul.js/cryptography';
 import { useMemo, useRef } from 'react';
 
 import { toUtf8OrB64 } from '_src/shared/utils';

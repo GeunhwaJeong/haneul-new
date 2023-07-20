@@ -3,7 +3,8 @@
 
 import { useGetKioskContents, isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { getTransactionDigest, TransactionBlock } from '@haneullabs/haneul.js';
+import { getTransactionDigest } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Field, Formik } from 'formik';
 import { toast } from 'react-hot-toast';

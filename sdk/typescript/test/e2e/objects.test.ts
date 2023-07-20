@@ -2,13 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import {
-	getObjectType,
-	normalizeHaneulAddress,
-	HANEUL_TYPE_ARG,
-	HaneulObjectData,
-	TransactionBlock,
-} from '../../src';
+import { getObjectType, normalizeHaneulAddress, HANEUL_TYPE_ARG, HaneulObjectData } from '../../src';
+import { TransactionBlock } from '../../src/builder';
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Object Reading API', () => {

@@ -1,15 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import {
-	Ed25519PublicKey,
 	type SerializedSignature,
-	type SignatureScheme,
-	type HaneulAddress,
 	toSerializedSignature,
-	type JsonRpcProvider,
-} from '@haneullabs/haneul.js';
-
+	type SignatureScheme,
+} from '@haneullabs/haneul.js/cryptography';
+import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { WalletSigner } from './WalletSigner';
 
 import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
@@ -23,9 +22,9 @@ export class LedgerSigner extends WalletSigner {
 	constructor(
 		connectToLedger: () => Promise<HaneulLedgerClient>,
 		derivationPath: string,
-		provider: JsonRpcProvider,
+		client: HaneulClient,
 	) {
-		super(provider);
+		super(client);
 		this.#connectToLedger = connectToLedger;
 		this.#haneulLedgerClient = null;
 		this.#derivationPath = derivationPath;
@@ -64,7 +63,7 @@ export class LedgerSigner extends WalletSigner {
 		});
 	}
 
-	connect(provider: JsonRpcProvider) {
-		return new LedgerSigner(this.#connectToLedger, this.#derivationPath, provider);
+	connect(client: HaneulClient) {
+		return new LedgerSigner(this.#connectToLedger, this.#derivationPath, client);
 	}
 }

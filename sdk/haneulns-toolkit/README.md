@@ -17,17 +17,17 @@ You can also use yarn or pnpm.
 Create an instance of HaneulnsClient:
 
 ```typescript
-import { JsonRpcProvider } from '@haneullabs/haneul.js';
+import { HaneulClient } from '@haneullabs/haneul.js/client';
 import { HaneulnsClient } from '@haneullabs/haneulns-toolkit';
 
-const provider = new JsonRpcProvider();
-export const haneulnsClient = new HaneulnsClient(provider);
+const client = new HaneulClient();
+export const haneulnsClient = new HaneulnsClient(client);
 ```
 
 Choose network type:
 
 ```typescript
-export const haneulnsClient = new HaneulnsClient(provider, {
+export const haneulnsClient = new HaneulnsClient(client, {
     networkType: 'testnet',
 });
 ```

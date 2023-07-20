@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Check12, X12 } from '@haneullabs/icons';
-import { Ed25519PublicKey, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 

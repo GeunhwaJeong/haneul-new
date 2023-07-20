@@ -12,8 +12,8 @@ import {
 	HaneulObjectData,
 	HaneulTransactionBlockResponse,
 	HANEUL_SYSTEM_STATE_OBJECT_ID,
-	TransactionBlock,
 } from '../../src';
+import { TransactionBlock } from '../../src/builder';
 import { TransactionBlockDataBuilder } from '../../src/builder/TransactionBlockData';
 import { publishPackage, setup, TestToolbox } from './utils/setup';
 

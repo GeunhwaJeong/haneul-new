@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider, HaneulAddress, HaneulObjectResponse } from '@haneullabs/haneul.js';
+import { HaneulAddress, HaneulObjectResponse } from '@haneullabs/haneul.js';
 import { fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
 import { useQuery } from '@tanstack/react-query';
 import { useRpcClient } from '../api/RpcClientContext';
+import { HaneulClient } from '@haneullabs/haneul.js/client';
 
 const getKioskId = (obj: HaneulObjectResponse) =>
 	obj.data?.content &&
@@ -16,8 +17,8 @@ export const ORIGINBYTE_KIOSK_MODULE =
 	'0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk' as const;
 export const ORIGINBYTE_KIOSK_OWNER_TOKEN = `${ORIGINBYTE_KIOSK_MODULE}::OwnerToken`;
 
-async function getOriginByteKioskContents(address: HaneulAddress, rpc: JsonRpcProvider) {
-	const data = await rpc.getOwnedObjects({
+async function getOriginByteKioskContents(address: HaneulAddress, client: HaneulClient) {
+	const data = await client.getOwnedObjects({
 		owner: address,
 		filter: {
 			StructType: ORIGINBYTE_KIOSK_OWNER_TOKEN,
@@ -29,7 +30,7 @@ async function getOriginByteKioskContents(address: HaneulAddress, rpc: JsonRpcPr
 	const ids = data.data.map((object) => getKioskId(object) ?? []);
 
 	// fetch the user's kiosks
-	const ownedKiosks = await rpc.multiGetObjects({
+	const ownedKiosks = await client.multiGetObjects({
 		ids: ids.flat(),
 		options: {
 			showContent: true,
@@ -40,7 +41,7 @@ async function getOriginByteKioskContents(address: HaneulAddress, rpc: JsonRpcPr
 	const kioskObjectIds = await Promise.all(
 		ownedKiosks.map(async (kiosk) => {
 			if (!kiosk.data?.objectId) return [];
-			const objects = await rpc.getDynamicFields({
+			const objects = await client.getDynamicFields({
 				parentId: kiosk.data.objectId,
 			});
 			return objects.data.map((obj) => obj.objectId);
@@ -48,7 +49,7 @@ async function getOriginByteKioskContents(address: HaneulAddress, rpc: JsonRpcPr
 	);
 
 	// fetch the contents of the objects within a kiosk
-	const kioskContent = await rpc.multiGetObjects({
+	const kioskContent = await client.multiGetObjects({
 		ids: kioskObjectIds.flat(),
 		options: {
 			showDisplay: true,
@@ -59,18 +60,18 @@ async function getOriginByteKioskContents(address: HaneulAddress, rpc: JsonRpcPr
 	return kioskContent;
 }
 
-async function getHaneulKioskContents(address: HaneulAddress, rpc: JsonRpcProvider) {
-	const ownedKiosks = await getOwnedKiosks(rpc, address!);
+async function getHaneulKioskContents(address: HaneulAddress, client: HaneulClient) {
+	const ownedKiosks = await getOwnedKiosks(client, address!);
 	const kioskContents = await Promise.all(
 		ownedKiosks.kioskIds.map(async (id) => {
-			return fetchKiosk(rpc, id, { limit: 1000 }, {});
+			return fetchKiosk(client, id, { limit: 1000 }, {});
 		}),
 	);
 	const items = kioskContents.flatMap((k) => k.data.items);
 	const ids = items.map((item) => item.objectId);
 
 	// fetch the contents of the objects within a kiosk
-	const kioskContent = await rpc.multiGetObjects({
+	const kioskContent = await client.multiGetObjects({
 		ids,
 		options: {
 			showContent: true,

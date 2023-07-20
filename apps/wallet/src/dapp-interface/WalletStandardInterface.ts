@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { toB64, TransactionBlock, fromB64 } from '@haneullabs/haneul.js';
+import { toB64, fromB64 } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import {
 	HANEUL_CHAINS,
 	ReadonlyWalletAccount,

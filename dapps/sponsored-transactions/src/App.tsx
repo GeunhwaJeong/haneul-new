@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransaction, HaneulTransactionBlockResponse, TransactionBlock } from '@haneullabs/haneul.js';
+import { SignedTransaction, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
 import { ComponentProps, ReactNode, useMemo, useState } from 'react';
 import { provider } from './utils/rpc';

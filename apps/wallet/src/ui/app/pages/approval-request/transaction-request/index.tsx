@@ -3,7 +3,7 @@
 
 // import { Transaction } from '@haneullabs/haneul.js';
 import { useTransactionSummary } from '@haneullabs/core';
-import { TransactionBlock } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMemo, useState } from 'react';
 
 import { GasFees } from './GasFees';

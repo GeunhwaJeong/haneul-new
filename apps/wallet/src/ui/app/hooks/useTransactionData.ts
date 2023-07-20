@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress, HANEUL_TYPE_ARG, TransactionBlock } from '@haneullabs/haneul.js';
+import { type HaneulAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useQuery } from '@tanstack/react-query';
 
 export function useTransactionData(

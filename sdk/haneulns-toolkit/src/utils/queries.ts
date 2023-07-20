@@ -1,14 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider, HaneulObjectResponse, getObjectOwner } from '@haneullabs/haneul.js';
+import { HaneulObjectResponse, getObjectOwner } from '@haneullabs/haneul.js';
+import { HaneulClient } from '@haneullabs/haneul.js/client';
 
 // get NFT's owner from RPC.
-export const getOwner = async (
-    provider: JsonRpcProvider,
-    nftId: string,
-): Promise<string | null> => {
-    const ownerResponse = await provider.getObject({
+export const getOwner = async (client: HaneulClient, nftId: string): Promise<string | null> => {
+    const ownerResponse = await client.getObject({
         id: nftId,
         options: { showOwner: true },
     });
@@ -21,11 +19,8 @@ export const getOwner = async (
 };
 
 // get avatar NFT Object from RPC.
-export const getAvatar = async (
-    provider: JsonRpcProvider,
-    avatar: string,
-): Promise<HaneulObjectResponse> => {
-    return await provider.getObject({
+export const getAvatar = async (client: HaneulClient, avatar: string): Promise<HaneulObjectResponse> => {
+    return await client.getObject({
         id: avatar,
         options: {
             showDisplay: true,

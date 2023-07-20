@@ -3,7 +3,8 @@
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, useGetOwnedObjects, useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress, TransactionBlock } from '@haneullabs/haneul.js';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMutation } from '@tanstack/react-query';
 
 import { useActiveAddress, useSigner } from '_src/ui/app/hooks';

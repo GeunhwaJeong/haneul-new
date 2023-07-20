@@ -1,20 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	DevInspectResults,
-	JsonRpcProvider,
-	normalizeHaneulObjectId,
-	testnetConnection,
-	TransactionBlock,
-} from '@haneullabs/haneul.js';
+import { DevInspectResults, normalizeHaneulObjectId } from '@haneullabs/haneul.js';
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 export class DeepBook_query {
-	public provider: JsonRpcProvider;
+	public provider: HaneulClient;
 	public currentAddress: string;
 
 	constructor(
-		provider: JsonRpcProvider = new JsonRpcProvider(testnetConnection),
+		provider: HaneulClient = new HaneulClient({ url: getFullnodeUrl('testnet') }),
 		currentAddress: string,
 	) {
 		this.provider = provider;

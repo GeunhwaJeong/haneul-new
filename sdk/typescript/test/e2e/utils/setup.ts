@@ -6,24 +6,22 @@ import { execSync } from 'child_process';
 import tmp from 'tmp';
 
 import {
-	Ed25519Keypair,
 	getPublishedObjectChanges,
 	getExecutionStatusType,
-	localnetConnection,
 	Coin,
-	TransactionBlock,
 	HaneulAddress,
 	ObjectId,
 	UpgradePolicy,
 } from '../../../src';
+import { TransactionBlock } from '../../../src/builder';
+import { Ed25519Keypair } from '../../../src/keypairs/ed25519';
 import { retry } from 'ts-retry-promise';
-import { FaucetRateLimitError, requestHaneulFromFaucetV0 } from '../../../src/faucet';
-import { HaneulClient } from '../../../src/client';
+import { FaucetRateLimitError, getFaucetHost, requestHaneulFromFaucetV0 } from '../../../src/faucet';
+import { HaneulClient, getFullnodeUrl } from '../../../src/client';
 import { Keypair } from '../../../src/cryptography';
 
-const TEST_ENDPOINTS = localnetConnection;
-const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? TEST_ENDPOINTS.faucet;
-const DEFAULT_FULLNODE_URL = import.meta.env.VITE_FULLNODE_URL ?? TEST_ENDPOINTS.fullnode;
+const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? getFaucetHost('localnet');
+const DEFAULT_FULLNODE_URL = import.meta.env.VITE_FULLNODE_URL ?? getFullnodeUrl('localnet');
 const HANEUL_BIN = import.meta.env.VITE_HANEUL_BIN ?? 'cargo run --bin haneul';
 
 export const DEFAULT_RECIPIENT =

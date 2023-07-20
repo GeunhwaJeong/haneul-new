@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
-import { type JsonRpcProvider, isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { useMemo } from 'react';
 import * as Yup from 'yup';
 
-export function createHaneulAddressValidation(rpc: JsonRpcProvider, haneulNSEnabled: boolean) {
+export function createHaneulAddressValidation(client: HaneulClient, haneulNSEnabled: boolean) {
 	const resolveCache = new Map<string, boolean>();
 
 	return Yup.string()
@@ -19,7 +20,7 @@ export function createHaneulAddressValidation(rpc: JsonRpcProvider, haneulNSEnab
 					return resolveCache.get(value)!;
 				}
 
-				const address = await rpc.resolveNameServiceAddress({
+				const address = await client.resolveNameServiceAddress({
 					name: value,
 				});
 
@@ -34,10 +35,10 @@ export function createHaneulAddressValidation(rpc: JsonRpcProvider, haneulNSEnab
 }
 
 export function useHaneulAddressValidation() {
-	const rpc = useRpcClient();
+	const client = useRpcClient();
 	const haneulNSEnabled = useHaneulNSEnabled();
 
 	return useMemo(() => {
-		return createHaneulAddressValidation(rpc, haneulNSEnabled);
-	}, [rpc, haneulNSEnabled]);
+		return createHaneulAddressValidation(client, haneulNSEnabled);
+	}, [client, haneulNSEnabled]);
 }

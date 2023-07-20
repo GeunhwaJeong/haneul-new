@@ -7,16 +7,16 @@ import { WalletKitProvider } from '@haneullabs/wallet-kit';
 import { Header } from './components/Base/Header';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RpcClientContext } from './context/RpcClientContext';
-import { JsonRpcProvider, testnetConnection } from '@haneullabs/haneul.js';
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
 const queryClient = new QueryClient();
-const rpcProvider = new JsonRpcProvider(testnetConnection);
+const haneulClient = new HaneulClient({ url: getFullnodeUrl('testnet') });
 
 export default function Root() {
 	return (
 		<WalletKitProvider>
 			<QueryClientProvider client={queryClient}>
-				<RpcClientContext.Provider value={rpcProvider}>
+				<RpcClientContext.Provider value={haneulClient}>
 					<Header></Header>
 					<div className="min-h-[80vh]">
 						<Outlet />

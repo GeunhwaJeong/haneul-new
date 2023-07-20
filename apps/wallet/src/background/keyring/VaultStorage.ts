@@ -17,7 +17,7 @@ import {
 import { getRandomEntropy, toEntropy } from '_shared/utils/bip39';
 
 import type { StoredData } from './Vault';
-import type { ExportedKeypair } from '@haneullabs/haneul.js';
+import type { ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 
 // we use this password + a random one for each time we store the encrypted
 // vault to session storage

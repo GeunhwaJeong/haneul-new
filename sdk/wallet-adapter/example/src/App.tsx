@@ -3,7 +3,7 @@
 
 import './App.css';
 import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
-import { TransactionBlock } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useEffect } from 'react';
 import { QredoConnectButton } from './QredoConnectButton';
 

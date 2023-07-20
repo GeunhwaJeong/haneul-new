@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519PublicKey } from '@haneullabs/haneul.js';
+import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 import { useHaneulLedgerClient } from './HaneulLedgerClientProvider';

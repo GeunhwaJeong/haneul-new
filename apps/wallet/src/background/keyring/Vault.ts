@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { fromExportedKeypair, mnemonicToSeedHex } from '@haneullabs/haneul.js';
+import { fromExportedKeypair } from '@haneullabs/haneul.js';
+import { mnemonicToSeedHex, type ExportedKeypair, type Keypair } from '@haneullabs/haneul.js/cryptography';
 
 import { encrypt, decrypt } from '_shared/cryptography/keystore';
 import {
@@ -11,8 +12,6 @@ import {
 	toEntropy,
 	validateEntropy,
 } from '_shared/utils/bip39';
-
-import type { ExportedKeypair, Keypair } from '@haneullabs/haneul.js';
 
 export const LATEST_VAULT_VERSION = 2;
 

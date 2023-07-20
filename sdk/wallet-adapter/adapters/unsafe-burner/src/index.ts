@@ -1,13 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	Ed25519Keypair,
-	JsonRpcProvider,
-	RawSigner,
-	Connection,
-	localnetConnection,
-} from '@haneullabs/haneul.js';
+import { Connection, RawSigner, localnetConnection } from '@haneullabs/haneul.js';
+import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { HaneulClient } from '@haneullabs/haneul.js/client';
 import { WalletAdapter, WalletAdapterEvents } from '@haneullabs/wallet-adapter-base';
 import { ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 
@@ -19,21 +15,23 @@ export class UnsafeBurnerWalletAdapter implements WalletAdapter {
 	connecting: boolean;
 	connected: boolean;
 
-	#provider: JsonRpcProvider;
+	#client: HaneulClient;
 	#keypair: Ed25519Keypair;
 	#signer: RawSigner;
 	#account: ReadonlyWalletAccount;
 
 	constructor(network: Connection = localnetConnection) {
 		this.#keypair = new Ed25519Keypair();
-		this.#provider = new JsonRpcProvider(network);
+		this.#client = new HaneulClient({
+			url: network.fullnode,
+		});
 		this.#account = new ReadonlyWalletAccount({
 			address: this.#keypair.getPublicKey().toHaneulAddress(),
 			chains: ['haneul:unknown'],
 			features: ['haneul:signAndExecuteTransactionBlock', 'haneul:signTransactionBlock'],
 			publicKey: this.#keypair.getPublicKey().toBytes(),
 		});
-		this.#signer = new RawSigner(this.#keypair, this.#provider);
+		this.#signer = new RawSigner(this.#keypair, this.#client);
 		this.connecting = false;
 		this.connected = false;
 

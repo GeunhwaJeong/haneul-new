@@ -6,9 +6,9 @@ import {
 	getExecutionStatusType,
 	getTotalGasUsed,
 	getTransactionSender,
-	type JsonRpcProvider,
 	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 
 import { HaneulAmount } from '../Table/HaneulAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
@@ -80,8 +80,8 @@ export const genTableDataFromTxData = (results: HaneulTransactionBlockResponse[]
 
 const dedupe = (arr: string[]) => Array.from(new Set(arr));
 
-export const getDataOnTxDigests = (rpc: JsonRpcProvider, transactions: string[]) =>
-	rpc
+export const getDataOnTxDigests = (client: HaneulClient, transactions: string[]) =>
+	client
 		.multiGetTransactionBlocks({
 			digests: dedupe(transactions),
 			options: {
