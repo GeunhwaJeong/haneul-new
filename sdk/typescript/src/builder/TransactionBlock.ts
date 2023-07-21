@@ -4,7 +4,7 @@
 import { fromB64 } from '@haneullabs/bcs';
 import { is, mask } from 'superstruct';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
-import type { ObjectId, HaneulMoveNormalizedType, ProtocolConfig } from '../types/index.js';
+import type { HaneulMoveNormalizedType, ProtocolConfig } from '../types/index.js';
 import {
 	extractMutableReference,
 	extractStructTag,
@@ -274,7 +274,7 @@ export class TransactionBlock {
 	/**
 	 * Add a new object input to the transaction.
 	 */
-	object(value: ObjectId | ObjectCallArg) {
+	object(value: string | ObjectCallArg) {
 		const id = getIdFromCallArg(value);
 		// deduplicate
 		const inserted = this.#blockData.inputs.find(

@@ -34,13 +34,13 @@ export const haneulnsClient = new HaneulnsClient(client, {
 
 > **Note:** To ensure best performance, please make sure to create only one instance of the HaneulnsClient class in your application. Then, import the created `haneulnsClient` instance to use its functions.
 
-Fetch a `HaneulAddress` linked to a name:
+Fetch an address linked to a name:
 
 ```typescript
 const address = await haneulnsClient.getAddress('haneulns.haneul');
 ```
 
-Fetch the default name of a `HaneulAddress`:
+Fetch the default name of an address:
 
 ```typescript
 const defaultName = await haneulnsClient.getName(

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress, getObjectDisplay, getObjectOwner } from '@haneullabs/haneul.js';
+import { getObjectDisplay, getObjectOwner } from '@haneullabs/haneul.js';
 import { HaneulClient } from '@haneullabs/haneul.js/client';
 
 import { DataFields, NetworkType, NameObject, HaneulNSContract } from './types/objects';
@@ -52,7 +52,7 @@ class HaneulnsClient {
     }
 
     protected async getDynamicFieldObject(
-        parentObjectId: HaneulAddress,
+        parentObjectId: string,
         key: unknown,
         type = '0x1::string::String',
     ) {
@@ -69,7 +69,7 @@ class HaneulnsClient {
         return dynamicFieldObject;
     }
 
-    protected async getNameData(dataObjectId: HaneulAddress, fields: DataFields[] = []) {
+    protected async getNameData(dataObjectId: string, fields: DataFields[] = []) {
         if (!dataObjectId) return {};
 
         const { data: dynamicFields } = await this.haneulClient.getDynamicFields({

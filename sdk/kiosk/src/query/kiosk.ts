@@ -1,13 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	ObjectId,
-	HaneulAddress,
-	HaneulObjectData,
-	HaneulObjectResponse,
-	getObjectFields,
-} from '@haneullabs/haneul.js';
+import { HaneulObjectData, HaneulObjectResponse, getObjectFields } from '@haneullabs/haneul.js';
 import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import {
 	attachListingsAndPrices,
@@ -27,7 +21,7 @@ import { HaneulClient, PaginationArguments } from '@haneullabs/haneul.js/client'
 
 export async function fetchKiosk(
 	client: HaneulClient,
-	kioskId: HaneulAddress,
+	kioskId: string,
 	pagination: PaginationArguments<string>,
 	options: FetchKioskOptions,
 ): Promise<PagedKioskData> {
@@ -38,7 +32,7 @@ export async function fetchKiosk(
 	const data = await getAllDynamicFields(client, kioskId, pagination);
 
 	const listings: KioskListing[] = [];
-	const lockedItemIds: ObjectId[] = [];
+	const lockedItemIds: string[] = [];
 
 	// extracted kiosk data.
 	const kioskData = extractKioskData(data, listings, lockedItemIds);
@@ -79,7 +73,7 @@ export async function fetchKiosk(
  */
 export async function getOwnedKiosks(
 	client: HaneulClient,
-	address: HaneulAddress,
+	address: string,
 	options?: {
 		pagination?: PaginationArguments<string>;
 	},

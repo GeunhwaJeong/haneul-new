@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fromB58, splitGenericParameters } from '@haneullabs/bcs';
-import type { ObjectId, HaneulAddress, TransactionDigest } from '../types/index.js';
 
 const TX_DIGEST_LENGTH = 32;
 
 /** Returns whether the tx digest is valid based on the serialization format */
-export function isValidTransactionDigest(value: string): value is TransactionDigest {
+export function isValidTransactionDigest(value: string): value is string {
 	try {
 		const buffer = fromB58(value);
 		return buffer.length === TX_DIGEST_LENGTH;
@@ -23,7 +22,7 @@ export function isValidTransactionDigest(value: string): value is TransactionDig
 // https://github.com/move-language/move/blob/67ec40dc50c66c34fd73512fcc412f3b68d67235/language/move-core/types/src/account_address.rs#L23 .
 
 export const HANEUL_ADDRESS_LENGTH = 32;
-export function isValidHaneulAddress(value: string): value is HaneulAddress {
+export function isValidHaneulAddress(value: string): value is string {
 	return isHex(value) && getHexByteLength(value) === HANEUL_ADDRESS_LENGTH;
 }
 
@@ -90,7 +89,7 @@ export function normalizeStructTag(type: string | StructTag): string {
  * setting `forceAdd0x` to true
  *
  */
-export function normalizeHaneulAddress(value: string, forceAdd0x: boolean = false): HaneulAddress {
+export function normalizeHaneulAddress(value: string, forceAdd0x: boolean = false): string {
 	let address = value.toLowerCase();
 	if (!forceAdd0x && address.startsWith('0x')) {
 		address = address.slice(2);
@@ -98,7 +97,7 @@ export function normalizeHaneulAddress(value: string, forceAdd0x: boolean = fals
 	return `0x${address.padStart(HANEUL_ADDRESS_LENGTH * 2, '0')}`;
 }
 
-export function normalizeHaneulObjectId(value: string, forceAdd0x: boolean = false): ObjectId {
+export function normalizeHaneulObjectId(value: string, forceAdd0x: boolean = false): string {
 	return normalizeHaneulAddress(value, forceAdd0x);
 }
 

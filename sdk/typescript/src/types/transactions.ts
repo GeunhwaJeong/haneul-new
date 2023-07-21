@@ -17,15 +17,7 @@ import {
 	nullable,
 } from 'superstruct';
 
-import {
-	ObjectId,
-	ObjectOwner,
-	SequenceNumber,
-	HaneulAddress,
-	HaneulJsonValue,
-	TransactionDigest,
-	TransactionEventDigest,
-} from './common.js';
+import { ObjectOwner, HaneulJsonValue } from './common.js';
 import { HaneulEvent } from './events.js';
 import { ObjectDigest, HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects.js';
 
@@ -48,7 +40,7 @@ export const HaneulConsensusCommitPrologue = object({
 export type HaneulConsensusCommitPrologue = Infer<typeof HaneulConsensusCommitPrologue>;
 
 export const Genesis = object({
-	objects: array(ObjectId),
+	objects: array(string()),
 });
 export type Genesis = Infer<typeof Genesis>;
 
@@ -63,7 +55,7 @@ export type HaneulArgument = Infer<typeof HaneulArgument>;
 export const MoveCallHaneulTransaction = object({
 	arguments: optional(array(HaneulArgument)),
 	type_arguments: optional(array(string())),
-	package: ObjectId,
+	package: string(),
 	module: string(),
 	function: string(),
 });
@@ -77,15 +69,15 @@ export const HaneulTransaction = union([
 	object({
 		Publish: union([
 			// TODO: Remove this after 0.34 is released:
-			tuple([HaneulMovePackage, array(ObjectId)]),
-			array(ObjectId),
+			tuple([HaneulMovePackage, array(string())]),
+			array(string()),
 		]),
 	}),
 	object({
 		Upgrade: union([
 			// TODO: Remove this after 0.34 is released:
-			tuple([HaneulMovePackage, array(ObjectId), ObjectId, HaneulArgument]),
-			tuple([array(ObjectId), ObjectId, HaneulArgument]),
+			tuple([HaneulMovePackage, array(string()), string(), HaneulArgument]),
+			tuple([array(string()), string(), HaneulArgument]),
 		]),
 	}),
 	object({ MakeMoveVec: tuple([nullable(string()), array(HaneulArgument)]) }),
@@ -100,15 +92,15 @@ export const HaneulCallArg = union([
 	object({
 		type: literal('object'),
 		objectType: literal('immOrOwnedObject'),
-		objectId: ObjectId,
-		version: SequenceNumber,
+		objectId: string(),
+		version: string(),
 		digest: ObjectDigest,
 	}),
 	object({
 		type: literal('object'),
 		objectType: literal('sharedObject'),
-		objectId: ObjectId,
-		initialSharedVersion: SequenceNumber,
+		objectId: string(),
+		initialSharedVersion: string(),
 		mutable: boolean(),
 	}),
 ]);
@@ -155,7 +147,7 @@ export const HaneulTransactionBlockData = object({
 	// Eventually this will become union(literal('v1'), literal('v2'), ...)
 	messageVersion: literal('v1'),
 	transaction: HaneulTransactionBlockKind,
-	sender: HaneulAddress,
+	sender: string(),
 	gasData: HaneulGasData,
 });
 export type HaneulTransactionBlockData = Infer<typeof HaneulTransactionBlockData>;
@@ -193,8 +185,8 @@ export const OwnedObjectRef = object({
 });
 export type OwnedObjectRef = Infer<typeof OwnedObjectRef>;
 export const TransactionEffectsModifiedAtVersions = object({
-	objectId: ObjectId,
-	sequenceNumber: SequenceNumber,
+	objectId: string(),
+	sequenceNumber: string(),
 });
 
 export const TransactionEffects = object({
@@ -211,7 +203,7 @@ export const TransactionEffects = object({
 	/** The object references of the shared objects used in this transaction. Empty if no shared objects were used. */
 	sharedObjects: optional(array(HaneulObjectRef)),
 	/** The transaction digest */
-	transactionDigest: TransactionDigest,
+	transactionDigest: string(),
 	/** ObjectRef and owner of new objects created */
 	created: optional(array(OwnedObjectRef)),
 	/** ObjectRef and owner of mutated objects, including gas object */
@@ -234,9 +226,9 @@ export const TransactionEffects = object({
 	 */
 	gasObject: OwnedObjectRef,
 	/** The events emitted during execution. Note that only successful transactions emit events */
-	eventsDigest: optional(TransactionEventDigest),
+	eventsDigest: optional(string()),
 	/** The set of transaction digests this transaction depends on */
-	dependencies: optional(array(TransactionDigest)),
+	dependencies: optional(array(string())),
 });
 export type TransactionEffects = Infer<typeof TransactionEffects>;
 
@@ -270,15 +262,15 @@ export type TransactionFilter =
 	| { TransactionKind: string }
 	| {
 			MoveFunction: {
-				package: ObjectId;
+				package: string;
 				module: string | null;
 				function: string | null;
 			};
 	  }
-	| { InputObject: ObjectId }
-	| { ChangedObject: ObjectId }
-	| { FromAddress: HaneulAddress }
-	| { ToAddress: HaneulAddress };
+	| { InputObject: string }
+	| { ChangedObject: string }
+	| { FromAddress: string }
+	| { ToAddress: string };
 
 export type EmptySignInfo = object;
 export type AuthorityName = Infer<typeof AuthorityName>;
@@ -292,8 +284,8 @@ export type HaneulTransactionBlock = Infer<typeof HaneulTransactionBlock>;
 
 export const HaneulObjectChangePublished = object({
 	type: literal('published'),
-	packageId: ObjectId,
-	version: SequenceNumber,
+	packageId: string(),
+	version: string(),
 	digest: ObjectDigest,
 	modules: array(string()),
 });
@@ -301,52 +293,52 @@ export type HaneulObjectChangePublished = Infer<typeof HaneulObjectChangePublish
 
 export const HaneulObjectChangeTransferred = object({
 	type: literal('transferred'),
-	sender: HaneulAddress,
+	sender: string(),
 	recipient: ObjectOwner,
 	objectType: string(),
-	objectId: ObjectId,
-	version: SequenceNumber,
+	objectId: string(),
+	version: string(),
 	digest: ObjectDigest,
 });
 export type HaneulObjectChangeTransferred = Infer<typeof HaneulObjectChangeTransferred>;
 
 export const HaneulObjectChangeMutated = object({
 	type: literal('mutated'),
-	sender: HaneulAddress,
+	sender: string(),
 	owner: ObjectOwner,
 	objectType: string(),
-	objectId: ObjectId,
-	version: SequenceNumber,
-	previousVersion: SequenceNumber,
+	objectId: string(),
+	version: string(),
+	previousVersion: string(),
 	digest: ObjectDigest,
 });
 export type HaneulObjectChangeMutated = Infer<typeof HaneulObjectChangeMutated>;
 
 export const HaneulObjectChangeDeleted = object({
 	type: literal('deleted'),
-	sender: HaneulAddress,
+	sender: string(),
 	objectType: string(),
-	objectId: ObjectId,
-	version: SequenceNumber,
+	objectId: string(),
+	version: string(),
 });
 export type HaneulObjectChangeDeleted = Infer<typeof HaneulObjectChangeDeleted>;
 
 export const HaneulObjectChangeWrapped = object({
 	type: literal('wrapped'),
-	sender: HaneulAddress,
+	sender: string(),
 	objectType: string(),
-	objectId: ObjectId,
-	version: SequenceNumber,
+	objectId: string(),
+	version: string(),
 });
 export type HaneulObjectChangeWrapped = Infer<typeof HaneulObjectChangeWrapped>;
 
 export const HaneulObjectChangeCreated = object({
 	type: literal('created'),
-	sender: HaneulAddress,
+	sender: string(),
 	owner: ObjectOwner,
 	objectType: string(),
-	objectId: ObjectId,
-	version: SequenceNumber,
+	objectId: string(),
+	version: string(),
 	digest: ObjectDigest,
 });
 export type HaneulObjectChangeCreated = Infer<typeof HaneulObjectChangeCreated>;
@@ -369,7 +361,7 @@ export const BalanceChange = object({
 });
 
 export const HaneulTransactionBlockResponse = object({
-	digest: TransactionDigest,
+	digest: string(),
 	transaction: optional(HaneulTransactionBlock),
 	effects: optional(TransactionEffects),
 	events: optional(TransactionEvents),
@@ -400,7 +392,7 @@ export type HaneulTransactionBlockResponseOptions = Infer<typeof HaneulTransacti
 
 export const PaginatedTransactionResponse = object({
 	data: array(HaneulTransactionBlockResponse),
-	nextCursor: nullable(TransactionDigest),
+	nextCursor: nullable(string()),
 	hasNextPage: boolean(),
 });
 export type PaginatedTransactionResponse = Infer<typeof PaginatedTransactionResponse>;
@@ -422,7 +414,7 @@ export function getTransaction(tx: HaneulTransactionBlockResponse): HaneulTransa
 	return tx.transaction;
 }
 
-export function getTransactionDigest(tx: HaneulTransactionBlockResponse): TransactionDigest {
+export function getTransactionDigest(tx: HaneulTransactionBlockResponse): string {
 	return tx.digest;
 }
 
@@ -432,7 +424,7 @@ export function getTransactionSignature(tx: HaneulTransactionBlockResponse): str
 
 /* ----------------------------- TransactionData ---------------------------- */
 
-export function getTransactionSender(tx: HaneulTransactionBlockResponse): HaneulAddress | undefined {
+export function getTransactionSender(tx: HaneulTransactionBlockResponse): string | undefined {
 	return tx.transaction?.data.sender;
 }
 

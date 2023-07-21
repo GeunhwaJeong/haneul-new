@@ -31,8 +31,6 @@ export const TransactionExpiration = optional(
 );
 export type TransactionExpiration = Infer<typeof TransactionExpiration>;
 
-const HaneulAddress = string();
-
 const StringEncodedBigint = define<string>('StringEncodedBigint', (val) => {
 	if (!['string', 'number', 'bigint'].includes(typeof val)) return false;
 
@@ -48,13 +46,13 @@ const GasConfig = object({
 	budget: optional(StringEncodedBigint),
 	price: optional(StringEncodedBigint),
 	payment: optional(array(HaneulObjectRef)),
-	owner: optional(HaneulAddress),
+	owner: optional(string()),
 });
 type GasConfig = Infer<typeof GasConfig>;
 
 export const SerializedTransactionDataBuilder = object({
 	version: literal(1),
-	sender: optional(HaneulAddress),
+	sender: optional(string()),
 	expiration: TransactionExpiration,
 	gasConfig: GasConfig,
 	inputs: array(TransactionBlockInput),

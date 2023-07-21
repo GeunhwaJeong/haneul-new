@@ -14,7 +14,6 @@ import {
 	tuple,
 	optional,
 } from 'superstruct';
-import { ObjectId, HaneulAddress } from './common.js';
 import { AuthorityName, EpochId } from './transactions.js';
 
 /* -------------- Types for the HaneulSystemState Rust definition -------------- */
@@ -26,7 +25,7 @@ export type StakeObject = Infer<typeof StakeObject>;
 // APY Response
 export const Apy = object({
 	apy: number(),
-	address: HaneulAddress,
+	address: string(),
 });
 
 export const ValidatorsApy = object({
@@ -42,7 +41,7 @@ export const Balance = object({
 });
 
 export const StakeObject = object({
-	stakedHaneulId: ObjectId,
+	stakedHaneulId: string(),
 	stakeRequestEpoch: EpochId,
 	stakeActiveEpoch: EpochId,
 	principal: string(),
@@ -51,8 +50,8 @@ export const StakeObject = object({
 });
 
 export const DelegatedStake = object({
-	validatorAddress: HaneulAddress,
-	stakingPool: ObjectId,
+	validatorAddress: string(),
+	stakingPool: string(),
 	stakes: array(StakeObject),
 });
 
@@ -120,7 +119,7 @@ export const CommitteeInfo = object({
 });
 
 export const HaneulValidatorSummary = object({
-	haneulAddress: HaneulAddress,
+	haneulAddress: string(),
 	protocolPubkeyBytes: string(),
 	networkPubkeyBytes: string(),
 	workerPubkeyBytes: string(),
@@ -199,8 +198,8 @@ export const HaneulSystemStateSummary = object({
 	inactivePoolsSize: string(),
 	validatorCandidatesId: string(),
 	validatorCandidatesSize: string(),
-	atRiskValidators: array(tuple([HaneulAddress, string()])),
-	validatorReportRecords: array(tuple([HaneulAddress, array(HaneulAddress)])),
+	atRiskValidators: array(tuple([string(), string()])),
+	validatorReportRecords: array(tuple([string(), array(string())])),
 });
 
 export type HaneulSystemStateSummary = Infer<typeof HaneulSystemStateSummary>;

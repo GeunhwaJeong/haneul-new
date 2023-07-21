@@ -1,21 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress } from '@haneullabs/haneul.js';
-
 export type HaneulNSContract = {
-    packageId: HaneulAddress;
-    haneulns: HaneulAddress;
-    registry: HaneulAddress;
-    reverseRegistry: HaneulAddress;
+    packageId: string;
+    haneulns: string;
+    registry: string;
+    reverseRegistry: string;
 };
 
 export type NameObject = {
-    id: HaneulAddress;
-    owner: HaneulAddress;
-    targetAddress: HaneulAddress | '';
-    avatar?: HaneulAddress;
-    contentHash?: HaneulAddress;
+    id: string;
+    owner: string;
+    targetAddress: string;
+    avatar?: string;
+    contentHash?: string;
 };
 
 export type DataFields = 'avatar' | 'contentHash';

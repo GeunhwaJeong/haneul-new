@@ -8,8 +8,6 @@ import type {
 	HaneulObjectData,
 } from '../types/objects.js';
 import { getObjectFields, getObjectId, getObjectType } from '../types/objects.js';
-import type { HaneulAddress } from '../types/common.js';
-import { ObjectId } from '../types/common.js';
 
 import type { Option } from '../types/option.js';
 import { getOption } from '../types/option.js';
@@ -49,7 +47,7 @@ export const CoinMetadataStruct = object({
 	symbol: string(),
 	description: string(),
 	iconUrl: nullable(string()),
-	id: nullable(ObjectId),
+	id: nullable(string()),
 });
 
 export type CoinMetadata = Infer<typeof CoinMetadataStruct>;
@@ -91,7 +89,7 @@ export class Coin {
 		};
 	}
 
-	public static getID(obj: ObjectData): ObjectId {
+	public static getID(obj: ObjectData): string {
 		if ('fields' in obj) {
 			return obj.fields.id.id;
 		}
@@ -145,7 +143,7 @@ export type DelegationData = HaneulMoveObject & {
 		active_delegation: Option<number>;
 		delegate_amount: number;
 		next_reward_unclaimed_epoch: number;
-		validator_address: HaneulAddress;
+		validator_address: string;
 		info: {
 			id: string;
 			version: number;

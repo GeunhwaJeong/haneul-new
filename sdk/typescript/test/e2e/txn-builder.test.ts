@@ -9,7 +9,6 @@ import {
 	getObjectId,
 	getSharedObjectInitialVersion,
 	getTransactionDigest,
-	ObjectId,
 	HaneulTransactionBlockResponse,
 	HANEUL_SYSTEM_STATE_OBJECT_ID,
 	TransactionBlock,
@@ -31,9 +30,9 @@ import { HaneulClient } from '../../src/client';
 
 describe('Transaction Builders', () => {
 	let toolbox: TestToolbox;
-	let packageId: ObjectId;
+	let packageId: string;
 	let publishTxn: HaneulTransactionBlockResponse;
-	let sharedObjectId: ObjectId;
+	let sharedObjectId: string;
 
 	beforeAll(async () => {
 		const packagePath = __dirname + '/./data/serializer';

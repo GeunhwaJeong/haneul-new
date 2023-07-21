@@ -4,7 +4,6 @@
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import { TransactionBlock } from '../builder/index.js';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
-import type { ObjectId, HaneulAddress } from '../types/index.js';
 import { getObjectReference, HANEUL_SYSTEM_ADDRESS } from '../types/index.js';
 import type { HaneulClient } from '../client/index.js';
 
@@ -32,9 +31,9 @@ export class HaneulSystemStateUtil {
 	 */
 	public static async newRequestAddStakeTxn(
 		client: JsonRpcProvider | HaneulClient,
-		coins: ObjectId[],
+		coins: string[],
 		amount: bigint,
-		validatorAddress: HaneulAddress,
+		validatorAddress: string,
 	): Promise<TransactionBlock> {
 		// TODO: validate coin types and handle locked coins
 		const tx = new TransactionBlock();
@@ -63,8 +62,8 @@ export class HaneulSystemStateUtil {
 	 * @param gasBudget omittable only for DevInspect mode
 	 */
 	public static async newRequestWithdrawlStakeTxn(
-		stake: ObjectId,
-		stakedCoinId: ObjectId,
+		stake: string,
+		stakedCoinId: string,
 	): Promise<TransactionBlock> {
 		const tx = new TransactionBlock();
 		tx.moveCall({

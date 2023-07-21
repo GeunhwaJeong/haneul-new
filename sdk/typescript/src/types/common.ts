@@ -15,30 +15,42 @@ import {
 } from 'superstruct';
 import type { CallArg } from './haneul-bcs.js';
 
+/** @deprecated Use `string` instead. */
 export const TransactionDigest = string();
+/** @deprecated Use `string` instead. */
 export type TransactionDigest = Infer<typeof TransactionDigest>;
 
+/** @deprecated Use `string` instead. */
 export const TransactionEffectsDigest = string();
+/** @deprecated Use `string` instead. */
 export type TransactionEffectsDigest = Infer<typeof TransactionEffectsDigest>;
 
+/** @deprecated Use `string` instead. */
 export const TransactionEventDigest = string();
+/** @deprecated Use `string` instead. */
 export type TransactionEventDigest = Infer<typeof TransactionEventDigest>;
 
+/** @deprecated Use `string` instead. */
 export const ObjectId = string();
+/** @deprecated Use `string` instead. */
 export type ObjectId = Infer<typeof ObjectId>;
 
+/** @deprecated Use `string` instead. */
 export const HaneulAddress = string();
+/** @deprecated Use `string` instead. */
 export type HaneulAddress = Infer<typeof HaneulAddress>;
 
+/** @deprecated Use `string` instead. */
 export const SequenceNumber = string();
+/** @deprecated Use `string` instead. */
 export type SequenceNumber = Infer<typeof SequenceNumber>;
 
 export const ObjectOwner = union([
 	object({
-		AddressOwner: HaneulAddress,
+		AddressOwner: string(),
 	}),
 	object({
-		ObjectOwner: HaneulAddress,
+		ObjectOwner: string(),
 	}),
 	object({
 		Shared: object({

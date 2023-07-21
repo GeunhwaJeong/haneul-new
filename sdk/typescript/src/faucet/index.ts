@@ -1,14 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ObjectId, HaneulAddress, TransactionDigest } from '../types/index.js';
-
 export class FaucetRateLimitError extends Error {}
 
 type FaucetCoinInfo = {
 	amount: number;
-	id: ObjectId;
-	transferTxDigest: TransactionDigest;
+	id: string;
+	transferTxDigest: string;
 };
 
 type FaucetResponse = {
@@ -65,7 +63,7 @@ async function faucetRequest(
 
 export async function requestHaneulFromFaucetV0(input: {
 	host: string;
-	recipient: HaneulAddress;
+	recipient: string;
 	headers?: HeadersInit;
 }): Promise<FaucetResponse> {
 	return faucetRequest(
@@ -82,7 +80,7 @@ export async function requestHaneulFromFaucetV0(input: {
 
 export async function requestHaneulFromFaucetV1(input: {
 	host: string;
-	recipient: HaneulAddress;
+	recipient: string;
 	headers?: HeadersInit;
 }): Promise<BatchFaucetResponse> {
 	return faucetRequest(

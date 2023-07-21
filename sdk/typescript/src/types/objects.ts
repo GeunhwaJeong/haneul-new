@@ -18,7 +18,7 @@ import {
 	nullable,
 	tuple,
 } from 'superstruct';
-import { ObjectId, ObjectOwner, SequenceNumber, TransactionDigest } from './common.js';
+import { ObjectOwner } from './common.js';
 import type { OwnedObjectRef } from './transactions.js';
 
 export const ObjectType = union([string(), literal('package')]);
@@ -26,7 +26,7 @@ export type ObjectType = Infer<typeof ObjectType>;
 
 export const HaneulObjectRef = object({
 	/** Base64 string representing the object digest */
-	digest: TransactionDigest,
+	digest: string(),
 	/** Hex code as string representing the object id */
 	objectId: string(),
 	/** Object version */
@@ -48,7 +48,7 @@ export const HaneulObjectInfo = assign(
 	object({
 		type: string(),
 		owner: ObjectOwner,
-		previousTransaction: TransactionDigest,
+		previousTransaction: string(),
 	}),
 );
 export type HaneulObjectInfo = Infer<typeof HaneulObjectInfo>;
@@ -90,7 +90,7 @@ export const HaneulRawMoveObject = object({
 export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
 
 export const HaneulRawMovePackage = object({
-	id: ObjectId,
+	id: string(),
 	/** A mapping from module name to Move bytecode enocded in base64*/
 	moduleMap: record(string(), string()),
 });
@@ -112,8 +112,8 @@ export type ObjectDigest = Infer<typeof ObjectDigest>;
 export const HaneulObjectResponseError = object({
 	code: string(),
 	error: optional(string()),
-	object_id: optional(ObjectId),
-	parent_object_id: optional(ObjectId),
+	object_id: optional(string()),
+	parent_object_id: optional(string()),
 	version: optional(number()),
 	digest: optional(ObjectDigest),
 });
@@ -133,8 +133,8 @@ export type DisplayFieldsBackwardCompatibleResponse = Infer<
 >;
 
 export const HaneulObjectData = object({
-	objectId: ObjectId,
-	version: SequenceNumber,
+	objectId: string(),
+	version: string(),
 	digest: ObjectDigest,
 	/**
 	 * Type of the object, default to be undefined unless HaneulObjectDataOptions.showType is set to true
@@ -156,7 +156,7 @@ export const HaneulObjectData = object({
 	 * The digest of the transaction that created or last mutated this object.
 	 * Default to be undefined unless HaneulObjectDataOptions.showPreviousTransaction is set to true
 	 */
-	previousTransaction: optional(TransactionDigest),
+	previousTransaction: optional(string()),
 	/**
 	 * The amount of HANEUL we would rebate if this object gets deleted.
 	 * This number is re-calculated each time the object is mutated based on
@@ -236,14 +236,14 @@ export function getObjectDeletedResponse(resp: HaneulObjectResponse): HaneulObje
 	return undefined;
 }
 
-export function getObjectNotExistsResponse(resp: HaneulObjectResponse): ObjectId | undefined {
+export function getObjectNotExistsResponse(resp: HaneulObjectResponse): string | undefined {
 	if (
 		resp.error &&
 		'object_id' in resp.error &&
 		!('version' in resp.error) &&
 		!('digest' in resp.error)
 	) {
-		return (resp.error as HaneulObjectResponseError).object_id as ObjectId;
+		return (resp.error as HaneulObjectResponseError).object_id as string;
 	}
 
 	return undefined;
@@ -268,7 +268,7 @@ export function getObjectReference(
 
 /* ------------------------------ HaneulObjectRef ------------------------------ */
 
-export function getObjectId(data: HaneulObjectResponse | HaneulObjectRef | OwnedObjectRef): ObjectId {
+export function getObjectId(data: HaneulObjectResponse | HaneulObjectRef | OwnedObjectRef): string {
 	if ('objectId' in data) {
 		return data.objectId;
 	}
@@ -311,9 +311,7 @@ export function getObjectType(resp: HaneulObjectResponse | HaneulObjectData): Ob
 	return data?.type;
 }
 
-export function getObjectPreviousTransactionDigest(
-	resp: HaneulObjectResponse,
-): TransactionDigest | undefined {
+export function getObjectPreviousTransactionDigest(resp: HaneulObjectResponse): string | undefined {
 	return getHaneulObjectData(resp)?.previousTransaction;
 }
 
@@ -412,7 +410,7 @@ export function getMovePackageContent(
 }
 
 export const CheckpointedObjectId = object({
-	objectId: ObjectId,
+	objectId: string(),
 	atCheckpoint: optional(number()),
 });
 export type CheckpointedObjectId = Infer<typeof CheckpointedObjectId>;
@@ -420,7 +418,7 @@ export type CheckpointedObjectId = Infer<typeof CheckpointedObjectId>;
 export const PaginatedObjectsResponse = object({
 	data: array(HaneulObjectResponse),
 	// TODO: remove union after 0.30.0 is released
-	nextCursor: union([nullable(ObjectId), nullable(CheckpointedObjectId)]),
+	nextCursor: union([nullable(string()), nullable(CheckpointedObjectId)]),
 	hasNextPage: boolean(),
 });
 export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;
@@ -430,8 +428,8 @@ export type HaneulObjectDataFilter =
 	| { MatchAll: HaneulObjectDataFilter[] }
 	| { MatchAny: HaneulObjectDataFilter[] }
 	| { MatchNone: HaneulObjectDataFilter[] }
-	| { Package: ObjectId }
-	| { MoveModule: { package: ObjectId; module: string } }
+	| { Package: string }
+	| { MoveModule: { package: string; module: string } }
 	| { StructType: string }
 	| { AddressOwner: string }
 	| { ObjectOwner: string }
@@ -450,7 +448,7 @@ export const ObjectRead = union([
 		status: literal('VersionFound'),
 	}),
 	object({
-		details: ObjectId,
+		details: string(),
 		status: literal('ObjectNotExists'),
 	}),
 	object({
@@ -458,14 +456,14 @@ export const ObjectRead = union([
 		status: literal('ObjectDeleted'),
 	}),
 	object({
-		details: tuple([ObjectId, number()]),
+		details: tuple([string(), number()]),
 		status: literal('VersionNotFound'),
 	}),
 	object({
 		details: object({
 			asked_version: number(),
 			latest_version: number(),
-			object_id: ObjectId,
+			object_id: string(),
 		}),
 		status: literal('VersionTooHigh'),
 	}),
