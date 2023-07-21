@@ -3,7 +3,6 @@
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, useGetOwnedObjects, useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMutation } from '@tanstack/react-query';
 
@@ -33,7 +32,7 @@ export function useTransferKioskItem({
 		);
 
 	return useMutation({
-		mutationFn: async (to: HaneulAddress) => {
+		mutationFn: async (to: string) => {
 			if (!to || !signer || !objectType) {
 				throw new Error('Missing data');
 			}

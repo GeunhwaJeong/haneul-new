@@ -4,11 +4,11 @@
 import { useRpcClient } from '@haneullabs/core';
 import { useQuery } from '@tanstack/react-query';
 
-import type { HaneulAddress, PaginatedCoins, CoinStruct } from '@haneullabs/haneul.js';
+import type { PaginatedCoins, CoinStruct } from '@haneullabs/haneul.js';
 const MAX_COINS_PER_REQUEST = 100;
 
 // Fetch all coins for an address, this will keep calling the API until all coins are fetched
-export function useGetAllCoins(coinType: string, address?: HaneulAddress | null) {
+export function useGetAllCoins(coinType: string, address?: string | null) {
 	const rpc = useRpcClient();
 	return useQuery({
 		queryKey: ['get-all-coins', address, coinType],

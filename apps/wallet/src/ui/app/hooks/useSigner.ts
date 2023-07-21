@@ -12,9 +12,7 @@ import { useHaneulLedgerClient } from '../components/ledger/HaneulLedgerClientPr
 import { thunkExtras } from '_redux/store/thunk-extras';
 import { AccountType } from '_src/background/keyring/Account';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
-
-export function useSigner(address?: HaneulAddress): WalletSigner | null {
+export function useSigner(address?: string): WalletSigner | null {
 	const activeAccount = useActiveAccount();
 	const existingAccounts = useAccounts();
 	const signerAccount = address

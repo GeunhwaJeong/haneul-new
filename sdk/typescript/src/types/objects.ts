@@ -107,15 +107,18 @@ export const HANEUL_DECIMALS = 9;
 
 export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
+/** @deprecated Use `string` instead. */
 export const ObjectDigest = string();
+/** @deprecated Use `string` instead. */
 export type ObjectDigest = Infer<typeof ObjectDigest>;
+
 export const HaneulObjectResponseError = object({
 	code: string(),
 	error: optional(string()),
 	object_id: optional(string()),
 	parent_object_id: optional(string()),
 	version: optional(number()),
-	digest: optional(ObjectDigest),
+	digest: optional(string()),
 });
 export type HaneulObjectResponseError = Infer<typeof HaneulObjectResponseError>;
 export const DisplayFieldsResponse = object({
@@ -135,7 +138,7 @@ export type DisplayFieldsBackwardCompatibleResponse = Infer<
 export const HaneulObjectData = object({
 	objectId: string(),
 	version: string(),
-	digest: ObjectDigest,
+	digest: string(),
 	/**
 	 * Type of the object, default to be undefined unless HaneulObjectDataOptions.showType is set to true
 	 */

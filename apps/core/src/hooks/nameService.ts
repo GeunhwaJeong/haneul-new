@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 import { useRpcClient } from '../api/RpcClientContext';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
@@ -35,7 +34,7 @@ export function useResolveHaneulNSAddress(name?: string | null) {
 	});
 }
 
-export function useResolveHaneulNSName(address?: HaneulAddress | null) {
+export function useResolveHaneulNSName(address?: string | null) {
 	const rpc = useRpcClient();
 	const enabled = useHaneulNSEnabled();
 

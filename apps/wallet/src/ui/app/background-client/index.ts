@@ -4,7 +4,6 @@
 import {
 	type SignedTransaction,
 	type SignedMessage,
-	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 
@@ -74,7 +73,7 @@ export class BackgroundClient {
 
 	public sendPermissionResponse(
 		id: string,
-		accounts: HaneulAddress[],
+		accounts: string[],
 		allowed: boolean,
 		responseDate: string,
 	) {
@@ -133,7 +132,7 @@ export class BackgroundClient {
 	 * @param origin The origin of the dapp
 	 * @param specificAccounts Accounts to disconnect. If not provided or it's an empty array all accounts will be disconnected
 	 */
-	public async disconnectApp(origin: string, specificAccounts?: HaneulAddress[]) {
+	public async disconnectApp(origin: string, specificAccounts?: string[]) {
 		await lastValueFrom(
 			this.sendMessage(
 				createMessage<DisconnectApp>({
@@ -226,7 +225,7 @@ export class BackgroundClient {
 		);
 	}
 
-	public signData(address: HaneulAddress, data: Uint8Array): Promise<SerializedSignature> {
+	public signData(address: string, data: Uint8Array): Promise<SerializedSignature> {
 		return lastValueFrom(
 			this.sendMessage(
 				createMessage<KeyringPayload<'signData'>>({
@@ -257,7 +256,7 @@ export class BackgroundClient {
 		);
 	}
 
-	public selectAccount(address: HaneulAddress) {
+	public selectAccount(address: string) {
 		return lastValueFrom(
 			this.sendMessage(
 				createMessage<KeyringPayload<'switchAccount'>>({
@@ -312,7 +311,7 @@ export class BackgroundClient {
 		);
 	}
 
-	public exportAccount(password: string, accountAddress: HaneulAddress) {
+	public exportAccount(password: string, accountAddress: string) {
 		return lastValueFrom(
 			this.sendMessage(
 				createMessage<KeyringPayload<'exportAccount'>>({

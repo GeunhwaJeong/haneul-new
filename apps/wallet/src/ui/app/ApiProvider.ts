@@ -11,7 +11,7 @@ import { AccountType, type SerializedAccount } from '_src/background/keyring/Acc
 import { API_ENV } from '_src/shared/api-env';
 
 import type { BackgroundClient } from './background-client';
-import type { HaneulAddress, SignerWithProvider } from '@haneullabs/haneul.js';
+import type { SignerWithProvider } from '@haneullabs/haneul.js';
 
 type EnvInfo = {
 	name: string;
@@ -61,7 +61,7 @@ export const generateActiveNetworkList = (): NetworkTypes[] => {
 
 export default class ApiProvider {
 	private _apiFullNodeProvider?: HaneulClient;
-	private _signerByAddress: Map<HaneulAddress, SignerWithProvider> = new Map();
+	private _signerByAddress: Map<string, SignerWithProvider> = new Map();
 
 	public setNewJsonRpcProvider(apiEnv: API_ENV = DEFAULT_API_ENV, customRPC?: string | null) {
 		const connection = customRPC ? customRPC : getDefaultAPI(apiEnv);
@@ -119,7 +119,7 @@ export default class ApiProvider {
 	}
 
 	public getBackgroundSignerInstance(
-		address: HaneulAddress,
+		address: string,
 		backgroundClient: BackgroundClient,
 	): WalletSigner {
 		if (!this._signerByAddress.has(address)) {

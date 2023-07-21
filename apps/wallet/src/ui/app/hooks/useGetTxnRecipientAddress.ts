@@ -3,7 +3,6 @@
 
 import {
 	type HaneulTransactionBlockResponse,
-	type HaneulAddress,
 	getTransactionKind,
 	getTransactionSender,
 } from '@haneullabs/haneul.js';
@@ -13,7 +12,7 @@ import { getAmount } from '_helpers';
 
 type Props = {
 	txn: HaneulTransactionBlockResponse;
-	address: HaneulAddress;
+	address: string;
 };
 
 export function useGetTxnRecipientAddress({ txn, address }: Props) {

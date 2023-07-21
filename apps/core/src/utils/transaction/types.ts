@@ -1,6 +1,5 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { BalanceChangeSummary } from './getBalanceChangeSummary';
 import { GasSummaryType } from './getGasSummary';
@@ -8,7 +7,7 @@ import { ObjectChangeSummary } from './getObjectChangeSummary';
 
 export type TransactionSummary = {
 	digest?: string;
-	sender?: HaneulAddress;
+	sender?: string;
 	timestamp?: string;
 	balanceChanges: BalanceChangeSummary;
 	gas?: GasSummaryType;

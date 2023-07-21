@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -23,7 +22,7 @@ type UserApproveContainerProps = {
 	onSubmit: (approved: boolean) => Promise<void>;
 	isWarning?: boolean;
 	addressHidden?: boolean;
-	address?: HaneulAddress | null;
+	address?: string | null;
 	scrollable?: boolean;
 	blended?: boolean;
 };

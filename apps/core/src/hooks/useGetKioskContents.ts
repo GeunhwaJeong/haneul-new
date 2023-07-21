@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress, HaneulObjectResponse } from '@haneullabs/haneul.js';
+import { HaneulObjectResponse } from '@haneullabs/haneul.js';
 import { fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
 import { useQuery } from '@tanstack/react-query';
 import { useRpcClient } from '../api/RpcClientContext';
@@ -17,7 +17,7 @@ export const ORIGINBYTE_KIOSK_MODULE =
 	'0x95a441d389b07437d00dd07e0b6f05f513d7659b13fd7c5d3923c7d9d847199b::ob_kiosk' as const;
 export const ORIGINBYTE_KIOSK_OWNER_TOKEN = `${ORIGINBYTE_KIOSK_MODULE}::OwnerToken`;
 
-async function getOriginByteKioskContents(address: HaneulAddress, client: HaneulClient) {
+async function getOriginByteKioskContents(address: string, client: HaneulClient) {
 	const data = await client.getOwnedObjects({
 		owner: address,
 		filter: {
@@ -60,7 +60,7 @@ async function getOriginByteKioskContents(address: HaneulAddress, client: Haneul
 	return kioskContent;
 }
 
-async function getHaneulKioskContents(address: HaneulAddress, client: HaneulClient) {
+async function getHaneulKioskContents(address: string, client: HaneulClient) {
 	const ownedKiosks = await getOwnedKiosks(client, address!);
 	const kioskContents = await Promise.all(
 		ownedKiosks.kioskIds.map(async (id) => {
@@ -83,7 +83,7 @@ async function getHaneulKioskContents(address: HaneulAddress, client: HaneulClie
 	return kioskContent;
 }
 
-export function useGetKioskContents(address?: HaneulAddress | null, disableOriginByteKiosk?: boolean) {
+export function useGetKioskContents(address?: string | null, disableOriginByteKiosk?: boolean) {
 	const rpc = useRpcClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps

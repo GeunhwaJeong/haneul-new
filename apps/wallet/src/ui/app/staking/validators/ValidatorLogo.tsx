@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { useGetSystemState } from '@haneullabs/core';
-import { formatAddress, type HaneulAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { useMemo } from 'react';
 
@@ -11,7 +11,7 @@ import { Text } from '_app/shared/text';
 import { Badge } from '_src/ui/app/shared/Badge';
 
 interface ValidatorLogoProps {
-	validatorAddress: HaneulAddress;
+	validatorAddress: string;
 	showAddress?: boolean;
 	stacked?: boolean;
 	isTitle?: boolean;

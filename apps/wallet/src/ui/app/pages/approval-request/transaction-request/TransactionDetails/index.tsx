@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tab as HeadlessTab, type TabProps } from '@headlessui/react';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { Command } from './Command';
@@ -11,7 +10,7 @@ import { SummaryCard } from '../SummaryCard';
 import { useTransactionData } from '_src/ui/app/hooks';
 
 interface Props {
-	sender?: HaneulAddress;
+	sender?: string;
 	transaction: TransactionBlock;
 }
 

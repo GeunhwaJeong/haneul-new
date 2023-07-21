@@ -3,7 +3,7 @@
 
 import { getObjectType } from '@haneullabs/haneul.js';
 
-import type { ObjectId, HaneulObjectData, HaneulMoveObject } from '@haneullabs/haneul.js';
+import type { HaneulObjectData, HaneulMoveObject } from '@haneullabs/haneul.js';
 
 const COIN_TYPE = '0x2::coin::Coin';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;
@@ -35,7 +35,7 @@ export class Coin {
 		return BigInt(obj.fields.balance);
 	}
 
-	public static getID(obj: HaneulMoveObject): ObjectId {
+	public static getID(obj: HaneulMoveObject): string {
 		return obj.fields.id.id;
 	}
 

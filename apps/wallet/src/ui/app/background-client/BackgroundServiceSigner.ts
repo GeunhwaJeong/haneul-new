@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js';
-
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { WalletSigner } from '../WalletSigner';
 
@@ -10,10 +8,10 @@ import type { BackgroundClient } from '.';
 import type { SerializedSignature } from '@haneullabs/haneul.js/cryptography';
 
 export class BackgroundServiceSigner extends WalletSigner {
-	readonly #address: HaneulAddress;
+	readonly #address: string;
 	readonly #backgroundClient: BackgroundClient;
 
-	constructor(address: HaneulAddress, backgroundClient: BackgroundClient, client: HaneulClient) {
+	constructor(address: string, backgroundClient: BackgroundClient, client: HaneulClient) {
 		super(client);
 		this.#address = address;
 		this.#backgroundClient = backgroundClient;

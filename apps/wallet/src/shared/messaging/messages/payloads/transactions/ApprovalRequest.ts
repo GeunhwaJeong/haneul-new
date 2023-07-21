@@ -6,12 +6,12 @@ import {
 	type HaneulSignMessageOutput,
 } from '@haneullabs/wallet-standard';
 
-import type { SignedTransaction, HaneulAddress, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import type { SignedTransaction, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 
 export type TransactionDataType = {
 	type: 'transaction';
 	data: string;
-	account: HaneulAddress;
+	account: string;
 	justSign?: boolean;
 	requestType?: HaneulSignAndExecuteTransactionBlockInput['requestType'];
 	options?: HaneulSignAndExecuteTransactionBlockInput['options'];
@@ -20,7 +20,7 @@ export type TransactionDataType = {
 export type SignMessageDataType = {
 	type: 'sign-message';
 	message: string;
-	accountAddress: HaneulAddress;
+	accountAddress: string;
 };
 
 export type ApprovalRequest = {

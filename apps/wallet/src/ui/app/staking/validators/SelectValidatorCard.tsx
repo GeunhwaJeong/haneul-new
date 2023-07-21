@@ -8,7 +8,6 @@ import {
 	useGetSystemState,
 } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 import { useState, useMemo } from 'react';
 
@@ -29,7 +28,7 @@ const sortKeys: Record<SortKeys, string> = {
 
 type Validator = {
 	name: string;
-	address: HaneulAddress;
+	address: string;
 	apy: number | null;
 	isApyApproxZero?: boolean;
 	stakeShare: number;

@@ -3,7 +3,7 @@
 
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Copy12 } from '@haneullabs/icons';
-import { formatAddress, type HaneulAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js';
 
 import { useActiveAddress } from '../hooks/useActiveAddress';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
@@ -11,7 +11,7 @@ import { Text } from '../shared/text';
 
 type AccountAddressProps = {
 	copyable?: boolean;
-	address?: HaneulAddress;
+	address?: string;
 };
 
 export function AccountAddress({ copyable, address }: AccountAddressProps) {

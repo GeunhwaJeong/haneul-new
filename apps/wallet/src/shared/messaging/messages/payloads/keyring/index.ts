@@ -6,7 +6,6 @@ import { isBasePayload } from '_payloads';
 import { type SerializedLedgerAccount } from '_src/background/keyring/LedgerAccount';
 import { type AccountsPublicInfoUpdates } from '_src/background/keyring/accounts';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 import type { SerializedAccount } from '_src/background/keyring/Account';
 
@@ -49,16 +48,16 @@ type MethodToPayloads = {
 		return: void;
 	};
 	signData: {
-		args: { data: string; address: HaneulAddress };
+		args: { data: string; address: string };
 		return: SerializedSignature;
 	};
 	switchAccount: {
-		args: { address: HaneulAddress };
+		args: { address: string };
 		return: void;
 	};
 	deriveNextAccount: {
 		args: void;
-		return: { accountAddress: HaneulAddress };
+		return: { accountAddress: string };
 	};
 	importLedgerAccounts: {
 		args: { ledgerAccounts: SerializedLedgerAccount[] };
@@ -69,7 +68,7 @@ type MethodToPayloads = {
 		return: void;
 	};
 	exportAccount: {
-		args: { password: string; accountAddress: HaneulAddress };
+		args: { password: string; accountAddress: string };
 		return: { keyPair: ExportedKeypair };
 	};
 	importPrivateKey: {

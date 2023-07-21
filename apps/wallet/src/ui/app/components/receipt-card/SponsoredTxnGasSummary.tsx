@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin } from '@haneullabs/core';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 
 import { TxnAddressLink } from './TxnAddressLink';
 import { GAS_SYMBOL, GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
@@ -10,7 +9,7 @@ import { Text } from '_src/ui/app/shared/text';
 
 type SponsoredTxnGasSummaryProps = {
 	totalGas: number;
-	sponsor: HaneulAddress;
+	sponsor: string;
 };
 
 export function SponsoredTxnGasSummary({ totalGas, sponsor }: SponsoredTxnGasSummaryProps) {

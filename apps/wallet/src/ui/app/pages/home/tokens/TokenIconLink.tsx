@@ -3,7 +3,7 @@
 
 import { useFormatCoin } from '@haneullabs/core';
 import { WalletActionStake24 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG, type HaneulAddress } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
 import { LargeButton } from '_app/shared/LargeButton';
@@ -11,7 +11,7 @@ import { DelegatedAPY } from '_app/shared/delegated-apy';
 import { useGetDelegatedStake } from '_app/staking/useGetDelegatedStake';
 import { ampli } from '_src/shared/analytics/ampli';
 
-export function TokenIconLink({ accountAddress }: { accountAddress: HaneulAddress }) {
+export function TokenIconLink({ accountAddress }: { accountAddress: string }) {
 	const { data: delegatedStake, isLoading } = useGetDelegatedStake(accountAddress);
 
 	// Total active stake for all delegations

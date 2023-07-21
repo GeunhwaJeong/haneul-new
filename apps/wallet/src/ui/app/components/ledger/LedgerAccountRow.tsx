@@ -3,7 +3,7 @@
 
 import { useFormatCoin, useGetCoinBalance, useResolveHaneulNSName } from '@haneullabs/core';
 import { CheckFill16 } from '@haneullabs/icons';
-import { formatAddress, type HaneulAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import cl from 'classnames';
 
 import { useCoinsReFetchingConfig } from '../../hooks';
@@ -11,7 +11,7 @@ import { Text } from '_src/ui/app/shared/text';
 
 type LedgerAccountRowProps = {
 	isSelected: boolean;
-	address: HaneulAddress;
+	address: string;
 };
 
 export function LedgerAccountRow({ isSelected, address }: LedgerAccountRowProps) {

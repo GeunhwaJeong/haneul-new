@@ -19,12 +19,13 @@ import {
 
 import { ObjectOwner, HaneulJsonValue } from './common.js';
 import { HaneulEvent } from './events.js';
-import { ObjectDigest, HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects.js';
+import { HaneulGasData, HaneulMovePackage, HaneulObjectRef } from './objects.js';
 
+/** @deprecated Use `string` instead. */
 export const EpochId = string();
 
 export const HaneulChangeEpoch = object({
-	epoch: EpochId,
+	epoch: string(),
 	storage_charge: string(),
 	computation_charge: string(),
 	storage_rebate: string(),
@@ -33,7 +34,7 @@ export const HaneulChangeEpoch = object({
 export type HaneulChangeEpoch = Infer<typeof HaneulChangeEpoch>;
 
 export const HaneulConsensusCommitPrologue = object({
-	epoch: EpochId,
+	epoch: string(),
 	round: string(),
 	commit_timestamp_ms: string(),
 });
@@ -94,7 +95,7 @@ export const HaneulCallArg = union([
 		objectType: literal('immOrOwnedObject'),
 		objectId: string(),
 		version: string(),
-		digest: ObjectDigest,
+		digest: string(),
 	}),
 	object({
 		type: literal('object'),
@@ -152,11 +153,12 @@ export const HaneulTransactionBlockData = object({
 });
 export type HaneulTransactionBlockData = Infer<typeof HaneulTransactionBlockData>;
 
+/** @deprecated Use `string` instead. */
 export const AuthoritySignature = string();
-export const GenericAuthoritySignature = union([AuthoritySignature, array(AuthoritySignature)]);
+export const GenericAuthoritySignature = union([string(), array(string())]);
 
 export const AuthorityQuorumSignInfo = object({
-	epoch: EpochId,
+	epoch: string(),
 	signature: GenericAuthoritySignature,
 	signers_map: array(number()),
 });
@@ -196,7 +198,7 @@ export const TransactionEffects = object({
 	/** The status of the execution */
 	status: ExecutionStatus,
 	/** The epoch when this transaction was executed */
-	executedEpoch: EpochId,
+	executedEpoch: string(),
 	/** The version that every modified (mutated or deleted) object had before it was modified by this transaction. **/
 	modifiedAtVersions: optional(array(TransactionEffectsModifiedAtVersions)),
 	gasUsed: GasCostSummary,
@@ -273,8 +275,11 @@ export type TransactionFilter =
 	| { ToAddress: string };
 
 export type EmptySignInfo = object;
-export type AuthorityName = Infer<typeof AuthorityName>;
+
+/** @deprecated Use `string` instead. */
 export const AuthorityName = string();
+/** @deprecated Use `string` instead. */
+export type AuthorityName = Infer<typeof AuthorityName>;
 
 export const HaneulTransactionBlock = object({
 	data: HaneulTransactionBlockData,
@@ -286,7 +291,7 @@ export const HaneulObjectChangePublished = object({
 	type: literal('published'),
 	packageId: string(),
 	version: string(),
-	digest: ObjectDigest,
+	digest: string(),
 	modules: array(string()),
 });
 export type HaneulObjectChangePublished = Infer<typeof HaneulObjectChangePublished>;
@@ -298,7 +303,7 @@ export const HaneulObjectChangeTransferred = object({
 	objectType: string(),
 	objectId: string(),
 	version: string(),
-	digest: ObjectDigest,
+	digest: string(),
 });
 export type HaneulObjectChangeTransferred = Infer<typeof HaneulObjectChangeTransferred>;
 
@@ -310,7 +315,7 @@ export const HaneulObjectChangeMutated = object({
 	objectId: string(),
 	version: string(),
 	previousVersion: string(),
-	digest: ObjectDigest,
+	digest: string(),
 });
 export type HaneulObjectChangeMutated = Infer<typeof HaneulObjectChangeMutated>;
 
@@ -339,7 +344,7 @@ export const HaneulObjectChangeCreated = object({
 	objectType: string(),
 	objectId: string(),
 	version: string(),
-	digest: ObjectDigest,
+	digest: string(),
 });
 export type HaneulObjectChangeCreated = Infer<typeof HaneulObjectChangeCreated>;
 

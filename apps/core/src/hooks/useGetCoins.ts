@@ -4,13 +4,11 @@
 import { useRpcClient } from '../api/RpcClientContext';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
-
 const MAX_COINS_PER_REQUEST = 10;
 
 export function useGetCoins(
 	coinType: string,
-	address?: HaneulAddress | null,
+	address?: string | null,
 	maxCoinsPerRequest = MAX_COINS_PER_REQUEST,
 ) {
 	const rpc = useRpcClient();

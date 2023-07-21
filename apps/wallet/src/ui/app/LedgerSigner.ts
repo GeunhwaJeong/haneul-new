@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import {
 	type SerializedSignature,
@@ -39,7 +38,7 @@ export class LedgerSigner extends WalletSigner {
 		return this.#haneulLedgerClient;
 	}
 
-	async getAddress(): Promise<HaneulAddress> {
+	async getAddress(): Promise<string> {
 		const ledgerClient = await this.#initializeHaneulLedgerClient();
 		const publicKeyResult = await ledgerClient.getPublicKey(this.#derivationPath);
 		const publicKey = new Ed25519PublicKey(publicKeyResult.publicKey);

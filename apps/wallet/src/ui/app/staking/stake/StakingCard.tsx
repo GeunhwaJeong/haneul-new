@@ -4,7 +4,7 @@
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { useCoinMetadata, useGetSystemState, useGetCoinBalance } from '@haneullabs/core';
 import { ArrowLeft16 } from '@haneullabs/icons';
-import { getTransactionDigest, GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG, type HaneulAddress } from '@haneullabs/haneul.js';
+import { getTransactionDigest, GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Formik } from 'formik';
@@ -111,7 +111,7 @@ function StakingCard() {
 		}: {
 			tokenTypeArg: string;
 			amount: bigint;
-			validatorAddress: HaneulAddress;
+			validatorAddress: string;
 		}) => {
 			if (!validatorAddress || !amount || !tokenTypeArg || !signer) {
 				throw new Error('Failed, missing required field');

@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { type Keypair } from '@haneullabs/haneul.js/cryptography';
 
 import { type Account, AccountType } from './Account';
@@ -9,14 +8,14 @@ import { AccountKeypair } from './AccountKeypair';
 
 export type SerializedImportedAccount = {
 	type: AccountType.IMPORTED;
-	address: HaneulAddress;
+	address: string;
 	derivationPath: null;
 };
 
 export class ImportedAccount implements Account {
 	readonly accountKeypair: AccountKeypair;
 	readonly type: AccountType;
-	readonly address: HaneulAddress;
+	readonly address: string;
 
 	constructor({ keypair }: { keypair: Keypair }) {
 		this.type = AccountType.IMPORTED;

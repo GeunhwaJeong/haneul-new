@@ -3,13 +3,12 @@
 
 import { isBasePayload } from '_payloads';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface PermissionResponse extends BasePayload {
 	type: 'permission-response';
 	id: string;
-	accounts: HaneulAddress[];
+	accounts: string[];
 	allowed: boolean;
 	responseDate: string;
 }

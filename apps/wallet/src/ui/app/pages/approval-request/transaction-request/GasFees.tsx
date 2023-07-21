@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { formatAddress, type HaneulAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js';
 import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { DescriptionItem, DescriptionList } from './DescriptionList';
@@ -10,7 +10,7 @@ import { useTransactionData, useTransactionGasBudget } from '_src/ui/app/hooks';
 import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 
 interface Props {
-	sender?: HaneulAddress;
+	sender?: string;
 	transaction: TransactionBlock;
 }
 

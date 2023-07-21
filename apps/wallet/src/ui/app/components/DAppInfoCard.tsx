@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ArrowUpRight12 } from '@haneullabs/icons';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { cx } from 'class-variance-authority';
 
 import { AccountAddress } from './AccountAddress';
@@ -16,7 +15,7 @@ export type DAppInfoCardProps = {
 	name: string;
 	url: string;
 	iconUrl?: string;
-	connectedAddress?: HaneulAddress;
+	connectedAddress?: string;
 };
 
 export function DAppInfoCard({ name, url, iconUrl, connectedAddress }: DAppInfoCardProps) {

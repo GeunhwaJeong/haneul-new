@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Check12, X12 } from '@haneullabs/icons';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -17,7 +16,7 @@ import { Link } from '_src/ui/app/shared/Link';
 import { Text } from '_src/ui/app/shared/text';
 
 export type VerifyLedgerConnectionLinkProps = {
-	accountAddress: HaneulAddress;
+	accountAddress: string;
 	derivationPath: string;
 };
 

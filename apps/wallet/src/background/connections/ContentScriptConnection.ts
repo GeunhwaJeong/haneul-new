@@ -1,11 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	type SignedTransaction,
-	type HaneulAddress,
-	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
+import { type SignedTransaction, type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import Browser from 'webextension-polyfill';
 
 import { Connection } from './Connection';
@@ -228,7 +224,7 @@ export class ContentScriptConnection extends Connection {
 		this.send(createMessage(error, responseForID));
 	}
 
-	private async sendAccounts(accounts: HaneulAddress[], responseForID?: string) {
+	private async sendAccounts(accounts: string[], responseForID?: string) {
 		const allAccountsPublicInfo = await getStoredAccountsPublicInfo();
 		this.send(
 			createMessage<GetAccountResponse>(
@@ -244,7 +240,7 @@ export class ContentScriptConnection extends Connection {
 		);
 	}
 
-	private async ensurePermissions(permissions: PermissionType[], account?: HaneulAddress) {
+	private async ensurePermissions(permissions: PermissionType[], account?: string) {
 		const existingPermission = await Permissions.getPermission(this.origin);
 		const allowed = await Permissions.hasPermissions(
 			this.origin,

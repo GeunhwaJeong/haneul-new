@@ -19,7 +19,6 @@ import { Text } from '_app/shared/text';
 import { useGetTxnRecipientAddress } from '_hooks';
 
 import type {
-	HaneulAddress,
 	// HaneulEvent,
 	HaneulTransactionBlockResponse,
 	// TransactionEvents,
@@ -30,7 +29,7 @@ export function TransactionCard({
 	address,
 }: {
 	txn: HaneulTransactionBlockResponse;
-	address: HaneulAddress;
+	address: string;
 }) {
 	const transaction = getTransactionKind(txn)!;
 	const executionStatus = getExecutionStatusType(txn);

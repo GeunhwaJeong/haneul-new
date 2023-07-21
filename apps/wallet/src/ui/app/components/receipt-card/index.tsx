@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTransactionSummary } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 
 import { StakeTxnCard } from './StakeTxnCard';
 import { StatusIcon } from './StatusIcon';
@@ -14,7 +14,7 @@ import { GasSummary } from '../../shared/transaction-summary/cards/GasSummary';
 
 type ReceiptCardProps = {
 	txn: HaneulTransactionBlockResponse;
-	activeAddress: HaneulAddress;
+	activeAddress: string;
 };
 
 function TransactionStatus({ success, timestamp }: { success: boolean; timestamp?: string }) {

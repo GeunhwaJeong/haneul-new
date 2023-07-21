@@ -3,12 +3,12 @@
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useRpcClient } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 import { FEATURES } from '_src/shared/experimentation/features';
 
-export function useQueryTransactionsByAddress(address: HaneulAddress | null) {
+export function useQueryTransactionsByAddress(address: string | null) {
 	const rpc = useRpcClient();
 	const refetchInterval = useFeatureValue(FEATURES.WALLET_ACTIVITY_REFETCH_INTERVAL, 20_000);
 

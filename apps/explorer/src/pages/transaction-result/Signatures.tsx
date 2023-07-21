@@ -8,7 +8,6 @@ import {
 	getTransactionSender,
 	getTransactionSignature,
 	normalizeHaneulAddress,
-	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
 	type SignaturePubkeyPair,
 } from '@haneullabs/haneul.js';
@@ -45,7 +44,7 @@ function SignaturePanel({ title, signature }: { title: string; signature: Signat
 	);
 }
 
-function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddress: HaneulAddress) {
+function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddress: string) {
 	return signatures.find(
 		(signature) => signature.pubKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress),
 	);
@@ -53,7 +52,7 @@ function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddres
 
 function getSignaturesExcludingAddress(
 	signatures: SignaturePubkeyPair[],
-	haneulAddress: HaneulAddress,
+	haneulAddress: string,
 ): SignaturePubkeyPair[] {
 	return signatures.filter(
 		(signature) => signature.pubKey.toHaneulAddress() !== normalizeHaneulAddress(haneulAddress),

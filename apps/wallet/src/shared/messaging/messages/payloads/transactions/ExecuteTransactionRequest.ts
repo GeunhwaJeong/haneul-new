@@ -6,7 +6,6 @@ import { type HaneulSignTransactionBlockInput } from '@haneullabs/wallet-standar
 import { type TransactionDataType } from './ApprovalRequest';
 import { isBasePayload } from '_payloads';
 
-import type { HaneulAddress } from '@haneullabs/haneul.js';
 import type { BasePayload, Payload } from '_payloads';
 
 export interface ExecuteTransactionRequest extends BasePayload {
@@ -25,7 +24,7 @@ export type HaneulSignTransactionSerialized = Omit<
 	'transaction' | 'account'
 > & {
 	transaction: string;
-	account: HaneulAddress;
+	account: string;
 };
 
 export interface SignTransactionRequest extends BasePayload {

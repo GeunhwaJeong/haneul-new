@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import {
 	createAsyncThunk,
 	createEntityAdapter,
@@ -89,7 +88,7 @@ const accountsAdapter = createEntityAdapter<SerializedAccount>({
 
 type AccountState = {
 	creating: boolean;
-	address: HaneulAddress | null;
+	address: string | null;
 	isLocked: boolean | null;
 	isInitialized: boolean | null;
 };

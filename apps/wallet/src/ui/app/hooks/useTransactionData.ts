@@ -2,14 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useRpcClient } from '@haneullabs/core';
-import { type HaneulAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useQuery } from '@tanstack/react-query';
 
-export function useTransactionData(
-	sender?: HaneulAddress | null,
-	transaction?: TransactionBlock | null,
-) {
+export function useTransactionData(sender?: string | null, transaction?: TransactionBlock | null) {
 	const rpc = useRpcClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
@@ -28,7 +25,7 @@ export function useTransactionData(
 }
 
 export function useTransactionGasBudget(
-	sender?: HaneulAddress | null,
+	sender?: string | null,
 	transaction?: TransactionBlock | null,
 ) {
 	const { data, ...rest } = useTransactionData(sender, transaction);

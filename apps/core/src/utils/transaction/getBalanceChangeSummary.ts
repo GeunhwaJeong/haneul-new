@@ -3,21 +3,20 @@
 import {
 	ObjectOwner,
 	type DryRunTransactionBlockResponse,
-	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 
 export type BalanceChange = {
 	coinType: string;
 	amount: string;
-	recipient?: HaneulAddress;
-	owner?: HaneulAddress;
+	recipient?: string;
+	owner?: string;
 };
 
 export type BalanceChangeByOwner = Record<string, BalanceChange[]>;
 export type BalanceChangeSummary = BalanceChangeByOwner | null;
 
-function getOwnerAddress(owner: ObjectOwner): HaneulAddress | string {
+function getOwnerAddress(owner: ObjectOwner): string {
 	if (typeof owner === 'object') {
 		if ('AddressOwner' in owner) {
 			return owner.AddressOwner;

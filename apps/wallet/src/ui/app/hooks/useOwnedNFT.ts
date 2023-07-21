@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useGetKioskContents, useGetObject } from '@haneullabs/core';
-import { is, HaneulObjectData, getObjectOwner, type HaneulAddress } from '@haneullabs/haneul.js';
+import { is, HaneulObjectData, getObjectOwner } from '@haneullabs/haneul.js';
 import { useMemo } from 'react';
 
-export function useOwnedNFT(nftObjectId: string | null, address: HaneulAddress | null) {
+export function useOwnedNFT(nftObjectId: string | null, address: string | null) {
 	const data = useGetObject(nftObjectId);
 	const { data: kioskData, isFetching: areKioskContentsLoading } = useGetKioskContents(address);
 	const { data: objectData, isLoading } = data;

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
 	DryRunTransactionBlockResponse,
-	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
 	getExecutionStatusType,
 	getTransactionDigest,
@@ -26,7 +25,7 @@ export function useTransactionSummary({
 	currentAddress,
 }: {
 	transaction?: HaneulTransactionBlockResponse | DryRunTransactionBlockResponse;
-	currentAddress?: HaneulAddress;
+	currentAddress?: string;
 }) {
 	const { objectChanges } = transaction ?? {};
 

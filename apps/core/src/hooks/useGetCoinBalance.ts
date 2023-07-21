@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '../api/RpcClientContext';
-import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
 
 export function useGetCoinBalance(
 	coinType: string,
-	address?: HaneulAddress | null,
+	address?: string | null,
 	refetchInterval?: number,
 	staleTime?: number,
 ) {
