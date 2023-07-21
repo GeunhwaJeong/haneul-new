@@ -6,10 +6,9 @@ import {
 	SharedObjectRef,
 	HaneulObjectRef,
 	HaneulObjectResponse,
-	TransactionArgument,
-	TransactionBlock,
 	getObjectFields,
 } from '@haneullabs/haneul.js';
+import { TransactionBlock, TransactionArgument } from '@haneullabs/haneul.js/transactions';
 import { type DynamicFieldInfo } from '@haneullabs/haneul.js';
 import { bcs } from './bcs';
 import { KIOSK_TYPE, Kiosk, KioskData, KioskListing, RulesEnvironmentParam } from './types';

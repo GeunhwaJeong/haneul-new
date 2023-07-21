@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-	toB64,
 	type SignedTransaction,
 	type SignedMessage,
 	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
+
 import { type SerializedSignature, type ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
+import { toB64 } from '@haneullabs/haneul.js/utils';
 import { lastValueFrom, map, take } from 'rxjs';
 
 import { growthbook } from '../experimentation/feature-gating';

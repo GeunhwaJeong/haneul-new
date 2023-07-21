@@ -1,13 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulAddress, toB64 } from '@haneullabs/haneul.js';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import {
 	IntentScope,
 	messageWithIntent,
 	type SerializedSignature,
 } from '@haneullabs/haneul.js/cryptography';
+import { toB64 } from '@haneullabs/haneul.js/utils';
 import mitt from 'mitt';
 
 import { WalletSigner } from './WalletSigner';

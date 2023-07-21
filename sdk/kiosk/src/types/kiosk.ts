@@ -1,13 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	ObjectDigest,
-	ObjectId,
-	ObjectType,
-	PaginatedObjectsResponse,
-	TransactionArgument,
-} from '@haneullabs/haneul.js';
+import { ObjectDigest, ObjectId, ObjectType, PaginatedObjectsResponse } from '@haneullabs/haneul.js';
+import { TransactionArgument } from '@haneullabs/haneul.js/transactions';
 import { ObjectArgument } from '.';
 
 /** The Kiosk module. */

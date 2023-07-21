@@ -1,20 +1,21 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519Keypair, RawSigner, TransactionBlock } from '@haneullabs/haneul.js';
+import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { provider } from './rpc';
+import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/src/faucet';
 
 // This simulates what a server would do to sponsor a transaction
 export async function sponsorTransaction(sender: string, transactionKindBytes: Uint8Array) {
 	// Rather than do gas pool management, we just spin out a new keypair to sponsor the transaction with:
 	const keypair = new Ed25519Keypair();
-	const signer = new RawSigner(keypair, provider);
 	const address = keypair.getPublicKey().toHaneulAddress();
-	await signer.requestHaneulFromFaucet();
+	await requestHaneulFromFaucetV0({ recipient: address, host: getFaucetHost('testnet') });
 	console.log(`Sponsor address: ${address}`);
 
 	const tx = TransactionBlock.fromKind(transactionKindBytes);
 	tx.setSender(sender);
 	tx.setGasOwner(address);
-	return await signer.signTransactionBlock({ transactionBlock: tx });
+	return await provider.signAndExecuteTransactionBlock({ signer: keypair, transactionBlock: tx });
 }

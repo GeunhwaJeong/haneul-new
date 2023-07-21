@@ -5,7 +5,8 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useOwnedKiosk } from '../hooks/kiosk';
 import { OwnedObjectType } from '../components/Inventory/OwnedObjects';
-import { ObjectId, TransactionBlock } from '@haneullabs/haneul.js';
+import { ObjectId } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import {
 	Kiosk,
 	createKioskAndShare,

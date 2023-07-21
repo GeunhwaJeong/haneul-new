@@ -4,11 +4,11 @@ import {
 	DryRunTransactionBlockResponse,
 	type HaneulAddress,
 	type HaneulTransactionBlockResponse,
-	is,
 	getExecutionStatusType,
 	getTransactionDigest,
 	getTransactionSender,
 } from '@haneullabs/haneul.js';
+import { is } from '@haneullabs/haneul.js/utils';
 import { useMemo } from 'react';
 
 import { getBalanceChangeSummary } from '../utils/transaction/getBalanceChangeSummary';

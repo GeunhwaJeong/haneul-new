@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { fromExportedKeypair } from './cryptography/utils.js';
+
 export {
 	/** @deprecated Import from `@haneullabs/haneul.js/keypairs/ed5519` instead */
 	type Ed25519KeypairData,
@@ -105,8 +107,8 @@ export {
 } from './cryptography/signature.js';
 
 export {
+	/** @deprecated This type will be removed because it cant accurately represent parsed signatures */
 	type SignaturePubkeyPair,
-	fromExportedKeypair,
 	/** @deprecated use `publicKeyFromBytes` from `@haneullabs/haneul.j/verify` instead */
 	publicKeyFromSerialized,
 	/** @deprecated use `parseSerializedSignature` from `@haneullabs/haneul.j/cryptography` instead */
@@ -114,7 +116,6 @@ export {
 	/** @deprecated use `parseSerializedSignature` from `@haneullabs/haneul.j/cryptography` instead */
 	toSingleSignaturePubkeyPair,
 } from './cryptography/utils.js';
-
 export {
 	/** @deprecated Use `HaneulClient` from `@haneullabs/haneul.js/client` instead */
 	JsonRpcProvider,
@@ -132,13 +133,6 @@ export {
 	/** @deprecated This client will not be exported in the future */
 	JsonRpcClient,
 } from './rpc/client.js';
-
-export {
-	DEFAULT_CLIENT_OPTIONS,
-	WebsocketClient,
-	type WebsocketClientOptions,
-	getWebsocketUrl,
-} from './rpc/websocket-client.js';
 
 export {
 	/** @deprecated Use `getFullnodeUrl` from `@haneullabs/haneul.js/client` instead */
@@ -170,11 +164,6 @@ export {
 	/** @deprecated Use KeyPair classes from `@haneullabs/haneul.js/keypairs/*` instead */
 	SignerWithProvider,
 } from './signers/signer-with-provider.js';
-export { type SignedMessage, type SignedTransaction } from './signers/types.js';
-
-export * from './types/index.js';
-
-export { formatAddress, formatDigest } from './utils/format.js';
 
 export {
 	/** @deprecated Import from `@haneullabs/haneul.js/cryptography` instead */
@@ -193,10 +182,126 @@ export {
 	/** @deprecated Use verify methods on PublicKey classes from `@haneullabs/haneul.js/keypairs/*` instead */
 	verifyMessage,
 } from './utils/verify.js';
+
 export {
 	/** @deprecated Import from `@haneullabs/haneul.js/client` instead */
 	RPCValidationError,
 } from './rpc/errors.js';
+
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	fromB64,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	toB64,
+} from '@haneullabs/bcs';
+
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_ADDRESS_LENGTH,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	isValidHaneulAddress,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	isValidHaneulObjectId,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	isValidTransactionDigest,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	normalizeStructTag,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	normalizeHaneulAddress,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	normalizeHaneulObjectId,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	parseStructTag,
+} from './utils/haneul-types.js';
+
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	formatAddress,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	formatDigest,
+} from './utils/format.js';
+
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	is,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	assert,
+} from 'superstruct';
+
+export {
+	/** @deprecated this will be removed in future versions of the SDK */
+	DEFAULT_CLIENT_OPTIONS,
+	/** @deprecated this will be removed in future versions of the SDK */
+	WebsocketClient,
+	/** @deprecated this will be removed in future versions of the SDK */
+	type WebsocketClientOptions,
+	/** @deprecated this will be removed in future versions of the SDK */
+	getWebsocketUrl,
+} from './rpc/websocket-client.js';
+
+export {
+	/** @deprecated messages are now signed through the KeyPair classes */
+	type SignedMessage,
+	/**
+	 * deprecated transactions are now signed through the KeyPair classes
+	 * or signed and executed directly using the HaneulClient
+	 */
+	type SignedTransaction,
+} from './signers/types.js';
+
+export {
+	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
+	builder,
+	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
+	Transactions,
+	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
+	Inputs,
+	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
+	TransactionBlock,
+	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
+	TransactionArgument,
+	ARGUMENT,
+	ARGUMENT_INNER,
+	BuilderCallArg,
+	CALL_ARG,
+	COMPRESSED_SIGNATURE,
+	ENUM_KIND,
+	MULTISIG,
+	MULTISIG_PK_MAP,
+	MULTISIG_PUBLIC_KEY,
+	MakeMoveVecTransaction,
+	MergeCoinsTransaction,
+	MoveCallTransaction,
+	OBJECT_ARG,
+	OPTION,
+	ObjectCallArg,
+	ObjectTransactionArgument,
+	type Option,
+	PROGRAMMABLE_CALL,
+	PROGRAMMABLE_CALL_INNER,
+	PROGRAMMABLE_TX_BLOCK,
+	PUBLIC_KEY,
+	PublishTransaction,
+	PureCallArg,
+	PureTransactionArgument,
+	SplitCoinsTransaction,
+	TRANSACTION,
+	TRANSACTION_INNER,
+	TYPE_TAG,
+	TransactionBlockInput,
+	TransactionType,
+	TransferObjectsTransaction,
+	UpgradePolicy,
+	UpgradeTransaction,
+	VECTOR,
+	getIdFromCallArg,
+	getPureSerializationType,
+	getSharedObjectInput,
+	getTransactionType,
+	isMutableSharedObjectInput,
+	isSharedObjectInput,
+	isTxContext,
+} from './builder/index.js';
 
 export {
 	ADD_STAKE_FUN_NAME,
@@ -227,69 +332,6 @@ export {
 	isObjectDataFull,
 } from './framework/index.js';
 
-export {
-	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
-	builder,
-	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
-	Transactions,
-	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
-	Inputs,
-	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
-	TransactionBlock,
-	ARGUMENT,
-	ARGUMENT_INNER,
-	BuilderCallArg,
-	CALL_ARG,
-	COMPRESSED_SIGNATURE,
-	ENUM_KIND,
-	MULTISIG,
-	MULTISIG_PK_MAP,
-	MULTISIG_PUBLIC_KEY,
-	MakeMoveVecTransaction,
-	MergeCoinsTransaction,
-	MoveCallTransaction,
-	OBJECT_ARG,
-	OPTION,
-	ObjectCallArg,
-	ObjectTransactionArgument,
-	type Option,
-	PROGRAMMABLE_CALL,
-	PROGRAMMABLE_CALL_INNER,
-	PROGRAMMABLE_TX_BLOCK,
-	PUBLIC_KEY,
-	PublishTransaction,
-	PureCallArg,
-	PureTransactionArgument,
-	SplitCoinsTransaction,
-	TRANSACTION,
-	TRANSACTION_INNER,
-	TYPE_TAG,
-	TransactionArgument,
-	TransactionBlockInput,
-	TransactionType,
-	TransferObjectsTransaction,
-	UpgradePolicy,
-	UpgradeTransaction,
-	VECTOR,
-	getIdFromCallArg,
-	getPureSerializationType,
-	getSharedObjectInput,
-	getTransactionType,
-	isMutableSharedObjectInput,
-	isSharedObjectInput,
-	isTxContext,
-} from './builder/index.js';
-export {
-	HANEUL_ADDRESS_LENGTH,
-	isValidHaneulAddress,
-	isValidHaneulObjectId,
-	isValidTransactionDigest,
-	normalizeStructTag,
-	normalizeHaneulAddress,
-	normalizeHaneulObjectId,
-	parseStructTag,
-} from './utils/haneul-types.js';
+export * from './types/index.js';
 
-export { fromB64, toB64 } from '@haneullabs/bcs';
-
-export { is, assert } from 'superstruct';
+export { fromExportedKeypair };

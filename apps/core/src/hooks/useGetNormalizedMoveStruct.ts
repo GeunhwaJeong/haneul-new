@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '../api/RpcClientContext';
-import { normalizeHaneulObjectId, type HaneulMoveNormalizedStruct } from '@haneullabs/haneul.js';
+import { type HaneulMoveNormalizedStruct } from '@haneullabs/haneul.js';
+import { normalizeHaneulObjectId } from '@haneullabs/haneul.js/utils';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type GetNormalizedMoveStructOptions = {

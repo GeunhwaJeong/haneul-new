@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type CoinStruct, HANEUL_TYPE_ARG, TransactionBlock } from '@haneullabs/haneul.js';
+import { type CoinStruct, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { parseAmount } from '_src/ui/app/helpers';
 

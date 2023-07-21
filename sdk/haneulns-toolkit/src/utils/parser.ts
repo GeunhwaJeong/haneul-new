@@ -1,12 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-    HaneulObjectResponse,
-    HaneulMoveObject,
-    HaneulObjectData,
-    normalizeHaneulAddress,
-} from '@haneullabs/haneul.js';
+import { HaneulObjectResponse, HaneulMoveObject, HaneulObjectData } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 export const camelCase = (string: string) => string.replace(/(_\w)/g, (g) => g[1].toUpperCase());
 

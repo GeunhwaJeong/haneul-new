@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { normalizeHaneulAddress, type HaneulAddress } from '@haneullabs/haneul.js';
+import { type HaneulAddress } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 import { type Account, AccountType } from './Account';
 import { type Wallet } from '_src/shared/qredo-api';

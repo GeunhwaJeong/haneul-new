@@ -7,8 +7,8 @@ import {
 	HaneulObjectData,
 	HaneulObjectResponse,
 	getObjectFields,
-	isValidHaneulAddress,
 } from '@haneullabs/haneul.js';
+import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import {
 	attachListingsAndPrices,
 	attachLockedItems,

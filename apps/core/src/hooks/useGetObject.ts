@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '../api/RpcClientContext';
-import { normalizeHaneulAddress } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 
 const defaultOptions = {

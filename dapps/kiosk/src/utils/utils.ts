@@ -8,8 +8,8 @@ import {
 	HaneulObjectResponse,
 	getObjectDisplay,
 	getObjectId,
-	normalizeHaneulAddress,
 } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 // Parse the display of a list of objects into a simple {object_id: display} map
 // to use throughout the app.
 export const parseObjectDisplays = (

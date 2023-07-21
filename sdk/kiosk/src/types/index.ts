@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SharedObjectRef, HaneulObjectRef, TransactionArgument } from '@haneullabs/haneul.js';
+import { SharedObjectRef, HaneulObjectRef } from '@haneullabs/haneul.js';
+import { TransactionArgument } from '@haneullabs/haneul.js/transactions';
 
 export * from './kiosk';
 export * from './transfer-policy';

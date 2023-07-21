@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-	fromB64,
 	type SignedMessage,
 	type SignedTransaction,
 	type HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { fromB64 } from '@haneullabs/haneul.js/utils';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
 import { type WalletSigner } from '_src/ui/app/WalletSigner';

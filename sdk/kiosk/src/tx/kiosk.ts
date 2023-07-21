@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulAddress, TransactionArgument, TransactionBlock } from '@haneullabs/haneul.js';
+import { HaneulAddress } from '@haneullabs/haneul.js';
+import { TransactionBlock, TransactionArgument } from '@haneullabs/haneul.js/transactions';
 
 import { getTypeWithoutPackageAddress, objArg } from '../utils';
 import { confirmRequest, resolveKioskLockRule, resolveRoyaltyRule } from './transfer-policy';

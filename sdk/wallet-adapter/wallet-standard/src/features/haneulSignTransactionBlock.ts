@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SignedTransaction, TransactionBlock } from '@haneullabs/haneul.js';
+import type { SignedTransaction } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import type { IdentifierString, WalletAccount } from '@wallet-standard/core';
 
 /** The latest API version of the signTransactionBlock API. */

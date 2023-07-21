@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { fromExportedKeypair, mnemonicToSeedHex } from '@haneullabs/haneul.js';
+import { fromExportedKeypair } from '@haneullabs/haneul.js';
+import { mnemonicToSeedHex } from '@haneullabs/haneul.js/cryptography';
 
 import { EPHEMERAL_PASSWORD_KEY, EPHEMERAL_VAULT_KEY } from '_src/background/keyring/VaultStorage';
 import { toEntropy } from '_src/shared/utils/bip39';

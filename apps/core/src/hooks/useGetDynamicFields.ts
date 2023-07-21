@@ -3,7 +3,7 @@
 
 import { useRpcClient } from '../api/RpcClientContext';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { normalizeHaneulAddress } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 const MAX_PAGE_SIZE = 10;
 

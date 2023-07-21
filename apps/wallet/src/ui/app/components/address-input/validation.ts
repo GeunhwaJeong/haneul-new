@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
+import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useMemo } from 'react';
 import * as Yup from 'yup';
 
