@@ -10602,6 +10602,7 @@ dependencies = [
  "serde",
  "haneul-json-rpc-types",
  "haneul-protocol-config",
+ "haneul-test-transaction-builder",
  "haneul-types",
  "tap",
  "tempfile",
