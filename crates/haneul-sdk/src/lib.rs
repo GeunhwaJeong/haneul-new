@@ -3,25 +3,41 @@
 
 //! The Haneul Rust SDK
 //!
-//! It aims at providing a similar SDK functionality like the one existing for [TypeScript](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/). Haneul Rust SDK builds on top of the [JSON RPC API](https://docs.haneul.io/haneul-jsonrpc)
-//! and therefore many of the return types are the ones specified in [`haneul_types`].
+//! It aims at providing a similar SDK functionality like the one existing for
+//! [TypeScript](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript/).
+//! Haneul Rust SDK builds on top of the [JSON RPC API](https://docs.haneul.io/haneul-jsonrpc)
+//! and therefore many of the return types are the ones specified in [haneul_types].
 //!
-//! The API is split in several parts corresponding to different functionalities as following:
-//! * [`CoinReadApi`] - provides read-only functions to work with the coins
-//! * [`EventApi`] - provides event related functions functions to
-//! * [`GovernanceApi`] - provides functionality related to staking
-//! * [`QuorumDriverApi`] - provides functionality to execute a transaction block and submit it to the fullnode(s)
-//! * [`ReadApi`] - provides functions for retriving data about different objects and transactions
-//! * [`TransactionBuilder`] - provides functions for building transactions
+//! The API is split in several parts corresponding to different functionalities
+//! as following:
+//! * [CoinReadApi] - provides read-only functions to work with the coins
+//! * [EventApi] - provides event related functions functions to
+//! * [GovernanceApi] - provides functionality related to staking
+//! * [QuorumDriverApi] - provides functionality to execute a transaction
+//! block and submit it to the fullnode(s)
+//! * [ReadApi] - provides functions for retriving data about different
+//! objects and transactions
+//! * [TransactionBuilder] - provides functions for building transactions
 //!
 //! # Usage
-//! The main way to interact with the API is through the [`HaneulClientBuilder`] which returns a [HaneulClient] object from which the user can access the various APIs.
+//! The main way to interact with the API is through the [HaneulClientBuilder],
+//! which returns a [HaneulClient] object from which the user can access the
+//! various APIs.
 //!
 //! ## Getting Started
-//! Add the Rust SDK to the project by running `cargo add haneul-sdk` in the root folder of your Rust project.
+//! Add the Rust SDK to the project by running `cargo add haneul-sdk` in the root
+//! folder of your Rust project.
 //!
-//! The main building block for the Haneul Rust SDK is the [`HaneulClientBuilder`], which provides a simple and straightforward way of connectiong to a Haneul network and having access to the different available APIs.
-//! A simple example that connects to a running Haneul local network, the Haneul devnet, and the Haneul testnet is shown below. To successfully run this program, make sure to spin up a local network with a local validator, a fullnode, and a faucet server (see [here](https://github.com/stefan-haneullabs/haneul/tree/rust_sdk_api_examples/crates/haneul-sdk/examples#preqrequisites) for more information).
+//! The main building block for the Haneul Rust SDK is the [HaneulClientBuilder],
+//! which provides a simple and straightforward way of connectiong to a Haneul
+//! network and having access to the different available APIs.
+//!
+//! A simple example that connects to a running Haneul local network,
+//! the Haneul devnet, and the Haneul testnet is shown below.
+//! To successfully run this program, make sure to spin up a local
+//! network with a local validator, a fullnode, and a faucet server
+//! (see [here](https://github.com/stefan-haneullabs/haneul/tree/rust_sdk_api_examples/crates/haneul-sdk/examples#preqrequisites) for more information).
+//!
 //! ```rust,no_run
 //! use haneul_sdk::HaneulClientBuilder;
 //!
@@ -50,7 +66,8 @@
 //! ```
 //! ## Examples
 //!
-//! For detailed examples, please check the APIs docs and the examples folder in the [main repository](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk/examples).
+//! For detailed examples, please check the APIs docs and the examples folder
+//! in the [main repository](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk/examples).
 
 use std::fmt::Debug;
 use std::fmt::Formatter;
@@ -59,7 +76,9 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use jsonrpsee::core::client::ClientT;
-use jsonrpsee::http_client::{HeaderMap, HeaderValue, HttpClient, HttpClientBuilder};
+use jsonrpsee::http_client::{
+    HeaderMap, HeaderValue, HttpClient, HttpClientBuilder,
+};
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::{WsClient, WsClientBuilder};
 use serde_json::Value;
@@ -67,7 +86,8 @@ use serde_json::Value;
 use move_core_types::language_storage::StructTag;
 pub use haneul_json as json;
 use haneul_json_rpc::{
-    CLIENT_SDK_TYPE_HEADER, CLIENT_SDK_VERSION_HEADER, CLIENT_TARGET_API_VERSION_HEADER,
+    CLIENT_SDK_TYPE_HEADER, CLIENT_SDK_VERSION_HEADER,
+    CLIENT_TARGET_API_VERSION_HEADER,
 };
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
@@ -78,7 +98,9 @@ use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
 
-use crate::apis::{CoinReadApi, EventApi, GovernanceApi, QuorumDriverApi, ReadApi};
+use crate::apis::{
+    CoinReadApi, EventApi, GovernanceApi, QuorumDriverApi, ReadApi,
+};
 use crate::error::{Error, HaneulRpcResult};
 
 pub mod apis;
@@ -93,10 +115,9 @@ pub const HANEUL_TESTNET_URL: &str = "https://fullnode.testnet.haneul.io:443";
 
 /// A Haneul client builder for connecting to the Haneul network
 ///
-/// By default the `maximum concurrent requests` is set to 256 and the `request timeout` is set to 60 seconds. These can be adjusted using the
+/// By default the `maximum concurrent requests` is set to 256 and 
+/// the `request timeout` is set to 60 seconds. These can be adjusted using the
 /// `max_concurrent_requests` function, and the `request_timeout` function.
-///
-///
 ///
 /// # Examples
 ///
@@ -136,7 +157,10 @@ impl HaneulClientBuilder {
     }
 
     /// Set the max concurrent requests allowed
-    pub fn max_concurrent_requests(mut self, max_concurrent_requests: usize) -> Self {
+    pub fn max_concurrent_requests(
+        mut self,
+        max_concurrent_requests: usize,
+    ) -> Self {
         self.max_concurrent_requests = max_concurrent_requests;
         self
     }
@@ -147,12 +171,8 @@ impl HaneulClientBuilder {
         self
     }
 
-    /// Returns a [HaneulClient] object connected to the Haneul network running at the URI provided
-    ///
-    /// # Arguments
-    ///
-    /// * `URL` - A string that holds the Haneul network address
-    ///
+    /// Returns a [HaneulClient] object connected to the Haneul network running
+    /// at the URI provided.
     ///
     /// # Examples
     ///
@@ -174,14 +194,15 @@ impl HaneulClientBuilder {
         let mut headers = HeaderMap::new();
         headers.insert(
             CLIENT_TARGET_API_VERSION_HEADER,
-            // for rust, the client version is the same as the target api version
+            // in rust, the client version is the same as the target api version
             HeaderValue::from_static(client_version),
         );
         headers.insert(
             CLIENT_SDK_VERSION_HEADER,
             HeaderValue::from_static(client_version),
         );
-        headers.insert(CLIENT_SDK_TYPE_HEADER, HeaderValue::from_static("rust"));
+        headers
+            .insert(CLIENT_SDK_TYPE_HEADER, HeaderValue::from_static("rust"));
 
         let ws = if let Some(url) = self.ws_url {
             Some(
@@ -226,9 +247,11 @@ impl HaneulClientBuilder {
         })
     }
 
-    /// Returns a [HaneulClient] object that is ready to interact with the local development network (by default it expects the Haneul network to be up and running at `127.0.0.1:9000`)
+    /// Returns a [HaneulClient] object that is ready to interact with the local
+    /// development network (by default it expects the Haneul network to be
+    /// up and running at `127.0.0.1:9000`).
     ///
-    /// For connecting to a custom URI, use the `build` function instead
+    /// For connecting to a custom URI, use the `build` function instead.
     ///
     /// # Examples
     ///
@@ -249,9 +272,9 @@ impl HaneulClientBuilder {
         self.build(HANEUL_LOCAL_NETWORK_URL).await
     }
 
-    /// Returns a [HaneulClient] object that is ready to interact with the Haneul devnet (`https://fullnode.devnet.haneul.io:443`)
+    /// Returns a [HaneulClient] object that is ready to interact with the Haneul devnet. 
     ///
-    /// For connecting to a custom URI, use the `build` function instead.
+    /// For connecting to a custom URI, use the `build` function instead..
     ///
     /// # Examples
     ///
@@ -272,7 +295,7 @@ impl HaneulClientBuilder {
         self.build(HANEUL_DEVNET_URL).await
     }
 
-    /// Returns a [HaneulClient] object that is ready to interact with the Haneul testnet (`https://fullnode.testnet.haneul.io:443`)
+    /// Returns a [HaneulClient] object that is ready to interact with the Haneul testnet.
     ///
     /// For connecting to a custom URI, use the `build` function instead.
     ///
@@ -295,24 +318,29 @@ impl HaneulClientBuilder {
         self.build(HANEUL_TESTNET_URL).await
     }
 
-    /// Return the server information as a `ServerInfo` structure
+    /// Return the server information as a `ServerInfo` structure.
     ///
-    /// Fails with an error if it cannot call the RPC discover
+    /// Fails with an error if it cannot call the RPC discover.
     async fn get_server_info(
         http: &HttpClient,
         ws: &Option<WsClient>,
     ) -> Result<ServerInfo, Error> {
-        let rpc_spec: Value = http.request("rpc.discover", rpc_params![]).await?;
+        let rpc_spec: Value =
+            http.request("rpc.discover", rpc_params![]).await?;
         let version = rpc_spec
             .pointer("/info/version")
             .and_then(|v| v.as_str())
             .ok_or_else(|| {
-                Error::DataError("Fail parsing server version from rpc.discover endpoint.".into())
+                Error::DataError(
+                    "Fail parsing server version from rpc.discover endpoint."
+                        .into(),
+                )
             })?;
         let rpc_methods = Self::parse_methods(&rpc_spec)?;
 
         let subscriptions = if let Some(ws) = ws {
-            let rpc_spec: Value = ws.request("rpc.discover", rpc_params![]).await?;
+            let rpc_spec: Value =
+                ws.request("rpc.discover", rpc_params![]).await?;
             Self::parse_methods(&rpc_spec)?
         } else {
             Vec::new()
@@ -342,11 +370,12 @@ impl HaneulClientBuilder {
     }
 }
 
-/// HaneulClient is the basic type that provides all the necessary abstractions for interacting with the Haneul network
+/// HaneulClient is the basic type that provides all the necessary abstractions
+/// for interacting with the Haneul network.
 ///
 /// # Usage
 ///
-/// Use [`HaneulClientBuilder`] to build a [HaneulClient].
+/// Use [HaneulClientBuilder] to build a [HaneulClient].
 ///
 /// # Examples
 ///
@@ -365,14 +394,18 @@ impl HaneulClientBuilder {
 ///     println!("{:?}", haneul.available_subscriptions());
 ///     println!("{:?}", haneul.api_version());
 ///
-///     let haneul_read_api = haneul.read_api();
-///     let address = HaneulAddress::from_str("0x0000....0000")?; // generate a random HaneulAddress for demonstration purposes
-///     let owned_objects = haneul_read_api.get_owned_objects(address, None, None, None).await?;
-///     println!("{:?}", owned_objects); // this will be empty as the random generated address has no coins or other objects
+///     let address = HaneulAddress::from_str("0x0000....0000")?;
+///     let owned_objects = haneul.
+///        .read_api()
+///        .get_owned_objects(address, None, None, None)
+///        .await?;
+///
+///     println!("{:?}", owned_objects); 
 ///    
 ///     Ok(())
 /// }
 /// ```
+
 #[derive(Clone)]
 pub struct HaneulClient {
     api: Arc<RpcClient>,
@@ -400,7 +433,8 @@ impl Debug for RpcClient {
     }
 }
 
-/// ServerInfo contains all the useful information regarding the API version, the available RPC calls, and subscriptions.
+/// ServerInfo contains all the useful information regarding the API version, 
+/// the available RPC calls, and subscriptions.
 struct ServerInfo {
     rpc_methods: Vec<String>,
     subscriptions: Vec<String>,
@@ -408,12 +442,14 @@ struct ServerInfo {
 }
 
 impl HaneulClient {
-    /// Returns a list of RPC methods supported by the node the client is connected to.
+    /// Returns a list of RPC methods supported by the node the client 
+    /// is connected to.
     pub fn available_rpc_methods(&self) -> &Vec<String> {
         &self.api.info.rpc_methods
     }
 
-    /// Returns a list of streaming/subscription APIs supported by the node the client is connected to.
+    /// Returns a list of streaming/subscription APIs supported
+    /// by the node the client is connected to.
     pub fn available_subscriptions(&self) -> &Vec<String> {
         &self.api.info.subscriptions
     }
@@ -421,12 +457,14 @@ impl HaneulClient {
     /// Returns the API version information as a string.
     ///
     /// The format of this string is `<major>.<minor>.<patch>`, e.g., `1.6.0`,
-    /// and it is retrieved from the OpenRPC specification via the discover service method.
+    /// and it is retrieved from the OpenRPC specification via 
+    /// the discover service method.
     pub fn api_version(&self) -> &str {
         &self.api.info.version
     }
 
-    /// Verifies if the API version matches the server version and returns an error if they do not match.
+    /// Verifies if the API version matches the server version and returns an 
+    /// error if they do not match.
     pub fn check_api_version(&self) -> HaneulRpcResult<()> {
         let server_version = self.api_version();
         let client_version = env!("CARGO_PKG_VERSION");
