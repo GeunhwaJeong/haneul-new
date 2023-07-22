@@ -395,7 +395,7 @@ impl HaneulClientBuilder {
 ///     println!("{:?}", haneul.api_version());
 ///
 ///     let address = HaneulAddress::from_str("0x0000....0000")?;
-///     let owned_objects = haneul.
+///     let owned_objects = haneul
 ///        .read_api()
 ///        .get_owned_objects(address, None, None, None)
 ///        .await?;
