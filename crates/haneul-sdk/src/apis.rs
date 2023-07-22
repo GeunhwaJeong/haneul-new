@@ -16,19 +16,24 @@ use crate::error::{Error, HaneulRpcResult};
 use crate::RpcClient;
 use haneul_json_rpc::api::GovernanceReadApiClient;
 use haneul_json_rpc::api::{
-    CoinReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient, WriteApiClient,
+    CoinReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient,
+    WriteApiClient,
 };
 use haneul_json_rpc_types::{
-    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
-    DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
-    ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
-    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulPastObjectResponse, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake,
+    DevInspectResults, DryRunTransactionBlockResponse, DynamicFieldPage,
+    EventFilter, EventPage, ObjectsPage, ProtocolConfigResponse,
+    HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
+    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery,
+    TransactionBlocksPage,
 };
 use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
+use haneul_types::base_types::{
+    ObjectID, SequenceNumber, HaneulAddress, TransactionDigest,
+};
 use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -59,9 +64,12 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -96,10 +104,13 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // connect to the local Haneul network
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
     ///     let address = HaneulAddress::from_str("0x0000....0000")?;
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
-    ///     // this code example assumes that there are previous owned objects, otherwise it panics
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
+    ///     // this code example assumes that there are previous owned objects
     ///     let object = owned_objects.data.get(0).expect(&format!(
     ///         "No owned objects for this address {}",
     ///         address
@@ -145,10 +156,13 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // connect to the local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
-    ///     // this code example assumes that there are previous owned objects, otherwise it panics
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
+    ///     // this code example assumes that there are previous owned objects
     ///     let object = owned_objects.data.get(0).expect(&format!(
     ///         "No owned objects for this address {}",
     ///         address
@@ -203,10 +217,13 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // connect to the local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
-    ///     // this code example assumes that there are previous owned objects, otherwise it panics
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
+    ///     // this code example assumes that there are previous owned objects
     ///     let object = owned_objects.data.get(0).expect(&format!(
     ///         "No owned objects for this address {}",
     ///         address
@@ -279,10 +296,13 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
-    ///     // this code example assumes that there are previous owned objects, otherwise it panics
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
+    ///     // this code example assumes that there are previous owned objects
     ///     let object = owned_objects.data.get(0).expect(&format!(
     ///         "No owned objects for this address {}",
     ///         address
@@ -325,10 +345,13 @@ impl ReadApi {
     /// use std::str::FromStr;
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let owned_objects = haneul.read_api().get_owned_objects(address, None, None, None).await?;
-    ///     // this code example assumes that there are previous owned objects, otherwise it panics
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let owned_objects = haneul
+    ///         .read_api()
+    ///         .get_owned_objects(address, None, None, None)
+    ///         .await?;
+    ///     // this code example assumes that there are previous owned objects
     ///     let object = owned_objects.data.get(0).expect(&format!(
     ///         "No owned objects for this address {}",
     ///         address
@@ -374,8 +397,11 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let total_transaction_blocks = haneul.read_api().get_total_transaction_blocks().await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let total_transaction_blocks = haneul
+    ///         .read_api()
+    ///         .get_total_transaction_blocks()
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -419,8 +445,11 @@ impl ReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let committee_info = haneul.read_api().get_committee_info(None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let committee_info = haneul
+    ///         .read_api()
+    ///         .get_committee_info(None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -442,7 +471,12 @@ impl ReadApi {
         Ok(self
             .api
             .http
-            .query_transaction_blocks(query, cursor, limit, Some(descending_order))
+            .query_transaction_blocks(
+                query,
+                cursor,
+                limit,
+                Some(descending_order),
+            )
             .await?)
     }
 
@@ -452,7 +486,10 @@ impl ReadApi {
     }
 
     /// Return a checkpoint, or an error upon failure.
-    pub async fn get_checkpoint(&self, id: CheckpointId) -> HaneulRpcResult<Checkpoint> {
+    pub async fn get_checkpoint(
+        &self,
+        id: CheckpointId,
+    ) -> HaneulRpcResult<Checkpoint> {
         Ok(self.api.http.get_checkpoint(id).await?)
     }
 
@@ -505,8 +542,9 @@ impl ReadApi {
                         .ok()?;
                     let mut data = page.data;
                     data.reverse();
-                    data.pop()
-                        .map(|item| (item, (data, page.next_cursor, false, query)))
+                    data.pop().map(|item| {
+                        (item, (data, page.next_cursor, false, query))
+                    })
                 } else {
                     None
                 }
@@ -604,9 +642,12 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let coins = haneul.coin_read_api().get_coins(address, None, None, None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let coins = haneul
+    ///         .coin_read_api()
+    ///         .get_coins(address, None, None, None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -637,9 +678,12 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let coins = haneul.coin_read_api().get_all_coins(address, None, None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let coins = haneul
+    ///         .coin_read_api()
+    ///         .get_all_coins(address, None, None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -665,9 +709,11 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let coins = haneul.coin_read_api().get_coins_stream(address, None);
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let coins = haneul
+    ///         .coin_read_api()
+    ///         .get_coins_stream(address, None);
     ///     Ok(())
     /// }
     /// ```
@@ -685,7 +731,13 @@ impl CoinReadApi {
             ),
             move |(mut data, cursor, has_next_page, coin_type)| async move {
                 if let Some(item) = data.pop() {
-                    Some((item, (data, cursor, /* has_next_page */ true, coin_type)))
+                    Some((
+                        item,
+                        (
+                            data, cursor, /* has_next_page */ true,
+                            coin_type,
+                        ),
+                    ))
                 } else if has_next_page {
                     let page = self
                         .get_coins(owner, coin_type.clone(), cursor, Some(100))
@@ -696,7 +748,12 @@ impl CoinReadApi {
                     data.pop().map(|item| {
                         (
                             item,
-                            (data, page.next_cursor, page.has_next_page, coin_type),
+                            (
+                                data,
+                                page.next_cursor,
+                                page.has_next_page,
+                                coin_type,
+                            ),
                         )
                     })
                 } else {
@@ -719,9 +776,12 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let coins = haneul.coin_read_api().select_coins(address, None, 5, vec![]).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let coins = haneul
+    ///         .coin_read_api()
+    ///         .select_coins(address, None, 5, vec![])
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -735,7 +795,9 @@ impl CoinReadApi {
         let mut total = 0u128;
         let coins = self
             .get_coins_stream(address, coin_type)
-            .filter(|coin: &Coin| future::ready(!exclude.contains(&coin.coin_object_id)))
+            .filter(|coin: &Coin| {
+                future::ready(!exclude.contains(&coin.coin_object_id))
+            })
             .take_while(|coin: &Coin| {
                 let ready = future::ready(total < amount);
                 total += coin.balance as u128;
@@ -763,9 +825,12 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let balance = haneul.coin_read_api().get_balance(address, None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let balance = haneul
+    ///         .coin_read_api()
+    ///         .get_balance(address, None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -788,13 +853,19 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let address = HaneulAddress::from_str("0x0000....0000")?; // change to your Haneul address
-    ///     let all_balances = haneul.coin_read_api().get_all_balances(address).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let address = HaneulAddress::from_str("0x0000....0000")?;
+    ///     let all_balances = haneul
+    ///         .coin_read_api()
+    ///         .get_all_balances(address)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
-    pub async fn get_all_balances(&self, owner: HaneulAddress) -> HaneulRpcResult<Vec<Balance>> {
+    pub async fn get_all_balances(
+        &self,
+        owner: HaneulAddress,
+    ) -> HaneulRpcResult<Vec<Balance>> {
         Ok(self.api.http.get_all_balances(owner).await?)
     }
 
@@ -806,8 +877,11 @@ impl CoinReadApi {
     /// use haneul_sdk::HaneulClientBuilder;
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let coin_metadata = haneul.coin_read_api().get_coin_metadata("0x2::haneul::HANEUL".to_string()).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let coin_metadata = haneul
+    ///         .coin_read_api()
+    ///         .get_coin_metadata("0x2::haneul::HANEUL".to_string())
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -827,12 +901,18 @@ impl CoinReadApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let total_supply = haneul.coin_read_api().get_total_supply("0x2::haneul::HANEUL".to_string()).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let total_supply = haneul
+    ///         .coin_read_api()
+    ///         .get_total_supply("0x2::haneul::HANEUL".to_string())
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
-    pub async fn get_total_supply(&self, coin_type: String) -> HaneulRpcResult<Supply> {
+    pub async fn get_total_supply(
+        &self,
+        coin_type: String,
+    ) -> HaneulRpcResult<Supply> {
         Ok(self.api.http.get_total_supply(coin_type).await?)
     }
 }
@@ -849,13 +929,41 @@ impl EventApi {
     }
 
     /// Return a stream of events, or an error upon failure.
+    ///
+    /// Subscription is only possible via WebSockets.
+    ///
+    /// # Examples
+    ///
+    /// ```rust, no_run
+    /// use futures::StreamExt;
+    /// use std::str::FromStr;
+    /// use haneul_json_rpc_types::EventFilter;
+    /// use haneul_sdk::HaneulClientBuilder;
+    /// use haneul_types::base_types::HaneulAddress;
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), anyhow::Error> {
+    ///     let haneul = HaneulClientBuilder::default()
+    ///         .ws_url("wss://rpc.mainnet.haneul.io:443")
+    ///         .build("https://fullnode.mainnet.haneul.io:443")
+    ///         .await?;
+    ///     let mut subscribe_all = haneul
+    ///         .event_api()
+    ///         .subscribe_event(EventFilter::All(vec![]))
+    ///         .await?;
+    ///     loop {
+    ///         println!("{:?}", subscribe_all.next().await);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
     pub async fn subscribe_event(
         &self,
         filter: EventFilter,
     ) -> HaneulRpcResult<impl Stream<Item = HaneulRpcResult<HaneulEvent>>> {
         match &self.api.ws {
             Some(c) => {
-                let subscription: Subscription<HaneulEvent> = c.subscribe_event(filter).await?;
+                let subscription: Subscription<HaneulEvent> =
+                    c.subscribe_event(filter).await?;
                 Ok(subscription.map(|item| Ok(item?)))
             }
             _ => Err(Error::Subscription(
@@ -865,7 +973,10 @@ impl EventApi {
     }
 
     /// Return a list of events based on the transaction digest, or an error upon failure.
-    pub async fn get_events(&self, digest: TransactionDigest) -> HaneulRpcResult<Vec<HaneulEvent>> {
+    pub async fn get_events(
+        &self,
+        digest: TransactionDigest,
+    ) -> HaneulRpcResult<Vec<HaneulEvent>> {
         Ok(self.api.http.get_events(digest).await?)
     }
 
@@ -900,13 +1011,19 @@ impl EventApi {
                     Some((item, (data, cursor, false, query)))
                 } else if (cursor.is_none() && first) || cursor.is_some() {
                     let page = self
-                        .query_events(query.clone(), cursor, Some(100), descending_order)
+                        .query_events(
+                            query.clone(),
+                            cursor,
+                            Some(100),
+                            descending_order,
+                        )
                         .await
                         .ok()?;
                     let mut data = page.data;
                     data.reverse();
-                    data.pop()
-                        .map(|item| (item, (data, page.next_cursor, false, query)))
+                    data.pop().map(|item| {
+                        (item, (data, page.next_cursor, false, query))
+                    })
                 } else {
                     None
                 }
@@ -939,7 +1056,8 @@ impl QuorumDriverApi {
         request_type: Option<ExecuteTransactionRequestType>,
     ) -> HaneulRpcResult<HaneulTransactionBlockResponse> {
         let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
-        let request_type = request_type.unwrap_or_else(|| options.default_execution_request_type());
+        let request_type = request_type
+            .unwrap_or_else(|| options.default_execution_request_type());
         let mut retry_count = 0;
         let start = Instant::now();
         while retry_count < WAIT_FOR_LOCAL_EXECUTION_RETRY_COUNT {
@@ -988,15 +1106,17 @@ impl GovernanceApi {
     }
 
     /// Return all [DelegatedStake].
-    pub async fn get_stakes(&self, owner: HaneulAddress) -> HaneulRpcResult<Vec<DelegatedStake>> {
+    pub async fn get_stakes(
+        &self,
+        owner: HaneulAddress,
+    ) -> HaneulRpcResult<Vec<DelegatedStake>> {
         Ok(self.api.http.get_stakes(owner).await?)
     }
 
     /// Return the [HaneulCommittee] information for the provided `epoch`, or an error upon failure.
     ///
-    /// # Arguments
     ///
-    /// * `epoch` - the known epoch id or `None` for the last epoch
+    /// The argument `epoch` is the known epoch id or `None` for the last epoch.
     ///
     /// # Examples
     ///
@@ -1005,8 +1125,11 @@ impl GovernanceApi {
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), anyhow::Error> {     
-    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?; // local Haneul network
-    ///     let committee_info = haneul.read_api().get_committee_info(None).await?;
+    ///     let haneul = HaneulClientBuilder::default().build_localnet().await?;
+    ///     let committee_info = haneul
+    ///         .read_api()
+    ///         .get_committee_info(None)
+    ///         .await?;
     ///     Ok(())
     /// }
     /// ```
@@ -1018,7 +1141,9 @@ impl GovernanceApi {
     }
 
     /// Return the latest HANEUL system state object on-chain, or an error upon failure.
-    pub async fn get_latest_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateSummary> {
+    pub async fn get_latest_haneul_system_state(
+        &self,
+    ) -> HaneulRpcResult<HaneulSystemStateSummary> {
         Ok(self.api.http.get_latest_haneul_system_state().await?)
     }
 
