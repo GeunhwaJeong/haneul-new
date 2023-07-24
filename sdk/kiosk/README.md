@@ -1,9 +1,10 @@
 # Kiosk SDK
 
-> **This package is still in active development. Use at your own risk**.
-> Currently, the only supported environment is **Haneul Testnet**.
+> **This package is still in active development. Use at your own risk**. Currently, the only
+> supported environment is **Haneul Testnet**.
 
-This Kiosk SDK library provides different utilities to interact/create/manage a [Kiosk](https://github.com/GeunhwaJeong/haneul/tree/main/kiosk).
+This Kiosk SDK library provides different utilities to interact/create/manage a
+[Kiosk](https://github.com/GeunhwaJeong/haneul/tree/main/kiosk).
 
 ## Installation
 
