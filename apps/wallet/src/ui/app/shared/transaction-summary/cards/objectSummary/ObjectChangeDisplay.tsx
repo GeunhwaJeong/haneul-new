@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type HaneulObjectChangeWithDisplay } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { Text } from '../../../text';
 import ExplorerLink from '_src/ui/app/components/explorer-link';
