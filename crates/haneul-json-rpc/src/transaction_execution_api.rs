@@ -11,7 +11,7 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 
 use haneullabs_metrics::spawn_monitored_task;
-use shared_crypto::intent::Intent;
+use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
@@ -21,19 +21,22 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::default_hash;
+use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::quorum_driver_types::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
 };
 use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_serde::BigInt;
-use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
+use haneul_types::transaction::{
+    InputObjectKind, Transaction, TransactionData, TransactionDataAPI, TransactionKind,
+};
 use tracing::instrument;
 
 use crate::api::JsonRpcMetrics;
 use crate::api::WriteApiServer;
 use crate::error::{Error, HaneulRpcInputError};
-use crate::read_api::get_transaction_data_and_digest;
 use crate::{
     get_balance_changes_from_effect, get_object_changes, with_tracing, ObjectProviderCache,
     HaneulRpcModule,
@@ -58,24 +61,41 @@ impl TransactionExecutionApi {
         }
     }
 
-    async fn execute_transaction_block(
+    pub fn convert_bytes<T: serde::de::DeserializeOwned>(
+        &self,
+        tx_bytes: Base64,
+    ) -> Result<T, HaneulRpcInputError> {
+        let data: T = bcs::from_bytes(&tx_bytes.to_vec()?)?;
+        Ok(data)
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn prepare_execute_transaction_block(
         &self,
         tx_bytes: Base64,
         signatures: Vec<Base64>,
         opts: Option<HaneulTransactionBlockResponseOptions>,
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> Result<HaneulTransactionBlockResponse, Error> {
+    ) -> Result<
+        (
+            HaneulTransactionBlockResponseOptions,
+            ExecuteTransactionRequestType,
+            HaneulAddress,
+            Vec<InputObjectKind>,
+            Transaction,
+            Option<HaneulTransactionBlock>,
+            Vec<u8>,
+        ),
+        HaneulRpcInputError,
+    > {
         let opts = opts.unwrap_or_default();
-
         let request_type = match (request_type, opts.require_local_execution()) {
             (Some(ExecuteTransactionRequestType::WaitForEffectsCert), true) => {
-                return Err(Error::HaneulRpcInputError(
-                    HaneulRpcInputError::InvalidExecuteTransactionRequestType,
-                ));
+                Err(HaneulRpcInputError::InvalidExecuteTransactionRequestType)?
             }
             (t, _) => t.unwrap_or_else(|| opts.default_execution_request_type()),
         };
-        let tx_data: TransactionData = bcs::from_bytes(&tx_bytes.to_vec()?)?;
+        let tx_data: TransactionData = self.convert_bytes(tx_bytes)?;
         let sender = tx_data.sender();
         let input_objs = tx_data.input_objects().unwrap_or_default();
 
@@ -84,7 +104,6 @@ impl TransactionExecutionApi {
             sigs.push(GenericSignature::from_bytes(&sig.to_vec()?)?);
         }
         let txn = Transaction::from_generic_sig_data(tx_data, Intent::haneul_transaction(), sigs);
-        let digest = *txn.digest();
         let raw_transaction = if opts.show_raw_input {
             bcs::to_bytes(txn.data())?
         } else {
@@ -99,6 +118,27 @@ impl TransactionExecutionApi {
         } else {
             None
         };
+        Ok((
+            opts,
+            request_type,
+            sender,
+            input_objs,
+            txn,
+            transaction,
+            raw_transaction,
+        ))
+    }
+
+    async fn execute_transaction_block(
+        &self,
+        tx_bytes: Base64,
+        signatures: Vec<Base64>,
+        opts: Option<HaneulTransactionBlockResponseOptions>,
+        request_type: Option<ExecuteTransactionRequestType>,
+    ) -> Result<HaneulTransactionBlockResponse, Error> {
+        let (opts, request_type, sender, input_objs, txn, transaction, raw_transaction) =
+            self.prepare_execute_transaction_block(tx_bytes, signatures, opts, request_type)?;
+        let digest = *txn.digest();
 
         let transaction_orchestrator = self.transaction_orchestrator.clone();
         let orch_timer = self.metrics.orchestrator_latency_ms.start_timer();
@@ -169,12 +209,30 @@ impl TransactionExecutionApi {
         })
     }
 
+    pub fn prepare_dry_run_transaction_block(
+        &self,
+        tx_bytes: Base64,
+    ) -> Result<(TransactionData, TransactionDigest, Vec<InputObjectKind>), HaneulRpcInputError> {
+        let tx_data: TransactionData = self.convert_bytes(tx_bytes)?;
+        let input_objs = tx_data.input_objects()?;
+        let intent_msg = IntentMessage::new(
+            Intent {
+                version: IntentVersion::V0,
+                scope: IntentScope::TransactionData,
+                app_id: AppId::Haneul,
+            },
+            tx_data,
+        );
+        let txn_digest = TransactionDigest::new(default_hash(&intent_msg.value));
+        Ok((intent_msg.value, txn_digest, input_objs))
+    }
+
     async fn dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
     ) -> Result<DryRunTransactionBlockResponse, Error> {
-        let (txn_data, txn_digest) = get_transaction_data_and_digest(tx_bytes)?;
-        let input_objs = txn_data.input_objects()?;
+        let (txn_data, txn_digest, input_objs) =
+            self.prepare_dry_run_transaction_block(tx_bytes)?;
         let sender = txn_data.sender();
         let (resp, written_objects, transaction_effects, mock_gas) = self
             .state
@@ -232,8 +290,7 @@ impl WriteApiServer for TransactionExecutionApi {
         _epoch: Option<BigInt<u64>>,
     ) -> RpcResult<DevInspectResults> {
         with_tracing!(async move {
-            let tx_kind: TransactionKind =
-                bcs::from_bytes(&tx_bytes.to_vec().map_err(Error::from)?).map_err(Error::from)?;
+            let tx_kind: TransactionKind = self.convert_bytes(tx_bytes)?;
             self.state
                 .dev_inspect_transaction_block(sender_address, tx_kind, gas_price.map(|i| *i))
                 .await

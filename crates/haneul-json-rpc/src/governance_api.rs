@@ -91,20 +91,20 @@ impl GovernanceReadApi {
                         .await?
                     {
                         Some(o) => stakes.push((StakedHaneul::try_from(&o)?, false)),
-                        None => {
-                            return Err(Error::UserInputError(UserInputError::ObjectNotFound {
+                        None => Err(HaneulRpcInputError::UserInputError(
+                            UserInputError::ObjectNotFound {
                                 object_id: oref.0,
                                 version: None,
-                            }));
-                        }
+                            },
+                        ))?,
                     }
                 }
-                ObjectRead::NotExists(id) => {
-                    return Err(Error::UserInputError(UserInputError::ObjectNotFound {
+                ObjectRead::NotExists(id) => Err(HaneulRpcInputError::UserInputError(
+                    UserInputError::ObjectNotFound {
                         object_id: id,
                         version: None,
-                    }));
-                }
+                    },
+                ))?,
             }
         }
 
