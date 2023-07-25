@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_core_types::ident_str;
-use shared_crypto::intent::Intent;
+use shared_crypto::intent::{Intent, IntentMessage};
 use std::path::PathBuf;
 use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::BuildConfig;
@@ -13,7 +13,10 @@ use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, Signature, Signer};
 use haneul_types::digests::TransactionDigest;
+use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
+use haneul_types::multisig_legacy::{MultiSigLegacy, MultiSigPublicKeyLegacy};
 use haneul_types::object::Owner;
+use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     CallArg, ObjectArg, ProgrammableTransaction, Transaction, TransactionData,
@@ -277,6 +280,47 @@ impl TestTransactionBuilder {
 
     pub fn build_and_sign(self, signer: &dyn Signer<Signature>) -> Transaction {
         Transaction::from_data_and_signer(self.build(), Intent::haneul_transaction(), vec![signer])
+    }
+
+    pub fn build_and_sign_multisig(
+        self,
+        multisig_pk: MultiSigPublicKey,
+        signers: &[&dyn Signer<Signature>],
+    ) -> Transaction {
+        let data = self.build();
+        let intent = Intent::haneul_transaction();
+        let intent_msg = IntentMessage::new(intent.clone(), data.clone());
+
+        let mut signatures = Vec::with_capacity(signers.len());
+        for signer in signers {
+            signatures.push(Signature::new_secure(&intent_msg, *signer));
+        }
+
+        let multisig =
+            GenericSignature::MultiSig(MultiSig::combine(signatures, multisig_pk).unwrap());
+
+        Transaction::from_generic_sig_data(data, intent, vec![multisig])
+    }
+
+    pub fn build_and_sign_multisig_legacy(
+        self,
+        multisig_pk: MultiSigPublicKeyLegacy,
+        signers: &[&dyn Signer<Signature>],
+    ) -> Transaction {
+        let data = self.build();
+        let intent = Intent::haneul_transaction();
+        let intent_msg = IntentMessage::new(intent.clone(), data.clone());
+
+        let mut signatures = Vec::with_capacity(signers.len());
+        for signer in signers {
+            signatures.push(Signature::new_secure(&intent_msg, *signer));
+        }
+
+        let multisig = GenericSignature::MultiSigLegacy(
+            MultiSigLegacy::combine(signatures, multisig_pk).unwrap(),
+        );
+
+        Transaction::from_generic_sig_data(data, intent, vec![multisig])
     }
 }
 
