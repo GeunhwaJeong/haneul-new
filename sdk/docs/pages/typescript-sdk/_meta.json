@@ -1,5 +1,8 @@
 {
-	"index": "Typescript SDK",
+	"index": "Haneul Typescript SDK",
+	"install": "Install",
+	"connect": "Connect to a Haneul Network",
+	"hello-haneul": "Hello, Haneul",
 	"faucet": "Faucet",
 	"haneul-client": "HaneulClient",
 	"transaction-building": "Transaction Building",
