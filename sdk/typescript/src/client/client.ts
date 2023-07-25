@@ -55,7 +55,8 @@ import {
 } from '../utils/haneul-types.js';
 import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
 import type { SerializedSignature } from '../cryptography/signature.js';
-import { TransactionBlock } from '../builder/index.js';
+import type { TransactionBlock } from '../builder/index.js';
+import { isTransactionBlock } from '../builder/index.js';
 import { HaneulHTTPTransport } from './http-transport.js';
 import type { HaneulTransport } from './http-transport.js';
 import type { Keypair } from '../cryptography/index.js';
@@ -569,7 +570,7 @@ export class HaneulClient {
 		epoch?: string | null;
 	}): Promise<DevInspectResults> {
 		let devInspectTxBytes;
-		if (TransactionBlock.is(input.transactionBlock)) {
+		if (isTransactionBlock(input.transactionBlock)) {
 			input.transactionBlock.setSenderIfNotSet(input.sender);
 			devInspectTxBytes = toB64(
 				await input.transactionBlock.build({

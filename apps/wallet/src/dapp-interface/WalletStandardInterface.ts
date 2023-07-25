@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { isTransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { toB64, fromB64 } from '@haneullabs/haneul.js/utils';
 import {
 	HANEUL_CHAINS,
@@ -234,7 +234,7 @@ export class HaneulWallet implements Wallet {
 	};
 
 	#signTransactionBlock: HaneulSignTransactionBlockMethod = async (input) => {
-		if (!TransactionBlock.is(input.transactionBlock)) {
+		if (!isTransactionBlock(input.transactionBlock)) {
 			throw new Error(
 				'Unexpect transaction format found. Ensure that you are using the `Transaction` class.',
 			);
@@ -256,7 +256,7 @@ export class HaneulWallet implements Wallet {
 	};
 
 	#signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod = async (input) => {
-		if (!TransactionBlock.is(input.transactionBlock)) {
+		if (!isTransactionBlock(input.transactionBlock)) {
 			throw new Error(
 				'Unexpect transaction format found. Ensure that you are using the `Transaction` class.',
 			);
