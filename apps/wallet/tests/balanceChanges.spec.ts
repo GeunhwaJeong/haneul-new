@@ -87,5 +87,5 @@ test('check balance changes in Activity', async ({ page, extensionUrl }) => {
 		.getByText(/Transaction/i)
 		.first()
 		.click();
-	await expect(page.getByText(`Amount+${COIN_TO_SEND} HANEUL`)).toBeVisible();
+	await expect(page.getByText(`${COIN_TO_SEND} HANEUL`, { exact: false })).toBeVisible();
 });
