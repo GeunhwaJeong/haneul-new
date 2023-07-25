@@ -14,21 +14,15 @@ use tokio::runtime::Runtime;
 
 use haneul_indexer::metrics::IndexerMetrics;
 use haneul_indexer::models::checkpoints::Checkpoint;
-use haneul_indexer::models::objects::{NamedBcsBytes, Object as DBObject, ObjectStatus};
-use haneul_indexer::models::owners::OwnerType;
 use haneul_indexer::models::transactions::Transaction;
 use haneul_indexer::new_pg_connection_pool;
-use haneul_indexer::store::{
-    IndexerStore, PgIndexerStore, TemporaryCheckpointStore, TransactionObjectChanges,
-};
+use haneul_indexer::store::{IndexerStore, PgIndexerStore, TemporaryCheckpointStore};
 use haneul_indexer::utils::reset_database;
 use haneul_json_rpc_types::CheckpointId;
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages_checkpoint::CheckpointDigest;
-use haneul_types::object::Object;
 use haneul_types::transaction::{TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
 
 fn indexer_benchmark(c: &mut Criterion) {
@@ -83,10 +77,6 @@ fn create_checkpoint(sequence_number: i64) -> TemporaryCheckpointStore {
             .map(|_| create_transaction(sequence_number))
             .collect(),
         events: vec![],
-        object_changes: vec![TransactionObjectChanges {
-            changed_objects: (1..1000).map(|_| create_object(sequence_number)).collect(),
-            deleted_objects: vec![],
-        }],
         packages: vec![],
         input_objects: vec![],
         changed_objects: vec![],
@@ -137,32 +127,6 @@ fn create_transaction(sequence_number: i64) -> Transaction {
     }
 }
 
-fn create_object(sequence_number: i64) -> DBObject {
-    DBObject {
-        epoch: 0,
-        checkpoint: sequence_number,
-        object_id: ObjectID::random().to_string(),
-        version: 0,
-        object_digest: ObjectDigest::random().to_string(),
-        owner_type: OwnerType::AddressOwner,
-        owner_address: Some(HaneulAddress::random_for_testing_only().to_string()),
-        initial_shared_version: None,
-        previous_transaction: TransactionDigest::random().base58_encode(),
-        object_type: GasCoin::type_().to_string(),
-        object_status: ObjectStatus::Created,
-        has_public_transfer: true,
-        storage_rebate: 0,
-        bcs: vec![NamedBcsBytes(
-            "data".to_string(),
-            Object::new_gas_for_testing()
-                .data
-                .try_as_move()
-                .unwrap()
-                .contents()
-                .to_vec(),
-        )],
-    }
-}
 criterion_group! {
     name = benches;
     config = Criterion::default().sample_size(50).measurement_time(Duration::from_secs(10));

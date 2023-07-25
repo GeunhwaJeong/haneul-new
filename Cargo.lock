@@ -9750,6 +9750,7 @@ dependencies = [
  "haneul-sdk",
  "haneul-test-transaction-builder",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "test-cluster",
  "thiserror",
