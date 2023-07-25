@@ -4,14 +4,12 @@
 import { fromB64 } from '@haneullabs/bcs';
 import { is, mask } from 'superstruct';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
-import type { HaneulMoveNormalizedType, ProtocolConfig } from '../types/index.js';
 import {
 	extractMutableReference,
 	extractStructTag,
 	getObjectReference,
 	getSharedObjectInitialVersion,
 	HaneulObjectRef,
-	HANEUL_TYPE_ARG,
 } from '../types/index.js';
 import type { TransactionArgument, TransactionType, MoveCallTransaction } from './Transactions.js';
 import { Transactions, TransactionBlockInput, getTransactionType } from './Transactions.js';
@@ -28,8 +26,9 @@ import type { TransactionExpiration } from './TransactionBlockData.js';
 import { TransactionBlockDataBuilder } from './TransactionBlockData.js';
 import type { WellKnownEncoding } from './utils.js';
 import { TRANSACTION_TYPE, create } from './utils.js';
-import type { HaneulClient } from '../client/index.js';
+import type { ProtocolConfig, HaneulClient, HaneulMoveNormalizedType } from '../client/index.js';
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
+import { HANEUL_TYPE_ARG } from '../framework/framework.js';
 
 type TransactionResult = TransactionArgument & TransactionArgument[];
 

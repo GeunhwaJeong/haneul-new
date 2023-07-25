@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isValidHaneulAddress } from '../utils/haneul-types.js';
-import type { HaneulJsonValue, HaneulMoveNormalizedType } from '../types/index.js';
+import { extractStructTag } from '../types/index.js';
 import {
-	extractStructTag,
 	ID_STRUCT_NAME,
 	MOVE_STDLIB_ADDRESS,
 	OBJECT_MODULE_NAME,
 	HANEUL_FRAMEWORK_ADDRESS,
-} from '../types/index.js';
+} from '../framework/framework.js';
+import type { HaneulJsonValue, HaneulMoveNormalizedType } from '../client/index.js';
 
 const STD_ASCII_MODULE_NAME = 'ascii';
 const STD_ASCII_STRUCT_NAME = 'String';

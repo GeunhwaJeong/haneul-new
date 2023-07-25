@@ -4,8 +4,9 @@
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import { TransactionBlock } from '../builder/index.js';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
-import { getObjectReference, HANEUL_SYSTEM_ADDRESS } from '../types/index.js';
+import { getObjectReference } from '../types/index.js';
 import type { HaneulClient } from '../client/index.js';
+import { HANEUL_SYSTEM_ADDRESS } from './framework.js';
 
 /**
  * Address of the Haneul System object.
