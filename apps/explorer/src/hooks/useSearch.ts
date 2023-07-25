@@ -7,8 +7,6 @@ import {
 	isValidHaneulAddress,
 	isValidHaneulObjectId,
 	normalizeHaneulObjectId,
-	is,
-	HaneulObjectData,
 	getTransactionDigest,
 	type HaneulSystemStateSummary,
 } from '@haneullabs/haneul.js';
@@ -36,7 +34,7 @@ const getResultsForObject = async (client: HaneulClient, query: string) => {
 	if (!isValidHaneulObjectId(normalized)) return null;
 
 	const { data, error } = await client.getObject({ id: normalized });
-	if (!is(data, HaneulObjectData) || error) return null;
+	if (!data || error) return null;
 
 	return [
 		{

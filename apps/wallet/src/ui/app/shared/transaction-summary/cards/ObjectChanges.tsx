@@ -9,12 +9,7 @@ import {
 	type HaneulObjectChangeTypes,
 } from '@haneullabs/core';
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
-import {
-	HaneulObjectChangeTransferred,
-	formatAddress,
-	is,
-	HaneulObjectChangePublished,
-} from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js';
 import cx from 'classnames';
 
 import { ObjectChangeDisplay } from './objectSummary/ObjectChangeDisplay';
@@ -41,9 +36,10 @@ export function ObjectDetail({
 	ownerKey: string;
 	display?: boolean;
 }) {
-	if (is(change, HaneulObjectChangeTransferred) || is(change, HaneulObjectChangePublished)) {
+	if (change.type === 'transferred' || change.type === 'published') {
 		return null;
 	}
+
 	const [packageId, moduleName, typeName] = change.objectType?.split('<')[0]?.split('::') || [];
 
 	return (

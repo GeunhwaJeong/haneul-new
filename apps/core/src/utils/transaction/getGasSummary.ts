@@ -4,10 +4,7 @@ import {
 	DryRunTransactionBlockResponse,
 	GasCostSummary,
 	HaneulTransactionBlockResponse,
-	getGasData,
 	getTotalGasUsed,
-	getTransactionSender,
-	is,
 	HaneulGasData,
 } from '@haneullabs/haneul.js';
 
@@ -32,17 +29,16 @@ export function getGasSummary(
 	if (!effects) return null;
 	const totalGas = getTotalGasUsed(effects);
 
-	let sender = is(transaction, HaneulTransactionBlockResponse)
-		? getTransactionSender(transaction)
-		: undefined;
+	let sender = 'transaction' in transaction ? transaction.transaction?.data.sender : undefined;
 
-	const owner = is(transaction, HaneulTransactionBlockResponse)
-		? getGasData(transaction)?.owner
-		: typeof effects.gasObject.owner === 'object' && 'AddressOwner' in effects.gasObject.owner
-		? effects.gasObject.owner.AddressOwner
-		: '';
+	const gasData = 'transaction' in transaction ? transaction.transaction?.data.gasData : {};
 
-	const gasData = is(transaction, HaneulTransactionBlockResponse) ? getGasData(transaction) : {};
+	const owner =
+		'transaction' in transaction
+			? transaction.transaction?.data.gasData.owner
+			: typeof effects.gasObject.owner === 'object' && 'AddressOwner' in effects.gasObject.owner
+			? effects.gasObject.owner.AddressOwner
+			: '';
 
 	return {
 		...effects.gasUsed,

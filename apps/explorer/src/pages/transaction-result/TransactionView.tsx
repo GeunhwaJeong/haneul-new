@@ -11,11 +11,6 @@ import {
 } from '@haneullabs/haneul.js';
 import clsx from 'clsx';
 
-// import {
-//     eventToDisplay,
-//     getAddressesLinks,
-// } from '../../components/events/eventDisplay';
-
 import { Signatures } from './Signatures';
 import { ErrorBoundary } from '~/components/error-boundary/ErrorBoundary';
 import { useBreakpoint } from '~/hooks/useBreakpoint';
