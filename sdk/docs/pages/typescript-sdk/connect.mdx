@@ -38,3 +38,18 @@ await haneulClient.getCoins({
 For local development, you can run `cargo run --bin haneul-test-validator` to spin up a local network
 with a local validator, a Full node, and a faucet server. Refer to
 [the Local Network guide](https://docs.haneul.io/build/haneul-local-network) for more information.
+
+## Getting a fullnode URL programmatically
+
+the `getFullnodeUrl` helper can be used to get the default fullnode URL for a given network. It
+supports `localnet`, `devnet`, `testnet`, and `mainnet`.
+
+```typescript
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+const haneulNetwork = getFullnodeUrl('testnet');
+const haneulClient = new HaneulClient({ url: haneulNetwork });
+// get tokens from the Testnet faucet server
+await haneulClient.getCoins({
+	owner: '<OWNER_ADDRESS>',
+});
+```
