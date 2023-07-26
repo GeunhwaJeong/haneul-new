@@ -119,7 +119,7 @@ export {
 export {
 	/** @deprecated This type will be removed because it cant accurately represent parsed signatures */
 	type SignaturePubkeyPair,
-	/** @deprecated use `publicKeyFromBytes` from `@haneullabs/haneul.j/verify` instead */
+	/** @deprecated use `publicKeyFromRawBytes` from `@haneullabs/haneul.j/verify` instead */
 	publicKeyFromSerialized,
 	/** @deprecated use `parseSerializedSignature` from `@haneullabs/haneul.j/cryptography` instead */
 	toParsedSignaturePubkeyPair,

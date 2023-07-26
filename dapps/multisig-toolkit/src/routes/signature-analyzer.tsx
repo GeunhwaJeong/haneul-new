@@ -10,7 +10,7 @@ import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { publicKeyFromBytes } from '@haneullabs/haneul.js/verify';
+import { publicKeyFromRawBytes } from '@haneullabs/haneul.js/verify';
 import { parsePartialSignatures } from '@haneullabs/haneul.js/multisig';
 
 interface SignaturePubkeyPair {
@@ -115,7 +115,7 @@ export default function SignatureAnalyzer() {
 							setListSignaturePubkeys([
 								{
 									signatureScheme: parsedSignature.signatureScheme,
-									publicKey: publicKeyFromBytes(
+									publicKey: publicKeyFromRawBytes(
 										parsedSignature.signatureScheme,
 										parsedSignature.publicKey,
 									),
