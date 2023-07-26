@@ -12,7 +12,7 @@ import { getObjectFields, getObjectId, getObjectType } from '../types/objects.js
 import type { Option } from '../types/option.js';
 import { getOption } from '../types/option.js';
 import type { CoinStruct } from '../types/coin.js';
-import type { StructTag } from '../types/haneul-bcs.js';
+import type { StructTag } from '../bcs/index.js';
 import type { Infer } from 'superstruct';
 import { nullable, number, object, string } from 'superstruct';
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';

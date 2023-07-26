@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import { getAmount } from '_helpers';
 
-import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 export function useGetTransferAmount({
 	txn,

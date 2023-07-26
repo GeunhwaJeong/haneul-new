@@ -4,7 +4,7 @@
 import { toB64 } from '@haneullabs/bcs';
 import { IntentScope, messageWithIntent } from './intent.js';
 import { blake2b } from '@noble/hashes/blake2b';
-import { bcs } from '../types/haneul-bcs.js';
+import { bcs } from '../bcs/index.js';
 import type { SerializedSignature } from './index.js';
 import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../utils/haneul-types.js';
 import { bytesToHex } from '@noble/hashes/utils';

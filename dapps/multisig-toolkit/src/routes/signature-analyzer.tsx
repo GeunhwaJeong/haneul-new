@@ -4,7 +4,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { toB64 } from '@haneullabs/haneul.js';
+import { toB64 } from '@haneullabs/haneul.js/utils';
 import { PublicKey, SignatureScheme, parseSerializedSignature } from '@haneullabs/haneul.js/cryptography';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';

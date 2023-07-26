@@ -3,7 +3,7 @@
 
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Copy12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { useActiveAddress } from '../hooks/useActiveAddress';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';

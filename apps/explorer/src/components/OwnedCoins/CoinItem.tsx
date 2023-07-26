@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin } from '@haneullabs/core';
-import { type CoinStruct } from '@haneullabs/haneul.js';
+import { type CoinStruct } from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
 
 import { ObjectLink } from '~/ui/InternalLink';

@@ -14,8 +14,8 @@ import {
 	type HaneulObjectChangePublished,
 	type HaneulObjectChange,
 	type DisplayFieldsResponse,
-	parseStructTag,
-} from '@haneullabs/haneul.js';
+} from '@haneullabs/haneul.js/client';
+import { parseStructTag } from '@haneullabs/haneul.js/utils';
 import { Text } from '@haneullabs/ui';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import clsx from 'clsx';

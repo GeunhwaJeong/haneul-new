@@ -4,7 +4,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpc } from '../context/RpcClientContext';
-import { PaginatedObjectsResponse, HaneulAddress, getObjectId, getObjectType } from '@haneullabs/haneul.js';
+import { getObjectId, getObjectType } from '@haneullabs/haneul.js';
+import { PaginatedObjectsResponse } from '@haneullabs/haneul.js/client';
 import { parseObjectDisplays } from '../utils/utils';
 import { TANSTACK_OWNED_OBJECTS_KEY } from '../utils/constants';
 
@@ -13,8 +14,8 @@ export function useOwnedObjects({
 	cursor = undefined,
 	limit = 50,
 }: {
-	address: HaneulAddress;
-	cursor?: HaneulAddress;
+	address: string;
+	cursor?: string;
 	limit?: number;
 }) {
 	const provider = useRpc();

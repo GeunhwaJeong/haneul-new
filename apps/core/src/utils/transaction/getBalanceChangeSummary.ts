@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import {
-	ObjectOwner,
+	type ObjectOwner,
 	type DryRunTransactionBlockResponse,
 	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
+} from '@haneullabs/haneul.js/client';
 import { normalizeHaneulObjectId, parseStructTag } from '@haneullabs/haneul.js/utils';
 
 export type BalanceChange = {

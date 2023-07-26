@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectDataOptions } from '@haneullabs/haneul.js';
+import { HaneulObjectDataOptions } from '@haneullabs/haneul.js/client';
 import { useRpcClient } from '../api/RpcClientContext';
 import { useQuery } from '@tanstack/react-query';
 import { chunkArray } from '../utils/chunkArray';

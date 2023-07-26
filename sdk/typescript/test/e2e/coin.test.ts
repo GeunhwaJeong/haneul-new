@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import { Coin, normalizeHaneulObjectId } from '../../src';
+import { Coin } from '../../src';
+import { normalizeHaneulObjectId } from '../../src/utils';
 
 import { setup } from './utils/setup';
 

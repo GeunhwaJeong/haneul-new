@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useGetValidatorsApy, useGetValidatorsEvents, useGetSystemState } from '@haneullabs/core';
-import { type HaneulSystemStateSummary } from '@haneullabs/haneul.js';
+import { type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import { LoadingIndicator, Text } from '@haneullabs/ui';
 import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';

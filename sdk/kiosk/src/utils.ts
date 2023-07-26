@@ -3,7 +3,7 @@
 
 import { SharedObjectRef, HaneulObjectRef, HaneulObjectResponse, getObjectFields } from '@haneullabs/haneul.js';
 import { TransactionBlock, TransactionArgument } from '@haneullabs/haneul.js/transactions';
-import { type DynamicFieldInfo } from '@haneullabs/haneul.js';
+import { type DynamicFieldInfo } from '@haneullabs/haneul.js/client';
 import { bcs } from './bcs';
 import { KIOSK_TYPE, Kiosk, KioskData, KioskListing, RulesEnvironmentParam } from './types';
 import { MAINNET_RULES_PACKAGE_ADDRESS, TESTNET_RULES_PACKAGE_ADDRESS } from './constants';

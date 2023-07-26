@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useWalletKit } from '@haneullabs/wallet-kit';
-import { HaneulTransactionBlockResponseOptions, getExecutionStatus } from '@haneullabs/haneul.js';
+import { getExecutionStatus } from '@haneullabs/haneul.js';
+import { HaneulTransactionBlockResponseOptions } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { useRpc } from '../context/RpcClientContext';

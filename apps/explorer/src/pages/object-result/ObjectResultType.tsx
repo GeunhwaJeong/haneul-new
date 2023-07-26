@@ -13,7 +13,7 @@ import {
 
 import { parseObjectType } from '../../utils/objectUtils';
 
-import type { HaneulObjectResponse, ObjectOwner } from '@haneullabs/haneul.js';
+import type { HaneulObjectResponse, ObjectOwner } from '@haneullabs/haneul.js/client';
 
 export type DataType = {
 	id: string;

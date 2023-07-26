@@ -6,7 +6,7 @@ import { getObjectFields } from '@haneullabs/haneul.js';
 import useFileExtensionType from './useFileExtensionType';
 import useMediaUrl from './useMediaUrl';
 
-import type { HaneulObjectData } from '@haneullabs/haneul.js';
+import type { HaneulObjectData } from '@haneullabs/haneul.js/client';
 
 export default function useNFTBasicData(nftObj: HaneulObjectData | null) {
 	const nftObjectID = nftObj?.objectId || null;

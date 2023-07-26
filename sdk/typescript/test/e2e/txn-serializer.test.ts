@@ -8,10 +8,10 @@ import {
 	getSharedObjectInitialVersion,
 	isMutableSharedObjectInput,
 	isSharedObjectInput,
-	HaneulObjectData,
-	HaneulTransactionBlockResponse,
 	HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from '../../src';
+
+import { HaneulObjectData, HaneulTransactionBlockResponse } from '../../src/client';
 import { TransactionBlock } from '../../src/builder';
 import { TransactionBlockDataBuilder } from '../../src/builder/TransactionBlockData';
 import { publishPackage, setup, TestToolbox } from './utils/setup';

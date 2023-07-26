@@ -3,7 +3,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { publishPackage, setup, TestToolbox } from './utils/setup';
-import { HaneulObjectData } from '../../src';
+import { HaneulObjectData } from '../../src/client';
 
 describe('Dynamic Fields Reading API', () => {
 	let toolbox: TestToolbox;

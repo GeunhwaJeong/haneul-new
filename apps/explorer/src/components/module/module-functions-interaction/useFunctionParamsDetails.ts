@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 import { getNormalizedFunctionParameterTypeDetails } from '../utils';
 
-import type { HaneulMoveNormalizedType } from '@haneullabs/haneul.js';
+import type { HaneulMoveNormalizedType } from '@haneullabs/haneul.js/client';
 
 export function useFunctionParamsDetails(
 	params: HaneulMoveNormalizedType[],

@@ -19,7 +19,7 @@ import { CountDownTimer } from '_src/ui/app/shared/countdown-timer';
 import { Text } from '_src/ui/app/shared/text';
 import { IconTooltip } from '_src/ui/app/shared/tooltip';
 
-import type { HaneulEvent } from '@haneullabs/haneul.js';
+import type { HaneulEvent } from '@haneullabs/haneul.js/client';
 
 type StakeTxnCardProps = {
 	event: HaneulEvent;

@@ -3,7 +3,7 @@
 
 import { useRpcClient } from '@haneullabs/core';
 import { X12, QrCode } from '@haneullabs/icons';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 import { cx } from 'class-variance-authority';
 import { useField, useFormikContext } from 'formik';

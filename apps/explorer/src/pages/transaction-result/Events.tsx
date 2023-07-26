@@ -2,12 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ChevronRight12 } from '@haneullabs/icons';
-import {
-	formatAddress,
-	parseStructTag,
-	type HaneulEvent,
-	type TransactionEvents,
-} from '@haneullabs/haneul.js';
+import { type HaneulEvent } from '@haneullabs/haneul.js/client';
+import { parseStructTag, formatAddress } from '@haneullabs/haneul.js/utils';
 import { Text } from '@haneullabs/ui';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import clsx from 'clsx';
@@ -71,7 +67,7 @@ function Event({ event, divider }: { event: HaneulEvent; divider: boolean }) {
 }
 
 interface EventsProps {
-	events: TransactionEvents;
+	events: HaneulEvent[];
 }
 
 export function Events({ events }: EventsProps) {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { splitGenericParameters } from '@haneullabs/bcs';
-import type { TypeTag } from '../types/index.js';
+import type { TypeTag } from '../bcs/index.js';
 import { normalizeHaneulAddress } from '../utils/haneul-types.js';
 
 const VECTOR_REGEX = /^vector<(.+)>$/;

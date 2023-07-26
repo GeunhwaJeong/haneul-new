@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulNSName } from '@haneullabs/core';
-import { formatAddress, formatDigest } from '@haneullabs/haneul.js';
+import { formatAddress, formatDigest } from '@haneullabs/haneul.js/utils';
 
 import { Link, type LinkProps } from '~/ui/Link';
 

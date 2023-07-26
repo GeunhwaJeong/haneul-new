@@ -19,11 +19,7 @@ import { Text } from '_app/shared/text';
 import { useGetTxnRecipientAddress } from '_hooks';
 import { useRecognizedPackages } from '_src/ui/app/hooks/useRecognizedPackages';
 
-import type {
-	// HaneulEvent,
-	HaneulTransactionBlockResponse,
-	// TransactionEvents,
-} from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 export function TransactionCard({
 	txn,

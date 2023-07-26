@@ -11,7 +11,7 @@ import {
 import { LinkGroup } from './LinkGroup';
 import { Banner } from '~/ui/Banner';
 
-import type { HaneulTransactionBlockResponse, OwnedObjectRef } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse, OwnedObjectRef } from '@haneullabs/haneul.js/client';
 
 function toObjectLink(object: OwnedObjectRef) {
 	return {

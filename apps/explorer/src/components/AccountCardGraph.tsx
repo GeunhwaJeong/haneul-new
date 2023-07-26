@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { formatAmount, formatDate } from '@haneullabs/core';
-import { type AllEpochsAddressMetrics } from '@haneullabs/haneul.js';
+import { type AllEpochsAddressMetrics } from '@haneullabs/haneul.js/client';
 import { Heading, LoadingIndicator, Text } from '@haneullabs/ui';
 import { ParentSize } from '@visx/responsive';
 import clsx from 'clsx';

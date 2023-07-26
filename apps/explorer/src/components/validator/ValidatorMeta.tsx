@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ArrowUpRight12 } from '@haneullabs/icons';
-import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Heading, Text } from '@haneullabs/ui';
 
 import { StakeButton } from './StakeButton';

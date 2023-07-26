@@ -4,7 +4,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { ChevronDown12, Copy12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { AccountList } from './AccountList';
 import { useAccounts } from '../hooks/useAccounts';

@@ -4,7 +4,7 @@
 import { useRpcClient } from '@haneullabs/core';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import type { TransactionFilter } from '@haneullabs/haneul.js';
+import type { TransactionFilter } from '@haneullabs/haneul.js/client';
 
 export const DEFAULT_TRANSACTIONS_LIMIT = 20;
 

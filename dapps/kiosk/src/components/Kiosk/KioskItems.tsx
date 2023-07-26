@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useKiosk, useOwnedKiosk } from '../../hooks/kiosk';
 import { KioskNotFound } from './KioskNotFound';
 import { useWalletKit } from '@haneullabs/wallet-kit';
-import { normalizeHaneulAddress } from '@haneullabs/haneul.js';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 export function KioskItems({ kioskId }: { kioskId?: string }) {
 	const location = useLocation();

@@ -4,7 +4,7 @@
 import { useRpcClient } from '@haneullabs/core';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-import type { DelegatedStake } from '@haneullabs/haneul.js';
+import type { DelegatedStake } from '@haneullabs/haneul.js/client';
 
 export function useGetDelegatedStake(address: string): UseQueryResult<DelegatedStake[], Error> {
 	const rpc = useRpcClient();

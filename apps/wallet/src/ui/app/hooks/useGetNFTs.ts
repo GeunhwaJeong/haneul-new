@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { hasDisplayData, isKioskOwnerToken, useGetOwnedObjects } from '@haneullabs/core';
-import { type HaneulObjectData } from '@haneullabs/haneul.js';
+import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
 
 export function useGetNFTs(address?: string | null) {
 	const {

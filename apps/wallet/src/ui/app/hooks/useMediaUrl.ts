@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 
-import type { HaneulParsedData } from '@haneullabs/haneul.js';
+import type { HaneulParsedData } from '@haneullabs/haneul.js/client';
 
 export const parseIpfsUrl = (ipfsUrl: string) =>
 	ipfsUrl.replace(/^ipfs:\/\//, 'https://ipfs.io/ipfs/');

@@ -9,7 +9,7 @@ import {
 	DisplayFieldsResponse,
 	HaneulObjectChangeDeleted,
 	HaneulObjectChangeWrapped,
-} from '@haneullabs/haneul.js';
+} from '@haneullabs/haneul.js/client';
 import { groupByOwner } from './groupByOwner';
 import { HaneulObjectChangeTypes } from './types';
 

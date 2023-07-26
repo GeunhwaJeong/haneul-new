@@ -6,7 +6,7 @@ import { ModalBase } from './Base';
 import { OwnedObjectType } from '../Inventory/OwnedObjects';
 import { DisplayObjectThumbnail } from '../DisplayObjectThumbnail';
 import { Button } from '../Base/Button';
-import { GEUNHWA_PER_HANEUL, ObjectId } from '@haneullabs/haneul.js';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js';
 import { usePlaceAndListMutation } from '../../mutations/kiosk';
 
 export interface ListPriceProps {
@@ -14,7 +14,7 @@ export interface ListPriceProps {
 	onSuccess: () => void;
 	closeModal: () => void;
 	listAndPlace?: boolean;
-	kioskId: ObjectId;
+	kioskId: string;
 }
 export function ListPrice({ item, onSuccess, closeModal, listAndPlace, kioskId }: ListPriceProps) {
 	const [price, setPrice] = useState<string>('');

@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { getObjectDisplay, HaneulObjectData } from '../../src';
+import { getObjectDisplay } from '../../src';
+import { HaneulObjectData } from '../../src/client';
 import { publishPackage, setup, TestToolbox } from './utils/setup';
 
 describe('Test Object Display Standard', () => {

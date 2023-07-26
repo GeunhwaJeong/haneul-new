@@ -3,7 +3,7 @@
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useRpcClient } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { FEATURES } from '_src/shared/experimentation/features';

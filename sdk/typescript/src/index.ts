@@ -2,6 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fromExportedKeypair } from './cryptography/utils.js';
+import { ECMHLiveObjectSetDigest, ExecutionDigests } from './types/checkpoints.js';
+import { GEUNHWA_PER_HANEUL, HANEUL_DECIMALS } from './types/objects.js';
+import {
+	AuthorityQuorumSignInfo,
+	GenericAuthoritySignature,
+	HaneulTransactionBlockKind,
+} from './types/transactions.js';
+
+// all exports deprecated, non-deprecated imports exported separately below
+export * from './types/index.js';
 
 export {
 	/** @deprecated Import from `@haneullabs/haneul.js/keypairs/ed5519` instead */
@@ -243,7 +253,7 @@ export {
 	/** @deprecated messages are now signed through the KeyPair classes */
 	type SignedMessage,
 	/**
-	 * deprecated transactions are now signed through the KeyPair classes
+	 * @deprecated transactions are now signed through the KeyPair classes
 	 * or signed and executed directly using the HaneulClient
 	 */
 	type SignedTransaction,
@@ -260,78 +270,428 @@ export {
 	TransactionBlock,
 	/** @deprecated Import from `@haneullabs/haneul.js/transactions` instead */
 	TransactionArgument,
+
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ARGUMENT,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ARGUMENT_INNER,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	BuilderCallArg,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	CALL_ARG,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	COMPRESSED_SIGNATURE,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ENUM_KIND,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MULTISIG,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MULTISIG_PK_MAP,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MULTISIG_PUBLIC_KEY,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MakeMoveVecTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MergeCoinsTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	MoveCallTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	OBJECT_ARG,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	OPTION,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ObjectCallArg,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ObjectTransactionArgument,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	type Option,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PROGRAMMABLE_CALL,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PROGRAMMABLE_CALL_INNER,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PROGRAMMABLE_TX_BLOCK,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PUBLIC_KEY,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PublishTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PureCallArg,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PureTransactionArgument,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	SplitCoinsTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TRANSACTION,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TRANSACTION_INNER,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TYPE_TAG,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TransactionBlockInput,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TransactionType,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	TransferObjectsTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	UpgradePolicy,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	UpgradeTransaction,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	VECTOR,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	getIdFromCallArg,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	getPureSerializationType,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	getSharedObjectInput,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	getTransactionType,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	isMutableSharedObjectInput,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	isSharedObjectInput,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	isTxContext,
 } from './builder/index.js';
 
 export {
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ADD_STAKE_FUN_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ADD_STAKE_LOCKED_COIN_FUN_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	COIN_TYPE_ARG_REGEX,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	Coin,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	type CoinMetadata,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	CoinMetadataStruct,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	Delegation,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	type DelegationData,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	type DelegationHaneulObject,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	ID_STRUCT_NAME,
-	MOVE_STDLIB_ADDRESS,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	OBJECT_MODULE_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PAY_JOIN_COIN_FUNC_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PAY_MODULE_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	PAY_SPLIT_COIN_VEC_FUNC_NAME,
-	HANEUL_CLOCK_OBJECT_ID,
-	HANEUL_FRAMEWORK_ADDRESS,
-	HANEUL_SYSTEM_ADDRESS,
-	HANEUL_SYSTEM_MODULE_NAME,
-	HANEUL_SYSTEM_STATE_OBJECT_ID,
-	HANEUL_TYPE_ARG,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	HaneulSystemStateUtil,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	UID_STRUCT_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	VALIDATORS_EVENTS_QUERY,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	WITHDRAW_STAKE_FUN_NAME,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
 	isObjectDataFull,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_CLOCK_OBJECT_ID,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_FRAMEWORK_ADDRESS,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_SYSTEM_ADDRESS,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_SYSTEM_MODULE_NAME,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_SYSTEM_STATE_OBJECT_ID,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_TYPE_ARG,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	MOVE_STDLIB_ADDRESS,
 } from './framework/index.js';
 
-export * from './types/index.js';
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type CallArg,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type GasData,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type ObjectArg,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type PureArg,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type SharedObjectRef,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type StructTag,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type TransactionExpiration,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	type TypeTag,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	bcs,
+	/** @deprecated Import from @haneullabs/haneul.js/bcs instead */
+	isPureArg,
+} from './bcs/index.js';
 
-export { fromExportedKeypair };
+export {
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	GEUNHWA_PER_HANEUL,
+	/** @deprecated Import from @haneullabs/haneul.js/utils instead */
+	HANEUL_DECIMALS,
+	/** @deprecated this will be removed in future versions of the SDK */
+	ECMHLiveObjectSetDigest,
+	/** @deprecated this will be removed in future versions of the SDK */
+	ExecutionDigests,
+	/** @deprecated this will be removed in future versions of the SDK */
+	GenericAuthoritySignature,
+	/** @deprecated this will be removed in future versions of the SDK */
+	HaneulTransactionBlockKind,
+	/** @deprecated this will be removed in future versions of the SDK */
+	AuthorityQuorumSignInfo,
+	/**
+	 * @deprecated This will be removed in a future of version of the SDK.
+	 * If this export is needed, please report your use case here:
+	 * https://github.com/GeunhwaJeong/haneul/discussions/13150
+	 */
+	fromExportedKeypair,
+};

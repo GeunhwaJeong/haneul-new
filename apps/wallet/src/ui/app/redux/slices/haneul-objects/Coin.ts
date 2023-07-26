@@ -3,7 +3,7 @@
 
 import { getObjectType } from '@haneullabs/haneul.js';
 
-import type { HaneulObjectData, HaneulMoveObject } from '@haneullabs/haneul.js';
+import type { HaneulObjectData, HaneulMoveObject } from '@haneullabs/haneul.js/client';
 
 const COIN_TYPE = '0x2::coin::Coin';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;

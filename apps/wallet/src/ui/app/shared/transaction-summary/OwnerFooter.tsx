@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { formatAddress, isValidHaneulAddress } from '@haneullabs/haneul.js';
+import { formatAddress, isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 import { SummaryCardFooter } from './Card';
 import { Text } from '../text';

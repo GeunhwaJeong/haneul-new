@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulCallArg } from '@haneullabs/haneul.js';
+import { type HaneulCallArg } from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
 
 import { ProgrammableTxnBlockCard } from '~/components/transactions/ProgTxnBlockCard';

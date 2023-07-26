@@ -3,7 +3,7 @@
 
 import { useGetSystemState } from '@haneullabs/core';
 import { ArrowRight12 } from '@haneullabs/icons';
-import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
 import { useMemo } from 'react';
 

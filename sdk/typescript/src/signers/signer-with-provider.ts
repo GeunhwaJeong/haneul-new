@@ -20,7 +20,7 @@ import { IntentScope, messageWithIntent } from '../cryptography/intent.js';
 import type { Signer } from './signer.js';
 import type { SignedTransaction, SignedMessage } from './types.js';
 import type { HaneulClient } from '../client/index.js';
-import { bcs } from '../types/haneul-bcs.js';
+import { bcs } from '../bcs/index.js';
 
 ///////////////////////////////
 // Exported Abstracts
