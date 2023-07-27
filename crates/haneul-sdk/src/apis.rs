@@ -22,9 +22,9 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
-    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulPastObjectResponse, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    HaneulLoadedChildObject, HaneulMoveNormalizedModule, HaneulObjectData, HaneulObjectDataOptions,
+    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
 };
 use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
@@ -446,8 +446,7 @@ impl ReadApi {
 
     /// Return the [HaneulCommittee] information for the provided `epoch`, or an error upon failure.
     ///
-    /// The [HaneulCommittee] is the RPC representation of the [Committee] type,
-    /// which contains the validators list and their information (name and stakes).
+    /// The [HaneulCommittee] contains the validators list and their information (name and stakes).
     ///
     /// The argument `epoch` is either a known epoch id or `None` for the current epoch.
     ///
