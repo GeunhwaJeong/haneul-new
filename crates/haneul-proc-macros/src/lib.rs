@@ -56,7 +56,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                     use haneul_simulator::tempfile::TempDir;
                     use haneul_simulator::move_package::package_hooks::register_package_hooks;
 
-                    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks {}));
+                    register_package_hooks(Box::new(HaneulPackageHooks {}));
                     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
                     path.extend(["..", "..", "haneul_programmability", "examples", "basics"]);
                     let mut build_config = BuildConfig::default();
@@ -78,8 +78,8 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
 
                 use std::sync::Arc;
                 use ::haneul_simulator::fastcrypto::traits::KeyPair;
-                use rand::rngs::{StdRng, OsRng};
-                use rand::SeedableRng;
+                use ::haneul_simulator::rand_crate::rngs::{StdRng, OsRng};
+                use ::haneul_simulator::rand::SeedableRng;
                 use ::haneul_simulator::tower::ServiceBuilder;
 
                 // anemo uses x509-parser, which has many lazy static variables. start a network to
