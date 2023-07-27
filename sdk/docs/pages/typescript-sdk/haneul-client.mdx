@@ -1,46 +1,64 @@
-# HaneulClient
+# Network Interactions with HaneulClient
 
-The `HaneulClient` can be imported from `@haneullabs/haneul.js/client` and is used to make RPC request to the
-Haneul network.
+The Haneul TypeScript SDK provides a `HaneulClient` class to connect to a network's JSON-RPC server. Use
+`HaneulClient` for all JSON-RPC operations.
 
-## Usage
+## Connecting to a Haneul network
+
+To establish a connection to a network, import `HaneulClient` from `@haneullabs/haneul.js/client` and pass the
+relevant URL to the `url` parameter. The following example establishes a connection to Testnet and
+requests HANEUL from that network's faucet.
 
 ```typescript
 import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
+// use getFullnodeUrl to define Devnet RPC location
+const rpcUrl = getFullnodeUrl('devnet');
+
 // create a client connected to devnet
-const client = new HaneulClient({ url: getFullnodeUrl('devnet') });
+const client = new HaneulClient({ url: rpcUrl });
 
 // get coins owned by an address
+// replace <OWNER_ADDRESS> with actual address in the form of 0x123...
 await client.getCoins({
-	owner: '0xcc2bd176a478baea9a0de7a24cd927661cc6e860d5bacecb9a138ef20dbab231',
+	owner: '<OWNER_ADDRESS>',
 });
 ```
 
-the `getFullnodeUrl` helper provides a default fullName url that can be used for developing. In a
-production application, you will likely want to manually define the URL of the RPC provider you want
-to use in your application.
+The `getFullnodeUrl` helper in the previous code provides the URL for the specified network, useful
+during development. In a production application, however, you should use the
+[Mainnet RPC address](../index#network-locations). The function supports the following values:
+
+- `localnet`
+- `devnet`
+- `testnet`
+- `mainnet`
+
+For local development, you can run `cargo run --bin haneul-test-validator` to spin up a local network
+with a local validator, a Full node, and a faucet server. Refer to
+[the Local Network guide](https://docs.haneul.io/build/haneul-local-network) for more information.
 
 ## Manually calling unsupported RPC methods
 
-The `HaneulClient` can be used to call any RPC method exposed by the node you are connecting to. The
-Client has built in methods for most RPC methods, but if there are methods missing, they can still
-be called manually using the `call` method of the `HaneulClient`.
+You can use `HaneulClient` to call any RPC method the node you're connectiong to exposes. Most RPC
+methods are built into `HaneulClient`, but you can use `call` to leverage any methods available in the
+RPC.
 
 ```typescript
 import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
 const client = new HaneulClient({ url: getFullnodeUrl('devnet') });
+
+// asynchronously call haneulx_getCommitteeInfo
 const committeeInfo = await client.call('haneulx_getCommitteeInfo', []);
 ```
 
-For a full list of available RPC methods see the
+For a full list of available RPC methods, see the
 [RPC documentation](https://docs.haneul.io/haneul-jsonrpc).
 
-## Subscribing to events
+## Subscribing to events with HaneulClient
 
-In addition to calling RPC methods, the `HaneulClient` also supports a few methods for subscribing to
-events:
+In addition to calling RPC methods, you can use `HaneulClient` to subscribe to network events:
 
 ```typescript
 import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
@@ -49,20 +67,21 @@ const client = new HaneulClient({
 	url: getFullnodeUrl('testnet'),
 });
 
+// naming the function unsubscribe may seem counterintuitive here, but you call it later to unsubscribe from the event
 const unsubscribe = await client.subscribeEvent({
 	filter: {
-		Sender: '0xcc2bd176a478baea9a0de7a24cd927661cc6e860d5bacecb9a138ef20dbab231',
+		Sender: '<SENDER_ADDRESS>',
 	},
 	onMessage(event) {
 		// handle subscription notification message here. This function is called once per subscription message.
 	},
 });
 
-// later, to unsubscribe:
+// later, to unsubscribe
 await unsubscribe();
 ```
 
-## Subscribing to transactions
+## Subscribing to transactions with HaneulClient
 
 Similar to subscribing to events, the `HaneulClient` also supports subscribing to transactions:
 
@@ -75,7 +94,7 @@ const client = new HaneulClient({
 
 const unsubscribe = await client.subscribeTransaction({
 	filter: {
-		FromAddress: '0xcc2bd176a478baea9a0de7a24cd927661cc6e860d5bacecb9a138ef20dbab231',
+		FromAddress: '<HANEUL_ADDRESS>',
 	},
 	onMessage(event) {
 		// This function is called once per transaction.
@@ -86,7 +105,7 @@ const unsubscribe = await client.subscribeTransaction({
 await unsubscribe();
 ```
 
-## Customizing the Transport
+## Customizing the transport
 
 The `HaneulClient` uses a `Transport` class to manage connections to the RPC node. The default
 `HaneulHTTPTransport` makes both JSON RPC requests, as well as websocket requests for subscriptions.

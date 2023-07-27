@@ -1,21 +1,27 @@
-import { Callout } from 'nextra/components';
-
 # Faucet
 
-To get started with the SDK it can be helpful get some Haneul tokens to play with. The faucet is a
-simple way to get some tokens sent to your address in `testnet`, `devnet` or `localnet` if you are
-running your own network locally for development.
+import { Callout } from 'nextra/components';
 
-You can request haneul from the faucet using the `@haneullabs/haneul.js/faucet` package.
+Devnet, Testnet, and local networks include faucets that mint HANEUL. You can use the Haneul TypeScript
+SDK to call a network's faucet and provide HANEUL to the address you provide.
+
+To request HANEUL from a faucet, import the `requestHaneulFromFaucetV0` function from the
+`@haneullabs/haneul.js/faucet` package to your project.
 
 ```typescript
 import { requestHaneulFromFaucetV0, getFaucetHost } from '@haneullabs/haneul.js/faucet';
+```
 
+Use `requestHaneulFromFaucetV0` in your TypeScript code to request HANEUL from the network's faucet.
+
+```typescript
 await requestHaneulFromFaucetV0({
 	host: getFaucetHost('testnet'),
-	recipient: '0xcc2bd176a478baea9a0de7a24cd927661cc6e860d5bacecb9a138ef20dbab231',
+	recipient: <RECEPIENT_ADDRESS>,
 });
 ```
 
-The haneul faucet is rate limited, so after making this call you may not be able to request more haneul
-for a while. The exact limits depend on which network you are connecting to.
+<Callout type="info">
+	Faucets on Devnet and Testnet are rate limited. If you run the script too many times, you surpass
+	the limit and must wait to successfully run it again.
+</Callout>
