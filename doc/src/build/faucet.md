@@ -39,12 +39,13 @@ Replace `'https://faucet.devnet.haneul.io/gas'` with `http://127.0.0.1:5003/gas`
 
 You can also access the faucet through the TS-SDK.
 
-```
-import { JsonRpcProvider, devnetConnection } from '@haneullabs/haneul.js';
-// connect to Devnet
-const provider = new JsonRpcProvider(devnetConnection);
+```typescript
+import { requestHaneulFromFaucetV0, getFaucetHost } from '@haneullabs/haneul.js/faucet';
+
 // get tokens from the Devnet faucet server
-await provider.requestHaneulFromFaucet(
-  '<YOUR HANEUL ADDRESS>'
-);
+await requestHaneulFromFaucetV0({
+  // connect to Devnet
+	host: getFaucetHost('devnet'),
+	recipient: '<YOUR HANEUL ADDRESS>',
+});
 ```

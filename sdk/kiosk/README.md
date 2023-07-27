@@ -115,7 +115,7 @@ const purchaseItem = async (item, kioskId) => {
 
 ```typescript
 import { createKioskAndShare } from '@haneullabs/kiosk';
-import { TransactionBlock } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 const createKiosk = async () => {
 	const accountAddress = '0xSomeHaneulAddress';
@@ -137,7 +137,7 @@ const createKiosk = async () => {
 
 ```typescript
 import { placeAndList } from '@haneullabs/kiosk';
-import { TransactionBlock } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 const placeAndListToKiosk = async () => {
 	const kiosk = 'SomeKioskId';
@@ -162,7 +162,7 @@ const placeAndListToKiosk = async () => {
 
 ```typescript
 import { withdrawFromKiosk } from '@haneullabs/kiosk';
-import { TransactionBlock } from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 const withdraw = async () => {
 	const kiosk = 'SomeKioskId';
