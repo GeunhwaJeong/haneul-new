@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getExecutionStatusError, type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
-import { LoadingIndicator } from '@haneullabs/ui';
 import { useParams } from 'react-router-dom';
 
 import { TransactionView } from './TransactionView';
@@ -15,18 +14,21 @@ import { StatusIcon } from '~/ui/StatusIcon';
 function TransactionResultPageHeader({
 	transaction,
 	error,
+	loading,
 }: {
-	transaction: HaneulTransactionBlockResponse;
+	transaction?: HaneulTransactionBlockResponse;
 	error?: string;
+	loading?: boolean;
 }) {
-	const txnKindName = transaction.transaction?.data.transaction?.kind;
-	const txnDigest = transaction.digest;
-	const txnStatus = transaction.effects?.status.status;
+	const txnKindName = transaction?.transaction?.data.transaction?.kind;
+	const txnDigest = transaction?.digest ?? '';
+	const txnStatus = transaction?.effects?.status.status;
 
 	const isProgrammableTransaction = txnKindName === 'ProgrammableTransaction';
 
 	return (
 		<PageHeader
+			loading={loading}
 			type="Transaction"
 			title={txnDigest}
 			subtitle={!isProgrammableTransaction ? txnKindName : undefined}
@@ -43,17 +45,16 @@ export default function TransactionResult() {
 
 	return (
 		<PageLayout
-			gradient={
-				data && {
-					content: <TransactionResultPageHeader transaction={data} error={txError} />,
-					size: 'md',
-					type: txError ? 'error' : 'success',
-				}
-			}
+			loading={isLoading}
+			gradient={{
+				content: (
+					<TransactionResultPageHeader transaction={data} error={txError} loading={isLoading} />
+				),
+				size: 'md',
+				type: txError ? 'error' : 'success',
+			}}
 			content={
-				isLoading ? (
-					<LoadingIndicator text="Loading..." />
-				) : isError || !data ? (
+				isError || !data ? (
 					<Banner variant="error" spacing="lg" fullWidth>
 						{!id
 							? "Can't search for a transaction without a digest"
