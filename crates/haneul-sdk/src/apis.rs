@@ -22,9 +22,9 @@ use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
-    HaneulLoadedChildObject, HaneulMoveNormalizedModule, HaneulObjectData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulPastObjectResponse, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
 };
 use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
@@ -287,8 +287,8 @@ impl ReadApi {
     /// Return a [HaneulObjectResponse] based on the provided [ObjectID] and [HaneulObjectDataOptions], or an error upon failure.
     ///
     /// The [HaneulObjectResponse] contains two fields:
-    /// 1) `data` for the object's data (see [HaneulObjectData]),
-    //  2) `error` for the error (if any) (see [HaneulObjectResponseError]).
+    /// 1) `data` for the object's data (see [HaneulObjectData](haneul_json_rpc_types::HaneulObjectData)),
+    /// 2) `error` for the error (if any) (see [HaneulObjectResponseError](haneul_types::error::HaneulObjectResponseError)).
     ///
     /// # Examples
     ///
@@ -635,7 +635,7 @@ impl ReadApi {
 
     /// Return the loaded child objects response for the the provided digest, or an error upon failure.
     ///
-    /// Loaded child objects ([HaneulLoadedChildObject]) are the non-input objects that the transaction at the digest loaded
+    /// Loaded child objects ([HaneulLoadedChildObject](haneul_json_rpc_types::HaneulLoadedChildObject)) are the non-input objects that the transaction at the digest loaded
     /// in response to dynamic field accesses.
     pub async fn get_loaded_child_objects(
         &self,
