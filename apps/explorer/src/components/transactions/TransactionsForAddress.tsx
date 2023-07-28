@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { LoadingIndicator } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
 

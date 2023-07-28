@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTransactionSummary } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 import { StakeTxnCard } from './StakeTxnCard';
 import { StatusIcon } from './StatusIcon';

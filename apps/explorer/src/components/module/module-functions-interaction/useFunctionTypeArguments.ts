@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 
-import type { HaneulMoveAbilitySet } from '@haneullabs/haneul.js';
+import type { HaneulMoveAbilitySet } from '@haneullabs/haneul.js/client';
 
 export function useFunctionTypeArguments(typeArguments: HaneulMoveAbilitySet[]) {
 	return useMemo(

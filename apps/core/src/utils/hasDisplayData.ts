@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectResponse, getObjectDisplay } from '@haneullabs/haneul.js';
+import { HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 
-export const hasDisplayData = (obj: HaneulObjectResponse) => !!getObjectDisplay(obj).data;
+export const hasDisplayData = (obj: HaneulObjectResponse) => !!obj.data?.display?.data;

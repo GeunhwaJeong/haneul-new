@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getObjectType } from '@haneullabs/haneul.js';
-
 import type { HaneulObjectData, HaneulMoveObject } from '@haneullabs/haneul.js/client';
 
 const COIN_TYPE = '0x2::coin::Coin';
@@ -14,7 +12,8 @@ export const GAS_SYMBOL = 'HANEUL';
 // TODO use sdk
 export class Coin {
 	public static isCoin(obj: HaneulObjectData) {
-		return getObjectType(obj)?.startsWith(COIN_TYPE) ?? false;
+		const type = obj?.content?.dataType === 'package' ? 'package' : obj?.content?.type;
+		return type?.startsWith(COIN_TYPE) ?? false;
 	}
 
 	public static getCoinTypeArg(obj: HaneulMoveObject) {

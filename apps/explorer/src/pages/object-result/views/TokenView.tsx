@@ -2,17 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, CoinFormat } from '@haneullabs/core';
-import {
-	normalizeHaneulAddress,
-	type HaneulObjectResponse,
-	getObjectDisplay,
-	getObjectOwner,
-	getObjectId,
-	getObjectVersion,
-	getObjectPreviousTransactionDigest,
-	getHaneulObjectData,
-	HANEUL_TYPE_ARG,
-} from '@haneullabs/haneul.js';
+import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+import { normalizeHaneulAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Text } from '@haneullabs/ui';
 import { useState, useEffect } from 'react';
 
@@ -30,13 +21,13 @@ import { TabHeader } from '~/ui/Tabs';
 import { extractName, parseImageURL, parseObjectType } from '~/utils/objectUtils';
 
 export function TokenView({ data }: { data: HaneulObjectResponse }) {
-	const display = getObjectDisplay(data)?.data;
+	const display = data.data?.display?.data;
 	const imgUrl = parseImageURL(display);
-	const objOwner = getObjectOwner(data);
+	const objOwner = data.data?.owner;
 	const name = extractName(display);
-	const objectId = getObjectId(data);
+	const objectId = data.data?.objectId!;
 	const objectType = parseObjectType(data);
-	const storageRebate = getHaneulObjectData(data)?.storageRebate;
+	const storageRebate = data.data?.storageRebate;
 	const [storageRebateFormatted, symbol] = useFormatCoin(
 		storageRebate,
 		HANEUL_TYPE_ARG,
@@ -84,7 +75,7 @@ export function TokenView({ data }: { data: HaneulObjectResponse }) {
 									</DescriptionItem>
 								) : null}
 								<DescriptionItem title="Object ID">
-									<ObjectLink objectId={getObjectId(data)} noTruncate />
+									<ObjectLink objectId={data.data?.objectId!} noTruncate />
 								</DescriptionItem>
 								<DescriptionItem title="Type">
 									{/* TODO: Support module links on `ObjectLink` */}
@@ -94,11 +85,11 @@ export function TokenView({ data }: { data: HaneulObjectResponse }) {
 								</DescriptionItem>
 								<DescriptionItem title="Version">
 									<Text variant="body/medium" color="steel-darker">
-										{getObjectVersion(data)}
+										{data.data?.version}
 									</Text>
 								</DescriptionItem>
 								<DescriptionItem title="Last Transaction Block Digest">
-									<TransactionLink digest={getObjectPreviousTransactionDigest(data)!} noTruncate />
+									<TransactionLink digest={data.data?.previousTransaction!} noTruncate />
 								</DescriptionItem>
 							</DescriptionList>
 						</div>

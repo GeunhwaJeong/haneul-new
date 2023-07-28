@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { type GasSummaryType, useFormatCoin } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { Text } from '../../text';
 import ExplorerLink from '_src/ui/app/components/explorer-link';

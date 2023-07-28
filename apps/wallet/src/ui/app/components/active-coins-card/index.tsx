@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useGetAllBalances } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Link } from 'react-router-dom';
 
 import { CoinItem } from './CoinItem';

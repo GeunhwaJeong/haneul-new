@@ -1,14 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getTotalGasUsed } from '@haneullabs/core';
 import { X12, Dot12 } from '@haneullabs/icons';
-import {
-	getExecutionStatusType,
-	getTotalGasUsed,
-	getTransactionSender,
-	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
+import { type HaneulClient, type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 import { HaneulAmount } from '../Table/HaneulAmount';
 import { TxTimeType } from '../tx-time/TxTimeType';
@@ -18,8 +13,8 @@ import { AddressLink, TransactionLink } from '~/ui/InternalLink';
 // Generate table data from the transaction data
 export const genTableDataFromTxData = (results: HaneulTransactionBlockResponse[]) => ({
 	data: results.map((transaction) => {
-		const status = getExecutionStatusType(transaction);
-		const sender = getTransactionSender(transaction);
+		const status = transaction.effects?.status.status;
+		const sender = transaction.transaction?.data.sender;
 
 		return {
 			date: (
@@ -48,7 +43,7 @@ export const genTableDataFromTxData = (results: HaneulTransactionBlockResponse[]
 						: '--'}
 				</div>
 			),
-			gas: <HaneulAmount amount={getTotalGasUsed(transaction)} />,
+			gas: <HaneulAmount amount={transaction.effects && getTotalGasUsed(transaction.effects!)} />,
 			sender: (
 				<HighlightedTableCol>{sender ? <AddressLink address={sender} /> : '-'}</HighlightedTableCol>
 			),

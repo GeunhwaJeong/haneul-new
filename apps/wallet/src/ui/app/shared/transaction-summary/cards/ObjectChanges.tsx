@@ -9,7 +9,7 @@ import {
 	type HaneulObjectChangeTypes,
 } from '@haneullabs/core';
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 import cx from 'classnames';
 
 import { ObjectChangeDisplay } from './objectSummary/ObjectChangeDisplay';

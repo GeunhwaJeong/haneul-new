@@ -3,8 +3,7 @@
 
 import { useFormatCoin, useGetCoinBalance, useResolveHaneulNSName } from '@haneullabs/core';
 import { CheckFill16 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG, formatAddress } from '@haneullabs/haneul.js/utils';
 import cl from 'classnames';
 
 import { useCoinsReFetchingConfig } from '../../hooks';

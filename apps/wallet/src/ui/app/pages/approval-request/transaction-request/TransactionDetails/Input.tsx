@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type TransactionBlockInput } from '@haneullabs/haneul.js';
+import { type TransactionBlockInput } from '@haneullabs/haneul.js/transactions';
 import { formatAddress, toB64 } from '@haneullabs/haneul.js/utils';
 
 import ExplorerLink from '_src/ui/app/components/explorer-link';

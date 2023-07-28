@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SharedObjectRef, HaneulObjectRef, HaneulObjectResponse, getObjectFields } from '@haneullabs/haneul.js';
+import { SharedObjectRef } from '@haneullabs/haneul.js/bcs';
+import { HaneulObjectRef, HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import { TransactionBlock, TransactionArgument } from '@haneullabs/haneul.js/transactions';
 import { type DynamicFieldInfo } from '@haneullabs/haneul.js/client';
 import { bcs } from './bcs';
@@ -122,7 +123,9 @@ export function attachListingsAndPrices(
 			// that's the case when we don't have the `listingPrices` included.
 			if (listingObjects.length === 0) return acc;
 
-			const data = getObjectFields(listingObjects[idx]);
+			const content = listingObjects[idx].data?.content;
+			const data = content?.dataType === 'moveObject' ? content?.fields : null;
+
 			if (!data) return acc;
 
 			acc[item.objectId].price = data.value;

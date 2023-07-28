@@ -3,7 +3,7 @@
 
 import { useFormatCoin } from '@haneullabs/core';
 import { WalletActionStake24 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useMemo } from 'react';
 
 import { LargeButton } from '_app/shared/LargeButton';

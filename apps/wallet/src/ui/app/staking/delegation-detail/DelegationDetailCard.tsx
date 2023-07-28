@@ -8,7 +8,7 @@ import {
 	useGetCoinBalance,
 } from '@haneullabs/core';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
-import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
 

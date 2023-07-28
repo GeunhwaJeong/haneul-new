@@ -1,11 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	type SignedMessage,
-	type SignedTransaction,
-	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
+import { type SignedMessage, type SignedTransaction } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { fromB64 } from '@haneullabs/haneul.js/utils';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';

@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { type HaneulArgument } from '@haneullabs/haneul.js';
+import { type HaneulArgument } from '@haneullabs/haneul.js/client';
 
 export function flattenHaneulArguments(data: (HaneulArgument | HaneulArgument[])[]): string {
 	if (!data) {

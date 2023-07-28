@@ -11,7 +11,9 @@ import {
 	Unpin16,
 	Pin16,
 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG, Coin, type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js';
+import { Coin } from '@haneullabs/haneul.js';
+import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 

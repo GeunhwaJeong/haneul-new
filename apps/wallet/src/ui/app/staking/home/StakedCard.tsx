@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG, type HaneulAddress, type StakeObject } from '@haneullabs/haneul.js';
+import { type StakeObject } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { cx, cva, type VariantProps } from 'class-variance-authority';
 import { Link } from 'react-router-dom';
 
@@ -38,7 +39,7 @@ const STATUS_VARIANT = {
 	[StakeState.IN_ACTIVE]: 'inActive',
 } as const;
 interface DelegationObjectWithValidator extends StakeObject {
-	validatorAddress: HaneulAddress;
+	validatorAddress: string;
 }
 
 const cardStyle = cva(

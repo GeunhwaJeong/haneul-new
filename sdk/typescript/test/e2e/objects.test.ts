@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { getObjectType, normalizeHaneulAddress, HANEUL_TYPE_ARG, HaneulObjectData } from '../../src';
+import { normalizeHaneulAddress, HANEUL_TYPE_ARG } from '../../src/utils';
+import { HaneulObjectData } from '../../src/client';
 import { TransactionBlock } from '../../src/builder';
 import { setup, TestToolbox } from './utils/setup';
 
@@ -32,9 +33,9 @@ describe('Object Reading API', () => {
 				});
 			}),
 		);
-		objectInfos.forEach((objectInfo) =>
-			expect(getObjectType(objectInfo)).to.equal('0x2::coin::Coin<0x2::haneul::HANEUL>'),
-		);
+		objectInfos.forEach((objectInfo) => {
+			expect(objectInfo.data?.type).to.equal('0x2::coin::Coin<0x2::haneul::HANEUL>');
+		});
 	});
 
 	it('Get Objects', async () => {
@@ -53,9 +54,9 @@ describe('Object Reading API', () => {
 
 		expect(gasObjects.length).to.equal(objectInfos.length);
 
-		objectInfos.forEach((objectInfo) =>
-			expect(getObjectType(objectInfo)).to.equal('0x2::coin::Coin<0x2::haneul::HANEUL>'),
-		);
+		objectInfos.forEach((objectInfo) => {
+			expect(objectInfo.data?.type).to.equal('0x2::coin::Coin<0x2::haneul::HANEUL>');
+		});
 	});
 
 	it('handles trying to get non-existent old objects', async () => {

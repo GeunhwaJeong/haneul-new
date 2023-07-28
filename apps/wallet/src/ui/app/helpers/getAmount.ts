@@ -1,11 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type {
-	HaneulTransactionBlockKind,
-	TransactionEffects,
-	TransactionEvents,
-} from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockKind, TransactionEffects, HaneulEvent } from '@haneullabs/haneul.js/client';
 
 type FormattedBalance = {
 	amount?: number | null;
@@ -16,7 +12,7 @@ type FormattedBalance = {
 export function getAmount(
 	_txnData: HaneulTransactionBlockKind,
 	_txnEffect: TransactionEffects,
-	_events: TransactionEvents,
+	_events: HaneulEvent[],
 ): FormattedBalance | null {
 	// TODO: Support programmable transactions:
 	return null;

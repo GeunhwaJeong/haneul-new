@@ -3,7 +3,7 @@
 
 import { useCoinMetadata } from '@haneullabs/core';
 import { Haneul, Unstaked } from '@haneullabs/icons';
-import { type CoinMetadata } from '@haneullabs/haneul.js';
+import { type CoinMetadata } from '@haneullabs/haneul.js/client';
 import clsx from 'clsx';
 
 import { Image } from '~/ui/image/Image';

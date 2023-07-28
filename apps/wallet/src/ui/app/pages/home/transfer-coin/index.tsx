@@ -3,7 +3,6 @@
 
 import { useCoinMetadata } from '@haneullabs/core';
 import { ArrowRight16, ArrowLeft16 } from '@haneullabs/icons';
-import { getTransactionDigest } from '@haneullabs/haneul.js';
 import * as Sentry from '@sentry/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -88,7 +87,7 @@ function TransferCoinPage() {
 			});
 
 			const receiptUrl = `/receipt?txdigest=${encodeURIComponent(
-				getTransactionDigest(response),
+				response.digest,
 			)}&from=transactions`;
 			return navigate(receiptUrl);
 		},

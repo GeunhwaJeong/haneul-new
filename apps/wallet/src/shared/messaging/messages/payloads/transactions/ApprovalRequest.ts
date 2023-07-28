@@ -6,7 +6,8 @@ import {
 	type HaneulSignMessageOutput,
 } from '@haneullabs/wallet-standard';
 
-import type { SignedTransaction, HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import type { SignedTransaction } from '@haneullabs/haneul.js';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 export type TransactionDataType = {
 	type: 'transaction';

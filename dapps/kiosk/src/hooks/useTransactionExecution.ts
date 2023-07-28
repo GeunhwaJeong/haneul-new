@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useWalletKit } from '@haneullabs/wallet-kit';
-import { getExecutionStatus } from '@haneullabs/haneul.js';
 import { HaneulTransactionBlockResponseOptions } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
@@ -33,7 +32,7 @@ export function useTransactionExecution() {
 			options,
 		});
 
-		const status = getExecutionStatus(res)?.status === 'success';
+		const status = res.effects?.status?.status === 'success';
 
 		if (status) return true;
 		else throw new Error('Transaction execution failed.');

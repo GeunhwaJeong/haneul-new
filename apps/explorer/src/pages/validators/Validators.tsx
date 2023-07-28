@@ -9,7 +9,7 @@ import {
 	formatPercentageDisplay,
 	useGetSystemState,
 } from '@haneullabs/core';
-import { type HaneulEvent, type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { type HaneulEvent, type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Heading, Text } from '@haneullabs/ui';
 import { lazy, Suspense, useMemo } from 'react';
 

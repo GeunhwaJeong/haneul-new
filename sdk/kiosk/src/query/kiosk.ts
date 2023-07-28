@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectData, HaneulObjectResponse, getObjectFields } from '@haneullabs/haneul.js';
+import { HaneulObjectData, HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import {
 	attachListingsAndPrices,
@@ -97,7 +97,10 @@ export async function getOwnedKiosks(
 	});
 
 	// get kioskIds from the OwnerCaps.
-	const kioskIdList = data?.map((x: HaneulObjectResponse) => getObjectFields(x)?.for);
+	const kioskIdList = data?.map((x: HaneulObjectResponse) => {
+		const fields = x.data?.content?.dataType === 'moveObject' ? x.data.content.fields : null;
+		return fields?.for;
+	});
 
 	// clean up data that might have an error in them.
 	// only return valid objects.

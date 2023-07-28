@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isKioskOwnerToken, useGetObject } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 import { cva, cx } from 'class-variance-authority';
 
 import { Kiosk } from './Kiosk';

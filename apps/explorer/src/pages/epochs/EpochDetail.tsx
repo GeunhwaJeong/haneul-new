@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useGetSystemState } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { LoadingIndicator } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';

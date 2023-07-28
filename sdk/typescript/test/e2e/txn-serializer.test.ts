@@ -4,12 +4,12 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import {
 	getCreatedObjects,
-	getObjectId,
 	getSharedObjectInitialVersion,
 	isMutableSharedObjectInput,
 	isSharedObjectInput,
-	HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from '../../src';
+
+import { HANEUL_SYSTEM_STATE_OBJECT_ID } from '../../src/utils';
 
 import { HaneulObjectData, HaneulTransactionBlockResponse } from '../../src/client';
 import { TransactionBlock } from '../../src/builder';
@@ -29,7 +29,7 @@ describe('Transaction Serialization and deserialization', () => {
 		const sharedObject = getCreatedObjects(publishTxn)!.filter(
 			(o) => getSharedObjectInitialVersion(o.owner) !== undefined,
 		)[0];
-		sharedObjectId = getObjectId(sharedObject);
+		sharedObjectId = sharedObject.reference.objectId;
 	});
 
 	async function serializeAndDeserialize(tx: TransactionBlock, mutable: boolean[]) {

@@ -1,16 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	getMovePackageContent,
-	getObjectId,
-	getObjectVersion,
-	getObjectOwner,
-	getObjectFields,
-	getObjectPreviousTransactionDigest,
-	getObjectDisplay,
-} from '@haneullabs/haneul.js';
-
 import { parseObjectType } from '../../utils/objectUtils';
 
 import type { HaneulObjectResponse, ObjectOwner } from '@haneullabs/haneul.js/client';
@@ -45,15 +35,18 @@ export type DataType = {
 export function translate(o: HaneulObjectResponse): DataType {
 	if (o.data) {
 		return {
-			id: getObjectId(o),
-			version: getObjectVersion(o)!.toString(),
+			id: o.data.objectId,
+			version: o.data.version,
 			objType: parseObjectType(o),
-			owner: getObjectOwner(o)!,
+			owner: o.data.owner!,
 			data: {
-				contents: getObjectFields(o) ?? getMovePackageContent(o)!,
-				tx_digest: getObjectPreviousTransactionDigest(o),
+				contents:
+					o.data?.content?.dataType === 'moveObject'
+						? o.data?.content.fields
+						: o.data.content?.disassembled!,
+				tx_digest: o.data.previousTransaction,
 			},
-			display: getObjectDisplay(o).data || undefined,
+			display: o.data.display?.data || undefined,
 		};
 	} else {
 		throw new Error(`${o.error}`);

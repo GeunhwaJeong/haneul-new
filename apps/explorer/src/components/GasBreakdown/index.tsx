@@ -7,7 +7,7 @@ import {
 	useFormatCoin,
 	useResolveHaneulNSName,
 } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Heading, Text } from '@haneullabs/ui';
 
 import { CopyToClipboard } from '~/ui/CopyToClipboard';

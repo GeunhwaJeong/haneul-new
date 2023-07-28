@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { KioskOwnerCap } from '@haneullabs/kiosk';
-import { HaneulAddress } from '@haneullabs/haneul.js';
 import { useEffect, useState } from 'react';
 import { useOwnedKiosk } from './kiosk';
 
-export function useKioskSelector(address: HaneulAddress | undefined) {
+export function useKioskSelector(address: string | undefined) {
 	const [selected, setSelected] = useState<KioskOwnerCap | undefined>();
 
 	// tries to find an owned kiosk for the supplied id.

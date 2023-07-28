@@ -1,13 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	HaneulObjectData,
-	HaneulObjectResponse,
-	getHaneulObjectData,
-	isHaneulObjectResponse,
-	getObjectFields,
-} from '@haneullabs/haneul.js';
+import { HaneulObjectData, HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import { KIOSK_OWNER_CAP } from '@haneullabs/kiosk';
 
 export const ORIGINBYTE_KIOSK_MODULE =
@@ -17,12 +11,12 @@ export const ORIGINBYTE_KIOSK_OWNER_TOKEN = `${ORIGINBYTE_KIOSK_MODULE}::OwnerTo
 
 export function isKioskOwnerToken(object?: HaneulObjectResponse | HaneulObjectData) {
 	if (!object) return false;
-	const objectData = isHaneulObjectResponse(object) ? getHaneulObjectData(object) : object;
+	const objectData = 'data' in object && object.data ? object.data : (object as HaneulObjectData);
 	return [KIOSK_OWNER_CAP, ORIGINBYTE_KIOSK_OWNER_TOKEN].includes(objectData?.type ?? '');
 }
 
 export function getKioskIdFromOwnerCap(object: HaneulObjectResponse | HaneulObjectData) {
-	const objectData = isHaneulObjectResponse(object) ? getHaneulObjectData(object) : object;
-	const fields = getObjectFields(objectData!);
+	const objectData = 'data' in object && object.data ? object.data : (object as HaneulObjectData);
+	const fields = objectData.content?.dataType === 'moveObject' ? objectData.content.fields : null;
 	return fields?.for ?? fields?.kiosk;
 }

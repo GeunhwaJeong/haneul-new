@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import clsx from 'clsx';
 import { type ReactNode } from 'react';
 

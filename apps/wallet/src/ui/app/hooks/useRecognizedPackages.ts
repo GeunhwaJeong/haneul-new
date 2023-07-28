@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeatureValue } from '@growthbook/growthbook-react';
-import { HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS } from '@haneullabs/haneul.js';
+import { HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS } from '@haneullabs/haneul.js/utils';
 
 import useAppSelector from './useAppSelector';
 import { API_ENV } from '_src/shared/api-env';

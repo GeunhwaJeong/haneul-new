@@ -3,7 +3,7 @@
 
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Check12, Copy12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { AccountBadge } from './AccountBadge';
 import { useActiveAddress } from '../hooks/useActiveAddress';

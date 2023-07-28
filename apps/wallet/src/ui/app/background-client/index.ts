@@ -1,11 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	type SignedTransaction,
-	type SignedMessage,
-	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js';
+import { type SignedTransaction, type SignedMessage } from '@haneullabs/haneul.js';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 
 import { type SerializedSignature, type ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 import { toB64 } from '@haneullabs/haneul.js/utils';

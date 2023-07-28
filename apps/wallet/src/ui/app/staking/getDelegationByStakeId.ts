@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DelegatedStake } from '@haneullabs/haneul.js';
+import type { DelegatedStake } from '@haneullabs/haneul.js/client';
 
 // Helper function to get the delegation by stakedHaneulId
 export const getDelegationDataByStakeId = (

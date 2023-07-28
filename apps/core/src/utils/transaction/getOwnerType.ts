@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectChange } from '@haneullabs/haneul.js';
+import type { HaneulObjectChange } from '@haneullabs/haneul.js/client';
 
 export const getOwnerType = (change: HaneulObjectChange) => {
 	if (!('owner' in change)) return '';

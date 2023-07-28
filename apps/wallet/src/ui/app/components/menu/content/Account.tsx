@@ -4,7 +4,7 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { ChevronDown16, Copy16 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 import { cx } from 'class-variance-authority';
 
 import { AccountActions } from './AccountActions';

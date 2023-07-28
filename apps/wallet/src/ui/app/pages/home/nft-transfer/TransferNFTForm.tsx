@@ -3,7 +3,6 @@
 
 import { useGetKioskContents, isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { getTransactionDigest } from '@haneullabs/haneul.js';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Field, Formik } from 'formik';
@@ -87,7 +86,7 @@ export function TransferNFTForm({
 
 			return navigate(
 				`/receipt?${new URLSearchParams({
-					txdigest: getTransactionDigest(response),
+					txdigest: response.digest,
 					from: 'nfts',
 				}).toString()}`,
 			);

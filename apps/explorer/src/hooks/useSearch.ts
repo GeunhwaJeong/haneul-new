@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useRpcClient, useGetSystemState, isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { type HaneulClient, type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import {
 	isValidTransactionDigest,
 	isValidHaneulAddress,
 	isValidHaneulObjectId,
 	normalizeHaneulObjectId,
-	getTransactionDigest,
-	type HaneulSystemStateSummary,
-} from '@haneullabs/haneul.js';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 
 const isGenesisLibAddress = (value: string): boolean => /^(0x|0X)0{0,39}[12]$/.test(value);
@@ -22,8 +20,8 @@ const getResultsForTransaction = async (client: HaneulClient, query: string) => 
 	const txdata = await client.getTransactionBlock({ digest: query });
 	return [
 		{
-			id: getTransactionDigest(txdata),
-			label: getTransactionDigest(txdata),
+			id: txdata.digest,
+			label: txdata.digest,
 			type: 'transaction',
 		},
 	];

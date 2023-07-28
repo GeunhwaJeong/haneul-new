@@ -6,7 +6,7 @@ import { ModalBase } from './Base';
 import { OwnedObjectType } from '../Inventory/OwnedObjects';
 import { DisplayObjectThumbnail } from '../DisplayObjectThumbnail';
 import { Button } from '../Base/Button';
-import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
 import { usePlaceAndListMutation } from '../../mutations/kiosk';
 
 export interface ListPriceProps {

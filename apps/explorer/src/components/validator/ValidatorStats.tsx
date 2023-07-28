@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulValidatorSummary } from '@haneullabs/haneul.js';
+import { type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Heading } from '@haneullabs/ui';
 
 import { DelegationAmount } from './DelegationAmount';

@@ -1,21 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import {
-	toB64,
-	toParsedSignaturePubkeyPair,
-	getGasData,
-	getTransactionSender,
-	getTransactionSignature,
-	normalizeHaneulAddress,
-	type HaneulTransactionBlockResponse,
-	type SignaturePubkeyPair,
-} from '@haneullabs/haneul.js';
+	parseSerializedSignature,
+	type SignatureScheme,
+	type PublicKey,
+} from '@haneullabs/haneul.js/cryptography';
+import { parsePartialSignatures } from '@haneullabs/haneul.js/multisig';
+import { toB64, normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { publicKeyFromRawBytes } from '@haneullabs/haneul.js/verify';
 import { Text } from '@haneullabs/ui';
 
 import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
 import { AddressLink } from '~/ui/InternalLink';
 import { TabHeader } from '~/ui/Tabs';
+
+interface SignaturePubkeyPair {
+	signatureScheme: SignatureScheme;
+	publicKey: PublicKey;
+	signature: Uint8Array;
+}
 
 function SignaturePanel({ title, signature }: { title: string; signature: SignaturePubkeyPair }) {
 	return (
@@ -27,11 +32,11 @@ function SignaturePanel({ title, signature }: { title: string; signature: Signat
 					</Text>
 				</DescriptionItem>
 				<DescriptionItem title="Address" align="start" labelWidth="sm">
-					<AddressLink noTruncate address={signature.pubKey.toHaneulAddress()} />
+					<AddressLink noTruncate address={signature.publicKey.toHaneulAddress()} />
 				</DescriptionItem>
 				<DescriptionItem title="Haneul Public Key" align="start" labelWidth="sm">
 					<Text variant="pBody/medium" color="steel-darker">
-						{signature.pubKey.toHaneulPublicKey()}
+						{signature.publicKey.toHaneulPublicKey()}
 					</Text>
 				</DescriptionItem>
 				<DescriptionItem title="Signature" align="start" labelWidth="sm">
@@ -46,7 +51,7 @@ function SignaturePanel({ title, signature }: { title: string; signature: Signat
 
 function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddress: string) {
 	return signatures.find(
-		(signature) => signature.pubKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress),
+		(signature) => signature.publicKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress),
 	);
 }
 
@@ -55,7 +60,7 @@ function getSignaturesExcludingAddress(
 	haneulAddress: string,
 ): SignaturePubkeyPair[] {
 	return signatures.filter(
-		(signature) => signature.pubKey.toHaneulAddress() !== normalizeHaneulAddress(haneulAddress),
+		(signature) => signature.publicKey.toHaneulAddress() !== normalizeHaneulAddress(haneulAddress),
 	);
 }
 interface Props {
@@ -63,16 +68,27 @@ interface Props {
 }
 
 export function Signatures({ transaction }: Props) {
-	const sender = getTransactionSender(transaction);
-	const gasData = getGasData(transaction);
-	const transactionSignatures = getTransactionSignature(transaction);
+	const sender = transaction.transaction?.data.sender;
+	const gasData = transaction.transaction?.data.gasData;
+	const transactionSignatures = transaction.transaction?.txSignatures;
 
 	if (!transactionSignatures) return null;
 
 	const isSponsoredTransaction = gasData?.owner !== sender;
 
 	const deserializedTransactionSignatures = transactionSignatures
-		.map((signature) => toParsedSignaturePubkeyPair(signature))
+		.map((signature) => {
+			const parsed = parseSerializedSignature(signature);
+
+			if (parsed.signatureScheme === 'MultiSig') {
+				return parsePartialSignatures(parsed.multisig);
+			}
+
+			return {
+				...parsed,
+				publicKey: publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey),
+			};
+		})
 		.flat();
 
 	const userSignatures = isSponsoredTransaction

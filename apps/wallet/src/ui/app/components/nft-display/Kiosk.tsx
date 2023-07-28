@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { getKioskIdFromOwnerCap, hasDisplayData, useGetKioskContents } from '@haneullabs/core';
-import { getObjectDisplay, type HaneulObjectResponse } from '@haneullabs/haneul.js';
+import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import cl from 'classnames';
 
 import { NftImage, type NftImageProps } from './NftImage';
@@ -45,7 +45,7 @@ export function Kiosk({ object, orientation, ...nftImageProps }: KioskProps) {
 					<NftImage animateHover src={null} name="Kiosk" {...nftImageProps} />
 				) : (
 					items.map((item, idx) => {
-						const display = getObjectDisplay(item)?.data;
+						const display = item.data?.display?.data;
 						return (
 							<div
 								key={item.data?.objectId}

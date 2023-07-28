@@ -6,7 +6,7 @@ import { KIOSK_ITEM, KioskData, KioskItem, fetchKiosk, getOwnedKiosks } from '@h
 import { useQuery } from '@tanstack/react-query';
 import { useRpcClient } from '../api/RpcClientContext';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, getKioskIdFromOwnerCap } from '../utils/kiosk';
-import { HaneulClient } from '@haneullabs/haneul.js/src/client';
+import { HaneulClient } from '@haneullabs/haneul.js/client';
 
 export type KioskContents = Omit<KioskData, 'items'> & {
 	items: Partial<KioskItem & HaneulObjectResponse>[];

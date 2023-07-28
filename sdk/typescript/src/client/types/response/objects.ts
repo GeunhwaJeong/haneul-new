@@ -83,7 +83,7 @@ export type HaneulObjectData = {
 	 * This can also be None if the struct type does not have Display defined
 	 * See more details in https://forums.haneul.io/t/nft-object-display-proposal/4872
 	 */
-	display?: DisplayFieldsBackwardCompatibleResponse;
+	display?: DisplayFieldsResponse;
 };
 
 export type HaneulParsedData =
@@ -120,11 +120,6 @@ export type DisplayFieldsResponse = {
 	data: Record<string, string> | null;
 	error: HaneulObjectResponseError | null;
 };
-
-// TODO: remove after all envs support the new DisplayFieldsResponse;
-export type DisplayFieldsBackwardCompatibleResponse =
-	| DisplayFieldsResponse
-	| (Record<string, string> | undefined);
 
 export type ObjectContentFields = Record<string, any>;
 

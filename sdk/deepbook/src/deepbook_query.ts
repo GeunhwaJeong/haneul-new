@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { DevInspectResults } from '@haneullabs/haneul.js';
+import { DevInspectResults } from '@haneullabs/haneul.js/client';
 import { normalizeHaneulObjectId } from '@haneullabs/haneul.js/utils';
 import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';

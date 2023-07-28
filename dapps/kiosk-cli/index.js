@@ -30,8 +30,8 @@ import {
   isValidHaneulAddress,
   isValidHaneulObjectId,
   GEUNHWA_PER_HANEUL,
-  bcs,
-} from '@haneullabs/haneul.js';
+} from '@haneullabs/haneul.js/utils';
+import { bcs } from '@haneullabs/haneul.js/bcs';
 import { program } from 'commander';
 import {
   createKioskAndShare,

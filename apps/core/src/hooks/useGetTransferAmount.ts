@@ -1,17 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import {
-	HANEUL_TYPE_ARG,
-	HaneulTransactionBlockResponse,
-	getTotalGasUsed,
-	getTransactionSender,
-} from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { useMemo } from 'react';
+import { getTotalGasUsed } from '../utils/transaction';
 
 export function useGetTransferAmount(txnData: HaneulTransactionBlockResponse) {
 	const { balanceChanges } = txnData;
-	const sender = getTransactionSender(txnData);
-	const gas = getTotalGasUsed(txnData);
+	const sender = txnData.transaction?.data.sender;
+	const gas = txnData.effects && getTotalGasUsed(txnData.effects);
 	const changes = useMemo(
 		() =>
 			balanceChanges

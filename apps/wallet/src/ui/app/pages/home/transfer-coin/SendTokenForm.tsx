@@ -10,7 +10,9 @@ import {
 	useHaneulNSEnabled,
 } from '@haneullabs/core';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG, Coin as CoinAPI, type CoinStruct } from '@haneullabs/haneul.js';
+import { Coin as CoinAPI } from '@haneullabs/haneul.js';
+import { type CoinStruct } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Field, Form, useFormikContext, Formik } from 'formik';
 import { useMemo, useEffect } from 'react';

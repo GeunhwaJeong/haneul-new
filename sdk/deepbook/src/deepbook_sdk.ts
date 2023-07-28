@@ -6,7 +6,7 @@ import { normalizeHaneulObjectId } from '@haneullabs/haneul.js/utils';
 import { getPoolInfoByRecords } from './utils';
 import { PoolInfo, Records } from './utils';
 import { defaultGasBudget } from './utils';
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/src/client';
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
 export type smartRouteResult = {
 	maxSwapTokens: number;

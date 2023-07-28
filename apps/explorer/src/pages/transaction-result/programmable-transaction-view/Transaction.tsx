@@ -1,7 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type MoveCallHaneulTransaction, type HaneulArgument, type HaneulMovePackage } from '@haneullabs/haneul.js';
+import {
+	type MoveCallHaneulTransaction,
+	type HaneulArgument,
+	type HaneulMovePackage,
+} from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
 import { type ReactNode } from 'react';
 

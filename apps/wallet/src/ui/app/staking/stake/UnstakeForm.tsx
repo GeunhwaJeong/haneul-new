@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Form } from 'formik';
 import { useMemo } from 'react';
 
