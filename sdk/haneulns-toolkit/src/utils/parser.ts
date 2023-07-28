@@ -7,7 +7,7 @@ import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 export const camelCase = (string: string) => string.replace(/(_\w)/g, (g) => g[1].toUpperCase());
 
 export const parseObjectDataResponse = (response: HaneulObjectResponse | undefined) =>
-    ((response?.data as HaneulObjectData)?.content as HaneulMoveObject)?.fields;
+    ((response?.data as HaneulObjectData)?.content as HaneulMoveObject)?.fields as Record<string, any>;
 
 export const parseRegistryResponse = (response: HaneulObjectResponse | undefined): any => {
     const fields = parseObjectDataResponse(response)?.value?.fields || {};

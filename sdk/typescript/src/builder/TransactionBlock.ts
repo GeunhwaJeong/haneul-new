@@ -4,11 +4,11 @@
 import { fromB64 } from '@haneullabs/bcs';
 import { is, mask } from 'superstruct';
 import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
+import type { HaneulObjectResponse } from '../types/index.js';
 import {
 	extractMutableReference,
 	extractStructTag,
 	getObjectReference,
-	getSharedObjectInitialVersion,
 	HaneulObjectRef,
 } from '../types/index.js';
 import type { TransactionArgument, TransactionType, MoveCallTransaction } from './Transactions.js';
@@ -85,14 +85,14 @@ function createTransactionResult(index: number): TransactionResult {
 	}) as TransactionResult;
 }
 
-function expectClient(options: BuildOptions): JsonRpcProvider | HaneulClient {
+function expectClient(options: BuildOptions): HaneulClient {
 	if (!options.client && !options.provider) {
 		throw new Error(
 			`No provider passed to Transaction#build, but transaction data was not sufficient to build offline.`,
 		);
 	}
 
-	return options.client ?? options.provider!;
+	return (options.client ?? options.provider!) as HaneulClient;
 }
 
 const TRANSACTION_BRAND = Symbol.for('@haneullabs/transaction');
@@ -415,7 +415,7 @@ export class TransactionBlock {
 			 * @deprecated Use `client` instead.
 			 */
 			provider?: JsonRpcProvider | HaneulClient;
-			client?: HaneulClient | JsonRpcProvider;
+			client?: HaneulClient;
 		} = {},
 	): Promise<string> {
 		await this.#prepare(options);
@@ -674,7 +674,11 @@ export class TransactionBlock {
 
 			objectsToResolve.forEach(({ id, input, normalizedType }) => {
 				const object = objectsById.get(id)!;
-				const initialSharedVersion = getSharedObjectInitialVersion(object);
+				const owner = object.data?.owner;
+				const initialSharedVersion =
+					owner && typeof owner === 'object' && 'Shared' in owner
+						? owner.Shared.initial_shared_version
+						: undefined;
 
 				if (initialSharedVersion) {
 					// There could be multiple transactions that reference the same shared object.
@@ -690,7 +694,7 @@ export class TransactionBlock {
 						mutable,
 					});
 				} else {
-					input.value = Inputs.ObjectRef(getObjectReference(object)!);
+					input.value = Inputs.ObjectRef(getObjectReference(object as HaneulObjectResponse)!);
 				}
 			});
 		}

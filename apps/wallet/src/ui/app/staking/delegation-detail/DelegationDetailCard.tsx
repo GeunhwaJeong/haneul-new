@@ -30,6 +30,7 @@ import { ampli } from '_src/shared/analytics/ampli';
 import { API_ENV } from '_src/shared/api-env';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
+import type { StakeObject } from '@haneullabs/haneul.js/client';
 
 type DelegationDetailCardProps = {
 	validatorAddress: string;
@@ -78,7 +79,9 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 
 	const totalStake = BigInt(delegationData?.principal || 0n);
 
-	const haneulEarned = BigInt(delegationData?.estimatedReward || 0n);
+	const haneulEarned = BigInt(
+		(delegationData as Extract<StakeObject, { estimatedReward: string }>)?.estimatedReward || 0n,
+	);
 	const { apy, isApyApproxZero } = rollingAverageApys?.[validatorAddress] ?? {
 		apy: 0,
 	};

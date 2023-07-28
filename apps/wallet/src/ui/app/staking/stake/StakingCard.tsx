@@ -36,6 +36,7 @@ import { Coin } from '_redux/slices/haneul-objects/Coin';
 import { ampli } from '_src/shared/analytics/ampli';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import { FEATURES } from '_src/shared/experimentation/features';
+import type { StakeObject } from '@haneullabs/haneul.js/client';
 
 import type { FormikHelpers } from 'formik';
 
@@ -81,7 +82,8 @@ function StakingCard() {
 
 	const coinSymbol = useMemo(() => (coinType && Coin.getCoinSymbol(coinType)) || '', [coinType]);
 
-	const haneulEarned = stakeData?.estimatedReward || '0';
+	const haneulEarned =
+		(stakeData as Extract<StakeObject, { estimatedReward: string }>)?.estimatedReward || '0';
 
 	const { data: metadata } = useCoinMetadata(coinType);
 	const coinDecimals = metadata?.decimals ?? 0;

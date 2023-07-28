@@ -77,7 +77,7 @@ class HaneulnsClient {
 
         const filteredFields = new Set(fields);
         const filteredDynamicFields = dynamicFields.filter(({ name: { value } }) =>
-            filteredFields.has(value),
+            filteredFields.has(value as DataFields),
         );
 
         const data = await Promise.allSettled(

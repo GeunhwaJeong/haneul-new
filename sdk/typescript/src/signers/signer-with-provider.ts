@@ -32,7 +32,7 @@ export abstract class SignerWithProvider implements Signer {
 		return this.client;
 	}
 
-	readonly client: JsonRpcProvider | HaneulClient;
+	readonly client: HaneulClient;
 
 	///////////////////
 	// Sub-classes MUST implement these
@@ -59,15 +59,15 @@ export abstract class SignerWithProvider implements Signer {
 	 * @deprecated Use `@haneullabs/haneul.js/faucet` instead.
 	 */
 	async requestHaneulFromFaucet(httpHeaders?: HttpHeaders) {
-		if (!('requestHaneulFromFaucet' in this.client)) {
+		if (!('requestHaneulFromFaucet' in this.provider)) {
 			throw new Error('To request HANEUL from faucet, please use @haneullabs/haneul.js/faucet instead');
 		}
 
-		return this.client.requestHaneulFromFaucet(await this.getAddress(), httpHeaders);
+		return this.provider.requestHaneulFromFaucet(await this.getAddress(), httpHeaders);
 	}
 
 	constructor(client: JsonRpcProvider | HaneulClient) {
-		this.client = client;
+		this.client = client as HaneulClient;
 	}
 
 	/**
@@ -156,7 +156,7 @@ export abstract class SignerWithProvider implements Signer {
 	async getTransactionBlockDigest(tx: Uint8Array | TransactionBlock): Promise<string> {
 		if (isTransactionBlock(tx)) {
 			tx.setSenderIfNotSet(await this.getAddress());
-			return tx.getDigest({ provider: this.provider });
+			return tx.getDigest({ client: this.client });
 		} else if (tx instanceof Uint8Array) {
 			return TransactionBlockDataBuilder.getDigestFromBytes(tx);
 		} else {
@@ -173,7 +173,7 @@ export abstract class SignerWithProvider implements Signer {
 		input: Omit<Parameters<JsonRpcProvider['devInspectTransactionBlock']>[0], 'sender'>,
 	): Promise<DevInspectResults> {
 		const address = await this.getAddress();
-		return this.provider.devInspectTransactionBlock({
+		return this.client.devInspectTransactionBlock({
 			sender: address,
 			...input,
 		});

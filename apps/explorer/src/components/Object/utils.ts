@@ -23,7 +23,7 @@ function splitByCommaExcludingBrackets(input: string) {
 	return input.split(regex).map((part) => part.trim());
 }
 
-export function extractSerializationType(type: HaneulMoveNormalizedType): TypeReference {
+export function extractSerializationType(type: HaneulMoveNormalizedType | ''): TypeReference {
 	if (typeof type === 'string') {
 		return type;
 	}
@@ -51,7 +51,7 @@ export function extractSerializationType(type: HaneulMoveNormalizedType): TypeRe
 	return type;
 }
 
-export function getFieldTypeValue(type: HaneulMoveNormalizedType, objectType: string) {
+export function getFieldTypeValue(type: HaneulMoveNormalizedType | '', objectType: string) {
 	const normalizedType = extractSerializationType(type);
 	if (typeof normalizedType === 'string') {
 		return {

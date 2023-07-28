@@ -31,11 +31,11 @@ export class Coin {
 	}
 
 	public static getBalance(obj: HaneulMoveObject): bigint {
-		return BigInt(obj.fields.balance);
+		return BigInt((obj.fields as { balance: string }).balance);
 	}
 
 	public static getID(obj: HaneulMoveObject): string {
-		return obj.fields.id.id;
+		return (obj.fields as { id: { id: string } }).id.id;
 	}
 
 	public static getCoinTypeFromArg(coinTypeArg: string) {

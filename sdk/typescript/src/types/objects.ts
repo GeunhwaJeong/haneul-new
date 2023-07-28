@@ -17,6 +17,7 @@ import {
 	is,
 	nullable,
 	tuple,
+	unknown,
 } from 'superstruct';
 import { ObjectOwner } from './common.js';
 import type { OwnedObjectRef } from './transactions.js';
@@ -56,7 +57,7 @@ export type HaneulObjectInfo = Infer<typeof HaneulObjectInfo>;
 export const ObjectContentFields = record(string(), any());
 export type ObjectContentFields = Infer<typeof ObjectContentFields>;
 
-export const MovePackageContent = record(string(), string());
+export const MovePackageContent = record(string(), unknown());
 export type MovePackageContent = Infer<typeof MovePackageContent>;
 
 export const HaneulMoveObject = object({
@@ -84,7 +85,7 @@ export const HaneulRawMoveObject = object({
 	/** Move type (e.g., "0x2::coin::Coin<0x2::haneul::HANEUL>") */
 	type: string(),
 	hasPublicTransfer: boolean(),
-	version: number(),
+	version: string(),
 	bcsBytes: string(),
 });
 export type HaneulRawMoveObject = Infer<typeof HaneulRawMoveObject>;
@@ -117,13 +118,13 @@ export const HaneulObjectResponseError = object({
 	error: optional(string()),
 	object_id: optional(string()),
 	parent_object_id: optional(string()),
-	version: optional(number()),
+	version: optional(string()),
 	digest: optional(string()),
 });
 export type HaneulObjectResponseError = Infer<typeof HaneulObjectResponseError>;
 export const DisplayFieldsResponse = object({
-	data: nullable(record(string(), string())),
-	error: nullable(HaneulObjectResponseError),
+	data: nullable(optional(record(string(), string()))),
+	error: nullable(optional(HaneulObjectResponseError)),
 });
 export type DisplayFieldsResponse = Infer<typeof DisplayFieldsResponse>;
 // TODO: remove after all envs support the new DisplayFieldsResponse;
@@ -142,37 +143,37 @@ export const HaneulObjectData = object({
 	/**
 	 * Type of the object, default to be undefined unless HaneulObjectDataOptions.showType is set to true
 	 */
-	type: optional(string()),
+	type: nullable(optional(string())),
 	/**
 	 * Move object content or package content, default to be undefined unless HaneulObjectDataOptions.showContent is set to true
 	 */
-	content: optional(HaneulParsedData),
+	content: nullable(optional(HaneulParsedData)),
 	/**
 	 * Move object content or package content in BCS bytes, default to be undefined unless HaneulObjectDataOptions.showBcs is set to true
 	 */
-	bcs: optional(HaneulRawData),
+	bcs: nullable(optional(HaneulRawData)),
 	/**
 	 * The owner of this object. Default to be undefined unless HaneulObjectDataOptions.showOwner is set to true
 	 */
-	owner: optional(ObjectOwner),
+	owner: nullable(optional(ObjectOwner)),
 	/**
 	 * The digest of the transaction that created or last mutated this object.
 	 * Default to be undefined unless HaneulObjectDataOptions.showPreviousTransaction is set to true
 	 */
-	previousTransaction: optional(string()),
+	previousTransaction: nullable(optional(string())),
 	/**
 	 * The amount of HANEUL we would rebate if this object gets deleted.
 	 * This number is re-calculated each time the object is mutated based on
 	 * the present storage gas price.
 	 * Default to be undefined unless HaneulObjectDataOptions.showStorageRebate is set to true
 	 */
-	storageRebate: optional(string()),
+	storageRebate: nullable(optional(string())),
 	/**
 	 * Display metadata for this object, default to be undefined unless HaneulObjectDataOptions.showDisplay is set to true
 	 * This can also be None if the struct type does not have Display defined
 	 * See more details in https://forums.haneul.io/t/nft-object-display-proposal/4872
 	 */
-	display: optional(DisplayFieldsBackwardCompatibleResponse),
+	display: nullable(optional(DisplayFieldsBackwardCompatibleResponse)),
 });
 export type HaneulObjectData = Infer<typeof HaneulObjectData>;
 
@@ -181,19 +182,19 @@ export type HaneulObjectData = Infer<typeof HaneulObjectData>;
  */
 export const HaneulObjectDataOptions = object({
 	/* Whether to fetch the object type, default to be true */
-	showType: optional(boolean()),
+	showType: nullable(optional(boolean())),
 	/* Whether to fetch the object content, default to be false */
-	showContent: optional(boolean()),
+	showContent: nullable(optional(boolean())),
 	/* Whether to fetch the object content in BCS bytes, default to be false */
-	showBcs: optional(boolean()),
+	showBcs: nullable(optional(boolean())),
 	/* Whether to fetch the object owner, default to be false */
-	showOwner: optional(boolean()),
+	showOwner: nullable(optional(boolean())),
 	/* Whether to fetch the previous transaction digest, default to be false */
-	showPreviousTransaction: optional(boolean()),
+	showPreviousTransaction: nullable(optional(boolean())),
 	/* Whether to fetch the storage rebate, default to be false */
-	showStorageRebate: optional(boolean()),
+	showStorageRebate: nullable(optional(boolean())),
 	/* Whether to fetch the display metadata, default to be false */
-	showDisplay: optional(boolean()),
+	showDisplay: nullable(optional(boolean())),
 });
 export type HaneulObjectDataOptions = Infer<typeof HaneulObjectDataOptions>;
 
@@ -204,8 +205,8 @@ export const GetOwnedObjectsResponse = array(HaneulObjectInfo);
 export type GetOwnedObjectsResponse = Infer<typeof GetOwnedObjectsResponse>;
 
 export const HaneulObjectResponse = object({
-	data: optional(HaneulObjectData),
-	error: optional(HaneulObjectResponseError),
+	data: nullable(optional(HaneulObjectData)),
+	error: nullable(optional(HaneulObjectResponseError)),
 });
 export type HaneulObjectResponse = Infer<typeof HaneulObjectResponse>;
 
@@ -217,7 +218,7 @@ export type Order = 'ascending' | 'descending';
 
 /* -------------------------- HaneulObjectResponse ------------------------- */
 
-export function getHaneulObjectData(resp: HaneulObjectResponse): HaneulObjectData | undefined {
+export function getHaneulObjectData(resp: HaneulObjectResponse): HaneulObjectData | null | undefined {
 	return resp.data;
 }
 
@@ -302,7 +303,9 @@ export function isHaneulObjectResponse(
  * @returns 'package' if the object is a package, move object type(e.g., 0x2::coin::Coin<0x2::haneul::HANEUL>)
  * if the object is a move object
  */
-export function getObjectType(resp: HaneulObjectResponse | HaneulObjectData): ObjectType | undefined {
+export function getObjectType(
+	resp: HaneulObjectResponse | HaneulObjectData,
+): ObjectType | null | undefined {
 	const data = isHaneulObjectResponse(resp) ? resp.data : resp;
 
 	if (!data?.type && 'data' in resp) {
@@ -314,11 +317,15 @@ export function getObjectType(resp: HaneulObjectResponse | HaneulObjectData): Ob
 	return data?.type;
 }
 
-export function getObjectPreviousTransactionDigest(resp: HaneulObjectResponse): string | undefined {
+export function getObjectPreviousTransactionDigest(
+	resp: HaneulObjectResponse,
+): string | null | undefined {
 	return getHaneulObjectData(resp)?.previousTransaction;
 }
 
-export function getObjectOwner(resp: HaneulObjectResponse | ObjectOwner): ObjectOwner | undefined {
+export function getObjectOwner(
+	resp: HaneulObjectResponse | ObjectOwner,
+): ObjectOwner | null | undefined {
 	if (is(resp, ObjectOwner)) {
 		return resp;
 	}
@@ -341,9 +348,9 @@ export function getObjectDisplay(resp: HaneulObjectResponse): DisplayFieldsRespo
 
 export function getSharedObjectInitialVersion(
 	resp: HaneulObjectResponse | ObjectOwner,
-): number | undefined {
+): string | null | undefined {
 	const owner = getObjectOwner(resp);
-	if (typeof owner === 'object' && 'Shared' in owner) {
+	if (owner && typeof owner === 'object' && 'Shared' in owner) {
 		return owner.Shared.initial_shared_version;
 	} else {
 		return undefined;
@@ -352,7 +359,7 @@ export function getSharedObjectInitialVersion(
 
 export function isSharedObject(resp: HaneulObjectResponse | ObjectOwner): boolean {
 	const owner = getObjectOwner(resp);
-	return typeof owner === 'object' && 'Shared' in owner;
+	return !!owner && typeof owner === 'object' && 'Shared' in owner;
 }
 
 export function isImmutableObject(resp: HaneulObjectResponse | ObjectOwner): boolean {
@@ -420,8 +427,7 @@ export type CheckpointedObjectId = Infer<typeof CheckpointedObjectId>;
 
 export const PaginatedObjectsResponse = object({
 	data: array(HaneulObjectResponse),
-	// TODO: remove union after 0.30.0 is released
-	nextCursor: union([nullable(string()), nullable(CheckpointedObjectId)]),
+	nextCursor: optional(nullable(string())),
 	hasNextPage: boolean(),
 });
 export type PaginatedObjectsResponse = Infer<typeof PaginatedObjectsResponse>;
