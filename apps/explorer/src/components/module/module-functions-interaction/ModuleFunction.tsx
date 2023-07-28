@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useZodForm } from '@haneullabs/core';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { TransactionBlock, getPureSerializationType } from '@haneullabs/haneul.js/transactions';
 import { Button } from '@haneullabs/ui';
@@ -14,7 +15,6 @@ import { z } from 'zod';
 import { FunctionExecutionResult } from './FunctionExecutionResult';
 import { useFunctionParamsDetails } from './useFunctionParamsDetails';
 import { useFunctionTypeArguments } from './useFunctionTypeArguments';
-import { useZodForm } from '~/hooks/useZodForm';
 import { DisclosureBox } from '~/ui/DisclosureBox';
 import { Input } from '~/ui/Input';
 
