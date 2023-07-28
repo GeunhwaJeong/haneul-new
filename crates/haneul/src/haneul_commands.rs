@@ -95,6 +95,9 @@ pub enum HaneulCommand {
     KeyTool {
         #[clap(long)]
         keystore_path: Option<PathBuf>,
+        ///Return command outputs in json format
+        #[clap(long, global = true)]
+        json: bool,
         /// Subcommands.
         #[clap(subcommand)]
         cmd: KeyToolCommand,
@@ -258,11 +261,16 @@ impl HaneulCommand {
                 .await
             }
             HaneulCommand::GenesisCeremony(cmd) => run(cmd),
-            HaneulCommand::KeyTool { keystore_path, cmd } => {
+            HaneulCommand::KeyTool {
+                keystore_path,
+                json,
+                cmd,
+            } => {
                 let keystore_path =
                     keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
                 let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
-                cmd.execute(&mut keystore).await
+                cmd.execute(&mut keystore).await?.print(!json);
+                Ok(())
             }
             HaneulCommand::Console { config } => {
                 let config = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
