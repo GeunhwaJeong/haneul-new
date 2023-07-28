@@ -1,12 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectDataOptions } from '@haneullabs/haneul.js/client';
 import { useRpcClient } from '../api/RpcClientContext';
 import { useQuery } from '@tanstack/react-query';
 import { chunkArray } from '../utils/chunkArray';
+import { HaneulObjectDataOptions } from '@haneullabs/haneul.js/src/client';
 
-export function useMultiGetObjects(ids: string[], options: HaneulObjectDataOptions) {
+export function useMultiGetObjects(
+	ids: string[],
+	options: HaneulObjectDataOptions,
+	queryOptions?: { keepPreviousData?: boolean },
+) {
 	const rpc = useRpcClient();
 	return useQuery({
 		queryKey: ['multiGetObjects', ids],
@@ -22,5 +26,6 @@ export function useMultiGetObjects(ids: string[], options: HaneulObjectDataOptio
 			return responses.flat();
 		},
 		enabled: !!ids?.length,
+		...queryOptions,
 	});
 }

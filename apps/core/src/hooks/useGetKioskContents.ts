@@ -1,17 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
-import { KIOSK_ITEM, KioskData, KioskItem, fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
+import { KIOSK_ITEM, KioskItem, fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
 import { useQuery } from '@tanstack/react-query';
 import { useRpcClient } from '../api/RpcClientContext';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, getKioskIdFromOwnerCap } from '../utils/kiosk';
-import { HaneulClient } from '@haneullabs/haneul.js/client';
-
-export type KioskContents = Omit<KioskData, 'items'> & {
-	items: Partial<KioskItem & HaneulObjectResponse>[];
-	ownerCap?: string;
-};
+import { HaneulClient, HaneulObjectResponse } from '@haneullabs/haneul.js/src/client';
 
 export enum KioskTypes {
 	HANEUL = 'haneul',
@@ -19,7 +13,8 @@ export enum KioskTypes {
 }
 
 export type Kiosk = {
-	items: Partial<KioskItem & HaneulObjectResponse>[];
+	items: Partial<HaneulObjectResponse & KioskItem>[];
+	itemIds: string[];
 	kioskId: string;
 	type: KioskTypes;
 	ownerCap?: string;
@@ -36,7 +31,6 @@ async function getOriginByteKioskContents(address: string, client: HaneulClient)
 		},
 	});
 	const ids = data.data.map((object) => getKioskIdFromOwnerCap(object));
-	const kiosks = new Map<string, Kiosk>();
 
 	// fetch the user's kiosks
 	const ownedKiosks = await client.multiGetObjects({
@@ -46,66 +40,63 @@ async function getOriginByteKioskContents(address: string, client: HaneulClient)
 		},
 	});
 
-	// find object IDs within a kiosk
-	await Promise.all(
-		ownedKiosks.map(async (kiosk) => {
-			if (!kiosk.data?.objectId) return [];
-			const objects = await client.getDynamicFields({
-				parentId: kiosk.data.objectId,
-			});
+	const contents = await Promise.all(
+		ownedKiosks
+			.map(async (kiosk) => {
+				if (!kiosk.data) return;
+				const objects = await client.getDynamicFields({
+					parentId: kiosk.data.objectId,
+				});
 
-			const objectIds = objects.data
-				.filter((obj) => obj.name.type === KIOSK_ITEM)
-				.map((obj) => obj.objectId);
+				const objectIds = objects.data
+					.filter((obj) => obj.name.type === KIOSK_ITEM)
+					.map((obj) => obj.objectId);
 
-			// fetch the contents of the objects within a kiosk
-			const kioskContent = await client.multiGetObjects({
-				ids: objectIds,
-				options: {
-					showDisplay: true,
-					showType: true,
-				},
-			});
+				// fetch the contents of the objects within a kiosk
+				const kioskContent = await client.multiGetObjects({
+					ids: objectIds,
+					options: {
+						showDisplay: true,
+						showType: true,
+					},
+				});
 
-			kiosks.set(kiosk.data.objectId, {
-				items: kioskContent.map((item) => ({ ...item, kioskId: kiosk.data?.objectId })),
-				kioskId: kiosk.data.objectId,
-				type: KioskTypes.ORIGINBYTE,
-			});
-		}),
+				return {
+					itemIds: objectIds,
+					items: kioskContent.map((item) => ({ ...item, kioskId: kiosk.data?.objectId })),
+					kioskId: kiosk.data.objectId,
+					type: KioskTypes.ORIGINBYTE,
+				};
+			})
+			.filter(Boolean) as Promise<Kiosk>[],
 	);
-
-	return kiosks;
+	return contents;
 }
 
 async function getHaneulKioskContents(address: string, client: HaneulClient) {
 	const ownedKiosks = await getOwnedKiosks(client, address!);
-	const kiosks = new Map<string, Kiosk>();
 
-	await Promise.all(
+	const contents = await Promise.all(
 		ownedKiosks.kioskIds.map(async (id) => {
 			const kiosk = await fetchKiosk(client, id, { limit: 1000 }, {});
 			const contents = await client.multiGetObjects({
 				ids: kiosk.data.itemIds,
 				options: { showDisplay: true, showContent: true },
 			});
-
 			const items = contents.map((object) => {
 				const kioskData = kiosk.data.items.find((item) => item.objectId === object.data?.objectId);
 				return { ...object, ...kioskData, kioskId: id };
 			});
-
-			kiosks.set(id, {
-				...kiosk.data,
+			return {
+				itemIds: kiosk.data.itemIds,
 				items,
 				kioskId: id,
 				type: KioskTypes.HANEUL,
 				ownerCap: ownedKiosks.kioskOwnerCaps.find((k) => k.kioskId === id)?.objectId,
-			});
-		}, kiosks),
+			};
+		}),
 	);
-
-	return kiosks;
+	return contents;
 }
 
 export function useGetKioskContents(address?: string | null, disableOriginByteKiosk?: boolean) {
@@ -115,24 +106,24 @@ export function useGetKioskContents(address?: string | null, disableOriginByteKi
 		queryKey: ['get-kiosk-contents', address, disableOriginByteKiosk],
 		queryFn: async () => {
 			const haneulKiosks = await getHaneulKioskContents(address!, rpc);
-			const obKiosks = !disableOriginByteKiosk
-				? await getOriginByteKioskContents(address!, rpc)
-				: new Map();
+			const obKiosks = await getOriginByteKioskContents(address!, rpc);
+			return [...haneulKiosks, ...obKiosks];
+		},
+		select(data) {
+			const kiosks = new Map<string, Kiosk>();
+			const lookup = new Map<string, string>();
 
-			const list = [...Array.from(haneulKiosks.values()), ...Array.from(obKiosks.values())].flatMap(
-				(d) => d.items,
-			);
-			const kiosks = new Map([...haneulKiosks, ...obKiosks]) as Map<string, Kiosk>;
-			// a map of object ID to Kiosk ID
-			const lookup = list.reduce((acc, curr) => {
-				acc.set(curr.data.objectId, curr.kioskId);
-				return acc;
-			}, new Map<string, string>());
+			data.forEach((kiosk) => {
+				kiosks.set(kiosk.kioskId, kiosk);
+				kiosk.itemIds.forEach((id) => {
+					lookup.set(id, kiosk.kioskId);
+				});
+			});
 
 			return {
-				list,
-				lookup,
 				kiosks,
+				list: data.flatMap((kiosk) => kiosk.items),
+				lookup,
 			};
 		},
 	});
