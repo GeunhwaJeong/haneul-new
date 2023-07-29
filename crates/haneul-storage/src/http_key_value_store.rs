@@ -60,7 +60,7 @@ fn key_to_path_elements(key: &Key) -> HaneulResult<(String, &'static str)> {
 }
 
 impl HttpKVStore {
-    pub fn new(base_url: Uri) -> HaneulResult<Self> {
+    pub fn new(base_url: &str) -> HaneulResult<Self> {
         info!("creating HttpKVStore with base_url: {}", base_url);
         let http = HttpsConnectorBuilder::new()
             .with_native_roots()
@@ -71,7 +71,14 @@ impl HttpKVStore {
         let client = Client::builder()
             .http2_only(true)
             .build::<_, hyper::Body>(http);
-        let base_url = Url::parse(&base_url.to_string()).into_haneul_result()?;
+
+        let base_url = if base_url.ends_with('/') {
+            base_url.to_string()
+        } else {
+            format!("{}/", base_url)
+        };
+
+        let base_url = Url::parse(&base_url).into_haneul_result()?;
 
         Ok(Self {
             base_url,

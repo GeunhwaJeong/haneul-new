@@ -5,6 +5,7 @@
 //! to/from a scalable.
 
 use async_trait::async_trait;
+use std::sync::Arc;
 use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulResult};
@@ -203,14 +204,14 @@ pub trait TransactionKeyValueStore {
 ///
 /// Will be used to check the local rocksdb store, before falling back to a remote scalable store.
 pub struct FallbackTransactionKVStore {
-    primary: Box<dyn TransactionKeyValueStore + Send + Sync>,
-    fallback: Box<dyn TransactionKeyValueStore + Send + Sync>,
+    primary: Arc<dyn TransactionKeyValueStore + Send + Sync>,
+    fallback: Arc<dyn TransactionKeyValueStore + Send + Sync>,
 }
 
 impl FallbackTransactionKVStore {
     pub fn new(
-        primary: Box<dyn TransactionKeyValueStore + Send + Sync>,
-        fallback: Box<dyn TransactionKeyValueStore + Send + Sync>,
+        primary: Arc<dyn TransactionKeyValueStore + Send + Sync>,
+        fallback: Arc<dyn TransactionKeyValueStore + Send + Sync>,
     ) -> Self {
         Self { primary, fallback }
     }

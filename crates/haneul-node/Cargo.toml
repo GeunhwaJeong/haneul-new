@@ -24,6 +24,7 @@ serde.workspace = true
 snap.workspace = true
 git-version.workspace = true
 const-str.workspace = true
+url.workspace = true
 
 haneul-archival.workspace = true
 haneul-tls.workspace = true
