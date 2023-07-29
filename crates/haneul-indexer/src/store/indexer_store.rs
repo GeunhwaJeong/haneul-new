@@ -1,17 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use prometheus::{Histogram, IntCounter};
 
 use move_core_types::identifier::Identifier;
 use haneul_json_rpc_types::{
     Checkpoint as RpcCheckpoint, CheckpointId, EpochInfo, EventFilter, EventPage, MoveCallMetrics,
-    NetworkMetrics, HaneulObjectData, HaneulObjectDataFilter, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions,
+    NetworkMetrics, HaneulObjectData, HaneulObjectDataFilter, HaneulTransactionBlockEffects,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber, HaneulAddress, VersionNumber};
-use haneul_types::digests::CheckpointDigest;
+use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::error::HaneulError;
 use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -296,26 +298,26 @@ pub trait IndexerStore {
 }
 
 #[derive(Clone, Debug)]
-pub struct CheckpointData {
+pub struct CheckpointTxData {
     pub checkpoint: RpcCheckpoint,
     pub transactions: Vec<CheckpointTransactionBlockResponse>,
-    pub changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
+    // For epoch indexing, only populated in epoch change and genesis
+    // We use `Vec` here beacause the list is very small.
+    pub system_state_objects: Vec<haneul_types::object::Object>,
 }
 
-impl ObjectStore for CheckpointData {
+// CheckpointTxData can ONLY be used as a ObjectStore
+// for HaneulSystemState Object.
+impl ObjectStore for CheckpointTxData {
     fn get_object(
         &self,
         object_id: &ObjectID,
     ) -> Result<Option<haneul_types::object::Object>, HaneulError> {
         Ok(self
-            .changed_objects
+            .system_state_objects
             .iter()
-            .find_map(|(status, o)| match status {
-                ObjectStatus::Created | ObjectStatus::Mutated if &o.object_id == object_id => {
-                    o.clone().try_into().ok()
-                }
-                _ => None,
-            }))
+            .find(|o| o.id() == *object_id)
+            .cloned())
     }
 
     fn get_object_by_key(
@@ -324,17 +326,21 @@ impl ObjectStore for CheckpointData {
         version: VersionNumber,
     ) -> Result<Option<haneul_types::object::Object>, HaneulError> {
         Ok(self
-            .changed_objects
+            .system_state_objects
             .iter()
-            .find_map(|(status, o)| match status {
-                ObjectStatus::Created | ObjectStatus::Mutated
-                    if &o.object_id == object_id && o.version == version =>
-                {
-                    o.clone().try_into().ok()
-                }
-                _ => None,
-            }))
+            .find(|o| o.id() == *object_id && o.version() == version)
+            .cloned())
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct CheckpointObjectData {
+    pub epoch: EpochId,
+    pub checkpoint_seq: CheckpointSequenceNumber,
+    // HaneulAddress is tx sender
+    pub transactions: Vec<(TransactionDigest, HaneulTransactionBlockEffects)>,
+    pub transaction_senders: HashMap<TransactionDigest, HaneulAddress>,
+    pub changed_objects: Vec<(ObjectStatus, HaneulObjectData)>,
 }
 
 // Per checkpoint indexing
@@ -343,7 +349,6 @@ pub struct TemporaryCheckpointStore {
     pub checkpoint: Checkpoint,
     pub transactions: Vec<Transaction>,
     pub events: Vec<Event>,
-    pub packages: Vec<Package>,
     pub input_objects: Vec<InputObject>,
     pub changed_objects: Vec<ChangedObject>,
     pub move_calls: Vec<MoveCall>,
