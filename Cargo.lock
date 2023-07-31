@@ -10993,6 +10993,7 @@ dependencies = [
  "haneul-test-transaction-builder",
  "haneul-types",
  "tap",
+ "telemetry-subscribers",
  "tempfile",
  "tokio",
  "tracing",

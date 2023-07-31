@@ -33,6 +33,7 @@ clap = "4.3.2"
 hyper.workspace = true
 hyper-rustls.workspace = true
 base64-url.workspace = true
+telemetry-subscribers.workspace = true
 
 haneul-types.workspace = true
 haneullabs-metrics.workspace = true
