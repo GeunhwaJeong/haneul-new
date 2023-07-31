@@ -53,43 +53,41 @@ Create a new `index.js` file in the root of your project with the following code
 
 ```js
 import { requestHaneulFromFaucetV0, getFaucetHost } from '@haneullabs/haneul.js/faucet';
-import { HaneulClient } from '@haneullabs/haneul.js/client';
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
 
-const HANEUL_NETWORK = 'https://fullnode.devnet.haneul.io:443/';
 // replace <YOUR_HANEUL_ADDRESS> with your actual address, which is in the form 0x123...
 const MY_ADDRESS = '<YOUR_HANEUL_ADDRESS>';
 
 // create a new HaneulClient object pointing to the network you want to use
-const haneulClient = new HaneulClient({ url: HANEUL_NETWORK });
+const haneulClient = new HaneulClient({ url: getFullnodeUrl('devnet') });
 
-// function to process the JSON that getCoins provides and then return number of HANEUL
-const balance = (coins) => {
-	let bal = 0;
-	coins.data.map((coin) => (bal += Number(coin.balance)));
-	return bal / 1000000000;
+// Convert GEUNHWA to Haneul
+const balance = (balance) => {
+	return Number.parseInt(balance.totalBalance) / Number(GEUNHWA_PER_HANEUL);
 };
 
 // store the JSON representation for the HANEUL the address owns before using faucet
-const coinsBefore = await haneulClient.getCoins({
+const haneulBefore = await haneulClient.getBalance({
 	owner: MY_ADDRESS,
 });
 
-const statusId = await requestHaneulFromFaucetV0({
+await requestHaneulFromFaucetV0({
 	// use getFaucetHost to make sure you're using correct faucet address
 	// you can also just use the address (see Haneul Typescript SDK Quick Start for values)
-	host: getFaucetHost('testnet'),
+	host: getFaucetHost('devnet'),
 	recipient: MY_ADDRESS,
 });
 
 // store the JSON representation for the HANEUL the address owns after using faucet
-const coinsAfter = await haneulClient.getCoins({
+const haneulAfter = await haneulClient.getBalance({
 	owner: MY_ADDRESS,
 });
 
 // Output result to console.
 console.log(
-	`Balance before faucet: ${balance(coinsBefore)} HANEUL. Balance after: ${balance(
-		coinsAfter,
+	`Balance before faucet: ${balance(haneulBefore)} HANEUL. Balance after: ${balance(
+		haneulAfter,
 	)} HANEUL. Hello, HANEUL!`,
 );
 ```
