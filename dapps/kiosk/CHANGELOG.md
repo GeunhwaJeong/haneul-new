@@ -1,5 +1,14 @@
 # kiosk-demo
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [47ea5ec7c]
+  - @haneullabs/haneul.js@0.39.0
+  - @haneullabs/kiosk@0.4.1
+  - @haneullabs/wallet-kit@0.5.1
+
 ## 0.0.4
 
 ### Patch Changes
