@@ -20,6 +20,7 @@
 			"@haneullabs/wallet-adapter-base": ["../adapters/base-adapter/src"],
 			"@haneullabs/wallet-adapter-unsafe-burner": ["../adapters/unsafe-burner/src"],
 			"@haneullabs/wallet-adapter-wallet-standard": ["../adapters/wallet-standard-adapter/src"],
+			"@haneullabs/wallet-kit-core": ["../wallet-kit-core/src"],
 			"@haneullabs/wallet-kit": ["../wallet-kit/src"],
 			"@haneullabs/haneul.js/transactions": ["../../typescript/src/builder/export.ts"],
 			"@haneullabs/haneul.js/*": ["../../typescript/src/*"],
