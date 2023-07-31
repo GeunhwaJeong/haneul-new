@@ -6,6 +6,7 @@ const config = {
 	project: {
 		link: 'https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript',
 	},
+	docsRepositoryBase: 'https://github.com/GeunhwaJeong/haneul/tree/main/sdk/docs/pages',
 };
 
 export default config;
