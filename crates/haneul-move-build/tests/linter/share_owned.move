@@ -5,6 +5,7 @@ module 0x42::test1 {
     use haneul::transfer;
     use haneul::object::UID;
 
+    #[allow(unused_field)]
     struct Obj has key, store {
         id: UID
     }
