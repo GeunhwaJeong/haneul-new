@@ -8,6 +8,7 @@ use haneul_storage::http_key_value_store::*;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
 use haneul_types::digests::{TransactionDigest, TransactionEventsDigest};
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 // Command line options are:
 // --base-url <url> - the base URL of the HTTP server
@@ -17,13 +18,13 @@ use haneul_types::digests::{TransactionDigest, TransactionEventsDigest};
 #[clap(rename_all = "kebab-case")]
 struct Options {
     // default value of 'https://transactions.haneul.io/'
-    #[clap(short, long, default_value = "https://transactions.haneul.io/")]
+    #[clap(short, long, default_value = "https://transactions.haneul.io/mainnet")]
     base_url: String,
 
     #[clap(short, long)]
     digest: Vec<String>,
 
-    // must be either 'tx', 'fx', or 'ev'
+    // must be either 'tx', 'fx', 'events', or 'ckpt_contents'
     // default value of 'tx'
     #[clap(short, long, default_value = "tx")]
     type_: String,
@@ -65,7 +66,7 @@ async fn main() {
             }
         }
 
-        "ev" => {
+        "events" => {
             let digests: Vec<_> = options
                 .digest
                 .into_iter()
@@ -79,6 +80,23 @@ async fn main() {
                 println!("fetched events: {:?} {:?}", digest, ev);
             }
         }
+
+        "ckpt_contents" => {
+            let seqs: Vec<_> = options
+                .digest
+                .into_iter()
+                .map(|s| {
+                    CheckpointSequenceNumber::from_str(&s)
+                        .expect("invalid checkpoint sequence number")
+                })
+                .collect();
+
+            let tx = kv.multi_get_checkpoints_contents(&seqs).await.unwrap();
+            for (digest, ckpt) in seqs.iter().zip(tx.iter()) {
+                println!("fetched ckpt: {:?} {:?}", digest, ckpt);
+            }
+        }
+
         _ => {
             println!(
                 "Invalid key type: {}. Must be one of 'tx', 'fx', or 'ev'.",

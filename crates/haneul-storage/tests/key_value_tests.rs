@@ -12,6 +12,7 @@ use haneul_types::digests::{TransactionDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::HaneulResult;
 use haneul_types::event::Event;
+use haneul_types::messages_checkpoint::{CheckpointContents, CheckpointSequenceNumber};
 use haneul_types::transaction::Transaction;
 
 use haneul_storage::key_value_store::*;
@@ -119,6 +120,13 @@ impl TransactionKeyValueStoreTrait for MockTxStore {
         }
 
         Ok((txs, fxs, evts))
+    }
+
+    async fn multi_get_checkpoints_contents(
+        &self,
+        _checkpoints: &[CheckpointSequenceNumber],
+    ) -> HaneulResult<Vec<Option<CheckpointContents>>> {
+        todo!()
     }
 }
 
