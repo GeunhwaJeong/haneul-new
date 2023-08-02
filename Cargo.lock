@@ -11261,6 +11261,7 @@ dependencies = [
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-protocol-config",
+ "haneul-storage",
  "haneul-swarm-config",
  "haneul-types",
  "tempfile",

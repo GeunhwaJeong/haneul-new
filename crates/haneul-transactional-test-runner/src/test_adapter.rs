@@ -49,6 +49,9 @@ use haneul_json_rpc_types::{
     DevInspectResults, EventFilter, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use haneul_storage::{
+    key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
+};
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::DEEPBOOK_PACKAGE_ID;
@@ -104,6 +107,7 @@ const GAS_FOR_TESTING: u64 = GAS_VALUE_FOR_TESTING;
 
 pub struct HaneulTestAdapter<'a> {
     pub(crate) validator: Arc<AuthorityState>,
+    pub(crate) kv_store: Arc<TransactionKeyValueStore>,
     pub(crate) fullnode: Arc<AuthorityState>,
     pub(crate) compiled_state: CompiledState<'a>,
     /// For upgrades: maps an upgraded package name to the original package name.
@@ -343,8 +347,17 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             fullnode.insert_genesis_objects(&objects).await;
             (state, fullnode)
         };
+
+        let metrics = KeyValueStoreMetrics::new_for_tests();
+        let kv_store = Arc::new(TransactionKeyValueStore::new(
+            "rocksdb",
+            metrics,
+            validator.db(),
+        ));
+
         let mut test_adapter = Self {
             validator,
+            kv_store,
             fullnode,
             compiled_state: CompiledState::new(
                 named_address_mapping,
@@ -1151,11 +1164,13 @@ impl<'a> HaneulTestAdapter<'a> {
                 let events = self
                     .validator
                     .query_events(
+                        &self.kv_store,
                         EventFilter::Transaction(*txn.digest()),
                         None,
                         *QUERY_MAX_RESULT_LIMIT,
                         /* descending */ false,
                     )
+                    .await
                     .unwrap_or_default()
                     .into_iter()
                     .map(|haneul_event| haneul_event.into())
