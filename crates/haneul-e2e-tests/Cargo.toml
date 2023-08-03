@@ -42,6 +42,7 @@ haneul-json-rpc.workspace = true
 haneul-node.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true
+haneul-storage.workspace = true
 haneullabs-metrics.workspace = true
 haneul-tool.workspace = true
 haneul-protocol-config.workspace = true

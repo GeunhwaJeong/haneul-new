@@ -18,6 +18,19 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::transaction::Transaction;
 
+pub type KVStoreTransactionData = (
+    Vec<Option<Transaction>>,
+    Vec<Option<TransactionEffects>>,
+    Vec<Option<TransactionEvents>>,
+);
+
+pub type KVStoreCheckpointData = (
+    Vec<Option<CertifiedCheckpointSummary>>,
+    Vec<Option<CheckpointContents>>,
+    Vec<Option<CertifiedCheckpointSummary>>,
+    Vec<Option<CheckpointContents>>,
+);
+
 pub struct TransactionKeyValueStore {
     store_name: &'static str,
     metrics: Arc<KeyValueStoreMetrics>,
@@ -384,11 +397,7 @@ pub trait TransactionKeyValueStoreTrait {
         transactions: &[TransactionDigest],
         effects: &[TransactionDigest],
         events: &[TransactionEventsDigest],
-    ) -> HaneulResult<(
-        Vec<Option<Transaction>>,
-        Vec<Option<TransactionEffects>>,
-        Vec<Option<TransactionEvents>>,
-    )>;
+    ) -> HaneulResult<KVStoreTransactionData>;
 
     /// Generic multi_get to allow implementors to get heterogenous values with a single round trip.
     async fn multi_get_checkpoints(
@@ -397,12 +406,7 @@ pub trait TransactionKeyValueStoreTrait {
         checkpoint_contents: &[CheckpointSequenceNumber],
         checkpoint_summaries_by_digest: &[CheckpointDigest],
         checkpoint_contents_by_digest: &[CheckpointContentsDigest],
-    ) -> HaneulResult<(
-        Vec<Option<CertifiedCheckpointSummary>>,
-        Vec<Option<CheckpointContents>>,
-        Vec<Option<CertifiedCheckpointSummary>>,
-        Vec<Option<CheckpointContents>>,
-    )>;
+    ) -> HaneulResult<KVStoreCheckpointData>;
 }
 
 /// A TransactionKeyValueStoreTrait that falls back to a secondary store for any key for which the
