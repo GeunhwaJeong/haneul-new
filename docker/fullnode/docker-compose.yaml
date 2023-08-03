@@ -11,6 +11,6 @@ services:
     - ./fullnode-template.yaml:/haneul/fullnode.yaml:ro
     - ./genesis.blob:/haneul/genesis.blob:ro
     - haneuldb:/haneul/haneuldb:rw
-    command: ["/usr/local/bin/haneul-node", "--config-path", "fullnode.yaml"]
+    command: ["/opt/haneul/bin/haneul-node", "--config-path", "/opt/haneul/config/fullnode.yaml"]
 volumes:
   haneuldb:

@@ -24,7 +24,7 @@ services:
       - /opt/haneul/db:/opt/haneul/db:rw
     command:
       [
-        "/usr/local/bin/haneul-node",
+        "/opt/haneul/bin/haneul-node",
         "--config-path",
         "/opt/haneul/config/validator.yaml",
       ]
