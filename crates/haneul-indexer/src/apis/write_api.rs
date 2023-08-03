@@ -22,16 +22,6 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 
-// TODO(gegaowp): temp. disable fast-path
-// use crate::handlers::checkpoint_handler::{
-//     fetch_changed_objects, get_deleted_db_objects, get_object_changes, to_changed_db_objects,
-// };
-// use crate::models::transactions::Transaction;
-// use crate::store::{IndexerStore, TransactionObjectChanges};
-// use crate::types::{
-//         FastPathTransactionBlockResponse, HaneulTransactionBlockResponseWithOptions,
-//         TemporaryTransactionBlockResponseStore,
-//     };
 use crate::store::IndexerStore;
 use crate::types::HaneulTransactionBlockResponseWithOptions;
 
