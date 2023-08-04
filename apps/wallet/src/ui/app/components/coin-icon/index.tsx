@@ -16,16 +16,20 @@ const imageStyle = cva(['rounded-full flex rounded-full'], {
 			lg: 'md:w-10 md:h-10 w-8 h-8',
 			xl: 'md:w-31.5 md:h-31.5 w-16 h-16 ',
 		},
+		fill: {
+			haneul: 'bg-haneul',
+			haneulPrimary2023: 'bg-haneul-primaryBlue2023',
+		},
 	},
-
 	defaultVariants: {
 		size: 'md',
+		fill: 'haneulPrimary2023',
 	},
 });
 
 function HaneulCoin() {
 	return (
-		<Haneul className="flex items-center w-full h-full justify-center text-white text-body p-1.5 bg-haneul rounded-full" />
+		<Haneul className="flex items-center w-full h-full justify-center text-white p-1 text-body rounded-full" />
 	);
 }
 

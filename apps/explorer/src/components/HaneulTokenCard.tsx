@@ -1,14 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { COIN_GECKO_HANEUL_URL, useHaneulCoinData } from '@haneullabs/core';
 import { Haneul } from '@haneullabs/icons';
 import { Text } from '@haneullabs/ui';
 
-import { useHaneulCoinData } from '~/hooks/useHaneulCoinData';
 import { Card } from '~/ui/Card';
 import { ButtonOrLink } from '~/ui/utils/ButtonOrLink';
-
-const COIN_GECKO_HANEUL_URL = 'https://www.coingecko.com/en/coins/haneul';
 
 export function HaneulTokenCard() {
 	const { data } = useHaneulCoinData();
