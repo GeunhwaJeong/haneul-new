@@ -10914,6 +10914,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-rest-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bcs",
+ "futures",
+ "reqwest",
+ "serde",
+ "haneul-core",
+ "haneul-types",
+ "tap",
+ "tokio",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-rosetta"
 version = "0.1.0"
 dependencies = [
