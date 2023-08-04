@@ -1,0 +1,16 @@
+{
+	"extends": "../build-scripts/tsconfig.shared.json",
+	"include": ["src"],
+	"compilerOptions": {
+		"module": "CommonJS",
+		"outDir": "dist/cjs",
+		"isolatedModules": true,
+		"jsx": "react-jsx",
+		"baseUrl": "..",
+		"paths": {
+			"@haneullabs/haneul.js/transactions": ["../typescript/src/builder/export.ts"],
+			"@haneullabs/haneul.js/*": ["../typescript/src/*"],
+			"@haneullabs/haneul.js": ["../typescript/src/"]
+		}
+	}
+}
