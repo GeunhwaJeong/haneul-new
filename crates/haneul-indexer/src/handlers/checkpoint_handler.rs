@@ -23,7 +23,6 @@ use tokio::task::JoinHandle;
 use tracing::{error, info, warn};
 
 use haneullabs_metrics::spawn_monitored_task;
-use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc::api::ReadApiClient;
 use haneul_json_rpc_types::{
     OwnedObjectRef, HaneulGetPastObjectRequest, HaneulObjectData, HaneulObjectDataOptions, HaneulRawData,
@@ -95,7 +94,6 @@ where
     pub fn new(
         state: S,
         http_client: HttpClient,
-        _subscription_handler: Arc<SubscriptionHandler>,
         metrics: IndexerMetrics,
         config: &IndexerConfig,
     ) -> Self {
