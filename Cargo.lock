@@ -10300,6 +10300,7 @@ dependencies = [
  "haneul-move-build",
  "haneul-node",
  "haneul-open-rpc",
+ "haneul-rest-api",
  "haneul-sdk",
  "haneul-test-transaction-builder",
  "haneul-types",
