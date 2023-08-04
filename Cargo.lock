@@ -10704,6 +10704,7 @@ dependencies = [
  "haneul-macros",
  "haneul-network",
  "haneul-protocol-config",
+ "haneul-rest-api",
  "haneul-simulator",
  "haneul-snapshot",
  "haneul-storage",

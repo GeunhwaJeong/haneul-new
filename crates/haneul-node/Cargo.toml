@@ -31,6 +31,7 @@ haneul-tls.workspace = true
 haneul-macros.workspace = true
 haneul-config.workspace = true
 haneul-core.workspace = true
+haneul-rest-api.workspace = true
 haneul-storage.workspace = true
 haneul-network.workspace = true
 haneul-json-rpc.workspace = true
