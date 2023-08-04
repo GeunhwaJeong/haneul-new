@@ -6,9 +6,11 @@ use anyhow::{anyhow, Result};
 use haneullabs_metrics::spawn_monitored_task;
 use prometheus::{register_int_gauge_with_registry, IntGauge, Registry};
 use std::collections::HashSet;
+use std::iter::repeat;
 use std::time::Duration;
 use haneul_config::node::TransactionKeyValueStoreWriteConfig;
 use haneul_core::storage::RocksDbStore;
+use haneul_storage::http_key_value_store::TaggedKey;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::storage::ReadStore;
@@ -160,6 +162,33 @@ where
                     .await?;
                 client.multi_set(KVTable::Effects, effects).await?;
                 client.multi_set(KVTable::Events, events).await?;
+
+                let serialized_checkpoint_number = bcs::to_bytes(
+                    &TaggedKey::CheckpointSequenceNumber(checkpoint_summary.sequence_number),
+                )?;
+                client
+                    .multi_set(
+                        KVTable::CheckpointSummary,
+                        [
+                            serialized_checkpoint_number.clone(),
+                            checkpoint_summary.digest().into_inner().to_vec(),
+                        ]
+                        .into_iter()
+                        .zip(repeat(checkpoint_summary.inner())),
+                    )
+                    .await?;
+                for key in [
+                    serialized_checkpoint_number,
+                    checkpoint_summary.content_digest.into_inner().to_vec(),
+                ] {
+                    client
+                        .upload_blob(
+                            KVTable::CheckpointContent,
+                            key,
+                            contents.checkpoint_contents(),
+                        )
+                        .await?;
+                }
                 progress_sender.send(checkpoint_number + shard_id).await?;
                 checkpoint_number += config.concurrency as u64;
                 continue;
