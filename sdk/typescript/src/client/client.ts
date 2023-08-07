@@ -1,16 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import type {
-	ExecuteTransactionRequestType,
-	HaneulEventFilter,
 	HaneulTransactionBlockResponseQuery,
 	Order,
 	CoinMetadata,
-	HaneulObjectDataOptions,
-	HaneulTransactionBlockResponseOptions,
 	HaneulEvent,
 	HaneulObjectResponseQuery,
-	TransactionFilter,
 	TransactionEffects,
 	Unsubscribe,
 	PaginatedTransactionResponse,
@@ -40,11 +35,44 @@ import type {
 	EpochInfo,
 	EpochPage,
 	CheckpointPage,
-	DynamicFieldName,
 	DynamicFieldPage,
 	NetworkMetrics,
 	AddressMetrics,
 	AllEpochsAddressMetrics,
+	DevInspectTransactionBlockParams,
+	DryRunTransactionBlockParams,
+	ExecuteTransactionBlockParams,
+	GetAllBalancesParams,
+	GetAllCoinsParams,
+	GetBalanceParams,
+	GetCheckpointParams,
+	GetCheckpointsParams,
+	GetCoinMetadataParams,
+	GetCoinsParams,
+	GetCommitteeInfoParams,
+	GetDynamicFieldObjectParams,
+	GetDynamicFieldsParams,
+	GetMoveFunctionArgTypesParams,
+	GetNormalizedMoveFunctionParams,
+	GetNormalizedMoveModuleParams,
+	GetNormalizedMoveModulesByPackageParams,
+	GetNormalizedMoveStructParams,
+	GetObjectParams,
+	GetOwnedObjectsParams,
+	GetProtocolConfigParams,
+	GetStakesByIdsParams,
+	GetStakesParams,
+	GetTotalSupplyParams,
+	GetTransactionBlockParams,
+	MultiGetObjectsParams,
+	MultiGetTransactionBlocksParams,
+	QueryEventsParams,
+	QueryTransactionBlocksParams,
+	ResolveNameServiceAddressParams,
+	ResolveNameServiceNamesParams,
+	SubscribeEventParams,
+	SubscribeTransactionParams,
+	TryGetPastObjectParams,
 } from './types/index.js';
 import {
 	isValidTransactionDigest,
@@ -54,7 +82,6 @@ import {
 	normalizeHaneulObjectId,
 } from '../utils/haneul-types.js';
 import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
-import type { SerializedSignature } from '../cryptography/signature.js';
 import type { TransactionBlock } from '../builder/index.js';
 import { isTransactionBlock } from '../builder/index.js';
 import { HaneulHTTPTransport } from './http-transport.js';
@@ -111,12 +138,7 @@ export class HaneulClient {
 	/**
 	 * Get all Coin<`coin_type`> objects owned by an address.
 	 */
-	async getCoins(
-		input: {
-			owner: string;
-			coinType?: string | null;
-		} & PaginationArguments<PaginatedCoins['nextCursor']>,
-	): Promise<PaginatedCoins> {
+	async getCoins(input: GetCoinsParams): Promise<PaginatedCoins> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -130,11 +152,7 @@ export class HaneulClient {
 	/**
 	 * Get all Coin objects owned by an address.
 	 */
-	async getAllCoins(
-		input: {
-			owner: string;
-		} & PaginationArguments<PaginatedCoins['nextCursor']>,
-	): Promise<PaginatedCoins> {
+	async getAllCoins(input: GetAllCoinsParams): Promise<PaginatedCoins> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -148,11 +166,7 @@ export class HaneulClient {
 	/**
 	 * Get the total coin balance for one coin type, owned by the address owner.
 	 */
-	async getBalance(input: {
-		owner: string;
-		/** optional fully qualified type names for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC), default to 0x2::haneul::HANEUL if not specified. */
-		coinType?: string | null;
-	}): Promise<CoinBalance> {
+	async getBalance(input: GetBalanceParams): Promise<CoinBalance> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -165,7 +179,7 @@ export class HaneulClient {
 	/**
 	 * Get the total coin balance for all coin types, owned by the address owner.
 	 */
-	async getAllBalances(input: { owner: string }): Promise<CoinBalance[]> {
+	async getAllBalances(input: GetAllBalancesParams): Promise<CoinBalance[]> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -175,7 +189,7 @@ export class HaneulClient {
 	/**
 	 * Fetch CoinMetadata for a given coin type
 	 */
-	async getCoinMetadata(input: { coinType: string }): Promise<CoinMetadata | null> {
+	async getCoinMetadata(input: GetCoinMetadataParams): Promise<CoinMetadata | null> {
 		return await this.transport.request({
 			method: 'haneulx_getCoinMetadata',
 			params: [input.coinType],
@@ -185,7 +199,7 @@ export class HaneulClient {
 	/**
 	 *  Fetch total supply for a coin
 	 */
-	async getTotalSupply(input: { coinType: string }): Promise<CoinSupply> {
+	async getTotalSupply(input: GetTotalSupplyParams): Promise<CoinSupply> {
 		return await this.transport.request({
 			method: 'haneulx_getTotalSupply',
 			params: [input.coinType],
@@ -204,11 +218,9 @@ export class HaneulClient {
 	/**
 	 * Get Move function argument types like read, write and full access
 	 */
-	async getMoveFunctionArgTypes(input: {
-		package: string;
-		module: string;
-		function: string;
-	}): Promise<HaneulMoveFunctionArgType[]> {
+	async getMoveFunctionArgTypes(
+		input: GetMoveFunctionArgTypesParams,
+	): Promise<HaneulMoveFunctionArgType[]> {
 		return await this.transport.request({
 			method: 'haneul_getMoveFunctionArgTypes',
 			params: [input.package, input.module, input.function],
@@ -219,9 +231,9 @@ export class HaneulClient {
 	 * Get a map from module name to
 	 * structured representations of Move modules
 	 */
-	async getNormalizedMoveModulesByPackage(input: {
-		package: string;
-	}): Promise<HaneulMoveNormalizedModules> {
+	async getNormalizedMoveModulesByPackage(
+		input: GetNormalizedMoveModulesByPackageParams,
+	): Promise<HaneulMoveNormalizedModules> {
 		return await this.transport.request({
 			method: 'haneul_getNormalizedMoveModulesByPackage',
 			params: [input.package],
@@ -231,10 +243,9 @@ export class HaneulClient {
 	/**
 	 * Get a structured representation of Move module
 	 */
-	async getNormalizedMoveModule(input: {
-		package: string;
-		module: string;
-	}): Promise<HaneulMoveNormalizedModule> {
+	async getNormalizedMoveModule(
+		input: GetNormalizedMoveModuleParams,
+	): Promise<HaneulMoveNormalizedModule> {
 		return await this.transport.request({
 			method: 'haneul_getNormalizedMoveModule',
 			params: [input.package, input.module],
@@ -244,11 +255,9 @@ export class HaneulClient {
 	/**
 	 * Get a structured representation of Move function
 	 */
-	async getNormalizedMoveFunction(input: {
-		package: string;
-		module: string;
-		function: string;
-	}): Promise<HaneulMoveNormalizedFunction> {
+	async getNormalizedMoveFunction(
+		input: GetNormalizedMoveFunctionParams,
+	): Promise<HaneulMoveNormalizedFunction> {
 		return await this.transport.request({
 			method: 'haneul_getNormalizedMoveFunction',
 			params: [input.package, input.module, input.function],
@@ -258,11 +267,9 @@ export class HaneulClient {
 	/**
 	 * Get a structured representation of Move struct
 	 */
-	async getNormalizedMoveStruct(input: {
-		package: string;
-		module: string;
-		struct: string;
-	}): Promise<HaneulMoveNormalizedStruct> {
+	async getNormalizedMoveStruct(
+		input: GetNormalizedMoveStructParams,
+	): Promise<HaneulMoveNormalizedStruct> {
 		return await this.transport.request({
 			method: 'haneul_getNormalizedMoveStruct',
 			params: [input.package, input.module, input.struct],
@@ -272,12 +279,7 @@ export class HaneulClient {
 	/**
 	 * Get all objects owned by an address
 	 */
-	async getOwnedObjects(
-		input: {
-			owner: string;
-		} & PaginationArguments<PaginatedObjectsResponse['nextCursor']> &
-			HaneulObjectResponseQuery,
-	): Promise<PaginatedObjectsResponse> {
+	async getOwnedObjects(input: GetOwnedObjectsParams): Promise<PaginatedObjectsResponse> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -299,10 +301,7 @@ export class HaneulClient {
 	/**
 	 * Get details about an object
 	 */
-	async getObject(input: {
-		id: string;
-		options?: HaneulObjectDataOptions;
-	}): Promise<HaneulObjectResponse> {
+	async getObject(input: GetObjectParams): Promise<HaneulObjectResponse> {
 		if (!input.id || !isValidHaneulObjectId(normalizeHaneulObjectId(input.id))) {
 			throw new Error('Invalid Haneul Object id');
 		}
@@ -312,11 +311,7 @@ export class HaneulClient {
 		});
 	}
 
-	async tryGetPastObject(input: {
-		id: string;
-		version: number;
-		options?: HaneulObjectDataOptions;
-	}): Promise<ObjectRead> {
+	async tryGetPastObject(input: TryGetPastObjectParams): Promise<ObjectRead> {
 		return await this.transport.request({
 			method: 'haneul_tryGetPastObject',
 			params: [input.id, input.version, input.options],
@@ -326,10 +321,7 @@ export class HaneulClient {
 	/**
 	 * Batch get details about a list of objects. If any of the object ids are duplicates the call will fail
 	 */
-	async multiGetObjects(input: {
-		ids: string[];
-		options?: HaneulObjectDataOptions;
-	}): Promise<HaneulObjectResponse[]> {
+	async multiGetObjects(input: MultiGetObjectsParams): Promise<HaneulObjectResponse[]> {
 		input.ids.forEach((id) => {
 			if (!id || !isValidHaneulObjectId(normalizeHaneulObjectId(id))) {
 				throw new Error(`Invalid Haneul Object id ${id}`);
@@ -350,9 +342,7 @@ export class HaneulClient {
 	 * Get transaction blocks for a given query criteria
 	 */
 	async queryTransactionBlocks(
-		input: HaneulTransactionBlockResponseQuery &
-			PaginationArguments<PaginatedTransactionResponse['nextCursor']> &
-			OrderArguments,
+		input: QueryTransactionBlocksParams,
 	): Promise<PaginatedTransactionResponse> {
 		return await this.transport.request({
 			method: 'haneulx_queryTransactionBlocks',
@@ -368,10 +358,9 @@ export class HaneulClient {
 		});
 	}
 
-	async getTransactionBlock(input: {
-		digest: string;
-		options?: HaneulTransactionBlockResponseOptions;
-	}): Promise<HaneulTransactionBlockResponse> {
+	async getTransactionBlock(
+		input: GetTransactionBlockParams,
+	): Promise<HaneulTransactionBlockResponse> {
 		if (!isValidTransactionDigest(input.digest)) {
 			throw new Error('Invalid Transaction digest');
 		}
@@ -381,10 +370,9 @@ export class HaneulClient {
 		});
 	}
 
-	async multiGetTransactionBlocks(input: {
-		digests: string[];
-		options?: HaneulTransactionBlockResponseOptions;
-	}): Promise<HaneulTransactionBlockResponse[]> {
+	async multiGetTransactionBlocks(
+		input: MultiGetTransactionBlocksParams,
+	): Promise<HaneulTransactionBlockResponse[]> {
 		input.digests.forEach((d) => {
 			if (!isValidTransactionDigest(d)) {
 				throw new Error(`Invalid Transaction digest ${d}`);
@@ -402,12 +390,9 @@ export class HaneulClient {
 		});
 	}
 
-	async executeTransactionBlock(input: {
-		transactionBlock: Uint8Array | string;
-		signature: SerializedSignature | SerializedSignature[];
-		options?: HaneulTransactionBlockResponseOptions;
-		requestType?: ExecuteTransactionRequestType;
-	}): Promise<HaneulTransactionBlockResponse> {
+	async executeTransactionBlock(
+		input: ExecuteTransactionBlockParams,
+	): Promise<HaneulTransactionBlockResponse> {
 		return await this.transport.request({
 			method: 'haneul_executeTransactionBlock',
 			params: [
@@ -428,9 +413,10 @@ export class HaneulClient {
 	}: {
 		transactionBlock: Uint8Array | TransactionBlock;
 		signer: Keypair;
-		options?: HaneulTransactionBlockResponseOptions;
-		requestType?: ExecuteTransactionRequestType;
-	}): Promise<HaneulTransactionBlockResponse> {
+	} & Omit<
+		ExecuteTransactionBlockParams,
+		'transactionBlock' | 'signature'
+	>): Promise<HaneulTransactionBlockResponse> {
 		let transactionBytes;
 
 		if (transactionBlock instanceof Uint8Array) {
@@ -475,7 +461,7 @@ export class HaneulClient {
 	/**
 	 * Return the delegated stakes for an address
 	 */
-	async getStakes(input: { owner: string }): Promise<DelegatedStake[]> {
+	async getStakes(input: GetStakesParams): Promise<DelegatedStake[]> {
 		if (!input.owner || !isValidHaneulAddress(normalizeHaneulAddress(input.owner))) {
 			throw new Error('Invalid Haneul address');
 		}
@@ -485,7 +471,7 @@ export class HaneulClient {
 	/**
 	 * Return the delegated stakes queried by id.
 	 */
-	async getStakesByIds(input: { stakedHaneulIds: string[] }): Promise<DelegatedStake[]> {
+	async getStakesByIds(input: GetStakesByIdsParams): Promise<DelegatedStake[]> {
 		input.stakedHaneulIds.forEach((id) => {
 			if (!id || !isValidHaneulObjectId(normalizeHaneulObjectId(id))) {
 				throw new Error(`Invalid Haneul Stake id ${id}`);
@@ -507,13 +493,7 @@ export class HaneulClient {
 	/**
 	 * Get events for a given query criteria
 	 */
-	async queryEvents(
-		input: {
-			/** the event query criteria. */
-			query: HaneulEventFilter;
-		} & PaginationArguments<PaginatedEvents['nextCursor']> &
-			OrderArguments,
-	): Promise<PaginatedEvents> {
+	async queryEvents(input: QueryEventsParams): Promise<PaginatedEvents> {
 		return await this.transport.request({
 			method: 'haneulx_queryEvents',
 			params: [
@@ -528,12 +508,12 @@ export class HaneulClient {
 	/**
 	 * Subscribe to get notifications whenever an event matching the filter occurs
 	 */
-	async subscribeEvent(input: {
-		/** filter describing the subset of events to follow */
-		filter: HaneulEventFilter;
-		/** function to run when we receive a notification of a new event matching the filter */
-		onMessage: (event: HaneulEvent) => void;
-	}): Promise<Unsubscribe> {
+	async subscribeEvent(
+		input: SubscribeEventParams & {
+			/** function to run when we receive a notification of a new event matching the filter */
+			onMessage: (event: HaneulEvent) => void;
+		},
+	): Promise<Unsubscribe> {
 		return this.transport.subscribe({
 			method: 'haneulx_subscribeEvent',
 			unsubscribe: 'haneulx_unsubscribeEvent',
@@ -542,12 +522,12 @@ export class HaneulClient {
 		});
 	}
 
-	async subscribeTransaction(input: {
-		/** filter describing the subset of events to follow */
-		filter: TransactionFilter;
-		/** function to run when we receive a notification of a new event matching the filter */
-		onMessage: (event: TransactionEffects) => void;
-	}): Promise<Unsubscribe> {
+	async subscribeTransaction(
+		input: SubscribeTransactionParams & {
+			/** function to run when we receive a notification of a new event matching the filter */
+			onMessage: (event: TransactionEffects) => void;
+		},
+	): Promise<Unsubscribe> {
 		return this.transport.subscribe({
 			method: 'haneulx_subscribeTransaction',
 			unsubscribe: 'haneulx_unsubscribeTransaction',
@@ -561,14 +541,9 @@ export class HaneulClient {
 	 * transaction (or Move call) with any arguments. Detailed results are
 	 * provided, including both the transaction effects and any return values.
 	 */
-	async devInspectTransactionBlock(input: {
-		transactionBlock: TransactionBlock | string | Uint8Array;
-		sender: string;
-		/** Default to use the network reference gas price stored in the Haneul System State object */
-		gasPrice?: bigint | number | null;
-		/** optional. Default to use the current epoch number stored in the Haneul System State object */
-		epoch?: string | null;
-	}): Promise<DevInspectResults> {
+	async devInspectTransactionBlock(
+		input: DevInspectTransactionBlockParams,
+	): Promise<DevInspectResults> {
 		let devInspectTxBytes;
 		if (isTransactionBlock(input.transactionBlock)) {
 			input.transactionBlock.setSenderIfNotSet(input.sender);
@@ -595,9 +570,9 @@ export class HaneulClient {
 	/**
 	 * Dry run a transaction block and return the result.
 	 */
-	async dryRunTransactionBlock(input: {
-		transactionBlock: Uint8Array | string;
-	}): Promise<DryRunTransactionBlockResponse> {
+	async dryRunTransactionBlock(
+		input: DryRunTransactionBlockParams,
+	): Promise<DryRunTransactionBlockResponse> {
 		return await this.transport.request({
 			method: 'haneul_dryRunTransactionBlock',
 			params: [
@@ -611,12 +586,7 @@ export class HaneulClient {
 	/**
 	 * Return the list of dynamic field objects owned by an object
 	 */
-	async getDynamicFields(
-		input: {
-			/** The id of the parent object */
-			parentId: string;
-		} & PaginationArguments<DynamicFieldPage['nextCursor']>,
-	): Promise<DynamicFieldPage> {
+	async getDynamicFields(input: GetDynamicFieldsParams): Promise<DynamicFieldPage> {
 		if (!input.parentId || !isValidHaneulObjectId(normalizeHaneulObjectId(input.parentId))) {
 			throw new Error('Invalid Haneul Object id');
 		}
@@ -629,12 +599,7 @@ export class HaneulClient {
 	/**
 	 * Return the dynamic field object information for a specified object
 	 */
-	async getDynamicFieldObject(input: {
-		/** The ID of the quered parent object */
-		parentId: string;
-		/** The name of the dynamic field */
-		name: string | DynamicFieldName;
-	}): Promise<HaneulObjectResponse> {
+	async getDynamicFieldObject(input: GetDynamicFieldObjectParams): Promise<HaneulObjectResponse> {
 		return await this.transport.request({
 			method: 'haneulx_getDynamicFieldObject',
 			params: [input.parentId, input.name],
@@ -655,10 +620,7 @@ export class HaneulClient {
 	/**
 	 * Returns information about a given checkpoint
 	 */
-	async getCheckpoint(input: {
-		/** The checkpoint digest or sequence number */
-		id: string;
-	}): Promise<Checkpoint> {
+	async getCheckpoint(input: GetCheckpointParams): Promise<Checkpoint> {
 		return await this.transport.request({ method: 'haneul_getCheckpoint', params: [input.id] });
 	}
 
@@ -666,10 +628,7 @@ export class HaneulClient {
 	 * Returns historical checkpoints paginated
 	 */
 	async getCheckpoints(
-		input: {
-			/** query result ordering, default to false (ascending order), oldest record first */
-			descendingOrder: boolean;
-		} & PaginationArguments<CheckpointPage['nextCursor']>,
+		input: PaginationArguments<CheckpointPage['nextCursor']> & GetCheckpointsParams,
 	): Promise<CheckpointPage> {
 		return await this.transport.request({
 			method: 'haneul_getCheckpoints',
@@ -680,10 +639,7 @@ export class HaneulClient {
 	/**
 	 * Return the committee information for the asked epoch
 	 */
-	async getCommitteeInfo(input?: {
-		/** The epoch of interest. If null, default to the latest epoch */
-		epoch?: string | null;
-	}): Promise<CommitteeInfo> {
+	async getCommitteeInfo(input?: GetCommitteeInfoParams): Promise<CommitteeInfo> {
 		return await this.transport.request({
 			method: 'haneulx_getCommitteeInfo',
 			params: [input?.epoch],
@@ -749,7 +705,7 @@ export class HaneulClient {
 		return toHEX(bytes.slice(0, 4));
 	}
 
-	async resolveNameServiceAddress(input: { name: string }): Promise<string | null> {
+	async resolveNameServiceAddress(input: ResolveNameServiceAddressParams): Promise<string | null> {
 		return await this.transport.request({
 			method: 'haneulx_resolveNameServiceAddress',
 			params: [input.name],
@@ -757,17 +713,15 @@ export class HaneulClient {
 	}
 
 	async resolveNameServiceNames(
-		input: {
-			address: string;
-		} & PaginationArguments<ResolvedNameServiceNames['nextCursor']>,
+		input: ResolveNameServiceNamesParams,
 	): Promise<ResolvedNameServiceNames> {
 		return await this.transport.request({
 			method: 'haneulx_resolveNameServiceNames',
-			params: [input.address],
+			params: [input.address, input.cursor, input.limit],
 		});
 	}
 
-	async getProtocolConfig(input?: { version?: string }): Promise<ProtocolConfig> {
+	async getProtocolConfig(input?: GetProtocolConfigParams): Promise<ProtocolConfig> {
 		return await this.transport.request({
 			method: 'haneul_getProtocolConfig',
 			params: [input?.version],
