@@ -98,7 +98,18 @@ export class StandardWalletAdapter implements WalletAdapter {
 	}
 
 	signMessage: WalletAdapter['signMessage'] = (messageInput) => {
+		if (!this.#wallet.features['haneul:signMessage']) {
+			throw new Error('Wallet does not support the deprecated `signMessage` method.');
+		}
+
 		return this.#wallet.features['haneul:signMessage'].signMessage(messageInput);
+	};
+
+	signPersonalMessage: WalletAdapter['signPersonalMessage'] = (messageInput) => {
+		if (!this.#wallet.features['haneul:signPersonalMessage']) {
+			throw new Error('Wallet does not support the new `signPersonalMessage` method.');
+		}
+		return this.#wallet.features['haneul:signPersonalMessage'].signPersonalMessage(messageInput);
 	};
 
 	signTransactionBlock: WalletAdapter['signTransactionBlock'] = (transactionInput) => {

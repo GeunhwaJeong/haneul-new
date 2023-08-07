@@ -131,7 +131,7 @@ function App() {
 				onClick={async () => {
 					setError(null);
 					try {
-						await haneulWallet.features['haneul:signMessage'].signMessage({
+						await haneulWallet.features['haneul:signMessage']?.signMessage({
 							account: getAccount(accounts[0], useWrongAccounts),
 							message: new TextEncoder().encode('Test message'),
 						});

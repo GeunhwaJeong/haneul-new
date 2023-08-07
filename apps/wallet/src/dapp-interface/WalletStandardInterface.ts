@@ -19,6 +19,7 @@ import {
 	type StandardEventsListeners,
 	type HaneulSignTransactionBlockMethod,
 	type HaneulSignMessageMethod,
+	type HaneulSignPersonalMessageMethod,
 	HANEUL_MAINNET_CHAIN,
 } from '@haneullabs/wallet-standard';
 import mitt, { type Emitter } from 'mitt';
@@ -143,6 +144,10 @@ export class HaneulWallet implements Wallet {
 			'haneul:signMessage': {
 				version: '1.0.0',
 				signMessage: this.#signMessage,
+			},
+			'haneul:signPersonalMessage': {
+				version: '1.0.0',
+				signPersonalMessage: this.#signPersonalMessage,
 			},
 			'qredo:connect': {
 				version: '0.0.1',
@@ -299,6 +304,27 @@ export class HaneulWallet implements Wallet {
 					throw new Error('Invalid sign message response');
 				}
 				return response.return;
+			},
+		);
+	};
+
+	#signPersonalMessage: HaneulSignPersonalMessageMethod = async ({ message, account }) => {
+		return mapToPromise(
+			this.#send<SignMessageRequest, SignMessageRequest>({
+				type: 'sign-message-request',
+				args: {
+					message: toB64(message),
+					accountAddress: account.address,
+				},
+			}),
+			(response) => {
+				if (!response.return) {
+					throw new Error('Invalid sign message response');
+				}
+				return {
+					bytes: response.return.messageBytes,
+					signature: response.return.signature,
+				};
 			},
 		);
 	};

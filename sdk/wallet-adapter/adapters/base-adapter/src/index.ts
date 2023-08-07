@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransaction, SignedMessage } from '@haneullabs/haneul.js';
 import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import {
 	HaneulSignTransactionBlockInput,
 	HaneulSignAndExecuteTransactionBlockInput,
 	WalletAccount,
 	HaneulSignMessageInput,
+	HaneulSignPersonalMessageInput,
 } from '@haneullabs/wallet-standard';
 
 export interface WalletAdapterEvents {
@@ -28,8 +28,18 @@ export interface WalletAdapter {
 		event: E,
 		callback: WalletAdapterEvents[E],
 	) => () => void;
-	signMessage(messageInput: HaneulSignMessageInput): Promise<SignedMessage>;
-	signTransactionBlock(transactionInput: HaneulSignTransactionBlockInput): Promise<SignedTransaction>;
+	/** @deprecated Use `signPersonalMessage` instead. */
+	signMessage?(messageInput: HaneulSignMessageInput): Promise<{
+		messageBytes: string;
+		signature: string;
+	}>;
+	signPersonalMessage(
+		messageInput: HaneulSignPersonalMessageInput,
+	): Promise<{ bytes: string; signature: string }>;
+	signTransactionBlock(transactionInput: HaneulSignTransactionBlockInput): Promise<{
+		transactionBlockBytes: string;
+		signature: string;
+	}>;
 	/**
 	 * Suggest a transaction for the user to sign. Supports all valid transaction types.
 	 */
