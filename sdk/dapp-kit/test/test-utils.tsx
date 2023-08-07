@@ -6,6 +6,10 @@ import { HaneulClientProvider } from 'dapp-kit/src';
 
 export function createHaneulClientContextWrapper(client: HaneulClient) {
 	return function HaneulClientContextWrapper({ children }: { children: React.ReactNode }) {
-		return <HaneulClientProvider client={client}>{children}</HaneulClientProvider>;
+		return (
+			<HaneulClientProvider queryKeyPrefix="devnet" client={client}>
+				{children}
+			</HaneulClientProvider>
+		);
 	};
 }

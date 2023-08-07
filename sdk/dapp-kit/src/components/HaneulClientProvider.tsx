@@ -9,17 +9,22 @@ export interface HaneulClientProviderProps {
 	children: React.ReactNode;
 	client?: HaneulClient;
 	url?: string;
+	queryKeyPrefix: string;
 }
 
 export const HaneulClientProvider = (props: HaneulClientProviderProps) => {
-	const client = useMemo(
-		() =>
+	const ctx = useMemo(() => {
+		const client =
 			props.client ??
 			new HaneulClient({
 				url: props.url ?? getFullnodeUrl('devnet'),
-			}),
-		[props.client, props.url],
-	);
+			});
 
-	return <HaneulClientContext.Provider value={client}>{props.children}</HaneulClientContext.Provider>;
+		return {
+			client,
+			queryKey: (key: unknown[]) => [props.queryKeyPrefix, ...key],
+		};
+	}, [props.client, props.url, props.queryKeyPrefix]);
+
+	return <HaneulClientContext.Provider value={ctx}>{props.children}</HaneulClientContext.Provider>;
 };

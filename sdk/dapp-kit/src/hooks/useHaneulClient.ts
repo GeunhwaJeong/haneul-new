@@ -4,9 +4,15 @@
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import { createContext, useContext } from 'react';
 
-export const HaneulClientContext = createContext<HaneulClient | undefined>(undefined);
+export const HaneulClientContext = createContext<
+	| {
+			client: HaneulClient;
+			queryKey: (key: unknown[]) => unknown[];
+	  }
+	| undefined
+>(undefined);
 
-export function useHaneulClient() {
+export function useHaneulClientContext() {
 	const haneulClient = useContext(HaneulClientContext);
 
 	if (!haneulClient) {
@@ -16,4 +22,8 @@ export function useHaneulClient() {
 	}
 
 	return haneulClient;
+}
+
+export function useHaneulClient() {
+	return useHaneulClientContext().client;
 }
