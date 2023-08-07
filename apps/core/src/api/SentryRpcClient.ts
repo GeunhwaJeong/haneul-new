@@ -4,6 +4,8 @@
 import { HaneulHTTPTransport } from '@haneullabs/haneul.js/client';
 import * as Sentry from '@sentry/react';
 
+const IGNORED_METHODS = ['haneulx_resolveNameServiceNames', 'haneulx_resolveNameServiceAddresses'];
+
 export class SentryHttpTransport extends HaneulHTTPTransport {
 	#url: string;
 	constructor(url: string) {
@@ -36,6 +38,10 @@ export class SentryHttpTransport extends HaneulHTTPTransport {
 	}
 
 	override async request<T>(input: { method: string; params: unknown[] }) {
+		if (IGNORED_METHODS.includes(input.method)) {
+			return super.request<T>(input);
+		}
+
 		return this.#withRequest(input, () => super.request<T>(input));
 	}
 }
