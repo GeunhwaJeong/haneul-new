@@ -4,7 +4,7 @@
 use std::collections::BTreeMap;
 
 use jsonrpsee::core::RpcResult;
-use jsonrpsee_proc_macros::rpc;
+use jsonrpsee::proc_macros::rpc;
 
 use haneul_json_rpc_types::{
     MoveFunctionArgType, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
