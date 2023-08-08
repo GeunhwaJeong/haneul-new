@@ -5,6 +5,7 @@ use crate::errors::IndexerError;
 use crate::schema::packages;
 
 use diesel::prelude::*;
+use haneul_types::move_package::MovePackage;
 
 use crate::models::objects::NamedBcsBytes;
 use haneul_json_rpc_types::HaneulRawMovePackage;
@@ -20,6 +21,20 @@ pub struct Package {
 }
 
 impl Package {
+    pub fn new(sender: HaneulAddress, package: &MovePackage) -> Self {
+        Self {
+            package_id: package.id().to_string(),
+            version: package.version().value() as i64,
+            author: sender.to_string(),
+            data: package
+                .serialized_module_map()
+                .clone()
+                .into_iter()
+                .map(|(k, v)| NamedBcsBytes(k, v))
+                .collect(),
+        }
+    }
+
     pub fn try_from(sender: HaneulAddress, package: &HaneulRawMovePackage) -> Result<Self, IndexerError> {
         Ok(Self {
             package_id: package.id.to_string(),

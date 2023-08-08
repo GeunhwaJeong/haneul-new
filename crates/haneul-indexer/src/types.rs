@@ -11,6 +11,7 @@ use haneul_json_rpc_types::{
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Owner;
+use haneul_types::storage::WriteKind;
 use haneul_types::transaction::{SenderSignedData, TransactionDataAPI};
 
 use crate::errors::IndexerError;
@@ -19,6 +20,14 @@ use crate::models::transaction_index::{ChangedObject, InputObject, MoveCall, Rec
 const CREATED_OBJECT_CHANGE_TYPE: &str = "created";
 const MUTATED_OBJECT_CHANGE_TYPE: &str = "mutated";
 const UNWRAPPED_OBJECT_CHANGE_TYPE: &str = "unwrapped";
+
+pub fn write_kind_to_str(write_kind: WriteKind) -> &'static str {
+    match write_kind {
+        WriteKind::Mutate => MUTATED_OBJECT_CHANGE_TYPE,
+        WriteKind::Create => CREATED_OBJECT_CHANGE_TYPE,
+        WriteKind::Unwrap => UNWRAPPED_OBJECT_CHANGE_TYPE,
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct CheckpointTransactionBlockResponse {
