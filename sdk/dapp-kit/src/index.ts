@@ -3,3 +3,4 @@
 
 export * from './hooks/useHaneulClient.js';
 export * from './components/HaneulClientProvider.js';
+export * from './hooks/rpc/index.js';
