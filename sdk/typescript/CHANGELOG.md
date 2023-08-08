@@ -1,5 +1,15 @@
 # @haneullabs/haneul.js
 
+## 0.40.0
+
+### Minor Changes
+
+- a503cad34: Add exports to `@haneullabs/haneul.js/client` for rpc method params
+
+### Patch Changes
+
+- 8281e3d25: Add new `sign` method to the TransactionBlock class, so that implementing transaction signing is easier.
+
 ## 0.39.0
 
 ### Minor Changes

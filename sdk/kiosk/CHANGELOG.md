@@ -1,5 +1,17 @@
 # @haneullabs/kiosk
 
+## 0.5.0
+
+### Minor Changes
+
+- 210bfac58: Adds support for attaching royalty rule and kiosk lock rule to a transfer policy.
+
+### Patch Changes
+
+- Updated dependencies [a503cad34]
+- Updated dependencies [8281e3d25]
+  - @haneullabs/haneul.js@0.40.0
+
 ## 0.4.1
 
 ### Patch Changes

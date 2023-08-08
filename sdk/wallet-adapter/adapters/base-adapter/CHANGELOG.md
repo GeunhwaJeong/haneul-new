@@ -1,5 +1,19 @@
 # @haneullabs/wallet-adapter-base
 
+## 0.9.0
+
+### Minor Changes
+
+- 8281e3d25: Deprecate `signMessage` method, and introduce the new `signPersonalMessage` method.
+
+### Patch Changes
+
+- Updated dependencies [8281e3d25]
+- Updated dependencies [a503cad34]
+- Updated dependencies [8281e3d25]
+  - @haneullabs/wallet-standard@0.6.0
+  - @haneullabs/haneul.js@0.40.0
+
 ## 0.8.1
 
 ### Patch Changes
