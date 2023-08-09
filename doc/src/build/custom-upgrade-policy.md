@@ -612,11 +612,14 @@ tx.transferObjects([tuesdayUpgradeCap], tx.pure(sender));
 And finally, execute that transaction and display its effects to the console. The following snippet assumes that you're running your examples against a local network. Replace all `localnetConnection` references with `devnetConnection`, `testnetConnection`, or `mainnetConnection` to run on Devnet, Testnet, or Mainnet respectively:
 
 ```js
-import { JsonRpcProvider, RawSigner, localnetConnection }
-const provider = new JsonRpcProvider(localnetConnection);
-const signer = new RawSigner(keyPair, provider);
+import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 
-const result = await signer.signAndExecuteTransactionBlock({
+const client = new HaneulClient({ url: getFullnodeUrl('localnet') });
+const keypair = new Ed25519Keypair();
+
+const result = await client.signAndExecuteTransactionBlock({
+    signer: keypair,
     transactionBlock: tx,
     options: {
         showEffects: true,
