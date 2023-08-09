@@ -23,6 +23,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::BigInt;
 
 use crate::api::TransactionBuilderServer;
+use crate::authority_state::StateRead;
 use crate::HaneulRpcModule;
 
 pub struct TransactionBuilderApi(TransactionBuilder);
@@ -34,7 +35,7 @@ impl TransactionBuilderApi {
     }
 }
 
-pub struct AuthorityStateDataReader(Arc<AuthorityState>);
+pub struct AuthorityStateDataReader(Arc<dyn StateRead>);
 
 impl AuthorityStateDataReader {
     pub fn new(state: Arc<AuthorityState>) -> Self {
@@ -52,12 +53,11 @@ impl DataReader for AuthorityStateDataReader {
         Ok(self
             .0
             // DataReader is used internally, don't need a limit
-            .get_owner_objects_iterator(
+            .get_owner_objects(
                 address,
                 None,
                 Some(HaneulObjectDataFilter::StructType(object_type)),
-            )?
-            .collect())
+            )?)
     }
 
     async fn get_object_with_options(

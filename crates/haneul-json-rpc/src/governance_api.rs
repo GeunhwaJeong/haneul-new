@@ -17,10 +17,10 @@ use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
 use haneul_json_rpc_types::{HaneulCommittee, ValidatorApy, ValidatorApys};
 use haneul_open_rpc::Module;
-use haneul_types::base_types::{MoveObjectType, ObjectID, HaneulAddress};
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::governance::StakedHaneul;
 use haneul_types::id::ID;
 use haneul_types::object::ObjectRead;
@@ -31,12 +31,13 @@ use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{get_validator_from_table, HaneulSystemState};
 
 use crate::api::{GovernanceReadApiServer, JsonRpcMetrics};
-use crate::error::{Error, HaneulRpcInputError};
+use crate::authority_state::StateRead;
+use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
 use crate::{with_tracing, ObjectProvider, HaneulRpcModule};
 
 #[derive(Clone)]
 pub struct GovernanceReadApi {
-    state: Arc<AuthorityState>,
+    state: Arc<dyn StateRead>,
     pub metrics: Arc<JsonRpcMetrics>,
 }
 
@@ -47,12 +48,8 @@ impl GovernanceReadApi {
 
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> Result<Vec<StakedHaneul>, Error> {
         let state = self.state.clone();
-        let result = spawn_monitored_task!(async move {
-            state
-                .get_move_objects(owner, MoveObjectType::staked_haneul())
-                .await
-        })
-        .await??;
+        let result =
+            spawn_monitored_task!(async move { state.get_staked_haneul(owner).await }).await??;
 
         self.metrics
             .get_stake_haneul_result_size
@@ -209,7 +206,7 @@ impl GovernanceReadApi {
     }
 
     fn get_system_state(&self) -> Result<HaneulSystemState, Error> {
-        Ok(self.state.database.get_haneul_system_state_object()?)
+        Ok(self.state.get_system_state()?)
     }
 }
 
@@ -232,8 +229,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
     async fn get_committee_info(&self, epoch: Option<BigInt<u64>>) -> RpcResult<HaneulCommittee> {
         with_tracing!(async move {
             self.state
-                .committee_store()
-                .get_or_latest_committee(epoch.map(|e| *e))
+                .get_or_latest_committee(epoch)
                 .map(|committee| committee.into())
                 .map_err(Error::from)
         })
@@ -244,8 +240,7 @@ impl GovernanceReadApiServer for GovernanceReadApi {
         with_tracing!(async move {
             Ok(self
                 .state
-                .database
-                .get_haneul_system_state_object()
+                .get_system_state()
                 .map_err(Error::from)?
                 .into_haneul_system_state_summary())
         })
@@ -327,10 +322,10 @@ fn calculate_apy((rate_e, rate_e_1): (&PoolTokenExchangeRate, &PoolTokenExchange
     result = true
 )]
 async fn exchange_rates(
-    state: &Arc<AuthorityState>,
+    state: &Arc<dyn StateRead>,
     _current_epoch: EpochId,
-) -> HaneulResult<Vec<ValidatorExchangeRates>> {
-    let system_state = state.database.get_haneul_system_state_object()?;
+) -> RpcInterimResult<Vec<ValidatorExchangeRates>> {
+    let system_state = state.get_system_state()?;
     let system_state_summary: HaneulSystemStateSummary = system_state.into_haneul_system_state_summary();
 
     // Get validator rate tables
@@ -357,10 +352,10 @@ async fn exchange_rates(
                 error: e.to_string(),
             })?;
         let validator = get_validator_from_table(
-            state.database.as_ref(),
+            state.get_db().as_ref(),
             system_state_summary.inactive_pools_id,
             &pool_id,
-        )?;
+        )?; // TODO(wlmyng): roll this into StateReadError
         tables.push((
             validator.haneul_address,
             validator.staking_pool_id,
@@ -383,8 +378,11 @@ async fn exchange_rates(
                     }
                 })?;
 
-                let exchange_rate: PoolTokenExchangeRate =
-                    get_dynamic_field_from_store(state.db().as_ref(), exchange_rates_id, &epoch)?;
+                let exchange_rate: PoolTokenExchangeRate = get_dynamic_field_from_store(
+                    state.get_db().as_ref(),
+                    exchange_rates_id,
+                    &epoch,
+                )?;
 
                 Ok::<_, HaneulError>((epoch, exchange_rate))
             })

@@ -11,6 +11,10 @@ use haneul_types::quorum_driver_types::{QuorumDriverError, NON_RECOVERABLE_ERROR
 use thiserror::Error;
 use tokio::task::JoinError;
 
+use crate::authority_state::StateReadError;
+
+pub const TRANSIENT_ERROR_CODE: i32 = -32001;
+
 pub type RpcInterimResult<T = ()> = Result<T, Error>;
 
 #[derive(Debug, Error)]
@@ -23,7 +27,6 @@ pub enum Error {
 
     #[error("Deserialization error: {0}")]
     BcsError(#[from] bcs::Error),
-
     #[error("Unexpected error: {0}")]
     UnexpectedError(String),
 
@@ -53,6 +56,10 @@ pub enum Error {
 
     #[error(transparent)]
     HaneulRpcInputError(#[from] HaneulRpcInputError),
+
+    // TODO(wlmyng): convert StateReadError::Internal message to generic internal error message.
+    #[error(transparent)]
+    StateReadError(#[from] StateReadError),
 }
 
 impl From<Error> for RpcError {
@@ -85,7 +92,7 @@ impl Error {
                 }
                 _ => RpcError::Call(CallError::Failed(err.into())),
             },
-            Error::HaneulRpcInputError(err) => err.into(),
+            Error::HaneulRpcInputError(err) => RpcError::Call(CallError::InvalidParams(err.into())),
             Error::HaneulError(haneul_error) => match haneul_error {
                 HaneulError::TransactionNotFound { .. }
                 | HaneulError::TransactionsNotFound { .. }
@@ -106,6 +113,17 @@ impl Error {
                     RpcError::Call(CallError::Custom(error_object))
                 }
                 _ => RpcError::Call(CallError::Failed(err.into())),
+            },
+            Error::StateReadError(err) => match err {
+                StateReadError::Client(_) => RpcError::Call(CallError::InvalidParams(err.into())),
+                _ => {
+                    let error_object = ErrorObject::owned(
+                        jsonrpsee::types::error::INTERNAL_ERROR_CODE,
+                        err.to_string(),
+                        None::<()>,
+                    );
+                    RpcError::Call(CallError::Custom(error_object))
+                }
             },
             _ => RpcError::Call(CallError::Failed(self.into())),
         }
@@ -149,10 +167,4 @@ pub enum HaneulRpcInputError {
 
     #[error(transparent)]
     UserInputError(#[from] UserInputError),
-}
-
-impl From<HaneulRpcInputError> for RpcError {
-    fn from(e: HaneulRpcInputError) -> Self {
-        RpcError::Call(CallError::InvalidParams(e.into()))
-    }
 }
