@@ -88,6 +88,7 @@ members = [
     "crates/haneul-framework-snapshot",
     "crates/haneul-framework-tests",
     "crates/haneul-genesis-builder",
+    "crates/haneul-graphql-rpc",
     "crates/haneul-indexer",
     "crates/haneul-json",
     "crates/haneul-json-rpc",
@@ -201,6 +202,7 @@ opt-level = 1
 anyhow = "1.0.71"
 arc-swap = { version = "1.5.1", features = ["serde"] }
 assert_cmd = "2.0.6"
+async-graphql = "5.0.10"
 async-recursion = "1.0.4"
 async-trait = "0.1.61"
 aws-config = "0.55.3"

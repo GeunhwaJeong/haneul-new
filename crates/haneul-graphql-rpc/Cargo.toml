@@ -1,0 +1,12 @@
+[package]
+name = "haneul-graphql-rpc"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+
+[dependencies]
+async-graphql.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
