@@ -1,6 +1,7 @@
 {
 	"name": "@haneullabs/sdk-docs",
 	"version": "1.0.0",
+	"private": true,
 	"description": "Docs for @haneullabs npm packages",
 	"main": "index.js",
 	"scripts": {
