@@ -14,6 +14,9 @@ CHANGELOG.md
 # When native functions change, so we can evaluate cost impact
 /crates/haneul-framework/src/natives/ @oxade
 
+# GraphQL RPC working group
+/crates/haneul-graphql-rpc/ @oxade @amnn @wlmyng @bmwill @longbowlu @haneullabsmark @gegaowp @Jordan-haneullabs @laura-makdah @stefan-haneullabs
+
 # Notify Narwhal changes to interested folks.
 /narwhal/crypto/ @joyqvq @kchalkias
 /narwhal/executor/ @asonnino @akichidis @laura-makdah
