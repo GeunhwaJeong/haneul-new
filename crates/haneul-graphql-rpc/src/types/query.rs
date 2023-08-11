@@ -6,7 +6,6 @@ use async_graphql::*;
 use super::{address::Address, object::Object, owner::Owner, haneul_address::HaneulAddress};
 
 pub(crate) struct Query;
-
 pub(crate) type HaneulGraphQLSchema = async_graphql::Schema<Query, EmptyMutation, EmptySubscription>;
 
 #[allow(unreachable_code)]
@@ -17,15 +16,27 @@ impl Query {
         "0000".to_string()
     }
 
-    async fn owner(&self, address: HaneulAddress) -> Option<Owner> {
-        None
+    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Result<Option<Owner>> {
+        // Currently only an account address can own an object
+        let cl = ctx.data_unchecked::<haneul_sdk::HaneulClient>();
+        let o = crate::server::data_provider::fetch_obj(cl, address, None).await?;
+        Ok(o.and_then(|q| q.owner)
+            .map(|o| Owner::Address(Address { address: o })))
     }
 
-    async fn object(&self, address: HaneulAddress, version: Option<u64>) -> Option<Object> {
-        None
+    async fn object(
+        &self,
+        ctx: &Context<'_>,
+        address: HaneulAddress,
+        version: Option<u64>,
+    ) -> Result<Option<Object>> {
+        let cl = ctx.data_unchecked::<haneul_sdk::HaneulClient>();
+        crate::server::data_provider::fetch_obj(cl, address, version).await
     }
 
     async fn address(&self, address: HaneulAddress) -> Option<Address> {
-        None
+        Some(Address {
+            address: address.clone(),
+        })
     }
 }
