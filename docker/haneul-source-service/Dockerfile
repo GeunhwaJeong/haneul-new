@@ -45,7 +45,9 @@ RUN cargo build --release \
 # Production Image
 FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
+RUN apt update && apt install -y git
 COPY --from=builder /haneul/target/release/haneul-source-validation-service /usr/local/bin
+COPY crates/haneul-source-validation-service/config.toml /var/haneul/
 
 ARG BUILD_DATE
 ARG GIT_REVISION
