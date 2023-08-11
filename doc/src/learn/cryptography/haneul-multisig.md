@@ -25,7 +25,7 @@ different weights for each key (which is complex in threshold cryptography), Mul
 transaction. On the other hand, threshold signatures provide the benefits of hiding the threshold policy, but also
 resulting in a single signature payload, making it indistinguishable from a single-key account.
 
-![MultiSig Haneul supported structures](../../../static/cryptography/haneul_multisig_structures.png "MultiSig Haneul supported structures")
+![MultiSig Haneul supported structures](../../../static/haneul_multisig_structures.png "MultiSig Haneul supported structures")
 
 # Example Workflow
 
