@@ -80,6 +80,7 @@ const options: {
 		HaneulCoinMetadata: { alias: 'CoinMetadata' },
 		HaneulProgrammableMoveCall: { alias: 'MoveCallHaneulTransaction' },
 		Supply: { alias: 'CoinSupply' },
+		TransactionBlock: { alias: 'HaneulTransactionBlock' },
 		TransactionBlockEffects: { alias: 'TransactionEffects' },
 		TransactionBlockKind: { alias: 'HaneulTransactionBlockKind' },
 		TransactionBlockResponse: { alias: 'HaneulTransactionBlockResponse' },

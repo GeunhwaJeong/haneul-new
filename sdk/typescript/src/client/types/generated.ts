@@ -1185,7 +1185,7 @@ export interface HaneulValidatorSummary {
 export interface CoinSupply {
 	value: string;
 }
-export interface TransactionBlock {
+export interface HaneulTransactionBlock {
 	data: TransactionBlockData;
 	txSignatures: string[];
 }
@@ -1306,7 +1306,7 @@ export interface HaneulTransactionBlockResponse {
 	rawTransaction?: string;
 	timestampMs?: string | null;
 	/** Transaction input data */
-	transaction?: TransactionBlock | null;
+	transaction?: HaneulTransactionBlock | null;
 }
 export interface HaneulTransactionBlockResponseOptions {
 	/** Whether to show balance_changes. Default to be False */
