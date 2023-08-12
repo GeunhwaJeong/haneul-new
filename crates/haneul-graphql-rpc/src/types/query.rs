@@ -3,7 +3,7 @@
 
 use async_graphql::*;
 
-use super::{address::Address, object::Object, owner::Owner, haneul_address::HaneulAddress};
+use super::{address::Address, object::Object, owner::ObjectOwner, haneul_address::HaneulAddress};
 use crate::server::data_provider::fetch_chain_id;
 
 pub(crate) struct Query;
@@ -17,12 +17,12 @@ impl Query {
         fetch_chain_id(ctx.data_unchecked::<haneul_sdk::HaneulClient>()).await
     }
 
-    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Result<Option<Owner>> {
+    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Result<Option<ObjectOwner>> {
         // Currently only an account address can own an object
         let cl = ctx.data_unchecked::<haneul_sdk::HaneulClient>();
         let o = crate::server::data_provider::fetch_obj(cl, address, None).await?;
         Ok(o.and_then(|q| q.owner)
-            .map(|o| Owner::Address(Address { address: o })))
+            .map(|o| ObjectOwner::Address(Address { address: o })))
     }
 
     async fn object(

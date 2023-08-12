@@ -8,6 +8,7 @@ use crate::types::balance::Balance;
 use crate::types::base64::Base64;
 use crate::types::big_int::BigInt;
 use crate::types::object::ObjectFilter;
+use crate::types::object::ObjectKind;
 use crate::types::transaction_block::TransactionBlock;
 use crate::types::{object::Object, haneul_address::HaneulAddress};
 use async_graphql::connection::{Connection, Edge};
@@ -20,8 +21,8 @@ use haneul_json_rpc_types::{
 use haneul_sdk::types::base_types::ObjectID as NaiveObjectID;
 use haneul_sdk::types::base_types::HaneulAddress as NativeHaneulAddress;
 use haneul_sdk::types::digests::TransactionDigest;
+use haneul_sdk::types::object::Owner as NativeOwner;
 use haneul_sdk::HaneulClient;
-
 pub(crate) async fn fetch_obj(
     cl: &HaneulClient,
     address: HaneulAddress,
@@ -115,6 +116,30 @@ pub(crate) async fn fetch_balance(
     Ok(convert_bal(b))
 }
 
+fn convert_obj(s: &haneul_json_rpc_types::HaneulObjectData) -> Object {
+    Object {
+        version: s.version.into(),
+        digest: s.digest.to_string(),
+        storage_rebate: s.storage_rebate,
+        address: HaneulAddress::from_array(**s.object_id),
+        owner: s
+            .owner
+            .unwrap()
+            .get_owner_address()
+            .map(|x| HaneulAddress::from_array(x.to_inner()))
+            .ok(),
+        bcs: Some(Base64::from(&bcs::to_bytes(&s.bcs).unwrap())), // TODO: is this correct?
+        previous_transaction: Some(s.previous_transaction.unwrap().to_string()),
+        kind: Some(match s.owner.unwrap() {
+            NativeOwner::AddressOwner(_) | NativeOwner::ObjectOwner(_) => ObjectKind::Owned,
+            NativeOwner::Shared {
+                initial_shared_version: _,
+            } => ObjectKind::Shared,
+            NativeOwner::Immutable => ObjectKind::Immutable,
+        }),
+    }
+}
+
 pub(crate) async fn fetch_tx(cl: &HaneulClient, digest: &String) -> Result<Option<TransactionBlock>> {
     let tx_digest = TransactionDigest::from_str(digest)?;
     let tx = cl
@@ -138,23 +163,6 @@ pub(crate) async fn fetch_tx(cl: &HaneulClient, digest: &String) -> Result<Optio
 
 pub(crate) async fn fetch_chain_id(cl: &HaneulClient) -> Result<String> {
     Ok(cl.read_api().get_chain_identifier().await?)
-}
-
-fn convert_obj(s: &haneul_json_rpc_types::HaneulObjectData) -> Object {
-    Object {
-        version: s.version.into(),
-        digest: s.digest.to_string(),
-        storage_rebate: s.storage_rebate,
-        address: HaneulAddress::from_array(**s.object_id),
-        owner: s
-            .owner
-            .unwrap()
-            .get_owner_address()
-            .map(|x| HaneulAddress::from_array(x.to_inner()))
-            .ok(),
-        bcs: Some(Base64::from(&bcs::to_bytes(&s.bcs).unwrap())), // TODO: is this correct?
-        previous_transaction: Some(s.previous_transaction.unwrap().to_string()),
-    }
 }
 
 fn convert_bal(b: haneul_json_rpc_types::Balance) -> Balance {
