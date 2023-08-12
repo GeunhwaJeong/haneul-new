@@ -4,6 +4,7 @@
 use async_graphql::*;
 
 use super::{address::Address, object::Object, owner::Owner, haneul_address::HaneulAddress};
+use crate::server::data_provider::fetch_chain_id;
 
 pub(crate) struct Query;
 pub(crate) type HaneulGraphQLSchema = async_graphql::Schema<Query, EmptyMutation, EmptySubscription>;
@@ -12,8 +13,8 @@ pub(crate) type HaneulGraphQLSchema = async_graphql::Schema<Query, EmptyMutation
 #[allow(unused_variables)]
 #[Object]
 impl Query {
-    async fn chain_identifier(&self) -> String {
-        "0000".to_string()
+    async fn chain_identifier(&self, ctx: &Context<'_>) -> Result<String> {
+        fetch_chain_id(ctx.data_unchecked::<haneul_sdk::HaneulClient>()).await
     }
 
     async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Result<Option<Owner>> {

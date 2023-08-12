@@ -50,4 +50,8 @@ impl HaneulAddress {
     pub fn from_array(arr: [u8; HANEUL_ADDRESS_LENGTH]) -> Self {
         HaneulAddress(arr)
     }
+
+    pub fn as_slice(&self) -> &[u8] {
+        &self.0
+    }
 }
