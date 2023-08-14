@@ -16,8 +16,7 @@ import {
 	WalletKitCoreOptions,
 	WalletKitCoreState,
 } from '@haneullabs/wallet-kit-core';
-import { WalletStandardAdapterProvider } from '@haneullabs/wallet-adapter-wallet-standard';
-import { UnsafeBurnerWalletAdapter } from '@haneullabs/wallet-adapter-unsafe-burner';
+import { registerUnsafeBurnerWallet } from './UnsafeBurnerWallet';
 
 export const WalletKitContext = createContext<WalletKitCore | null>(null);
 
@@ -32,7 +31,6 @@ interface WalletKitProviderProps extends Partial<WalletKitCoreOptions> {
 }
 
 export function WalletKitProvider({
-	adapters: configuredAdapters,
 	preferredWallets,
 	children,
 	enableUnsafeBurner,
@@ -41,25 +39,21 @@ export function WalletKitProvider({
 	disableAutoConnect,
 	features,
 }: WalletKitProviderProps) {
-	const adapters = useMemo(
-		() =>
-			configuredAdapters ?? [
-				new WalletStandardAdapterProvider({ features }),
-				...(enableUnsafeBurner ? [new UnsafeBurnerWalletAdapter()] : []),
-			],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[configuredAdapters],
-	);
-
 	const walletKitRef = useRef<WalletKitCore | null>(null);
 	if (!walletKitRef.current) {
 		walletKitRef.current = createWalletKitCore({
-			adapters,
+			features,
 			preferredWallets,
 			storageAdapter,
 			storageKey,
 		});
 	}
+
+	useEffect(() => {
+		if (!enableUnsafeBurner) return;
+
+		return registerUnsafeBurnerWallet();
+	}, [enableUnsafeBurner]);
 
 	// Automatically trigger the autoconnect logic when we mount, and whenever wallets change:
 	const { wallets } = useSyncExternalStore(

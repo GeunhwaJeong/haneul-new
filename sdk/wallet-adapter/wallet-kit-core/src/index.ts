@@ -2,27 +2,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-	WalletAdapterList,
-	resolveAdapters,
-	WalletAdapter,
-	isWalletProvider,
-} from '@haneullabs/wallet-adapter-base';
-import { localStorageAdapter, StorageAdapter } from './storage';
-import {
+	getWallets,
+	isWalletWithHaneulFeatures,
+	StandardConnectInput,
 	HaneulSignAndExecuteTransactionBlockInput,
+	HaneulSignAndExecuteTransactionBlockOutput,
 	HaneulSignMessageInput,
+	HaneulSignMessageOutput,
 	HaneulSignPersonalMessageInput,
+	HaneulSignPersonalMessageOutput,
 	HaneulSignTransactionBlockInput,
+	HaneulSignTransactionBlockOutput,
+	Wallet,
 	WalletAccount,
+	WalletWithHaneulFeatures,
 } from '@haneullabs/wallet-standard';
 
+import { localStorageAdapter, StorageAdapter } from './storage';
 export * from './storage';
 
+export const DEFAULT_FEATURES: (keyof WalletWithHaneulFeatures['features'])[] = [
+	'haneul:signAndExecuteTransactionBlock',
+];
+
 export interface WalletKitCoreOptions {
-	adapters: WalletAdapterList;
 	preferredWallets?: string[];
 	storageAdapter?: StorageAdapter;
 	storageKey?: string;
+	features?: string[];
 }
 
 export enum WalletKitCoreConnectionStatus {
@@ -34,8 +41,8 @@ export enum WalletKitCoreConnectionStatus {
 }
 
 export interface InternalWalletKitCoreState {
-	wallets: WalletAdapter[];
-	currentWallet: WalletAdapter | null;
+	wallets: WalletWithHaneulFeatures[];
+	currentWallet: WalletWithHaneulFeatures | null;
 	accounts: readonly WalletAccount[];
 	currentAccount: WalletAccount | null;
 	status: WalletKitCoreConnectionStatus;
@@ -54,25 +61,25 @@ export interface WalletKitCore {
 	autoconnect(): Promise<void>;
 	getState(): WalletKitCoreState;
 	subscribe(handler: SubscribeHandler): Unsubscribe;
-	connect(walletName: string): Promise<void>;
+	connect(walletName: string, connectInput?: StandardConnectInput): Promise<void>;
 	selectAccount(account: WalletAccount): void;
 	disconnect(): Promise<void>;
 	/** @deprecated Use `signPersonalMessage` instead. */
 	signMessage(
 		messageInput: OptionalProperties<HaneulSignMessageInput, 'account'>,
-	): ReturnType<Exclude<WalletAdapter['signMessage'], undefined>>;
+	): Promise<HaneulSignMessageOutput>;
 	signPersonalMessage(
 		messageInput: OptionalProperties<HaneulSignPersonalMessageInput, 'account'>,
-	): ReturnType<WalletAdapter['signPersonalMessage']>;
+	): Promise<HaneulSignPersonalMessageOutput>;
 	signTransactionBlock: (
 		transactionInput: OptionalProperties<HaneulSignTransactionBlockInput, 'chain' | 'account'>,
-	) => ReturnType<WalletAdapter['signTransactionBlock']>;
+	) => Promise<HaneulSignTransactionBlockOutput>;
 	signAndExecuteTransactionBlock: (
 		transactionInput: OptionalProperties<
 			HaneulSignAndExecuteTransactionBlockInput,
 			'chain' | 'account'
 		>,
-	) => ReturnType<WalletAdapter['signAndExecuteTransactionBlock']>;
+	) => Promise<HaneulSignAndExecuteTransactionBlockOutput>;
 }
 
 export type SubscribeHandler = (state: WalletKitCoreState) => void;
@@ -98,34 +105,42 @@ function waitToBeVisible() {
 	return promise;
 }
 
-function sortWallets(wallets: WalletAdapter[], preferredWallets: string[]) {
+function sortWallets(
+	wallets: readonly Wallet[],
+	preferredWallets: string[],
+	features?: string[],
+): WalletWithHaneulFeatures[] {
+	const haneulWallets = wallets.filter((wallet) =>
+		isWalletWithHaneulFeatures(wallet, features),
+	) as WalletWithHaneulFeatures[];
+
 	return [
 		// Preferred wallets, in order:
 		...(preferredWallets
-			.map((name) => wallets.find((wallet) => wallet.name === name))
-			.filter(Boolean) as WalletAdapter[]),
+			.map((name) => haneulWallets.find((wallet) => wallet.name === name))
+			.filter(Boolean) as WalletWithHaneulFeatures[]),
 
 		// Wallets in default order:
-		...wallets.filter((wallet) => !preferredWallets.includes(wallet.name)),
+		...haneulWallets.filter((wallet) => !preferredWallets.includes(wallet.name)),
 	];
 }
 
-// TODO: Support lazy loaded adapters, where we'll resolve the adapters only once we attempt to use them.
-// That should allow us to have effective code-splitting practices. We should also allow lazy loading of _many_
-// wallet adapters in one bag so that we can split _all_ of the adapters from the core.
 export function createWalletKitCore({
-	adapters,
 	preferredWallets = [HANEUL_WALLET_NAME],
 	storageAdapter = localStorageAdapter,
 	storageKey = RECENT_WALLET_STORAGE,
+	features = DEFAULT_FEATURES,
 }: WalletKitCoreOptions): WalletKitCore {
+	const registeredWallets = getWallets();
+	let wallets = registeredWallets.get();
+
 	const subscriptions: Set<(state: WalletKitCoreState) => void> = new Set();
 	let walletEventUnsubscribe: (() => void) | null = null;
 
 	let internalState: InternalWalletKitCoreState = {
 		accounts: [],
 		currentAccount: null,
-		wallets: sortWallets(resolveAdapters(adapters), preferredWallets),
+		wallets: sortWallets(wallets, preferredWallets, features),
 		currentWallet: null,
 		status: WalletKitCoreConnectionStatus.DISCONNECTED,
 	};
@@ -167,17 +182,14 @@ export function createWalletKitCore({
 		});
 	}
 
-	// TODO: Defer this somehow, probably alongside the work above for lazy wallet adapters:
-	const providers = adapters.filter(isWalletProvider);
-	if (providers.length) {
-		providers.map((provider) =>
-			provider.on('changed', () => {
-				setState({
-					wallets: sortWallets(resolveAdapters(adapters), preferredWallets),
-				});
-			}),
-		);
-	}
+	const handleWalletsChanged = () => {
+		setState({
+			wallets: sortWallets(registeredWallets.get(), preferredWallets, features),
+		});
+	};
+
+	registeredWallets.on('register', handleWalletsChanged);
+	registeredWallets.on('unregister', handleWalletsChanged);
 
 	const walletKit: WalletKitCore = {
 		async autoconnect() {
@@ -186,7 +198,7 @@ export function createWalletKitCore({
 			try {
 				const lastWalletName = await storageAdapter.get(storageKey);
 				if (lastWalletName) {
-					walletKit.connect(lastWalletName);
+					walletKit.connect(lastWalletName, { silent: true });
 				}
 			} catch {
 				/* ignore error */
@@ -222,45 +234,48 @@ export function createWalletKitCore({
 			});
 		},
 
-		async connect(walletName) {
+		async connect(walletName, connectInput) {
 			const currentWallet =
 				internalState.wallets.find((wallet) => wallet.name === walletName) ?? null;
+
 			// TODO: Should the current wallet actually be set before we successfully connect to it?
 			setState({ currentWallet });
 
-			if (currentWallet && !currentWallet.connecting) {
+			if (currentWallet) {
 				if (walletEventUnsubscribe) {
 					walletEventUnsubscribe();
 				}
-				walletEventUnsubscribe = currentWallet.on('change', ({ connected, accounts }) => {
-					// when undefined connected hasn't changed
-					if (connected === false) {
-						disconnected();
-					} else if (accounts) {
-						setState({
-							accounts,
-							currentAccount:
-								internalState.currentAccount &&
-								!accounts.find(({ address }) => address === internalState.currentAccount?.address)
-									? accounts[0]
-									: internalState.currentAccount,
-						});
-					}
-				});
+				walletEventUnsubscribe = currentWallet.features['standard:events'].on(
+					'change',
+					({ accounts, features, chains }) => {
+						// TODO: Handle features or chains changing.
+						if (accounts) {
+							setState({
+								accounts,
+								currentAccount:
+									internalState.currentAccount &&
+									!accounts.find(({ address }) => address === internalState.currentAccount?.address)
+										? accounts[0]
+										: internalState.currentAccount,
+							});
+						}
+					},
+				);
+
 				try {
 					setState({ status: WalletKitCoreConnectionStatus.CONNECTING });
-					await currentWallet.connect();
+					await currentWallet.features['standard:connect'].connect(connectInput);
 					setState({ status: WalletKitCoreConnectionStatus.CONNECTED });
 					try {
 						await storageAdapter.set(storageKey, currentWallet.name);
 					} catch {
 						/* ignore error */
 					}
-					// TODO: Rather than using this method, we should just standardize the wallet properties on the adapter itself:
-					const accounts = await currentWallet.getAccounts();
-					// TODO: Implement account selection:
 
-					setState({ accounts, currentAccount: accounts[0] ?? null });
+					setState({
+						accounts: currentWallet.accounts,
+						currentAccount: currentWallet.accounts[0] ?? null,
+					});
 				} catch (e) {
 					console.log('Wallet connection error', e);
 
@@ -281,7 +296,7 @@ export function createWalletKitCore({
 			} catch {
 				/* ignore error */
 			}
-			await internalState.currentWallet.disconnect();
+			await internalState.currentWallet.features['standard:disconnect']?.disconnect();
 			disconnected();
 		},
 
@@ -291,11 +306,11 @@ export function createWalletKitCore({
 				throw new Error('No wallet is currently connected, cannot call `signMessage`.');
 			}
 
-			if (!internalState.currentWallet.signMessage) {
+			if (!internalState.currentWallet.features['haneul:signMessage']) {
 				throw new Error('Wallet does not support deprecated `signMessage` method.');
 			}
 
-			return internalState.currentWallet.signMessage({
+			return internalState.currentWallet.features['haneul:signMessage'].signMessage({
 				...messageInput,
 				account: messageInput.account ?? internalState.currentAccount,
 			});
@@ -306,11 +321,11 @@ export function createWalletKitCore({
 				throw new Error('No wallet is currently connected, cannot call `signPersonalMessage`.');
 			}
 
-			if (!internalState.currentWallet.signPersonalMessage) {
+			if (!internalState.currentWallet.features['haneul:signPersonalMessage']) {
 				throw new Error('Wallet does not support the new `signPersonalMessage` method.');
 			}
 
-			return internalState.currentWallet.signPersonalMessage({
+			return internalState.currentWallet.features['haneul:signPersonalMessage'].signPersonalMessage({
 				...messageInput,
 				account: messageInput.account ?? internalState.currentAccount,
 			});
@@ -327,7 +342,7 @@ export function createWalletKitCore({
 			if (!chain) {
 				throw new Error('Missing chain');
 			}
-			return internalState.currentWallet.signTransactionBlock({
+			return internalState.currentWallet.features['haneul:signTransactionBlock'].signTransactionBlock({
 				...transactionInput,
 				account,
 				chain,
@@ -344,10 +359,14 @@ export function createWalletKitCore({
 				account = internalState.currentAccount,
 				chain = internalState.currentAccount.chains[0],
 			} = transactionInput;
+
 			if (!chain) {
 				throw new Error('Missing chain');
 			}
-			return internalState.currentWallet.signAndExecuteTransactionBlock({
+
+			return internalState.currentWallet.features[
+				'haneul:signAndExecuteTransactionBlock'
+			].signAndExecuteTransactionBlock({
 				...transactionInput,
 				account,
 				chain,

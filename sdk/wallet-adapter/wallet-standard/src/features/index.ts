@@ -1,7 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WalletWithFeatures } from '@wallet-standard/core';
+import type {
+	StandardConnectFeature,
+	StandardDisconnectFeature,
+	StandardEventsFeature,
+	WalletWithFeatures,
+} from '@wallet-standard/core';
 import type { HaneulSignTransactionBlockFeature } from './haneulSignTransactionBlock';
 import type { HaneulSignAndExecuteTransactionBlockFeature } from './haneulSignAndExecuteTransactionBlock';
 import { HaneulSignMessageFeature } from './haneulSignMessage';
@@ -16,7 +21,13 @@ export type HaneulFeatures = HaneulSignTransactionBlockFeature &
 	// This deprecated feature should be removed once wallets update to the new method:
 	Partial<HaneulSignMessageFeature>;
 
-export type WalletWithHaneulFeatures = WalletWithFeatures<HaneulFeatures>;
+export type WalletWithHaneulFeatures = WalletWithFeatures<
+	StandardConnectFeature &
+		StandardEventsFeature &
+		HaneulFeatures &
+		// Disconnect is an optional feature:
+		Partial<StandardDisconnectFeature>
+>;
 
 export * from './haneulSignMessage';
 export * from './haneulSignTransactionBlock';
