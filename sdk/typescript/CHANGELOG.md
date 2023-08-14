@@ -1,5 +1,15 @@
 # @haneullabs/haneul.js
 
+## 0.41.0
+
+### Minor Changes
+
+- ba8e3b857: Rename TransactionBlock generated type in @haneullabs/haneul.js/client to HaneulTransactionBlock to avoid conflicting names in exports
+
+### Patch Changes
+
+- f4b7b3474: Adds zk signature scheme
+
 ## 0.40.0
 
 ### Minor Changes
