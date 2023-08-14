@@ -52,8 +52,7 @@ export function useHaneulClientQuery<T extends keyof Methods>(
 
 	return useQuery({
 		...options,
-		// eslint-disable-next-line @tanstack/query/exhaustive-deps
-		queryKey: haneulContext.queryKey(queryKey ?? [method, params]),
+		queryKey: [haneulContext.selectedNetwork, method, params],
 		enabled,
 		queryFn: async () => {
 			return await haneulContext.client[method](params as never);

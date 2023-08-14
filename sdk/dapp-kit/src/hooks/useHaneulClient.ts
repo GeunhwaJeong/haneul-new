@@ -1,16 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import { createContext, useContext } from 'react';
-
-export const HaneulClientContext = createContext<
-	| {
-			client: HaneulClient;
-			queryKey: (key: unknown[]) => unknown[];
-	  }
-	| undefined
->(undefined);
+import { useContext } from 'react';
+import { HaneulClientContext } from '../components/HaneulClientProvider.js';
 
 export function useHaneulClientContext() {
 	const haneulClient = useContext(HaneulClientContext);

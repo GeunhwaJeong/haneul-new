@@ -115,8 +115,23 @@ export type NetworkOrTransport =
 			url?: never;
 	  };
 
+export const HANEUL_CLIENT_BRAND = Symbol.for('@haneullabs/HaneulClient');
+
+export function isHaneulClient(client: unknown): client is HaneulClient {
+	return (
+		typeof client === 'object' &&
+		client !== null &&
+		(client as { [HANEUL_CLIENT_BRAND]: unknown })[HANEUL_CLIENT_BRAND] === true
+	);
+}
+
 export class HaneulClient {
 	protected transport: HaneulTransport;
+
+	get [HANEUL_CLIENT_BRAND]() {
+		return true;
+	}
+
 	/**
 	 * Establish a connection to a Haneul RPC endpoint
 	 *
