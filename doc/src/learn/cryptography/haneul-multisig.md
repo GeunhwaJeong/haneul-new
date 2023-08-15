@@ -25,11 +25,9 @@ different weights for each key (which is complex in threshold cryptography), Mul
 transaction. On the other hand, threshold signatures provide the benefits of hiding the threshold policy, but also
 resulting in a single signature payload, making it indistinguishable from a single-key account.
 
-![MultiSig Haneul supported structures](../../../static/haneul_multisig_structures.png "MultiSig Haneul supported structures")
-
 # Example Workflow
 
-Here we demonstrate the steps to create a MultiSig transaction in Haneul using CLI and then submit it using the Haneul CLI against a local network. A transaction can be a transfer of an object, publish or upgrade a package, pay Haneul, etc. To learn how to set up a local network, see [Haneul Local Network](../build/haneul-local-network.md)
+Here we demonstrate the steps to create a MultiSig transaction in Haneul using CLI and then submit it using the Haneul CLI against a local network. A transaction can be a transfer of an object, publish or upgrade a package, pay Haneul, etc. To learn how to set up a local network, see [Haneul Local Network](../../build/haneul-local-network.md)
  
 ## Step 1: Add keys to Haneul keystore
 
