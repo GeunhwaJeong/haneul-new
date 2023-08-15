@@ -155,11 +155,30 @@ type PageInfo {
 	endCursor: String
 }
 
+type ProtocolConfigAttr {
+	key: String!
+	value: String!
+}
+
+type ProtocolConfigFeatureFlag {
+	key: String!
+	value: Boolean!
+}
+
+type ProtocolConfigs {
+	configs: [ProtocolConfigAttr!]
+	featureFlags: [ProtocolConfigFeatureFlag!]
+	protocolVersion: Int!
+	config(key: String!): ProtocolConfigAttr
+	featureFlag(key: String!): ProtocolConfigFeatureFlag
+}
+
 type Query {
 	chainIdentifier: String!
 	owner(address: HaneulAddress!): ObjectOwner
 	object(address: HaneulAddress!, version: Int): Object
 	address(address: HaneulAddress!): Address
+	protocolConfig(protocolVersion: Int): ProtocolConfigs!
 }
 
 type StakeConnection {

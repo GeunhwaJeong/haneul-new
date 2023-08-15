@@ -17,6 +17,7 @@ use crate::{
     types::base64::Base64,
 };
 
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub(crate) struct Object {
     pub address: HaneulAddress,
     pub version: u64,

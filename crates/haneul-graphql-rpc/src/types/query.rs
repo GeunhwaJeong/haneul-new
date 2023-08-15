@@ -3,7 +3,10 @@
 
 use async_graphql::*;
 
-use super::{address::Address, object::Object, owner::ObjectOwner, haneul_address::HaneulAddress};
+use super::{
+    address::Address, object::Object, owner::ObjectOwner, protocol_config::ProtocolConfigs,
+    haneul_address::HaneulAddress,
+};
 use crate::server::data_provider::fetch_chain_id;
 
 pub(crate) struct Query;
@@ -37,5 +40,14 @@ impl Query {
 
     async fn address(&self, address: HaneulAddress) -> Option<Address> {
         Some(Address { address })
+    }
+
+    async fn protocol_config(
+        &self,
+        ctx: &Context<'_>,
+        protocol_version: Option<u64>,
+    ) -> Result<ProtocolConfigs> {
+        let cl = ctx.data_unchecked::<haneul_sdk::HaneulClient>();
+        crate::server::data_provider::fetch_protocol_config(cl, protocol_version).await
     }
 }
