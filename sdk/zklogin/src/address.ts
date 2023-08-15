@@ -3,8 +3,8 @@
 
 import { bytesToHex } from '@noble/hashes/utils';
 import { blake2b } from '@noble/hashes/blake2b';
-import { SIGNATURE_SCHEME_TO_FLAG } from '../../typescript/src/cryptography/signature.js';
-import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../../typescript/src/utils/index.js';
+import { SIGNATURE_SCHEME_TO_FLAG } from '@haneullabs/haneul.js/cryptography';
+import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { zkBcs } from './bcs.js';
 import { decodeJwt } from 'jose';
 import { genAddressSeed, toBufferBE } from './utils.js';
