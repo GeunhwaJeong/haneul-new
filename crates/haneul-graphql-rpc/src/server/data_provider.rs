@@ -15,20 +15,24 @@ use async_graphql::connection::{Connection, Edge};
 use async_graphql::*;
 use std::str::FromStr;
 use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulPastObjectResponse,
-    HaneulTransactionBlockResponseOptions,
+    HaneulObjectDataOptions, HaneulObjectResponseQuery, HaneulPastObjectResponse, HaneulRawData,
+    HaneulTransactionBlockDataAPI, HaneulTransactionBlockResponseOptions,
 };
-use haneul_sdk::types::base_types::ObjectID as NaiveObjectID;
-use haneul_sdk::types::base_types::HaneulAddress as NativeHaneulAddress;
-use haneul_sdk::types::digests::TransactionDigest;
-use haneul_sdk::types::object::Owner as NativeOwner;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::{
+    types::{
+        base_types::{ObjectID as NativeObjectID, HaneulAddress as NativeHaneulAddress},
+        digests::TransactionDigest,
+        object::Owner as NativeOwner,
+    },
+    HaneulClient,
+};
+
 pub(crate) async fn fetch_obj(
     cl: &HaneulClient,
     address: HaneulAddress,
     version: Option<u64>,
 ) -> Result<Option<Object>> {
-    let oid: NaiveObjectID = address.to_array().as_slice().try_into()?;
+    let oid: NativeObjectID = address.into_array().as_slice().try_into()?;
     let opts = HaneulObjectDataOptions::full_content();
 
     let g = match version {
@@ -76,7 +80,7 @@ pub(crate) async fn fetch_owned_objs(
 
     let cursor = match after {
         Some(q) => Some(
-            NaiveObjectID::from_hex_literal(&q)
+            NativeObjectID::from_hex_literal(&q)
                 .map_err(|w| Error::new(format!("invalid object id: {}", w)))?,
         ),
         None => None,
@@ -87,6 +91,7 @@ pub(crate) async fn fetch_owned_objs(
         .get_owned_objects(native_owner, Some(query), cursor, count)
         .await?;
 
+    // TODO: handle errors
     pg.data.iter().try_for_each(|n| {
         if n.error.is_some() || n.data.is_none() {
             return Err(Error::new("error"));
@@ -101,7 +106,7 @@ pub(crate) async fn fetch_owned_objs(
 
         Edge::new(g.object_id.to_string(), o)
     }));
-    Ok::<_, async_graphql::Error>(connection)
+    Ok(connection)
 }
 
 pub(crate) async fn fetch_balance(
@@ -128,7 +133,10 @@ fn convert_obj(s: &haneul_json_rpc_types::HaneulObjectData) -> Object {
             .get_owner_address()
             .map(|x| HaneulAddress::from_array(x.to_inner()))
             .ok(),
-        bcs: Some(Base64::from(&bcs::to_bytes(&s.bcs).unwrap())), // TODO: is this correct?
+        bcs: s.bcs.as_ref().map(|raw| match raw {
+            HaneulRawData::Package(raw_package) => Base64::from(bcs::to_bytes(raw_package).unwrap()),
+            HaneulRawData::MoveObject(raw_object) => Base64::from(&raw_object.bcs_bytes),
+        }),
         previous_transaction: Some(s.previous_transaction.unwrap().to_string()),
         kind: Some(match s.owner.unwrap() {
             NativeOwner::AddressOwner(_) => ObjectKind::Owned,
@@ -150,9 +158,7 @@ pub(crate) async fn fetch_tx(cl: &HaneulClient, digest: &String) -> Result<Optio
             HaneulTransactionBlockResponseOptions::full_content(),
         )
         .await?;
-    let sender = match tx.clone().transaction.unwrap().data {
-        haneul_json_rpc_types::HaneulTransactionBlockData::V1(tx) => tx.sender,
-    };
+    let sender = *tx.transaction.unwrap().data.sender();
     Ok(Some(TransactionBlock {
         digest: digest.to_string(),
         sender: Some(Address {

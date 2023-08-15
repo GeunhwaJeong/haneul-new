@@ -10260,7 +10260,6 @@ dependencies = [
  "fastcrypto",
  "hex",
  "insta",
- "move-core-types",
  "serde",
  "haneul-json-rpc",
  "haneul-json-rpc-types",

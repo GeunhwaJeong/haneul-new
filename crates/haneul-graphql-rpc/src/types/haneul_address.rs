@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 
 const HANEUL_ADDRESS_LENGTH: usize = 32;
 
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy)]
 pub(crate) struct HaneulAddress([u8; HANEUL_ADDRESS_LENGTH]);
-
+// TODO: unit tests
 #[Scalar]
 impl ScalarType for HaneulAddress {
     fn parse(value: Value) -> InputValueResult<Self> {
@@ -43,7 +43,7 @@ impl ScalarType for HaneulAddress {
 }
 
 impl HaneulAddress {
-    pub fn to_array(&self) -> [u8; HANEUL_ADDRESS_LENGTH] {
+    pub fn into_array(self) -> [u8; HANEUL_ADDRESS_LENGTH] {
         self.0
     }
 

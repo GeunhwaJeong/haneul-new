@@ -36,8 +36,6 @@ impl Query {
     }
 
     async fn address(&self, address: HaneulAddress) -> Option<Address> {
-        Some(Address {
-            address: address.clone(),
-        })
+        Some(Address { address })
     }
 }
