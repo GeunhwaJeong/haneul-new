@@ -49,7 +49,8 @@
 			"@haneullabs/kiosk": ["../../sdk/kiosk/src/index.ts"],
 			"@haneullabs/bcs": ["../../sdk/bcs/src/"],
 			"@haneullabs/ledgerjs-hw-app-haneul": ["../../sdk/ledgerjs-hw-app-haneul/src/Haneul.ts"],
-			"@haneullabs/wallet-standard": ["../../sdk/wallet-standard/src/"]
+			"@haneullabs/wallet-standard": ["../../sdk/wallet-standard/src/"],
+			"@haneullabs/zklogin": ["../../sdk/zklogin/src/"]
 		}
 	},
 	"include": ["../../src", "../../tests"],
