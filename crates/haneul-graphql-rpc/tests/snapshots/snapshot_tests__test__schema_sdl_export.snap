@@ -98,8 +98,13 @@ input ObjectFilter {
 	module: String
 	ty: String
 	owner: HaneulAddress
-	objectId: HaneulAddress
-	version: Int
+	objectIds: [HaneulAddress!]
+	objectKeys: [ObjectKey!]
+}
+
+input ObjectKey {
+	objectId: HaneulAddress!
+	version: Int!
 }
 
 enum ObjectKind {

@@ -206,8 +206,13 @@ input ObjectFilter {
   type: String
 
   owner: HaneulAddress
-  objectId: HaneulAddress
-  version: Int
+  objectIds: [HaneulAddress!]
+  objectKeys: [ObjectKey!]
+}
+
+input ObjectKey {
+  objectId: HaneulAddress!
+  version: Int!
 }
 
 input EventFilter {
