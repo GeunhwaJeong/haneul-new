@@ -10267,6 +10267,7 @@ dependencies = [
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-sdk",
+ "thiserror",
  "tokio",
  "tower",
  "workspace-hack",

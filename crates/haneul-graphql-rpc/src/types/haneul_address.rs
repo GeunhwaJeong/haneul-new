@@ -25,7 +25,8 @@ impl ScalarType for HaneulAddress {
                 let bytes = hex::decode(s)?;
                 if bytes.len() != HANEUL_ADDRESS_LENGTH {
                     return Err(InputValueError::custom(format!(
-                        "Invalid HaneulAddress length: {}",
+                        "Expected HaneulAddress of length {}, received {}.",
+                        HANEUL_ADDRESS_LENGTH,
                         bytes.len()
                     )));
                 }
@@ -33,7 +34,7 @@ impl ScalarType for HaneulAddress {
                 arr.copy_from_slice(&bytes);
                 Ok(HaneulAddress(arr))
             }
-            _ => Err(InputValueError::custom("Invalid HaneulAddress")),
+            _ => Err(InputValueError::expected_type(value)),
         }
     }
 
