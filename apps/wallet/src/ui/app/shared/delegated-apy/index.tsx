@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { roundFloat, useGetValidatorsApy, useGetSystemState } from '@haneullabs/core';
+import { roundFloat, useGetValidatorsApy } from '@haneullabs/core';
+import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 import { useMemo } from 'react';
 
 import { Text } from '_app/shared/text';
@@ -15,7 +16,7 @@ type DelegatedAPYProps = {
 };
 
 export function DelegatedAPY({ stakedValidators }: DelegatedAPYProps) {
-	const { data, isLoading } = useGetSystemState();
+	const { data, isLoading } = useLatestHaneulSystemState();
 	const { data: rollingAverageApys } = useGetValidatorsApy();
 
 	const averageNetworkAPY = useMemo(() => {

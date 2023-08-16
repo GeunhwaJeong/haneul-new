@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient, useGetSystemState, isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { useLatestHaneulSystemState, useHaneulClient } from '@haneullabs/dapp-kit';
 import { type HaneulClient, type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import {
 	isValidTransactionDigest,
@@ -123,8 +124,8 @@ const getResultsForValidatorByPoolIdOrHaneulAddress = async (
 };
 
 export function useSearch(query: string) {
-	const rpc = useRpcClient();
-	const { data: systemStateSummery } = useGetSystemState();
+	const client = useHaneulClient();
+	const { data: systemStateSummery } = useLatestHaneulSystemState();
 	const haneulNSEnabled = useHaneulNSEnabled();
 
 	return useQuery({
@@ -133,10 +134,10 @@ export function useSearch(query: string) {
 		queryFn: async () => {
 			const results = (
 				await Promise.allSettled([
-					getResultsForTransaction(rpc, query),
-					getResultsForCheckpoint(rpc, query),
-					getResultsForAddress(rpc, query, haneulNSEnabled),
-					getResultsForObject(rpc, query),
+					getResultsForTransaction(client, query),
+					getResultsForCheckpoint(client, query),
+					getResultsForAddress(client, query, haneulNSEnabled),
+					getResultsForObject(client, query),
 					getResultsForValidatorByPoolIdOrHaneulAddress(systemStateSummery || null, query),
 				])
 			).filter((r) => r.status === 'fulfilled' && r.value) as PromiseFulfilledResult<Results>[];

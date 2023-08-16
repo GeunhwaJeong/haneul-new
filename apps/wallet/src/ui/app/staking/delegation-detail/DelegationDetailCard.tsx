@@ -1,12 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	useGetValidatorsApy,
-	useGetSystemState,
-	useCoinMetadata,
-	useGetCoinBalance,
-} from '@haneullabs/core';
+import { useGetValidatorsApy, useCoinMetadata } from '@haneullabs/core';
+import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
 import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import BigNumber from 'bignumber.js';
@@ -42,7 +38,7 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 		data: system,
 		isLoading: loadingValidators,
 		isError: errorValidators,
-	} = useGetSystemState();
+	} = useLatestHaneulSystemState();
 
 	const accountAddress = useActiveAddress();
 
@@ -50,11 +46,9 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 
 	const apiEnv = useAppSelector(({ app }) => app.apiEnv);
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: haneulCoinBalance } = useGetCoinBalance(
-		HANEUL_TYPE_ARG,
-		accountAddress,
-		refetchInterval,
-		staleTime,
+	const { data: haneulCoinBalance } = useBalance(
+		{ coinType: HANEUL_TYPE_ARG, owner: accountAddress!! },
+		{ refetchInterval, staleTime, enabled: !!accountAddress },
 	);
 	const { data: metadata } = useCoinMetadata(HANEUL_TYPE_ARG);
 	// set minimum stake amount to 1 HANEUL

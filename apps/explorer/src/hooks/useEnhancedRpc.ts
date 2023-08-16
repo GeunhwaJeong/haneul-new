@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { useRpcClient } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { HaneulClient } from '@haneullabs/haneul.js/client';
 import { useMemo } from 'react';
 
@@ -10,14 +10,14 @@ import { Network } from '~/utils/api/DefaultRpcClient';
 // TODO: Use enhanced RPC locally by default
 export function useEnhancedRpcClient() {
 	const [network] = useNetwork();
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const enhancedRpc = useMemo(() => {
 		if (network === Network.LOCAL) {
 			return new HaneulClient({ url: 'http://localhost:9124' });
 		}
 
-		return rpc;
-	}, [network, rpc]);
+		return client;
+	}, [network, client]);
 
 	return enhancedRpc;
 }

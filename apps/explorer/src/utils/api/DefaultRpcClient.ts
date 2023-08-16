@@ -11,28 +11,28 @@ export enum Network {
 	MAINNET = 'MAINNET',
 }
 
-const CONNECTIONS: Record<Network, string> = {
-	[Network.LOCAL]: getFullnodeUrl('localnet'),
-	[Network.DEVNET]: 'https://explorer-rpc.devnet.haneul.io:443',
-	[Network.TESTNET]: 'https://explorer-rpc.testnet.haneul.io:443',
-	[Network.MAINNET]: 'https://explorer-rpc.mainnet.haneul.io:443',
+export const NetworkConfigs: Record<Network, { url: string }> = {
+	[Network.LOCAL]: { url: getFullnodeUrl('localnet') },
+	[Network.DEVNET]: { url: 'https://explorer-rpc.devnet.haneul.io:443' },
+	[Network.TESTNET]: { url: 'https://explorer-rpc.testnet.haneul.io:443' },
+	[Network.MAINNET]: { url: 'https://explorer-rpc.mainnet.haneul.io:443' },
 };
 
-const defaultRpcMap: Map<Network | string, HaneulClient> = new Map();
+const defaultClientMap: Map<Network | string, HaneulClient> = new Map();
 
-// NOTE: This class should not be used directly in React components, prefer to use the useRpcClient() hook instead
-export const DefaultRpcClient = (network: Network | string) => {
-	const existingClient = defaultRpcMap.get(network);
+// NOTE: This class should not be used directly in React components, prefer to use the useHaneulClient() hook instead
+export const createHaneulClient = (network: Network | string) => {
+	const existingClient = defaultClientMap.get(network);
 	if (existingClient) return existingClient;
 
-	const networkUrl = network in Network ? CONNECTIONS[network as Network] : network;
+	const networkUrl = network in Network ? NetworkConfigs[network as Network].url : network;
 
-	const provider = new HaneulClient({
+	const client = new HaneulClient({
 		transport:
 			network in Network && network === Network.MAINNET
 				? new SentryHttpTransport(networkUrl)
 				: new HaneulHTTPTransport({ url: networkUrl }),
 	});
-	defaultRpcMap.set(network, provider);
-	return provider;
+	defaultClientMap.set(network, client);
+	return client;
 };

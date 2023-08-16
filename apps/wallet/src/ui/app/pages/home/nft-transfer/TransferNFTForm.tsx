@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetKioskContents, isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
+import { useGetKioskContents, isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -31,7 +32,7 @@ export function TransferNFTForm({
 	objectType?: string | null;
 }) {
 	const activeAddress = useActiveAddress();
-	const rpc = useRpcClient();
+	const rpc = useHaneulClient();
 	const haneulNSEnabled = useHaneulNSEnabled();
 	const validationSchema = createValidationSchema(rpc, haneulNSEnabled, activeAddress || '', objectId);
 	const activeAccount = useActiveAccount();

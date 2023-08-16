@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useQuery } from '@tanstack/react-query';
-import { useRpcClient } from '../api/RpcClientContext';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 
 const HANEUL_NS_FEATURE_FLAG = 'haneulns';
@@ -18,13 +18,13 @@ export function useHaneulNSEnabled() {
 }
 
 export function useResolveHaneulNSAddress(name?: string | null) {
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const enabled = useHaneulNSEnabled();
 
 	return useQuery({
 		queryKey: ['resolve-haneulns-address', name],
 		queryFn: async () => {
-			return await rpc.resolveNameServiceAddress({
+			return await client.resolveNameServiceAddress({
 				name: name!,
 			});
 		},
@@ -35,14 +35,14 @@ export function useResolveHaneulNSAddress(name?: string | null) {
 }
 
 export function useResolveHaneulNSName(address?: string | null) {
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const enabled = useHaneulNSEnabled();
 
 	return useQuery({
 		queryKey: ['resolve-haneulns-name', address],
 		queryFn: async () => {
 			// NOTE: We only fetch 1 here because it's the default name.
-			const { data } = await rpc.resolveNameServiceNames({
+			const { data } = await client.resolveNameServiceNames({
 				address: address!,
 				limit: 1,
 			});

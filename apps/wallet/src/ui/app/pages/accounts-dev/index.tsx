@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Popover } from '@headlessui/react';
-import { useFormatCoin, useGetCoinBalance } from '@haneullabs/core';
+import { useFormatCoin } from '@haneullabs/core';
+import { useBalance } from '@haneullabs/dapp-kit';
 import { TransactionBlock } from '@haneullabs/haneul.js/builder';
 import { type ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/framework';
@@ -336,7 +337,10 @@ function Account({ account }: { account: SerializedUIAccount }) {
 			toast.success(JSON.stringify(result, null, 2));
 		},
 	});
-	const { data: coinBalance } = useGetCoinBalance(HANEUL_TYPE_ARG, account.address, 5000);
+	const { data: coinBalance } = useBalance(
+		{ coinType: HANEUL_TYPE_ARG, owner: account.address },
+		{ refetchInterval: 5000 },
+	);
 	const [formattedHaneulBalance] = useFormatCoin(coinBalance?.totalBalance, coinBalance?.coinType);
 
 	const network = useAppSelector(({ app }) => app.apiEnv);

@@ -46,8 +46,10 @@ const accountTypesWithBackgroundSigner = ['mnemonic-derived', 'imported', 'zk'];
 export default class ApiProvider {
 	private _apiFullNodeProvider?: HaneulClient;
 	private _signerByAddress: Map<string, SignerWithProvider> = new Map();
+	apiEnv: API_ENV = DEFAULT_API_ENV;
 
 	public setNewJsonRpcProvider(apiEnv: API_ENV = DEFAULT_API_ENV, customRPC?: string | null) {
+		this.apiEnv = apiEnv;
 		this._apiFullNodeProvider = getHaneulClient(
 			apiEnv === API_ENV.customRPC
 				? { env: apiEnv, customRpcUrl: customRPC || '' }

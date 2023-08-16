@@ -116,6 +116,7 @@
 		"@ledgerhq/hw-transport-webusb": "^6.27.13",
 		"@metamask/browser-passworder": "^4.1.0",
 		"@haneullabs/core": "workspace:*",
+		"@haneullabs/dapp-kit": "workspace:*",
 		"@haneullabs/icons": "workspace:*",
 		"@haneullabs/kiosk": "workspace:*",
 		"@haneullabs/ledgerjs-hw-app-haneul": "workspace:*",

@@ -5,10 +5,10 @@ import {
 	useCoinMetadata,
 	useFormatCoin,
 	CoinFormat,
-	useRpcClient,
 	isHaneulNSName,
 	useHaneulNSEnabled,
 } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { Coin as CoinAPI } from '@haneullabs/haneul.js';
 import { type CoinStruct } from '@haneullabs/haneul.js/client';
@@ -67,7 +67,7 @@ function GasBudgetEstimation({
 	const { values, setFieldValue } = useFormikContext<FormValues>();
 	const haneulNSEnabled = useHaneulNSEnabled();
 
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const { data: gasBudget } = useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
 		queryKey: [
@@ -87,7 +87,7 @@ function GasBudgetEstimation({
 
 			let to = values.to;
 			if (haneulNSEnabled && isHaneulNSName(values.to)) {
-				const address = await rpc.resolveNameServiceAddress({
+				const address = await client.resolveNameServiceAddress({
 					name: values.to,
 				});
 				if (!address) {
@@ -106,7 +106,7 @@ function GasBudgetEstimation({
 			});
 
 			tx.setSender(activeAddress);
-			await tx.build({ client: rpc });
+			await tx.build({ client });
 			return tx.blockData.gasConfig.budget;
 		},
 	});
@@ -141,7 +141,7 @@ export function SendTokenForm({
 	initialAmount = '',
 	initialTo = '',
 }: SendTokenFormProps) {
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const activeAddress = useActiveAddress();
 	// Get all coins of the type
 	const { data: coinsData, isLoading: coinsIsLoading } = useGetAllCoins(coinType, activeAddress!);
@@ -163,8 +163,8 @@ export function SendTokenForm({
 	const haneulNSEnabled = useHaneulNSEnabled();
 
 	const validationSchemaStepOne = useMemo(
-		() => createValidationSchemaStepOne(rpc, haneulNSEnabled, coinBalance, symbol, coinDecimals),
-		[rpc, coinBalance, symbol, coinDecimals, haneulNSEnabled],
+		() => createValidationSchemaStepOne(client, haneulNSEnabled, coinBalance, symbol, coinDecimals),
+		[client, coinBalance, symbol, coinDecimals, haneulNSEnabled],
 	);
 
 	// remove the comma from the token balance
@@ -196,7 +196,7 @@ export function SendTokenForm({
 						.map(({ coinObjectId }) => coinObjectId);
 
 					if (haneulNSEnabled && isHaneulNSName(to)) {
-						const address = await rpc.resolveNameServiceAddress({
+						const address = await client.resolveNameServiceAddress({
 							name: to,
 						});
 						if (!address) {

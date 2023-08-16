@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { Text } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -28,11 +28,11 @@ export function EpochsActivityTable({
 	initialLimit = DEFAULT_EPOCHS_LIMIT,
 }: Props) {
 	const [limit, setLimit] = useState(initialLimit);
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 
 	const { data: count } = useQuery({
 		queryKey: ['epochs', 'current'],
-		queryFn: async () => rpc.getCurrentEpoch(),
+		queryFn: async () => client.getCurrentEpoch(),
 		select: (epoch) => Number(epoch.epoch) + 1,
 	});
 

@@ -3,9 +3,9 @@
 
 import { KIOSK_ITEM, KioskItem, fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
 import { useQuery } from '@tanstack/react-query';
-import { useRpcClient } from '../api/RpcClientContext';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, getKioskIdFromOwnerCap } from '../utils/kiosk';
 import { HaneulClient, HaneulObjectResponse } from '@haneullabs/haneul.js/src/client';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 
 export enum KioskTypes {
 	HANEUL = 'haneul',
@@ -100,13 +100,13 @@ async function getHaneulKioskContents(address: string, client: HaneulClient) {
 }
 
 export function useGetKioskContents(address?: string | null, disableOriginByteKiosk?: boolean) {
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
 		queryKey: ['get-kiosk-contents', address, disableOriginByteKiosk],
 		queryFn: async () => {
-			const haneulKiosks = await getHaneulKioskContents(address!, rpc);
-			const obKiosks = await getOriginByteKioskContents(address!, rpc);
+			const haneulKiosks = await getHaneulKioskContents(address!, client);
+			const obKiosks = await getOriginByteKioskContents(address!, client);
 			return [...haneulKiosks, ...obKiosks];
 		},
 		select(data) {

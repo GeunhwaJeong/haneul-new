@@ -7,10 +7,12 @@
 		"isolatedModules": true,
 		"jsx": "react-jsx",
 		"baseUrl": "..",
+		"rootDir": "src",
 		"paths": {
 			"@haneullabs/haneul.js/transactions": ["../typescript/src/builder/export.ts"],
 			"@haneullabs/haneul.js/*": ["../typescript/src/*"],
 			"@haneullabs/haneul.js": ["../typescript/src/"]
 		}
-	}
+	},
+	"references": [{ "path": "../typescript" }]
 }

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetSystemState } from '@haneullabs/core';
+import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 import { Plus12 } from '@haneullabs/icons';
 import { useMemo } from 'react';
 
@@ -28,7 +28,7 @@ export function ValidatorsCard() {
 		error,
 	} = useGetDelegatedStake(accountAddress || '');
 
-	const { data: system } = useGetSystemState();
+	const { data: system } = useLatestHaneulSystemState();
 	const activeValidators = system?.activeValidators;
 
 	// Total active stake for all Staked validators

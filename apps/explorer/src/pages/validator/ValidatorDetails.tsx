@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetValidatorsApy, useGetValidatorsEvents, useGetSystemState } from '@haneullabs/core';
+import { useGetValidatorsApy, useGetValidatorsEvents } from '@haneullabs/core';
+import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 import { type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import { LoadingIndicator, Text } from '@haneullabs/ui';
 import React, { useMemo } from 'react';
@@ -25,7 +26,7 @@ const getAtRiskRemainingEpochs = (
 
 function ValidatorDetails() {
 	const { id } = useParams();
-	const { data, isLoading } = useGetSystemState();
+	const { data, isLoading } = useLatestHaneulSystemState();
 
 	const validatorData = useMemo(() => {
 		if (!data) return null;

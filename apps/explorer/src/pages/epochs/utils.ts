@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetSystemState, useTimeAgo } from '@haneullabs/core';
+import { useTimeAgo } from '@haneullabs/core';
+import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 
 export function useEpochProgress(suffix: string = 'left') {
-	const { data } = useGetSystemState();
+	const { data } = useLatestHaneulSystemState();
 	const start = data?.epochStartTimestampMs ? Number(data.epochStartTimestampMs) : undefined;
 	const duration = data?.epochDurationMs ? Number(data.epochDurationMs) : undefined;
 	const end = start !== undefined && duration !== undefined ? start + duration : undefined;

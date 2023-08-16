@@ -1,19 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 export const DEFAULT_EPOCHS_LIMIT = 20;
 
 // Fetch paginated epochs
 export function useGetEpochs(limit = DEFAULT_EPOCHS_LIMIT) {
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 
 	return useInfiniteQuery(
 		['get-epochs-blocks', limit],
 		({ pageParam = null }) =>
-			rpc.getEpochs({
+			client.getEpochs({
 				descendingOrder: true,
 				cursor: pageParam,
 				limit,

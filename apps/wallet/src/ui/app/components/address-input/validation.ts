@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulNSName, useRpcClient, useHaneulNSEnabled } from '@haneullabs/core';
+import { isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useMemo } from 'react';
@@ -35,7 +36,7 @@ export function createHaneulAddressValidation(client: HaneulClient, haneulNSEnab
 }
 
 export function useHaneulAddressValidation() {
-	const client = useRpcClient();
+	const client = useHaneulClient();
 	const haneulNSEnabled = useHaneulNSEnabled();
 
 	return useMemo(() => {

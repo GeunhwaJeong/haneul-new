@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { useCoinMetadata, useGetSystemState, useGetCoinBalance } from '@haneullabs/core';
+import { useCoinMetadata } from '@haneullabs/core';
+import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 import { ArrowLeft16 } from '@haneullabs/icons';
 import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import * as Sentry from '@sentry/react';
@@ -52,11 +53,9 @@ function StakingCard() {
 	const activeAccount = useActiveAccount();
 	const accountAddress = activeAccount?.address;
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: haneulBalance, isLoading: loadingHaneulBalances } = useGetCoinBalance(
-		HANEUL_TYPE_ARG,
-		accountAddress,
-		refetchInterval,
-		staleTime,
+	const { data: haneulBalance, isLoading: loadingHaneulBalances } = useBalance(
+		{ coinType: HANEUL_TYPE_ARG, owner: accountAddress! },
+		{ refetchInterval, staleTime, enabled: !!accountAddress },
 	);
 	const coinBalance = BigInt(haneulBalance?.totalBalance || 0);
 	const [searchParams] = useSearchParams();
@@ -68,7 +67,7 @@ function StakingCard() {
 		FEATURES.WALLET_EFFECTS_ONLY_SHARED_TRANSACTION as string,
 	);
 
-	const { data: system, isLoading: validatorsIsloading } = useGetSystemState();
+	const { data: system, isLoading: validatorsIsloading } = useLatestHaneulSystemState();
 
 	const totalTokenBalance = useMemo(() => {
 		if (!allDelegation) return 0n;

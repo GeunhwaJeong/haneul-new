@@ -52,7 +52,7 @@ export function useHaneulClientQuery<T extends keyof Methods>(
 
 	return useQuery({
 		...options,
-		queryKey: [haneulContext.selectedNetwork, method, params],
+		queryKey: [haneulContext.network, method, params],
 		enabled,
 		queryFn: async () => {
 			return await haneulContext.client[method](params as never);

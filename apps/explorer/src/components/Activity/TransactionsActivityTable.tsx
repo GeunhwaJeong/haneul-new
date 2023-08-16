@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { Text } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -31,10 +31,10 @@ export function TransactionsActivityTable({
 	transactionKindFilter,
 }: Props) {
 	const [limit, setLimit] = useState(initialLimit);
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 	const { data: count } = useQuery({
 		queryKey: ['transactions', 'count'],
-		queryFn: () => rpc.getTotalTransactionBlocks(),
+		queryFn: () => client.getTotalTransactionBlocks(),
 		cacheTime: 24 * 60 * 60 * 1000,
 		staleTime: Infinity,
 		retry: false,

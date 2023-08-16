@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetAllBalances } from '@haneullabs/core';
+import { useAllBalances } from '@haneullabs/dapp-kit';
 import { Info16 } from '@haneullabs/icons';
-import { type CoinBalance } from '@haneullabs/haneul.js';
 import { Coin } from '@haneullabs/haneul.js';
+import { type CoinBalance } from '@haneullabs/haneul.js/client';
+import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { Heading, Text, LoadingIndicator, RadioGroup, RadioGroupItem } from '@haneullabs/ui';
 import { useMemo, useState } from 'react';
 
@@ -26,7 +27,7 @@ export function OwnedCoins({ id }: { id: string }) {
 	const [currentSlice, setCurrentSlice] = useState(1);
 	const [limit, setLimit] = useState(20);
 	const [filterValue, setFilterValue] = useState(COIN_FILTERS.RECOGNIZED);
-	const { isLoading, data, isError } = useGetAllBalances(id);
+	const { isLoading, data, isError } = useAllBalances({ owner: normalizeHaneulAddress(id) });
 	const recognizedPackages = useRecognizedPackages();
 
 	const balances: Record<COIN_FILTERS, CoinBalanceVerified[]> = useMemo(() => {

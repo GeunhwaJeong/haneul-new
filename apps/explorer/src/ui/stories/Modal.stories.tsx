@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { RpcClientContext } from '@haneullabs/core';
+import { HaneulClientProvider } from '@haneullabs/dapp-kit';
 import { type Meta, type StoryObj } from '@storybook/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -17,7 +17,6 @@ import {
 	type ModalProps,
 } from '../Modal';
 import { ObjectModal, type ObjectModalProps } from '../Modal/ObjectModal';
-import { DefaultRpcClient, Network } from '~/utils/api/DefaultRpcClient';
 
 export default {
 	component: () => {
@@ -41,9 +40,9 @@ export default {
 		(Story) => (
 			<MemoryRouter>
 				<QueryClientProvider client={new QueryClient()}>
-					<RpcClientContext.Provider value={DefaultRpcClient(Network.LOCAL)}>
+					<HaneulClientProvider>
 						<Story />
-					</RpcClientContext.Provider>
+					</HaneulClientProvider>
 				</QueryClientProvider>
 			</MemoryRouter>
 		),

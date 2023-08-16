@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetAllBalances } from '@haneullabs/core';
+import { useAllBalances } from '@haneullabs/dapp-kit';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Link } from 'react-router-dom';
 
@@ -21,11 +21,14 @@ export function ActiveCoinsCard({
 	const selectedAddress = useActiveAddress();
 
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: coins, isLoading } = useGetAllBalances(
-		selectedAddress!,
-		refetchInterval,
-		staleTime,
-		filterAndSortTokenBalances,
+	const { data: coins, isLoading } = useAllBalances(
+		{ owner: selectedAddress! },
+		{
+			enabled: !!selectedAddress,
+			refetchInterval,
+			staleTime,
+			select: filterAndSortTokenBalances,
+		},
 	);
 
 	const activeCoin = coins?.find(({ coinType }) => coinType === activeCoinType);

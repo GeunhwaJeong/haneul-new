@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useRpcClient } from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { Check32 } from '@haneullabs/icons';
 import { getExecutionStatusType } from '@haneullabs/haneul.js';
 import { useQuery } from '@tanstack/react-query';
@@ -23,12 +23,12 @@ function ReceiptPage() {
 	// get tx results from url params
 	const transactionId = searchParams.get('txdigest');
 	const fromParam = searchParams.get('from');
-	const rpc = useRpcClient();
+	const client = useHaneulClient();
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['transactions-by-id', transactionId],
 		queryFn: async () => {
-			return rpc.getTransactionBlock({
+			return client.getTransactionBlock({
 				digest: transactionId!,
 				options: {
 					showBalanceChanges: true,
