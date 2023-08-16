@@ -43,5 +43,5 @@ Quick reference on best practices for Haneul Network developers.
 # Signing
 
 - **Never** sign two concurrent transactions that are touching the same owned object. Either use independent owned objects, or wait for one transaction to conclude before sending the next one. Violating this rule might lead to client [equivocation](https://docs.haneul.io/learn/haneul-glossary#equivocation), which locks up the owned objects involved in the two transactions until the end of the current epoch.
-- Any `haneul client` command that crafts a transaction (e.g., `haneul client publish`, `haneul client call`) can accept the `--serialize-output` flag to output a base64 transaction to be signed.
+- Any `haneul client` command that crafts a transaction (e.g., `haneul client publish`, `haneul client call`) can accept the `--serialize-unsigned-transaction` flag to output a base64 transaction to be signed.
 - Haneul supports several [signature schemes](https://docs.haneul.io/learn/cryptography/haneul-offline-signing) for transaction signing, including native [multisig](https://docs.haneul.io/learn/cryptography/haneul-multisig).
