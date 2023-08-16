@@ -24,15 +24,7 @@ export function StakeButton() {
 
 	if (!stakeButtonEnabled) return null;
 
-	const stakeSupportedWallets = wallets.filter((wallet) => {
-		if (!('wallet' in wallet)) {
-			return false;
-		}
-
-		const standardWallet = wallet.wallet as StakeWallet;
-		return 'haneulWallet:stake' in standardWallet.features;
-	});
-
+	const stakeSupportedWallets = wallets.filter((wallet) => 'haneulWallet:stake' in wallet.features);
 	const currentWalletSupportsStake =
 		currentWallet && !!stakeSupportedWallets.find(({ name }) => currentWallet.name === name);
 
