@@ -19,9 +19,10 @@ use move_compiler::{
 };
 
 use haneul_move_build::linters::{
-    coin_field::CoinFieldVisitor, custom_state_change::CustomStateChangeVerifier,
-    freeze_wrapped::FreezeWrappedVisitor, known_filters, self_transfer::SelfTransferVerifier,
-    share_owned::ShareOwnedVerifier, LINT_WARNING_PREFIX,
+    coin_field::CoinFieldVisitor, collection_equality::CollectionEqualityVisitor,
+    custom_state_change::CustomStateChangeVerifier, freeze_wrapped::FreezeWrappedVisitor,
+    known_filters, self_transfer::SelfTransferVerifier, share_owned::ShareOwnedVerifier,
+    LINT_WARNING_PREFIX,
 };
 
 const HANEUL_FRAMEWORK_PATH: &str = "../haneul-framework/packages/haneul-framework";
@@ -69,6 +70,7 @@ fn run_tests(path: &Path) -> anyhow::Result<()> {
         CustomStateChangeVerifier.visitor(),
         CoinFieldVisitor.visitor(),
         FreezeWrappedVisitor::default().visitor(),
+        CollectionEqualityVisitor.visitor(),
     ];
     let (filter_attr_name, filters) = known_filters_for_test();
     let (files, comments_and_compiler_res) = Compiler::from_files(
