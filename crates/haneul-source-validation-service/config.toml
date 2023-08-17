@@ -4,11 +4,11 @@ source = "Repository"
 repository = "https://github.com/GeunhwaJeong/haneul"
 branch = "framework/mainnet"
 network = "mainnet"
-paths = [
-    "crates/haneul-framework/packages/deepbook",
-    "crates/haneul-framework/packages/move-stdlib",
-    "crates/haneul-framework/packages/haneul-framework",
-    "crates/haneul-framework/packages/haneul-system",
+packages = [
+    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
 ]
 
 [[packages]]
@@ -17,9 +17,22 @@ source = "Repository"
 repository = "https://github.com/GeunhwaJeong/haneul"
 branch = "framework/testnet"
 network = "testnet"
-paths = [
-    "crates/haneul-framework/packages/deepbook",
-    "crates/haneul-framework/packages/move-stdlib",
-    "crates/haneul-framework/packages/haneul-framework",
-    "crates/haneul-framework/packages/haneul-system",
+packages = [
+    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
+]
+
+[[packages]]
+source = "Repository"
+[packages.values]
+repository = "https://github.com/GeunhwaJeong/haneul"
+branch = "framework/devnet"
+network = "devnet"
+packages = [
+    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
 ]

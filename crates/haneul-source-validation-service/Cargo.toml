@@ -25,7 +25,7 @@ serde = { version = "1.0.144", features = ["derive"] }
 serde_json = "1.0.88"
 url = "2.3.1"
 
-haneul-move.workspace = true
+haneul-move = { workspace = true, features = ["all"] }
 haneul-move-build.workspace = true
 haneul-sdk.workspace = true
 haneul-source-validation.workspace = true
