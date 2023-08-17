@@ -4,7 +4,6 @@
 use crate::{
     server::{
         data_provider::DataProvider,
-        json_rpc_data_provider::JsonRpcDataProvider,
         version::{check_version_middleware, set_version_middleware},
     },
     types::query::{Query, HaneulGraphQLSchema},
@@ -68,8 +67,7 @@ pub async fn start_example_server(config: Option<ServerConfig>) {
         .await
         .expect("Failed to create HaneulClient");
 
-    let data_provider: Box<dyn DataProvider> =
-        Box::new(JsonRpcDataProvider::new(haneul_sdk_client_v0));
+    let data_provider: Box<dyn DataProvider> = Box::new(haneul_sdk_client_v0);
 
     let schema = async_graphql::Schema::build(Query, EmptyMutation, EmptySubscription)
         .data(data_provider)
