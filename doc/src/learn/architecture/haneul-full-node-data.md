@@ -8,7 +8,7 @@ Managing the data on your Haneul Full node is critical to ensuring a healthy Han
 
 The minimal version of a Haneul Full Node executes all of the transactions committed by Haneul Validators. Haneul Full nodes also orchestrate the submitting  new transactions to the system:
 
-![Basic Haneul Full node functionality](../../../static/data_mgmt/fn-basic-functionality.png "A diagram that shows the operations of a basic Haneul Full node.")
+![Basic Haneul Full node functionality](/fn-basic-functionality.png "A diagram that shows the operations of a basic Haneul Full node.")
 
 The image shows how data flows through a Full node as follows:
 1. **`State sync` protocol:** A Haneul Full node performs the following to achieve state synchronization:
