@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+#[test_only]
 /// Tests if normally illegal (in terms of Haneul bytecode verification) code is allowed in tests.
 module haneul::verifier_tests {
     struct VERIFIER_TESTS has drop {}
 
-    #[allow(unused_function)]
     fun init(otw: VERIFIER_TESTS, _: &mut haneul::tx_context::TxContext) {
         assert!(haneul::types::is_one_time_witness(&otw), 0);
     }

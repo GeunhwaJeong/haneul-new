@@ -69,6 +69,7 @@ static_symbols!(
     "tx_context",
     "TxContext",
     "ID",
+    "HANEUL",
 );
 
 /// The global, unique cache of strings.
