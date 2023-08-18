@@ -33,7 +33,8 @@ prometheus.workspace = true
 git-version.workspace = true
 const-str.workspace = true
 num-bigint.workspace = true
-
+regex.workspace = true
+reqwest.workspace = true
 move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }

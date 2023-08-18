@@ -14,6 +14,7 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
 use haneul_types::transaction::CertifiedTransaction;
 
+use fastcrypto_zkp::bn254::zk_login_api::ZkLoginEnv;
 use haneul_core::signature_verifier::*;
 
 fn gen_certs(
@@ -75,6 +76,8 @@ fn async_verifier_bench(c: &mut Criterion) {
                         committee.clone(),
                         batch_size,
                         metrics.clone(),
+                        vec![],
+                        ZkLoginEnv::Test,
                     ));
 
                     b.iter(|| {
