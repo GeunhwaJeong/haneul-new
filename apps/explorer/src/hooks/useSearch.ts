@@ -62,7 +62,7 @@ const getResultsForCheckpoint = async (client: HaneulClient, query: string) => {
 
 const getResultsForAddress = async (client: HaneulClient, query: string, haneulNSEnabled: boolean) => {
 	if (haneulNSEnabled && isHaneulNSName(query)) {
-		const resolved = await client.resolveNameServiceAddress({ name: query });
+		const resolved = await client.resolveNameServiceAddress({ name: query.toLowerCase() });
 		if (!resolved) return null;
 		return [
 			{
