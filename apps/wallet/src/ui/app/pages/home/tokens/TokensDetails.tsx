@@ -33,11 +33,14 @@ import { Text } from '_app/shared/text';
 import Alert from '_components/alert';
 import Loading from '_components/loading';
 import { filterAndSortTokenBalances } from '_helpers';
-import { useActiveAddress, useAppSelector, useCoinsReFetchingConfig } from '_hooks';
+import { useAppSelector, useCoinsReFetchingConfig } from '_hooks';
 import { ampli } from '_src/shared/analytics/ampli';
 import { API_ENV } from '_src/shared/api-env';
 import { FEATURES } from '_src/shared/experimentation/features';
 import { AccountsList } from '_src/ui/app/components/accounts/AccountsList';
+import { UnlockAccountButton } from '_src/ui/app/components/accounts/UnlockAccountButton';
+import { useActiveAccount } from '_src/ui/app/hooks/useActiveAccount';
+import { useIsAccountReadLocked } from '_src/ui/app/hooks/useIsAccountReadLocked';
 import { usePinnedCoinTypes } from '_src/ui/app/hooks/usePinnedCoinTypes';
 import { useRecognizedPackages } from '_src/ui/app/hooks/useRecognizedPackages';
 import PageTitle from '_src/ui/app/shared/PageTitle';
@@ -165,7 +168,9 @@ function MyTokens({
 function TokenDetails({ coinType }: TokenDetailsProps) {
 	const [interstitialDismissed, setInterstitialDismissed] = useState<boolean>(false);
 	const activeCoinType = coinType || HANEUL_TYPE_ARG;
-	const activeAccountAddress = useActiveAddress();
+	const activeAccount = useActiveAccount();
+	const activeAccountAddress = activeAccount?.address;
+	const isAccountLocked = useIsAccountReadLocked(activeAccount);
 	const { data: domainName } = useResolveHaneulNSName(activeAccountAddress);
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
 	const {
@@ -260,77 +265,87 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 					data-testid="coin-page"
 				>
 					<AccountsList />
-					<div className="flex flex-col">
+					<div className="flex flex-col w-full">
 						<PortfolioName name={domainName ?? formatAddress(activeAccountAddress)} />
-						<div
-							data-testid="coin-balance"
-							className="bg-haneul/10 rounded-2xl py-5 px-4 flex flex-col w-full gap-3 items-center mt-4"
-						>
-							{accountHasHaneul ? (
-								<CoinBalance amount={BigInt(tokenBalance)} type={activeCoinType} />
-							) : (
-								<div className="flex flex-col gap-5">
-									<div className="flex flex-col flex-nowrap justify-center items-center text-center px-2.5">
-										<SvgHaneulTokensStack className="h-14 w-14 text-steel" />
-										<div className="flex flex-col gap-2 justify-center">
-											<Text variant="pBodySmall" color="gray-80" weight="normal">
-												To conduct transactions on the Haneul network, you need HANEUL in your wallet.
-											</Text>
+						{isAccountLocked ? null : (
+							<>
+								<div
+									data-testid="coin-balance"
+									className="bg-haneul/10 rounded-2xl py-5 px-4 flex flex-col w-full gap-3 items-center mt-4"
+								>
+									{accountHasHaneul ? (
+										<CoinBalance amount={BigInt(tokenBalance)} type={activeCoinType} />
+									) : (
+										<div className="flex flex-col gap-5">
+											<div className="flex flex-col flex-nowrap justify-center items-center text-center px-2.5">
+												<SvgHaneulTokensStack className="h-14 w-14 text-steel" />
+												<div className="flex flex-col gap-2 justify-center">
+													<Text variant="pBodySmall" color="gray-80" weight="normal">
+														To conduct transactions on the Haneul network, you need HANEUL in your wallet.
+													</Text>
+												</div>
+											</div>
+											<FaucetRequestButton />
 										</div>
+									)}
+									{isError ? (
+										<Alert>
+											<div>
+												<strong>Error updating balance</strong>
+											</div>
+										</Alert>
+									) : null}
+									<div className="grid grid-cols-3 gap-3 w-full">
+										<LargeButton
+											center
+											to="/onramp"
+											disabled={(coinType && coinType !== HANEUL_TYPE_ARG) || !providers?.length}
+											top={<WalletActionBuy24 />}
+										>
+											Buy
+										</LargeButton>
+
+										<LargeButton
+											center
+											data-testid="send-coin-button"
+											to={`/send${
+												coinBalance?.coinType
+													? `?${new URLSearchParams({
+															type: coinBalance.coinType,
+													  }).toString()}`
+													: ''
+											}`}
+											disabled={!tokenBalance}
+											top={<WalletActionSend24 />}
+										>
+											Send
+										</LargeButton>
+
+										<LargeButton center to="/" disabled top={<Swap16 />}>
+											Swap
+										</LargeButton>
 									</div>
-									<FaucetRequestButton />
+									<div className="w-full">
+										{activeCoinType === HANEUL_TYPE_ARG ? (
+											<TokenIconLink
+												disabled={!tokenBalance}
+												accountAddress={activeAccountAddress}
+											/>
+										) : null}
+									</div>
 								</div>
-							)}
-							{isError ? (
-								<Alert>
-									<div>
-										<strong>Error updating balance</strong>
-									</div>
-								</Alert>
-							) : null}
-							<div className="grid grid-cols-3 gap-3 w-full">
-								<LargeButton
-									center
-									to="/onramp"
-									disabled={(coinType && coinType !== HANEUL_TYPE_ARG) || !providers?.length}
-									top={<WalletActionBuy24 />}
-								>
-									Buy
-								</LargeButton>
-
-								<LargeButton
-									center
-									data-testid="send-coin-button"
-									to={`/send${
-										coinBalance?.coinType
-											? `?${new URLSearchParams({
-													type: coinBalance.coinType,
-											  }).toString()}`
-											: ''
-									}`}
-									disabled={!tokenBalance}
-									top={<WalletActionSend24 />}
-								>
-									Send
-								</LargeButton>
-
-								<LargeButton center to="/" disabled top={<Swap16 />}>
-									Swap
-								</LargeButton>
-							</div>
-							<div className="w-full">
-								{activeCoinType === HANEUL_TYPE_ARG ? (
-									<TokenIconLink disabled={!tokenBalance} accountAddress={activeAccountAddress} />
-								) : null}
-							</div>
-						</div>
+							</>
+						)}
 					</div>
-
-					<MyTokens
-						coinBalances={coinBalances ?? []}
-						isLoading={coinBalancesLoading}
-						isFetched={coinBalancesFetched}
-					/>
+					{isAccountLocked ? (
+						<UnlockAccountButton account={activeAccount} />
+					) : (
+						<MyTokens
+							coinBalances={coinBalances ?? []}
+							isLoading={coinBalancesLoading}
+							isFetched={coinBalancesFetched}
+						/>
+					)}
 				</div>
 			</Loading>
 		</>
