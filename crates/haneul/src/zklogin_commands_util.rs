@@ -106,7 +106,7 @@ pub async fn perform_zk_login_test_tx(
             coin,
             None,
             5000000,
-            HaneulAddress::random_for_testing_only(),
+            HaneulAddress::ZERO, // as a demo, send to a dummy address
         )
         .await?;
     println!(
