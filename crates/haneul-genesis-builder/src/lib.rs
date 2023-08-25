@@ -29,7 +29,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::epoch_data::EpochData;
-use haneul_types::gas::GasCharger;
+use haneul_types::gas::HaneulGasStatus;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::in_memory_storage::InMemoryStorage;
@@ -41,7 +41,7 @@ use haneul_types::metrics::LimitsMetrics;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState, HaneulSystemStateTrait};
-use haneul_types::temporary_store::{InnerTemporaryStore, TemporaryStore};
+use haneul_types::temporary_store::InnerTemporaryStore;
 use haneul_types::transaction::{CallArg, Command, InputObjectKind, InputObjects, Transaction};
 use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS};
 use tracing::trace;
@@ -808,13 +808,6 @@ fn create_genesis_transaction(
     let genesis_digest = *genesis_transaction.digest();
     // execute txn to effects
     let (effects, events, objects) = {
-        let temporary_store = TemporaryStore::new(
-            InMemoryStorage::new(Vec::new()),
-            InputObjects::new(vec![]),
-            genesis_digest,
-            protocol_config,
-        );
-
         let silent = true;
         let paranoid_checks = false;
         let executor = haneul_execution::executor(protocol_config, paranoid_checks, silent)
@@ -828,15 +821,17 @@ fn create_genesis_transaction(
         let transaction_dependencies = BTreeSet::new();
         let (inner_temp_store, effects, _execution_error) = executor
             .execute_transaction_to_effects(
+                InMemoryStorage::new(Vec::new()),
                 protocol_config,
                 metrics,
                 expensive_checks,
                 &certificate_deny_set,
                 &epoch_data.epoch_id(),
                 epoch_data.epoch_start_timestamp(),
-                temporary_store,
+                InputObjects::new(vec![]),
                 shared_object_refs,
-                &mut GasCharger::new_unmetered(genesis_digest),
+                vec![],
+                HaneulGasStatus::new_unmetered(),
                 kind,
                 signer,
                 genesis_digest,
@@ -959,13 +954,6 @@ fn process_package(
         })
         .collect();
 
-    let genesis_digest = ctx.digest();
-    let mut temporary_store = TemporaryStore::new(
-        store.clone(),
-        InputObjects::new(loaded_dependencies),
-        genesis_digest,
-        protocol_config,
-    );
     let module_bytes = modules
         .iter()
         .map(|m| {
@@ -980,18 +968,16 @@ fn process_package(
         builder.command(Command::Publish(module_bytes, dependencies));
         builder.finish()
     };
-    executor.update_genesis_state(
-        protocol_config,
-        metrics,
-        &mut temporary_store,
-        ctx,
-        &mut GasCharger::new_unmetered(genesis_digest),
-        pt,
-    )?;
-
     let InnerTemporaryStore {
         written, deleted, ..
-    } = temporary_store.into_inner();
+    } = executor.update_genesis_state(
+        store.clone(),
+        protocol_config,
+        metrics,
+        ctx,
+        InputObjects::new(loaded_dependencies),
+        pt,
+    )?;
 
     let store = Arc::get_mut(store).expect("only one reference to store");
     store.finish(written, deleted);
@@ -1008,19 +994,12 @@ pub fn generate_genesis_system_object(
     token_distribution_schedule: &TokenDistributionSchedule,
     metrics: Arc<LimitsMetrics>,
 ) -> anyhow::Result<()> {
-    let genesis_digest = genesis_ctx.digest();
     // We don't know the chain ID here since we haven't yet created the genesis checkpoint.
     // However since we know there are no chain specific protocol config options in genesis,
     // we use Chain::Unknown here.
     let protocol_config = ProtocolConfig::get_for_version(
         ProtocolVersion::new(genesis_chain_parameters.protocol_version),
         haneul_protocol_config::Chain::Unknown,
-    );
-    let mut temporary_store = TemporaryStore::new(
-        store.clone(),
-        InputObjects::new(vec![]),
-        genesis_digest,
-        &protocol_config,
     );
 
     let pt = {
@@ -1075,18 +1054,16 @@ pub fn generate_genesis_system_object(
         builder.finish()
     };
 
-    executor.update_genesis_state(
-        &protocol_config,
-        metrics,
-        &mut temporary_store,
-        genesis_ctx,
-        &mut GasCharger::new_unmetered(genesis_digest),
-        pt,
-    )?;
-
     let InnerTemporaryStore {
         written, deleted, ..
-    } = temporary_store.into_inner();
+    } = executor.update_genesis_state(
+        store.clone(),
+        &protocol_config,
+        metrics,
+        genesis_ctx,
+        InputObjects::new(vec![]),
+        pt,
+    )?;
 
     let store = Arc::get_mut(store).expect("only one reference to store");
     store.finish(written, deleted);
