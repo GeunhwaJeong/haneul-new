@@ -5,8 +5,8 @@ use std::{
     collections::{BTreeSet, HashSet},
     sync::Arc,
 };
-
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::storage::BackingStore;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TxContext},
     committee::EpochId,
@@ -16,8 +16,8 @@ use haneul_types::{
     execution::TypeLayoutStore,
     execution_mode::ExecutionResult,
     gas::HaneulGasStatus,
+    inner_temporary_store::InnerTemporaryStore,
     metrics::LimitsMetrics,
-    temporary_store::{BackingStore, InnerTemporaryStore},
     transaction::{InputObjects, ProgrammableTransaction, TransactionKind},
     type_resolver::LayoutResolver,
 };

@@ -17,9 +17,9 @@ use haneul_types::{
     error::{ExecutionError, HaneulError, HaneulResult},
     execution::TypeLayoutStore,
     execution_mode::{self, ExecutionResult},
-    gas::{GasCharger, HaneulGasStatus},
+    gas::HaneulGasStatus,
+    inner_temporary_store::InnerTemporaryStore,
     metrics::{BytecodeVerifierMetrics, LimitsMetrics},
-    temporary_store::{BackingStore, InnerTemporaryStore, TemporaryStore},
     transaction::{InputObjects, ProgrammableTransaction, TransactionKind},
     type_resolver::LayoutResolver,
 };
@@ -29,9 +29,12 @@ use haneul_adapter_latest::adapter::{
     default_verifier_config, new_move_vm, run_metered_move_bytecode_verifier,
 };
 use haneul_adapter_latest::execution_engine::execute_transaction_to_effects;
+use haneul_adapter_latest::gas_charger::GasCharger;
 use haneul_adapter_latest::programmable_transactions;
+use haneul_adapter_latest::temporary_store::TemporaryStore;
 use haneul_adapter_latest::type_layout_resolver::TypeLayoutResolver;
 use haneul_move_natives_latest::all_natives;
+use haneul_types::storage::BackingStore;
 use haneul_verifier_latest::meter::HaneulVerifierMeter;
 
 use crate::executor;
