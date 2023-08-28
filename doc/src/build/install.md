@@ -287,6 +287,14 @@ cargo install --git https://github.com/move-language/move move-analyzer --branch
 
 See more [IDE options](https://github.com/GeunhwaJeong/awesome-move#ides) in the [Awesome Move](https://github.com/GeunhwaJeong/awesome-move) documentation.
 
+## Upgrade Haneul binaries
+
+If you previously installed the Haneul binaries, you can update them to the most recent release with the same command you used to install them:
+
+```shell
+cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul
+```
+
 ## HANEUL tokens
 
 You need HANEUL tokens to perform transactions on a Haneul network. You can get test tokens from the Haneul faucet in Discord, or directly in the [Haneul Wallet](https://github.com/GeunhwaJeong/haneullabs-app-docs/blob/main/haneullabs-haneul-wallet.md).
