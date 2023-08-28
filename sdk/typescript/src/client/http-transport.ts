@@ -47,7 +47,7 @@ export class HaneulHTTPTransport implements HaneulTransport {
 
 	constructor({
 		url,
-		websocket: { url: websocketUrl, ...websocketOptions } = {} as WebsocketClientOptions,
+		websocket: { url: websocketUrl, ...websocketOptions } = {},
 		rpc,
 	}: HaneulHTTPTransportOptions) {
 		const transport = new HTTPTransport(rpc?.url ?? url, {
