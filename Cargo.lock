@@ -9902,9 +9902,12 @@ dependencies = [
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-sdk",
+ "telemetry-subscribers",
  "thiserror",
  "tokio",
  "tower",
+ "tracing",
+ "uuid",
  "workspace-hack",
 ]
 
