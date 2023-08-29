@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useResolveHaneulNSName } from '@haneullabs/core';
-import { CheckFill16, SocialGoogle24 } from '@haneullabs/icons';
+import { CheckFill16 } from '@haneullabs/icons';
 
+import { formatAddress } from '@haneullabs/haneul.js/utils';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import cn from 'classnames';
 import { AccountItem } from './AccountItem';
@@ -14,15 +15,13 @@ type AccountMultiSelectItemProps = {
 	state?: 'selected' | 'disabled';
 };
 
-export function AccountMultiSelectItem({ account, state, ...props }: AccountMultiSelectItemProps) {
+export function AccountMultiSelectItem({ account, state }: AccountMultiSelectItemProps) {
 	const { data: domainName } = useResolveHaneulNSName(account.address);
 	return (
 		<ToggleGroup.Item asChild value={account.id}>
 			<AccountItem
-				// TODO: nickname
-				name={domainName || ''}
-				/* todo: replace this with a real icon */
-				icon={<SocialGoogle24 className="h-4 w-4" />}
+				name={account.nickname ?? domainName ?? formatAddress(account.address)}
+				/* todo: implement account icon */
 				address={account.address}
 				disabled={state === 'disabled'}
 				selected={state === 'selected'}
