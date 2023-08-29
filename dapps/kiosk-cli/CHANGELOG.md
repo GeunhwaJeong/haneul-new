@@ -1,5 +1,13 @@
 # kiosk-cli
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [24c21e1f0]
+  - @haneullabs/haneul.js@0.41.1
+  - @haneullabs/kiosk@0.5.2
+
 ## 1.0.6
 
 ### Patch Changes

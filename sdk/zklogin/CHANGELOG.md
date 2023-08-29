@@ -1,5 +1,14 @@
 # @haneullabs/zklogin
 
+## 0.1.2
+
+### Patch Changes
+
+- d0750ea0f: rename pin to salt
+- a82600f2d: fix nonce calculation
+- Updated dependencies [24c21e1f0]
+  - @haneullabs/haneul.js@0.41.1
+
 ## 0.1.1
 
 ### Patch Changes
