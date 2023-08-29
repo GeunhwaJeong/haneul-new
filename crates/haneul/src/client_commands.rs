@@ -301,12 +301,12 @@ pub enum HaneulClientCommands {
         #[clap(
             long,
             value_parser = parse_haneul_type_tag,
-            multiple_values = true
+            num_args(1..),
         )]
         type_args: Vec<TypeTag>,
         /// Simplified ordered args like in the function syntax
         /// ObjectIDs, Addresses must be hex strings
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         args: Vec<HaneulJsonValue>,
         /// ID of the gas object for gas payment, in 20 bytes Hex string
         #[clap(long)]
@@ -394,15 +394,15 @@ pub enum HaneulClientCommands {
     #[clap(name = "pay")]
     Pay {
         /// The input coins to be used for pay recipients, following the specified amounts.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         input_coins: Vec<ObjectID>,
 
         /// The recipient addresses, must be of same length as amounts
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         recipients: Vec<HaneulAddress>,
 
         /// The amounts to be paid, following the order of recipients.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         amounts: Vec<u64>,
 
         /// ID of the gas object for gas payment, in 20 bytes Hex string
@@ -430,15 +430,15 @@ pub enum HaneulClientCommands {
     /// The input coins also include the coin for gas payment, so no extra gas coin is required.
     PayHaneul {
         /// The input coins to be used for pay recipients, including the gas coin.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         input_coins: Vec<ObjectID>,
 
         /// The recipient addresses, must be of same length as amounts.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         recipients: Vec<HaneulAddress>,
 
         /// The amounts to be paid, following the order of recipients.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         amounts: Vec<u64>,
 
         /// Gas budget for this transaction
@@ -460,7 +460,7 @@ pub enum HaneulClientCommands {
     /// The input coins also include the coin for gas payment, so no extra gas coin is required.
     PayAllHaneul {
         /// The input coins to be used for pay recipients, including the gas coin.
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         input_coins: Vec<ObjectID>,
 
         /// The recipient address.
@@ -535,7 +535,7 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         coin_id: ObjectID,
         /// Specific amounts to split out from the coin
-        #[clap(long, multiple_values = true)]
+        #[clap(long, num_args(1..))]
         amounts: Option<Vec<u64>>,
         /// Count of equal-size coins to split into
         #[clap(long)]

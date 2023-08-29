@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::examples::RpcExampleProvider;
-use clap::ArgEnum;
 use clap::Parser;
+use clap::ValueEnum;
 use pretty_assertions::assert_str_eq;
 use std::fs::File;
 use std::io::Write;
@@ -21,7 +21,7 @@ use haneul_json_rpc::HaneulRpcModule;
 
 mod examples;
 
-#[derive(Debug, Parser, Clone, Copy, ArgEnum)]
+#[derive(Debug, Parser, Clone, Copy, ValueEnum)]
 enum Action {
     Print,
     Test,
@@ -34,7 +34,7 @@ enum Action {
     about = "Trace serde (de)serialization to generate format descriptions for Haneul types"
 )]
 struct Options {
-    #[clap(arg_enum, default_value = "Record", ignore_case = true)]
+    #[clap(value_enum, default_value = "Record", ignore_case = true)]
     action: Action,
 }
 
