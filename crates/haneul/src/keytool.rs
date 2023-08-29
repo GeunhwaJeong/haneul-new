@@ -686,7 +686,8 @@ impl KeyToolCommand {
             }
 
             KeyToolCommand::Unpack { keypair } => {
-                let keypair: HaneulKeyPair = keypair.parse().unwrap();
+                let keypair: HaneulKeyPair = keypair.parse()
+                    .expect("Expected a Base64 private key, but could not decode the input string to a HaneulKeyPair");
 
                 let key = Key::from(&keypair);
                 let path_str = format!("{}.key", key.haneul_address).to_lowercase();

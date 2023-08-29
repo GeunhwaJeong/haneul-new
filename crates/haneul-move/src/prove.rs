@@ -10,12 +10,12 @@ use haneul_types::haneul_framework_address_concat_string;
 const HANEUL_NATIVE_TEMPLATE: &[u8] = include_bytes!("haneul-natives.bpl");
 
 #[derive(Parser)]
-pub struct Prove {
+pub struct Prover {
     #[clap(flatten)]
     pub prove: prove::Prove,
 }
 
-impl Prove {
+impl Prover {
     pub fn execute(self, path: Option<PathBuf>, build_config: BuildConfig) -> anyhow::Result<()> {
         let rerooted_path = base::reroot_path(path)?;
         let prove::Prove {
