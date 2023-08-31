@@ -23,7 +23,7 @@ const header = `
  */
 `.trim();
 
-const hookTemplate = /* typescript */ `
+const queryHookTemplate = /* typescript */ `
 ${header}
 
 import type { $_METHOD_TYPE_NAME_Params } from '@haneullabs/haneul.js/client';
@@ -35,6 +35,27 @@ export function $_HOOK_NAME_(
 	options?: UseHaneulClientQueryOptions<'$_METHOD_NAME_'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: '$_METHOD_NAME_',
+			params,
+		},
+		options,
+	);
+}
+`.trim();
+
+const mutationHookTemplate = /* typescript */ `
+${header}
+
+import type { $_METHOD_TYPE_NAME_Params } from '@haneullabs/haneul.js/client';
+import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
+import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
+
+export function $_HOOK_NAME_(
+	$_PARAMS_ARG_,
+	options?: UseHaneulClientMutationOptions<'$_METHOD_NAME_'>,
+) {
+	return useHaneulClientMutation(
 		{
 			method: '$_METHOD_NAME_',
 			params,
@@ -83,8 +104,9 @@ async function generateHook(method: OpenRpcMethod) {
 		.replace(/^get|multiGet|tryGet/i, '')
 		.replace(/^query(.*)/i, '$1Query')}`;
 	const hasRequiredParams = method.params.some((param) => param.required);
+	const isMutation = method.tags?.some((tag) => tag.name === 'Write API');
 
-	const source = hookTemplate
+	const source = (isMutation ? mutationHookTemplate : queryHookTemplate)
 		.replace(/\$_METHOD_NAME_/g, methodName)
 		.replace(/\$_METHOD_TYPE_NAME_/g, methodTypeName)
 		.replace(/\$_HOOK_NAME_/g, hookName)

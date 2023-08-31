@@ -11,14 +11,14 @@
  */
 
 import type { ExecuteTransactionBlockParams } from '@haneullabs/haneul.js/client';
-import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
-import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
+import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useExecuteTransactionBlock(
 	params: ExecuteTransactionBlockParams,
-	options?: UseHaneulClientQueryOptions<'executeTransactionBlock'>,
+	options?: UseHaneulClientMutationOptions<'executeTransactionBlock'>,
 ) {
-	return useHaneulClientQuery(
+	return useHaneulClientMutation(
 		{
 			method: 'executeTransactionBlock',
 			params,

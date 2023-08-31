@@ -6,13 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useHaneulClientContext } from './useHaneulClient.js';
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
 
-type HaneulRpcMethodName = {
+export type HaneulRpcMethodName = {
 	[K in keyof HaneulClient]: HaneulClient[K] extends ((input: any) => Promise<any>) | (() => Promise<any>)
 		? K
 		: never;
 }[keyof HaneulClient];
 
-type Methods = {
+export type HaneulRpcMethods = {
 	[K in HaneulRpcMethodName]: HaneulClient[K] extends (input: infer P) => Promise<infer R>
 		? {
 				name: K;
@@ -28,18 +28,18 @@ type Methods = {
 		: never;
 };
 
-export type UseHaneulClientQueryOptions<T extends keyof Methods> = Omit<
-	UseQueryOptions<Methods[T]['result'], unknown, Methods[T]['result'], unknown[]>,
+export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods> = Omit<
+	UseQueryOptions<HaneulRpcMethods[T]['result'], unknown, HaneulRpcMethods[T]['result'], unknown[]>,
 	'queryFn'
 >;
 
-export function useHaneulClientQuery<T extends keyof Methods>(
+export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
 	{
 		method,
 		params,
 	}: {
 		method: T;
-		params: Methods[T]['params'];
+		params: HaneulRpcMethods[T]['params'];
 	},
 	{
 		queryKey,

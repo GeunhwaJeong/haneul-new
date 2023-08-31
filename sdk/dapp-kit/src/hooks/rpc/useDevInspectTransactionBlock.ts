@@ -11,14 +11,14 @@
  */
 
 import type { DevInspectTransactionBlockParams } from '@haneullabs/haneul.js/client';
-import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
-import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
+import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useDevInspectTransactionBlock(
 	params: DevInspectTransactionBlockParams,
-	options?: UseHaneulClientQueryOptions<'devInspectTransactionBlock'>,
+	options?: UseHaneulClientMutationOptions<'devInspectTransactionBlock'>,
 ) {
-	return useHaneulClientQuery(
+	return useHaneulClientMutation(
 		{
 			method: 'devInspectTransactionBlock',
 			params,

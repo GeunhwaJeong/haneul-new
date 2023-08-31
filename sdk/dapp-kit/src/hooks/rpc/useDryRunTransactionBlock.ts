@@ -11,14 +11,14 @@
  */
 
 import type { DryRunTransactionBlockParams } from '@haneullabs/haneul.js/client';
-import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
-import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
+import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useDryRunTransactionBlock(
 	params: DryRunTransactionBlockParams,
-	options?: UseHaneulClientQueryOptions<'dryRunTransactionBlock'>,
+	options?: UseHaneulClientMutationOptions<'dryRunTransactionBlock'>,
 ) {
-	return useHaneulClientQuery(
+	return useHaneulClientMutation(
 		{
 			method: 'dryRunTransactionBlock',
 			params,
