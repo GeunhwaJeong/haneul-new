@@ -12,13 +12,28 @@
 
 import type { GetCheckpointsParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
 export function useCheckpoints(
 	params: GetCheckpointsParams,
 	options?: UseHaneulClientQueryOptions<'getCheckpoints'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'getCheckpoints',
+			params,
+		},
+		options,
+	);
+}
+
+export function useCheckpointsInfinite(
+	params: GetCheckpointsParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'getCheckpoints'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'getCheckpoints',
 			params,

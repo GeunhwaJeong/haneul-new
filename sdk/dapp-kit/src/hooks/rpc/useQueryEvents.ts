@@ -12,13 +12,28 @@
 
 import type { QueryEventsParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
-export function useEventsQuery(
+export function useQueryEvents(
 	params: QueryEventsParams,
 	options?: UseHaneulClientQueryOptions<'queryEvents'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'queryEvents',
+			params,
+		},
+		options,
+	);
+}
+
+export function useQueryEventsInfinite(
+	params: QueryEventsParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'queryEvents'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'queryEvents',
 			params,

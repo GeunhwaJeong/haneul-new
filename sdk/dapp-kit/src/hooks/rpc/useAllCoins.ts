@@ -12,13 +12,28 @@
 
 import type { GetAllCoinsParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
 export function useAllCoins(
 	params: GetAllCoinsParams,
 	options?: UseHaneulClientQueryOptions<'getAllCoins'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'getAllCoins',
+			params,
+		},
+		options,
+	);
+}
+
+export function useAllCoinsInfinite(
+	params: GetAllCoinsParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'getAllCoins'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'getAllCoins',
 			params,

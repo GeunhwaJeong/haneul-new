@@ -12,13 +12,28 @@
 
 import type { GetOwnedObjectsParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
 export function useOwnedObjects(
 	params: GetOwnedObjectsParams,
 	options?: UseHaneulClientQueryOptions<'getOwnedObjects'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'getOwnedObjects',
+			params,
+		},
+		options,
+	);
+}
+
+export function useOwnedObjectsInfinite(
+	params: GetOwnedObjectsParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'getOwnedObjects'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'getOwnedObjects',
 			params,

@@ -12,13 +12,28 @@
 
 import type { QueryTransactionBlocksParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
-export function useTransactionBlocksQuery(
+export function useQueryTransactionBlocks(
 	params: QueryTransactionBlocksParams,
 	options?: UseHaneulClientQueryOptions<'queryTransactionBlocks'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'queryTransactionBlocks',
+			params,
+		},
+		options,
+	);
+}
+
+export function useQueryTransactionBlocksInfinite(
+	params: QueryTransactionBlocksParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'queryTransactionBlocks'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'queryTransactionBlocks',
 			params,

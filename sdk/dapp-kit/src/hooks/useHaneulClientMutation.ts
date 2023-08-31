@@ -7,7 +7,7 @@ import { useHaneulClientContext } from './useHaneulClient.js';
 import type { HaneulRpcMethods } from './useHaneulClientQuery.js';
 
 export type UseHaneulClientMutationOptions<T extends keyof HaneulRpcMethods> = Omit<
-	UseMutationOptions<HaneulRpcMethods[T]['result'], unknown, HaneulRpcMethods[T]['result'], unknown[]>,
+	UseMutationOptions<HaneulRpcMethods[T]['result'], Error, HaneulRpcMethods[T]['result'], unknown[]>,
 	'mutationFn'
 >;
 

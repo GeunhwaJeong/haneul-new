@@ -29,7 +29,7 @@ export type HaneulRpcMethods = {
 };
 
 export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods> = Omit<
-	UseQueryOptions<HaneulRpcMethods[T]['result'], unknown, HaneulRpcMethods[T]['result'], unknown[]>,
+	UseQueryOptions<HaneulRpcMethods[T]['result'], Error, HaneulRpcMethods[T]['result'], unknown[]>,
 	'queryFn'
 >;
 
@@ -41,12 +41,7 @@ export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
 		method: T;
 		params: HaneulRpcMethods[T]['params'];
 	},
-	{
-		queryKey,
-
-		enabled = !!params,
-		...options
-	}: UseHaneulClientQueryOptions<T> = {},
+	{ queryKey, enabled = !!params, ...options }: UseHaneulClientQueryOptions<T> = {},
 ) {
 	const haneulContext = useHaneulClientContext();
 

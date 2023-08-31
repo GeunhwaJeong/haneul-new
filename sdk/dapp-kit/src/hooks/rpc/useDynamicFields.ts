@@ -12,13 +12,28 @@
 
 import type { GetDynamicFieldsParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
+import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
 
 export function useDynamicFields(
 	params: GetDynamicFieldsParams,
 	options?: UseHaneulClientQueryOptions<'getDynamicFields'>,
 ) {
 	return useHaneulClientQuery(
+		{
+			method: 'getDynamicFields',
+			params,
+		},
+		options,
+	);
+}
+
+export function useDynamicFieldsInfinite(
+	params: GetDynamicFieldsParams,
+	options?: UseHaneulClientInfiniteQueryOptions<'getDynamicFields'>,
+) {
+	return useHaneulClientInfiniteQuery(
 		{
 			method: 'getDynamicFields',
 			params,
