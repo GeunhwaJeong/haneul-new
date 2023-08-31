@@ -406,6 +406,7 @@ pub enum OperationType {
     Genesis,
     ConsensusCommitPrologue,
     ProgrammableTransaction,
+    AuthenticatorStateUpdate,
 }
 
 impl From<&HaneulTransactionBlockKind> for OperationType {
@@ -418,6 +419,9 @@ impl From<&HaneulTransactionBlockKind> for OperationType {
             }
             HaneulTransactionBlockKind::ProgrammableTransaction(_) => {
                 OperationType::ProgrammableTransaction
+            }
+            HaneulTransactionBlockKind::AuthenticatorStateUpdate(_) => {
+                OperationType::AuthenticatorStateUpdate
             }
         }
     }

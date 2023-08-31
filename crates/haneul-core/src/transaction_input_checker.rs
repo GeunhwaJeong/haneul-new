@@ -27,7 +27,10 @@ mod checked {
         gas::HaneulGasStatus,
         object::{Object, Owner},
     };
-    use haneul_types::{HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION};
+    use haneul_types::{
+        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
+        HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    };
     use tracing::instrument;
 
     // Entry point for all checks related to gas.
@@ -121,17 +124,12 @@ mod checked {
     ) -> HaneulResult<(ObjectRef, InputObjects)> {
         let gas_object_ref = gas_object.compute_object_reference();
         kind.validity_check(config)?;
-        match kind {
-            TransactionKind::ProgrammableTransaction(_) => (),
-            TransactionKind::ChangeEpoch(_)
-            | TransactionKind::Genesis(_)
-            | TransactionKind::ConsensusCommitPrologue(_) => {
-                return Err(UserInputError::Unsupported(format!(
-                    "Transaction kind {} is not supported in dev-inspect",
-                    kind
-                ))
-                .into())
-            }
+        if kind.is_system_tx() {
+            return Err(UserInputError::Unsupported(format!(
+                "Transaction kind {} is not supported in dev-inspect",
+                kind
+            ))
+            .into());
         }
         let mut input_objects = kind.input_objects()?;
         let mut objects = store.check_input_objects(&input_objects, config)?;
@@ -355,6 +353,19 @@ mod checked {
                 } else {
                     return Err(UserInputError::ImmutableParameterExpectedError {
                         object_id: HANEUL_CLOCK_OBJECT_ID,
+                    });
+                }
+            }
+            InputObjectKind::SharedMoveObject {
+                id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+                initial_shared_version: HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
+                ..
+            } => {
+                if system_transaction {
+                    return Ok(());
+                } else {
+                    return Err(UserInputError::InaccessibleSystemObject {
+                        object_id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
                     });
                 }
             }

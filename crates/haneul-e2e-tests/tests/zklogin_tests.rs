@@ -33,7 +33,7 @@ async fn test_zklogin_feature_deny() {
     use haneul_protocol_config::ProtocolConfig;
 
     let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
-        config.set_zklogin_auth(false);
+        config.set_zklogin_auth_for_testing(false);
         config
     });
 
@@ -42,12 +42,14 @@ async fn test_zklogin_feature_deny() {
     assert!(matches!(err, HaneulError::UnsupportedFeatureError { .. }));
 }
 
+#[ignore("re-enable after JWK management is finished")]
 #[sim_test]
 async fn test_zklogin_provider_not_supported() {
     use haneul_protocol_config::ProtocolConfig;
 
     let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
-        config.set_zklogin_auth(true);
+        config.set_zklogin_auth_for_testing(true);
+        config.set_enable_jwk_consensus_updates_for_testing(true);
         config.set_zklogin_supported_providers(BTreeSet::from([
             "Google".to_string(),
             "Facebook".to_string(),
@@ -61,12 +63,14 @@ async fn test_zklogin_provider_not_supported() {
     assert!(matches!(err, HaneulError::InvalidSignature { .. }));
 }
 
+#[ignore("re-enable after JWK management is finished")]
 #[sim_test]
 async fn test_zklogin_feature_allow() {
     use haneul_protocol_config::ProtocolConfig;
 
     let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
-        config.set_zklogin_auth(true);
+        config.set_zklogin_auth_for_testing(true);
+        config.set_enable_jwk_consensus_updates_for_testing(true);
         config.set_zklogin_supported_providers(BTreeSet::from(["Twitch".to_string()]));
         config
     });
@@ -78,8 +82,17 @@ async fn test_zklogin_feature_allow() {
     assert!(matches!(err, HaneulError::UserInputError { .. }));
 }
 
+#[ignore("re-enable after JWK management is finished")]
 #[sim_test]
 async fn zklogin_end_to_end_test() {
+    use haneul_protocol_config::ProtocolConfig;
+
+    let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+        config.set_zklogin_auth_for_testing(true);
+        config.set_enable_jwk_consensus_updates_for_testing(true);
+        config
+    });
+
     let mut test_cluster = TestClusterBuilder::new().build().await;
     let rgp = test_cluster.get_reference_gas_price().await;
     let sender = test_cluster.get_address_0();

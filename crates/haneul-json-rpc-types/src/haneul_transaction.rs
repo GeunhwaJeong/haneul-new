@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::fmt::{self, Display, Formatter, Write};
 use haneul_json::{primitive_type, HaneulJsonValue};
+use haneul_types::authenticator_state::ActiveJwk;
 use haneul_types::base_types::{
     EpochId, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
@@ -284,6 +285,8 @@ pub enum HaneulTransactionBlockKind {
     /// A series of transactions where the results of one transaction can be used in future
     /// transactions
     ProgrammableTransaction(HaneulProgrammableTransactionBlock),
+    /// An transaction which updates global authenticator state
+    AuthenticatorStateUpdate(HaneulAuthenticatorStateUpdate),
     // .. more transaction types go here
 }
 
@@ -314,6 +317,9 @@ impl Display for HaneulTransactionBlockKind {
                 writeln!(writer, "Transaction Kind : Programmable")?;
                 write!(writer, "{p}")?;
             }
+            Self::AuthenticatorStateUpdate(_) => {
+                writeln!(writer, "Transaction Kind : Authenticator State Update")?;
+            }
         }
         write!(f, "{}", writer)
     }
@@ -342,6 +348,17 @@ impl HaneulTransactionBlockKind {
             TransactionKind::ProgrammableTransaction(p) => Self::ProgrammableTransaction(
                 HaneulProgrammableTransactionBlock::try_from(p, module_cache)?,
             ),
+            TransactionKind::AuthenticatorStateUpdate(update) => {
+                Self::AuthenticatorStateUpdate(HaneulAuthenticatorStateUpdate {
+                    epoch: update.epoch,
+                    round: update.round,
+                    new_active_jwks: update
+                        .new_active_jwks
+                        .into_iter()
+                        .map(HaneulActiveJwk::from)
+                        .collect(),
+                })
+            }
         })
     }
 
@@ -358,6 +375,7 @@ impl HaneulTransactionBlockKind {
             Self::Genesis(_) => "Genesis",
             Self::ConsensusCommitPrologue(_) => "ConsensusCommitPrologue",
             Self::ProgrammableTransaction(_) => "ProgrammableTransaction",
+            Self::AuthenticatorStateUpdate(_) => "AuthenticatorStateUpdate",
         }
     }
 }
@@ -1035,6 +1053,64 @@ pub struct HaneulConsensusCommitPrologue {
     #[schemars(with = "BigInt<u64>")]
     #[serde_as(as = "BigInt<u64>")]
     pub commit_timestamp_ms: u64,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulAuthenticatorStateUpdate {
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub epoch: u64,
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub round: u64,
+
+    pub new_active_jwks: Vec<HaneulActiveJwk>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulActiveJwk {
+    pub jwk_id: HaneulJwkId,
+    pub jwk: HaneulJWK,
+
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub epoch: u64,
+}
+
+impl From<ActiveJwk> for HaneulActiveJwk {
+    fn from(active_jwk: ActiveJwk) -> Self {
+        Self {
+            jwk_id: HaneulJwkId {
+                iss: active_jwk.jwk_id.iss.clone(),
+                kid: active_jwk.jwk_id.kid.clone(),
+            },
+            jwk: HaneulJWK {
+                kty: active_jwk.jwk.kty.clone(),
+                e: active_jwk.jwk.e.clone(),
+                n: active_jwk.jwk.n.clone(),
+                alg: active_jwk.jwk.alg.clone(),
+            },
+            epoch: active_jwk.epoch,
+        }
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulJwkId {
+    pub iss: String,
+    pub kid: String,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulJWK {
+    pub kty: String,
+    pub e: String,
+    pub n: String,
+    pub alg: String,
 }
 
 #[serde_as]

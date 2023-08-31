@@ -26,6 +26,7 @@ use crate::{base_types::RESOLVED_STD_OPTION, id::RESOLVED_HANEUL_ID};
 pub mod error;
 
 pub mod accumulator;
+pub mod authenticator_state;
 pub mod balance;
 pub mod base_types;
 pub mod clock;
@@ -106,6 +107,12 @@ pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_STA
 pub const HANEUL_CLOCK_ADDRESS: AccountAddress = address_from_single_byte(6);
 pub const HANEUL_CLOCK_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_CLOCK_ADDRESS);
 pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
+
+/// 0x7: hardcode object ID for the singleton authenticator state object.
+pub const HANEUL_AUTHENTICATOR_STATE_ADDRESS: AccountAddress = address_from_single_byte(7);
+pub const HANEUL_AUTHENTICATOR_STATE_OBJECT_ID: ObjectID =
+    ObjectID::from_address(HANEUL_AUTHENTICATOR_STATE_ADDRESS);
+pub const HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
 
 /// Return `true` if `id` is a special system package that can be upgraded at epoch boundaries
 /// All new system package ID's must be added here

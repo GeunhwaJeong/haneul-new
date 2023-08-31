@@ -30,6 +30,7 @@ use move_core_types::{
 };
 use std::{collections::BTreeMap, error::Error, num::NonZeroU64};
 use haneul_types::{
+    authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME,
     clock::CLOCK_MODULE_NAME,
     error::{ExecutionError, VMMVerifierErrorSubStatusCode},
     id::OBJECT_MODULE_NAME,
@@ -77,8 +78,17 @@ const HANEUL_CLOCK_CREATE: FunctionIdent = (
     CLOCK_MODULE_NAME,
     ident_str!("create"),
 );
+const HANEUL_AUTHENTICATOR_STATE_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    AUTHENTICATOR_STATE_MODULE_NAME,
+    ident_str!("create"),
+);
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[OBJECT_NEW, OBJECT_NEW_UID_FROM_HASH, TS_NEW_OBJECT];
-const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[HANEUL_SYSTEM_CREATE, HANEUL_CLOCK_CREATE];
+const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
+    HANEUL_SYSTEM_CREATE,
+    HANEUL_CLOCK_CREATE,
+    HANEUL_AUTHENTICATOR_STATE_CREATE,
+];
 
 impl AbstractValue {
     pub fn join(&self, value: &AbstractValue) -> AbstractValue {
