@@ -83,6 +83,15 @@ pub enum DynamicFieldType {
     DynamicObject,
 }
 
+impl Display for DynamicFieldType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            DynamicFieldType::DynamicField => write!(f, "DynamicField"),
+            DynamicFieldType::DynamicObject => write!(f, "DynamicObject"),
+        }
+    }
+}
+
 impl DynamicFieldInfo {
     pub fn is_dynamic_field(tag: &StructTag) -> bool {
         tag.address == HANEUL_FRAMEWORK_ADDRESS

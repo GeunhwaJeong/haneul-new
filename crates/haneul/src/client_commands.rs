@@ -16,11 +16,10 @@ use fastcrypto::{
     encoding::{Base64, Encoding},
     traits::ToFromBytes,
 };
+use json_to_table::json_to_table;
 use move_bytecode_verifier::meter::Scope;
 use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig as MoveBuildConfig;
-use prettytable::Table;
-use prettytable::{row, table};
 use prometheus::Registry;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -28,8 +27,8 @@ use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode
 use haneul_move::build::resolve_lock_file_path;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
-use haneul_types::error::HaneulError;
 use haneul_types::{digests::TransactionDigest, metrics::BytecodeVerifierMetrics};
+use haneul_types::{dynamic_field::DynamicFieldInfo, error::HaneulError};
 use haneul_verifier::meter::HaneulVerifierMeter;
 
 use shared_crypto::intent::Intent;
@@ -48,7 +47,6 @@ use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::SignatureScheme;
-use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::move_package::UpgradeCap;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::{SenderSignedData, TransactionData, TransactionDataAPI};
@@ -59,6 +57,8 @@ use haneul_types::{
     parse_haneul_type_tag,
     transaction::Transaction,
 };
+
+use tabled::settings::Style as TableStyle;
 use tracing::info;
 
 macro_rules! serialize_or_execute {
@@ -608,6 +608,24 @@ impl HaneulClientCommands {
         context: &mut WalletContext,
     ) -> Result<HaneulClientCommandResult, anyhow::Error> {
         let ret = Ok(match self {
+            HaneulClientCommands::Addresses => {
+                let active_address = context.active_address()?;
+                let addresses = context.config.keystore.addresses();
+                HaneulClientCommandResult::Addresses(AddressesOutput {
+                    addresses,
+                    active_address,
+                })
+            }
+
+            HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
+                let client = context.get_client().await?;
+                let df_read = client
+                    .read_api()
+                    .get_dynamic_fields(id, cursor, Some(limit))
+                    .await?;
+                HaneulClientCommandResult::DynamicFieldQuery(df_read)
+            }
+
             HaneulClientCommands::Upgrade {
                 package_path,
                 upgrade_capability,
@@ -656,7 +674,9 @@ impl HaneulClientCommands {
                     .await?;
 
                 let Some(data) = resp.data else {
-                    return Err(anyhow!("Could not find upgrade capability at {upgrade_capability}"))
+                    return Err(anyhow!(
+                        "Could not find upgrade capability at {upgrade_capability}"
+                    ));
                 };
 
                 let upgrade_cap: UpgradeCap = data
@@ -814,15 +834,6 @@ impl HaneulClientCommands {
                     )
                     .await?;
                 HaneulClientCommandResult::TransactionBlock(tx_read)
-            }
-
-            HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
-                let client = context.get_client().await?;
-                let df_read = client
-                    .read_api()
-                    .get_dynamic_fields(id, cursor, Some(limit))
-                    .await?;
-                HaneulClientCommandResult::DynamicFieldQuery(df_read)
             }
 
             HaneulClientCommands::Call {
@@ -1001,11 +1012,6 @@ impl HaneulClientCommands {
                     PayAllHaneul
                 )
             }
-
-            HaneulClientCommands::Addresses => HaneulClientCommandResult::Addresses(
-                context.config.keystore.addresses(),
-                context.active_address().ok(),
-            ),
 
             HaneulClientCommands::Objects { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -1359,6 +1365,26 @@ impl Display for HaneulClientCommandResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut writer = String::new();
         match self {
+            HaneulClientCommandResult::Addresses(addresses) => {
+                let json_obj = json!(addresses);
+                let mut table = json_to_table(&json_obj);
+                let style = TableStyle::rounded().horizontals([]);
+                table.with(style);
+                write!(f, "{}", table)?
+            }
+            HaneulClientCommandResult::DynamicFieldQuery(df_refs) => {
+                let df_refs = DynamicFieldOutput {
+                    has_next_page: df_refs.has_next_page,
+                    next_cursor: df_refs.next_cursor,
+                    data: df_refs.data.clone(),
+                };
+
+                let json_obj = json!(df_refs);
+                let mut table = json_to_table(&json_obj);
+                let style = TableStyle::rounded().horizontals([]);
+                table.with(style);
+                write!(f, "{}", table)?
+            }
             HaneulClientCommandResult::Upgrade(response)
             | HaneulClientCommandResult::Publish(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
@@ -1423,16 +1449,6 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::PayAllHaneul(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
             }
-            HaneulClientCommandResult::Addresses(addresses, active_address) => {
-                writeln!(writer, "Showing {} results.", addresses.len())?;
-                for address in addresses {
-                    if *active_address == Some(*address) {
-                        writeln!(writer, "{} <=", address)?;
-                    } else {
-                        writeln!(writer, "{}", address)?;
-                    }
-                }
-            }
             HaneulClientCommandResult::Objects(object_refs) => {
                 writeln!(
                     writer,
@@ -1466,35 +1482,6 @@ impl Display for HaneulClientCommandResult {
                     }
                 }
                 writeln!(writer, "Showing {} results.", object_refs.len())?;
-            }
-            HaneulClientCommandResult::DynamicFieldQuery(df_refs) => {
-                let mut table: Table = table!([
-                    "Name",
-                    "Type",
-                    "Object Type",
-                    "Object Id",
-                    "Version",
-                    "Digest"
-                ]);
-                for df_ref in df_refs.data.iter() {
-                    let df_type = match df_ref.type_ {
-                        DynamicFieldType::DynamicField => "DynamicField",
-                        DynamicFieldType::DynamicObject => "DynamicObject",
-                    };
-                    table.add_row(row![
-                        df_ref.name,
-                        df_type,
-                        df_ref.object_type,
-                        df_ref.object_id,
-                        df_ref.version.value(),
-                        Base64::encode(df_ref.digest)
-                    ]);
-                }
-                write!(writer, "{table}")?;
-                writeln!(writer, "Showing {} results.", df_refs.data.len())?;
-                if let Some(cursor) = df_refs.next_cursor {
-                    writeln!(writer, "Next cursor: {cursor}")?;
-                }
             }
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
@@ -1733,11 +1720,26 @@ impl HaneulClientCommandResult {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AddressesOutput {
+    pub active_address: HaneulAddress,
+    pub addresses: Vec<HaneulAddress>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DynamicFieldOutput {
+    pub has_next_page: bool,
+    pub next_cursor: Option<ObjectID>,
+    pub data: Vec<DynamicFieldInfo>,
+}
+
+#[derive(Serialize)]
 #[serde(untagged)]
 pub enum HaneulClientCommandResult {
     ActiveAddress(Option<HaneulAddress>),
     ActiveEnv(Option<String>),
-    Addresses(Vec<HaneulAddress>, Option<HaneulAddress>),
+    Addresses(AddressesOutput),
     Call(HaneulTransactionBlockResponse),
     ChainIdentifier(String),
     DynamicFieldQuery(DynamicFieldPage),
