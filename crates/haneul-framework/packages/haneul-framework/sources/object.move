@@ -11,7 +11,6 @@ module haneul::object {
     friend haneul::dynamic_field;
     friend haneul::dynamic_object_field;
     friend haneul::transfer;
-    friend haneul::authenticator_state;
 
     #[test_only]
     friend haneul::test_scenario;
@@ -21,9 +20,6 @@ module haneul::object {
 
     /// The hardcoded ID for the singleton Clock Object.
     const HANEUL_CLOCK_OBJECT_ID: address = @0x6;
-
-    /// The hardcoded ID for the singleton AuthenticatorState Object.
-    const HANEUL_AUTHENTICATOR_STATE_ID: address = @0x7;
 
     /// Sender is not @0x0 the system address.
     const ENotSystemAddress: u64 = 0;
@@ -91,14 +87,6 @@ module haneul::object {
     public(friend) fun clock(): UID {
         UID {
             id: ID { bytes: HANEUL_CLOCK_OBJECT_ID }
-        }
-    }
-
-    /// Create the `UID` for the singleton `AuthenticatorState` object.
-    /// This should only be called once from `authenticator_state`.
-    public(friend) fun authenticator_state(): UID {
-        UID {
-            id: ID { bytes: HANEUL_AUTHENTICATOR_STATE_ID }
         }
     }
 
