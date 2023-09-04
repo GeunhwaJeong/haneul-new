@@ -23,7 +23,9 @@ use haneul_types::crypto::{get_key_pair, AccountKeyPair};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulResult;
 use haneul_types::object::{Object, Owner};
-use haneul_types::transaction::{Transaction, VerifiedCertificate};
+use haneul_types::transaction::{
+    Transaction, VerifiedCertificate, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
+};
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::time::{sleep, timeout};
 
@@ -363,6 +365,7 @@ async fn test_execution_with_dependencies() {
             owned_object_ref,
             package,
             gas_ref,
+            TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
             rgp,
         );
         let (cert, effects) = execute_owned_on_first_three_authorities(
