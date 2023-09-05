@@ -78,6 +78,7 @@ members = [
     "crates/shared-crypto",
     "crates/haneul",
     "crates/haneul-adapter-transactional-tests",
+    "crates/haneul-analytics-indexer",
     "crates/haneul-archival",
     "crates/haneul-benchmark",
     "crates/haneul-cluster-test",
@@ -521,6 +522,7 @@ prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
 shared-crypto = { path = "crates/shared-crypto" }
 haneul = { path = "crates/haneul" }
 haneul-adapter-transactional-tests = { path = "crates/haneul-adapter-transactional-tests" }
+haneul-analytics-indexer = { path = "crates/haneul-analytics-indexer" }
 haneul-archival = { path = "crates/haneul-archival" }
 haneul-benchmark = { path = "crates/haneul-benchmark" }
 haneul-cluster-test = { path = "crates/haneul-cluster-test" }
