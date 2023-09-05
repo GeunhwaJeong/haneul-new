@@ -1,0 +1,9 @@
+[package]
+name = "simple_warrior"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+simple_warrior = "0x0"
