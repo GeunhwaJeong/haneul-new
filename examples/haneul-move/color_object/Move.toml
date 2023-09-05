@@ -1,0 +1,9 @@
+[package]
+name = "color_object"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+color_object = "0x0"
