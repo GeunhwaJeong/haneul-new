@@ -11,7 +11,7 @@ The Haneul Move API supports the following cryptographic hash functions:
 * SHA2-256 as `std::hash::sha2_256`
 * SHA3-256 as `std::hash::sha3_256`
 * Keccak256 as `haneul::hash::keccak256`
-* Blake2b-256 as `haneul::hash::blake2b_256`
+* Blake2b-256 as `haneul::hash::blake2b256`
 
 ## Usage
 
