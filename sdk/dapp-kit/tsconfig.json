@@ -11,8 +11,9 @@
 		"paths": {
 			"@haneullabs/haneul.js/transactions": ["../typescript/src/builder/export.ts"],
 			"@haneullabs/haneul.js/*": ["../typescript/src/*"],
-			"@haneullabs/haneul.js": ["../typescript/src/"]
+			"@haneullabs/haneul.js": ["../typescript/src/"],
+			"@haneullabs/wallet-standard": ["../wallet-standard/src"]
 		}
 	},
-	"references": [{ "path": "../typescript" }]
+	"references": [{ "path": "../typescript" }, { "path": "../wallet-standard" }]
 }
