@@ -20,15 +20,18 @@ impl ScalarType for HaneulAddress {
                         "Invalid HaneulAddress. Missing 0x prefix",
                     ));
                 }
-
-                let bytes = hex::decode(s)?;
-                if bytes.len() != HANEUL_ADDRESS_LENGTH {
+                if s.is_empty() || s.len() > HANEUL_ADDRESS_LENGTH * 2 {
                     return Err(InputValueError::custom(format!(
-                        "Expected HaneulAddress of length {}, received {}.",
+                        "Expected HaneulAddress string ranging from length 1 up to {} ({} bytes) or less, received {}.",
+                        HANEUL_ADDRESS_LENGTH * 2,
                         HANEUL_ADDRESS_LENGTH,
-                        bytes.len()
+                        s.len()
                     )));
                 }
+                // Pad to HANEUL_ADDRESS_LENGTH*2 width
+                s = format!("{:0>width$}", s, width = HANEUL_ADDRESS_LENGTH * 2);
+
+                let bytes = hex::decode(s)?;
                 let mut arr = [0u8; HANEUL_ADDRESS_LENGTH];
                 arr.copy_from_slice(&bytes);
                 Ok(HaneulAddress(arr))
@@ -177,7 +180,9 @@ mod tests {
 
     #[test]
     fn test_parse_invalid_length() {
-        let input = Value::String("0x0123456789abcdef".to_string());
+        let input = Value::String(
+            "0x0123456789abcdef0123456789abcdef01000023456789abcdef0123456789abcdef".to_string(),
+        );
         let parsed = <HaneulAddress as ScalarType>::parse(input);
         assert_input_value_error(parsed);
     }
