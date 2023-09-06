@@ -46,7 +46,7 @@ function NonHaneulCoin({ coinType }: NonHaneulCoinProps) {
 					src={coinMeta.iconUrl}
 					label={coinMeta.name || coinType}
 					fallback={coinMeta.name || coinType}
-					circle
+					rounded="full"
 				/>
 			) : (
 				<Unstaked />
