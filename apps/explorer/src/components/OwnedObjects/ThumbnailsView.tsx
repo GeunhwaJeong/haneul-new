@@ -28,6 +28,7 @@ function Thumbnail({ obj }: { obj: HaneulObjectResponse }) {
 				label={
 					<div className="group relative">
 						<ObjectVideoImage
+							fadeIn
 							disablePreview
 							title={name || '--'}
 							subtitle={type}
