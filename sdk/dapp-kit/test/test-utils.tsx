@@ -18,7 +18,11 @@ export function createWalletProviderContextWrapper(
 	providerProps: Omit<ComponentProps<typeof WalletProvider>, 'children'> = {},
 ) {
 	return function WalletProviderContextWrapper({ children }: { children: React.ReactNode }) {
-		return <WalletProvider {...providerProps}>{children}</WalletProvider>;
+		return (
+			<HaneulClientProvider>
+				<WalletProvider {...providerProps}>{children}</WalletProvider>;
+			</HaneulClientProvider>
+		);
 	};
 }
 
