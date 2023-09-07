@@ -1,5 +1,12 @@
 # @haneullabs/dapp-kit
 
+## 0.0.4
+
+### Patch Changes
+
+- @haneullabs/haneul.js@0.41.2
+- @haneullabs/wallet-standard@0.7.2
+
 ## 0.0.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # kiosk-demo
 
+## 0.0.9
+
+### Patch Changes
+
+- @haneullabs/haneul.js@0.41.2
+- @haneullabs/kiosk@0.5.3
+- @haneullabs/wallet-kit@0.7.2
+
 ## 0.0.8
 
 ### Patch Changes
