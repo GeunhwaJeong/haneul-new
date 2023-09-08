@@ -414,7 +414,6 @@ mod tests {
     use haneul_types::coin::TreasuryCap;
     use haneul_types::digests::{ObjectDigest, TransactionDigest, TransactionEventsDigest};
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::effects::TransactionEffectsV1;
     use haneul_types::error::{HaneulError, HaneulResult};
     use haneul_types::gas_coin::GAS;
     use haneul_types::id::UID;
@@ -1217,8 +1216,7 @@ mod tests {
         #[tokio::test]
         async fn test_object_not_found() {
             let transaction_digest = TransactionDigest::from([0; 32]);
-            let transaction_effects: TransactionEffects =
-                TransactionEffects::V1(TransactionEffectsV1::default());
+            let transaction_effects = TransactionEffects::default();
 
             let mut mock_state = MockStateRead::new();
             mock_state
@@ -1328,8 +1326,7 @@ mod tests {
             let package_id = get_test_package_id();
             let (coin_name, _, _, _, _) = get_test_treasury_cap_peripherals(package_id);
             let transaction_digest = TransactionDigest::from([0; 32]);
-            let transaction_effects: TransactionEffects =
-                TransactionEffects::V1(TransactionEffectsV1::default());
+            let transaction_effects = TransactionEffects::default();
 
             let mut mock_state = MockStateRead::new();
             mock_state
