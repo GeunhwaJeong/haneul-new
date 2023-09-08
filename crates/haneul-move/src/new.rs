@@ -11,6 +11,7 @@ const HANEUL_PKG_NAME: &str = "Haneul";
 const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"framework/testnet\" }";
 
 #[derive(Parser)]
+#[group(id = "haneul-move-new")]
 pub struct New {
     #[clap(flatten)]
     pub new: new::New,

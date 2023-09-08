@@ -10,6 +10,7 @@ use haneul_types::haneul_framework_address_concat_string;
 const HANEUL_NATIVE_TEMPLATE: &[u8] = include_bytes!("haneul-natives.bpl");
 
 #[derive(Parser)]
+#[group(id = "haneul-move-prover")]
 pub struct Prover {
     #[clap(flatten)]
     pub prove: prove::Prove,
