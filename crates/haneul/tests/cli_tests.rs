@@ -183,8 +183,9 @@ async fn test_regression_6546() -> Result<(), anyhow::Error> {
     let HaneulClientCommandResult::Objects(coins) = HaneulClientCommands::Objects {
         address: Some(address),
     }
-        .execute(context)
-        .await? else{
+    .execute(context)
+    .await?
+    else {
         panic!()
     };
     let config_path = test_cluster.swarm.dir().join(HANEUL_CLIENT_CONFIG);
@@ -1302,8 +1303,8 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     }
     .execute(context)
     .await?;
-    let new_addr = if let HaneulClientCommandResult::NewAddress((a, _, _)) = os {
-        a
+    let new_addr = if let HaneulClientCommandResult::NewAddress(x) = os {
+        x.address
     } else {
         panic!("Command failed")
     };

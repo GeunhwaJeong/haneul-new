@@ -58,7 +58,11 @@ use haneul_types::{
     transaction::Transaction,
 };
 
-use tabled::settings::Style as TableStyle;
+use tabled::builder::Builder as TableBuilder;
+use tabled::settings::{
+    object::Cell as TableCell, Border as TableBorder, Modify as TableModify, Panel as TablePanel,
+    Style as TableStyle,
+};
 use tracing::info;
 
 macro_rules! serialize_or_execute {
@@ -1052,7 +1056,12 @@ impl HaneulClientCommands {
                     derivation_path,
                     word_length,
                 )?;
-                HaneulClientCommandResult::NewAddress((address, phrase, scheme))
+
+                HaneulClientCommandResult::NewAddress(NewAddressOutput {
+                    address,
+                    key_scheme: scheme,
+                    recovery_phrase: phrase,
+                })
             }
             HaneulClientCommands::Gas { address } => {
                 let address = address.unwrap_or(context.active_address()?);
@@ -1386,6 +1395,36 @@ impl Display for HaneulClientCommandResult {
                 table.with(style);
                 write!(f, "{}", table)?
             }
+            HaneulClientCommandResult::NewAddress(new_address) => {
+                let mut builder = TableBuilder::default();
+
+                builder.push_record(vec!["address", new_address.address.to_string().as_str()]);
+                builder.push_record(vec![
+                    "keyScheme",
+                    new_address.key_scheme.to_string().as_str(),
+                ]);
+                builder.push_record(vec![
+                    "recoveryPhrase",
+                    new_address.recovery_phrase.to_string().as_str(),
+                ]);
+
+                let mut table = builder.build();
+                table.with(TableStyle::rounded());
+                table.with(TablePanel::header(
+                    "Created new keypair and saved it to keystore.",
+                ));
+
+                table.with(
+                    TableModify::new(TableCell::new(0, 0))
+                        .with(TableBorder::default().corner_bottom_right('┬')),
+                );
+                table.with(
+                    TableModify::new(TableCell::new(0, 0))
+                        .with(TableBorder::default().corner_top_right('─')),
+                );
+
+                write!(f, "{}", table)?
+            }
             HaneulClientCommandResult::Upgrade(response)
             | HaneulClientCommandResult::Publish(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
@@ -1486,15 +1525,6 @@ impl Display for HaneulClientCommandResult {
             }
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
-            }
-            // Do not use writer for new address output, which may get sent to logs.
-            #[allow(clippy::print_in_format_impl)]
-            HaneulClientCommandResult::NewAddress((address, recovery_phrase, scheme)) => {
-                println!(
-                    "Created new keypair for address with scheme {:?}: [{address}]",
-                    scheme
-                );
-                println!("Secret Recovery Phrase : [{recovery_phrase}]");
             }
             HaneulClientCommandResult::Gas(gases) => {
                 // TODO: generalize formatting of CLI
@@ -1736,6 +1766,14 @@ pub struct DynamicFieldOutput {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NewAddressOutput {
+    pub address: HaneulAddress,
+    pub key_scheme: SignatureScheme,
+    pub recovery_phrase: String,
+}
+
+#[derive(Serialize)]
 #[serde(untagged)]
 pub enum HaneulClientCommandResult {
     ActiveAddress(Option<HaneulAddress>),
@@ -1748,7 +1786,7 @@ pub enum HaneulClientCommandResult {
     ExecuteSignedTx(HaneulTransactionBlockResponse),
     Gas(Vec<GasCoin>),
     MergeCoin(HaneulTransactionBlockResponse),
-    NewAddress((HaneulAddress, String, SignatureScheme)),
+    NewAddress(NewAddressOutput),
     NewEnv(HaneulEnv),
     Object(HaneulObjectResponse),
     Objects(Vec<HaneulObjectResponse>),
