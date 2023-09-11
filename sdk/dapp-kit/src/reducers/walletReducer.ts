@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WalletWithHaneulFeatures, WalletAccount, Wallet } from '@haneullabs/wallet-standard';
+import type { WalletAccount, Wallet, WalletWithRequiredFeatures } from '@haneullabs/wallet-standard';
 import { assertUnreachable } from '../utils/assertUnreachable.js';
 
 export type WalletState = {
-	wallets: WalletWithHaneulFeatures[];
-	currentWallet: WalletWithHaneulFeatures | null;
+	wallets: WalletWithRequiredFeatures[];
+	currentWallet: WalletWithRequiredFeatures | null;
 	accounts: readonly WalletAccount[];
 	currentAccount: WalletAccount | null;
 	connectionStatus: 'disconnected' | 'connecting' | 'connected';
@@ -15,14 +15,14 @@ export type WalletState = {
 type WalletRegisteredAction = {
 	type: 'wallet-registered';
 	payload: {
-		updatedWallets: WalletWithHaneulFeatures[];
+		updatedWallets: WalletWithRequiredFeatures[];
 	};
 };
 
 type WalletUnregisteredAction = {
 	type: 'wallet-unregistered';
 	payload: {
-		updatedWallets: WalletWithHaneulFeatures[];
+		updatedWallets: WalletWithRequiredFeatures[];
 		unregisteredWallet: Wallet;
 	};
 };

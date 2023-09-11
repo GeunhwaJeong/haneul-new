@@ -1,23 +1,28 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Wallet, WalletWithHaneulFeatures } from '@haneullabs/wallet-standard';
-import { isWalletWithHaneulFeatures } from '@haneullabs/wallet-standard';
+import type {
+	MinimallyRequiredFeatures,
+	Wallet,
+	WalletWithFeatures,
+} from '@haneullabs/wallet-standard';
+import { isWalletWithRequiredFeatureSet } from '@haneullabs/wallet-standard';
 
-export function sortWallets(
+export function sortWallets<AdditionalFeatures extends Wallet['features']>(
 	wallets: readonly Wallet[],
 	preferredWallets: string[],
-	requiredFeatures?: string[],
-): WalletWithHaneulFeatures[] {
-	const haneulWallets = wallets.filter((wallet): wallet is WalletWithHaneulFeatures =>
-		isWalletWithHaneulFeatures(wallet, requiredFeatures),
+	requiredFeatures?: (keyof AdditionalFeatures)[],
+) {
+	const haneulWallets = wallets.filter(
+		(wallet): wallet is WalletWithFeatures<MinimallyRequiredFeatures & AdditionalFeatures> =>
+			isWalletWithRequiredFeatureSet(wallet, requiredFeatures),
 	);
 
 	return [
 		// Preferred wallets, in order:
 		...(preferredWallets
 			.map((name) => haneulWallets.find((wallet) => wallet.name === name))
-			.filter(Boolean) as WalletWithHaneulFeatures[]),
+			.filter(Boolean) as WalletWithFeatures<MinimallyRequiredFeatures & AdditionalFeatures>[]),
 
 		// Wallets in default order:
 		...haneulWallets.filter((wallet) => !preferredWallets.includes(wallet.name)),
