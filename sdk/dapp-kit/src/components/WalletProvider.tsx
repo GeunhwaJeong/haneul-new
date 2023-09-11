@@ -42,7 +42,7 @@ interface WalletProviderContext extends WalletState {
 }
 
 const HANEUL_WALLET_NAME = 'Haneul Wallet';
-const DEFAULT_STORAGE_KEY = 'dapp-kit:most-recent-wallet-connection-info';
+const DEFAULT_STORAGE_KEY = 'haneul-dapp-kit:wallet-connection-info';
 
 const WalletContext = createContext<WalletProviderContext | null>(null);
 

@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import type { IdentifierRecord } from '@haneullabs/wallet-standard';
+import type {
+	IdentifierRecord,
+	StandardConnectFeature,
+	StandardEventsFeature,
+	HaneulFeatures,
+} from '@haneullabs/wallet-standard';
 import { ReadonlyWalletAccount, HANEUL_CHAINS } from '@haneullabs/wallet-standard';
 import type { Wallet } from '@haneullabs/wallet-standard';
 
@@ -40,7 +45,10 @@ export class MockWallet implements Wallet {
 		return [account];
 	}
 
-	get features(): IdentifierRecord<unknown> {
+	get features(): StandardConnectFeature &
+		StandardEventsFeature &
+		HaneulFeatures &
+		IdentifierRecord<unknown> {
 		return {
 			'standard:connect': {
 				version: '1.0.0',

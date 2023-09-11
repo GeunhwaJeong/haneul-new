@@ -7,6 +7,7 @@ import { getWallets } from '@haneullabs/wallet-standard';
 import { HaneulClientProvider, WalletProvider } from 'dapp-kit/src';
 import { MockWallet } from './mockWallet.js';
 import type { ComponentProps } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export function createHaneulClientContextWrapper(client: HaneulClient) {
 	return function HaneulClientContextWrapper({ children }: { children: React.ReactNode }) {
@@ -17,10 +18,13 @@ export function createHaneulClientContextWrapper(client: HaneulClient) {
 export function createWalletProviderContextWrapper(
 	providerProps: Omit<ComponentProps<typeof WalletProvider>, 'children'> = {},
 ) {
+	const queryClient = new QueryClient();
 	return function WalletProviderContextWrapper({ children }: { children: React.ReactNode }) {
 		return (
 			<HaneulClientProvider>
-				<WalletProvider {...providerProps}>{children}</WalletProvider>;
+				<QueryClientProvider client={queryClient}>
+					<WalletProvider {...providerProps}>{children}</WalletProvider>;
+				</QueryClientProvider>
 			</HaneulClientProvider>
 		);
 	};
@@ -31,5 +35,9 @@ export function registerMockWallet(
 	additionalFeatures: IdentifierRecord<unknown> = {},
 ) {
 	const walletsApi = getWallets();
-	return walletsApi.register(new MockWallet(walletName, additionalFeatures));
+	const mockWallet = new MockWallet(walletName, additionalFeatures);
+	return {
+		unregister: walletsApi.register(mockWallet),
+		mockWallet,
+	};
 }
