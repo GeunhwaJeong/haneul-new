@@ -48,15 +48,15 @@
 //!         .build("http://127.0.0.1:9000") // provide the Haneul network URL
 //!         .await?;
 //!     println!("Haneul local network version: {:?}", haneul.api_version());
-//!     
+//!
 //!     // local Haneul network, same result as above except using the dedicated function
 //!     let haneul_local = HaneulClientBuilder::default().build_localnet().await?;
 //!     println!("Haneul local network version: {:?}", haneul_local.api_version());
-//!     
+//!
 //!     // Haneul devnet running at `https://fullnode.devnet.io:443`
 //!     let haneul_devnet = HaneulClientBuilder::default().build_devnet().await?;
 //!     println!("Haneul devnet version: {:?}", haneul_devnet.api_version());
-//!     
+//!
 //!     // Haneul testnet running at `https://testnet.devnet.io:443`
 //!     let haneul_testnet = HaneulClientBuilder::default().build_testnet().await?;
 //!     println!("Haneul testnet version: {:?}", haneul_testnet.api_version());
@@ -101,6 +101,7 @@ use crate::error::{Error, HaneulRpcResult};
 
 pub mod apis;
 pub mod error;
+pub mod json_rpc_error;
 pub mod haneul_client_config;
 pub mod wallet_context;
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
@@ -386,7 +387,7 @@ impl HaneulClientBuilder {
 ///        .await?;
 ///
 ///     println!("{:?}", owned_objects);
-///    
+///
 ///     Ok(())
 /// }
 /// ```
