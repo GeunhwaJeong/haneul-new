@@ -11,8 +11,9 @@ use super::{
     balance::Balance, coin::Coin, owner::Owner, stake::Stake, haneul_address::HaneulAddress,
     transaction_block::TransactionBlock,
 };
-use crate::server::haneul_sdk_data_provider::HaneulClientLoader;
-use crate::{server::context_ext::DataProviderContextExt, types::base64::Base64};
+use crate::context_data::context_ext::DataProviderContextExt;
+use crate::context_data::haneul_sdk_data_provider::HaneulClientLoader;
+use crate::types::base64::Base64;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub(crate) struct Object {

@@ -7,7 +7,7 @@ use super::{
     address::Address, checkpoint::Checkpoint, object::Object, owner::ObjectOwner,
     protocol_config::ProtocolConfigs, haneul_address::HaneulAddress,
 };
-use crate::server::context_ext::DataProviderContextExt;
+use crate::context_data::context_ext::DataProviderContextExt;
 
 pub(crate) struct Query;
 pub(crate) type HaneulGraphQLSchema = async_graphql::Schema<Query, EmptyMutation, EmptySubscription>;

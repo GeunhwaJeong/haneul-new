@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{server::context_ext::DataProviderContextExt, types::object::Object};
+use crate::context_data::context_ext::DataProviderContextExt;
+use crate::types::object::Object;
 use async_graphql::*;
 use haneul_json_rpc_types::{OwnedObjectRef, HaneulGasData, HaneulObjectDataOptions};
 use haneul_sdk::types::{
