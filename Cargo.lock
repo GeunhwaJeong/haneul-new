@@ -9258,6 +9258,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "simulacrum"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "fastcrypto",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "narwhal-config",
+ "once_cell",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "shared-crypto",
+ "haneul-config",
+ "haneul-execution",
+ "haneul-framework",
+ "haneul-genesis-builder",
+ "haneul-keys",
+ "haneul-protocol-config",
+ "haneul-storage",
+ "haneul-swarm-config",
+ "haneul-transaction-checks",
+ "haneul-types",
+ "tracing",
+ "workspace-hack",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11214,6 +11244,7 @@ dependencies = [
  "anyhow",
  "fastcrypto",
  "insta",
+ "move-bytecode-utils",
  "narwhal-config",
  "prometheus",
  "rand 0.8.5",

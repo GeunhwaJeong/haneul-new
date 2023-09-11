@@ -1,20 +1,20 @@
 [package]
-name = "haneul-swarm-config"
-version = "0.0.0"
+name = "simulacrum"
+version = "0.1.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 publish = false
 edition = "2021"
 
 [dependencies]
-anemo.workspace = true
 anyhow.workspace = true
+bcs.workspace = true
 fastcrypto.workspace = true
+move-binary-format.workspace = true
+move-core-types.workspace = true
+once_cell.workspace = true
 rand.workspace = true
 serde.workspace = true
-serde_with.workspace = true
-serde_yaml.workspace = true
-tempfile.workspace = true
 tracing.workspace = true
 prometheus.workspace = true
 
@@ -22,16 +22,13 @@ move-bytecode-utils.workspace = true
 narwhal-config.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
+haneul-framework.workspace = true
+haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
+haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-genesis-builder.workspace = true
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
-
-[target.'cfg(msim)'.dependencies]
-haneul-simulator.workspace = true
-
-[dev-dependencies]
-insta.workspace = true
-tempfile.workspace = true
-
 haneul-execution.workspace = true
+haneul-swarm-config.workspace = true
+haneul-transaction-checks.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
