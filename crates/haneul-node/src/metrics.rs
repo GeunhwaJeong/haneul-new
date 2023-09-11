@@ -21,7 +21,7 @@ use haneul_network::tonic::Code;
 use haneullabs_metrics::RegistryService;
 use tracing::{error, warn};
 
-const METRICS_ROUTE: &str = "/metrics";
+pub const METRICS_ROUTE: &str = "/metrics";
 
 // Creates a new http server that has as a sole purpose to expose
 // and endpoint that prometheus agent can use to poll for the metrics.
