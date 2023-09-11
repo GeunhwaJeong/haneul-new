@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type {
 	IdentifierRecord,
 	StandardConnectFeature,
 	StandardEventsFeature,
 	HaneulFeatures,
+	ReadonlyWalletAccount,
 } from '@haneullabs/wallet-standard';
-import { ReadonlyWalletAccount, HANEUL_CHAINS } from '@haneullabs/wallet-standard';
+import { HANEUL_CHAINS } from '@haneullabs/wallet-standard';
 import type { Wallet } from '@haneullabs/wallet-standard';
 
 export class MockWallet implements Wallet {
@@ -16,17 +16,23 @@ export class MockWallet implements Wallet {
 	icon = `data:image/png;base64,` as const;
 	chains = HANEUL_CHAINS;
 	#walletName: string;
+	#accounts: ReadonlyWalletAccount[];
 	#additionalFeatures: IdentifierRecord<unknown>;
 
-	#connect = vi.fn().mockReturnValue({ accounts: this.accounts });
+	#connect = vi.fn().mockImplementation(() => ({ accounts: this.#accounts }));
 	#disconnect = vi.fn();
 	#on = vi.fn();
 	#signPersonalMessage = vi.fn();
 	#signTransactionBlock = vi.fn();
 	#signAndExecuteTransactionBlock = vi.fn();
 
-	constructor(name: string, additionalFeatures: IdentifierRecord<unknown>) {
+	constructor(
+		name: string,
+		accounts: ReadonlyWalletAccount[],
+		additionalFeatures: IdentifierRecord<unknown>,
+	) {
 		this.#walletName = name;
+		this.#accounts = accounts;
 		this.#additionalFeatures = additionalFeatures;
 	}
 
@@ -35,14 +41,7 @@ export class MockWallet implements Wallet {
 	}
 
 	get accounts() {
-		const keypair = new Ed25519Keypair();
-		const account = new ReadonlyWalletAccount({
-			address: keypair.getPublicKey().toHaneulAddress(),
-			publicKey: keypair.getPublicKey().toHaneulBytes(),
-			chains: ['haneul:unknown'],
-			features: ['haneul:signAndExecuteTransactionBlock', 'haneul:signTransactionBlock'],
-		});
-		return [account];
+		return this.#accounts;
 	}
 
 	get features(): StandardConnectFeature &
