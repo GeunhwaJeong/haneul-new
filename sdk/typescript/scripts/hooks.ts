@@ -83,18 +83,15 @@ export function $_INFINITE_HOOK_NAME_(
 const mutationHookTemplate = /* typescript */ `
 ${header}
 
-import type { $_METHOD_TYPE_NAME_Params } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
 import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function $_HOOK_NAME_(
-	$_PARAMS_ARG_,
 	options?: UseHaneulClientMutationOptions<'$_METHOD_NAME_'>,
 ) {
 	return useHaneulClientMutation(
 		{
 			method: '$_METHOD_NAME_',
-			params,
 		},
 		options,
 	);

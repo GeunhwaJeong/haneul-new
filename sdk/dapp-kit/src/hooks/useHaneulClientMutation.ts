@@ -7,17 +7,15 @@ import { useHaneulClientContext } from './useHaneulClient.js';
 import type { HaneulRpcMethods } from './useHaneulClientQuery.js';
 
 export type UseHaneulClientMutationOptions<T extends keyof HaneulRpcMethods> = Omit<
-	UseMutationOptions<HaneulRpcMethods[T]['result'], Error, HaneulRpcMethods[T]['result'], unknown[]>,
+	UseMutationOptions<HaneulRpcMethods[T]['result'], Error, HaneulRpcMethods[T]['params'], unknown[]>,
 	'mutationFn'
 >;
 
 export function useHaneulClientMutation<T extends keyof HaneulRpcMethods>(
 	{
 		method,
-		params,
 	}: {
 		method: T;
-		params: HaneulRpcMethods[T]['params'];
 	},
 	options: UseHaneulClientMutationOptions<T> = {},
 ) {
@@ -25,7 +23,7 @@ export function useHaneulClientMutation<T extends keyof HaneulRpcMethods>(
 
 	return useMutation({
 		...options,
-		mutationFn: async () => {
+		mutationFn: async (params) => {
 			return await haneulContext.client[method](params as never);
 		},
 	});

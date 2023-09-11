@@ -10,18 +10,15 @@
  * /crates/haneul-open-rpc/spec/openrpc.json
  */
 
-import type { DryRunTransactionBlockParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
 import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useDryRunTransactionBlock(
-	params: DryRunTransactionBlockParams,
 	options?: UseHaneulClientMutationOptions<'dryRunTransactionBlock'>,
 ) {
 	return useHaneulClientMutation(
 		{
 			method: 'dryRunTransactionBlock',
-			params,
 		},
 		options,
 	);

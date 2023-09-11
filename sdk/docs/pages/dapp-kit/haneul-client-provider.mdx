@@ -1,0 +1,142 @@
+# HaneulClientProvider
+
+The HaneulClientProvider manages the active `HaneulClient` used by hooks and components in the dApp Kit
+
+## Usage
+
+The `HaneulClientProvider` should be placed at the root of your app, and should wrap all components
+that use the dApp Kit hooks.
+
+It accepts a list of network configs, which will be used to create `HaneulClient` instances for the
+currently active network.
+
+```tsx
+import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { type HaneulClientOptions } from '@haneullabs/haneul.js';
+
+// Config options for the networks you want to connect to
+const networks = {
+	localnet: { url: getFullnodeUrl('localnet') },
+	mainnet: { url: getFullnodeUrl('mainnet') },
+} satisfies Record<string, HaneulClientOptions>;
+
+function App() {
+	return (
+		<HaneulClientProvider networks={networks} defaultNetwork="localnet">
+			<YourApp />
+		</HaneulClientProvider>
+	);
+}
+```
+
+## Props
+
+- `networks`: A map of networks that can be used. The keys are the network names, and the values can
+  be either a config Object (`HaneulClientOptions`) or a `HaneulClient` instance.
+- `defaultNetwork`: The name of the network to use by default, when the HaneulClientProvider is used as
+  an uncontrolled component.
+- `network`: The name of the network to use, when the HaneulClientProvider is used as a controlled
+  component.
+- `onNetworkChange`: A callback called when the active network is changed
+- `createClient`: A callback called when a new `HaneulClient` is created (e.g. when the active network
+  changes). It receives the network name, and config object as arguments, and should return a
+  `HaneulClient`.
+
+## Using the HaneulClientProvider as a controlled component
+
+```tsx
+import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { type HaneulClientOptions } from '@haneullabs/haneul.js';
+import { useState } from 'react';
+
+// Config options for the networks you want to connect to
+const networks = {
+	localnet: { url: getFullnodeUrl('localnet') },
+	mainnet: { url: getFullnodeUrl('mainnet') },
+} satisfies Record<string, HaneulClientOptions>;
+
+function App() {
+	const [activeNetwork, setActiveNetwork] = useState('localnet' as keyof typeof networks);
+
+	return (
+		<HaneulClientProvider
+			networks={networks}
+			network={activeNetwork}
+			onNetworkChange={(network) => {
+				setActiveNetwork(network);
+			}}
+		>
+			<YourApp />
+		</HaneulClientProvider>
+	);
+}
+```
+
+## Customizing how the HaneulClient is created
+
+```tsx
+import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { type HaneulClientOptions, HaneulHTTPTransport, HaneulClient } from '@haneullabs/haneul.js';
+
+// Config options for the networks you want to connect to
+const networks = {
+	localnet: { url: getFullnodeUrl('localnet') },
+	mainnet: { url: getFullnodeUrl('mainnet') },
+} satisfies Record<string, HaneulClientOptions>;
+
+function App() {
+	return (
+		<HaneulClientProvider
+			networks={networks}
+			defaultNetwork="localnet"
+			createClient={(network, config) => {
+				return new HaneulClient({
+					transport: new HaneulHTTPTransport({
+						url: 'https://api.safecoin.org',
+						rpc: {
+							headers: {
+								Authorization: 'xyz',
+							},
+						},
+					}),
+				});
+			}}
+		>
+			<YourApp />
+		</HaneulClientProvider>
+	);
+}
+```
+
+## Using the HaneulClient from the provider
+
+```tsx
+import { useHaneulClient } from '@haneullabs/dapp-kit';
+
+function MyComponent() {
+	const client = useHaneulClient();
+
+	// use the client
+}
+```
+
+## Creating a network selector
+
+dApp doesn't currently provide it's own network switcher, but you can use the `useHaneulClientContext`
+hook to get the list of networks, and to set the active network:
+
+```tsx
+function NetworkSelector() {
+	const ctx = useHaneulClientContext();
+
+	return (
+		<div>
+			{Object.keys(ctx.networks).map((network) => (
+				<button key={network} onClick={() => ctx.selectNetwork(network)}>
+					{`select ${network}`}
+				</button>
+			))}
+		</div>
+	);
+}
+```

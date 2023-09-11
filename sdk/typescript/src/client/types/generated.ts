@@ -779,6 +779,11 @@ export type StakeObject =
 			stakedHaneulId: string;
 			status: 'Unstaked';
 	  };
+export interface HaneulActiveJwk {
+	epoch: string;
+	jwk: HaneulJWK;
+	jwk_id: HaneulJwkId;
+}
 /** An argument to a transaction in a programmable transaction block */
 export type HaneulArgument =
 	| 'GasCoin' /** One of the input objects or primitive values (from `ProgrammableTransactionBlock` inputs) */
@@ -833,6 +838,16 @@ export interface HaneulExecutionResult {
 	mutableReferenceOutputs?: [HaneulArgument, number[], string][];
 	/** The return values from the transaction */
 	returnValues?: [number[], string][];
+}
+export interface HaneulJWK {
+	alg: string;
+	e: string;
+	kty: string;
+	n: string;
+}
+export interface HaneulJwkId {
+	iss: string;
+	kid: string;
 }
 export type HaneulMoveAbility = 'Copy' | 'Drop' | 'Store' | 'Key';
 export interface HaneulMoveAbilitySet {
@@ -1274,6 +1289,12 @@ export type HaneulTransactionBlockKind =
 			 * failure of the entire programmable transaction block.
 			 */
 			transactions: HaneulTransaction[];
+	  } /** An transaction which updates global authenticator state */
+	| {
+			epoch: string;
+			kind: 'AuthenticatorStateUpdate';
+			new_active_jwks: HaneulActiveJwk[];
+			round: string;
 	  };
 export interface HaneulTransactionBlockResponse {
 	balanceChanges?: BalanceChange[] | null;

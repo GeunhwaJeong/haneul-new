@@ -10,18 +10,15 @@
  * /crates/haneul-open-rpc/spec/openrpc.json
  */
 
-import type { ExecuteTransactionBlockParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
 import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useExecuteTransactionBlock(
-	params: ExecuteTransactionBlockParams,
 	options?: UseHaneulClientMutationOptions<'executeTransactionBlock'>,
 ) {
 	return useHaneulClientMutation(
 		{
 			method: 'executeTransactionBlock',
-			params,
 		},
 		options,
 	);

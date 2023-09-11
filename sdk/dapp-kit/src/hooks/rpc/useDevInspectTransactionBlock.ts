@@ -10,18 +10,15 @@
  * /crates/haneul-open-rpc/spec/openrpc.json
  */
 
-import type { DevInspectTransactionBlockParams } from '@haneullabs/haneul.js/client';
 import type { UseHaneulClientMutationOptions } from '../useHaneulClientMutation.js';
 import { useHaneulClientMutation } from '../useHaneulClientMutation.js';
 
 export function useDevInspectTransactionBlock(
-	params: DevInspectTransactionBlockParams,
 	options?: UseHaneulClientMutationOptions<'devInspectTransactionBlock'>,
 ) {
 	return useHaneulClientMutation(
 		{
 			method: 'devInspectTransactionBlock',
-			params,
 		},
 		options,
 	);
