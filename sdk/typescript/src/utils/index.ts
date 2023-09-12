@@ -13,7 +13,7 @@ import {
 	HANEUL_ADDRESS_LENGTH,
 } from './haneul-types.js';
 
-export { fromB64, toB64 } from '@haneullabs/bcs';
+export { fromB64, toB64, fromHEX, toHEX } from '@haneullabs/bcs';
 export { is, assert } from 'superstruct';
 
 export {

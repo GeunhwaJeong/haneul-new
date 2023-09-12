@@ -5,5 +5,6 @@
 	"faucet": "Faucet",
 	"haneul-client": "HaneulClient",
 	"transaction-building": "Transaction Building",
-	"cryptography": "Cryptography"
+	"cryptography": "Cryptography",
+	"utils": "Utils"
 }
