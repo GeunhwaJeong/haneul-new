@@ -134,6 +134,7 @@ members = [
     "crates/haneul-tls",
     "crates/haneul-tool",
     "crates/haneul-transaction-builder",
+    "crates/haneul-transaction-checks",
     "crates/haneul-transactional-test-runner",
     "crates/haneul-types",
     "crates/haneul-upgrade-compatibility-transactional-tests",
@@ -583,6 +584,7 @@ haneul-tls = { path = "crates/haneul-tls" }
 haneul-rest-api = { path = "crates/haneul-rest-api" }
 haneul-tool = { path = "crates/haneul-tool" }
 haneul-transaction-builder = { path = "crates/haneul-transaction-builder" }
+haneul-transaction-checks = { path = "crates/haneul-transaction-checks" }
 haneul-transactional-test-runner = { path = "crates/haneul-transactional-test-runner" }
 haneul-types = { path = "crates/haneul-types" }
 haneul-upgrade-compatibility-transactional-tests = { path = "crates/haneul-upgrade-compatibility-transactional-tests" }
