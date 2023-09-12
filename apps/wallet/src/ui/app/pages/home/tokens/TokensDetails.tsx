@@ -4,14 +4,7 @@
 import { useFeature } from '@growthbook/growthbook-react';
 import { useAppsBackend, useResolveHaneulNSName } from '@haneullabs/core';
 import { useAllBalances, useBalance } from '@haneullabs/dapp-kit';
-import {
-	Info12,
-	WalletActionBuy24,
-	WalletActionSend24,
-	Swap16,
-	Unpin16,
-	Pin16,
-} from '@haneullabs/icons';
+import { Info12, Unpin16, Pin16 } from '@haneullabs/icons';
 
 import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
 import { Coin } from '@haneullabs/haneul.js/framework';
@@ -270,7 +263,7 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 							<>
 								<div
 									data-testid="coin-balance"
-									className="bg-haneul/10 rounded-2xl py-5 px-4 flex flex-col w-full gap-3 items-center mt-4"
+									className="bg-hero/5 rounded-2xl py-5 px-4 flex flex-col w-full gap-3 items-center mt-4"
 								>
 									{accountHasHaneul ? (
 										<CoinBalance amount={BigInt(tokenBalance)} type={activeCoinType} />
@@ -299,7 +292,6 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 											center
 											to="/onramp"
 											disabled={(coinType && coinType !== HANEUL_TYPE_ARG) || !providers?.length}
-											top={<WalletActionBuy24 />}
 										>
 											Buy
 										</LargeButton>
@@ -315,12 +307,11 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 													: ''
 											}`}
 											disabled={!tokenBalance}
-											top={<WalletActionSend24 />}
 										>
 											Send
 										</LargeButton>
 
-										<LargeButton center to="/" disabled top={<Swap16 />}>
+										<LargeButton center to="/" disabled>
 											Swap
 										</LargeButton>
 									</div>
