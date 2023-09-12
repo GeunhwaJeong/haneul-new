@@ -36,6 +36,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_protocol_config::Chain;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::digests::ChainIdentifier;
@@ -2003,7 +2004,12 @@ async fn create_epoch_store(
         store_base_path
     };
 
-    let epoch_start_config = EpochStartConfiguration::new(sys_state, CheckpointDigest::random());
+    let epoch_start_config = EpochStartConfiguration::new(
+        sys_state,
+        CheckpointDigest::random(),
+        get_authenticator_state_obj_initial_shared_version(&authority_state.database)
+            .expect("read cannot fail"),
+    );
 
     let registry = Registry::new();
     let cache_metrics = Arc::new(ResolverMetrics::new(&registry));

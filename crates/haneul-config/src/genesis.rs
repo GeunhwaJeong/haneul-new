@@ -6,7 +6,11 @@ use fastcrypto::encoding::{Base64, Encoding};
 use fastcrypto::hash::HashFunction;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{fs, path::Path};
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::authenticator_state::{
+    get_authenticator_state, get_authenticator_state_obj_initial_shared_version,
+    AuthenticatorStateInner,
+};
+use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::clock::Clock;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::DefaultHash;
@@ -148,6 +152,11 @@ impl Genesis {
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
         get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
+    }
+
+    pub fn authenticator_state_obj_initial_shared_version(&self) -> Option<SequenceNumber> {
+        get_authenticator_state_obj_initial_shared_version(&self.objects())
+            .expect("Read from genesis cannot fail")
     }
 
     pub fn clock(&self) -> Clock {
@@ -316,6 +325,10 @@ impl UnsignedGenesis {
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
         get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
+    }
+
+    pub fn authenticator_state_object(&self) -> Option<AuthenticatorStateInner> {
+        get_authenticator_state(&self.objects()).expect("read from genesis cannot fail")
     }
 }
 

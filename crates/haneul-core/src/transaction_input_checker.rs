@@ -28,8 +28,7 @@ mod checked {
         object::{Object, Owner},
     };
     use haneul_types::{
-        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
-        HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     };
     use tracing::instrument;
 
@@ -171,7 +170,7 @@ mod checked {
 
         let tx_data = &cert.data().intent_message().value;
         let input_object_kinds = tx_data.input_objects()?;
-        let input_object_data = if tx_data.is_change_epoch_tx() {
+        let input_object_data = if tx_data.is_end_of_epoch_tx() {
             // When changing the epoch, we update a the system object, which is shared, without going
             // through sequencing, so we must bypass the sequence checks here.
             store.check_input_objects(&input_object_kinds, epoch_store.protocol_config())?
@@ -358,7 +357,6 @@ mod checked {
             }
             InputObjectKind::SharedMoveObject {
                 id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
-                initial_shared_version: HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
                 ..
             } => {
                 if system_transaction {

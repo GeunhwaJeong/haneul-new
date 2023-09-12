@@ -304,6 +304,15 @@ impl Builder {
             }
         };
 
+        let protocol_config = get_genesis_protocol_config(ProtocolVersion::new(protocol_version));
+
+        if protocol_config.create_authenticator_state_in_genesis() {
+            let authenticator_state = unsigned_genesis.authenticator_state_object().unwrap();
+            assert!(authenticator_state.active_jwks.is_empty());
+        } else {
+            assert!(unsigned_genesis.authenticator_state_object().is_none());
+        }
+
         assert_eq!(
             self.validators.len(),
             system_state.validators.active_validators.len()
@@ -675,6 +684,15 @@ fn create_genesis_context(
     )
 }
 
+fn get_genesis_protocol_config(version: ProtocolVersion) -> ProtocolConfig {
+    // We have a circular dependency here. Protocol config depends on chain ID, which
+    // depends on genesis checkpoint (digest), which depends on genesis transaction, which
+    // depends on protocol config.
+    // However since we know there are no chain specific protocol config options in genesis,
+    // we use Chain::Unknown here.
+    ProtocolConfig::get_for_version(version, Chain::Unknown)
+}
+
 fn build_unsigned_genesis_data(
     parameters: &GenesisCeremonyParameters,
     token_distribution_schedule: &TokenDistributionSchedule,
@@ -719,13 +737,7 @@ fn build_unsigned_genesis_data(
         metrics.clone(),
     );
 
-    // We have a circular dependency here. Protocol config depends on chain ID, which
-    // depends on genesis checkpoint (digest), which depends on genesis transaction, which
-    // depends on protocol config.
-    // However since we know there are no chain specific protocol config options in genesis,
-    // we use Chain::Unknown here.
-    let protocol_config =
-        ProtocolConfig::get_for_version(parameters.protocol_version, Chain::Unknown);
+    let protocol_config = get_genesis_protocol_config(parameters.protocol_version);
 
     let (genesis_transaction, genesis_effects, genesis_events, objects) =
         create_genesis_transaction(objects, &protocol_config, metrics, &epoch_data);
@@ -1017,7 +1029,19 @@ pub fn generate_genesis_system_object(
             vec![],
         )?;
 
-        // Step 3: Mint the supply of HANEUL.
+        // Step 3: Create the AuthenticatorState object, unless it has been disabled (which only
+        // happens in tests).
+        if protocol_config.create_authenticator_state_in_genesis() {
+            builder.move_call(
+                HANEUL_FRAMEWORK_ADDRESS.into(),
+                ident_str!("authenticator_state").to_owned(),
+                ident_str!("create").to_owned(),
+                vec![],
+                vec![],
+            )?;
+        }
+
+        // Step 4: Mint the supply of HANEUL.
         let haneul_supply = builder.programmable_move_call(
             HANEUL_FRAMEWORK_ADDRESS.into(),
             ident_str!("haneul").to_owned(),
@@ -1026,7 +1050,7 @@ pub fn generate_genesis_system_object(
             vec![],
         );
 
-        // Step 4: Run genesis.
+        // Step 5: Run genesis.
         // The first argument is the system state uid we got from step 1 and the second one is the HANEUL supply we
         // got from step 3.
         let mut arguments = vec![haneul_system_state_uid, haneul_supply];

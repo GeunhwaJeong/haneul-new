@@ -9704,6 +9704,7 @@ dependencies = [
  "haneul-protocol-config",
  "haneul-types",
  "haneul-verifier-latest",
+ "tap",
  "tracing",
  "workspace-hack",
 ]

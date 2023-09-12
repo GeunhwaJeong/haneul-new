@@ -98,7 +98,7 @@ impl TransactionValidator for HaneulTxValidator {
                 }
                 ConsensusTransactionKind::EndOfPublish(_)
                 | ConsensusTransactionKind::CapabilityNotification(_)
-                | ConsensusTransactionKind::NewJWKFetched(_, _) => {}
+                | ConsensusTransactionKind::NewJWKFetched(_, _, _) => {}
             }
         }
 

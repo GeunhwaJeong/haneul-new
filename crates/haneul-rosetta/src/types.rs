@@ -407,6 +407,7 @@ pub enum OperationType {
     ConsensusCommitPrologue,
     ProgrammableTransaction,
     AuthenticatorStateUpdate,
+    EndOfEpochTransaction,
 }
 
 impl From<&HaneulTransactionBlockKind> for OperationType {
@@ -422,6 +423,9 @@ impl From<&HaneulTransactionBlockKind> for OperationType {
             }
             HaneulTransactionBlockKind::AuthenticatorStateUpdate(_) => {
                 OperationType::AuthenticatorStateUpdate
+            }
+            HaneulTransactionBlockKind::EndOfEpochTransaction(_) => {
+                OperationType::EndOfEpochTransaction
             }
         }
     }

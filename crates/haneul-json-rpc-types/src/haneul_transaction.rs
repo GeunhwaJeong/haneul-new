@@ -39,9 +39,9 @@ use haneul_types::haneul_serde::{
     BigInt, SequenceNumber as AsSequenceNumber, HaneulTypeTag as AsHaneulTypeTag,
 };
 use haneul_types::transaction::{
-    Argument, CallArg, Command, GenesisObject, InputObjectKind, ObjectArg, ProgrammableMoveCall,
-    ProgrammableTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
-    TransactionKind, VersionedProtocolMessage,
+    Argument, CallArg, ChangeEpoch, Command, EndOfEpochTransactionKind, GenesisObject,
+    InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
+    TransactionData, TransactionDataAPI, TransactionKind, VersionedProtocolMessage,
 };
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
@@ -285,8 +285,10 @@ pub enum HaneulTransactionBlockKind {
     /// A series of transactions where the results of one transaction can be used in future
     /// transactions
     ProgrammableTransaction(HaneulProgrammableTransactionBlock),
-    /// An transaction which updates global authenticator state
+    /// A transaction which updates global authenticator state
     AuthenticatorStateUpdate(HaneulAuthenticatorStateUpdate),
+    /// The transaction which occurs only at the end of the epoch
+    EndOfEpochTransaction(HaneulEndOfEpochTransaction),
     // .. more transaction types go here
 }
 
@@ -320,6 +322,9 @@ impl Display for HaneulTransactionBlockKind {
             Self::AuthenticatorStateUpdate(_) => {
                 writeln!(writer, "Transaction Kind : Authenticator State Update")?;
             }
+            Self::EndOfEpochTransaction(_) => {
+                writeln!(writer, "Transaction Kind : End of Epoch Transaction")?;
+            }
         }
         write!(f, "{}", writer)
     }
@@ -328,13 +333,7 @@ impl Display for HaneulTransactionBlockKind {
 impl HaneulTransactionBlockKind {
     fn try_from(tx: TransactionKind, module_cache: &impl GetModule) -> Result<Self, anyhow::Error> {
         Ok(match tx {
-            TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(HaneulChangeEpoch {
-                epoch: e.epoch,
-                storage_charge: e.storage_charge,
-                computation_charge: e.computation_charge,
-                storage_rebate: e.storage_rebate,
-                epoch_start_timestamp_ms: e.epoch_start_timestamp_ms,
-            }),
+            TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(e.into()),
             TransactionKind::Genesis(g) => Self::Genesis(HaneulGenesisTransaction {
                 objects: g.objects.iter().map(GenesisObject::id).collect(),
             }),
@@ -359,6 +358,28 @@ impl HaneulTransactionBlockKind {
                         .collect(),
                 })
             }
+            TransactionKind::EndOfEpochTransaction(end_of_epoch_tx) => {
+                Self::EndOfEpochTransaction(HaneulEndOfEpochTransaction {
+                    transactions: end_of_epoch_tx
+                        .into_iter()
+                        .map(|tx| match tx {
+                            EndOfEpochTransactionKind::ChangeEpoch(e) => {
+                                HaneulEndOfEpochTransactionKind::ChangeEpoch(e.into())
+                            }
+                            EndOfEpochTransactionKind::AuthenticatorStateCreate => {
+                                HaneulEndOfEpochTransactionKind::AuthenticatorStateCreate
+                            }
+                            EndOfEpochTransactionKind::AuthenticatorStateExpire(expire) => {
+                                HaneulEndOfEpochTransactionKind::AuthenticatorStateExpire(
+                                    HaneulAuthenticatorStateExpire {
+                                        min_epoch: expire.min_epoch,
+                                    },
+                                )
+                            }
+                        })
+                        .collect(),
+                })
+            }
         })
     }
 
@@ -376,6 +397,7 @@ impl HaneulTransactionBlockKind {
             Self::ConsensusCommitPrologue(_) => "ConsensusCommitPrologue",
             Self::ProgrammableTransaction(_) => "ProgrammableTransaction",
             Self::AuthenticatorStateUpdate(_) => "AuthenticatorStateUpdate",
+            Self::EndOfEpochTransaction(_) => "EndOfEpochTransaction",
         }
     }
 }
@@ -398,6 +420,18 @@ pub struct HaneulChangeEpoch {
     #[schemars(with = "BigInt<u64>")]
     #[serde_as(as = "BigInt<u64>")]
     pub epoch_start_timestamp_ms: u64,
+}
+
+impl From<ChangeEpoch> for HaneulChangeEpoch {
+    fn from(e: ChangeEpoch) -> Self {
+        Self {
+            epoch: e.epoch,
+            storage_charge: e.storage_charge,
+            computation_charge: e.computation_charge,
+            storage_rebate: e.storage_rebate,
+            epoch_start_timestamp_ms: e.epoch_start_timestamp_ms,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, PartialEq, Eq)]
@@ -1066,6 +1100,28 @@ pub struct HaneulAuthenticatorStateUpdate {
     pub round: u64,
 
     pub new_active_jwks: Vec<HaneulActiveJwk>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulEndOfEpochTransaction {
+    pub transactions: Vec<HaneulEndOfEpochTransactionKind>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub enum HaneulEndOfEpochTransactionKind {
+    ChangeEpoch(HaneulChangeEpoch),
+    AuthenticatorStateCreate,
+    AuthenticatorStateExpire(HaneulAuthenticatorStateExpire),
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulAuthenticatorStateExpire {
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub min_epoch: u64,
 }
 
 #[serde_as]
