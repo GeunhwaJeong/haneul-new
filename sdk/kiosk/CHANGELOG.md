@@ -1,5 +1,16 @@
 # @haneullabs/kiosk
 
+## 0.6.0
+
+### Minor Changes
+
+- fd8589806: Remove uses of deprecated imports from @haneullabs/haneul.js
+
+### Patch Changes
+
+- Updated dependencies [fd8589806]
+  - @haneullabs/haneul.js@0.42.0
+
 ## 0.5.3
 
 ### Patch Changes

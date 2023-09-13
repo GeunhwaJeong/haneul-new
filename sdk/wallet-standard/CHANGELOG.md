@@ -1,5 +1,17 @@
 # @haneullabs/wallet-standard
 
+## 0.8.0
+
+### Minor Changes
+
+- fd8589806: Remove uses of deprecated imports from @haneullabs/haneul.js
+- 8b9e5f737: Added new isWalletWithRequiredFeatureSet utility and accompanying type
+
+### Patch Changes
+
+- Updated dependencies [fd8589806]
+  - @haneullabs/haneul.js@0.42.0
+
 ## 0.7.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 0.42.0
+
+### Minor Changes
+
+- fd8589806: Remove all previously deprecated exports from @haneullabs/haneul.js
+
 ## 0.41.2
 
 ### Patch Changes
