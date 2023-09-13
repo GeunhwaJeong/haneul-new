@@ -366,7 +366,7 @@ impl DataProvider for HaneulClient {
     }
 }
 
-pub(crate) async fn haneul_sdk_client_v0(rpc_url: &String) -> HaneulClient {
+pub(crate) async fn haneul_sdk_client_v0(rpc_url: impl AsRef<str>) -> HaneulClient {
     haneul_sdk::HaneulClientBuilder::default()
         .request_timeout(RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD)
         .max_concurrent_requests(MAX_CONCURRENT_REQUESTS)
