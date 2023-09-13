@@ -3,7 +3,7 @@
 
 import { useCoinMetadata } from '@haneullabs/core';
 import { Haneul, Unstaked } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { ImageIcon } from '~/ui/ImageIcon';

@@ -3,7 +3,6 @@
 
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { provider } from './rpc';
 import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 
 // This simulates what a server would do to sponsor a transaction
@@ -17,5 +16,6 @@ export async function sponsorTransaction(sender: string, transactionKindBytes: U
 	const tx = TransactionBlock.fromKind(transactionKindBytes);
 	tx.setSender(sender);
 	tx.setGasOwner(address);
-	return await provider.signAndExecuteTransactionBlock({ signer: keypair, transactionBlock: tx });
+
+	return keypair.signTransactionBlock(await tx.build());
 }

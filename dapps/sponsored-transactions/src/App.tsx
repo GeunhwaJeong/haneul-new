@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransaction } from '@haneullabs/haneul.js';
 import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
@@ -37,8 +36,12 @@ const CodePanel = ({
 export function App() {
 	const { currentAccount, signTransactionBlock } = useWalletKit();
 	const [loading, setLoading] = useState(false);
-	const [sponsoredTx, setSponsoredTx] = useState<SignedTransaction | null>(null);
-	const [signedTx, setSignedTx] = useState<SignedTransaction | null>(null);
+	const [sponsoredTx, setSponsoredTx] = useState<Awaited<
+		ReturnType<typeof sponsorTransaction>
+	> | null>(null);
+	const [signedTx, setSignedTx] = useState<Awaited<ReturnType<typeof signTransactionBlock>> | null>(
+		null,
+	);
 	const [executedTx, setExecutedTx] = useState<HaneulTransactionBlockResponse | null>(null);
 
 	const tx = useMemo(() => {
@@ -93,7 +96,7 @@ export function App() {
 								setLoading(true);
 								try {
 									const signed = await signTransactionBlock({
-										transactionBlock: TransactionBlock.from(sponsoredTx!.transactionBlockBytes),
+										transactionBlock: TransactionBlock.from(sponsoredTx!.bytes),
 									});
 									setSignedTx(signed);
 								} finally {

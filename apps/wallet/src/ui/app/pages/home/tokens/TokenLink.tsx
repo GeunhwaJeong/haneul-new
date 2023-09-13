@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { GEUNHWA_PER_HANEUL, type CoinBalance } from '@haneullabs/haneul.js';
+import { type CoinBalance } from '@haneullabs/haneul.js/client';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
 import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 

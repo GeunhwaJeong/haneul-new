@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { HaneulSystemStateUtil, HANEUL_TYPE_ARG } from '../../src';
+import { HaneulSystemStateUtil, HANEUL_TYPE_ARG } from '../../src/framework';
 import { setup, TestToolbox } from './utils/setup';
 import { Keypair } from '../../src/cryptography';
 import { HaneulClient } from '../../src/client';

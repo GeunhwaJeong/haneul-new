@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
-import { TypeTagSerializer, type TypeTag } from '@haneullabs/haneul.js';
+import { TypeTagSerializer, type TypeTag } from '@haneullabs/haneul.js/bcs';
 import { type TransactionArgument, type Transactions } from '@haneullabs/haneul.js/transactions';
 import { formatAddress, normalizeHaneulAddress, toB64 } from '@haneullabs/haneul.js/utils';
 

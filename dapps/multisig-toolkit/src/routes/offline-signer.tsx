@@ -6,14 +6,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import {
-	Connection,
-	JsonRpcProvider,
-	TransactionBlock,
-	devnetConnection,
-	mainnetConnection,
-	testnetConnection,
-} from '@haneullabs/haneul.js';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { HaneulClient, HaneulClientOptions, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { useWalletKit } from '@haneullabs/wallet-kit';
 import { AlertCircle, Terminal } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
@@ -34,11 +28,11 @@ export default function OfflineSigner() {
 		},
 	});
 
-	// supported connections.
-	const connections: Record<`${string}:${string}`, Connection> = {
-		'haneul:testnet': testnetConnection,
-		'haneul:mainnet': mainnetConnection,
-		'haneul:devnet': devnetConnection,
+	// supported networks.
+	const clientOptions: Record<`${string}:${string}`, HaneulClientOptions> = {
+		'haneul:testnet': { url: getFullnodeUrl('testnet') },
+		'haneul:mainnet': { url: getFullnodeUrl('mainnet') },
+		'haneul:devnet': { url: getFullnodeUrl('devnet') },
 	};
 
 	// runs a dry-run for the transaction based on the connected wallet.
@@ -52,11 +46,11 @@ export default function OfflineSigner() {
 		mutationKey: ['dry-run'],
 		mutationFn: async () => {
 			if (!currentAccount?.chains[0]) throw new Error('No chain detected for the account.');
-			const provider = new JsonRpcProvider(
-				connections[currentAccount?.chains.filter((x) => x.startsWith('haneul'))[0]],
+			const client = new HaneulClient(
+				clientOptions[currentAccount?.chains.filter((x) => x.startsWith('haneul'))[0]],
 			);
 
-			return await provider.dryRunTransactionBlock({
+			return await client.dryRunTransactionBlock({
 				transactionBlock: bytes,
 			});
 		},

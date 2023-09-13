@@ -30,7 +30,9 @@ export interface HaneulSignPersonalMessageInput {
 }
 
 /** Output of signing personal messages. */
-export interface HaneulSignPersonalMessageOutput {
+export interface HaneulSignPersonalMessageOutput extends SignedPersonalMessage {}
+
+export interface SignedPersonalMessage {
 	bytes: string;
 	signature: string;
 }

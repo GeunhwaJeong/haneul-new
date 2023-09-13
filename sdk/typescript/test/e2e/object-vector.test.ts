@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Coin, HANEUL_FRAMEWORK_ADDRESS } from '../../src';
+import { Coin, HANEUL_FRAMEWORK_ADDRESS } from '../../src/framework';
 import { HaneulObjectData } from '../../src/client';
 import { TransactionBlock } from '../../src/builder';
 import { publishPackage, setup, TestToolbox } from './utils/setup';

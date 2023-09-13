@@ -5,7 +5,7 @@ import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
 import { isBasePayload } from '_payloads';
 
-import type { SignedTransaction } from '@haneullabs/haneul.js';
+import { type SignedTransaction } from '_src/ui/app/WalletSigner';
 import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import type { BasePayload, Payload } from '_payloads';
 

@@ -7,7 +7,7 @@
  */
 
 import { describe, it } from 'vitest';
-import { HANEUL_ADDRESS_LENGTH } from '../../typescript/src';
+import { HANEUL_ADDRESS_LENGTH } from '../../typescript/src/utils';
 import { BCS, BcsWriter, getRustConfig, getHaneulMoveConfig } from './../src/index';
 
 describe('BCS: README Examples', () => {

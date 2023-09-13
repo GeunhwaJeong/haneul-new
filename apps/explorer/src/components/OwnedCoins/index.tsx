@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getCoinSymbol } from '@haneullabs/core';
 import { useAllBalances } from '@haneullabs/dapp-kit';
 import { Info16 } from '@haneullabs/icons';
-import { Coin } from '@haneullabs/haneul.js';
 import { type CoinBalance } from '@haneullabs/haneul.js/client';
 import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { Heading, Text, LoadingIndicator, RadioGroup, RadioGroupItem } from '@haneullabs/ui';
@@ -51,23 +51,21 @@ export function OwnedCoins({ id }: { id: string }) {
 
 		const recognizedBalances = balanceData.recognizedBalances.sort((a, b) => {
 			// Make sure HANEUL always comes first
-			if (Coin.getCoinSymbol(a.coinType) === 'HANEUL') {
+			if (getCoinSymbol(a.coinType) === 'HANEUL') {
 				return -1;
-			} else if (Coin.getCoinSymbol(b.coinType) === 'HANEUL') {
+			} else if (getCoinSymbol(b.coinType) === 'HANEUL') {
 				return 1;
 			} else {
-				return Coin.getCoinSymbol(a.coinType).localeCompare(
-					Coin.getCoinSymbol(b.coinType),
-					undefined,
-					{ sensitivity: 'base' },
-				);
+				return getCoinSymbol(a.coinType).localeCompare(getCoinSymbol(b.coinType), undefined, {
+					sensitivity: 'base',
+				});
 			}
 		});
 
 		return {
 			recognizedBalances,
 			unrecognizedBalances: balanceData.unrecognizedBalances.sort((a, b) =>
-				Coin.getCoinSymbol(a.coinType).localeCompare(Coin.getCoinSymbol(b.coinType), undefined, {
+				getCoinSymbol(a.coinType)!.localeCompare(getCoinSymbol(b.coinType)!, undefined, {
 					sensitivity: 'base',
 				}),
 			),

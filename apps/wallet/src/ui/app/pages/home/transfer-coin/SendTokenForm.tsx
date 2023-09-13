@@ -10,7 +10,6 @@ import {
 } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { Coin as CoinAPI } from '@haneullabs/haneul.js';
 import { type CoinStruct } from '@haneullabs/haneul.js/client';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -55,6 +54,13 @@ export type SendTokenFormProps = {
 	initialAmount: string;
 	initialTo: string;
 };
+
+function totalBalance(coins: CoinStruct[]): bigint {
+	return coins.reduce((partialSum, c) => partialSum + getBalanceFromCoinStruct(c), BigInt(0));
+}
+function getBalanceFromCoinStruct(coin: CoinStruct): bigint {
+	return BigInt(coin.balance);
+}
 
 function GasBudgetEstimation({
 	coinDecimals,
@@ -153,8 +159,8 @@ export function SendTokenForm({
 
 	const haneulCoins = haneulCoinsData;
 	const coins = coinsData;
-	const coinBalance = CoinAPI.totalBalance(coins || []);
-	const haneulBalance = CoinAPI.totalBalance(haneulCoins || []);
+	const coinBalance = totalBalance(coins || []);
+	const haneulBalance = totalBalance(haneulCoins || []);
 
 	const coinMetadata = useCoinMetadata(coinType);
 	const coinDecimals = coinMetadata.data?.decimals ?? 0;

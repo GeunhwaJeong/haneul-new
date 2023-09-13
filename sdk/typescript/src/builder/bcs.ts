@@ -4,8 +4,8 @@
 import type { TypeName } from '@haneullabs/bcs';
 import { BCS } from '@haneullabs/bcs';
 import { bcs } from '../bcs/index.js';
+import { TypeTagSerializer } from '../bcs/index.js';
 import type { TypeTag } from '../bcs/index.js';
-import { TypeTagSerializer } from './type-tag-serializer.js';
 import type { TransactionArgument, MoveCallTransaction } from './Transactions.js';
 import { normalizeHaneulAddress } from '../utils/haneul-types.js';
 

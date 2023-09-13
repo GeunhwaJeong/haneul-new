@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type SignedTransaction } from '@haneullabs/haneul.js';
 import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 import { filter, lastValueFrom, map, race, Subject, take } from 'rxjs';
@@ -15,6 +14,7 @@ import {
 } from '_payloads/transactions/ApprovalRequest';
 import { type SignMessageRequest } from '_payloads/transactions/SignMessage';
 
+import { type SignedTransaction } from '_src/ui/app/WalletSigner';
 import type { HaneulSignTransactionSerialized } from '_payloads/transactions/ExecuteTransactionRequest';
 import type { TransactionRequestResponse } from '_payloads/transactions/ui/TransactionRequestResponse';
 import type { ContentScriptConnection } from '_src/background/connections/ContentScriptConnection';

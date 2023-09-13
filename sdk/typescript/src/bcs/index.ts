@@ -5,6 +5,8 @@ import type { EnumTypeDefinition, StructTypeDefinition } from '@haneullabs/bcs';
 import { BCS, getHaneulMoveConfig } from '@haneullabs/bcs';
 import type { HaneulObjectRef } from '../types/objects.js';
 
+export { TypeTagSerializer } from './type-tag-serializer.js';
+
 /**
  * A reference to a shared object.
  */
