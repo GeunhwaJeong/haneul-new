@@ -7,7 +7,6 @@ authors = ["Haneul Labs <build@haneul-labs.com>"]
 publish = false
 
 [dependencies]
-async-trait.workspace = true
 base64.workspace = true
 bcs.workspace = true
 bytes.workspace = true

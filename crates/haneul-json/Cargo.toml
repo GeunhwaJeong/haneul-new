@@ -9,13 +9,11 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 bcs.workspace = true
-once_cell.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 schemars.workspace = true
 
 haneul-framework.workspace = true
-haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 
 move-binary-format.workspace = true

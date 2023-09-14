@@ -28,18 +28,13 @@ regex.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["full"] }
-tokio-stream.workspace = true
 url.workspace = true
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics.workspace = true
-haneul-config.workspace = true
-haneul-core.workspace = true
 haneul-json.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-types.workspace = true
-haneul-keys.workspace = true
-haneul-node.workspace = true
 haneul-open-rpc.workspace = true
 haneul-sdk.workspace = true
 haneul-types.workspace = true

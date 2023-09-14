@@ -13,12 +13,10 @@ fastcrypto.workspace = true
 tempfile.workspace = true
 
 move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 
 serde-reflection.workspace = true
 haneul-types.workspace = true
-haneul-protocol-config.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true

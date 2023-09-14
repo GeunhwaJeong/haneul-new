@@ -19,7 +19,6 @@ haneul-archival.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true
-shared-crypto.workspace = true
 haneul-swarm-config.workspace = true
 
 haneullabs-network.workspace = true

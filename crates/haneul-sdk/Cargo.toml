@@ -22,7 +22,6 @@ bcs.workspace = true
 thiserror.workspace = true
 reqwest.workspace = true
 
-haneul-swarm-config.workspace = true
 haneul-json-rpc.workspace = true
 haneul-transaction-builder.workspace = true
 haneul-json-rpc-types.workspace = true

@@ -9,14 +9,7 @@ edition = "2021"
 [dependencies]
 anemo.workspace = true
 anyhow.workspace = true
-bcs.workspace = true
-camino.workspace = true
-csv.workspace = true
-dirs.workspace = true
 fastcrypto.workspace = true
-move-binary-format.workspace = true
-move-core-types.workspace = true
-once_cell.workspace = true
 rand.workspace = true
 serde.workspace = true
 serde_with.workspace = true
@@ -28,10 +21,7 @@ prometheus.workspace = true
 narwhal-config.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
-haneul-framework.workspace = true
-haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
-haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-genesis-builder.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

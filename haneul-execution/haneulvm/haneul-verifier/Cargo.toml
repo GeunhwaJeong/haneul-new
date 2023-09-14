@@ -18,4 +18,3 @@ move-bytecode-verifier = { path = "../../../external-crates/move-execution/haneu
 
 haneul-types.workspace = true
 workspace-hack = { version = "0.1", path = "../../../crates/workspace-hack" }
-haneul-protocol-config.workspace = true

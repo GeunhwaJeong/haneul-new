@@ -14,23 +14,18 @@ prometheus = "0.13.3"
 tokio = { workspace = true, features = ["full"] }
 tracing = "0.1.36"
 once_cell.workspace = true
-futures = "0.3.23"
 reqwest = { version = "0.11.13", default_features= false, features = ["blocking", "json", "rustls-tls"] }
 serde = { version = "1.0.144", features = ["derive", "rc"] }
 serde_json = { version = "1.0.1"}
 jsonpath_lib = "0.3.0"
 chrono.workspace = true
-serde_with = "2.1.0"
 tap.workspace = true
 bcs.workspace = true
 
 haneul-config = { path = "../haneul-config" }
-haneul-json = { path = "../haneul-json" }
-haneul-json-rpc = { path = "../haneul-json-rpc" }
 haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
 haneul-sdk = { path = "../haneul-sdk" }
 haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
-move-core-types.workspace = true
 telemetry-subscribers.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

@@ -27,7 +27,6 @@ move-vm-runtime = { path = "../../../external-crates/move-execution/v0/move-vm/r
 haneul-move-natives = { path = "../haneul-move-natives", package = "haneul-move-natives-v0" }
 haneul-verifier = { path = "../haneul-verifier", package = "haneul-verifier-v0" }
 
-haneullabs-metrics.workspace = true
 haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true

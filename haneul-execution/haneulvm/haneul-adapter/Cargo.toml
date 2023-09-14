@@ -27,7 +27,6 @@ move-vm-profiler = { path = "../../../external-crates/move/move-vm/profiler" }
 haneul-move-natives = { path = "../haneul-move-natives", package = "haneul-move-natives-haneulvm" }
 haneul-verifier = { path = "../haneul-verifier", package = "haneul-verifier-haneulvm" }
 
-haneullabs-metrics.workspace = true
 haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
