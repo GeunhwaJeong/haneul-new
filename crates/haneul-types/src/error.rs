@@ -362,6 +362,15 @@ pub enum HaneulError {
     QuorumFailedToGetEffectsQuorumWhenProcessingTransaction {
         effects_map: BTreeMap<TransactionEffectsDigest, (Vec<AuthorityName>, StakeUnit)>,
     },
+    #[error(
+        "Failed to verify Tx certificate with executed effects, error: {error:?}, validator: {validator_name:?}"
+    )]
+    FailedToVerifyTxCertWithExecutedEffects {
+        validator_name: AuthorityName,
+        error: String,
+    },
+    #[error("Transaction is already finalized but with different user signatures")]
+    TxAlreadyFinalizedWithDifferentUserSigs,
     #[error("System Transaction not accepted")]
     InvalidSystemTransaction,
 
@@ -725,6 +734,8 @@ impl HaneulError {
             HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
                 (false, true)
             }
+            HaneulError::TxAlreadyFinalizedWithDifferentUserSigs => (false, true),
+            HaneulError::FailedToVerifyTxCertWithExecutedEffects { .. } => (false, true),
             HaneulError::ObjectLockConflict { .. } => (false, true),
 
             _ => (false, false),
