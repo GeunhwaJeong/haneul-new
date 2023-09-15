@@ -76,7 +76,8 @@
 	},
 	"dependencies": {
 		"@haneullabs/haneul.js": "workspace:*",
-		"@haneullabs/wallet-standard": "workspace:*"
+		"@haneullabs/wallet-standard": "workspace:*",
+		"zustand": "^4.4.1"
 	},
 	"peerDependencies": {
 		"@tanstack/react-query": "^4.0.0",

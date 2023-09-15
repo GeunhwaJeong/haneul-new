@@ -5,7 +5,7 @@ import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/dom';
 import { HaneulClientProvider } from '../../src/components/HaneulClientProvider.js';
-import { useHaneulClient, useHaneulClientContext } from 'dapp-kit/src/index.js';
+import { useHaneulClient, useHaneulClientContext } from 'dapp-kit/src';
 import { HaneulClient } from '@haneullabs/haneul.js/client';
 import { useState } from 'react';
 
