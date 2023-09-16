@@ -2,23 +2,25 @@
 title: About zkLogin
 ---
 
-zkLogin is a Haneul primitive that lets wallets and apps link Haneul objects with an OAuth credential—enabling users to perform transactions using both the credential and attached objects.
+zkLogin is a Haneul primitive that lets users send transactions from a Haneul address using an OAuth credential, without publicly linking the two.
 
-zkLogin eliminates the need for users to handle private keys or recall mnemonics/passwords in wallets. By guiding users through the OAuth flow, a zkLogin address is generated, enabling any associated objects to execute transactions on-chain.
+zkLogin is designed with the following goals in mind:
 
-zkLogin is designed with the following principles in mind:
+1. **Simple Onboarding**: zkLogin allows users to transact on Haneul using the familiar OAuth login flow, eliminating the friction of handling cryptographic keys or remembering mnemonics.
 
-1. **Simple Onboarding**: With the familiar OAuth login flow, zkLogin enables users to easily create a Haneul wallet and engage with Haneul—eliminating the need for cryptographic key management.
+1. **Self-Custody**: A zkLogin transaction requires user approval via the standard OAuth login process--the OAuth provider cannot transact on the user's behalf.
 
-1. **Fully Self-Custodial**: A zkLogin transaction requires user approval within the OAuth login process, preventing unilateral fund movement from a zkLogin wallet—even by the OAuth provider.
+1. **Secure**: zkLogin is a two-factor authentication scheme: sending a transaction requires both a credential from a recent OAuth login and a salt not managed by the OAuth provider. An attacker who compromises an OAuth account cannot transact from the user's corresponding Haneul address unless they separately compromise the salt.
 
-1. **Privacy-Focused**: Zero knowledge proofs prevent third parties from linking Haneul addresses and OAuth identifiers.
+1. **Private**: Zero knowledge proofs prevent third parties from linking a Haneul address with its corresponding OAuth identifier.
 
-1. **Natively Supported**: zkLogin is a protocol-level signature scheme, benefiting from [crypto agility](https://docs.haneul.io/devnet/learn/cryptography/haneul-signatures). Unlike smart contract-based alternatives, it will smoothly integrate with sponsored transactions and MultiSig.
+1. **Optional Verified Identity**: However, a user can *opt in* to verify the OAuth identifier that was used to derive a particular Haneul address. This serves as the foundation for a verifiable on-chain identity layer.
 
-1. **Foundation for the Identity Layer**: In the future, zkLogin can serve as an opt-in identity layer for users on-chain.
+1. **Accessible**: zkLogin is one of several native Haneul signature schemes thanks to Haneul's [crypto agility](https://docs.haneul.io/devnet/learn/cryptography/haneul-signatures). It smoothly integrates with other powerful Haneul primitives like sponsored transactions and multisig.
 
-Are you a builder who wants to integrate with zkLogin into your wallet or application? Dive into our [Integration guide](#integration-guide).
+1. **Built with Rigor**. The [code](https://github.com/haneul-foundation/zklogin-circuit) for zkLogin is open source and has been independently [audited](https://github.com/haneul-foundation/zk-ceremony-client) by two firms specializing in zero knowledge. The public zkLogin ceremony for creating the common reference string attracted contributions from more than 100 participants.
+
+Are you a builder who wants to integrate zkLogin into your application or wallet? Dive into our [Integration guide](#integration-guide).
 
 If you want to understand how zkLogin works, including how the zero-knowledge proof is generated, and how Haneul verifies a zkLogin transaction, see [this section](#how-zklogin-works).
 
