@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::errors::IndexerError;
 use move_core_types::language_storage::StructTag;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -17,8 +18,6 @@ use haneul_types::object::{Object, Owner};
 use haneul_types::haneul_serde::HaneulStructTag;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulValidatorSummary;
 use haneul_types::transaction::SenderSignedData;
-
-use crate::errors::IndexerError;
 
 pub type IndexerResult<T> = Result<T, IndexerError>;
 
