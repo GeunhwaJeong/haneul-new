@@ -5,7 +5,6 @@ use crate::types::balance::Balance;
 use crate::types::checkpoint::Checkpoint;
 use crate::types::object::ObjectFilter;
 use crate::types::protocol_config::ProtocolConfigs;
-use crate::types::transaction_block::TransactionBlock;
 use crate::types::{object::Object, haneul_address::HaneulAddress};
 use async_graphql::connection::Connection;
 use async_graphql::*;
@@ -58,8 +57,6 @@ pub(crate) trait DataProvider: Send + Sync {
         last: Option<u64>,
         before: Option<String>,
     ) -> Result<Connection<String, Checkpoint>>;
-
-    async fn fetch_tx(&self, digest: &str) -> Result<Option<TransactionBlock>>;
 
     async fn fetch_chain_id(&self) -> Result<String>;
 
