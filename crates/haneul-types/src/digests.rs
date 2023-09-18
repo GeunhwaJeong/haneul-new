@@ -3,7 +3,7 @@
 
 use std::fmt;
 
-use crate::haneul_serde::Readable;
+use crate::{error::HaneulError, haneul_serde::Readable};
 use fastcrypto::encoding::{Base58, Encoding};
 use once_cell::sync::OnceCell;
 use schemars::JsonSchema;
@@ -81,6 +81,20 @@ impl From<Digest> for [u8; 32] {
 impl From<[u8; 32]> for Digest {
     fn from(digest: [u8; 32]) -> Self {
         Self::new(digest)
+    }
+}
+
+impl TryFrom<Vec<u8>> for Digest {
+    type Error = HaneulError;
+
+    fn try_from(bytes: Vec<u8>) -> Result<Self, HaneulError> {
+        let bytes: [u8; 32] =
+            <[u8; 32]>::try_from(&bytes[..]).map_err(|_| HaneulError::InvalidDigestLength {
+                expected: 32,
+                actual: bytes.len(),
+            })?;
+
+        Ok(Self::from(bytes))
     }
 }
 
@@ -246,6 +260,14 @@ impl From<CheckpointDigest> for [u8; 32] {
 impl From<[u8; 32]> for CheckpointDigest {
     fn from(digest: [u8; 32]) -> Self {
         Self::new(digest)
+    }
+}
+
+impl TryFrom<Vec<u8>> for CheckpointDigest {
+    type Error = HaneulError;
+
+    fn try_from(bytes: Vec<u8>) -> Result<Self, HaneulError> {
+        Digest::try_from(bytes).map(CheckpointDigest)
     }
 }
 
