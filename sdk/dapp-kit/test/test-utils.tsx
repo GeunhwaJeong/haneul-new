@@ -17,7 +17,7 @@ export function createHaneulClientContextWrapper(client: HaneulClient) {
 	};
 }
 
-export function createWalletProviderContextWrappe(
+export function createWalletProviderContextWrapper(
 	providerProps: Omit<ComponentProps<typeof WalletProvider>, 'children'> = {},
 ) {
 	const queryClient = new QueryClient();
