@@ -14,6 +14,7 @@ export * from './hooks/wallet/useSwitchAccount.js';
 export * from './hooks/wallet/useConnectWallet.js';
 export * from './hooks/wallet/useDisconnectWallet.js';
 export * from './hooks/wallet/useSignPersonalMessage.js';
+export * from './hooks/wallet/useSignTransactionBlock.js';
 export * from './hooks/useHaneulClientMutation.js';
 export * from './hooks/useHaneulClientQuery.js';
 export * from './hooks/useHaneulClientInfiniteQuery.js';
