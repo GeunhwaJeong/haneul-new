@@ -14,7 +14,6 @@ pub use fastcrypto;
 pub use lru;
 pub use move_package;
 pub use narwhal_network;
-pub use haneul_adapter;
 pub use haneul_framework;
 pub use haneul_move_build;
 pub use haneul_types;

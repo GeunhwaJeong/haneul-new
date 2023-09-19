@@ -53,7 +53,6 @@ haneul-swarm.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-config.workspace = true
 haneul-json-rpc-types.workspace = true
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul.workspace = true
 haneul-sdk.workspace = true
 haneul-keys.workspace = true

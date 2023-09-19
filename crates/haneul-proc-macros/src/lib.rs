@@ -38,7 +38,7 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
             std::thread::spawn(|| {
                 use haneul_protocol_config::ProtocolConfig;
                 ::haneul_simulator::telemetry_subscribers::init_for_testing();
-                ::haneul_simulator::haneul_adapter::execution_engine::get_denied_certificates();
+                ::haneul_simulator::haneul_types::execution::get_denied_certificates();
                 ::haneul_simulator::haneul_framework::BuiltInFramework::all_package_ids();
                 ::haneul_simulator::haneul_types::gas::HaneulGasStatus::new_unmetered();
 

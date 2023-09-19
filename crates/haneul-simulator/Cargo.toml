@@ -10,8 +10,6 @@ edition = "2021"
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
 move-package.workspace = true
 
-haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
-
 haneul-framework.workspace = true
 haneul-move-build.workspace = true
 haneul-types.workspace = true
