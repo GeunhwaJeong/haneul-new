@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useResolveHaneulNSName } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
-
 import { AccountIcon } from './AccountIcon';
 import { AccountItem } from './AccountItem';
 import { LockUnlockButton } from './LockUnlockButton';
@@ -19,13 +16,11 @@ type AccountListItemProps = {
 
 export function AccountListItem({ account, editable, showLock = false }: AccountListItemProps) {
 	const activeAccount = useActiveAccount();
-	const { data: domainName } = useResolveHaneulNSName(account?.address);
 	const { unlockAccount, lockAccount, isLoading, accountToUnlock } = useUnlockAccount();
 
 	return (
 		<AccountItem
 			icon={<AccountIcon account={account} />}
-			name={account.nickname || domainName || formatAddress(account.address)}
 			isActiveAccount={account.address === activeAccount?.address}
 			after={
 				showLock ? (
