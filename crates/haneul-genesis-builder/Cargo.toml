@@ -25,6 +25,7 @@ shared-crypto.workspace = true
 haneul-config.workspace = true
 haneul-execution.workspace = true
 haneul-framework.workspace = true
+haneul-framework-snapshot.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

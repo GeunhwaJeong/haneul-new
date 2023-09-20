@@ -10094,6 +10094,7 @@ dependencies = [
  "haneul-config",
  "haneul-execution",
  "haneul-framework",
+ "haneul-framework-snapshot",
  "haneul-protocol-config",
  "haneul-simulator",
  "haneul-types",
