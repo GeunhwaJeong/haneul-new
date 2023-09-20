@@ -2,9 +2,6 @@
 resolver = "2"
 
 exclude = [
-    "external-crates/move-execution/haneulvm/move-bytecode-verifier",
-    "external-crates/move-execution/haneulvm/move-stdlib",
-    "external-crates/move-execution/haneulvm/move-vm/runtime",
     "external-crates/move-execution/v0/move-bytecode-verifier",
     "external-crates/move-execution/v0/move-stdlib",
     "external-crates/move-execution/v0/move-vm/runtime",
@@ -162,9 +159,6 @@ members = [
     "haneul-execution/latest/haneul-adapter",
     "haneul-execution/latest/haneul-move-natives",
     "haneul-execution/latest/haneul-verifier",
-    "haneul-execution/haneulvm/haneul-adapter",
-    "haneul-execution/haneulvm/haneul-move-natives",
-    "haneul-execution/haneulvm/haneul-verifier",
     "haneul-execution/v0/haneul-adapter",
     "haneul-execution/v0/haneul-move-natives",
     "haneul-execution/v0/haneul-verifier",

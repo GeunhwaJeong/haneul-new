@@ -5289,18 +5289,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "move-bytecode-verifier-haneulvm"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-borrow-graph",
- "move-core-types",
- "move-vm-config",
- "petgraph 0.5.1",
-]
-
-[[package]]
 name = "move-bytecode-verifier-v0"
 version = "0.1.0"
 dependencies = [
@@ -5743,27 +5731,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "move-stdlib-haneulvm"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "hex",
- "log",
- "move-binary-format",
- "move-command-line-common",
- "move-core-types",
- "move-docgen",
- "move-errmapgen",
- "move-prover",
- "move-vm-runtime-haneulvm",
- "move-vm-types",
- "sha2 0.9.9",
- "sha3 0.9.1",
- "smallvec",
- "walkdir",
-]
-
-[[package]]
 name = "move-stdlib-v0"
 version = "0.1.1"
 dependencies = [
@@ -5878,25 +5845,6 @@ dependencies = [
  "fail",
  "move-binary-format",
  "move-bytecode-verifier",
- "move-core-types",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-types",
- "once_cell",
- "parking_lot 0.11.2",
- "sha3 0.9.1",
- "smallvec",
- "tracing",
-]
-
-[[package]]
-name = "move-vm-runtime-haneulvm"
-version = "0.1.0"
-dependencies = [
- "better_any",
- "fail",
- "move-binary-format",
- "move-bytecode-verifier-haneulvm",
  "move-core-types",
  "move-vm-config",
  "move-vm-profiler",
@@ -9575,33 +9523,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-adapter-haneulvm"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-haneulvm",
- "move-core-types",
- "move-package",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime-haneulvm",
- "move-vm-types",
- "parking_lot 0.12.1",
- "serde",
- "haneul-macros",
- "haneul-move-natives-haneulvm",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-haneulvm",
- "tracing",
- "workspace-hack",
-]
-
-[[package]]
 name = "haneul-adapter-transactional-tests"
 version = "0.1.0"
 dependencies = [
@@ -10029,23 +9950,18 @@ dependencies = [
  "cargo_metadata",
  "move-binary-format",
  "move-bytecode-verifier",
- "move-bytecode-verifier-haneulvm",
  "move-bytecode-verifier-v0",
  "move-vm-config",
  "move-vm-runtime",
- "move-vm-runtime-haneulvm",
  "move-vm-runtime-v0",
  "petgraph 0.5.1",
  "haneul-adapter-latest",
- "haneul-adapter-haneulvm",
  "haneul-adapter-v0",
  "haneul-move-natives-latest",
- "haneul-move-natives-haneulvm",
  "haneul-move-natives-v0",
  "haneul-protocol-config",
  "haneul-types",
  "haneul-verifier-latest",
- "haneul-verifier-haneulvm",
  "haneul-verifier-v0",
  "workspace-hack",
 ]
@@ -10553,26 +10469,6 @@ dependencies = [
  "move-core-types",
  "move-stdlib",
  "move-vm-runtime",
- "move-vm-types",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "workspace-hack",
-]
-
-[[package]]
-name = "haneul-move-natives-haneulvm"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-zkp",
- "linked-hash-map",
- "move-binary-format",
- "move-core-types",
- "move-stdlib-haneulvm",
- "move-vm-runtime-haneulvm",
  "move-vm-types",
  "smallvec",
  "haneul-protocol-config",
@@ -11486,20 +11382,6 @@ dependencies = [
  "move-binary-format",
  "move-bytecode-utils",
  "move-bytecode-verifier",
- "move-core-types",
- "move-vm-config",
- "haneul-types",
- "workspace-hack",
-]
-
-[[package]]
-name = "haneul-verifier-haneulvm"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-haneulvm",
  "move-core-types",
  "move-vm-config",
  "haneul-types",
@@ -13720,7 +13602,6 @@ dependencies = [
  "move-bytecode-source-map",
  "move-bytecode-utils",
  "move-bytecode-verifier",
- "move-bytecode-verifier-haneulvm",
  "move-bytecode-verifier-v0",
  "move-bytecode-viewer",
  "move-cli",
@@ -13745,7 +13626,6 @@ dependencies = [
  "move-stackless-bytecode",
  "move-stackless-bytecode-interpreter",
  "move-stdlib",
- "move-stdlib-haneulvm",
  "move-stdlib-v0",
  "move-symbol-pool",
  "move-transactional-test-runner",
@@ -13753,7 +13633,6 @@ dependencies = [
  "move-vm-config",
  "move-vm-profiler",
  "move-vm-runtime",
- "move-vm-runtime-haneulvm",
  "move-vm-runtime-v0",
  "move-vm-test-utils",
  "move-vm-types",
