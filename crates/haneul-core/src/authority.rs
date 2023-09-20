@@ -51,10 +51,7 @@ use self::authority_store_pruner::AuthorityStorePruningMetrics;
 pub use authority_notify_read::EffectsNotifyRead;
 pub use authority_store::{AuthorityStore, ResolverWrapper, UpdateType};
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
-use narwhal_config::{
-    Committee as ConsensusCommittee, WorkerCache as ConsensusWorkerCache,
-    WorkerId as ConsensusWorkerId,
-};
+
 use once_cell::sync::OnceCell;
 use shared_crypto::intent::{Intent, IntentScope};
 use haneul_archival::reader::ArchiveReaderBalancer;
@@ -77,9 +74,7 @@ use haneul_storage::key_value_store::{TransactionKeyValueStore, TransactionKeyVa
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
 use haneul_storage::IndexStore;
 use haneul_types::committee::{EpochId, ProtocolVersion};
-use haneul_types::crypto::{
-    default_hash, AuthorityKeyPair, AuthoritySignInfo, NetworkKeyPair, Signer,
-};
+use haneul_types::crypto::{default_hash, AuthoritySignInfo, Signer};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType};
@@ -177,21 +172,6 @@ pub(crate) mod authority_notify_read;
 pub(crate) mod authority_store;
 
 pub static CHAIN_IDENTIFIER: OnceCell<ChainIdentifier> = OnceCell::new();
-
-pub type ReconfigConsensusMessage = (
-    AuthorityKeyPair,
-    NetworkKeyPair,
-    ConsensusCommittee,
-    Vec<(ConsensusWorkerId, NetworkKeyPair)>,
-    ConsensusWorkerCache,
-);
-
-pub type VerifiedTransactionBatch = Vec<(
-    VerifiedTransaction,
-    TransactionEffects,
-    TransactionEvents,
-    Option<(EpochId, CheckpointSequenceNumber)>,
-)>;
 
 /// Prometheus metrics which can be displayed in Grafana, queried and alerted on
 pub struct AuthorityMetrics {
