@@ -14,10 +14,12 @@ module haneul::haneul {
     /// Sender is not @0x0 the system address.
     const ENotSystemAddress: u64 = 1;
 
+    #[allow(unused_const)]
     /// The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
     /// 10^-9 of a Haneul token
     const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
 
+    #[allow(unused_const)]
     /// The total supply of Haneul denominated in whole Haneul tokens (10 Billion)
     const TOTAL_SUPPLY_HANEUL: u64 = 10_000_000_000;
 

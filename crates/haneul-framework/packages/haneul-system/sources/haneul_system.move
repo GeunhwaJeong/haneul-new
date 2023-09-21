@@ -533,6 +533,7 @@ module haneul_system::haneul_system {
         haneul_system_state_inner::active_validator_addresses(self)
     }
 
+    #[allow(unused_function)]
     /// This function should be called at the end of an epoch, and advances the system to the next epoch.
     /// It does the following things:
     /// 1. Add storage charge to the storage fund.

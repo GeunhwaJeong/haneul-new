@@ -9,7 +9,7 @@ module haneul::transfer {
     #[test_only]
     friend haneul::test_scenario;
 
-
+    #[allow(unused_const)]
     /// Shared an object that was previously created. Shared objects must currently
     /// be constructed in the transaction they are created.
     const ESharedNonNewObject: u64 = 0;
