@@ -1,0 +1,20 @@
+[package]
+name = "haneul-verifier-vm-rework"
+version = "0.1.0"
+edition = "2021"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "Move framework for Haneul platform"
+license = "Apache-2.0"
+publish = false
+
+[dependencies]
+move-binary-format.workspace = true
+move-bytecode-utils.workspace = true
+move-core-types.workspace = true
+move-vm-config.workspace = true
+move-abstract-stack.workspace = true
+
+move-bytecode-verifier = { path = "../../../external-crates/move-execution/vm-rework/move-bytecode-verifier", package = "move-bytecode-verifier-vm-rework" }
+
+haneul-types.workspace = true
+workspace-hack = { version = "0.1", path = "../../../crates/workspace-hack" }
