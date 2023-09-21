@@ -5,9 +5,11 @@ use clap::Parser;
 use tracing::{error, info};
 
 use haneul_indexer::errors::IndexerError;
+use haneul_indexer::indexer_v2::IndexerV2;
 use haneul_indexer::metrics::IndexerMetrics;
 use haneul_indexer::start_prometheus_server;
 use haneul_indexer::store::PgIndexerStore;
+use haneul_indexer::store::PgIndexerStoreV2;
 use haneul_indexer::utils::reset_database;
 use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, Indexer, IndexerConfig};
 
@@ -73,7 +75,7 @@ async fn main() -> Result<(), IndexerError> {
             );
             e
         })?;
-        reset_database(&mut conn, /* drop_all */ true).map_err(|e| {
+        reset_database(&mut conn, /* drop_all */ true, indexer_config.use_v2).map_err(|e| {
             let db_err_msg = format!(
                 "Failed resetting database with url: {:?} and error: {:?}",
                 db_url, e
@@ -82,7 +84,12 @@ async fn main() -> Result<(), IndexerError> {
             IndexerError::PostgresResetError(db_err_msg)
         })?;
     }
-    let store = PgIndexerStore::new(blocking_cp, indexer_metrics.clone());
+    if indexer_config.use_v2 {
+        info!("Use v2");
+        let store = PgIndexerStoreV2::new(blocking_cp, indexer_metrics.clone());
+        return IndexerV2::start(&indexer_config, &registry, store, indexer_metrics).await;
+    }
 
+    let store = PgIndexerStore::new(blocking_cp, indexer_metrics.clone());
     Indexer::start(&indexer_config, &registry, store, indexer_metrics, None).await
 }
