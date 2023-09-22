@@ -13,7 +13,7 @@ use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::SyntaxChoice;
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
-use haneul_types::object::Owner;
+use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::{Argument, CallArg, ObjectArg};
@@ -150,6 +150,7 @@ pub enum HaneulSubcommand {
 pub enum HaneulExtraValueArgs {
     Object(FakeID, Option<SequenceNumber>),
     Digest(String),
+    Receiving(FakeID, Option<SequenceNumber>),
 }
 
 pub enum HaneulValue {
@@ -157,14 +158,41 @@ pub enum HaneulValue {
     Object(FakeID, Option<SequenceNumber>),
     ObjVec(Vec<(FakeID, Option<SequenceNumber>)>),
     Digest(String),
+    Receiving(FakeID, Option<SequenceNumber>),
 }
 
 impl HaneulExtraValueArgs {
     fn parse_object_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
         parser: &mut MoveCLParser<'a, ValueToken, I>,
     ) -> anyhow::Result<Self> {
+        let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "object")?;
+        Ok(HaneulExtraValueArgs::Object(fake_id, version))
+    }
+
+    fn parse_receiving_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
+        let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "receiving")?;
+        Ok(HaneulExtraValueArgs::Receiving(fake_id, version))
+    }
+
+    fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
         let contents = parser.advance(ValueToken::Ident)?;
-        ensure!(contents == "object");
+        ensure!(contents == "digest");
+        parser.advance(ValueToken::LParen)?;
+        let package = parser.advance(ValueToken::Ident)?;
+        parser.advance(ValueToken::RParen)?;
+        Ok(HaneulExtraValueArgs::Digest(package.to_owned()))
+    }
+
+    fn parse_receiving_or_object_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+        ident_name: &str,
+    ) -> anyhow::Result<(FakeID, Option<SequenceNumber>)> {
+        let contents = parser.advance(ValueToken::Ident)?;
+        ensure!(contents == ident_name);
         parser.advance(ValueToken::LParen)?;
         let i_str = parser.advance(ValueToken::Number)?;
         let (i, _) = parse_u256(i_str)?;
@@ -191,18 +219,7 @@ impl HaneulExtraValueArgs {
         } else {
             None
         };
-        Ok(HaneulExtraValueArgs::Object(fake_id, version))
-    }
-
-    fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
-        parser: &mut MoveCLParser<'a, ValueToken, I>,
-    ) -> anyhow::Result<Self> {
-        let contents = parser.advance(ValueToken::Ident)?;
-        ensure!(contents == "digest");
-        parser.advance(ValueToken::LParen)?;
-        let package = parser.advance(ValueToken::Ident)?;
-        parser.advance(ValueToken::RParen)?;
-        Ok(HaneulExtraValueArgs::Digest(package.to_owned()))
+        Ok((fake_id, version))
     }
 }
 
@@ -213,6 +230,7 @@ impl HaneulValue {
             HaneulValue::Object(_, _) => panic!("unexpected nested Haneul object in args"),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
+            HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
         }
     }
 
@@ -222,14 +240,15 @@ impl HaneulValue {
             HaneulValue::Object(id, version) => (id, version),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
+            HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
         }
     }
 
-    fn object_arg(
+    fn resolve_object(
         fake_id: FakeID,
         version: Option<SequenceNumber>,
         test_adapter: &HaneulTestAdapter,
-    ) -> anyhow::Result<ObjectArg> {
+    ) -> anyhow::Result<Object> {
         let id = match test_adapter.fake_to_real_object_id(fake_id) {
             Some(id) => id,
             None => bail!("INVALID TEST. Unknown object, object({})", fake_id),
@@ -243,6 +262,25 @@ impl HaneulValue {
             Ok(Some(obj)) => obj,
             Err(_) | Ok(None) => bail!("INVALID TEST. Could not load object argument {}", id),
         };
+        Ok(obj)
+    }
+
+    fn receiving_arg(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<ObjectArg> {
+        let obj = Self::resolve_object(fake_id, version, test_adapter)?;
+        Ok(ObjectArg::Receiving(obj.compute_object_reference()))
+    }
+
+    fn object_arg(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<ObjectArg> {
+        let obj = Self::resolve_object(fake_id, version, test_adapter)?;
+        let id = obj.id();
         match obj.owner {
             Owner::Shared {
                 initial_shared_version,
@@ -264,6 +302,9 @@ impl HaneulValue {
                 CallArg::Object(Self::object_arg(fake_id, version, test_adapter)?)
             }
             HaneulValue::MoveValue(v) => CallArg::Pure(v.simple_serialize().unwrap()),
+            HaneulValue::Receiving(fake_id, version) => {
+                CallArg::Object(Self::receiving_arg(fake_id, version, test_adapter)?)
+            }
             HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
             HaneulValue::Digest(pkg) => {
                 let pkg = Symbol::from(pkg);
@@ -303,6 +344,7 @@ impl ParsableValue for HaneulExtraValueArgs {
         match parser.peek()? {
             (ValueToken::Ident, "object") => Some(Self::parse_object_value(parser)),
             (ValueToken::Ident, "digest") => Some(Self::parse_digest_value(parser)),
+            (ValueToken::Ident, "receiving") => Some(Self::parse_receiving_value(parser)),
             _ => None,
         }
     }
@@ -346,6 +388,7 @@ impl ParsableValue for HaneulExtraValueArgs {
         match self {
             HaneulExtraValueArgs::Object(id, version) => Ok(HaneulValue::Object(id, version)),
             HaneulExtraValueArgs::Digest(pkg) => Ok(HaneulValue::Digest(pkg)),
+            HaneulExtraValueArgs::Receiving(id, version) => Ok(HaneulValue::Receiving(id, version)),
         }
     }
 }

@@ -276,4 +276,10 @@ pub enum ExecutionStoreEvent {
         id: ModuleId,
         result: HaneulResult<Option<CompiledModule>>,
     },
+    ReceiveObject {
+        owner: ObjectID,
+        receive: ObjectID,
+        receive_at_version: SequenceNumber,
+        result: HaneulResult<Option<Object>>,
+    },
 }
