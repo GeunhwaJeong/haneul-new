@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export * from './hooks/useHaneulClient.js';
+export * from './components/ConnectButton.js';
 export * from './components/HaneulClientProvider.js';
 export * from './components/WalletProvider.js';
 export * from './hooks/useRpcApiVersion.js';
