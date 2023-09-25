@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { KIOSK_ITEM, KioskItem, fetchKiosk, getOwnedKiosks } from '@haneullabs/kiosk';
+import { KIOSK_ITEM, KioskClient, KioskItem, KioskOwnerCap, Network } from '@haneullabs/kiosk';
 import { useQuery } from '@tanstack/react-query';
 import { ORIGINBYTE_KIOSK_OWNER_TOKEN, getKioskIdFromOwnerCap } from '../utils/kiosk';
-import { HaneulClient, HaneulObjectResponse } from '@haneullabs/haneul.js/src/client';
+import { HaneulClient } from '@haneullabs/haneul.js/src/client';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 
 export enum KioskTypes {
@@ -13,11 +13,11 @@ export enum KioskTypes {
 }
 
 export type Kiosk = {
-	items: Partial<HaneulObjectResponse & KioskItem>[];
+	items: KioskItem[];
 	itemIds: string[];
 	kioskId: string;
 	type: KioskTypes;
-	ownerCap?: string;
+	ownerCap?: KioskOwnerCap;
 };
 
 async function getOriginByteKioskContents(address: string, client: HaneulClient) {
@@ -73,39 +73,48 @@ async function getOriginByteKioskContents(address: string, client: HaneulClient)
 	return contents;
 }
 
-async function getHaneulKioskContents(address: string, client: HaneulClient) {
-	const ownedKiosks = await getOwnedKiosks(client, address!);
+// TODO: Replace `getHaneulKioskContent` references to also pass in the network.
+async function getHaneulKioskContents(
+	address: string,
+	client: HaneulClient,
+	network: Network = Network.MAINNET,
+) {
+	const kioskClient = new KioskClient({ client, network });
+
+	const ownedKiosks = await kioskClient.getOwnedKiosks({ address });
 
 	const contents = await Promise.all(
-		ownedKiosks.kioskIds.map(async (id) => {
-			const kiosk = await fetchKiosk(client, id, { limit: 1000 }, {});
-			const contents = await client.multiGetObjects({
-				ids: kiosk.data.itemIds,
-				options: { showDisplay: true, showContent: true },
-			});
-			const items = contents.map((object) => {
-				const kioskData = kiosk.data.items.find((item) => item.objectId === object.data?.objectId);
-				return { ...object, ...kioskData, kioskId: id };
+		ownedKiosks.kioskIds.map(async (id: string) => {
+			const kiosk = await kioskClient.getKiosk({
+				id,
+				options: {
+					withObjects: true,
+					objectOptions: { showDisplay: true, showContent: true },
+				},
 			});
 			return {
-				itemIds: kiosk.data.itemIds,
-				items,
+				itemIds: kiosk.itemIds,
+				items: kiosk.items,
 				kioskId: id,
 				type: KioskTypes.HANEUL,
-				ownerCap: ownedKiosks.kioskOwnerCaps.find((k) => k.kioskId === id)?.objectId,
+				ownerCap: ownedKiosks.kioskOwnerCaps.find((k) => k.kioskId === id),
 			};
 		}),
 	);
 	return contents;
 }
 
-export function useGetKioskContents(address?: string | null, disableOriginByteKiosk?: boolean) {
+export function useGetKioskContents(
+	address?: string | null,
+	network?: Network,
+	disableOriginByteKiosk?: boolean,
+) {
 	const client = useHaneulClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
-		queryKey: ['get-kiosk-contents', address, disableOriginByteKiosk],
+		queryKey: ['get-kiosk-contents', address, network, disableOriginByteKiosk],
 		queryFn: async () => {
-			const haneulKiosks = await getHaneulKioskContents(address!, client);
+			const haneulKiosks = await getHaneulKioskContents(address!, client, network);
 			const obKiosks = await getOriginByteKioskContents(address!, client);
 			return [...haneulKiosks, ...obKiosks];
 		},

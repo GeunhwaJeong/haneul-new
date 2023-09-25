@@ -1,0 +1,9 @@
+[package]
+name = "hero"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+hero =  "0x0"
