@@ -14,6 +14,8 @@
     "@haneullabs/core",
     "@haneullabs/ui",
     "haneul-wallet-adapter-demo",
-    "sponsored-transactions"
+    "sponsored-transactions",
+    "kiosk-demo",
+    "kiosk-cli"
   ]
 }
