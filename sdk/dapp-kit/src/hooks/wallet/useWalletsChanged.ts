@@ -4,8 +4,9 @@
 import type { WalletWithRequiredFeatures } from '@haneullabs/wallet-standard';
 import { getWallets } from '@haneullabs/wallet-standard';
 import { useEffect } from 'react';
-import { useWalletStore } from './useWalletStore.js';
+
 import { getRegisteredWallets } from '../../utils/walletUtils.js';
+import { useWalletStore } from './useWalletStore.js';
 
 /**
  * Internal hook for easily handling the addition and removal of new wallets.

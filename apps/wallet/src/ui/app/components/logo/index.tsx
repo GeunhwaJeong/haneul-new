@@ -1,9 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulMainnet, HaneulTestnet, HaneulDevnet, HaneulLocal, HaneulCustomRpc } from '@haneullabs/icons';
-
 import { API_ENV } from '_src/shared/api-env';
+import { HaneulCustomRpc, HaneulDevnet, HaneulLocal, HaneulMainnet, HaneulTestnet } from '@haneullabs/icons';
 
 type LogoProps = {
 	networkName?: API_ENV;

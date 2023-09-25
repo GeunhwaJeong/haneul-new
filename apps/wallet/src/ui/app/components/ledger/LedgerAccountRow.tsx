@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin, useResolveHaneulNSName } from '@haneullabs/core';
 import { useBalance } from '@haneullabs/dapp-kit';
 import { CheckFill16 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG, formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import cl from 'classnames';
 
 import { useCoinsReFetchingConfig } from '../../hooks';
-import { Text } from '_src/ui/app/shared/text';
 
 type LedgerAccountRowProps = {
 	isSelected: boolean;

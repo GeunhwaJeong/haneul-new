@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { CheckFill16, Search16 } from '@haneullabs/icons';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Button } from './Button';
-import { CheckFill16, Search16 } from '@haneullabs/icons';
 
 const meta = {
 	component: Button,

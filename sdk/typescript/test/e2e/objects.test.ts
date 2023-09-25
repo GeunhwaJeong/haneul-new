@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { normalizeHaneulAddress, HANEUL_TYPE_ARG } from '../../src/utils';
-import { HaneulObjectData } from '../../src/client';
+import { beforeAll, describe, expect, it } from 'vitest';
+
 import { TransactionBlock } from '../../src/builder';
+import { HaneulObjectData } from '../../src/client';
+import { normalizeHaneulAddress, HANEUL_TYPE_ARG } from '../../src/utils';
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Object Reading API', () => {

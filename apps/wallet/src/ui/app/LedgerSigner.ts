@@ -1,16 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import {
-	type SerializedSignature,
 	toSerializedSignature,
+	type SerializedSignature,
 	type SignatureScheme,
 } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { WalletSigner } from './WalletSigner';
 
-import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
+import { WalletSigner } from './WalletSigner';
 
 export class LedgerSigner extends WalletSigner {
 	#haneulLedgerClient: HaneulLedgerClient | null;

@@ -1,12 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type TransactionBlockInput } from '@haneullabs/haneul.js/transactions';
-import { formatAddress, toB64 } from '@haneullabs/haneul.js/utils';
-
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { Text } from '_src/ui/app/shared/text';
+import { type TransactionBlockInput } from '@haneullabs/haneul.js/transactions';
+import { formatAddress, toB64 } from '@haneullabs/haneul.js/utils';
 
 interface InputProps {
 	input: TransactionBlockInput;

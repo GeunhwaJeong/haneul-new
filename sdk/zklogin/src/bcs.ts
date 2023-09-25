@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BCS, fromB64, toB64 } from '@haneullabs/bcs';
-import { SIGNATURE_SCHEME_TO_FLAG } from '@haneullabs/haneul.js/cryptography';
 import { bcs } from '@haneullabs/haneul.js/bcs';
+import { SIGNATURE_SCHEME_TO_FLAG } from '@haneullabs/haneul.js/cryptography';
 
 export const zkBcs = new BCS(bcs);
 

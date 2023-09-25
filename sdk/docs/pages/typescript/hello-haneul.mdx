@@ -52,8 +52,8 @@ address. You must be on Devnet, Testnet, or a local network to use a faucet for 
 Create a new `index.js` file in the root of your project with the following code.
 
 ```js
-import { requestHaneulFromFaucetV0, getFaucetHost } from '@haneullabs/haneul.js/faucet';
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
 
 // replace <YOUR_HANEUL_ADDRESS> with your actual address, which is in the form 0x123...

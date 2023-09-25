@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
+	MinimallyRequiredFeatures,
 	Wallet,
 	WalletWithFeatures,
-	MinimallyRequiredFeatures,
 } from '@haneullabs/wallet-standard';
 import { getWallets, isWalletWithRequiredFeatureSet } from '@haneullabs/wallet-standard';
 

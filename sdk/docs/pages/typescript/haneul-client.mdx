@@ -10,7 +10,7 @@ relevant URL to the `url` parameter. The following example establishes a connect
 requests HANEUL from that network's faucet.
 
 ```typescript
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 
 // use getFullnodeUrl to define Devnet RPC location
 const rpcUrl = getFullnodeUrl('devnet');
@@ -45,7 +45,7 @@ methods are built into `HaneulClient`, but you can use `call` to leverage any me
 RPC.
 
 ```typescript
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 
 const client = new HaneulClient({ url: getFullnodeUrl('devnet') });
 
@@ -61,7 +61,7 @@ For a full list of available RPC methods, see the
 In addition to calling RPC methods, you can use `HaneulClient` to subscribe to network events:
 
 ```typescript
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 
 const client = new HaneulClient({
 	url: getFullnodeUrl('testnet'),
@@ -86,7 +86,7 @@ await unsubscribe();
 Similar to subscribing to events, the `HaneulClient` also supports subscribing to transactions:
 
 ```typescript
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 
 const client = new HaneulClient({
 	url: getFullnodeUrl('testnet'),
@@ -113,7 +113,7 @@ You can construct a custom transport instance if you need to pass any custom opt
 headers or timeout values.
 
 ```typescript
-import { HaneulClient, HaneulHTTPTransport, getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient, HaneulHTTPTransport } from '@haneullabs/haneul.js/client';
 
 const client = new HaneulClient({
 	transport: new HaneulHTTPTransport({

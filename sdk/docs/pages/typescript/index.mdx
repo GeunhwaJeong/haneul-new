@@ -65,7 +65,7 @@ The ability to request HANEUL from a faucet is not part of `HaneulClient` as it 
 to retrieve the faucet URL for `localnet`, `testnet`, or `devnet` networks.
 
 ```ts
-import { requestHaneulFromFaucetV0, getFaucetHost } from '@haneullabs/haneul.js/faucet';
+import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 
 await requestHaneulFromFaucetV0({
 	host: getFaucetHost('devnet'),

@@ -1,22 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { fromB64 } from '@haneullabs/haneul.js/utils';
-import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
-
+import type { ApprovalRequest } from '_payloads/transactions/ApprovalRequest';
+import type { RootState } from '_redux/RootReducer';
+import { getSignerOperationErrorMessage } from '_src/ui/app/helpers/errorMessages';
 import {
 	type SignedMessage,
 	type SignedTransaction,
 	type WalletSigner,
 } from '_src/ui/app/WalletSigner';
-import { getSignerOperationErrorMessage } from '_src/ui/app/helpers/errorMessages';
-
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ApprovalRequest } from '_payloads/transactions/ApprovalRequest';
-import type { RootState } from '_redux/RootReducer';
 import type { AppThunkConfig } from '_store/thunk-extras';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { fromB64 } from '@haneullabs/haneul.js/utils';
+import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 const txRequestsAdapter = createEntityAdapter<ApprovalRequest>({
 	sortComparer: (a, b) => {

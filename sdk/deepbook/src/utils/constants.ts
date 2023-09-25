@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HANEUL_TYPE_ARG, normalizeStructTag } from '@haneullabs/haneul.js/utils';
+import { normalizeStructTag, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 
 export const PACKAGE_ID = '0xdee9';
 

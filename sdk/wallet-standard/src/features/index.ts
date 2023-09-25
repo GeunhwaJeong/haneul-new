@@ -8,10 +8,11 @@ import type {
 	StandardEventsFeature,
 	WalletWithFeatures,
 } from '@wallet-standard/core';
-import type { HaneulSignTransactionBlockFeature } from './haneulSignTransactionBlock';
+
 import type { HaneulSignAndExecuteTransactionBlockFeature } from './haneulSignAndExecuteTransactionBlock';
 import { HaneulSignMessageFeature } from './haneulSignMessage';
 import { HaneulSignPersonalMessageFeature } from './haneulSignPersonalMessage';
+import type { HaneulSignTransactionBlockFeature } from './haneulSignTransactionBlock';
 
 /**
  * Wallet Standard features that are unique to Haneul, and that all Haneul wallets are expected to implement.

@@ -1,15 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useActiveAddress } from '_app/hooks/useActiveAddress';
+import Loading from '_components/loading';
+import { filterAndSortTokenBalances } from '_helpers';
+import { useCoinsReFetchingConfig } from '_hooks';
 import { useAllBalances } from '@haneullabs/dapp-kit';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { Link } from 'react-router-dom';
 
 import { CoinItem } from './CoinItem';
-import { useActiveAddress } from '_app/hooks/useActiveAddress';
-import Loading from '_components/loading';
-import { filterAndSortTokenBalances } from '_helpers';
-import { useCoinsReFetchingConfig } from '_hooks';
 
 export function ActiveCoinsCard({
 	activeCoinType = HANEUL_TYPE_ARG,

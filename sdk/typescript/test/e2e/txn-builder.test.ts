@@ -1,25 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import {
-	HaneulTransactionBlockResponse,
-	HaneulObjectData,
+	HaneulClient,
 	HaneulObjectChangeCreated,
+	HaneulObjectData,
+	HaneulTransactionBlockResponse,
 } from '../../src/client';
-import { HANEUL_SYSTEM_STATE_OBJECT_ID, normalizeHaneulObjectId } from '../../src/utils';
 import type { Keypair } from '../../src/cryptography';
+import { normalizeHaneulObjectId, HANEUL_SYSTEM_STATE_OBJECT_ID } from '../../src/utils';
 import {
-	DEFAULT_RECIPIENT,
 	DEFAULT_GAS_BUDGET,
+	DEFAULT_RECIPIENT,
+	publishPackage,
 	setup,
 	TestToolbox,
-	publishPackage,
 	upgradePackage,
 } from './utils/setup';
-import { HaneulClient } from '../../src/client';
-import {} from '../../src/builder/TransactionBlockData';
+
+import '../../src/builder/TransactionBlockData';
+
 import { TransactionBlock } from '../../src/builder';
 
 export const HANEUL_CLOCK_OBJECT_ID = normalizeHaneulObjectId('0x6');

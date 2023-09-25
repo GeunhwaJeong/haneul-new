@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
-	isValidTransactionDigest,
 	isValidHaneulAddress,
+	isValidTransactionDigest,
 	normalizeHaneulAddress,
 } from '../../../src/utils';
 

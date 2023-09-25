@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useLatestHaneulSystemState, useHaneulClient } from '@haneullabs/dapp-kit';
 import { useQuery } from '@tanstack/react-query';
 
 import { roundFloat } from '../utils/roundFloat';
-import { useHaneulClient, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
 
 // recentEpochRewards is list of the last 30 epoch rewards for a specific validator
 // APY_e = (1 + epoch_rewards / stake)^365-1

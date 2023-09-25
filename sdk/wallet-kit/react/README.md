@@ -28,8 +28,8 @@ export function App() {
 You can then add a **Connect Wallet** button to your page:
 
 ```tsx
-import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
 
 function ConnectToWallet() {
 	const { currentAccount } = useWalletKit();

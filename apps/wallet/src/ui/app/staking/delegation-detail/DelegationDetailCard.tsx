@@ -1,20 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useGetValidatorsApy, useCoinMetadata } from '@haneullabs/core';
-import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
-import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
-import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
-import BigNumber from 'bignumber.js';
-import { useMemo } from 'react';
-
-import { useActiveAddress } from '../../hooks/useActiveAddress';
-import { Heading } from '../../shared/heading';
-import { getDelegationDataByStakeId } from '../getDelegationByStakeId';
-import { StakeAmount } from '../home/StakeAmount';
-import { useGetDelegatedStake } from '../useGetDelegatedStake';
-import { Button } from '_app/shared/ButtonUI';
 import BottomMenuLayout, { Content } from '_app/shared/bottom-menu-layout';
+import { Button } from '_app/shared/ButtonUI';
 import { Card } from '_app/shared/card';
 import { CardItem } from '_app/shared/card/CardItem';
 import { Text } from '_app/shared/text';
@@ -26,7 +14,19 @@ import { ampli } from '_src/shared/analytics/ampli';
 import { API_ENV } from '_src/shared/api-env';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
+import { useCoinMetadata, useGetValidatorsApy } from '@haneullabs/core';
+import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
+import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import BigNumber from 'bignumber.js';
+import { useMemo } from 'react';
+
+import { useActiveAddress } from '../../hooks/useActiveAddress';
+import { Heading } from '../../shared/heading';
+import { getDelegationDataByStakeId } from '../getDelegationByStakeId';
+import { StakeAmount } from '../home/StakeAmount';
+import { useGetDelegatedStake } from '../useGetDelegatedStake';
 
 type DelegationDetailCardProps = {
 	validatorAddress: string;

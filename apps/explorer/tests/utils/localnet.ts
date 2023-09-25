@@ -1,13 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// eslint-disable-next-line import/order
+import 'tsconfig-paths/register';
+
 import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { type Keypair } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import 'tsconfig-paths/register';
-// eslint-disable-next-line import/order
 
 const addressToKeypair = new Map<string, Keypair>();
 

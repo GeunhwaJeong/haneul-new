@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { toB64 } from '@haneullabs/bcs';
-import { IntentScope, messageWithIntent } from './intent.js';
 import { blake2b } from '@noble/hashes/blake2b';
-import { bcs } from '../bcs/index.js';
-import type { SerializedSignature } from './index.js';
-import { HANEUL_ADDRESS_LENGTH, normalizeHaneulAddress } from '../utils/haneul-types.js';
 import { bytesToHex } from '@noble/hashes/utils';
+
+import { bcs } from '../bcs/index.js';
+import { normalizeHaneulAddress, HANEUL_ADDRESS_LENGTH } from '../utils/haneul-types.js';
+import type { SerializedSignature } from './index.js';
+import { IntentScope, messageWithIntent } from './intent.js';
 
 /**
  * Value to be converted into public key.

@@ -1,11 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Haneul, ThumbUpFill32 } from '@haneullabs/icons';
-
 import { Heading } from '_app/shared/heading';
 import { Text } from '_app/shared/text';
-
+import { Haneul, ThumbUpFill32 } from '@haneullabs/icons';
 import type { ReactNode } from 'react';
 
 export type CardLayoutProps = {

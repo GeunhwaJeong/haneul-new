@@ -1,15 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Outlet } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { WalletKitProvider } from '@haneullabs/wallet-kit';
-import { Header } from './components/Base/Header';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RpcClientContext } from './context/RpcClientContext';
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { KioskClient, Network } from '@haneullabs/kiosk';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import { WalletKitProvider } from '@haneullabs/wallet-kit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { Outlet } from 'react-router-dom';
+
+import { Header } from './components/Base/Header';
 import { KioskClientContext } from './context/KioskClientContext';
+import { RpcClientContext } from './context/RpcClientContext';
 
 const queryClient = new QueryClient();
 const haneulClient = new HaneulClient({ url: getFullnodeUrl('testnet') });

@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-	WalletActionStake24,
+	Account24,
 	ArrowRight16,
 	Info16,
+	Haneul,
 	Swap16,
 	Unstaked,
-	Haneul,
-	Account24,
+	WalletActionStake24,
 } from '@haneullabs/icons';
 import cl from 'classnames';
 

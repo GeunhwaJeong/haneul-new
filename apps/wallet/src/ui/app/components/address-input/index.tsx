@@ -1,20 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { Text } from '_app/shared/text';
+import Alert from '_src/ui/app/components/alert';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { X12, QrCode } from '@haneullabs/icons';
+import { QrCode, X12 } from '@haneullabs/icons';
 import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 import { cx } from 'class-variance-authority';
 import { useField, useFormikContext } from 'formik';
 import { useCallback, useMemo } from 'react';
+import type { ChangeEventHandler } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { useHaneulAddressValidation } from './validation';
-import { Text } from '_app/shared/text';
-import Alert from '_src/ui/app/components/alert';
-
-import type { ChangeEventHandler } from 'react';
 
 export interface AddressInputProps {
 	disabled?: boolean;

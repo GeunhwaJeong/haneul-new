@@ -1,21 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
+import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type {
 	StandardConnectFeature,
 	StandardConnectMethod,
 	StandardEventsFeature,
 	StandardEventsOnMethod,
 	HaneulFeatures,
+	HaneulSignAndExecuteTransactionBlockMethod,
 	HaneulSignPersonalMessageMethod,
 	HaneulSignTransactionBlockMethod,
-	HaneulSignAndExecuteTransactionBlockMethod,
 	Wallet,
 } from '@haneullabs/wallet-standard';
-import { getWallets, HANEUL_CHAINS, ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
+import { getWallets, ReadonlyWalletAccount, HANEUL_CHAINS } from '@haneullabs/wallet-standard';
 import { useEffect } from 'react';
+
 import { useHaneulClient } from '../useHaneulClient.js';
 
 const WALLET_NAME = 'Unsafe Burner Wallet';

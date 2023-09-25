@@ -3,6 +3,7 @@
 
 import { LockLocked16, LockUnlocked16 } from '@haneullabs/icons';
 import { type ComponentPropsWithoutRef } from 'react';
+
 import { Tooltip } from '../../shared/tooltip';
 import LoadingIndicator from '../loading/LoadingIndicator';
 

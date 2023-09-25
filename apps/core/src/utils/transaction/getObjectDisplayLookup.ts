@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { DisplayFieldsResponse, HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+
 import { hasDisplayData } from '../hasDisplayData';
 
 export function getObjectDisplayLookup(objects: HaneulObjectResponse[] = []) {

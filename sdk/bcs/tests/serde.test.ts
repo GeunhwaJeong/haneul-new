@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, it } from 'vitest';
+
 import { HANEUL_ADDRESS_LENGTH } from '../../typescript/src/utils';
 import { BCS, getHaneulMoveConfig } from './../src/index';
 

@@ -1,12 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { ImageIcon } from '_app/shared/image-icon';
 import { useCoinMetadata } from '@haneullabs/core';
 import { Haneul, Unstaked } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-
-import { ImageIcon } from '_app/shared/image-icon';
 
 const imageStyle = cva(['rounded-full flex'], {
 	variants: {

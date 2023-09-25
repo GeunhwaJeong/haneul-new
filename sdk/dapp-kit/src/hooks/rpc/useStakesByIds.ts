@@ -11,6 +11,7 @@
  */
 
 import type { GetStakesByIdsParams } from '@haneullabs/haneul.js/client';
+
 import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
 import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
 

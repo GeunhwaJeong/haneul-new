@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
-import { parseStructTag, formatAddress } from '@haneullabs/haneul.js/utils';
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { Text } from '_src/ui/app/shared/text';
+import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
+import { formatAddress, parseStructTag } from '@haneullabs/haneul.js/utils';
 
 export default function NonVisualAssets({ items }: { items: HaneulObjectData[] }) {
 	return (

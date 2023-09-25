@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 
 // This simulates what a server would do to sponsor a transaction
 export async function sponsorTransaction(sender: string, transactionKindBytes: Uint8Array) {

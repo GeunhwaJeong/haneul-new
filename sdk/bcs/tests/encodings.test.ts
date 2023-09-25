@@ -1,15 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
 	BCS,
-	getHaneulMoveConfig,
 	fromB58,
-	toB58,
 	fromB64,
-	toB64,
 	fromHEX,
+	getHaneulMoveConfig,
+	toB58,
+	toB64,
 	toHEX,
 } from './../src/index';
 

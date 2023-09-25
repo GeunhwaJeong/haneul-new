@@ -1,13 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type LedgerAccountSerializedUI } from '_src/background/accounts/LedgerAccount';
+import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
 import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 import { useHaneulLedgerClient } from './HaneulLedgerClientProvider';
-import { type LedgerAccountSerializedUI } from '_src/background/accounts/LedgerAccount';
-
-import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
 
 export type DerivedLedgerAccount = Pick<
 	LedgerAccountSerializedUI,

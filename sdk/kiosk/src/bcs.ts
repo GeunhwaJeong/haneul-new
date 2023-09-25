@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { bcs } from '@haneullabs/haneul.js/bcs';
+
 import {
 	KIOSK_PURCHASE_CAP,
 	KIOSK_TYPE,

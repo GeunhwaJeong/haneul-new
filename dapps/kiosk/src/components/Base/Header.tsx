@@ -1,11 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLocation, useNavigate } from 'react-router-dom';
-import FindKiosk from '../Kiosk/FindKiosk';
-import { HaneulConnectButton } from './HaneulConnectButton';
-import { Button } from './Button';
 import classNames from 'classnames';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import FindKiosk from '../Kiosk/FindKiosk';
+import { Button } from './Button';
+import { HaneulConnectButton } from './HaneulConnectButton';
 
 export function Header() {
 	const navigate = useNavigate();

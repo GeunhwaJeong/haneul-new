@@ -1,16 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulSignPersonalMessageInput } from '@haneullabs/wallet-standard';
-import type { HaneulSignPersonalMessageOutput } from '@haneullabs/wallet-standard';
+import type {
+	HaneulSignPersonalMessageInput,
+	HaneulSignPersonalMessageOutput,
+} from '@haneullabs/wallet-standard';
 import type { UseMutationOptions } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
-import { walletMutationKeys } from '../../constants/walletMutationKeys.js';
+
 import {
 	WalletFeatureNotSupportedError,
 	WalletNoAccountSelectedError,
 	WalletNotConnectedError,
 } from '../..//errors/walletErrors.js';
+import { walletMutationKeys } from '../../constants/walletMutationKeys.js';
 import type { PartialBy } from '../../types/utilityTypes.js';
 import { useCurrentAccount } from './useCurrentAccount.js';
 import { useCurrentWallet } from './useCurrentWallet.js';

@@ -1,23 +1,23 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
-import { Plus12 } from '@haneullabs/icons';
-import { useMemo } from 'react';
-
-import { useActiveAddress } from '../../hooks/useActiveAddress';
-import { getAllStakeHaneul } from '../getAllStakeHaneul';
-import { StakeAmount } from '../home/StakeAmount';
-import { type DelegationObjectWithValidator, StakeCard } from '../home/StakedCard';
-import { useGetDelegatedStake } from '../useGetDelegatedStake';
+import BottomMenuLayout, { Content, Menu } from '_app/shared/bottom-menu-layout';
 import { Button } from '_app/shared/ButtonUI';
-import BottomMenuLayout, { Menu, Content } from '_app/shared/bottom-menu-layout';
 import { Card, CardItem } from '_app/shared/card';
 import { Text } from '_app/shared/text';
 import Alert from '_components/alert';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { ampli } from '_src/shared/analytics/ampli';
+import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { Plus12 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
+import { useMemo } from 'react';
+
+import { useActiveAddress } from '../../hooks/useActiveAddress';
+import { getAllStakeHaneul } from '../getAllStakeHaneul';
+import { StakeAmount } from '../home/StakeAmount';
+import { StakeCard, type DelegationObjectWithValidator } from '../home/StakedCard';
+import { useGetDelegatedStake } from '../useGetDelegatedStake';
 
 export function ValidatorsCard() {
 	const accountAddress = useActiveAddress();

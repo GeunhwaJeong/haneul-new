@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import BigNumber from 'bignumber.js';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { formatBalance, CoinFormat } from '../useFormatCoin';
+import { CoinFormat, formatBalance } from '../useFormatCoin';
 
 const HANEUL_DECIMALS = 9;
 

@@ -1,20 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type {
-	HaneulObjectResponse,
-	HaneulMoveObject,
-	HaneulObjectInfo,
-	HaneulObjectData,
-} from '../types/objects.js';
-import { getObjectFields, getObjectId, getObjectType } from '../types/objects.js';
-
-import type { Option } from '../types/option.js';
-import { getOption } from '../types/option.js';
-import type { CoinStruct } from '../types/coin.js';
-import type { StructTag } from '../bcs/index.js';
 import type { Infer } from 'superstruct';
 import { nullable, number, object, string } from 'superstruct';
+
+import type { StructTag } from '../bcs/index.js';
+import type { CoinStruct } from '../types/coin.js';
+import type {
+	HaneulMoveObject,
+	HaneulObjectData,
+	HaneulObjectInfo,
+	HaneulObjectResponse,
+} from '../types/objects.js';
+import { getObjectFields, getObjectId, getObjectType } from '../types/objects.js';
+import type { Option } from '../types/option.js';
+import { getOption } from '../types/option.js';
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 
 export const HANEUL_SYSTEM_ADDRESS = '0x3';

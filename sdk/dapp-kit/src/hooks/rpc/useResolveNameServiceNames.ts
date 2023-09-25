@@ -11,10 +11,11 @@
  */
 
 import type { ResolveNameServiceNamesParams } from '@haneullabs/haneul.js/client';
-import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+
 import type { UseHaneulClientInfiniteQueryOptions } from '../useHaneulClientInfiniteQuery.js';
-import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
 import { useHaneulClientInfiniteQuery } from '../useHaneulClientInfiniteQuery.js';
+import type { UseHaneulClientQueryOptions } from '../useHaneulClientQuery.js';
+import { useHaneulClientQuery } from '../useHaneulClientQuery.js';
 
 export function useResolveNameServiceNames(
 	params: ResolveNameServiceNamesParams,

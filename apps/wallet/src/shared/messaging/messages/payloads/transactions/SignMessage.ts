@@ -3,7 +3,7 @@
 
 import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
-import { type BasePayload, isBasePayload } from '../BasePayload';
+import { isBasePayload, type BasePayload } from '../BasePayload';
 import { type Payload } from '../Payload';
 
 export interface SignMessageRequest extends BasePayload {

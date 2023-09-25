@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import type { HaneulObjectData } from '@haneullabs/haneul.js/client';
+
 import useFileExtensionType from './useFileExtensionType';
 import useMediaUrl from './useMediaUrl';
-
-import type { HaneulObjectData } from '@haneullabs/haneul.js/client';
 
 export default function useNFTBasicData(nftObj: HaneulObjectData | null) {
 	const nftObjectID = nftObj?.objectId || null;

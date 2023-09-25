@@ -7,6 +7,7 @@ import {
 	HaneulObjectDataOptions,
 } from '@haneullabs/haneul.js/client';
 import { TransactionArgument } from '@haneullabs/haneul.js/transactions';
+
 import { ObjectArgument } from '.';
 
 /** The Kiosk module. */

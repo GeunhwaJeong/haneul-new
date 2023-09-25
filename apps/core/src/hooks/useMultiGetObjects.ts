@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useQuery } from '@tanstack/react-query';
-import { chunkArray } from '../utils/chunkArray';
-import { HaneulObjectDataOptions } from '@haneullabs/haneul.js/src/client';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
+import { HaneulObjectDataOptions } from '@haneullabs/haneul.js/src/client';
+import { useQuery } from '@tanstack/react-query';
+
+import { chunkArray } from '../utils/chunkArray';
 
 export function useMultiGetObjects(
 	ids: string[],

@@ -1,15 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useFormatCoin } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
-
-import { Card } from '../../shared/transaction-summary/Card';
 import { ValidatorLogo } from '_app/staking/validators/ValidatorLogo';
 import { TxnAmount } from '_components/receipt-card/TxnAmount';
 import { Text } from '_src/ui/app/shared/text';
-
+import { useFormatCoin } from '@haneullabs/core';
 import type { HaneulEvent } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+
+import { Card } from '../../shared/transaction-summary/Card';
 
 type UnStakeTxnCardProps = {
 	event: HaneulEvent;

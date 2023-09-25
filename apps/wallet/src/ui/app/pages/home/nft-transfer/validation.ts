@@ -1,10 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { createHaneulAddressValidation } from '_components/address-input/validation';
 import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import * as Yup from 'yup';
-
-import { createHaneulAddressValidation } from '_components/address-input/validation';
 
 export function createValidationSchema(
 	client: HaneulClient,

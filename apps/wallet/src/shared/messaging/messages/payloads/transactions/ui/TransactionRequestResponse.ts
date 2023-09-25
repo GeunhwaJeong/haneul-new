@@ -1,13 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
-
 import { isBasePayload } from '_payloads';
-
+import type { BasePayload, Payload } from '_payloads';
 import { type SignedTransaction } from '_src/ui/app/WalletSigner';
 import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import type { BasePayload, Payload } from '_payloads';
+import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
 export interface TransactionRequestResponse extends BasePayload {
 	type: 'transaction-request-response';

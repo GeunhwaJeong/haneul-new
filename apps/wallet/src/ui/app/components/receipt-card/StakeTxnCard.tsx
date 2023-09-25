@@ -1,14 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	formatPercentageDisplay,
-	useGetValidatorsApy,
-	useGetTimeBeforeEpochNumber,
-} from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
-
-import { Card } from '../../shared/transaction-summary/Card';
 import { ValidatorLogo } from '_app/staking/validators/ValidatorLogo';
 import { TxnAmount } from '_components/receipt-card/TxnAmount';
 import {
@@ -18,8 +10,15 @@ import {
 import { CountDownTimer } from '_src/ui/app/shared/countdown-timer';
 import { Text } from '_src/ui/app/shared/text';
 import { IconTooltip } from '_src/ui/app/shared/tooltip';
-
+import {
+	formatPercentageDisplay,
+	useGetTimeBeforeEpochNumber,
+	useGetValidatorsApy,
+} from '@haneullabs/core';
 import type { HaneulEvent } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+
+import { Card } from '../../shared/transaction-summary/Card';
 
 type StakeTxnCardProps = {
 	event: HaneulEvent;

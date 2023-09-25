@@ -3,7 +3,7 @@
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { PaginatedCoins } from '@haneullabs/haneul.js/client';
-import { UseInfiniteQueryResult, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query';
 
 const MAX_COINS_PER_REQUEST = 10;
 

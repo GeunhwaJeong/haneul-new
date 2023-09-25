@@ -1,26 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	useCoinMetadata,
-	useFormatCoin,
-	CoinFormat,
-	isHaneulNSName,
-	useHaneulNSEnabled,
-} from '@haneullabs/core';
-import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { ArrowRight16 } from '@haneullabs/icons';
-import { type CoinStruct } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
-import { useQuery } from '@tanstack/react-query';
-import { Field, Form, useFormikContext, Formik } from 'formik';
-import { useMemo, useEffect } from 'react';
-
-import { createTokenTransferTransaction } from './utils/transaction';
-import { createValidationSchemaStepOne } from './validation';
 import { useActiveAddress } from '_app/hooks/useActiveAddress';
-import { Button } from '_app/shared/ButtonUI';
 import BottomMenuLayout, { Content, Menu } from '_app/shared/bottom-menu-layout';
+import { Button } from '_app/shared/ButtonUI';
 import { Text } from '_app/shared/text';
 import { AddressInput } from '_components/address-input';
 import Alert from '_components/alert';
@@ -29,6 +12,23 @@ import { parseAmount } from '_helpers';
 import { useGetAllCoins } from '_hooks';
 import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 import { InputWithAction } from '_src/ui/app/shared/InputWithAction';
+import {
+	CoinFormat,
+	isHaneulNSName,
+	useCoinMetadata,
+	useFormatCoin,
+	useHaneulNSEnabled,
+} from '@haneullabs/core';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
+import { ArrowRight16 } from '@haneullabs/icons';
+import { type CoinStruct } from '@haneullabs/haneul.js/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { useQuery } from '@tanstack/react-query';
+import { Field, Form, Formik, useFormikContext } from 'formik';
+import { useEffect, useMemo } from 'react';
+
+import { createTokenTransferTransaction } from './utils/transaction';
+import { createValidationSchemaStepOne } from './validation';
 
 const initialValues = {
 	to: '',

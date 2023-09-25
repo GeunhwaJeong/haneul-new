@@ -1,6 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import {
+	getLedgerConnectionErrorMessage,
+	getHaneulApplicationErrorMessage,
+} from '_src/ui/app/helpers/errorMessages';
+import { Link } from '_src/ui/app/shared/Link';
+import { Text } from '_src/ui/app/shared/text';
 import { Check12, X12 } from '@haneullabs/icons';
 import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { useState } from 'react';
@@ -8,12 +14,6 @@ import toast from 'react-hot-toast';
 
 import { useHaneulLedgerClient } from '../../ledger/HaneulLedgerClientProvider';
 import LoadingIndicator from '../../loading/LoadingIndicator';
-import {
-	getLedgerConnectionErrorMessage,
-	getHaneulApplicationErrorMessage,
-} from '_src/ui/app/helpers/errorMessages';
-import { Link } from '_src/ui/app/shared/Link';
-import { Text } from '_src/ui/app/shared/text';
 
 export type VerifyLedgerConnectionLinkProps = {
 	accountAddress: string;

@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import type { UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
+
 import { useHaneulClientContext } from './useHaneulClient.js';
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
 
 interface PaginatedResult {
 	data?: unknown;

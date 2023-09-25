@@ -91,10 +91,10 @@ Verifying transaction blocks is similar to signature verification, except you us
 `verifyTransactionBlock`:
 
 ```typescript
+// import HaneulClient to create a network client and the getFullnodeUrl helper function
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { verifyTransactionBlock } from '@haneullabs/haneul.js/verify';
-// import HaneulClient to create a network client and the getFullnodeUrl helper function
-import { HaneulClient, getFullnodeUrl } from '@haneullabs/haneul.js/client';
 
 // see Network Interactions with HaneulClient for more info on creating clients
 const client = new HaneulClient({ url: getFullnodeUrl('testnet') });

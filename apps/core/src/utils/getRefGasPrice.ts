@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
+
 import { calculateStakeShare } from './calculateStakeShare';
 
 const REF_THRESHOLD = 66.67;

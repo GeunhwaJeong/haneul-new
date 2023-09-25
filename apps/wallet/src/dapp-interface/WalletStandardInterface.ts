@@ -1,60 +1,59 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isTransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { toB64, fromB64 } from '@haneullabs/haneul.js/utils';
-import {
-	HANEUL_CHAINS,
-	ReadonlyWalletAccount,
-	HANEUL_DEVNET_CHAIN,
-	HANEUL_TESTNET_CHAIN,
-	HANEUL_LOCALNET_CHAIN,
-	type HaneulFeatures,
-	type HaneulSignAndExecuteTransactionBlockMethod,
-	type StandardConnectFeature,
-	type StandardConnectMethod,
-	type Wallet,
-	type StandardEventsFeature,
-	type StandardEventsOnMethod,
-	type StandardEventsListeners,
-	type HaneulSignTransactionBlockMethod,
-	type HaneulSignMessageMethod,
-	type HaneulSignPersonalMessageMethod,
-	HANEUL_MAINNET_CHAIN,
-} from '@haneullabs/wallet-standard';
-import mitt, { type Emitter } from 'mitt';
-import { filter, map, type Observable } from 'rxjs';
-
-import { mapToPromise } from './utils';
 import { createMessage } from '_messages';
 import { WindowMessageStream } from '_messaging/WindowMessageStream';
+import type { BasePayload, Payload } from '_payloads';
+import type { GetAccount } from '_payloads/account/GetAccount';
+import type { GetAccountResponse } from '_payloads/account/GetAccountResponse';
+import type { SetNetworkPayload } from '_payloads/network';
 import {
+	ALL_PERMISSION_TYPES,
 	type AcquirePermissionsRequest,
 	type AcquirePermissionsResponse,
 	type HasPermissionsRequest,
 	type HasPermissionsResponse,
-	ALL_PERMISSION_TYPES,
 } from '_payloads/permissions';
+import type {
+	ExecuteTransactionRequest,
+	ExecuteTransactionResponse,
+	SignTransactionRequest,
+	SignTransactionResponse,
+	StakeRequest,
+} from '_payloads/transactions';
 import { API_ENV } from '_src/shared/api-env';
+import type { NetworkEnvType } from '_src/shared/api-env';
 import {
 	isQredoConnectPayload,
 	type QredoConnectPayload,
 } from '_src/shared/messaging/messages/payloads/QredoConnect';
 import { type SignMessageRequest } from '_src/shared/messaging/messages/payloads/transactions/SignMessage';
 import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
+import { isTransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { fromB64, toB64 } from '@haneullabs/haneul.js/utils';
+import {
+	ReadonlyWalletAccount,
+	HANEUL_CHAINS,
+	HANEUL_DEVNET_CHAIN,
+	HANEUL_LOCALNET_CHAIN,
+	HANEUL_MAINNET_CHAIN,
+	HANEUL_TESTNET_CHAIN,
+	type StandardConnectFeature,
+	type StandardConnectMethod,
+	type StandardEventsFeature,
+	type StandardEventsListeners,
+	type StandardEventsOnMethod,
+	type HaneulFeatures,
+	type HaneulSignAndExecuteTransactionBlockMethod,
+	type HaneulSignMessageMethod,
+	type HaneulSignPersonalMessageMethod,
+	type HaneulSignTransactionBlockMethod,
+	type Wallet,
+} from '@haneullabs/wallet-standard';
+import mitt, { type Emitter } from 'mitt';
+import { filter, map, type Observable } from 'rxjs';
 
-import type { BasePayload, Payload } from '_payloads';
-import type { GetAccount } from '_payloads/account/GetAccount';
-import type { GetAccountResponse } from '_payloads/account/GetAccountResponse';
-import type { SetNetworkPayload } from '_payloads/network';
-import type {
-	StakeRequest,
-	ExecuteTransactionRequest,
-	ExecuteTransactionResponse,
-	SignTransactionRequest,
-	SignTransactionResponse,
-} from '_payloads/transactions';
-import type { NetworkEnvType } from '_src/shared/api-env';
+import { mapToPromise } from './utils';
 
 type WalletEventsMap = {
 	[E in keyof StandardEventsListeners]: Parameters<StandardEventsListeners[E]>[0];

@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type SerializedUIAccount } from '_src/background/accounts/Account';
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { Check12, Copy12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
 
-import { AccountBadge } from './AccountBadge';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 import { Text } from '../shared/text';
-import { type SerializedUIAccount } from '_src/background/accounts/Account';
+import { AccountBadge } from './AccountBadge';
 
 export type AccountItemProps = {
 	account: SerializedUIAccount;

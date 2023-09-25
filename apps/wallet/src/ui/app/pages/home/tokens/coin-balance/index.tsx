@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+import { Heading } from '_src/ui/app/shared/heading';
+import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin, useHaneulCoinData } from '@haneullabs/core';
 import { HANEUL_DECIMALS } from '@haneullabs/haneul.js/utils';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
-import { Heading } from '_src/ui/app/shared/heading';
-import { Text } from '_src/ui/app/shared/text';
 
 export type CoinProps = {
 	type: string;

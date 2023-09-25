@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
+import type { CoinStruct, PaginatedCoins } from '@haneullabs/haneul.js/client';
 import { useQuery } from '@tanstack/react-query';
 
-import type { PaginatedCoins, CoinStruct } from '@haneullabs/haneul.js/client';
 const MAX_COINS_PER_REQUEST = 100;
 
 // Fetch all coins for an address, this will keep calling the API until all coins are fetched

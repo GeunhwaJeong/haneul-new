@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Wallet, WalletWithFeatures } from '@wallet-standard/core';
+
 import { MinimallyRequiredFeatures, WalletWithHaneulFeatures } from './features';
 
 // These features are absolutely required for wallets to function in the Haneul ecosystem.

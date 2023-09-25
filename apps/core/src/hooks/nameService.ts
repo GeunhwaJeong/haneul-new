@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useQuery } from '@tanstack/react-query';
-import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
+import { useHaneulClient } from '@haneullabs/dapp-kit';
+import { useQuery } from '@tanstack/react-query';
 
 const HANEUL_NS_FEATURE_FLAG = 'haneulns';
 

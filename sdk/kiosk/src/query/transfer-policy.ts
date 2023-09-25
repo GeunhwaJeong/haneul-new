@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HaneulClient } from '@haneullabs/haneul.js/client';
+import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+
 import { bcs } from '../bcs';
 import {
 	TRANSFER_POLICY_CAP_TYPE,
@@ -10,7 +12,6 @@ import {
 	TransferPolicy,
 	TransferPolicyCap,
 } from '../types';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { getAllOwnedObjects, parseTransferPolicyCapObject } from '../utils';
 
 /**

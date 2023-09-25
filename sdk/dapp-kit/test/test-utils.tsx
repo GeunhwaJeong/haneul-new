@@ -4,12 +4,13 @@
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import type { IdentifierRecord, ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 import { getWallets } from '@haneullabs/wallet-standard';
-import { HaneulClientProvider } from 'dapp-kit/src';
-import { MockWallet } from './mocks/mockWallet.js';
-import type { ComponentProps } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMockAccount } from './mocks/mockAccount.js';
+import { HaneulClientProvider } from 'dapp-kit/src';
 import { WalletProvider } from 'dapp-kit/src/components/WalletProvider.js';
+import type { ComponentProps } from 'react';
+
+import { createMockAccount } from './mocks/mockAccount.js';
+import { MockWallet } from './mocks/mockWallet.js';
 
 export function createHaneulClientContextWrapper(client: HaneulClient) {
 	return function HaneulClientContextWrapper({ children }: { children: React.ReactNode }) {

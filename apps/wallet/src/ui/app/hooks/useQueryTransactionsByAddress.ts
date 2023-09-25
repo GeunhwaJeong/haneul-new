@@ -1,13 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { FEATURES } from '_src/shared/experimentation/features';
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-
 import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { useQuery } from '@tanstack/react-query';
-
-import { FEATURES } from '_src/shared/experimentation/features';
 
 export function useQueryTransactionsByAddress(address: string | null) {
 	const rpc = useHaneulClient();

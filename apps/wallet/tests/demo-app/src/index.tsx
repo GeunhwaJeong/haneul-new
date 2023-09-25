@@ -1,12 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { type HaneulWallet } from '_src/dapp-interface/WalletStandardInterface';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { ReadonlyWalletAccount, type Wallet, getWallets } from '@haneullabs/wallet-standard';
+import { getWallets, ReadonlyWalletAccount, type Wallet } from '@haneullabs/wallet-standard';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-
-import { type HaneulWallet } from '_src/dapp-interface/WalletStandardInterface';
 
 function getDemoTransaction(address: string) {
 	const txb = new TransactionBlock();

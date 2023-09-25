@@ -3,12 +3,12 @@
 
 import type {
 	Checkpoint,
-	HaneulValidatorSummary,
 	DynamicFieldInfo,
+	HaneulCallArg,
 	HaneulMoveNormalizedModule,
 	HaneulParsedData,
 	HaneulTransaction,
-	HaneulCallArg,
+	HaneulValidatorSummary,
 } from './generated.js';
 
 export type ResolvedNameServiceNames = {

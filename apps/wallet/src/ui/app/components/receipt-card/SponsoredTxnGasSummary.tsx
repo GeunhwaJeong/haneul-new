@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { GAS_SYMBOL, GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
+import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin } from '@haneullabs/core';
 
 import { TxnAddressLink } from './TxnAddressLink';
-import { GAS_SYMBOL, GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
-import { Text } from '_src/ui/app/shared/text';
 
 type SponsoredTxnGasSummaryProps = {
 	totalGas: number;

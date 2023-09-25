@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulClient, getFullnodeUrl, isHaneulClient } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, isHaneulClient, HaneulClient } from '@haneullabs/haneul.js/client';
 import type { HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { createContext, useMemo, useState } from 'react';
 

@@ -3,8 +3,8 @@
 
 import {
 	toSerializedSignature,
-	type SerializedSignature,
 	type Keypair,
+	type SerializedSignature,
 } from '@haneullabs/haneul.js/cryptography';
 import { blake2b } from '@noble/hashes/blake2b';
 

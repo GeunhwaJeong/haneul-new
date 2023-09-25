@@ -4,12 +4,12 @@
 import type {
 	IdentifierRecord,
 	ReadonlyWalletAccount,
-	WalletWithRequiredFeatures,
 	StandardEventsChangeProperties,
 	StandardEventsOnMethod,
+	Wallet,
+	WalletWithRequiredFeatures,
 } from '@haneullabs/wallet-standard';
 import { HANEUL_CHAINS } from '@haneullabs/wallet-standard';
-import type { Wallet } from '@haneullabs/wallet-standard';
 
 export class MockWallet implements Wallet {
 	version = '1.0.0' as const;

@@ -1,13 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { CoinMetadata } from '@haneullabs/haneul.js/client';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
+
 import { formatAmount } from '../utils/formatAmount';
-import { useHaneulClient } from '@haneullabs/dapp-kit';
 
 type FormattedCoin = [
 	formattedBalance: string,

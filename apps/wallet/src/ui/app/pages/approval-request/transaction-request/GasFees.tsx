@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useTransactionData, useTransactionGasBudget } from '_src/ui/app/hooks';
+import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
 
 import { DescriptionItem, DescriptionList } from './DescriptionList';
 import { SummaryCard } from './SummaryCard';
-import { useTransactionData, useTransactionGasBudget } from '_src/ui/app/hooks';
-import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 
 interface Props {
 	sender?: string;

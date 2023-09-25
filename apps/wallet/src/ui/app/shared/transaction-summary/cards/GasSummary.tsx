@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { type GasSummaryType, useFormatCoin } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
-
-import { Text } from '../../text';
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { useActiveAddress } from '_src/ui/app/hooks';
 import { GAS_TYPE_ARG } from '_src/ui/app/redux/slices/haneul-objects/Coin';
+import { useFormatCoin, type GasSummaryType } from '@haneullabs/core';
+import { formatAddress } from '@haneullabs/haneul.js/utils';
+
+import { Text } from '../../text';
 
 export function GasSummary({ gasSummary }: { gasSummary?: GasSummaryType }) {
 	const [gas, symbol] = useFormatCoin(gasSummary?.totalGas, GAS_TYPE_ARG);
