@@ -25,8 +25,6 @@ use serde_json::{json, Value};
 use haneul_move::build::resolve_lock_file_path;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
-use haneul_types::{digests::TransactionDigest, metrics::BytecodeVerifierMetrics};
-use haneul_types::{dynamic_field::DynamicFieldInfo, error::HaneulError};
 
 use shared_crypto::intent::Intent;
 use haneul_execution::verifier::VerifierOverrides;
@@ -44,23 +42,27 @@ use haneul_move_build::{
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
-use haneul_types::crypto::SignatureScheme;
-use haneul_types::move_package::UpgradeCap;
-use haneul_types::signature::GenericSignature;
-use haneul_types::transaction::{SenderSignedData, TransactionData, TransactionDataAPI};
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{ObjectID, SequenceNumber, HaneulAddress},
+    crypto::SignatureScheme,
+    digests::TransactionDigest,
+    dynamic_field::DynamicFieldInfo,
+    error::HaneulError,
     gas_coin::GasCoin,
-    object::Owner,
+    metrics::BytecodeVerifierMetrics,
+    move_package::UpgradeCap,
     parse_haneul_type_tag,
-    transaction::Transaction,
+    signature::GenericSignature,
+    transaction::{SenderSignedData, Transaction, TransactionData, TransactionDataAPI},
 };
 
-use tabled::settings::{
-    object::Cell as TableCell, Border as TableBorder, Modify as TableModify, Panel as TablePanel,
-    Style as TableStyle,
+use tabled::{
+    builder::Builder as TableBuilder,
+    settings::{
+        object::Cell as TableCell, style::HorizontalLine, Border as TableBorder,
+        Modify as TableModify, Panel as TablePanel, Style as TableStyle,
+    },
 };
-use tabled::{builder::Builder as TableBuilder, settings::style::HorizontalLine};
 use tracing::info;
 
 macro_rules! serialize_or_execute {
@@ -262,8 +264,8 @@ pub enum HaneulClientCommands {
     /// Obtain all objects owned by the address
     #[clap(name = "objects")]
     Objects {
-        /// Address owning the objects
-        /// Shows all objects owned by `haneul client active-address` if no argument is passed
+        /// Address owning the object. If no address is provided, it will show all
+        /// objects owned by `haneul client active-address`.
         #[clap(name = "owner_address")]
         address: Option<HaneulAddress>,
     },
@@ -1472,6 +1474,18 @@ impl Display for HaneulClientCommandResult {
 
                 write!(f, "{}", table)?
             }
+            HaneulClientCommandResult::Objects(object_refs) => {
+                let objects = ObjectsOutput::from_vec(object_refs.to_vec());
+                match objects {
+                    Ok(objs) => {
+                        let json_obj = json!(objs);
+                        let mut table = json_to_table(&json_obj);
+                        table.with(TableStyle::rounded().horizontals([]));
+                        writeln!(f, "{}", table)?
+                    }
+                    Err(e) => write!(f, "Internal error: {e}")?,
+                }
+            }
             HaneulClientCommandResult::Upgrade(response)
             | HaneulClientCommandResult::Publish(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
@@ -1535,40 +1549,6 @@ impl Display for HaneulClientCommandResult {
             }
             HaneulClientCommandResult::PayAllHaneul(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
-            }
-            HaneulClientCommandResult::Objects(object_refs) => {
-                writeln!(
-                    writer,
-                    " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
-                    "Object ID", "Version", "Digest", "Owner Type", "Object Type"
-                )?;
-                writeln!(writer, "{}", ["-"; 165].join(""))?;
-                for oref in object_refs {
-                    let obj = oref.clone().into_object();
-                    match obj {
-                        Ok(obj) => {
-                            let owner_type = match obj.owner {
-                                Some(Owner::AddressOwner(_)) => "AddressOwner",
-                                Some(Owner::ObjectOwner(_)) => "object_owner",
-                                Some(Owner::Shared { .. }) => "Shared",
-                                Some(Owner::Immutable) => "Immutable",
-                                None => "None",
-                            };
-
-                            writeln!(
-                                writer,
-                                " {0: ^42} | {1: ^10} | {2: ^44} | {3: ^15} | {4: ^40}",
-                                obj.object_id,
-                                obj.version.value(),
-                                Base64::encode(obj.digest),
-                                owner_type,
-                                format!("{:?}", obj.type_)
-                            )?
-                        }
-                        Err(e) => writeln!(writer, "Error: {e:?}")?,
-                    }
-                }
-                writeln!(writer, "Showing {} results.", object_refs.len())?;
             }
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
@@ -1835,6 +1815,48 @@ impl From<&GasCoin> for GasCoinOutput {
             gas_coin_id: *gas_coin.id(),
             gas_balance: gas_coin.value(),
         }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ObjectsOutput {
+    pub object_id: ObjectID,
+    pub version: SequenceNumber,
+    pub digest: String,
+    pub object_type: String,
+}
+
+impl ObjectsOutput {
+    fn from(obj: HaneulObjectResponse) -> Result<Self, anyhow::Error> {
+        let obj = obj.into_object()?;
+        // this replicates the object type display as in the haneul explorer
+        let object_type = match obj.type_ {
+            Some(haneul_types::base_types::ObjectType::Struct(x)) => {
+                let address = x.address().to_string();
+                // check if the address has length of 64 characters
+                // otherwise, keep it as it is
+                let address = if address.len() == 64 {
+                    format!("0x{}..{}", &address[..4], &address[address.len() - 4..])
+                } else {
+                    address
+                };
+                format!("{}::{}::{}", address, x.module(), x.name(),)
+            }
+            Some(haneul_types::base_types::ObjectType::Package) => "Package".to_string(),
+            None => "unknown".to_string(),
+        };
+        Ok(Self {
+            object_id: obj.object_id,
+            version: obj.version,
+            digest: Base64::encode(obj.digest),
+            object_type,
+        })
+    }
+    fn from_vec(objs: Vec<HaneulObjectResponse>) -> Result<Vec<Self>, anyhow::Error> {
+        objs.into_iter()
+            .map(ObjectsOutput::from)
+            .collect::<Result<Vec<_>, _>>()
     }
 }
 
