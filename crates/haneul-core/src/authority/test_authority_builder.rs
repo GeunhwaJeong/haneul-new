@@ -29,7 +29,6 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::{AuthorityName, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::digests::ChainIdentifier;
-use haneul_types::error::HaneulResult;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -122,16 +121,6 @@ impl<'a> TestAuthorityBuilder<'a> {
     pub fn with_expensive_safety_checks(mut self, config: ExpensiveSafetyCheckConfig) -> Self {
         assert!(self.expensive_safety_checks.replace(config).is_none());
         self
-    }
-
-    pub async fn side_load_objects(
-        authority_state: Arc<AuthorityState>,
-        objects: &'a [Object],
-    ) -> HaneulResult {
-        authority_state
-            .database
-            .insert_raw_object_unchecked_for_testing(objects)
-            .await
     }
 
     pub async fn build(self) -> Arc<AuthorityState> {
