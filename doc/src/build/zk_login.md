@@ -161,10 +161,11 @@ In Mainnet, you must configure the client ID (`$CLIENT_ID`) and redirect URL (`$
 ```typescript
 import { generateNonce, generateRandomness } from '@haneullabs/zklogin';
 
-const haneulClient = await getActiveNetworkHaneulClient();
+const FULLNODE_URL = 'https://fullnode.devnet.haneul.io'; // replace with the RPC URL you want to use
+const haneulClient = new HaneulClient({ url: FULLNODE_URL });
 const { epoch, epochDurationMs, epochStartTimestampMs } = await haneulClient.getLatestHaneulSystemState();
 
-const maxEpoch = epoch + 2; // this means the ephemeral key will be active for 2 epochs from now.
+const maxEpoch = Number(epoch) + 2; // this means the ephemeral key will be active for 2 epochs from now.
 const ephemeralKeyPair = new Ed25519Keypair();
 const randomness = generateRandomness();
 const nonce = generateNonce(ephemeralKeyPair.getPublicKey(), maxEpoch, randomness);
