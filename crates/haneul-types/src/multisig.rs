@@ -78,7 +78,17 @@ impl AuthenticatorTrait for MultiSig {
     fn verify_user_authenticator_epoch(&self, _: EpochId) -> Result<(), HaneulError> {
         Ok(())
     }
-
+    fn verify_uncached_checks<T>(
+        &self,
+        _value: &IntentMessage<T>,
+        _author: HaneulAddress,
+        _aux_verify_data: &VerifyParams,
+    ) -> Result<(), HaneulError>
+    where
+        T: Serialize,
+    {
+        Ok(())
+    }
     fn verify_claims<T>(
         &self,
         value: &IntentMessage<T>,

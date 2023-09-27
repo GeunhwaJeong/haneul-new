@@ -3,10 +3,9 @@
 
 use criterion::*;
 
+use criterion::Criterion;
 use haneul_core::signature_verifier::{SignatureVerifierMetrics, VerifiedDigestCache};
 use haneul_types::digests::CertificateDigest;
-
-use criterion::Criterion;
 
 fn verified_cert_cache_bench(c: &mut Criterion) {
     let mut digests: Vec<_> = (0..(1 << 18))
