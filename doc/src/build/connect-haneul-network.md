@@ -41,7 +41,7 @@ See the [Haneul Releases](https://github.com/GeunhwaJeong/haneul/releases) page 
 
 ## Configure Haneul client
 
-If you previously ran `haneul genesis` to create a local network, it created a Haneul client configuration file (client.yaml) that connects to `localhost` at `http://0.0.0.0:9000`. See [Connect to custom RPC endpoint](#connect-to-custom-rpc-endpoint) to update the client.yaml file.
+If you previously ran `haneul genesis` to create a local network, it created a Haneul client configuration file (client.yaml) that connects to `localhost` at `http://0.0.0.0:9000`. See [Connect to a custom RPC endpoint](#connect-to-a-custom-rpc-endpoint) to update the client.yaml file.
 
 To connect the Haneul client to a network, run the following command:
 
@@ -49,7 +49,7 @@ To connect the Haneul client to a network, run the following command:
 haneul client
 ```
 
-If you receive the `haneul-client` help output in the console, you already have a client.yaml file. See [Connect to custom RPC endpoint](#connect-to-custom-rpc-endpoint) to add a new environment alias or to switch the currently active network.
+If you receive the `haneul-client` help output in the console, you already have a client.yaml file. See [Connect to a custom RPC endpoint](#connect-to-a-custom-rpc-endpoint) to add a new environment alias or to switch the currently active network.
 
 The first time you start Haneul client without having a client.yaml file, the console displays the following message:
 
