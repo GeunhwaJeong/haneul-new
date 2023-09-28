@@ -10401,6 +10401,7 @@ dependencies = [
  "haneul-keys",
  "haneul-move-build",
  "haneul-open-rpc",
+ "haneul-protocol-config",
  "haneul-rest-api",
  "haneul-sdk",
  "haneul-test-transaction-builder",
