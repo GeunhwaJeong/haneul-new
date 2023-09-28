@@ -6,6 +6,7 @@ import {
 	any,
 	array,
 	assign,
+	bigint,
 	boolean,
 	is,
 	literal,
@@ -32,7 +33,7 @@ export const HaneulObjectRef = object({
 	/** Hex code as string representing the object id */
 	objectId: string(),
 	/** Object version */
-	version: union([number(), string()]),
+	version: union([number(), string(), bigint()]),
 });
 export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
 
@@ -284,7 +285,7 @@ export function getObjectId(data: HaneulObjectResponse | HaneulObjectRef | Owned
 
 export function getObjectVersion(
 	data: HaneulObjectResponse | HaneulObjectRef | HaneulObjectData,
-): string | number | undefined {
+): string | number | bigint | undefined {
 	if ('version' in data) {
 		return data.version;
 	}

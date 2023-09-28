@@ -4,10 +4,10 @@
 import type { Infer } from 'superstruct';
 import { array, boolean, integer, object, string, union } from 'superstruct';
 
+import { bcs } from '../bcs/index.js';
 import type { SharedObjectRef } from '../bcs/index.js';
 import { HaneulObjectRef } from '../types/index.js';
 import { normalizeHaneulAddress } from '../utils/haneul-types.js';
-import { builder } from './bcs.js';
 
 const ObjectArg = union([
 	object({ ImmOrOwned: HaneulObjectRef }),
@@ -35,7 +35,7 @@ export const Inputs = {
 				data instanceof Uint8Array
 					? data
 					: // NOTE: We explicitly set this to be growable to infinity, because we have maxSize validation at the builder-level:
-					  builder.ser(type!, data, { maxSize: Infinity }).toBytes(),
+					  bcs.ser(type!, data, { maxSize: Infinity }).toBytes(),
 			),
 		};
 	},
