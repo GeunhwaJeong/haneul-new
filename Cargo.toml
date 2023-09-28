@@ -70,6 +70,7 @@ exclude = [
 
 members = [
     "crates/anemo-benchmark",
+    "crates/data-transform",
     "crates/haneullabs-common",
     "crates/haneullabs-metrics",
     "crates/haneullabs-network",
