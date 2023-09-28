@@ -5,7 +5,7 @@ import { Text } from '_app/shared/text';
 import { IconTooltip } from '_app/shared/tooltip';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { roundFloat, useGetValidatorsApy } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { useMemo } from 'react';
 
 const APY_DECIMALS = 3;
@@ -15,7 +15,7 @@ type DelegatedAPYProps = {
 };
 
 export function DelegatedAPY({ stakedValidators }: DelegatedAPYProps) {
-	const { data, isLoading } = useLatestHaneulSystemState();
+	const { data, isLoading } = useHaneulClientQuery('getLatestHaneulSystemState');
 	const { data: rollingAverageApys } = useGetValidatorsApy();
 
 	const averageNetworkAPY = useMemo(() => {

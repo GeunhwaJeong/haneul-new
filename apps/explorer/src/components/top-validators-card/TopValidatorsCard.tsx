@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
@@ -105,7 +105,7 @@ type TopValidatorsCardProps = {
 };
 
 export function TopValidatorsCard({ limit, showIcon }: TopValidatorsCardProps) {
-	const { data, isLoading, isSuccess, isError } = useLatestHaneulSystemState();
+	const { data, isLoading, isSuccess, isError } = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const tableData = useMemo(
 		() => (data ? validatorsTable(data.activeValidators, limit, showIcon) : null),

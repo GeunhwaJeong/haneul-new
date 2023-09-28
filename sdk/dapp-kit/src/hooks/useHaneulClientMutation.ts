@@ -13,11 +13,7 @@ export type UseHaneulClientMutationOptions<T extends keyof HaneulRpcMethods> = O
 >;
 
 export function useHaneulClientMutation<T extends keyof HaneulRpcMethods>(
-	{
-		method,
-	}: {
-		method: T;
-	},
+	method: T,
 	options: UseHaneulClientMutationOptions<T> = {},
 ) {
 	const haneulContext = useHaneulClientContext();

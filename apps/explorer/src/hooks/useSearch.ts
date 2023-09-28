@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
-import { useLatestHaneulSystemState, useHaneulClient } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery, useHaneulClient } from '@haneullabs/dapp-kit';
 import { type HaneulClient, type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import {
 	isValidTransactionDigest,
@@ -125,7 +125,7 @@ const getResultsForValidatorByPoolIdOrHaneulAddress = async (
 
 export function useSearch(query: string) {
 	const client = useHaneulClient();
-	const { data: systemStateSummery } = useLatestHaneulSystemState();
+	const { data: systemStateSummery } = useHaneulClientQuery('getLatestHaneulSystemState');
 	const haneulNSEnabled = useHaneulNSEnabled();
 
 	return useQuery({

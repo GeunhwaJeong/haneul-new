@@ -10,7 +10,7 @@ import { type ZkProvider } from '_src/background/accounts/zk/providers';
 import { entropyToSerialized, mnemonicToEntropy } from '_src/shared/utils/bip39';
 import { Popover } from '@headlessui/react';
 import { useFormatCoin } from '@haneullabs/core';
-import { useBalance } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { TransactionBlock } from '@haneullabs/haneul.js/builder';
 import { type ExportedKeypair } from '@haneullabs/haneul.js/cryptography';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/framework';
@@ -325,7 +325,8 @@ function Account({ account }: { account: SerializedUIAccount }) {
 			toast.success(JSON.stringify(result, null, 2));
 		},
 	});
-	const { data: coinBalance } = useBalance(
+	const { data: coinBalance } = useHaneulClientQuery(
+		'getBalance',
 		{ coinType: HANEUL_TYPE_ARG, owner: account.address },
 		{ refetchInterval: 5000 },
 	);

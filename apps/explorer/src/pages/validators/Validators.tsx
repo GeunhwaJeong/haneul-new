@@ -8,7 +8,7 @@ import {
 	useGetValidatorsEvents,
 	formatPercentageDisplay,
 } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { type HaneulEvent, type HaneulValidatorSummary } from '@haneullabs/haneul.js/client';
 import { Heading, Text } from '@haneullabs/ui';
 import { lazy, Suspense, useMemo } from 'react';
@@ -225,7 +225,7 @@ export function validatorsTableData(
 }
 
 function ValidatorPageResult() {
-	const { data, isLoading, isSuccess, isError } = useLatestHaneulSystemState();
+	const { data, isLoading, isSuccess, isError } = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const numberOfValidators = data?.activeValidators.length || 0;
 

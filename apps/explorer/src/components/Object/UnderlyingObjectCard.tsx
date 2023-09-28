@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useDynamicFieldObject, useNormalizedMoveStruct } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { LoadingIndicator } from '@haneullabs/ui';
 
 import { FieldItem } from './FieldItem';
@@ -20,7 +20,10 @@ export function UnderlyingObjectCard({
 	name,
 	dynamicFieldType,
 }: UnderlyingObjectCardProps) {
-	const { data, isLoading, isError, isFetched } = useDynamicFieldObject({ parentId, name });
+	const { data, isLoading, isError, isFetched } = useHaneulClientQuery('getDynamicFieldObject', {
+		parentId,
+		name,
+	});
 	const objectType =
 		data?.data?.type ??
 		(data?.data?.content?.dataType === 'package' ? 'package' : data?.data?.content?.type) ??
@@ -33,7 +36,7 @@ export function UnderlyingObjectCard({
 		data: normalizedStruct,
 		isFetched: normalizedStructFetched,
 		isLoading: loadingNormalizedStruct,
-	} = useNormalizedMoveStruct({
+	} = useHaneulClientQuery('getNormalizedMoveStruct', {
 		package: packageId,
 		module: moduleName,
 		struct: functionName,

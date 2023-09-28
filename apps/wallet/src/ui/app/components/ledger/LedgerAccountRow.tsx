@@ -3,7 +3,7 @@
 
 import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin, useResolveHaneulNSName } from '@haneullabs/core';
-import { useBalance } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { CheckFill16 } from '@haneullabs/icons';
 import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import cl from 'classnames';
@@ -18,7 +18,8 @@ type LedgerAccountRowProps = {
 export function LedgerAccountRow({ isSelected, address }: LedgerAccountRowProps) {
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
 
-	const { data: coinBalance } = useBalance(
+	const { data: coinBalance } = useHaneulClientQuery(
+		'getBalance',
 		{
 			coinType: HANEUL_TYPE_ARG,
 			owner: address,

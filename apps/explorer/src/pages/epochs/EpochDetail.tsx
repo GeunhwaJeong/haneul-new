@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useFormatCoin } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { LoadingIndicator } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -40,7 +40,7 @@ function HaneulStats({
 export default function EpochDetail() {
 	const { id } = useParams();
 	const enhancedRpc = useEnhancedRpcClient();
-	const { data: systemState } = useLatestHaneulSystemState();
+	const { data: systemState } = useHaneulClientQuery('getLatestHaneulSystemState');
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['epoch', id],
 		queryFn: async () =>

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestHaneulSystemState, useRpcApiVersion } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { useContext } from 'react';
 
 import { NetworkContext } from '../../context';
@@ -11,8 +11,8 @@ import { ampli } from '~/utils/analytics/ampli';
 
 export default function WrappedNetworkSelect() {
 	const [network, setNetwork] = useContext(NetworkContext);
-	const { data } = useLatestHaneulSystemState();
-	const { data: binaryVersion } = useRpcApiVersion({});
+	const { data } = useHaneulClientQuery('getLatestHaneulSystemState');
+	const { data: binaryVersion } = useHaneulClientQuery('getRpcApiVersion');
 
 	const networks = [
 		{ id: Network.MAINNET, label: 'Mainnet' },

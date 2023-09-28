@@ -8,7 +8,7 @@ import { Text } from '_app/shared/text';
 import Alert from '_components/alert';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
 import { ampli } from '_src/shared/analytics/ampli';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Plus12 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
 import { useMemo } from 'react';
@@ -28,7 +28,7 @@ export function ValidatorsCard() {
 		error,
 	} = useGetDelegatedStake(accountAddress || '');
 
-	const { data: system } = useLatestHaneulSystemState();
+	const { data: system } = useHaneulClientQuery('getLatestHaneulSystemState');
 	const activeValidators = system?.activeValidators;
 
 	// Total active stake for all Staked validators

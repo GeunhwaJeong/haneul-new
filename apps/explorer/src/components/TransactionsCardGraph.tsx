@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { formatAmount, formatDate } from '@haneullabs/core';
-import { useHaneulClient, useTotalTransactionBlocks } from '@haneullabs/dapp-kit';
+import { useHaneulClient, useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Heading, Text, LoadingIndicator } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
 import { ParentSize } from '@visx/responsive';
@@ -64,7 +64,8 @@ function useEpochTransactions() {
 }
 
 export function TransactionsCardGraph() {
-	const { data: totalTransactions } = useTotalTransactionBlocks(
+	const { data: totalTransactions } = useHaneulClientQuery(
+		'getTotalTransactionBlocks',
 		{},
 		{
 			cacheTime: 24 * 60 * 60 * 1000,

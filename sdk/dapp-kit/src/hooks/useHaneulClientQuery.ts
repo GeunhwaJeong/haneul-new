@@ -24,7 +24,7 @@ export type HaneulRpcMethods = {
 		? {
 				name: K;
 				result: R;
-				params: undefined;
+				params: undefined | object;
 		  }
 		: never;
 };
@@ -35,20 +35,21 @@ export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods> = Omit
 >;
 
 export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
-	{
-		method,
-		params,
-	}: {
-		method: T;
-		params: HaneulRpcMethods[T]['params'];
-	},
-	{ queryKey, enabled = !!params, ...options }: UseHaneulClientQueryOptions<T> = {},
+	...args: undefined extends HaneulRpcMethods[T]['params']
+		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
+		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
 ) {
+	const [method, params, { queryKey = [], enabled = !!params, ...options } = {}] = args as [
+		method: T,
+		params?: HaneulRpcMethods[T]['params'],
+		options?: UseHaneulClientQueryOptions<T>,
+	];
+
 	const haneulContext = useHaneulClientContext();
 
 	return useQuery({
 		...options,
-		queryKey: [haneulContext.network, method, params],
+		queryKey: [haneulContext.network, method, params, ...queryKey],
 		enabled,
 		queryFn: async () => {
 			return await haneulContext.client[method](params as never);

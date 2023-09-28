@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getCoinSymbol } from '@haneullabs/core';
-import { useAllBalances } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Info16 } from '@haneullabs/icons';
 import { type CoinBalance } from '@haneullabs/haneul.js/client';
 import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
@@ -27,7 +27,9 @@ export function OwnedCoins({ id }: { id: string }) {
 	const [currentSlice, setCurrentSlice] = useState(1);
 	const [limit, setLimit] = useState(20);
 	const [filterValue, setFilterValue] = useState(COIN_FILTERS.RECOGNIZED);
-	const { isLoading, data, isError } = useAllBalances({ owner: normalizeHaneulAddress(id) });
+	const { isLoading, data, isError } = useHaneulClientQuery('getAllBalances', {
+		owner: normalizeHaneulAddress(id),
+	});
 	const recognizedPackages = useRecognizedPackages();
 
 	const balances: Record<COIN_FILTERS, CoinBalanceVerified[]> = useMemo(() => {

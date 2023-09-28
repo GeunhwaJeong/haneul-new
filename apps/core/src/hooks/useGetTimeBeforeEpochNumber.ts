@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 
 // Get time between current epoch and specified epoch
 // Get the period between the current epoch and next epoch
 export function useGetTimeBeforeEpochNumber(epoch: number) {
-	const data = useLatestHaneulSystemState();
+	const data = useHaneulClientQuery('getLatestHaneulSystemState');
 	// Current epoch
 	const currentEpoch = Number(data.data?.epoch || 0);
 	const currentEpochStartTime = Number(data.data?.epochStartTimestampMs || 0);

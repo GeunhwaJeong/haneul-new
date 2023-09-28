@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useAppsBackend } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Heading, Text, Placeholder } from '@haneullabs/ui';
 import { useQuery } from '@tanstack/react-query';
 import { ParentSize } from '@visx/responsive';
@@ -39,7 +39,8 @@ interface Props {
 // NOTE: This component is lazy imported, so it needs to be default exported:
 export default function ValidatorMap({ minHeight }: Props) {
 	const [network] = useNetwork();
-	const { data: systemState, isError: systemStateError } = useLatestHaneulSystemState();
+	const { data: systemState, isError: systemStateError } =
+		useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const { request } = useAppsBackend();
 

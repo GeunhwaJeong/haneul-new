@@ -15,7 +15,7 @@ import { API_ENV } from '_src/shared/api-env';
 import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
 import { useCoinMetadata, useGetValidatorsApy } from '@haneullabs/core';
-import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
 import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
@@ -38,7 +38,7 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 		data: system,
 		isLoading: loadingValidators,
 		isError: errorValidators,
-	} = useLatestHaneulSystemState();
+	} = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const accountAddress = useActiveAddress();
 
@@ -46,7 +46,8 @@ export function DelegationDetailCard({ validatorAddress, stakedId }: DelegationD
 
 	const apiEnv = useAppSelector(({ app }) => app.apiEnv);
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: haneulCoinBalance } = useBalance(
+	const { data: haneulCoinBalance } = useHaneulClientQuery(
+		'getBalance',
 		{ coinType: HANEUL_TYPE_ARG, owner: accountAddress!! },
 		{ refetchInterval, staleTime, enabled: !!accountAddress },
 	);

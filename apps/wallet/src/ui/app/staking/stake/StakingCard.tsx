@@ -14,7 +14,7 @@ import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
 import { FEATURES } from '_src/shared/experimentation/features';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { useCoinMetadata } from '@haneullabs/core';
-import { useBalance, useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowLeft16 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
 import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
@@ -52,7 +52,8 @@ function StakingCard() {
 	const activeAccount = useActiveAccount();
 	const accountAddress = activeAccount?.address;
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: haneulBalance, isLoading: loadingHaneulBalances } = useBalance(
+	const { data: haneulBalance, isLoading: loadingHaneulBalances } = useHaneulClientQuery(
+		'getBalance',
 		{ coinType: HANEUL_TYPE_ARG, owner: accountAddress! },
 		{ refetchInterval, staleTime, enabled: !!accountAddress },
 	);
@@ -66,7 +67,8 @@ function StakingCard() {
 		FEATURES.WALLET_EFFECTS_ONLY_SHARED_TRANSACTION as string,
 	);
 
-	const { data: system, isLoading: validatorsIsloading } = useLatestHaneulSystemState();
+	const { data: system, isLoading: validatorsIsloading } =
+		useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const totalTokenBalance = useMemo(() => {
 		if (!allDelegation) return 0n;

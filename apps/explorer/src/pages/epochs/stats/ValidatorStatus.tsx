@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { getRefGasPrice } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Heading, Text } from '@haneullabs/ui';
 import { useMemo } from 'react';
 
@@ -9,7 +9,7 @@ import { Card } from '~/ui/Card';
 import { RingChart, RingChartLegend } from '~/ui/RingChart';
 
 export function ValidatorStatus() {
-	const { data } = useLatestHaneulSystemState();
+	const { data } = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const nextRefGasPrice = useMemo(
 		() => getRefGasPrice(data?.activeValidators),

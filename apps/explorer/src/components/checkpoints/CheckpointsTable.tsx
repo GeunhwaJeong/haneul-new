@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestCheckpointSequenceNumber } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { Text } from '@haneullabs/ui';
 import { useMemo, useState } from 'react';
@@ -32,7 +32,7 @@ export function CheckpointsTable({
 }: Props) {
 	const [limit, setLimit] = useState(initialLimit);
 
-	const countQuery = useLatestCheckpointSequenceNumber();
+	const countQuery = useHaneulClientQuery('getLatestCheckpointSequenceNumber');
 
 	const checkpoints = useGetCheckpoints(initialCursor, limit);
 

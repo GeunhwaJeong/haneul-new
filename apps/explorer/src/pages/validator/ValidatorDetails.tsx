@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useGetValidatorsApy, useGetValidatorsEvents } from '@haneullabs/core';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { type HaneulSystemStateSummary } from '@haneullabs/haneul.js/client';
 import { LoadingIndicator, Text } from '@haneullabs/ui';
 import React, { useMemo } from 'react';
@@ -26,7 +26,7 @@ const getAtRiskRemainingEpochs = (
 
 function ValidatorDetails() {
 	const { id } = useParams();
-	const { data, isLoading } = useLatestHaneulSystemState();
+	const { data, isLoading } = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const validatorData = useMemo(() => {
 		if (!data) return null;

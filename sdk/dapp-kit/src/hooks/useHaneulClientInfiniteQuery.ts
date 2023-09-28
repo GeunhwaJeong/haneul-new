@@ -43,20 +43,15 @@ export type UseHaneulClientInfiniteQueryOptions<T extends keyof HaneulRpcPaginat
 >;
 
 export function useHaneulClientInfiniteQuery<T extends keyof HaneulRpcPaginatedMethods>(
-	{
-		method,
-		params,
-	}: {
-		method: T;
-		params: HaneulRpcPaginatedMethods[T]['params'];
-	},
-	{ queryKey, enabled = !!params, ...options }: UseHaneulClientInfiniteQueryOptions<T> = {},
+	method: T,
+	params: HaneulRpcPaginatedMethods[T]['params'],
+	{ queryKey = [], enabled = !!params, ...options }: UseHaneulClientInfiniteQueryOptions<T> = {},
 ) {
 	const haneulContext = useHaneulClientContext();
 
 	return useInfiniteQuery({
 		...options,
-		queryKey: [haneulContext.network, method, params],
+		queryKey: [haneulContext.network, method, params, ...queryKey],
 		enabled,
 		queryFn: async () => {
 			return await haneulContext.client[method](params as never);

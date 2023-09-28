@@ -19,7 +19,7 @@ import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
 import PageTitle from '_src/ui/app/shared/PageTitle';
 import { useFeature } from '@growthbook/growthbook-react';
 import { useAppsBackend, useResolveHaneulNSName } from '@haneullabs/core';
-import { useAllBalances, useBalance } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Info12, Pin16, Unpin16 } from '@haneullabs/icons';
 import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
 import { Coin } from '@haneullabs/haneul.js/framework';
@@ -167,7 +167,8 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 		isError,
 		isLoading,
 		isFetched,
-	} = useBalance(
+	} = useHaneulClientQuery(
+		'getBalance',
 		{ coinType: activeCoinType, owner: activeAccountAddress! },
 		{ enabled: !!activeAccountAddress, refetchInterval, staleTime },
 	);
@@ -189,7 +190,8 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 		data: coinBalances,
 		isLoading: coinBalancesLoading,
 		isFetched: coinBalancesFetched,
-	} = useAllBalances(
+	} = useHaneulClientQuery(
+		'getAllBalances',
 		{ owner: activeAccountAddress! },
 		{
 			enabled: !!activeAccountAddress,

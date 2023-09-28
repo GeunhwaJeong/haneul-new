@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useLatestHaneulSystemState, useHaneulClient } from '@haneullabs/dapp-kit';
+import { useHaneulClient, useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { useQuery } from '@tanstack/react-query';
 
 import { roundFloat } from '../utils/roundFloat';
@@ -24,7 +24,7 @@ const MINIMUM_THRESHOLD = 0.001;
 
 export function useGetValidatorsApy() {
 	const client = useHaneulClient();
-	const { data: systemStateResponse, isFetched } = useLatestHaneulSystemState();
+	const { data: systemStateResponse, isFetched } = useHaneulClientQuery('getLatestHaneulSystemState');
 	return useQuery({
 		queryKey: ['get-rolling-average-apys'],
 		queryFn: () => client.getValidatorsApy(),

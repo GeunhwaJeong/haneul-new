@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useGetDynamicFields, useGetObject } from '@haneullabs/core';
-import { useNormalizedMoveStruct } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import { Heading } from '@haneullabs/ui';
 import { type ReactNode, useState } from 'react';
@@ -41,7 +41,8 @@ function useObjectFieldsCard(id: string) {
 		data: normalizedStructData,
 		isLoading: loadingNormalizedStruct,
 		isError: errorNormalizedMoveStruct,
-	} = useNormalizedMoveStruct(
+	} = useHaneulClientQuery(
+		'getNormalizedMoveStruct',
 		{
 			package: packageId,
 			module: moduleName,

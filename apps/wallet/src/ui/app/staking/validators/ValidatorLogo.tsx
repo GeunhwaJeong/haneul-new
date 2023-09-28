@@ -4,7 +4,7 @@ import { Heading } from '_app/shared/heading';
 import { ImageIcon } from '_app/shared/image-icon';
 import { Text } from '_app/shared/text';
 import { Badge } from '_src/ui/app/shared/Badge';
-import { useLatestHaneulSystemState } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
 import cl from 'classnames';
 import { useMemo } from 'react';
@@ -30,7 +30,7 @@ export function ValidatorLogo({
 	showActiveStatus = false,
 	activeEpoch,
 }: ValidatorLogoProps) {
-	const { data, isLoading } = useLatestHaneulSystemState();
+	const { data, isLoading } = useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const validatorMeta = useMemo(() => {
 		if (!data) return null;

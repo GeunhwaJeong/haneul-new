@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { CoinFormat, formatBalance } from '@haneullabs/core';
-import { useReferenceGasPrice } from '@haneullabs/dapp-kit';
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Heading } from '@haneullabs/ui';
 
 import { FormattedStatsAmount, StatsWrapper } from './FormattedStatsAmount';
@@ -12,7 +12,7 @@ import { Divider } from '~/ui/Divider';
 
 export function OnTheNetwork() {
 	const { data: networkMetrics } = useGetNetworkMetrics();
-	const { data: referenceGasPrice } = useReferenceGasPrice();
+	const { data: referenceGasPrice } = useHaneulClientQuery('getReferenceGasPrice');
 	const gasPriceFormatted =
 		typeof referenceGasPrice === 'bigint'
 			? formatBalance(referenceGasPrice, 0, CoinFormat.FULL)
