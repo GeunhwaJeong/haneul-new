@@ -51,7 +51,8 @@
 			"@haneullabs/dapp-kit": ["../../sdk/dapp-kit/src/"],
 			"@haneullabs/ledgerjs-hw-app-haneul": ["../../sdk/ledgerjs-hw-app-haneul/src/Haneul.ts"],
 			"@haneullabs/wallet-standard": ["../../sdk/wallet-standard/src/"],
-			"@haneullabs/zklogin": ["../../sdk/zklogin/src/"]
+			"@haneullabs/zklogin": ["../../sdk/zklogin/src/"],
+			"@haneullabs/deepbook": ["../../sdk/deepbook/src/"]
 		}
 	},
 	"include": ["../../src", "../../tests"],

@@ -567,6 +567,9 @@ importers:
       '@haneullabs/dapp-kit':
         specifier: workspace:*
         version: link:../../sdk/dapp-kit
+      '@haneullabs/deepbook':
+        specifier: workspace:*
+        version: link:../../sdk/deepbook
       '@haneullabs/icons':
         specifier: workspace:*
         version: link:../icons
