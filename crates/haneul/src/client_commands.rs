@@ -30,8 +30,9 @@ use shared_crypto::intent::Intent;
 use haneul_execution::verifier::VerifierOverrides;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    DynamicFieldPage, HaneulData, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    DynamicFieldPage, HaneulData, HaneulObjectData, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulParsedData, HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
@@ -51,6 +52,7 @@ use haneul_types::{
     gas_coin::GasCoin,
     metrics::BytecodeVerifierMetrics,
     move_package::UpgradeCap,
+    object::Owner,
     parse_haneul_type_tag,
     signature::GenericSignature,
     transaction::{SenderSignedData, Transaction, TransactionData, TransactionDataAPI},
@@ -1474,6 +1476,16 @@ impl Display for HaneulClientCommandResult {
 
                 write!(f, "{}", table)?
             }
+            HaneulClientCommandResult::Object(object_read) => match object_read.object() {
+                Ok(obj) => {
+                    let object = ObjectOutput::from(obj);
+                    let json_obj = json!(&object);
+                    let mut table = json_to_table(&json_obj);
+                    table.with(TableStyle::rounded().horizontals([]));
+                    writeln!(f, "{}", table)?
+                }
+                Err(e) => writeln!(f, "Internal error, cannot read the object: {e}")?,
+            },
             HaneulClientCommandResult::Objects(object_refs) => {
                 let objects = ObjectsOutput::from_vec(object_refs.to_vec());
                 match objects {
@@ -1489,10 +1501,6 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::Upgrade(response)
             | HaneulClientCommandResult::Publish(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
-            }
-            HaneulClientCommandResult::Object(object_read) => {
-                let object = unwrap_err_to_string(|| Ok(object_read.object()?));
-                writeln!(writer, "{}", object)?;
             }
             HaneulClientCommandResult::TransactionBlock(response) => {
                 write!(writer, "{}", write_transaction_response(response)?)?;
@@ -1800,6 +1808,49 @@ pub struct NewAddressOutput {
     pub address: HaneulAddress,
     pub key_scheme: SignatureScheme,
     pub recovery_phrase: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ObjectOutput {
+    pub object_id: ObjectID,
+    pub version: SequenceNumber,
+    pub digest: String,
+    pub obj_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prev_tx: Option<TransactionDigest>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub storage_rebate: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<HaneulParsedData>,
+}
+
+impl From<&HaneulObjectData> for ObjectOutput {
+    fn from(obj: &HaneulObjectData) -> Self {
+        let owner_type = match obj.owner {
+            Some(Owner::AddressOwner(_)) => Some("AddressOwner".to_string()),
+            Some(Owner::ObjectOwner(_)) => Some("ObjectOwner".to_string()),
+            Some(Owner::Shared { .. }) => Some("Shared".to_string()),
+            Some(Owner::Immutable) => Some("Immutable".to_string()),
+            None => None,
+        };
+        let obj_type = match obj.type_.as_ref() {
+            Some(x) => x.to_string(),
+            None => "unknown".to_string(),
+        };
+        Self {
+            object_id: obj.object_id,
+            version: obj.version,
+            digest: obj.digest.to_string(),
+            obj_type,
+            owner_type,
+            prev_tx: obj.previous_transaction,
+            storage_rebate: obj.storage_rebate,
+            content: obj.content.clone(),
+        }
+    }
 }
 
 #[derive(Serialize)]
