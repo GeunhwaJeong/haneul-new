@@ -39,7 +39,7 @@ export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
 		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
 		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
 ) {
-	const [method, params, { queryKey = [], enabled = !!params, ...options } = {}] = args as [
+	const [method, params, { queryKey = [], ...options } = {}] = args as [
 		method: T,
 		params?: HaneulRpcMethods[T]['params'],
 		options?: UseHaneulClientQueryOptions<T>,
@@ -50,7 +50,6 @@ export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
 	return useQuery({
 		...options,
 		queryKey: [haneulContext.network, method, params, ...queryKey],
-		enabled,
 		queryFn: async () => {
 			return await haneulContext.client[method](params as never);
 		},
