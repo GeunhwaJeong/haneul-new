@@ -5,10 +5,10 @@ import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import type { IdentifierRecord, ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 import { getWallets } from '@haneullabs/wallet-standard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HaneulClientProvider } from 'dapp-kit/src';
-import { WalletProvider } from 'dapp-kit/src/components/WalletProvider.js';
 import type { ComponentProps } from 'react';
 
+import { WalletProvider } from '../src/components/WalletProvider.js';
+import { HaneulClientProvider } from '../src/index.js';
 import { createMockAccount } from './mocks/mockAccount.js';
 import { MockWallet } from './mocks/mockWallet.js';
 

@@ -5,10 +5,10 @@ import { HaneulClient } from '@haneullabs/haneul.js/client';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useHaneulClient, useHaneulClientContext } from 'dapp-kit/src';
 import { useState } from 'react';
 
 import { HaneulClientProvider } from '../../src/components/HaneulClientProvider.js';
+import { useHaneulClient, useHaneulClientContext } from '../../src/index.js';
 
 describe('HaneulClientProvider', () => {
 	it('renders without crashing', () => {
