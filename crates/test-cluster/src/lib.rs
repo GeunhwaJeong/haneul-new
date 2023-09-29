@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use futures::future::join_all;
+use futures::{future::join_all, StreamExt};
 use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use jsonrpsee::ws_client::WsClient;
 use jsonrpsee::ws_client::WsClientBuilder;
@@ -17,7 +17,9 @@ use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_json_rpc_types::HaneulTransactionBlockResponse;
+use haneul_json_rpc_types::{
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, TransactionFilter,
+};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
@@ -46,7 +48,7 @@ use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::transaction::{Transaction, TransactionData};
+use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
 use tokio::time::{timeout, Instant};
 use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
@@ -402,6 +404,34 @@ impl TestCluster {
             })
             .await;
         }
+    }
+
+    pub async fn wait_for_authenticator_state_update(&self) {
+        timeout(
+            Duration::from_secs(60),
+            self.fullnode_handle.haneul_node.with_async(|node| async move {
+                let mut txns = node.state().subscription_handler.subscribe_transactions(
+                    TransactionFilter::ChangedObject(ObjectID::from_hex_literal("0x7").unwrap()),
+                );
+                let state = node.state();
+
+                while let Some(tx) = txns.next().await {
+                    let digest = *tx.transaction_digest();
+                    let tx = state
+                        .database
+                        .get_transaction_block(&digest)
+                        .unwrap()
+                        .unwrap();
+                    match &tx.data().intent_message().value.kind() {
+                        TransactionKind::EndOfEpochTransaction(_) => (),
+                        TransactionKind::AuthenticatorStateUpdate(_) => break,
+                        _ => panic!("{:?}", tx),
+                    }
+                }
+            }),
+        )
+        .await
+        .expect("Timed out waiting for authenticator state update");
     }
 
     pub async fn test_transaction_builder(&self) -> TestTransactionBuilder {
