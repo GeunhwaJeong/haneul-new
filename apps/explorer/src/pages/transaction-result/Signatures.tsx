@@ -16,32 +16,43 @@ import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
 import { AddressLink } from '~/ui/InternalLink';
 import { TabHeader } from '~/ui/Tabs';
 
-interface SignaturePubkeyPair {
+type SignaturePubkeyPair = {
 	signatureScheme: SignatureScheme;
-	publicKey: PublicKey;
 	signature: Uint8Array;
-}
+} & ({ address: string } | { publicKey: PublicKey });
 
-function SignaturePanel({ title, signature }: { title: string; signature: SignaturePubkeyPair }) {
+function SignaturePanel({
+	title,
+	signature: data,
+}: {
+	title: string;
+	signature: SignaturePubkeyPair;
+}) {
+	const { signature, signatureScheme } = data;
 	return (
 		<TabHeader title={title}>
 			<DescriptionList>
 				<DescriptionItem title="Scheme" align="start" labelWidth="sm">
 					<Text variant="pBody/medium" color="steel-darker">
-						{signature.signatureScheme}
+						{signatureScheme}
 					</Text>
 				</DescriptionItem>
 				<DescriptionItem title="Address" align="start" labelWidth="sm">
-					<AddressLink noTruncate address={signature.publicKey.toHaneulAddress()} />
+					<AddressLink
+						noTruncate
+						address={'address' in data ? data.address : data.publicKey.toHaneulAddress()}
+					/>
 				</DescriptionItem>
-				<DescriptionItem title="Haneul Public Key" align="start" labelWidth="sm">
-					<Text variant="pBody/medium" color="steel-darker">
-						{signature.publicKey.toHaneulPublicKey()}
-					</Text>
-				</DescriptionItem>
+				{'publicKey' in data ? (
+					<DescriptionItem title="Haneul Public Key" align="start" labelWidth="sm">
+						<Text variant="pBody/medium" color="steel-darker">
+							{data.publicKey.toHaneulPublicKey()}
+						</Text>
+					</DescriptionItem>
+				) : null}
 				<DescriptionItem title="Signature" align="start" labelWidth="sm">
 					<Text variant="pBody/medium" color="steel-darker">
-						{toB64(signature.signature)}
+						{toB64(signature)}
 					</Text>
 				</DescriptionItem>
 			</DescriptionList>
@@ -51,7 +62,9 @@ function SignaturePanel({ title, signature }: { title: string; signature: Signat
 
 function getSignatureFromAddress(signatures: SignaturePubkeyPair[], haneulAddress: string) {
 	return signatures.find(
-		(signature) => signature.publicKey.toHaneulAddress() === normalizeHaneulAddress(haneulAddress),
+		(signature) =>
+			('address' in signature ? signature.address : signature.publicKey.toHaneulAddress()) ===
+			normalizeHaneulAddress(haneulAddress),
 	);
 }
 
@@ -60,7 +73,9 @@ function getSignaturesExcludingAddress(
 	haneulAddress: string,
 ): SignaturePubkeyPair[] {
 	return signatures.filter(
-		(signature) => signature.publicKey.toHaneulAddress() !== normalizeHaneulAddress(haneulAddress),
+		(signature) =>
+			('address' in signature ? signature.address : signature.publicKey.toHaneulAddress()) !==
+			normalizeHaneulAddress(haneulAddress),
 	);
 }
 interface Props {
@@ -79,9 +94,15 @@ export function Signatures({ transaction }: Props) {
 	const deserializedTransactionSignatures = transactionSignatures
 		.map((signature) => {
 			const parsed = parseSerializedSignature(signature);
-
 			if (parsed.signatureScheme === 'MultiSig') {
 				return parsePartialSignatures(parsed.multisig);
+			}
+			if (parsed.signatureScheme === 'ZkLogin') {
+				return {
+					signatureScheme: parsed.signatureScheme,
+					address: parsed.zkLogin.address,
+					signature: parsed.bytes,
+				};
 			}
 
 			return {
