@@ -9,6 +9,7 @@ use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::{TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::error::HaneulError;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -16,8 +17,9 @@ use haneul_types::messages_checkpoint::EndOfEpochData;
 use haneul_types::messages_checkpoint::FullCheckpointContents;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
-use haneul_types::storage::ReadStore;
+use haneul_types::object::Object;
 use haneul_types::storage::WriteStore;
+use haneul_types::storage::{ObjectKey, ReadStore};
 use haneul_types::transaction::VerifiedTransaction;
 use typed_store::Map;
 
@@ -48,6 +50,14 @@ impl RocksDbStore {
             highest_verified_checkpoint: Arc::new(Mutex::new(None)),
             highest_synced_checkpoint: Arc::new(Mutex::new(None)),
         }
+    }
+
+    pub fn get_objects(&self, object_keys: &[ObjectKey]) -> Result<Vec<Option<Object>>, HaneulError> {
+        self.authority_store.multi_get_object_by_key(object_keys)
+    }
+
+    pub fn get_last_executed_checkpoint(&self) -> Result<Option<VerifiedCheckpoint>, HaneulError> {
+        Ok(self.checkpoint_store.get_highest_executed_checkpoint()?)
     }
 }
 
