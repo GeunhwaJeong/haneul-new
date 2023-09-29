@@ -21,7 +21,6 @@ use haneul_types::digests::TransactionDigest;
 use tracing::{error, info};
 pub mod config;
 mod data_fetcher;
-mod db_rider;
 pub mod fuzz;
 pub mod fuzz_mutations;
 mod replay;

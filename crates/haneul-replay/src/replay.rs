@@ -1,64 +1,67 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::config::ReplayableNetworkConfigSet;
-use crate::data_fetcher::extract_epoch_and_version;
-use crate::data_fetcher::DataFetcher;
-use crate::data_fetcher::Fetchers;
-use crate::data_fetcher::NodeStateDumpFetcher;
-use crate::data_fetcher::RemoteFetcher;
-use crate::types::*;
+use crate::{
+    config::ReplayableNetworkConfigSet,
+    data_fetcher::{
+        extract_epoch_and_version, DataFetcher, Fetchers, NodeStateDumpFetcher, RemoteFetcher,
+    },
+    types::*,
+};
 use futures::executor::block_on;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::language_storage::{ModuleId, StructTag};
-use move_core_types::resolver::{ModuleResolver, ResourceResolver};
+use move_core_types::{
+    account_address::AccountAddress,
+    language_storage::{ModuleId, StructTag},
+    resolver::{ModuleResolver, ResourceResolver},
+};
 use prometheus::Registry;
 use similar::{ChangeTag, TextDiff};
-use std::collections::{BTreeMap, HashSet};
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::{
+    collections::{BTreeMap, HashSet},
+    path::PathBuf,
+    sync::Arc,
+    sync::Mutex,
+};
 use haneul_config::node::ExpensiveSafetyCheckConfig;
-use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
-use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
-use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
-use haneul_core::authority::AuthorityState;
-use haneul_core::authority::NodeStateDump;
-use haneul_core::epoch::epoch_metrics::EpochMetrics;
-use haneul_core::module_cache_metrics::ResolverMetrics;
-use haneul_core::signature_verifier::SignatureVerifierMetrics;
+use haneul_core::{
+    authority::{
+        authority_per_epoch_store::AuthorityPerEpochStore,
+        epoch_start_configuration::EpochStartConfiguration,
+        test_authority_builder::TestAuthorityBuilder, AuthorityState, NodeStateDump,
+    },
+    epoch::epoch_metrics::EpochMetrics,
+    module_cache_metrics::ResolverMetrics,
+    signature_verifier::SignatureVerifierMetrics,
+};
 use haneul_execution::Executor;
 use haneul_framework::BuiltInFramework;
-use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
-use haneul_protocol_config::Chain;
-use haneul_protocol_config::ProtocolConfig;
+use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
+use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
-use haneul_types::committee::EpochId;
-use haneul_types::digests::ChainIdentifier;
-use haneul_types::digests::CheckpointDigest;
-use haneul_types::digests::TransactionDigest;
-use haneul_types::error::ExecutionError;
-use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::gas::HaneulGasStatus;
-use haneul_types::inner_temporary_store::InnerTemporaryStore;
-use haneul_types::metrics::LimitsMetrics;
-use haneul_types::object::{Data, Object, Owner};
-use haneul_types::storage::get_module_by_id;
-use haneul_types::storage::{BackingPackageStore, ChildObjectResolver, ObjectStore, ParentSync};
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
-use haneul_types::transaction::{
-    CertifiedTransaction, InputObjectKind, InputObjects, SenderSignedData, Transaction,
-    TransactionData, TransactionDataAPI, TransactionKind, VerifiedCertificate, VerifiedTransaction,
+use haneul_types::{
+    authenticator_state::get_authenticator_state_obj_initial_shared_version,
+    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber},
+    committee::EpochId,
+    digests::{ChainIdentifier, CheckpointDigest, TransactionDigest},
+    error::{ExecutionError, HaneulError, HaneulResult},
+    executable_transaction::VerifiedExecutableTransaction,
+    gas::HaneulGasStatus,
+    inner_temporary_store::InnerTemporaryStore,
+    metrics::LimitsMetrics,
+    object::{Data, Object, Owner},
+    storage::get_module_by_id,
+    storage::{BackingPackageStore, ChildObjectResolver, ObjectStore, ParentSync},
+    haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState,
+    transaction::{
+        CertifiedTransaction, InputObjectKind, InputObjects, SenderSignedData, Transaction,
+        TransactionData, TransactionDataAPI, TransactionKind, VerifiedCertificate,
+        VerifiedTransaction,
+    },
+    DEEPBOOK_PACKAGE_ID,
 };
-use haneul_types::DEEPBOOK_PACKAGE_ID;
-use tracing::info;
-use tracing::{error, warn};
+use tracing::{error, info, warn};
 
 // TODO: add persistent cache. But perf is good enough already.
 
