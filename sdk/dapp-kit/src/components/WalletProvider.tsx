@@ -37,11 +37,16 @@ type WalletProviderProps = {
 };
 
 const HANEUL_WALLET_NAME = 'Haneul Wallet';
+
 const DEFUALT_STORAGE_KEY = 'haneul-dapp-kit:wallet-connection-info';
+
+const DEFAULT_REQUIRED_FEATURES: (keyof WalletWithRequiredFeatures['features'])[] = [
+	'haneul:signTransactionBlock',
+];
 
 export function WalletProvider({
 	preferredWallets = [HANEUL_WALLET_NAME],
-	requiredFeatures = [],
+	requiredFeatures = DEFAULT_REQUIRED_FEATURES,
 	storage = localStorage,
 	storageKey = DEFUALT_STORAGE_KEY,
 	enableUnsafeBurner = false,
