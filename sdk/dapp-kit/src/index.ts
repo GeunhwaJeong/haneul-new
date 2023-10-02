@@ -3,6 +3,7 @@
 
 export * from './hooks/useHaneulClient.js';
 export * from './components/ConnectButton.js';
+export * from './components/connect-modal/ConnectModal.js';
 export * from './components/HaneulClientProvider.js';
 export * from './components/WalletProvider.js';
 export * from './hooks/wallet/useCurrentAccount.js';
