@@ -40,7 +40,6 @@ mod checked {
     use haneul_types::inner_temporary_store::InnerTemporaryStore;
     use haneul_types::messages_consensus::ConsensusCommitPrologue;
     use haneul_types::storage::BackingStore;
-    use haneul_types::storage::WriteKind;
     #[cfg(msim)]
     use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;
     use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
@@ -483,7 +482,7 @@ mod checked {
         protocol_config: &ProtocolConfig,
         metrics: Arc<LimitsMetrics>,
     ) -> Result<Mode::ExecutionResults, ExecutionError> {
-        match transaction_kind {
+        let result = match transaction_kind {
             TransactionKind::ChangeEpoch(change_epoch) => {
                 let builder = ProgrammableTransactionBuilder::new();
                 advance_epoch(
@@ -512,7 +511,7 @@ mod checked {
                                 previous_transaction: tx_ctx.digest(),
                                 storage_rebate: 0,
                             };
-                            temporary_store.write_object(object, WriteKind::Create);
+                            temporary_store.create_object(object);
                         }
                     }
                 }
@@ -588,7 +587,9 @@ mod checked {
                 )?;
                 Ok(Mode::empty_results())
             }
-        }
+        }?;
+        temporary_store.check_execution_results_consistency()?;
+        Ok(result)
     }
 
     fn mint_epoch_rewards_in_pt(
@@ -846,7 +847,7 @@ mod checked {
                     .decrement_version();
 
                 // upgrade of a previously existing framework module
-                temporary_store.write_object(new_package, WriteKind::Mutate);
+                temporary_store.upgrade_system_package(new_package);
             }
         }
 
