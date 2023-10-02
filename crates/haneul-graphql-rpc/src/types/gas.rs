@@ -8,6 +8,7 @@ use haneul_json_rpc_types::{OwnedObjectRef, HaneulGasData, HaneulObjectDataOptio
 use haneul_sdk::types::{
     base_types::{ObjectID, HaneulAddress as NativeHaneulAddress},
     gas::GasCostSummary as NativeGasCostSummary,
+    transaction::GasData,
 };
 
 use super::{address::Address, big_int::BigInt, haneul_address::HaneulAddress};
@@ -27,6 +28,17 @@ impl From<&HaneulGasData> for GasInput {
             price: s.price,
             budget: s.budget,
             payment_obj_ids: s.payment.iter().map(|o| o.object_id).collect(),
+        }
+    }
+}
+
+impl From<&GasData> for GasInput {
+    fn from(s: &GasData) -> Self {
+        Self {
+            owner: s.owner,
+            price: s.price,
+            budget: s.budget,
+            payment_obj_ids: s.payment.iter().map(|o| o.0).collect(),
         }
     }
 }
