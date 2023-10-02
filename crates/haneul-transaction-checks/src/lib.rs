@@ -15,6 +15,7 @@ mod checked {
     use haneul_types::committee::EpochId;
     use haneul_types::error::{UserInputError, UserInputResult};
     use haneul_types::metrics::BytecodeVerifierMetrics;
+    use haneul_types::signature::GenericSignature;
     use haneul_types::storage::BackingPackageStore;
     use haneul_types::storage::ObjectStore;
     use haneul_types::storage::ReceivedMarkerQuery;
@@ -34,7 +35,6 @@ mod checked {
     };
     use tracing::error;
     use tracing::instrument;
-
     // Entry point for all checks related to gas.
     // Called on both signing and execution.
     // On success the gas part of the transaction (gas data and gas coins)
@@ -64,6 +64,7 @@ mod checked {
         reference_gas_price: u64,
         epoch_id: EpochId,
         transaction: &TransactionData,
+        tx_signatures: &[GenericSignature],
         transaction_deny_config: &TransactionDenyConfig,
         metrics: &Arc<BytecodeVerifierMetrics>,
     ) -> HaneulResult<(HaneulGasStatus, InputObjects)> {
@@ -73,6 +74,7 @@ mod checked {
         let input_objects = transaction.input_objects()?;
         crate::deny::check_transaction_for_signing(
             transaction,
+            tx_signatures,
             &input_objects,
             &receiving_objects,
             transaction_deny_config,
