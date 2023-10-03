@@ -29,7 +29,7 @@ The genesis blob contains the information that defined the Haneul network config
 
 ## Start your Haneul Full node
 
-Run the following command to start the Haneul Full in Docker:
+Run the following command to start the Haneul fullnode in Docker:
 
 ```shell
 docker compose up

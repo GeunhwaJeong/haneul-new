@@ -25,7 +25,7 @@ ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libjemalloc.so
 ARG PROFILE=release
 WORKDIR "$WORKDIR/haneul"
 # Both bench and release profiles copy from release dir
-COPY --from=builder /haneul/target/release/haneul-node /opt/haneul/bin
+COPY --from=builder /haneul/target/release/haneul-node /opt/haneul/bin/haneul-node
 # Support legacy usages of /usr/local/bin/haneul-node
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 

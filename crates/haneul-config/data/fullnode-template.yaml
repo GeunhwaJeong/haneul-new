@@ -1,5 +1,5 @@
 # Update this value to the location you want Haneul to store its database
-db-path: "haneuldb"
+db-path: "/opt/haneul/db"
 
 network-address: "/dns/localhost/tcp/8080/http"
 metrics-address: "0.0.0.0:9184"
@@ -9,7 +9,7 @@ enable-event-processing: true
 
 genesis:
   # Update this to the location of where the genesis file is stored
-  genesis-file-location: "genesis.blob"
+  genesis-file-location: "/opt/haneul/config/genesis.blob"
 
 authority-store-pruning-config:
   num-latest-epoch-dbs-to-retain: 3
