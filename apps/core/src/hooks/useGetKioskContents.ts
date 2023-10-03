@@ -1,12 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { KIOSK_ITEM, KioskClient, KioskItem, KioskOwnerCap, Network } from '@haneullabs/kiosk';
+import { useHaneulClientContext } from '@haneullabs/dapp-kit';
+import { KIOSK_ITEM, KioskClient, KioskItem, KioskOwnerCap } from '@haneullabs/kiosk';
 import { HaneulClient } from '@haneullabs/haneul.js/src/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { getKioskIdFromOwnerCap, ORIGINBYTE_KIOSK_OWNER_TOKEN } from '../utils/kiosk';
+import { useKioskClient } from './useKioskClient';
 
 export enum KioskTypes {
 	HANEUL = 'haneul',
@@ -74,16 +75,8 @@ async function getOriginByteKioskContents(address: string, client: HaneulClient)
 	return contents;
 }
 
-// TODO: Replace `getHaneulKioskContent` references to also pass in the network.
-async function getHaneulKioskContents(
-	address: string,
-	client: HaneulClient,
-	network: Network = Network.MAINNET,
-) {
-	const kioskClient = new KioskClient({ client, network });
-
+async function getHaneulKioskContents(address: string, kioskClient: KioskClient) {
 	const ownedKiosks = await kioskClient.getOwnedKiosks({ address });
-
 	const contents = await Promise.all(
 		ownedKiosks.kioskIds.map(async (id: string) => {
 			const kiosk = await kioskClient.getKiosk({
@@ -105,18 +98,15 @@ async function getHaneulKioskContents(
 	return contents;
 }
 
-export function useGetKioskContents(
-	address?: string | null,
-	network?: Network,
-	disableOriginByteKiosk?: boolean,
-) {
-	const client = useHaneulClient();
+export function useGetKioskContents(address?: string | null, disableOriginByteKiosk?: boolean) {
+	const { client: haneulClient, network } = useHaneulClientContext();
+	const kioskClient = useKioskClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
-		queryKey: ['get-kiosk-contents', address, network, disableOriginByteKiosk],
+		queryKey: ['get-kiosk-contents', address, disableOriginByteKiosk, network, kioskClient.network],
 		queryFn: async () => {
-			const haneulKiosks = await getHaneulKioskContents(address!, client, network);
-			const obKiosks = await getOriginByteKioskContents(address!, client);
+			const haneulKiosks = await getHaneulKioskContents(address!, kioskClient);
+			const obKiosks = await getOriginByteKioskContents(address!, haneulClient);
 			return [...haneulKiosks, ...obKiosks];
 		},
 		select(data) {
@@ -136,5 +126,6 @@ export function useGetKioskContents(
 				lookup,
 			};
 		},
+		enabled: !!address,
 	});
 }
