@@ -41,10 +41,13 @@ export function useConnectWallet({
 		mutationKey: walletMutationKeys.connectWallet(mutationKey),
 		mutationFn: async ({ wallet, accountAddress, ...standardConnectInput }) => {
 			const connectResult = await wallet.features['standard:connect'].connect(standardConnectInput);
-			const selectedAccount = getSelectedAccount(connectResult.accounts, accountAddress);
+			const connectedHaneulAccounts = connectResult.accounts.filter((account) =>
+				account.chains.some((chain) => chain.split(':')[0] === 'haneul'),
+			);
+			const selectedAccount = getSelectedAccount(connectedHaneulAccounts, accountAddress);
 
-			setWalletConnected(wallet, selectedAccount);
-			return connectResult;
+			setWalletConnected(wallet, connectedHaneulAccounts, selectedAccount);
+			return { accounts: connectedHaneulAccounts };
 		},
 		...mutationOptions,
 	});
