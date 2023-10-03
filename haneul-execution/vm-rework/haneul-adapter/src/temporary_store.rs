@@ -20,9 +20,7 @@ use haneul_types::storage::BackingStore;
 use haneul_types::haneul_system_state::{get_haneul_system_state_wrapper, AdvanceEpochParams};
 use haneul_types::type_resolver::LayoutResolver;
 use haneul_types::{
-    base_types::{
-        ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
-    },
+    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest},
     effects::EffectsObjectChange,
     error::{ExecutionError, HaneulError, HaneulResult},
     fp_bail,
@@ -199,24 +197,14 @@ impl<'backing> TemporaryStore<'backing> {
         // we don't really care about the effects to gas, just use the input for it.
         // Gas coins are guaranteed to be at least size 1 and if more than 1
         // the first coin is where all the others are merged.
-        let updated_gas_object_info = if let Some(coin_id) = gas_charger.gas_coin() {
-            let object = &self.execution_results.written_objects[&coin_id];
-            (object.compute_object_reference(), object.owner)
-        } else {
-            (
-                (ObjectID::ZERO, SequenceNumber::default(), ObjectDigest::MIN),
-                Owner::AddressOwner(HaneulAddress::default()),
-            )
-        };
+        let gas_coin = gas_charger.gas_coin();
 
         let object_changes = self.get_object_changes();
 
         let lamport_version = self.lamport_timestamp;
-        let protocol_version = self.protocol_config.version;
         let inner = self.into_inner();
 
         let effects = TransactionEffects::new_from_execution_v2(
-            protocol_version,
             status,
             epoch,
             gas_cost_summary,
@@ -228,7 +216,7 @@ impl<'backing> TemporaryStore<'backing> {
             *transaction_digest,
             lamport_version,
             object_changes,
-            updated_gas_object_info,
+            gas_coin,
             if inner.events.data.is_empty() {
                 None
             } else {
@@ -388,7 +376,7 @@ impl<'backing> TemporaryStore<'backing> {
                 })
                 .count();
         // In the worst case, the number of deps is equal to the number of input objects
-        TransactionEffects::estimate_effects_size_upperbound(
+        TransactionEffects::estimate_effects_size_upperbound_v1(
             self.execution_results.written_objects.len(),
             self.mutable_input_refs.len(),
             num_deletes,
