@@ -48,6 +48,7 @@ use haneullabs_metrics::{spawn_monitored_task, GaugeGuard, GaugeGuardFutureExt};
 use haneul_simulator::anemo::PeerId;
 use haneul_simulator::narwhal_network::connectivity::ConnectionStatus;
 use haneul_types::base_types::AuthorityName;
+use haneul_types::fp_ensure;
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_consensus::ConsensusTransactionKind;
 use tokio::time::Duration;
@@ -424,7 +425,7 @@ impl ConsensusAdapter {
         committee: &Committee,
         tx_digest: &TransactionDigest,
     ) -> (Duration, usize, usize, usize) {
-        let (mut position, positions_moved, preceding_disconected) =
+        let (mut position, positions_moved, preceding_disconnected) =
             self.submission_position(committee, tx_digest);
 
         const MAX_LATENCY: Duration = Duration::from_secs(5 * 60);
@@ -450,7 +451,7 @@ impl ConsensusAdapter {
             delay_step * position as u32,
             position,
             positions_moved,
-            preceding_disconected,
+            preceding_disconnected,
         )
     }
 
@@ -565,6 +566,14 @@ impl ConsensusAdapter {
         }
         // Then check if submit_semaphore has permits
         self.submit_semaphore.available_permits() > 0
+    }
+
+    pub(crate) fn check_consensus_overload(&self) -> HaneulResult {
+        fp_ensure!(
+            self.check_limits(),
+            HaneulError::TooManyTransactionsPendingConsensus
+        );
+        Ok(())
     }
 
     fn submit_unchecked(
