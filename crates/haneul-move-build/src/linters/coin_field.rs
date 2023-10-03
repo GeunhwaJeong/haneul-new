@@ -88,7 +88,7 @@ fn is_mident_haneul_coin(sp!(_, mident): &E::ModuleIdent) -> bool {
     }
     let haneul_addr = NumericalAddress::new(AccountAddress::TWO.into_bytes(), NumberFormat::Hex);
     match mident.address {
-        A::Numerical(_, addr) => addr.value == haneul_addr,
+        A::Numerical { value: addr, .. } => addr.value == haneul_addr,
         A::NamedUnassigned(n) => n.value == HANEUL_PKG_NAME.into(),
     }
 }
