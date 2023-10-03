@@ -42,7 +42,7 @@ impl MoveUtilsServer for MoveUtilsApi {
     ) -> RpcResult<BTreeMap<String, HaneulMoveNormalizedModule>> {
         let package = self
             .inner
-            .get_package_async(package_id)
+            .get_package_in_blocking_task(package_id)
             .await
             .map_err(|e| HaneulRpcInputError::GenericNotFound(e.to_string()))?
             .ok_or_else(|| {

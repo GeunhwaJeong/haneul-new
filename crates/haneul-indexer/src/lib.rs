@@ -189,7 +189,6 @@ impl Indexer {
             "Haneul indexer of version {:?} started...",
             env!("CARGO_PKG_VERSION")
         );
-        haneullabs_metrics::init_metrics(registry);
 
         if config.rpc_server_worker {
             info!("Starting indexer with only RPC server");
