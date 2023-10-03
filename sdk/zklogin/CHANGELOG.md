@@ -1,5 +1,23 @@
 # @haneullabs/zklogin
 
+## 0.1.5
+
+### Patch Changes
+
+- 3764c464f: - use new zklogin package from @haneullabs/haneul.js for some of the zklogin functionality
+  - rename `getZkSignature` to `getZkLoginSignature`
+- 71e0a3197: - stop exporting `ZkSignatureInputs`
+  - use `toBigEndianBytes` instead of `toBufferBE` that was renamed
+- Updated dependencies [781d073d9]
+- Updated dependencies [3764c464f]
+- Updated dependencies [1bc430161]
+- Updated dependencies [e4484852b]
+- Updated dependencies [e4484852b]
+- Updated dependencies [71e0a3197]
+- Updated dependencies [1bc430161]
+  - @haneullabs/haneul.js@0.43.0
+  - @haneullabs/bcs@0.8.0
+
 ## 0.1.4
 
 ### Patch Changes
