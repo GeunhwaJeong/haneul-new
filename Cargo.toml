@@ -123,6 +123,7 @@ members = [
     "crates/haneul-rpc-loadgen",
     "crates/haneul-sdk",
     "crates/haneul-simulator",
+    "crates/haneul-single-node-benchmark",
     "crates/haneul-snapshot",
     "crates/haneul-source-validation",
     "crates/haneul-source-validation-service",

@@ -11161,6 +11161,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-single-node-benchmark"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bcs",
+ "clap",
+ "futures",
+ "move-core-types",
+ "move-package",
+ "prometheus",
+ "haneul-core",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-simulator",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-snapshot"
 version = "0.1.0"
 dependencies = [

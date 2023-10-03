@@ -20,8 +20,8 @@ use haneul_types::signature::GenericSignature;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     CallArg, ObjectArg, ProgrammableTransaction, Transaction, TransactionData,
-    DEFAULT_VALIDATOR_GAS_PRICE, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
-    TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    DEFAULT_VALIDATOR_GAS_PRICE, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
+    TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
 use haneul_types::{TypeTag, HANEUL_SYSTEM_PACKAGE_ID};
 
@@ -270,7 +270,7 @@ impl TestTransactionBuilder {
                 self.sender,
                 vec![self.gas_object],
                 pt,
-                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+                self.gas_price * TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
                 self.gas_price,
             ),
             TestTransactionData::Empty => {

@@ -56,7 +56,7 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
 use haneul_core::authority_aggregator::AuthorityAggregator;
-use haneul_core::authority_server::ValidatorService;
+use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::checkpoints::checkpoint_executor;
 use haneul_core::checkpoints::{
     CheckpointMetrics, CheckpointService, CheckpointStore, SendCheckpointToStateSync,
@@ -198,7 +198,7 @@ pub use simulator::set_jwk_injector;
 pub struct HaneulNode {
     config: NodeConfig,
     validator_components: Mutex<Option<ValidatorComponents>>,
-    /// The http server responsible for serving JSON-RPC as well as the expirimental rest service
+    /// The http server responsible for serving JSON-RPC as well as the experimental rest service
     _http_server: Option<tokio::task::JoinHandle<()>>,
     state: Arc<AuthorityState>,
     transaction_orchestrator: Option<Arc<TransactiondOrchestrator<NetworkAuthorityClient>>>,
@@ -1210,8 +1210,11 @@ impl HaneulNode {
         consensus_adapter: Arc<ConsensusAdapter>,
         prometheus_registry: &Registry,
     ) -> Result<tokio::task::JoinHandle<Result<()>>> {
-        let validator_service =
-            ValidatorService::new(state.clone(), consensus_adapter, prometheus_registry).await?;
+        let validator_service = ValidatorService::new(
+            state.clone(),
+            consensus_adapter,
+            Arc::new(ValidatorServiceMetrics::new(prometheus_registry)),
+        );
 
         let mut server_conf = haneullabs_network::config::Config::new();
         server_conf.global_concurrency_limit = config.grpc_concurrency_limit;
