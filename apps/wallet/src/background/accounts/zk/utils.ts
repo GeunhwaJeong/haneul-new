@@ -4,7 +4,7 @@
 import { fetchWithSentry } from '_src/shared/utils';
 import { type PublicKey } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { generateNonce, generateRandomness, type ZkSignatureInputs } from '@haneullabs/zklogin';
+import { generateNonce, generateRandomness, type getZkLoginSignature } from '@haneullabs/zklogin';
 import { randomBytes } from '@noble/hashes/utils';
 import { toBigIntBE } from 'bigint-buffer';
 import { base64url } from 'jose';
@@ -130,7 +130,10 @@ type WalletInputs = {
 	keyClaimName?: 'sub' | 'email';
 };
 
-export type PartialZkSignature = Omit<ZkSignatureInputs, 'addressSeed'>;
+export type PartialZkSignature = Omit<
+	Parameters<typeof getZkLoginSignature>['0']['inputs'],
+	'addressSeed'
+>;
 
 const zkProofsServerUrl = 'https://prover.haneul-labs.com/v1';
 
