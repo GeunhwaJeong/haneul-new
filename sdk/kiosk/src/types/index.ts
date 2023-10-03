@@ -3,7 +3,7 @@
 
 import { type SharedObjectRef } from '@haneullabs/haneul.js/bcs';
 import { type HaneulClient, type HaneulObjectRef } from '@haneullabs/haneul.js/client';
-import { type TransactionArgument } from '@haneullabs/haneul.js/transactions';
+import { TransactionObjectArgument } from '@haneullabs/haneul.js/transactions';
 
 import { BaseRulePackageIds } from '../constants';
 
@@ -13,7 +13,7 @@ export * from './transfer-policy';
 /**
  * A valid argument for any of the Kiosk functions.
  */
-export type ObjectArgument = string | TransactionArgument | SharedObjectRef | HaneulObjectRef;
+export type ObjectArgument = string | TransactionObjectArgument | SharedObjectRef | HaneulObjectRef;
 
 /**
  * A Network selector.

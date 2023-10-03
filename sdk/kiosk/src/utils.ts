@@ -12,7 +12,7 @@ import {
 	HaneulObjectResponse,
 	type DynamicFieldInfo,
 } from '@haneullabs/haneul.js/client';
-import { TransactionArgument, TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { TransactionBlock, TransactionObjectArgument } from '@haneullabs/haneul.js/transactions';
 import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 import { bcs } from './bcs';
@@ -36,8 +36,8 @@ const DEFAULT_QUERY_LIMIT = 50;
  */
 export function objArg(
 	txb: TransactionBlock,
-	arg: string | SharedObjectRef | HaneulObjectRef | TransactionArgument,
-): TransactionArgument {
+	arg: string | SharedObjectRef | HaneulObjectRef | TransactionObjectArgument,
+): TransactionObjectArgument {
 	if (typeof arg === 'string') {
 		return txb.object(arg);
 	}

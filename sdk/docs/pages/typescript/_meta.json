@@ -6,5 +6,6 @@
 	"haneul-client": "HaneulClient",
 	"transaction-building": "Transaction Building",
 	"cryptography": "Cryptography",
-	"utils": "Utils"
+	"utils": "Utils",
+	"bcs": "BCS"
 }

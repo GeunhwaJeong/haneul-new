@@ -167,7 +167,8 @@ function enumKind<T extends object, Input extends object>(type: BcsType<T, Input
 }
 
 const Address = bcs.bytes(HANEUL_ADDRESS_LENGTH).transform({
-	input: (val: string | Uint8Array) => (typeof val === 'string' ? fromHEX(val) : val),
+	input: (val: string | Uint8Array) =>
+		typeof val === 'string' ? fromHEX(normalizeHaneulAddress(val)) : val,
 	output: (val) => toHEX(val),
 });
 

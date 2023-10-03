@@ -39,7 +39,7 @@ export class HaneulSystemStateUtil {
 		// TODO: validate coin types and handle locked coins
 		const tx = new TransactionBlock();
 
-		const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
+		const coin = tx.splitCoins(tx.gas, [amount]);
 		tx.moveCall({
 			target: `${HANEUL_SYSTEM_ADDRESS}::${HANEUL_SYSTEM_MODULE_NAME}::${ADD_STAKE_FUN_NAME}`,
 			arguments: [tx.object(HANEUL_SYSTEM_STATE_OBJECT_ID), coin, tx.pure(validatorAddress)],
