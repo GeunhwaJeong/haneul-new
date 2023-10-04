@@ -35,11 +35,11 @@ haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-framework.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"]}
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
 haneul-json-rpc-types.workspace = true
 haneul-json-rpc.workspace = true
 haneul-framework-snapshot.workspace = true
 haneul-storage.workspace = true
+workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true

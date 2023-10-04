@@ -8,7 +8,6 @@ license = "Apache-2.0"
 publish = false
 
 [dependencies]
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
 proptest.workspace = true
 proptest-derive.workspace = true
 rand.workspace = true
@@ -21,6 +20,7 @@ haneul-core.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types = { workspace = true, features = ["fuzzing"] }
 haneul-move-build.workspace = true
+workspace-hack.workspace = true
 
 
 [dev-dependencies]

@@ -35,7 +35,6 @@ storage = { path = "../storage", package = "narwhal-storage" }
 store = { path = "../../crates/typed-store", package = "typed-store" }
 haneul-macros.workspace = true
 haneullabs-network.workspace = true
-workspace-hack = { version = "0.1", path = "../../crates/workspace-hack" }
 haneul-protocol-config.workspace = true
 
 haneullabs-common.workspace = true
@@ -43,6 +42,7 @@ haneullabs-metrics.workspace = true
 
 anemo.workspace = true
 anemo-tower.workspace = true
+workspace-hack.workspace = true
 
 [dev-dependencies]
 dashmap.workspace = true

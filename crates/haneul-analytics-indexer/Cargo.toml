@@ -34,10 +34,10 @@ fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics.workspace = true
 haneul-indexer.workspace = true
 haneul-types.workspace = true
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
 telemetry-subscribers.workspace = true
 haneul-rest-api.workspace = true
 haneul-storage.workspace = true
+workspace-hack.workspace = true
 
 [dev-dependencies]
 

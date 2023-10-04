@@ -44,4 +44,4 @@ haneul-sdk.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-archival.workspace = true
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
+workspace-hack.workspace = true

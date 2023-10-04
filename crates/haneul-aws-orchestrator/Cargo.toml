@@ -31,7 +31,7 @@ haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
 haneul-node = { path = "../haneul-node" }
 haneul-swarm-config =  { path = "../haneul-swarm-config" }
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
+workspace-hack.workspace = true
 
 [dev-dependencies]
 tempfile = "3.6.0"

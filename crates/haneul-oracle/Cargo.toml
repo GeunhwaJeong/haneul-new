@@ -28,4 +28,4 @@ haneul-sdk = { path = "../haneul-sdk" }
 haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 telemetry-subscribers.workspace = true
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
+workspace-hack.workspace = true

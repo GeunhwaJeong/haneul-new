@@ -29,7 +29,7 @@ haneul-sdk.workspace = true
 haneul-test-transaction-builder.workspace = true
 
 move-binary-format.workspace = true
-workspace-hack = { version = "0.1", path = "../workspace-hack" }
+workspace-hack.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator.workspace = true
