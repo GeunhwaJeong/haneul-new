@@ -5,6 +5,7 @@ module haneul::zklogin_verified_id {
     use std::string::String;
     use haneul::object;
     use haneul::object::UID;
+    use haneul::transfer;
     use haneul::tx_context::TxContext;
     use haneul::tx_context;
 
@@ -69,9 +70,20 @@ module haneul::zklogin_verified_id {
         audience: String,
         pin_hash: u256,
         ctx: &mut TxContext,
-    ): VerifiedID {
-        assert!(check_zklogin_id(tx_context::sender(ctx), &key_claim_name, &key_claim_value, &issuer, &audience, pin_hash), EInvalidProof);
-        VerifiedID { id: object::new(ctx), owner: tx_context::sender(ctx), key_claim_name, key_claim_value, issuer, audience}
+    ) {
+        let sender = tx_context::sender(ctx);
+        assert!(check_zklogin_id(sender, &key_claim_name, &key_claim_value, &issuer, &audience, pin_hash), EInvalidProof);
+        transfer::transfer(
+            VerifiedID {
+                id: object::new(ctx),
+                owner: sender,
+                key_claim_name,
+                key_claim_value,
+                issuer,
+                audience
+            },
+            sender
+        );
     }
 
     /// Returns true if `address` was created using zklogin and the given parameters.
