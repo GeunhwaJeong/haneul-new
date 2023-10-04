@@ -638,43 +638,56 @@ impl TryFrom<TransactionEffects> for HaneulTransactionBlockEffects {
     type Error = HaneulError;
 
     fn try_from(effect: TransactionEffects) -> Result<Self, Self::Error> {
-        Ok(HaneulTransactionBlockEffects::V1(
-            HaneulTransactionBlockEffectsV1 {
-                status: effect.status().clone().into(),
-                executed_epoch: effect.executed_epoch(),
-                modified_at_versions: effect
-                    .modified_at_versions()
-                    .into_iter()
-                    .map(|(object_id, sequence_number)| {
-                        HaneulTransactionBlockEffectsModifiedAtVersions {
-                            object_id,
-                            sequence_number,
-                        }
-                    })
-                    .collect(),
-                gas_used: effect.gas_cost_summary().clone(),
-                shared_objects: to_haneul_object_ref(
-                    effect
-                        .input_shared_objects()
+        let message_version = effect
+            .message_version()
+            .expect("TransactionEffects defines message_version()");
+
+        match message_version {
+            1 => Ok(HaneulTransactionBlockEffects::V1(
+                HaneulTransactionBlockEffectsV1 {
+                    status: effect.status().clone().into(),
+                    executed_epoch: effect.executed_epoch(),
+                    modified_at_versions: effect
+                        .modified_at_versions()
                         .into_iter()
-                        .map(|(obj_ref, _)| obj_ref)
+                        .map(|(object_id, sequence_number)| {
+                            HaneulTransactionBlockEffectsModifiedAtVersions {
+                                object_id,
+                                sequence_number,
+                            }
+                        })
                         .collect(),
-                ),
-                transaction_digest: *effect.transaction_digest(),
-                created: to_owned_ref(effect.created()),
-                mutated: to_owned_ref(effect.mutated().to_vec()),
-                unwrapped: to_owned_ref(effect.unwrapped().to_vec()),
-                deleted: to_haneul_object_ref(effect.deleted().to_vec()),
-                unwrapped_then_deleted: to_haneul_object_ref(effect.unwrapped_then_deleted().to_vec()),
-                wrapped: to_haneul_object_ref(effect.wrapped().to_vec()),
-                gas_object: OwnedObjectRef {
-                    owner: effect.gas_object().1,
-                    reference: effect.gas_object().0.into(),
+                    gas_used: effect.gas_cost_summary().clone(),
+                    shared_objects: to_haneul_object_ref(
+                        effect
+                            .input_shared_objects()
+                            .into_iter()
+                            .map(|(obj_ref, _)| obj_ref)
+                            .collect(),
+                    ),
+                    transaction_digest: *effect.transaction_digest(),
+                    created: to_owned_ref(effect.created()),
+                    mutated: to_owned_ref(effect.mutated().to_vec()),
+                    unwrapped: to_owned_ref(effect.unwrapped().to_vec()),
+                    deleted: to_haneul_object_ref(effect.deleted().to_vec()),
+                    unwrapped_then_deleted: to_haneul_object_ref(
+                        effect.unwrapped_then_deleted().to_vec(),
+                    ),
+                    wrapped: to_haneul_object_ref(effect.wrapped().to_vec()),
+                    gas_object: OwnedObjectRef {
+                        owner: effect.gas_object().1,
+                        reference: effect.gas_object().0.into(),
+                    },
+                    events_digest: effect.events_digest().copied(),
+                    dependencies: effect.dependencies().to_vec(),
                 },
-                events_digest: effect.events_digest().copied(),
-                dependencies: effect.dependencies().to_vec(),
-            },
-        ))
+            )),
+
+            _ => Err(HaneulError::UnexpectedVersion(format!(
+                "Support for TransactionEffects version {} not implemented",
+                message_version
+            ))),
+        }
     }
 }
 
