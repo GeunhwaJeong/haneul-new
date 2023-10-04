@@ -20,7 +20,7 @@ export function isExecuteTransactionRequest(
 
 export type HaneulSignTransactionSerialized = Omit<
 	HaneulSignTransactionBlockInput,
-	'transaction' | 'account'
+	'transactionBlock' | 'account'
 > & {
 	transaction: string;
 	account: string;
