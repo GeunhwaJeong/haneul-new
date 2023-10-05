@@ -29,6 +29,12 @@ pub(crate) enum FromStrError {
     BadHex(char, usize),
 }
 
+#[derive(Error, Debug, Eq, PartialEq)]
+pub(crate) enum FromVecError {
+    #[error("Expected HaneulAddress with {} bytes, received {0}", HANEUL_ADDRESS_LENGTH)]
+    WrongLength(usize),
+}
+
 #[Scalar]
 impl ScalarType for HaneulAddress {
     fn parse(value: Value) -> InputValueResult<Self> {
@@ -53,8 +59,26 @@ impl HaneulAddress {
         HaneulAddress(arr)
     }
 
+    pub fn into_vec(self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
     pub fn as_slice(&self) -> &[u8] {
         &self.0
+    }
+
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, FromVecError> {
+        <[u8; HANEUL_ADDRESS_LENGTH]>::try_from(bytes.as_ref())
+            .map_err(|_| FromVecError::WrongLength(bytes.as_ref().len()))
+            .map(HaneulAddress)
+    }
+}
+
+impl TryFrom<Vec<u8>> for HaneulAddress {
+    type Error = FromVecError;
+
+    fn try_from(bytes: Vec<u8>) -> Result<Self, FromVecError> {
+        Self::from_bytes(bytes)
     }
 }
 
@@ -93,6 +117,12 @@ impl FromStr for HaneulAddress {
         })?;
 
         Ok(HaneulAddress(arr))
+    }
+}
+
+impl std::fmt::Display for HaneulAddress {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("0x{}", hex::encode(self.0)))
     }
 }
 

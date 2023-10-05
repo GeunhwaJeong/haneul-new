@@ -37,13 +37,13 @@ pub(crate) enum ObjectKind {
 
 #[derive(InputObject)]
 pub(crate) struct ObjectFilter {
-    package: Option<HaneulAddress>,
-    module: Option<String>,
-    ty: Option<String>,
+    pub package: Option<HaneulAddress>,
+    pub module: Option<String>,
+    pub ty: Option<String>,
 
-    owner: Option<HaneulAddress>,
-    object_ids: Option<Vec<HaneulAddress>>,
-    object_keys: Option<Vec<ObjectKey>>,
+    pub owner: Option<HaneulAddress>,
+    pub object_ids: Option<Vec<HaneulAddress>>,
+    pub object_keys: Option<Vec<ObjectKey>>,
 }
 
 #[derive(InputObject)]
@@ -78,7 +78,7 @@ impl Object {
     ) -> Result<Option<TransactionBlock>> {
         if let Some(tx) = &self.previous_transaction {
             let loader = ctx.data_unchecked::<DataLoader<HaneulClientLoader, LruCache>>();
-            loader.load_one(*tx).await
+            Ok(loader.load_one(*tx).await.unwrap_or(None))
         } else {
             Ok(None)
         }

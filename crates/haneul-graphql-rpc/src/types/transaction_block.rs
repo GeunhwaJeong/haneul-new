@@ -13,16 +13,10 @@ use super::{
     gas::{GasEffects, GasInput},
     haneul_address::HaneulAddress,
 };
-use crate::error::Error;
 use async_graphql::*;
-use haneul_indexer::models_v2::transactions::StoredTransaction;
 use haneul_json_rpc_types::{
     HaneulExecutionStatus, HaneulTransactionBlockDataAPI, HaneulTransactionBlockEffects,
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-};
-use haneul_sdk::types::{
-    effects::TransactionEffects,
-    transaction::{SenderSignedData, TransactionDataAPI},
 };
 
 #[derive(SimpleObject, Clone, Eq, PartialEq)]
@@ -51,53 +45,6 @@ impl From<HaneulTransactionBlockResponse> for TransactionBlock {
             bcs: Some(Base64::from(&tx_block.raw_transaction)),
             gas_input,
         }
-    }
-}
-
-impl TryFrom<StoredTransaction> for TransactionBlock {
-    type Error = Error;
-
-    fn try_from(tx: StoredTransaction) -> Result<Self, Self::Error> {
-        // TODO (wlmyng): Split the below into resolver methods
-        let digest = Digest::try_from(tx.transaction_digest.as_slice())?;
-
-        let sender_signed_data: SenderSignedData =
-            bcs::from_bytes(&tx.raw_transaction).map_err(|e| {
-                Error::Internal(format!(
-                    "Can't convert raw_transaction into SenderSignedData. Error: {e}",
-                ))
-            })?;
-
-        let sender = Address {
-            address: HaneulAddress::from_array(
-                sender_signed_data
-                    .intent_message()
-                    .value
-                    .sender()
-                    .to_inner(),
-            ),
-        };
-
-        let gas_input = GasInput::from(sender_signed_data.intent_message().value.gas_data());
-        let effects: TransactionEffects = bcs::from_bytes(&tx.raw_effects).map_err(|e| {
-            Error::Internal(format!(
-                "Can't convert raw_effects into TransactionEffects. Error: {e}",
-            ))
-        })?;
-        let effects = match HaneulTransactionBlockEffects::try_from(effects) {
-            Ok(effects) => Ok(Some(TransactionBlockEffects::from(&effects))),
-            Err(e) => Err(Error::Internal(format!(
-                "Can't convert TransactionEffects into HaneulTransactionBlockEffects. Error: {e}",
-            ))),
-        }?;
-
-        Ok(Self {
-            digest,
-            effects,
-            sender: Some(sender),
-            bcs: Some(Base64::from(&tx.raw_transaction)),
-            gas_input: Some(gas_input),
-        })
     }
 }
 
@@ -179,8 +126,8 @@ impl TransactionBlockEffects {
 
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
 pub(crate) enum TransactionBlockKindInput {
-    ProgrammableTx,
-    SystemTx,
+    SystemTx = 0,
+    ProgrammableTx = 1,
 }
 
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]
@@ -191,18 +138,18 @@ pub enum ExecutionStatus {
 
 #[derive(InputObject)]
 pub(crate) struct TransactionBlockFilter {
-    package: Option<HaneulAddress>,
-    module: Option<String>,
-    function: Option<String>,
+    pub package: Option<HaneulAddress>,
+    pub module: Option<String>,
+    pub function: Option<String>,
 
-    kind: Option<TransactionBlockKindInput>,
-    checkpoint: Option<u64>,
+    pub kind: Option<TransactionBlockKindInput>,
+    pub checkpoint: Option<u64>,
 
-    sign_address: Option<HaneulAddress>,
-    sent_address: Option<HaneulAddress>,
-    recv_address: Option<HaneulAddress>,
-    paid_address: Option<HaneulAddress>,
+    pub sign_address: Option<HaneulAddress>,
+    pub sent_address: Option<HaneulAddress>,
+    pub recv_address: Option<HaneulAddress>,
+    pub paid_address: Option<HaneulAddress>,
 
-    input_object: Option<HaneulAddress>,
-    changed_object: Option<HaneulAddress>,
+    pub input_object: Option<HaneulAddress>,
+    pub changed_object: Option<HaneulAddress>,
 }
