@@ -265,7 +265,7 @@ impl ProtocolMetrics for HaneulProtocol {
                     "{}:{}{}",
                     instance.main_ip,
                     config.metrics_address.port(),
-                    haneul_node::metrics::METRICS_ROUTE
+                    haneullabs_metrics::METRICS_ROUTE
                 );
                 (instance, path)
             })
@@ -283,7 +283,7 @@ impl ProtocolMetrics for HaneulProtocol {
                     "{}:{}{}",
                     instance.main_ip,
                     Self::CLIENT_METRICS_PORT,
-                    haneul_node::metrics::METRICS_ROUTE
+                    haneullabs_metrics::METRICS_ROUTE
                 );
                 (instance, path)
             })

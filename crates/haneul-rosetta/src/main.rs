@@ -17,7 +17,7 @@ use tracing::info;
 use tracing::log::warn;
 
 use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
-use haneul_node::{metrics, HaneulNode};
+use haneul_node::HaneulNode;
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
@@ -166,7 +166,8 @@ impl RosettaServerCommand {
                 config.db_path = data_path.join("haneul_db");
                 info!("Overriding Haneul db path to : {:?}", config.db_path);
 
-                let registry_service = metrics::start_prometheus_server(config.metrics_address);
+                let registry_service =
+                    haneullabs_metrics::start_prometheus_server(config.metrics_address);
                 // Staring a full node for the rosetta server.
                 let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
                 let _node = HaneulNode::start(&config, registry_service, None).await?;

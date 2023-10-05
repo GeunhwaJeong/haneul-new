@@ -27,9 +27,9 @@ serde.workspace = true
 tokio = { workspace = true, features = ["full"] }
 prometheus-parse.workspace = true
 
+haneullabs-metrics.workspace = true
 haneul-config = { path = "../haneul-config" }
 haneul-types = { path = "../haneul-types" }
-haneul-node = { path = "../haneul-node" }
 haneul-swarm-config =  { path = "../haneul-swarm-config" }
 workspace-hack.workspace = true
 

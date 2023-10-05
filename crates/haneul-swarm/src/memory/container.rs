@@ -5,7 +5,7 @@ use futures::FutureExt;
 use std::sync::{Arc, Weak};
 use std::thread;
 use haneul_config::NodeConfig;
-use haneul_node::{metrics, HaneulNode, HaneulNodeHandle};
+use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::crypto::{AuthorityPublicKeyBytes, KeypairTraits};
 use tracing::{info, trace};
 
@@ -78,7 +78,7 @@ impl Container {
             let runtime = builder.enable_all().build().unwrap();
 
             runtime.block_on(async move {
-                let registry_service = metrics::start_prometheus_server(config.metrics_address);
+                let registry_service = haneullabs_metrics::start_prometheus_server(config.metrics_address);
                 info!(
                     "Started Prometheus HTTP endpoint. To query metrics use\n\tcurl -s http://{}/metrics",
                     config.metrics_address
