@@ -117,7 +117,17 @@ export type GasData = {
  */
 export type TransactionExpiration = { None: null } | { Epoch: number };
 
-const bcsRegistry = new BcsRegistry({ ...getHaneulMoveConfig() });
+const bcsRegistry = new BcsRegistry({
+	...getHaneulMoveConfig(),
+	types: {
+		enums: {
+			'Option<T>': {
+				None: null,
+				Some: 'T',
+			},
+		},
+	},
+});
 
 function unsafe_u64(options?: BcsTypeOptions<number>) {
 	return bcs
