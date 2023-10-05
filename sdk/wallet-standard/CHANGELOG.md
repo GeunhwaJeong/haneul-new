@@ -1,5 +1,12 @@
 # @haneullabs/wallet-standard
 
+## 0.8.3
+
+### Patch Changes
+
+- Updated dependencies [9b052166d]
+  - @haneullabs/haneul.js@0.43.2
+
 ## 0.8.2
 
 ### Patch Changes
