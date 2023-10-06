@@ -18,7 +18,7 @@ use haneul_json_rpc::{
 use haneul_json_rpc_types::{DelegatedStake, EpochInfo, StakeStatus, HaneulCommittee, ValidatorApys};
 use haneul_open_rpc::Module;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{MoveObjectType, ObjectID, HaneulAddress},
     committee::EpochId,
     governance::StakedHaneul,
     haneul_serde::BigInt,
@@ -73,7 +73,24 @@ impl GovernanceReadApiV2 {
         &self,
         owner: HaneulAddress,
     ) -> Result<Vec<DelegatedStake>, IndexerError> {
-        todo!()
+        let mut stakes = vec![];
+        for stored_object in self
+            .inner
+            .get_owned_objects_in_blocking_task(
+                owner,
+                Some(MoveObjectType::staked_haneul().to_string()),
+                None,
+                // Allow querying for up to 1000 staked objects
+                1000,
+            )
+            .await?
+        {
+            let object = haneul_types::object::Object::try_from(stored_object)?;
+            let stake_object = StakedHaneul::try_from(&object)?;
+            stakes.push(stake_object);
+        }
+
+        self.get_delegated_stakes(stakes).await
     }
 
     async fn get_delegated_stakes(
@@ -267,8 +284,7 @@ impl GovernanceReadApiServer for GovernanceReadApiV2 {
     }
 
     async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
-        // Need object_type column in objects table
-        unimplemented!()
+        self.get_staked_by_owner(owner).await.map_err(Into::into)
     }
 
     async fn get_committee_info(&self, epoch: Option<BigInt<u64>>) -> RpcResult<HaneulCommittee> {
