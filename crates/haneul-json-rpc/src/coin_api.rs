@@ -448,6 +448,8 @@ mod tests {
                 &self,
                 digest: TransactionDigest,
             ) -> HaneulResult<Option<CheckpointSequenceNumber>>;
+
+            async fn get_object(&self, object_id: ObjectID, version: SequenceNumber) -> HaneulResult<Option<Object>>;
         }
     }
 

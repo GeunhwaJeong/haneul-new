@@ -8,6 +8,7 @@ use crate::key_value_store_metrics::KeyValueStoreMetrics;
 use async_trait::async_trait;
 use std::sync::Arc;
 use std::time::Instant;
+use haneul_types::base_types::{ObjectID, SequenceNumber, VersionNumber};
 use haneul_types::digests::{
     CheckpointContentsDigest, CheckpointDigest, TransactionDigest, TransactionEventsDigest,
 };
@@ -16,6 +17,7 @@ use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
 };
+use haneul_types::object::Object;
 use haneul_types::transaction::Transaction;
 
 pub type KVStoreTransactionData = (
@@ -394,6 +396,14 @@ impl TransactionKeyValueStore {
             .deprecated_get_transaction_checkpoint(digest)
             .await
     }
+
+    pub async fn get_object(
+        &self,
+        object_id: ObjectID,
+        version: VersionNumber,
+    ) -> HaneulResult<Option<Object>> {
+        self.inner.get_object(object_id, version).await
+    }
 }
 
 /// Immutable key/value store trait for storing/retrieving transactions, effects, and events.
@@ -421,6 +431,12 @@ pub trait TransactionKeyValueStoreTrait {
         &self,
         digest: TransactionDigest,
     ) -> HaneulResult<Option<CheckpointSequenceNumber>>;
+
+    async fn get_object(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+    ) -> HaneulResult<Option<Object>>;
 }
 
 /// A TransactionKeyValueStoreTrait that falls back to a secondary store for any key for which the
@@ -552,6 +568,18 @@ impl TransactionKeyValueStoreTrait for FallbackTransactionKVStore {
                 .fallback
                 .deprecated_get_transaction_checkpoint(digest)
                 .await?;
+        }
+        Ok(res)
+    }
+
+    async fn get_object(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+    ) -> HaneulResult<Option<Object>> {
+        let mut res = self.primary.get_object(object_id, version).await?;
+        if res.is_none() {
+            res = self.fallback.get_object(object_id, version).await?;
         }
         Ok(res)
     }
