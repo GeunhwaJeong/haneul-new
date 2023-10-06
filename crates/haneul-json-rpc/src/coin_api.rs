@@ -450,6 +450,11 @@ mod tests {
             ) -> HaneulResult<Option<CheckpointSequenceNumber>>;
 
             async fn get_object(&self, object_id: ObjectID, version: SequenceNumber) -> HaneulResult<Option<Object>>;
+
+            async fn multi_get_transaction_checkpoint(
+                &self,
+                digests: &[TransactionDigest],
+            ) -> HaneulResult<Vec<Option<CheckpointSequenceNumber>>>;
         }
     }
 
