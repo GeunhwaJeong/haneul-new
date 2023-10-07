@@ -15,6 +15,8 @@ use crate::context_data::haneul_sdk_data_provider::HaneulClientLoader;
 use crate::context_data::{context_ext::DataProviderContextExt, db_data_provider::PgManager};
 use crate::types::base64::Base64;
 
+use haneul_types::object::{Data as NativeHaneulObjectData, Object as NativeHaneulObject};
+
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub(crate) struct Object {
     pub address: HaneulAddress,
@@ -167,5 +169,46 @@ impl Object {
         before: Option<String>,
     ) -> Option<Connection<String, NameService>> {
         unimplemented!()
+    }
+}
+
+impl From<&NativeHaneulObject> for Object {
+    fn from(o: &NativeHaneulObject) -> Self {
+        let kind = Some(match o.owner {
+            haneul_types::object::Owner::AddressOwner(_) => ObjectKind::Owned,
+            haneul_types::object::Owner::ObjectOwner(_) => ObjectKind::Child,
+            haneul_types::object::Owner::Shared {
+                initial_shared_version: _,
+            } => ObjectKind::Shared,
+            haneul_types::object::Owner::Immutable => ObjectKind::Immutable,
+        });
+
+        let owner_address = o.owner.get_owner_address().ok();
+        if matches!(kind, Some(ObjectKind::Immutable) | Some(ObjectKind::Shared))
+            && owner_address.is_some()
+        {
+            panic!("Immutable or Shared object should not have an owner_id");
+        }
+
+        let bcs = match &o.data {
+            // Do we BCS serialize packages?
+            NativeHaneulObjectData::Package(package) => Base64::from(
+                bcs::to_bytes(package)
+                    .expect("Failed to serialize package")
+                    .to_vec(),
+            ),
+            NativeHaneulObjectData::Move(move_object) => Base64::from(move_object.contents()),
+        };
+
+        Self {
+            address: HaneulAddress::from_array(o.id().into_bytes()),
+            version: o.version().into(),
+            digest: o.digest().base58_encode(),
+            storage_rebate: Some(BigInt::from(o.storage_rebate)),
+            owner: owner_address.map(HaneulAddress::from),
+            bcs: Some(bcs),
+            previous_transaction: Some(Digest::from_array(o.previous_transaction.into_inner())),
+            kind,
+        }
     }
 }
