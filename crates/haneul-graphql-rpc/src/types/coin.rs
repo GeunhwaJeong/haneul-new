@@ -7,13 +7,23 @@ use async_graphql::*;
 
 use haneul_types::coin::Coin as NativeHaneulCoin;
 
+#[derive(Clone, SimpleObject)]
+#[graphql(complex)]
 pub(crate) struct Coin {
+    pub id: ID,
+    #[graphql(skip)]
     pub move_obj: MoveObject,
+    #[graphql(skip)]
+    pub balance: Option<BigInt>,
 }
 
-#[Object]
+#[ComplexObject]
 impl Coin {
     async fn balance(&self) -> Option<BigInt> {
+        if let Some(existing_balance) = &self.balance {
+            return Some(existing_balance.clone());
+        }
+
         self.move_obj
             .native_object
             .data
