@@ -14,7 +14,7 @@ You must serialize transaction data following [Binary Canonical Serialization](h
 
 The following example demonstrates how to serialize data for a transfer using the Haneul CLI. This returns serialized transaction data in Base64. Submit the raw transaction to execute as `tx_bytes`.
 ```shell
-$HANEUL_BINARY client transfer-haneul --to $ADDRESS --haneul-coin-object-id $OBJECT_ID --gas-budget 1000 --serialize-unsigned-transaction
+$HANEUL_BINARY client transfer-haneul --to $ADDRESS --haneul-coin-object-id $OBJECT_ID --gas-budget <GAS-BUDGET-AMOUNT> --serialize-unsigned-transaction
 
 Raw tx_bytes to execute: $TX_BYTES
 ```
