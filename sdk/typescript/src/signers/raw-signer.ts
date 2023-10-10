@@ -7,13 +7,12 @@ import type { HaneulClient } from '../client/index.js';
 import type { Keypair } from '../cryptography/keypair.js';
 import { toSerializedSignature } from '../cryptography/signature.js';
 import type { SerializedSignature } from '../cryptography/signature.js';
-import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
 import { SignerWithProvider } from './signer-with-provider.js';
 
 export class RawSigner extends SignerWithProvider {
 	private readonly keypair: Keypair;
 
-	constructor(keypair: Keypair, client: JsonRpcProvider | HaneulClient) {
+	constructor(keypair: Keypair, client: HaneulClient) {
 		super(client);
 		this.keypair = keypair;
 	}
@@ -31,11 +30,11 @@ export class RawSigner extends SignerWithProvider {
 		return toSerializedSignature({
 			signatureScheme,
 			signature,
-			pubKey: pubkey,
+			publicKey: pubkey,
 		});
 	}
 
-	connect(client: HaneulClient | JsonRpcProvider): SignerWithProvider {
+	connect(client: HaneulClient): SignerWithProvider {
 		return new RawSigner(this.keypair, client);
 	}
 }

@@ -47,7 +47,7 @@ export function registerUnsafeBurnerWallet(
 		address: keypair.getPublicKey().toHaneulAddress(),
 		chains: ['haneul:unknown'],
 		features: ['haneul:signAndExecuteTransactionBlock', 'haneul:signTransactionBlock'],
-		publicKey: keypair.getPublicKey().toBytes(),
+		publicKey: keypair.getPublicKey().toRawBytes(),
 	});
 
 	class UnsafeBurnerWallet implements Wallet {

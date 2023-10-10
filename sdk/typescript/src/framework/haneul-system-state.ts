@@ -3,7 +3,6 @@
 
 import { TransactionBlock } from '../builder/index.js';
 import type { HaneulClient } from '../client/index.js';
-import type { JsonRpcProvider } from '../providers/json-rpc-provider.js';
 import { getObjectReference } from '../types/index.js';
 import { normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import { HANEUL_SYSTEM_ADDRESS } from './framework.js';
@@ -31,7 +30,7 @@ export class HaneulSystemStateUtil {
 	 * @param gasBudget omittable only for DevInspect mode
 	 */
 	public static async newRequestAddStakeTxn(
-		client: JsonRpcProvider | HaneulClient,
+		client: HaneulClient,
 		coins: string[],
 		amount: bigint,
 		validatorAddress: string,

@@ -22,7 +22,6 @@ import {
 } from 'superstruct';
 
 import { ObjectOwner } from './common.js';
-import type { OwnedObjectRef } from './transactions.js';
 
 export const ObjectType = union([string(), literal('package')]);
 export type ObjectType = Infer<typeof ObjectType>;
@@ -36,6 +35,16 @@ export const HaneulObjectRef = object({
 	version: union([number(), string(), bigint()]),
 });
 export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
+
+export const OwnedObjectRef = object({
+	owner: ObjectOwner,
+	reference: HaneulObjectRef,
+});
+export type OwnedObjectRef = Infer<typeof OwnedObjectRef>;
+export const TransactionEffectsModifiedAtVersions = object({
+	objectId: string(),
+	sequenceNumber: string(),
+});
 
 export const HaneulGasData = object({
 	payment: array(HaneulObjectRef),
@@ -109,11 +118,6 @@ export type HaneulRawData = Infer<typeof HaneulRawData>;
 export const HANEUL_DECIMALS = 9;
 
 export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
-
-/** @deprecated Use `string` instead. */
-export const ObjectDigest = string();
-/** @deprecated Use `string` instead. */
-export type ObjectDigest = Infer<typeof ObjectDigest>;
 
 export const HaneulObjectResponseError = object({
 	code: string(),
