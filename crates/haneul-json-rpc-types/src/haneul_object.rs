@@ -26,7 +26,7 @@ use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber, HaneulAddress,
     TransactionDigest,
 };
-use haneul_types::error::{HaneulObjectResponseError, UserInputError, UserInputResult};
+use haneul_types::error::{ExecutionError, HaneulObjectResponseError, UserInputError, UserInputResult};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
@@ -992,6 +992,22 @@ impl From<MovePackage> for HaneulRawMovePackage {
             type_origin_table: p.type_origin_table().clone(),
             linkage_table: p.linkage_table().clone(),
         }
+    }
+}
+
+impl HaneulRawMovePackage {
+    pub fn to_move_package(
+        &self,
+        max_move_package_size: u64,
+    ) -> Result<MovePackage, ExecutionError> {
+        MovePackage::new(
+            self.id,
+            self.version,
+            self.module_map.clone(),
+            max_move_package_size,
+            self.type_origin_table.clone(),
+            self.linkage_table.clone(),
+        )
     }
 }
 

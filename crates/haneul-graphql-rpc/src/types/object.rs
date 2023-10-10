@@ -6,6 +6,7 @@ use async_graphql::{connection::Connection, *};
 
 use super::big_int::BigInt;
 use super::digest::Digest;
+use super::move_package::MovePackage;
 use super::name_service::NameService;
 use super::{
     balance::Balance, coin::Coin, owner::Owner, stake::Stake, haneul_address::HaneulAddress,
@@ -14,7 +15,8 @@ use super::{
 use crate::context_data::db_data_provider::PgManager;
 use crate::context_data::haneul_sdk_data_provider::HaneulClientLoader;
 use crate::types::base64::Base64;
-
+use haneul_types::digests::TransactionDigest as NativeHaneulTransactionDigest;
+use haneul_types::move_package::MovePackage as NativeHaneulMovePackage;
 use haneul_types::object::{Data as NativeHaneulObjectData, Object as NativeHaneulObject};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
@@ -92,6 +94,26 @@ impl Object {
 
     async fn owner(&self) -> Option<Owner> {
         self.owner.as_ref().map(|q| Owner { address: *q })
+    }
+
+    async fn as_move_package(&self) -> Result<Option<MovePackage>> {
+        if let Some(bcs) = &self.bcs {
+            let bytes = bcs.0.as_slice();
+
+            let package = bcs::from_bytes::<NativeHaneulMovePackage>(bytes)
+                .map_err(|e| Error::from(format!("Failed to deserialize package: {}", e)))?;
+
+            Ok(Some(MovePackage {
+                native_object: NativeHaneulObject::new_package_from_data(
+                    NativeHaneulObjectData::Package(package),
+                    self.previous_transaction
+                        .map(|x| NativeHaneulTransactionDigest::new(x.into_array()))
+                        .ok_or(Error::new("Object must have a previous transaction digest"))?,
+                ),
+            }))
+        } else {
+            Ok(None)
+        }
     }
 
     // =========== Owner interface methods =============

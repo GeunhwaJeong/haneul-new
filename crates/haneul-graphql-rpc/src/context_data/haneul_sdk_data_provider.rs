@@ -99,7 +99,7 @@ impl Loader<Digest> for HaneulClientLoader {
 impl DataProvider for HaneulClient {
     async fn fetch_obj(&self, address: HaneulAddress, version: Option<u64>) -> Result<Option<Object>> {
         let oid: NativeObjectID = address.into_array().as_slice().try_into()?;
-        let opts = HaneulObjectDataOptions::full_content();
+        let opts = HaneulObjectDataOptions::full_content().with_bcs();
 
         let g = match version {
             Some(v) => match self
