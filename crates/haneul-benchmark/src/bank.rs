@@ -13,7 +13,7 @@ use std::sync::Arc;
 use haneul_core::test_utils::{make_pay_haneul_transaction, make_transfer_haneul_transaction};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::AccountKeyPair;
-use tracing::{debug, info};
+use tracing::info;
 
 /// Bank is used for generating gas for running the benchmark.
 #[derive(Clone)]
@@ -61,7 +61,7 @@ impl BenchmarkBank {
             )
             .await?;
 
-        debug!("Number of gas requests = {}", chunked_coin_configs.len());
+        info!("Number of gas requests = {}", chunked_coin_configs.len());
         for chunk in chunked_coin_configs {
             let gas_coins = self.pay_haneul(chunk, &mut init_coin, gas_price).await?;
             new_gas_coins.extend(gas_coins);
