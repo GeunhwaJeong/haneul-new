@@ -93,7 +93,7 @@ function App() {
 			<button
 				onClick={async () => {
 					setError(null);
-					const txb = getDemoTransaction(accounts[0]?.address);
+					const txb = getDemoTransaction(accounts[0]?.address || '');
 					try {
 						await haneulWallet.features[
 							'haneul:signAndExecuteTransactionBlock'
@@ -112,7 +112,7 @@ function App() {
 			<button
 				onClick={async () => {
 					setError(null);
-					const txb = getDemoTransaction(accounts[0]?.address);
+					const txb = getDemoTransaction(accounts[0]?.address || '');
 					try {
 						await haneulWallet.features['haneul:signTransactionBlock'].signTransactionBlock({
 							transactionBlock: txb,
