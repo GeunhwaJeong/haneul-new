@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 import type { IdentifierRecord, ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 import { getWallets } from '@haneullabs/wallet-standard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,11 +20,12 @@ export function createHaneulClientContextWrapper(client: HaneulClient) {
 
 export function createWalletProviderContextWrapper(
 	providerProps: Omit<ComponentProps<typeof WalletProvider>, 'children'> = {},
+	haneulClient: HaneulClient = new HaneulClient({ url: getFullnodeUrl('localnet') }),
 ) {
 	const queryClient = new QueryClient();
 	return function WalletProviderContextWrapper({ children }: { children: React.ReactNode }) {
 		return (
-			<HaneulClientProvider>
+			<HaneulClientProvider networks={{ test: haneulClient }}>
 				<QueryClientProvider client={queryClient}>
 					<WalletProvider {...providerProps}>{children}</WalletProvider>;
 				</QueryClientProvider>

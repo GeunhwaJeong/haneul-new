@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
@@ -59,7 +60,12 @@ describe('useSignAndExecuteTransactionBlock', () => {
 			features: haneulFeatures,
 		});
 
-		const wrapper = createWalletProviderContextWrapper();
+		const haneulClient = new HaneulClient({ url: getFullnodeUrl('localnet') });
+		const executeTransactionBlock = vi.spyOn(haneulClient, 'executeTransactionBlock');
+
+		executeTransactionBlock.mockReturnValueOnce(Promise.resolve({ digest: '123' }));
+
+		const wrapper = createWalletProviderContextWrapper({}, haneulClient);
 		const { result } = renderHook(
 			() => ({
 				connectWallet: useConnectWallet(),
@@ -72,13 +78,12 @@ describe('useSignAndExecuteTransactionBlock', () => {
 
 		await waitFor(() => expect(result.current.connectWallet.isSuccess).toBe(true));
 
-		const useSignAndExecuteTransactionBlockFeature =
-			mockWallet.features['haneul:signAndExecuteTransactionBlock'];
-		const useSignAndExecuteTransactionBlockMock = useSignAndExecuteTransactionBlockFeature!
-			.signAndExecuteTransactionBlock as Mock;
+		const signTransactionBlockFeature = mockWallet.features['haneul:signTransactionBlock'];
+		const signTransactionBlockMock = signTransactionBlockFeature!.signTransactionBlock as Mock;
 
-		useSignAndExecuteTransactionBlockMock.mockReturnValueOnce({
-			digest: '123',
+		signTransactionBlockMock.mockReturnValueOnce({
+			transactionBlockBytes: 'abc',
+			signature: '123',
 		});
 
 		result.current.useSignAndExecuteTransactionBlock.mutate({
@@ -91,6 +96,10 @@ describe('useSignAndExecuteTransactionBlock', () => {
 		);
 		expect(result.current.useSignAndExecuteTransactionBlock.data).toStrictEqual({
 			digest: '123',
+		});
+		expect(haneulClient.executeTransactionBlock).toHaveBeenCalledWith({
+			transactionBlock: 'abc',
+			signature: '123',
 		});
 
 		act(() => unregister());
