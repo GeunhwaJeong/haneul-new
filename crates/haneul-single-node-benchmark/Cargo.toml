@@ -7,9 +7,9 @@ license = "Apache-2.0"
 
 [dependencies]
 move-core-types.workspace = true
-haneul-core.workspace = true
+haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-test-transaction-builder.workspace = true
-haneul-types.workspace = true
+haneul-types = { workspace = true, features = ["test-utils"] }
 
 async-trait.workspace = true
 bcs.workspace = true
