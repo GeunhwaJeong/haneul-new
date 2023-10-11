@@ -3,9 +3,8 @@
 
 use clap::Parser;
 use haneul_single_node_benchmark::command::Command;
-use haneul_single_node_benchmark::execution::{
-    benchmark_move_transactions, benchmark_simple_transfer,
-};
+use haneul_single_node_benchmark::execution::run_benchmark;
+use haneul_single_node_benchmark::workload::Workload;
 
 #[tokio::main]
 async fn main() {
@@ -15,26 +14,5 @@ async fn main() {
         .init();
 
     let args = Command::parse();
-    match args {
-        Command::NoMove {
-            tx_count,
-            component,
-        } => benchmark_simple_transfer(tx_count, component).await,
-        Command::Move {
-            tx_count,
-            component,
-            num_input_objects,
-            num_dynamic_fields,
-            computation,
-        } => {
-            benchmark_move_transactions(
-                tx_count,
-                component,
-                num_input_objects,
-                num_dynamic_fields,
-                computation,
-            )
-            .await
-        }
-    }
+    run_benchmark(Workload::new(args.tx_count, args.workload), args.component).await;
 }
