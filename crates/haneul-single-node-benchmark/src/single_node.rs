@@ -18,6 +18,7 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::object::Object;
 use haneul_types::transaction::{
     CertifiedTransaction, Transaction, VerifiedCertificate, VerifiedTransaction,
@@ -115,6 +116,7 @@ impl SingleValidator {
         cert: CertifiedTransaction,
         component: Component,
     ) -> TransactionEffects {
+        assert!(!matches!(component, Component::TxnSigning));
         let effects = match component {
             Component::Baseline => {
                 let cert = VerifiedExecutableTransaction::new_from_certificate(
@@ -142,8 +144,15 @@ impl SingleValidator {
                     .await;
                 response.signed_effects.into_data()
             }
+            Component::TxnSigning => unreachable!(),
         };
         assert!(effects.status().is_ok());
         effects
+    }
+
+    pub async fn sign_transaction(&self, transaction: Transaction) -> HandleTransactionResponse {
+        self.validator_service
+            .handle_transaction_for_testing(transaction)
+            .await
     }
 }

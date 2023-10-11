@@ -13,6 +13,7 @@ use std::sync::Arc;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress, HANEUL_ADDRESS_LENGTH};
 use haneul_types::crypto::{get_account_key_pair, AccountKeyPair};
 use haneul_types::effects::TransactionEffects;
+use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::object::Object;
 use haneul_types::transaction::{CertifiedTransaction, SignedTransaction, Transaction};
 use tracing::info;
@@ -231,5 +232,24 @@ impl BenchmarkContext {
                 .collect();
             *gas_objects = Arc::new(refreshed_gas_objects);
         }
+    }
+
+    pub(crate) async fn validator_sign_transactions(
+        &self,
+        transactions: Vec<Transaction>,
+    ) -> Vec<HandleTransactionResponse> {
+        info!(
+            "Started signing {} transactions. You can now attach a profiler",
+            transactions.len(),
+        );
+        let tasks: FuturesUnordered<_> = transactions
+            .into_iter()
+            .map(|tx| {
+                let validator = self.validator();
+                tokio::spawn(async move { validator.sign_transaction(tx).await })
+            })
+            .collect();
+        let results: Vec<_> = tasks.collect().await;
+        results.into_iter().map(|r| r.unwrap()).collect()
     }
 }
