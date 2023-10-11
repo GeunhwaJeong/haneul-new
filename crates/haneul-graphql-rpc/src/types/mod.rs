@@ -29,6 +29,7 @@ pub(crate) mod stake_subsidy;
 pub(crate) mod staked_haneul;
 pub(crate) mod storage_fund;
 pub(crate) mod haneul_address;
+pub(crate) mod haneul_system_state_summary;
 pub(crate) mod system_parameters;
 pub(crate) mod transaction_block;
 pub(crate) mod transaction_block_kind;

@@ -1,13 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::context_data::db_data_provider::PgManager;
+
 use super::address::Address;
 use super::big_int::BigInt;
-// use super::haneul_address::HaneulAddress;
+use super::move_object::MoveObject;
+use super::haneul_address::HaneulAddress;
 use super::validator_credentials::ValidatorCredentials;
 use async_graphql::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, SimpleObject)]
+#[graphql(complex)]
 pub(crate) struct Validator {
     pub address: Address,
     pub credentials: Option<ValidatorCredentials>,
@@ -16,9 +20,12 @@ pub(crate) struct Validator {
     pub description: Option<String>,
     pub image_url: Option<String>,
     pub project_url: Option<String>,
-    // operationCap: Option<MoveObject>,
-    // stakingPool: Option<MoveObject>,
-    // exchangeRates: Option<MoveObject>,
+    #[graphql(skip)]
+    pub operation_cap_id: HaneulAddress,
+    #[graphql(skip)]
+    pub staking_pool_id: HaneulAddress,
+    #[graphql(skip)]
+    pub exchange_rates_id: HaneulAddress,
     pub exchange_rates_size: Option<u64>,
     pub staking_pool_activation_epoch: Option<u64>,
     pub staking_pool_haneul_balance: Option<BigInt>,
@@ -34,7 +41,31 @@ pub(crate) struct Validator {
     pub next_epoch_stake: Option<BigInt>,
     pub next_epoch_gas_price: Option<BigInt>,
     pub next_epoch_commission_rate: Option<u64>,
-    // pub at_risk: Option<u64>,
-    // pub report_records: Option<Vec<HaneulAddress>>,
-    // pub apy: Option<u64>,
+    pub at_risk: Option<u64>, // only available on haneul_system_state_summary
+    pub report_records: Option<Vec<HaneulAddress>>, // only available on haneul_system_state_summary
+                              // pub apy: Option<u64>, // TODO: Defer for StakedHaneul implementation
+}
+
+#[ComplexObject]
+impl Validator {
+    async fn operation_cap(&self, ctx: &Context<'_>) -> Result<Option<MoveObject>> {
+        ctx.data_unchecked::<PgManager>()
+            .fetch_move_obj(self.operation_cap_id, None)
+            .await
+            .extend()
+    }
+
+    async fn staking_pool(&self, ctx: &Context<'_>) -> Result<Option<MoveObject>> {
+        ctx.data_unchecked::<PgManager>()
+            .fetch_move_obj(self.operation_cap_id, None)
+            .await
+            .extend()
+    }
+
+    async fn exchange_rates(&self, ctx: &Context<'_>) -> Result<Option<MoveObject>> {
+        ctx.data_unchecked::<PgManager>()
+            .fetch_move_obj(self.operation_cap_id, None)
+            .await
+            .extend()
+    }
 }
