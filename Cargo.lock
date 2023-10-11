@@ -10480,6 +10480,7 @@ dependencies = [
  "serde_with",
  "serde_yaml 0.8.26",
  "haneul-indexer",
+ "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-sdk",
  "haneul-types",
