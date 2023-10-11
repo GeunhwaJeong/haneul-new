@@ -10534,6 +10534,7 @@ dependencies = [
  "haneul-rest-api",
  "haneul-sdk",
  "haneul-test-transaction-builder",
+ "haneul-transaction-builder",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
