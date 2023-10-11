@@ -21,3 +21,5 @@ export * from './hooks/useHaneulClientQuery.js';
 export * from './hooks/useHaneulClientInfiniteQuery.js';
 export * from './themes/lightTheme.js';
 export * from './types.js';
+
+export type { Theme, ThemeVars, DynamicTheme } from './themes/themeContract.js';
