@@ -1,0 +1,82 @@
+# Haneul dApp Kit
+
+The Haneul dApp Kit is a set of React components, hooks, and utilities that make it easy to build a
+dApp for the Haneul ecosystem. It provides hooks and components for querying data from the Haneul
+blockchain, and connecting to Haneul wallets.
+
+See https://haneul-typescript-docs.vercel.app/typescript for full documentation
+
+### Core Features
+
+- **Query Hooks:** dApp Kit provides a set of hooks for making rpc calls to the Haneul blockchain,
+  making it easy to load any information needed for your dApp.
+- **Automatic Wallet State Management:** dApp Kit removes the complexity of state management related
+  to wallet connections. You can focus on building your dApp.
+- **Supports all Haneul wallets:** No need to manually define wallets you support. All Haneul wallets are
+  automatically supported.
+- **Easy to integrate:** dApp Kit provides pre-built React Components that you can drop right into
+  your dApp, for easier integration
+- **Flexible:** dApp Kit ships both fully functional React Component, and lower level hooks that you
+  can use to build your own custom components.
+
+## Install from NPM
+
+To use the Haneul dApp Kit in your project, run the following command in your project root:
+
+```sh npm2yarn
+npm i --save @haneullabs/dapp-kit @haneullabs/haneul.js @tanstack/react-query
+```
+
+## Setting up Providers
+
+To be able to use the hooks and components in the dApp Kit, you need to wrap your app with a couple
+providers. The props available on the providers are covered in more detail in their respective docs
+pages.
+
+```tsx
+import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { type HaneulClientOptions } from '@haneullabs/haneul.js';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Config options for the networks you want to connect to
+const networks = {
+	localnet: { url: getFullnodeUrl('localnet') },
+	mainnet: { url: getFullnodeUrl('mainnet') },
+} satisfies Record<string, HaneulClientOptions>;
+const queryClient = new QueryClient();
+
+function App() {
+	return (
+		<QueryClientProvider client={queryClient}>
+			<HaneulClientProvider networks={networks} defaultNetwork="localnet">
+				<WalletProvider>
+					<YourApp />
+				</WalletProvider>
+			</HaneulClientProvider>
+		</QueryClient>
+	);
+}
+```
+
+## using hooks to make rpc calls
+
+The dApp Kit provides a set of hooks for making rpc calls to the Haneul blockchain. The hooks are thin
+wrappers around `useQuery` from `@tanstack/react-query`. For more comprehensive documentation on how
+these query hooks checkout the
+[react-query docs](https://tanstack.com/query/latest/docs/react/overview).
+
+```tsx
+import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
+
+function MyComponent() {
+	const { data, isLoading, error, refetch } = useHaneulClientQuery('getOwnedObjects', {
+		owner: '0x123',
+	});
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}
+```

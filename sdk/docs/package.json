@@ -22,11 +22,17 @@
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"license": "Apache-2.0",
 	"dependencies": {
+		"@haneullabs/dapp-kit": "workspace:*",
+		"@haneullabs/haneul.js": "workspace:*",
+		"@tanstack/react-query": "^4.29.25",
 		"@types/node": "^20.4.2",
 		"next": "^13.4.15",
 		"nextra": "^2.11.0",
 		"nextra-theme-docs": "^2.11.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.2.15"
 	}
 }
