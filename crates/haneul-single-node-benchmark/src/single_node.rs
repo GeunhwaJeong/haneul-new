@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::command::Component;
+use crate::mock_consensus::{ConsensusMode, MockConsensusClient};
 use std::path::PathBuf;
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
@@ -9,16 +10,14 @@ use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::consensus_adapter::{
-    ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics, SubmitToConsensus,
+    ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
 };
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::HaneulResult;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::object::Object;
 use haneul_types::transaction::{
     CertifiedTransaction, Transaction, VerifiedCertificate, VerifiedTransaction,
@@ -32,28 +31,15 @@ pub struct SingleValidator {
 }
 
 impl SingleValidator {
-    pub async fn new(genesis_objects: &[Object]) -> Self {
+    pub(crate) async fn new(genesis_objects: &[Object], consensus_mode: ConsensusMode) -> Self {
         let validator = TestAuthorityBuilder::new()
             .disable_indexer()
             .with_starting_objects(genesis_objects)
             .build()
             .await;
         let epoch_store = validator.epoch_store_for_testing().clone();
-        struct SubmitNoop {}
-
-        #[async_trait::async_trait]
-        impl SubmitToConsensus for SubmitNoop {
-            async fn submit_to_consensus(
-                &self,
-                _transaction: &ConsensusTransaction,
-                _epoch_store: &Arc<AuthorityPerEpochStore>,
-            ) -> HaneulResult {
-                Ok(())
-            }
-        }
-
         let consensus_adapter = Arc::new(ConsensusAdapter::new(
-            Box::new(SubmitNoop {}),
+            Box::new(MockConsensusClient::new(validator.clone(), consensus_mode)),
             validator.name,
             Box::new(Arc::new(ConnectionMonitorStatusForTests {})),
             100_000,
@@ -149,7 +135,7 @@ impl SingleValidator {
                     .into_inner()
                     .into_data()
             }
-            Component::ValidatorService => {
+            Component::ValidatorWithoutConsensus | Component::ValidatorWithFakeConsensus => {
                 let response = self
                     .validator_service
                     .execute_certificate_for_testing(cert)
