@@ -1,6 +1,6 @@
 # Docs site
 
-For more complete docs, visit the [Haneul Typescript SDK docs](https://haneul-typescript-docs.vercel.app/)
+For more complete docs, visit the [Haneul TypeScript SDK docs](https://haneul-typescript-docs.vercel.app/)
 
 # Haneul TypeScript SDK
 

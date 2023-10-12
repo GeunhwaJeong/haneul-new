@@ -1,0 +1,9 @@
+[package]
+name = "counter"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/devnet" }
+
+[addresses]
+counter = "0x0"

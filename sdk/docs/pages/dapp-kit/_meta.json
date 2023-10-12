@@ -1,5 +1,6 @@
 {
 	"index": "Haneul dApp Kit Quick Start",
+	"create-dapp": "@haneullabs/create-dapp",
 	"haneul-client-provider": "HaneulClientProvider",
 	"rpc-hooks": "RPC Hooks",
 	"wallet-provider": "WalletProvider",

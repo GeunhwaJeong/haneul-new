@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import { useContext } from 'react';
 
 import { HaneulClientContext } from '../components/HaneulClientProvider.js';
@@ -17,6 +18,6 @@ export function useHaneulClientContext() {
 	return haneulClient;
 }
 
-export function useHaneulClient() {
+export function useHaneulClient(): HaneulClient {
 	return useHaneulClientContext().client;
 }
