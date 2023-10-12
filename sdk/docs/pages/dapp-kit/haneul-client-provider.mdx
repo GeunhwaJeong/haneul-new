@@ -12,7 +12,7 @@ currently active network.
 
 ```tsx
 import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { type HaneulClientOptions } from '@haneullabs/haneul.js';
+import { type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 
 // Config options for the networks you want to connect to
 const networks = {
@@ -45,8 +45,8 @@ function App() {
 ## Using the HaneulClientProvider as a controlled component
 
 ```tsx
-import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { type HaneulClientOptions } from '@haneullabs/haneul.js';
+import { HaneulClientProvider } from '@haneullabs/dapp-kit';
+import { type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { useState } from 'react';
 
 // Config options for the networks you want to connect to
@@ -75,8 +75,8 @@ function App() {
 ## Customizing how the HaneulClient is created
 
 ```tsx
-import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { HaneulClient, HaneulHTTPTransport, type HaneulClientOptions } from '@haneullabs/haneul.js';
+import { HaneulClientProvider } from '@haneullabs/dapp-kit';
+import { HaneulClient, HaneulHTTPTransport, type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 
 // Config options for the networks you want to connect to
 const networks = {
