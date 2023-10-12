@@ -24,6 +24,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::{DynamicFieldName, Field};
 use haneul_types::event::EventID;
+use haneul_types::TypeTag;
 
 pub(crate) struct IndexerApiV2 {
     inner: IndexerReader,
@@ -194,7 +195,54 @@ impl IndexerApiServer for IndexerApiV2 {
         parent_object_id: ObjectID,
         name: DynamicFieldName,
     ) -> RpcResult<HaneulObjectResponse> {
-        unimplemented!()
+        let name_bcs_value = self.inner.bcs_name_from_dynamic_field_name(&name)?;
+
+        // Try as Dynamic Field
+        let id = haneul_types::dynamic_field::derive_dynamic_field_id(
+            parent_object_id,
+            &name.type_,
+            &name_bcs_value,
+        )
+        .expect("deriving dynamic field id can't fail");
+
+        let options = haneul_json_rpc_types::HaneulObjectDataOptions::full_content();
+        match self.inner.get_object_read_in_blocking_task(id).await? {
+            haneul_types::object::ObjectRead::NotExists(_)
+            | haneul_types::object::ObjectRead::Deleted(_) => {}
+            haneul_types::object::ObjectRead::Exists(object_ref, o, layout) => {
+                return Ok(HaneulObjectResponse::new_with_data(
+                    (object_ref, o, layout, options, None).try_into()?,
+                ));
+            }
+        }
+
+        // Try as Dynamic Field Object
+        let dynamic_object_field_struct =
+            haneul_types::dynamic_field::DynamicFieldInfo::dynamic_object_field_wrapper(name.type_);
+        let dynamic_object_field_type = TypeTag::Struct(Box::new(dynamic_object_field_struct));
+        let dynamic_object_field_id = haneul_types::dynamic_field::derive_dynamic_field_id(
+            parent_object_id,
+            &dynamic_object_field_type,
+            &name_bcs_value,
+        )
+        .expect("deriving dynamic field id can't fail");
+        match self
+            .inner
+            .get_object_read_in_blocking_task(dynamic_object_field_id)
+            .await?
+        {
+            haneul_types::object::ObjectRead::NotExists(_)
+            | haneul_types::object::ObjectRead::Deleted(_) => {}
+            haneul_types::object::ObjectRead::Exists(object_ref, o, layout) => {
+                return Ok(HaneulObjectResponse::new_with_data(
+                    (object_ref, o, layout, options, None).try_into()?,
+                ));
+            }
+        }
+
+        Ok(HaneulObjectResponse::new_with_error(
+            haneul_types::error::HaneulObjectResponseError::DynamicFieldNotFound { parent_object_id },
+        ))
     }
 
     fn subscribe_event(&self, sink: SubscriptionSink, filter: EventFilter) -> SubscriptionResult {
