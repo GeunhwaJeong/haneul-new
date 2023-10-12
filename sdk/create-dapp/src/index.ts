@@ -127,8 +127,5 @@ async function getDependencyVersions() {
 		dependencies: Record<string, string>;
 	};
 
-	return {
-		'@haneullabs/dapp-kit': content.dependencies['@haneullabs/dapp-kit'],
-		'@haneullabs/haneul.js': content.dependencies['@haneullabs/dapp-kit'],
-	};
+	return content.dependencies;
 }
