@@ -4,6 +4,7 @@
 //! This module contains the transactional test runner instantiation for the Haneul adapter
 
 use crate::{args::*, programmable_transaction_test_parser::parser::ParsedCommand};
+use crate::{TransactionalAdapter, ValidatorWithFullnode};
 use anyhow::{anyhow, bail};
 use async_trait::async_trait;
 use bimap::btree::BiBTreeMap;
@@ -38,10 +39,7 @@ use std::{
     path::Path,
     sync::Arc,
 };
-use haneul_core::authority::{
-    authority_test_utils::send_and_confirm_transaction_with_execution_error,
-    test_authority_builder::TestAuthorityBuilder, AuthorityState,
-};
+use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_framework::BuiltInFramework;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
@@ -52,11 +50,13 @@ use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_storage::{
     key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
 };
+use haneul_types::base_types::SequenceNumber;
+use haneul_types::crypto::get_authority_key_pair;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::DEEPBOOK_PACKAGE_ID;
 use haneul_types::MOVE_STDLIB_PACKAGE_ID;
-use haneul_types::{base_types::SequenceNumber, effects::TransactionEffectsAPI};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, HANEUL_ADDRESS_LENGTH},
     crypto::{get_key_pair_from_rng, AccountKeyPair},
@@ -68,7 +68,6 @@ use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use haneul_types::{clock::Clock, HANEUL_SYSTEM_ADDRESS};
-use haneul_types::{crypto::get_authority_key_pair, storage::ObjectStore};
 use haneul_types::{execution_status::ExecutionStatus, transaction::TransactionKind};
 use haneul_types::{gas::GasCostSummary, object::GAS_VALUE_FOR_TESTING};
 use haneul_types::{id::UID, DEEPBOOK_ADDRESS};
@@ -106,9 +105,6 @@ const DEFAULT_GAS_BUDGET: u64 = 5_000_000_000;
 const GAS_FOR_TESTING: u64 = GAS_VALUE_FOR_TESTING;
 
 pub struct HaneulTestAdapter<'a> {
-    pub(crate) validator: Arc<AuthorityState>,
-    pub(crate) kv_store: Arc<TransactionKeyValueStore>,
-    pub(crate) fullnode: Arc<AuthorityState>,
     pub(crate) compiled_state: CompiledState<'a>,
     /// For upgrades: maps an upgraded package name to the original package name.
     package_upgrade_mapping: BTreeMap<Symbol, Symbol>,
@@ -119,6 +115,7 @@ pub struct HaneulTestAdapter<'a> {
     next_fake: (u64, u64),
     gas_price: u64,
     pub(crate) staged_modules: BTreeMap<Symbol, StagedPackage>,
+    pub(crate) executor: Box<dyn TransactionalAdapter>,
 }
 
 pub(crate) struct StagedPackage {
@@ -356,9 +353,11 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
         ));
 
         let mut test_adapter = Self {
-            validator,
-            kv_store,
-            fullnode,
+            executor: Box::new(ValidatorWithFullnode {
+                validator,
+                fullnode,
+                kv_store,
+            }),
             compiled_state: CompiledState::new(
                 named_address_mapping,
                 pre_compiled_deps,
@@ -1106,13 +1105,8 @@ impl<'a> HaneulTestAdapter<'a> {
             .intent_message()
             .value
             .contains_shared_object();
-        let (txn, effects, error_opt) = send_and_confirm_transaction_with_execution_error(
-            &self.validator,
-            Some(&self.fullnode),
-            transaction,
-            with_shared,
-        )
-        .await?;
+        let (effects, error_opt) = self.executor.execute_txn(transaction).await?;
+        let digest = effects.transaction_digest();
         let mut created_ids: Vec<_> = effects
             .created()
             .iter()
@@ -1164,10 +1158,9 @@ impl<'a> HaneulTestAdapter<'a> {
         match effects.status() {
             ExecutionStatus::Success { .. } => {
                 let events = self
-                    .validator
+                    .executor
                     .query_events(
-                        &self.kv_store,
-                        EventFilter::Transaction(*txn.digest()),
+                        EventFilter::Transaction(*digest),
                         None,
                         *QUERY_MAX_RESULT_LIMIT,
                         /* descending */ false,
@@ -1211,7 +1204,7 @@ impl<'a> HaneulTestAdapter<'a> {
         gas_price: Option<u64>,
     ) -> anyhow::Result<TxnSummary> {
         let results = self
-            .fullnode
+            .executor
             .dev_inspect_transaction_block(sender, transaction_kind, gas_price)
             .await?;
         let DevInspectResults {
@@ -1279,9 +1272,9 @@ impl<'a> HaneulTestAdapter<'a> {
 
     fn get_object(&self, id: &ObjectID, version: Option<SequenceNumber>) -> anyhow::Result<Object> {
         let obj_res = if let Some(v) = version {
-            self.validator.database.get_object_by_key(id, v)
+            self.executor.get_object_by_key(id, v)
         } else {
-            self.validator.database.get_object(id)
+            self.executor.get_object(id)
         };
         match obj_res {
             Ok(Some(obj)) => Ok(obj),
