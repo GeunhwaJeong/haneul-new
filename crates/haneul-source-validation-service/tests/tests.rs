@@ -200,8 +200,8 @@ async fn run_upgrade(
     .await?;
 
     let HaneulClientCommandResult::Upgrade(response) = resp else {
-            unreachable!("Invalid upgrade response");
-        };
+        unreachable!("Invalid upgrade response");
+    };
     let HaneulTransactionBlockEffects::V1(effects) = response.effects.unwrap();
     assert!(effects.status.is_ok());
     Ok(())
