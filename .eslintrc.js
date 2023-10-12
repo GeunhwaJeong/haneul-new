@@ -240,7 +240,7 @@ module.exports = {
 			},
 		},
 		{
-			files: ['sdk/ledgerjs-hw-app-haneul/**/*', 'apps/wallet/**/*', 'sdk/zklogin/**/*'],
+			files: ['sdk/ledgerjs-hw-app-haneul/**/*', 'apps/wallet/**/*'],
 			rules: {
 				// ledgerjs-hw-app-haneul and wallet use Buffer
 				'no-restricted-globals': ['off'],
