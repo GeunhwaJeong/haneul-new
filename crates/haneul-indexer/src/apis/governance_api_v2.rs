@@ -18,7 +18,7 @@ use haneul_types::{
     committee::EpochId,
     governance::StakedHaneul,
     haneul_serde::BigInt,
-    haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary,
+    haneul_system_state::{haneul_system_state_summary::HaneulSystemStateSummary, PoolTokenExchangeRate},
 };
 
 #[derive(Clone)]
@@ -229,31 +229,20 @@ async fn exchange_rates(
         let mut rates = vec![];
         for df in state
             .inner
-            .get_dynamic_fields_in_blocking_task(
+            .get_dynamic_fields_raw_in_blocking_task(
                 exchange_rates_id,
                 None,
                 exchange_rates_size as usize,
             )
             .await?
         {
-            let epoch: EpochId = bcs::from_bytes(&df.bcs_name).map_err(|e| {
-                haneul_types::error::HaneulError::ObjectDeserializationError {
-                    error: e.to_string(),
-                }
-            })?;
+            let dynamic_field = df
+                .to_dynamic_field::<EpochId, PoolTokenExchangeRate>()
+                .ok_or_else(|| haneul_types::error::HaneulError::ObjectDeserializationError {
+                    error: "dynamic field malformed".to_owned(),
+                })?;
 
-            let exchange_rate: haneul_types::haneul_system_state::PoolTokenExchangeRate = state
-                .inner
-                .spawn_blocking(move |this| {
-                    haneul_types::dynamic_field::get_dynamic_field_from_store(
-                        &this,
-                        exchange_rates_id,
-                        &epoch,
-                    )
-                })
-                .await?;
-
-            rates.push((epoch, exchange_rate));
+            rates.push((dynamic_field.name, dynamic_field.value));
         }
 
         rates.sort_by(|(a, _), (b, _)| a.cmp(b).reverse());
