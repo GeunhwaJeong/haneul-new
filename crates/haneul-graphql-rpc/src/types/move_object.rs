@@ -1,17 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use super::big_int::BigInt;
 use super::move_value::MoveValue;
+use super::stake::StakeStatus;
 use super::{coin::Coin, object::Object};
 use crate::context_data::db_data_provider::PgManager;
-use crate::types::staked_haneul::StakedHaneul;
+use crate::types::stake::Stake;
 use async_graphql::Error;
 use async_graphql::*;
 use move_bytecode_utils::layout::TypeLayoutBuilder;
 use move_core_types::language_storage::TypeTag;
+use haneul_types::governance::StakedHaneul;
 use haneul_types::object::Object as NativeHaneulObject;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub(crate) struct MoveObject {
     pub native_object: NativeHaneulObject,
 }
@@ -68,15 +71,28 @@ impl MoveObject {
         })
     }
 
-    async fn as_staked_haneul(&self) -> Option<StakedHaneul> {
-        self.native_object.data.try_as_move().and_then(|x| {
-            if x.type_().is_staked_haneul() {
-                Some(StakedHaneul {
-                    move_obj: self.clone(),
-                })
-            } else {
-                None
-            }
-        })
+    // TODO implement this properly, it is missing estimate reward
+    async fn as_stake(&self, ctx: &Context<'_>) -> Result<Option<Stake>, Error> {
+        let stake =
+            StakedHaneul::try_from(&self.native_object).map_err(|e| Error::new(e.to_string()))?;
+        let latest_system_state = ctx
+            .data_unchecked::<PgManager>()
+            .fetch_latest_haneul_system_state()
+            .await
+            .map_err(|e| Error::new(e.to_string()))?;
+        let current_epoch_id = latest_system_state.epoch_id;
+        let status = if current_epoch_id >= stake.activation_epoch() {
+            StakeStatus::Active
+        } else {
+            StakeStatus::Pending
+        };
+        Ok(Some(Stake {
+            active_epoch_id: Some(stake.activation_epoch()),
+            estimated_reward: None,
+            principal: Some(BigInt::from(stake.principal())),
+            request_epoch_id: Some(stake.activation_epoch().saturating_sub(1)),
+            status: Some(status),
+            staked_haneul_id: stake.id(),
+        }))
     }
 }
