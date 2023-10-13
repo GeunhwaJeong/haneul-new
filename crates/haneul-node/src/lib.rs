@@ -66,6 +66,9 @@ use haneul_core::consensus_adapter::{
     CheckConnection, ConnectionMonitorStatus, ConsensusAdapter, ConsensusAdapterMetrics,
 };
 use haneul_core::consensus_handler::ConsensusHandler;
+use haneul_core::consensus_throughput_calculator::{
+    ConsensusThroughputCalculator, ConsensusThroughputProfiler, ThroughputProfileRanges,
+};
 use haneul_core::consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics};
 use haneul_core::db_checkpoint_handler::DBCheckpointHandler;
 use haneul_core::epoch::committee_store::CommitteeStore;
@@ -1060,6 +1063,21 @@ impl HaneulNode {
         let new_epoch_start_state = epoch_store.epoch_start_state();
         let committee = new_epoch_start_state.get_narwhal_committee();
 
+        let throughput_calculator = Arc::new(ConsensusThroughputCalculator::new(
+            None,
+            state.metrics.clone(),
+        ));
+
+        let throughput_profiler = Arc::new(ConsensusThroughputProfiler::new(
+            throughput_calculator.clone(),
+            None,
+            None,
+            state.metrics.clone(),
+            ThroughputProfileRanges::default(), // TODO: move configuration to protocol-config and potentially differentiate for each environment.
+        ));
+
+        consensus_adapter.swap_throughput_profiler(throughput_profiler);
+
         let consensus_handler_initializer = || {
             ConsensusHandler::new(
                 epoch_store.clone(),
@@ -1069,6 +1087,7 @@ impl HaneulNode {
                 low_scoring_authorities.clone(),
                 committee.clone(),
                 state.metrics.clone(),
+                throughput_calculator.clone(),
             )
         };
 
