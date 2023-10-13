@@ -8,6 +8,7 @@ use clap::Parser;
 use haneul_graphql_rpc::commands::Command;
 use haneul_graphql_rpc::config::{ConnectionConfig, ServiceConfig};
 use haneul_graphql_rpc::schema_sdl_export;
+use haneul_graphql_rpc::server::builder::Server;
 use haneul_graphql_rpc::server::simple_server::start_example_server;
 
 #[tokio::main]
@@ -37,6 +38,11 @@ async fn main() {
 
             println!("Starting server...");
             start_example_server(conn, service_config).await;
+        }
+        Command::FromConfig { path } => {
+            let server = Server::from_yaml_config(path.to_str().unwrap());
+            println!("Starting server...");
+            server.await.run().await;
         }
     }
 }
