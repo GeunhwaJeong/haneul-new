@@ -340,8 +340,9 @@
 				"fileName": "reference/framework/index"
 			},
 			{
-				"label": "Haneul Partner Package Matrix",
-				"fileName": "reference/partner-matrix"
+				"label": "Haneul Partner Packages",
+				"link": "https://haneul.directory/",
+				"external": true
 			}
 		],
 		"explore": [
