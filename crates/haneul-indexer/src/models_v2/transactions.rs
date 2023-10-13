@@ -6,6 +6,7 @@ use haneul_json_rpc_types::BalanceChange;
 use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::HaneulTransactionBlock;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
+use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
@@ -80,15 +81,16 @@ impl StoredTransaction {
             })?;
 
         let transaction = if options.show_input {
-            let sender_signed_data: SenderSignedData = bcs::from_bytes(&self.raw_transaction)
-                .map_err(|e| {
-                    IndexerError::PersistentStorageDataCorruptionError(format!(
-                        "Can't convert raw_transaction of {} into SenderSignedData. Error: {e}",
-                        tx_digest
-                    ))
-                })?;
+            let sender_signed_data = self.try_into_sender_signed_data()?;
             let tx_block = HaneulTransactionBlock::try_from(sender_signed_data, module)?;
             Some(tx_block)
+        } else {
+            None
+        };
+
+        let effects = if options.show_effects {
+            let effects = self.try_into_haneul_transaction_effects()?;
+            Some(effects)
         } else {
             None
         };
@@ -97,19 +99,6 @@ impl StoredTransaction {
             self.raw_transaction
         } else {
             Vec::new()
-        };
-
-        let effects = if options.show_effects {
-            let effects: TransactionEffects = bcs::from_bytes(&self.raw_effects).map_err(|e| {
-                IndexerError::PersistentStorageDataCorruptionError(format!(
-                    "Can't convert raw_effects of {} into TransactionEffects. Error: {e}",
-                    tx_digest
-                ))
-            })?;
-            let effects = HaneulTransactionBlockEffects::try_from(effects)?;
-            Some(effects)
-        } else {
-            None
         };
 
         let events = if options.show_events {
@@ -192,5 +181,43 @@ impl StoredTransaction {
             confirmed_local_execution: None,
             errors: vec![],
         })
+    }
+
+    fn try_into_sender_signed_data(&self) -> IndexerResult<SenderSignedData> {
+        let sender_signed_data: SenderSignedData =
+            bcs::from_bytes(&self.raw_transaction).map_err(|e| {
+                IndexerError::PersistentStorageDataCorruptionError(format!(
+                    "Can't convert raw_transaction of {} into SenderSignedData. Error: {e}",
+                    self.tx_sequence_number
+                ))
+            })?;
+        Ok(sender_signed_data)
+    }
+
+    pub fn try_into_haneul_transaction_effects(&self) -> IndexerResult<HaneulTransactionBlockEffects> {
+        let effects: TransactionEffects = bcs::from_bytes(&self.raw_effects).map_err(|e| {
+            IndexerError::PersistentStorageDataCorruptionError(format!(
+                "Can't convert raw_effects of {} into TransactionEffects. Error: {e}",
+                self.tx_sequence_number
+            ))
+        })?;
+        let effects = HaneulTransactionBlockEffects::try_from(effects)?;
+        Ok(effects)
+    }
+
+    pub fn get_successful_tx_num(&self) -> IndexerResult<u64> {
+        let tx_cmd_num = self
+            .try_into_sender_signed_data()?
+            .intent_message()
+            .value
+            .execution_parts()
+            .0
+            .num_commands() as u64;
+
+        if self.try_into_haneul_transaction_effects()?.status().is_ok() {
+            Ok(tx_cmd_num)
+        } else {
+            Ok(0)
+        }
     }
 }

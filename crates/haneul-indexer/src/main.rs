@@ -8,6 +8,7 @@ use haneul_indexer::errors::IndexerError;
 use haneul_indexer::indexer_v2::IndexerV2;
 use haneul_indexer::metrics::IndexerMetrics;
 use haneul_indexer::start_prometheus_server;
+use haneul_indexer::store::PgIndexerAnalyticalStore;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::store::PgIndexerStoreV2;
 use haneul_indexer::utils::reset_database;
@@ -92,8 +93,13 @@ async fn main() -> Result<(), IndexerError> {
         if indexer_config.fullnode_sync_worker {
             let store = PgIndexerStoreV2::new(blocking_cp, indexer_metrics.clone());
             return IndexerV2::start_writer(&indexer_config, store, indexer_metrics).await;
-        } else {
+        } else if indexer_config.rpc_server_worker {
             return IndexerV2::start_reader(&indexer_config, &registry, db_url).await;
+        } else if indexer_config.analytical_worker {
+            let store = PgIndexerAnalyticalStore::new(blocking_cp);
+            return IndexerV2::start_analytical_worker(store).await;
+        } else {
+            panic!("No worker is specified");
         }
     }
 
