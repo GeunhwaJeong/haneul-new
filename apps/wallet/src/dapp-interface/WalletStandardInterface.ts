@@ -169,9 +169,10 @@ export class HaneulWallet implements Wallet {
 
 	#setAccounts(accounts: GetAccountResponse['accounts']) {
 		this.#accounts = accounts.map(
-			({ address, publicKey }) =>
+			({ address, publicKey, nickname }) =>
 				new ReadonlyWalletAccount({
 					address,
+					label: nickname || undefined,
 					publicKey: publicKey ? fromB64(publicKey) : new Uint8Array(),
 					chains: this.#activeChain ? [this.#activeChain] : [],
 					features: ['haneul:signAndExecuteTransaction'],
