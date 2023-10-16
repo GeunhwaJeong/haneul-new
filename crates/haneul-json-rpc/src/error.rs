@@ -63,6 +63,9 @@ pub enum Error {
     // TODO(wlmyng): convert StateReadError::Internal message to generic internal error message.
     #[error(transparent)]
     StateReadError(#[from] StateReadError),
+
+    #[error("Unsupported Feature: {0}")]
+    UnsupportedFeature(String),
 }
 
 impl From<HaneulError> for Error {
@@ -70,15 +73,21 @@ impl From<HaneulError> for Error {
         match e {
             HaneulError::UserInputError { error } => Self::UserInputError(error),
             HaneulError::HaneulObjectResponseError { error } => Self::HaneulObjectResponseError(error),
+            HaneulError::UnsupportedFeatureError { error } => Self::UnsupportedFeature(error),
+            HaneulError::IndexStoreNotAvailable => Self::UnsupportedFeature(
+                "Required indexes are not available on this node".to_string(),
+            ),
             other => Self::HaneulError(other),
         }
     }
 }
 
 impl From<Error> for RpcError {
+    /// `InvalidParams`/`INVALID_PARAMS_CODE` for client errors.
     fn from(e: Error) -> RpcError {
         match e {
             Error::UserInputError(_) => RpcError::Call(CallError::InvalidParams(e.into())),
+            Error::UnsupportedFeature(_) => RpcError::Call(CallError::InvalidParams(e.into())),
             Error::HaneulObjectResponseError(err) => match err {
                 HaneulObjectResponseError::NotExists { .. }
                 | HaneulObjectResponseError::DynamicFieldNotFound { .. }
