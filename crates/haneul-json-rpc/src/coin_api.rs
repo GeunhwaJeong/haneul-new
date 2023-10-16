@@ -36,12 +36,12 @@ use crate::authority_state::StateRead;
 use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
 use crate::{with_tracing, HaneulRpcModule};
 
-fn parse_to_struct_tag(coin_type: &str) -> Result<StructTag, HaneulRpcInputError> {
+pub fn parse_to_struct_tag(coin_type: &str) -> Result<StructTag, HaneulRpcInputError> {
     parse_haneul_struct_tag(coin_type)
         .map_err(|e| HaneulRpcInputError::CannotParseHaneulStructTag(format!("{e}")))
 }
 
-fn parse_to_type_tag(coin_type: Option<String>) -> Result<TypeTag, HaneulRpcInputError> {
+pub fn parse_to_type_tag(coin_type: Option<String>) -> Result<TypeTag, HaneulRpcInputError> {
     Ok(TypeTag::Struct(Box::new(match coin_type {
         Some(c) => parse_to_struct_tag(&c)?,
         None => GAS::type_(),
