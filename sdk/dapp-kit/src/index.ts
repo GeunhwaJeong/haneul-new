@@ -19,6 +19,7 @@ export * from './hooks/wallet/useSignAndExecuteTransactionBlock.js';
 export * from './hooks/useHaneulClientMutation.js';
 export * from './hooks/useHaneulClientQuery.js';
 export * from './hooks/useHaneulClientInfiniteQuery.js';
+export * from './hooks/useResolveHaneulNSNames.js';
 export * from './themes/lightTheme.js';
 export * from './types.js';
 
