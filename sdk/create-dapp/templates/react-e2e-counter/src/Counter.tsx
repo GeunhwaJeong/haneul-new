@@ -7,11 +7,12 @@ import {
 import { HaneulObjectData } from "@haneullabs/haneul.js/client";
 import { TransactionBlock } from "@haneullabs/haneul.js/transactions";
 import { Button, Flex, Heading, Text } from "@radix-ui/themes";
-import { PACKAGE_ID } from "./constants";
+import { useNetworkVariable } from "./networkConfig";
 
 export function Counter({ id }: { id: string }) {
   const client = useHaneulClient();
   const currentAccount = useCurrentAccount();
+  const counterPackageId = useNetworkVariable("counterPackageId");
   const { mutate: signAndExecute } = useSignAndExecuteTransactionBlock();
   const { data, isLoading, error, refetch } = useHaneulClientQuery("getObject", {
     id,
@@ -27,12 +28,12 @@ export function Counter({ id }: { id: string }) {
     if (method === "reset") {
       txb.moveCall({
         arguments: [txb.object(id), txb.pure.u64(0)],
-        target: `${PACKAGE_ID}::counter::set_value`,
+        target: `${counterPackageId}::counter::set_value`,
       });
     } else {
       txb.moveCall({
         arguments: [txb.object(id)],
-        target: `${PACKAGE_ID}::counter::increment`,
+        target: `${counterPackageId}::counter::increment`,
       });
     }
 

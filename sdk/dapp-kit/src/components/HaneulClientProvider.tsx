@@ -5,13 +5,18 @@ import { getFullnodeUrl, isHaneulClient, HaneulClient } from '@haneullabs/haneul
 import type { HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { createContext, useMemo, useState } from 'react';
 
-type NetworkConfig = HaneulClient | HaneulClientOptions;
-type NetworkConfigs<T extends NetworkConfig = NetworkConfig> = Record<string, T>;
+import type { NetworkConfig } from '../hooks/networkConfig.js';
+
+type NetworkConfigs<T extends NetworkConfig | HaneulClient = NetworkConfig | HaneulClient> = Record<
+	string,
+	T
+>;
 
 export interface HaneulClientProviderContext {
 	client: HaneulClient;
 	networks: NetworkConfigs;
 	network: string;
+	config: NetworkConfig | null;
 	selectNetwork: (network: string) => void;
 }
 
@@ -69,6 +74,10 @@ export function HaneulClientProvider<T extends NetworkConfigs>(props: HaneulClie
 			client,
 			networks,
 			network: currentNetwork,
+			config:
+				networks[currentNetwork] instanceof HaneulClient
+					? null
+					: (networks[currentNetwork] as HaneulClientOptions),
 			selectNetwork: (newNetwork) => {
 				if (currentNetwork === newNetwork) {
 					return;

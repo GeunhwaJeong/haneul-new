@@ -32,21 +32,21 @@ providers. The props available on the providers are covered in more detail in th
 pages.
 
 ```tsx
-import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { createNetworkConfigs, HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
 import { type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Config options for the networks you want to connect to
-const networks = {
+const { networkConfig } = createNetworkConfigs({
 	localnet: { url: getFullnodeUrl('localnet') },
 	mainnet: { url: getFullnodeUrl('mainnet') },
-} satisfies Record<string, HaneulClientOptions>;
+});
 const queryClient = new QueryClient();
 
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<HaneulClientProvider networks={networks} defaultNetwork="localnet">
+			<HaneulClientProvider networks={networkConfig} defaultNetwork="localnet">
 				<WalletProvider>
 					<YourApp />
 				</WalletProvider>
