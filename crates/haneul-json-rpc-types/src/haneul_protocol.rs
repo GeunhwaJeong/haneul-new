@@ -15,6 +15,11 @@ use haneul_types::haneul_serde::{AsProtocolVersion, BigInt};
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "ProtocolConfigValue")]
 pub enum HaneulProtocolConfigValue {
+    U16(
+        #[schemars(with = "BigInt<u16>")]
+        #[serde_as(as = "BigInt<u16>")]
+        u16,
+    ),
     U32(
         #[schemars(with = "BigInt<u32>")]
         #[serde_as(as = "BigInt<u32>")]
@@ -35,6 +40,7 @@ pub enum HaneulProtocolConfigValue {
 impl From<ProtocolConfigValue> for HaneulProtocolConfigValue {
     fn from(value: ProtocolConfigValue) -> Self {
         match value {
+            ProtocolConfigValue::u16(y) => HaneulProtocolConfigValue::U16(y),
             ProtocolConfigValue::u32(y) => HaneulProtocolConfigValue::U32(y),
             ProtocolConfigValue::u64(x) => HaneulProtocolConfigValue::U64(x),
             ProtocolConfigValue::f64(z) => HaneulProtocolConfigValue::F64(z),

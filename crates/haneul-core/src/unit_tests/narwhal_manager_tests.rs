@@ -16,6 +16,8 @@ use prometheus::Registry;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
+use haneul_types::digests::ChainIdentifier;
+use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tokio::sync::broadcast;
@@ -135,6 +137,7 @@ async fn test_narwhal_manager() {
         narwhal_manager
             .start(
                 narwhal_committee.clone(),
+                ChainIdentifier::from(CheckpointDigest::default()),
                 latest_protocol_version(),
                 worker_cache.clone(),
                 execution_state,
@@ -197,6 +200,7 @@ async fn test_narwhal_manager() {
         narwhal_manager
             .start(
                 narwhal_committee.clone(),
+                ChainIdentifier::from(CheckpointDigest::default()),
                 latest_protocol_version(),
                 worker_cache.clone(),
                 execution_state,
