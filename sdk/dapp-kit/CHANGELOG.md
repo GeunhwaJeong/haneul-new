@@ -1,5 +1,11 @@
 # @haneullabs/dapp-kit
 
+## 0.4.0
+
+### Minor Changes
+
+- b7c304696: Show account label or haneulNS domain in connect button
+
 ## 0.3.0
 
 ### Minor Changes
