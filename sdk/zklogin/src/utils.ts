@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { toHEX } from '@haneullabs/bcs';
-import { PublicKey } from '@haneullabs/haneul.js/cryptography';
+import type { PublicKey } from '@haneullabs/haneul.js/cryptography';
 
 import { poseidonHash } from './poseidon.js';
 
