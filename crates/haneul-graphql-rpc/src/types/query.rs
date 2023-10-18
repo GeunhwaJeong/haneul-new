@@ -10,7 +10,7 @@ use super::{
     epoch::Epoch,
     event::{Event, EventFilter},
     object::{Object, ObjectFilter},
-    owner::ObjectOwner,
+    owner::{ObjectOwner, Owner},
     protocol_config::ProtocolConfigs,
     haneul_address::HaneulAddress,
     haneul_system_state_summary::HaneulSystemStateSummary,
@@ -54,17 +54,9 @@ impl Query {
     // availableRange - pending impl. on IndexerV2
     // dryRunTransactionBlock
     // coinMetadata
-    // resolveNameServiceAddress
-    // event_connection -> TODO: need to define typings
 
-    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Result<Option<ObjectOwner>> {
-        // Currently only an account address can own an object
-        let owner_address = ctx
-            .data_unchecked::<PgManager>()
-            .fetch_owner(address)
-            .await?;
-
-        Ok(owner_address.map(|o| ObjectOwner::Address(Address { address: o })))
+    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Option<ObjectOwner> {
+        Some(ObjectOwner::Owner(Owner { address }))
     }
 
     async fn object(
