@@ -34,6 +34,7 @@ use move_vm_runtime::session::SerializedReturnValues;
 use once_cell::sync::Lazy;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::fmt::{self, Write};
+use std::time::Duration;
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::Path,
@@ -608,6 +609,21 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             }};
         }
         match command {
+            HaneulSubcommand::CreateCheckpoint => {
+                self.executor.create_checkpoint().await?;
+                Ok(None)
+            }
+            HaneulSubcommand::AdvanceEpoch => {
+                self.executor.advance_epoch().await?;
+                Ok(None)
+            }
+            HaneulSubcommand::AdvanceClock(AdvanceClockCommand { duration_ns }) => {
+                self.executor
+                    .advance_clock(Duration::from_nanos(duration_ns))
+                    .await?;
+                Ok(None)
+            }
+
             HaneulSubcommand::ViewObject(ViewObjectCommand { id: fake_id }) => {
                 let obj = get_obj!(fake_id);
                 Ok(Some(match &obj.data {
