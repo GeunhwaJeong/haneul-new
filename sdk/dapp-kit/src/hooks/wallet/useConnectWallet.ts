@@ -36,18 +36,27 @@ export function useConnectWallet({
 	...mutationOptions
 }: UseConnectWalletMutationOptions = {}) {
 	const setWalletConnected = useWalletStore((state) => state.setWalletConnected);
+	const setConnectionStatus = useWalletStore((state) => state.setConnectionStatus);
 
 	return useMutation({
 		mutationKey: walletMutationKeys.connectWallet(mutationKey),
-		mutationFn: async ({ wallet, accountAddress, ...standardConnectInput }) => {
-			const connectResult = await wallet.features['standard:connect'].connect(standardConnectInput);
-			const connectedHaneulAccounts = connectResult.accounts.filter((account) =>
-				account.chains.some((chain) => chain.split(':')[0] === 'haneul'),
-			);
-			const selectedAccount = getSelectedAccount(connectedHaneulAccounts, accountAddress);
+		mutationFn: async ({ wallet, accountAddress, ...connectArgs }) => {
+			try {
+				setConnectionStatus('connecting');
 
-			setWalletConnected(wallet, connectedHaneulAccounts, selectedAccount);
-			return { accounts: connectedHaneulAccounts };
+				const connectResult = await wallet.features['standard:connect'].connect(connectArgs);
+				const connectedHaneulAccounts = connectResult.accounts.filter((account) =>
+					account.chains.some((chain) => chain.split(':')[0] === 'haneul'),
+				);
+				const selectedAccount = getSelectedAccount(connectedHaneulAccounts, accountAddress);
+
+				setWalletConnected(wallet, connectedHaneulAccounts, selectedAccount);
+
+				return { accounts: connectedHaneulAccounts };
+			} catch (error) {
+				setConnectionStatus('disconnected');
+				throw error;
+			}
 		},
 		...mutationOptions,
 	});

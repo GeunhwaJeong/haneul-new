@@ -13,6 +13,7 @@ export * from './hooks/useHaneulClientInfiniteQuery.js';
 export * from './hooks/useHaneulClientMutation.js';
 export * from './hooks/useHaneulClientQuery.js';
 export * from './hooks/wallet/useAccounts.js';
+export * from './hooks/wallet/useAutoConnectionStatus.js';
 export * from './hooks/wallet/useConnectWallet.js';
 export * from './hooks/wallet/useCurrentAccount.js';
 export * from './hooks/wallet/useCurrentWallet.js';
