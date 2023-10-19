@@ -5,10 +5,12 @@ use jsonrpsee::core::Error as JsonRpseeError;
 use move_binary_format::CompiledModule;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::language_storage::{ModuleId, StructTag};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt::Debug;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_protocol_config::ProtocolConfig;
+use haneul_protocol_config::ProtocolVersion;
 use haneul_sdk::error::Error as HaneulRpcError;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::digests::{ObjectDigest, TransactionDigest};
@@ -32,7 +34,7 @@ pub(crate) const EPOCH_CHANGE_STRUCT_TAG: &str =
 
 pub(crate) const ONE_DAY_MS: u64 = 24 * 60 * 60 * 1000;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct OnChainTransactionInfo {
     pub tx_digest: TransactionDigest,
     pub sender_signed_data: SenderSignedData,
@@ -47,12 +49,12 @@ pub struct OnChainTransactionInfo {
     pub executed_epoch: u64,
     pub dependencies: Vec<TransactionDigest>,
     pub effects: HaneulTransactionBlockEffects,
-    pub protocol_config: ProtocolConfig,
+    pub protocol_version: ProtocolVersion,
     pub epoch_start_timestamp: u64,
     pub reference_gas_price: u64,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DiagInfo {
     pub loaded_child_objects: Vec<(ObjectID, VersionNumber)>,
 }
