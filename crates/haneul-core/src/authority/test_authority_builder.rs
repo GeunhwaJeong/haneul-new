@@ -25,6 +25,7 @@ use haneul_config::transaction_deny_config::TransactionDenyConfig;
 use haneul_macros::nondeterministic;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::IndexStore;
+use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::{AuthorityName, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
@@ -48,6 +49,7 @@ pub struct TestAuthorityBuilder<'a> {
     starting_objects: Option<&'a [Object]>,
     expensive_safety_checks: Option<ExpensiveSafetyCheckConfig>,
     disable_indexer: bool,
+    accounts: Vec<AccountConfig>,
     /// By default, we don't insert the genesis checkpoint, which isn't needed by most tests.
     insert_genesis_checkpoint: bool,
 }
@@ -136,9 +138,15 @@ impl<'a> TestAuthorityBuilder<'a> {
         self
     }
 
+    pub fn with_accounts(mut self, accounts: Vec<AccountConfig>) -> Self {
+        self.accounts = accounts;
+        self
+    }
+
     pub async fn build(self) -> Arc<AuthorityState> {
         let local_network_config =
             haneul_swarm_config::network_config_builder::ConfigBuilder::new_with_temp_dir()
+                .with_accounts(self.accounts)
                 .with_reference_gas_price(self.reference_gas_price.unwrap_or(500))
                 .build();
         let genesis = &self.genesis.unwrap_or(&local_network_config.genesis);
