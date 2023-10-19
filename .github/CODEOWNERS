@@ -15,7 +15,7 @@ CHANGELOG.md
 /crates/haneul-framework/src/natives/ @oxade
 
 # GraphQL RPC working group
-/crates/haneul-graphql-rpc/ @oxade @amnn @wlmyng @bmwill @longbowlu @gegaowp @Jordan-haneullabs @laura-makdah @stefan-haneullabs
+/crates/haneul-graphql-rpc/ @oxade @amnn @wlmyng @stefan-haneullabs
 
 # Notify Narwhal changes to interested folks.
 /narwhal/crypto/ @joyqvq @kchalkias
