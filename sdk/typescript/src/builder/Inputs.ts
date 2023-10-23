@@ -20,6 +20,7 @@ const ObjectArg = union([
 			mutable: boolean(),
 		}),
 	}),
+	object({ Receiving: HaneulObjectRef }),
 ]);
 
 export const PureCallArg = object({ Pure: array(integer()) });
@@ -70,6 +71,17 @@ export const Inputs = {
 			},
 		};
 	},
+	ReceivingRef({ objectId, digest, version }: HaneulObjectRef): ObjectCallArg {
+		return {
+			Object: {
+				Receiving: {
+					digest,
+					version,
+					objectId: normalizeHaneulAddress(objectId),
+				},
+			},
+		};
+	},
 };
 
 export function getIdFromCallArg(arg: string | ObjectCallArg) {
@@ -79,6 +91,11 @@ export function getIdFromCallArg(arg: string | ObjectCallArg) {
 	if ('ImmOrOwned' in arg.Object) {
 		return normalizeHaneulAddress(arg.Object.ImmOrOwned.objectId);
 	}
+
+	if ('Receiving' in arg.Object) {
+		return normalizeHaneulAddress(arg.Object.Receiving.objectId);
+	}
+
 	return normalizeHaneulAddress(arg.Object.Shared.objectId);
 }
 

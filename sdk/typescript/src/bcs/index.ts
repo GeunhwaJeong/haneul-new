@@ -36,7 +36,10 @@ export type SharedObjectRef = {
 /**
  * An object argument.
  */
-export type ObjectArg = { ImmOrOwned: HaneulObjectRefType } | { Shared: SharedObjectRef };
+export type ObjectArg =
+	| { ImmOrOwned: HaneulObjectRefType }
+	| { Shared: SharedObjectRef }
+	| { Receiving: HaneulObjectRefType };
 
 /**
  * A pure argument.
@@ -203,6 +206,7 @@ const SharedObjectRef = bcs.struct('SharedObjectRef', {
 const ObjectArg = bcs.enum('ObjectArg', {
 	ImmOrOwned: HaneulObjectRef,
 	Shared: SharedObjectRef,
+	Receiving: HaneulObjectRef,
 });
 
 const CallArg = bcs.enum('CallArg', {
