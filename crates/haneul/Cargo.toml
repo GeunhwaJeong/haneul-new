@@ -50,6 +50,7 @@ haneul-move = { workspace = true, features = ["all"] }
 haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 shared-crypto.workspace = true
+haneul-replay.workspace = true
 
 fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true

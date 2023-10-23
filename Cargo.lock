@@ -9799,6 +9799,7 @@ dependencies = [
  "haneul-move",
  "haneul-move-build",
  "haneul-protocol-config",
+ "haneul-replay",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-source-validation",

@@ -16,6 +16,7 @@ use fastcrypto::{
     encoding::{Base64, Encoding},
     traits::ToFromBytes,
 };
+
 use json_to_table::json_to_table;
 use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig as MoveBuildConfig;
@@ -40,6 +41,7 @@ use haneul_move_build::{
     build_from_resolution_graph, check_invalid_dependencies, check_unpublished_dependencies,
     gather_published_ids, BuildConfig, CompiledPackage, PackageDependencies, PublishedAtError,
 };
+use haneul_replay::ReplayToolCommand;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
@@ -607,6 +609,54 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         address_override: Option<ObjectID>,
     },
+
+    /// Replay a given transaction to view transaction effects. Set environment variable MOVE_VM_STEP=1 to debug.
+    #[clap(name = "replay-transaction")]
+    ReplayTransaction {
+        /// The rpc url for a non-pruning fullnode to use for fetching the transaction dependencies
+        #[arg(long = "rpc")]
+        rpc_url: String,
+
+        /// The digest of the transaction to replay
+        #[arg(long, short)]
+        tx_digest: String,
+    },
+
+    /// Replay transactions listed in a file.
+    #[clap(name = "replay-batch")]
+    ReplayBatch {
+        /// The rpc url for a non-pruning fullnode to use for fetching the transaction dependencies
+        #[arg(long = "rpc")]
+        rpc_url: String,
+
+        /// The path to the file of transaction digests to replay, with one digest per line
+        #[arg(long, short)]
+        path: PathBuf,
+
+        /// If an error is encountered during a transaction, this specifies whether to terminate or continue
+        #[arg(long, short)]
+        terminate_early: bool,
+    },
+
+    /// Replay all transactions in a range of checkpoints.
+    #[command(name = "replay-checkpoint")]
+    ReplayCheckpoints {
+        /// The rpc url for a non-pruning fullnode to use for fetching the transaction dependencies
+        #[arg(long = "rpc")]
+        rpc_url: String,
+
+        /// The start value of the range of checkpoints to replay
+        #[arg(long, short)]
+        start: u64,
+
+        /// The end value of the range of checkpoints to replay
+        #[arg(long, short)]
+        end: u64,
+
+        /// If an error is encountered during a transaction, this specifies whether to terminate or continue
+        #[arg(long, short)]
+        terminate_early: bool,
+    },
 }
 
 impl HaneulClientCommands {
@@ -615,6 +665,54 @@ impl HaneulClientCommands {
         context: &mut WalletContext,
     ) -> Result<HaneulClientCommandResult, anyhow::Error> {
         let ret = Ok(match self {
+            HaneulClientCommands::ReplayTransaction { rpc_url, tx_digest } => {
+                let cmd = ReplayToolCommand::ReplayTransaction {
+                    tx_digest,
+                    show_effects: true,
+                    diag: false,
+                    executor_version_override: None,
+                    protocol_version_override: None,
+                };
+                // todo: automatically get non pruning fullnode url
+                let _command_result =
+                    haneul_replay::execute_replay_command(Some(rpc_url), false, false, None, cmd)
+                        .await;
+                HaneulClientCommandResult::ReplayTransaction
+            }
+            HaneulClientCommands::ReplayBatch {
+                rpc_url,
+                path,
+                terminate_early,
+            } => {
+                let cmd = ReplayToolCommand::ReplayBatch {
+                    path,
+                    terminate_early,
+                    batch_size: 16,
+                };
+                // todo: automatically get non pruning fullnode url
+                let _command_result =
+                    haneul_replay::execute_replay_command(Some(rpc_url), false, false, None, cmd)
+                        .await;
+                HaneulClientCommandResult::ReplayBatch
+            }
+            HaneulClientCommands::ReplayCheckpoints {
+                rpc_url,
+                start,
+                end,
+                terminate_early,
+            } => {
+                let cmd = ReplayToolCommand::ReplayCheckpoints {
+                    start,
+                    end,
+                    terminate_early,
+                    max_tasks: 16,
+                };
+                // todo: automatically get non pruning fullnode url
+                let _command_result =
+                    haneul_replay::execute_replay_command(Some(rpc_url), false, false, None, cmd)
+                        .await;
+                HaneulClientCommandResult::ReplayCheckpoints
+            }
             HaneulClientCommands::Addresses => {
                 let active_address = context.active_address()?;
                 let addresses = context.config.keystore.addresses();
@@ -623,7 +721,6 @@ impl HaneulClientCommands {
                     active_address,
                 })
             }
-
             HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
                 let client = context.get_client().await?;
                 let df_read = client
@@ -1637,6 +1734,11 @@ impl Display for HaneulClientCommandResult {
                 table.with(tabled::settings::style::BorderSpanCorrection);
                 writeln!(f, "{}", table)?;
             }
+            // todo: for all replay commands format results using tabular structure instead of
+            // todo: println statements in original command
+            HaneulClientCommandResult::ReplayTransaction => {}
+            HaneulClientCommandResult::ReplayBatch => {}
+            HaneulClientCommandResult::ReplayCheckpoints => {}
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
@@ -1949,6 +2051,9 @@ pub enum HaneulClientCommandResult {
         used_module_ticks: u128,
     },
     VerifySource,
+    ReplayTransaction,
+    ReplayBatch,
+    ReplayCheckpoints,
 }
 
 #[derive(Serialize, Clone, Debug)]
