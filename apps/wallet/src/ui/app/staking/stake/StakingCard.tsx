@@ -10,10 +10,14 @@ import { parseAmount } from '_helpers';
 import { useCoinsReFetchingConfig } from '_hooks';
 import { Coin } from '_redux/slices/haneul-objects/Coin';
 import { ampli } from '_src/shared/analytics/ampli';
-import { MIN_NUMBER_HANEUL_TO_STAKE } from '_src/shared/constants';
+import {
+	DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	DELEGATED_STAKES_QUERY_STALE_TIME,
+	MIN_NUMBER_HANEUL_TO_STAKE,
+} from '_src/shared/constants';
 import { FEATURES } from '_src/shared/experimentation/features';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { useCoinMetadata } from '@haneullabs/core';
+import { useCoinMetadata, useGetDelegatedStake } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowLeft16 } from '@haneullabs/icons';
 import type { StakeObject } from '@haneullabs/haneul.js/client';
@@ -34,7 +38,6 @@ import { useSigner } from '../../hooks/useSigner';
 import { QredoActionIgnoredByUser } from '../../QredoSigner';
 import { getDelegationDataByStakeId } from '../getDelegationByStakeId';
 import { getStakeHaneulByHaneulId } from '../getStakeHaneulByHaneulId';
-import { useGetDelegatedStake } from '../useGetDelegatedStake';
 import StakeForm from './StakeForm';
 import { UnStakeForm } from './UnstakeForm';
 import { createStakeTransaction, createUnstakeTransaction } from './utils/transaction';
@@ -62,7 +65,11 @@ function StakingCard() {
 	const validatorAddress = searchParams.get('address');
 	const stakeHaneulIdParams = searchParams.get('staked');
 	const unstake = searchParams.get('unstake') === 'true';
-	const { data: allDelegation, isLoading } = useGetDelegatedStake(accountAddress || '');
+	const { data: allDelegation, isLoading } = useGetDelegatedStake({
+		address: accountAddress || '',
+		staleTime: DELEGATED_STAKES_QUERY_STALE_TIME,
+		refetchInterval: DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	});
 	const effectsOnlySharedTransactions = useFeatureIsOn(
 		FEATURES.WALLET_EFFECTS_ONLY_SHARED_TRANSACTION as string,
 	);
@@ -222,7 +229,7 @@ function StakingCard() {
 						queryKey: ['system', 'state'],
 					}),
 					queryClient.invalidateQueries({
-						queryKey: ['validator'],
+						queryKey: ['delegated-stakes'],
 					}),
 				]);
 				resetForm();

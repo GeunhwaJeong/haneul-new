@@ -34,3 +34,4 @@ export * from './utils/kiosk';
 export * from './hooks/useElementDimensions';
 export * from './hooks/useHaneulCoinData';
 export * from './hooks/useLocalStorage';
+export * from './hooks/useGetDelegatedStake';

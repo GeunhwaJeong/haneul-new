@@ -4,9 +4,18 @@
 import { Card } from '_app/shared/card';
 import Alert from '_components/alert';
 import LoadingIndicator from '_components/loading/LoadingIndicator';
+import {
+	DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	DELEGATED_STAKES_QUERY_STALE_TIME,
+} from '_src/shared/constants';
 import { Text } from '_src/ui/app/shared/text';
 import { IconTooltip } from '_src/ui/app/shared/tooltip';
-import { calculateStakeShare, formatPercentageDisplay, useGetValidatorsApy } from '@haneullabs/core';
+import {
+	calculateStakeShare,
+	formatPercentageDisplay,
+	useGetDelegatedStake,
+	useGetValidatorsApy,
+} from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -15,7 +24,6 @@ import { useActiveAddress } from '../../hooks/useActiveAddress';
 import { getStakeHaneulByHaneulId } from '../getStakeHaneulByHaneulId';
 import { getTokenStakeHaneulForValidator } from '../getTokenStakeHaneulForValidator';
 import { StakeAmount } from '../home/StakeAmount';
-import { useGetDelegatedStake } from '../useGetDelegatedStake';
 import { ValidatorLogo } from '../validators/ValidatorLogo';
 
 type ValidatorFormDetailProps = {
@@ -34,7 +42,16 @@ export function ValidatorFormDetail({ validatorAddress, unstake }: ValidatorForm
 		isError: errorValidators,
 	} = useHaneulClientQuery('getLatestHaneulSystemState');
 
-	const { data: stakeData, isLoading, isError, error } = useGetDelegatedStake(accountAddress || '');
+	const {
+		data: stakeData,
+		isLoading,
+		isError,
+		error,
+	} = useGetDelegatedStake({
+		address: accountAddress || '',
+		staleTime: DELEGATED_STAKES_QUERY_STALE_TIME,
+		refetchInterval: DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	});
 
 	const { data: rollingAverageApys } = useGetValidatorsApy();
 
