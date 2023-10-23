@@ -23,6 +23,7 @@ haneullabs-metrics.workspace = true
 move-core-types.workspace = true
 once_cell.workspace = true
 prometheus.workspace = true
+rand.workspace = true # todo: cleanup test only deps
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -38,6 +39,8 @@ uuid.workspace = true
 # TODO: put these behind feature flag to prevent leakage
 # Used for dummy data
 bcs.workspace = true
+simulacrum.workspace = true  # todo: cleanup test only deps
+haneul-transactional-test-runner.workspace = true # todo: cleanup test only deps
 haneul-sdk.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-types.workspace = true
