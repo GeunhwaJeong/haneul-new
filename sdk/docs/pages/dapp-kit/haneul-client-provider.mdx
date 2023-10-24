@@ -15,7 +15,7 @@ import { createNetworkConfig, HaneulClientProvider, WalletProvider } from '@hane
 import { type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 
 // Config options for the networks you want to connect to
-const { networkConfig  = createNetworkConfig({
+const { networkConfig } = createNetworkConfig({
 	localnet: { url: getFullnodeUrl('localnet') },
 	mainnet: { url: getFullnodeUrl('mainnet') },
 });
