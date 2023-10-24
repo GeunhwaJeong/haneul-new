@@ -12,7 +12,8 @@
 
 # Move build directory
 build
-storage/
+storage
+!crates/haneul-types/src/storage
 !narwhal/storage
 
 # Move-related files
