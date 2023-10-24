@@ -18,15 +18,15 @@ details on the full set of options available.
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 
 function MyComponent() {
-	const { data, isLoading, isError, error, refetch } = useHaneulClientQuery(
+	const { data, isPending, isError, error, refetch } = useHaneulClientQuery(
 		'getOwnedObjects',
 		{ owner: '0x123' },
 		{
-			cacheTime: 10000,
+			gcTime: 10000,
 		},
 	);
 
-	if (isLoading) {
+	if (isPending) {
 		return <div>Loading...</div>;
 	}
 
@@ -48,12 +48,12 @@ For more details checkout out the
 import { useHaneulClientInfiniteQuery } from '@haneullabs/dapp-kit';
 
 function MyComponent() {
-	const { data, isLoading, isError, error, isFetching, fetchNextPage, hasNextPage } =
+	const { data, isPending, isError, error, isFetching, fetchNextPage, hasNextPage } =
 		useHaneulClientInfiniteQuery('getOwnedObjects', {
 			owner: '0x123',
 		});
 
-	if (isLoading) {
+	if (isPending) {
 		return <div>Loading...</div>;
 	}
 
@@ -99,9 +99,9 @@ To get the HaneulNS name for a given address, use the `useResolveHaneulNSName` h
 import { useResolveHaneulNSName } from '@haneullabs/dapp-kit';
 
 function MyComponent() {
-	const { data, isLoading } = useResolveHaneulNSName('0x123');
+	const { data, isPending } = useResolveHaneulNSName('0x123');
 
-	if (isLoading) {
+	if (isPending) {
 		return <div>Loading...</div>;
 	}
 

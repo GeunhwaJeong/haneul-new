@@ -5,6 +5,7 @@ import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
+import type { PartialBy } from '../types/utilityTypes.js';
 import { useHaneulClientContext } from './useHaneulClient.js';
 
 export type HaneulRpcMethodName = {
@@ -29,20 +30,23 @@ export type HaneulRpcMethods = {
 		: never;
 };
 
-export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods> = Omit<
-	UseQueryOptions<HaneulRpcMethods[T]['result'], Error, HaneulRpcMethods[T]['result'], unknown[]>,
-	'queryFn'
+export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods, TData> = PartialBy<
+	Omit<UseQueryOptions<HaneulRpcMethods[T]['result'], Error, TData, unknown[]>, 'queryFn'>,
+	'queryKey'
 >;
 
-export function useHaneulClientQuery<T extends keyof HaneulRpcMethods>(
+export function useHaneulClientQuery<
+	T extends keyof HaneulRpcMethods,
+	TData = HaneulRpcMethods[T]['result'],
+>(
 	...args: undefined extends HaneulRpcMethods[T]['params']
-		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
-		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T>]
+		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
+		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
 ) {
 	const [method, params, { queryKey = [], ...options } = {}] = args as [
 		method: T,
 		params?: HaneulRpcMethods[T]['params'],
-		options?: UseHaneulClientQueryOptions<T>,
+		options?: UseHaneulClientQueryOptions<T, TData>,
 	];
 
 	const haneulContext = useHaneulClientContext();

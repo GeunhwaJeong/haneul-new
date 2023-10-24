@@ -27,7 +27,7 @@ export function OwnedCoins({ id }: { id: string }) {
 	const [currentSlice, setCurrentSlice] = useState(1);
 	const [limit, setLimit] = useState(20);
 	const [filterValue, setFilterValue] = useState(COIN_FILTERS.RECOGNIZED);
-	const { isLoading, data, isError } = useHaneulClientQuery('getAllBalances', {
+	const { isPending, data, isError } = useHaneulClientQuery('getAllBalances', {
 		owner: normalizeHaneulAddress(id),
 	});
 	const recognizedPackages = useRecognizedPackages();
@@ -97,7 +97,7 @@ export function OwnedCoins({ id }: { id: string }) {
 
 	return (
 		<div className="h-full w-full md:pr-10">
-			{isLoading ? (
+			{isPending ? (
 				<div className="m-auto flex h-full w-full justify-center text-white">
 					<LoadingIndicator />
 				</div>

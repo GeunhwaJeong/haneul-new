@@ -25,7 +25,7 @@ function ReceiptPage() {
 	const fromParam = searchParams.get('from');
 	const client = useHaneulClient();
 
-	const { data, isLoading, isError } = useQuery<HaneulTransactionBlockResponse>({
+	const { data, isPending, isError } = useQuery<HaneulTransactionBlockResponse>({
 		queryKey: ['transactions-by-id', transactionId],
 		queryFn: async () => {
 			return client.getTransactionBlock({
@@ -70,7 +70,7 @@ function ReceiptPage() {
 	}
 
 	return (
-		<Loading loading={isLoading || isGuardLoading}>
+		<Loading loading={isPending || isGuardLoading}>
 			<Overlay
 				showModal={showModal}
 				setShowModal={setShowModal}

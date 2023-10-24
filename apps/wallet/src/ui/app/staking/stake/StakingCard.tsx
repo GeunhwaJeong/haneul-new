@@ -55,7 +55,7 @@ function StakingCard() {
 	const activeAccount = useActiveAccount();
 	const accountAddress = activeAccount?.address;
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: haneulBalance, isLoading: loadingHaneulBalances } = useHaneulClientQuery(
+	const { data: haneulBalance, isPending: loadingHaneulBalances } = useHaneulClientQuery(
 		'getBalance',
 		{ coinType: HANEUL_TYPE_ARG, owner: accountAddress! },
 		{ refetchInterval, staleTime, enabled: !!accountAddress },
@@ -65,7 +65,7 @@ function StakingCard() {
 	const validatorAddress = searchParams.get('address');
 	const stakeHaneulIdParams = searchParams.get('staked');
 	const unstake = searchParams.get('unstake') === 'true';
-	const { data: allDelegation, isLoading } = useGetDelegatedStake({
+	const { data: allDelegation, isPending } = useGetDelegatedStake({
 		address: accountAddress || '',
 		staleTime: DELEGATED_STAKES_QUERY_STALE_TIME,
 		refetchInterval: DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
@@ -74,7 +74,7 @@ function StakingCard() {
 		FEATURES.WALLET_EFFECTS_ONLY_SHARED_TRANSACTION as string,
 	);
 
-	const { data: system, isLoading: validatorsIsloading } =
+	const { data: system, isPending: validatorsisPending } =
 		useHaneulClientQuery('getLatestHaneulSystemState');
 
 	const totalTokenBalance = useMemo(() => {
@@ -276,12 +276,12 @@ function StakingCard() {
 		],
 	);
 
-	if (!coinType || !validatorAddress || (!validatorsIsloading && !system)) {
+	if (!coinType || !validatorAddress || (!validatorsisPending && !system)) {
 		return <Navigate to="/" replace={true} />;
 	}
 	return (
 		<div className="flex flex-col flex-nowrap flex-grow w-full">
-			<Loading loading={isLoading || validatorsIsloading || loadingHaneulBalances}>
+			<Loading loading={isPending || validatorsisPending || loadingHaneulBalances}>
 				<Formik
 					initialValues={initialValues}
 					validationSchema={validationSchema}

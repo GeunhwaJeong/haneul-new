@@ -150,9 +150,9 @@ export function SendTokenForm({
 	const client = useHaneulClient();
 	const activeAddress = useActiveAddress();
 	// Get all coins of the type
-	const { data: coinsData, isLoading: coinsIsLoading } = useGetAllCoins(coinType, activeAddress!);
+	const { data: coinsData, isPending: coinsIsPending } = useGetAllCoins(coinType, activeAddress!);
 
-	const { data: haneulCoinsData, isLoading: haneulCoinsIsLoading } = useGetAllCoins(
+	const { data: haneulCoinsData, isPending: haneulCoinsIsPending } = useGetAllCoins(
 		HANEUL_TYPE_ARG,
 		activeAddress!,
 	);
@@ -180,7 +180,7 @@ export function SendTokenForm({
 	return (
 		<Loading
 			loading={
-				queryResult.isLoading || coinMetadata.isLoading || haneulCoinsIsLoading || coinsIsLoading
+				queryResult.isPending || coinMetadata.isPending || haneulCoinsIsPending || coinsIsPending
 			}
 		>
 			<Formik
@@ -266,7 +266,7 @@ export function SendTokenForm({
 											}}
 											actionDisabled={
 												parseAmount(values?.amount, coinDecimals) === coinBalance ||
-												queryResult.isLoading ||
+												queryResult.isPending ||
 												!coinBalance
 											}
 										/>

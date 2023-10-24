@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import type { UseInfiniteQueryOptions } from '@tanstack/react-query';
+import type { InfiniteData, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
+import type { PartialBy } from '../types/utilityTypes.js';
 import { useHaneulClientContext } from './useHaneulClient.js';
 
 interface PaginatedResult {
@@ -12,6 +13,7 @@ interface PaginatedResult {
 	nextCursor?: unknown;
 	hasNextPage: boolean;
 }
+
 export type HaneulRpcPaginatedMethodName = {
 	[K in keyof HaneulClient]: HaneulClient[K] extends (input: any) => Promise<PaginatedResult> ? K : never;
 }[keyof HaneulClient];
@@ -29,26 +31,40 @@ export type HaneulRpcPaginatedMethods = {
 		: never;
 };
 
-export type UseHaneulClientInfiniteQueryOptions<T extends keyof HaneulRpcPaginatedMethods> = Omit<
-	UseInfiniteQueryOptions<
-		HaneulRpcPaginatedMethods[T]['result'],
-		Error,
-		HaneulRpcPaginatedMethods[T]['result'],
-		HaneulRpcPaginatedMethods[T]['result'],
-		unknown[]
+export type UseHaneulClientInfiniteQueryOptions<
+	T extends keyof HaneulRpcPaginatedMethods,
+	TData,
+> = PartialBy<
+	Omit<
+		UseInfiniteQueryOptions<
+			HaneulRpcPaginatedMethods[T]['result'],
+			Error,
+			TData,
+			HaneulRpcPaginatedMethods[T]['result'],
+			unknown[]
+		>,
+		'queryFn' | 'initialPageParam' | 'getNextPageParam'
 	>,
-	'queryFn'
+	'queryKey'
 >;
 
-export function useHaneulClientInfiniteQuery<T extends keyof HaneulRpcPaginatedMethods>(
+export function useHaneulClientInfiniteQuery<
+	T extends keyof HaneulRpcPaginatedMethods,
+	TData = InfiniteData<HaneulRpcPaginatedMethods[T]['result']>,
+>(
 	method: T,
 	params: HaneulRpcPaginatedMethods[T]['params'],
-	{ queryKey = [], enabled = !!params, ...options }: UseHaneulClientInfiniteQueryOptions<T> = {},
+	{
+		queryKey = [],
+		enabled = !!params,
+		...options
+	}: UseHaneulClientInfiniteQueryOptions<T, TData> = {},
 ) {
 	const haneulContext = useHaneulClientContext();
 
 	return useInfiniteQuery({
 		...options,
+		initialPageParam: null,
 		queryKey: [haneulContext.network, method, params, ...queryKey],
 		enabled,
 		queryFn: ({ pageParam }) =>
@@ -56,8 +72,6 @@ export function useHaneulClientInfiniteQuery<T extends keyof HaneulRpcPaginatedM
 				...(params ?? {}),
 				cursor: pageParam,
 			} as never),
-		getNextPageParam: (lastPage) => {
-			return (lastPage as PaginatedResult).nextCursor ?? null;
-		},
+		getNextPageParam: ({ nextCursor }) => nextCursor ?? null,
 	});
 }

@@ -26,7 +26,7 @@ enum TABS_VALUES {
 }
 
 function useObjectFieldsCard(id: string) {
-	const { data: haneulObjectResponseData, isLoading, isError } = useGetObject(id);
+	const { data: haneulObjectResponseData, isPending, isError } = useGetObject(id);
 
 	const objectType =
 		haneulObjectResponseData?.data?.type ??
@@ -39,7 +39,7 @@ function useObjectFieldsCard(id: string) {
 	// Get the normalized struct for the object
 	const {
 		data: normalizedStructData,
-		isLoading: loadingNormalizedStruct,
+		isPending: loadingNormalizedStruct,
 		isError: errorNormalizedMoveStruct,
 	} = useHaneulClientQuery(
 		'getNormalizedMoveStruct',
@@ -54,7 +54,7 @@ function useObjectFieldsCard(id: string) {
 	);
 
 	return {
-		loading: isLoading || loadingNormalizedStruct,
+		loading: isPending || loadingNormalizedStruct,
 		error: isError || errorNormalizedMoveStruct,
 		normalizedStructData,
 		haneulObjectResponseData,

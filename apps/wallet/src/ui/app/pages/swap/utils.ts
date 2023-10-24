@@ -20,13 +20,13 @@ export function useSwapData({
 	const activeAccountAddress = activeAccount?.address;
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
 
-	const { data: baseCoinBalanceData, isLoading: baseCoinBalanceDataLoading } = useHaneulClientQuery(
+	const { data: baseCoinBalanceData, isPending: baseCoinBalanceDataLoading } = useHaneulClientQuery(
 		'getBalance',
 		{ coinType: baseCoinType, owner: activeAccountAddress! },
 		{ enabled: !!activeAccountAddress, refetchInterval, staleTime },
 	);
 
-	const { data: quoteCoinBalanceData, isLoading: quoteCoinBalanceDataLoading } = useHaneulClientQuery(
+	const { data: quoteCoinBalanceData, isPending: quoteCoinBalanceDataLoading } = useHaneulClientQuery(
 		'getBalance',
 		{ coinType: quoteCoinType, owner: activeAccountAddress! },
 		{ enabled: !!activeAccountAddress, refetchInterval, staleTime },
@@ -53,7 +53,7 @@ export function useSwapData({
 		quoteCoinSymbol,
 		baseCoinMetadata,
 		quoteCoinMetadata,
-		isLoading: baseCoinBalanceDataLoading || quoteCoinBalanceDataLoading,
+		isPending: baseCoinBalanceDataLoading || quoteCoinBalanceDataLoading,
 	};
 }
 

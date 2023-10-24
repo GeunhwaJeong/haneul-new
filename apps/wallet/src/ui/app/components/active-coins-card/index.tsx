@@ -21,7 +21,7 @@ export function ActiveCoinsCard({
 	const selectedAddress = useActiveAddress();
 
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
-	const { data: coins, isLoading } = useHaneulClientQuery(
+	const { data: coins, isPending } = useHaneulClientQuery(
 		'getAllBalances',
 		{ owner: selectedAddress! },
 		{
@@ -35,7 +35,7 @@ export function ActiveCoinsCard({
 	const activeCoin = coins?.find(({ coinType }) => coinType === activeCoinType);
 
 	return (
-		<Loading loading={isLoading}>
+		<Loading loading={isPending}>
 			<div className="flex w-full">
 				{showActiveCoin ? (
 					activeCoin && (
