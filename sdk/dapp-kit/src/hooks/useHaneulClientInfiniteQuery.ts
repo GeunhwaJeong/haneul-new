@@ -17,19 +17,13 @@ export type HaneulRpcPaginatedMethodName = {
 }[keyof HaneulClient];
 
 export type HaneulRpcPaginatedMethods = {
-	[K in HaneulRpcPaginatedMethodName]: HaneulClient[K] extends (input: infer P) => Promise<{
-		data?: infer R;
-		nextCursor?: infer Cursor | null;
-		hasNextPage: boolean;
-	}>
+	[K in HaneulRpcPaginatedMethodName]: HaneulClient[K] extends (
+		input: infer Params,
+	) => Promise<infer Result extends { nextCursor?: infer Cursor | null }>
 		? {
 				name: K;
-				result: {
-					data?: R;
-					nextCursor?: Cursor | null;
-					hasNextPage: boolean;
-				};
-				params: P;
+				result: Result;
+				params: Params;
 				cursor: Cursor;
 		  }
 		: never;
@@ -57,7 +51,11 @@ export function useHaneulClientInfiniteQuery<T extends keyof HaneulRpcPaginatedM
 		...options,
 		queryKey: [haneulContext.network, method, params, ...queryKey],
 		enabled,
-		queryFn: () => haneulContext.client[method](params as never),
+		queryFn: ({ pageParam }) =>
+			haneulContext.client[method]({
+				...(params ?? {}),
+				cursor: pageParam,
+			} as never),
 		getNextPageParam: (lastPage) => {
 			return (lastPage as PaginatedResult).nextCursor ?? null;
 		},
