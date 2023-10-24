@@ -13,9 +13,8 @@ use super::{
     transaction_block::TransactionBlock,
 };
 use crate::context_data::db_data_provider::PgManager;
+use crate::error::{code, graphql_error};
 use crate::types::base64::Base64;
-use haneul_types::digests::TransactionDigest as NativeHaneulTransactionDigest;
-use haneul_types::move_package::MovePackage as NativeHaneulMovePackage;
 use haneul_types::object::{Data as NativeHaneulObjectData, Object as NativeHaneulObject};
 
 #[derive(Clone, Eq, PartialEq, Debug)]
@@ -99,23 +98,24 @@ impl Object {
     }
 
     async fn as_move_package(&self) -> Result<Option<MovePackage>> {
-        if let Some(bcs) = &self.bcs {
-            let bytes = bcs.0.as_slice();
+        let Some(bcs) = &self.bcs else {
+            return Ok(None);
+        };
 
-            let package = bcs::from_bytes::<NativeHaneulMovePackage>(bytes)
-                .map_err(|e| Error::from(format!("Failed to deserialize package: {}", e)))?;
+        let native_object: NativeHaneulObject = bcs::from_bytes(&bcs.0[..]).map_err(|_| {
+            graphql_error(
+                code::INTERNAL_SERVER_ERROR,
+                format!("Failed to deserialize object with ID: {}", self.address),
+            )
+        })?;
 
-            Ok(Some(MovePackage {
-                native_object: NativeHaneulObject::new_package_from_data(
-                    NativeHaneulObjectData::Package(package),
-                    self.previous_transaction
-                        .map(|x| NativeHaneulTransactionDigest::new(x.into_array()))
-                        .ok_or(Error::new("Object must have a previous transaction digest"))?,
-                ),
-            }))
-        } else {
-            Ok(None)
-        }
+        Ok(
+            if matches!(native_object.data, NativeHaneulObjectData::Package(_)) {
+                Some(MovePackage { native_object })
+            } else {
+                None
+            },
+        )
     }
 
     // =========== Owner interface methods =============
@@ -230,15 +230,12 @@ impl From<&NativeHaneulObject> for Object {
             panic!("Immutable or Shared object should not have an owner_id");
         }
 
-        let bcs = match &o.data {
-            // Do we BCS serialize packages?
-            NativeHaneulObjectData::Package(package) => Base64::from(
-                bcs::to_bytes(package)
-                    .expect("Failed to serialize package")
-                    .to_vec(),
-            ),
-            NativeHaneulObjectData::Move(move_object) => Base64::from(move_object.contents()),
-        };
+        let bcs = Base64::from(
+            bcs::to_bytes(o)
+                // TODO: Shouldn't panic here.
+                .expect("Failed to serialize object")
+                .to_vec(),
+        );
 
         Self {
             address: HaneulAddress::from_array(o.id().into_bytes()),
