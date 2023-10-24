@@ -7,6 +7,7 @@ publish = false
 edition = "2021"
 
 [dependencies]
+once_cell.workspace = true
 haneul-macros.workspace = true
 haneul-config.workspace = true
 haneul-protocol-config.workspace = true
