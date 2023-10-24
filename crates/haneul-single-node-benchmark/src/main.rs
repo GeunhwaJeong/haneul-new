@@ -3,7 +3,7 @@
 
 use clap::Parser;
 use haneul_single_node_benchmark::command::Command;
-use haneul_single_node_benchmark::execution::run_benchmark;
+use haneul_single_node_benchmark::run_benchmark;
 use haneul_single_node_benchmark::workload::Workload;
 
 #[tokio::main]

@@ -4,7 +4,7 @@
 use strum::IntoEnumIterator;
 use haneul_macros::sim_test;
 use haneul_single_node_benchmark::command::{Component, WorkloadKind};
-use haneul_single_node_benchmark::execution::run_benchmark;
+use haneul_single_node_benchmark::run_benchmark;
 use haneul_single_node_benchmark::workload::Workload;
 
 #[sim_test]
