@@ -16,16 +16,8 @@ module move_benchmark::benchmark {
     use haneul::tx_context;
     use haneul::tx_context::TxContext;
 
-    public fun merge_input_coins(coins: vector<Coin<HANEUL>>, ctx: &mut TxContext): Coin<HANEUL> {
-        let result = coin::zero<HANEUL>(ctx);
-        let result_balance = coin::balance_mut(&mut result);
-        while (!vector::is_empty(&coins)) {
-            let coin = vector::pop_back(&mut coins);
-            let balance = coin::into_balance(coin);
-            balance::join(result_balance, balance);
-        };
-        vector::destroy_empty(coins);
-        result
+    public fun transfer_coin(coin: Coin<HANEUL>, ctx: &mut TxContext) {
+        transfer::public_transfer(coin, tx_context::sender(ctx));
     }
 
     public fun run_computation(num: u64) {
