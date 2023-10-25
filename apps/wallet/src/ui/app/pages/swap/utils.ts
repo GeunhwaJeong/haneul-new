@@ -3,8 +3,9 @@
 import { useActiveAccount } from '_app/hooks/useActiveAccount';
 import { Coins, useBalanceConversion, useCoinsReFetchingConfig } from '_hooks';
 import { HANEUL_CONVERSION_RATE } from '_pages/swap/constants';
-import { useFormatCoin } from '@haneullabs/core';
+import { roundFloat, useFormatCoin } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
+import { type DeepBookClient } from '@haneullabs/deepbook';
 import BigNumber from 'bignumber.js';
 
 export function useSwapData({
@@ -58,22 +59,74 @@ export function useSwapData({
 }
 
 export function useHaneulUsdcBalanceConversion({ amount }: { amount: string }) {
-	const haneulUsdc = useBalanceConversion(
-		new BigNumber(amount),
-		Coins.HANEUL,
-		Coins.USDC,
-		-HANEUL_CONVERSION_RATE,
-	);
+	const haneulUsdc = useBalanceConversion({
+		balance: new BigNumber(amount),
+		from: Coins.HANEUL,
+		to: Coins.USDC,
+		conversionRate: -HANEUL_CONVERSION_RATE,
+	});
 
-	const usdcHaneul = useBalanceConversion(
-		new BigNumber(amount),
-		Coins.USDC,
-		Coins.HANEUL,
-		HANEUL_CONVERSION_RATE,
-	);
+	const usdcHaneul = useBalanceConversion({
+		balance: new BigNumber(amount),
+		from: Coins.USDC,
+		to: Coins.HANEUL,
+		conversionRate: HANEUL_CONVERSION_RATE,
+	});
 
 	return {
 		haneulUsdc,
 		usdcHaneul,
 	};
+}
+
+export function getUSDCurrency(amount?: number | null) {
+	if (typeof amount !== 'number') {
+		return null;
+	}
+
+	return roundFloat(amount).toLocaleString('en', {
+		style: 'currency',
+		currency: 'USD',
+	});
+}
+
+export async function isExceedingSlippageTolerance({
+	slipPercentage,
+	poolId,
+	deepBookClient,
+	conversionRate,
+	baseCoinAmount,
+	quoteCoinAmount,
+	isAsk,
+}: {
+	slipPercentage: string;
+	poolId: string;
+	deepBookClient: DeepBookClient;
+	conversionRate: number;
+	baseCoinAmount?: string;
+	quoteCoinAmount?: string;
+	isAsk: boolean;
+}) {
+	if (!baseCoinAmount || !quoteCoinAmount) {
+		return false;
+	}
+
+	const bigNumberBaseCoinAmount = new BigNumber(baseCoinAmount).abs();
+	const bigNumberQuoteCoinAmount = new BigNumber(quoteCoinAmount).abs();
+
+	const averagePricePaid = bigNumberQuoteCoinAmount
+		.dividedBy(bigNumberBaseCoinAmount)
+		.shiftedBy(conversionRate);
+
+	const { bestBidPrice, bestAskPrice } = await deepBookClient.getMarketPrice(poolId);
+
+	if (!bestBidPrice || !bestAskPrice) {
+		return false;
+	}
+
+	const slip = new BigNumber(isAsk ? bestBidPrice.toString() : bestAskPrice.toString()).dividedBy(
+		averagePricePaid,
+	);
+
+	return new BigNumber('1').minus(slip).abs().isGreaterThan(slipPercentage);
 }

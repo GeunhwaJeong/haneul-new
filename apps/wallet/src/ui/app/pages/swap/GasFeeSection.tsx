@@ -1,9 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { Coins, getUSDCurrency, useBalanceConversion } from '_app/hooks/useDeepBook';
+import { Coins, useBalanceConversion } from '_app/hooks/deepbook';
 import { Text } from '_app/shared/text';
 import { DescriptionItem } from '_pages/approval-request/transaction-request/DescriptionList';
 import { HANEUL_CONVERSION_RATE, WALLET_FEES_PERCENTAGE } from '_pages/swap/constants';
+import { getUSDCurrency } from '_pages/swap/utils';
 import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { useCoinMetadata, useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
@@ -32,12 +33,14 @@ export function GasFeeSection({
 		return new BigNumber(amount).times(WALLET_FEES_PERCENTAGE / 100);
 	}, [amount, isValid]);
 
-	const { rawValue } = useBalanceConversion(
-		estimatedFees,
-		isAsk ? Coins.HANEUL : Coins.USDC,
-		isAsk ? Coins.USDC : Coins.HANEUL,
-		isAsk ? -HANEUL_CONVERSION_RATE : HANEUL_CONVERSION_RATE,
-	);
+	const { data: balanceConversionData } = useBalanceConversion({
+		balance: estimatedFees,
+		from: isAsk ? Coins.HANEUL : Coins.USDC,
+		to: isAsk ? Coins.USDC : Coins.HANEUL,
+		conversionRate: isAsk ? -HANEUL_CONVERSION_RATE : HANEUL_CONVERSION_RATE,
+	});
+
+	const rawValue = balanceConversionData?.rawValue;
 
 	const [gas, symbol] = useFormatCoin(totalGas, GAS_TYPE_ARG);
 

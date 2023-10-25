@@ -1,11 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import {
-	Coins,
-	getUSDCurrency,
-	useDeepBookConfigs,
-	useRecognizedCoins,
-} from '_app/hooks/useDeepBook';
+import { Coins, useDeepBookConfigs, useRecognizedCoins } from '_app/hooks/deepbook';
 import { Text } from '_app/shared/text';
 import Alert from '_components/alert';
 import { IconButton } from '_components/IconButton';
@@ -19,7 +14,7 @@ import {
 } from '_pages/swap/constants';
 import { MaxSlippage, MaxSlippageModal } from '_pages/swap/MaxSlippage';
 import { ToAssets } from '_pages/swap/ToAssets';
-import { useHaneulUsdcBalanceConversion, useSwapData } from '_pages/swap/utils';
+import { getUSDCurrency, useHaneulUsdcBalanceConversion, useSwapData } from '_pages/swap/utils';
 import { useCoinMetadata } from '@haneullabs/core';
 import { Refresh16 } from '@haneullabs/icons';
 import { type BalanceChange } from '@haneullabs/haneul.js/client';
@@ -84,9 +79,10 @@ export function ToAssetSection({
 
 	const { haneulUsdc, usdcHaneul } = useHaneulUsdcBalanceConversion({ amount });
 	const balanceConversionData = isAsk ? haneulUsdc : usdcHaneul;
-	const { rawValue, averagePrice, refetch, isRefetching } = balanceConversionData || {};
+	const { data, refetch, isRefetching } = balanceConversionData || {};
+	const { rawValue, averagePrice } = data || {};
 
-	const averagePriceAsString = averagePrice.toFixed(MAX_FLOAT).toString();
+	const averagePriceAsString = averagePrice?.toFixed(MAX_FLOAT).toString();
 
 	if (!toAssetMetaData.data) {
 		return null;
