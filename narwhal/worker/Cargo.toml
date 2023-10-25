@@ -32,7 +32,6 @@ store = { path = "../../crates/typed-store", package = "typed-store" }
 haneullabs-network = { path = "../../crates/haneullabs-network"}
 haneullabs-metrics = { path = "../../crates/haneullabs-metrics" }
 haneul-protocol-config = { path = "../../crates/haneul-protocol-config" }
-consensus = { path = "../consensus", package = "narwhal-consensus" }
 
 anemo.workspace = true
 anemo-tower.workspace = true
@@ -47,7 +46,6 @@ tempfile.workspace = true
 test-utils = { path = "../test-utils", package = "narwhal-test-utils" }
 reqwest.workspace = true
 node = { path = "../node", package = "narwhal-node" }
-consensus = { path = "../consensus", package = "narwhal-consensus" }
 primary = { path = "../primary", package = "narwhal-primary" }
 telemetry-subscribers.workspace = true
 storage = { path = "../storage", package = "narwhal-storage" }
