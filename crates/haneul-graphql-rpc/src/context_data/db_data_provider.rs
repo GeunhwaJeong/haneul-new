@@ -51,6 +51,7 @@ use diesel::{
 use move_core_types::language_storage::StructTag;
 use std::str::FromStr;
 use haneul_indexer::{
+    apis::GovernanceReadApiV2,
     indexer_reader::IndexerReader,
     models_v2::{
         checkpoints::StoredCheckpoint, epoch::StoredEpochInfo, objects::StoredObject,
@@ -64,7 +65,8 @@ use haneul_indexer::{
 };
 use haneul_json_rpc::name_service::{Domain, NameRecord, NameServiceConfig};
 use haneul_json_rpc_types::{
-    EventFilter as RpcEventFilter, ProtocolConfigResponse, HaneulTransactionBlockEffects,
+    EventFilter as RpcEventFilter, ProtocolConfigResponse, Stake as HaneulStake,
+    HaneulTransactionBlockEffects,
 };
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_sdk::types::{
@@ -1216,43 +1218,45 @@ impl PgManager {
             object_ids: None,
             object_keys: None,
         };
-        let system_state = self.fetch_latest_haneul_system_state().await?;
-        let current_epoch_id = system_state.epoch_id;
+
         let objs = self
             .multi_get_objs(first, after, last, before, Some(obj_filter))
             .await?;
 
         if let Some((stored_objs, has_next_page)) = objs {
             let mut connection = Connection::new(false, has_next_page);
-
             let mut edges = vec![];
+            let governance_api = GovernanceReadApiV2::new(self.inner.clone());
 
-            for stored_obj in stored_objs {
-                let object = haneul_types::object::Object::try_from(stored_obj).map_err(|_| {
-                    Error::Internal("Error converting from StoredObject to Object".to_string())
-                })?;
-                let stake_object = StakedHaneul::try_from(&object).map_err(|_| {
-                    Error::Internal("Error converting from Object to StakedHaneul".to_string())
-                })?;
+            // convert the stored objects into staked haneul type
+            let stakes = stored_objs
+                .into_iter()
+                .flat_map(|stored_obj| {
+                    let object = haneul_types::object::Object::try_from(stored_obj)
+                        .map_err(|_| eprintln!("Error converting from StoredObject to Object"))
+                        .ok()?;
+                    let stake_object = StakedHaneul::try_from(&object)
+                        .map_err(|_| eprintln!("Error converting from Object to StakedHaneul"))
+                        .ok()?;
+                    Some(stake_object)
+                })
+                .collect::<Vec<_>>();
 
-                // TODO this only does active / pending stake status, but not unstaked,
-                // unstaked does not really make sense here, fullnode tracks deleted objects
-                let status = if current_epoch_id >= stake_object.activation_epoch() {
-                    StakeStatus::Active
-                } else {
-                    StakeStatus::Pending
-                };
-                let stake = Stake {
-                    id: ID(stake_object.id().to_string()),
-                    active_epoch_id: Some(stake_object.activation_epoch()),
-                    estimated_reward: None, // TODO once we have a good working governance API, we should fix this
-                    principal: Some(BigInt::from(stake_object.principal())),
-                    request_epoch_id: Some(stake_object.activation_epoch().saturating_sub(1)),
-                    status: Some(status),
-                    staked_haneul_id: stake_object.id(),
-                };
+            // retrieve the delegated stakes
+            // at the first invocation, it will likely fail because data is not cached
+            let delegated_stakes = governance_api
+                .get_delegated_stakes(stakes)
+                .await
+                .map_err(|e| Error::Internal(format!("Error fetching delegated stakes. {e}")))?;
 
-                let cursor = stake.staked_haneul_id.to_string();
+            let stakes = delegated_stakes
+                .into_iter()
+                .flat_map(|x| x.stakes)
+                .collect::<Vec<_>>();
+
+            for stk in stakes {
+                let cursor = stk.staked_haneul_id.to_string();
+                let stake = Stake::from(stk);
                 edges.push(Edge::new(cursor, stake));
             }
             connection.edges.extend(edges);
@@ -1759,6 +1763,30 @@ impl TryFrom<StoredObject> for Coin {
             balance,
             move_obj: MoveObject { native_object },
         })
+    }
+}
+
+impl From<HaneulStake> for Stake {
+    fn from(value: HaneulStake) -> Self {
+        let mut reward = None;
+        let status = match value.status {
+            haneul_json_rpc_types::StakeStatus::Pending => StakeStatus::Pending,
+            haneul_json_rpc_types::StakeStatus::Active { estimated_reward } => {
+                reward = Some(estimated_reward.into());
+                StakeStatus::Active
+            }
+            haneul_json_rpc_types::StakeStatus::Unstaked => StakeStatus::Unstaked,
+        };
+
+        Stake {
+            id: ID(value.staked_haneul_id.to_string()),
+            active_epoch_id: Some(value.stake_active_epoch),
+            estimated_reward: reward,
+            principal: Some(value.principal.into()),
+            request_epoch_id: Some(value.stake_request_epoch),
+            status: Some(status),
+            staked_haneul_id: value.staked_haneul_id,
+        }
     }
 }
 
