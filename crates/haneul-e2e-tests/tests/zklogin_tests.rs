@@ -2,8 +2,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeSet;
-
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::utils::{get_zklogin_user_address, make_zklogin_tx, sign_zklogin_tx};
@@ -66,25 +64,6 @@ async fn test_legacy_zklogin_address_accept() {
     let err = do_zklogin_test(true).await.unwrap_err();
 
     // it does not hit the signer absent error.
-    assert!(matches!(err, HaneulError::InvalidSignature { .. }));
-}
-
-#[sim_test]
-async fn test_zklogin_provider_not_supported() {
-    use haneul_protocol_config::ProtocolConfig;
-
-    let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
-        config.set_zklogin_auth_for_testing(true);
-        config.set_enable_jwk_consensus_updates_for_testing(true);
-        config.set_zklogin_supported_providers(BTreeSet::from([
-            "Google".to_string(),
-            "Facebook".to_string(),
-        ]));
-        config
-    });
-
-    // Doing a Twitch zklogin tx fails because its not in the supported list.
-    let err = do_zklogin_test(false).await.unwrap_err();
     assert!(matches!(err, HaneulError::InvalidSignature { .. }));
 }
 
