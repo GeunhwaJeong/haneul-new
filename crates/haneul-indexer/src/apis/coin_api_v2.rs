@@ -6,7 +6,7 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{cap_page_limit, CoinReadApiServer};
-use haneul_json_rpc::coin_api::parse_to_type_tag;
+use haneul_json_rpc::coin_api::{parse_to_struct_tag, parse_to_type_tag};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{Balance, CoinPage, Page, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
@@ -116,8 +116,12 @@ impl CoinReadApiServer for CoinReadApiV2 {
             .map_err(Into::into)
     }
 
-    async fn get_coin_metadata(&self, _coin_type: String) -> RpcResult<Option<HaneulCoinMetadata>> {
-        unimplemented!()
+    async fn get_coin_metadata(&self, coin_type: String) -> RpcResult<Option<HaneulCoinMetadata>> {
+        let coin_struct = parse_to_struct_tag(&coin_type)?;
+        self.inner
+            .get_coin_metadata_in_blocking_task(coin_struct)
+            .await
+            .map_err(Into::into)
     }
 
     async fn get_total_supply(&self, _coin_type: String) -> RpcResult<Supply> {
