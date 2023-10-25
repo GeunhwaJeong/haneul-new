@@ -374,7 +374,7 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 												<SvgHaneulTokensStack className="h-14 w-14 text-steel" />
 												<div className="flex flex-col gap-2 justify-center">
 													<Text variant="pBodySmall" color="gray-80" weight="normal">
-														To conduct transactions on the Haneul network, you need HANEUL in your wallet.
+														To send transactions on the Haneul network, you need HANEUL in your wallet.
 													</Text>
 												</div>
 											</div>
