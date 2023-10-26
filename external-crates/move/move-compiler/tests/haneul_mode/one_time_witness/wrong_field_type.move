@@ -3,7 +3,7 @@
 module a::m {
     use haneul::tx_context;
 
-    struct M has drop { value: u64 }
+    struct M has store, drop { value: u64 }
 
     fun init(_ctx: &mut tx_context::TxContext) {
     }
@@ -14,6 +14,13 @@ module a::m {
     }
 }
 
+module 0::beep {
+  struct BEEP has store { boop: haneul::table::Table<u8, bool> }
+}
+
 module haneul::tx_context {
     struct TxContext has drop {}
+}
+module haneul::table {
+    struct Table<phantom K, phantom V> has store {}
 }
