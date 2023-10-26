@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 0.45.0
+
+### Minor Changes
+
+- b9afb5567: adds "transfer to object" (receivingRef) support
+
 ## 0.44.0
 
 ### Minor Changes
