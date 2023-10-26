@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { CoinFormat, useFormatCoin } from '@haneullabs/core';
+import { CoinFormat, useFormatCoin, useResolveHaneulNSName } from '@haneullabs/core';
 import { ArrowUpRight16 } from '@haneullabs/icons';
 import { type ObjectOwner, type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import {
@@ -149,6 +149,12 @@ function VersionCard({ version, digest }: { version?: string; digest: string }) 
 	);
 }
 
+function AddressOwner({ address }: { address: string }) {
+	const { data: haneulnsDomainName } = useResolveHaneulNSName(address);
+
+	return <AddressLink address={address} label={haneulnsDomainName} />;
+}
+
 function OwnerCard({
 	objOwner,
 	display,
@@ -181,7 +187,7 @@ function OwnerCard({
 					) : 'ObjectOwner' in objOwner ? (
 						<ObjectLink objectId={objOwner.ObjectOwner} />
 					) : (
-						<AddressLink address={objOwner.AddressOwner} />
+						<AddressOwner address={objOwner.AddressOwner} />
 					)}
 				</Description>
 			)}
