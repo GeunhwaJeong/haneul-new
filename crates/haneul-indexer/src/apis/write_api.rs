@@ -10,11 +10,7 @@ use jsonrpsee::RpcModule;
 use haneul_json_rpc::api::{WriteApiClient, WriteApiServer};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
-    DevInspectResults,
-    DryRunTransactionBlockResponse,
-    // TODO(gegaowp): temp. disable fast-path
-    // HaneulTransactionBlockEffectsAPI,
-    HaneulTransactionBlockResponse,
+    DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_open_rpc::Module;
@@ -22,30 +18,22 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 
-use crate::store::IndexerStore;
 use crate::types::HaneulTransactionBlockResponseWithOptions;
 
-// TODO(gegaowp): temp. disable fast-path and allow dead code.
-#[allow(dead_code)]
-pub(crate) struct WriteApi<S> {
+pub(crate) struct WriteApi {
     fullnode: HttpClient,
-    state: S,
 }
 
-impl<S: IndexerStore> WriteApi<S> {
-    pub fn new(state: S, fullnode_client: HttpClient) -> Self {
+impl WriteApi {
+    pub fn new(fullnode_client: HttpClient) -> Self {
         Self {
-            state,
             fullnode: fullnode_client,
         }
     }
 }
 
 #[async_trait]
-impl<S> WriteApiServer for WriteApi<S>
-where
-    S: IndexerStore + Sync + Send + 'static,
-{
+impl WriteApiServer for WriteApi {
     async fn execute_transaction_block(
         &self,
         tx_bytes: Base64,
@@ -86,10 +74,7 @@ where
     }
 }
 
-impl<S> HaneulRpcModule for WriteApi<S>
-where
-    S: IndexerStore + Sync + Send + 'static,
-{
+impl HaneulRpcModule for WriteApi {
     fn rpc(self) -> RpcModule<Self> {
         self.into_rpc()
     }
