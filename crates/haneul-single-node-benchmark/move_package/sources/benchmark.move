@@ -5,8 +5,6 @@ module move_benchmark::benchmark {
     use std::ascii;
     use std::ascii::String;
     use std::vector;
-    use haneul::balance;
-    use haneul::coin;
     use haneul::coin::Coin;
     use haneul::dynamic_field;
     use haneul::object;
@@ -16,7 +14,7 @@ module move_benchmark::benchmark {
     use haneul::tx_context;
     use haneul::tx_context::TxContext;
 
-    public fun transfer_coin(coin: Coin<HANEUL>, ctx: &mut TxContext) {
+    public fun transfer_coin(coin: Coin<HANEUL>, ctx: &TxContext) {
         transfer::public_transfer(coin, tx_context::sender(ctx));
     }
 
