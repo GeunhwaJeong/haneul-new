@@ -1,0 +1,38 @@
+---
+title: Haneul CLI
+description: Haneul provides command line tools to interact with the network, its features, and the Move programming language. Individual command groups are referred to as Haneul Client CLI, Haneul Console CLI, Haneul Keytool CLI, Haneul Move CLI, and Haneul Validator CLI.
+---
+
+Haneul provides a command line interface (CLI) tool to interact with the Haneul network, its features, and the Move programming language. The complete suite of tools is called the Haneul CLI, with commands grouped together by feature. Each group of commands is commonly referred to by its top-level command: Haneul Client CLI, Haneul Console CLI, Haneul Keytool CLI, Haneul Move CLI, and Haneul Validator CLI.
+
+## Check installation
+
+Before you can use the Haneul CLI, you must install it. To check if the CLI exists on your system, open a terminal or console and type the following line.
+
+```shell
+haneul --version
+```
+
+If the terminal or console responds with a version number, you already have the Haneul CLI installed. 
+
+If the command is not found, follow the instructions in [Install Haneul](/guides/developer/getting-started/haneul-install.mdx) to get the CLI on your system.
+
+## Update CLI
+
+To get the latest version of the CLI, you can run the following commmand from a terminal or console. Be sure to replace `<BRANCH-NAME>` with `main`, `devnet`, `testnet`, or `mainnet` to get the desired version. For more information on the branches available, see [Haneul Environment Setup](/guides/developer/getting-started/haneul-environment.mdx).
+
+```shell
+cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch <BRANCH-NAME> haneul
+```
+
+## Haneul CLI commands
+
+There are a number of top-level commands available, but the five most useful to users are the following. Use the `help` flag for the commands that are not documented yet. For example, `haneul validator --help`.  
+
+- **[Haneul Client CLI](./cli/client.mdx):** Use the `haneul client` commands to interact with the Haneul network.
+- **Haneul Console CLI:** Use `haneul console` to open an interactive console with the currently active network.
+- **[Haneul Keytool CLI](./cli/keytool.mdx):** Use the `haneul keytool` commands to access cryptography utilities.
+- **[Haneul Move CLI](./cli/move.mdx):** Use the `haneul move` commands to work with the Move programming language.
+- **Haneul Validator CLI:** Use the `haneul validator` commands to access tools useful for Haneul validators.
+
+

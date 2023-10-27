@@ -1,0 +1,44 @@
+---
+title: Get Haneul Address
+description: You need an address on the Haneul network before you can start trading NFTs, purchase HANEUL tokens, or perform other transactions.
+---
+
+An address is a way to uniquely and anonymously identify an account that exists on the Haneul blockchain network. In other words, an address is a way for a user to store and use tokens on the Haneul network, without providing any personally identifying information (such as email address, phone number, and so on). For example, if you want to purchase a number of HANEUL tokens to play a game, you must specify an address where these tokens are to be deposited.
+
+The Haneul address is unique, similarly to the way a social security number or a personal identification number is unique to one person. However, in Haneul you can create and own multiple addresses, all of which are unique. 
+
+In Haneul, an address is 32 bytes and is often encoded in base58 with `0x` prefix. For example, this is a valid Haneul address: `0x02a212de6a9dfa3a69e22387acfbafbb1a9e591bd9d636e7895dcfc8de05f331`. You can use the [Haneul Explorer](https://haneulexplorer.com/) website to find more information about [this address](https://haneulexplorer.com/address/0x02a212de6a9dfa3a69e22387acfbafbb1a9e591bd9d636e7895dcfc8de05f331) and the objects it owns.
+
+If you'd like to understand how a Haneul address is derived from private keys and other cryptography related topics, see the [Keys and Addresses](/concepts/cryptography/transaction-auth/keys-addresses.mdx) topic.
+
+
+## How to obtain a Haneul address
+
+Haneul provides multiple ways to obtain a Haneul address. The following are the two most common. 
+
+### Haneul Wallet
+
+One of the most straightforward ways to obtain a Haneul address for first-time users is through the [Haneul Wallet Chrome browser extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). After you install the extension, there are several ways to create an address. 
+
+Open the Chrome Haneul Wallet browser extension and then:
+- Use your gmail/twitch/facebook account (ZkLogin) and follow the on-screen instructions
+- Click **More Options** → **Create a new passphrase account**. Then follow the on-screen instructions. 
+
+For more information on the Haneul Wallet and how to keep it secure, see the [Haneul Wallet documentation](https://haneullabs-docs-site.vercel.app/wallet). 
+
+### Command line interface
+
+If you are using the Haneul command line interface (CLI) to interact with the Haneul network, you can use the `haneul client` command to generate a new address. By default, when the Haneul CLI runs for the first time it will prompt you to set up your local wallet, and then it generates one Haneul address and the associated secret recovery phrase. Make sure you write down the secret recovery phrase and store it in a safe place. 
+
+
+To generate a new Haneul address use `haneul client new-address ed25519`, which specifies the keypair scheme flag to be of type `ed25519`.
+
+For more information, see the [Haneul Client CLI](../../../references/cli/client.mdx) documentation.
+
+To see all the generated addresses in the local wallet on your machine, run `haneul keytool list`. For more information about the keytool options, see the [Haneul Keytool CLI](../../../references/cli/keytool.mdx) documentation.
+
+:::danger
+
+The private keys associated with the Haneul addresses are stored locally on the machine where the CLI is installed, in the `~/.haneul/haneul_config/haneul.keystore` file. Make sure you do not expose this to anyone, as they can use it to get access to your account.
+
+:::

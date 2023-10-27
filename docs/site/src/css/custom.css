@@ -1,0 +1,83 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+ @tailwind base;
+ @tailwind components;
+ @tailwind utilities;
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #4ca2ff;
+  --ifm-color-primary-dark: #2b91ff;
+  --ifm-color-primary-darker: #1a88ff;
+  --ifm-color-primary-darkest: #006fe8;
+  --ifm-color-primary-light: #6db3ff;
+  --ifm-color-primary-lighter: #7ebcff;
+  --ifm-color-primary-lightest: #afd6ff;
+  --ifm-code-font-size: 95%;
+  --ifm-background-color-dark: #1b1b1d;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --haneul-black: #090B1A;
+  --haneul-blue: #6fbcf0;
+  --haneul-blue-bright: #00f9fb;
+  --haneul-blue-light: #e1f3ff;
+  --haneul-blue-lighter: #B4C2D0;
+  --haneul-blue-dark: 52 99 151;
+  --haneul-blue-darker: #303846;
+  --haneul-hero: #0284AD;
+  --haneul-hero-dark: #007195;
+  --haneul-haneul-steel: #A0B6C3;
+  --haneul-steel-dark: #758F9E;
+  --haneul-steel-darker: #566873;
+  --haneul-header-nav: #2A4362;
+  --haneul-success: #2DD7A7;
+  --haneul-success-dark: #008C65;
+  --haneul-success-light: #D5F7EE;
+  --haneul-issue: #FF794B;
+  --haneul-issue-dark: #EB5A29;
+  --haneul-issue-light: #FFECE5;
+  --haneul-warning: #F2BD24;
+  --haneul-warning-dark: #8D6E15;
+  --haneul-warning-light: #FFF8E2;
+  --haneul-code: #845ED6;
+  --haneul-gray-35: #FEFEFE;
+  --haneul-gray-40: #F7F8F8;
+  --haneul-gray-45: #EBECED;
+  --haneul-gray-50: #E9EAEB;
+  --haneul-gray-55: #D7D8DA;
+  --haneul-gray-60: #C3C5C8;
+  --haneul-gray-65: #9C9FA4;
+  --haneul-gray-70: #898D93;
+  --haneul-gray-75: #767A81;
+  --haneul-gray-80: #636870;
+  --haneul-gray-85: #5A6573;
+  --haneul-gray-90: #383F47;
+  --haneul-gray-95: #2A3645;
+  --haneul-gray-100: #182435;
+  --haneul-link-color: #1068a6;
+  --haneul-link-color-dark: #057fd1;
+  --haneul-link-color-light: #1f98e9;	
+  --haneul-ghost-white: #f8f8ff;
+  --haneul-ghost-dark: #282a36;
+  --haneul-white: 255 255 255;
+  --haneul-card-dark: 13 20 37;
+  --haneul-card-darker: 0 23 49;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #4ca2ff;
+  --ifm-color-primary-dark: #2b91ff;
+  --ifm-color-primary-darker: #1a88ff;
+  --ifm-color-primary-darkest: #006fe8;
+  --ifm-color-primary-light: #6db3ff;
+  --ifm-color-primary-lighter: #7ebcff;
+  --ifm-color-primary-lightest: #afd6ff;
+  --ifm-background-color: #011829;
+}
+
+.active-scroll-spy {
+  @apply bg-haneul-ghost-white dark:bg-haneul-ghost-dark rounded-lg
+}
