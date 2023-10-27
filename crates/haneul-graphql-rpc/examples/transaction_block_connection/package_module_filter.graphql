@@ -2,14 +2,14 @@
 {
   transactionBlockConnection(
     filter: {
-      package: "0x0000000000000000000000000000000000000000000000000000000000000003",
-      module:"haneul_system"
+      package: "0x0000000000000000000000000000000000000000000000000000000000000003"
+      module: "haneul_system"
     }
   ) {
     nodes {
       sender {
         location
-      },
+      }
       gasInput {
         gasPrice
         gasBudget
