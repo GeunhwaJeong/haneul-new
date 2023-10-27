@@ -316,6 +316,13 @@ pub enum HaneulError {
         threshold: usize,
     },
 
+    #[error("Input {object_id} has a transaction {txn_age_sec} seconds old pending, above threshold of {threshold} seconds")]
+    TooOldTransactionPendingOnObject {
+        object_id: ObjectID,
+        txn_age_sec: u64,
+        threshold: u64,
+    },
+
     // Signature verification
     #[error("Signature is not valid: {}", error)]
     InvalidSignature { error: String },
@@ -735,6 +742,7 @@ impl HaneulError {
             // Overload errors
             HaneulError::TooManyTransactionsPendingExecution { .. } => (true, true),
             HaneulError::TooManyTransactionsPendingOnObject { .. } => (true, true),
+            HaneulError::TooOldTransactionPendingOnObject { .. } => (true, true),
             HaneulError::TooManyTransactionsPendingConsensus => (true, true),
 
             // Non retryable error
@@ -769,6 +777,7 @@ impl HaneulError {
             self,
             HaneulError::TooManyTransactionsPendingExecution { .. }
                 | HaneulError::TooManyTransactionsPendingOnObject { .. }
+                | HaneulError::TooOldTransactionPendingOnObject { .. }
                 | HaneulError::TooManyTransactionsPendingConsensus
         )
     }
