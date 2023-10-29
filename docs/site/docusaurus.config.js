@@ -12,7 +12,7 @@ const config = {
   tagline:
     "Haneul is a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by Move",
   favicon: "img/favicon.ico",
-  url: "https://haneul-docs-haneul-foundation.vercel.app",
+  url: "https://haneul-core.vercel.app",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "throw",
@@ -61,7 +61,8 @@ const config = {
           path: "../content",
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/haneul-foundation/haneul-docs/tree/main/",
+          // the double docs below is a fix for having the path set to ../content
+          editUrl: "https://github.com/GeunhwaJeong/haneul/tree/main/docs/docs",
           /*disableVersioning: true,
           lastVersion: "current",
           versions: {
@@ -74,7 +75,11 @@ const config = {
             "current",
             "1.0.0",
           ],*/
-          remarkPlugins: [math],
+          remarkPlugins: [
+            math,
+            require("@docusaurus/remark-plugin-npm2yarn"),
+            { sync: true, converters: ["npm", "yarn", "pnpm"] },
+          ],
           rehypePlugins: [katex],
         },
         theme: {
