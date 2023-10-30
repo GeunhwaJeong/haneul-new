@@ -244,7 +244,7 @@ pub enum ExecutionStatus {
     Failure,
 }
 
-#[derive(InputObject, Debug, Default)]
+#[derive(InputObject, Debug, Default, Clone)]
 pub(crate) struct TransactionBlockFilter {
     pub package: Option<HaneulAddress>,
     pub module: Option<String>,
