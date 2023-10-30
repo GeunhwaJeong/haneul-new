@@ -79,5 +79,6 @@
 }
 
 .active-scroll-spy {
-  @apply bg-haneul-ghost-white dark:bg-haneul-ghost-dark rounded-lg
+  @apply bg-haneul-ghost-white dark:bg-haneul-ghost-dark rounded-lg;
 }
+

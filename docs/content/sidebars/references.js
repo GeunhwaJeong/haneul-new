@@ -20,8 +20,7 @@ const references = [
 			id: 'references/haneul-api',
 		},
 		items: [
-			`references/haneul-api/beta-graph-ql`,
-			'references/haneul-api/json-rpc-format',
+			'references/haneul-api/beta-graph-ql',
 			{
 				type: 'link',
 				label: 'API Reference',
@@ -68,12 +67,20 @@ const references = [
 	},
 	{
 		type: 'category',
-		label: 'Haneul Move',
+		label: 'Move',
 		link: {
 			type: 'doc',
 			id: 'references/haneul-move',
 		},
-		items: ['references/move/move-toml', 'references/move/move-lock'],
+		items: [
+			'references/move/move-toml',
+			'references/move/move-lock',
+			{
+				type: 'link',
+				label: 'Move Language (GitHub)',
+				href: 'https://github.com/move-language/move/blob/main/language/documentation/book/src/introduction.md',
+			},
+		],
 	},
 	{
 		type: 'category',

@@ -15,7 +15,7 @@ export default function Home() {
     return (
       <div
         onClick={() => history.push(to)}
-        className="bg-haneul-card-dark rounded-haneul w-full h-full p-8 bg-[url(../static/img/index/card-bg.svg)] justify-center flex justify-center items-center"
+        className="bg-haneul-card-dark rounded-haneul w-[350px] h-[350px] p-8 bg-[url(../static/img/index/card-bg.svg)] justify-center flex justify-center items-center"
       >
         <div className="p-4 rounded-full border border-solid border-haneul-white/30 w-[249px] h-[51px] text-haneul-white bg-haneul-card-dark bg-[url(../static/img/index/circle-arrow.svg)] bg-no-repeat bg-[center_right_2px] flex items-center cursor-pointer hover:shadow-haneul hover:shadow-haneul-blue hover:bg-opacity-50 hover:bg-[url(../static/img/index/circle-arrow-blue.svg)]">
           Build your first dApp
@@ -31,9 +31,9 @@ export default function Home() {
     };
 
     return (
-      <div className="grid grid-cols-3 border-solid border-0 border-t border-haneul-white/50 mb-8">
+      <div className="grid grid-cols-3 border-solid border-0 border-t border-haneul-white/50 mb-8 lg:mx-0 mx-4">
         <p
-          className={`text-4xl mt-8 pr-12 cursor-pointer bg-no-repeat bg-right-top flex-none ${
+          className={`lg:text-4xl text-2xl pb-2 mt-8 pr-12 cursor-pointer bg-no-repeat bg-right-top flex-none ${
             vis
               ? "bg-[url(../static/img/index/circle-arrow-up.svg)]"
               : "bg-[url(../static/img/index/circle-arrow-down.svg)]"
@@ -52,45 +52,60 @@ export default function Home() {
       </div>
     );
   };
+  const HomeCard = (props) => {
+    const { aux, title, children } = props;
+    return (
+      <div
+        className={`p-px col-span-3 bg-gradient-to-b from-haneul-white/40 from-20% hover:from-30% via-haneul-white/0 to-haneul-white/10 to-80% rounded-haneul w-[350px] h-[350px]`}
+      >
+        <div
+          className={`${
+            aux ? "bg-haneul-ghost-dark" : "bg-haneul-card-dark"
+          } rounded-haneul w-full h-full p-8 max-w-[350px] max-h-[350px]`}
+        >
+          <p className="text-4xl text-white table-cell align-bottom pb-2 h-16 pb-8">
+            {title}
+          </p>
+          {children}
+        </div>
+      </div>
+    );
+  };
 
-  const grouptitleclass =
-    "text-4xl text-white table-cell align-bottom pb-2 h-16 pb-8";
   const cardlinks =
-    "block py-3 border-0 border-t border-solid border-color-white text-haneul-blue-lighter bg-[url(../static/img/index/right-arrow.svg)] bg-no-repeat bg-right hover:no-underline hover:text-haneul-blue-lighter hover:bg-[url(../static/img/index/right-arrow-blue.svg)]";
-  //const darkcardclass = "p-1 col-span-3 bg-haneul-blue-dark/10 rounded-haneul w-100 border border-t-haneul-white/40 border-x-haneul-white/0 border-b-haneul-white/10 border-solid box-border";
+    "block py-3 border-0 border-t border-solid border-color-white text-haneul-blue-lighter bg-[url(../static/img/index/right-arrow.svg)] bg-no-repeat bg-right hover:no-underline hover:text-haneul-blue-lighter hover:bg-[url(../static/img/index/right-arrow-blue.svg)] pr-10";
   const darkcardclass =
-    "p-px col-span-3 bg-gradient-to-b from-haneul-white/40 from-20% hover:from-30% via-haneul-white/0 to-haneul-white/10 to-80% rounded-haneul";
+    "p-px col-span-4 bg-gradient-to-b from-haneul-white/40 from-20% hover:from-30% via-haneul-white/0 to-haneul-white/10 to-80% rounded-haneul";
   return (
-    <Layout className="bg-haneul-black">
-      <div className="grid grid-cols-12 gap-2 bg-haneul-black">
-        <div className="col-span-12 mt-24 mb-12">
+    <Layout>
+      <div className="bg-haneul-black overflow-hidden">
+        <div className="w-full mt-24 mb-12 mx-auto bg-haneul-black">
           <div className="text-center">
-            <p className="text-8xl text-white">Haneul Documentation</p>
-            <p className="text-3xl mb-0 w-1/3 m-x-auto text-haneul-blue-lighter inline-block">
+            <p className="lg:text-8xl text-6xl text-white">Haneul Documentation</p>
+            <p className="xs:text-md sm:text-xl lg:text-3xl mb-0 w-1/3 m-x-auto text-haneul-blue-lighter inline-block">
               Discover the power of Haneul through examples, guides, and concepts
             </p>
           </div>
         </div>
-        <div className={`col-start-4 ${darkcardclass}`}>
-          <div className="bg-haneul-card-dark rounded-haneul w-full h-full p-8">
-            <p className={grouptitleclass}>About Haneul</p>
+        <div className="flex flex-row flex-wrap justify-center gap-2 max-w-[1066px] mx-auto">
+          <HomeCard title="About Haneul">
             <Link
               className={`${cardlinks} text-2xl`}
               to="./concepts/tokenomics"
             >
-              Haneul tokenomics
+              Tokenomics
             </Link>
             <Link
               className={`${cardlinks} text-2xl`}
               to="./concepts/cryptography"
             >
-              Haneul cryptography
+              Cryptography
             </Link>
-          </div>
-        </div>
-        <div className={`col-start-7 ${darkcardclass}`}>
-          <div className="bg-haneul-card-dark rounded-haneul w-full h-full p-8">
-            <p className={grouptitleclass}>Developers</p>
+            <Link className={`${cardlinks} text-2xl`} to="standards">
+              Standards
+            </Link>
+          </HomeCard>
+          <HomeCard title="Developers">
             <Link
               className={`${cardlinks} text-2xl`}
               to="./guides/developer/getting-started"
@@ -101,23 +116,16 @@ export default function Home() {
               className={`${cardlinks} text-2xl`}
               to="./guides/developer/haneul-101"
             >
-              Basics of developing on Haneul
+              Haneul Developer Basics
             </Link>
             <Link
               className={`${cardlinks} text-2xl`}
               to="./concepts/haneul-move-concepts"
             >
-              Move language on Haneul
+              Move
             </Link>
-          </div>
-        </div>
-        <div className={`col-start-4 ${darkcardclass}`}>
-          <div className="bg-haneul-card-dark rounded-haneul w-full h-full p-8">
-            <p className={grouptitleclass}>
-              Validators and
-              <br />
-              Node operators
-            </p>
+          </HomeCard>
+          <HomeCard title="Validators and Node operators">
             <Link
               className={`${cardlinks} text-2xl`}
               to="./guides/operator/validator-config"
@@ -131,91 +139,89 @@ export default function Home() {
               Run a Haneul Full node
               <span className="block bg-auto bg-[url(../static/img/index/right-arrow.svg)]"></span>
             </Link>
+          </HomeCard>
+          <HomeCard title="References" aux>
+            <Link
+              className={`${cardlinks} text-md`}
+              to="https://haneul-typescript-docs.vercel.app/dapp-kit?ref=blog.haneul.io"
+            >
+              Haneul dApp Kit
+            </Link>
+            <Link className={`${cardlinks} text-md`} to="/haneul-api-ref">
+              Haneul API
+            </Link>
+            <Link
+              className={`${cardlinks} text-md`}
+              to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/docs"
+            >
+              Haneul framework (GitHub)
+            </Link>
+            <Link
+              className={`${cardlinks} text-md`}
+              to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk"
+            >
+              Rust SDK (GitHub)
+            </Link>
+          </HomeCard>
+          <HomeCard title="Resources" aux>
+            <Link
+              className={`${cardlinks} text-md`}
+              to="https://haneul.directory/"
+            >
+              Haneul partner packages
+            </Link>
+            <Link className={`${cardlinks} text-md`} to="https://blog.haneul.io/">
+              Haneul blog
+            </Link>
+            <Link
+              className={`${cardlinks} text-md`}
+              to="guides/developer/dev-cheat-sheet"
+            >
+              Haneul dev cheat sheet
+            </Link>
+          </HomeCard>
+          <div className={`${darkcardclass} w-[350px] h-[350px]`}>
+            <SingleLink to="/guides/developer/first-app"></SingleLink>
           </div>
         </div>
-        <div className={`col-start-7 ${darkcardclass}`}>
-          <SingleLink to="/guides/developer/first-app"></SingleLink>
-        </div>
-        <div className="col-start-4 col-span-2 bg-haneul-white/10 rounded-haneul p-8">
-          <p className="text-4xl text-white table-cell align-bottom pb-2 h-16 pb-8">
-            References
-          </p>
-          <Link
-            className={`${cardlinks} text-md`}
-            to="https://haneul-typescript-docs.vercel.app/dapp-kit?ref=blog.haneul.io"
-          >
-            Haneul dApp Kit
-          </Link>
-          <Link className={`${cardlinks} text-md`} to="/haneul-api-ref">
-            Haneul API
-          </Link>
-          <Link
-            className={`${cardlinks} text-md`}
-            to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/docs"
-          >
-            Haneul framework (GitHub)
-          </Link>
-          <Link
-            className={`${cardlinks} text-md`}
-            to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk"
-          >
-            Rust SDK (GitHub)
-          </Link>
-        </div>
-        <div className="col-start-6 col-span-2 bg-haneul-white/10 rounded-haneul p-8">
-          <p className="text-4xl text-white table-cell align-bottom pb-2 h-16 pb-8">
-            Resources
-          </p>
-          <Link className={`${cardlinks} text-md`} to="https://haneul.directory/">
-            Haneul partner packages
-          </Link>
-          <Link className={`${cardlinks} text-md`} to="https://blog.haneul.io/">
-            Haneul blog
-          </Link>
-          <Link
-            className={`${cardlinks} text-md`}
-            to="guides/developer/dev-cheat-sheet"
-          >
-            Haneul dev cheat sheet
-          </Link>
-        </div>
-        <div className="col-start-8 col-span-2 bg-haneul-black rounded-haneul p-8 border-solid border-color-haneul-white">
-          <p className="text-4xl text-white table-cell align-bottom pb-2 h-16 pb-8">
-            Get
-            <br />
-            Support
-          </p>
-        </div>
-        <div className="col-span-6 col-start-4 mt-24 text-white">
+
+        <div className="lg:w-[1066px] w-auto mt-24 text-white mx-auto">
           <h1 className="mb-4 text-8xl font-normal text-center">Why Haneul?</h1>
           <p className="text-3xl mb-8 text-haneul-blue-lighter inline-block text-center w-full">
-            <span className="inline-block w-2/3">Haneul is the first internet-scale programmable blockchain platform</span>
-          </p>
-        </div>
-        <div className="col-start-4 col-span-3 bg-[url(../static/img/index/card-bg-light.svg)] bg-contain bg-no-repeat"></div>
-        <div className="col-start-7 col-span-3">
-          <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
-            <span className="inline-block mt-8">
-              Unmatched scalability, instant settlement
-            </span>
-          </p>
-          <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
-            <span className="inline-block mt-8">
-              A safe smart contract language accessible to mainstream developers
-            </span>
-          </p>
-          <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
-            <span className="inline-block mt-8">
-              Ability to define rich and composable on-chain assets
-            </span>
-          </p>
-          <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
-            <span className="inline-block mt-8">
-              Better user experience for web3 apps
+            <span className="inline-block sm:w-[578px] w-[500px] mb-6">
+              Haneul is the first internet-scale programmable blockchain platform
             </span>
           </p>
         </div>
-        <div className="col-span-6 col-start-4 my-24 text-white">
+        <div className="lg:w-[1066px] width-auto mx-auto flex flex-row items-center">
+          <div className="lg:w-[350px] w-[250px] mx-auto lg:mx-0 ">
+            <img src="/img/index/blocks.png"/>
+          </div>
+          <div className="lg:w-[676px] ml-8 lg:block hidden">
+            <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
+              <span className="inline-block mt-7 mb-3 ml-4">
+                Unmatched scalability, instant settlement
+              </span>
+            </p>
+            <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
+              <span className="inline-block mt-7 mb-3 ml-4">
+                A safe smart contract language accessible to mainstream
+                developers
+              </span>
+            </p>
+            <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
+              <span className="inline-block mt-7 mb-3 ml-4">
+                Ability to define rich and composable on-chain assets
+              </span>
+            </p>
+            <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
+              <span className="inline-block mt-7 mb-3 ml-4">
+                Better user experience for web3 apps
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="sm:w-[840] lg:w-[1066px] w-auto my-24 text-white mx-auto">
           <ContentItem title="Scalability">
             Haneul scales horizontally to meet the demands of applications. Network
             capacity grows in proportion to the increase in Haneul validators'

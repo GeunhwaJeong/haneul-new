@@ -71,18 +71,7 @@ const guides = [
 							'guides/developer/haneul-101/coin-mgt',
 						],
 					},
-					{
-						type: 'category',
-						label: 'Building a PTB',
-						link: {
-							type: 'doc',
-							id: 'guides/developer/haneul-101/working-with-ptbs',
-						},
-						items: [
-							'guides/developer/haneul-101/building-ptb',
-							'guides/developer/haneul-101/simulating-refs',
-						],
-					},
+					'guides/developer/haneul-101/building-ptb',
 				],
 			},
 			{
@@ -120,6 +109,7 @@ const guides = [
 			id: 'guides/developer/app-examples',
 		},
 		items: [
+			'guides/developer/app-examples/e2e-counter',
 			'guides/developer/app-examples/auction',
 			'guides/developer/app-examples/escrow',
 			'guides/developer/app-examples/trusted-swap',

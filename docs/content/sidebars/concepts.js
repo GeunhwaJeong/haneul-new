@@ -3,6 +3,7 @@
 
 const concepts = [
 	'concepts',
+	'concepts/components',
 	{
 		type: 'category',
 		label: 'App Developers',
@@ -11,51 +12,6 @@ const concepts = [
 			id: 'concepts/app-devs',
 		},
 		items: [
-			'concepts/components',
-			{
-				type: 'category',
-				label: 'Move Overview',
-				link: {
-					type: 'doc',
-					id: 'concepts/haneul-move-concepts',
-				},
-				items: [
-					'concepts/haneul-move-concepts/init',
-					'concepts/haneul-move-concepts/entry-functions',
-					'concepts/haneul-move-concepts/strings',
-					'concepts/haneul-move-concepts/one-time-witness',
-					'concepts/haneul-move-concepts/collections',
-					{
-						type: 'category',
-						label: 'Packages',
-						link: {
-							type: 'doc',
-							id: 'concepts/haneul-move-concepts/packages',
-						},
-						items: [
-							'concepts/haneul-move-concepts/packages/upgrade',
-							'concepts/haneul-move-concepts/packages/custom-policies',
-						],
-					},
-					{
-						type: 'category',
-						label: 'Patterns',
-						link: {
-							type: 'doc',
-							id: 'concepts/haneul-move-concepts/patterns',
-						},
-						items: [
-							'concepts/haneul-move-concepts/patterns/capabilities',
-							'concepts/haneul-move-concepts/patterns/witness',
-							'concepts/haneul-move-concepts/patterns/transferrable-witness',
-							'concepts/haneul-move-concepts/patterns/hot-potato',
-							'concepts/haneul-move-concepts/patterns/id-pointer',
-							'concepts/haneul-move-concepts/patterns/app-extensions',
-						],
-					},
-					'concepts/haneul-move-concepts/move-on-haneul',
-				],
-			},
 			{
 				type: 'category',
 				label: 'Object Model',
@@ -88,22 +44,65 @@ const concepts = [
 						items: [
 							'concepts/dynamic-fields/dynamic-object-fields',
 							'concepts/dynamic-fields/tables-bags',
+							'concepts/dynamic-fields/events',
+							{
+								type: 'category',
+								label: 'Transfers',
+								link: {
+									type: 'doc',
+									id: 'concepts/dynamic-fields/transfers',
+								},
+								items: [
+									'concepts/dynamic-fields/transfers/custom-rules',
+									'concepts/dynamic-fields/transfers/transfer-to-object',
+								],
+							},
+							'concepts/dynamic-fields/versioning',
 						],
 					},
-					'concepts/dynamic-fields/events',
+				],
+			},
+			{
+				type: 'category',
+				label: 'Move Overview',
+				link: {
+					type: 'doc',
+					id: 'concepts/haneul-move-concepts',
+				},
+				items: [
+					'concepts/haneul-move-concepts/strings',
+					'concepts/haneul-move-concepts/collections',
+					'concepts/haneul-move-concepts/init',
+					'concepts/haneul-move-concepts/entry-functions',
+					'concepts/haneul-move-concepts/one-time-witness',
 					{
 						type: 'category',
-						label: 'Transfers',
+						label: 'Packages',
 						link: {
 							type: 'doc',
-							id: 'concepts/dynamic-fields/transfers',
+							id: 'concepts/haneul-move-concepts/packages',
 						},
 						items: [
-							'concepts/dynamic-fields/transfers/custom-rules',
-							'concepts/dynamic-fields/transfers/transfer-to-object',
+							'concepts/haneul-move-concepts/packages/upgrade',
+							'concepts/haneul-move-concepts/packages/custom-policies',
 						],
 					},
-					'concepts/dynamic-fields/versioning',
+					{
+						type: 'category',
+						label: 'Patterns',
+						link: {
+							type: 'doc',
+							id: 'concepts/haneul-move-concepts/patterns',
+						},
+						items: [
+							'concepts/haneul-move-concepts/patterns/capabilities',
+							'concepts/haneul-move-concepts/patterns/witness',
+							'concepts/haneul-move-concepts/patterns/transferrable-witness',
+							'concepts/haneul-move-concepts/patterns/hot-potato',
+							'concepts/haneul-move-concepts/patterns/id-pointer',
+							'concepts/haneul-move-concepts/patterns/app-extensions',
+						],
+					},
 				],
 			},
 			{
@@ -181,7 +180,7 @@ const concepts = [
 					'concepts/cryptography/smart-contracts/signing',
 					'concepts/cryptography/smart-contracts/groth16',
 					'concepts/cryptography/smart-contracts/hashing',
-					'concepts/cryptography/smart-contracts/signing',
+					'concepts/cryptography/smart-contracts/ecvrf',
 				],
 			},
 			{
