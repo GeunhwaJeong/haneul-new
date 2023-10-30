@@ -7,8 +7,10 @@ use std::{
 };
 
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
-use haneul_types::digests::TransactionEffectsDigest;
-use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_macros::fail_point_async;
+use haneul_types::{
+    digests::TransactionEffectsDigest, executable_transaction::VerifiedExecutableTransaction,
+};
 use tokio::{
     sync::{mpsc::UnboundedReceiver, oneshot, Semaphore},
     time::sleep,
@@ -95,6 +97,7 @@ pub async fn execution_process(
             }
             let mut attempts = 0;
             loop {
+                fail_point_async!("transaction_execution_delay");
                 attempts += 1;
                 let res = authority
                     .try_execute_immediately(&certificate, expected_effects_digest, &epoch_store)

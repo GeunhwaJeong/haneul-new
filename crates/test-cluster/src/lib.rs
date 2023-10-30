@@ -48,7 +48,9 @@ use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
+use haneul_types::transaction::{
+    CertifiedTransaction, Transaction, TransactionData, TransactionDataAPI, TransactionKind,
+};
 use tokio::time::{timeout, Instant};
 use tokio::{task::JoinHandle, time::sleep};
 use tracing::info;
@@ -436,8 +438,21 @@ impl TestCluster {
 
     pub async fn test_transaction_builder(&self) -> TestTransactionBuilder {
         let (sender, gas) = self.wallet.get_one_gas_object().await.unwrap().unwrap();
+        self.test_transaction_builder_with_gas_object(sender, gas)
+            .await
+    }
+
+    pub async fn test_transaction_builder_with_gas_object(
+        &self,
+        sender: HaneulAddress,
+        gas: ObjectRef,
+    ) -> TestTransactionBuilder {
         let rgp = self.get_reference_gas_price().await;
         TestTransactionBuilder::new(sender, gas, rgp)
+    }
+
+    pub fn sign_transaction(&self, tx_data: &TransactionData) -> Transaction {
+        self.wallet.sign_transaction(tx_data)
     }
 
     pub async fn sign_and_execute_transaction(
@@ -479,6 +494,14 @@ impl TestCluster {
         self.fullnode_handle
             .haneul_node
             .with(|node| node.clone_authority_aggregator().unwrap())
+    }
+
+    pub async fn create_certificate(
+        &self,
+        tx: Transaction,
+    ) -> anyhow::Result<CertifiedTransaction> {
+        let agg = self.authority_aggregator();
+        Ok(agg.process_transaction(tx).await?.into_cert_for_testing())
     }
 
     /// Execute a transaction on specified list of validators, and bypassing authority aggregator.
