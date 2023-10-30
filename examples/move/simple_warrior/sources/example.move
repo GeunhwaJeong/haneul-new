@@ -42,7 +42,7 @@ module simple_warrior::example {
     }
 
     // === Tests ===
-    use haneul::test_scenario as ts;
+    #[test_only] use haneul::test_scenario as ts;
 
     #[test]
     fun test_equip_empty() {

@@ -4,7 +4,6 @@
 module dynamic_fields::example {
     use haneul::dynamic_object_field as ofield;
     use haneul::object::{Self, UID};
-    use haneul::test_scenario;
 
     struct Parent has key {
         id: UID,
@@ -46,6 +45,9 @@ module dynamic_fields::example {
         let Child { id, count: _ } = reclaim_child(parent);
         object::delete(id);
     }
+
+    // === Tests ===
+    #[test_only] use haneul::test_scenario;
 
     #[test]
     fun test_add_delete() {

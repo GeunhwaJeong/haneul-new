@@ -210,9 +210,9 @@ module escrow::example {
     }
 
     // === Tests ===
-    use haneul::coin::{Self, Coin};
-    use haneul::haneul::HANEUL;
-    use haneul::test_scenario::{Self as ts, Scenario};
+    #[test_only] use haneul::coin::{Self, Coin};
+    #[test_only] use haneul::haneul::HANEUL;
+    #[test_only] use haneul::test_scenario::{Self as ts, Scenario};
 
     #[test_only]
     fun test_coin(ts: &mut Scenario): Coin<HANEUL> {

@@ -322,7 +322,7 @@ module hero::example {
     }
 
     // === Tests ===
-    use haneul::test_scenario as ts;
+    #[test_only] use haneul::test_scenario as ts;
 
     #[test]
     fun slay_boar_test() {
