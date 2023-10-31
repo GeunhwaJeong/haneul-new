@@ -18,25 +18,22 @@ use serde_json::json;
 
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::error::Error;
-use haneul_json_rpc_types::DevInspectResults;
-use haneul_json_rpc_types::EventFilter;
-use haneul_json_rpc_types::ProtocolConfigResponse;
-use haneul_json_rpc_types::HaneulTransactionBlockEvents;
-use haneul_json_rpc_types::TransactionFilter;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DelegatedStake,
-    DynamicFieldPage, EventPage, MoveCallParams, MoveFunctionArgType, ObjectChange,
-    ObjectValueKind::ByImmutableReference, ObjectValueKind::ByMutableReference,
-    ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef, Page, RPCTransactionRequestParams,
-    Stake, StakeStatus, HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus,
-    HaneulGetPastObjectRequest, HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility,
-    HaneulMoveAbilitySet, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    DevInspectResults, DynamicFieldPage, EventFilter, EventPage, MoveCallParams,
+    MoveFunctionArgType, ObjectChange, ObjectValueKind::ByImmutableReference,
+    ObjectValueKind::ByMutableReference, ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef,
+    Page, ProtocolConfigResponse, RPCTransactionRequestParams, Stake, StakeStatus, HaneulCoinMetadata,
+    HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGetPastObjectRequest,
+    HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility, HaneulMoveAbilitySet,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter,
     HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
     HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
-    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlockBytes,
-    TransactionBlocksPage, TransferObjectParams,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockEvents,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, TransactionBlockBytes, TransactionBlocksPage,
+    TransactionFilter, TransferObjectParams,
 };
 use haneul_json_rpc_types::{HaneulTypeTag, ValidatorApy, ValidatorApys};
 use haneul_open_rpc::ExamplePairing;
@@ -48,7 +45,6 @@ use haneul_types::base_types::{
     MoveObjectType, ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress,
     TransactionDigest,
 };
-use haneul_types::coin::CoinMetadata;
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AggregateAuthoritySignature};
 use haneul_types::digests::TransactionEventsDigest;
@@ -56,7 +52,6 @@ use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFie
 use haneul_types::event::EventID;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::id::UID;
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::object::MoveObject;
 use haneul_types::object::Owner;
@@ -913,15 +908,13 @@ impl RpcExampleProvider {
     }
 
     fn haneulx_get_coin_metadata(&mut self) -> Examples {
-        let id = UID::new(ObjectID::new(self.rng.gen()));
-
-        let result = CoinMetadata {
+        let result = HaneulCoinMetadata {
             decimals: 9,
             name: "Usdc".to_string(),
             symbol: "USDC".to_string(),
             description: "Stable coin.".to_string(),
             icon_url: None,
-            id,
+            id: Some(ObjectID::new(self.rng.gen())),
         };
 
         Examples::new(
@@ -1406,35 +1399,42 @@ impl RpcExampleProvider {
     fn haneulx_get_stakes(&mut self) -> Examples {
         let principal = 200000000000;
         let owner = HaneulAddress::from(ObjectID::new(self.rng.gen()));
-        let result = DelegatedStake {
-            validator_address: HaneulAddress::from(ObjectID::new(self.rng.gen())),
-            staking_pool: ObjectID::new(self.rng.gen()),
-            stakes: vec![
-                Stake {
-                    staked_haneul_id: ObjectID::new(self.rng.gen()),
-                    stake_request_epoch: 62,
-                    stake_active_epoch: 63,
-                    principal,
-                    status: StakeStatus::Active {
-                        estimated_reward: (principal as f64 * 0.0026) as u64,
+        let result = vec![
+            DelegatedStake {
+                validator_address: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+                staking_pool: ObjectID::new(self.rng.gen()),
+                stakes: vec![
+                    Stake {
+                        staked_haneul_id: ObjectID::new(self.rng.gen()),
+                        stake_request_epoch: 62,
+                        stake_active_epoch: 63,
+                        principal,
+                        status: StakeStatus::Active {
+                            estimated_reward: (principal as f64 * 0.0026) as u64,
+                        },
                     },
-                },
-                Stake {
-                    staked_haneul_id: ObjectID::new(self.rng.gen()),
-                    stake_request_epoch: 142,
-                    stake_active_epoch: 143,
-                    principal,
-                    status: StakeStatus::Pending,
-                },
-                Stake {
+                    Stake {
+                        staked_haneul_id: ObjectID::new(self.rng.gen()),
+                        stake_request_epoch: 142,
+                        stake_active_epoch: 143,
+                        principal,
+                        status: StakeStatus::Pending,
+                    },
+                ],
+            },
+            DelegatedStake {
+                validator_address: HaneulAddress::from(ObjectID::new(self.rng.gen())),
+                staking_pool: ObjectID::new(self.rng.gen()),
+                stakes: vec![Stake {
                     staked_haneul_id: ObjectID::new(self.rng.gen()),
                     stake_request_epoch: 244,
                     stake_active_epoch: 245,
                     principal,
                     status: StakeStatus::Unstaked,
-                },
-            ],
-        };
+                }],
+            },
+        ];
+
         Examples::new(
             "haneulx_getStakes",
             vec![ExamplePairing::new(
