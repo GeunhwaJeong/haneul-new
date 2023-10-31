@@ -7,7 +7,9 @@
   ) {
     location
     balance(type: "0x2::haneul::HANEUL") {
-      coinType
+      coinType {
+        repr
+      }
       coinObjectCount
       totalBalance
     }
