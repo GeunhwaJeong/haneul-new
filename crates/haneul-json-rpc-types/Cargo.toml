@@ -21,6 +21,8 @@ haneul-protocol-config.workspace = true
 haneul-macros.workspace = true
 haneul-enum-compat-util.workspace = true
 enum_dispatch.workspace = true
+json_to_table.workspace = true
+tabled.workspace = true
 
 move-binary-format.workspace = true
 move-core-types.workspace = true
