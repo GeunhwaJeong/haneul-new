@@ -123,7 +123,7 @@ impl Address {
             .extend()
     }
 
-    /// Lists the stakes corresponding to the StakedHaneul objects owned by the given address
+    /// The `0x3::staking_pool::StakedHaneul` objects owned by the given address.
     pub async fn stake_connection(
         &self,
         ctx: &Context<'_>,
