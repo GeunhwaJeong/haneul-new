@@ -14,8 +14,7 @@ use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
 use haneul_types::execution::TypeLayoutStore;
-use haneul_types::object::Object;
-use haneul_types::storage::BackingPackageStore;
+use haneul_types::storage::{BackingPackageStore, PackageObjectArc};
 use haneul_types::{
     error::HaneulError,
     object::{MoveObject, ObjectFormatOptions},
@@ -71,7 +70,7 @@ impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
 }
 
 impl<'state> BackingPackageStore for NullHaneulResolver<'state> {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
         self.0.get_package_object(package_id)
     }
 }

@@ -17,7 +17,7 @@ use haneul_types::execution::{
 };
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::inner_temporary_store::InnerTemporaryStore;
-use haneul_types::storage::BackingStore;
+use haneul_types::storage::{BackingStore, PackageObjectArc};
 use haneul_types::haneul_system_state::{get_haneul_system_state_wrapper, AdvanceEpochParams};
 use haneul_types::type_resolver::LayoutResolver;
 use haneul_types::{
@@ -1098,17 +1098,19 @@ impl<'backing> Storage for TemporaryStore<'backing> {
 }
 
 impl<'backing> BackingPackageStore for TemporaryStore<'backing> {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
         if let Some(obj) = self.execution_results.written_objects.get(package_id) {
-            Ok(Some(obj.clone()))
+            // TODO: It's impossible to use the package that was written in the same transaction.
+            // So we should be able to remove this and replace with an unreachable assertion.
+            Ok(Some(PackageObjectArc::new(obj.clone())))
         } else {
             self.store.get_package_object(package_id).map(|obj| {
                 // Track object but leave unchanged
-                if let Some(v) = obj.clone() {
+                if let Some(v) = &obj {
                     // TODO: Can this lock ever block execution?
                     self.runtime_packages_loaded_from_db
                         .write()
-                        .insert(*package_id, v);
+                        .insert(*package_id, v.object().clone());
                 }
                 obj
             })

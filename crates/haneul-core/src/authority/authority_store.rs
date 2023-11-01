@@ -20,8 +20,8 @@ use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::object::Owner;
 use haneul_types::storage::{
-    get_module, BackingPackageStore, ChildObjectResolver, MarkerTableQuery, MarkerValue, ObjectKey,
-    ObjectStore,
+    get_module, load_package_object_from_object_store, BackingPackageStore, ChildObjectResolver,
+    MarkerTableQuery, MarkerValue, ObjectKey, ObjectStore, PackageObjectArc,
 };
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
@@ -1088,7 +1088,7 @@ impl AuthorityStore {
 
         // We record any received or deleted objects since they could be pruned, and smear shared
         // object deletions in the marker table. For deleted entries in the marker table we need to
-        // make sure we don't accidentally overwite entries.
+        // make sure we don't accidentally overwrite entries.
         let markers_to_place = {
             let received = received_objects.iter().map(|(object_id, version, _)| {
                 (
@@ -1991,17 +1991,8 @@ impl MarkerTableQuery for AuthorityStore {
 }
 
 impl BackingPackageStore for AuthorityStore {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
-        let package = self.get_object(package_id)?;
-        if let Some(obj) = &package {
-            fp_ensure!(
-                obj.is_package(),
-                HaneulError::BadObjectType {
-                    error: format!("Package expected, Move object found: {package_id}"),
-                }
-            );
-        }
-        Ok(package)
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
+        load_package_object_from_object_store(self, package_id)
     }
 }
 

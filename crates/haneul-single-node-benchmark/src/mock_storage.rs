@@ -13,8 +13,9 @@ use haneul_types::base_types::{
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::{
-    get_module_by_id, BackingPackageStore, ChildObjectResolver, GetSharedLocks, MarkerTableQuery,
-    ObjectStore, ParentSync,
+    get_module_by_id, load_package_object_from_object_store, BackingPackageStore,
+    ChildObjectResolver, GetSharedLocks, MarkerTableQuery, ObjectStore, PackageObjectArc,
+    ParentSync,
 };
 
 #[derive(Clone)]
@@ -58,14 +59,8 @@ impl ObjectStore for InMemoryObjectStore {
 }
 
 impl BackingPackageStore for InMemoryObjectStore {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
-        Ok(self.get_object(package_id).unwrap().and_then(|o| {
-            if o.is_package() {
-                Some(o.clone())
-            } else {
-                None
-            }
-        }))
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
+        load_package_object_from_object_store(self, package_id)
     }
 }
 

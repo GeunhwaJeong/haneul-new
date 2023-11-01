@@ -41,6 +41,7 @@ use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::storage::{get_module, PackageObjectArc};
 use haneul_types::{
     authenticator_state::get_authenticator_state_obj_initial_shared_version,
     base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber},
@@ -1726,7 +1727,7 @@ impl LocalExec {
 impl BackingPackageStore for LocalExec {
     /// In this case we might need to download a dependency package which was not present in the
     /// modified at versions list because packages are immutable
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
         fn inner(self_: &LocalExec, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
             // If package not present fetch it from the network
             self_
@@ -1742,7 +1743,7 @@ impl BackingPackageStore for LocalExec {
                 package_id: *package_id,
                 result: res.clone(),
             });
-        res
+        res.map(|o| o.map(PackageObjectArc::new))
     }
 }
 
@@ -1927,15 +1928,7 @@ impl ModuleResolver for LocalExec {
     /// We do not download
     fn get_module(&self, module_id: &ModuleId) -> HaneulResult<Option<Vec<u8>>> {
         fn inner(self_: &LocalExec, module_id: &ModuleId) -> HaneulResult<Option<Vec<u8>>> {
-            Ok(self_
-                .get_package(&ObjectID::from(*module_id.address()))
-                .map_err(ReplayEngineError::from)?
-                .and_then(|package| {
-                    package
-                        .serialized_module_map()
-                        .get(module_id.name().as_str())
-                        .cloned()
-                }))
+            get_module(self_, module_id)
         }
 
         let res = inner(self, module_id);

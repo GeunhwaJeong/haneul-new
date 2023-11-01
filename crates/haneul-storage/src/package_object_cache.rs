@@ -12,7 +12,9 @@ use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::object::Object;
-use haneul_types::storage::{get_module, get_module_by_id, BackingPackageStore, ObjectStore};
+use haneul_types::storage::{
+    get_module, get_module_by_id, BackingPackageStore, ObjectStore, PackageObjectArc,
+};
 
 pub struct PackageObjectCache<S> {
     cache: RwLock<LruCache<ObjectID, Object>>,
@@ -49,19 +51,19 @@ impl<S: BackingPackageStore> ModuleResolver for PackageObjectCache<S> {
 
 // impl<S: ObjectStore + BackingPackageStore + ModuleResolver<Error = HaneulError>> BackingPackageStore for PackageObjectCache<S> {
 impl<S: ObjectStore> BackingPackageStore for PackageObjectCache<S> {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<Object>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
         // TODO: Here the use of `peek` doesn't update the internal use record,
         // and hence the LRU is really used as a capped map here.
         // This is OK because we won't typically have too many entries.
         // We cannot use `get` here because it requires a mut reference and that would
         // require unnecessary lock contention on the mutex, which defeats the purpose.
         if let Some(p) = self.cache.read().peek(package_id) {
-            return Ok(Some(p.clone()));
+            return Ok(Some(PackageObjectArc::new(p.clone())));
         }
         if let Some(p) = self.store.get_object(package_id)? {
             if p.is_package() {
                 self.cache.write().push(*package_id, p.clone());
-                Ok(Some(p))
+                Ok(Some(PackageObjectArc::new(p)))
             } else {
                 Err(HaneulError::UserInputError {
                     error: UserInputError::MoveObjectAsPackage {

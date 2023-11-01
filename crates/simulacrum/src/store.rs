@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::{BTreeMap, HashMap};
-
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
+use std::collections::{BTreeMap, HashMap};
 use haneul_config::genesis;
+use haneul_types::storage::{get_module, load_package_object_from_object_store, PackageObjectArc};
 use haneul_types::{
     base_types::{AuthorityName, ObjectID, SequenceNumber, HaneulAddress},
     committee::{Committee, EpochId},
@@ -242,8 +242,8 @@ impl BackingPackageStore for InMemoryStore {
     fn get_package_object(
         &self,
         package_id: &ObjectID,
-    ) -> haneul_types::error::HaneulResult<Option<Object>> {
-        Ok(self.get_object(package_id).cloned())
+    ) -> haneul_types::error::HaneulResult<Option<PackageObjectArc>> {
+        load_package_object_from_object_store(self, package_id)
     }
 }
 
@@ -346,14 +346,7 @@ impl ModuleResolver for InMemoryStore {
     type Error = HaneulError;
 
     fn get_module(&self, module_id: &ModuleId) -> Result<Option<Vec<u8>>, Self::Error> {
-        Ok(self
-            .get_package(&ObjectID::from(*module_id.address()))?
-            .and_then(|package| {
-                package
-                    .serialized_module_map()
-                    .get(module_id.name().as_str())
-                    .cloned()
-            }))
+        get_module(self, module_id)
     }
 }
 
