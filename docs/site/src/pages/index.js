@@ -81,7 +81,9 @@ export default function Home() {
       <div className="bg-haneul-black overflow-hidden">
         <div className="w-full mt-24 mb-12 mx-auto bg-haneul-black">
           <div className="text-center">
-            <p className="lg:text-8xl md:text-6xl text-4xl text-white">Haneul Documentation</p>
+            <p className="lg:text-8xl md:text-6xl text-4xl text-white">
+              Haneul Documentation
+            </p>
             <p className="text-lg sm:text-xl lg:text-3xl mb-0 px-8 md:w-1/2 w-auto mx-auto text-haneul-blue-lighter inline-block">
               Discover the power of Haneul through examples, guides, and concepts
             </p>
@@ -147,7 +149,7 @@ export default function Home() {
             >
               Haneul dApp Kit
             </Link>
-            <Link className={`${cardlinks} text-md`} to="/haneul-api-ref">
+            <Link className={`${cardlinks} text-md`} to="/references/haneul-api">
               Haneul API
             </Link>
             <Link
@@ -186,16 +188,20 @@ export default function Home() {
         </div>
 
         <div className="lg:w-[1066px] w-auto my-8 md:mt-24 text-white mx-auto text-center">
-          <h1 className="mb-4 lg:text-8xl md:text-6xl text-4xl font-normal">Why Haneul?</h1>
+          <h1 className="mb-4 lg:text-8xl md:text-6xl text-4xl font-normal">
+            Why Haneul?
+          </h1>
           <p className="text-lg sm:text-xl lg:text-3xl mb-0 px-8 md:w-1/2 w-auto mx-auto text-haneul-blue-lighter inline-block">
-            
-              Haneul is the first internet-scale programmable blockchain platform
-            
+            Haneul is the first internet-scale programmable blockchain platform
           </p>
         </div>
         <div className="lg:w-[1066px] width-auto mx-auto flex-none md:flex md:flex-row items-center">
           <div className="text-center mx-auto mb-8 md:mb-0">
-            <img className="lg:w-[350px] w-[250px]" src="/img/index/blocks.png"/>
+            <img
+              className="lg:w-[350px] w-[250px]"
+              src="/img/index/blocks.png"
+              alt="Decorative visual"
+            />
           </div>
           <div className="lg:w-[676px] mx-8 md:ml-8 md:mr-0 lg:block sm:block md:hidden">
             <p className="text-xl text-haneul-blue-lighter border-solid border-0 border-t border-haneul-white/50">
