@@ -647,6 +647,18 @@ pub enum HaneulClientCommands {
         address_override: Option<ObjectID>,
     },
 
+    /// Profile the gas usage of a transaction. Outputs a file `gas_profile_{tx_digest}_{unix_timestamp}.json` which can be opened in a flamegraph tool such as speedscope.
+    #[clap(name = "profile-transaction")]
+    ProfileTransaction {
+        /// The digest of the transaction to replay
+        #[arg(long, short)]
+        tx_digest: String,
+
+        /// If specified, overrides the filepath of the output profile, for example -- /temp/my_profile.json
+        #[clap(name = "profile_output_filepath")]
+        profile_output_filepath: Option<PathBuf>,
+    },
+
     /// Replay a given transaction to view transaction effects. Set environment variable MOVE_VM_STEP=1 to debug.
     #[clap(name = "replay-transaction")]
     ReplayTransaction {
@@ -698,6 +710,24 @@ impl HaneulClientCommands {
         context: &mut WalletContext,
     ) -> Result<HaneulClientCommandResult, anyhow::Error> {
         let ret = Ok(match self {
+            HaneulClientCommands::ProfileTransaction {
+                tx_digest,
+                profile_output_filepath,
+            } => {
+                let cmd = ReplayToolCommand::ProfileTransaction {
+                    tx_digest,
+                    show_effects: false,
+                    diag: false,
+                    executor_version_override: None,
+                    protocol_version_override: None,
+                    profile_output_filepath_override: profile_output_filepath,
+                };
+                let rpc = context.config.get_active_env()?.rpc.clone();
+                let _command_result =
+                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
+
+                HaneulClientCommandResult::ProfileTransaction
+            }
             HaneulClientCommands::ReplayTransaction {
                 tx_digest,
                 gas_info: _,
@@ -1820,6 +1850,7 @@ impl Display for HaneulClientCommandResult {
                 table.with(tabled::settings::style::BorderSpanCorrection);
                 writeln!(f, "{}", table)?;
             }
+            HaneulClientCommandResult::ProfileTransaction => {}
             HaneulClientCommandResult::ReplayTransaction => {}
             HaneulClientCommandResult::ReplayBatch => {}
             HaneulClientCommandResult::ReplayCheckpoints => {}
@@ -2102,6 +2133,7 @@ pub enum HaneulClientCommandResult {
         used_module_ticks: u128,
     },
     VerifySource,
+    ProfileTransaction,
     ReplayTransaction,
     ReplayBatch,
     ReplayCheckpoints,
