@@ -81,6 +81,8 @@ haneul-simulator.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 workspace-hack.workspace = true
+zeroize.workspace = true
+mysticeti-core = { git = "https://github.com/GeunhwaJeong/mysticeti", rev = "0bc1ae8f6cc5b1eb22752fa37ba64bdaf358f7cf" }
 
 [dev-dependencies]
 clap.workspace = true
