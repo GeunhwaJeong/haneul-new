@@ -5,7 +5,7 @@ import type {
 	HaneulSignPersonalMessageInput,
 	HaneulSignPersonalMessageOutput,
 } from '@haneullabs/wallet-standard';
-import type { UseMutationOptions } from '@tanstack/react-query';
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
 
 import {
@@ -44,7 +44,11 @@ type UseSignPersonalMessageMutationOptions = Omit<
 export function useSignPersonalMessage({
 	mutationKey,
 	...mutationOptions
-}: UseSignPersonalMessageMutationOptions = {}) {
+}: UseSignPersonalMessageMutationOptions = {}): UseMutationResult<
+	UseSignPersonalMessageResult,
+	UseSignPersonalMessageError,
+	UseSignPersonalMessageArgs
+> {
 	const { currentWallet } = useCurrentWallet();
 	const currentAccount = useCurrentAccount();
 

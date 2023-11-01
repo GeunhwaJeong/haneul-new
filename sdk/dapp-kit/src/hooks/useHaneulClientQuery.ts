@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import type { UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
 import type { PartialBy } from '../types/utilityTypes.js';
@@ -42,7 +42,7 @@ export function useHaneulClientQuery<
 	...args: undefined extends HaneulRpcMethods[T]['params']
 		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
 		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
-) {
+): UseQueryResult<HaneulRpcMethods[T]['result'], Error> {
 	const [method, params, { queryKey = [], ...options } = {}] = args as [
 		method: T,
 		params?: HaneulRpcMethods[T]['params'],
