@@ -42,7 +42,7 @@ export function useHaneulClientQuery<
 	...args: undefined extends HaneulRpcMethods[T]['params']
 		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
 		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UseHaneulClientQueryOptions<T, TData>]
-): UseQueryResult<HaneulRpcMethods[T]['result'], Error> {
+): UseQueryResult<TData, Error> {
 	const [method, params, { queryKey = [], ...options } = {}] = args as [
 		method: T,
 		params?: HaneulRpcMethods[T]['params'],

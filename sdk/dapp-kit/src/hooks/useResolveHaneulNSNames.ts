@@ -10,9 +10,9 @@ export function useResolveHaneulNSName(
 	address?: string | null,
 	options?: Omit<
 		UseQueryOptions<ResolvedNameServiceNames, Error, string | null, unknown[]>,
-		'queryFn' | 'queryKey'
+		'queryFn' | 'queryKey' | 'select'
 	>,
-): UseQueryResult<ResolvedNameServiceNames, Error> {
+): UseQueryResult<string | null, Error> {
 	return useHaneulClientQuery(
 		'resolveNameServiceNames',
 		{
