@@ -11,7 +11,9 @@ use cached::{proc_macro::cached, SizedCache};
 use haneul_json_rpc::{
     api::GovernanceReadApiServer, governance_api::ValidatorExchangeRates, HaneulRpcModule,
 };
-use haneul_json_rpc_types::{DelegatedStake, EpochInfo, StakeStatus, HaneulCommittee, ValidatorApys};
+use haneul_json_rpc_types::{
+    DelegatedStake, EpochInfo, StakeStatus, HaneulCommittee, HaneulObjectDataFilter, ValidatorApys,
+};
 use haneul_open_rpc::Module;
 use haneul_types::{
     base_types::{MoveObjectType, ObjectID, HaneulAddress},
@@ -74,7 +76,9 @@ impl GovernanceReadApiV2 {
             .inner
             .get_owned_objects_in_blocking_task(
                 owner,
-                Some(MoveObjectType::staked_haneul().to_string()),
+                Some(HaneulObjectDataFilter::StructType(
+                    MoveObjectType::staked_haneul().into(),
+                )),
                 None,
                 // Allow querying for up to 1000 staked objects
                 1000,

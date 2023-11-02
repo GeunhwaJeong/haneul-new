@@ -6,7 +6,7 @@ use crate::indexer_reader::IndexerReader;
 use async_trait::async_trait;
 use move_core_types::language_storage::StructTag;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectResponse};
+use haneul_json_rpc_types::{HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse};
 use haneul_transaction_builder::DataReader;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
 use haneul_types::object::Object;
@@ -33,7 +33,7 @@ impl DataReader for TransactionBuilderApiV2 {
             .inner
             .get_owned_objects_in_blocking_task(
                 address,
-                Some(object_type.to_canonical_string()),
+                Some(HaneulObjectDataFilter::StructType(object_type)),
                 None,
                 50, // Limit the number of objects returned to 50
             )
