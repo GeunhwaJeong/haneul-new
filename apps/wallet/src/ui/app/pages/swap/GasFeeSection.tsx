@@ -1,10 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { Coins, useBalanceConversion } from '_app/hooks/deepbook';
 import { Text } from '_app/shared/text';
 import { DescriptionItem } from '_pages/approval-request/transaction-request/DescriptionList';
-import { HANEUL_CONVERSION_RATE, WALLET_FEES_PERCENTAGE } from '_pages/swap/constants';
-import { getUSDCurrency } from '_pages/swap/utils';
+import { HANEUL_USDC_AVERAGE_CONVERSION_RATE, WALLET_FEES_PERCENTAGE } from '_pages/swap/constants';
+import { getBalanceConversion, getUSDCurrency } from '_pages/swap/utils';
 import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { useCoinMetadata, useFormatCoin } from '@haneullabs/core';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
@@ -16,11 +15,16 @@ export function GasFeeSection({
 	totalGas,
 	amount,
 	isValid,
+	averages,
 }: {
 	activeCoinType: string | null;
 	amount: string;
 	isValid: boolean;
 	totalGas: string;
+	averages: {
+		averageBaseToQuote: string;
+		averageQuoteToBase: string;
+	};
 }) {
 	const { data: activeCoinData } = useCoinMetadata(activeCoinType);
 	const isAsk = activeCoinType === HANEUL_TYPE_ARG;
@@ -33,21 +37,22 @@ export function GasFeeSection({
 		return new BigNumber(amount).times(WALLET_FEES_PERCENTAGE / 100);
 	}, [amount, isValid]);
 
-	const { data: balanceConversionData } = useBalanceConversion({
+	const rawValue = getBalanceConversion({
 		balance: estimatedFees,
-		from: isAsk ? Coins.HANEUL : Coins.USDC,
-		to: isAsk ? Coins.USDC : Coins.HANEUL,
-		conversionRate: isAsk ? -HANEUL_CONVERSION_RATE : HANEUL_CONVERSION_RATE,
+		isAsk,
+		averages,
 	});
 
-	const rawValue = balanceConversionData?.rawValue;
+	const convertedRawValue = new BigNumber(rawValue)
+		.shiftedBy(isAsk ? HANEUL_USDC_AVERAGE_CONVERSION_RATE : -HANEUL_USDC_AVERAGE_CONVERSION_RATE)
+		.toNumber();
 
 	const [gas, symbol] = useFormatCoin(totalGas, GAS_TYPE_ARG);
 
-	const formattedEstimatedFees = getUSDCurrency(rawValue);
+	const formattedEstimatedFees = getUSDCurrency(convertedRawValue);
 
 	return (
-		<div className="flex flex-col border border-hero-darkest/20 rounded-xl p-5 gap-4 border-solid">
+		<div className="flex flex-col border border-hero-darkest/20 rounded-xl px-5 py-3 gap-2 border-solid">
 			<DescriptionItem
 				title={
 					<Text variant="bodySmall" weight="medium" color="steel-dark">
