@@ -720,7 +720,7 @@ mod tests {
         let root = discover_root(cut.clone()).unwrap();
 
         let haneul_execution = root.join("haneul-execution");
-        let move_vm_types = root.join("external-crates/move/move-vm/types");
+        let move_vm_types = root.join("external-crates/move/crates/move-vm-types");
 
         let ws = Workspace::read(&root).unwrap();
 
@@ -816,8 +816,8 @@ mod tests {
                     suffix: None,
                 },
                 Directory {
-                    src: cut.join("../../external-crates/move/move-core"),
-                    dst: cut.join("../cut-move-core"),
+                    src: cut.join("../../external-crates/move/crates/move-core-types"),
+                    dst: cut.join("../cut-move-core-types"),
                     suffix: None,
                 },
             ],
@@ -835,14 +835,14 @@ mod tests {
                 root: "$PATH",
                 directories: {
                     "$PATH/haneul-execution/cut-cut",
-                    "$PATH/haneul-execution/cut-move-core",
+                    "$PATH/haneul-execution/cut-move-core-types",
                     "$PATH/haneul-execution/exec-cut",
                 },
                 packages: {
                     "move-core-types": CutPackage {
                         dst_name: "move-core-types-feature",
-                        src_path: "$PATH/external-crates/move/move-core/types",
-                        dst_path: "$PATH/haneul-execution/cut-move-core/types",
+                        src_path: "$PATH/external-crates/move/crates/move-core-types",
+                        dst_path: "$PATH/haneul-execution/cut-move-core-types",
                         ws_state: Exclude,
                     },
                     "haneul-adapter-latest": CutPackage {
@@ -886,9 +886,9 @@ mod tests {
 
             new [workspace] excludes:
              - to:   move-core-types-feature
-                     haneul-execution/cut-move-core/types
+                     haneul-execution/cut-move-core-types
                from: move-core-types
-                     external-crates/move/move-core/types
+                     external-crates/move/crates/move-core-types
 
             other packages:
         "#]]
@@ -941,8 +941,8 @@ mod tests {
                 packages: {
                     "move-core-types": CutPackage {
                         dst_name: "move-core-types-feature",
-                        src_path: "$PATH/external-crates/move/move-core/types",
-                        dst_path: "$PATH/haneul-execution/feature/move/move-core/types",
+                        src_path: "$PATH/external-crates/move/crates/move-core-types",
+                        dst_path: "$PATH/haneul-execution/feature/move/crates/move-core-types",
                         ws_state: Exclude,
                     },
                     "haneul-adapter-latest": CutPackage {
@@ -1323,8 +1323,8 @@ mod tests {
                     suffix: None,
                 },
                 Directory {
-                    src: cut.join("../../external-crates/move/move-core"),
-                    dst: cut.join("../cut-move-core"),
+                    src: cut.join("../../external-crates/move/crates/move-core-types"),
+                    dst: cut.join("../cut-move-core-types"),
                     suffix: None,
                 },
             ],
@@ -1342,14 +1342,14 @@ mod tests {
                 root: "$PATH",
                 directories: {
                     "$PATH/haneul-execution/cut-cut",
-                    "$PATH/haneul-execution/cut-move-core",
+                    "$PATH/haneul-execution/cut-move-core-types",
                     "$PATH/haneul-execution/exec-cut",
                 },
                 packages: {
                     "move-core-types": CutPackage {
                         dst_name: "move-core-types-feature",
-                        src_path: "$PATH/external-crates/move/move-core/types",
-                        dst_path: "$PATH/haneul-execution/cut-move-core/types",
+                        src_path: "$PATH/external-crates/move/crates/move-core-types",
+                        dst_path: "$PATH/haneul-execution/cut-move-core-types",
                         ws_state: Unknown,
                     },
                     "haneul-adapter-latest": CutPackage {

@@ -16,7 +16,7 @@ haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 
-move-bytecode-verifier = { path = "../../external-crates/move/move-bytecode-verifier" }
+move-bytecode-verifier = { path = "../../external-crates/move/crates/move-bytecode-verifier" }
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 
