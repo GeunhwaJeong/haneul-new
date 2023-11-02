@@ -7,12 +7,12 @@ use haneul_json_rpc_types::BalanceChange;
 use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::HaneulTransactionBlock;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::event::Event;
 use haneul_types::transaction::SenderSignedData;
@@ -36,6 +36,7 @@ pub struct StoredTransaction {
     pub balance_changes: Vec<Option<Vec<u8>>>,
     pub events: Vec<Option<Vec<u8>>>,
     pub transaction_kind: i16,
+    pub success_command_count: i16,
 }
 
 #[derive(Clone, Debug, Queryable)]
@@ -50,8 +51,22 @@ pub struct StoredTransactionCheckpoint {
     pub checkpoint_sequence_number: i64,
 }
 
+#[derive(Clone, Debug, Queryable)]
+pub struct StoredTransactionSuccessCommandCount {
+    pub tx_sequence_number: i64,
+    pub success_command_count: i16,
+}
+
 impl From<&IndexedTransaction> for StoredTransaction {
     fn from(tx: &IndexedTransaction) -> Self {
+        let cmd_count = tx
+            .sender_signed_data
+            .intent_message()
+            .value
+            .execution_parts()
+            .0
+            .num_commands();
+
         StoredTransaction {
             tx_sequence_number: tx.tx_sequence_number as i64,
             transaction_digest: tx.tx_digest.into_inner().to_vec(),
@@ -73,8 +88,9 @@ impl From<&IndexedTransaction> for StoredTransaction {
                 .iter()
                 .map(|e| Some(bcs::to_bytes(&e).unwrap()))
                 .collect(),
-            transaction_kind: tx.transaction_kind.clone() as i16,
             timestamp_ms: tx.timestamp_ms as i64,
+            transaction_kind: tx.transaction_kind.clone() as i16,
+            success_command_count: tx.effects.status().is_ok() as i16 * cmd_count as i16,
         }
     }
 }
@@ -216,21 +232,5 @@ impl StoredTransaction {
         })?;
         let effects = HaneulTransactionBlockEffects::try_from(effects)?;
         Ok(effects)
-    }
-
-    pub fn get_successful_tx_num(&self) -> IndexerResult<u64> {
-        let tx_cmd_num = self
-            .try_into_sender_signed_data()?
-            .intent_message()
-            .value
-            .execution_parts()
-            .0
-            .num_commands() as u64;
-
-        if self.try_into_haneul_transaction_effects()?.status().is_ok() {
-            Ok(tx_cmd_num)
-        } else {
-            Ok(0)
-        }
     }
 }
