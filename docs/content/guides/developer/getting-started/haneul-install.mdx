@@ -47,14 +47,9 @@ To confirm that Haneul installed correctly, type `haneul` and press Enter. You s
 
 Follow the instructions in this topic to install the Rust crates (packages) required to interact with Haneul networks, including the Haneul CLI.
 
-The steps to install Haneul include:
+To install Haneul from source, you first need to install its [prerequisites](#prerequisites) for your operating system. After installing the supporting technologies, you can install [Haneul binaries from source](#install-haneul-binaries-from-source).
 
-1.  Install [prerequisites](#prerequisites) for your operating system.
-1.  Install [Haneul binaries](#install-haneul-binaries).
-1.  Configure an [Integrated Development Environment (IDE)](#integrated-development-environment).
-1.  Request [HANEUL test tokens](#haneul-tokens) to use on Haneul Devnet or Haneul Testnet networks.
-
-You can also download the [source code](#source-code) to have local access to files.
+You can also download the [source code](./haneul-environment) to have local access to files.
 
 ## Prerequisites {#prerequisites}
 
@@ -104,7 +99,9 @@ The prerequisites needed for the Linux operating system include:
 - build-essential
 
 :::info
+
 The Linux instructions assume a distribution that uses the APT package manager. You might need to adjust the instructions to use other package managers.
+
 :::
 
 Install the prerequisites listed in this section. Use the following command to update `apt-get`:
@@ -308,6 +305,32 @@ Haneul requires the following additional tools on computers running Windows.
 </TabItem>
 
 </Tabs>
+
+## Install Haneul binaries from source {#install-haneul-binaries-from-source}
+
+Run the following command to install Haneul binaries from the `testnet` branch:
+
+```shell
+cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch testnet haneul
+```
+
+The install process can take a while to complete. You can monitor installation progress in the terminal. If you encounter an error, make sure to install the latest version of all prerequisites and then try the command again.
+
+To update to the latest stable version of Rust:
+
+```shell
+rustup update stable
+```
+
+The command installs Haneul components in the `~/.cargo/bin` folder.
+
+## Upgrade Haneul binaries
+
+If you previously installed the Haneul binaries, you can update them to the most recent release with the same command you used to install them:
+
+```shell
+cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch devnet haneul
+```
 
 ## Next steps {#next-steps}
 
