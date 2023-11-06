@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-export const ToS_LINK = 'https://haneul-labs.com/legal?content=wallet-terms';
-export const PRIVACY_POLICY_LINK = 'https://haneul-labs.com/legal?content=privacy';
+export const ToS_LINK = 'https://haneul-labs.com/legal#haneulwallettermsofservice';
+export const PRIVACY_POLICY_LINK = 'https://haneul-labs.com/legal#privacypolicy';
 export const FAQ_LINK = 'https://docs.haneul-labs.com/wallet/faq';
 
 // number of epochs before earning

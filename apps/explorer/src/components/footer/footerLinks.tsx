@@ -62,10 +62,10 @@ export const socialLinks = [
 export const legalLinks = [
 	{
 		title: 'Terms & Conditions',
-		href: 'https://haneul-labs.com/legal?content=terms',
+		href: 'https://haneul-labs.com/legal#termsofservice',
 	},
 	{
 		title: 'Privacy Policy',
-		href: 'https://haneul-labs.com/legal?content=privacy',
+		href: 'https://haneul-labs.com/legal#privacypolicy',
 	},
 ];
