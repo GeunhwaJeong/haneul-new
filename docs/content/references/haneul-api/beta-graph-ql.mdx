@@ -20,6 +20,23 @@ Currently, there is one available playground for Haneul GraphQL Service:
 
 This instance runs the GraphQL IDE, an interactive IDE with autocomplete support and in-built documentation.
 
+The endpoint can also be queried using `curl` by passing the query to the call:
+```shell
+# basic query
+curl -X POST https://graphql-beta.mainnet.haneul.io \
+     --header "Content-Type: application/json" \
+     --data '{
+          "query": "query { epoch { referenceGasPrice } }"
+     }'
+# query with variables
+curl -X POST https://graphql-beta.mainnet.haneul.io \
+     --header "Content-Type: application/json" \
+     --data '{
+          "query": "query ($epochID: Int!) { epoch(id: $epochID) { referenceGasPrice } }", "variables": { "epochID": 123 } 
+     }'
+```
+
+
 ## Query examples
 
 An extensive list of query examples is available in the Haneul repository: https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-graphql-rpc/examples. 
