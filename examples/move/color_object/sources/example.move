@@ -3,8 +3,7 @@
 
 module color_object::example {
     use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::tx_context::TxContext;
 
     struct ColorObject has key, store {
         id: UID,
@@ -57,6 +56,8 @@ module color_object::example {
 
     // === Tests ===
     #[test_only] use haneul::test_scenario as ts;
+    #[test_only] use haneul::transfer;
+    #[test_only] use haneul::tx_context;
 
     // === Tests covered in Chapter 1 ===
 

@@ -357,7 +357,7 @@ module haneul_system::validator {
     public(friend) fun request_withdraw_stake(
         self: &mut Validator,
         staked_haneul: StakedHaneul,
-        ctx: &mut TxContext,
+        ctx: &TxContext,
     ) : Balance<HANEUL> {
         let principal_amount = staking_pool::staked_haneul_amount(&staked_haneul);
         let stake_activation_epoch = staking_pool::stake_activation_epoch(&staked_haneul);
@@ -427,7 +427,7 @@ module haneul_system::validator {
     }
 
     /// Process pending stakes and withdraws, called at the end of the epoch.
-    public(friend) fun process_pending_stakes_and_withdraws(self: &mut Validator, ctx: &mut TxContext) {
+    public(friend) fun process_pending_stakes_and_withdraws(self: &mut Validator, ctx: &TxContext) {
         staking_pool::process_pending_stakes_and_withdraws(&mut self.staking_pool, ctx);
         assert!(stake_amount(self) == self.next_epoch_stake, EInvalidStakeAmount);
     }

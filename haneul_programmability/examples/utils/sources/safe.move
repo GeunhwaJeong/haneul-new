@@ -11,8 +11,6 @@ module utils::safe {
     use haneul::coin::{Self, Coin};
     use haneul::vec_set::{Self, VecSet};
 
-    const MAX_CAPABILITY_ISSUABLE: u64 = 1000;
-
     // Errors
     const EInvalidTransferCapability: u64 = 0;
     const EInvalidOwnerCapability: u64 = 1;

@@ -202,6 +202,7 @@ module haneul::display_tests {
     use haneul::package;
     use haneul::display;
 
+    #[allow(unused_field)]
     /// An example object.
     /// Purely for visibility.
     struct Capy has key {

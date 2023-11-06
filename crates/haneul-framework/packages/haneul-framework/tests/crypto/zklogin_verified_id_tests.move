@@ -6,7 +6,6 @@ module haneul::zklogin_verified_id_tests {
     use haneul::zklogin_verified_id::{check_zklogin_id, verify_zklogin_id, VerifiedID};
     use haneul::address;
     use std::string::utf8;
-    use haneul::bag::add;
     use haneul::test_scenario;
 
     #[test]
