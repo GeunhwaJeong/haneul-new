@@ -25,8 +25,6 @@ use crate::{
 pub(crate) struct Query;
 pub(crate) type HaneulGraphQLSchema = async_graphql::Schema<Query, EmptyMutation, EmptySubscription>;
 
-#[allow(unreachable_code)]
-#[allow(unused_variables)]
 #[Object]
 impl Query {
     /// First four bytes of the network's genesis checkpoint digest (uniquely identifies the
@@ -55,7 +53,7 @@ impl Query {
     // dryRunTransactionBlock
     // coinMetadata
 
-    async fn owner(&self, ctx: &Context<'_>, address: HaneulAddress) -> Option<ObjectOwner> {
+    async fn owner(&self, address: HaneulAddress) -> Option<ObjectOwner> {
         Some(ObjectOwner::Owner(Owner { address }))
     }
 

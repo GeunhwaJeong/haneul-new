@@ -52,7 +52,6 @@ impl ScalarType for HaneulAddress {
 }
 
 impl HaneulAddress {
-    #[allow(dead_code)]
     pub fn into_array(self) -> [u8; HANEUL_ADDRESS_LENGTH] {
         self.0
     }
