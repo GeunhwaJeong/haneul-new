@@ -1,6 +1,47 @@
 ---
 title: Haneul Console CLI
-draft: true
+description: The Haneul Console CLI provides command-level access to interact with the Haneul network by wrapping the Haneul Client CLI command.
 ---
 
-Content coming soon
+The Haneul Console CLI provides command-level access to interact with the Haneul network by wrapping the Haneul Client CLI command in a shell-like functionality. This command spins up a new process and provides the user an environment for running all the available Haneul Client CLI commands. In addition, it also offers command history support.
+
+## Commands
+
+For all available commands, consult the [Haneul Client CLI docs](./client.mdx). To start the Haneul Console, type `haneul console`, which displays some information similar to the following: 
+
+```shell
+🚀 ~ % haneul console
+   _____       _    ______                       __
+  / ___/__  __(_)  / ____/___  ____  _________  / /__
+  \__ \/ / / / /  / /   / __ \/ __ \/ ___/ __ \/ / _ \
+ ___/ / /_/ / /  / /___/ /_/ / / / (__  ) /_/ / /  __/
+/____/\__,_/_/   \____/\____/_/ /_/____/\____/_/\___/
+--- Haneul Console 1.14.0 ---
+
+Managed addresses : 2
+Active address: 0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bfa5ddfec45df175235
+Keystore Type : File
+Keystore Path : Some("/Users/user/.haneul/haneul_config/haneul.keystore")
+Active environment : testnet
+RPC URL: https://fullnode.testnet.haneul.io:443
+[warn] Client/Server api version mismatch, client api version : 1.14.0, server api version : 1.13.0
+Connecting to Haneul full node. API version 1.13.0
+
+Available RPC methods: ["haneul_devInspectTransactionBlock", "haneul_dryRunTransactionBlock", "haneul_executeTransactionBlock", 
+"haneul_getChainIdentifier", "haneul_getCheckpoint", "haneul_getCheckpoints", "haneul_getEvents", "haneul_getLatestCheckpointSequenceNumber", 
+"haneul_getLoadedChildObjects", "haneul_getMoveFunctionArgTypes", "haneul_getNormalizedMoveFunction", "haneul_getNormalizedMoveModule", 
+"haneul_getNormalizedMoveModulesByPackage", "haneul_getNormalizedMoveStruct", "haneul_getObject", "haneul_getProtocolConfig", 
+"haneul_getTotalTransactionBlocks", "haneul_getTransactionBlock", "haneul_multiGetObjects", "haneul_multiGetTransactionBlocks", 
+"haneul_tryGetPastObject", "haneul_tryMultiGetPastObjects", "haneulx_getAllBalances", "haneulx_getAllCoins", "haneulx_getBalance", 
+"haneulx_getCoinMetadata", "haneulx_getCoins", "haneulx_getCommitteeInfo", "haneulx_getDynamicFieldObject", "haneulx_getDynamicFields", 
+"haneulx_getLatestHaneulSystemState", "haneulx_getOwnedObjects", "haneulx_getReferenceGasPrice", "haneulx_getStakes", "haneulx_getStakesByIds", 
+"haneulx_getTotalSupply", "haneulx_getValidatorsApy", "haneulx_queryEvents", "haneulx_queryTransactionBlocks", "haneulx_resolveNameServiceAddress", 
+"haneulx_resolveNameServiceNames", "haneulx_subscribeEvent", "haneulx_subscribeTransaction", "unsafe_batchTransaction", "unsafe_mergeCoins", 
+"unsafe_moveCall", "unsafe_pay", "unsafe_payAllHaneul", "unsafe_payHaneul", "unsafe_publish", "unsafe_requestAddStake", 
+"unsafe_requestWithdrawStake", "unsafe_splitCoin", "unsafe_splitCoinEqual", "unsafe_transferObject", "unsafe_transferHaneul"]
+
+Welcome to the Haneul interactive console.
+
+haneul>-$
+
+```
