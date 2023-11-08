@@ -10,8 +10,8 @@ import { TransactionBlock, UpgradePolicy } from '../../../src/builder';
 import { getFullnodeUrl, HaneulClient, HaneulObjectChangePublished } from '../../../src/client';
 import { Keypair } from '../../../src/cryptography';
 import { FaucetRateLimitError, getFaucetHost, requestHaneulFromFaucetV0 } from '../../../src/faucet';
-import { Coin } from '../../../src/framework';
 import { Ed25519Keypair } from '../../../src/keypairs/ed25519';
+import { HANEUL_TYPE_ARG } from '../../../src/utils';
 
 const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? getFaucetHost('localnet');
 const DEFAULT_FULLNODE_URL = import.meta.env.VITE_FULLNODE_URL ?? getFullnodeUrl('localnet');
@@ -37,17 +37,11 @@ export class TestToolbox {
 		return this.keypair.getPublicKey().toHaneulAddress();
 	}
 
-	// TODO(chris): replace this with provider.getCoins instead
 	async getGasObjectsOwnedByAddress() {
-		const objects = await this.client.getOwnedObjects({
+		return await this.client.getCoins({
 			owner: this.address(),
-			options: {
-				showType: true,
-				showContent: true,
-				showOwner: true,
-			},
+			coinType: HANEUL_TYPE_ARG,
 		});
-		return objects.data.filter((obj) => Coin.isHANEUL(obj));
 	}
 
 	public async getActiveValidators() {

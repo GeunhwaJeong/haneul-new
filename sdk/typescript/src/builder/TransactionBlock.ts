@@ -8,7 +8,6 @@ import { is, mask } from 'superstruct';
 import { bcs } from '../bcs/index.js';
 import type { ProtocolConfig, HaneulClient, HaneulMoveNormalizedType } from '../client/index.js';
 import type { Keypair, SignatureWithBytes } from '../cryptography/index.js';
-import { HANEUL_TYPE_ARG } from '../framework/framework.js';
 import type { HaneulObjectResponse } from '../types/index.js';
 import {
 	extractMutableReference,
@@ -16,6 +15,7 @@ import {
 	getObjectReference,
 	HaneulObjectRef,
 } from '../types/index.js';
+import { HANEUL_TYPE_ARG } from '../utils/index.js';
 import { normalizeHaneulAddress, normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import type { ObjectCallArg } from './Inputs.js';
 import {
