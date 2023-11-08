@@ -30,7 +30,7 @@ import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Info12, Pin16, Unpin16 } from '@haneullabs/icons';
 import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
 import { Coin } from '@haneullabs/haneul.js/framework';
-import { formatAddress, GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'classnames';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -69,6 +69,7 @@ function TokenRowButton({
 	coinBalance,
 	children,
 	to,
+	onClick,
 }: {
 	coinBalance: CoinBalanceType;
 	children: ReactNode;
@@ -79,6 +80,7 @@ function TokenRowButton({
 		<ButtonOrLink
 			to={to}
 			key={coinBalance.coinType}
+			onClick={onClick}
 			className="no-underline text-subtitle font-medium text-steel hover:font-semibold hover:text-hero"
 		>
 			{children}
@@ -137,14 +139,24 @@ export function TokenRow({
 								onClick={() =>
 									ampli.selectedCoin({
 										coinType: coinBalance.coinType,
-										totalBalance: Number(BigInt(coinBalance.totalBalance) / GEUNHWA_PER_HANEUL),
+										totalBalance: Number(formatted),
 									})
 								}
 							>
 								Send
 							</TokenRowButton>
 							{isRenderSwapButton && (
-								<TokenRowButton coinBalance={coinBalance} to={`/swap?${params.toString()}`}>
+								<TokenRowButton
+									coinBalance={coinBalance}
+									to={`/swap?${params.toString()}`}
+									onClick={() => {
+										ampli.clickedSwapCoin({
+											coinType: coinBalance.coinType,
+											totalBalance: Number(formatted),
+											sourceFlow: 'TokenRow',
+										});
+									}}
+								>
 									Swap
 								</TokenRowButton>
 							)}
@@ -311,6 +323,7 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 	const { providers } = useOnrampProviders();
 
 	const tokenBalance = BigInt(coinBalance?.totalBalance ?? 0);
+	const [formatted] = useFormatCoin(tokenBalance, activeCoinType);
 
 	const coinSymbol = useMemo(() => Coin.getCoinSymbol(activeCoinType), [activeCoinType]);
 	// Avoid perpetual loading state when fetching and retry keeps failing add isFetched check
@@ -435,6 +448,17 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 													  }).toString()}`
 													: ''
 											}`}
+											onClick={() => {
+												if (!coinBalance) {
+													return;
+												}
+
+												ampli.clickedSwapCoin({
+													coinType: coinBalance.coinType,
+													totalBalance: Number(formatted),
+													sourceFlow: 'LargeButton-TokenDetails',
+												});
+											}}
 										>
 											Swap
 										</LargeButton>
