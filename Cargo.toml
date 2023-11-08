@@ -2,10 +2,6 @@
 resolver = "2"
 
 exclude = [
-    "external-crates/move/move-execution/v0/move-bytecode-verifier",
-    "external-crates/move/move-execution/v0/move-stdlib",
-    "external-crates/move/move-execution/v0/move-vm/runtime",
-
     "external-crates/move/crates/bytecode-interpreter-crypto",
     "external-crates/move/crates/bytecode-interpreter-testsuite",
     "external-crates/move/crates/bytecode-verifier-libfuzzer",
@@ -64,7 +60,12 @@ exclude = [
     "external-crates/move/crates/serializer-tests",
     "external-crates/move/crates/spec-flatten",
     "external-crates/move/crates/test-generation",
-
+    "external-crates/move/move-execution/v0/move-bytecode-verifier",
+    "external-crates/move/move-execution/v0/move-stdlib",
+    "external-crates/move/move-execution/v0/move-vm/runtime",
+    "external-crates/move/move-execution/v1/crates/move-bytecode-verifier",
+    "external-crates/move/move-execution/v1/crates/move-stdlib",
+    "external-crates/move/move-execution/v1/crates/move-vm-runtime",
     "sdk/move-binary-format-wasm",
 ]
 
@@ -168,6 +169,9 @@ members = [
     "haneul-execution/v0/haneul-adapter",
     "haneul-execution/v0/haneul-move-natives",
     "haneul-execution/v0/haneul-verifier",
+    "haneul-execution/v1/haneul-adapter",
+    "haneul-execution/v1/haneul-move-natives",
+    "haneul-execution/v1/haneul-verifier",
 ]
 
 [workspace.package]
