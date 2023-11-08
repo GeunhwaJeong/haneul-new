@@ -14,12 +14,14 @@ haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-test-transaction-builder.workspace = true
 haneul-transaction-checks.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-storage.workspace = true
 
 async-trait.workspace = true
 bcs.workspace = true
 clap.workspace = true
 futures.workspace = true
 prometheus.workspace = true
+once_cell.workspace = true
 strum.workspace = true
 strum_macros.workspace = true
 telemetry-subscribers.workspace = true

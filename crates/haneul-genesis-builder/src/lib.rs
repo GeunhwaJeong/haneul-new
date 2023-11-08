@@ -42,7 +42,9 @@ use haneul_types::metrics::LimitsMetrics;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState, HaneulSystemStateTrait};
-use haneul_types::transaction::{CallArg, Command, InputObjectKind, InputObjects, Transaction};
+use haneul_types::transaction::{
+    CallArg, CheckedInputObjects, Command, InputObjectKind, ObjectReadResult, Transaction,
+};
 use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS};
 use tracing::trace;
 use validator_info::{GenesisValidatorInfo, GenesisValidatorMetadata, ValidatorInfo};
@@ -840,7 +842,7 @@ fn create_genesis_transaction(
         let certificate_deny_set = HashSet::new();
         let transaction_data = &genesis_transaction.data().intent_message().value;
         let (kind, signer, _) = transaction_data.execution_parts();
-        let input_objects = InputObjects::new(vec![], vec![]);
+        let input_objects = CheckedInputObjects::new_for_genesis(vec![]);
         let (inner_temp_store, effects, _execution_error) = executor
             .execute_transaction_to_effects(
                 &InMemoryStorage::new(Vec::new()),
@@ -963,9 +965,9 @@ fn process_package(
         .iter()
         .zip(dependency_objects)
         .filter_map(|(dependency, object)| {
-            Some((
+            Some(ObjectReadResult::new(
                 InputObjectKind::MovePackage(*dependency),
-                object?.to_owned(),
+                object?.clone().into(),
             ))
         })
         .collect();
@@ -989,7 +991,7 @@ fn process_package(
         protocol_config,
         metrics,
         ctx,
-        InputObjects::new(loaded_dependencies, vec![]),
+        CheckedInputObjects::new_for_genesis(loaded_dependencies),
         pt,
     )?;
 
@@ -1084,7 +1086,7 @@ pub fn generate_genesis_system_object(
         &protocol_config,
         metrics,
         genesis_ctx,
-        InputObjects::new(vec![], vec![]),
+        CheckedInputObjects::new_for_genesis(vec![]),
         pt,
     )?;
 
