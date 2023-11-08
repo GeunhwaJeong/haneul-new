@@ -17,7 +17,7 @@ import PageTitle from '_src/ui/app/shared/PageTitle';
 import { useGetKioskContents } from '@haneullabs/core';
 import { ArrowRight16, ArrowUpRight12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import cl from 'classnames';
+import cl from 'clsx';
 import { Navigate, useSearchParams } from 'react-router-dom';
 
 type NftFields = {

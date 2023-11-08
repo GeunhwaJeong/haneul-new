@@ -18,7 +18,7 @@ import { useDeepBookContext } from '_shared/deepBook/context';
 import { type BalanceChange } from '@haneullabs/haneul.js/client';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import BigNumber from 'bignumber.js';
-import clsx from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 

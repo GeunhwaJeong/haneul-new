@@ -11,7 +11,7 @@ import {
 	type BalanceChange,
 	type BalanceChangeSummary,
 } from '@haneullabs/core';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import { useMemo } from 'react';
 
 import { Card } from '../Card';

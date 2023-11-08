@@ -3,7 +3,7 @@
 import { getKioskIdFromOwnerCap, hasDisplayData, useGetKioskContents } from '@haneullabs/core';
 import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
 import { getObjectDisplay } from '@haneullabs/haneul.js/types';
-import cl from 'classnames';
+import cl from 'clsx';
 
 import { useActiveAddress } from '../../hooks';
 import { Text } from '../../shared/text';

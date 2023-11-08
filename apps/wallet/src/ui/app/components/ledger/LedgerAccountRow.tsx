@@ -6,7 +6,7 @@ import { useFormatCoin, useResolveHaneulNSName } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { CheckFill16 } from '@haneullabs/icons';
 import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
-import cl from 'classnames';
+import cl from 'clsx';
 
 import { useCoinsReFetchingConfig } from '../../hooks';
 

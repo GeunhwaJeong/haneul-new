@@ -6,7 +6,7 @@ import { Text } from '_app/shared/text';
 import { Badge } from '_src/ui/app/shared/Badge';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import cl from 'classnames';
+import cl from 'clsx';
 import { useMemo } from 'react';
 
 interface ValidatorLogoProps {

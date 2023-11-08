@@ -32,7 +32,7 @@ import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/clien
 import { Coin } from '@haneullabs/haneul.js/framework';
 import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useQuery } from '@tanstack/react-query';
-import clsx from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import Interstitial, { type InterstitialConfig } from '../interstitial';

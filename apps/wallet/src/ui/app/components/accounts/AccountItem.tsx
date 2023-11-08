@@ -5,7 +5,7 @@ import { Text } from '_src/ui/app/shared/text';
 import { useResolveHaneulNSName } from '@haneullabs/core';
 import { ArrowUpRight12, Copy12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import cn from 'classnames';
+import cn from 'clsx';
 import { forwardRef, type ReactNode } from 'react';
 
 import { getAccountBackgroundByType } from '../../helpers/accounts';

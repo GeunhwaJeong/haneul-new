@@ -10,7 +10,7 @@ import {
 	Unstaked,
 	WalletActionStake24,
 } from '@haneullabs/icons';
-import cl from 'classnames';
+import cl from 'clsx';
 
 import LoadingIndicator from '../loading/LoadingIndicator';
 

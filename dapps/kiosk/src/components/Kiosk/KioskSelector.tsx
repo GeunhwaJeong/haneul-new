@@ -4,7 +4,7 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { KioskOwnerCap } from '@haneullabs/kiosk';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import { Fragment } from 'react';
 
 export function KioskSelector({

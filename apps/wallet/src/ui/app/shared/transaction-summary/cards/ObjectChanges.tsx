@@ -13,7 +13,7 @@ import {
 } from '@haneullabs/core';
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import cx from 'classnames';
+import cx from 'clsx';
 
 import { ExpandableList } from '../../ExpandableList';
 import { Card } from '../Card';
