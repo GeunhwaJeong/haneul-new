@@ -2,8 +2,9 @@
 // even if it has store
 
 module a::m {
-    use haneul::transfer;
+    use haneul::transfer::{Self, Receiving};
     use a::other;
+    use haneul::object::UID;
 
     public fun t1(s: other::S) {
         transfer::transfer(s, @0x100);
@@ -15,6 +16,10 @@ module a::m {
 
     public fun t3(s: other::S) {
         transfer::share_object(s);
+    }
+
+    public fun t4(p: &mut UID, s: Receiving<other::S>): other::S {
+        transfer::receive(p, s)
     }
 }
 
@@ -31,6 +36,10 @@ module haneul::object {
 }
 
 module haneul::transfer {
+    use haneul::object::UID;
+
+    struct Receiving<phantom T: key> { }
+
     public fun transfer<T: key>(_: T, _: address) {
         abort 0
     }
@@ -52,6 +61,14 @@ module haneul::transfer {
     }
 
     public fun public_share_object<T: key + store>(_: T) {
+        abort 0
+    }
+
+    public fun receive<T: key>(_: &mut UID, _: Receiving<T>): T {
+        abort 0
+    }
+
+    public fun public_receive<T: key + store>(_: &mut UID, _: Receiving<T>): T {
         abort 0
     }
 }
