@@ -148,6 +148,9 @@ impl Owner {
             .extend()
     }
 
+    /// The coin objects for the given address.
+    /// The type field is a string of the inner type of the coin
+    /// by which to filter (e.g., 0x2::haneul::HANEUL).
     pub async fn coin_connection(
         &self,
         ctx: &Context<'_>,
