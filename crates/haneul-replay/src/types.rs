@@ -10,7 +10,7 @@ use serde::Serialize;
 use std::fmt::Debug;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_protocol_config::ProtocolVersion;
+use haneul_protocol_config::{Chain, ProtocolVersion};
 use haneul_sdk::error::Error as HaneulRpcError;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::digests::{ObjectDigest, TransactionDigest};
@@ -19,7 +19,7 @@ use haneul_types::object::Object;
 use haneul_types::transaction::{InputObjectKind, SenderSignedData, TransactionKind};
 use thiserror::Error;
 use tokio::time::Duration;
-use tracing::error;
+use tracing::{error, warn};
 
 use crate::config::ReplayableNetworkConfigSet;
 
@@ -52,6 +52,13 @@ pub struct OnChainTransactionInfo {
     pub protocol_version: ProtocolVersion,
     pub epoch_start_timestamp: u64,
     pub reference_gas_price: u64,
+    #[serde(default = "unspecified_chain")]
+    pub chain: Chain,
+}
+
+fn unspecified_chain() -> Chain {
+    warn!("Unable to determine chain id. Defaulting to unknown");
+    Chain::Unknown
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -180,6 +187,9 @@ pub enum ReplayEngineError {
         cfgs
     )]
     UnableToExecuteWithNetworkConfigs { cfgs: ReplayableNetworkConfigSet },
+
+    #[error("Unable to get chain id: {}", err)]
+    UnableToGetChainId { err: String },
 }
 
 impl From<HaneulObjectResponseError> for ReplayEngineError {
