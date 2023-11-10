@@ -19,14 +19,14 @@ use haneul_types::{
     committee::EpochId,
     digests::TransactionEffectsDigest,
     error::HaneulError,
+    storage::InputKey,
     transaction::{TransactionDataAPI, VerifiedCertificate},
 };
 use tokio::sync::mpsc::UnboundedSender;
 use tracing::{error, instrument, trace, warn};
 
 use crate::authority::{
-    authority_per_epoch_store::AuthorityPerEpochStore,
-    authority_store::{InputKey, LockMode},
+    authority_per_epoch_store::AuthorityPerEpochStore, authority_store::LockMode,
 };
 use crate::authority::{AuthorityMetrics, AuthorityStore};
 use haneul_types::transaction::SenderSignedData;
