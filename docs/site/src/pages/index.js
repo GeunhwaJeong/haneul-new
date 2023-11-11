@@ -168,9 +168,9 @@ export default function Home() {
           <HomeCard title="Resources" aux>
             <Link
               className={`${cardlinks} text-md`}
-              to="https://haneul.directory/"
+              to="https://haneul.directory/?_project_type=api%2Cdeveloper-tools%2Cinfrastructure%2Csdk"
             >
-              Haneul partner packages
+              Haneul ecosystem directory
             </Link>
             <Link className={`${cardlinks} text-md`} to="https://blog.haneul.io/">
               Haneul blog

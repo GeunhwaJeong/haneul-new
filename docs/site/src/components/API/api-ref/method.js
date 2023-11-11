@@ -101,7 +101,7 @@ const Method = (props) => {
                             <p className="mt-4 font-bold text-xl text-haneul-gray-80 dark:text-haneul-gray-70">
                               Example
                             </p>
-                            <Examples examples={method.examples} />
+                            <Examples method={method.name} examples={method.examples} />
                           </>
                         )}
                       </div>
