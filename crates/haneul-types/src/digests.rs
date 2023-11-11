@@ -10,6 +10,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, Bytes};
 use haneul_protocol_config::Chain;
+use tracing::info;
 
 /// A representation of a 32 byte digest
 #[serde_as]
@@ -165,6 +166,7 @@ const HANEUL_PROTOCOL_CONFIG_CHAIN_OVERRIDE_ENV_VAR_NAME: &str = "HANEUL_PROTOCO
 
 static HANEUL_PROTOCOL_CONFIG_CHAIN_OVERRIDE: Lazy<Option<Chain>> = Lazy::new(|| {
     if let Ok(s) = env::var(HANEUL_PROTOCOL_CONFIG_CHAIN_OVERRIDE_ENV_VAR_NAME) {
+        info!("HANEUL_PROTOCOL_CONFIG_CHAIN_OVERRIDE: {:?}", s);
         match s.as_str() {
             "mainnet" => Some(Chain::Mainnet),
             "testnet" => Some(Chain::Testnet),
