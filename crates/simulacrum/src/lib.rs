@@ -20,8 +20,11 @@ use haneul_protocol_config::ProtocolVersion;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::base_types::AuthorityName;
+use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
+use haneul_types::error::HaneulError;
+use haneul_types::object::Object;
+use haneul_types::storage::ObjectStore;
 use haneul_types::{
     base_types::HaneulAddress,
     committee::Committee,
@@ -355,6 +358,20 @@ impl ValidatorKeypairProvider for CommitteeWithKeys<'_> {
 
     fn get_committee(&self) -> &Committee {
         self.committee
+    }
+}
+
+impl<T> ObjectStore for Simulacrum<T> {
+    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+        Ok(self.store.get_object(object_id).cloned())
+    }
+
+    fn get_object_by_key(
+        &self,
+        object_id: &ObjectID,
+        version: VersionNumber,
+    ) -> Result<Option<Object>, HaneulError> {
+        self.store.get_object_by_key(object_id, version)
     }
 }
 

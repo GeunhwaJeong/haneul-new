@@ -8,7 +8,16 @@ pub mod programmable_transaction_test_parser;
 pub mod test_adapter;
 
 use move_transactional_test_runner::framework::run_test_impl;
+use rand::rngs::StdRng;
+use simulacrum::Simulacrum;
 use std::path::Path;
+use haneul_rest_api::node_state_getter::NodeStateGetter;
+use haneul_types::digests::TransactionDigest;
+use haneul_types::digests::TransactionEventsDigest;
+use haneul_types::effects::TransactionEvents;
+use haneul_types::event::Event;
+use haneul_types::messages_checkpoint::CheckpointContentsDigest;
+use haneul_types::storage::ObjectKey;
 use haneul_types::storage::ObjectStore;
 use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
 
@@ -17,7 +26,6 @@ use haneul_core::authority::authority_test_utils::send_and_confirm_transaction_w
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::EventFilter;
-use haneul_json_rpc_types::HaneulEvent;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
@@ -26,7 +34,6 @@ use haneul_types::effects::TransactionEffects;
 use haneul_types::error::ExecutionError;
 use haneul_types::error::HaneulError;
 use haneul_types::error::HaneulResult;
-use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::object::Object;
 use haneul_types::transaction::Transaction;
@@ -49,7 +56,7 @@ pub struct ValidatorWithFullnode {
 #[allow(unused_variables)]
 /// TODO: better name?
 #[async_trait::async_trait]
-pub trait TransactionalAdapter: Send + Sync + ObjectStore {
+pub trait TransactionalAdapter: Send + Sync + ObjectStore + NodeStateGetter {
     async fn execute_txn(
         &mut self,
         transaction: Transaction,
@@ -77,14 +84,11 @@ pub trait TransactionalAdapter: Send + Sync + ObjectStore {
         gas_price: Option<u64>,
     ) -> HaneulResult<DevInspectResults>;
 
-    async fn query_events(
+    async fn query_tx_events_asc(
         &self,
-        query: EventFilter,
-        // If `Some`, the query will start from the next item after the specified cursor
-        cursor: Option<EventID>,
+        tx_digest: &TransactionDigest,
         limit: usize,
-        descending: bool,
-    ) -> HaneulResult<Vec<HaneulEvent>>;
+    ) -> HaneulResult<Vec<Event>>;
 }
 
 #[async_trait::async_trait]
@@ -119,17 +123,25 @@ impl TransactionalAdapter for ValidatorWithFullnode {
             .await
     }
 
-    async fn query_events(
+    async fn query_tx_events_asc(
         &self,
-        query: EventFilter,
-        // If `Some`, the query will start from the next item after the specified cursor
-        cursor: Option<EventID>,
+        tx_digest: &TransactionDigest,
         limit: usize,
-        descending: bool,
-    ) -> HaneulResult<Vec<HaneulEvent>> {
-        self.validator
-            .query_events(&self.kv_store, query, cursor, limit, descending)
+    ) -> HaneulResult<Vec<Event>> {
+        Ok(self
+            .validator
+            .query_events(
+                &self.kv_store,
+                EventFilter::Transaction(*tx_digest),
+                None,
+                limit,
+                false,
+            )
             .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|haneul_event| haneul_event.into())
+            .collect())
     }
 
     async fn create_checkpoint(&mut self) -> anyhow::Result<VerifiedCheckpoint> {
@@ -156,6 +168,68 @@ impl TransactionalAdapter for ValidatorWithFullnode {
     }
 }
 
+#[async_trait::async_trait]
+impl NodeStateGetter for ValidatorWithFullnode {
+    fn get_verified_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: u64,
+    ) -> HaneulResult<VerifiedCheckpoint> {
+        self.validator
+            .get_verified_checkpoint_by_sequence_number(sequence_number)
+    }
+
+    fn get_latest_checkpoint_sequence_number(&self) -> HaneulResult<u64> {
+        self.validator.get_latest_checkpoint_sequence_number()
+    }
+
+    fn get_checkpoint_contents(
+        &self,
+        content_digest: CheckpointContentsDigest,
+    ) -> HaneulResult<haneul_types::messages_checkpoint::CheckpointContents> {
+        self.validator.get_checkpoint_contents(content_digest)
+    }
+
+    fn multi_get_transaction_blocks(
+        &self,
+        tx_digests: &[TransactionDigest],
+    ) -> HaneulResult<Vec<Option<haneul_types::transaction::VerifiedTransaction>>> {
+        self.validator.multi_get_transaction_blocks(tx_digests)
+    }
+
+    fn multi_get_executed_effects(
+        &self,
+        digests: &[TransactionDigest],
+    ) -> HaneulResult<Vec<Option<haneul_types::effects::TransactionEffects>>> {
+        self.validator.multi_get_executed_effects(digests)
+    }
+
+    fn multi_get_events(
+        &self,
+        event_digests: &[TransactionEventsDigest],
+    ) -> HaneulResult<Vec<Option<TransactionEvents>>> {
+        self.validator.multi_get_events(event_digests)
+    }
+
+    fn multi_get_object_by_key(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> Result<Vec<Option<Object>>, HaneulError> {
+        self.validator.multi_get_object_by_key(object_keys)
+    }
+
+    fn get_object_by_key(
+        &self,
+        object_id: &ObjectID,
+        version: VersionNumber,
+    ) -> Result<Option<Object>, HaneulError> {
+        self.validator.get_object_by_key(object_id, version)
+    }
+
+    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+        self.validator.database.get_object(object_id)
+    }
+}
+
 impl ObjectStore for ValidatorWithFullnode {
     fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
         self.validator.database.get_object(object_id)
@@ -169,5 +243,60 @@ impl ObjectStore for ValidatorWithFullnode {
         self.validator
             .database
             .get_object_by_key(object_id, version)
+    }
+}
+
+#[async_trait::async_trait]
+impl TransactionalAdapter for Simulacrum<StdRng> {
+    async fn execute_txn(
+        &mut self,
+        transaction: Transaction,
+    ) -> anyhow::Result<(TransactionEffects, Option<ExecutionError>)> {
+        Ok(self.execute_transaction(transaction)?)
+    }
+
+    async fn dev_inspect_transaction_block(
+        &self,
+        _sender: HaneulAddress,
+        _transaction_kind: TransactionKind,
+        _gas_price: Option<u64>,
+    ) -> HaneulResult<DevInspectResults> {
+        unimplemented!("dev_inspect_transaction_block not supported in simulator mode")
+    }
+
+    async fn query_tx_events_asc(
+        &self,
+        tx_digest: &TransactionDigest,
+        _limit: usize,
+    ) -> HaneulResult<Vec<Event>> {
+        Ok(self
+            .store()
+            .get_transaction_events_by_tx_digest(tx_digest)
+            .map(|x| x.data.clone())
+            .unwrap_or_default())
+    }
+
+    async fn create_checkpoint(&mut self) -> anyhow::Result<VerifiedCheckpoint> {
+        Ok(self.create_checkpoint())
+    }
+
+    async fn advance_clock(
+        &mut self,
+        duration: std::time::Duration,
+    ) -> anyhow::Result<TransactionEffects> {
+        Ok(self.advance_clock(duration))
+    }
+
+    async fn advance_epoch(&mut self) -> anyhow::Result<()> {
+        self.advance_epoch();
+        Ok(())
+    }
+
+    async fn request_gas(
+        &mut self,
+        address: HaneulAddress,
+        amount: u64,
+    ) -> anyhow::Result<TransactionEffects> {
+        self.request_gas(address, amount)
     }
 }
