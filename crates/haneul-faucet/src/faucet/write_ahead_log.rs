@@ -6,9 +6,9 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::{base_types::ObjectID, transaction::TransactionData};
-use typed_store::rocks::{DBMap, TypedStoreError};
 use typed_store::traits::{TableSummary, TypedStoreDebug};
 use typed_store::Map;
+use typed_store::{rocks::DBMap, TypedStoreError};
 
 use tracing::info;
 use typed_store_derive::DBMapUtils;

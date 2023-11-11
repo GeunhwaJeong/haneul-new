@@ -23,7 +23,7 @@ use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, ECMHLiveObjectSetDigest};
-use typed_store::rocks::TypedStoreError;
+use typed_store::TypedStoreError;
 
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::authority_store_tables::LiveObject;
