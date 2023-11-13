@@ -4,8 +4,8 @@
 use std::collections::BTreeSet;
 
 use anyhow::{anyhow, Result};
+use move_core_types::annotated_value::{MoveStruct, MoveTypeLayout};
 use move_core_types::language_storage::{StructTag, TypeTag};
-use move_core_types::value::{MoveStruct, MoveTypeLayout};
 
 use haneul_indexer::framework::Handler;
 use haneul_package_resolver::{PackageStore, Resolver};

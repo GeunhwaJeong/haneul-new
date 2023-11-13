@@ -11,9 +11,9 @@ use anyhow::anyhow;
 use colored::Colorize;
 use fastcrypto::encoding::Base64;
 use move_bytecode_utils::module_cache::GetModule;
+use move_core_types::annotated_value::{MoveStruct, MoveStructLayout};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
-use move_core_types::value::{MoveStruct, MoveStructLayout};
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
@@ -30,7 +30,7 @@ use haneul_types::error::{ExecutionError, HaneulObjectResponseError, UserInputEr
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
-use haneul_types::object::{Data, MoveObject, Object, ObjectFormatOptions, ObjectRead, Owner};
+use haneul_types::object::{Data, MoveObject, Object, ObjectRead, Owner};
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_serde::SequenceNumber as AsSequenceNumber;
 use haneul_types::haneul_serde::HaneulStructTag;
@@ -844,7 +844,7 @@ pub trait HaneulMoveObject: Sized {
         -> Result<Self, anyhow::Error>;
 
     fn try_from(o: MoveObject, resolver: &impl GetModule) -> Result<Self, anyhow::Error> {
-        let layout = o.get_layout(ObjectFormatOptions::default(), resolver)?;
+        let layout = o.get_layout(resolver)?;
         Self::try_from_layout(o, layout)
     }
 

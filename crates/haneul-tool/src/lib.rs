@@ -22,8 +22,8 @@ use haneul_protocol_config::Chain;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
+use haneul_types::messages_grpc::LayoutGenerationOption;
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::object::ObjectFormatOptions;
 use haneul_types::{base_types::*, object::Owner};
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
@@ -488,7 +488,7 @@ async fn get_object_impl(
     let resp = client
         .handle_object_info_request(ObjectInfoRequest {
             object_id: id,
-            object_format_options: Some(ObjectFormatOptions::default()),
+            generate_layout: LayoutGenerationOption::Generate,
             request_kind: match version {
                 None => ObjectInfoRequestKind::LatestObjectInfo,
                 Some(v) => ObjectInfoRequestKind::PastObjectInfoDebug(SequenceNumber::from_u64(v)),

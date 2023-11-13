@@ -42,7 +42,6 @@ pub mod pg_integration_test {
     use haneul_types::digests::{ObjectDigest, TransactionDigest};
     use haneul_types::error::HaneulObjectResponseError;
     use haneul_types::gas_coin::GasCoin;
-    use haneul_types::object::ObjectFormatOptions;
     use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
     use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
     use test_cluster::{TestCluster, TestClusterBuilder};
@@ -814,9 +813,7 @@ pub mod pg_integration_test {
             .into_object()
             .unwrap();
 
-        let layout = coin_object
-            .get_layout(ObjectFormatOptions::default(), store.module_cache())
-            .unwrap();
+        let layout = coin_object.get_layout(store.module_cache()).unwrap();
 
         assert!(layout.is_some());
 

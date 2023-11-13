@@ -6,8 +6,8 @@ use clap;
 use move_command_line_common::parser::{parse_u256, parse_u64};
 use move_command_line_common::values::{ParsableValue, ParsedValue};
 use move_command_line_common::{parser::Parser as MoveCLParser, values::ValueToken};
+use move_core_types::runtime_value::{MoveStruct, MoveValue};
 use move_core_types::u256::U256;
-use move_core_types::value::{MoveStruct, MoveValue};
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::SyntaxChoice;
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
@@ -382,7 +382,7 @@ impl ParsableValue for HaneulExtraValueArgs {
     }
 
     fn concrete_struct(values: Vec<Self::ConcreteValue>) -> anyhow::Result<Self::ConcreteValue> {
-        Ok(HaneulValue::MoveValue(MoveValue::Struct(MoveStruct::Runtime(
+        Ok(HaneulValue::MoveValue(MoveValue::Struct(MoveStruct(
             values.into_iter().map(|v| v.assert_move_value()).collect(),
         ))))
     }

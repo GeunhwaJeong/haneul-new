@@ -22,7 +22,7 @@ use move_bytecode_utils::module_cache::GetModule;
 use haneul_json_rpc_types::{HaneulObjectData, HaneulObjectRef, HaneulRawData};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::move_package::MovePackage;
-use haneul_types::object::{Data, MoveObject, ObjectFormatOptions, ObjectRead, Owner};
+use haneul_types::object::{Data, MoveObject, ObjectRead, Owner};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, ObjectType, SequenceNumber, HaneulAddress},
     storage::WriteKind,
@@ -240,7 +240,7 @@ impl Object {
             _ => {
                 let oref = self.get_object_ref()?;
                 let object: haneul_types::object::Object = self.try_into()?;
-                let layout = object.get_layout(ObjectFormatOptions::default(), module_cache)?;
+                let layout = object.get_layout(module_cache)?;
                 ObjectRead::Exists(oref, object, layout)
             }
         })

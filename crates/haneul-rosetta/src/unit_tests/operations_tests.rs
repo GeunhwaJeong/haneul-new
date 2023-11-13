@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::value::MoveTypeLayout;
+use move_core_types::annotated_value::MoveTypeLayout;
 use haneul_json_rpc_types::HaneulCallArg;
 use haneul_types::base_types::{ObjectDigest, ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;

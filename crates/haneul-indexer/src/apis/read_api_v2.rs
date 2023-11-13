@@ -4,7 +4,7 @@
 use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
-use move_core_types::value::MoveStructLayout;
+use move_core_types::annotated_value::MoveStructLayout;
 use haneul_json_rpc::error::HaneulRpcInputError;
 use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::object::ObjectRead;

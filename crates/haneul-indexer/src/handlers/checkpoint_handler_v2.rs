@@ -18,7 +18,7 @@ use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointContents};
 use haneul_types::object::Object;
-use haneul_types::object::ObjectFormatOptions;
+
 use tokio::sync::watch;
 
 use std::collections::hash_map::Entry;
@@ -657,7 +657,7 @@ fn try_create_dynamic_field_info(
     }
 
     let move_struct = move_object
-        .to_move_struct_with_resolver(ObjectFormatOptions::default(), resolver)
+        .to_move_struct_with_resolver(resolver)
         .map_err(|e| {
             IndexerError::ResolveMoveStructError(format!(
                 "Failed to create dynamic field info for obj {}:{}, type: {}. Error: {e}",
