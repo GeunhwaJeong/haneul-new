@@ -6,9 +6,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use move_core_types::account_address::AccountAddress;
-use haneul_package_resolver::{
-    error::Error as PackageResolverError, make_package, Package, PackageStore, Result,
-};
+use haneul_package_resolver::{error::Error as PackageResolverError, Package, PackageStore, Result};
 use haneul_rest_api::Client;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::object::Object;
@@ -118,11 +116,6 @@ impl PackageStore for LocalDBPackageStore {
 
     async fn fetch(&self, id: AccountAddress) -> Result<Arc<Package>> {
         let object = self.get(id).await?;
-        let package = Arc::new(make_package(
-            AccountAddress::from(object.id()),
-            object.version(),
-            &object,
-        )?);
-        Ok(package)
+        Ok(Arc::new(Package::read(&object)?))
     }
 }
