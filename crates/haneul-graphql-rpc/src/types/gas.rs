@@ -6,7 +6,7 @@ use crate::types::object::Object;
 use async_graphql::connection::Connection;
 use async_graphql::*;
 use haneul_json_rpc_types::{OwnedObjectRef, HaneulGasData};
-use haneul_sdk::types::{
+use haneul_types::{
     base_types::{ObjectID, HaneulAddress as NativeHaneulAddress},
     gas::GasCostSummary as NativeGasCostSummary,
     transaction::GasData,

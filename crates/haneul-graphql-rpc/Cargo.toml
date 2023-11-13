@@ -50,7 +50,6 @@ bcs.workspace = true
 move-transactional-test-runner.workspace = true
 simulacrum.workspace = true  # todo: cleanup test only deps
 haneul-transactional-test-runner.workspace = true # todo: cleanup test only deps
-haneul-sdk.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-indexer.workspace = true

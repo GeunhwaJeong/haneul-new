@@ -10805,7 +10805,6 @@ dependencies = [
  "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-rest-api",
- "haneul-sdk",
  "haneul-swarm-config",
  "haneul-transactional-test-runner",
  "haneul-types",
