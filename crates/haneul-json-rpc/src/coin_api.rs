@@ -423,7 +423,7 @@ mod tests {
     use haneul_types::object::Object;
     use haneul_types::utils::create_fake_transaction;
     use haneul_types::{parse_haneul_struct_tag, TypeTag};
-    use typed_store::TypedStoreError;
+    use typed_store_error::TypedStoreError;
 
     mock! {
         pub KeyValueStore {}
