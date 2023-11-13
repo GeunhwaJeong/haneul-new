@@ -1,8 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type SharedObjectRef } from '@haneullabs/haneul.js/bcs';
-import { type HaneulClient, type HaneulObjectRef } from '@haneullabs/haneul.js/client';
+import { type HaneulClient } from '@haneullabs/haneul.js/client';
 import { TransactionObjectArgument } from '@haneullabs/haneul.js/transactions';
 
 import { BaseRulePackageIds } from '../constants';
@@ -13,7 +12,7 @@ export * from './transfer-policy';
 /**
  * A valid argument for any of the Kiosk functions.
  */
-export type ObjectArgument = string | TransactionObjectArgument | SharedObjectRef | HaneulObjectRef;
+export type ObjectArgument = string | TransactionObjectArgument;
 
 /**
  * A Network selector.
