@@ -5,40 +5,41 @@
 
 pub mod args;
 pub mod programmable_transaction_test_parser;
+mod simulator_persisted_store;
 pub mod test_adapter;
 
 use move_transactional_test_runner::framework::run_test_impl;
 use rand::rngs::StdRng;
 use simulacrum::Simulacrum;
+use simulacrum::SimulatorStore;
 use std::path::Path;
-use haneul_rest_api::node_state_getter::NodeStateGetter;
-use haneul_types::digests::TransactionDigest;
-use haneul_types::digests::TransactionEventsDigest;
-use haneul_types::effects::TransactionEvents;
-use haneul_types::event::Event;
-use haneul_types::messages_checkpoint::CheckpointContentsDigest;
-use haneul_types::storage::ObjectKey;
-use haneul_types::storage::ObjectStore;
-use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
-
 use std::sync::Arc;
 use haneul_core::authority::authority_test_utils::send_and_confirm_transaction_with_execution_error;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::EventFilter;
+use haneul_rest_api::node_state_getter::NodeStateGetter;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::VersionNumber;
+use haneul_types::digests::TransactionDigest;
+use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEvents;
 use haneul_types::error::ExecutionError;
 use haneul_types::error::HaneulError;
 use haneul_types::error::HaneulResult;
+use haneul_types::event::Event;
+use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::object::Object;
+use haneul_types::storage::ObjectKey;
+use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::TransactionKind;
+use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
 
 #[cfg_attr(not(msim), tokio::main)]
 #[cfg_attr(msim, msim::main)]
@@ -272,7 +273,7 @@ impl TransactionalAdapter for Simulacrum<StdRng> {
         Ok(self
             .store()
             .get_transaction_events_by_tx_digest(tx_digest)
-            .map(|x| x.data.clone())
+            .map(|x| x.data)
             .unwrap_or_default())
     }
 

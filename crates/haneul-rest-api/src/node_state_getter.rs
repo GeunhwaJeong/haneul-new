@@ -127,7 +127,6 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> HaneulResult<VerifiedCheckpoint> {
         self.store()
             .get_checkpoint_by_sequence_number(sequence_number)
-            .cloned()
             .ok_or(HaneulError::UserInputError {
                 error: UserInputError::VerifiedCheckpointNotFound(sequence_number),
             })
@@ -147,7 +146,6 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> HaneulResult<CheckpointContents> {
         self.store()
             .get_checkpoint_contents(&content_digest)
-            .cloned()
             .ok_or(HaneulError::UserInputError {
                 error: UserInputError::CheckpointContentsNotFound(content_digest),
             })
@@ -159,7 +157,7 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> HaneulResult<Vec<Option<VerifiedTransaction>>> {
         Ok(tx_digests
             .iter()
-            .map(|digest| self.store().get_transaction(digest).cloned())
+            .map(|digest| self.store().get_transaction(digest))
             .collect())
     }
 
@@ -169,7 +167,7 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> HaneulResult<Vec<Option<TransactionEffects>>> {
         Ok(digests
             .iter()
-            .map(|digest| self.store().get_transaction_effects(digest).cloned())
+            .map(|digest| self.store().get_transaction_effects(digest))
             .collect())
     }
 
@@ -179,7 +177,7 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> HaneulResult<Vec<Option<TransactionEvents>>> {
         Ok(event_digests
             .iter()
-            .map(|digest| self.store().get_transaction_events(digest).cloned())
+            .map(|digest| self.store().get_transaction_events(digest))
             .collect())
     }
 
@@ -189,7 +187,7 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
     ) -> Result<Vec<Option<Object>>, HaneulError> {
         object_keys
             .iter()
-            .map(|key| ObjectStore::get_object_by_key(&self.store(), &key.0, key.1))
+            .map(|key| self.store().get_object_by_key(&key.0, key.1))
             .collect::<Result<Vec<_>, HaneulError>>()
     }
 
@@ -198,13 +196,13 @@ impl<T: Sync + Send> NodeStateGetter for simulacrum::Simulacrum<T> {
         object_id: &ObjectID,
         version: VersionNumber,
     ) -> Result<Option<Object>, HaneulError> {
-        Ok(self
-            .store()
-            .get_object_at_version(object_id, version)
-            .cloned())
+        Ok(self.store().get_object_at_version(object_id, version))
     }
 
     fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
-        ObjectStore::get_object(&self.store(), object_id)
+        Ok(simulacrum::SimulatorStore::get_object(
+            self.store(),
+            object_id,
+        ))
     }
 }
