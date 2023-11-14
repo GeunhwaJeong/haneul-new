@@ -30,7 +30,7 @@ pub struct HaneulRunArgs {
     pub summarize: bool,
 }
 
-#[derive(Debug, clap::Parser)]
+#[derive(Debug, clap::Parser, Default)]
 pub struct HaneulPublishArgs {
     #[clap(long = "sender")]
     pub sender: Option<String>,
