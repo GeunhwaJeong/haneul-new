@@ -987,7 +987,7 @@
 >      }
 >      totalBalance
 >    }
->    stakeConnection {
+>    stakedHaneulConnection {
 >      nodes {
 >        status
 >        principal

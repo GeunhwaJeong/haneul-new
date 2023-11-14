@@ -6,7 +6,7 @@ use super::move_value::MoveValue;
 use super::stake::StakedHaneulDowncastError;
 use super::{coin::Coin, object::Object};
 use crate::error::Error;
-use crate::types::stake::Stake;
+use crate::types::stake::StakedHaneul;
 use async_graphql::*;
 use move_core_types::language_storage::StructTag;
 use haneul_types::object::{Data, MoveObject as NativeMoveObject};
@@ -59,8 +59,8 @@ impl MoveObject {
     }
 
     /// Attempts to convert the Move object into a `0x3::staking_pool::StakedHaneul`.
-    async fn as_stake(&self) -> Result<Option<Stake>, Error> {
-        match Stake::try_from(self) {
+    async fn as_staked_haneul(&self) -> Result<Option<StakedHaneul>, Error> {
+        match StakedHaneul::try_from(self) {
             Ok(coin) => Ok(Some(coin)),
             Err(StakedHaneulDowncastError::NotAStakedHaneul) => Ok(None),
             Err(StakedHaneulDowncastError::Bcs(e)) => Err(Error::Internal(format!(
