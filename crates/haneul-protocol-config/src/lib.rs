@@ -93,6 +93,7 @@ const MAX_PROTOCOL_VERSION: u64 = 32;
 //             Create new execution layer version, and preserve previous behavior in v1.
 //             Update semantics of `haneul::transfer::receive` and add `haneul::transfer::public_receive`.
 // Version 32: Add delete functions for VerifiedID and VerifiedIssuer.
+//             Add haneul::token module to haneul framework.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);

@@ -128,6 +128,7 @@ module haneul::kiosk_tests {
         abort 1337
     }
 
+    #[allow(unused_field)]
     struct WrongAsset has key, store { id: haneul::object::UID }
 
     #[test]

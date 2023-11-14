@@ -1,0 +1,9 @@
+[package]
+name = "Closed Loop Token"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+examples = "0x0"
