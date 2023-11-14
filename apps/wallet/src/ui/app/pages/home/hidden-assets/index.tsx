@@ -10,6 +10,7 @@ import { ampli } from '_src/shared/analytics/ampli';
 import { Button } from '_src/ui/app/shared/ButtonUI';
 import PageTitle from '_src/ui/app/shared/PageTitle';
 import { getKioskIdFromOwnerCap, isKioskOwnerToken, useMultiGetObjects } from '@haneullabs/core';
+import { useKioskClient } from '@haneullabs/core/src/hooks/useKioskClient';
 import { EyeClose16 } from '@haneullabs/icons';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -19,6 +20,7 @@ import { useHiddenAssets } from './HiddenAssetsProvider';
 
 function HiddenNftsPage() {
 	const { hiddenAssetIds, showAsset } = useHiddenAssets();
+	const kioskClient = useKioskClient();
 
 	const { data, isLoading, isPending, isError, error } = useMultiGetObjects(
 		hiddenAssetIds,
@@ -81,7 +83,7 @@ function HiddenNftsPage() {
 								<div className="flex justify-between items-center pt-2 pr-1" key={objectId}>
 									<Link
 										to={
-											isKioskOwnerToken(nft.data)
+											isKioskOwnerToken(kioskClient.network, nft.data)
 												? `/kiosk?${new URLSearchParams({
 														kioskId: getKioskIdFromOwnerCap(nft.data!),
 												  })}`

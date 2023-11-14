@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { hasDisplayData, isKioskOwnerToken, useGetOwnedObjects } from '@haneullabs/core';
+import { useKioskClient } from '@haneullabs/core/src/hooks/useKioskClient';
 import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
 import { useMemo } from 'react';
 
@@ -19,6 +20,7 @@ export enum AssetFilterTypes {
 }
 
 export function useGetNFTs(address?: string | null) {
+	const kioskClient = useKioskClient();
 	const {
 		data,
 		isPending,
@@ -47,14 +49,14 @@ export function useGetNFTs(address?: string | null) {
 			.flatMap((page) => page.data)
 			.filter((asset) => !hiddenAssetIds.includes(asset.data?.objectId!))
 			.reduce((acc, curr) => {
-				if (hasDisplayData(curr) || isKioskOwnerToken(curr))
+				if (hasDisplayData(curr) || isKioskOwnerToken(kioskClient.network, curr))
 					acc.visual.push(curr.data as HaneulObjectData);
 				if (!hasDisplayData(curr)) acc.other.push(curr.data as HaneulObjectData);
 				if (hiddenAssetIds.includes(curr.data?.objectId!))
 					acc.hidden.push(curr.data as HaneulObjectData);
 				return acc;
 			}, ownedAssets);
-	}, [hiddenAssetIds, data?.pages]);
+	}, [hiddenAssetIds, data?.pages, kioskClient.network]);
 
 	return {
 		data: assets,
