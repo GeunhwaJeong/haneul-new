@@ -55,7 +55,8 @@ jobs:
       # Checkout out the latest haneul repo
       - name: Checkout haneul repo
         run: |
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 10 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git fetch origin && git checkout ${{ inputs.haneul_commit }}"
+          HANEUL_COMMIT=${{ inputs.haneul_commit }}
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 10 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git fetch origin && git checkout $HANEUL_COMMIT"
 
       # Setting up cargo and simtest
       - name: Install simtest
