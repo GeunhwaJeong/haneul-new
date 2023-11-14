@@ -12,7 +12,7 @@ use haneul_json_rpc_types::{Balance, CoinPage, Page, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::gas_coin::{GAS, TOTAL_SUPPLY_HANEUL};
+use haneul_types::gas_coin::{GAS, TOTAL_SUPPLY_GEUNHWA};
 
 pub(crate) struct CoinReadApiV2 {
     inner: IndexerReader,
@@ -131,7 +131,7 @@ impl CoinReadApiServer for CoinReadApiV2 {
         let coin_struct = parse_to_struct_tag(&coin_type)?;
         if GAS::is_gas(&coin_struct) {
             Ok(Supply {
-                value: TOTAL_SUPPLY_HANEUL,
+                value: TOTAL_SUPPLY_GEUNHWA,
             })
         } else {
             self.inner

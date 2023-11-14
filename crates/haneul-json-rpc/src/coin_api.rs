@@ -24,7 +24,7 @@ use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin::{CoinMetadata, TreasuryCap};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::gas_coin::GAS;
+use haneul_types::gas_coin::{GAS, TOTAL_SUPPLY_GEUNHWA};
 use haneul_types::object::Object;
 use haneul_types::parse_haneul_struct_tag;
 
@@ -219,7 +219,9 @@ impl CoinReadApiServer for CoinReadApi {
         with_tracing!(async move {
             let coin_struct = parse_to_struct_tag(&coin_type)?;
             Ok(if GAS::is_gas(&coin_struct) {
-                Supply { value: 0 }
+                Supply {
+                    value: TOTAL_SUPPLY_GEUNHWA,
+                }
             } else {
                 let treasury_cap_object = self
                     .internal
@@ -1296,7 +1298,7 @@ mod tests {
             let response = coin_read_api.get_total_supply(coin_type.to_string()).await;
 
             let supply = response.unwrap();
-            let expected = expect!["0"];
+            let expected = expect!["10000000000000000000"];
             expected.assert_eq(&supply.value.to_string());
         }
 
