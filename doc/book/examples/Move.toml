@@ -1,9 +1,0 @@
-[package]
-name = "haneul-by-example"
-version = "0.1.0"
-
-[dependencies]
-Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
-
-[addresses]
-examples = "0x0"

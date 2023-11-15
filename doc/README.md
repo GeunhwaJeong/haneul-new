@@ -1,1 +1,0 @@
-The documentation source for docs.haneul.io has moved to the docs folder (previously located in doc/src). The doc folder is deprecated and will be removed entirely soon.
