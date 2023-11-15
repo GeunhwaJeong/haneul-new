@@ -57,7 +57,11 @@ const references = [
 				label: 'Haneul TypeScript SDK Site',
 				href: 'https://haneul-typescript-docs.vercel.app/typescript',
 			},
-			'references/sdk/rust-sdk',
+			{
+				type: 'link',
+				label: 'Haneul Rust SDK GitHub',
+				href: 'https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk',
+			}
 		],
 	},
 	{
