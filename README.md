@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/GeunhwaJeong/haneul/blob/main/doc/static/Haneul_Icon_Brand.png" alt="Logo" width="100" height="100">
+<img src="https://github.com/GeunhwaJeong/haneul/blob/main/docs/site/static/img/logo.svg" alt="Logo" width="100" height="100">
 </p>
 
 # Welcome to Haneul
