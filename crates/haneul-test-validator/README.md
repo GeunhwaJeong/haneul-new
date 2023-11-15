@@ -3,7 +3,7 @@ an indexer.
 
 ## Guide
 
-Refer to [haneul-local-network.md](../../doc/src/build/haneul-local-network.md)
+Refer to [haneul-local-network.md](../../docs/content/guides/developer/getting-started/local-network.mdx)
 
 ## Experimental Feature - Running with Indexer
 
