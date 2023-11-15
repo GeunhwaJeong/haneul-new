@@ -23,12 +23,14 @@ use haneul_json_rpc_types::{
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
     ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
     HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
-    HaneulPastObjectResponse, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    HaneulPastObjectResponse, HaneulTransactionBlockEffects, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
+    TransactionFilter,
 };
 use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
+use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -135,6 +137,19 @@ impl ReadApi {
             .api
             .http
             .get_dynamic_fields(object_id, cursor, limit)
+            .await?)
+    }
+
+    /// Return the dynamic field object information for a specified object.
+    pub async fn get_dynamic_field_object(
+        &self,
+        parent_object_id: ObjectID,
+        name: DynamicFieldName,
+    ) -> HaneulRpcResult<HaneulObjectResponse> {
+        Ok(self
+            .api
+            .http
+            .get_dynamic_field_object(parent_object_id, name)
             .await?)
     }
 
@@ -556,6 +571,23 @@ impl ReadApi {
                 }
             },
         )
+    }
+
+    /// Subscribe to a stream of transactions.
+    ///
+    /// This is only available through WebSockets.
+    pub async fn subscribe_transaction(
+        &self,
+        filter: TransactionFilter,
+    ) -> HaneulRpcResult<impl Stream<Item = HaneulRpcResult<HaneulTransactionBlockEffects>>> {
+        let Some(c) = &self.api.ws else {
+            return Err(Error::Subscription(
+                "Subscription only supported by WebSocket client.".to_string(),
+            ));
+        };
+        let subscription: Subscription<HaneulTransactionBlockEffects> =
+            c.subscribe_transaction(filter).await?;
+        Ok(subscription.map(|item| Ok(item?)))
     }
 
     /// Return a map consisting of the move package name and the normalized module, or an error upon failure.
