@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use core::fmt;
 use std::{
     fmt::{Debug, Display, Formatter, Write},
     path::PathBuf,
@@ -35,7 +34,7 @@ use haneul_json_rpc_types::{
     HaneulParsedData, HaneulRawData, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
-use haneul_json_rpc_types::{ObjectChange, HaneulExecutionStatus, HaneulObjectDataOptions};
+use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulObjectDataOptions};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_move_build::{
     build_from_resolution_graph, check_invalid_dependencies, check_unpublished_dependencies,
@@ -1580,10 +1579,10 @@ impl Display for HaneulClientCommandResult {
             }
             HaneulClientCommandResult::Upgrade(response)
             | HaneulClientCommandResult::Publish(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::TransactionBlock(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::RawObject(raw_object_read) => {
                 let raw_object = match raw_object_read.object() {
@@ -1607,7 +1606,7 @@ impl Display for HaneulClientCommandResult {
                 writeln!(writer, "{}", raw_object)?;
             }
             HaneulClientCommandResult::Call(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::SerializedUnsignedTransaction(tx_data) => {
                 writeln!(
@@ -1624,19 +1623,19 @@ impl Display for HaneulClientCommandResult {
                 )?;
             }
             HaneulClientCommandResult::Transfer(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::TransferHaneul(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::Pay(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::PayHaneul(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::PayAllHaneul(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::SyncClientState => {
                 writeln!(writer, "Client state sync complete.")?;
@@ -1645,10 +1644,10 @@ impl Display for HaneulClientCommandResult {
                 writeln!(writer, "{}", ci)?;
             }
             HaneulClientCommandResult::SplitCoin(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::MergeCoin(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::Switch(response) => {
                 write!(writer, "{}", response)?;
@@ -1660,7 +1659,7 @@ impl Display for HaneulClientCommandResult {
                 };
             }
             HaneulClientCommandResult::ExecuteSignedTx(response) => {
-                write!(writer, "{}", write_transaction_response(response)?)?;
+                write!(writer, "{}", response)?;
             }
             HaneulClientCommandResult::ActiveEnv(env) => {
                 write!(writer, "{}", env.as_deref().unwrap_or("None"))?;
@@ -1768,74 +1767,6 @@ fn convert_number_to_string(value: Value) -> Value {
         ),
         _ => value,
     }
-}
-
-// TODO(chris): only print out the full response when `--verbose` is provided
-pub fn write_transaction_response(
-    response: &HaneulTransactionBlockResponse,
-) -> Result<String, fmt::Error> {
-    let mut writer = String::new();
-    writeln!(writer, "{}", "----- Transaction Digest ----".bold())?;
-    writeln!(writer, "{}", response.digest)?;
-    if let Some(t) = &response.transaction {
-        writeln!(writer, "{}", t)?;
-    }
-
-    if let Some(e) = &response.effects {
-        writeln!(writer, "{}", e)?;
-    }
-
-    if let Some(e) = &response.events {
-        writeln!(writer, "{}", e)?;
-    }
-
-    writeln!(writer, "{}", "----- Object changes ----".bold())?;
-    if let Some(e) = &response.object_changes {
-        // Note that this will be refactored under Display for HaneulTransactionBlockResponse
-        // as soon I implement all of the Display traits for all the types
-        let (mut created, mut deleted, mut mutated, mut published, mut transferred, mut wrapped) =
-            (vec![], vec![], vec![], vec![], vec![], vec![]);
-
-        for obj in e {
-            match obj {
-                ObjectChange::Created { .. } => created.push(obj),
-                ObjectChange::Deleted { .. } => deleted.push(obj),
-                ObjectChange::Mutated { .. } => mutated.push(obj),
-                ObjectChange::Published { .. } => published.push(obj),
-                ObjectChange::Transferred { .. } => transferred.push(obj),
-                ObjectChange::Wrapped { .. } => wrapped.push(obj),
-            };
-        }
-
-        write_obj_changes(created, "Created", &mut writer)?;
-        write_obj_changes(deleted, "Deleted", &mut writer)?;
-        write_obj_changes(mutated, "Mutated", &mut writer)?;
-        write_obj_changes(published, "Published", &mut writer)?;
-        write_obj_changes(transferred, "Transferred", &mut writer)?;
-        write_obj_changes(wrapped, "Wrapped", &mut writer)?;
-    }
-
-    writeln!(writer, "{}", "----- Balance changes ----".bold())?;
-    if let Some(e) = &response.balance_changes {
-        for balance in e {
-            writeln!(writer, "{}", balance)?;
-        }
-    }
-    Ok(writer)
-}
-
-fn write_obj_changes<T: Display>(
-    values: Vec<T>,
-    output_string: &str,
-    writer: &mut String,
-) -> std::fmt::Result {
-    if !values.is_empty() {
-        writeln!(writer, "\n{} Objects: ", output_string)?;
-        for obj in values {
-            write!(writer, "{}", obj)?;
-        }
-    }
-    Ok(())
 }
 
 impl Debug for HaneulClientCommandResult {
