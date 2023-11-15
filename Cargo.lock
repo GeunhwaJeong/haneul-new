@@ -10375,6 +10375,7 @@ dependencies = [
  "haneul-config",
  "haneul-core",
  "haneul-faucet",
+ "haneul-graphql-rpc",
  "haneul-indexer",
  "haneul-json",
  "haneul-json-rpc-types",

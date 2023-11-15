@@ -24,6 +24,7 @@ shared-crypto.workspace = true
 
 haneul-indexer.workspace = true
 haneul-faucet.workspace = true
+haneul-graphql-rpc.workspace = true
 haneul-swarm.workspace = true
 haneul.workspace = true
 haneul-swarm-config.workspace = true
@@ -40,3 +41,6 @@ telemetry-subscribers.workspace = true
 test-cluster.workspace = true
 move-core-types.workspace = true
 workspace-hack.workspace = true
+
+[features]
+pg_integration = []
