@@ -3,17 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::utils::{get_zklogin_user_address, make_zklogin_tx, sign_zklogin_tx};
+use haneul_types::utils::{
+    get_legacy_zklogin_user_address, get_zklogin_user_address, make_zklogin_tx, sign_zklogin_tx,
+};
 use haneul_types::HANEUL_AUTHENTICATOR_STATE_OBJECT_ID;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 
-async fn do_zklogin_test(legacy: bool) -> HaneulResult {
+async fn do_zklogin_test(address: HaneulAddress, legacy: bool) -> HaneulResult {
     let test_cluster = TestClusterBuilder::new().build().await;
-    let (_, tx, _) = make_zklogin_tx(legacy);
+    let (_, tx, _) = make_zklogin_tx(address, legacy);
 
     test_cluster
         .authority_aggregator()
@@ -36,7 +39,9 @@ async fn test_zklogin_feature_deny() {
         config
     });
 
-    let err = do_zklogin_test(false).await.unwrap_err();
+    let err = do_zklogin_test(get_zklogin_user_address(), false)
+        .await
+        .unwrap_err();
 
     assert!(matches!(err, HaneulError::UnsupportedFeatureError { .. }));
 }
@@ -50,7 +55,9 @@ async fn test_zklogin_feature_legacy_address_deny() {
         config
     });
 
-    let err = do_zklogin_test(true).await.unwrap_err();
+    let err = do_zklogin_test(get_legacy_zklogin_user_address(), true)
+        .await
+        .unwrap_err();
     assert!(matches!(err, HaneulError::SignerSignatureAbsent { .. }));
 }
 
@@ -61,7 +68,9 @@ async fn test_legacy_zklogin_address_accept() {
         config.set_verify_legacy_zklogin_address(true);
         config
     });
-    let err = do_zklogin_test(true).await.unwrap_err();
+    let err = do_zklogin_test(get_legacy_zklogin_user_address(), true)
+        .await
+        .unwrap_err();
 
     // it does not hit the signer absent error.
     assert!(matches!(err, HaneulError::InvalidSignature { .. }));
