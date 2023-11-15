@@ -10760,6 +10760,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-graphql-e2e-tests"
+version = "0.1.0"
+dependencies = [
+ "datatest-stable",
+ "msim",
+ "haneul-graphql-rpc",
+ "haneul-transactional-test-runner",
+ "tokio",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-graphql-rpc"
 version = "0.1.0"
 dependencies = [
@@ -10784,7 +10796,6 @@ dependencies = [
  "move-bytecode-utils",
  "move-compiler",
  "move-core-types",
- "move-transactional-test-runner",
  "haneullabs-metrics",
  "once_cell",
  "prometheus",
@@ -10806,7 +10817,6 @@ dependencies = [
  "haneul-protocol-config",
  "haneul-rest-api",
  "haneul-swarm-config",
- "haneul-transactional-test-runner",
  "haneul-types",
  "telemetry-subscribers",
  "test-cluster",
@@ -12079,6 +12089,7 @@ dependencies = [
  "haneul-core",
  "haneul-framework",
  "haneul-framework-snapshot",
+ "haneul-graphql-rpc",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-protocol-config",
