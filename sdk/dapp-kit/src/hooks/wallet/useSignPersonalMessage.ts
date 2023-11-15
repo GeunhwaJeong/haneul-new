@@ -66,17 +66,31 @@ export function useSignPersonalMessage({
 				);
 			}
 
-			const walletFeature = currentWallet.features['haneul:signPersonalMessage'];
-			if (!walletFeature) {
-				throw new WalletFeatureNotSupportedError(
-					"This wallet doesn't support the `signPersonalMessage` feature.",
-				);
+			const signPersonalMessageFeature = currentWallet.features['haneul:signPersonalMessage'];
+			if (signPersonalMessageFeature) {
+				return await signPersonalMessageFeature.signPersonalMessage({
+					...signPersonalMessageArgs,
+					account: signerAccount,
+				});
 			}
 
-			return await walletFeature.signPersonalMessage({
-				...signPersonalMessageArgs,
-				account: signerAccount,
-			});
+			// TODO: Remove this once we officially discontinue haneul:signMessage in the wallet standard
+			const signMessageFeature = currentWallet.features['haneul:signMessage'];
+			if (signMessageFeature) {
+				console.warn(
+					"This wallet doesn't support the `signPersonalMessage` feature... falling back to `signMessage`.",
+				);
+
+				const { messageBytes, signature } = await signMessageFeature.signMessage({
+					...signPersonalMessageArgs,
+					account: signerAccount,
+				});
+				return { bytes: messageBytes, signature };
+			}
+
+			throw new WalletFeatureNotSupportedError(
+				"This wallet doesn't support the `signPersonalMessage` feature.",
+			);
 		},
 		...mutationOptions,
 	});
