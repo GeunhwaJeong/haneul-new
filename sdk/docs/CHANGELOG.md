@@ -1,5 +1,14 @@
 # @haneullabs/sdk-docs
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [c5d4db238]
+- Updated dependencies [652bcdd92]
+  - @haneullabs/dapp-kit@0.9.0
+  - @haneullabs/haneul.js@0.46.1
+
 ## 1.0.6
 
 ### Patch Changes

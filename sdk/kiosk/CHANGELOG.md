@@ -1,5 +1,12 @@
 # @haneullabs/kiosk
 
+## 0.7.10
+
+### Patch Changes
+
+- Updated dependencies [652bcdd92]
+  - @haneullabs/haneul.js@0.46.1
+
 ## 0.7.9
 
 ### Patch Changes

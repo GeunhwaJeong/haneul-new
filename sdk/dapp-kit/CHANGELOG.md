@@ -1,5 +1,17 @@
 # @haneullabs/dapp-kit
 
+## 0.9.0
+
+### Minor Changes
+
+- c5d4db238: Have useSignPersonalMessage fall back to use haneul:signMessage
+
+### Patch Changes
+
+- Updated dependencies [652bcdd92]
+  - @haneullabs/haneul.js@0.46.1
+  - @haneullabs/wallet-standard@0.8.9
+
 ## 0.8.0
 
 ### Minor Changes
