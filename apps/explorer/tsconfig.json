@@ -17,11 +17,7 @@
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
-			"~/*": ["./src/*"],
-			"@haneullabs/haneul.js/transactions": ["../../sdk/typescript/src/builder/export.ts"],
-			"@haneullabs/haneul.js/*": ["../../sdk/typescript/src/*"],
-			"@haneullabs/haneul.js": ["../../sdk/typescript/src/"],
-			"@haneullabs/dapp-kit": ["../../sdk/dapp-kit/src/"]
+			"~/*": ["./src/*"]
 		}
 	},
 	"include": ["src", "tests"],
