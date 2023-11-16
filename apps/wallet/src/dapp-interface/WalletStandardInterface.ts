@@ -19,7 +19,6 @@ import type {
 	ExecuteTransactionResponse,
 	SignTransactionRequest,
 	SignTransactionResponse,
-	StakeRequest,
 } from '_payloads/transactions';
 import { API_ENV } from '_src/shared/api-env';
 import type { NetworkEnvType } from '_src/shared/api-env';
@@ -62,13 +61,6 @@ type WalletEventsMap = {
 // NOTE: Because this runs in a content script, we can't fetch the manifest.
 const name = process.env.APP_NAME || 'Haneul Wallet';
 
-type StakeInput = { validatorAddress: string };
-type HaneulWalletStakeFeature = {
-	'haneulWallet:stake': {
-		version: '0.0.1';
-		stake: (input: StakeInput) => Promise<void>;
-	};
-};
 export type QredoConnectInput = {
 	service: string;
 	apiUrl: string;
@@ -125,7 +117,6 @@ export class HaneulWallet implements Wallet {
 	get features(): StandardConnectFeature &
 		StandardEventsFeature &
 		HaneulFeatures &
-		HaneulWalletStakeFeature &
 		QredoConnectFeature {
 		return {
 			'standard:connect': {
@@ -143,10 +134,6 @@ export class HaneulWallet implements Wallet {
 			'haneul:signAndExecuteTransactionBlock': {
 				version: '1.0.0',
 				signAndExecuteTransactionBlock: this.#signAndExecuteTransactionBlock,
-			},
-			'haneulWallet:stake': {
-				version: '0.0.1',
-				stake: this.#stake,
 			},
 			'haneul:signMessage': {
 				version: '1.0.0',
@@ -293,13 +280,6 @@ export class HaneulWallet implements Wallet {
 			}),
 			(response) => response.result,
 		);
-	};
-
-	#stake = async (input: StakeInput) => {
-		this.#send<StakeRequest, void>({
-			type: 'stake-request',
-			validatorAddress: input.validatorAddress,
-		});
 	};
 
 	#signMessage: HaneulSignMessageMethod = async ({ message, account }) => {
