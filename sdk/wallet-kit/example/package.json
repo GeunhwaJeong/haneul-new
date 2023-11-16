@@ -2,7 +2,7 @@
 	"name": "haneul-wallet-adapter-demo",
 	"private": true,
 	"scripts": {
-		"dev": "vite",
+		"dev": "turbo build --filter haneul-wallet-adapter-demo^... && vite",
 		"build": "vite build"
 	},
 	"dependencies": {
