@@ -34,6 +34,7 @@ use haneul_types::{
     clock::CLOCK_MODULE_NAME,
     error::{ExecutionError, VMMVerifierErrorSubStatusCode},
     id::OBJECT_MODULE_NAME,
+    randomness_state::RANDOMNESS_MODULE_NAME,
     haneul_system_state::HANEUL_SYSTEM_MODULE_NAME,
     HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
@@ -83,11 +84,17 @@ const HANEUL_AUTHENTICATOR_STATE_CREATE: FunctionIdent = (
     AUTHENTICATOR_STATE_MODULE_NAME,
     ident_str!("create"),
 );
+const HANEUL_RANDOMNESS_STATE_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    RANDOMNESS_MODULE_NAME,
+    ident_str!("create"),
+);
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[OBJECT_NEW, OBJECT_NEW_UID_FROM_HASH, TS_NEW_OBJECT];
 const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_SYSTEM_CREATE,
     HANEUL_CLOCK_CREATE,
     HANEUL_AUTHENTICATOR_STATE_CREATE,
+    HANEUL_RANDOMNESS_STATE_CREATE,
 ];
 
 impl AbstractValue {

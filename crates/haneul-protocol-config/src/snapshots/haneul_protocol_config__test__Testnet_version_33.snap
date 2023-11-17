@@ -2,7 +2,7 @@
 source: crates/haneul-protocol-config/src/lib.rs
 expression: "ProtocolConfig::get_for_version(cur, *chain_id)"
 ---
-version: 31
+version: 33
 feature_flags:
   package_upgrades: true
   commit_root_state_digest: true
@@ -24,7 +24,6 @@ feature_flags:
   simplified_unwrap_then_delete: true
   upgraded_multisig_supported: true
   txn_base_cost_as_multiplier: true
-  shared_object_deletion: true
   narwhal_new_leader_election_schedule: true
   loaded_child_object_format: true
   enable_jwk_consensus_updates: true
@@ -36,6 +35,7 @@ feature_flags:
   narwhal_certificate_v2: true
   verify_legacy_zklogin_address: true
   recompute_has_public_transfer_in_execution: true
+  accept_zklogin_in_multisig: true
 max_tx_size_bytes: 131072
 max_input_objects: 2048
 max_size_written_objects: 5000000

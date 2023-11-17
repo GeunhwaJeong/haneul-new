@@ -25,6 +25,7 @@ use haneul_storage::{compute_sha3_checksum, FileCompression, SHA3_BYTES};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::ObjectID;
+use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -224,6 +225,8 @@ pub async fn setup_db_state(
     let system_state_object = get_haneul_system_state(&perpetual_db)?;
     let authenticator_state_obj_initial_shared_version =
         get_authenticator_state_obj_initial_shared_version(&perpetual_db)?;
+    let randomness_state_obj_initial_shared_version =
+        get_randomness_state_obj_initial_shared_version(&perpetual_db)?;
     let new_epoch_start_state = system_state_object.into_epoch_start_state();
     let next_epoch_committee = new_epoch_start_state.get_haneul_committee();
     let last_checkpoint = checkpoint_store
@@ -234,6 +237,7 @@ pub async fn setup_db_state(
         new_epoch_start_state,
         *last_checkpoint.digest(),
         authenticator_state_obj_initial_shared_version,
+        randomness_state_obj_initial_shared_version,
     );
     perpetual_db
         .set_epoch_start_configuration(&epoch_start_configuration)

@@ -378,6 +378,8 @@ pub enum HaneulTransactionBlockKind {
     ProgrammableTransaction(HaneulProgrammableTransactionBlock),
     /// A transaction which updates global authenticator state
     AuthenticatorStateUpdate(HaneulAuthenticatorStateUpdate),
+    /// A transaction which updates global randomness state
+    RandomnessStateUpdate(HaneulRandomnessStateUpdate),
     /// The transaction which occurs only at the end of the epoch
     EndOfEpochTransaction(HaneulEndOfEpochTransaction),
     // .. more transaction types go here
@@ -412,6 +414,9 @@ impl Display for HaneulTransactionBlockKind {
             }
             Self::AuthenticatorStateUpdate(_) => {
                 writeln!(writer, "Transaction Kind : Authenticator State Update")?;
+            }
+            Self::RandomnessStateUpdate(_) => {
+                writeln!(writer, "Transaction Kind : Randomness State Update")?;
             }
             Self::EndOfEpochTransaction(_) => {
                 writeln!(writer, "Transaction Kind : End of Epoch Transaction")?;
@@ -449,6 +454,14 @@ impl HaneulTransactionBlockKind {
                         .collect(),
                 })
             }
+            TransactionKind::RandomnessStateUpdate(update) => {
+                Self::RandomnessStateUpdate(HaneulRandomnessStateUpdate {
+                    epoch: update.epoch,
+                    round: update.round,
+                    randomness_round: update.randomness_round,
+                    random_bytes: update.random_bytes,
+                })
+            }
             TransactionKind::EndOfEpochTransaction(end_of_epoch_tx) => {
                 Self::EndOfEpochTransaction(HaneulEndOfEpochTransaction {
                     transactions: end_of_epoch_tx
@@ -466,6 +479,9 @@ impl HaneulTransactionBlockKind {
                                         min_epoch: expire.min_epoch,
                                     },
                                 )
+                            }
+                            EndOfEpochTransactionKind::RandomnessStateCreate => {
+                                HaneulEndOfEpochTransactionKind::RandomnessStateCreate
                             }
                         })
                         .collect(),
@@ -488,6 +504,7 @@ impl HaneulTransactionBlockKind {
             Self::ConsensusCommitPrologue(_) => "ConsensusCommitPrologue",
             Self::ProgrammableTransaction(_) => "ProgrammableTransaction",
             Self::AuthenticatorStateUpdate(_) => "AuthenticatorStateUpdate",
+            Self::RandomnessStateUpdate(_) => "RandomnessStateUpdate",
             Self::EndOfEpochTransaction(_) => "EndOfEpochTransaction",
         }
     }
@@ -1287,6 +1304,22 @@ pub struct HaneulAuthenticatorStateUpdate {
 
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulRandomnessStateUpdate {
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub epoch: u64,
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub round: u64,
+
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub randomness_round: u64,
+    pub random_bytes: Vec<u8>,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct HaneulEndOfEpochTransaction {
     pub transactions: Vec<HaneulEndOfEpochTransactionKind>,
 }
@@ -1297,6 +1330,7 @@ pub enum HaneulEndOfEpochTransactionKind {
     ChangeEpoch(HaneulChangeEpoch),
     AuthenticatorStateCreate,
     AuthenticatorStateExpire(HaneulAuthenticatorStateExpire),
+    RandomnessStateCreate,
 }
 
 #[serde_as]

@@ -19,6 +19,7 @@ use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };
+use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
 use haneul_types::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateTrait,
     HaneulSystemStateWrapper, HaneulValidatorGenesis,
@@ -156,6 +157,11 @@ impl Genesis {
 
     pub fn authenticator_state_obj_initial_shared_version(&self) -> Option<SequenceNumber> {
         get_authenticator_state_obj_initial_shared_version(&self.objects())
+            .expect("Read from genesis cannot fail")
+    }
+
+    pub fn randomness_state_obj_initial_shared_version(&self) -> Option<SequenceNumber> {
+        get_randomness_state_obj_initial_shared_version(&self.objects())
             .expect("Read from genesis cannot fail")
     }
 

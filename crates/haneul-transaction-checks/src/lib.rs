@@ -28,6 +28,7 @@ mod checked {
     };
     use haneul_types::{
         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     };
     use tracing::error;
     use tracing::instrument;
@@ -516,6 +517,21 @@ mod checked {
                 } else {
                     return Err(UserInputError::InaccessibleSystemObject {
                         object_id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+                    });
+                }
+            }
+            InputObjectKind::SharedMoveObject {
+                id: HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+                mutable: true,
+                ..
+            } => {
+                // Only system transactions can accept the Random
+                // object as a mutable parameter.
+                if system_transaction {
+                    return Ok(());
+                } else {
+                    return Err(UserInputError::ImmutableParameterExpectedError {
+                        object_id: HANEUL_RANDOMNESS_STATE_OBJECT_ID,
                     });
                 }
             }

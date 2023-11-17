@@ -89,6 +89,10 @@ mod sim_only_tests {
         transaction::TransactionKind,
         MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID,
     };
+    use haneul_types::{
+        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+        HANEUL_SYSTEM_STATE_OBJECT_ID,
+    };
     use test_cluster::TestCluster;
     use tokio::time::{sleep, Duration};
     use tracing::info;
@@ -425,7 +429,14 @@ mod sim_only_tests {
             .iter()
             .find_map(|(obj, owner)| {
                 if let Owner::Shared { .. } = owner {
-                    Some(obj.0)
+                    let is_framework_obj = [
+                        HANEUL_SYSTEM_STATE_OBJECT_ID,
+                        HANEUL_CLOCK_OBJECT_ID,
+                        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+                        HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+                    ]
+                    .contains(&obj.0);
+                    (!is_framework_obj).then_some(obj.0)
                 } else {
                     None
                 }

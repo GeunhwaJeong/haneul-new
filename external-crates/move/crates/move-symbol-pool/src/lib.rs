@@ -72,6 +72,8 @@ static_symbols!(
     "HANEUL",
     "authenticator_state",
     "AuthenticatorState",
+    "random",
+    "Random",
     "id",
     "transfer",
     "freeze_object",
