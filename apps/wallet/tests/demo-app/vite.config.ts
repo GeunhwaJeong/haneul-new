@@ -8,6 +8,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
 	plugins: [react(), tsconfigPaths({ root: '../../' })],
 	resolve: {
-		conditions: ['source'],
+		alias: {
+			'@haneullabs/bcs': new URL('../../../../sdk/bcs/src', import.meta.url).pathname,
+		},
 	},
 });
