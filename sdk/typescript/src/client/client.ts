@@ -438,7 +438,7 @@ export class HaneulClient {
 		if (transactionBlock instanceof Uint8Array) {
 			transactionBytes = transactionBlock;
 		} else {
-			transactionBlock.setSenderIfNotSet(await signer.getPublicKey().toHaneulAddress());
+			transactionBlock.setSenderIfNotSet(signer.toHaneulAddress());
 			transactionBytes = await transactionBlock.build({ client: this });
 		}
 
