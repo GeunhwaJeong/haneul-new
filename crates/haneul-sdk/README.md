@@ -1,5 +1,3 @@
-# Haneul Rust SDK
-
 This crate provides the Haneul Rust SDK, containing APIs to interact with the Haneul network. 
 
 ## Getting started
@@ -120,7 +118,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 ## Advanced examples
 
-See the programmable transactions [example](examples/programmable_transactions_api.rs).
+See the programmable transactions [example](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-sdk/examples/programmable_transactions_api.rs).
 
 ## Games examples
 
