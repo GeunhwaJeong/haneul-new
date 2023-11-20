@@ -5,9 +5,15 @@ import { execSync } from 'child_process';
 import tmp from 'tmp';
 import { retry } from 'ts-retry-promise';
 import { expect } from 'vitest';
+import { WebSocket } from 'ws';
 
 import { TransactionBlock, UpgradePolicy } from '../../../src/builder';
-import { getFullnodeUrl, HaneulClient, HaneulObjectChangePublished } from '../../../src/client';
+import {
+	getFullnodeUrl,
+	HaneulClient,
+	HaneulHTTPTransport,
+	HaneulObjectChangePublished,
+} from '../../../src/client';
 import { Keypair } from '../../../src/cryptography';
 import { FaucetRateLimitError, getFaucetHost, requestHaneulFromFaucetV0 } from '../../../src/faucet';
 import { Ed25519Keypair } from '../../../src/keypairs/ed25519';
@@ -51,7 +57,10 @@ export class TestToolbox {
 
 export function getClient(): HaneulClient {
 	return new HaneulClient({
-		url: DEFAULT_FULLNODE_URL,
+		transport: new HaneulHTTPTransport({
+			url: DEFAULT_FULLNODE_URL,
+			WebSocketConstructor: WebSocket as never,
+		}),
 	});
 }
 
