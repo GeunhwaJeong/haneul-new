@@ -142,5 +142,7 @@ async function validateTransaction(client: HaneulClient, signer: Keypair, tx: Tr
 	});
 	expect(localDigest).toEqual(result.digest);
 	expect(result.effects?.status.status).toEqual('success');
+
+	await client.waitForTransactionBlock({ digest: result.digest });
 	return result;
 }
