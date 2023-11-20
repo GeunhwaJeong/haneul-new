@@ -209,6 +209,7 @@ const concepts = [
 			'concepts/haneul-architecture/epochs',
 			'concepts/haneul-architecture/protocol-upgrades',
 			'concepts/haneul-architecture/data-management-things',
+			'concepts/haneul-architecture/staking-rewards'
 		],
 	},
 	{
