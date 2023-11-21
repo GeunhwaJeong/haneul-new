@@ -1,5 +1,16 @@
 # @haneullabs/zklogin
 
+## 0.3.7
+
+### Patch Changes
+
+- 9ac7e2f3d: Add additional type exports to zklogin package
+- Updated dependencies [194c980cb]
+- Updated dependencies [9ac7e2f3d]
+- Updated dependencies [0259aec82]
+- Updated dependencies [64d45ba27]
+  - @haneullabs/haneul.js@0.47.0
+
 ## 0.3.6
 
 ### Patch Changes
