@@ -52,7 +52,6 @@
 		"typescript": "^5.1.6"
 	},
 	"dependencies": {
-		"@metamask/browser-passworder": "^4.1.0",
 		"@haneullabs/haneul.js": "workspace:*",
 		"@haneullabs/zklogin": "workspace:*",
 		"@nanostores/react": "^0.7.1",
