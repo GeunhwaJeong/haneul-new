@@ -9,14 +9,12 @@ mod tests {
     use serial_test::serial;
     use simulacrum::Simulacrum;
     use std::sync::Arc;
-    use std::time::Duration;
     use haneul_graphql_rpc::client::simple_client::GraphqlQueryVariable;
     use haneul_graphql_rpc::config::ConnectionConfig;
     use haneul_graphql_rpc::test_infra::cluster::DEFAULT_INTERNAL_DATA_SOURCE_PORT;
     use haneul_types::digests::ChainIdentifier;
     use haneul_types::DEEPBOOK_ADDRESS;
     use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-    use tokio::time::sleep;
 
     #[tokio::test]
     #[serial]
@@ -31,7 +29,6 @@ mod tests {
             haneul_graphql_rpc::test_infra::cluster::start_cluster(connection_config, None).await;
 
         // Wait for servers to start and catchup
-        tokio::time::sleep(std::time::Duration::from_secs(10)).await;
 
         let query = r#"
             {
@@ -62,7 +59,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_simple_client_simulator_cluster() {
-        sleep(Duration::from_secs(5)).await;
         let rng = StdRng::from_seed([12; 32]);
         let mut sim = Simulacrum::new_with_rng(rng);
 
@@ -105,7 +101,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_graphql_client_response() {
-        sleep(Duration::from_secs(5)).await;
         let rng = StdRng::from_seed([12; 32]);
         let mut sim = Simulacrum::new_with_rng(rng);
 
@@ -146,7 +141,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_graphql_client_variables() {
-        sleep(Duration::from_secs(5)).await;
         let rng = StdRng::from_seed([12; 32]);
         let mut sim = Simulacrum::new_with_rng(rng);
 
