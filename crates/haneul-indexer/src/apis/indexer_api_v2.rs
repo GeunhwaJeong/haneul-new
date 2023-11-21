@@ -20,7 +20,9 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::{DynamicFieldName, Field};
+use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::event::EventID;
+use haneul_types::object::ObjectRead;
 use haneul_types::TypeTag;
 
 pub(crate) struct IndexerApiV2 {
@@ -63,11 +65,52 @@ impl IndexerApiV2 {
         objects.truncate(limit);
 
         let next_cursor = objects.last().map(|o_read| o_read.object_id());
-
-        let data = objects
+        let mut parallel_tasks = vec![];
+        for o in objects {
+            let inner_clone = self.inner.clone();
+            let options = options.clone();
+            parallel_tasks.push(tokio::task::spawn(async move {
+                match o {
+                    ObjectRead::NotExists(id) => Ok(HaneulObjectResponse::new_with_error(
+                        HaneulObjectResponseError::NotExists { object_id: id },
+                    )),
+                    ObjectRead::Exists(object_ref, o, layout) => {
+                        if options.show_display {
+                            match inner_clone.get_display_fields(&o, &layout).await {
+                                Ok(rendered_fields) => Ok(HaneulObjectResponse::new_with_data(
+                                    (object_ref, o, layout, options, Some(rendered_fields))
+                                        .try_into()?,
+                                )),
+                                Err(e) => Ok(HaneulObjectResponse::new(
+                                    Some((object_ref, o, layout, options, None).try_into()?),
+                                    Some(HaneulObjectResponseError::DisplayError {
+                                        error: e.to_string(),
+                                    }),
+                                )),
+                            }
+                        } else {
+                            Ok(HaneulObjectResponse::new_with_data(
+                                (object_ref, o, layout, options, None).try_into()?,
+                            ))
+                        }
+                    }
+                    ObjectRead::Deleted((object_id, version, digest)) => Ok(
+                        HaneulObjectResponse::new_with_error(HaneulObjectResponseError::Deleted {
+                            object_id,
+                            version,
+                            digest,
+                        }),
+                    ),
+                }
+            }));
+        }
+        let data = futures::future::join_all(parallel_tasks)
+            .await
             .into_iter()
-            .map(|o| (o, options.clone()).try_into())
-            .collect::<Result<Vec<HaneulObjectResponse>, _>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e: tokio::task::JoinError| anyhow::anyhow!(e))?
+            .into_iter()
+            .collect::<Result<Vec<_>, anyhow::Error>>()?;
 
         Ok(Page {
             data,
