@@ -123,12 +123,17 @@ fn main() {
         let node = node_once_cell_clone.get().await;
         let chain_identifier = match node.state().get_chain_identifier() {
             Some(chain_identifier) => chain_identifier.to_string(),
-            None => "Unknown".to_string(),
+            None => "unknown".to_string(),
         };
 
         info!("Haneul chain identifier: {chain_identifier}");
         prometheus_registry
             .register(haneullabs_metrics::uptime_metric(
+                if is_validator {
+                    "validator"
+                } else {
+                    "fullnode"
+                },
                 VERSION,
                 chain_identifier.as_str(),
             ))
