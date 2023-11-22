@@ -3,4 +3,4 @@
 
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 
-export const provider = new HaneulClient({ url: getFullnodeUrl('testnet') });
+export const client = new HaneulClient({ url: getFullnodeUrl('testnet') });
