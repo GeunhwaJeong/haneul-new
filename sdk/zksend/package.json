@@ -1,7 +1,7 @@
 {
-	"name": "@haneullabs/zklogin",
-	"version": "0.3.7",
-	"description": "Utilities for interacting with zkLogin in Haneul",
+	"name": "@haneullabs/zksend",
+	"version": "0.0.1",
+	"description": "TODO: Write Description",
 	"license": "Apache-2.0",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"type": "commonjs",
@@ -17,8 +17,7 @@
 	"sideEffects": false,
 	"files": [
 		"CHANGELOG.md",
-		"dist",
-		"src"
+		"dist"
 	],
 	"scripts": {
 		"clean": "rm -rf tsconfig.tsbuildinfo ./dist",
@@ -48,10 +47,6 @@
 		"vitest": "^0.33.0"
 	},
 	"dependencies": {
-		"@haneullabs/bcs": "workspace:*",
-		"@haneullabs/haneul.js": "workspace:*",
-		"@noble/hashes": "^1.3.1",
-		"jose": "^4.14.4",
-		"poseidon-lite": "^0.2.0"
+		"@haneullabs/wallet-standard": "workspace:*"
 	}
 }
