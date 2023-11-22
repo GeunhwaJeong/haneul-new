@@ -5,7 +5,7 @@ title: Capabilities
 A capability is a pattern that allows authorizing actions with an object. For example, the [`UpgradeCap`](../packages/upgrade.mdx#requirements) authorizes the action of upgrading packages. One of the most common capabilities you might encounter is `TreasuryCap`, which is defined in [`haneul::coin`](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/haneul-framework/sources/coin.move).
 
 
-```rust
+```move
 module examples::item {
     use haneul::transfer;
     use haneul::object::{Self, UID};

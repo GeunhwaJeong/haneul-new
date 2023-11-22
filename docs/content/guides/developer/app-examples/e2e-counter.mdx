@@ -39,7 +39,7 @@ This creates a new, empty Move package in a new `move/counter` directory with a 
 
 Add your Move code under `sources` by creating a new `counter.move` file:
 
-```rust
+```move
 module counter::counter {
     use haneul::transfer;
     use haneul::object::{Self, UID};
@@ -78,7 +78,7 @@ Now that you have your Move code, you need to publish it. The Client App with Ha
 
 First, update the Haneul dependency in Move.toml by changing the `rev` from `framework/testnet` to `framework/devnet`.
 
-```rust
+```toml
 ...
 [dependencies]
 Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/devnet" }
@@ -103,7 +103,7 @@ Now, publish your Move code with the following command:
 haneul client publish --gas-budget 10000000 counter
 ```
 
-:::info 
+:::info
 
 See [Haneul Client CLI](/references/cli/client.mdx) for more information about `client` commands in the Haneul CLI.
 
