@@ -11,7 +11,7 @@ use move_vm_runtime::move_vm::MoveVM;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
 use haneul_types::execution::TypeLayoutStore;
-use haneul_types::storage::{BackingPackageStore, PackageObjectArc};
+use haneul_types::storage::{BackingPackageStore, PackageObject};
 use haneul_types::{error::HaneulError, object::MoveObject, type_resolver::LayoutResolver};
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
@@ -56,7 +56,7 @@ impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
 }
 
 impl<'state> BackingPackageStore for NullHaneulResolver<'state> {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObject>> {
         self.0.get_package_object(package_id)
     }
 }

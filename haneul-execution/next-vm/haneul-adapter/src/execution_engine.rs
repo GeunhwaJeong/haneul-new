@@ -56,7 +56,7 @@ mod checked {
     use haneul_types::transaction::{CheckedInputObjects, RandomnessStateUpdate};
     use haneul_types::{
         base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
-        object::Object,
+        object::{Object, ObjectInner},
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
         HANEUL_SYSTEM_PACKAGE_ID,
@@ -522,13 +522,13 @@ mod checked {
                 for genesis_object in objects {
                     match genesis_object {
                         haneul_types::transaction::GenesisObject::RawObject { data, owner } => {
-                            let object = Object {
+                            let object = ObjectInner {
                                 data,
                                 owner,
                                 previous_transaction: tx_ctx.digest(),
                                 storage_rebate: 0,
                             };
-                            temporary_store.create_object(object);
+                            temporary_store.create_object(object.into());
                         }
                     }
                 }

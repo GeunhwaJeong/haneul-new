@@ -6,7 +6,7 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
 use std::collections::{BTreeMap, HashMap};
 use haneul_config::genesis;
-use haneul_types::storage::{get_module, load_package_object_from_object_store, PackageObjectArc};
+use haneul_types::storage::{get_module, load_package_object_from_object_store, PackageObject};
 use haneul_types::{
     base_types::{AuthorityName, ObjectID, SequenceNumber, HaneulAddress},
     committee::{Committee, EpochId},
@@ -226,7 +226,7 @@ impl BackingPackageStore for InMemoryStore {
     fn get_package_object(
         &self,
         package_id: &ObjectID,
-    ) -> haneul_types::error::HaneulResult<Option<PackageObjectArc>> {
+    ) -> haneul_types::error::HaneulResult<Option<PackageObject>> {
         load_package_object_from_object_store(self, package_id)
     }
 }

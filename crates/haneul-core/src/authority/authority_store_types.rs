@@ -10,7 +10,7 @@ use haneul_types::coin::Coin;
 use haneul_types::crypto::{default_hash, Signable};
 use haneul_types::error::HaneulError;
 use haneul_types::move_package::MovePackage;
-use haneul_types::object::{Data, MoveObject, Object, Owner};
+use haneul_types::object::{Data, MoveObject, Object, ObjectInner, Owner};
 use haneul_types::storage::ObjectKey;
 
 pub type ObjectContentDigest = ObjectDigest;
@@ -196,6 +196,8 @@ pub struct StoreObjectPair(pub StoreObjectWrapper, pub Option<StoreMoveObjectWra
 pub fn get_store_object_pair(object: Object, indirect_objects_threshold: usize) -> StoreObjectPair {
     let mut indirect_object = None;
 
+    let object = object.into_inner();
+
     let data = match object.data {
         Data::Package(package) => StoreData::Package(package),
         Data::Move(move_obj) => {
@@ -272,10 +274,11 @@ pub(crate) fn try_construct_object(
         }
     };
 
-    Ok(Object {
+    Ok(ObjectInner {
         data,
         owner: store_object.owner,
         previous_transaction: store_object.previous_transaction,
         storage_rebate: store_object.storage_rebate,
-    })
+    }
+    .into())
 }

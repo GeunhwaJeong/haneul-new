@@ -45,6 +45,7 @@ use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
 #[cfg_attr(not(msim), tokio::main)]
 #[cfg_attr(msim, msim::main)]
 pub async fn run_test(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    telemetry_subscribers::init_for_testing();
     run_test_impl::<HaneulTestAdapter>(path, Some(&*PRE_COMPILED)).await?;
     Ok(())
 }

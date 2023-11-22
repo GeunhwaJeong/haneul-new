@@ -9,7 +9,6 @@ pub mod checked {
 
     use crate::haneul_types::gas::HaneulGasStatusAPI;
     use crate::temporary_store::TemporaryStore;
-    use std::ops::Deref;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_types::gas::{deduct_gas, GasCostSummary, HaneulGasStatus};
     use haneul_types::gas_model::gas_predicates::{
@@ -172,7 +171,6 @@ pub mod checked {
                         self.tx_digest
                     )
                 })
-                .deref()
                 .clone();
             // delete all gas objects except the primary_gas_object
             for (id, _version, _digest) in &self.gas_coins[1..] {

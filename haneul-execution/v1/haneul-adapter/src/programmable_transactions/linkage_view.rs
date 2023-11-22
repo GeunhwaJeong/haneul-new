@@ -13,7 +13,7 @@ use move_core_types::{
     language_storage::{ModuleId, StructTag},
     resolver::{LinkageResolver, ModuleResolver, ResourceResolver},
 };
-use haneul_types::storage::{get_module, PackageObjectArc};
+use haneul_types::storage::{get_module, PackageObject};
 use haneul_types::{
     base_types::ObjectID,
     error::{ExecutionError, HaneulError, HaneulResult},
@@ -315,7 +315,7 @@ impl<'state> ModuleResolver for LinkageView<'state> {
 }
 
 impl<'state> BackingPackageStore for LinkageView<'state> {
-    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObjectArc>> {
+    fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObject>> {
         self.resolver.get_package_object(package_id)
     }
 }

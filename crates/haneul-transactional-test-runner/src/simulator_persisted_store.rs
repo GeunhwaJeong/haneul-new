@@ -26,7 +26,7 @@ use haneul_types::{
     object::{Object, Owner},
     storage::{
         load_package_object_from_object_store, BackingPackageStore, ChildObjectResolver, ObjectKey,
-        ObjectStore, PackageObjectArc, ParentSync,
+        ObjectStore, PackageObject, ParentSync,
     },
     transaction::VerifiedTransaction,
 };
@@ -409,7 +409,7 @@ impl BackingPackageStore for PersistedStore {
     fn get_package_object(
         &self,
         package_id: &ObjectID,
-    ) -> haneul_types::error::HaneulResult<Option<PackageObjectArc>> {
+    ) -> haneul_types::error::HaneulResult<Option<PackageObject>> {
         load_package_object_from_object_store(self, package_id)
     }
 }

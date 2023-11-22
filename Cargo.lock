@@ -12180,6 +12180,7 @@ dependencies = [
  "haneul-storage",
  "haneul-swarm-config",
  "haneul-types",
+ "telemetry-subscribers",
  "tempfile",
  "tokio",
  "typed-store",
