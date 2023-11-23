@@ -162,6 +162,10 @@ impl Message for CheckpointSummary {
         CheckpointDigest::new(default_hash(self))
     }
 
+    fn verify_user_input(&self) -> HaneulResult {
+        Ok(())
+    }
+
     fn verify_epoch(&self, epoch: EpochId) -> HaneulResult {
         fp_ensure!(
             self.epoch == epoch,
