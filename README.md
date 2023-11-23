@@ -55,4 +55,4 @@ Use the following links to learn more about Haneul and the Haneul ecosystem:
  * Learn more about working with Haneul in the [Haneul Documentation](https://docs.haneul.io/).
  * Join the Haneul community on [Haneul Discord](https://discord.gg/haneul).
  * Find out more about the Haneul ecosystem on the [Haneul Resources](https://haneul.io/resources/) page.
- * Review information about Haneul governance, [decentralization](https://haneulfoundation.org/decentralization), and [Developer Grants Program](https://haneulfoundation.org/#grants) on the [Haneul Foundation](https://haneulfoundation.org/) site.
+ * Review information about Haneul governance, [decentralization](https://haneulfoundation.org/decentralization), and [Developer Grants Program](https://haneul.io/grants-hub) on the [Haneul Foundation](https://haneulfoundation.org/) site.
