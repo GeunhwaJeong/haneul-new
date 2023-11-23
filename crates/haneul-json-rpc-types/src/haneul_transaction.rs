@@ -1110,8 +1110,8 @@ pub struct HaneulGasData {
 impl Display for HaneulGasData {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "Gas Owner: {}", self.owner)?;
-        writeln!(f, "Gas Budget: {}", self.budget)?;
-        writeln!(f, "Gas Price: {}", self.price)?;
+        writeln!(f, "Gas Budget: {} GEUNHWA", self.budget)?;
+        writeln!(f, "Gas Price: {} GEUNHWA", self.price)?;
         writeln!(f, "Gas Payment:")?;
         for payment in &self.payment {
             write!(f, "{} ", objref_string(payment))?;
