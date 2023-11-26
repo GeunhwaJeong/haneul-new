@@ -58,7 +58,7 @@
   --haneul-gray-100: #182435;
   --haneul-link-color: #1068a6;
   --haneul-link-color-dark: #057fd1;
-  --haneul-link-color-light: #1f98e9;	
+  --haneul-link-color-light: #1f98e9;
   --haneul-ghost-white: #f8f8ff;
   --haneul-ghost-dark: #282a36;
   --haneul-white: 255 255 255;
@@ -82,3 +82,7 @@
   @apply bg-haneul-ghost-white dark:bg-haneul-ghost-dark rounded-lg;
 }
 
+/* Inverts the image in the stadards/closed-loop-token.mdx in dark mode. */
+[data-theme='dark'] img.balance-coin-token {
+  filter: invert(1);
+}
