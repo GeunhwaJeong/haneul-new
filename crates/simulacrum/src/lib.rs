@@ -25,6 +25,7 @@ use haneul_types::crypto::AuthoritySignature;
 use haneul_types::error::HaneulError;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectStore;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::{
     base_types::HaneulAddress,
     committee::Committee,
@@ -265,6 +266,10 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
 
     pub fn keystore(&self) -> &KeyStore {
         &self.keystore
+    }
+
+    pub fn epoch_start_state(&self) -> &EpochStartSystemState {
+        self.epoch_state.epoch_start_state()
     }
 
     /// Return a handle to the internally held RNG.

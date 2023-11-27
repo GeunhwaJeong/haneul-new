@@ -17,6 +17,7 @@ use std::path::Path;
 use std::sync::Arc;
 use haneul_core::authority::authority_test_utils::send_and_confirm_transaction_with_execution_error;
 use haneul_core::authority::AuthorityState;
+use haneul_json_rpc::authority_state::StateRead;
 use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::EventFilter;
 use haneul_rest_api::node_state_getter::NodeStateGetter;
@@ -37,6 +38,8 @@ use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
 use haneul_types::storage::ObjectStore;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::TransactionKind;
@@ -92,6 +95,8 @@ pub trait TransactionalAdapter: Send + Sync + ObjectStore + NodeStateGetter {
         tx_digest: &TransactionDigest,
         limit: usize,
     ) -> HaneulResult<Vec<Event>>;
+
+    async fn get_active_validator_addresses(&self) -> HaneulResult<Vec<HaneulAddress>>;
 }
 
 #[async_trait::async_trait]
@@ -168,6 +173,23 @@ impl TransactionalAdapter for ValidatorWithFullnode {
         _amount: u64,
     ) -> anyhow::Result<TransactionEffects> {
         unimplemented!("request_gas not supported")
+    }
+
+    async fn get_active_validator_addresses(&self) -> HaneulResult<Vec<HaneulAddress>> {
+        Ok(self
+            .fullnode
+            .get_system_state()
+            .map_err(|e| {
+                HaneulError::HaneulSystemStateReadError(format!(
+                    "Failed to get system state from fullnode: {}",
+                    e
+                ))
+            })?
+            .into_haneul_system_state_summary()
+            .active_validators
+            .iter()
+            .map(|x| x.haneul_address)
+            .collect::<Vec<_>>())
     }
 }
 
@@ -301,5 +323,11 @@ impl TransactionalAdapter for Simulacrum<StdRng, PersistedStore> {
         amount: u64,
     ) -> anyhow::Result<TransactionEffects> {
         self.request_gas(address, amount)
+    }
+
+    async fn get_active_validator_addresses(&self) -> HaneulResult<Vec<HaneulAddress>> {
+        // TODO: this is a hack to get the validator addresses. Currently using start state
+        //       but we should have a better way to get this information after reconfig
+        Ok(self.epoch_start_state().get_validator_addresses())
     }
 }
