@@ -16,6 +16,7 @@
     "haneul-wallet-adapter-demo",
     "sponsored-transactions",
     "kiosk-demo",
-    "kiosk-cli"
+    "kiosk-cli",
+    "@haneullabs/sdk-docs"
   ]
 }
