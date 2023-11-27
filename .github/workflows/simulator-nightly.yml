@@ -14,6 +14,9 @@ on:
         required: true
         default: origin/main
 
+env:
+  HANEUL_COMMIT: "${{ github.event.inputs.haneul_commit || 'origin/main' }}"
+
 jobs:
   simtest:
     timeout-minutes: 120
@@ -44,19 +47,18 @@ jobs:
       # Cargo clean and git restore on any left over files from git checkout, and deletes all remote tracking branches
       - name: Environment clean
         run: | 
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && cargo clean && git restore ."
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git branch -r | grep -v '[-]>' | xargs -L 1 git branch -rD || true"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && rm -rf ~/haneul"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/ && git clone git@github.com:HaneulLabs/haneul.git"
  
       # Deleting files in tmpfs that usually fill up pretty quickly after each run
       - name: Tmpfs clean
         run: |  
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "sudo rm -rfd /tmp/*"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 5 ssh ubuntu@simtest-01 "sudo rm -rf /tmp/*"
 
       # Checkout out the latest haneul repo
       - name: Checkout haneul repo
         run: |
-          HANEUL_COMMIT=${{ inputs.haneul_commit }}
-          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 10 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git fetch origin && git checkout $HANEUL_COMMIT"
+          tsh -i ${{ steps.auth.outputs.identity-file }} --ttl 10 ssh ubuntu@simtest-01 "source ~/.bashrc && source ~/.cargo/env && cd ~/haneul && git fetch origin && git rebase ${{ env.HANEUL_COMMIT  }}"
 
       # Setting up cargo and simtest
       - name: Install simtest
