@@ -198,8 +198,8 @@ Haneul is a DAG-based blockchain and uses checkpoints for node synchronization a
 
 Haneul Checkpoint API operations include:
 
-- [haneul_getCheckpoint](https://docs.haneul.io/haneul-jsonrpc#haneul_getCheckpoint) - Retrieves the specified checkpoint.
-- [haneul_getLatestCheckpointSequenceNumber](https://docs.haneul.io/haneul-jsonrpc#haneul_getLatestCheckpointSequenceNumber) - Retrieves the sequence number of the most recently executed checkpoint.
+- [haneul_getCheckpoint](/haneul-api-ref#haneul_getCheckpoint) - Retrieves the specified checkpoint.
+- [haneul_getLatestCheckpointSequenceNumber](/haneul-api-ref#haneul_getLatestCheckpointSequenceNumber) - Retrieves the sequence number of the most recently executed checkpoint.
 - haneul_getCheckpoints - Retrieves a paginated list of checkpoints that occurred during the specified interval. Pending a future release.
 
 ## HANEUL Balance transfer {#haneul-balance-transfer}
@@ -214,15 +214,15 @@ To transfer a specific amount of HANEUL, you need a HANEUL token worth that spec
 
 Haneul supports the following API operations related to transferring HANEUL between addresses:
 
-- [haneul_transferObject](https://docs.haneul.io/haneul-jsonrpc#haneul_transferObject)
+- [haneul_transferObject](/haneul-api-ref#haneul_transferObject)
   Because HANEUL tokens are objects, you can transfer HANEUL tokens just like any other object. This method requires a gas token, and is useful in niche cases only.
 
-- [haneul_payAllHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_payAllHaneul)
+- [haneul_payAllHaneul](/haneul-api-ref#haneul_payAllHaneul)
   This method accepts an array of HANEUL token IDs. It merges all existing tokens into one, deducts the gas fee, then sends the merged token to the recipient address.
 
   The method is especially useful if you want to transfer all HANEUL from an address. To merge together all coins for an address, set the recipient as the same address. This is a native Haneul method so is not considered a transaction in Haneul.
 
-- [haneul_payHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_payHaneul)
+- [haneul_payHaneul](/haneul-api-ref#haneul_payHaneul)
   This operation accepts an array of HANEUL token IDs, an array of amounts, and an array of recipient addresses.
 
   The amounts and recipients array map one to one. Even if you use only one recipient address, you must include it for each amount in the amount array.
@@ -231,10 +231,10 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
   The benefits of this method include: no gas fees for merging or splitting tokens, and the abstracted token merge and split. The `haneul_payHaneul` operation is a native function, so the merge and split operations are not considered Haneul transactions. The gas fees for them match typical transactions on Haneul.You can use this operation to split coins in your own address by setting the recipient as your own address. Note that the total value of the input coins must be greater than the total value of the amounts to send.
 
-- [haneul_pay](https://docs.haneul.io/haneul-jsonrpc#haneul_pay)
+- [haneul_pay](/haneul-api-ref#haneul_pay)
   This method is similar to haneul_payHaneul, but it accepts any kind of coin or token instead of only HANEUL. You must include a gas token, and all of the coins or tokens must be the same type.
 
-- [haneul_transferHaneul](https://docs.haneul.io/haneul-jsonrpc#haneul_transferHaneul)
+- [haneul_transferHaneul](/haneul-api-ref#haneul_transferHaneul)
   This method accepts only one HANEUL token object and an amount to send to the recipient. It uses the same token for gas fees, so the amount to transfer must be strictly less than the value of the HANEUL token used.
 
 ## Signing Transactions {#signing-transactions}
