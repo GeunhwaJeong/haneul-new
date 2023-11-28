@@ -1,0 +1,23 @@
+[package]
+name = "haneul-bridge"
+version = "0.1.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+ethers = "2.0"
+tokio = { workspace = true, features = ["full"] }
+haneul-types.workspace = true
+haneul-sdk.workspace = true
+tracing.workspace = true
+bcs.workspace = true
+haneul-json-rpc-types.workspace = true
+serde.workspace = true
+axum.workspace = true
+anyhow.workspace = true
+reqwest.workspace = true
+fastcrypto.workspace = true
+tap.workspace = true
+workspace-hack.workspace = true
