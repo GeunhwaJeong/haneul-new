@@ -3,10 +3,9 @@
 
 use anyhow::Result;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointSequenceNumber};
 use haneul_types::object::Object;
-
-use crate::checkpoints::CheckpointData;
 
 #[derive(Clone)]
 pub struct Client {

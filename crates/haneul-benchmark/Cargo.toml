@@ -29,6 +29,7 @@ tokio-util.workspace = true
 haneul-core.workspace = true
 haneul-config.workspace = true
 haneul-network.workspace = true
+haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-sdk.workspace = true
 haneul-keys.workspace = true

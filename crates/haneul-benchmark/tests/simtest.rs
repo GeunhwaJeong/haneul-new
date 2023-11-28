@@ -28,8 +28,11 @@ mod test {
     use haneul_framework::BuiltInFramework;
     use haneul_macros::{clear_fail_point, register_fail_point_async, register_fail_points, sim_test};
     use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
+    use haneul_simulator::tempfile::TempDir;
     use haneul_simulator::{configs::*, SimConfig};
+    use haneul_storage::blob::Blob;
     use haneul_types::base_types::{ObjectRef, HaneulAddress};
+    use haneul_types::full_checkpoint_content::CheckpointData;
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     use test_cluster::{TestCluster, TestClusterBuilder};
     use tracing::{error, info};
@@ -299,6 +302,34 @@ mod test {
             .unwrap()
             .0;
         assert!(pruned > 0);
+    }
+
+    #[sim_test(config = "test_config()")]
+    async fn test_data_ingestion_pipeline() {
+        let path = TempDir::new().unwrap().into_path();
+        let test_cluster = init_test_cluster_builder(4, 1000)
+            .with_data_ingestion_dir(path.clone())
+            .build()
+            .await;
+        test_simulated_load(TestInitData::new(&test_cluster).await, 10).await;
+
+        let checkpoint_files = std::fs::read_dir(path)
+            .map(|entries| {
+                entries
+                    .filter_map(Result::ok)
+                    .filter(|entry| {
+                        entry.path().is_file()
+                            && entry.path().extension() == Some(std::ffi::OsStr::new("chk"))
+                    })
+                    .map(|entry| entry.path())
+                    .collect()
+            })
+            .unwrap_or_else(|_| vec![]);
+        assert!(checkpoint_files.len() > 0);
+        let bytes = std::fs::read(checkpoint_files.first().unwrap()).unwrap();
+
+        let _checkpoint: CheckpointData =
+            Blob::from_bytes(&bytes).expect("failed to load checkpoint");
     }
 
     // TODO add this back once flakiness is resolved
