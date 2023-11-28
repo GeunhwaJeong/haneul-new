@@ -222,7 +222,7 @@ Before you start the Haneul Wallet app, update its default environment to point 
 Run the following command from the `haneul` root folder to start Haneul Wallet on your local network:
 
 ```bash
-pnpm wallet start
+pnpm wallet dev
 ```
 
 ### Add local Haneul Wallet to Chrome
@@ -244,7 +244,7 @@ Use the TypeScript SDK to add example data to your network.
 Run the following command from the `haneul` root folder:
 
 ```bash
-pnpm sdk test:e2e
+pnpm --filter @haneullabs/haneul.js test:e2e
 ```
 
 For additional information about example data for testing, see [https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing](https://github.com/GeunhwaJeong/haneul/tree/main/sdk/typescript#testing).

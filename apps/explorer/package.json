@@ -2,7 +2,7 @@
 	"name": "haneul-explorer",
 	"private": true,
 	"scripts": {
-		"dev": "concurrently 'pnpm:dev-deps' 'pnpm:dev-local'",
+		"dev": "vite --port 3000",
 		"dev-deps": "turbo run dev --filter haneul-explorer^... --concurrency 100",
 		"dev-local": "vite --port 3000",
 		"test": "pnpm test:unit",
