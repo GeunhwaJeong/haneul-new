@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type EpochPage } from '@haneullabs/haneul.js/client';
+import { type EpochMetricsPage } from '@haneullabs/haneul.js/client';
 import { Text } from '@haneullabs/ui';
 
 import { HaneulAmount } from '../Table/HaneulAmount';
@@ -11,7 +11,7 @@ import { CheckpointSequenceLink, EpochLink } from '~/ui/InternalLink';
 import { getEpochStorageFundFlow } from '~/utils/getStorageFundFlow';
 
 // Generate table data from the epochs data
-export const genTableDataFromEpochsData = (results: EpochPage) => ({
+export const genTableDataFromEpochsData = (results: EpochMetricsPage) => ({
 	data: results?.data.map((epoch) => ({
 		epoch: (
 			<HighlightedTableCol first>
