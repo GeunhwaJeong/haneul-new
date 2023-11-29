@@ -3,7 +3,8 @@
 
 use crate::committee::EpochId;
 use crate::crypto::{
-    CompressedSignature, PublicKey, SignatureScheme, HaneulSignature, ZkLoginPublicIdentifier,
+    CompressedSignature, PublicKey, SignatureScheme, HaneulSignature, ZkLoginAuthenticatorAsBytes,
+    ZkLoginPublicIdentifier,
 };
 use crate::error::HaneulError;
 use crate::multisig_legacy::MultiSigLegacy;
@@ -155,7 +156,7 @@ impl GenericSignature {
                 }
             }
             GenericSignature::ZkLoginAuthenticator(s) => Ok(CompressedSignature::ZkLogin(
-                GenericSignature::ZkLoginAuthenticator(s.clone()),
+                ZkLoginAuthenticatorAsBytes(s.as_ref().to_vec()),
             )),
             _ => Err(HaneulError::UnsupportedFeatureError {
                 error: "Unsupported signature scheme".to_string(),
