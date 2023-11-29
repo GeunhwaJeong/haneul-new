@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+#[allow(unused_field)]
 module 0x42::test1 {
     use haneul::coin::Coin;
     use haneul::object::UID;
@@ -13,6 +14,7 @@ module 0x42::test1 {
     }
 }
 
+#[allow(unused_field)]
 module 0x42::test2 {
     use haneul::coin::Coin as Balance;
     use haneul::object::UID;
@@ -23,5 +25,20 @@ module 0x42::test2 {
     struct S2 has key, store {
         id: UID,
         c: Balance<S1>,
+    }
+}
+
+#[allow(unused_field)]
+module 0x42::test3 {
+    use haneul::coin::TreasuryCap;
+    use haneul::object::UID;
+
+    struct S1 {}
+
+    // guards against an already fixed silly bug that incorrectly identified Coin by module name
+    // rather than by module name AND struct name
+    struct S2 has key, store {
+        id: UID,
+        cap: TreasuryCap<S1>,
     }
 }
