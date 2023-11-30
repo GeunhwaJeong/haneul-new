@@ -25,7 +25,7 @@ use haneul_types::base_types::{
     EpochId, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::crypto::HaneulSignature;
-use haneul_types::digests::{ObjectDigest, TransactionEventsDigest};
+use haneul_types::digests::{ConsensusCommitDigest, ObjectDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
@@ -382,6 +382,7 @@ pub enum HaneulTransactionBlockKind {
     RandomnessStateUpdate(HaneulRandomnessStateUpdate),
     /// The transaction which occurs only at the end of the epoch
     EndOfEpochTransaction(HaneulEndOfEpochTransaction),
+    ConsensusCommitPrologueV2(HaneulConsensusCommitPrologueV2),
     // .. more transaction types go here
 }
 
@@ -406,6 +407,14 @@ impl Display for HaneulTransactionBlockKind {
                     writer,
                     "Epoch: {}, Round: {}, Timestamp : {}",
                     p.epoch, p.round, p.commit_timestamp_ms
+                )?;
+            }
+            Self::ConsensusCommitPrologueV2(p) => {
+                writeln!(writer, "Transaction Kind : Consensus Commit Prologue V2")?;
+                writeln!(
+                    writer,
+                    "Epoch: {}, Round: {}, Timestamp : {}, ConsensusCommitDigest : {}",
+                    p.epoch, p.round, p.commit_timestamp_ms, p.consensus_commit_digest
                 )?;
             }
             Self::ProgrammableTransaction(p) => {
@@ -438,6 +447,14 @@ impl HaneulTransactionBlockKind {
                     epoch: p.epoch,
                     round: p.round,
                     commit_timestamp_ms: p.commit_timestamp_ms,
+                })
+            }
+            TransactionKind::ConsensusCommitPrologueV2(p) => {
+                Self::ConsensusCommitPrologueV2(HaneulConsensusCommitPrologueV2 {
+                    epoch: p.epoch,
+                    round: p.round,
+                    commit_timestamp_ms: p.commit_timestamp_ms,
+                    consensus_commit_digest: p.consensus_commit_digest,
                 })
             }
             TransactionKind::ProgrammableTransaction(p) => Self::ProgrammableTransaction(
@@ -502,6 +519,7 @@ impl HaneulTransactionBlockKind {
             Self::ChangeEpoch(_) => "ChangeEpoch",
             Self::Genesis(_) => "Genesis",
             Self::ConsensusCommitPrologue(_) => "ConsensusCommitPrologue",
+            Self::ConsensusCommitPrologueV2(_) => "ConsensusCommitPrologueV2",
             Self::ProgrammableTransaction(_) => "ProgrammableTransaction",
             Self::AuthenticatorStateUpdate(_) => "AuthenticatorStateUpdate",
             Self::RandomnessStateUpdate(_) => "RandomnessStateUpdate",
@@ -1287,6 +1305,21 @@ pub struct HaneulConsensusCommitPrologue {
     #[schemars(with = "BigInt<u64>")]
     #[serde_as(as = "BigInt<u64>")]
     pub commit_timestamp_ms: u64,
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct HaneulConsensusCommitPrologueV2 {
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub epoch: u64,
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub round: u64,
+    #[schemars(with = "BigInt<u64>")]
+    #[serde_as(as = "BigInt<u64>")]
+    pub commit_timestamp_ms: u64,
+    pub consensus_commit_digest: ConsensusCommitDigest,
 }
 
 #[serde_as]

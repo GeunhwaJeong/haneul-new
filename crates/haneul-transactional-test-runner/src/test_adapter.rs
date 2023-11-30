@@ -59,6 +59,7 @@ use haneul_storage::{
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::crypto::get_authority_key_pair;
+use haneul_types::digests::ConsensusCommitDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
@@ -618,8 +619,12 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
             HaneulSubcommand::ConsensusCommitPrologue(ConsensusCommitPrologueCommand {
                 timestamp_ms,
             }) => {
-                let transaction =
-                    VerifiedTransaction::new_consensus_commit_prologue(0, 0, timestamp_ms);
+                let transaction = VerifiedTransaction::new_consensus_commit_prologue_v2(
+                    0,
+                    0,
+                    timestamp_ms,
+                    ConsensusCommitDigest::default(),
+                );
                 let summary = self.execute_txn(transaction.into()).await?;
                 let output = self.object_summary_output(&summary, /* summarize */ false);
                 Ok(output)

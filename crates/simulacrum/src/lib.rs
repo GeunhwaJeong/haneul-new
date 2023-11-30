@@ -22,6 +22,7 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
+use haneul_types::digests::ConsensusCommitDigest;
 use haneul_types::error::HaneulError;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectStore;
@@ -206,7 +207,12 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
         let round = self.epoch_state.next_consensus_round();
         let timestamp_ms = self.store.get_clock().timestamp_ms() + duration.as_millis() as u64;
         let consensus_commit_prologue_transaction =
-            VerifiedTransaction::new_consensus_commit_prologue(epoch, round, timestamp_ms);
+            VerifiedTransaction::new_consensus_commit_prologue_v2(
+                epoch,
+                round,
+                timestamp_ms,
+                ConsensusCommitDigest::default(),
+            );
 
         self.execute_transaction(consensus_commit_prologue_transaction.into())
             .expect("advancing the clock cannot fail")

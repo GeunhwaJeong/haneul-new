@@ -31,13 +31,14 @@ use haneul_json_rpc_types::{
 };
 use haneul_macros::sim_test;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
+use haneul_types::digests::ConsensusCommitDigest;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::error::UserInputError;
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::messages_consensus::ConsensusCommitPrologue;
+use haneul_types::messages_consensus::{ConsensusCommitPrologue, ConsensusCommitPrologueV2};
 use haneul_types::object::Data;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
@@ -3031,6 +3032,43 @@ async fn test_refusal_to_sign_consensus_commit_prologue() {
             epoch: 0,
             round: 0,
             commit_timestamp_ms: 42,
+        }),
+        sender,
+        gas_ref,
+        TEST_ONLY_GAS_UNIT_FOR_GENERIC * rgp,
+        rgp,
+    );
+
+    // Sender is able to sign it.
+    let transaction = to_sender_signed_transaction(tx_data, &sender_key);
+    let transaction = authority_state.verify_transaction(transaction).unwrap();
+
+    // But the authority should refuse to handle it.
+    assert!(matches!(
+        authority_state
+            .handle_transaction(&epoch_store, transaction)
+            .await,
+        Err(HaneulError::InvalidSystemTransaction),
+    ));
+}
+
+#[tokio::test]
+async fn test_refusal_to_sign_consensus_commit_prologue_v2() {
+    // The system should refuse to handle sender-signed system transactions
+    let (sender, sender_key): (_, AccountKeyPair) = get_key_pair();
+    let gas_object_id = ObjectID::random();
+    let gas_object = Object::with_id_owner_for_testing(gas_object_id, sender);
+    let authority_state = init_state_with_objects(vec![gas_object.clone()]).await;
+    let rgp = authority_state.reference_gas_price_for_testing().unwrap();
+    let epoch_store = authority_state.load_epoch_store_one_call_per_task();
+
+    let gas_ref = gas_object.compute_object_reference();
+    let tx_data = TransactionData::new(
+        TransactionKind::ConsensusCommitPrologueV2(ConsensusCommitPrologueV2 {
+            epoch: 0,
+            round: 0,
+            commit_timestamp_ms: 42,
+            consensus_commit_digest: ConsensusCommitDigest::default(),
         }),
         sender,
         gas_ref,
