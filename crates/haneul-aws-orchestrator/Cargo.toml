@@ -29,8 +29,9 @@ prometheus-parse.workspace = true
 
 haneullabs-metrics.workspace = true
 haneul-config = { path = "../haneul-config" }
+narwhal-config.workspace = true
 haneul-types = { path = "../haneul-types" }
-haneul-swarm-config =  { path = "../haneul-swarm-config" }
+haneul-swarm-config = { path = "../haneul-swarm-config" }
 workspace-hack.workspace = true
 
 [dev-dependencies]

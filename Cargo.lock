@@ -11204,6 +11204,7 @@ dependencies = [
  "eyre",
  "futures",
  "haneullabs-metrics",
+ "narwhal-config",
  "prettytable-rs",
  "prometheus-parse",
  "reqwest",
