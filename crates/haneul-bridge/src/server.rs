@@ -14,8 +14,8 @@ use axum::{
 
 pub const APPLICATION_JSON: &str = "application/json";
 
-pub const ETH_TX_PATH: &str = "/eth/:tx_hash";
-pub const HANEUL_TX_PATH: &str = "/haneul/:tx_digest";
+pub const ETH_TO_HANEUL_TX_PATH: &str = "/eth/haneul/:tx_hash";
+pub const HANEUL_TO_ETH_TX_PATH: &str = "/haneul/eth/:tx_digest";
 
 pub async fn run_server(socket_address: &SocketAddr) {
     axum::Server::bind(socket_address)
@@ -27,8 +27,8 @@ pub async fn run_server(socket_address: &SocketAddr) {
 fn make_router(handler: Arc<BridgeRequestHandler>) -> Router {
     Router::new()
         .route("/", get(health_check))
-        .route(ETH_TX_PATH, get(handle_eth_tx_hash))
-        .route(HANEUL_TX_PATH, get(handle_haneul_tx_digest))
+        .route(ETH_TO_HANEUL_TX_PATH, get(handle_eth_tx_hash))
+        .route(HANEUL_TO_ETH_TX_PATH, get(handle_haneul_tx_digest))
         .with_state(handler)
 }
 
