@@ -6,8 +6,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use haneul_graphql_rpc::commands::Command;
-use haneul_graphql_rpc::config::Ide;
 use haneul_graphql_rpc::config::{ConnectionConfig, ServerConfig, ServiceConfig};
+use haneul_graphql_rpc::config::{Ide, TxExecFullNodeConfig};
 use haneul_graphql_rpc::schema_sdl_export;
 use haneul_graphql_rpc::server::graphiql_server::{
     start_graphiql_server, start_graphiql_server_from_cfg_path,
@@ -58,6 +58,7 @@ async fn main() {
             port,
             host,
             config,
+            node_rpc_url,
             prom_host,
             prom_port,
         } => {
@@ -72,6 +73,7 @@ async fn main() {
                 connection,
                 service: service_config,
                 ide: Ide::new(ide_title),
+                tx_exec_full_node: TxExecFullNodeConfig::new(node_rpc_url),
                 ..ServerConfig::default()
             };
 
