@@ -32,6 +32,7 @@ use haneul_tool::restore_from_db_checkpoint;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
+use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::event::{Event, EventID};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_grpc::TransactionInfoRequest;
@@ -41,6 +42,7 @@ use haneul_types::quorum_driver_types::{
     ExecuteTransactionRequest, ExecuteTransactionRequestType, ExecuteTransactionResponse,
     QuorumDriverResponse,
 };
+use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::{
     CallArg, GasData, TransactionData, TransactionKind, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS,
     TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
@@ -1274,6 +1276,68 @@ async fn test_pass_back_no_object() -> Result<(), anyhow::Error> {
         },
     ) = rx.recv().await.unwrap().unwrap();
     Ok(())
+}
+
+#[sim_test]
+async fn test_access_old_object_pruned() {
+    // This test checks that when we ask a validator to handle a transaction that uses
+    // an old object that's already been pruned, it's able to return an non-retriable
+    // error ObjectVersionUnavailableForConsumption, instead of the retriable error
+    // ObjectNotFound.
+    let test_cluster = TestClusterBuilder::new().build().await;
+    let tx_builder = test_cluster.test_transaction_builder().await;
+    let sender = tx_builder.sender();
+    let gas_object = tx_builder.gas_object();
+    let effects = test_cluster
+        .sign_and_execute_transaction(&tx_builder.transfer_haneul(None, sender).build())
+        .await
+        .effects
+        .unwrap();
+    let new_gas_version = effects.gas_object().reference.version;
+    test_cluster.trigger_reconfiguration().await;
+    // Construct a new transaction that uses the old gas object reference.
+    let tx = test_cluster.sign_transaction(
+        &test_cluster
+            .test_transaction_builder_with_gas_object(sender, gas_object)
+            .await
+            // Make sure we are doing something different from the first transaction.
+            // Otherwise we would just end up with the same digest.
+            .transfer_haneul(Some(1), sender)
+            .build(),
+    );
+    for validator in test_cluster.swarm.active_validators() {
+        let state = validator.get_node_handle().unwrap().state();
+        state.prune_objects_and_compact_for_testing().await;
+        // Make sure the old version of the object is already pruned.
+        assert!(state
+            .db()
+            .get_object_by_key(&gas_object.0, gas_object.1)
+            .unwrap()
+            .is_none());
+        let epoch_store = state.epoch_store_for_testing();
+        assert_eq!(
+            state
+                .handle_transaction(&epoch_store, state.verify_transaction(tx.clone()).unwrap())
+                .await
+                .unwrap_err(),
+            HaneulError::UserInputError {
+                error: UserInputError::ObjectVersionUnavailableForConsumption {
+                    provided_obj_ref: gas_object,
+                    current_version: new_gas_version,
+                }
+            }
+        );
+    }
+
+    // Check that fullnode would return the same error.
+    let result = test_cluster.wallet.execute_transaction_may_fail(tx).await;
+    assert!(result.unwrap_err().to_string().contains(
+        &UserInputError::ObjectVersionUnavailableForConsumption {
+            provided_obj_ref: gas_object,
+            current_version: new_gas_version,
+        }
+        .to_string()
+    ))
 }
 
 async fn transfer_coin(
