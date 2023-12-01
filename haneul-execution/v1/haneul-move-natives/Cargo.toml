@@ -25,3 +25,4 @@ move-vm-runtime = { path = "../../../external-crates/move/move-execution/v1/crat
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 workspace-hack.workspace = true
+tracing.workspace = true
