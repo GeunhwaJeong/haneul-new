@@ -26,7 +26,7 @@ use haneul::{
 };
 use haneul_config::{
     PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
-    HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
+    HANEUL_KEYSTORE_ALIASES_FILENAME, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
@@ -82,13 +82,13 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
         .flat_map(|r| r.map(|file| file.file_name().to_str().unwrap().to_owned()))
         .collect::<Vec<_>>();
 
-    assert_eq!(9, files.len());
+    assert_eq!(10, files.len());
     assert!(files.contains(&HANEUL_CLIENT_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_NETWORK_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_FULLNODE_CONFIG.to_string()));
     assert!(files.contains(&HANEUL_GENESIS_FILENAME.to_string()));
-
     assert!(files.contains(&HANEUL_KEYSTORE_FILENAME.to_string()));
+    assert!(files.contains(&HANEUL_KEYSTORE_ALIASES_FILENAME.to_string()));
 
     // Check network config
     let network_conf =
@@ -131,7 +131,7 @@ async fn test_addresses_command() -> Result<(), anyhow::Error> {
         context
             .config
             .keystore
-            .add_key(HaneulKeyPair::Ed25519(get_key_pair().1))?;
+            .add_key(None, HaneulKeyPair::Ed25519(get_key_pair().1))?;
     }
 
     // Print all addresses
@@ -1836,6 +1836,7 @@ async fn test_switch_command() -> Result<(), anyhow::Error> {
     // Create a new address
     let os = HaneulClientCommands::NewAddress {
         key_scheme: SignatureScheme::ED25519,
+        alias: None,
         derivation_path: None,
         word_length: None,
     }
@@ -1888,6 +1889,7 @@ async fn test_new_address_command_by_flag() -> Result<(), anyhow::Error> {
 
     HaneulClientCommands::NewAddress {
         key_scheme: SignatureScheme::Secp256k1,
+        alias: None,
         derivation_path: None,
         word_length: None,
     }

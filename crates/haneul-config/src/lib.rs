@@ -26,6 +26,7 @@ pub const HANEUL_NETWORK_CONFIG: &str = "network.yaml";
 pub const HANEUL_FULLNODE_CONFIG: &str = "fullnode.yaml";
 pub const HANEUL_CLIENT_CONFIG: &str = "client.yaml";
 pub const HANEUL_KEYSTORE_FILENAME: &str = "haneul.keystore";
+pub const HANEUL_KEYSTORE_ALIASES_FILENAME: &str = "haneul.aliases";
 pub const HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME: &str = "benchmark.keystore";
 pub const HANEUL_GENESIS_FILENAME: &str = "genesis.blob";
 pub const HANEUL_DEV_NET_URL: &str = "https://fullnode.devnet.haneul.io:443";
