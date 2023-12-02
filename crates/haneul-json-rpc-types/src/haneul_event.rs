@@ -12,6 +12,7 @@ use serde_json::{json, Value};
 use serde_with::{serde_as, DisplayFromStr};
 use std::fmt;
 use std::fmt::Display;
+use std::str::FromStr;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::error::HaneulResult;
 use haneul_types::event::{Event, EventEnvelope, EventID};
@@ -147,6 +148,24 @@ impl Display for HaneulEvent {
         }
 
         write!(f, "\n └──")
+    }
+}
+
+impl HaneulEvent {
+    pub fn random_for_testing() -> Self {
+        Self {
+            id: EventID {
+                tx_digest: TransactionDigest::random(),
+                event_seq: 0,
+            },
+            package_id: ObjectID::random(),
+            transaction_module: Identifier::from_str("random_for_testing").unwrap(),
+            sender: HaneulAddress::random_for_testing_only(),
+            type_: StructTag::from_str("0x6666::random_for_testing::RandomForTesting").unwrap(),
+            parsed_json: json!({}),
+            bcs: vec![],
+            timestamp_ms: None,
+        }
     }
 }
 

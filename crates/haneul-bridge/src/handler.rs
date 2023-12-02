@@ -5,11 +5,12 @@ use crate::error::BridgeError;
 use crate::eth_client::EthClient;
 use crate::haneul_client::HaneulClient;
 use axum::Json;
+use haneul_sdk::HaneulClient as HaneulSdkClient;
 
 // TODO: reconfig?
 pub struct BridgeRequestHandler {
     _eth_client: EthClient<ethers::providers::Http>,
-    _haneul_client: HaneulClient,
+    _haneul_client: HaneulClient<HaneulSdkClient>,
 }
 
 #[allow(clippy::new_without_default)]
