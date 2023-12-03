@@ -47,7 +47,7 @@ pub trait AccountKeystore: Send + Sync {
     fn addresses(&self) -> Vec<HaneulAddress> {
         self.keys().iter().map(|k| k.into()).collect()
     }
-
+    fn addresses_with_alias(&self) -> Vec<(&HaneulAddress, &Alias)>;
     fn aliases(&self) -> Vec<&Alias>;
     fn alias_names(&self) -> Vec<&str> {
         self.aliases()
@@ -198,6 +198,10 @@ impl AccountKeystore for FileBasedKeystore {
         self.aliases.values().collect()
     }
 
+    fn addresses_with_alias(&self) -> Vec<(&HaneulAddress, &Alias)> {
+        self.aliases.iter().collect::<Vec<_>>()
+    }
+
     fn keys(&self) -> Vec<PublicKey> {
         self.keys.values().map(|key| key.public()).collect()
     }
@@ -281,8 +285,8 @@ impl FileBasedKeystore {
             aliases
                 .into_iter()
                 .map(|alias| {
-                    let key = HaneulKeyPair::decode_base64(&alias.public_key_base64);
-                    key.map(|k| (Into::<HaneulAddress>::into(&k.public()), alias))
+                    let key = PublicKey::decode_base64(&alias.public_key_base64);
+                    key.map(|k| (Into::<HaneulAddress>::into(&k), alias))
                 })
                 .collect::<Result<BTreeMap<_, _>, _>>()
                 .map_err(|e| {
@@ -301,6 +305,7 @@ impl FileBasedKeystore {
                 .zip(names)
                 .map(|((haneul_address, skp), alias)| {
                     let public_key_base64 = EncodeDecodeBase64::encode_base64(&skp.public());
+
                     (
                         *haneul_address,
                         Alias {
@@ -433,6 +438,10 @@ impl AccountKeystore for InMemKeystore {
     /// Get all aliases objects
     fn aliases(&self) -> Vec<&Alias> {
         self.aliases.values().collect()
+    }
+
+    fn addresses_with_alias(&self) -> Vec<(&HaneulAddress, &Alias)> {
+        self.aliases.iter().collect::<Vec<_>>()
     }
 
     fn keys(&self) -> Vec<PublicKey> {
