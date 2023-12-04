@@ -13741,6 +13741,7 @@ dependencies = [
  "haneul-archival",
  "haneul-config",
  "haneul-core",
+ "haneul-execution",
  "haneul-indexer",
  "haneul-network",
  "haneul-protocol-config",

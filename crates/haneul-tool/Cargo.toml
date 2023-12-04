@@ -54,12 +54,18 @@ haneul-archival.workspace = true
 workspace-hack.workspace = true
 git-version.workspace = true
 const-str = "0.5.6"
-move-vm-profiler = { workspace = true, features = ["gas-profiler"] }
 move-vm-profiler.workspace = true
+haneul-execution = { path = "../../haneul-execution" , optional = true}
 
 [[bin]]
 name = "haneul-tool"
 path = "src/main.rs"
 
+
 [features]
-#default = ["gas-profiler"]
+default = ["gas-profiler"]
+gas-profiler = [
+    "haneul-types/gas-profiler",
+    "haneul-execution/gas-profiler",
+    "move-vm-profiler/gas-profiler",
+]
