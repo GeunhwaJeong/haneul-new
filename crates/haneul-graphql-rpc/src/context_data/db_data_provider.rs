@@ -34,11 +34,6 @@ use crate::{
         haneul_system_state_summary::HaneulSystemStateSummary,
         system_parameters::SystemParameters,
         transaction_block::{TransactionBlock, TransactionBlockFilter},
-        transaction_block_kind::{
-            AuthenticatorStateUpdateTransaction, ChangeEpochTransaction,
-            ConsensusCommitPrologueTransaction, EndOfEpochTransaction, GenesisTransaction,
-            ProgrammableTransactionBlock, RandomnessStateUpdateTransaction, TransactionBlockKind,
-        },
         validator::Validator,
         validator_credentials::ValidatorCredentials,
         validator_set::ValidatorSet,
@@ -83,7 +78,6 @@ use haneul_types::{
     haneul_system_state::haneul_system_state_summary::{
         HaneulSystemStateSummary as NativeHaneulSystemStateSummary, HaneulValidatorSummary,
     },
-    transaction::{GenesisObject, TransactionKind},
     Identifier, TypeTag,
 };
 
@@ -1654,86 +1648,6 @@ impl TryFrom<NativeHaneulSystemStateSummary> for HaneulSystemStateSummary {
             protocol_version: system_state.protocol_version,
             start_timestamp: Some(start_timestamp),
         })
-    }
-}
-
-impl From<&TransactionKind> for TransactionBlockKind {
-    fn from(value: &TransactionKind) -> Self {
-        match value {
-            TransactionKind::ChangeEpoch(x) => {
-                let change = ChangeEpochTransaction {
-                    epoch_id: x.epoch,
-                    timestamp: DateTime::from_ms(x.epoch_start_timestamp_ms as i64),
-                    storage_charge: Some(BigInt::from(x.storage_charge)),
-                    computation_charge: Some(BigInt::from(x.computation_charge)),
-                    storage_rebate: Some(BigInt::from(x.storage_rebate)),
-                };
-                TransactionBlockKind::ChangeEpoch(change)
-            }
-            TransactionKind::ConsensusCommitPrologue(x) => {
-                let consensus = ConsensusCommitPrologueTransaction {
-                    epoch_id: x.epoch,
-                    round: Some(x.round),
-                    timestamp: DateTime::from_ms(x.commit_timestamp_ms as i64),
-                };
-                TransactionBlockKind::ConsensusCommitPrologue(consensus)
-            }
-            TransactionKind::ConsensusCommitPrologueV2(x) => {
-                let consensus = ConsensusCommitPrologueTransaction {
-                    epoch_id: x.epoch,
-                    round: Some(x.round),
-                    timestamp: DateTime::from_ms(x.commit_timestamp_ms as i64),
-                };
-                TransactionBlockKind::ConsensusCommitPrologue(consensus)
-            }
-            TransactionKind::Genesis(x) => {
-                let genesis = GenesisTransaction {
-                    objects: Some(
-                        x.objects
-                            .clone()
-                            .into_iter()
-                            .map(HaneulAddress::from)
-                            .collect::<Vec<_>>(),
-                    ),
-                };
-                TransactionBlockKind::Genesis(genesis)
-            }
-            // TODO: flesh out type
-            TransactionKind::ProgrammableTransaction(pt) => {
-                TransactionBlockKind::Programmable(ProgrammableTransactionBlock {
-                    value: format!("{:?}", pt),
-                })
-            }
-            // TODO: flesh out type
-            TransactionKind::AuthenticatorStateUpdate(asu) => {
-                TransactionBlockKind::AuthenticatorState(AuthenticatorStateUpdateTransaction {
-                    value: format!("{:?}", asu),
-                })
-            }
-            // TODO: flesh out type
-            TransactionKind::RandomnessStateUpdate(rsu) => {
-                TransactionBlockKind::Randomness(RandomnessStateUpdateTransaction {
-                    value: format!("{:?}", rsu),
-                })
-            }
-            // TODO: flesh out type
-            TransactionKind::EndOfEpochTransaction(et) => {
-                TransactionBlockKind::EndOfEpoch(EndOfEpochTransaction {
-                    value: format!("{:?}", et),
-                })
-            }
-        }
-    }
-}
-
-// TODO fix this GenesisObject
-impl From<GenesisObject> for HaneulAddress {
-    fn from(value: GenesisObject) -> Self {
-        match value {
-            GenesisObject::RawObject { data, owner: _ } => {
-                HaneulAddress::from_bytes(data.id().to_vec()).unwrap()
-            }
-        }
     }
 }
 
