@@ -82,6 +82,7 @@ const references = [
 			},
 		],
 	},
+	'references/research-papers',
 	'references/haneul-glossary',
 	{
 		type: 'category',
