@@ -489,7 +489,7 @@ impl HaneulAddress {
         self.0.to_vec()
     }
 
-    #[cfg(feature = "test-utils")]
+    #[cfg(any(feature = "test-utils", test))]
     /// Return a random HaneulAddress.
     pub fn random_for_testing_only() -> Self {
         AccountAddress::random().into()

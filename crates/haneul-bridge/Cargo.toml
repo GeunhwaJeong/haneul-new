@@ -37,3 +37,4 @@ workspace-hack.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-json-rpc-types = { workspace = true, features = ["test-utils"] }

@@ -12,7 +12,6 @@ use serde_json::{json, Value};
 use serde_with::{serde_as, DisplayFromStr};
 use std::fmt;
 use std::fmt::Display;
-use std::str::FromStr;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::error::HaneulResult;
 use haneul_types::event::{Event, EventEnvelope, EventID};
@@ -23,6 +22,10 @@ use tabled::settings::Style as TableStyle;
 
 use crate::{type_and_fields_from_move_struct, Page};
 use haneul_types::haneul_serde::HaneulStructTag;
+
+#[cfg(any(feature = "test-utils", test))]
+use std::str::FromStr;
+
 pub type EventPage = Page<HaneulEvent, EventID>;
 
 #[serde_as]
@@ -151,6 +154,7 @@ impl Display for HaneulEvent {
     }
 }
 
+#[cfg(any(feature = "test-utils", test))]
 impl HaneulEvent {
     pub fn random_for_testing() -> Self {
         Self {
