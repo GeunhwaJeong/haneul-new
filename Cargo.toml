@@ -93,6 +93,7 @@ members = [
     "crates/haneul-config",
     "crates/haneul-core",
     "crates/haneul-cost",
+    "crates/haneul-data-ingestion",
     "crates/haneul-e2e-tests",
     "crates/haneul-enum-compat-util",
     "crates/haneul-faucet",
@@ -361,6 +362,7 @@ msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "1
 multiaddr = "0.17.0"
 nexlint = { git = "https://github.com/nextest-rs/nexlint.git", rev = "94da5c787636dad779c340affa65219134d127f5" }
 nexlint-lints = { git = "https://github.com/nextest-rs/nexlint.git", rev = "94da5c787636dad779c340affa65219134d127f5" }
+notify = "6.1.1"
 ntest = "0.9.0"
 num-bigint = "0.4.3"
 num_cpus = "1.15.0"
@@ -563,6 +565,7 @@ haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
+haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }
