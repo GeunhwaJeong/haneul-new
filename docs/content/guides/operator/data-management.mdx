@@ -66,17 +66,6 @@ A Full Node that starts from scratch can replay (and thus re-verify) transaction
 
 A Haneul Full node that fails to retrieve checkpoints from its peers via state sync protocol falls back to downloading the missing checkpoints from its pre-configured archive. This fallback enables a Full node to catch up with the rest of the system regardless of the pruning policies of its peers.
 
-## Haneul Snapshot data
-
-Haneul Full nodes can use state snapshots to join the system from a given point in time. To do so, the node operator can start from a snapshot, if they trust the historic transaction execution data that was certified by the validators.
-
-Haneul supports two types of snapshots:
-
-- **RocksDB snapshots** are a point-in-time view of a database store. This means that the snapshot keeps the state of the system at the moment it generates the snapshot, including non-pruned data, additional indices, and other data.
-- **Formal snapshots** are database agnostic: they keep the state of the system in the minimalistic format. The Formal snapshots also include cryptographic state accumulators, which are certified by the quorum of the validators. These can be verified by the node during the reconstruction. This is one of the main advantages over the RocksDB snapshots, which don't include any special integrity data certified by a quorum.
-
-You can configure a [Full node snapshot](./snapshots.mdx) to generate a state snapshot at the end of each epoch. Haneul Labs  currently manages the RocksDB snapshots in AWS S3. To maintain a healthy Haneul network, Haneul encourages the Haneul community to bring up additional snapshots to ensure stronger data availability across the network.
-
 ## Haneul Full node pruning policies
 
 As described previously, sustainable disk usage requires Haneul Full nodes to prune the information about historic object versions as well as historic transactions with the corresponding effects and events, including old checkpoint data.
