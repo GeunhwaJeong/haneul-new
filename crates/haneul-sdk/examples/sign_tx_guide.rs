@@ -31,13 +31,16 @@ use haneul_types::{
     base_types::HaneulAddress,
     crypto::{get_key_pair_from_rng, HaneulKeyPair},
 };
-/// This example walks through the Rust SDK use case described in https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/haneul-101/sign-and-send-txn.mdx
+
+/// This example walks through the Rust SDK use case described in
+/// https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/haneul-101/sign-and-send-txn.mdx
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     // set up haneul client for the desired network.
     let haneul_client = HaneulClientBuilder::default().build_testnet().await?;
 
-    // deterministically generate a keypair, testing only, do not use for mainnet, use the next section to randomly generate a keypair instead.
+    // deterministically generate a keypair, testing only, do not use for mainnet,
+    // use the next section to randomly generate a keypair instead.
     let skp_determ_0 =
         HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed([0; 32])));
     let _skp_determ_1 =
@@ -64,7 +67,8 @@ async fn main() -> Result<(), anyhow::Error> {
             .map_err(|_| anyhow!("Invalid base64"))?,
     )?);
 
-    // import a keypair from a base64 encoded 33-byte `flag || private key`. The signature scheme is determined by the flag.
+    // import a keypair from a base64 encoded 33-byte `flag || private key`.
+    // The signature scheme is determined by the flag.
     let _skp_import_with_flag_0 =
         HaneulKeyPair::decode_base64("ANRj4Rx5FZRehqwrctiLgZDPrY/3tI5+uJLCdaXPCj6C")
             .map_err(|_| anyhow!("Invalid base64"))?;
@@ -110,7 +114,8 @@ async fn main() -> Result<(), anyhow::Error> {
         gas_price,
     );
 
-    // derive the digest that the keypair should sign on, i.e. the blake2b hash of `intent || tx_data`.
+    // derive the digest that the keypair should sign on,
+    // i.e. the blake2b hash of `intent || tx_data`.
     let intent_msg = IntentMessage::new(Intent::haneul_transaction(), tx_data);
     let raw_tx = bcs::to_bytes(&intent_msg).expect("bcs should not fail");
     let mut hasher = haneul_types::crypto::DefaultHash::default();
@@ -120,7 +125,8 @@ async fn main() -> Result<(), anyhow::Error> {
     // use HaneulKeyPair to sign the digest.
     let haneul_sig = skp_determ_0.sign(&digest);
 
-    // if you would like to verify the signature locally before submission, use this function. if it fails to verify locally, the transaction will fail to execute in Haneul.
+    // if you would like to verify the signature locally before submission, use this function.
+    // if it fails to verify locally, the transaction will fail to execute in Haneul.
     let res = haneul_sig.verify_secure(
         &intent_msg,
         sender,

@@ -36,7 +36,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
 The [examples](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk/examples) folder provides both basic and advanced examples.
 
-There are five files ending in `_api.rs` which provide code examples of the corresponding APIs and their methods. These showcase how to use the Haneul Rust SDK, and can be run against the Haneul testnet. Below are instructions on the prerequisites and how to run these examples.
+There are serveral files ending in `_api.rs` which provide code examples of the corresponding APIs and their methods. These showcase how to use the Haneul Rust SDK, and can be run against the Haneul testnet. Below are instructions on the prerequisites and how to run these examples.
 
 ## Prerequisites
 
@@ -52,6 +52,7 @@ In the root folder of the `haneul` repository (or in the `haneul-sdk` crate fold
 * `cargo run --example governance_api`
 * `cargo run --example read_api`
 * `cargo run --example programmable_transactions_api`
+* `cargo run --example sign_tx_guide`
 
 ## Basic Examples
 
