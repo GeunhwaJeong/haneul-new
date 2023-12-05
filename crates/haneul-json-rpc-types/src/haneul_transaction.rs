@@ -474,7 +474,6 @@ impl HaneulTransactionBlockKind {
             TransactionKind::RandomnessStateUpdate(update) => {
                 Self::RandomnessStateUpdate(HaneulRandomnessStateUpdate {
                     epoch: update.epoch,
-                    round: update.round,
                     randomness_round: update.randomness_round,
                     random_bytes: update.random_bytes,
                 })
@@ -1341,9 +1340,6 @@ pub struct HaneulRandomnessStateUpdate {
     #[schemars(with = "BigInt<u64>")]
     #[serde_as(as = "BigInt<u64>")]
     pub epoch: u64,
-    #[schemars(with = "BigInt<u64>")]
-    #[serde_as(as = "BigInt<u64>")]
-    pub round: u64,
 
     #[schemars(with = "BigInt<u64>")]
     #[serde_as(as = "BigInt<u64>")]
