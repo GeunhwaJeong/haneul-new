@@ -18,7 +18,7 @@ use haneul_types::dynamic_field::DynamicFieldType;
 
 #[derive(Interface)]
 #[graphql(
-    field(name = "location", ty = "HaneulAddress"),
+    field(name = "address", ty = "HaneulAddress"),
     field(
         name = "object_connection",
         ty = "Option<Connection<String, Object>>",
@@ -116,7 +116,7 @@ impl Owner {
 
     // =========== Owner interface methods =============
 
-    pub async fn location(&self) -> HaneulAddress {
+    pub async fn address(&self) -> HaneulAddress {
         self.address
     }
 

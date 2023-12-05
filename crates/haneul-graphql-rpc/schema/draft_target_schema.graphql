@@ -387,7 +387,7 @@ enum Feature {
 }
 
 interface IOwner {
-  location: HaneulAddress!
+  address: HaneulAddress!
 
   objectConnection(
     first: Int,

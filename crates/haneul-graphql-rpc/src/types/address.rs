@@ -62,7 +62,7 @@ impl Address {
 
     // =========== Owner interface methods =============
 
-    pub async fn location(&self) -> HaneulAddress {
+    pub async fn address(&self) -> HaneulAddress {
         self.address
     }
 
