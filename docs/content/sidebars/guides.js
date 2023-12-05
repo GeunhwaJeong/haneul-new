@@ -59,19 +59,9 @@ const guides = [
 					'guides/developer/haneul-101/create-nft',
 					'guides/developer/haneul-101/using-events',
 					'guides/developer/haneul-101/access-time',
-					{
-						type: 'category',
-						label: 'Sending Transactions',
-						link: {
-							type: 'doc',
-							id: 'guides/developer/haneul-101/send-txn',
-						},
-						items: [
-							'guides/developer/haneul-101/sign-txn',
-							'guides/developer/haneul-101/sponsor-txn',
-							'guides/developer/haneul-101/coin-mgt',
-						],
-					},
+					'guides/developer/haneul-101/sign-and-send-txn',
+					'guides/developer/haneul-101/sponsor-txn',
+					'guides/developer/haneul-101/coin-mgt',
 					'guides/developer/haneul-101/building-ptb',
 				],
 			},
