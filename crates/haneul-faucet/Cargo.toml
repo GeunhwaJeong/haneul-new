@@ -29,7 +29,7 @@ rocksdb.workspace = true
 tempfile.workspace = true
 parking_lot.workspace = true
 
-haneul.workspace = true
+haneul = {workspace = true, default-features = false}
 haneul-json-rpc-types.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true

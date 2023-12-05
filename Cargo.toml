@@ -567,7 +567,7 @@ haneullabs-util-mem-derive = { path = "crates/haneullabs-util-mem-derive" }
 prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
 shared-crypto = { path = "crates/shared-crypto" }
 simulacrum = { path = "crates/simulacrum" }
-haneul = { path = "crates/haneul" }
+haneul = { path = "crates/haneul" , default-features = false}
 haneul-adapter-transactional-tests = { path = "crates/haneul-adapter-transactional-tests" }
 haneul-analytics-indexer = { path = "crates/haneul-analytics-indexer" }
 haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-derive" }

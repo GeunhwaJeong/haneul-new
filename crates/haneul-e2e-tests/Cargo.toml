@@ -55,7 +55,7 @@ haneul-swarm.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-config.workspace = true
 haneul-json-rpc-types.workspace = true
-haneul.workspace = true
+haneul = {workspace = true, default-features = false}
 haneul-sdk.workspace = true
 haneul-keys.workspace = true
 workspace-hack.workspace = true
