@@ -50,13 +50,13 @@ mod checked {
     use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
     use haneul_types::transaction::{
         Argument, AuthenticatorStateExpire, AuthenticatorStateUpdate, CallArg, ChangeEpoch,
-        Command, EndOfEpochTransactionKind, GenesisTransaction, ObjectArg, ProgrammableTransaction,
-        TransactionKind,
+        Command, EndOfEpochTransactionKind, GenesisObject, GenesisTransaction, ObjectArg,
+        ProgrammableTransaction, TransactionKind,
     };
     use haneul_types::transaction::{CheckedInputObjects, RandomnessStateUpdate};
     use haneul_types::{
         base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
-        object::{Object, ObjectInner},
+        object::Object,
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
         HANEUL_SYSTEM_PACKAGE_ID,
@@ -521,14 +521,12 @@ mod checked {
 
                 for genesis_object in objects {
                     match genesis_object {
-                        haneul_types::transaction::GenesisObject::RawObject { data, owner } => {
-                            let object = ObjectInner {
+                        GenesisObject::RawObject { data, owner } => {
+                            temporary_store.create_object(Object::new_from_genesis(
                                 data,
                                 owner,
-                                previous_transaction: tx_ctx.digest(),
-                                storage_rebate: 0,
-                            };
-                            temporary_store.create_object(object.into());
+                                tx_ctx.digest(),
+                            ));
                         }
                     }
                 }
