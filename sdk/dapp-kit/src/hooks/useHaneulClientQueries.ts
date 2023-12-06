@@ -26,7 +26,7 @@ type HaneulClientQueryOptions = HaneulRpcMethods[keyof HaneulRpcMethods] extends
 		: never
 	: never;
 
-type UseHaneulClientQueriesResults<Args extends readonly HaneulClientQueryOptions[]> = {
+export type UseHaneulClientQueriesResults<Args extends readonly HaneulClientQueryOptions[]> = {
 	-readonly [K in keyof Args]: Args[K] extends {
 		method: infer M extends keyof HaneulRpcMethods;
 		options?: {
