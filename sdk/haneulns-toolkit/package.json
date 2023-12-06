@@ -2,7 +2,7 @@
     "name": "@haneullabs/haneulns-toolkit",
     "author": "Haneul Labs <build@haneul-labs.com>",
     "description": "HaneulNS TypeScript SDK",
-    "version": "0.3.16",
+    "version": "0.3.17",
     "license": "Apache-2.0",
     "files": [
         "dist",

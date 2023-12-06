@@ -1,5 +1,12 @@
 # @haneullabs/haneulns-toolkit
 
+## 0.3.17
+
+### Patch Changes
+
+- Updated dependencies [cdcfa76c43]
+  - @haneullabs/haneul.js@0.48.0
+
 ## 0.3.16
 
 ### Patch Changes

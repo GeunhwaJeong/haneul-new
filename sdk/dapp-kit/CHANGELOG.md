@@ -1,5 +1,15 @@
 # @haneullabs/dapp-kit
 
+## 0.10.2
+
+### Patch Changes
+
+- 2ae1a6a108: Early return on `useAutoConnectWallet` to improve account switching performance
+- b30fecbbca: Fix missing export of useHaneulClientQueries
+- Updated dependencies [cdcfa76c43]
+  - @haneullabs/haneul.js@0.48.0
+  - @haneullabs/wallet-standard@0.8.11
+
 ## 0.10.1
 
 ### Patch Changes

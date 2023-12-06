@@ -1,5 +1,14 @@
 # @haneullabs/enoki
 
+## 0.0.7
+
+### Patch Changes
+
+- dd485449a7: Update to new two-step API
+- Updated dependencies [cdcfa76c43]
+  - @haneullabs/haneul.js@0.48.0
+  - @haneullabs/zklogin@0.3.9
+
 ## 0.0.6
 
 ### Patch Changes

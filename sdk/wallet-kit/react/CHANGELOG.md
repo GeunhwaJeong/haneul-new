@@ -1,5 +1,14 @@
 # @haneullabs/wallet-kit
 
+## 0.8.6
+
+### Patch Changes
+
+- Updated dependencies [cdcfa76c43]
+  - @haneullabs/haneul.js@0.48.0
+  - @haneullabs/wallet-kit-core@0.6.14
+  - @haneullabs/wallet-standard@0.8.11
+
 ## 0.8.5
 
 ### Patch Changes
