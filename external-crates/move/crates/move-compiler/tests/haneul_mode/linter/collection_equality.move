@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-module 0x42::test {
+module a::test {
     use haneul::bag::Bag;
     use haneul::object_bag::ObjectBag;
     use haneul::table::Table;
@@ -46,5 +46,75 @@ module 0x42::test {
 
     public fun vec_set_eq(vec1: &VecSet<u64>, vec2: &VecSet<u64>): bool {
         vec1 == vec2
+    }
+}
+
+module haneul::object {
+    struct UID has store {
+        id: address,
+    }
+}
+
+module haneul::bag {
+    use haneul::object::UID;
+
+    struct Bag has key, store {
+        id: UID
+    }
+}
+
+module haneul::object_bag {
+    use haneul::object::UID;
+
+    struct ObjectBag has key, store {
+        id: UID
+    }
+}
+
+module haneul::table {
+    use haneul::object::UID;
+
+    struct Table<phantom K: copy + drop + store, phantom V: store> has key, store {
+        id: UID
+    }
+}
+
+module haneul::object_table {
+    use haneul::object::UID;
+
+    struct ObjectTable<phantom K: copy + drop + store, phantom V: key + store> has key, store {
+        id: UID
+    }
+}
+
+module haneul::linked_table {
+    use haneul::object::UID;
+
+    struct LinkedTable<phantom K: copy + drop + store, phantom V: store> has key, store {
+        id: UID
+    }
+}
+
+module haneul::table_vec {
+    use haneul::object::UID;
+
+    struct TableVec<phantom Element: store> has key, store {
+        id: UID
+    }
+}
+
+module haneul::vec_map {
+    use haneul::object::UID;
+
+    struct VecMap<phantom K: copy, phantom V> has key, store {
+        id: UID
+    }
+}
+
+module haneul::vec_set {
+    use haneul::object::UID;
+
+    struct VecSet<phantom K: copy + drop> has key, store {
+        id: UID
     }
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #[allow(unused_field)]
-module 0x42::test {
+module a::test {
     use haneul::object::UID;
     use haneul::transfer;
 
@@ -64,4 +64,16 @@ module 0x42::test {
         transfer::public_freeze_object({ transfer::public_freeze_object(w1) ; w2});
     }
 
+}
+
+module haneul::object {
+    struct UID has store {
+        id: address,
+    }
+}
+
+module haneul::transfer {
+    public fun public_freeze_object<T: key>(_: T) {
+        abort 0
+    }
 }

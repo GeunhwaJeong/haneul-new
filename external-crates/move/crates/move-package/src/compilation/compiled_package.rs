@@ -27,7 +27,9 @@ use move_command_line_common::{
 use move_compiler::{
     compiled_unit::{AnnotatedCompiledUnit, CompiledUnit, NamedCompiledModule},
     diagnostics::FilesSourceText,
+    editions::Flavor,
     shared::{NamedAddressMap, NumericalAddress, PackageConfig, PackagePaths},
+    haneul_mode::linters::{known_filters, linter_visitors},
     Compiler,
 };
 use move_docgen::{Docgen, DocgenOptions};
@@ -474,9 +476,21 @@ impl CompiledPackage {
         let mut paths = src_deps;
         paths.push(sources_package_paths.clone());
 
-        let compiler = Compiler::from_package_paths(paths, bytecode_deps)
+        let lint = !resolution_graph.build_options.no_lint;
+        let haneul_mode = resolution_graph
+            .build_options
+            .default_flavor
+            .map_or(false, |f| f == Flavor::Haneul);
+
+        let mut compiler = Compiler::from_package_paths(paths, bytecode_deps)
             .unwrap()
             .set_flags(flags);
+        if lint && haneul_mode {
+            let (filter_attr_name, filters) = known_filters();
+            compiler = compiler
+                .add_visitors(linter_visitors())
+                .add_custom_known_filters(filters, filter_attr_name);
+        }
         let (file_map, all_compiled_units) = compiler_driver(compiler)?;
         let mut root_compiled_units = vec![];
         let mut deps_compiled_units = vec![];
