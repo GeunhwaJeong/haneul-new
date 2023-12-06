@@ -28,7 +28,7 @@ haneul-indexer.workspace = true
 haneul-faucet.workspace = true
 haneul-graphql-rpc.workspace = true
 haneul-swarm.workspace = true
-haneul = {workspace = true, default-features = false}
+haneul.workspace = true
 haneul-swarm-config.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-sdk.workspace = true

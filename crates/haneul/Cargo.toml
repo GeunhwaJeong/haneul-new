@@ -98,7 +98,7 @@ name = "haneul"
 path = "src/main.rs"
 
 [features]
-default = ["gas-profiler"]
+
 gas-profiler = [
     "haneul-types/gas-profiler",
     "haneul-execution/gas-profiler",

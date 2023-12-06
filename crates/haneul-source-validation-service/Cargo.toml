@@ -49,7 +49,7 @@ expect-test = "1.4.0"
 fs_extra = "1.3.0"
 reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
 
-haneul = {workspace = true, default-features = false}
+haneul.workspace = true
 haneul-move = { workspace = true, features = ["all"] }
 haneul-json-rpc-types.workspace = true
 test-cluster.workspace = true
