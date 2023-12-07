@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCookieConsentBanner } from '@haneullabs/core';
-import { HaneulClientProvider } from '@haneullabs/dapp-kit';
-import { WalletKitProvider } from '@haneullabs/wallet-kit';
+import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Fragment } from 'react';
 import { resolveValue, Toaster, type ToastType } from 'react-hot-toast';
@@ -38,16 +37,13 @@ export function Layout() {
 		// NOTE: We set a top-level key here to force the entire react tree to be re-created when the network changes:
 		<Fragment key={network}>
 			<ScrollRestoration />
-			<WalletKitProvider
-				/*autoConnect={false}*/
-				enableUnsafeBurner={import.meta.env.DEV}
+			<HaneulClientProvider
+				networks={NetworkConfigs}
+				createClient={createHaneulClient}
+				network={network as Network}
+				onNetworkChange={setNetwork}
 			>
-				<HaneulClientProvider
-					networks={NetworkConfigs}
-					createClient={createHaneulClient}
-					network={network as Network}
-					onNetworkChange={setNetwork}
-				>
+				<WalletProvider autoConnect enableUnsafeBurner={import.meta.env.DEV}>
 					<KioskClientProvider>
 						<NetworkContext.Provider value={[network, setNetwork]}>
 							<Outlet />
@@ -73,8 +69,8 @@ export function Layout() {
 							<ReactQueryDevtools />
 						</NetworkContext.Provider>
 					</KioskClientProvider>
-				</HaneulClientProvider>
-			</WalletKitProvider>
+				</WalletProvider>
+			</HaneulClientProvider>
 		</Fragment>
 	);
 }

@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCurrentAccount } from '@haneullabs/dapp-kit';
 import { KioskListing } from '@haneullabs/kiosk';
-import { useWalletKit } from '@haneullabs/wallet-kit';
 import { ReactNode } from 'react';
 
 import { DEFAULT_IMAGE } from '../utils/constants';
@@ -17,7 +17,7 @@ export interface DisplayObject {
 }
 
 export function DisplayObject({ item, listing = null, children }: DisplayObject) {
-	const { currentAccount } = useWalletKit();
+	const currentAccount = useCurrentAccount();
 
 	const price = formatHaneul(geunhwaToHaneul(listing?.price));
 

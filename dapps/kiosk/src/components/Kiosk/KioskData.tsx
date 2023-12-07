@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tab } from '@headlessui/react';
+import { useCurrentAccount } from '@haneullabs/dapp-kit';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
-import { useWalletKit } from '@haneullabs/wallet-kit';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
@@ -18,7 +18,7 @@ import { OwnedObjects } from '../Inventory/OwnedObjects';
 import { KioskItems } from './KioskItems';
 
 export function KioskData({ kioskId }: { kioskId: string }) {
-	const { currentAccount } = useWalletKit();
+	const currentAccount = useCurrentAccount();
 
 	const { data: kiosk, isPending } = useKioskDetails(kioskId);
 

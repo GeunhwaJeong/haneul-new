@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { DynamicFieldPage } from '@haneullabs/haneul.js/src/client';
+import { DynamicFieldPage } from '@haneullabs/haneul.js/client';
 import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 import { useInfiniteQuery } from '@tanstack/react-query';
 

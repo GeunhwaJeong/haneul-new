@@ -1,20 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useSignTransactionBlock, useHaneulClient } from '@haneullabs/dapp-kit';
 import { HaneulTransactionBlockResponseOptions } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { useWalletKit } from '@haneullabs/wallet-kit';
-
-import { useRpc } from '../context/RpcClientContext';
 
 // A helper to execute transactions by:
 // 1. Signing them using the wallet
 // 2. Executing them using the rpc provider
 export function useTransactionExecution() {
-	const provider = useRpc();
+	const provider = useHaneulClient();
 
 	// sign transaction from the wallet
-	const { signTransactionBlock } = useWalletKit();
+	const { mutateAsync: signTransactionBlock } = useSignTransactionBlock();
 
 	// tx: TransactionBlock
 	const signAndExecute = async ({
@@ -24,6 +22,7 @@ export function useTransactionExecution() {
 		tx: TransactionBlock;
 		options?: HaneulTransactionBlockResponseOptions | undefined;
 	}) => {
+		// @ts-expect-error: This is an issue with type references not working together:
 		const signedTx = await signTransactionBlock({ transactionBlock: tx });
 
 		const res = await provider.executeTransactionBlock({

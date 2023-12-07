@@ -8,10 +8,10 @@ import {
 	PaginationArguments,
 	HaneulClient,
 } from '@haneullabs/haneul.js/client';
-import { TransactionObjectInput } from '@haneullabs/haneul.js/src/builder';
 import {
 	TransactionArgument,
 	TransactionBlock,
+	TransactionObjectInput,
 	TransactionResult,
 } from '@haneullabs/haneul.js/transactions';
 import {

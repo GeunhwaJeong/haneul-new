@@ -5,7 +5,11 @@ import { useZodForm } from '@haneullabs/core';
 import { ArrowRight12 } from '@haneullabs/icons';
 import { TransactionBlock, getPureSerializationType } from '@haneullabs/haneul.js/transactions';
 import { Button } from '@haneullabs/ui';
-import { useWalletKit, ConnectButton } from '@haneullabs/wallet-kit';
+import {
+	ConnectButton,
+	useCurrentAccount,
+	useSignAndExecuteTransactionBlock,
+} from '@haneullabs/dapp-kit';
 import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useMemo } from 'react';
@@ -41,7 +45,8 @@ export function ModuleFunction({
 	functionName,
 	functionDetails,
 }: ModuleFunctionProps) {
-	const { isConnected, signAndExecuteTransactionBlock } = useWalletKit();
+	const currentAccount = useCurrentAccount();
+	const { mutateAsync: signAndExecuteTransactionBlock } = useSignAndExecuteTransactionBlock();
 	const { handleSubmit, formState, register, control } = useZodForm({
 		schema: argsSchema,
 	});
@@ -82,7 +87,8 @@ export function ModuleFunction({
 			return result;
 		},
 	});
-	const isExecuteDisabled = isValidating || !isValid || isSubmitting || !isConnected;
+
+	const isExecuteDisabled = isValidating || !isValid || isSubmitting || !currentAccount;
 
 	return (
 		<DisclosureBox defaultOpen={defaultOpen} title={functionName}>
@@ -128,10 +134,9 @@ export function ModuleFunction({
 								<ArrowRight12 fill="currentColor" className="-rotate-45" />
 							</>
 						}
-						size="md"
 						className={clsx(
 							'!rounded-md !text-bodySmall',
-							isConnected
+							currentAccount
 								? '!border !border-solid !border-steel !bg-white !font-mono !text-hero-dark !shadow-sm !shadow-ebony/5'
 								: '!flex !flex-nowrap !items-center !gap-1 !bg-haneul-dark !font-sans !text-haneul-light hover:!bg-haneul-dark hover:!text-white',
 						)}

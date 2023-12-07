@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useCurrentAccount, useSignTransactionBlock } from '@haneullabs/dapp-kit';
 import { getFullnodeUrl, HaneulClient, HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { useWalletKit } from '@haneullabs/wallet-kit';
 import { useMutation } from '@tanstack/react-query';
 import { AlertCircle, Terminal } from 'lucide-react';
 import { useState } from 'react';
@@ -15,7 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function OfflineSigner() {
-	const { currentAccount, signTransactionBlock } = useWalletKit();
+	const currentAccount = useCurrentAccount();
+	const { mutateAsync: signTransactionBlock } = useSignTransactionBlock();
 	const [tab, setTab] = useState<'transaction' | 'signature'>('transaction');
 	const [bytes, setBytes] = useState('');
 	const { mutate, data, isPending } = useMutation({

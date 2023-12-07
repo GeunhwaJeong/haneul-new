@@ -1,12 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import {
+	ConnectButton,
+	useCurrentAccount,
+	useSignTransactionBlock,
+	useHaneulClient,
+} from '@haneullabs/dapp-kit';
 import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { ConnectButton, useWalletKit } from '@haneullabs/wallet-kit';
 import { ComponentProps, ReactNode, useMemo, useState } from 'react';
 
-import { client } from './utils/rpc';
 import { sponsorTransaction } from './utils/sponsorTransaction';
 
 const Button = (props: ComponentProps<'button'>) => (
@@ -35,7 +39,9 @@ const CodePanel = ({
 );
 
 export function App() {
-	const { currentAccount, signTransactionBlock } = useWalletKit();
+	const client = useHaneulClient();
+	const currentAccount = useCurrentAccount();
+	const { mutateAsync: signTransactionBlock } = useSignTransactionBlock();
 	const [loading, setLoading] = useState(false);
 	const [sponsoredTx, setSponsoredTx] = useState<Awaited<
 		ReturnType<typeof sponsorTransaction>
