@@ -193,23 +193,13 @@ const concepts = [
 		},
 		items: [
 			'concepts/haneul-architecture/high-level',
-			{
-				type: 'category',
-				label: 'Lifetime of a Transaction',
-				link: {
-					type: 'doc',
-					id: 'concepts/transactions/transaction-lifecycle',
-				},
-				items: ['concepts/transactions/transaction-things'],
-			},
-			'concepts/haneul-architecture/certification-overview',
+			'concepts/transactions/transaction-lifecycle',
 			'concepts/haneul-architecture/consensus',
-			'concepts/haneul-architecture/confirmation',
 			'concepts/haneul-architecture/indexer-functions',
 			'concepts/haneul-architecture/epochs',
 			'concepts/haneul-architecture/protocol-upgrades',
 			'concepts/haneul-architecture/data-management-things',
-			'concepts/haneul-architecture/staking-rewards'
+			'concepts/haneul-architecture/staking-rewards',
 		],
 	},
 	{
