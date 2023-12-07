@@ -11933,6 +11933,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "simulacrum",
  "haneul-json",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
