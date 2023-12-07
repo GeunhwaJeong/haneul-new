@@ -3,7 +3,6 @@
 
 //! A mock implementation of Haneul JSON-RPC client.
 
-use crate::haneul_client::HaneulClientInner;
 use async_trait::async_trait;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -12,6 +11,9 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
 use haneul_types::Identifier;
+
+use crate::haneul_client::HaneulClientInner;
+use crate::types::BridgeCommittee;
 
 /// Mock client used in test environments.
 #[allow(clippy::type_complexity)]
@@ -113,5 +115,9 @@ impl HaneulClientInner for HaneulMockClient {
 
     async fn get_latest_checkpoint_sequence_number(&self) -> Result<u64, Self::Error> {
         Ok(self.latest_checkpoint_sequence_number)
+    }
+
+    async fn get_bridge_committee(&self) -> Result<BridgeCommittee, Self::Error> {
+        unimplemented!()
     }
 }

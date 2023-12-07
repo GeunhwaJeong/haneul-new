@@ -23,6 +23,7 @@ use tap::TapFallible;
 
 use crate::error::{BridgeError, BridgeResult};
 use crate::events::HaneulBridgeEvent;
+use crate::types::BridgeCommittee;
 
 pub struct HaneulClient<P> {
     inner: P,
@@ -158,6 +159,13 @@ where
         }
         Ok(bridge_events)
     }
+
+    pub async fn get_bridge_committee(&self) -> BridgeResult<BridgeCommittee> {
+        self.inner
+            .get_bridge_committee()
+            .await
+            .map_err(|e| BridgeError::InternalError(format!("Can't get bridge committee: {e}")))
+    }
 }
 
 /// Use a trait to abstract over the HaneulSDKClient and HaneulMockClient for testing.
@@ -178,6 +186,8 @@ pub trait HaneulClientInner: Send + Sync {
     async fn get_chain_identifier(&self) -> Result<String, Self::Error>;
 
     async fn get_latest_checkpoint_sequence_number(&self) -> Result<u64, Self::Error>;
+
+    async fn get_bridge_committee(&self) -> Result<BridgeCommittee, Self::Error>;
 }
 
 #[async_trait]
@@ -210,6 +220,10 @@ impl HaneulClientInner for HaneulSdkClient {
             .get_latest_checkpoint_sequence_number()
             .await
     }
+
+    async fn get_bridge_committee(&self) -> Result<BridgeCommittee, Self::Error> {
+        unimplemented!()
+    }
 }
 
 #[cfg(test)]
@@ -222,7 +236,7 @@ mod tests {
     use std::{collections::HashSet, str::FromStr};
 
     use super::*;
-    use crate::events::{init_all_struct_tags, HaneulToEthBridgeEvent, HaneulToEthTokenBridge};
+    use crate::events::{init_all_struct_tags, HaneulToEthBridgeEventV1, HaneulToEthTokenBridgeV1};
 
     #[tokio::test]
     async fn test_query_events_by_module() {
@@ -493,14 +507,15 @@ mod tests {
 
         // Ensure all struct tags are inited
         init_all_struct_tags();
-        let event_1 = HaneulToEthBridgeEvent {
+        let event_1 = HaneulToEthBridgeEventV1 {
+            nonce: 1,
             source_address: HaneulAddress::random_for_testing_only(),
             destination_address: Address::random(),
             coin_name: "HANEUL".to_string(),
             amount: U256::from(100),
         };
         let mut haneul_event_1 = HaneulEvent::random_for_testing();
-        haneul_event_1.type_ = HaneulToEthTokenBridge.get().unwrap().clone();
+        haneul_event_1.type_ = HaneulToEthTokenBridgeV1.get().unwrap().clone();
         haneul_event_1.bcs = bcs::to_bytes(&event_1).unwrap();
         mock_client.add_events_by_tx_digest(tx_digest, vec![haneul_event_1.clone()]);
         assert_eq!(
@@ -508,7 +523,7 @@ mod tests {
                 .get_bridge_events_by_tx_digest(&tx_digest)
                 .await
                 .unwrap(),
-            vec![HaneulBridgeEvent::HaneulToEthTokenBridge(event_1.clone())],
+            vec![HaneulBridgeEvent::HaneulToEthTokenBridgeV1(event_1.clone())],
         );
 
         #[derive(Serialize, Deserialize)]
@@ -534,13 +549,13 @@ mod tests {
                 .await
                 .unwrap(),
             vec![
-                HaneulBridgeEvent::HaneulToEthTokenBridge(event_1.clone()),
-                HaneulBridgeEvent::HaneulToEthTokenBridge(event_1)
+                HaneulBridgeEvent::HaneulToEthTokenBridgeV1(event_1.clone()),
+                HaneulBridgeEvent::HaneulToEthTokenBridgeV1(event_1)
             ],
         );
 
         // if the StructTag matches with unparsable bcs, it returns an error
-        haneul_event_2.type_ = HaneulToEthTokenBridge.get().unwrap().clone();
+        haneul_event_2.type_ = HaneulToEthTokenBridgeV1.get().unwrap().clone();
         mock_client.add_events_by_tx_digest(tx_digest, vec![haneul_event_2]);
         haneul_client
             .get_bridge_events_by_tx_digest(&tx_digest)
