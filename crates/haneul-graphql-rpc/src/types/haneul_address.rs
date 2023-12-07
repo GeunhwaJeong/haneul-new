@@ -36,21 +36,6 @@ pub(crate) enum FromVecError {
     WrongLength(usize),
 }
 
-#[Scalar]
-impl ScalarType for HaneulAddress {
-    fn parse(value: Value) -> InputValueResult<Self> {
-        let Value::String(s) = value else {
-            return Err(InputValueError::expected_type(value));
-        };
-
-        Ok(HaneulAddress::from_str(&s)?)
-    }
-
-    fn to_value(&self) -> Value {
-        Value::String(format!("0x{}", hex::encode(self.0)))
-    }
-}
-
 impl HaneulAddress {
     pub fn from_array(arr: [u8; HANEUL_ADDRESS_LENGTH]) -> Self {
         HaneulAddress(arr)
@@ -68,6 +53,29 @@ impl HaneulAddress {
         <[u8; HANEUL_ADDRESS_LENGTH]>::try_from(bytes.as_ref())
             .map_err(|_| FromVecError::WrongLength(bytes.as_ref().len()))
             .map(HaneulAddress)
+    }
+}
+
+#[Scalar(use_type_description = true)]
+impl ScalarType for HaneulAddress {
+    fn parse(value: Value) -> InputValueResult<Self> {
+        let Value::String(s) = value else {
+            return Err(InputValueError::expected_type(value));
+        };
+
+        Ok(HaneulAddress::from_str(&s)?)
+    }
+
+    fn to_value(&self) -> Value {
+        Value::String(format!("0x{}", hex::encode(self.0)))
+    }
+}
+
+impl Description for HaneulAddress {
+    fn description() -> &'static str {
+        "String containing 32B hex-encoded address, with a leading \"0x\". Leading zeroes can be \
+         omitted on input but will always appear in outputs (HaneulAddress in output is guaranteed \
+         to be 66 characters long)."
     }
 }
 
