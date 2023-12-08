@@ -937,6 +937,9 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                     HaneulValue::Digest(_) => bail!("digest is not supported as an input"),
                     HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
                     HaneulValue::Receiving(_, _) => bail!("receiving is not supported as an input"),
+                    HaneulValue::ImmShared(_, _) => {
+                        bail!("read-only shared object is not supported as an input")
+                    }
                 };
                 let value = NumericalAddress::new(value.into_bytes(), NumberFormat::Hex);
                 self.compiled_state

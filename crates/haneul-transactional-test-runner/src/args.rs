@@ -207,6 +207,7 @@ pub enum HaneulExtraValueArgs {
     Object(FakeID, Option<SequenceNumber>),
     Digest(String),
     Receiving(FakeID, Option<SequenceNumber>),
+    ImmShared(FakeID, Option<SequenceNumber>),
 }
 
 pub enum HaneulValue {
@@ -215,6 +216,7 @@ pub enum HaneulValue {
     ObjVec(Vec<(FakeID, Option<SequenceNumber>)>),
     Digest(String),
     Receiving(FakeID, Option<SequenceNumber>),
+    ImmShared(FakeID, Option<SequenceNumber>),
 }
 
 impl HaneulExtraValueArgs {
@@ -230,6 +232,13 @@ impl HaneulExtraValueArgs {
     ) -> anyhow::Result<Self> {
         let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "receiving")?;
         Ok(HaneulExtraValueArgs::Receiving(fake_id, version))
+    }
+
+    fn parse_read_shared_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
+        let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "immshared")?;
+        Ok(HaneulExtraValueArgs::ImmShared(fake_id, version))
     }
 
     fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
@@ -287,6 +296,7 @@ impl HaneulValue {
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
             HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
+            HaneulValue::ImmShared(_, _) => panic!("unexpected nested Haneul shared object in args"),
         }
     }
 
@@ -297,6 +307,7 @@ impl HaneulValue {
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
             HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
+            HaneulValue::ImmShared(_, _) => panic!("unexpected nested Haneul shared object in args"),
         }
     }
 
@@ -330,6 +341,27 @@ impl HaneulValue {
         Ok(ObjectArg::Receiving(obj.compute_object_reference()))
     }
 
+    fn read_shared_arg(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<ObjectArg> {
+        let obj = Self::resolve_object(fake_id, version, test_adapter)?;
+        let id = obj.id();
+        if let Owner::Shared {
+            initial_shared_version,
+        } = obj.owner
+        {
+            Ok(ObjectArg::SharedObject {
+                id,
+                initial_shared_version,
+                mutable: false,
+            })
+        } else {
+            bail!("{fake_id} is not a shared object.")
+        }
+    }
+
     fn object_arg(
         fake_id: FakeID,
         version: Option<SequenceNumber>,
@@ -360,6 +392,9 @@ impl HaneulValue {
             HaneulValue::MoveValue(v) => CallArg::Pure(v.simple_serialize().unwrap()),
             HaneulValue::Receiving(fake_id, version) => {
                 CallArg::Object(Self::receiving_arg(fake_id, version, test_adapter)?)
+            }
+            HaneulValue::ImmShared(fake_id, version) => {
+                CallArg::Object(Self::read_shared_arg(fake_id, version, test_adapter)?)
             }
             HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
             HaneulValue::Digest(pkg) => {
@@ -401,6 +436,7 @@ impl ParsableValue for HaneulExtraValueArgs {
             (ValueToken::Ident, "object") => Some(Self::parse_object_value(parser)),
             (ValueToken::Ident, "digest") => Some(Self::parse_digest_value(parser)),
             (ValueToken::Ident, "receiving") => Some(Self::parse_receiving_value(parser)),
+            (ValueToken::Ident, "immshared") => Some(Self::parse_read_shared_value(parser)),
             _ => None,
         }
     }
@@ -435,6 +471,7 @@ impl ParsableValue for HaneulExtraValueArgs {
             HaneulExtraValueArgs::Object(id, version) => Ok(HaneulValue::Object(id, version)),
             HaneulExtraValueArgs::Digest(pkg) => Ok(HaneulValue::Digest(pkg)),
             HaneulExtraValueArgs::Receiving(id, version) => Ok(HaneulValue::Receiving(id, version)),
+            HaneulExtraValueArgs::ImmShared(id, version) => Ok(HaneulValue::ImmShared(id, version)),
         }
     }
 }
