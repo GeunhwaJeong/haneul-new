@@ -1,6 +1,25 @@
 ---
-title: Indexer Functions
-draft: true
+title: Haneul Indexer
+description: Haneul Indexer is an off-Full node data service that serves data from the Haneul protocol, including both data directly generated from chain and derivative data.
 ---
 
-Content coming soon
+Haneul Indexer is an off-Full node data service that serves data from the Haneul protocol, including both data directly generated from chain and derivative data.
+
+![Indexer architecture](./images/indexer-arch.png)
+
+## Functions 
+
+Haneul Indexer provides three main functionalities:
+- Ingest data from a Full node to a relational database. Data on Full nodes is stored as BCS bytes in embedded RocksDB, thus the query capabilities are very limited. The indexer pulls checkpoint blob data, schematizing them into various tables like objects, transactions, and so on with proper indices.
+- Serve online transaction processing (OLTP) RPC requests. With data in relational databases, Haneul indexer spins a stateless reader binary as JSON RPC server with an [interface](/references/haneul-api).
+- Analytical indexer. Other than OLTP data ingestion and requests, indexer also supports some analytical data ingestion like transactions per second (TPS) and daily active user (DAU) metrics.
+
+## Run an indexer
+
+Refer to the [Haneul Indexer README](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-indexer) in the `crates/haneul-indexer` directory of the Haneul repo to run an indexer with a local or managed Postgres-compatible database. 
+
+## Future enahancements
+
+Two planned enahncements for Haneul indexer are:
+- Expand Haneul indexer to be able to run on MySQL compatible DB
+- Encapsulate the deployment steps into a `docker-compose`-like script for easier initial setup.
