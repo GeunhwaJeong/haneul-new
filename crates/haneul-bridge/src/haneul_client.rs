@@ -228,7 +228,11 @@ impl HaneulClientInner for HaneulSdkClient {
 
 #[cfg(test)]
 mod tests {
-    use crate::haneul_mock_client::HaneulMockClient;
+    use crate::{
+        events::EmittedHaneulToEthTokenBridgeV1,
+        haneul_mock_client::HaneulMockClient,
+        types::{BridgeChainId, TokenId},
+    };
     use ethers::types::{
         Address, Block, BlockNumber, Filter, FilterBlockOption, Log, ValueOrArray, U64,
     };
@@ -236,7 +240,7 @@ mod tests {
     use std::{collections::HashSet, str::FromStr};
 
     use super::*;
-    use crate::events::{init_all_struct_tags, HaneulToEthBridgeEventV1, HaneulToEthTokenBridgeV1};
+    use crate::events::{init_all_struct_tags, HaneulToEthTokenBridgeV1};
 
     #[tokio::test]
     async fn test_query_events_by_module() {
@@ -507,12 +511,14 @@ mod tests {
 
         // Ensure all struct tags are inited
         init_all_struct_tags();
-        let event_1 = HaneulToEthBridgeEventV1 {
+        let event_1 = EmittedHaneulToEthTokenBridgeV1 {
             nonce: 1,
-            source_address: HaneulAddress::random_for_testing_only(),
-            destination_address: Address::random(),
-            coin_name: "HANEUL".to_string(),
-            amount: U256::from(100),
+            haneul_chain_id: BridgeChainId::HaneulTestnet,
+            haneul_address: HaneulAddress::random_for_testing_only(),
+            eth_chain_id: BridgeChainId::EthSepolia,
+            eth_address: Address::random(),
+            token_id: TokenId::Haneul,
+            amount: 100,
         };
         let mut haneul_event_1 = HaneulEvent::random_for_testing();
         haneul_event_1.type_ = HaneulToEthTokenBridgeV1.get().unwrap().clone();
