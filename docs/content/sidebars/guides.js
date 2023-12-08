@@ -61,8 +61,15 @@ const guides = [
 					'guides/developer/haneul-101/access-time',
 					'guides/developer/haneul-101/sign-and-send-txn',
 					'guides/developer/haneul-101/sponsor-txn',
-					'guides/developer/haneul-101/coin-mgt',
-					'guides/developer/haneul-101/building-ptb',
+					{
+						type: 'category',
+						label: 'Working with PTBs',
+						items: [
+							'guides/developer/haneul-101/simulating-refs',
+							'guides/developer/haneul-101/coin-mgt',
+							'guides/developer/haneul-101/building-ptb',
+						],
+					},
 				],
 			},
 			{
