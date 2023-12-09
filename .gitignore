@@ -21,6 +21,7 @@ Move.lock
 !crates/haneul-framework/packages/move-stdlib/Move.lock
 !crates/haneul-framework/packages/haneul-framework/Move.lock
 !crates/haneul-framework/packages/haneul-system/Move.lock
+!crates/haneul-framework/packages/deepbook/Move.lock
 .trace
 .coverage_map.mvcov
 
