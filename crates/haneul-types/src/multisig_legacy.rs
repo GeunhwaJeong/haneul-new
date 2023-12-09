@@ -86,9 +86,6 @@ impl Hash for MultiSigLegacy {
 }
 
 impl AuthenticatorTrait for MultiSigLegacy {
-    fn check_author(&self) -> bool {
-        true
-    }
     fn verify_user_authenticator_epoch(&self, _: EpochId) -> Result<(), HaneulError> {
         Ok(())
     }
@@ -98,7 +95,6 @@ impl AuthenticatorTrait for MultiSigLegacy {
         _value: &IntentMessage<T>,
         _author: HaneulAddress,
         _aux_verify_data: &VerifyParams,
-        _check_author: bool,
     ) -> Result<(), HaneulError>
     where
         T: Serialize,
@@ -111,13 +107,12 @@ impl AuthenticatorTrait for MultiSigLegacy {
         value: &IntentMessage<T>,
         author: HaneulAddress,
         aux_verify_data: &VerifyParams,
-        check_author: bool,
     ) -> Result<(), HaneulError>
     where
         T: Serialize,
     {
         let multisig: MultiSig = self.clone().try_into()?;
-        multisig.verify_claims(value, author, aux_verify_data, check_author)
+        multisig.verify_claims(value, author, aux_verify_data)
     }
 
     fn verify_authenticator<T>(
