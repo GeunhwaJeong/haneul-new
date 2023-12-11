@@ -2,7 +2,7 @@
 	"name": "@haneullabs/haneul.js",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "Haneul TypeScript API(Work in Progress)",
-	"homepage": "https://haneul-typescript-docs.vercel.app",
+	"homepage": "https://sdk.haneul-labs.com",
 	"version": "0.48.0",
 	"license": "Apache-2.0",
 	"sideEffects": false,

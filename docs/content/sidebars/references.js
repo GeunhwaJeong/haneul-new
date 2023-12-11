@@ -55,7 +55,7 @@ const references = [
 			{
 				type: 'link',
 				label: 'Haneul TypeScript SDK Site',
-				href: 'https://haneul-typescript-docs.vercel.app/typescript',
+				href: 'https://sdk.haneul-labs.com/typescript',
 			},
 			'references/rust-sdk',
 		],
@@ -63,7 +63,7 @@ const references = [
 	{
 		type: 'link',
 		label: 'dApp Kit Site',
-		href: 'https://haneul-typescript-docs.vercel.app/dapp-kit',
+		href: 'https://sdk.haneul-labs.com/dapp-kit',
 	},
 	{
 		type: 'category',

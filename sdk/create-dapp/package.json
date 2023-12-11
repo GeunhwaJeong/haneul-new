@@ -2,7 +2,7 @@
 	"name": "@haneullabs/create-dapp",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "A CLI for creating new Haneul dApps",
-	"homepage": "https://haneul-typescript-docs.vercel.app",
+	"homepage": "https://sdk.haneul-labs.com",
 	"version": "0.1.7",
 	"license": "Apache-2.0",
 	"files": [

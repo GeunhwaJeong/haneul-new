@@ -4,7 +4,7 @@ The Haneul dApp Kit is a set of React components, hooks, and utilities that make
 dApp for the Haneul ecosystem. It provides hooks and components for querying data from the Haneul
 blockchain, and connecting to Haneul wallets.
 
-See https://haneul-typescript-docs.vercel.app/typescript for full documentation
+See https://sdk.haneul-labs.com/typescript for full documentation
 
 ### Core Features
 
@@ -66,8 +66,7 @@ are customizable so you can quickly get your dApp up and running.
 
 To use our provided UI components, you will need to import the dApp Kit's CSS stylesheet into your
 dApp as shown below. For more information regarding customization options, check out the respective
-documentation pages for the components and
-[themes](https://haneul-typescript-docs.vercel.app/dapp-kit/themes).
+documentation pages for the components and [themes](https://sdk.haneul-labs.com/dapp-kit/themes).
 
 ```tsx
 import '@haneullabs/dapp-kit/dist/index.css';

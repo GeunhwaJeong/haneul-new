@@ -145,7 +145,7 @@ export default function Home() {
           <HomeCard title="References" aux>
             <Link
               className={`${cardlinks} text-md`}
-              to="https://haneul-typescript-docs.vercel.app/dapp-kit?ref=blog.haneul.io"
+              to="https://sdk.haneul-labs.com/dapp-kit?ref=blog.haneul.io"
             >
               Haneul dApp Kit
             </Link>
