@@ -183,7 +183,7 @@ pub async fn perform_zk_login_test_tx(
     let transaction_response = haneul
         .quorum_driver_api()
         .execute_transaction_block(
-            Transaction::from_generic_sig_data(txb_res, Intent::haneul_transaction(), vec![multisig]),
+            Transaction::from_generic_sig_data(txb_res, vec![multisig]),
             HaneulTransactionBlockResponseOptions::full_content(),
             None,
         )

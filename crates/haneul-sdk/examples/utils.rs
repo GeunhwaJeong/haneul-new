@@ -48,7 +48,7 @@ pub const HANEUL_FAUCET: &str = "https://faucet.testnet.haneul.io/v1/gas"; // te
 ///
 /// By default, this function will set up a wallet locally if there isn't any, or reuse the
 /// existing one and its active address. This function should be used when two addresses are needed,
-/// e.g., transfering objects from one address to another.
+/// e.g., transferring objects from one address to another.
 pub async fn setup_for_write() -> Result<(HaneulClient, HaneulAddress, HaneulAddress), anyhow::Error> {
     let (client, active_address) = setup_for_read().await?;
     // make sure we have some HANEUL (5_000_000 GEUNHWA) on this address
@@ -130,7 +130,7 @@ pub async fn request_tokens_from_faucet(
 
     let mut coin_id = "".to_string();
 
-    // wait for the faucet to finsh the batch of token requests
+    // wait for the faucet to finish the batch of token requests
     loop {
         let resp = client
             .get("https://faucet.testnet.haneul.io/v1/status")
@@ -222,7 +222,7 @@ pub async fn split_coin_digest(
     // get the reference gas price from the network
     let gas_price = haneul.read_api().get_reference_gas_price().await?;
 
-    // now we programatically build the transaction through several commands
+    // now we programmatically build the transaction through several commands
     let mut ptb = ProgrammableTransactionBuilder::new();
     // first, we want to split the coin, and we specify how much HANEUL (in GEUNHWA) we want
     // for the new coin
@@ -259,7 +259,7 @@ pub async fn split_coin_digest(
     let transaction_response = haneul
         .quorum_driver_api()
         .execute_transaction_block(
-            Transaction::from_data(tx_data, Intent::haneul_transaction(), vec![signature]),
+            Transaction::from_data(tx_data, vec![signature]),
             HaneulTransactionBlockResponseOptions::new(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )

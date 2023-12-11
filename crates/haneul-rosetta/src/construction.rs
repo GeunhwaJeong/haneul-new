@@ -107,7 +107,6 @@ pub async fn combine(
 
     let signed_tx = Transaction::from_generic_sig_data(
         intent_msg.value,
-        Intent::haneul_transaction(),
         vec![GenericSignature::from_bytes(
             &[&*flag, &*sig_bytes, &*pub_key].concat(),
         )?],

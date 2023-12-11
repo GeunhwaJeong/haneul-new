@@ -140,7 +140,6 @@ async fn main() -> Result<(), anyhow::Error> {
         .execute_transaction_block(
             haneul_types::transaction::Transaction::from_generic_sig_data(
                 intent_msg.value,
-                Intent::haneul_transaction(),
                 vec![GenericSignature::Signature(haneul_sig)],
             ),
             HaneulTransactionBlockResponseOptions::default(),

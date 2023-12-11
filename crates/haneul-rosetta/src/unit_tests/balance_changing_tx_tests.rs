@@ -716,7 +716,7 @@ async fn test_transaction(
     let response = client
         .quorum_driver_api()
         .execute_transaction_block(
-            Transaction::from_data(data.clone(), Intent::haneul_transaction(), vec![signature]),
+            Transaction::from_data(data.clone(), vec![signature]),
             HaneulTransactionBlockResponseOptions::full_content(),
             Some(ExecuteTransactionRequestType::WaitForLocalExecution),
         )

@@ -78,7 +78,7 @@ fn test_authority_signature_intent() {
         &IntentMessage::new(Intent::haneul_transaction(), data.clone()),
         &sender_key,
     );
-    let tx = Transaction::from_data(data, Intent::haneul_transaction(), vec![signature]);
+    let tx = Transaction::from_data(data, vec![signature]);
     let tx1 = tx.clone();
     assert!(tx.verify(&Default::default()).is_ok());
 

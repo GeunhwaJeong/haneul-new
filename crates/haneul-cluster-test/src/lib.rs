@@ -21,7 +21,6 @@ use haneul_types::object::Owner;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
-use shared_crypto::intent::Intent;
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{
@@ -153,7 +152,7 @@ impl TestContext {
             .get_fullnode_client()
             .quorum_driver_api()
             .execute_transaction_block(
-                Transaction::from_data(txn_data, Intent::haneul_transaction(), vec![signature]),
+                Transaction::from_data(txn_data, vec![signature]),
                 HaneulTransactionBlockResponseOptions::new()
                     .with_object_changes()
                     .with_balance_changes()
