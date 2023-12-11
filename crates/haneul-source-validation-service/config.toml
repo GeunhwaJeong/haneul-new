@@ -36,3 +36,23 @@ packages = [
     { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
     { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
 ]
+
+[[packages]]
+source = "Repository"
+[packages.values]
+repository = "https://github.com/GeunhwaJeong/apps"
+branch = "main"
+network = "mainnet"
+packages = [
+    { path = "kiosk" },
+]
+
+[[packages]]
+source = "Repository"
+[packages.values]
+repository = "https://github.com/GeunhwaJeong/apps"
+branch = "testnet"
+network = "testnet"
+packages = [
+    { path = "kiosk" },
+]
