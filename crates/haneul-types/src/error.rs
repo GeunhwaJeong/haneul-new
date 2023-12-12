@@ -541,6 +541,8 @@ pub enum HaneulError {
     // Epoch related errors.
     #[error("Validator temporarily stopped processing transactions due to epoch change")]
     ValidatorHaltedAtEpochEnd,
+    #[error("Validator has stopped operations for this epoch")]
+    EpochEnded,
     #[error("Error when advancing epoch: {:?}", error)]
     AdvanceEpochError { error: String },
 
