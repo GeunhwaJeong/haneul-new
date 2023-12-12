@@ -94,7 +94,7 @@ use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
 use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_kvstore::writer::setup_key_value_store_uploader;
-use haneul_macros::fail_point_async;
+use haneul_macros::{fail_point_async, replay_log};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::discovery::TrustedPeerChangeEvent;
@@ -466,6 +466,12 @@ impl HaneulNode {
             signature_verifier_metrics,
             &config.expensive_safety_check_config,
             ChainIdentifier::from(*genesis.checkpoint().digest()),
+        );
+
+        replay_log!(
+            "Beginning replay run. Epoch: {:?}, Protocol config: {:?}",
+            epoch_store.epoch(),
+            epoch_store.protocol_config()
         );
 
         // the database is empty at genesis time
