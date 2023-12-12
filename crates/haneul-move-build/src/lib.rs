@@ -581,7 +581,11 @@ pub struct HaneulPackageHooks;
 
 impl PackageHooks for HaneulPackageHooks {
     fn custom_package_info_fields(&self) -> Vec<String> {
-        vec![PUBLISHED_AT_MANIFEST_FIELD.to_string()]
+        vec![
+            PUBLISHED_AT_MANIFEST_FIELD.to_string(),
+            // TODO: remove this once version fields are removed from all manifests
+            "version".to_string(),
+        ]
     }
 
     fn custom_dependency_key(&self) -> Option<String> {
