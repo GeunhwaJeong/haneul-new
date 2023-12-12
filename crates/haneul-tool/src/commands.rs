@@ -590,7 +590,13 @@ impl ToolCommand {
                 let skip_checkpoints = skip_checkpoints || formal;
                 let aws_endpoint = env::var("AWS_SNAPSHOT_ENDPOINT").ok().or_else(|| {
                     if formal && no_sign_request {
-                        Some("https://formal-snapshot.testnet.haneul.io".to_string())
+                        if network == Chain::Mainnet {
+                            Some("https://formal-snapshot.mainnet.haneul.io".to_string())
+                        } else if network == Chain::Testnet {
+                            Some("https://formal-snapshot.testnet.haneul.io".to_string())
+                        } else {
+                            None
+                        }
                     } else {
                         None
                     }
