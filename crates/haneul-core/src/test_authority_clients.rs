@@ -12,7 +12,6 @@ use crate::{authority::AuthorityState, authority_client::AuthorityAPI};
 use async_trait::async_trait;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
-use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::HaneulResult;
 use haneul_types::messages_grpc::{
     HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
@@ -25,6 +24,10 @@ use haneul_types::{
     error::HaneulError,
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
     transaction::{CertifiedTransaction, Transaction, VerifiedTransaction},
+};
+use haneul_types::{
+    effects::{TransactionEffectsAPI, TransactionEvents},
+    messages_checkpoint::{CheckpointRequestV2, CheckpointResponseV2},
 };
 
 #[derive(Clone, Copy, Default)]
@@ -115,6 +118,15 @@ impl AuthorityAPI for LocalAuthorityClient {
         let state = self.state.clone();
 
         state.handle_checkpoint_request(&request)
+    }
+
+    async fn handle_checkpoint_v2(
+        &self,
+        request: CheckpointRequestV2,
+    ) -> Result<CheckpointResponseV2, HaneulError> {
+        let state = self.state.clone();
+
+        state.handle_checkpoint_request_v2(&request)
     }
 
     async fn handle_system_state_object(
@@ -282,6 +294,13 @@ impl AuthorityAPI for MockAuthorityApi {
         unimplemented!();
     }
 
+    async fn handle_checkpoint_v2(
+        &self,
+        _request: CheckpointRequestV2,
+    ) -> Result<CheckpointResponseV2, HaneulError> {
+        unimplemented!();
+    }
+
     async fn handle_system_state_object(
         &self,
         _request: SystemStateRequest,
@@ -342,6 +361,13 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
         &self,
         _request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_checkpoint_v2(
+        &self,
+        _request: CheckpointRequestV2,
+    ) -> Result<CheckpointResponseV2, HaneulError> {
         unimplemented!()
     }
 

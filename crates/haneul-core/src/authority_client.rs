@@ -10,7 +10,9 @@ use std::time::Duration;
 use haneul_network::{api::ValidatorClient, tonic};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
-use haneul_types::messages_checkpoint::{CheckpointRequest, CheckpointResponse};
+use haneul_types::messages_checkpoint::{
+    CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
+};
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{error::HaneulError, transaction::*};
@@ -58,6 +60,11 @@ pub trait AuthorityAPI {
         &self,
         request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError>;
+
+    async fn handle_checkpoint_v2(
+        &self,
+        request: CheckpointRequestV2,
+    ) -> Result<CheckpointResponseV2, HaneulError>;
 
     // This API is exclusively used by the benchmark code.
     // Hence it's OK to return a fixed system state type.
@@ -184,6 +191,18 @@ impl AuthorityAPI for NetworkAuthorityClient {
     ) -> Result<CheckpointResponse, HaneulError> {
         self.client()
             .checkpoint(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
+    }
+
+    /// Handle Object information requests for this account.
+    async fn handle_checkpoint_v2(
+        &self,
+        request: CheckpointRequestV2,
+    ) -> Result<CheckpointResponseV2, HaneulError> {
+        self.client()
+            .checkpoint_v2(request)
             .await
             .map(tonic::Response::into_inner)
             .map_err(Into::into)
