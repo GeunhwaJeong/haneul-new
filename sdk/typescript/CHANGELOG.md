@@ -1,5 +1,13 @@
 # @haneullabs/haneul.js
 
+## 0.48.1
+
+### Patch Changes
+
+- dd362ec1d6: Update docs url to sdk.haneul-labs.com
+- Updated dependencies [dd362ec1d6]
+  - @haneullabs/bcs@0.9.1
+
 ## 0.48.0
 
 ### Minor Changes

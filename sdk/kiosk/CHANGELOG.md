@@ -1,5 +1,13 @@
 # @haneullabs/kiosk
 
+## 0.7.13
+
+### Patch Changes
+
+- dd362ec1d6: Update docs url to sdk.haneul-labs.com
+- Updated dependencies [dd362ec1d6]
+  - @haneullabs/haneul.js@0.48.1
+
 ## 0.7.12
 
 ### Patch Changes
