@@ -690,7 +690,7 @@ impl LocalExec {
     ) -> Result<ExecutionSandboxState, ReplayEngineError> {
         let tx_digest = &tx_info.tx_digest;
         // A lot of the logic here isnt designed for genesis
-        if *tx_digest == TransactionDigest::genesis() || tx_info.sender == HaneulAddress::ZERO {
+        if *tx_digest == TransactionDigest::genesis_marker() || tx_info.sender == HaneulAddress::ZERO {
             // Genesis.
             warn!(
                 "Genesis/system TX replay not supported: {}, skipping transaction",
