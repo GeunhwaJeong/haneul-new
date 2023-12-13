@@ -28,8 +28,14 @@ pub struct BridgeAuthority {
     pub is_blocklisted: bool,
 }
 
+impl BridgeAuthority {
+    pub fn pubkey_bytes(&self) -> BridgeAuthorityPublicKeyBytes {
+        BridgeAuthorityPublicKeyBytes::from(&self.pubkey)
+    }
+}
+
 // A static Bridge committee implementation
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BridgeCommittee {
     members: BTreeMap<BridgeAuthorityPublicKeyBytes, BridgeAuthority>,
 }
@@ -102,7 +108,7 @@ pub enum TokenId {
     USDT = 4,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct HaneulToEthBridgeAction {
     // Digest of the transaction where the event was emitted
     pub haneul_tx_digest: TransactionDigest,
@@ -111,7 +117,7 @@ pub struct HaneulToEthBridgeAction {
     pub haneul_bridge_event: EmittedHaneulToEthTokenBridgeV1,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EthToHaneulBridgeAction {
     // Digest of the transaction where the event was emitted
     pub eth_tx_hash: EthTransactionHash,
@@ -123,7 +129,7 @@ pub struct EthToHaneulBridgeAction {
 
 /// The type of actions Bridge Committee verify and sign off to execution.
 /// Its relationship with BridgeEvent is similar to the relationship between
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum BridgeAction {
     /// Haneul to Eth bridge action
     HaneulToEthBridgeAction(HaneulToEthBridgeAction),
