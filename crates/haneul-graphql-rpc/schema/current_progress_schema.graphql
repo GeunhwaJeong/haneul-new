@@ -1791,6 +1791,11 @@ type Query {
 	object(address: HaneulAddress!, version: Int): Object
 	address(address: HaneulAddress!): Address
 	"""
+	Fetch a structured representation of a concrete type, including its layout information.
+	Fails if the type is malformed.
+	"""
+	type(type: String!): MoveType!
+	"""
 	Fetch epoch information by ID (defaults to the latest epoch).
 	"""
 	epoch(id: Int): Epoch
