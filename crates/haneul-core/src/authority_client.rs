@@ -19,9 +19,8 @@ use haneul_types::{error::HaneulError, transaction::*};
 
 use haneul_network::tonic::transport::Channel;
 use haneul_types::messages_grpc::{
-    HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
-    ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest, TransactionInfoRequest,
-    TransactionInfoResponse,
+    HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
+    SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
 };
 
 #[async_trait]
@@ -31,12 +30,6 @@ pub trait AuthorityAPI {
         &self,
         transaction: Transaction,
     ) -> Result<HandleTransactionResponse, HaneulError>;
-
-    /// Execute a certificate.
-    async fn handle_certificate(
-        &self,
-        certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError>;
 
     /// Execute a certificate.
     async fn handle_certificate_v2(
@@ -119,18 +112,6 @@ impl AuthorityAPI for NetworkAuthorityClient {
     }
 
     /// Execute a certificate.
-    async fn handle_certificate(
-        &self,
-        certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        self.client()
-            .handle_certificate(certificate)
-            .await
-            .map(tonic::Response::into_inner)
-            .map_err(Into::into)
-    }
-
-    /// Execute a certificate.
     async fn handle_certificate_v2(
         &self,
         certificate: CertifiedTransaction,
@@ -141,23 +122,6 @@ impl AuthorityAPI for NetworkAuthorityClient {
             .await
             .map(tonic::Response::into_inner);
 
-        if response.is_ok() {
-            return response.map_err(Into::into);
-        }
-        // TODO: remove this once all validators upgrade
-        if response.as_ref().err().unwrap().code() == tonic::Code::Unimplemented {
-            let response = self
-                .client()
-                .handle_certificate(certificate)
-                .await
-                .map(tonic::Response::into_inner)
-                .map_err(HaneulError::from)?;
-            return Ok(HandleCertificateResponseV2 {
-                signed_effects: response.signed_effects,
-                events: response.events,
-                fastpath_input_objects: vec![], // unused field
-            });
-        }
         response.map_err(Into::into)
     }
 

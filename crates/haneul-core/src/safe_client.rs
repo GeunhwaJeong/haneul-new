@@ -14,8 +14,8 @@ use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
 use haneul_types::messages_grpc::{
-    HandleCertificateResponse, HandleCertificateResponseV2, ObjectInfoRequest, ObjectInfoResponse,
-    SystemStateRequest, TransactionInfoRequest, TransactionStatus, VerifiedObjectInfoResponse,
+    HandleCertificateResponseV2, ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest,
+    TransactionInfoRequest, TransactionStatus, VerifiedObjectInfoResponse,
 };
 use haneul_types::messages_safe_client::PlainTransactionInfoResponse;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -321,21 +321,6 @@ where
         Ok(response)
     }
 
-    fn verify_certificate_response(
-        &self,
-        digest: &TransactionDigest,
-        response: HandleCertificateResponse,
-    ) -> HaneulResult<HandleCertificateResponse> {
-        Ok(HandleCertificateResponse {
-            signed_effects: self.check_signed_effects_plain(
-                digest,
-                response.signed_effects,
-                None,
-            )?,
-            events: response.events,
-        })
-    }
-
     fn verify_certificate_response_v2(
         &self,
         digest: &TransactionDigest,
@@ -366,25 +351,6 @@ where
         let verified = check_error!(
             self.address,
             self.verify_certificate_response_v2(&digest, response),
-            "Client error in handle_certificate"
-        )?;
-        Ok(verified)
-    }
-
-    pub async fn handle_certificate(
-        &self,
-        certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        let digest = *certificate.digest();
-        let _timer = self.metrics.handle_certificate_latency.start_timer();
-        let response = self
-            .authority_client
-            .handle_certificate(certificate)
-            .await?;
-
-        let verified = check_error!(
-            self.address,
-            self.verify_certificate_response(&digest, response),
             "Client error in handle_certificate"
         )?;
         Ok(verified)

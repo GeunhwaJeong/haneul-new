@@ -18,9 +18,8 @@ use haneul_network::{
 use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_grpc::{
-    HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
-    ObjectInfoRequest, ObjectInfoResponse, SubmitCertificateResponse, SystemStateRequest,
-    TransactionInfoRequest, TransactionInfoResponse,
+    HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
+    SubmitCertificateResponse, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -534,11 +533,7 @@ impl Validator for ValidatorService {
         })
         .await
         .unwrap()
-        .map(|executed| {
-            tonic::Response::new(SubmitCertificateResponse {
-                executed: executed.map(|e| e.into()),
-            })
-        })
+        .map(|executed| tonic::Response::new(SubmitCertificateResponse { executed }))
     }
 
     async fn handle_certificate_v2(
@@ -559,16 +554,6 @@ impl Validator for ValidatorService {
                     ),
                 )
             })
-    }
-
-    async fn handle_certificate(
-        &self,
-        request: tonic::Request<CertifiedTransaction>,
-    ) -> Result<tonic::Response<HandleCertificateResponse>, tonic::Status> {
-        request.get_ref().verify_user_input()?;
-        self.handle_certificate_v2(request)
-            .await
-            .map(|v| tonic::Response::new(v.into_inner().into()))
     }
 
     async fn object_info(

@@ -14,9 +14,8 @@ use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages_grpc::{
-    HandleCertificateResponse, HandleCertificateResponseV2, HandleTransactionResponse,
-    ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest, TransactionInfoRequest,
-    TransactionInfoResponse,
+    HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
+    SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
 };
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
@@ -72,15 +71,6 @@ impl AuthorityAPI for LocalAuthorityClient {
             });
         }
         result
-    }
-
-    async fn handle_certificate(
-        &self,
-        certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        self.handle_certificate_v2(certificate)
-            .await
-            .map(|r| r.into())
     }
 
     async fn handle_certificate_v2(
@@ -243,14 +233,6 @@ impl AuthorityAPI for MockAuthorityApi {
     }
 
     /// Execute a certificate.
-    async fn handle_certificate(
-        &self,
-        _certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        unimplemented!()
-    }
-
-    /// Execute a certificate.
     async fn handle_certificate_v2(
         &self,
         _certificate: CertifiedTransaction,
@@ -327,13 +309,6 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
             tokio::time::sleep(duration).await;
         }
         self.tx_info_resp_to_return.clone()
-    }
-
-    async fn handle_certificate(
-        &self,
-        _certificate: CertifiedTransaction,
-    ) -> Result<HandleCertificateResponse, HaneulError> {
-        unimplemented!()
     }
 
     async fn handle_certificate_v2(
