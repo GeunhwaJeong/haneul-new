@@ -10,7 +10,9 @@ use std::str::FromStr;
 
 use crate::error::BridgeError;
 use crate::error::BridgeResult;
+use crate::types::BridgeAction;
 use crate::types::BridgeChainId;
+use crate::types::HaneulToEthBridgeAction;
 use crate::types::TokenId;
 use ethers::types::Address as EthAddress;
 use move_core_types::language_storage::StructTag;
@@ -18,6 +20,7 @@ use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::digests::TransactionDigest;
 
 // TODO: Placeholder, this will need to match the actual event types defined in Move
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -71,4 +74,22 @@ macro_rules! declare_events {
             }
         }
     };
+}
+
+impl HaneulBridgeEvent {
+    pub fn try_into_bridge_action(
+        self,
+        haneul_tx_digest: TransactionDigest,
+        haneul_tx_event_index: u16,
+    ) -> Option<BridgeAction> {
+        match self {
+            HaneulBridgeEvent::HaneulToEthTokenBridgeV1(event) => {
+                Some(BridgeAction::HaneulToEthBridgeAction(HaneulToEthBridgeAction {
+                    haneul_tx_digest,
+                    haneul_tx_event_index,
+                    haneul_bridge_event: event.clone(),
+                }))
+            }
+        }
+    }
 }
