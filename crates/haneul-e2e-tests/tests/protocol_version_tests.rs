@@ -67,6 +67,7 @@ mod sim_only_tests {
     use haneul_macros::*;
     use haneul_move_build::{BuildConfig, CompiledPackage};
     use haneul_protocol_config::SupportedProtocolVersions;
+    use haneul_types::base_types::ConciseableName;
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
     use haneul_types::id::ID;

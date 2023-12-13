@@ -11,11 +11,17 @@ use haneul_sdk::HaneulClient as HaneulSdkClient;
 
 #[async_trait]
 pub trait BridgeRequestHandlerTrait {
+    /// Handles a request to sign a BridgeAction that bridges assets
+    /// from Ethereum to Haneul. The inputs are a transaction hash on Ethereum
+    /// that emitted the bridge event and the Event index in that transaction
     async fn handle_eth_tx_hash(
         &self,
         tx_hash_hex: String,
         event_idx: u16,
     ) -> Result<Json<SignedBridgeAction>, BridgeError>;
+    /// Handles a request to sign a BridgeAction that bridges assets
+    /// from Haneul to Ethereum. The inputs are a transaction digest on Haneul
+    /// that emitted the bridge event and the Event index in that transaction
     async fn handle_haneul_tx_digest(
         &self,
         tx_digest_base58: String,

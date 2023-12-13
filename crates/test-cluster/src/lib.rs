@@ -36,7 +36,9 @@ use haneul_swarm_config::network_config_builder::{
 };
 use haneul_swarm_config::node_config_builder::{FullnodeConfigBuilder, ValidatorConfigBuilder};
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use haneul_types::base_types::ConciseableName;
 use haneul_types::base_types::{AuthorityName, ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::committee::CommitteeTrait;
 use haneul_types::committee::{Committee, EpochId};
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;

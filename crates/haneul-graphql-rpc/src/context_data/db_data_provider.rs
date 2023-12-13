@@ -59,6 +59,7 @@ use haneul_json_rpc::{
 };
 use haneul_json_rpc_types::{ProtocolConfigResponse, Stake as RpcStakedHaneul};
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+use haneul_types::base_types::ConciseableName;
 use haneul_types::{
     base_types::{MoveObjectType, ObjectID, HaneulAddress as NativeHaneulAddress},
     coin::{CoinMetadata as NativeCoinMetadata, TreasuryCap},
@@ -1521,7 +1522,7 @@ impl TryFrom<StoredCheckpoint> for Checkpoint {
                     committees
                         .iter()
                         .map(|c| CommitteeMember {
-                            authority_name: Some(c.0.into_concise().to_string()),
+                            authority_name: Some(c.0.concise_owned().to_string()),
                             stake_unit: Some(c.1),
                         })
                         .collect::<Vec<_>>(),

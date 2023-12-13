@@ -13,6 +13,7 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::Duration;
 use haneul_swarm_config::genesis_config::AccountConfig;
+use haneul_types::base_types::ConciseableName;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{deterministic_random_account_key, AccountKeyPair};

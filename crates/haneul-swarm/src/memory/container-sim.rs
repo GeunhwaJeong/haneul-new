@@ -6,6 +6,7 @@ use std::net::{IpAddr, SocketAddr};
 use std::sync::{Arc, Weak};
 use haneul_config::NodeConfig;
 use haneul_node::{HaneulNode, HaneulNodeHandle};
+use haneul_types::base_types::ConciseableName;
 use tokio::sync::watch;
 use tracing::{info, trace};
 

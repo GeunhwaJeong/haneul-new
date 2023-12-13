@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use haneul_config::NodeConfig;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::AuthorityName;
+use haneul_types::base_types::ConciseableName;
 use tap::TapFallible;
 use tracing::{error, info};
 

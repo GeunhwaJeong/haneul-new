@@ -1,0 +1,15 @@
+[package]
+name = "haneul-authority-aggregation"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+haneul-types.workspace = true
+haneullabs-metrics.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+futures.workspace = true
+workspace-hack.workspace = true

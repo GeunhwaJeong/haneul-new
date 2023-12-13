@@ -25,6 +25,7 @@ use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use haneul_macros::fail_point;
 use haneul_network::default_haneullabs_network_config;
+use haneul_types::base_types::ConciseableName;
 
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::consensus_handler::SequencedConsensusTransactionKey;

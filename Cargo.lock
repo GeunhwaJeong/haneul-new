@@ -11273,6 +11273,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-authority-aggregation"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "haneullabs-metrics",
+ "haneul-types",
+ "tokio",
+ "tracing",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-aws-orchestrator"
 version = "0.0.1"
 dependencies = [
@@ -11522,6 +11534,7 @@ dependencies = [
  "signature 1.6.4",
  "static_assertions",
  "haneul-archival",
+ "haneul-authority-aggregation",
  "haneul-config",
  "haneul-execution",
  "haneul-framework",

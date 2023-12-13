@@ -34,7 +34,7 @@ use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Instant;
 use haneul_types::base_types::TransactionDigest;
-use haneul_types::committee::Committee;
+use haneul_types::committee::{Committee, CommitteeTrait};
 use haneul_types::error::{HaneulError, HaneulResult};
 
 use tap::prelude::*;

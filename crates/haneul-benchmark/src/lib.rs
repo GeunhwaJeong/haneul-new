@@ -30,6 +30,8 @@ use haneul_json_rpc_types::{
 };
 use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::base_types::ConciseableName;
+use haneul_types::committee::CommitteeTrait;
 use haneul_types::effects::{CertifiedTransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;

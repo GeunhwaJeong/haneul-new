@@ -86,6 +86,7 @@ members = [
     "crates/haneul-analytics-indexer",
     "crates/haneul-analytics-indexer-derive",
     "crates/haneul-archival",
+    "crates/haneul-authority-aggregation",
     "crates/haneul-aws-orchestrator",
     "crates/haneul-benchmark",
     "crates/haneul-bridge",
@@ -560,6 +561,7 @@ haneul-adapter-transactional-tests = { path = "crates/haneul-adapter-transaction
 haneul-analytics-indexer = { path = "crates/haneul-analytics-indexer" }
 haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-derive" }
 haneul-archival = { path = "crates/haneul-archival" }
+haneul-authority-aggregation= { path = "crates/haneul-authority-aggregation" }
 haneul-benchmark = { path = "crates/haneul-benchmark" }
 haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
