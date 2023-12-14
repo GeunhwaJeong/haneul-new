@@ -115,6 +115,7 @@ pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERS
 pub const HANEUL_AUTHENTICATOR_STATE_ADDRESS: AccountAddress = address_from_single_byte(7);
 pub const HANEUL_AUTHENTICATOR_STATE_OBJECT_ID: ObjectID =
     ObjectID::from_address(HANEUL_AUTHENTICATOR_STATE_ADDRESS);
+pub const HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
 
 /// 0x8: hardcode object ID for the singleton randomness state object.
 pub const HANEUL_RANDOMNESS_STATE_ADDRESS: AccountAddress = address_from_single_byte(8);

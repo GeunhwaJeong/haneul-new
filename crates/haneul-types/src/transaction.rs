@@ -22,8 +22,9 @@ use crate::object::{MoveObject, Object, Owner};
 use crate::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use crate::signature::{AuthenticatorTrait, GenericSignature, VerifyParams};
 use crate::{
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_PACKAGE_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 use enum_dispatch::enum_dispatch;
@@ -88,6 +89,11 @@ impl CallArg {
     pub const CLOCK_MUT: Self = Self::Object(ObjectArg::SharedObject {
         id: HANEUL_CLOCK_OBJECT_ID,
         initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+        mutable: true,
+    });
+    pub const AUTHENTICATOR_MUT: Self = Self::Object(ObjectArg::SharedObject {
+        id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+        initial_shared_version: HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
         mutable: true,
     });
 }

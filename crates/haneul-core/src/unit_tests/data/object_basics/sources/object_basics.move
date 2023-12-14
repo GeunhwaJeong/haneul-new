@@ -4,6 +4,8 @@
 /// Test CTURD object basics (create, transfer, update, read, delete)
 module examples::object_basics {
     use haneul::clock::Clock;
+    use haneul::authenticator_state::AuthenticatorState;
+    use haneul::random::Random;
     use haneul::dynamic_object_field as ofield;
     use haneul::event;
     use haneul::object::{Self, UID, ID};
@@ -142,4 +144,8 @@ module examples::object_basics {
     public entry fun generic_test<T>() {}
 
     public entry fun use_clock(_clock: &Clock) {}
+
+    public entry fun use_auth_state(_auth_state: &AuthenticatorState) {}
+
+    public entry fun use_random(_random: &Random) {}
 }
