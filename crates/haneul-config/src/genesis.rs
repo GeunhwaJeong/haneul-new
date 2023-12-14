@@ -20,11 +20,13 @@ use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
 };
 use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
+use haneul_types::storage::ObjectStore;
 use haneul_types::haneul_system_state::{
     get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateTrait,
     HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::transaction::Transaction;
+use haneul_types::HANEUL_RANDOMNESS_STATE_OBJECT_ID;
 use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
     error::HaneulResult,
@@ -335,6 +337,13 @@ impl UnsignedGenesis {
 
     pub fn authenticator_state_object(&self) -> Option<AuthenticatorStateInner> {
         get_authenticator_state(&self.objects()).expect("read from genesis cannot fail")
+    }
+
+    pub fn has_randomness_state_object(&self) -> bool {
+        self.objects()
+            .get_object(&HANEUL_RANDOMNESS_STATE_OBJECT_ID)
+            .expect("read from genesis cannot fail")
+            .is_some()
     }
 }
 
