@@ -17,9 +17,9 @@ export function useHaneulNSEnabled() {
 	return useFeatureIsOn(HANEUL_NS_FEATURE_FLAG);
 }
 
-export function useResolveHaneulNSAddress(name?: string | null) {
+export function useResolveHaneulNSAddress(name?: string | null, enabled?: boolean) {
 	const client = useHaneulClient();
-	const enabled = useHaneulNSEnabled();
+	const enabledHaneulNs = useHaneulNSEnabled();
 
 	return useQuery({
 		queryKey: ['resolve-haneulns-address', name],
@@ -28,7 +28,7 @@ export function useResolveHaneulNSAddress(name?: string | null) {
 				name: name!,
 			});
 		},
-		enabled: !!name && enabled,
+		enabled: !!name && enabled && enabledHaneulNs,
 		refetchOnWindowFocus: false,
 		retry: false,
 	});
