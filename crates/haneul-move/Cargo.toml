@@ -33,7 +33,6 @@ tokio = { workspace = true, features = ["full"] }
 move-vm-runtime = { path = "../../external-crates/move/crates/move-vm-runtime" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
 
-haneul-core = { workspace = true, optional = true }
 haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
@@ -65,6 +64,6 @@ build = []
 coverage = []
 disassemble = []
 prove = []
-unit_test = ["build", "dep:once_cell", "dep:haneul-core"]
+unit_test = ["build", "dep:once_cell"]
 calibrate = []
 all = ["build", "coverage", "disassemble", "prove", "unit_test", "calibrate"]

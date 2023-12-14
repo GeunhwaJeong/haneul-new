@@ -12503,7 +12503,6 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "haneul-core",
  "haneul-json",
  "haneul-json-rpc",
  "haneul-json-rpc-types",

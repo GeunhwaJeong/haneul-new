@@ -20,7 +20,6 @@ clap.workspace = true
 pretty_assertions.workspace = true
 tokio = { workspace = true, features = ["full"] }
 fastcrypto = { workspace = true }
-haneul-core.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-json.workspace = true
