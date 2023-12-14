@@ -36,7 +36,7 @@ reqwest.workspace = true
 im.workspace = true
 
 haneul-config.workspace = true
-haneul-execution = { path = "../../haneul-execution", features = ["gas-profiler"] }
+haneul-execution = { path = "../../haneul-execution" }
 haneul-swarm-config.workspace = true
 haneul-genesis-builder.workspace = true
 haneul-types = { workspace = true, features = ["gas-profiler"]}
