@@ -27,7 +27,8 @@ use errors::IndexerError;
 use haneullabs_metrics::{spawn_monitored_task, RegistryService};
 use processors::processor_orchestrator::ProcessorOrchestrator;
 use store::IndexerStore;
-use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle, ServerType, CLIENT_SDK_TYPE_HEADER};
+use haneul_json_rpc::{JsonRpcServerBuilder, ServerHandle, ServerType};
+use haneul_json_rpc_api::CLIENT_SDK_TYPE_HEADER;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 
 use crate::apis::MoveUtilsApi;

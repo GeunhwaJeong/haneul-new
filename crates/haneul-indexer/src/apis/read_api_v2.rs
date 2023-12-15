@@ -10,8 +10,8 @@ use haneul_types::object::ObjectRead;
 
 use crate::errors::IndexerError;
 use crate::indexer_reader::IndexerReader;
-use haneul_json_rpc::api::{ReadApiServer, QUERY_MAX_RESULT_LIMIT};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{ReadApiServer, QUERY_MAX_RESULT_LIMIT};
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, ProtocolConfigResponse, HaneulEvent,
     HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
@@ -159,9 +159,9 @@ impl ReadApiServer for ReadApiV2 {
         options: Option<HaneulTransactionBlockResponseOptions>,
     ) -> RpcResult<Vec<HaneulTransactionBlockResponse>> {
         let num_digests = digests.len();
-        if num_digests > *haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT {
+        if num_digests > *QUERY_MAX_RESULT_LIMIT {
             Err(HaneulRpcInputError::SizeLimitExceeded(
-                haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT.to_string(),
+                QUERY_MAX_RESULT_LIMIT.to_string(),
             ))?
         }
 
@@ -213,9 +213,9 @@ impl ReadApiServer for ReadApiV2 {
         descending_order: bool,
     ) -> RpcResult<CheckpointPage> {
         let cursor = cursor.map(BigInt::into_inner);
-        let limit = haneul_json_rpc::api::validate_limit(
+        let limit = haneul_json_rpc_api::validate_limit(
             limit,
-            haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT_CHECKPOINTS,
+            haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT_CHECKPOINTS,
         )
         .map_err(HaneulRpcInputError::from)?;
 
@@ -302,6 +302,6 @@ impl HaneulRpcModule for ReadApiV2 {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::ReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::ReadApiOpenRpc::module_doc()
     }
 }

@@ -5,9 +5,9 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
-use haneul_json_rpc::api::CoinReadApiClient;
-use haneul_json_rpc::api::CoinReadApiServer;
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::CoinReadApiClient;
+use haneul_json_rpc_api::CoinReadApiServer;
 use haneul_json_rpc_types::{Balance, CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;
@@ -75,6 +75,6 @@ impl HaneulRpcModule for CoinReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::CoinReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::CoinReadApiOpenRpc::module_doc()
     }
 }

@@ -13,7 +13,8 @@ use jsonrpsee::RpcModule;
 use prometheus::Registry;
 use std::env;
 use haneul_config::local_ip_utils;
-use haneul_json_rpc::{JsonRpcServerBuilder, HaneulRpcModule, CLIENT_TARGET_API_VERSION_HEADER};
+use haneul_json_rpc::{JsonRpcServerBuilder, HaneulRpcModule};
+use haneul_json_rpc_api::CLIENT_TARGET_API_VERSION_HEADER;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 

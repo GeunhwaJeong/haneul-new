@@ -108,6 +108,7 @@ members = [
     "crates/haneul-indexer",
     "crates/haneul-json",
     "crates/haneul-json-rpc",
+    "crates/haneul-json-rpc-api",
     "crates/haneul-json-rpc-tests",
     "crates/haneul-json-rpc-types",
     "crates/haneul-keys",
@@ -581,6 +582,7 @@ haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-json = { path = "crates/haneul-json" }
 haneul-json-rpc = { path = "crates/haneul-json-rpc" }
+haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
 haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
 haneul-keys = { path = "crates/haneul-keys" }
 haneul-kvstore = { path = "crates/haneul-kvstore" }

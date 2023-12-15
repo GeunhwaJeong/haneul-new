@@ -21,6 +21,7 @@ pretty_assertions.workspace = true
 tokio = { workspace = true, features = ["full"] }
 fastcrypto = { workspace = true }
 haneul-json-rpc.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-json.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }

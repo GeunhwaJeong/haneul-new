@@ -19,6 +19,10 @@ use tracing::{debug, error, info, instrument, warn};
 
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::authority::AuthorityState;
+use haneul_json_rpc_api::{
+    validate_limit, JsonRpcMetrics, ReadApiOpenRpc, ReadApiServer, QUERY_MAX_RESULT_LIMIT,
+    QUERY_MAX_RESULT_LIMIT_CHECKPOINTS,
+};
 use haneul_json_rpc_types::{
     BalanceChange, Checkpoint, CheckpointId, CheckpointPage, DisplayFieldsResponse, EventFilter,
     ObjectChange, ProtocolConfigResponse, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveStruct,
@@ -46,9 +50,6 @@ use haneul_types::haneul_serde::BigInt;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionDataAPI;
 
-use crate::api::JsonRpcMetrics;
-use crate::api::{validate_limit, ReadApiServer};
-use crate::api::{QUERY_MAX_RESULT_LIMIT, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS};
 use crate::authority_state::{StateRead, StateReadError, StateReadResult};
 use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
 use crate::with_tracing;
@@ -1043,7 +1044,7 @@ impl HaneulRpcModule for ReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::ReadApiOpenRpc::module_doc()
+        ReadApiOpenRpc::module_doc()
     }
 }
 

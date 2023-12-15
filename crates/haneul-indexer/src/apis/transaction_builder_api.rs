@@ -8,8 +8,8 @@ use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc::api::{TransactionBuilderClient, TransactionBuilderServer};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{TransactionBuilderClient, TransactionBuilderServer};
 use haneul_json_rpc_types::{
     RPCTransactionRequestParams, HaneulTransactionBlockBuilderMode, HaneulTypeTag, TransactionBlockBytes,
 };
@@ -221,6 +221,6 @@ impl HaneulRpcModule for TransactionBuilderApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::TransactionBuilderOpenRpc::module_doc()
+        haneul_json_rpc_api::TransactionBuilderOpenRpc::module_doc()
     }
 }

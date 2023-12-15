@@ -6,7 +6,7 @@ use crate::types::ReplayEngineError;
 use crate::types::{MAX_CONCURRENT_REQUESTS, RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD};
 use crate::LocalExec;
 use haneul_config::node::ExpensiveSafetyCheckConfig;
-use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
+use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;

@@ -5,10 +5,10 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 
-use haneul_json_rpc::api::{
+use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{
     validate_limit, ExtendedApiServer, QUERY_MAX_RESULT_LIMIT, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS,
 };
-use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_types::{
     AddressMetrics, CheckpointedObjectID, EpochInfo, EpochMetricsPage, EpochPage, MoveCallMetrics,
     NetworkMetrics, Page, QueryObjectsPage, HaneulObjectDataFilter, HaneulObjectResponse,
@@ -190,6 +190,6 @@ where
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::ExtendedApiOpenRpc::module_doc()
+        haneul_json_rpc_api::ExtendedApiOpenRpc::module_doc()
     }
 }

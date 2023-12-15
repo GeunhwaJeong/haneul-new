@@ -11,6 +11,7 @@ use move_core_types::language_storage::StructTag;
 
 use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::{TransactionBuilderOpenRpc, TransactionBuilderServer};
 use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulObjectDataFilter};
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionBlockBuilderMode, HaneulTypeTag,
@@ -22,7 +23,6 @@ use haneul_types::base_types::ObjectInfo;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::haneul_serde::BigInt;
 
-use crate::api::TransactionBuilderServer;
 use crate::authority_state::StateRead;
 use crate::HaneulRpcModule;
 
@@ -321,6 +321,6 @@ impl HaneulRpcModule for TransactionBuilderApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::TransactionBuilderOpenRpc::module_doc()
+        TransactionBuilderOpenRpc::module_doc()
     }
 }

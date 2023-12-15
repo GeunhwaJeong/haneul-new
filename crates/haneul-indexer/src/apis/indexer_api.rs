@@ -10,8 +10,8 @@ use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee::{RpcModule, SubscriptionSink};
 
 use move_core_types::identifier::Identifier;
-use haneul_json_rpc::api::{cap_page_limit, IndexerApiClient, IndexerApiServer};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{cap_page_limit, IndexerApiClient, IndexerApiServer};
 use haneul_json_rpc_types::{
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulObjectDataFilter,
     HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockResponseQuery,
@@ -480,6 +480,6 @@ where
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::IndexerApiOpenRpc::module_doc()
+        haneul_json_rpc_api::IndexerApiOpenRpc::module_doc()
     }
 }

@@ -3,10 +3,8 @@
 
 use crate::indexer_reader::IndexerReader;
 use jsonrpsee::{core::RpcResult, RpcModule};
-use haneul_json_rpc::{
-    api::{validate_limit, ExtendedApiServer, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS},
-    HaneulRpcModule,
-};
+use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{validate_limit, ExtendedApiServer, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS};
 use haneul_json_rpc_types::{
     AddressMetrics, CheckpointedObjectID, EpochInfo, EpochMetrics, EpochMetricsPage, EpochPage,
     MoveCallMetrics, NetworkMetrics, Page, QueryObjectsPage, HaneulObjectResponseQuery,
@@ -171,6 +169,6 @@ impl HaneulRpcModule for ExtendedApiV2 {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::ExtendedApiOpenRpc::module_doc()
+        haneul_json_rpc_api::ExtendedApiOpenRpc::module_doc()
     }
 }

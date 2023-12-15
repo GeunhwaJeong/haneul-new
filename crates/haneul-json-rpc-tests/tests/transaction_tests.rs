@@ -12,7 +12,7 @@ use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::transaction::SenderSignedData;
 use test_cluster::TestClusterBuilder;
 
-use haneul_json_rpc::api::{IndexerApiClient, TransactionBuilderClient, WriteApiClient};
+use haneul_json_rpc_api::{IndexerApiClient, TransactionBuilderClient, WriteApiClient};
 
 #[sim_test]
 async fn test_get_transaction_block() -> Result<(), anyhow::Error> {

@@ -15,6 +15,7 @@ use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVer
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
+use haneul_json_rpc_api::{JsonRpcMetrics, WriteApiOpenRpc, WriteApiServer};
 use haneul_json_rpc_types::{
     DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
     HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
@@ -34,8 +35,6 @@ use haneul_types::transaction::{
 };
 use tracing::instrument;
 
-use crate::api::JsonRpcMetrics;
-use crate::api::WriteApiServer;
 use crate::authority_state::StateRead;
 use crate::error::{Error, HaneulRpcInputError};
 use crate::{
@@ -314,6 +313,6 @@ impl HaneulRpcModule for TransactionExecutionApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::WriteApiOpenRpc::module_doc()
+        WriteApiOpenRpc::module_doc()
     }
 }

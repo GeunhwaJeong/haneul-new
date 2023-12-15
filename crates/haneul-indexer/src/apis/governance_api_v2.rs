@@ -8,9 +8,8 @@ use async_trait::async_trait;
 use jsonrpsee::{core::RpcResult, RpcModule};
 
 use cached::{proc_macro::cached, SizedCache};
-use haneul_json_rpc::{
-    api::GovernanceReadApiServer, governance_api::ValidatorExchangeRates, HaneulRpcModule,
-};
+use haneul_json_rpc::{governance_api::ValidatorExchangeRates, HaneulRpcModule};
+use haneul_json_rpc_api::GovernanceReadApiServer;
 use haneul_json_rpc_types::{
     DelegatedStake, EpochInfo, StakeStatus, HaneulCommittee, HaneulObjectDataFilter, ValidatorApys,
 };
@@ -319,6 +318,6 @@ impl HaneulRpcModule for GovernanceReadApiV2 {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::GovernanceReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::GovernanceReadApiOpenRpc::module_doc()
     }
 }

@@ -8,9 +8,9 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 
-use haneul_json_rpc::api::MoveUtilsClient;
-use haneul_json_rpc::api::MoveUtilsServer;
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::MoveUtilsClient;
+use haneul_json_rpc_api::MoveUtilsServer;
 use haneul_json_rpc_types::{
     MoveFunctionArgType, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct,
@@ -36,7 +36,7 @@ impl HaneulRpcModule for MoveUtilsApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::MoveUtilsOpenRpc::module_doc()
+        haneul_json_rpc_api::MoveUtilsOpenRpc::module_doc()
     }
 }
 

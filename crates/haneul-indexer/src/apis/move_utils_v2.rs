@@ -7,9 +7,9 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 
-use haneul_json_rpc::api::MoveUtilsServer;
 use haneul_json_rpc::error::HaneulRpcInputError;
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::MoveUtilsServer;
 use haneul_json_rpc_types::ObjectValueKind;
 use haneul_json_rpc_types::HaneulMoveNormalizedType;
 use haneul_json_rpc_types::{
@@ -155,6 +155,6 @@ impl HaneulRpcModule for MoveUtilsApiV2 {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::MoveUtilsOpenRpc::module_doc()
+        haneul_json_rpc_api::MoveUtilsOpenRpc::module_doc()
     }
 }

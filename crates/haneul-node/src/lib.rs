@@ -23,7 +23,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_core::authority::CHAIN_IDENTIFIER;
 use haneul_core::consensus_adapter::{LazyNarwhalClient, SubmitToConsensus};
-use haneul_json_rpc::api::JsonRpcMetrics;
+use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::digests::ChainIdentifier;

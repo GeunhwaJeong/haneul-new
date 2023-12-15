@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 use std::num::NonZeroUsize;
 use std::str::FromStr;
 use haneul_core::authority::NodeStateDump;
-use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
+use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::EventFilter;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulGetPastObjectRequest;

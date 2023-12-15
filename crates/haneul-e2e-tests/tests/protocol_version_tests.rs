@@ -62,7 +62,7 @@ mod sim_only_tests {
     use std::sync::Arc;
     use haneul_core::authority::framework_injection;
     use haneul_framework::BuiltInFramework;
-    use haneul_json_rpc::api::WriteApiClient;
+    use haneul_json_rpc_api::WriteApiClient;
     use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
     use haneul_macros::*;
     use haneul_move_build::{BuildConfig, CompiledPackage};

@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::Duration;
 use haneul_json::{call_args, type_args};
-use haneul_json_rpc::api::{
+use haneul_json_rpc_api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, ReadApiClient,
     TransactionBuilderClient, WriteApiClient,
 };

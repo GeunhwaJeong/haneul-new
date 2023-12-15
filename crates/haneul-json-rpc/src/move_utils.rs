@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::MoveUtilsServer;
 use crate::authority_state::StateRead;
 use crate::error::{Error, HaneulRpcInputError};
 use crate::{with_tracing, HaneulRpcModule};
@@ -18,6 +17,7 @@ use move_core_types::identifier::Identifier;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
+use haneul_json_rpc_api::{MoveUtilsOpenRpc, MoveUtilsServer};
 use haneul_json_rpc_types::{
     MoveFunctionArgType, ObjectValueKind, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
     HaneulMoveNormalizedStruct,
@@ -140,7 +140,7 @@ impl HaneulRpcModule for MoveUtils {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::MoveUtilsOpenRpc::module_doc()
+        MoveUtilsOpenRpc::module_doc()
     }
 }
 

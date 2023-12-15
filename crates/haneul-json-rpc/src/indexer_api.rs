@@ -17,6 +17,10 @@ use std::str::FromStr;
 use std::sync::Arc;
 use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
+use haneul_json_rpc_api::{
+    cap_page_limit, validate_limit, IndexerApiOpenRpc, IndexerApiServer, JsonRpcMetrics,
+    ReadApiServer, QUERY_MAX_RESULT_LIMIT,
+};
 use haneul_json_rpc_types::{
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulObjectDataOptions,
     HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockResponse,
@@ -35,10 +39,6 @@ use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 use tracing::{debug, instrument, warn};
 
 use crate::{
-    api::{
-        cap_page_limit, validate_limit, IndexerApiServer, JsonRpcMetrics, ReadApiServer,
-        QUERY_MAX_RESULT_LIMIT,
-    },
     authority_state::StateRead,
     error::{Error, HaneulRpcInputError},
     name_service::{Domain, NameRecord, NameServiceConfig},
@@ -438,6 +438,6 @@ impl<R: ReadApiServer> HaneulRpcModule for IndexerApi<R> {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::IndexerApiOpenRpc::module_doc()
+        IndexerApiOpenRpc::module_doc()
     }
 }

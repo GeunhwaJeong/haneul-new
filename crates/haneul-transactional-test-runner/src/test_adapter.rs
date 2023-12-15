@@ -50,7 +50,7 @@ use haneul_graphql_rpc::config::ConnectionConfig;
 use haneul_graphql_rpc::test_infra::cluster::serve_executor;
 use haneul_graphql_rpc::test_infra::cluster::ExecutorCluster;
 use haneul_graphql_rpc::test_infra::cluster::DEFAULT_INTERNAL_DATA_SOURCE_PORT;
-use haneul_json_rpc::api::QUERY_MAX_RESULT_LIMIT;
+use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::{DevInspectResults, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_rest_api::node_state_getter::NodeStateGetter;
@@ -1794,7 +1794,7 @@ async fn init_val_fullnode_executor(
         test_account
     };
 
-    // For each named Haneul account without an address value, create an account with an adddress
+    // For each named Haneul account without an address value, create an account with an address
     // and a gas object
     for n in account_names {
         let test_account = mk_account();

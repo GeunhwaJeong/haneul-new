@@ -36,4 +36,5 @@ haneul-simulator.workspace = true
 fastcrypto-zkp.workspace = true
 
 [dev-dependencies]
+haneul-json-rpc-api.workspace = true
 haneul-macros.workspace = true

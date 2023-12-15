@@ -6,8 +6,8 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 
-use haneul_json_rpc::api::{GovernanceReadApiClient, GovernanceReadApiServer};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{GovernanceReadApiClient, GovernanceReadApiServer};
 use haneul_json_rpc_types::HaneulCommittee;
 use haneul_json_rpc_types::{DelegatedStake, ValidatorApys};
 use haneul_open_rpc::Module;
@@ -62,6 +62,6 @@ impl HaneulRpcModule for GovernanceReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::GovernanceReadApiOpenRpc::module_doc()
+        haneul_json_rpc_api::GovernanceReadApiOpenRpc::module_doc()
     }
 }

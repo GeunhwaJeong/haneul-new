@@ -8,9 +8,9 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::types::SubscriptionEmptyError;
 use jsonrpsee::types::SubscriptionResult;
 use jsonrpsee::{RpcModule, SubscriptionSink};
-use haneul_json_rpc::api::{cap_page_limit, IndexerApiServer};
 use haneul_json_rpc::name_service::{Domain, NameRecord, NameServiceConfig};
 use haneul_json_rpc::HaneulRpcModule;
+use haneul_json_rpc_api::{cap_page_limit, IndexerApiServer};
 use haneul_json_rpc_types::{
     DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulObjectResponse,
     HaneulObjectResponseQuery, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
@@ -363,6 +363,6 @@ impl HaneulRpcModule for IndexerApiV2 {
     }
 
     fn rpc_doc_module() -> Module {
-        haneul_json_rpc::api::IndexerApiOpenRpc::module_doc()
+        haneul_json_rpc_api::IndexerApiOpenRpc::module_doc()
     }
 }

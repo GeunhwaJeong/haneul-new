@@ -3,7 +3,7 @@
 
 use move_binary_format::access::ModuleAccess;
 use haneul_framework::BuiltInFramework;
-use haneul_json_rpc::api::ReadApiClient;
+use haneul_json_rpc_api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;
 use haneul_macros::sim_test;
 use haneul_types::{

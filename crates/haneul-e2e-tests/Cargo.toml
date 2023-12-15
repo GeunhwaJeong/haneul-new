@@ -40,6 +40,7 @@ move-core-types.workspace = true
 haneul-core.workspace = true
 haneul-framework.workspace = true
 haneul-json-rpc.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-node.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true

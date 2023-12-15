@@ -29,9 +29,9 @@ pub mod pg_integration_test {
     use haneul_indexer::store::{IndexerStore, PgIndexerStore};
     use haneul_indexer::test_utils::{start_test_indexer, HaneulTransactionBlockResponseBuilder};
     use haneul_indexer::{get_pg_pool_connection, new_pg_connection_pool, IndexerConfig};
-    use haneul_json_rpc::api::ExtendedApiClient;
-    use haneul_json_rpc::api::IndexerApiClient;
-    use haneul_json_rpc::api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
+    use haneul_json_rpc_api::ExtendedApiClient;
+    use haneul_json_rpc_api::IndexerApiClient;
+    use haneul_json_rpc_api::{ReadApiClient, TransactionBuilderClient, WriteApiClient};
     use haneul_json_rpc_types::{
         CheckpointId, EventFilter, HaneulMoveObject, HaneulObjectData, HaneulObjectDataFilter,
         HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedMoveObject,

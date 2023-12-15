@@ -36,6 +36,7 @@ fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics.workspace = true
 haneul-json.workspace = true
 haneul-json-rpc.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-open-rpc.workspace = true
 haneul-sdk.workspace = true

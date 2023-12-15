@@ -15,6 +15,7 @@ use tracing::{info, instrument};
 
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::authority::AuthorityState;
+use haneul_json_rpc_api::{GovernanceReadApiOpenRpc, GovernanceReadApiServer, JsonRpcMetrics};
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
 use haneul_json_rpc_types::{HaneulCommittee, ValidatorApy, ValidatorApys};
 use haneul_open_rpc::Module;
@@ -31,7 +32,6 @@ use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{get_validator_from_table, HaneulSystemState};
 
-use crate::api::{GovernanceReadApiServer, JsonRpcMetrics};
 use crate::authority_state::StateRead;
 use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
 use crate::{with_tracing, ObjectProvider, HaneulRpcModule};
@@ -457,6 +457,6 @@ impl HaneulRpcModule for GovernanceReadApi {
     }
 
     fn rpc_doc_module() -> Module {
-        crate::api::GovernanceReadApiOpenRpc::module_doc()
+        GovernanceReadApiOpenRpc::module_doc()
     }
 }

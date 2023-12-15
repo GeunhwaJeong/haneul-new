@@ -21,6 +21,7 @@ haneul-macros.workspace = true
 haneul-simulator.workspace = true
 haneul-json.workspace = true
 haneul-json-rpc.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-open-rpc.workspace = true
 haneul-open-rpc-macros.workspace = true
