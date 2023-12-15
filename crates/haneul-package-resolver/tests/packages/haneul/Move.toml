@@ -1,0 +1,7 @@
+[package]
+name = "Haneul"
+version = "0.0.1"
+published-at = "0x2"
+
+[addresses]
+haneul = "0x2"
