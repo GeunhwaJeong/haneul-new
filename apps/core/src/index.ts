@@ -35,3 +35,4 @@ export * from './hooks/useElementDimensions';
 export * from './hooks/useHaneulCoinData';
 export * from './hooks/useLocalStorage';
 export * from './hooks/useGetDelegatedStake';
+export * from './hooks/useTokenPrice';
