@@ -43,6 +43,7 @@ shared-crypto.workspace = true
 similar.workspace = true
 haneul-sdk.workspace = true
 haneul-types.workspace = true
+tap.workspace = true
 telemetry-subscribers.workspace = true
 tracing.workspace = true
 tokio.workspace = true

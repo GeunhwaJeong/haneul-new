@@ -11982,6 +11982,7 @@ dependencies = [
  "haneul-sdk",
  "haneul-swarm-config",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "test-cluster",
  "thiserror",
