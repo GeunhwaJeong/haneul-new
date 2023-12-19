@@ -11539,6 +11539,7 @@ dependencies = [
  "shared-crypto",
  "shell-words",
  "signature 1.6.4",
+ "haneul",
  "haneul-config",
  "haneul-execution",
  "haneul-genesis-builder",

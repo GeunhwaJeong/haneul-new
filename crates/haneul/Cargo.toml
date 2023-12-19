@@ -83,6 +83,8 @@ haneul-macros.workspace = true
 haneul-simulator.workspace = true
 haneul-test-transaction-builder.workspace = true
 
+haneul = { path = ".", features = ["gas-profiler"] }
+
 [package.metadata.cargo-udeps.ignore]
 normal = ["jemalloc-ctl"]
 
