@@ -3,7 +3,7 @@ name = "ObjectBound"
 version = "0.0.1"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/testnet" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 obo = "0x0"
