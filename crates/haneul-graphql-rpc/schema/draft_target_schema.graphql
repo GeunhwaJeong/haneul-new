@@ -197,6 +197,7 @@ scalar JSON
 #   | { Bool:    bool }
 #   | { Address: HaneulAddress }
 #   | { UID:     HaneulAddress }
+#   | { ID:      HaneulAddress }
 #   | { String:  string }
 #   | { Vector:  [MoveData] }
 #   | { Option:   MoveData? }
