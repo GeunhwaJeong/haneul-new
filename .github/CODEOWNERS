@@ -16,6 +16,8 @@ CHANGELOG.md
 
 # GraphQL RPC working group
 /crates/haneul-graphql-rpc/ @oxade @amnn @wlmyng @stefan-haneullabs @emmazzz @haneulwombat
+/crates/haneul-graphql-e2e-tests/ @oxade @amnn @wlmyng @stefan-haneullabs @emmazzz @haneulwombat
+
 
 # Notify Narwhal changes to interested folks.
 /narwhal/crypto/ @joyqvq @kchalkias
