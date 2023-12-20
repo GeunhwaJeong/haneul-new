@@ -35,6 +35,8 @@ pub enum BridgeError {
     MismatchedAuthoritySigner,
     // Signature is over a mismatched action
     MismatchedAction,
+    // Haneul transaction failure due to generic error
+    HaneulTxFailureGeneric(String),
     // Storage Error
     StorageError(String),
     // Rest API Error

@@ -757,7 +757,34 @@ impl HaneulTransactionBlockEffectsAPI for HaneulTransactionBlockEffectsV1 {
     }
 }
 
-impl HaneulTransactionBlockEffects {}
+impl HaneulTransactionBlockEffects {
+    #[cfg(any(feature = "test-utils", test))]
+    pub fn new_for_testing(
+        transaction_digest: TransactionDigest,
+        status: HaneulExecutionStatus,
+    ) -> Self {
+        Self::V1(HaneulTransactionBlockEffectsV1 {
+            transaction_digest,
+            status,
+            gas_object: OwnedObjectRef {
+                owner: Owner::AddressOwner(HaneulAddress::random_for_testing_only()),
+                reference: haneul_types::base_types::random_object_ref().into(),
+            },
+            executed_epoch: 0,
+            modified_at_versions: vec![],
+            gas_used: GasCostSummary::default(),
+            shared_objects: vec![],
+            created: vec![],
+            mutated: vec![],
+            unwrapped: vec![],
+            deleted: vec![],
+            unwrapped_then_deleted: vec![],
+            wrapped: vec![],
+            events_digest: None,
+            dependencies: vec![],
+        })
+    }
+}
 
 impl TryFrom<TransactionEffects> for HaneulTransactionBlockEffects {
     type Error = HaneulError;

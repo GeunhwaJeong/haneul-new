@@ -41,22 +41,22 @@ pub fn get_test_authority_and_key(
 }
 
 pub fn get_test_haneul_to_eth_bridge_action(
-    haneul_tx_digest: TransactionDigest,
-    haneul_tx_event_index: u16,
-    nonce: u64,
-    amount: u128,
+    haneul_tx_digest: Option<TransactionDigest>,
+    haneul_tx_event_index: Option<u16>,
+    nonce: Option<u64>,
+    amount: Option<u128>,
 ) -> BridgeAction {
     BridgeAction::HaneulToEthBridgeAction(HaneulToEthBridgeAction {
-        haneul_tx_digest,
-        haneul_tx_event_index,
+        haneul_tx_digest: haneul_tx_digest.unwrap_or_else(TransactionDigest::random),
+        haneul_tx_event_index: haneul_tx_event_index.unwrap_or(0),
         haneul_bridge_event: EmittedHaneulToEthTokenBridgeV1 {
-            nonce,
+            nonce: nonce.unwrap_or_default(),
             haneul_chain_id: BridgeChainId::HaneulTestnet,
             haneul_address: HaneulAddress::random_for_testing_only(),
             eth_chain_id: BridgeChainId::EthSepolia,
             eth_address: EthAddress::random(),
             token_id: TokenId::Haneul,
-            amount,
+            amount: amount.unwrap_or(100_000),
         },
     })
 }

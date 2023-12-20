@@ -323,8 +323,12 @@ mod tests {
         let haneul_tx_event_index = 0;
         let nonce = 0;
         let amount = 1000;
-        let action =
-            get_test_haneul_to_eth_bridge_action(haneul_tx_digest, haneul_tx_event_index, nonce, amount);
+        let action = get_test_haneul_to_eth_bridge_action(
+            Some(haneul_tx_digest),
+            Some(haneul_tx_event_index),
+            Some(nonce),
+            Some(amount),
+        );
 
         // All authorities return signatures
         mock0.add_haneul_event_response(
@@ -413,8 +417,12 @@ mod tests {
         let haneul_tx_event_index = 0;
         let nonce = 0;
         let amount = 1000;
-        let action =
-            get_test_haneul_to_eth_bridge_action(haneul_tx_digest, haneul_tx_event_index, nonce, amount);
+        let action = get_test_haneul_to_eth_bridge_action(
+            Some(haneul_tx_digest),
+            Some(haneul_tx_event_index),
+            Some(nonce),
+            Some(amount),
+        );
 
         // Only mock authority 2 and 3 to return signatures, such that if BridgeAuthorityAggregator
         // requests to authority 0 and 1 (which should not happen) it will panic.
@@ -541,8 +549,12 @@ mod tests {
         let haneul_tx_event_index = 0;
         let nonce = 0;
         let amount = 1000;
-        let action =
-            get_test_haneul_to_eth_bridge_action(haneul_tx_digest, haneul_tx_event_index, nonce, amount);
+        let action = get_test_haneul_to_eth_bridge_action(
+            Some(haneul_tx_digest),
+            Some(haneul_tx_event_index),
+            Some(nonce),
+            Some(amount),
+        );
 
         let sig_0 = sign_action_with_key(&action, &secrets[0]);
         // returns Ok(None)

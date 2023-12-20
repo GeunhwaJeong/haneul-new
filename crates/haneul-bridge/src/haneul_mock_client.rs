@@ -3,13 +3,19 @@
 
 //! A mock implementation of Haneul JSON-RPC client.
 
+use crate::error::{BridgeError, BridgeResult};
 use async_trait::async_trait;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
+use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{EventFilter, EventPage, HaneulEvent};
 use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::ObjectRef;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
+use haneul_types::gas_coin::GasCoin;
+use haneul_types::object::Owner;
+use haneul_types::transaction::Transaction;
 use haneul_types::Identifier;
 
 use crate::haneul_client::HaneulClientInner;
@@ -25,6 +31,11 @@ pub struct HaneulMockClient {
     events: Arc<Mutex<HashMap<(ObjectID, Identifier, EventID), EventPage>>>,
     past_event_query_params: Arc<Mutex<VecDeque<(ObjectID, Identifier, EventID)>>>,
     events_by_tx_digest: Arc<Mutex<HashMap<TransactionDigest, Vec<HaneulEvent>>>>,
+    transaction_responses:
+        Arc<Mutex<HashMap<TransactionDigest, BridgeResult<HaneulTransactionBlockResponse>>>>,
+    get_object_info: Arc<Mutex<HashMap<ObjectID, (GasCoin, ObjectRef, Owner)>>>,
+
+    requested_transactions_tx: tokio::sync::broadcast::Sender<TransactionDigest>,
 }
 
 impl HaneulMockClient {
@@ -35,6 +46,9 @@ impl HaneulMockClient {
             events: Default::default(),
             past_event_query_params: Default::default(),
             events_by_tx_digest: Default::default(),
+            transaction_responses: Default::default(),
+            get_object_info: Default::default(),
+            requested_transactions_tx: tokio::sync::broadcast::channel(10000).0,
         }
     }
 
@@ -60,6 +74,30 @@ impl HaneulMockClient {
             .lock()
             .unwrap()
             .insert(tx_digest, events);
+    }
+
+    pub fn add_transaction_response(
+        &self,
+        tx_digest: TransactionDigest,
+        response: BridgeResult<HaneulTransactionBlockResponse>,
+    ) {
+        self.transaction_responses
+            .lock()
+            .unwrap()
+            .insert(tx_digest, response);
+    }
+
+    pub fn add_gas_object_info(&self, gas_coin: GasCoin, object_ref: ObjectRef, owner: Owner) {
+        self.get_object_info
+            .lock()
+            .unwrap()
+            .insert(object_ref.0, (gas_coin, object_ref, owner));
+    }
+
+    pub fn subscribe_to_requested_transactions(
+        &self,
+    ) -> tokio::sync::broadcast::Receiver<TransactionDigest> {
+        self.requested_transactions_tx.subscribe()
     }
 }
 
@@ -119,5 +157,36 @@ impl HaneulClientInner for HaneulMockClient {
 
     async fn get_bridge_committee(&self) -> Result<BridgeCommittee, Self::Error> {
         unimplemented!()
+    }
+
+    async fn execute_transaction_block_with_effects(
+        &self,
+        tx: Transaction,
+    ) -> Result<HaneulTransactionBlockResponse, BridgeError> {
+        self.requested_transactions_tx.send(*tx.digest()).unwrap();
+        Ok(self
+            .transaction_responses
+            .lock()
+            .unwrap()
+            .get(tx.digest())
+            .cloned()
+            .unwrap_or_else(|| panic!("No preset transaction response found for tx: {:?}", tx))?)
+    }
+
+    async fn get_gas_data_panic_if_not_gas(
+        &self,
+        gas_object_id: ObjectID,
+    ) -> (GasCoin, ObjectRef, Owner) {
+        self.get_object_info
+            .lock()
+            .unwrap()
+            .get(&gas_object_id)
+            .cloned()
+            .unwrap_or_else(|| {
+                panic!(
+                    "No preset gas object info found for gas_object_id: {:?}",
+                    gas_object_id
+                )
+            })
     }
 }
