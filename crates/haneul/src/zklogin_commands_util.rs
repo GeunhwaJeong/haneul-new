@@ -24,7 +24,7 @@ use haneul_keys::keystore::{AccountKeystore, Keystore};
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
-use haneul_types::crypto::{PublicKey, HaneulKeyPair, ZkLoginPublicIdentifier};
+use haneul_types::crypto::{PublicKey, HaneulKeyPair};
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
@@ -102,13 +102,7 @@ pub async fn perform_zk_login_test_tx(
     let skp1 = HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed([1; 32])));
     let multisig_pk = MultiSigPublicKey::new(
         vec![
-            PublicKey::ZkLogin(
-                ZkLoginPublicIdentifier::new(
-                    zk_login_inputs.get_iss(),
-                    zk_login_inputs.get_address_seed(),
-                )
-                .unwrap(),
-            ),
+            PublicKey::from_zklogin_inputs(&zk_login_inputs)?,
             skp1.public(),
         ],
         vec![1, 1],
