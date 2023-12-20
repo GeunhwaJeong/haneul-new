@@ -13,5 +13,5 @@ export function useAllowedSwapCoinsList() {
 	const deepBookConfigs = useDeepBookConfigs();
 	const coinsMap = deepBookConfigs.coinsMap;
 
-	return [HANEUL_TYPE_ARG, coinsMap.USDC];
+	return [HANEUL_TYPE_ARG, coinsMap.HANEUL, coinsMap.USDC];
 }
