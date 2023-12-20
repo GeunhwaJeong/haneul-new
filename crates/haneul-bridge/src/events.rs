@@ -34,9 +34,12 @@ pub struct EmittedHaneulToEthTokenBridgeV1 {
     pub amount: u128,
 }
 
+const EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG: &str =
+    "0x01::HaneulToEthTokenBridge::HaneulToEthTokenBridge";
+
 crate::declare_events!(
     // TODO: Placeholder, use right struct tag
-    HaneulToEthTokenBridgeV1(EmittedHaneulToEthTokenBridgeV1) => "0x01::HaneulToEthTokenBridge::HaneulToEthTokenBridge",
+    HaneulToEthTokenBridgeV1(EmittedHaneulToEthTokenBridgeV1) => EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG,
     // Add new event types here. Format: EnumVariantName(Struct) => "StructTagString",
 );
 
@@ -91,5 +94,61 @@ impl HaneulBridgeEvent {
                 }))
             }
         }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::{EmittedHaneulToEthTokenBridgeV1, EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG};
+    use crate::types::BridgeAction;
+    use crate::types::BridgeChainId;
+    use crate::types::HaneulToEthBridgeAction;
+    use crate::types::TokenId;
+    use ethers::types::Address as EthAddress;
+    use move_core_types::language_storage::StructTag;
+    use std::str::FromStr;
+    use haneul_json_rpc_types::HaneulEvent;
+    use haneul_types::base_types::ObjectID;
+    use haneul_types::base_types::HaneulAddress;
+    use haneul_types::digests::TransactionDigest;
+    use haneul_types::event::EventID;
+    use haneul_types::Identifier;
+
+    /// Returns a test HaneulEvent and corresponding BridgeAction
+    pub fn get_test_haneul_event_and_action(identifier: Identifier) -> (HaneulEvent, BridgeAction) {
+        let emitted_event = EmittedHaneulToEthTokenBridgeV1 {
+            nonce: 1,
+            haneul_chain_id: BridgeChainId::HaneulTestnet,
+            eth_chain_id: BridgeChainId::EthSepolia,
+            haneul_address: HaneulAddress::random_for_testing_only(),
+            eth_address: EthAddress::random(),
+            token_id: TokenId::Haneul,
+            amount: 100,
+        };
+        let tx_digest = TransactionDigest::random();
+        let event_idx = 10u16;
+        let bridge_action = BridgeAction::HaneulToEthBridgeAction(HaneulToEthBridgeAction {
+            haneul_tx_digest: tx_digest,
+            haneul_tx_event_index: event_idx,
+            haneul_bridge_event: emitted_event.clone(),
+        });
+        let event = HaneulEvent {
+            // For this test to pass, match what is in events.rs
+            type_: StructTag::from_str(EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG).unwrap(),
+            bcs: bcs::to_bytes(&emitted_event).unwrap(),
+            id: EventID {
+                tx_digest,
+                event_seq: event_idx as u64,
+            },
+
+            // The following fields do not matter as of writing,
+            // but if tests start to fail, it's worth checking these fields.
+            package_id: ObjectID::ZERO,
+            transaction_module: identifier.clone(),
+            sender: HaneulAddress::random_for_testing_only(),
+            parsed_json: serde_json::json!({"test": "test"}),
+            timestamp_ms: None,
+        };
+        (event, bridge_action)
     }
 }
