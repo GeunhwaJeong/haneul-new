@@ -11,6 +11,7 @@ WORKDIR "$WORKDIR/haneul"
 RUN apt-get update && apt-get install -y cmake clang libpq-dev
 
 COPY Cargo.toml Cargo.lock ./
+COPY consensus consensus
 COPY crates crates
 COPY haneul-execution haneul-execution
 COPY narwhal narwhal
