@@ -11,6 +11,7 @@ use super::big_int::BigInt;
 use super::dynamic_field::{DynamicField, DynamicFieldName};
 use super::move_object::MoveObject;
 use super::move_package::MovePackage;
+use super::haneulns_registration::HaneulnsRegistration;
 use super::{
     balance::Balance, coin::Coin, owner::Owner, stake::StakedHaneul, haneul_address::HaneulAddress,
     transaction_block::TransactionBlock,
@@ -245,17 +246,28 @@ impl Object {
             .extend()
     }
 
-    // TODO disabled-for-rpc-1.5
-    // pub async fn name_service_connection(
-    //     &self,
-    //     ctx: &Context<'_>,
-    //     first: Option<u64>,
-    //     after: Option<String>,
-    //     last: Option<u64>,
-    //     before: Option<String>,
-    // ) -> Result<Option<Connection<String, NameService>>> {
-    //     unimplemented!()
-    // }
+    /// The HaneulnsRegistration NFTs owned by the given object. These grant the owner
+    /// the capability to manage the associated domain.
+    pub async fn haneulns_registrations(
+        &self,
+        ctx: &Context<'_>,
+        first: Option<u64>,
+        after: Option<String>,
+        last: Option<u64>,
+        before: Option<String>,
+    ) -> Result<Option<Connection<String, HaneulnsRegistration>>> {
+        ctx.data_unchecked::<PgManager>()
+            .fetch_haneulns_registrations(
+                first,
+                after,
+                last,
+                before,
+                ctx.data_unchecked::<NameServiceConfig>(),
+                self.address,
+            )
+            .await
+            .extend()
+    }
 
     /// Access a dynamic field on an object using its name.
     /// Names are arbitrary Move values whose type have `copy`, `drop`, and `store`, and are specified

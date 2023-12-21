@@ -84,6 +84,11 @@ type Address implements ObjectOwner {
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
 	defaultNameServiceName: String
 	"""
+	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
+	the capability to manage the associated domain.
+	"""
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
+	"""
 	This resolver is not supported on the Address type.
 	"""
 	dynamicField(name: DynamicFieldName!): DynamicField
@@ -1428,6 +1433,11 @@ type Object implements ObjectOwner {
 	"""
 	defaultNameServiceName: String
 	"""
+	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
+	the capability to manage the associated domain.
+	"""
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
+	"""
 	Access a dynamic field on an object using its name.
 	Names are arbitrary Move values whose type have `copy`, `drop`, and `store`, and are specified
 	using their type, and their BCS contents, Base64 encoded.
@@ -1550,6 +1560,7 @@ interface ObjectOwner {
 	coinConnection(first: Int, after: String, last: Int, before: String, type: String): CoinConnection
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
 	defaultNameServiceName: String
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
 	dynamicField(name: DynamicFieldName!): DynamicField
 	dynamicObjectField(name: DynamicFieldName!): DynamicField
 	dynamicFieldConnection(first: Int, after: String, last: Int, before: String): DynamicFieldConnection
@@ -1637,6 +1648,11 @@ type Owner implements ObjectOwner {
 	"""
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
 	defaultNameServiceName: String
+	"""
+	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
+	the capability to manage the associated domain.
+	"""
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
 	"""
 	Access a dynamic field on an object using its name.
 	Names are arbitrary Move values whose type have `copy`, `drop`, and `store`, and are specified
@@ -2246,6 +2262,46 @@ type HaneulSystemStateSummary {
 	protocol version upgrade).
 	"""
 	protocolConfigs: ProtocolConfigs
+}
+
+type HaneulnsRegistration {
+	"""
+	Domain name of the HaneulnsRegistration object
+	"""
+	domain: String!
+	"""
+	Convert the HaneulnsRegistration object into a Move object
+	"""
+	asMoveObject: MoveObject!
+}
+
+type HaneulnsRegistrationConnection {
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	"""
+	A list of edges.
+	"""
+	edges: [HaneulnsRegistrationEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [HaneulnsRegistration!]!
+}
+
+"""
+An edge in a connection.
+"""
+type HaneulnsRegistrationEdge {
+	"""
+	The item at the end of the edge
+	"""
+	node: HaneulnsRegistration!
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
 }
 
 """
