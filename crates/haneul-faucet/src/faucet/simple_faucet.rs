@@ -1086,7 +1086,10 @@ pub async fn batch_transfer_gases(
 
 #[cfg(test)]
 mod tests {
-    use haneul::client_commands::{HaneulClientCommandResult, HaneulClientCommands};
+    use haneul::{
+        client_commands::{HaneulClientCommandResult, HaneulClientCommands},
+        key_identity::KeyIdentity,
+    };
     use haneul_json_rpc_types::HaneulExecutionStatus;
     use haneul_sdk::wallet_context::WalletContext;
     use test_cluster::TestClusterBuilder;
@@ -1394,7 +1397,7 @@ mod tests {
         // Now we transfer one gas out
         let res = HaneulClientCommands::PayAllHaneul {
             input_coins: vec![*bad_gas.id()],
-            recipient: HaneulAddress::random_for_testing_only(),
+            recipient: KeyIdentity::Address(HaneulAddress::random_for_testing_only()),
             gas_budget: 2_000_000,
             serialize_unsigned_transaction: false,
             serialize_signed_transaction: false,
@@ -1617,7 +1620,7 @@ mod tests {
         // Transfer all valid gases away except for 1
         for gas in gases.iter().take(gases.len() - 1) {
             HaneulClientCommands::TransferHaneul {
-                to: destination_address,
+                to: KeyIdentity::Address(destination_address),
                 haneul_coin_object_id: *gas.id(),
                 gas_budget: 50000000,
                 amount: None,
@@ -1690,7 +1693,7 @@ mod tests {
         // Transfer all valid gases away
         for gas in gases {
             HaneulClientCommands::TransferHaneul {
-                to: destination_address,
+                to: KeyIdentity::Address(destination_address),
                 haneul_coin_object_id: *gas.id(),
                 gas_budget: 50000000,
                 amount: None,
@@ -1923,7 +1926,7 @@ mod tests {
     async fn get_current_gases(address: HaneulAddress, context: &mut WalletContext) -> Vec<GasCoin> {
         // Get the latest list of gas
         let results = HaneulClientCommands::Gas {
-            address: Some(address),
+            address: Some(KeyIdentity::Address(address)),
         }
         .execute(context)
         .await
