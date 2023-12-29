@@ -26,9 +26,9 @@ pub const APPLICATION_JSON: &str = "application/json";
 pub const ETH_TO_HANEUL_TX_PATH: &str = "/sign/bridge_tx/eth/haneul/:tx_hash/:event_index";
 pub const HANEUL_TO_ETH_TX_PATH: &str = "/sign/bridge_tx/haneul/eth/:tx_digest/:event_index";
 
-pub async fn run_server(socket_address: &SocketAddr) {
+pub async fn run_server(socket_address: &SocketAddr, handler: BridgeRequestHandler) {
     axum::Server::bind(socket_address)
-        .serve(make_router(Arc::new(BridgeRequestHandler::new())).into_make_service())
+        .serve(make_router(Arc::new(handler)).into_make_service())
         .await
         .unwrap();
 }
