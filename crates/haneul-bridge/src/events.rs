@@ -22,7 +22,7 @@ use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::digests::TransactionDigest;
 
-// TODO: Placeholder, this will need to match the actual event types defined in Move
+// This is the event structure defined and emitted in Move
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct EmittedHaneulToEthTokenBridgeV1 {
     pub nonce: u64,
@@ -31,7 +31,7 @@ pub struct EmittedHaneulToEthTokenBridgeV1 {
     pub haneul_address: HaneulAddress,
     pub eth_address: EthAddress,
     pub token_id: TokenId,
-    pub amount: u128,
+    pub amount: u64,
 }
 
 const EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG: &str =

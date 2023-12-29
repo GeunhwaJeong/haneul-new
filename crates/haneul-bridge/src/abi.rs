@@ -1,26 +1,28 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::types::EthLog;
+use crate::error::{BridgeError, BridgeResult};
+use crate::types::{BridgeAction, EthToHaneulBridgeAction};
+use crate::types::{BridgeChainId, EthLog, TokenId};
 use ethers::{
     abi::RawLog,
     contract::{abigen, EthLogDecode},
+    types::Address as EthAddress,
 };
 use serde::{Deserialize, Serialize};
-
-use crate::types::{BridgeAction, EthToHaneulBridgeAction};
+use haneul_types::base_types::HaneulAddress;
 
 // TODO: write a macro to handle variants
 
-// TODO: Dummy placeholder, will be replaced by actual abis
+// TODO: Add other events
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum EthBridgeEvent {
-    ExampleContract(ExampleContractEvents),
+    EthHaneulBridgeEvents(EthHaneulBridgeEvents),
 }
 
 abigen!(
-    ExampleContract,
-    "abi/example.json",
+    EthHaneulBridge,
+    "abi/haneul_bridge.json",
     event_derives(serde::Deserialize, serde::Serialize)
 );
 
@@ -30,8 +32,9 @@ impl EthBridgeEvent {
             topics: log.log.topics.clone(),
             data: log.log.data.to_vec(),
         };
-        if let Ok(decoded) = ExampleContractEvents::decode_log(&raw_log) {
-            return Some(EthBridgeEvent::ExampleContract(decoded));
+
+        if let Ok(decoded) = EthHaneulBridgeEvents::decode_log(&raw_log) {
+            return Some(EthBridgeEvent::EthHaneulBridgeEvents(decoded));
         }
 
         // TODO: try other variants
@@ -46,13 +49,54 @@ impl EthBridgeEvent {
         eth_event_index: u16,
     ) -> Option<BridgeAction> {
         match self {
-            EthBridgeEvent::ExampleContract(event) => {
-                Some(BridgeAction::EthToHaneulBridgeAction(EthToHaneulBridgeAction {
-                    eth_tx_hash,
-                    eth_event_index,
-                    eth_bridge_event: event.clone(),
-                }))
+            EthBridgeEvent::EthHaneulBridgeEvents(event) => {
+                match event {
+                    EthHaneulBridgeEvents::TokensBridgedToHaneulFilter(event) => {
+                        let Ok(event) = EthToHaneulTokenBridgeV1::try_from(&event) else {
+                            // This only happens when solidity code does not align with rust code.
+                            // When this happens in production, there is a risk of stuck bridge transfers.
+                            // We log error here.
+                            // TODO: add metrics and alert
+                            tracing::error!("Failed to convert TokensBridgedToHaneul log to EthToHaneulTokenBridgeV1. This indicates a bug in the code: {:?}", event);
+                            return None;
+                        };
+
+                        Some(BridgeAction::EthToHaneulBridgeAction(EthToHaneulBridgeAction {
+                            eth_tx_hash,
+                            eth_event_index,
+                            eth_bridge_event: event,
+                        }))
+                    }
+                    _ => None,
+                }
             }
         }
+    }
+}
+
+// Sanity checked version of TokensBridgedToHaneulFilter
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct EthToHaneulTokenBridgeV1 {
+    pub nonce: u64,
+    pub haneul_chain_id: BridgeChainId,
+    pub eth_chain_id: BridgeChainId,
+    pub haneul_address: HaneulAddress,
+    pub eth_address: EthAddress,
+    pub token_id: TokenId,
+    pub amount: u64,
+}
+
+impl TryFrom<&TokensBridgedToHaneulFilter> for EthToHaneulTokenBridgeV1 {
+    type Error = BridgeError;
+    fn try_from(event: &TokensBridgedToHaneulFilter) -> BridgeResult<Self> {
+        Ok(Self {
+            nonce: event.nonce,
+            haneul_chain_id: BridgeChainId::try_from(event.destination_chain_id)?,
+            eth_chain_id: BridgeChainId::try_from(event.source_chain_id)?,
+            haneul_address: HaneulAddress::from_bytes(event.target_address.as_ref())?,
+            eth_address: event.source_address,
+            token_id: TokenId::try_from(event.token_code)?,
+            amount: event.haneul_adjusted_amount,
+        })
     }
 }
