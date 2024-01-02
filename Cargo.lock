@@ -12277,6 +12277,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-light-client"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bytes",
+ "clap",
+ "move-binary-format",
+ "move-core-types",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
+ "haneul-config",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-package-resolver",
+ "haneul-rest-api",
+ "haneul-sdk",
+ "haneul-types",
+ "tokio",
+ "workspace-hack",
+]
+
+[[package]]
 name = "haneul-macros"
 version = "0.7.0"
 dependencies = [

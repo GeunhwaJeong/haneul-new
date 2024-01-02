@@ -115,6 +115,7 @@ members = [
     "crates/haneul-json-rpc-types",
     "crates/haneul-keys",
     "crates/haneul-kvstore",
+    "crates/haneul-light-client",
     "crates/haneul-macros",
     "crates/haneul-metric-checker",
     "crates/haneul-move",
