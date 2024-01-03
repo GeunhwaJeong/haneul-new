@@ -4,7 +4,7 @@
 use move_bytecode_verifier::meter::Scope;
 use prometheus::Registry;
 use std::{path::PathBuf, sync::Arc, time::Instant};
-use haneul_adapter::adapter::{default_verifier_config, run_metered_move_bytecode_verifier};
+use haneul_adapter::adapter::run_metered_move_bytecode_verifier;
 use haneul_framework::BuiltInFramework;
 use haneul_move_build::{CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
@@ -12,7 +12,7 @@ use haneul_types::{
     error::{HaneulError, HaneulResult},
     metrics::BytecodeVerifierMetrics,
 };
-use haneul_verifier::meter::HaneulVerifierMeter;
+use haneul_verifier::{default_verifier_config, meter::HaneulVerifierMeter};
 
 fn build(path: PathBuf) -> HaneulResult<CompiledPackage> {
     let mut config = haneul_move_build::BuildConfig::new_for_testing();

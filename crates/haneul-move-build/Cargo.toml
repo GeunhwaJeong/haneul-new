@@ -17,6 +17,7 @@ haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", pack
 
 serde-reflection.workspace = true
 haneul-types.workspace = true
+haneul-protocol-config.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true

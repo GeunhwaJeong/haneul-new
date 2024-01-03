@@ -4,6 +4,7 @@
 //! This module contains the public APIs supported by the bytecode verifier.
 
 use move_binary_format::file_format::CompiledModule;
+use move_vm_config::verifier::VerifierConfig;
 use haneul_types::{error::ExecutionError, move_package::FnInfoMap};
 
 use crate::{
@@ -18,11 +19,12 @@ pub fn haneul_verify_module_metered(
     module: &CompiledModule,
     fn_info_map: &FnInfoMap,
     meter: &mut impl Meter,
+    verifier_config: &VerifierConfig,
 ) -> Result<(), ExecutionError> {
     struct_with_key_verifier::verify_module(module)?;
     global_storage_access_verifier::verify_module(module)?;
     id_leak_verifier::verify_module(module, meter)?;
-    private_generics::verify_module(module)?;
+    private_generics::verify_module(module, verifier_config)?;
     entry_points_verifier::verify_module(module, fn_info_map)?;
     one_time_witness_verifier::verify_module(module, fn_info_map)
 }
@@ -34,9 +36,10 @@ pub fn haneul_verify_module_metered_check_timeout_only(
     module: &CompiledModule,
     fn_info_map: &FnInfoMap,
     meter: &mut impl Meter,
+    verifier_config: &VerifierConfig,
 ) -> Result<(), ExecutionError> {
     // Checks if the error counts as a Haneul verifier timeout
-    if let Err(error) = haneul_verify_module_metered(module, fn_info_map, meter) {
+    if let Err(error) = haneul_verify_module_metered(module, fn_info_map, meter, verifier_config) {
         if matches!(
             error.kind(),
             haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
@@ -51,16 +54,19 @@ pub fn haneul_verify_module_metered_check_timeout_only(
 pub fn haneul_verify_module_unmetered(
     module: &CompiledModule,
     fn_info_map: &FnInfoMap,
+    verifier_config: &VerifierConfig,
 ) -> Result<(), ExecutionError> {
-    haneul_verify_module_metered(module, fn_info_map, &mut DummyMeter).map_err(|err| {
-        // We must never see timeout error in execution
-        debug_assert!(
-            !matches!(
+    haneul_verify_module_metered(module, fn_info_map, &mut DummyMeter, verifier_config).map_err(
+        |err| {
+            // We must never see timeout error in execution
+            debug_assert!(
+                !matches!(
                 err.kind(),
                 haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
             ),
-            "Unexpected timeout error in execution"
-        );
-        err
-    })
+                "Unexpected timeout error in execution"
+            );
+            err
+        },
+    )
 }

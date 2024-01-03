@@ -23,16 +23,14 @@ use haneul_types::{
 
 use move_bytecode_verifier_latest::meter::Scope;
 use move_vm_runtime_latest::move_vm::MoveVM;
-use haneul_adapter_latest::adapter::{
-    default_verifier_config, new_move_vm, run_metered_move_bytecode_verifier,
-};
+use haneul_adapter_latest::adapter::{new_move_vm, run_metered_move_bytecode_verifier};
 use haneul_adapter_latest::execution_engine::{
     execute_genesis_state_update, execute_transaction_to_effects,
 };
 use haneul_adapter_latest::type_layout_resolver::TypeLayoutResolver;
 use haneul_move_natives_latest::all_natives;
 use haneul_types::storage::BackingStore;
-use haneul_verifier_latest::meter::HaneulVerifierMeter;
+use haneul_verifier_latest::{default_verifier_config, meter::HaneulVerifierMeter};
 
 use crate::executor;
 use crate::verifier;
