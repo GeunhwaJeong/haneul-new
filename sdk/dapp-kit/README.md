@@ -35,7 +35,7 @@ pages.
 
 ```tsx
 import { createNetworkConfig, HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { type HaneulClientOptions } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, type HaneulClientOptions } from '@haneullabs/haneul.js/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Config options for the networks you want to connect to
