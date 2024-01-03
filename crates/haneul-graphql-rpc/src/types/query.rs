@@ -20,7 +20,6 @@ use super::{
     owner::{ObjectOwner, Owner},
     protocol_config::ProtocolConfigs,
     haneul_address::HaneulAddress,
-    haneul_system_state_summary::HaneulSystemStateSummary,
     transaction_block::{TransactionBlock, TransactionBlockFilter},
 };
 use crate::{
@@ -245,13 +244,6 @@ impl Query {
     ) -> Result<Option<Address>> {
         ctx.data_unchecked::<PgManager>()
             .resolve_name_service_address(ctx.data_unchecked::<NameServiceConfig>(), name)
-            .await
-            .extend()
-    }
-
-    async fn latest_haneul_system_state(&self, ctx: &Context<'_>) -> Result<HaneulSystemStateSummary> {
-        ctx.data_unchecked::<PgManager>()
-            .fetch_latest_haneul_system_state()
             .await
             .extend()
     }
