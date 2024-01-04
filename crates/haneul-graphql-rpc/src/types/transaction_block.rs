@@ -13,8 +13,8 @@ use haneul_types::{
 use crate::error::Error;
 
 use super::{
-    address::Address, base64::Base64, epoch::Epoch, gas::GasInput, haneul_address::HaneulAddress,
-    transaction_block_effects::TransactionBlockEffects,
+    address::Address, base64::Base64, digest::Digest, epoch::Epoch, gas::GasInput,
+    haneul_address::HaneulAddress, transaction_block_effects::TransactionBlockEffects,
     transaction_block_kind::TransactionBlockKind,
 };
 
@@ -53,7 +53,7 @@ pub(crate) struct TransactionBlockFilter {
     pub input_object: Option<HaneulAddress>,
     pub changed_object: Option<HaneulAddress>,
 
-    pub transaction_ids: Option<Vec<String>>,
+    pub transaction_ids: Option<Vec<Digest>>,
 }
 
 #[Object]
