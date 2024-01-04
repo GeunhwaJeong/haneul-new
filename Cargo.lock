@@ -12005,6 +12005,7 @@ dependencies = [
  "shared-crypto",
  "similar",
  "simulacrum",
+ "haneul-framework",
  "haneul-indexer",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
