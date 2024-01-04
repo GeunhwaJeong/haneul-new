@@ -37,8 +37,8 @@ pub(crate) struct StakedHaneul {
 #[Object]
 impl StakedHaneul {
     /// A stake can be pending, active, or unstaked
-    async fn status(&self, ctx: &Context<'_>) -> Result<StakeStatus, Error> {
-        Ok(match self.rpc_stake(ctx).await?.status {
+    async fn status(&self, ctx: &Context<'_>) -> Result<StakeStatus> {
+        Ok(match self.rpc_stake(ctx).await.extend()?.status {
             RpcStakeStatus::Pending => StakeStatus::Pending,
             RpcStakeStatus::Active { .. } => StakeStatus::Active,
             RpcStakeStatus::Unstaked => StakeStatus::Unstaked,
@@ -46,21 +46,17 @@ impl StakedHaneul {
     }
 
     /// The epoch at which this stake became active
-    async fn activated_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>, Error> {
-        Ok(Some(
-            ctx.data_unchecked::<PgManager>()
-                .fetch_epoch_strict(self.native.activation_epoch())
-                .await?,
-        ))
+    async fn activated_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
+        Epoch::query(ctx.data_unchecked(), Some(self.native.activation_epoch()))
+            .await
+            .extend()
     }
 
     /// The epoch at which this object was requested to join a stake pool
-    async fn requested_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>, Error> {
-        Ok(Some(
-            ctx.data_unchecked::<PgManager>()
-                .fetch_epoch_strict(self.native.request_epoch())
-                .await?,
-        ))
+    async fn requested_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
+        Epoch::query(ctx.data_unchecked(), Some(self.native.request_epoch()))
+            .await
+            .extend()
     }
 
     /// The HANEUL that was initially staked.
