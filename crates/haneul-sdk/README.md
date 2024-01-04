@@ -32,17 +32,51 @@ async fn main() -> Result<(), anyhow::Error> {
 
 ```
 
-# Rust SDK examples
+## Documentation for haneul-sdk crate
+
+[GitHub Pages](https://haneullabs.github.io/haneul/haneul_sdk/index.html) hosts the generated documentation for all Rust crates in the Haneul repository.
+
+### Building documentation locally
+
+You can also build the documentation locally. To do so, open a Terminal or Console to the `haneul/crates/haneul-sdk` directory:
+
+1. Use the `rustup toolchain` command to install the `nightly` release channel.
+
+   ```rust
+   rustup toolchain install nightly
+   ```
+
+1. Use the `rustup override` command to set the `nightly` release channel as active.
+
+   ```rust
+   rustup override set nightly
+   ```
+
+1. Use `cargo doc` with the following `RUSTDOCFLAGS` set to build the documentation into the `haneul/target` directory.  
+
+   ```rust
+   RUSTDOCFLAGS="--enable-index-page -Zunstable-options" cargo doc --no-deps
+   ```
+
+1. Open the `haneul/target/doc/haneul_sdk/index.html` file with a browser, like Chrome.
+
+1. After building the docs, use the `rustup override` command again to return to the default toolchain.
+
+   ```rust
+   rustup override unset
+   ```
+
+## Rust SDK examples
 
 The [examples](https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk/examples) folder provides both basic and advanced examples.
 
 There are serveral files ending in `_api.rs` which provide code examples of the corresponding APIs and their methods. These showcase how to use the Haneul Rust SDK, and can be run against the Haneul testnet. Below are instructions on the prerequisites and how to run these examples.
 
-## Prerequisites
+### Prerequisites
 
 Unless otherwise specified, most of these examples assume `Rust` and `cargo` are installed, and that there is an available internet connection. The examples connect to the Haneul testnet (`https://fullnode.testnet.haneul.io:443`) and execute different APIs using the active address from the local wallet. If there is no local wallet, it will create one, generate two addresses, set one of them to be active, and it will request 1 HANEUL from the testnet faucet for the active address. 
 
-## Running the existing examples
+### Running the existing examples
 
 In the root folder of the `haneul` repository (or in the `haneul-sdk` crate folder), you can individually run examples using the command  `cargo run --example filename` (without `.rs` extension). For example:
 * `cargo run --example haneul_client` -- this one requires a local Haneul network running (see [here](#Connecting to Haneul Network
@@ -54,9 +88,9 @@ In the root folder of the `haneul` repository (or in the `haneul-sdk` crate fold
 * `cargo run --example programmable_transactions_api`
 * `cargo run --example sign_tx_guide`
 
-## Basic Examples
+### Basic Examples
 
-### Connecting to Haneul Network
+#### Connecting to Haneul Network
 The `HaneulClientBuilder` struct provides a connection to the JSON-RPC server that you use for all read-only operations. The default URLs to connect to the Haneul network are:
 
 - Local: http://127.0.0.1:9000
@@ -95,7 +129,7 @@ async fn main() -> Result<(), anyhow::Error> {
 }
 ```
 
-### Read the total coin balance for each coin type owned by this address
+#### Read the total coin balance for each coin type owned by this address
 ```rust
 use std::str::FromStr;
 use haneul_sdk::types::base_types::HaneulAddress;
@@ -123,11 +157,9 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
 
 ## Games examples
 
-## Tic Tac Toe
+### Tic Tac Toe quick start
 
-### Demo quick start
-
-#### 1. Prepare the environment 
+1. Prepare the environment 
    1. Install `haneul` binary following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md##install-haneul-binaries) docs.
    1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/connect-haneul-network.md).
    1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/cli-client.md#add-existing-accounts-to-clientyaml) by using the `new-address` command to create new addresses:
@@ -138,7 +170,7 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
       You can skip this step if you are going to play with a friend. :)
    1. [Request Haneul tokens](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md#haneul-tokens) for all addresses that will be used to join the game.
 
-#### 2. Publish the move contract
+2. Publish the move contract
    1. [Download the Haneul source code](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md#source-code).
    1. Publish the [`games` package](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games) 
       using the Haneul client:
@@ -146,7 +178,8 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
       haneul client publish --path /path-to-haneul-source-code/haneul_programmability/examples/games --gas-budget 10000
       ```
    1. Record the package object ID.
-#### 3. Create a new tic-tac-toe game
+
+3. Create a new tic-tac-toe game
    1. Run the following command in the Haneul source code directory to start a new game, replacing the game package objects ID with the one you recorded:
       ```shell
       cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> new-game
@@ -157,12 +190,14 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
       cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> new-game --player-x <<player X address>> --player-o <<player O address>>
       ```
    1. Copy the game ID and pass it to your friend to join the game.
-#### 4. Joining the game
-Run the following command in the Haneul source code directory to join the game, replacing the game ID and address accordingly:
-```shell
-cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> join-game --my-identity <<address>> --game-id <<game ID>>
-```
 
+4. Joining the game
 
-# License
+   Run the following command in the Haneul source code directory to join the game, replacing the game ID and address accordingly:
+   ```shell
+   cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> join-game --my-identity <<address>> --game-id <<game ID>>
+   ```
+
+## License
+
 [SPDX-License-Identifier: Apache-2.0](https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE) 
