@@ -6,7 +6,7 @@ use std::str::FromStr;
 use async_graphql::*;
 use move_core_types::account_address::AccountAddress;
 use serde::{Deserialize, Serialize};
-use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::{ObjectID, HaneulAddress as NativeHaneulAddress};
 use thiserror::Error;
 
 const HANEUL_ADDRESS_LENGTH: usize = 32;
@@ -96,6 +96,12 @@ impl From<AccountAddress> for HaneulAddress {
 impl From<ObjectID> for HaneulAddress {
     fn from(value: ObjectID) -> Self {
         HaneulAddress(value.into_bytes())
+    }
+}
+
+impl From<NativeHaneulAddress> for HaneulAddress {
+    fn from(value: NativeHaneulAddress) -> Self {
+        HaneulAddress(value.to_inner())
     }
 }
 

@@ -1179,8 +1179,7 @@ impl PgManager {
         name_service_config: &NameServiceConfig,
         address: HaneulAddress,
     ) -> Result<Option<String>, Error> {
-        let reverse_record_id =
-            name_service_config.reverse_record_field_id(NativeHaneulAddress::from(address));
+        let reverse_record_id = name_service_config.reverse_record_field_id(address.as_slice());
 
         let field_reverse_record_object = match self
             .inner
@@ -1725,8 +1724,14 @@ pub(crate) fn convert_to_validators(
                 .as_ref()
                 .and_then(|map| map.get(&v.haneul_address).copied());
             let report_records = report_records.as_ref().and_then(|map| {
-                map.get(&v.haneul_address)
-                    .map(|addrs| addrs.iter().map(Address::from).collect())
+                map.get(&v.haneul_address).map(|addrs| {
+                    addrs
+                        .iter()
+                        .map(|a| Address {
+                            address: HaneulAddress::from(*a),
+                        })
+                        .collect()
+                })
             });
             Validator {
                 validator_summary: v.clone(),
@@ -1735,48 +1740,4 @@ pub(crate) fn convert_to_validators(
             }
         })
         .collect()
-}
-
-impl From<Address> for HaneulAddress {
-    fn from(a: Address) -> Self {
-        a.address
-    }
-}
-
-impl From<HaneulAddress> for Address {
-    fn from(a: HaneulAddress) -> Self {
-        Address { address: a }
-    }
-}
-
-impl From<NativeHaneulAddress> for HaneulAddress {
-    fn from(a: NativeHaneulAddress) -> Self {
-        HaneulAddress::from_array(a.to_inner())
-    }
-}
-
-impl From<&NativeHaneulAddress> for HaneulAddress {
-    fn from(a: &NativeHaneulAddress) -> Self {
-        HaneulAddress::from_array(a.to_inner())
-    }
-}
-
-impl From<&NativeHaneulAddress> for Address {
-    fn from(a: &NativeHaneulAddress) -> Self {
-        Self {
-            address: HaneulAddress::from_array(a.to_inner()),
-        }
-    }
-}
-
-impl From<HaneulAddress> for NativeHaneulAddress {
-    fn from(a: HaneulAddress) -> Self {
-        NativeHaneulAddress::try_from(a.as_slice()).unwrap()
-    }
-}
-
-impl From<&HaneulAddress> for NativeHaneulAddress {
-    fn from(a: &HaneulAddress) -> Self {
-        NativeHaneulAddress::try_from(a.as_slice()).unwrap()
-    }
 }
