@@ -1710,31 +1710,36 @@ pub(crate) fn convert_to_validators(
     validators: Vec<HaneulValidatorSummary>,
     system_state: Option<NativeHaneulSystemStateSummary>,
 ) -> Vec<Validator> {
-    let at_risk_validators: Option<BTreeMap<NativeHaneulAddress, u64>> = system_state
-        .clone()
-        .map(|x| BTreeMap::from_iter(x.at_risk_validators));
-
-    let report_records: Option<BTreeMap<NativeHaneulAddress, Vec<NativeHaneulAddress>>> =
-        system_state.map(|x| BTreeMap::from_iter(x.validator_report_records));
+    let (at_risk, reports) = if let Some(NativeHaneulSystemStateSummary {
+        at_risk_validators,
+        validator_report_records,
+        ..
+    }) = system_state
+    {
+        (
+            BTreeMap::from_iter(at_risk_validators),
+            BTreeMap::from_iter(validator_report_records),
+        )
+    } else {
+        Default::default()
+    };
 
     validators
-        .iter()
-        .map(|v| {
-            let at_risk = at_risk_validators
-                .as_ref()
-                .and_then(|map| map.get(&v.haneul_address).copied());
-            let report_records = report_records.as_ref().and_then(|map| {
-                map.get(&v.haneul_address).map(|addrs| {
-                    addrs
-                        .iter()
-                        .map(|a| Address {
-                            address: HaneulAddress::from(*a),
-                        })
-                        .collect()
-                })
+        .into_iter()
+        .map(|validator_summary| {
+            let at_risk = at_risk.get(&validator_summary.haneul_address).copied();
+            let report_records = reports.get(&validator_summary.haneul_address).map(|addrs| {
+                addrs
+                    .iter()
+                    .cloned()
+                    .map(|a| Address {
+                        address: HaneulAddress::from(a),
+                    })
+                    .collect()
             });
+
             Validator {
-                validator_summary: v.clone(),
+                validator_summary,
                 at_risk,
                 report_records,
             }
