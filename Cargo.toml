@@ -78,6 +78,7 @@ members = [
     "crates/haneullabs-common",
     "crates/haneullabs-metrics",
     "crates/haneullabs-network",
+    "crates/haneullabs-service",
     "crates/haneullabs-util-mem",
     "crates/haneullabs-util-mem-derive",
     "crates/prometheus-closure-metric",
