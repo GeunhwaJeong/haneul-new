@@ -43,8 +43,8 @@ use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::storage::{get_module, PackageObject};
 use haneul_types::{
-    authenticator_state::get_authenticator_state_obj_initial_shared_version,
     base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber},
     committee::EpochId,
     digests::{ChainIdentifier, CheckpointDigest, ObjectDigest, TransactionDigest},
@@ -63,10 +63,6 @@ use haneul_types::{
         TransactionKind, VerifiedCertificate, VerifiedTransaction,
     },
     DEEPBOOK_PACKAGE_ID,
-};
-use haneul_types::{
-    randomness_state::get_randomness_state_obj_initial_shared_version,
-    storage::{get_module, PackageObject},
 };
 use tracing::{error, info, warn};
 
@@ -2118,11 +2114,9 @@ async fn create_epoch_store(
     let epoch_start_config = EpochStartConfiguration::new(
         sys_state,
         CheckpointDigest::random(),
-        get_authenticator_state_obj_initial_shared_version(&authority_state.database)
-            .expect("read cannot fail"),
-        get_randomness_state_obj_initial_shared_version(&authority_state.database)
-            .expect("read cannot fail"),
-    );
+        &authority_state.database,
+    )
+    .unwrap();
 
     let registry = Registry::new();
     let cache_metrics = Arc::new(ResolverMetrics::new(&registry));

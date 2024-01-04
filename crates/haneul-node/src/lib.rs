@@ -24,11 +24,9 @@ use std::time::Duration;
 use haneul_core::authority::CHAIN_IDENTIFIER;
 use haneul_core::consensus_adapter::{LazyNarwhalClient, SubmitToConsensus};
 use haneul_json_rpc_api::JsonRpcMetrics;
-use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::message_envelope::get_google_jwk_bytes;
-use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::runtime::Handle;
@@ -1571,19 +1569,12 @@ impl HaneulNode {
             .expect("Error loading last checkpoint for current epoch")
             .expect("Could not load last checkpoint for current epoch");
 
-        let authenticator_state_obj_initial_shared_version =
-            get_authenticator_state_obj_initial_shared_version(&state.database)
-                .expect("read cannot fail");
-        let randomness_state_obj_initial_shared_version =
-            get_randomness_state_obj_initial_shared_version(&state.database)
-                .expect("read cannot fail");
-
         let epoch_start_configuration = EpochStartConfiguration::new(
             next_epoch_start_system_state,
             *last_checkpoint.digest(),
-            authenticator_state_obj_initial_shared_version,
-            randomness_state_obj_initial_shared_version,
-        );
+            &state.database,
+        )
+        .expect("EpochStartConfiguration construction cannot fail");
 
         let new_epoch_store = self
             .state
