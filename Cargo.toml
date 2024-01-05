@@ -105,6 +105,8 @@ members = [
     "crates/haneul-genesis-builder",
     "crates/haneul-graphql-e2e-tests",
     "crates/haneul-graphql-rpc",
+    "crates/haneul-graphql-rpc-client",
+    "crates/haneul-graphql-rpc-headers",
     "crates/haneul-indexer",
     "crates/haneul-json",
     "crates/haneul-json-rpc",
@@ -578,6 +580,8 @@ haneul-framework = { path = "crates/haneul-framework" }
 haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }
 haneul-framework-tests = { path = "crates/haneul-framework-tests" }
 haneul-graphql-rpc = { path = "crates/haneul-graphql-rpc" }
+haneul-graphql-rpc-client = { path = "crates/haneul-graphql-rpc-client" }
+haneul-graphql-rpc-headers = { path = "crates/haneul-graphql-rpc-headers" }
 haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-json = { path = "crates/haneul-json" }

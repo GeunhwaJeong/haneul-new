@@ -1,0 +1,12 @@
+[package]
+name = "haneul-graphql-rpc-headers"
+version = "0.1.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+axum.workspace = true
+
+workspace-hack.workspace = true

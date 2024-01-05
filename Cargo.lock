@@ -11898,6 +11898,8 @@ dependencies = [
  "similar",
  "simulacrum",
  "haneul-framework",
+ "haneul-graphql-rpc-client",
+ "haneul-graphql-rpc-headers",
  "haneul-indexer",
  "haneul-json-rpc",
  "haneul-json-rpc-types",
@@ -11916,6 +11918,28 @@ dependencies = [
  "tower",
  "tracing",
  "uuid 1.2.2",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-graphql-rpc-client"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "axum",
+ "hyper",
+ "reqwest",
+ "serde_json",
+ "haneul-graphql-rpc-headers",
+ "thiserror",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-graphql-rpc-headers"
+version = "0.1.0"
+dependencies = [
+ "axum",
  "workspace-hack",
 ]
 
