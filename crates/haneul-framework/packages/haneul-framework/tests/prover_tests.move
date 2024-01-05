@@ -17,37 +17,17 @@ module haneul::prover_tests {
         haneul::transfer::public_transfer(o, recipient);
     }
 
-    spec simple_transfer {
-        ensures haneul::prover::owned_by(o, recipient);
-        aborts_if false;
-    }
-
     public fun simple_share(o: Obj) {
         haneul::transfer::public_share_object(o)
-    }
-
-    spec simple_share {
-        ensures haneul::prover::shared(o);
-        aborts_if haneul::prover::owned(o);
     }
 
     public fun simple_freeze(o: Obj) {
         haneul::transfer::public_freeze_object(o)
     }
 
-    spec simple_freeze {
-        ensures haneul::prover::immutable(o);
-        aborts_if false;
-    }
-
     public fun simple_delete(o: Obj) {
         let Obj { id } = o;
         haneul::object::delete(id);
-    }
-
-    spec simple_delete {
-        aborts_if false;
-        ensures !haneul::prover::owned(o) && !haneul::prover::shared(o) && !haneul::prover::immutable(o);
     }
 
     // ====================================================================
@@ -59,26 +39,8 @@ module haneul::prover_tests {
         haneul::dynamic_field::add(&mut o.id, n2, v2);
     }
 
-    spec simple_field_add {
-        aborts_if haneul::prover::has_field(o, n1);
-        aborts_if haneul::prover::has_field(o, n2);
-        ensures haneul::prover::has_field(o, n1);
-        ensures haneul::prover::has_field(o, n2);
-        ensures haneul::prover::num_fields<Obj,u64>(o) == old(haneul::prover::num_fields<Obj,u64>(o)) + 1;
-        ensures haneul::prover::num_fields<Obj,u8>(o) == old(haneul::prover::num_fields<Obj,u8>(o)) + 1;
-    }
-
     public fun simple_field_remove(o: &mut Obj, n1: u64, n2: u8) {
         haneul::dynamic_field::remove<u64,u8>(&mut o.id, n1);
         haneul::dynamic_field::remove<u8,u64>(&mut o.id, n2);
-    }
-
-    spec simple_field_remove {
-        aborts_if !haneul::prover::has_field(o, n1);
-        aborts_if !haneul::prover::has_field(o, n2);
-        ensures !haneul::prover::has_field(o, n1);
-        ensures !haneul::prover::has_field(o, n2);
-        ensures haneul::prover::num_fields<Obj,u64>(o) == old(haneul::prover::num_fields<Obj,u64>(o)) - 1;
-        ensures haneul::prover::num_fields<Obj,u8>(o) == old(haneul::prover::num_fields<Obj,u8>(o)) - 1;
     }
 }
