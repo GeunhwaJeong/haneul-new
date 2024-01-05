@@ -7,7 +7,7 @@ use axum::http::Request;
 use tower::ServiceExt;
 
 #[tokio::test]
-async fn test_add() {
+async fn test_haneullabs_service() {
     let app = haneullabs_service::get_haneullabs_service("itest", "0.0.0");
 
     let res = app
