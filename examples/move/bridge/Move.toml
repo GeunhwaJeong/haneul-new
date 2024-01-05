@@ -1,0 +1,10 @@
+[package]
+name = "Bridge"
+version = "0.0.1"
+
+[dependencies]
+MoveStdlib = { local = "../../../crates/haneul-framework/packages/move-stdlib" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+bridge = "0x0"
