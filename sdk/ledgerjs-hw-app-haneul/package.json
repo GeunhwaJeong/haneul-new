@@ -1,6 +1,6 @@
 {
 	"name": "@haneullabs/ledgerjs-hw-app-haneul",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Ledger Hardware Wallet Haneul Application API",
 	"keywords": [
 		"Ledger",

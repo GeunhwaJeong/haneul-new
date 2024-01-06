@@ -1,5 +1,18 @@
 # @haneullabs/create-dapp
 
+## 0.2.0
+
+### Minor Changes
+
+- e5f9e3ba21: Replace tsup based build to fix issues with esm/cjs dual publishing
+
+### Patch Changes
+
+- Updated dependencies [9ba167b0af]
+- Updated dependencies [e5f9e3ba21]
+  - @haneullabs/dapp-kit@0.11.0
+  - @haneullabs/haneul.js@0.49.0
+
 ## 0.1.8
 
 ### Patch Changes
