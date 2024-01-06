@@ -7,7 +7,7 @@ import type {
 	HaneulTransactionBlockResponseOptions,
 } from '@haneullabs/haneul.js/client';
 
-import type { HaneulSignTransactionBlockInput } from './haneulSignTransactionBlock';
+import type { HaneulSignTransactionBlockInput } from './haneulSignTransactionBlock.js';
 
 /** The latest API version of the signAndExecuteTransactionBlock API. */
 export type HaneulSignAndExecuteTransactionBlockVersion = '1.0.0';

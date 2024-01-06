@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { execSync } from 'child_process';
-import {
+import type {
 	DevInspectResults,
-	getFullnodeUrl,
-	HaneulClient,
 	HaneulObjectChangeCreated,
 	HaneulObjectChangePublished,
 	HaneulTransactionBlockResponse,
 } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 import { FaucetRateLimitError, getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
@@ -17,9 +16,9 @@ import tmp from 'tmp';
 import { retry } from 'ts-retry-promise';
 import { expect } from 'vitest';
 
-import { DeepBookClient } from '../../src';
-import { PoolSummary } from '../../src/types';
-import { FLOAT_SCALING_FACTOR, NORMALIZED_HANEUL_COIN_TYPE } from '../../src/utils';
+import { DeepBookClient } from '../../src/index.js';
+import type { PoolSummary } from '../../src/types/index.js';
+import { FLOAT_SCALING_FACTOR, NORMALIZED_HANEUL_COIN_TYPE } from '../../src/utils/index.js';
 
 const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? getFaucetHost('localnet');
 const DEFAULT_FULLNODE_URL = import.meta.env.VITE_FULLNODE_URL ?? getFullnodeUrl('localnet');

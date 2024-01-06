@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Wallet, WalletWithFeatures } from '@wallet-standard/core';
+import type { Wallet, WalletWithFeatures } from '@wallet-standard/core';
 
-import { MinimallyRequiredFeatures, WalletWithHaneulFeatures } from './features';
+import type { MinimallyRequiredFeatures, WalletWithHaneulFeatures } from './features/index.js';
 
 // These features are absolutely required for wallets to function in the Haneul ecosystem.
 // Eventually, as wallets have more consistent support of features, we may want to extend this list.

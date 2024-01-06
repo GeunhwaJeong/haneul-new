@@ -4,7 +4,7 @@ import {
   useHaneulClient,
   useHaneulClientQuery,
 } from "@haneullabs/dapp-kit";
-import { HaneulObjectData } from "@haneullabs/haneul.js/client";
+import type { HaneulObjectData } from "@haneullabs/haneul.js/client";
 import { TransactionBlock } from "@haneullabs/haneul.js/transactions";
 import { Button, Flex, Heading, Text } from "@radix-ui/themes";
 import { useNetworkVariable } from "./networkConfig";

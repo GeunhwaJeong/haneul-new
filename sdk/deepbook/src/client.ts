@@ -1,19 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	getFullnodeUrl,
-	OrderArguments,
-	PaginatedEvents,
-	PaginationArguments,
-	HaneulClient,
-} from '@haneullabs/haneul.js/client';
-import {
+import type { OrderArguments, PaginatedEvents, PaginationArguments } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import type {
 	TransactionArgument,
-	TransactionBlock,
 	TransactionObjectInput,
 	TransactionResult,
 } from '@haneullabs/haneul.js/transactions';
+import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import {
 	normalizeStructTag,
 	normalizeHaneulAddress,
@@ -22,17 +17,15 @@ import {
 	HANEUL_CLOCK_OBJECT_ID,
 } from '@haneullabs/haneul.js/utils';
 
-import {
-	bcs,
+import type {
 	Level2BookStatusPoint,
-	LimitOrderType,
 	MarketPrice,
 	Order,
 	PaginatedPoolSummary,
 	PoolSummary,
-	SelfMatchingPreventionStyle,
 	UserPosition,
-} from './types';
+} from './types/index.js';
+import { bcs, LimitOrderType, SelfMatchingPreventionStyle } from './types/index.js';
 import {
 	CREATION_FEE,
 	MODULE_CLOB,
@@ -40,7 +33,7 @@ import {
 	NORMALIZED_HANEUL_COIN_TYPE,
 	ORDER_DEFAULT_EXPIRATION_IN_MS,
 	PACKAGE_ID,
-} from './utils';
+} from './utils/index.js';
 
 const DUMMY_ADDRESS = normalizeHaneulAddress('0x0');
 

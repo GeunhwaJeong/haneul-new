@@ -1,18 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulClient } from '@haneullabs/haneul.js/client';
+import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
 
-import { bcs } from '../bcs';
+import { bcs } from '../bcs.js';
+import type { TransferPolicy, TransferPolicyCap } from '../types/index.js';
 import {
 	TRANSFER_POLICY_CAP_TYPE,
 	TRANSFER_POLICY_CREATED_EVENT,
 	TRANSFER_POLICY_TYPE,
-	TransferPolicy,
-	TransferPolicyCap,
-} from '../types';
-import { getAllOwnedObjects, parseTransferPolicyCapObject } from '../utils';
+} from '../types/index.js';
+import { getAllOwnedObjects, parseTransferPolicyCapObject } from '../utils.js';
 
 /**
  * Searches the `TransferPolicy`-s for the given type. The seach is performed via

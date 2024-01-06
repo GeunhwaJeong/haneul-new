@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
+import type {
 	PaginatedObjectsResponse,
 	HaneulObjectData,
 	HaneulObjectDataOptions,
 } from '@haneullabs/haneul.js/client';
-import { TransactionArgument } from '@haneullabs/haneul.js/transactions';
+import type { TransactionArgument } from '@haneullabs/haneul.js/transactions';
 
-import { ObjectArgument } from '.';
+import type { ObjectArgument } from './index.js';
 
 /** The Kiosk module. */
 export const KIOSK_MODULE = '0x2::kiosk';

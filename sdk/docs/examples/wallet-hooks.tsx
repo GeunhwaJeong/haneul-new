@@ -20,7 +20,8 @@ import {
 import { getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ComponentProps, useEffect, useState } from 'react';
+import type { ComponentProps } from 'react';
+import { useEffect, useState } from 'react';
 
 import '@haneullabs/dapp-kit/dist/index.css';
 

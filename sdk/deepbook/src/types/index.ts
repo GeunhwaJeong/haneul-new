@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { EventId } from '@haneullabs/haneul.js/client';
+import type { EventId } from '@haneullabs/haneul.js/client';
 
-export * from './bcs';
+export * from './bcs.js';
 
 export interface PoolSummary {
 	poolId: string;

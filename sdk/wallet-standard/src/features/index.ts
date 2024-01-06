@@ -9,10 +9,10 @@ import type {
 	WalletWithFeatures,
 } from '@wallet-standard/core';
 
-import type { HaneulSignAndExecuteTransactionBlockFeature } from './haneulSignAndExecuteTransactionBlock';
-import { HaneulSignMessageFeature } from './haneulSignMessage';
-import { HaneulSignPersonalMessageFeature } from './haneulSignPersonalMessage';
-import type { HaneulSignTransactionBlockFeature } from './haneulSignTransactionBlock';
+import type { HaneulSignAndExecuteTransactionBlockFeature } from './haneulSignAndExecuteTransactionBlock.js';
+import type { HaneulSignMessageFeature } from './haneulSignMessage.js';
+import type { HaneulSignPersonalMessageFeature } from './haneulSignPersonalMessage.js';
+import type { HaneulSignTransactionBlockFeature } from './haneulSignTransactionBlock.js';
 
 /**
  * Wallet Standard features that are unique to Haneul, and that all Haneul wallets are expected to implement.
@@ -43,7 +43,7 @@ export type WalletWithRequiredFeatures = WalletWithFeatures<
 
 export type MinimallyRequiredFeatures = StandardConnectFeature & StandardEventsFeature;
 
-export * from './haneulSignMessage';
-export * from './haneulSignTransactionBlock';
-export * from './haneulSignAndExecuteTransactionBlock';
-export * from './haneulSignPersonalMessage';
+export * from './haneulSignMessage.js';
+export * from './haneulSignTransactionBlock.js';
+export * from './haneulSignAndExecuteTransactionBlock.js';
+export * from './haneulSignPersonalMessage.js';
