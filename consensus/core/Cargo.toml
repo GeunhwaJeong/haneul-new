@@ -17,5 +17,6 @@ tracing.workspace = true
 async-trait.workspace = true
 
 consensus-config.workspace = true
+haneul-protocol-config.workspace = true
 
 workspace-hack.workspace = true

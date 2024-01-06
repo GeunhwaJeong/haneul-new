@@ -2471,6 +2471,7 @@ dependencies = [
  "fastcrypto",
  "prometheus",
  "serde",
+ "haneul-protocol-config",
  "tokio",
  "tracing",
  "workspace-hack",
