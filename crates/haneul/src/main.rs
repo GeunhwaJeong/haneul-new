@@ -3,6 +3,7 @@
 
 use clap::*;
 use colored::Colorize;
+use haneul::client_commands::HaneulClientCommands::ReplayTransaction;
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
@@ -45,13 +46,27 @@ async fn main() {
 
     let args = Args::parse();
     let _guard = match args.command {
-        HaneulCommand::Console { .. }
-        | HaneulCommand::Client { .. }
-        | HaneulCommand::KeyTool { .. }
-        | HaneulCommand::Move { .. } => telemetry_subscribers::TelemetryConfig::new()
-            .with_log_level("error")
-            .with_env()
-            .init(),
+        HaneulCommand::Console { .. } | HaneulCommand::KeyTool { .. } | HaneulCommand::Move { .. } => {
+            telemetry_subscribers::TelemetryConfig::new()
+                .with_log_level("error")
+                .with_env()
+                .init()
+        }
+        HaneulCommand::Client {
+            cmd: Some(ReplayTransaction { gas_info, .. }),
+            ..
+        } => {
+            if gas_info {
+                telemetry_subscribers::TelemetryConfig::new()
+                    .with_trace_target("replay")
+                    .with_env()
+                    .init()
+            } else {
+                telemetry_subscribers::TelemetryConfig::new()
+                    .with_env()
+                    .init()
+            }
+        }
         _ => telemetry_subscribers::TelemetryConfig::new()
             .with_env()
             .init(),
