@@ -20,22 +20,26 @@
           }
         }
         balanceChanges {
-          owner {
-            address
-            balance(type: "0x2::haneul::HANEUL") {
-              totalBalance
+          nodes {
+            owner {
+              address
+              balance(type: "0x2::haneul::HANEUL") {
+                totalBalance
+              }
             }
-          }
-          amount
-          coinType {
-            repr
-            signature
-            layout
+            amount
+            coinType {
+              repr
+              signature
+              layout
+            }
           }
         }
         dependencies {
-          sender {
-            address
+          nodes {
+            sender {
+              address
+            }
           }
         }
       }
