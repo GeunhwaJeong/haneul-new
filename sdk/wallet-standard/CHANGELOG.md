@@ -1,5 +1,13 @@
 # @haneullabs/wallet-standard
 
+## 0.10.1
+
+### Patch Changes
+
+- 9ac0a4ec01: Add extensions to all sdk import paths
+- Updated dependencies [9ac0a4ec01]
+  - @haneullabs/haneul.js@0.49.1
+
 ## 0.10.0
 
 ### Minor Changes

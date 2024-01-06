@@ -1,5 +1,13 @@
 # @haneullabs/enoki
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [9ac0a4ec01]
+  - @haneullabs/haneul.js@0.49.1
+  - @haneullabs/zklogin@0.4.1
+
 ## 0.1.0
 
 ### Minor Changes

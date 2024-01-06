@@ -1,5 +1,13 @@
 # @haneullabs/haneul.js
 
+## 0.49.1
+
+### Patch Changes
+
+- 9ac0a4ec01: Add extensions to all sdk import paths
+- Updated dependencies [9ac0a4ec01]
+  - @haneullabs/bcs@0.10.1
+
 ## 0.49.0
 
 ### Minor Changes
