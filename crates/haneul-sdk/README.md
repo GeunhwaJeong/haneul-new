@@ -10,7 +10,7 @@ tokio = { version = "1.2", features = ["full"] }
 anyhow = "1.0"
 ```
 
-The main building block for the Haneul Rust SDK is the `HaneulClientBuilder`, which provides a simple and straightforward way of connectiong to a Haneul network and having access to the different available APIs. 
+The main building block for the Haneul Rust SDK is the `HaneulClientBuilder`, which provides a simple and straightforward way of connecting to a Haneul network and having access to the different available APIs. 
 
 In the following example, the application connects to the Haneul `testnet` and `devnet` networks and prints out their respective RPC API versions.
 
