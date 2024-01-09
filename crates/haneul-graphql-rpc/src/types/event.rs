@@ -4,6 +4,7 @@
 use async_graphql::*;
 use haneul_indexer::models_v2::events::StoredEvent;
 use haneul_indexer::models_v2::transactions::StoredTransaction;
+use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
 use haneul_types::event::Event as NativeEvent;
 use haneul_types::{parse_haneul_struct_tag, TypeTag};
 
@@ -71,17 +72,21 @@ impl Event {
             .extend()
     }
 
-    /// Addresses of the senders of the event
-    async fn senders(&self) -> Result<Option<Vec<Address>>> {
-        let mut addrs = Vec::with_capacity(self.stored.senders.len());
-        for sender in &self.stored.senders {
-            let Some(sender) = &sender else { continue };
-            let address = HaneulAddress::from_bytes(sender)
-                .map_err(|e| Error::Internal(format!("Failed to deserialize address: {e}")))
-                .extend()?;
-            addrs.push(Address { address });
+    /// Address of the sender of the event
+    async fn sender(&self) -> Result<Option<Address>> {
+        let Some(Some(sender)) = self.stored.senders.first() else {
+            return Ok(None);
+        };
+
+        let address = HaneulAddress::from_bytes(sender)
+            .map_err(|e| Error::Internal(format!("Failed to deserialize address: {e}")))
+            .extend()?;
+
+        if address.as_slice() == NativeHaneulAddress::ZERO.as_ref() {
+            return Ok(None);
         }
-        Ok(Some(addrs))
+
+        Ok(Some(Address { address }))
     }
 
     /// UTC timestamp in milliseconds since epoch (1/1/1970)
