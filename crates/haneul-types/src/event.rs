@@ -4,9 +4,9 @@
 use std::str::FromStr;
 
 use anyhow::ensure;
-use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_value::MoveStruct;
+use move_core_types::annotated_value::MoveStructLayout;
 use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
 use move_core_types::identifier::Identifier;
@@ -19,7 +19,6 @@ use serde_with::Bytes;
 
 use crate::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use crate::error::{HaneulError, HaneulResult};
-use crate::object::MoveObject;
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
 use crate::HANEUL_SYSTEM_ADDRESS;
@@ -126,11 +125,9 @@ impl Event {
         }
     }
     pub fn move_event_to_move_struct(
-        type_: &StructTag,
         contents: &[u8],
-        resolver: &impl GetModule,
+        layout: MoveStructLayout,
     ) -> HaneulResult<MoveStruct> {
-        let layout = MoveObject::get_layout_from_struct_tag(type_.clone(), resolver)?;
         MoveStruct::simple_deserialize(contents, &layout).map_err(|e| {
             HaneulError::ObjectSerializationError {
                 error: e.to_string(),

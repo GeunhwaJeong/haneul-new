@@ -48,7 +48,9 @@ use haneul_json_rpc_types::{
     Balance, Coin as HaneulCoin, HaneulCoinMetadata, HaneulTransactionBlockEffects,
     HaneulTransactionBlockEffectsAPI,
 };
-use haneul_types::{balance::Supply, coin::TreasuryCap, dynamic_field::DynamicFieldName};
+use haneul_types::{
+    balance::Supply, coin::TreasuryCap, dynamic_field::DynamicFieldName, object::MoveObject,
+};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber},
     committee::EpochId,
@@ -1019,12 +1021,13 @@ impl IndexerReader {
             .into_iter()
             .enumerate()
             .map(|(i, event)| {
+                let layout = MoveObject::get_layout_from_struct_tag(event.type_.clone(), self)?;
                 haneul_json_rpc_types::HaneulEvent::try_from(
                     event,
                     digest,
                     i as u64,
                     Some(timestamp_ms as u64),
-                    self,
+                    layout,
                 )
             })
             .collect::<Result<Vec<_>, _>>()

@@ -31,7 +31,7 @@ use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::object::Owner;
+use haneul_types::object::{MoveObject, Owner};
 use haneul_types::parse_haneul_type_tag;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::signature::GenericSignature;
@@ -45,6 +45,7 @@ use haneul_types::transaction::{
     InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
     TransactionData, TransactionDataAPI, TransactionKind, VersionedProtocolMessage,
 };
+use haneul_types::type_resolver::LayoutResolver;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use tabled::{
     builder::Builder as TableBuilder,
@@ -959,6 +960,26 @@ impl HaneulTransactionBlockEvents {
         events: TransactionEvents,
         tx_digest: TransactionDigest,
         timestamp_ms: Option<u64>,
+        resolver: &mut dyn LayoutResolver,
+    ) -> HaneulResult<Self> {
+        Ok(Self {
+            data: events
+                .data
+                .into_iter()
+                .enumerate()
+                .map(|(seq, event)| {
+                    let layout = resolver.get_annotated_layout(&event.type_)?;
+                    HaneulEvent::try_from(event, tx_digest, seq as u64, timestamp_ms, layout)
+                })
+                .collect::<Result<_, _>>()?,
+        })
+    }
+
+    // TODO: this is only called from the indexer. Remove this once indexer moves to its own resolver.
+    pub fn try_from_using_module_resolver(
+        events: TransactionEvents,
+        tx_digest: TransactionDigest,
+        timestamp_ms: Option<u64>,
         resolver: &impl GetModule,
     ) -> HaneulResult<Self> {
         Ok(Self {
@@ -967,7 +988,9 @@ impl HaneulTransactionBlockEvents {
                 .into_iter()
                 .enumerate()
                 .map(|(seq, event)| {
-                    HaneulEvent::try_from(event, tx_digest, seq as u64, timestamp_ms, resolver)
+                    let layout =
+                        MoveObject::get_layout_from_struct_tag(event.type_.clone(), resolver)?;
+                    HaneulEvent::try_from(event, tx_digest, seq as u64, timestamp_ms, layout)
                 })
                 .collect::<Result<_, _>>()?,
         })
@@ -1038,7 +1061,7 @@ impl DevInspectResults {
         effects: TransactionEffects,
         events: TransactionEvents,
         return_values: Result<Vec<ExecutionResult>, ExecutionError>,
-        resolver: &impl GetModule,
+        resolver: &mut dyn LayoutResolver,
     ) -> HaneulResult<Self> {
         let tx_digest = *effects.transaction_digest();
         let mut error = None;

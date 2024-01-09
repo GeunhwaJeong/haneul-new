@@ -15,7 +15,7 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
-use haneul_types::{error::HaneulError, object::MoveObject, type_resolver::LayoutResolver};
+use haneul_types::{error::HaneulError, type_resolver::LayoutResolver};
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
 /// Invocation into the `Session` to leverage the `LinkageView` implementation
@@ -41,9 +41,8 @@ impl<'state, 'vm> TypeLayoutResolver<'state, 'vm> {
 impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
     fn get_annotated_layout(
         &mut self,
-        object: &MoveObject,
+        struct_tag: &StructTag,
     ) -> Result<A::MoveStructLayout, HaneulError> {
-        let struct_tag: StructTag = object.type_().clone().into();
         let type_tag: TypeTag = TypeTag::from(struct_tag.clone());
         let Ok(ty) = load_type(&mut self.session, &type_tag) else {
             return Err(HaneulError::FailObjectLayout {
