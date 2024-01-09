@@ -1,0 +1,10 @@
+[package]
+name = "haneul-oracle"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "9d0fba4a490e1cf80101bbd4019c7bb1ccfce99b" }
+
+[addresses]
+oracle = "0x0"
+haneul = "0x2"
