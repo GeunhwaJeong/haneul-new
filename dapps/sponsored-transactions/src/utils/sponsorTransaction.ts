@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { HaneulObjectRef } from '@haneullabs/haneul.js/client';
 import { getFaucetHost, requestHaneulFromFaucetV1 } from '@haneullabs/haneul.js/faucet';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { HaneulObjectRef } from '@haneullabs/haneul.js/src/types/objects';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 
 import { client } from './rpc';

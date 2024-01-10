@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { bcs } from '@haneullabs/haneul.js/bcs';
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import { bcs } from '@haneullabs/haneul.js/src/bcs/index.js';
 import { toB64 } from '@haneullabs/haneul.js/utils';
 import type {
 	StandardConnectFeature,
