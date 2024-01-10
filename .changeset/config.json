@@ -1,21 +1,24 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.2.0/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
-  "fixed": [],
-  "linked": [],
-  "access": "public",
-  "baseBranch": "main",
-  "updateInternalDependencies": "minor",
-  "privatePackages": false,
-  "ignore": [
-    "haneul-wallet",
-    "haneul-explorer",
-    "@haneullabs/core",
-    "@haneullabs/ui",
-    "sponsored-transactions",
-    "kiosk-demo",
-    "kiosk-cli",
-    "@haneullabs/sdk-docs"
-  ]
+	"$schema": "https://unpkg.com/@changesets/config@2.2.0/schema.json",
+	"changelog": "@changesets/cli/changelog",
+	"commit": false,
+	"fixed": [],
+	"linked": [],
+	"access": "public",
+	"baseBranch": "main",
+	"updateInternalDependencies": "minor",
+	"privatePackages": false,
+	"ignore": [
+		"haneul-wallet",
+		"haneul-explorer",
+		"@haneullabs/core",
+		"@haneullabs/ui",
+		"sponsored-transactions",
+		"kiosk-demo",
+		"kiosk-cli",
+		"@haneullabs/sdk-docs"
+	],
+	"___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+		"onlyUpdatePeerDependentsWhenOutOfRange": true
+	}
 }
