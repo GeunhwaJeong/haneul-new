@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import type { HaneulObjectChange } from '@haneullabs/haneul.js/client';
+import type { ObjectOwner, HaneulObjectChange } from '@haneullabs/haneul.js/client';
 import type { Keypair } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type { TransactionObjectInput } from '@haneullabs/haneul.js/transactions';
@@ -180,9 +180,11 @@ export class ZkSendLink {
 			digest: string;
 		}[] = [];
 
-		dryRun.balanceChanges.map((balanceChange) =>
-			balances.push({ coinType: balanceChange.coinType, amount: BigInt(balanceChange.amount) }),
-		);
+		dryRun.balanceChanges.forEach((balanceChange) => {
+			if (BigInt(balanceChange.amount) > 0n && isOwner(balanceChange.owner, normalizedAddress)) {
+				balances.push({ coinType: balanceChange.coinType, amount: BigInt(balanceChange.amount) });
+			}
+		});
 
 		dryRun.objectChanges.forEach((objectChange) => {
 			if ('objectType' in objectChange) {
@@ -206,6 +208,20 @@ export class ZkSendLink {
 			balances,
 			nfts,
 		};
+	}
+
+	async claimAssets(
+		address: string,
+		options?: {
+			claimObjectsAddedAfterCreation?: boolean;
+			coinTypes?: string[];
+			objects?: string[];
+		},
+	) {
+		return this.#client.signAndExecuteTransactionBlock({
+			transactionBlock: await this.createClaimTransaction(address, options),
+			signer: this.#keypair,
+		});
 	}
 
 	createClaimTransaction(
@@ -318,23 +334,22 @@ function ownedAfterChange(
 	objectChange: HaneulObjectChange,
 	address: string,
 ): objectChange is Extract<HaneulObjectChange, { type: 'created' | 'transferred' }> {
-	if (
-		objectChange.type === 'transferred' &&
-		typeof objectChange.recipient === 'object' &&
-		'AddressOwner' in objectChange.recipient &&
-		normalizeHaneulAddress(objectChange.recipient.AddressOwner) === address
-	) {
+	if (objectChange.type === 'transferred' && isOwner(objectChange.recipient, address)) {
 		return true;
 	}
 
-	if (
-		objectChange.type === 'created' &&
-		typeof objectChange.owner === 'object' &&
-		'AddressOwner' in objectChange.owner &&
-		normalizeHaneulAddress(objectChange.owner.AddressOwner) === address
-	) {
+	if (objectChange.type === 'created' && isOwner(objectChange.owner, address)) {
 		return true;
 	}
 
 	return false;
+}
+
+function isOwner(owner: ObjectOwner, address: string): owner is { AddressOwner: string } {
+	return (
+		owner &&
+		typeof owner === 'object' &&
+		'AddressOwner' in owner &&
+		normalizeHaneulAddress(owner.AddressOwner) === address
+	);
 }
