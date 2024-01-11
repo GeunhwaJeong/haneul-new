@@ -12,7 +12,9 @@ use diesel::{
     TextExpressionMethods,
 };
 use std::str::FromStr;
-use haneul_types::{parse_haneul_address, parse_haneul_module_id, parse_haneul_type_tag, TypeTag};
+use haneul_types::{
+    parse_haneul_address, parse_haneul_fq_name, parse_haneul_module_id, parse_haneul_type_tag, TypeTag,
+};
 
 /// GraphQL scalar containing a filter on types.
 #[derive(Clone, Debug)]
@@ -30,8 +32,18 @@ pub(crate) enum TypeFilter {
     ByType(TypeTag),
 }
 
+/// GraphQL scalar containing a filter on fully-qualified names.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) enum FqNameFilter {
+    /// Filter the module member by the package or module it's from.
+    ByModule(ModuleFilter),
+
+    /// Exact match on the module member.
+    ByFqName(HaneulAddress, String, String),
+}
+
 /// GraphQL scalar containing a filter on modules.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) enum ModuleFilter {
     /// Filter the module by the package it's from.
     ByPackage(HaneulAddress),
@@ -88,6 +100,40 @@ impl TypeFilter {
     }
 }
 
+impl FqNameFilter {
+    /// Modify `query` to apply this filter, treating `package` as the column containing the package
+    /// address, `module` as the module containing the module name, and `name` as the column
+    /// containing the module member name.
+    pub(crate) fn apply<P, M, N, QS, ST, GB>(
+        &self,
+        query: BoxedQuery<ST, QS, Db, GB>,
+        package: P,
+        module: M,
+        name: N,
+    ) -> BoxedQuery<ST, QS, Db, GB>
+    where
+        BoxedQuery<ST, QS, Db, GB>: QueryDsl,
+        P: ExpressionMethods + Expression<SqlType = Binary> + QueryFragment<DbBackend>,
+        M: ExpressionMethods + Expression<SqlType = Text> + QueryFragment<DbBackend>,
+        N: ExpressionMethods + Expression<SqlType = Text> + QueryFragment<DbBackend>,
+        P: AppearsOnTable<QS> + ValidGrouping<(), IsAggregate = No>,
+        M: AppearsOnTable<QS> + ValidGrouping<(), IsAggregate = No>,
+        N: AppearsOnTable<QS> + ValidGrouping<(), IsAggregate = No>,
+        P: Send + 'static,
+        M: Send + 'static,
+        N: Send + 'static,
+        QS: QuerySource,
+    {
+        match self {
+            FqNameFilter::ByModule(filter) => filter.apply(query, package, module),
+            FqNameFilter::ByFqName(p, m, n) => query
+                .filter(package.eq(p.into_vec()))
+                .filter(module.eq(m.clone()))
+                .filter(name.eq(n.clone())),
+        }
+    }
+}
+
 impl ModuleFilter {
     /// Modify `query` to apply this filter, treating `package` as the column containing the package
     /// address and `module` as the module containing the module name.
@@ -117,6 +163,7 @@ impl ModuleFilter {
 }
 
 impl_string_input!(TypeFilter);
+impl_string_input!(FqNameFilter);
 impl_string_input!(ModuleFilter);
 
 impl FromStr for TypeFilter {
@@ -130,6 +177,23 @@ impl FromStr for TypeFilter {
             Err(Error::InvalidFormat(
                 "package[::module[::type[<type_params>]]] or primitive type",
             ))
+        }
+    }
+}
+
+impl FromStr for FqNameFilter {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self, Error> {
+        if let Ok((module, name)) = parse_haneul_fq_name(s) {
+            Ok(FqNameFilter::ByFqName(
+                HaneulAddress::from(*module.address()),
+                module.name().to_string(),
+                name,
+            ))
+        } else if let Ok(filter) = ModuleFilter::from_str(s) {
+            Ok(FqNameFilter::ByModule(filter))
+        } else {
+            Err(Error::InvalidFormat("package[::module[::function]]"))
         }
     }
 }
@@ -156,7 +220,7 @@ mod tests {
     use expect_test::expect;
 
     #[test]
-    fn test_valid_filters() {
+    fn test_valid_type_filters() {
         let inputs = [
             "u8",
             "address",
@@ -331,20 +395,210 @@ mod tests {
     }
 
     #[test]
+    fn test_valid_function_filters() {
+        let inputs = [
+            "0x2",
+            "0x2::coin",
+            "0x2::object::new",
+            "0x2::tx_context::TxContext",
+        ]
+        .into_iter();
+
+        let filters: Vec<_> = inputs.map(|i| FqNameFilter::from_str(i).unwrap()).collect();
+
+        let expect = expect![[r#"
+            [
+                ByModule(
+                    ByPackage(
+                        HaneulAddress(
+                            [
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                2,
+                            ],
+                        ),
+                    ),
+                ),
+                ByModule(
+                    ByModule(
+                        HaneulAddress(
+                            [
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                2,
+                            ],
+                        ),
+                        "coin",
+                    ),
+                ),
+                ByFqName(
+                    HaneulAddress(
+                        [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            2,
+                        ],
+                    ),
+                    "object",
+                    "new",
+                ),
+                ByFqName(
+                    HaneulAddress(
+                        [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            2,
+                        ],
+                    ),
+                    "tx_context",
+                    "TxContext",
+                ),
+            ]"#]];
+        expect.assert_eq(&format!("{filters:#?}"));
+    }
+
+    #[test]
+    fn test_invalid_function_filters() {
+        for invalid_function_filter in [
+            "0x2::coin::Coin<0x2::haneul::HANEUL>",
+            "vector<u256>",
+            "vector<0x3::staking_pool::StakedHaneul>",
+        ] {
+            assert!(FqNameFilter::from_str(invalid_function_filter).is_err());
+        }
+    }
+
+    #[test]
     fn test_invalid_type_filters() {
-        for invalid_type_filters in [
+        for invalid_type_filter in [
             "not_a_real_type",
             "0x1:missing::colon",
             "0x2::trailing::",
             "0x3::mismatched::bra<0x4::ke::ts",
         ] {
-            assert!(TypeFilter::from_str(invalid_type_filters).is_err());
+            assert!(TypeFilter::from_str(invalid_type_filter).is_err());
         }
     }
 
     #[test]
     fn test_invalid_module_filters() {
-        for invalid_module_filters in [
+        for invalid_module_filter in [
             "u8",
             "address",
             "bool",
@@ -353,7 +607,7 @@ mod tests {
             "vector<u256>",
             "vector<0x3::staking_pool::StakedHaneul>",
         ] {
-            assert!(ModuleFilter::from_str(invalid_module_filters).is_err());
+            assert!(ModuleFilter::from_str(invalid_module_filter).is_err());
         }
     }
 }
