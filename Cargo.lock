@@ -12182,30 +12182,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-kvstore"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "aws-config",
- "aws-sdk-dynamodb",
- "aws-sdk-s3",
- "backoff",
- "base64-url",
- "bcs",
- "haneullabs-metrics",
- "prometheus",
- "serde",
- "haneul-config",
- "haneul-core",
- "haneul-storage",
- "haneul-types",
- "tokio",
- "tracing",
- "workspace-hack",
-]
-
-[[package]]
 name = "haneul-light-client"
 version = "0.0.0"
 dependencies = [
@@ -12477,7 +12453,6 @@ dependencies = [
  "haneul-core",
  "haneul-json-rpc",
  "haneul-json-rpc-api",
- "haneul-kvstore",
  "haneul-macros",
  "haneul-network",
  "haneul-protocol-config",

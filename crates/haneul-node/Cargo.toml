@@ -41,7 +41,6 @@ haneul-protocol-config.workspace = true
 haneul-snapshot.workspace = true
 haneul-telemetry.workspace = true
 haneul-types.workspace = true
-haneul-kvstore.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-common.workspace = true
 narwhal-network.workspace = true
