@@ -4,7 +4,7 @@ import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
 
 import type { TransactionBlock } from '../builder/index.js';
 import { isTransactionBlock } from '../builder/index.js';
-import type { Keypair } from '../cryptography/index.js';
+import type { Signer } from '../cryptography/index.js';
 import {
 	isValidHaneulAddress,
 	isValidHaneulObjectId,
@@ -429,7 +429,7 @@ export class HaneulClient {
 		...input
 	}: {
 		transactionBlock: Uint8Array | TransactionBlock;
-		signer: Keypair;
+		signer: Signer;
 	} & Omit<
 		ExecuteTransactionBlockParams,
 		'transactionBlock' | 'signature'
