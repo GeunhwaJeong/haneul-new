@@ -268,8 +268,8 @@ pub(crate) fn try_construct_object(
             )?)
         },
         _ => {
-            return Err(HaneulError::StorageCorruptedFieldError(
-                "inconsistent object representation".to_string(),
+            return Err(HaneulError::StorageError(
+                "corrupted field: inconsistent object representation".to_string(),
             ))
         }
     };

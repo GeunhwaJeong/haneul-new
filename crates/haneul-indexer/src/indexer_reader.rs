@@ -1754,7 +1754,7 @@ impl haneul_types::storage::ObjectStore for IndexerReader {
         object_id: &ObjectID,
     ) -> Result<Option<haneul_types::object::Object>, haneul_types::error::HaneulError> {
         self.get_object(object_id, None)
-            .map_err(|e| haneul_types::error::HaneulError::GenericStorageError(e.to_string()))
+            .map_err(|e| haneul_types::error::HaneulError::StorageError(e.to_string()))
     }
 
     fn get_object_by_key(
@@ -1763,7 +1763,7 @@ impl haneul_types::storage::ObjectStore for IndexerReader {
         version: haneul_types::base_types::VersionNumber,
     ) -> Result<Option<haneul_types::object::Object>, haneul_types::error::HaneulError> {
         self.get_object(object_id, Some(version))
-            .map_err(|e| haneul_types::error::HaneulError::GenericStorageError(e.to_string()))
+            .map_err(|e| haneul_types::error::HaneulError::StorageError(e.to_string()))
     }
 }
 

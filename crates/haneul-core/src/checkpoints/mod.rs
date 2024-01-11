@@ -46,7 +46,7 @@ use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
@@ -632,7 +632,7 @@ impl CheckpointStore {
         // This checkpoints the entire db and not one column family
         self.checkpoint_content
             .checkpoint_db(path)
-            .map_err(HaneulError::StorageError)
+            .map_err(Into::into)
     }
 
     pub fn delete_highest_executed_checkpoint_test_only(&self) -> Result<(), TypedStoreError> {
@@ -649,8 +649,7 @@ impl CheckpointStore {
         self.delete_highest_executed_checkpoint_test_only()?;
         self.watermarks
             .rocksdb
-            .flush()
-            .map_err(HaneulError::StorageError)?;
+            .flush()?;
         Ok(())
     }
 }

@@ -451,7 +451,7 @@ impl AuthorityPerpetualTables {
         // This checkpoints the entire db and not just objects table
         self.objects
             .checkpoint_db(path)
-            .map_err(HaneulError::StorageError)
+            .map_err(Into::into)
     }
 
     pub fn reset_db_for_execution_since_genesis(&self) -> HaneulResult {
@@ -470,8 +470,7 @@ impl AuthorityPerpetualTables {
         self.object_per_epoch_marker_table.unsafe_clear()?;
         self.objects
             .rocksdb
-            .flush()
-            .map_err(HaneulError::StorageError)?;
+            .flush()?;
         Ok(())
     }
 
