@@ -39,6 +39,8 @@ pub enum BridgeError {
     MismatchedAuthoritySigner,
     // Signature is over a mismatched action
     MismatchedAction,
+    // Authority has invalid url
+    AuthoirtyUrlInvalid,
     // Haneul transaction failure due to generic error
     HaneulTxFailureGeneric(String),
     // Storage Error
