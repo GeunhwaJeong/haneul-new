@@ -42,7 +42,7 @@ const HANEUL_COIN_OBJECT_TYPE = normalizeStructTag('0x2::coin::Coin<0x2::haneul:
 interface CreateZkSendLinkOptions {
 	transactionBlock?: TransactionBlock;
 	calculateGas?: (options: {
-		geunhwa: bigint;
+		balances: Map<string, bigint>;
 		objects: TransactionObjectInput[];
 		gasEstimateFromDryRun: bigint;
 	}) => Promise<bigint> | bigint;
@@ -54,8 +54,10 @@ export class ZkSendLinkBuilder {
 	#keypair: Keypair;
 	#client: HaneulClient;
 	#objects = new Set<TransactionObjectInput>();
-	#geunhwa = 0n;
+	#balances = new Map<string, bigint>();
 	#sender: string;
+
+	#coinsByType = new Map<string, CoinStruct[]>();
 
 	constructor({
 		host = DEFAULT_ZK_SEND_LINK_OPTIONS.host,
@@ -72,10 +74,14 @@ export class ZkSendLinkBuilder {
 	}
 
 	addClaimableMist(amount: bigint) {
-		this.#geunhwa += amount;
+		this.addClaimableBalance(HANEUL_COIN_TYPE, amount);
 	}
 
-	addClaimableObject(id: TransactionObjectInput) {
+	addClaimableBalance(coinType: string, amount: bigint) {
+		this.#balances.set(normalizeStructTag(coinType), (this.#balances.get(coinType) ?? 0n) + amount);
+	}
+
+	addClaimableObject(id: string) {
 		this.#objects.add(id);
 	}
 
@@ -107,7 +113,7 @@ export class ZkSendLinkBuilder {
 		const gasEstimateFromDryRun = await this.#estimateClaimGasFee();
 		const baseGasAmount = calculateGas
 			? await calculateGas({
-					geunhwa: this.#geunhwa,
+					balances: this.#balances,
 					objects: [...this.#objects],
 					gasEstimateFromDryRun,
 			  })
@@ -120,19 +126,25 @@ export class ZkSendLinkBuilder {
 
 		const address = this.#keypair.toHaneulAddress();
 		const objectsToTransfer = [...this.#objects].map((id) => txb.object(id));
+		const [gas] = txb.splitCoins(txb.gas, [roundedGasAmount]);
+		objectsToTransfer.push(gas);
+
 		txb.setSenderIfNotSet(this.#sender);
 
-		if (this.#geunhwa) {
-			const [gas, haneul] = txb.splitCoins(txb.gas, [roundedGasAmount, this.#geunhwa]);
-			objectsToTransfer.push(gas, haneul);
-		} else {
-			const [gas] = txb.splitCoins(txb.gas, [roundedGasAmount]);
-			objectsToTransfer.push(gas);
+		for (const [coinType, amount] of this.#balances) {
+			if (coinType === HANEUL_COIN_TYPE) {
+				const [haneul] = txb.splitCoins(txb.gas, [amount]);
+				objectsToTransfer.push(haneul);
+			} else {
+				const coins = (await this.#getCoinsByType(coinType)).map((coin) => coin.coinObjectId);
+				const merged =
+					coins.length > 0 ? txb.mergeCoins(coins[0], coins.slice(1)) : txb.object(coins[0]);
+				const [split] = txb.splitCoins(merged, [amount]);
+				objectsToTransfer.push(split);
+			}
 		}
 
-		if (objectsToTransfer.length > 0) {
-			txb.transferObjects(objectsToTransfer, address);
-		}
+		txb.transferObjects(objectsToTransfer, address);
 
 		return txb;
 	}
@@ -143,24 +155,21 @@ export class ZkSendLinkBuilder {
 		txb.setGasPayment([]);
 		txb.transferObjects([txb.gas], this.#keypair.toHaneulAddress());
 
-		if (this.#geunhwa) {
-			const allCoins = await this.#client.getCoins({
-				owner: this.#sender,
-				coinType: HANEUL_COIN_TYPE,
-				limit: 1,
-			});
+		const idsToTransfer = [...this.#objects];
 
-			if (!allCoins.data.length) {
-				throw new Error('Sending account does not contain any Haneul');
+		for (const [coinType] of this.#balances) {
+			const coins = await this.#getCoinsByType(coinType);
+
+			if (!coins.length) {
+				throw new Error(`Sending account does not contain any coins of type ${coinType}`);
 			}
 
+			idsToTransfer.push(coins[0].coinObjectId);
+		}
+
+		if (idsToTransfer.length > 0) {
 			txb.transferObjects(
-				[allCoins.data[0].coinObjectId, ...this.#objects].map((id) => txb.object(id)),
-				this.#keypair.toHaneulAddress(),
-			);
-		} else if (this.#objects.size > 0) {
-			txb.transferObjects(
-				[...this.#objects].map((id) => txb.object(id)),
+				idsToTransfer.map((id) => txb.object(id)),
 				this.#keypair.toHaneulAddress(),
 			);
 		}
@@ -174,6 +183,21 @@ export class ZkSendLinkBuilder {
 			BigInt(result.effects.gasUsed.storageCost) -
 			BigInt(result.effects.gasUsed.storageRebate)
 		);
+	}
+
+	async #getCoinsByType(coinType: string) {
+		if (this.#coinsByType.has(coinType)) {
+			return this.#coinsByType.get(coinType)!;
+		}
+
+		const coins = await this.#client.getCoins({
+			coinType,
+			owner: this.#sender,
+		});
+
+		this.#coinsByType.set(coinType, coins.data);
+
+		return coins.data;
 	}
 }
 
