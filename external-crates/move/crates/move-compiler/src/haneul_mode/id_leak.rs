@@ -25,10 +25,11 @@ use crate::{
 use std::collections::BTreeMap;
 
 use super::{
-    AUTHENTICATOR_STATE_CREATE, AUTHENTICATOR_STATE_MODULE_NAME, CLOCK_MODULE_NAME, ID_LEAK_DIAG,
-    OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH, RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_CREATE,
-    HANEUL_ADDR_NAME, HANEUL_CLOCK_CREATE, HANEUL_SYSTEM_ADDR_NAME, HANEUL_SYSTEM_CREATE,
-    HANEUL_SYSTEM_MODULE_NAME, UID_TYPE_NAME,
+    AUTHENTICATOR_STATE_CREATE, AUTHENTICATOR_STATE_MODULE_NAME, CLOCK_MODULE_NAME,
+    DENY_LIST_CREATE, DENY_LIST_MODULE_NAME, ID_LEAK_DIAG, OBJECT_MODULE_NAME,
+    OBJECT_NEW_UID_FROM_HASH, RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_CREATE, HANEUL_ADDR_NAME,
+    HANEUL_CLOCK_CREATE, HANEUL_SYSTEM_ADDR_NAME, HANEUL_SYSTEM_CREATE, HANEUL_SYSTEM_MODULE_NAME,
+    UID_TYPE_NAME,
 };
 
 pub const FRESH_ID_FUNCTIONS: &[(Symbol, Symbol, Symbol)] = &[
@@ -53,6 +54,7 @@ pub const FUNCTIONS_TO_SKIP: &[(Symbol, Symbol, Symbol)] = &[
         RANDOMNESS_MODULE_NAME,
         RANDOMNESS_STATE_CREATE,
     ),
+    (HANEUL_ADDR_NAME, DENY_LIST_MODULE_NAME, DENY_LIST_CREATE),
 ];
 
 //**************************************************************************************************
@@ -95,11 +97,18 @@ impl SimpleAbsIntConstructor for IDLeakVerifier {
         _init_state: &mut <Self::AI<'a> as SimpleAbsInt>::State,
     ) -> Option<Self::AI<'a>> {
         let module = &context.module;
-        let package_name = program.modules.get(module).unwrap().package_name;
+        let mdef = program.modules.get(module).unwrap();
+        let package_name = mdef.package_name;
         let config = env.package_config(package_name);
         if config.flavor != Flavor::Haneul {
+            // Skip if not haneul
             return None;
         }
+        if config.is_dependency || !mdef.is_source_module {
+            // Skip non-source, dependency modules
+            return None;
+        }
+
         if let MemberName::Function(n) = &context.member {
             let should_skip = FUNCTIONS_TO_SKIP
                 .iter()

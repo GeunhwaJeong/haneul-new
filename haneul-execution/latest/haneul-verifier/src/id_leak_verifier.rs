@@ -89,12 +89,18 @@ const HANEUL_RANDOMNESS_STATE_CREATE: FunctionIdent = (
     RANDOMNESS_MODULE_NAME,
     ident_str!("create"),
 );
+const HANEUL_DENY_LIST_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    ident_str!("deny_list"),
+    ident_str!("create"),
+);
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[OBJECT_NEW, OBJECT_NEW_UID_FROM_HASH, TS_NEW_OBJECT];
 const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_SYSTEM_CREATE,
     HANEUL_CLOCK_CREATE,
     HANEUL_AUTHENTICATOR_STATE_CREATE,
     HANEUL_RANDOMNESS_STATE_CREATE,
+    HANEUL_DENY_LIST_CREATE,
 ];
 
 impl AbstractValue {

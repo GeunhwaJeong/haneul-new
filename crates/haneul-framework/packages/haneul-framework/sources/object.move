@@ -8,11 +8,13 @@ module haneul::object {
     use haneul::tx_context::{Self, TxContext};
 
     friend haneul::clock;
+    friend haneul::coin;
     friend haneul::dynamic_field;
     friend haneul::dynamic_object_field;
     friend haneul::transfer;
     friend haneul::authenticator_state;
     friend haneul::random;
+    friend haneul::deny_list;
 
     #[test_only]
     friend haneul::test_scenario;
@@ -28,6 +30,9 @@ module haneul::object {
 
     /// The hardcoded ID for the singleton Random Object.
     const HANEUL_RANDOM_ID: address = @0x8;
+
+    /// The hardcoded ID for the singleton DenyList.
+    const HANEUL_DENY_LIST_OBJECT_ID: address = @0x403;
 
     /// Sender is not @0x0 the system address.
     const ENotSystemAddress: u64 = 0;
@@ -111,6 +116,14 @@ module haneul::object {
     public(friend) fun randomness_state(): UID {
         UID {
             id: ID { bytes: HANEUL_RANDOM_ID }
+        }
+    }
+
+    /// Create the `UID` for the singleton `DenyList` object.
+    /// This should only be called once from `coin`.
+    public(friend) fun haneul_deny_list_object_id(): UID {
+        UID {
+            id: ID { bytes: HANEUL_DENY_LIST_OBJECT_ID }
         }
     }
 
