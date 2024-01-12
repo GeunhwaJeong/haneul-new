@@ -406,12 +406,15 @@ export class ZkSendLink {
 function ownedAfterChange(
 	objectChange: HaneulObjectChange,
 	address: string,
-): objectChange is Extract<HaneulObjectChange, { type: 'created' | 'transferred' }> {
+): objectChange is Extract<HaneulObjectChange, { type: 'created' | 'transferred' | 'mutated' }> {
 	if (objectChange.type === 'transferred' && isOwner(objectChange.recipient, address)) {
 		return true;
 	}
 
-	if (objectChange.type === 'created' && isOwner(objectChange.owner, address)) {
+	if (
+		(objectChange.type === 'created' || objectChange.type === 'mutated') &&
+		isOwner(objectChange.owner, address)
+	) {
 		return true;
 	}
 
