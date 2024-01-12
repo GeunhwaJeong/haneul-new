@@ -2895,7 +2895,7 @@ impl AuthorityState {
 
     #[instrument(level = "trace", skip_all)]
     pub async fn get_object(&self, object_id: &ObjectID) -> HaneulResult<Option<Object>> {
-        self.database.get_object(object_id)
+        self.database.get_object(object_id).map_err(Into::into)
     }
 
     pub async fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
@@ -4688,7 +4688,9 @@ impl TransactionKeyValueStoreTrait for AuthorityState {
         object_id: ObjectID,
         version: VersionNumber,
     ) -> HaneulResult<Option<Object>> {
-        self.database.get_object_by_key(&object_id, version)
+        self.database
+            .get_object_by_key(&object_id, version)
+            .map_err(Into::into)
     }
 
     async fn multi_get_transaction_checkpoint(

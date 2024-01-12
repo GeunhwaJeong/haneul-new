@@ -250,11 +250,13 @@ impl NodeStateGetter for AuthorityState {
         object_id: &ObjectID,
         version: VersionNumber,
     ) -> Result<Option<Object>, HaneulError> {
-        self.database.get_object_by_key(object_id, version)
+        self.database
+            .get_object_by_key(object_id, version)
+            .map_err(Into::into)
     }
 
     fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
-        self.database.get_object(object_id)
+        self.database.get_object(object_id).map_err(Into::into)
     }
 }
 
@@ -327,7 +329,11 @@ impl<T: Sync + Send, W: simulacrum::SimulatorStore + Sync + Send> NodeStateGette
     ) -> Result<Vec<Option<Object>>, HaneulError> {
         object_keys
             .iter()
-            .map(|key| self.store().get_object_by_key(&key.0, key.1))
+            .map(|key| {
+                self.store()
+                    .get_object_by_key(&key.0, key.1)
+                    .map_err(HaneulError::from)
+            })
             .collect::<Result<Vec<_>, HaneulError>>()
     }
 

@@ -219,7 +219,7 @@ impl<'a> haneul_types::storage::ObjectStore for CheckpointDataObjectStore<'a> {
     fn get_object(
         &self,
         object_id: &ObjectID,
-    ) -> Result<Option<haneul_types::object::Object>, haneul_types::error::HaneulError> {
+    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
         Ok(self
             .objects
             .iter()
@@ -232,7 +232,7 @@ impl<'a> haneul_types::storage::ObjectStore for CheckpointDataObjectStore<'a> {
         &self,
         object_id: &ObjectID,
         version: haneul_types::base_types::VersionNumber,
-    ) -> Result<Option<haneul_types::object::Object>, haneul_types::error::HaneulError> {
+    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
         Ok(self
             .objects
             .iter()

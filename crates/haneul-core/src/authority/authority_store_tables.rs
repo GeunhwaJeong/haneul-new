@@ -449,9 +449,7 @@ impl AuthorityPerpetualTables {
 
     pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {
         // This checkpoints the entire db and not just objects table
-        self.objects
-            .checkpoint_db(path)
-            .map_err(Into::into)
+        self.objects.checkpoint_db(path).map_err(Into::into)
     }
 
     pub fn reset_db_for_execution_since_genesis(&self) -> HaneulResult {
@@ -468,9 +466,7 @@ impl AuthorityPerpetualTables {
         self.expected_network_haneul_amount.unsafe_clear()?;
         self.expected_storage_fund_imbalance.unsafe_clear()?;
         self.object_per_epoch_marker_table.unsafe_clear()?;
-        self.objects
-            .rocksdb
-            .flush()?;
+        self.objects.rocksdb.flush()?;
         Ok(())
     }
 
@@ -507,17 +503,21 @@ impl AuthorityPerpetualTables {
 
 impl ObjectStore for AuthorityPerpetualTables {
     /// Read an object and return it, or Ok(None) if the object was not found.
-    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+    fn get_object(
+        &self,
+        object_id: &ObjectID,
+    ) -> Result<Option<Object>, haneul_types::storage::error::Error> {
         let obj_entry = self
             .objects
             .unbounded_iter()
-            .skip_prior_to(&ObjectKey::max_for_id(object_id))?
+            .skip_prior_to(&ObjectKey::max_for_id(object_id))
+            .map_err(haneul_types::storage::error::Error::custom)?
             .next();
 
         match obj_entry {
-            Some((ObjectKey(obj_id, version), obj)) if obj_id == *object_id => {
-                Ok(self.object(&ObjectKey(obj_id, version), obj)?)
-            }
+            Some((ObjectKey(obj_id, version), obj)) if obj_id == *object_id => Ok(self
+                .object(&ObjectKey(obj_id, version), obj)
+                .map_err(haneul_types::storage::error::Error::custom)?),
             _ => Ok(None),
         }
     }
@@ -526,12 +526,14 @@ impl ObjectStore for AuthorityPerpetualTables {
         &self,
         object_id: &ObjectID,
         version: VersionNumber,
-    ) -> Result<Option<Object>, HaneulError> {
+    ) -> Result<Option<Object>, haneul_types::storage::error::Error> {
         Ok(self
             .objects
-            .get(&ObjectKey(*object_id, version))?
+            .get(&ObjectKey(*object_id, version))
+            .map_err(haneul_types::storage::error::Error::custom)?
             .map(|object| self.object(&ObjectKey(*object_id, version), object))
-            .transpose()?
+            .transpose()
+            .map_err(haneul_types::storage::error::Error::custom)?
             .flatten())
     }
 }

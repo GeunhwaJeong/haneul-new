@@ -14,7 +14,6 @@ use haneul_json_rpc_types::{
 };
 use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::digests::{CheckpointDigest, TransactionDigest};
-use haneul_types::error::HaneulError;
 use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::ObjectRead;
@@ -316,7 +315,7 @@ impl ObjectStore for CheckpointTxData {
     fn get_object(
         &self,
         object_id: &ObjectID,
-    ) -> Result<Option<haneul_types::object::Object>, HaneulError> {
+    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
         Ok(self
             .system_state_objects
             .iter()
@@ -328,7 +327,7 @@ impl ObjectStore for CheckpointTxData {
         &self,
         object_id: &ObjectID,
         version: VersionNumber,
-    ) -> Result<Option<haneul_types::object::Object>, HaneulError> {
+    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
         Ok(self
             .system_state_objects
             .iter()

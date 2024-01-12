@@ -23,7 +23,6 @@ use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
 use haneul_types::digests::ConsensusCommitDigest;
-use haneul_types::error::HaneulError;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectStore;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
@@ -391,7 +390,10 @@ impl ValidatorKeypairProvider for CommitteeWithKeys<'_> {
 }
 
 impl<T, V: store::SimulatorStore> ObjectStore for Simulacrum<T, V> {
-    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+    fn get_object(
+        &self,
+        object_id: &ObjectID,
+    ) -> Result<Option<Object>, haneul_types::storage::error::Error> {
         Ok(store::SimulatorStore::get_object(&self.store, object_id))
     }
 
@@ -399,7 +401,7 @@ impl<T, V: store::SimulatorStore> ObjectStore for Simulacrum<T, V> {
         &self,
         object_id: &ObjectID,
         version: VersionNumber,
-    ) -> Result<Option<Object>, HaneulError> {
+    ) -> Result<Option<Object>, haneul_types::storage::error::Error> {
         self.store.get_object_by_key(object_id, version)
     }
 }

@@ -46,7 +46,7 @@ use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::{HaneulResult};
+use haneul_types::error::HaneulResult;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
@@ -647,9 +647,7 @@ impl CheckpointStore {
 
     pub fn reset_db_for_execution_since_genesis(&self) -> HaneulResult {
         self.delete_highest_executed_checkpoint_test_only()?;
-        self.watermarks
-            .rocksdb
-            .flush()?;
+        self.watermarks.rocksdb.flush()?;
         Ok(())
     }
 }
