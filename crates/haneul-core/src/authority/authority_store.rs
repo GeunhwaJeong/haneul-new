@@ -26,7 +26,7 @@ use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::object::Owner;
 use haneul_types::storage::{
     get_module, BackingPackageStore, ChildObjectResolver, InputKey, MarkerValue, ObjectKey,
-    ObjectStore, PackageObject,
+    ObjectOrTombstone, ObjectStore, PackageObject,
 };
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::{base_types::SequenceNumber, fp_bail, fp_ensure, storage::ParentSync};
@@ -1713,9 +1713,27 @@ impl AuthorityStore {
     pub fn get_latest_object_or_tombstone(
         &self,
         object_id: ObjectID,
-    ) -> Result<Option<(ObjectKey, StoreObjectWrapper)>, HaneulError> {
-        self.perpetual_tables
-            .get_latest_object_or_tombstone(object_id)
+    ) -> Result<Option<(ObjectKey, ObjectOrTombstone)>, HaneulError> {
+        let Some((object_key, store_object)) = self
+            .perpetual_tables
+            .get_latest_object_or_tombstone(object_id)?
+        else {
+            return Ok(None);
+        };
+
+        if let Some(object_ref) = self
+            .perpetual_tables
+            .tombstone_reference(&object_key, &store_object)?
+        {
+            return Ok(Some((object_key, ObjectOrTombstone::Tombstone(object_ref))));
+        }
+
+        let object = self
+            .perpetual_tables
+            .object(&object_key, store_object)?
+            .expect("Non tombstone store object could not be converted to object");
+
+        Ok(Some((object_key, ObjectOrTombstone::Object(object))))
     }
 
     pub fn insert_transaction_and_effects(

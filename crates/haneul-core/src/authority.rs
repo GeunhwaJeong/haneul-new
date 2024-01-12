@@ -106,7 +106,7 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::metrics::{BytecodeVerifierMetrics, LimitsMetrics};
 use haneul_types::object::{MoveObject, Owner, PastObjectRead, OBJECT_START_VERSION};
-use haneul_types::storage::{GetSharedLocks, ObjectKey, ObjectStore, WriteKind};
+use haneul_types::storage::{GetSharedLocks, ObjectKey, ObjectOrTombstone, ObjectStore, WriteKind};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
@@ -2848,29 +2848,16 @@ impl AuthorityState {
 
     #[instrument(level = "trace", skip_all)]
     pub fn get_object_read(&self, object_id: &ObjectID) -> HaneulResult<ObjectRead> {
-        let Some((object_key, store_object)) =
-            self.database.get_latest_object_or_tombstone(*object_id)?
-        else {
-            return Ok(ObjectRead::NotExists(*object_id));
-        };
-        if let Some(object_ref) = self
-            .database
-            .perpetual_tables
-            .tombstone_reference(&object_key, &store_object)?
-        {
-            return Ok(ObjectRead::Deleted(object_ref));
-        };
-        let object = self
-            .database
-            .perpetual_tables
-            .object(&object_key, store_object)?
-            .expect("Non tombstone store object could not be converted to object");
-        let layout = self.get_object_layout(&object)?;
-        Ok(ObjectRead::Exists(
-            object.compute_object_reference(),
-            object,
-            layout,
-        ))
+        Ok(
+            match self.database.get_latest_object_or_tombstone(*object_id)? {
+                Some((_, ObjectOrTombstone::Object(object))) => {
+                    let layout = self.get_object_layout(&object)?;
+                    ObjectRead::Exists(object.compute_object_reference(), object, layout)
+                }
+                Some((_, ObjectOrTombstone::Tombstone(objref))) => ObjectRead::Deleted(objref),
+                None => ObjectRead::NotExists(*object_id),
+            },
+        )
     }
 
     /// Chain Identifier is the digest of the genesis checkpoint.
