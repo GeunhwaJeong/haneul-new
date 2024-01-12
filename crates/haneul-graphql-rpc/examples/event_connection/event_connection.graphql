@@ -1,6 +1,8 @@
 {
-  eventConnection(
-    filter: {eventType: "0x3164fcf73eb6b41ff3d2129346141bd68469964c2d95a5b1533e8d16e6ea6e13::Market::ChangePriceEvent<0x2::haneul::HANEUL>"}
+  events(
+    filter: {
+      eventType: "0x3164fcf73eb6b41ff3d2129346141bd68469964c2d95a5b1533e8d16e6ea6e13::Market::ChangePriceEvent<0x2::haneul::HANEUL>"
+    }
   ) {
     nodes {
       sendingModule {
