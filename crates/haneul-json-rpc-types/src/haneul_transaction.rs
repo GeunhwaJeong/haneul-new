@@ -500,6 +500,9 @@ impl HaneulTransactionBlockKind {
                             EndOfEpochTransactionKind::RandomnessStateCreate => {
                                 HaneulEndOfEpochTransactionKind::RandomnessStateCreate
                             }
+                            EndOfEpochTransactionKind::DenyListStateCreate => {
+                                HaneulEndOfEpochTransactionKind::CoinDenyListStateCreate
+                            }
                         })
                         .collect(),
                 })
@@ -1410,6 +1413,7 @@ pub enum HaneulEndOfEpochTransactionKind {
     AuthenticatorStateCreate,
     AuthenticatorStateExpire(HaneulAuthenticatorStateExpire),
     RandomnessStateCreate,
+    CoinDenyListStateCreate,
 }
 
 #[serde_as]

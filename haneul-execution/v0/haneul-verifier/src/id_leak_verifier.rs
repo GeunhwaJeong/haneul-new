@@ -39,7 +39,8 @@ use haneul_types::{
 
 #[cfg(msim)]
 use haneul_types::{
-    authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME, randomness_state::RANDOMNESS_MODULE_NAME,
+    authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME, coin::COIN_MODULE_NAME,
+    randomness_state::RANDOMNESS_MODULE_NAME,
 };
 
 use crate::{
@@ -99,6 +100,12 @@ const HANEUL_RANDOMNESS_STATE_CREATE: FunctionIdent = (
     RANDOMNESS_MODULE_NAME,
     ident_str!("create"),
 );
+#[cfg(msim)]
+const HANEUL_DENY_LIST_OBJECT_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    COIN_MODULE_NAME,
+    ident_str!("create_deny_list_object"),
+);
 
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[OBJECT_NEW, OBJECT_NEW_UID_FROM_HASH, TS_NEW_OBJECT];
 #[cfg(not(msim))]
@@ -110,6 +117,7 @@ const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_CLOCK_CREATE,
     HANEUL_AUTHENTICATOR_STATE_CREATE,
     HANEUL_RANDOMNESS_STATE_CREATE,
+    HANEUL_DENY_LIST_OBJECT_CREATE,
 ];
 
 impl AbstractValue {
