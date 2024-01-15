@@ -137,6 +137,7 @@ jobs:
           [ -f ./target/release/haneul-faucet ] && mv ./target/release/haneul-faucet ./target/release/haneul-faucet-${os_type}
           [ -f ./target/release/haneul-test-validator ] && mv ./target/release/haneul-test-validator ./target/release/haneul-test-validator-${os_type}
           [ -f ./target/release/haneul-data-ingestion ] && mv ./target/release/haneul-data-ingestion ./target/release/haneul-data-ingestion-${os_type}
+          [ -f ./target/release/haneul-bridge ] && mv ./target/release/haneul-bridge ./target/release/haneul-bridge-${os_type}
           [ -f ./external-crates/move/target/release/move-analyzer ] && mv ./external-crates/move/target/release/move-analyzer ./external-crates/move/target/release/move-analyzer-${os_type}
           tar -cvzf ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./target/release/haneul*-${os_type}* ./external-crates/move/target/release/move-analyzer-${os_type}
           [[ ${{ env.haneul_tag }} == *"mainnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
