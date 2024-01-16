@@ -1,0 +1,10 @@
+[package]
+name = "owned_no_tto"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/devnet" }
+common = { local = "../common" }
+
+[addresses]
+owned_no_tto = "0x0"
