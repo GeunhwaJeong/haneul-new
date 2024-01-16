@@ -15,6 +15,7 @@ pub mod server;
 pub mod storage;
 pub mod haneul_client;
 pub mod haneul_syncer;
+pub mod haneul_transaction_builder;
 pub mod types;
 
 #[cfg(test)]
