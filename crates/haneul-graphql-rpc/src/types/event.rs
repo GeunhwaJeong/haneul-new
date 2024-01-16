@@ -21,6 +21,13 @@ use haneul_types::{
     TypeTag,
 };
 
+/// A Haneul node emits one of the following events:
+/// Move event
+/// Publish event
+/// Transfer object event
+/// Delete object event
+/// New object event
+/// Epoch change event
 pub(crate) struct Event {
     pub stored: StoredEvent,
 }

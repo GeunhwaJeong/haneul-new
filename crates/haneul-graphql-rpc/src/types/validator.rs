@@ -20,14 +20,14 @@ pub(crate) struct Validator {
 
 #[Object]
 impl Validator {
-    /// Validator's address.
+    /// The validator's address.
     async fn address(&self) -> Address {
         Address {
             address: HaneulAddress::from(self.validator_summary.haneul_address),
         }
     }
 
-    /// Validator's set of credentials.
+    /// Validator's set of credentials such as public keys, network addresses and others.
     async fn credentials(&self) -> Option<ValidatorCredentials> {
         let v = &self.validator_summary;
         let credentials = ValidatorCredentials {

@@ -12,11 +12,11 @@ use haneul_types::governance::StakedHaneul as NativeStakedHaneul;
 #[derive(Copy, Clone, Enum, PartialEq, Eq)]
 /// The stake's possible status: active, pending, or unstaked.
 pub(crate) enum StakeStatus {
-    /// The stake object is active in a staking pool and it is generating rewards
+    /// The stake object is active in a staking pool and it is generating rewards.
     Active,
-    /// The stake awaits to join a staking pool in the next epoch
+    /// The stake awaits to join a staking pool in the next epoch.
     Pending,
-    /// The stake is no longer active in any staking pool
+    /// The stake is no longer active in any staking pool.
     Unstaked,
 }
 
@@ -35,6 +35,7 @@ pub(crate) struct StakedHaneul {
     pub native: NativeStakedHaneul,
 }
 
+/// Represents a 0x3::staking_pool::StakedHaneul Move object on-chain.
 #[Object]
 impl StakedHaneul {
     /// A stake can be pending, active, or unstaked
@@ -46,14 +47,14 @@ impl StakedHaneul {
         })
     }
 
-    /// The epoch at which this stake became active
+    /// The epoch at which this stake became active.
     async fn activated_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
         Epoch::query(ctx.data_unchecked(), Some(self.native.activation_epoch()))
             .await
             .extend()
     }
 
-    /// The epoch at which this object was requested to join a stake pool
+    /// The epoch at which this object was requested to join a stake pool.
     async fn requested_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
         Epoch::query(ctx.data_unchecked(), Some(self.native.request_epoch()))
             .await

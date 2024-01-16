@@ -12,6 +12,7 @@ use haneul_types::{signature::GenericSignature, transaction::Transaction};
 
 pub struct Mutation;
 
+/// Mutations are used to write to the Haneul network.
 #[Object]
 impl Mutation {
     /// Execute a transaction, committing its effects on chain.
