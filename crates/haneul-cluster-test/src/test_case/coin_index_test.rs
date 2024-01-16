@@ -101,7 +101,7 @@ impl TestCaseImpl for CoinIndexTest {
             .get_latest_haneul_system_state()
             .await
             .active_validators
-            .get(0)
+            .first()
             .unwrap()
             .haneul_address;
         let txn = make_staking_transaction(ctx.get_wallet(), validator_addr).await;

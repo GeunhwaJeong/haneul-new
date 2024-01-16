@@ -1950,7 +1950,7 @@ impl HaneulCallArg {
     ) -> Result<Self, anyhow::Error> {
         Ok(match value {
             CallArg::Pure(p) => HaneulCallArg::Pure(HaneulPureValue {
-                value_type: layout.map(|l| l.try_into()).transpose()?,
+                value_type: layout.map(|l| l.into()),
                 value: HaneulJsonValue::from_bcs_bytes(layout, &p)?,
             }),
             CallArg::Object(ObjectArg::ImmOrOwnedObject((id, version, digest))) => {

@@ -127,9 +127,9 @@ impl Edition {
         release: Some(symbol!("alpha")),
     };
 
-    const SEP: &str = ".";
+    const SEP: &'static str = ".";
 
-    pub const ALL: &[Self] = &[Self::LEGACY, Self::E2024_ALPHA];
+    pub const ALL: &'static [Self] = &[Self::LEGACY, Self::E2024_ALPHA];
 
     pub fn supports(&self, feature: FeatureGate) -> bool {
         SUPPORTED_FEATURES.get(self).unwrap().contains(&feature)
@@ -175,9 +175,9 @@ impl Edition {
 }
 
 impl Flavor {
-    pub const GLOBAL_STORAGE: &str = "global-storage";
-    pub const HANEUL: &str = "haneul";
-    pub const ALL: &[Self] = &[Self::GlobalStorage, Self::Haneul];
+    pub const GLOBAL_STORAGE: &'static str = "global-storage";
+    pub const HANEUL: &'static str = "haneul";
+    pub const ALL: &'static [Self] = &[Self::GlobalStorage, Self::Haneul];
 }
 
 impl FeatureGate {
