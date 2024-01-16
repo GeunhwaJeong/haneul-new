@@ -19,7 +19,7 @@ rand.workspace = true
 object_store.workspace = true
 prometheus.workspace = true
 haneul-config.workspace = true
-haneul-types.workspace = true
+haneul-types = { workspace = true, features = ["test-utils"]}
 haneul-storage.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 tokio = { workspace = true, features = ["full"] }
