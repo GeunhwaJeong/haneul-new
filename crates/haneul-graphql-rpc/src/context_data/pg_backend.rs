@@ -8,7 +8,7 @@ use super::{
 use crate::{
     context_data::db_data_provider::PgManager,
     error::Error,
-    types::{object::ObjectFilter, haneul_address::HaneulAddress},
+    types::{object::DeprecatedObjectFilter, haneul_address::HaneulAddress},
 };
 use async_trait::async_trait;
 use diesel::{
@@ -78,7 +78,7 @@ impl GenericQueryBuilder<Pg> for PgQueryBuilder {
         before: Option<Vec<u8>>,
         after: Option<Vec<u8>>,
         limit: PageLimit,
-        filter: Option<ObjectFilter>,
+        filter: Option<DeprecatedObjectFilter>,
         owner_type: Option<OwnerType>,
     ) -> Result<objects::BoxedQuery<'static, Pg>, Error> {
         let mut query = order_objs(before, after, &limit);
