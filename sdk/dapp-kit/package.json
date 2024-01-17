@@ -80,6 +80,7 @@
 	"dependencies": {
 		"@haneullabs/haneul.js": "workspace:*",
 		"@haneullabs/wallet-standard": "workspace:*",
+		"@haneullabs/zksend": "workspace:*",
 		"@radix-ui/react-dialog": "^1.0.4",
 		"@radix-ui/react-dropdown-menu": "^2.0.5",
 		"@radix-ui/react-slot": "^1.0.2",
