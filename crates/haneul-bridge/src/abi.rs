@@ -52,19 +52,22 @@ impl EthBridgeEvent {
             EthBridgeEvent::EthHaneulBridgeEvents(event) => {
                 match event {
                     EthHaneulBridgeEvents::TokensBridgedToHaneulFilter(event) => {
-                        let Ok(event) = EthToHaneulTokenBridgeV1::try_from(&event) else {
+                        let bridge_event = match EthToHaneulTokenBridgeV1::try_from(&event) {
+                            Ok(bridge_event) => bridge_event,
                             // This only happens when solidity code does not align with rust code.
                             // When this happens in production, there is a risk of stuck bridge transfers.
                             // We log error here.
                             // TODO: add metrics and alert
-                            tracing::error!("Failed to convert TokensBridgedToHaneul log to EthToHaneulTokenBridgeV1. This indicates a bug in the code: {:?}", event);
-                            return None;
+                            Err(e) => {
+                                tracing::error!(?eth_tx_hash, eth_event_index, "Failed to convert TokensBridgedToHaneul log to EthToHaneulTokenBridgeV1. This indicates incorrect parameters or a bug in the code: {:?}. Err: {:?}", event, e);
+                                return None;
+                            }
                         };
 
                         Some(BridgeAction::EthToHaneulBridgeAction(EthToHaneulBridgeAction {
                             eth_tx_hash,
                             eth_event_index,
-                            eth_bridge_event: event,
+                            eth_bridge_event: bridge_event,
                         }))
                     }
                     _ => None,

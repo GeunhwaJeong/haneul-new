@@ -108,28 +108,30 @@ impl BridgeOrchestratorTables {
             .map_err(|e| BridgeError::StorageError(format!("Couldn't write batch: {:?}", e)))
     }
 
-    pub(crate) fn get_all_pending_actions(
+    pub fn get_all_pending_actions(
         &self,
     ) -> BridgeResult<HashMap<BridgeActionDigest, BridgeAction>> {
         Ok(self.pending_actions.unbounded_iter().collect())
     }
 
-    pub(crate) fn get_haneul_event_cursor(
+    pub fn get_haneul_event_cursors(
         &self,
-        identifier: &Identifier,
-    ) -> BridgeResult<Option<TransactionDigest>> {
-        self.haneul_syncer_cursors.get(identifier).map_err(|e| {
+        identifiers: &[Identifier],
+    ) -> BridgeResult<Vec<Option<TransactionDigest>>> {
+        self.haneul_syncer_cursors.multi_get(identifiers).map_err(|e| {
             BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
         })
     }
 
-    pub(crate) fn get_eth_event_cursor(
+    pub fn get_eth_event_cursors(
         &self,
-        contract_address: &ethers::types::Address,
-    ) -> BridgeResult<Option<u64>> {
-        self.eth_syncer_cursors.get(contract_address).map_err(|e| {
-            BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
-        })
+        contract_addresses: &[ethers::types::Address],
+    ) -> BridgeResult<Vec<Option<u64>>> {
+        self.eth_syncer_cursors
+            .multi_get(contract_addresses)
+            .map_err(|e| {
+                BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
+            })
     }
 }
 
@@ -199,16 +201,16 @@ mod tests {
         let eth_contract_address = ethers::types::Address::random();
         let eth_block_num = 199999u64;
         assert!(store
-            .get_eth_event_cursor(&eth_contract_address)
-            .unwrap()
+            .get_eth_event_cursors(&[eth_contract_address])
+            .unwrap()[0]
             .is_none());
         store
             .update_eth_event_cursor(eth_contract_address, eth_block_num)
             .unwrap();
         assert_eq!(
             store
-                .get_eth_event_cursor(&eth_contract_address)
-                .unwrap()
+                .get_eth_event_cursors(&[eth_contract_address])
+                .unwrap()[0]
                 .unwrap(),
             eth_block_num
         );
@@ -216,12 +218,12 @@ mod tests {
         // update haneul event cursor
         let haneul_module = Identifier::from_str("test").unwrap();
         let haneul_cursor = TransactionDigest::random();
-        assert!(store.get_haneul_event_cursor(&haneul_module).unwrap().is_none());
+        assert!(store.get_haneul_event_cursors(&[haneul_module.clone()]).unwrap()[0].is_none());
         store
             .update_haneul_event_cursor(haneul_module.clone(), haneul_cursor)
             .unwrap();
         assert_eq!(
-            store.get_haneul_event_cursor(&haneul_module).unwrap().unwrap(),
+            store.get_haneul_event_cursors(&[haneul_module.clone()]).unwrap()[0].unwrap(),
             haneul_cursor
         );
     }

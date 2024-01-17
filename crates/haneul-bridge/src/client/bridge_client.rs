@@ -3,13 +3,13 @@
 
 //! `BridgeClient` talks to BridgeNode.
 
-use std::str::FromStr;
-use std::sync::Arc;
-
 use crate::crypto::{verify_signed_bridge_action, BridgeAuthorityPublicKeyBytes};
 use crate::error::{BridgeError, BridgeResult};
 use crate::server::APPLICATION_JSON;
 use crate::types::{BridgeAction, BridgeCommittee, VerifiedSignedBridgeAction};
+use fastcrypto::encoding::{Encoding, Hex};
+use std::str::FromStr;
+use std::sync::Arc;
 use url::Url;
 
 // Note: `base_url` is `Option<Url>` because `quorum_map_then_reduce_with_timeout_and_prefs`
@@ -55,8 +55,11 @@ impl BridgeClient {
                 "sign/bridge_tx/haneul/eth/{}/{}",
                 e.haneul_tx_digest, e.haneul_tx_event_index
             ),
-            // TODO add other events
-            _ => unimplemented!(),
+            BridgeAction::EthToHaneulBridgeAction(e) => format!(
+                "sign/bridge_tx/eth/haneul/{}/{}",
+                Hex::encode(e.eth_tx_hash.0),
+                e.eth_event_index
+            ),
         }
     }
 
@@ -97,9 +100,11 @@ impl BridgeClient {
             .send()
             .await?;
         if !resp.status().is_success() {
+            let error_status = format!("{:?}", resp.error_for_status_ref());
             return Err(BridgeError::RestAPIError(format!(
-                "request_sign_bridge_action failed with status: {:?}",
-                resp.error_for_status()
+                "request_sign_bridge_action failed with status {:?}: {:?}",
+                error_status,
+                resp.text().await?
             )));
         }
         let signed_bridge_action = resp.json().await?;
@@ -115,18 +120,21 @@ impl BridgeClient {
 #[cfg(test)]
 mod tests {
     use crate::{
+        abi::EthToHaneulTokenBridgeV1,
         crypto::BridgeAuthoritySignInfo,
+        events::EmittedHaneulToEthTokenBridgeV1,
         server::mock_handler::BridgeRequestMockHandler,
         test_utils::{get_test_authority_and_key, get_test_haneul_to_eth_bridge_action},
-        types::SignedBridgeAction,
+        types::{BridgeChainId, SignedBridgeAction, TokenId},
     };
     use fastcrypto::traits::KeyPair;
     use prometheus::Registry;
 
-    use crate::test_utils::run_mock_bridge_server;
-    use haneul_types::{crypto::get_key_pair, digests::TransactionDigest};
-
     use super::*;
+    use crate::test_utils::run_mock_bridge_server;
+    use ethers::types::Address as EthAddress;
+    use ethers::types::TxHash;
+    use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
 
     #[tokio::test]
     async fn test_bridge_client() {
@@ -291,5 +299,56 @@ mod tests {
             .await
             .unwrap_err();
         assert!(matches!(err, BridgeError::MismatchedAuthoritySigner));
+    }
+
+    #[test]
+    fn test_bridge_action_path_regression_tests() {
+        let haneul_tx_digest = TransactionDigest::random();
+        let haneul_tx_event_index = 5;
+        let action = BridgeAction::HaneulToEthBridgeAction(crate::types::HaneulToEthBridgeAction {
+            haneul_tx_digest,
+            haneul_tx_event_index,
+            haneul_bridge_event: EmittedHaneulToEthTokenBridgeV1 {
+                haneul_chain_id: BridgeChainId::HaneulDevnet,
+                nonce: 1,
+                haneul_address: HaneulAddress::random_for_testing_only(),
+                eth_chain_id: BridgeChainId::EthSepolia,
+                eth_address: EthAddress::random(),
+                token_id: TokenId::USDT,
+                amount: 1,
+            },
+        });
+        assert_eq!(
+            BridgeClient::bridge_action_to_path(&action),
+            format!(
+                "sign/bridge_tx/haneul/eth/{}/{}",
+                haneul_tx_digest, haneul_tx_event_index
+            )
+        );
+
+        let eth_tx_hash = TxHash::random();
+        let eth_event_index = 6;
+        let action = BridgeAction::EthToHaneulBridgeAction(crate::types::EthToHaneulBridgeAction {
+            eth_tx_hash,
+            eth_event_index,
+            eth_bridge_event: EthToHaneulTokenBridgeV1 {
+                eth_chain_id: BridgeChainId::EthSepolia,
+                nonce: 1,
+                eth_address: EthAddress::random(),
+                haneul_chain_id: BridgeChainId::HaneulDevnet,
+                haneul_address: HaneulAddress::random_for_testing_only(),
+                token_id: TokenId::USDT,
+                amount: 1,
+            },
+        });
+
+        assert_eq!(
+            BridgeClient::bridge_action_to_path(&action),
+            format!(
+                "sign/bridge_tx/eth/haneul/{}/{}",
+                Hex::encode(eth_tx_hash.0),
+                eth_event_index
+            )
+        );
     }
 }
