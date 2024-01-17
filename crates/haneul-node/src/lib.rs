@@ -1392,9 +1392,11 @@ impl HaneulNode {
                 return Ok(());
             }
 
+            // Safe to call because we are in the middle of reconfiguration.
             let latest_system_state = self
                 .state
-                .get_haneul_system_state_object_during_reconfig()
+                .database
+                .get_haneul_system_state_object_unsafe()
                 .expect("Read Haneul System State object cannot fail");
 
             #[cfg(msim)]

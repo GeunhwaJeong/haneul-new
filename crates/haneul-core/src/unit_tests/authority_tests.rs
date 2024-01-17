@@ -3281,8 +3281,7 @@ async fn test_genesis_haneul_system_state_object() {
         bcs::from_bytes::<HaneulSystemStateWrapper>(move_object.contents()).unwrap();
     assert!(move_object.type_().is(&HaneulSystemStateWrapper::type_()));
     let haneul_system_state = authority_state
-        .database
-        .get_haneul_system_state_object()
+        .get_haneul_system_state_object_for_testing()
         .unwrap();
     assert_eq!(
         &haneul_system_state.get_current_epoch_committee().committee,

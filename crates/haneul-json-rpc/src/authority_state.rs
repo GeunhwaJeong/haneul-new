@@ -415,7 +415,7 @@ impl StateRead for AuthorityState {
             .await?)
     }
     fn get_system_state(&self) -> StateReadResult<HaneulSystemState> {
-        Ok(self.database.get_haneul_system_state_object()?)
+        Ok(self.database.get_haneul_system_state_object_unsafe()?)
     }
     fn get_or_latest_committee(&self, epoch: Option<BigInt<u64>>) -> StateReadResult<Committee> {
         Ok(self

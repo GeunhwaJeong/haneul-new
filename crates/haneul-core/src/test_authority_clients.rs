@@ -123,7 +123,7 @@ impl AuthorityAPI for LocalAuthorityClient {
         &self,
         _request: SystemStateRequest,
     ) -> Result<HaneulSystemState, HaneulError> {
-        Ok(self.state.database.get_haneul_system_state_object()?)
+        self.state.get_haneul_system_state_object_for_testing()
     }
 }
 
