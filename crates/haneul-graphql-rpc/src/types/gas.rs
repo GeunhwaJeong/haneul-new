@@ -1,27 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::context_data::db_data_provider::PgManager;
 use crate::types::object::Object;
 use async_graphql::connection::Connection;
 use async_graphql::*;
-use haneul_json_rpc_types::HaneulGasData;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress as NativeHaneulAddress},
     effects::{TransactionEffects as NativeTransactionEffects, TransactionEffectsAPI},
     gas::GasCostSummary as NativeGasCostSummary,
     transaction::GasData,
 };
 
-use super::object::DeprecatedObjectFilter;
 use super::{address::Address, big_int::BigInt, haneul_address::HaneulAddress};
+use super::{
+    cursor::Page,
+    object::{self, ObjectFilter, ObjectKey},
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct GasInput {
-    pub owner: NativeHaneulAddress,
+    pub owner: HaneulAddress,
     pub price: u64,
     pub budget: u64,
-    pub payment_obj_ids: Vec<ObjectID>,
+    pub payment_obj_keys: Vec<ObjectKey>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -45,7 +45,7 @@ impl GasInput {
     /// Address of the owner of the gas object(s) used
     async fn gas_sponsor(&self) -> Option<Address> {
         Some(Address {
-            address: HaneulAddress::from(self.owner),
+            address: self.owner,
         })
     }
 
@@ -54,22 +54,18 @@ impl GasInput {
         &self,
         ctx: &Context<'_>,
         first: Option<u64>,
-        after: Option<String>,
+        after: Option<object::Cursor>,
         last: Option<u64>,
-        before: Option<String>,
-    ) -> Result<Option<Connection<String, Object>>> {
-        let filter = DeprecatedObjectFilter {
-            object_ids: Some(
-                self.payment_obj_ids
-                    .iter()
-                    .map(|id| HaneulAddress::from_array(***id))
-                    .collect(),
-            ),
+        before: Option<object::Cursor>,
+    ) -> Result<Connection<String, Object>> {
+        let page = Page::from_params(ctx.data_unchecked(), first, after, last, before)?;
+
+        let filter = ObjectFilter {
+            object_keys: Some(self.payment_obj_keys.clone()),
             ..Default::default()
         };
 
-        ctx.data_unchecked::<PgManager>()
-            .fetch_objs(first, after, last, before, Some(filter))
+        Object::paginate(ctx.data_unchecked(), page, None, filter)
             .await
             .extend()
     }
@@ -142,24 +138,20 @@ impl GasEffects {
     }
 }
 
-impl From<&HaneulGasData> for GasInput {
-    fn from(s: &HaneulGasData) -> Self {
-        Self {
-            owner: s.owner,
-            price: s.price,
-            budget: s.budget,
-            payment_obj_ids: s.payment.iter().map(|o| o.object_id).collect(),
-        }
-    }
-}
-
 impl From<&GasData> for GasInput {
     fn from(s: &GasData) -> Self {
         Self {
-            owner: s.owner,
+            owner: s.owner.into(),
             price: s.price,
             budget: s.budget,
-            payment_obj_ids: s.payment.iter().map(|o| o.0).collect(),
+            payment_obj_keys: s
+                .payment
+                .iter()
+                .map(|o| ObjectKey {
+                    object_id: o.0.into(),
+                    version: o.1.value(),
+                })
+                .collect(),
         }
     }
 }
