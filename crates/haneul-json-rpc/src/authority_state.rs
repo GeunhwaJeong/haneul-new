@@ -124,6 +124,11 @@ pub trait StateRead: Send + Sync {
         sender: HaneulAddress,
         transaction_kind: TransactionKind,
         gas_price: Option<u64>,
+        gas_budget: Option<u64>,
+        gas_sponsor: Option<HaneulAddress>,
+        gas_objects: Option<Vec<ObjectRef>>,
+        epoch: Option<u64>,
+        skip_checks: Option<bool>,
     ) -> StateReadResult<DevInspectResults>;
 
     // indexer_api
@@ -347,9 +352,23 @@ impl StateRead for AuthorityState {
         sender: HaneulAddress,
         transaction_kind: TransactionKind,
         gas_price: Option<u64>,
+        gas_budget: Option<u64>,
+        gas_sponsor: Option<HaneulAddress>,
+        gas_objects: Option<Vec<ObjectRef>>,
+        epoch: Option<u64>,
+        skip_checks: Option<bool>,
     ) -> StateReadResult<DevInspectResults> {
         Ok(self
-            .dev_inspect_transaction_block(sender, transaction_kind, gas_price)
+            .dev_inspect_transaction_block(
+                sender,
+                transaction_kind,
+                gas_price,
+                gas_budget,
+                gas_sponsor,
+                gas_objects,
+                epoch,
+                skip_checks,
+            )
             .await?)
     }
 
