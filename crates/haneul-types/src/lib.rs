@@ -73,6 +73,7 @@ pub mod storage;
 pub mod haneul_serde;
 pub mod haneul_system_state;
 pub mod transaction;
+pub mod transaction_displays;
 pub mod transfer;
 pub mod type_resolver;
 pub mod versioned;
