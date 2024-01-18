@@ -76,6 +76,7 @@ members = [
   "crates/haneullabs-metrics",
   "crates/haneullabs-network",
   "crates/haneullabs-service",
+  "crates/haneullabs-service-boilerplate",
   "crates/haneullabs-util-mem",
   "crates/haneullabs-util-mem-derive",
   "crates/prometheus-closure-metric",
@@ -555,6 +556,8 @@ anemo-benchmark = { path = "crates/anemo-benchmark" }
 haneullabs-common = { path = "crates/haneullabs-common" }
 haneullabs-metrics = { path = "crates/haneullabs-metrics" }
 haneullabs-network = { path = "crates/haneullabs-network" }
+haneullabs-service = { path = "crates/haneullabs-service" }
+haneullabs-service-boilerplate = { path = "crates/haneullabs-service-boilerplate" }
 haneullabs-util-mem = { path = "crates/haneullabs-util-mem" }
 haneullabs-util-mem-derive = { path = "crates/haneullabs-util-mem-derive" }
 prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
