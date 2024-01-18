@@ -11,6 +11,7 @@ use diesel::{
     AppearsOnTable, BoolExpressionMethods, Expression, ExpressionMethods, QueryDsl, QuerySource,
     TextExpressionMethods,
 };
+use move_core_types::language_storage::StructTag;
 use std::{fmt, result::Result, str::FromStr};
 use haneul_types::{
     parse_haneul_address, parse_haneul_fq_name, parse_haneul_module_id, parse_haneul_type_tag, TypeTag,
@@ -355,6 +356,18 @@ impl fmt::Display for TypeFilter {
 impl fmt::Display for ExactTypeFilter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0.to_canonical_display(/* with_prefix */ true))
+    }
+}
+
+impl From<TypeTag> for TypeFilter {
+    fn from(tag: TypeTag) -> Self {
+        TypeFilter::ByType(tag)
+    }
+}
+
+impl From<StructTag> for TypeFilter {
+    fn from(tag: StructTag) -> Self {
+        TypeFilter::ByType(tag.into())
     }
 }
 

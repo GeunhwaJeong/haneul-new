@@ -3,11 +3,21 @@
 
 use std::str::FromStr;
 
-use super::{move_object::MoveObject, string_input::impl_string_input, haneul_address::HaneulAddress};
+use super::{
+    cursor::Page,
+    move_object::MoveObject,
+    object::{self, Object, ObjectFilter},
+    string_input::impl_string_input,
+    haneul_address::HaneulAddress,
+};
 use crate::{data::Db, error::Error};
-use async_graphql::*;
+use async_graphql::{
+    connection::{Connection, Edge},
+    *,
+};
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use serde::{Deserialize, Serialize};
+use haneul_indexer::types_v2::OwnerType;
 use haneul_json_rpc::name_service::{Domain as NativeDomain, NameRecord, NameServiceConfig};
 use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_field::Field, id::UID};
 
@@ -95,6 +105,49 @@ impl HaneulnsRegistration {
             .ok_or_else(|| Error::Internal("Malformed Haneulns Domain".to_string()))?;
 
         Ok(Some(field.value))
+    }
+
+    /// Query the database for a `page` of HaneulNS registrations. The page uses the same cursor type
+    /// as is used for `Object`, and is further filtered to a particular `owner`. `config` specifies
+    /// where to find the domain name registry and its type.
+    pub(crate) async fn paginate(
+        db: &Db,
+        config: &NameServiceConfig,
+        page: Page<object::Cursor>,
+        owner: HaneulAddress,
+    ) -> Result<Connection<String, HaneulnsRegistration>, Error> {
+        let type_ = HaneulnsRegistration::type_(config.package_address.into());
+
+        let filter = ObjectFilter {
+            type_: Some(type_.clone().into()),
+            owner: Some(owner),
+            ..Default::default()
+        };
+
+        let objects = Object::paginate(db, page, Some(OwnerType::Address), filter).await?;
+
+        let mut registrations = Connection::new(objects.has_previous_page, objects.has_next_page);
+        for edge in objects.edges {
+            let address = edge.node.address;
+            let move_object = MoveObject::try_from(&edge.node).map_err(|_| {
+                Error::Internal(format!(
+                    "Expected {address} to be a HaneulnsRegistration, but it's not a Move Object.",
+                ))
+            })?;
+
+            let haneulns_registration =
+                HaneulnsRegistration::try_from(&move_object, &type_).map_err(|_| {
+                    Error::Internal(format!(
+                        "Expected {address} to be a HaneulnsRegistration, but it is not."
+                    ))
+                })?;
+
+            registrations
+                .edges
+                .push(Edge::new(edge.cursor, haneulns_registration));
+        }
+
+        Ok(registrations)
     }
 
     /// Return the type representing a `HaneulnsRegistration` on chain. This can change from chain to

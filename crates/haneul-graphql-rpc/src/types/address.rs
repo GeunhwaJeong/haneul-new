@@ -176,27 +176,25 @@ impl Address {
         .map(|d| d.to_string()))
     }
 
-    /// The HaneulnsRegistration NFTs owned by the given object. These grant the owner
-    /// the capability to manage the associated domain.
+    /// The HaneulnsRegistration NFTs owned by this address. These grant the owner the capability to
+    /// manage the associated domain.
     pub async fn haneulns_registrations(
         &self,
         ctx: &Context<'_>,
         first: Option<u64>,
-        after: Option<String>,
+        after: Option<object::Cursor>,
         last: Option<u64>,
-        before: Option<String>,
-    ) -> Result<Option<Connection<String, HaneulnsRegistration>>> {
-        ctx.data_unchecked::<PgManager>()
-            .fetch_haneulns_registrations(
-                first,
-                after,
-                last,
-                before,
-                ctx.data_unchecked::<NameServiceConfig>(),
-                self.address,
-            )
-            .await
-            .extend()
+        before: Option<object::Cursor>,
+    ) -> Result<Connection<String, HaneulnsRegistration>> {
+        let page = Page::from_params(ctx.data_unchecked(), first, after, last, before)?;
+        HaneulnsRegistration::paginate(
+            ctx.data_unchecked::<Db>(),
+            ctx.data_unchecked::<NameServiceConfig>(),
+            page,
+            self.address,
+        )
+        .await
+        .extend()
     }
 
     /// This resolver is not supported on the Address type.

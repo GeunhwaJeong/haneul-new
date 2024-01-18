@@ -96,10 +96,10 @@ type Address implements IOwner {
 	"""
 	defaultHaneulnsName: String
 	"""
-	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
-	the capability to manage the associated domain.
+	The HaneulnsRegistration NFTs owned by this address. These grant the owner the capability to
+	manage the associated domain.
 	"""
-	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection!
 	"""
 	This resolver is not supported on the Address type.
 	"""
@@ -1715,10 +1715,10 @@ type Object implements IOwner {
 	"""
 	defaultHaneulnsName: String
 	"""
-	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
-	the capability to manage the associated domain.
+	The HaneulnsRegistration NFTs owned by this object. These grant the owner the capability to
+	manage the associated domain.
 	"""
-	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection!
 	"""
 	Access a dynamic field on an object using its name.
 	Names are arbitrary Move values whose type have `copy`, `drop`, and `store`, and are specified
@@ -1967,10 +1967,10 @@ type Owner implements IOwner {
 	"""
 	defaultHaneulnsName: String
 	"""
-	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
-	the capability to manage the associated domain.
+	The HaneulnsRegistration NFTs owned by this address or object. These grant the owner the
+	capability to manage the associated domain.
 	"""
-	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
+	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection!
 	"""
 	Access a dynamic field on an object using its name.
 	Names are arbitrary Move values whose type have `copy`, `drop`, and `store`, and are specified
