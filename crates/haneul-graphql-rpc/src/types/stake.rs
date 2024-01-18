@@ -12,7 +12,6 @@ use super::{
 use async_graphql::connection::Connection;
 use async_graphql::*;
 use move_core_types::language_storage::StructTag;
-use haneul_indexer::types_v2::OwnerType;
 use haneul_json_rpc_types::{Stake as RpcStakedHaneul, StakeStatus as RpcStakeStatus};
 use haneul_types::base_types::MoveObjectType;
 use haneul_types::governance::StakedHaneul as NativeStakedHaneul;
@@ -114,7 +113,7 @@ impl StakedHaneul {
             ..Default::default()
         };
 
-        Object::paginate_subtype(db, page, Some(OwnerType::Address), filter, |object| {
+        Object::paginate_subtype(db, page, filter, |object| {
             let address = object.address;
             let move_object = MoveObject::try_from(&object).map_err(|_| {
                 Error::Internal(format!(

@@ -14,7 +14,6 @@ use crate::{data::Db, error::Error};
 use async_graphql::{connection::Connection, *};
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use serde::{Deserialize, Serialize};
-use haneul_indexer::types_v2::OwnerType;
 use haneul_json_rpc::name_service::{Domain as NativeDomain, NameRecord, NameServiceConfig};
 use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_field::Field, id::UID};
 
@@ -121,7 +120,7 @@ impl HaneulnsRegistration {
             ..Default::default()
         };
 
-        Object::paginate_subtype(db, page, Some(OwnerType::Address), filter, |object| {
+        Object::paginate_subtype(db, page, filter, |object| {
             let address = object.address;
             let move_object = MoveObject::try_from(&object).map_err(|_| {
                 Error::Internal(format!(
