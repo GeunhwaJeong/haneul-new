@@ -1220,7 +1220,7 @@
 >      }
 >      totalBalance
 >    }
->    stakedHaneulConnection {
+>    stakedHaneuls {
 >      nodes {
 >        status
 >        principal

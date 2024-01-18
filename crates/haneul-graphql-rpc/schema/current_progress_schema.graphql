@@ -88,9 +88,9 @@ type Address implements IOwner {
 	"""
 	coins(first: Int, after: String, last: Int, before: String, type: String): CoinConnection!
 	"""
-	The `0x3::staking_pool::StakedHaneul` objects owned by the given address.
+	The `0x3::staking_pool::StakedHaneul` objects owned by this address.
 	"""
-	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
+	stakedHaneuls(first: Int, after: String, last: Int, before: String): StakedHaneulConnection!
 	"""
 	The domain that a user address has explicitly configured as their default domain.
 	"""
@@ -1047,7 +1047,7 @@ interface IOwner {
 	balance(type: String): Balance
 	balanceConnection(first: Int, after: String, last: Int, before: String): BalanceConnection
 	coins(first: Int, after: String, last: Int, before: String, type: String): CoinConnection!
-	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
+	stakedHaneuls(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
 	defaultHaneulnsName: String
 	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
 	dynamicField(name: DynamicFieldName!): DynamicField
@@ -1707,9 +1707,9 @@ type Object implements IOwner {
 	"""
 	coins(first: Int, after: String, last: Int, before: String, type: String): CoinConnection!
 	"""
-	The `0x3::staking_pool::StakedHaneul` objects owned by the given object.
+	The `0x3::staking_pool::StakedHaneul` objects owned by this object.
 	"""
-	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
+	stakedHaneuls(first: Int, after: String, last: Int, before: String): StakedHaneulConnection!
 	"""
 	The domain that a user address has explicitly configured as their default domain.
 	"""
@@ -1959,9 +1959,9 @@ type Owner implements IOwner {
 	"""
 	coins(first: Int, after: String, last: Int, before: String, type: String): CoinConnection!
 	"""
-	The `0x3::staking_pool::StakedHaneul` objects owned by the given object.
+	The `0x3::staking_pool::StakedHaneul` objects owned by this address or object.
 	"""
-	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
+	stakedHaneuls(first: Int, after: String, last: Int, before: String): StakedHaneulConnection!
 	"""
 	The domain that a user address has explicitly configured as their default domain.
 	"""

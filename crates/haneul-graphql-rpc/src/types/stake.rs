@@ -1,12 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::context_data::db_data_provider::PgManager;
 use crate::error::Error;
+use crate::{context_data::db_data_provider::PgManager, data::Db};
 
-use super::{big_int::BigInt, epoch::Epoch, move_object::MoveObject};
+use super::cursor::Page;
+use super::object::{Object, ObjectFilter};
+use super::{
+    big_int::BigInt, epoch::Epoch, move_object::MoveObject, object, haneul_address::HaneulAddress,
+};
+use async_graphql::connection::Connection;
 use async_graphql::*;
+use move_core_types::language_storage::StructTag;
+use haneul_indexer::types_v2::OwnerType;
 use haneul_json_rpc_types::{Stake as RpcStakedHaneul, StakeStatus as RpcStakeStatus};
+use haneul_types::base_types::MoveObjectType;
 use haneul_types::governance::StakedHaneul as NativeStakedHaneul;
 
 #[derive(Copy, Clone, Enum, PartialEq, Eq)]
@@ -91,6 +99,38 @@ impl StakedHaneul {
 }
 
 impl StakedHaneul {
+    /// Query the database for a `page` of Staked HANEUL. The page uses the same cursor type as is used
+    /// for `Object`, and is further filtered to a particular `owner`.
+    pub(crate) async fn paginate(
+        db: &Db,
+        page: Page<object::Cursor>,
+        owner: HaneulAddress,
+    ) -> Result<Connection<String, StakedHaneul>, Error> {
+        let type_: StructTag = MoveObjectType::staked_haneul().into();
+
+        let filter = ObjectFilter {
+            type_: Some(type_.into()),
+            owner: Some(owner),
+            ..Default::default()
+        };
+
+        Object::paginate_subtype(db, page, Some(OwnerType::Address), filter, |object| {
+            let address = object.address;
+            let move_object = MoveObject::try_from(&object).map_err(|_| {
+                Error::Internal(format!(
+                    "Expected {address} to be a StakedHaneul, but it's not a Move Object.",
+                ))
+            })?;
+
+            StakedHaneul::try_from(&move_object).map_err(|_| {
+                Error::Internal(format!(
+                    "Expected {address} to be a StakedHaneul, but it is not."
+                ))
+            })
+        })
+        .await
+    }
+
     /// The JSON-RPC representation of a StakedHaneul so that we can "cheat" to implement fields that
     /// are not yet implemented directly for GraphQL.
     ///

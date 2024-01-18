@@ -56,12 +56,12 @@ use haneul_types::gas_coin::GAS;
         arg(name = "type", ty = "Option<ExactTypeFilter>")
     ),
     field(
-        name = "staked_haneul_connection",
+        name = "staked_haneuls",
         ty = "Option<Connection<String, StakedHaneul>>",
         arg(name = "first", ty = "Option<u64>"),
-        arg(name = "after", ty = "Option<String>"),
+        arg(name = "after", ty = "Option<object::Cursor>"),
         arg(name = "last", ty = "Option<u64>"),
-        arg(name = "before", ty = "Option<String>")
+        arg(name = "before", ty = "Option<object::Cursor>")
     ),
     field(name = "default_haneulns_name", ty = "Option<String>"),
     field(
@@ -199,17 +199,17 @@ impl Owner {
             .extend()
     }
 
-    /// The `0x3::staking_pool::StakedHaneul` objects owned by the given object.
-    pub async fn staked_haneul_connection(
+    /// The `0x3::staking_pool::StakedHaneul` objects owned by this address or object.
+    pub async fn staked_haneuls(
         &self,
         ctx: &Context<'_>,
         first: Option<u64>,
-        after: Option<String>,
+        after: Option<object::Cursor>,
         last: Option<u64>,
-        before: Option<String>,
-    ) -> Result<Option<Connection<String, StakedHaneul>>> {
-        ctx.data_unchecked::<PgManager>()
-            .fetch_staked_haneul(self.address, first, after, last, before)
+        before: Option<object::Cursor>,
+    ) -> Result<Connection<String, StakedHaneul>> {
+        let page = Page::from_params(ctx.data_unchecked(), first, after, last, before)?;
+        StakedHaneul::paginate(ctx.data_unchecked(), page, self.address)
             .await
             .extend()
     }
