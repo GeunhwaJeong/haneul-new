@@ -15,6 +15,10 @@ pub enum BridgeError {
     TxNotFinalized,
     // No recognized bridge event in specified transaction and event position
     NoBridgeEventsInTxPosition,
+    // Found a bridge event but not in a recognized Eth bridge contract
+    BridgeEventInUnrecognizedEthContract,
+    // Found a bridge event but not in a recognized Haneul bridge package
+    BridgeEventInUnrecognizedHaneulPackage,
     // Found BridgeEvent but not BridgeAction
     BridgeEventNotActionable,
     // Failure to serialize

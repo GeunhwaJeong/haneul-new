@@ -35,7 +35,7 @@ pub struct EmittedHaneulToEthTokenBridgeV1 {
 }
 
 const EMITTED_HANEUL_TO_ETH_TOKEN_BRIDGE_V1_STUCT_TAG: &str =
-    "0x01::HaneulToEthTokenBridge::HaneulToEthTokenBridge";
+    "0x0b::HaneulToEthTokenBridge::HaneulToEthTokenBridge";
 
 crate::declare_events!(
     // TODO: Placeholder, use right struct tag
