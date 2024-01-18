@@ -111,6 +111,12 @@ impl From<NativeHaneulAddress> for HaneulAddress {
     }
 }
 
+impl From<HaneulAddress> for NativeHaneulAddress {
+    fn from(value: HaneulAddress) -> Self {
+        AccountAddress::from(value).into()
+    }
+}
+
 impl FromStr for HaneulAddress {
     type Err = FromStrError;
 
