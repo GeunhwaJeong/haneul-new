@@ -70,7 +70,6 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::storage::{ObjectKey, ObjectStore};
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
-use haneul_types::DEEPBOOK_ADDRESS;
 use haneul_types::DEEPBOOK_PACKAGE_ID;
 use haneul_types::MOVE_STDLIB_PACKAGE_ID;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
@@ -92,6 +91,7 @@ use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_PACKAGE_ID,
 };
 use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
 use tempfile::NamedTempFile;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -109,6 +109,7 @@ const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
     HANEUL_SYSTEM_PACKAGE_ID,
     HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_CLOCK_OBJECT_ID,
+    HANEUL_DENY_LIST_OBJECT_ID,
 ];
 // TODO use the file name as a seed
 const RNG_SEED: [u8; 32] = [
@@ -990,6 +991,28 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 Ok(None)
             }
         }
+    }
+
+    /// Process the error string such that it's less dependent on specific addresses or object IDs. Instead, they are
+    /// replaced by the account names or fake IDs as much as possible. This reduces the effort of updating tests
+    /// when something changed.
+    async fn process_error(&self, error: anyhow::Error) -> anyhow::Error {
+        let mut err = error.to_string();
+        for (name, account) in &self.accounts {
+            let addr = account.address.to_string();
+            let replace = format!("@{}", name);
+            err = err.replace(&addr, &replace);
+            // Also match without 0x since different error messages may use different format.
+            err = err.replace(&addr[2..], &replace);
+        }
+        for (id, fake_id) in &self.object_enumeration {
+            let id = id.to_string();
+            let replace = format!("object({})", fake_id);
+            err = err.replace(&id, &replace);
+            // Also match without 0x since different error messages may use different format.
+            err = err.replace(&id[2..], &replace);
+        }
+        anyhow!(err)
     }
 }
 
