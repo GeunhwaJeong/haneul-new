@@ -2492,6 +2492,7 @@ dependencies = [
  "rstest",
  "serde",
  "haneul-protocol-config",
+ "tap",
  "tempfile",
  "thiserror",
  "tokio",
