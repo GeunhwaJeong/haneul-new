@@ -467,8 +467,14 @@ pub enum HaneulError {
         authority: AuthorityName,
         reason: String,
     },
-    #[error("Storage error: {0}")]
-    StorageError(String),
+    #[allow(non_camel_case_types)]
+    #[serde(rename = "StorageError")]
+    #[error("DEPRECATED")]
+    DEPRECATED_StorageError,
+    #[allow(non_camel_case_types)]
+    #[serde(rename = "GenericStorageError")]
+    #[error("DEPRECATED")]
+    DEPRECATED_GenericStorageError,
     #[error(
         "Attempted to access {object} through parent {given_parent}, \
         but it's actual parent is {actual_owner}"
@@ -478,6 +484,15 @@ pub enum HaneulError {
         given_parent: ObjectID,
         actual_owner: Owner,
     },
+
+    #[allow(non_camel_case_types)]
+    #[serde(rename = "StorageMissingFieldError")]
+    #[error("DEPRECATED")]
+    DEPRECATED_StorageMissingFieldError,
+    #[allow(non_camel_case_types)]
+    #[serde(rename = "StorageCorruptedFieldError")]
+    #[error("DEPRECATED")]
+    DEPRECATED_StorageCorruptedFieldError,
 
     #[error("Authority Error: {error:?}")]
     GenericAuthorityError { error: String },
@@ -594,6 +609,9 @@ pub enum HaneulError {
 
     #[error("Failed to get JWK")]
     JWKRetrievalError,
+
+    #[error("Storage error: {0}")]
+    Storage(String),
 }
 
 #[repr(u64)]
@@ -652,13 +670,13 @@ impl From<Status> for HaneulError {
 
 impl From<TypedStoreError> for HaneulError {
     fn from(e: TypedStoreError) -> Self {
-        Self::StorageError(e.to_string())
+        Self::Storage(e.to_string())
     }
 }
 
 impl From<crate::storage::error::Error> for HaneulError {
     fn from(e: crate::storage::error::Error) -> Self {
-        Self::StorageError(e.to_string())
+        Self::Storage(e.to_string())
     }
 }
 

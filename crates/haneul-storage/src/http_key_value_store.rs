@@ -68,7 +68,7 @@ where
     E: std::error::Error,
 {
     fn into_haneul_result(self) -> HaneulResult<T> {
-        self.map_err(|e| HaneulError::StorageError(e.to_string()))
+        self.map_err(|e| HaneulError::Storage(e.to_string()))
     }
 }
 
