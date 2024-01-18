@@ -9,7 +9,7 @@ use async_graphql::*;
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use serde::{Deserialize, Serialize};
 use haneul_json_rpc::name_service::{Domain as NativeDomain, NameRecord, NameServiceConfig};
-use haneul_types::{dynamic_field::Field, id::UID};
+use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_field::Field, id::UID};
 
 const MOD_REGISTRATION: &IdentStr = ident_str!("haneulns_registration");
 const TYP_REGISTRATION: &IdentStr = ident_str!("HaneulnsRegistration");
@@ -72,6 +72,27 @@ impl HaneulnsRegistration {
             .native
             .to_rust()
             .ok_or_else(|| Error::Internal("Malformed Haneulns NameRecord".to_string()))?;
+
+        Ok(Some(field.value))
+    }
+
+    /// Lookup the HaneulNS Domain for the given `address`. `config` specifies where to find the domain
+    /// name registry, and its type.
+    pub(crate) async fn reverse_resolve_to_name(
+        db: &Db,
+        config: &NameServiceConfig,
+        address: HaneulAddress,
+    ) -> Result<Option<NativeDomain>, Error> {
+        let reverse_record_id = config.reverse_record_field_id(address.as_slice());
+
+        let Some(object) = MoveObject::query(db, reverse_record_id.into(), None).await? else {
+            return Ok(None);
+        };
+
+        let field: Field<NativeHaneulAddress, NativeDomain> = object
+            .native
+            .to_rust()
+            .ok_or_else(|| Error::Internal("Malformed Haneulns Domain".to_string()))?;
 
         Ok(Some(field.value))
     }

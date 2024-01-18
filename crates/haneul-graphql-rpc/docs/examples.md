@@ -780,7 +780,7 @@
 >      coinObjectCount
 >      totalBalance
 >    }
->    defaultNameServiceName
+>    defaultHaneulnsName
 >  }
 >}</pre>
 
@@ -940,9 +940,7 @@
 >      storageRebate
 >      previousTransactionBlock {
 >        digest
->        sender {
->          defaultNameServiceName
->        }
+>        sender { defaultHaneulnsName }
 >        gasInput {
 >          gasPrice
 >          gasBudget

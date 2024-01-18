@@ -95,7 +95,10 @@ type Address implements IOwner {
 	The `0x3::staking_pool::StakedHaneul` objects owned by the given address.
 	"""
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
-	defaultNameServiceName: String
+	"""
+	The domain that a user address has explicitly configured as their default domain.
+	"""
+	defaultHaneulnsName: String
 	"""
 	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
 	the capability to manage the associated domain.
@@ -1049,7 +1052,7 @@ interface IOwner {
 	balanceConnection(first: Int, after: String, last: Int, before: String): BalanceConnection
 	coins(first: Int, after: String, last: Int, before: String, type: String): CoinConnection!
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
-	defaultNameServiceName: String
+	defaultHaneulnsName: String
 	haneulnsRegistrations(first: Int, after: String, last: Int, before: String): HaneulnsRegistrationConnection
 	dynamicField(name: DynamicFieldName!): DynamicField
 	dynamicObjectField(name: DynamicFieldName!): DynamicField
@@ -1712,9 +1715,9 @@ type Object implements IOwner {
 	"""
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
 	"""
-	The domain that a user address has explicitly configured as their default domain
+	The domain that a user address has explicitly configured as their default domain.
 	"""
-	defaultNameServiceName: String
+	defaultHaneulnsName: String
 	"""
 	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
 	the capability to manage the associated domain.
@@ -1963,7 +1966,10 @@ type Owner implements IOwner {
 	The `0x3::staking_pool::StakedHaneul` objects owned by the given object.
 	"""
 	stakedHaneulConnection(first: Int, after: String, last: Int, before: String): StakedHaneulConnection
-	defaultNameServiceName: String
+	"""
+	The domain that a user address has explicitly configured as their default domain.
+	"""
+	defaultHaneulnsName: String
 	"""
 	The HaneulnsRegistration NFTs owned by the given object. These grant the owner
 	the capability to manage the associated domain.
