@@ -1,22 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::str::FromStr;
+
+use super::{move_object::MoveObject, string_input::impl_string_input, haneul_address::HaneulAddress};
+use crate::{data::Db, error::Error};
 use async_graphql::*;
-use move_core_types::language_storage::StructTag;
+use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use serde::{Deserialize, Serialize};
-use haneul_types::id::UID;
+use haneul_json_rpc::name_service::{Domain as NativeDomain, NameRecord, NameServiceConfig};
+use haneul_types::{dynamic_field::Field, id::UID};
 
-use super::move_object::MoveObject;
+const MOD_REGISTRATION: &IdentStr = ident_str!("haneulns_registration");
+const TYP_REGISTRATION: &IdentStr = ident_str!("HaneulnsRegistration");
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) struct Domain {
-    labels: Vec<String>,
-}
+/// Wrap HaneulNS Domain type to expose as a string scalar in GraphQL.
+#[derive(Debug)]
+pub(crate) struct Domain(NativeDomain);
 
 #[derive(Clone, Serialize, Deserialize)]
 pub(crate) struct NativeHaneulnsRegistration {
     pub id: UID,
-    pub domain: Domain,
+    pub domain: NativeDomain,
     pub domain_name: String,
     pub expiration_timestamp_ms: u64,
     pub image_url: String,
@@ -36,10 +41,55 @@ pub(crate) enum HaneulnsRegistrationDowncastError {
     Bcs(bcs::Error),
 }
 
+#[Object]
 impl HaneulnsRegistration {
+    /// Domain name of the HaneulnsRegistration object
+    async fn domain(&self) -> &str {
+        &self.native.domain_name
+    }
+
+    /// Convert the HaneulnsRegistration object into a Move object
+    async fn as_move_object(&self) -> &MoveObject {
+        &self.super_
+    }
+}
+
+impl HaneulnsRegistration {
+    /// Lookup the HaneulNS NameRecord for the given `domain` name. `config` specifies where to find
+    /// the domain name registry, and its type.
+    pub(crate) async fn resolve_to_record(
+        db: &Db,
+        config: &NameServiceConfig,
+        domain: &Domain,
+    ) -> Result<Option<NameRecord>, Error> {
+        let record_id = config.record_field_id(&domain.0);
+
+        let Some(object) = MoveObject::query(db, record_id.into(), None).await? else {
+            return Ok(None);
+        };
+
+        let field: Field<NativeDomain, NameRecord> = object
+            .native
+            .to_rust()
+            .ok_or_else(|| Error::Internal("Malformed Haneulns NameRecord".to_string()))?;
+
+        Ok(Some(field.value))
+    }
+
+    /// Return the type representing a `HaneulnsRegistration` on chain. This can change from chain to
+    /// chain (mainnet, testnet, devnet etc).
+    pub(crate) fn type_(package: HaneulAddress) -> StructTag {
+        StructTag {
+            address: package.into(),
+            module: MOD_REGISTRATION.to_owned(),
+            name: TYP_REGISTRATION.to_owned(),
+            type_params: vec![],
+        }
+    }
+
     // Because the type of the HaneulnsRegistration object is not constant,
     // we need to take it in as a param.
-    pub fn try_from(
+    pub(crate) fn try_from(
         move_object: &MoveObject,
         tag: &StructTag,
     ) -> Result<Self, HaneulnsRegistrationDowncastError> {
@@ -55,15 +105,12 @@ impl HaneulnsRegistration {
     }
 }
 
-#[Object]
-impl HaneulnsRegistration {
-    /// Domain name of the HaneulnsRegistration object
-    async fn domain(&self) -> &str {
-        &self.native.domain_name
-    }
+impl_string_input!(Domain);
 
-    /// Convert the HaneulnsRegistration object into a Move object
-    async fn as_move_object(&self) -> &MoveObject {
-        &self.super_
+impl FromStr for Domain {
+    type Err = <NativeDomain as FromStr>::Err;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Domain(NativeDomain::from_str(s)?))
     }
 }

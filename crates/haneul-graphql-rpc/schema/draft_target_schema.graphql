@@ -115,7 +115,7 @@ type Query {
     filter: ObjectFilter,
   ): ObjectConnection!
 
-  resolveNameServiceAddress(name: String!): Address
+  resolveHaneulnsAddress(name: String!): Address
 
   # NB. Will be moved into a private, explorer-specific extension.
   networkMetrics: NetworkMetrics
@@ -1119,6 +1119,7 @@ type MoveObject implements IOwner & IObject & IMoveObject {
   asCoin: Coin
   asStakedHaneul: StakedHaneul
   asCoinMetadata: CoinMetadata
+  asHaneulnsRegistration: HaneulnsRegistration
 }
 
 type MovePackage implements IOwner & IObject {

@@ -93,6 +93,12 @@ impl From<AccountAddress> for HaneulAddress {
     }
 }
 
+impl From<HaneulAddress> for AccountAddress {
+    fn from(value: HaneulAddress) -> Self {
+        AccountAddress::new(value.0)
+    }
+}
+
 impl From<ObjectID> for HaneulAddress {
     fn from(value: ObjectID) -> Self {
         HaneulAddress(value.into_bytes())

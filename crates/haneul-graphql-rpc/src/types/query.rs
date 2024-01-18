@@ -23,11 +23,12 @@ use super::{
     owner::Owner,
     protocol_config::ProtocolConfigs,
     haneul_address::HaneulAddress,
+    haneulns_registration::{Domain, HaneulnsRegistration},
     transaction_block::{self, TransactionBlock, TransactionBlockFilter},
     type_filter::ExactTypeFilter,
 };
 use crate::{
-    config::ServiceConfig, context_data::db_data_provider::PgManager, error::Error,
+    config::ServiceConfig, context_data::db_data_provider::PgManager, data::Db, error::Error,
     mutation::Mutation,
 };
 
@@ -219,16 +220,21 @@ impl Query {
             .extend()
     }
 
-    /// Resolves the owner address of the provided domain name.
-    async fn resolve_name_service_address(
+    /// Resolves a HaneulNS `domain` name to an address, if it has been bound.
+    async fn resolve_haneulns_address(
         &self,
         ctx: &Context<'_>,
-        name: String,
+        domain: Domain,
     ) -> Result<Option<Address>> {
-        ctx.data_unchecked::<PgManager>()
-            .resolve_name_service_address(ctx.data_unchecked::<NameServiceConfig>(), name)
-            .await
-            .extend()
+        Ok(HaneulnsRegistration::resolve_to_record(
+            ctx.data_unchecked::<Db>(),
+            ctx.data_unchecked::<NameServiceConfig>(),
+            &domain,
+        )
+        .await
+        .extend()?
+        .and_then(|r| r.target_address)
+        .map(|a| Address { address: a.into() }))
     }
 
     /// The coin metadata associated with the given coin type.

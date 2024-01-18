@@ -7,12 +7,14 @@ use super::move_type::MoveType;
 use super::move_value::MoveValue;
 use super::stake::StakedHaneulDowncastError;
 use super::haneul_address::HaneulAddress;
+use super::haneulns_registration::{HaneulnsRegistration, HaneulnsRegistrationDowncastError};
 use super::{coin::Coin, object::Object};
 use crate::context_data::package_cache::PackageCache;
 use crate::data::Db;
 use crate::error::Error;
 use crate::types::stake::StakedHaneul;
 use async_graphql::*;
+use haneul_json_rpc::name_service::NameServiceConfig;
 use haneul_package_resolver::Resolver;
 use haneul_types::object::{Data, MoveObject as NativeMoveObject};
 use haneul_types::TypeTag;
@@ -62,35 +64,52 @@ impl MoveObject {
     }
 
     /// Attempts to convert the Move object into a `0x2::coin::Coin`.
-    async fn as_coin(&self) -> Result<Option<Coin>, Error> {
+    async fn as_coin(&self) -> Result<Option<Coin>> {
         match Coin::try_from(self) {
             Ok(coin) => Ok(Some(coin)),
             Err(CoinDowncastError::NotACoin) => Ok(None),
             Err(CoinDowncastError::Bcs(e)) => {
-                Err(Error::Internal(format!("Failed to deserialize coin: {e}")))
+                Err(Error::Internal(format!("Failed to deserialize Coin: {e}"))).extend()
             }
         }
     }
 
     /// Attempts to convert the Move object into a `0x3::staking_pool::StakedHaneul`.
-    async fn as_staked_haneul(&self) -> Result<Option<StakedHaneul>, Error> {
+    async fn as_staked_haneul(&self) -> Result<Option<StakedHaneul>> {
         match StakedHaneul::try_from(self) {
             Ok(coin) => Ok(Some(coin)),
             Err(StakedHaneulDowncastError::NotAStakedHaneul) => Ok(None),
             Err(StakedHaneulDowncastError::Bcs(e)) => Err(Error::Internal(format!(
-                "Failed to deserialize staked haneul: {e}"
-            ))),
+                "Failed to deserialize StakedHaneul: {e}"
+            )))
+            .extend(),
         }
     }
 
     /// Attempts to convert the Move object into a `0x2::coin::CoinMetadata`.
-    async fn as_coin_metadata(&self) -> Result<Option<CoinMetadata>, Error> {
+    async fn as_coin_metadata(&self) -> Result<Option<CoinMetadata>> {
         match CoinMetadata::try_from(self) {
             Ok(metadata) => Ok(Some(metadata)),
             Err(CoinMetadataDowncastError::NotCoinMetadata) => Ok(None),
             Err(CoinMetadataDowncastError::Bcs(e)) => Err(Error::Internal(format!(
-                "Failed to deserialize coin metadata: {e}"
-            ))),
+                "Failed to deserialize CoinMetadata: {e}"
+            )))
+            .extend(),
+        }
+    }
+
+    /// Attempts to convert the Move object into a `HaneulnsRegistration` object.
+    async fn as_haneulns_registration(&self, ctx: &Context<'_>) -> Result<Option<HaneulnsRegistration>> {
+        let cfg: &NameServiceConfig = ctx.data_unchecked();
+        let tag = HaneulnsRegistration::type_(cfg.package_address.into());
+
+        match HaneulnsRegistration::try_from(self, &tag) {
+            Ok(registration) => Ok(Some(registration)),
+            Err(HaneulnsRegistrationDowncastError::NotAHaneulnsRegistration) => Ok(None),
+            Err(HaneulnsRegistrationDowncastError::Bcs(e)) => Err(Error::Internal(format!(
+                "Failed to deserialize HaneulnsRegistration: {e}",
+            )))
+            .extend(),
         }
     }
 }

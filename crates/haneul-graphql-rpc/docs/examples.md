@@ -766,7 +766,7 @@
 ### Name Service
 
 ><pre>{
->  resolveNameServiceAddress(name: "example.haneul") {
+>  resolveHaneulnsAddress(domain: "example.haneul") {
 >    address
 >  }
 >  address(
