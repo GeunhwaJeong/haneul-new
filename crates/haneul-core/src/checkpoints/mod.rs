@@ -26,6 +26,7 @@ use serde::{Deserialize, Serialize};
 use haneul_macros::fail_point;
 use haneul_network::default_haneullabs_network_config;
 use haneul_types::base_types::ConciseableName;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::consensus_handler::SequencedConsensusTransactionKey;
@@ -1530,11 +1531,10 @@ async fn diagnose_split_brain(
         );
     }
 
-    let haneul_system_state = state
-        .database
-        .get_haneul_system_state_object_unsafe()
-        .expect("Failed to get system state object");
-    let committee = haneul_system_state.get_current_epoch_committee();
+    let epoch_store = state.load_epoch_store_one_call_per_task();
+    let committee = epoch_store
+        .epoch_start_state()
+        .get_haneul_committee_with_network_metadata();
     let network_config = default_haneullabs_network_config();
     let network_clients =
         make_network_authority_clients_with_network_config(&committee, &network_config)
