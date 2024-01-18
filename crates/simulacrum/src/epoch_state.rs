@@ -10,6 +10,7 @@ use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_types::{
     committee::{Committee, EpochId},
     effects::TransactionEffects,
+    gas::HaneulGasStatus,
     inner_temporary_store::InnerTemporaryStore,
     metrics::BytecodeVerifierMetrics,
     metrics::LimitsMetrics,
@@ -93,6 +94,7 @@ impl EpochState {
         transaction: &VerifiedTransaction,
     ) -> Result<(
         InnerTemporaryStore,
+        HaneulGasStatus,
         TransactionEffects,
         Result<(), haneul_types::error::ExecutionError>,
     )> {

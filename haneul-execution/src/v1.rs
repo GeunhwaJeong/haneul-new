@@ -89,6 +89,7 @@ impl executor::Executor for Executor {
         transaction_digest: TransactionDigest,
     ) -> (
         InnerTemporaryStore,
+        HaneulGasStatus,
         TransactionEffects,
         Result<(), ExecutionError>,
     ) {
@@ -128,6 +129,7 @@ impl executor::Executor for Executor {
         skip_all_checks: bool,
     ) -> (
         InnerTemporaryStore,
+        HaneulGasStatus,
         TransactionEffects,
         Result<Vec<ExecutionResult>, ExecutionError>,
     ) {
