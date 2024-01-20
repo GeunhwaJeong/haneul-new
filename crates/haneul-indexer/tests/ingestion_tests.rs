@@ -15,7 +15,7 @@ mod ingestion_tests {
     use haneul_indexer::models_v2::transactions::StoredTransaction;
     use haneul_indexer::schema_v2::transactions;
     use haneul_indexer::store::{indexer_store_v2::IndexerStoreV2, PgIndexerStoreV2};
-    use haneul_indexer::test_utils::start_test_indexer_v2;
+    use haneul_indexer::test_utils::{start_test_indexer_v2, ReaderWriterConfig};
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::effects::TransactionEffectsAPI;
     use tokio::task::JoinHandle;
@@ -53,8 +53,8 @@ mod ingestion_tests {
         let (pg_store, pg_handle) = start_test_indexer_v2(
             Some(DEFAULT_DB_URL.to_owned()),
             format!("http://{}", server_url),
-            None,
             true,
+            ReaderWriterConfig::writer_mode(None),
         )
         .await;
         (server_handle, pg_store, pg_handle)

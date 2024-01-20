@@ -9,7 +9,7 @@ use haneul_config::Config;
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG};
 use haneul_graphql_rpc::config::ConnectionConfig;
 use haneul_graphql_rpc::test_infra::cluster::start_graphql_server;
-use haneul_indexer::test_utils::{start_test_indexer, start_test_indexer_v2};
+use haneul_indexer::test_utils::{start_test_indexer, start_test_indexer_v2, ReaderWriterConfig};
 use haneul_indexer::IndexerConfig;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
@@ -228,8 +228,8 @@ impl Cluster for LocalNewCluster {
                 start_test_indexer_v2(
                     Some(pg_address.clone()),
                     fullnode_url.clone(),
-                    None,
                     options.use_indexer_experimental_methods,
+                    ReaderWriterConfig::writer_mode(None),
                 )
                 .await;
 
@@ -237,8 +237,8 @@ impl Cluster for LocalNewCluster {
                 start_test_indexer_v2(
                     Some(pg_address),
                     fullnode_url.clone(),
-                    Some(indexer_address.to_string()),
                     options.use_indexer_experimental_methods,
+                    ReaderWriterConfig::reader_mode(indexer_address.to_string()),
                 )
                 .await;
             } else {
