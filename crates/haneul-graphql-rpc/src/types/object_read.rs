@@ -4,7 +4,10 @@
 use async_graphql::*;
 use haneul_types::base_types::ObjectRef as NativeObjectRef;
 
-use super::{object::Object, haneul_address::HaneulAddress};
+use super::{
+    object::{Object, ObjectVersionKey},
+    haneul_address::HaneulAddress,
+};
 
 // A helper type representing the read of a specific version of an object. Intended to be
 // "flattened" into other GraphQL types.
@@ -34,7 +37,7 @@ impl ObjectRead {
         Object::query(
             ctx.data_unchecked(),
             self.address_impl(),
-            Some(self.version_impl()),
+            ObjectVersionKey::Historical(self.version_impl()),
         )
         .await
         .extend()

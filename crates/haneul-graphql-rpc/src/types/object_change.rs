@@ -4,7 +4,10 @@
 use async_graphql::*;
 use haneul_types::effects::{IDOperation, ObjectChange as NativeObjectChange};
 
-use super::{object::Object, haneul_address::HaneulAddress};
+use super::{
+    object::{Object, ObjectVersionKey},
+    haneul_address::HaneulAddress,
+};
 
 pub(crate) struct ObjectChange {
     pub native: NativeObjectChange,
@@ -27,7 +30,7 @@ impl ObjectChange {
         Object::query(
             ctx.data_unchecked(),
             self.native.id.into(),
-            Some(version.value()),
+            ObjectVersionKey::Historical(version.value()),
         )
         .await
         .extend()
@@ -42,7 +45,7 @@ impl ObjectChange {
         Object::query(
             ctx.data_unchecked(),
             self.native.id.into(),
-            Some(version.value()),
+            ObjectVersionKey::Historical(version.value()),
         )
         .await
         .extend()

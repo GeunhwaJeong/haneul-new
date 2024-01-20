@@ -10,7 +10,7 @@ use haneul_types::{
     transaction::GasData,
 };
 
-use super::{address::Address, big_int::BigInt, haneul_address::HaneulAddress};
+use super::{address::Address, big_int::BigInt, object::ObjectVersionKey, haneul_address::HaneulAddress};
 use super::{
     cursor::Page,
     object::{self, ObjectFilter, ObjectKey},
@@ -116,7 +116,7 @@ impl GasEffects {
         Object::query(
             ctx.data_unchecked(),
             self.object_id,
-            Some(self.object_version),
+            ObjectVersionKey::Historical(self.object_version),
         )
         .await
         .extend()
