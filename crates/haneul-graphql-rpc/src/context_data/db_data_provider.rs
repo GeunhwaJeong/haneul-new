@@ -31,6 +31,7 @@ use haneul_types::{
         HaneulSystemStateSummary as NativeHaneulSystemStateSummary, HaneulValidatorSummary,
     },
 };
+use tracing::error;
 
 #[cfg(feature = "pg_backend")]
 use super::pg_backend::{PgQueryExecutor, QueryBuilder};
