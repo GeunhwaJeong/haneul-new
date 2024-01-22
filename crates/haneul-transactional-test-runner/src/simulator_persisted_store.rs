@@ -10,23 +10,23 @@ use simulacrum::Simulacrum;
 use std::num::NonZeroUsize;
 use haneul_config::genesis;
 use haneul_protocol_config::ProtocolVersion;
-use haneul_rest_api::node_state_getter::NodeStateGetter;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
+use haneul_types::storage::ReadStore;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress, VersionNumber},
     committee::{Committee, EpochId},
     crypto::AccountKeyPair,
     digests::{ObjectDigest, TransactionDigest, TransactionEventsDigest},
     effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents},
-    error::{HaneulError, HaneulResult, UserInputError},
+    error::{HaneulError, UserInputError},
     messages_checkpoint::{
         CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
         VerifiedCheckpoint,
     },
     object::{Object, Owner},
     storage::{
-        load_package_object_from_object_store, BackingPackageStore, ChildObjectResolver, ObjectKey,
+        load_package_object_from_object_store, BackingPackageStore, ChildObjectResolver,
         ObjectStore, PackageObject, ParentSync,
     },
     transaction::VerifiedTransaction,
@@ -534,131 +534,11 @@ impl ParentSync for PersistedStore {
     }
 }
 
-impl NodeStateGetter for PersistedStoreInnerReadOnlyWrapper {
-    fn get_verified_checkpoint_by_sequence_number(
-        &self,
-        sequence_number: CheckpointSequenceNumber,
-    ) -> HaneulResult<VerifiedCheckpoint> {
-        self.sync();
-        self.inner
-            .checkpoints
-            .get(&sequence_number)
-            .expect("Fatal: DB read failed")
-            .map(|checkpoint| checkpoint.into())
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::VerifiedCheckpointNotFound(sequence_number),
-            })
-    }
-
-    fn get_latest_checkpoint_sequence_number(&self) -> HaneulResult<CheckpointSequenceNumber> {
-        self.sync();
-        self.inner
-            .checkpoints
-            .unbounded_iter()
-            .skip_to_last()
-            .next()
-            .map(|(checkpoint, _)| checkpoint)
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::LatestCheckpointSequenceNumberNotFound,
-            })
-    }
-
-    fn get_checkpoint_contents(
-        &self,
-        content_digest: CheckpointContentsDigest,
-    ) -> HaneulResult<CheckpointContents> {
-        self.sync();
-
-        self.inner
-            .checkpoint_contents
-            .get(&content_digest)
-            .expect("Fatal: DB read failed")
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::CheckpointContentsNotFound(content_digest),
-            })
-    }
-
-    fn multi_get_transaction_blocks(
-        &self,
-        tx_digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<VerifiedTransaction>>> {
-        self.sync();
-
-        Ok(self
-            .inner
-            .transactions
-            .multi_get(tx_digests)
-            .expect("Fatal: DB read failed")
-            .into_iter()
-            .map(|transaction| transaction.map(|x| x.into()))
-            .collect())
-    }
-
-    fn multi_get_executed_effects(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<TransactionEffects>>> {
-        self.sync();
-
-        Ok(self
-            .inner
-            .effects
-            .multi_get(digests)
-            .expect("Fatal: DB read failed")
-            .into_iter()
-            .collect())
-    }
-
-    fn multi_get_events(
-        &self,
-        event_digests: &[TransactionEventsDigest],
-    ) -> HaneulResult<Vec<Option<TransactionEvents>>> {
-        self.sync();
-
-        Ok(self
-            .inner
-            .events
-            .multi_get(event_digests)
-            .expect("Fatal: DB read failed")
-            .into_iter()
-            .collect())
-    }
-
-    fn multi_get_object_by_key(
-        &self,
-        object_keys: &[ObjectKey],
-    ) -> Result<Vec<Option<Object>>, HaneulError> {
-        self.sync();
-
-        Ok(self
-            .inner
-            .objects
-            // Get the seq maps for each object
-            .multi_get(object_keys.iter().map(|w| w.0))
-            .expect("Fatal: DB read failed")
-            .into_iter()
-            .enumerate()
-            // Get the object at the required seq
-            .map(|(idx, mp)| mp.and_then(|sm| sm.get(&object_keys[idx].1).cloned()))
-            .collect())
-    }
-
-    fn get_object_by_key(
+impl ObjectStore for PersistedStoreInnerReadOnlyWrapper {
+    fn get_object(
         &self,
         object_id: &ObjectID,
-        version: VersionNumber,
-    ) -> Result<Option<Object>, HaneulError> {
-        self.sync();
-
-        Ok(self
-            .inner
-            .objects
-            .get(object_id)
-            .expect("Fatal: DB read failed")
-            .and_then(|x| x.get(&version).cloned()))
-    }
-
-    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+    ) -> haneul_types::storage::error::Result<Option<Object>> {
         self.sync();
 
         self.inner
@@ -668,6 +548,160 @@ impl NodeStateGetter for PersistedStoreInnerReadOnlyWrapper {
             .map(|version| self.get_object_by_key(object_id, version))
             .transpose()
             .map(|f| f.flatten())
+    }
+
+    fn get_object_by_key(
+        &self,
+        object_id: &ObjectID,
+        version: VersionNumber,
+    ) -> haneul_types::storage::error::Result<Option<Object>> {
+        self.sync();
+
+        Ok(self
+            .inner
+            .objects
+            .get(object_id)
+            .expect("Fatal: DB read failed")
+            .and_then(|x| x.get(&version).cloned()))
+    }
+}
+
+impl ReadStore for PersistedStoreInnerReadOnlyWrapper {
+    fn get_committee(
+        &self,
+        _epoch: EpochId,
+    ) -> haneul_types::storage::error::Result<Option<std::sync::Arc<Committee>>> {
+        todo!()
+    }
+
+    fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        self.sync();
+        self.inner
+            .checkpoints
+            .unbounded_iter()
+            .skip_to_last()
+            .next()
+            .map(|(_, checkpoint)| checkpoint.into())
+            .ok_or(HaneulError::UserInputError {
+                error: UserInputError::LatestCheckpointSequenceNumberNotFound,
+            })
+            .map_err(haneul_types::storage::error::Error::custom)
+    }
+
+    fn get_highest_verified_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_highest_synced_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_lowest_available_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<CheckpointSequenceNumber> {
+        todo!()
+    }
+
+    fn get_checkpoint_by_digest(
+        &self,
+        _digest: &CheckpointDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        todo!()
+    }
+
+    fn get_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        self.sync();
+        Ok(self
+            .inner
+            .checkpoints
+            .get(&sequence_number)
+            .expect("Fatal: DB read failed")
+            .map(|checkpoint| checkpoint.into()))
+    }
+
+    fn get_checkpoint_contents_by_digest(
+        &self,
+        digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<Option<CheckpointContents>> {
+        self.sync();
+
+        Ok(self
+            .inner
+            .checkpoint_contents
+            .get(digest)
+            .expect("Fatal: DB read failed"))
+    }
+
+    fn get_checkpoint_contents_by_sequence_number(
+        &self,
+        _sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<CheckpointContents>> {
+        todo!()
+    }
+
+    fn get_transaction(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedTransaction>> {
+        self.sync();
+
+        Ok(self
+            .inner
+            .transactions
+            .get(tx_digest)
+            .expect("Fatal: DB read failed")
+            .map(|transaction| transaction.into()))
+    }
+
+    fn get_transaction_effects(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEffects>> {
+        self.sync();
+
+        Ok(self
+            .inner
+            .effects
+            .get(tx_digest)
+            .expect("Fatal: DB read failed"))
+    }
+
+    fn get_events(
+        &self,
+        event_digest: &TransactionEventsDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEvents>> {
+        self.sync();
+
+        Ok(self
+            .inner
+            .events
+            .get(event_digest)
+            .expect("Fatal: DB read failed"))
+    }
+
+    fn get_full_checkpoint_contents_by_sequence_number(
+        &self,
+        _sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
+    }
+
+    fn get_full_checkpoint_contents(
+        &self,
+        _digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
     }
 }
 

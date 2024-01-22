@@ -56,7 +56,6 @@ use haneul_graphql_rpc::test_infra::cluster::{serve_executor, SnapshotLagConfig}
 use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::{DevInspectResults, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_protocol_config::{Chain, ProtocolConfig};
-use haneul_rest_api::node_state_getter::NodeStateGetter;
 use haneul_storage::{
     key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
 };
@@ -65,11 +64,11 @@ use haneul_types::base_types::{SequenceNumber, VersionNumber};
 use haneul_types::crypto::get_authority_key_pair;
 use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
-use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
 };
-use haneul_types::storage::{ObjectKey, ObjectStore};
+use haneul_types::storage::ObjectStore;
+use haneul_types::storage::ReadStore;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::DEEPBOOK_PACKAGE_ID;
@@ -612,7 +611,8 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
                 let latest_chk = self.executor.get_latest_checkpoint_sequence_number()?;
                 let chk = self
                     .executor
-                    .get_verified_checkpoint_by_sequence_number(latest_chk)?;
+                    .get_checkpoint_by_sequence_number(latest_chk)?
+                    .unwrap();
                 Ok(Some(format!("{}", chk.data())))
             }
             HaneulSubcommand::CreateCheckpoint(CreateCheckpointCommand { count }) => {
@@ -2113,63 +2113,120 @@ async fn update_named_address_mapping(
     }
 }
 
-impl NodeStateGetter for HaneulTestAdapter<'_> {
-    fn get_verified_checkpoint_by_sequence_number(
+impl ObjectStore for HaneulTestAdapter<'_> {
+    fn get_object(
         &self,
-        sequence_number: CheckpointSequenceNumber,
-    ) -> HaneulResult<VerifiedCheckpoint> {
-        self.executor
-            .get_verified_checkpoint_by_sequence_number(sequence_number)
-    }
-
-    fn get_latest_checkpoint_sequence_number(&self) -> HaneulResult<CheckpointSequenceNumber> {
-        self.executor.get_latest_checkpoint_sequence_number()
-    }
-
-    fn get_checkpoint_contents(
-        &self,
-        content_digest: CheckpointContentsDigest,
-    ) -> HaneulResult<CheckpointContents> {
-        self.executor.get_checkpoint_contents(content_digest)
-    }
-
-    fn multi_get_transaction_blocks(
-        &self,
-        tx_digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<VerifiedTransaction>>> {
-        self.executor.multi_get_transaction_blocks(tx_digests)
-    }
-
-    fn multi_get_executed_effects(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<TransactionEffects>>> {
-        self.executor.multi_get_executed_effects(digests)
-    }
-
-    fn multi_get_events(
-        &self,
-        event_digests: &[TransactionEventsDigest],
-    ) -> HaneulResult<Vec<Option<TransactionEvents>>> {
-        self.executor.multi_get_events(event_digests)
-    }
-
-    fn multi_get_object_by_key(
-        &self,
-        object_keys: &[ObjectKey],
-    ) -> Result<Vec<Option<Object>>, HaneulError> {
-        self.executor.multi_get_object_by_key(object_keys)
+        object_id: &ObjectID,
+    ) -> haneul_types::storage::error::Result<Option<Object>> {
+        ObjectStore::get_object(&*self.executor, object_id)
     }
 
     fn get_object_by_key(
         &self,
         object_id: &ObjectID,
         version: VersionNumber,
-    ) -> Result<Option<Object>, HaneulError> {
-        ObjectStore::get_object_by_key(&*self.executor, object_id, version).map_err(Into::into)
+    ) -> haneul_types::storage::error::Result<Option<Object>> {
+        ObjectStore::get_object_by_key(&*self.executor, object_id, version)
+    }
+}
+
+impl ReadStore for HaneulTestAdapter<'_> {
+    fn get_committee(
+        &self,
+        epoch: haneul_types::committee::EpochId,
+    ) -> haneul_types::storage::error::Result<Option<Arc<haneul_types::committee::Committee>>> {
+        self.executor.get_committee(epoch)
     }
 
-    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
-        ObjectStore::get_object(&*self.executor, object_id).map_err(Into::into)
+    fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        ReadStore::get_latest_checkpoint(&self.executor)
+    }
+
+    fn get_highest_verified_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        self.executor.get_highest_verified_checkpoint()
+    }
+
+    fn get_highest_synced_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        self.executor.get_highest_synced_checkpoint()
+    }
+
+    fn get_lowest_available_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<CheckpointSequenceNumber> {
+        self.executor.get_lowest_available_checkpoint()
+    }
+
+    fn get_checkpoint_by_digest(
+        &self,
+        digest: &haneul_types::messages_checkpoint::CheckpointDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        self.executor.get_checkpoint_by_digest(digest)
+    }
+
+    fn get_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        self.executor
+            .get_checkpoint_by_sequence_number(sequence_number)
+    }
+
+    fn get_checkpoint_contents_by_digest(
+        &self,
+        digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<Option<CheckpointContents>> {
+        self.executor.get_checkpoint_contents_by_digest(digest)
+    }
+
+    fn get_checkpoint_contents_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<CheckpointContents>> {
+        self.executor
+            .get_checkpoint_contents_by_sequence_number(sequence_number)
+    }
+
+    fn get_transaction(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedTransaction>> {
+        self.executor.get_transaction(tx_digest)
+    }
+
+    fn get_transaction_effects(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEffects>> {
+        self.executor.get_transaction_effects(tx_digest)
+    }
+
+    fn get_events(
+        &self,
+        event_digest: &TransactionEventsDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEvents>> {
+        self.executor.get_events(event_digest)
+    }
+
+    fn get_full_checkpoint_contents_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        self.executor
+            .get_full_checkpoint_contents_by_sequence_number(sequence_number)
+    }
+
+    fn get_full_checkpoint_contents(
+        &self,
+        digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        self.executor.get_full_checkpoint_contents(digest)
     }
 }

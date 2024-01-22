@@ -24,7 +24,7 @@ use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
 use haneul_types::digests::ConsensusCommitDigest;
 use haneul_types::object::Object;
-use haneul_types::storage::ObjectStore;
+use haneul_types::storage::{ObjectStore, ReadStore};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
 use haneul_types::{
@@ -403,6 +403,109 @@ impl<T, V: store::SimulatorStore> ObjectStore for Simulacrum<T, V> {
         version: VersionNumber,
     ) -> Result<Option<Object>, haneul_types::storage::error::Error> {
         self.store.get_object_by_key(object_id, version)
+    }
+}
+
+impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
+    fn get_committee(
+        &self,
+        _epoch: haneul_types::committee::EpochId,
+    ) -> haneul_types::storage::error::Result<Option<std::sync::Arc<Committee>>> {
+        todo!()
+    }
+
+    fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        Ok(self.store().get_highest_checkpint().unwrap())
+    }
+
+    fn get_highest_verified_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_highest_synced_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_lowest_available_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<haneul_types::messages_checkpoint::CheckpointSequenceNumber>
+    {
+        todo!()
+    }
+
+    fn get_checkpoint_by_digest(
+        &self,
+        digest: &haneul_types::messages_checkpoint::CheckpointDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        Ok(self.store().get_checkpoint_by_digest(digest))
+    }
+
+    fn get_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        Ok(self
+            .store()
+            .get_checkpoint_by_sequence_number(sequence_number))
+    }
+
+    fn get_checkpoint_contents_by_digest(
+        &self,
+        digest: &haneul_types::messages_checkpoint::CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::messages_checkpoint::CheckpointContents>>
+    {
+        Ok(self.store().get_checkpoint_contents(digest))
+    }
+
+    fn get_checkpoint_contents_by_sequence_number(
+        &self,
+        _sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::messages_checkpoint::CheckpointContents>>
+    {
+        todo!()
+    }
+
+    fn get_transaction(
+        &self,
+        tx_digest: &haneul_types::digests::TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedTransaction>> {
+        Ok(self.store().get_transaction(tx_digest))
+    }
+
+    fn get_transaction_effects(
+        &self,
+        tx_digest: &haneul_types::digests::TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEffects>> {
+        Ok(self.store().get_transaction_effects(tx_digest))
+    }
+
+    fn get_events(
+        &self,
+        event_digest: &haneul_types::digests::TransactionEventsDigest,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::effects::TransactionEvents>> {
+        Ok(self.store().get_transaction_events(event_digest))
+    }
+
+    fn get_full_checkpoint_contents_by_sequence_number(
+        &self,
+        _sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
+    }
+
+    fn get_full_checkpoint_contents(
+        &self,
+        _digest: &haneul_types::messages_checkpoint::CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
     }
 }
 

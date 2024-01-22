@@ -12,9 +12,7 @@ bcs.workspace = true
 reqwest.workspace = true
 axum.workspace = true
 rand.workspace = true
-simulacrum.workspace = true
 haneul-types.workspace = true
-haneul-core.workspace = true
 workspace-hack.workspace = true
 
 [dev-dependencies]

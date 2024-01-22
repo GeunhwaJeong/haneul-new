@@ -20,7 +20,6 @@ use haneul_core::authority::AuthorityState;
 use haneul_json_rpc::authority_state::StateRead;
 use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::EventFilter;
-use haneul_rest_api::node_state_getter::NodeStateGetter;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
@@ -36,8 +35,8 @@ use haneul_types::event::Event;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::object::Object;
-use haneul_types::storage::ObjectKey;
 use haneul_types::storage::ObjectStore;
+use haneul_types::storage::ReadStore;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::transaction::Transaction;
@@ -62,7 +61,7 @@ pub struct ValidatorWithFullnode {
 #[allow(unused_variables)]
 /// TODO: better name?
 #[async_trait::async_trait]
-pub trait TransactionalAdapter: Send + Sync + ObjectStore + NodeStateGetter {
+pub trait TransactionalAdapter: Send + Sync + ReadStore {
     async fn execute_txn(
         &mut self,
         transaction: Transaction,
@@ -202,68 +201,125 @@ impl TransactionalAdapter for ValidatorWithFullnode {
     }
 }
 
-#[async_trait::async_trait]
-impl NodeStateGetter for ValidatorWithFullnode {
-    fn get_verified_checkpoint_by_sequence_number(
+impl ReadStore for ValidatorWithFullnode {
+    fn get_committee(
         &self,
-        sequence_number: u64,
-    ) -> HaneulResult<VerifiedCheckpoint> {
+        _epoch: haneul_types::committee::EpochId,
+    ) -> haneul_types::storage::error::Result<Option<Arc<haneul_types::committee::Committee>>> {
+        todo!()
+    }
+
+    fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        let sequence_number = self
+            .validator
+            .get_latest_checkpoint_sequence_number()
+            .unwrap();
+        self.get_checkpoint_by_sequence_number(sequence_number)
+            .map(|c| c.unwrap())
+    }
+
+    fn get_highest_verified_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_highest_synced_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
+        todo!()
+    }
+
+    fn get_lowest_available_checkpoint(
+        &self,
+    ) -> haneul_types::storage::error::Result<haneul_types::messages_checkpoint::CheckpointSequenceNumber>
+    {
+        todo!()
+    }
+
+    fn get_checkpoint_by_digest(
+        &self,
+        _digest: &haneul_types::messages_checkpoint::CheckpointDigest,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
+        todo!()
+    }
+
+    fn get_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<VerifiedCheckpoint>> {
         self.validator
-            .get_verified_checkpoint_by_sequence_number(sequence_number)
+            .get_checkpoint_store()
+            .get_checkpoint_by_sequence_number(sequence_number)
+            .map_err(haneul_types::storage::error::Error::custom)
     }
 
-    fn get_latest_checkpoint_sequence_number(&self) -> HaneulResult<u64> {
-        self.validator.get_latest_checkpoint_sequence_number()
-    }
-
-    fn get_checkpoint_contents(
+    fn get_checkpoint_contents_by_digest(
         &self,
-        content_digest: CheckpointContentsDigest,
-    ) -> HaneulResult<haneul_types::messages_checkpoint::CheckpointContents> {
-        self.validator.get_checkpoint_contents(content_digest)
+        digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::messages_checkpoint::CheckpointContents>>
+    {
+        self.validator
+            .get_checkpoint_store()
+            .get_checkpoint_contents(digest)
+            .map_err(haneul_types::storage::error::Error::custom)
     }
 
-    fn multi_get_transaction_blocks(
+    fn get_checkpoint_contents_by_sequence_number(
         &self,
-        tx_digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<haneul_types::transaction::VerifiedTransaction>>> {
-        self.validator.multi_get_transaction_blocks(tx_digests)
+        _sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::messages_checkpoint::CheckpointContents>>
+    {
+        todo!()
     }
 
-    fn multi_get_executed_effects(
+    fn get_transaction(
         &self,
-        digests: &[TransactionDigest],
-    ) -> HaneulResult<Vec<Option<haneul_types::effects::TransactionEffects>>> {
-        self.validator.multi_get_executed_effects(digests)
-    }
-
-    fn multi_get_events(
-        &self,
-        event_digests: &[TransactionEventsDigest],
-    ) -> HaneulResult<Vec<Option<TransactionEvents>>> {
-        self.validator.multi_get_events(event_digests)
-    }
-
-    fn multi_get_object_by_key(
-        &self,
-        object_keys: &[ObjectKey],
-    ) -> Result<Vec<Option<Object>>, HaneulError> {
-        self.validator.multi_get_object_by_key(object_keys)
-    }
-
-    fn get_object_by_key(
-        &self,
-        object_id: &ObjectID,
-        version: VersionNumber,
-    ) -> Result<Option<Object>, HaneulError> {
-        self.validator.get_object_by_key(object_id, version)
-    }
-
-    fn get_object(&self, object_id: &ObjectID) -> Result<Option<Object>, HaneulError> {
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<haneul_types::transaction::VerifiedTransaction>>
+    {
         self.validator
             .database
-            .get_object(object_id)
-            .map_err(Into::into)
+            .get_transaction_block(tx_digest)
+            .map_err(haneul_types::storage::error::Error::custom)
+    }
+
+    fn get_transaction_effects(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEffects>> {
+        self.validator
+            .database
+            .get_executed_effects(tx_digest)
+            .map_err(haneul_types::storage::error::Error::custom)
+    }
+
+    fn get_events(
+        &self,
+        event_digest: &TransactionEventsDigest,
+    ) -> haneul_types::storage::error::Result<Option<TransactionEvents>> {
+        self.validator
+            .database
+            .get_events(event_digest)
+            .map_err(haneul_types::storage::error::Error::custom)
+    }
+
+    fn get_full_checkpoint_contents_by_sequence_number(
+        &self,
+        _sequence_number: haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
+    }
+
+    fn get_full_checkpoint_contents(
+        &self,
+        _digest: &CheckpointContentsDigest,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
+    > {
+        todo!()
     }
 }
 
