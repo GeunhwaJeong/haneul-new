@@ -105,6 +105,12 @@ impl From<ObjectID> for HaneulAddress {
     }
 }
 
+impl From<HaneulAddress> for ObjectID {
+    fn from(value: HaneulAddress) -> Self {
+        ObjectID::new(value.0)
+    }
+}
+
 impl From<NativeHaneulAddress> for HaneulAddress {
     fn from(value: NativeHaneulAddress) -> Self {
         HaneulAddress(value.to_inner())

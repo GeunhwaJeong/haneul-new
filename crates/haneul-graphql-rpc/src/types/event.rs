@@ -18,6 +18,7 @@ use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl};
 use serde::{Deserialize, Serialize};
 use haneul_indexer::models_v2::{events::StoredEvent, transactions::StoredTransaction};
 use haneul_indexer::schema_v2::{events, transactions, tx_senders};
+use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::base_types::ObjectID;
 use haneul_types::Identifier;
 use haneul_types::{
@@ -227,6 +228,22 @@ impl Event {
             stored: Some(stored_event),
             native: native_event,
         })
+    }
+}
+
+impl From<HaneulEvent> for Event {
+    fn from(event: HaneulEvent) -> Self {
+        let native = NativeEvent {
+            sender: event.sender,
+            package_id: event.package_id,
+            transaction_module: event.transaction_module,
+            type_: event.type_,
+            contents: event.bcs,
+        };
+        Self {
+            stored: None,
+            native,
+        }
     }
 }
 
