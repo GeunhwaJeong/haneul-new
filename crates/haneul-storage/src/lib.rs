@@ -26,7 +26,7 @@ use haneul_types::committee::Committee;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointSequenceNumber, VerifiedCheckpoint,
 };
-use haneul_types::storage::{ReadStore, WriteStore};
+use haneul_types::storage::WriteStore;
 use tracing::debug;
 
 pub mod blob;
@@ -227,7 +227,6 @@ pub fn verify_checkpoint<S>(
 ) -> Result<VerifiedCheckpoint, CertifiedCheckpointSummary>
 where
     S: WriteStore,
-    <S as ReadStore>::Error: std::error::Error,
 {
     let committee = store
         .get_committee(checkpoint.epoch())
@@ -250,7 +249,6 @@ pub async fn verify_checkpoint_range<S>(
     max_concurrency: usize,
 ) where
     S: WriteStore + Clone,
-    <S as ReadStore>::Error: std::error::Error,
 {
     let range_clone = checkpoint_range.clone();
     futures::stream::iter(range_clone.into_iter().tuple_windows())
