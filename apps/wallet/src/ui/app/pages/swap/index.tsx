@@ -275,6 +275,7 @@ export function SwapPageContent() {
 		baseConversionRate: USDC_CONVERSION_RATE,
 		quoteConversionRate: HANEUL_CONVERSION_RATE,
 		enabled: isValid,
+		amount,
 	});
 
 	const recognizedPackagesList = useRecognizedPackages();
