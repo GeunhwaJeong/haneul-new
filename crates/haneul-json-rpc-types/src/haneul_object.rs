@@ -585,12 +585,10 @@ impl HaneulObjectResponse {
     /// Returns a reference to the object if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
     pub fn object(&self) -> Result<&HaneulObjectData, HaneulObjectResponseError> {
-        let data = &self.data;
-        let error = self.error.clone();
-        if let Some(data) = data {
+        if let Some(data) = &self.data {
             Ok(data)
-        } else if let Some(error) = error {
-            Err(error)
+        } else if let Some(error) = &self.error {
+            Err(error.clone())
         } else {
             // We really shouldn't reach this code block since either data, or error field should always be filled.
             Err(HaneulObjectResponseError::Unknown)
@@ -600,15 +598,9 @@ impl HaneulObjectResponse {
     /// Returns the object value if there is any, otherwise an Err if
     /// the object does not exist or is deleted.
     pub fn into_object(self) -> Result<HaneulObjectData, HaneulObjectResponseError> {
-        let data = self.data.clone();
-        let error = self.error;
-        if let Some(data) = data {
-            Ok(data)
-        } else if let Some(error) = error {
-            Err(error)
-        } else {
-            // We really shouldn't reach this code block since either data, or error field should always be filled.
-            Err(HaneulObjectResponseError::Unknown)
+        match self.object() {
+            Ok(data) => Ok(data.clone()),
+            Err(error) => Err(error),
         }
     }
 }
