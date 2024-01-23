@@ -5,9 +5,8 @@ import { useAppSelector } from '_hooks';
 import { API_ENV } from '_shared/api-env';
 import { Heading } from '_src/ui/app/shared/heading';
 import { Text } from '_src/ui/app/shared/text';
-import { useFormatCoin, useHaneulCoinData } from '@haneullabs/core';
-import { HANEUL_DECIMALS } from '@haneullabs/haneul.js/utils';
-import BigNumber from 'bignumber.js';
+import { useBalanceInUSD, useFormatCoin } from '@haneullabs/core';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
 import { useMemo } from 'react';
 
 export type CoinProps = {
@@ -17,20 +16,16 @@ export type CoinProps = {
 
 function WalletBalanceUsd({ amount: walletBalance }: { amount: bigint }) {
 	const isDefiWalletEnabled = useIsWalletDefiEnabled();
-	const { data } = useHaneulCoinData();
-	const { currentPrice } = data || {};
+	const formattedWalletBalance = useBalanceInUSD(HANEUL_TYPE_ARG, walletBalance);
 
 	const walletBalanceInUsd = useMemo(() => {
-		if (!currentPrice) return null;
-		const haneulPriceInUsd = new BigNumber(currentPrice);
-		const walletBalanceInHaneul = new BigNumber(walletBalance.toString()).shiftedBy(-1 * HANEUL_DECIMALS);
-		const value = walletBalanceInHaneul.multipliedBy(haneulPriceInUsd).toNumber();
+		if (!formattedWalletBalance) return null;
 
-		return `~${value.toLocaleString('en', {
+		return `~${formattedWalletBalance.toLocaleString('en', {
 			style: 'currency',
 			currency: 'USD',
 		})} USD`;
-	}, [currentPrice, walletBalance]);
+	}, [formattedWalletBalance]);
 
 	if (!walletBalanceInUsd) {
 		return null;
