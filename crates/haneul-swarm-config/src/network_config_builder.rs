@@ -1,21 +1,24 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::genesis_config::{AccountConfig, ValidatorGenesisConfigBuilder, DEFAULT_GAS_AMOUNT};
-use crate::genesis_config::{GenesisConfig, ValidatorGenesisConfig};
-use crate::network_config::NetworkConfig;
-use crate::node_config_builder::ValidatorConfigBuilder;
-use rand::rngs::OsRng;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::{num::NonZeroUsize, path::Path, sync::Arc};
+
+use rand::rngs::OsRng;
 use haneul_config::genesis::{TokenAllocation, TokenDistributionScheduleBuilder};
 use haneul_config::node::OverloadThresholdConfig;
+use haneul_macros::nondeterministic;
 use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::{Committee, ProtocolVersion};
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, KeypairTraits, PublicKey};
 use haneul_types::object::Object;
+
+use crate::genesis_config::{AccountConfig, ValidatorGenesisConfigBuilder, DEFAULT_GAS_AMOUNT};
+use crate::genesis_config::{GenesisConfig, ValidatorGenesisConfig};
+use crate::network_config::NetworkConfig;
+use crate::node_config_builder::ValidatorConfigBuilder;
 
 pub enum CommitteeConfig {
     Size(NonZeroUsize),
@@ -79,7 +82,7 @@ impl ConfigBuilder {
     }
 
     pub fn new_with_temp_dir() -> Self {
-        Self::new(tempfile::tempdir().unwrap().into_path())
+        Self::new(nondeterministic!(tempfile::tempdir().unwrap()).into_path())
     }
 }
 

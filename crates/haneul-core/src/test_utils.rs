@@ -1,13 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::{
-    test_authority_builder::TestAuthorityBuilder, AuthorityState, EffectsNotifyRead,
-};
-use crate::authority_aggregator::{AuthorityAggregator, TimeoutConfig};
-use crate::epoch::committee_store::CommitteeStore;
-use crate::state_accumulator::StateAccumulator;
-use crate::test_authority_clients::LocalAuthorityClient;
 use fastcrypto::hash::MultisetHash;
 use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
@@ -24,6 +17,7 @@ use haneul_config::local_ip_utils;
 use haneul_config::node::OverloadThresholdConfig;
 use haneul_framework::BuiltInFramework;
 use haneul_genesis_builder::validator_info::ValidatorInfo;
+use haneul_macros::nondeterministic;
 use haneul_move_build::{BuildConfig, CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{random_object_ref, ObjectID};
@@ -50,6 +44,14 @@ use haneul_types::{
 };
 use tokio::time::timeout;
 use tracing::{info, warn};
+
+use crate::authority::{
+    test_authority_builder::TestAuthorityBuilder, AuthorityState, EffectsNotifyRead,
+};
+use crate::authority_aggregator::{AuthorityAggregator, TimeoutConfig};
+use crate::epoch::committee_store::CommitteeStore;
+use crate::state_accumulator::StateAccumulator;
+use crate::test_authority_clients::LocalAuthorityClient;
 
 const WAIT_FOR_TX_TIMEOUT: Duration = Duration::from_secs(15);
 
@@ -108,7 +110,7 @@ pub(crate) fn init_state_parameters_from_rng<R>(rng: &mut R) -> (Genesis, Author
 where
     R: rand::CryptoRng + rand::RngCore,
 {
-    let dir = tempfile::TempDir::new().unwrap();
+    let dir = nondeterministic!(tempfile::TempDir::new().unwrap());
     let network_config = haneul_swarm_config::network_config_builder::ConfigBuilder::new(&dir)
         .rng(rng)
         .build();

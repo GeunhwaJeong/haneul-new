@@ -22,6 +22,7 @@ move-bytecode-utils.workspace = true
 narwhal-config.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
+haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 haneul-genesis-builder.workspace = true

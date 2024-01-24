@@ -26,7 +26,10 @@ mod test {
     use haneul_core::authority::AuthorityState;
     use haneul_core::checkpoints::{CheckpointStore, CheckpointWatermark};
     use haneul_framework::BuiltInFramework;
-    use haneul_macros::{clear_fail_point, register_fail_point_async, register_fail_points, sim_test};
+    use haneul_macros::{
+        clear_fail_point, nondeterministic, register_fail_point_async, register_fail_points,
+        sim_test,
+    };
     use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
     use haneul_simulator::tempfile::TempDir;
     use haneul_simulator::{configs::*, SimConfig};
@@ -306,7 +309,7 @@ mod test {
 
     #[sim_test(config = "test_config()")]
     async fn test_data_ingestion_pipeline() {
-        let path = TempDir::new().unwrap().into_path();
+        let path = nondeterministic!(TempDir::new().unwrap()).into_path();
         let test_cluster = init_test_cluster_builder(4, 1000)
             .with_data_ingestion_dir(path.clone())
             .build()
