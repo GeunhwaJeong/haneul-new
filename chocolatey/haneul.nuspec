@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter
+enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+	<metadata>
+		<id>haneul</id>
+		<version>$version$</version>
+		<owners>haneul</owners>
+		<title>Main Haneul Binary</title>
+		<authors>haneul</authors>
+		<projectUrl>https://haneul.io/</projectUrl>
+		<licenseUrl>https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE</licenseUrl>
+		<iconUrl>https://assets-global.website-files.com/6425f546844727ce5fb9e5ab/643775f4a15c9a9e10426daa_Haneul_Favicon_256.png</iconUrl>
+		<projectSourceUrl>https://github.com/GeunhwaJeong/haneul/</projectSourceUrl>
+		<bugTrackerUrl>https://github.com/GeunhwaJeong/haneul/issues</bugTrackerUrl>
+		<tags>haneul</tags>
+		<packageSourceUrl>https://community.chocolatey.org/packages/haneul.portable</packageSourceUrl>
+		<summary>Run a local haneul binary</summary>
+		<description>Haneul is the first internet-scale programmable blockchain platform</description>
+		<releaseNotes>https://github.com/GeunhwaJeong/haneul/releases/tag/mainnet-v$version$</releaseNotes>
+	</metadata>
+	<files>
+		<file src="./target/release/haneul.exe" target="bin/haneul.exe" />
+		<file src="./LICENSE" target="bin/LICENSE.txt" />
+		<file src="./chocolatey/VERIFICATION.txt" target="bin/VERIFICATION.txt" />
+	</files>
+</package>
