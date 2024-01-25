@@ -49,6 +49,8 @@ jobs:
           export haneul_tag=$(echo ${{ env.TAG_NAME }} | sed s/'refs\/tags\/'//)
           [[ "${haneul_tag}" == "main" ]] && echo "tag cannot be equals to 'main'" && exit 1
           echo "haneul_tag=${haneul_tag}" >> $GITHUB_ENV
+          export haneul_version=$(echo ${haneul_tag} | sed s/'mainnet-v'//)
+          echo "haneul_version=${haneul_version}" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         if: ${{ env.TAG_NAME != 'main' }}
@@ -156,6 +158,27 @@ jobs:
           [ -f ./external-crates/move/target/release/move-analyzer.exe ] && mv ./external-crates/move/target/release/move-analyzer.exe ./external-crates/move/target/release/move-analyzer-${os_type}.exe
           tar -cvzf ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./target/release/haneul*-${os_type}* ./external-crates/move/target/release/move-analyzer-${os_type}.exe
           [[ ${{ env.haneul_tag }} == *"mainnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
+
+      - name: "Publish Windows haneul binary to Chocolately"
+        if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' && contains( env.haneul_tag, 'mainnet') }}
+        working-directory: chocolatey
+        shell: bash
+        run: |
+          choco install checksum
+          export haneul_sha=$(checksum -t sha256 ../target/release/haneul.exe)
+
+          cat <<EOF >>VERIFICATION.txt
+          Haneul Binary verification steps
+          1. Go to https://github.com/GeunhwaJeong/haneul/releases/download/${{ env.haneul_tag }}/haneul-${{ env.haneul_tag }}-windows-x86_64.tgz
+          2. Extract haneul-windows-x86_64.exe
+          3. checksum.exe -t sha256 haneul-windows-x86_64.exe: ${haneul_sha}
+
+          File 'LICENSE.txt' is obtained from: https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE
+          EOF
+
+          choco pack --version ${{ env.haneul_version }} configuration=release
+          choco apikey --api-key ${{ secrets.CHOCO_API_KEY }} --source https://push.chocolatey.org/
+          choco push haneul.${{ env.haneul_version }}.nupkg --source https://push.chocolatey.org/
 
       - name: Upload release artifacts for ${{ matrix.os }} platform
         uses: actions/upload-artifact@v3
