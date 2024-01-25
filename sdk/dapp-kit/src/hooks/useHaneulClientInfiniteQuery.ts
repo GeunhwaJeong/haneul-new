@@ -25,7 +25,9 @@ export type HaneulRpcPaginatedMethodName = {
 export type HaneulRpcPaginatedMethods = {
 	[K in HaneulRpcPaginatedMethodName]: HaneulClient[K] extends (
 		input: infer Params,
-	) => Promise<infer Result extends { nextCursor?: infer Cursor | null }>
+	) => Promise<
+		infer Result extends { hasNextPage?: boolean | null; nextCursor?: infer Cursor | null }
+	>
 		? {
 				name: K;
 				result: Result;
@@ -76,6 +78,6 @@ export function useHaneulClientInfiniteQuery<
 				...(params ?? {}),
 				cursor: pageParam,
 			} as never),
-		getNextPageParam: ({ nextCursor }) => nextCursor ?? null,
+		getNextPageParam: (lastPage) => (lastPage.hasNextPage ? lastPage.nextCursor ?? null : null),
 	});
 }
