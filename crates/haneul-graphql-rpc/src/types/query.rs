@@ -13,6 +13,7 @@ use haneul_sdk::HaneulClient;
 use haneul_types::transaction::{TransactionData, TransactionKind};
 use haneul_types::{gas_coin::GAS, transaction::TransactionDataAPI, TypeTag};
 
+use super::haneulns_registration::NameService;
 use super::{
     address::Address,
     available_range::AvailableRange,
@@ -30,7 +31,7 @@ use super::{
     owner::Owner,
     protocol_config::ProtocolConfigs,
     haneul_address::HaneulAddress,
-    haneulns_registration::{Domain, HaneulnsRegistration},
+    haneulns_registration::Domain,
     transaction_block::{self, TransactionBlock, TransactionBlockFilter},
     transaction_metadata::TransactionMetadata,
     type_filter::ExactTypeFilter,
@@ -344,7 +345,7 @@ impl Query {
         ctx: &Context<'_>,
         domain: Domain,
     ) -> Result<Option<Address>> {
-        Ok(HaneulnsRegistration::resolve_to_record(
+        Ok(NameService::resolve_to_record(
             ctx.data_unchecked::<Db>(),
             ctx.data_unchecked::<NameServiceConfig>(),
             &domain,

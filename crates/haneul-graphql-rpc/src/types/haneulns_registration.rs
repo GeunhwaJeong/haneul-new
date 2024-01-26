@@ -31,6 +31,10 @@ use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_fie
 const MOD_REGISTRATION: &IdentStr = ident_str!("haneulns_registration");
 const TYP_REGISTRATION: &IdentStr = ident_str!("HaneulnsRegistration");
 
+/// Represents the "core" of the name service (e.g. the on-chain registry and reverse registry). It
+/// doesn't contain any fields because we look them up based on the `NameServiceConfig`.
+pub(crate) struct NameService;
+
 /// Wrap HaneulNS Domain type to expose as a string scalar in GraphQL.
 #[derive(Debug)]
 pub(crate) struct Domain(NativeDomain);
@@ -296,7 +300,7 @@ impl HaneulnsRegistration {
     }
 }
 
-impl HaneulnsRegistration {
+impl NameService {
     /// Lookup the HaneulNS NameRecord for the given `domain` name. `config` specifies where to find
     /// the domain name registry, and its type.
     pub(crate) async fn resolve_to_record(
@@ -342,7 +346,9 @@ impl HaneulnsRegistration {
 
         Ok(Some(field.value))
     }
+}
 
+impl HaneulnsRegistration {
     /// Query the database for a `page` of HaneulNS registrations. The page uses the same cursor type
     /// as is used for `Object`, and is further filtered to a particular `owner`. `config` specifies
     /// where to find the domain name registry and its type.

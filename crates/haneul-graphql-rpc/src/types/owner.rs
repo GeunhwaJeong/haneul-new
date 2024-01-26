@@ -9,6 +9,7 @@ use super::dynamic_field::DynamicFieldName;
 use super::move_package::MovePackage;
 use super::object::ObjectVersionKey;
 use super::stake::StakedHaneul;
+use super::haneulns_registration::NameService;
 use super::haneulns_registration::HaneulnsRegistration;
 use crate::data::Db;
 use crate::types::balance::{self, Balance};
@@ -358,7 +359,7 @@ impl OwnerImpl {
     }
 
     pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        Ok(HaneulnsRegistration::reverse_resolve_to_name(
+        Ok(NameService::reverse_resolve_to_name(
             ctx.data_unchecked::<Db>(),
             ctx.data_unchecked::<NameServiceConfig>(),
             self.0,
