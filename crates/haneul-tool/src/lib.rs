@@ -18,6 +18,7 @@ use std::time::Duration;
 use std::{fs, io};
 use haneul_config::{genesis::Genesis, NodeConfig};
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
+use haneul_core::in_mem_execution_cache::ExecutionCache;
 use haneul_network::default_haneullabs_network_config;
 use haneul_protocol_config::Chain;
 use haneul_sdk::HaneulClientBuilder;
@@ -659,7 +660,12 @@ fn start_summary_sync(
             &Registry::default(),
         )
         .await?;
-        let state_sync_store = RocksDbStore::new(store, committee_store, checkpoint_store.clone());
+        let state_sync_store = RocksDbStore::new(
+            store.clone(),
+            Arc::new(ExecutionCache::new_with_no_metrics(store)),
+            committee_store,
+            checkpoint_store.clone(),
+        );
         // Only insert the genesis checkpoint if the DB is empty and doesn't have it already
         if checkpoint_store
             .get_checkpoint_by_digest(genesis.checkpoint().digest())
@@ -1232,7 +1238,12 @@ pub async fn state_sync_from_archive(
         .get_highest_synced_checkpoint()?
         .map(|c| c.sequence_number)
         .unwrap_or(0);
-    let state_sync_store = RocksDbStore::new(store, committee_store, checkpoint_store.clone());
+    let state_sync_store = RocksDbStore::new(
+        store.clone(),
+        Arc::new(ExecutionCache::new_with_no_metrics(store)),
+        committee_store,
+        checkpoint_store.clone(),
+    );
     let archive_reader_config = ArchiveReaderConfig {
         remote_store_config,
         download_concurrency: NonZeroUsize::new(concurrency).unwrap(),

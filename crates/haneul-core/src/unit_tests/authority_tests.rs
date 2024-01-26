@@ -42,6 +42,7 @@ use haneul_types::messages_consensus::{ConsensusCommitPrologue, ConsensusCommitP
 use haneul_types::object::Data;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
+use haneul_types::storage::GetSharedLocks;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
@@ -4853,7 +4854,7 @@ async fn test_consensus_message_processed() {
                 .acquire_shared_locks_from_effects(
                     &VerifiedExecutableTransaction::new_from_certificate(certificate.clone()),
                     &effects1,
-                    authority2.db(),
+                    authority2.get_cache_reader().as_ref(),
                 )
                 .await
                 .unwrap();

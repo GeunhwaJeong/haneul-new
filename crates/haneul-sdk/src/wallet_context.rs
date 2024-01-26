@@ -295,6 +295,7 @@ impl WalletContext {
         &self,
         tx: Transaction,
     ) -> HaneulTransactionBlockResponse {
+        tracing::debug!("Executing transaction: {:?}", tx);
         let response = self.execute_transaction_may_fail(tx).await.unwrap();
         assert!(
             response.status_ok().unwrap(),

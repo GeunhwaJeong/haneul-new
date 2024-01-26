@@ -7,7 +7,6 @@ use rand::distributions::Distribution;
 use std::ops::Deref;
 use std::time::{Duration, SystemTime};
 use haneul_config::node::OverloadThresholdConfig;
-use haneul_core::authority::EffectsNotifyRead;
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::{register_fail_point_async, sim_test};
@@ -133,7 +132,7 @@ async fn shared_object_deletion_multiple_times() {
     let fullnode = test_cluster.spawn_new_fullnode().await.haneul_node;
     fullnode
         .state()
-        .db()
+        .get_effects_notify_read()
         .notify_read_executed_effects(digests)
         .await
         .unwrap();
@@ -189,7 +188,7 @@ async fn shared_object_deletion_multiple_times_cert_racing() {
     let fullnode = test_cluster.spawn_new_fullnode().await.haneul_node;
     fullnode
         .state()
-        .db()
+        .get_effects_notify_read()
         .notify_read_executed_effects(digests)
         .await
         .unwrap();
@@ -302,7 +301,7 @@ async fn shared_object_deletion_multi_certs() {
     let fullnode = test_cluster.spawn_new_fullnode().await.haneul_node;
     fullnode
         .state()
-        .db()
+        .get_effects_notify_read()
         .notify_read_executed_effects(vec![inc_tx_a_digest, inc_tx_b_digest])
         .await
         .unwrap();

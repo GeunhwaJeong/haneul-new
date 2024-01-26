@@ -9,7 +9,8 @@ use haneullabs_metrics::spawn_monitored_task;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
-use haneul_core::authority::{AuthorityState, AuthorityStore};
+use haneul_core::authority::AuthorityState;
+use haneul_core::in_mem_execution_cache::ExecutionCacheRead;
 use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc_types::{
     Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
@@ -35,7 +36,7 @@ use haneul_types::messages_checkpoint::{
     VerifiedCheckpoint,
 };
 use haneul_types::object::{Object, ObjectRead, PastObjectRead};
-use haneul_types::storage::WriteKind;
+use haneul_types::storage::{BackingPackageStore, ObjectStore, WriteKind};
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
@@ -87,7 +88,11 @@ pub trait StateRead: Send + Sync {
         limit: usize,
     ) -> StateReadResult<Vec<(ObjectID, DynamicFieldInfo)>>;
 
-    fn get_db(&self) -> Arc<AuthorityStore>;
+    fn get_cache_reader(&self) -> Arc<dyn ExecutionCacheRead>;
+
+    fn get_object_store(&self) -> Arc<dyn ObjectStore>;
+
+    fn get_backing_package_store(&self) -> Arc<dyn BackingPackageStore>;
 
     fn get_owner_objects(
         &self,
@@ -302,8 +307,16 @@ impl StateRead for AuthorityState {
         Ok(self.get_dynamic_fields(owner, cursor, limit)?)
     }
 
-    fn get_db(&self) -> Arc<AuthorityStore> {
-        self.db()
+    fn get_cache_reader(&self) -> Arc<dyn ExecutionCacheRead> {
+        self.get_cache_reader()
+    }
+
+    fn get_object_store(&self) -> Arc<dyn ObjectStore> {
+        self.get_object_store()
+    }
+
+    fn get_backing_package_store(&self) -> Arc<dyn BackingPackageStore> {
+        self.get_backing_package_store()
     }
 
     fn get_owner_objects(
@@ -575,10 +588,10 @@ impl<S: ?Sized + StateRead> ObjectProvider for Arc<S> {
         id: &ObjectID,
         version: &SequenceNumber,
     ) -> Result<Option<Object>, Self::Error> {
-        let database = self.get_db();
+        let cache = self.get_cache_reader();
         let id = *id;
         let version = *version;
-        spawn_monitored_task!(async move { database.find_object_lt_or_eq_version(id, version) })
+        spawn_monitored_task!(async move { cache.find_object_lt_or_eq_version(id, version) })
             .await
             .map_err(StateReadError::from)
     }
@@ -610,10 +623,10 @@ impl<S: ?Sized + StateRead> ObjectProvider for (Arc<S>, Arc<TransactionKeyValueS
         id: &ObjectID,
         version: &SequenceNumber,
     ) -> Result<Option<Object>, Self::Error> {
-        let database = self.0.get_db();
+        let cache = self.0.get_cache_reader();
         let id = *id;
         let version = *version;
-        spawn_monitored_task!(async move { database.find_object_lt_or_eq_version(id, version) })
+        spawn_monitored_task!(async move { cache.find_object_lt_or_eq_version(id, version) })
             .await
             .map_err(StateReadError::from)
     }

@@ -887,7 +887,7 @@ impl ReadApiServer for ReadApi {
                 .into_iter()
                 .enumerate()
                 .map(|(seq, e)| {
-                    let layout = store.executor().type_layout_resolver(Box::new(state.get_db())).get_annotated_layout(&e.type_)?;
+                    let layout = store.executor().type_layout_resolver(Box::new(&state.get_backing_package_store().as_ref())).get_annotated_layout(&e.type_)?;
                     HaneulEvent::try_from(
                         e,
                         *effect.transaction_digest(),
@@ -1070,9 +1070,10 @@ fn to_haneul_transaction_events(
     events: TransactionEvents,
 ) -> Result<HaneulTransactionBlockEvents, Error> {
     let epoch_store = fullnode_api.state.load_epoch_store_one_call_per_task();
+    let backing_package_store = fullnode_api.state.get_backing_package_store();
     let mut layout_resolver = epoch_store
         .executor()
-        .type_layout_resolver(Box::new(fullnode_api.state.get_db()));
+        .type_layout_resolver(Box::new(backing_package_store.as_ref()));
     Ok(HaneulTransactionBlockEvents::try_from(
         events,
         tx_digest,
