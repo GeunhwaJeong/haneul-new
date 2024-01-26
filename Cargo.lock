@@ -2628,6 +2628,7 @@ dependencies = [
  "serde",
  "haneul-protocol-config",
  "tap",
+ "telemetry-subscribers",
  "tempfile",
  "thiserror",
  "tokio",
