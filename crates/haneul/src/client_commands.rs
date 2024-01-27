@@ -42,8 +42,10 @@ use haneul_move_build::{
 };
 use haneul_replay::ReplayToolCommand;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
-use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
+use haneul_sdk::{
+    wallet_context::WalletContext, HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_TESTNET_URL,
+};
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     crypto::{EmptySignInfo, SignatureScheme},
@@ -215,6 +217,19 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         signed_tx_bytes: String,
     },
+
+    /// Request gas coin from faucet. By default, it will use the active address and the active network.
+    #[clap[name = "faucet"]]
+    Faucet {
+        /// Address (or its alias)
+        #[clap(long)]
+        #[arg(value_parser)]
+        address: Option<KeyIdentity>,
+        /// The url to the faucet
+        #[clap(long)]
+        url: Option<String>,
+    },
+
     /// Obtain all gas objects owned by the address.
     /// An address' alias can be used instead of the address.
     #[clap(name = "gas")]
@@ -708,6 +723,11 @@ pub enum HaneulClientCommands {
         #[arg(long, short)]
         terminate_early: bool,
     },
+}
+
+#[derive(serde::Deserialize)]
+struct FaucetResponse {
+    error: Option<String>,
 }
 
 impl HaneulClientCommands {
@@ -1279,6 +1299,29 @@ impl HaneulClientCommands {
                     .map(|(_val, object)| GasCoin::try_from(object).unwrap())
                     .collect();
                 HaneulClientCommandResult::Gas(coins)
+            }
+            HaneulClientCommands::Faucet { address, url } => {
+                let address = get_identity_address(address, context)?;
+                let url = if let Some(url) = url {
+                    url
+                } else {
+                    let active_env = context.config.get_active_env();
+
+                    if let Ok(env) = active_env {
+                        let network = match env.rpc.as_str() {
+                            HANEUL_DEVNET_URL => "https://faucet.devnet.haneul.io/v1/gas",
+                            HANEUL_TESTNET_URL => "https://faucet.testnet.haneul.io/v1/gas",
+                            // TODO when using haneul-test-validator, and 5003 when using haneul start
+                            HANEUL_LOCAL_NETWORK_URL => "http://127.0.0.1:9123/gas",
+                            _ => bail!("Cannot recognize the active network. Please provide the gas faucet full URL.")
+                        };
+                        network.to_string()
+                    } else {
+                        bail!("No URL for faucet was provided and there is no active network.")
+                    }
+                };
+                request_tokens_from_faucet(address, url).await?;
+                HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::ChainIdentifier => {
                 let ci = context
@@ -1862,6 +1905,7 @@ impl Display for HaneulClientCommandResult {
             HaneulClientCommandResult::ReplayTransaction => {}
             HaneulClientCommandResult::ReplayBatch => {}
             HaneulClientCommandResult::ReplayCheckpoints => {}
+            HaneulClientCommandResult::NoOutput => {}
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
@@ -2118,6 +2162,7 @@ pub enum HaneulClientCommandResult {
     MergeCoin(HaneulTransactionBlockResponse),
     NewAddress(NewAddressOutput),
     NewEnv(HaneulEnv),
+    NoOutput,
     Object(HaneulObjectResponse),
     Objects(Vec<HaneulObjectResponse>),
     Pay(HaneulTransactionBlockResponse),
@@ -2166,4 +2211,37 @@ impl Display for SwitchResponse {
         }
         write!(f, "{}", writer)
     }
+}
+
+/// Request tokens from the Faucet for the given address
+pub async fn request_tokens_from_faucet(
+    address: HaneulAddress,
+    url: String,
+) -> Result<(), anyhow::Error> {
+    let address_str = address.to_string();
+    let json_body = json![{
+        "FixedAmountRequest": {
+            "recipient": &address_str
+        }
+    }];
+
+    // make the request to the faucet JSON RPC API for coin
+    let client = reqwest::Client::new();
+    let resp = client
+        .post(&url)
+        .header("Content-Type", "application/json")
+        .json(&json_body)
+        .send()
+        .await?;
+    if resp.status() == 429 {
+        bail!("Faucet received too many requests from this IP address. Please try again after 60 minutes.");
+    }
+    let faucet_resp: FaucetResponse = resp.json().await?;
+
+    if let Some(err) = faucet_resp.error {
+        bail!("Faucet request was unsuccessful: {err}")
+    } else {
+        println!("Request successful. It can take up to 1 minute to get the coin. Run haneul client gas to check your gas coins.");
+    }
+    Ok(())
 }
