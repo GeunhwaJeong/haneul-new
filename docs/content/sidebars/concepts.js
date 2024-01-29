@@ -104,6 +104,7 @@ const concepts = [
 							'concepts/haneul-move-concepts/patterns/app-extensions',
 						],
 					},
+					'concepts/haneul-move-concepts/conventions',
 				],
 			},
 			{
