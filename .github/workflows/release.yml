@@ -49,7 +49,7 @@ jobs:
           export haneul_tag=$(echo ${{ env.TAG_NAME }} | sed s/'refs\/tags\/'//)
           [[ "${haneul_tag}" == "main" ]] && echo "tag cannot be equals to 'main'" && exit 1
           echo "haneul_tag=${haneul_tag}" >> $GITHUB_ENV
-          export haneul_version=$(echo ${haneul_tag} | sed s/'mainnet-v'//)
+          export haneul_version=$(echo ${haneul_tag} | sed -e 's/mainnet-v//' -e 's/testnet-v//')
           echo "haneul_version=${haneul_version}" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
@@ -160,7 +160,7 @@ jobs:
           [[ ${{ env.haneul_tag }} == *"mainnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
 
       - name: "Publish Windows haneul binary to Chocolately"
-        if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' && contains( env.haneul_tag, 'mainnet') }}
+        if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' && contains( env.haneul_tag, 'testnet') }}
         working-directory: chocolatey
         shell: bash
         run: |
