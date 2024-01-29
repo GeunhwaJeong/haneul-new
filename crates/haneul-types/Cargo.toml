@@ -57,6 +57,7 @@ haneul-macros.workspace = true
 haneul-enum-compat-util.workspace = true
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
+fastcrypto-tbls.workspace = true
 fastcrypto-zkp.workspace = true
 
 typed-store-error.workspace = true
