@@ -519,30 +519,32 @@
 >      inactivePoolsSize
 >      validatorCandidatesSize
 >      activeValidators {
->        name
->        description
->        imageUrl
->        projectUrl
->        exchangeRates {
->          storageRebate
->          bcs
->          hasPublicTransfer
+>        nodes {
+>          name
+>          description
+>          imageUrl
+>          projectUrl
+>          exchangeRates {
+>            storageRebate
+>            bcs
+>            hasPublicTransfer
+>          }
+>          exchangeRatesSize
+>          stakingPoolActivationEpoch
+>          stakingPoolHaneulBalance
+>          rewardsPool
+>          poolTokenBalance
+>          pendingStake
+>          pendingTotalHaneulWithdraw
+>          pendingPoolTokenWithdraw
+>          votingPower
+>          gasPrice
+>          commissionRate
+>          nextEpochStake
+>          nextEpochGasPrice
+>          nextEpochCommissionRate
+>          atRisk
 >        }
->        exchangeRatesSize
->        stakingPoolActivationEpoch
->        stakingPoolHaneulBalance
->        rewardsPool
->        poolTokenBalance
->        pendingStake
->        pendingTotalHaneulWithdraw
->        pendingPoolTokenWithdraw
->        votingPower
->        gasPrice
->        commissionRate
->        nextEpochStake
->        nextEpochGasPrice
->        nextEpochCommissionRate
->        atRisk
 >      }
 >    }
 >  }
@@ -1217,9 +1219,11 @@
 >          referenceGasPrice
 >          validatorSet {
 >            activeValidators {
->              name
->              description
->              exchangeRatesSize
+>              nodes {
+>                name
+>                description
+>                exchangeRatesSize
+>              }
 >            }
 >            totalStake
 >          }
