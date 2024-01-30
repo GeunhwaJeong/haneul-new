@@ -47,7 +47,7 @@ use crate::error::{HaneulError, HaneulResult};
 use crate::signature::GenericSignature;
 use crate::haneul_serde::{Readable, HaneulBitmap};
 pub use enum_dispatch::enum_dispatch;
-use fastcrypto::encoding::{Base64, Encoding, Hex};
+use fastcrypto::encoding::{Base64, Bech32, Encoding, Hex};
 use fastcrypto::error::FastCryptoError;
 use fastcrypto::hash::{Blake2b256, HashFunction};
 pub use fastcrypto::traits::Signer;
@@ -75,7 +75,6 @@ pub type AggregateAuthoritySignatureAsBytes = BLS12381AggregateSignatureAsBytes;
 pub type AccountKeyPair = Ed25519KeyPair;
 pub type AccountPublicKey = Ed25519PublicKey;
 pub type AccountPrivateKey = Ed25519PrivateKey;
-pub type AccountSignature = Ed25519Signature;
 
 pub type NetworkKeyPair = Ed25519KeyPair;
 pub type NetworkPublicKey = Ed25519PublicKey;
@@ -84,6 +83,7 @@ pub type NetworkPrivateKey = Ed25519PrivateKey;
 pub type DefaultHash = Blake2b256;
 
 pub const DEFAULT_EPOCH_ID: EpochId = 0;
+pub const HANEUL_PRIV_KEY_PREFIX: &str = "haneulprivkey";
 
 /// Creates a proof of that the authority account address is owned by the
 /// holder of authority protocol key, and also ensures that the authority
@@ -161,18 +161,18 @@ impl Signer<Signature> for HaneulKeyPair {
     }
 }
 
-impl FromStr for HaneulKeyPair {
-    type Err = eyre::Report;
+impl EncodeDecodeBase64 for HaneulKeyPair {
+    fn encode_base64(&self) -> String {
+        Base64::encode(self.to_bytes())
+    }
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let kp = Self::decode_base64(s).map_err(|e| eyre!("{}", e.to_string()))?;
-        Ok(kp)
+    fn decode_base64(value: &str) -> Result<Self, eyre::Report> {
+        let bytes = Base64::decode(value).map_err(|e| eyre!("{}", e.to_string()))?;
+        Self::from_bytes(&bytes)
     }
 }
-
-impl EncodeDecodeBase64 for HaneulKeyPair {
-    /// Encode a HaneulKeyPair as `flag || privkey` in Base64. Note that the pubkey is not encoded.
-    fn encode_base64(&self) -> String {
+impl HaneulKeyPair {
+    pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes: Vec<u8> = Vec::new();
         bytes.push(self.public().flag());
 
@@ -187,12 +187,10 @@ impl EncodeDecodeBase64 for HaneulKeyPair {
                 bytes.extend_from_slice(kp.as_bytes());
             }
         }
-        Base64::encode(&bytes[..])
+        bytes
     }
 
-    /// Decode a HaneulKeyPair from `flag || privkey` in Base64. The public key is computed directly from the private key bytes.
-    fn decode_base64(value: &str) -> Result<Self, eyre::Report> {
-        let bytes = Base64::decode(value).map_err(|e| eyre!("{}", e.to_string()))?;
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, eyre::Report> {
         match SignatureScheme::from_flag_byte(bytes.first().ok_or_else(|| eyre!("Invalid length"))?)
         {
             Ok(x) => match x {
@@ -214,6 +212,16 @@ impl EncodeDecodeBase64 for HaneulKeyPair {
             _ => Err(eyre!("Invalid bytes")),
         }
     }
+    /// Encode a HaneulKeyPair as `flag || privkey` in Bech32 starting with "haneulprivkey" to a string. Note that the pubkey is not encoded.
+    pub fn encode(&self) -> Result<String, eyre::Report> {
+        Bech32::encode(self.to_bytes(), HANEUL_PRIV_KEY_PREFIX)
+    }
+
+    /// Decode a HaneulKeyPair from `flag || privkey` in Bech32 starting with "haneulprivkey" to HaneulKeyPair. The public key is computed directly from the private key bytes.
+    pub fn decode(value: &str) -> Result<Self, eyre::Report> {
+        let bytes = Bech32::decode(value, HANEUL_PRIV_KEY_PREFIX)?;
+        Self::from_bytes(&bytes)
+    }
 }
 
 impl Serialize for HaneulKeyPair {
@@ -233,8 +241,7 @@ impl<'de> Deserialize<'de> for HaneulKeyPair {
     {
         use serde::de::Error;
         let s = String::deserialize(deserializer)?;
-        <HaneulKeyPair as EncodeDecodeBase64>::decode_base64(&s)
-            .map_err(|e| Error::custom(e.to_string()))
+        HaneulKeyPair::decode_base64(&s).map_err(|e| Error::custom(e.to_string()))
     }
 }
 

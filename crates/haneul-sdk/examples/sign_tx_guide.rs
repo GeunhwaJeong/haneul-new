@@ -53,7 +53,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let _skp_rand_1 = HaneulKeyPair::Secp256k1(get_key_pair_from_rng(&mut rand::rngs::OsRng).1);
     let _skp_rand_2 = HaneulKeyPair::Secp256r1(get_key_pair_from_rng(&mut rand::rngs::OsRng).1);
 
-    // import a keypair from a base64 encoded 32-byte `private key`.
+    // import a keypair from a base64 encoded 32-byte `private key` assuming scheme is Ed25519.
     let _skp_import_no_flag_0 = HaneulKeyPair::Ed25519(Ed25519KeyPair::from_bytes(
         &Base64::decode("1GPhHHkVlF6GrCty2IuBkM+tj/e0jn64ksJ1pc8KPoI=")
             .map_err(|_| anyhow!("Invalid base64"))?,
@@ -78,6 +78,21 @@ async fn main() -> Result<(), anyhow::Error> {
     let _skp_import_with_flag_2 =
         HaneulKeyPair::decode_base64("AtRj4Rx5FZRehqwrctiLgZDPrY/3tI5+uJLCdaXPCj6C")
             .map_err(|_| anyhow!("Invalid base64"))?;
+
+    // import a keypair from a Bech32 encoded 33-byte `flag || private key`.
+    // this is the format of a private key exported from Haneul Wallet or haneul.keystore.
+    let _skp_import_with_flag_0 = HaneulKeyPair::decode(
+        "haneulprivkey1qzdlfxn2qa2lj5uprl8pyhexs02sg2wrhdy7qaq50cqgnffw4c247jpzrfw",
+    )
+    .map_err(|_| anyhow!("Invalid Bech32"))?;
+    let _skp_import_with_flag_1 = HaneulKeyPair::decode(
+        "haneulprivkey1qqesr6xhua2dkt840v9yefely578q5ad90znnpmhhgpekfvwtxke647qq6h",
+    )
+    .map_err(|_| anyhow!("Invalid Bech32"))?;
+    let _skp_import_with_flag_2 = HaneulKeyPair::decode(
+        "haneulprivkey1qprzkcs823gcrk7n4hy8pzhntdxakpqk32qwjg9f2wyc3myj78egv8emlxu",
+    )
+    .map_err(|_| anyhow!("Invalid Bech32"))?;
 
     // replace `skp_determ_0` with the variable names above
     let pk = skp_determ_0.public();

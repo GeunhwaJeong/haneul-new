@@ -12,17 +12,17 @@ use std::time::Duration;
 use anyhow::anyhow;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
+use fastcrypto::traits::EncodeDecodeBase64;
 use serde_json::{json, Value};
-use tracing::info;
-use tracing::log::warn;
-
 use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
 use haneul_node::HaneulNode;
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, HaneulKeyPair, ToFromBytes};
+use haneul_types::crypto::{KeypairTraits, HaneulKeyPair, ToFromBytes};
+use tracing::info;
+use tracing::log::warn;
 
 #[derive(Parser)]
 #[clap(name = "haneul-rosetta", rename_all = "kebab-case", author, version)]
@@ -210,7 +210,7 @@ fn read_prefunded_account(path: &Path) -> Result<Vec<PrefundedAccount>, anyhow::
         .iter()
         .map(|kpstr| {
             let key = HaneulKeyPair::decode_base64(kpstr);
-            key.map(|k| (Into::<HaneulAddress>::into(&k.public()), k))
+            key.map(|k| (HaneulAddress::from(&k.public()), k))
         })
         .collect::<Result<BTreeMap<_, _>, _>>()
         .unwrap();
