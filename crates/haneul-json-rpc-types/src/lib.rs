@@ -23,6 +23,7 @@ use haneul_types::dynamic_field::DynamicFieldInfo;
 mod rpc_types_tests;
 
 mod balance_changes;
+mod displays;
 mod object_changes;
 mod haneul_checkpoint;
 mod haneul_coin;
