@@ -43,6 +43,7 @@ haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 haneul-rest-api.workspace = true
 haneul-storage.workspace = true
+haneul-config.workspace = true
 typed-store-derive.workspace = true
 typed-store.workspace = true
 move-binary-format.workspace = true

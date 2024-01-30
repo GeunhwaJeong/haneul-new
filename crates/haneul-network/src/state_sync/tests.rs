@@ -16,7 +16,7 @@ use std::{collections::HashMap, time::Duration};
 use haneul_archival::reader::ArchiveReaderBalancer;
 use haneul_archival::writer::ArchiveWriter;
 use haneul_config::node::ArchiveReaderConfig;
-use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
+use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_storage::{FileCompression, StorageFormat};
 use haneul_swarm_config::test_utils::{empty_contents, CommitteeFixture};
 use haneul_types::{

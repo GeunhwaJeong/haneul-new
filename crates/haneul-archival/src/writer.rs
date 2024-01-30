@@ -20,9 +20,9 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::thread::sleep;
 use std::time::Duration;
+use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_storage::object_store::util::{copy_file, path_to_filesystem};
-use haneul_storage::object_store::ObjectStoreConfig;
 use haneul_storage::{compress, FileCompression, StorageFormat};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary as Checkpoint, CheckpointSequenceNumber,

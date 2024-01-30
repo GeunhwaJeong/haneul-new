@@ -15,10 +15,10 @@ use serde::Serialize;
 use tokio::sync::{mpsc, oneshot};
 use tracing::{error, info};
 
+use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_indexer::framework::Handler;
 use haneul_rest_api::CheckpointData;
 use haneul_storage::object_store::util::{copy_file, path_to_filesystem};
-use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use crate::analytics_metrics::AnalyticsMetrics;

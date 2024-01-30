@@ -23,6 +23,7 @@ futures.workspace = true
 object_store.workspace = true
 prometheus.workspace = true
 haneul-types.workspace = true
+haneul-config.workspace = true
 haneul-core.workspace = true
 haneul-storage.workspace = true
 haneul-protocol-config.workspace = true

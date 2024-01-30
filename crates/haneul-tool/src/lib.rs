@@ -44,6 +44,7 @@ use prometheus::Registry;
 use haneul_archival::reader::{ArchiveReader, ArchiveReaderMetrics};
 use haneul_archival::{verify_archive_with_checksums, verify_archive_with_genesis_config};
 use haneul_config::node::ArchiveReaderConfig;
+use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::AuthorityStore;
 use haneul_core::checkpoints::CheckpointStore;
@@ -52,7 +53,7 @@ use haneul_core::storage::RocksDbStore;
 use haneul_snapshot::reader::StateSnapshotReaderV1;
 use haneul_snapshot::setup_db_state;
 use haneul_storage::object_store::util::{copy_file, exists, get_path};
-use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreGetExt, ObjectStoreType};
+use haneul_storage::object_store::ObjectStoreGetExt;
 use haneul_storage::verify_checkpoint_range;
 use haneul_types::messages_checkpoint::{CheckpointCommitment, ECMHLiveObjectSetDigest};
 use haneul_types::messages_grpc::{

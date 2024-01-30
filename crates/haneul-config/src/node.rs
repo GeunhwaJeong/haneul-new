@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-
 use crate::certificate_deny_config::CertificateDenyConfig;
 use crate::genesis;
+use crate::object_storage_config::ObjectStoreConfig;
 use crate::p2p::P2pConfig;
 use crate::transaction_deny_config::TransactionDenyConfig;
 use crate::Config;
@@ -21,7 +21,6 @@ use std::time::Duration;
 use std::usize;
 use haneul_keys::keypair_file::{read_authority_keypair_from_file, read_keypair_from_file};
 use haneul_protocol_config::{Chain, SupportedProtocolVersions};
-use haneul_storage::object_store::ObjectStoreConfig;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::AuthorityPublicKeyBytes;

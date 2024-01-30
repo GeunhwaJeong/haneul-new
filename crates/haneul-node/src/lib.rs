@@ -49,6 +49,7 @@ use haneul_archival::reader::ArchiveReaderBalancer;
 use haneul_archival::writer::ArchiveWriter;
 use haneul_config::node::{ConsensusProtocol, DBCheckpointConfig, RunWithRange};
 use haneul_config::node_config_metrics::NodeConfigMetrics;
+use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
@@ -99,7 +100,6 @@ use haneul_network::discovery::TrustedPeerChangeEvent;
 use haneul_network::state_sync;
 use haneul_protocol_config::{Chain, ProtocolConfig, SupportedProtocolVersions};
 use haneul_snapshot::uploader::StateSnapshotUploader;
-use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
 use haneul_storage::{
     http_key_value_store::HttpKVStore,
     key_value_store::{FallbackTransactionKVStore, TransactionKeyValueStore},

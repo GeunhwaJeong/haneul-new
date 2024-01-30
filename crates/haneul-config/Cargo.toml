@@ -20,16 +20,15 @@ serde_with.workspace = true
 serde_yaml.workspace = true
 tracing.workspace = true
 prometheus.workspace = true
+clap.workspace = true
+object_store.workspace = true
+reqwest.workspace = true
 
 narwhal-config.workspace = true
 haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
-haneul-storage.workspace = true
 haneul-types.workspace = true
 workspace-hack.workspace = true
-
-[target.'cfg(msim)'.dependencies]
-haneul-simulator.workspace = true
 
 [dev-dependencies]
 insta.workspace = true

@@ -17,12 +17,12 @@ use snowflake_api::{QueryResult, SnowflakeApi};
 use strum_macros::EnumIter;
 use tracing::info;
 
+use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_indexer::framework::Handler;
 use haneul_rest_api::CheckpointData;
 use haneul_storage::object_store::util::{
     find_all_dirs_with_epoch_prefix, find_all_files_with_epoch_prefix,
 };
-use haneul_storage::object_store::ObjectStoreConfig;
 use haneul_types::base_types::EpochId;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 

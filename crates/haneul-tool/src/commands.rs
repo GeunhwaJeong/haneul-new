@@ -22,9 +22,9 @@ use haneul_types::{base_types::*, object::Owner};
 
 use clap::*;
 use fastcrypto::encoding::Encoding;
+use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_config::Config;
 use haneul_core::authority_aggregator::AuthorityAggregatorBuilder;
-use haneul_storage::object_store::{ObjectStoreConfig, ObjectStoreType};
 use haneul_types::messages_checkpoint::{
     CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
