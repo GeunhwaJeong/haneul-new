@@ -142,7 +142,7 @@ jobs:
           [ -f ./target/release/haneul-bridge ] && mv ./target/release/haneul-bridge ./target/release/haneul-bridge-${os_type}
           [ -f ./external-crates/move/target/release/move-analyzer ] && mv ./external-crates/move/target/release/move-analyzer ./external-crates/move/target/release/move-analyzer-${os_type}
           tar -cvzf ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./target/release/haneul*-${os_type}* ./external-crates/move/target/release/move-analyzer-${os_type}
-          [[ ${{ env.haneul_tag }} == *"mainnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
+          [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
 
       - name: Rename binaries for Windows
         if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' }}
@@ -157,7 +157,7 @@ jobs:
           [ -f ./target/release/haneul-data-ingestion.exe ] &&  mv ./target/release/haneul-data-ingestion.exe ./target/release/haneul-data-ingestion-${os_type}.exe
           [ -f ./external-crates/move/target/release/move-analyzer.exe ] && mv ./external-crates/move/target/release/move-analyzer.exe ./external-crates/move/target/release/move-analyzer-${os_type}.exe
           tar -cvzf ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./target/release/haneul*-${os_type}* ./external-crates/move/target/release/move-analyzer-${os_type}.exe
-          [[ ${{ env.haneul_tag }} == *"mainnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
+          [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./target/release/haneul-${{ env.haneul_tag }}-${os_type}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz || true
 
       - name: "Publish Windows haneul binary to Chocolately"
         if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' && contains( env.haneul_tag, 'testnet') }}
