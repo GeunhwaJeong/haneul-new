@@ -148,7 +148,7 @@ jobs:
         if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' }}
         shell: bash
         run: |
-          [ -f ./target/release/haneul.exe ] && mv ./target/release/haneul.exe ./target/release/haneul-${os_type}.exe
+          [ -f ./target/release/haneul.exe ] && cp ./target/release/haneul.exe ./target/release/haneul-${os_type}.exe
           [ -f ./target/release/haneul-node.exe ] && mv ./target/release/haneul-node.exe ./target/release/haneul-node-${os_type}.exe
           [ -f ./target/release/haneul-tool.exe ] && mv ./target/release/haneul-tool.exe ./target/release/haneul-tool-${os_type}.exe
           [ -f ./target/release/haneul-faucet.exe ] && mv ./target/release/haneul-faucet.exe ./target/release/haneul-faucet-${os_type}.exe
@@ -162,6 +162,7 @@ jobs:
       - name: "Publish Windows haneul binary to Chocolately"
         if: ${{ matrix.os == 'windows-ghcloud' && env.s3_archive_exist == '' && contains( env.haneul_tag, 'testnet') }}
         working-directory: chocolatey
+        continue-on-error: true
         shell: bash
         run: |
           choco install checksum
