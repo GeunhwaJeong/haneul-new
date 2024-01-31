@@ -34,8 +34,8 @@ async fn main() {
         Command::GenerateDocsExamples => {
             let mut buf: PathBuf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
             // we are looking to put examples content in
-            // haneul/docs/content/references/haneul-api/graphql/examples.mdx
-            let filename = "docs/content/references/haneul-api/graphql/examples.mdx";
+            // haneul/docs/content/references/haneul-graphql/examples.mdx
+            let filename = "docs/content/references/haneul-graphql/examples.mdx";
             buf.pop();
             buf.pop();
             buf.push(filename);
