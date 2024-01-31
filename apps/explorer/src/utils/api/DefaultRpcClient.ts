@@ -15,7 +15,7 @@ export const NetworkConfigs: Record<Network, { url: string }> = {
 	[Network.LOCAL]: { url: getFullnodeUrl('localnet') },
 	[Network.DEVNET]: { url: 'https://explorer-rpc.devnet.haneul.io:443' },
 	[Network.TESTNET]: { url: 'https://haneul-testnet.haneul-labs.com/json-rpc' },
-	[Network.MAINNET]: { url: 'https://explorer-rpc.mainnet.haneul.io:443' },
+	[Network.MAINNET]: { url: 'https://haneul-mainnet.haneul-labs.com/json-rpc' },
 };
 
 const defaultClientMap: Map<Network | string, HaneulClient> = new Map();
