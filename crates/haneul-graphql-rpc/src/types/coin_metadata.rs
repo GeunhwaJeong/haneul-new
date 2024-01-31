@@ -38,7 +38,7 @@ pub(crate) enum CoinMetadataDowncastError {
 #[Object]
 impl CoinMetadata {
     pub(crate) async fn address(&self) -> HaneulAddress {
-        OwnerImpl(self.super_.super_.address).address().await
+        OwnerImpl::from(&self.super_.super_).address().await
     }
 
     /// Objects owned by this object, optionally `filter`-ed.
@@ -51,7 +51,7 @@ impl CoinMetadata {
         before: Option<object::Cursor>,
         filter: Option<ObjectFilter>,
     ) -> Result<Connection<String, MoveObject>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .objects(ctx, first, after, last, before, filter)
             .await
     }
@@ -63,7 +63,7 @@ impl CoinMetadata {
         ctx: &Context<'_>,
         type_: Option<ExactTypeFilter>,
     ) -> Result<Option<Balance>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .balance(ctx, type_)
             .await
     }
@@ -77,7 +77,7 @@ impl CoinMetadata {
         last: Option<u64>,
         before: Option<balance::Cursor>,
     ) -> Result<Connection<String, Balance>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .balances(ctx, first, after, last, before)
             .await
     }
@@ -94,7 +94,7 @@ impl CoinMetadata {
         before: Option<object::Cursor>,
         type_: Option<ExactTypeFilter>,
     ) -> Result<Connection<String, Coin>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .coins(ctx, first, after, last, before, type_)
             .await
     }
@@ -108,14 +108,14 @@ impl CoinMetadata {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, StakedHaneul>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .staked_haneuls(ctx, first, after, last, before)
             .await
     }
 
     /// The domain explicitly configured as the default domain pointing to this object.
     pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .default_haneulns_name(ctx)
             .await
     }
@@ -130,7 +130,7 @@ impl CoinMetadata {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, HaneulnsRegistration>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .haneulns_registrations(ctx, first, after, last, before)
             .await
     }
@@ -228,8 +228,8 @@ impl CoinMetadata {
         ctx: &Context<'_>,
         name: DynamicFieldName,
     ) -> Result<Option<DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_field(ctx, name)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_field(ctx, name, Some(self.super_.super_.version_impl()))
             .await
     }
 
@@ -245,8 +245,8 @@ impl CoinMetadata {
         ctx: &Context<'_>,
         name: DynamicFieldName,
     ) -> Result<Option<DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_object_field(ctx, name)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_object_field(ctx, name, Some(self.super_.super_.version_impl()))
             .await
     }
 
@@ -262,8 +262,15 @@ impl CoinMetadata {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_fields(ctx, first, after, last, before)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_fields(
+                ctx,
+                first,
+                after,
+                last,
+                before,
+                Some(self.super_.super_.version_impl()),
+            )
             .await
     }
 

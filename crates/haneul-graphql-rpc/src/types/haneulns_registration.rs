@@ -13,7 +13,7 @@ use super::{
     dynamic_field::{DynamicField, DynamicFieldName},
     move_object::{MoveObject, MoveObjectImpl},
     move_value::MoveValue,
-    object::{self, Object, ObjectFilter, ObjectImpl, ObjectOwner, ObjectStatus, ObjectVersionKey},
+    object::{self, Object, ObjectFilter, ObjectImpl, ObjectLookupKey, ObjectOwner, ObjectStatus},
     owner::OwnerImpl,
     stake::StakedHaneul,
     string_input::impl_string_input,
@@ -65,7 +65,7 @@ pub(crate) enum HaneulnsRegistrationDowncastError {
 #[Object]
 impl HaneulnsRegistration {
     pub(crate) async fn address(&self) -> HaneulAddress {
-        OwnerImpl(self.super_.super_.address).address().await
+        OwnerImpl::from(&self.super_.super_).address().await
     }
 
     /// Objects owned by this object, optionally `filter`-ed.
@@ -78,7 +78,7 @@ impl HaneulnsRegistration {
         before: Option<object::Cursor>,
         filter: Option<ObjectFilter>,
     ) -> Result<Connection<String, MoveObject>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .objects(ctx, first, after, last, before, filter)
             .await
     }
@@ -90,7 +90,7 @@ impl HaneulnsRegistration {
         ctx: &Context<'_>,
         type_: Option<ExactTypeFilter>,
     ) -> Result<Option<Balance>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .balance(ctx, type_)
             .await
     }
@@ -104,7 +104,7 @@ impl HaneulnsRegistration {
         last: Option<u64>,
         before: Option<balance::Cursor>,
     ) -> Result<Connection<String, Balance>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .balances(ctx, first, after, last, before)
             .await
     }
@@ -121,7 +121,7 @@ impl HaneulnsRegistration {
         before: Option<object::Cursor>,
         type_: Option<ExactTypeFilter>,
     ) -> Result<Connection<String, Coin>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .coins(ctx, first, after, last, before, type_)
             .await
     }
@@ -135,14 +135,14 @@ impl HaneulnsRegistration {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, StakedHaneul>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .staked_haneuls(ctx, first, after, last, before)
             .await
     }
 
     /// The domain explicitly configured as the default domain pointing to this object.
     pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .default_haneulns_name(ctx)
             .await
     }
@@ -157,7 +157,7 @@ impl HaneulnsRegistration {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, HaneulnsRegistration>> {
-        OwnerImpl(self.super_.super_.address)
+        OwnerImpl::from(&self.super_.super_)
             .haneulns_registrations(ctx, first, after, last, before)
             .await
     }
@@ -255,8 +255,8 @@ impl HaneulnsRegistration {
         ctx: &Context<'_>,
         name: DynamicFieldName,
     ) -> Result<Option<DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_field(ctx, name)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_field(ctx, name, Some(self.super_.super_.version_impl()))
             .await
     }
 
@@ -272,8 +272,8 @@ impl HaneulnsRegistration {
         ctx: &Context<'_>,
         name: DynamicFieldName,
     ) -> Result<Option<DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_object_field(ctx, name)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_object_field(ctx, name, Some(self.super_.super_.version_impl()))
             .await
     }
 
@@ -289,8 +289,15 @@ impl HaneulnsRegistration {
         last: Option<u64>,
         before: Option<object::Cursor>,
     ) -> Result<Connection<String, DynamicField>> {
-        OwnerImpl(self.super_.super_.address)
-            .dynamic_fields(ctx, first, after, last, before)
+        OwnerImpl::from(&self.super_.super_)
+            .dynamic_fields(
+                ctx,
+                first,
+                after,
+                last,
+                before,
+                Some(self.super_.super_.version_impl()),
+            )
             .await
     }
 
@@ -310,8 +317,7 @@ impl NameService {
     ) -> Result<Option<NameRecord>, Error> {
         let record_id = config.record_field_id(&domain.0);
 
-        let Some(object) =
-            MoveObject::query(db, record_id.into(), ObjectVersionKey::Latest).await?
+        let Some(object) = MoveObject::query(db, record_id.into(), ObjectLookupKey::Latest).await?
         else {
             return Ok(None);
         };
@@ -334,7 +340,7 @@ impl NameService {
         let reverse_record_id = config.reverse_record_field_id(address.as_slice());
 
         let Some(object) =
-            MoveObject::query(db, reverse_record_id.into(), ObjectVersionKey::Latest).await?
+            MoveObject::query(db, reverse_record_id.into(), ObjectLookupKey::Latest).await?
         else {
             return Ok(None);
         };
@@ -352,11 +358,17 @@ impl HaneulnsRegistration {
     /// Query the database for a `page` of HaneulNS registrations. The page uses the same cursor type
     /// as is used for `Object`, and is further filtered to a particular `owner`. `config` specifies
     /// where to find the domain name registry and its type.
+    ///
+    /// `checkpoint_viewed_at` represents the checkpoint sequence number at which this page was
+    /// queried for, or `None` if the data was requested at the latest checkpoint. Each entity
+    /// returned in the connection will inherit this checkpoint, so that when viewing that entity's
+    /// state, it will be as if it was read at the same checkpoint.
     pub(crate) async fn paginate(
         db: &Db,
         config: &NameServiceConfig,
         page: Page<object::Cursor>,
         owner: HaneulAddress,
+        checkpoint_viewed_at: Option<u64>,
     ) -> Result<Connection<String, HaneulnsRegistration>, Error> {
         let type_ = HaneulnsRegistration::type_(config.package_address.into());
 
@@ -366,7 +378,7 @@ impl HaneulnsRegistration {
             ..Default::default()
         };
 
-        Object::paginate_subtype(db, page, filter, |object| {
+        Object::paginate_subtype(db, page, filter, checkpoint_viewed_at, |object| {
             let address = object.address;
             let move_object = MoveObject::try_from(&object).map_err(|_| {
                 Error::Internal(format!(
