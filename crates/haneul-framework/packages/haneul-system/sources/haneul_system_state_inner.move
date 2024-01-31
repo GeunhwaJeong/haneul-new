@@ -1050,7 +1050,7 @@ module haneul_system::haneul_system_state_inner {
         validator_set::active_validator_addresses(validator_set)
     }
 
-    #[lint_allow(self_transfer)]
+    #[allow(lint(self_transfer))]
     /// Extract required Balance from vector of Coin<HANEUL>, transfer the remainder back to sender.
     fun extract_coin_balance(coins: vector<Coin<HANEUL>>, amount: option::Option<u64>, ctx: &mut TxContext): Balance<HANEUL> {
         let merged_coin = vector::pop_back(&mut coins);
