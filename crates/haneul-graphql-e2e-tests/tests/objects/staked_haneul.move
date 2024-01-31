@@ -49,6 +49,7 @@
         asMoveObject {
           asStakedHaneul {
             principal
+            poolId
           }
         }
       }

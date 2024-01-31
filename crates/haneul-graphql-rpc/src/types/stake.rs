@@ -309,6 +309,11 @@ impl StakedHaneul {
             .extend()
     }
 
+    /// The object id of the validator staking pool this stake belongs to.
+    async fn pool_id(&self) -> Option<HaneulAddress> {
+        Some(self.native.pool_id().into())
+    }
+
     /// The HANEUL that was initially staked.
     async fn principal(&self) -> Option<BigInt> {
         Some(BigInt::from(self.native.principal()))
