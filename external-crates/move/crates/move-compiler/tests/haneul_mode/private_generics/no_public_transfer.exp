@@ -30,9 +30,3 @@ error[Haneul E02009]: invalid private transfer call
 21 │         transfer::receive(p, s)
    │         ^^^^^^^^^^^^^^^^^^^^^^^ Invalid private transfer. The function 'haneul::transfer::receive' is restricted to being called in the object's module, 'a::other'
 
-error[Haneul E02010]: Non-supported call
-   ┌─ tests/haneul_mode/private_generics/no_public_transfer.move:25:9
-   │
-25 │         transfer::receiving_object_id(s);
-   │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Calling 'receiving_object_id' is not supported at this time
-
