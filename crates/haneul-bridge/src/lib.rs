@@ -27,6 +27,7 @@ pub(crate) mod haneul_mock_client;
 #[cfg(test)]
 pub(crate) mod test_utils;
 
+// TODO: can we log the error very time it gets retried?
 #[macro_export]
 macro_rules! retry_with_max_delay {
     ($func:expr, $max_delay:expr) => {{
