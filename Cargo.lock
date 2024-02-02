@@ -11730,6 +11730,7 @@ dependencies = [
  "haneul-rest-api",
  "haneul-storage",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "tempfile",
  "thiserror",
