@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
-use haneul_types::digests::TransactionDigest;
 use haneul_types::Identifier;
 
+use haneul_types::event::EventID;
 use typed_store::rocks::{DBMap, MetricConf};
 use typed_store::traits::TableSummary;
 use typed_store::traits::TypedStoreDebug;
@@ -20,9 +20,9 @@ use crate::types::{BridgeAction, BridgeActionDigest};
 pub struct BridgeOrchestratorTables {
     /// pending BridgeActions that orchestrator received but not yet executed
     pub(crate) pending_actions: DBMap<BridgeActionDigest, BridgeAction>,
-    /// module identifier to starting transaction digest
-    pub(crate) haneul_syncer_cursors: DBMap<Identifier, TransactionDigest>,
-    /// contract address to starting block
+    /// module identifier to the last processed EventID
+    pub(crate) haneul_syncer_cursors: DBMap<Identifier, EventID>,
+    /// contract address to the last processed block
     pub(crate) eth_syncer_cursors: DBMap<ethers::types::Address, u64>,
 }
 
@@ -71,7 +71,7 @@ impl BridgeOrchestratorTables {
     pub(crate) fn update_haneul_event_cursor(
         &self,
         module: Identifier,
-        cursor: TransactionDigest,
+        cursor: EventID,
     ) -> BridgeResult<()> {
         let mut batch = self.haneul_syncer_cursors.batch();
 
@@ -117,7 +117,7 @@ impl BridgeOrchestratorTables {
     pub fn get_haneul_event_cursors(
         &self,
         identifiers: &[Identifier],
-    ) -> BridgeResult<Vec<Option<TransactionDigest>>> {
+    ) -> BridgeResult<Vec<Option<EventID>>> {
         self.haneul_syncer_cursors.multi_get(identifiers).map_err(|e| {
             BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
         })
@@ -138,6 +138,8 @@ impl BridgeOrchestratorTables {
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;
+
+    use haneul_types::digests::TransactionDigest;
 
     use crate::test_utils::get_test_haneul_to_eth_bridge_action;
 
@@ -217,7 +219,10 @@ mod tests {
 
         // update haneul event cursor
         let haneul_module = Identifier::from_str("test").unwrap();
-        let haneul_cursor = TransactionDigest::random();
+        let haneul_cursor = EventID {
+            tx_digest: TransactionDigest::random(),
+            event_seq: 1,
+        };
         assert!(store.get_haneul_event_cursors(&[haneul_module.clone()]).unwrap()[0].is_none());
         store
             .update_haneul_event_cursor(haneul_module.clone(), haneul_cursor)

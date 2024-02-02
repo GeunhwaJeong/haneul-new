@@ -112,16 +112,18 @@ async fn start_client_components(
         .zip(stored_module_cursors)
     {
         if client_config
-            .haneul_bridge_modules_start_tx_override
+            .haneul_bridge_modules_last_processed_event_id_override
             .contains_key(module)
         {
             haneul_modules_to_watch.insert(
                 module.clone(),
-                client_config.haneul_bridge_modules_start_tx_override[module],
+                client_config.haneul_bridge_modules_last_processed_event_id_override[module],
             );
             info!(
-                "Overriding cursor for haneul bridge module {} to {}. Stored cursor: {:?}",
-                module, client_config.haneul_bridge_modules_start_tx_override[module], cursor
+                "Overriding cursor for haneul bridge module {} to {:?}. Stored cursor: {:?}",
+                module,
+                client_config.haneul_bridge_modules_last_processed_event_id_override[module],
+                cursor
             );
         } else if let Some(cursor) = cursor {
             haneul_modules_to_watch.insert(module.clone(), cursor);

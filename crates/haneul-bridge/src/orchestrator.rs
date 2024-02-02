@@ -15,6 +15,7 @@ use crate::events::HaneulBridgeEvent;
 use crate::storage::BridgeOrchestratorTables;
 use crate::haneul_client::{HaneulClient, HaneulClientInner};
 use crate::types::EthLog;
+use ethers::types::Address as EthAddress;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use std::sync::Arc;
 use haneul_json_rpc_types::HaneulEvent;
@@ -25,7 +26,7 @@ use tracing::{info, warn};
 pub struct BridgeOrchestrator<C> {
     _haneul_client: Arc<HaneulClient<C>>,
     haneul_events_rx: haneullabs_metrics::metered_channel::Receiver<(Identifier, Vec<HaneulEvent>)>,
-    eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(ethers::types::Address, Vec<EthLog>)>,
+    eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
     store: Arc<BridgeOrchestratorTables>,
 }
 
@@ -36,10 +37,7 @@ where
     pub fn new(
         haneul_client: Arc<HaneulClient<C>>,
         haneul_events_rx: haneullabs_metrics::metered_channel::Receiver<(Identifier, Vec<HaneulEvent>)>,
-        eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(
-            ethers::types::Address,
-            Vec<EthLog>,
-        )>,
+        eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
         store: Arc<BridgeOrchestratorTables>,
     ) -> Self {
         Self {
@@ -127,7 +125,7 @@ where
             }
 
             // Unwrap safe: in the beginning of the loop we checked that events is not empty
-            let cursor = events.last().unwrap().id.tx_digest;
+            let cursor = events.last().unwrap().id;
             store
                 .update_haneul_event_cursor(identifier, cursor)
                 .expect("Store operation should not fail");
@@ -140,12 +138,16 @@ where
         executor_tx: haneullabs_metrics::metered_channel::Sender<BridgeActionExecutionWrapper>,
         mut eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(
             ethers::types::Address,
+            u64,
             Vec<EthLog>,
         )>,
     ) {
         info!("Starting eth watcher task");
-        while let Some((contract, logs)) = eth_events_rx.recv().await {
+        while let Some((contract, end_block, logs)) = eth_events_rx.recv().await {
             if logs.is_empty() {
+                store
+                    .update_eth_event_cursor(contract, end_block)
+                    .expect("Store operation should not fail");
                 continue;
             }
 
@@ -185,10 +187,8 @@ where
                 }
             }
 
-            // Unwrap safe: in the beginning of the loop we checked that events is not empty
-            let cursor = logs.last().unwrap().block_number;
             store
-                .update_eth_event_cursor(contract, cursor)
+                .update_eth_event_cursor(contract, end_block)
                 .expect("Store operation should not fail");
         }
         panic!("Eth event channel was closed");
@@ -250,7 +250,7 @@ mod tests {
             assert_eq!(action, &bridge_action);
             assert_eq!(
                 store.get_haneul_event_cursors(&[identifier]).unwrap()[0].unwrap(),
-                haneul_event.id.tx_digest,
+                haneul_event.id,
             );
             break;
         }
@@ -276,15 +276,17 @@ mod tests {
         let address = EthAddress::random();
         let (log, bridge_action) = get_test_log_and_action(address, TxHash::random(), 10);
         let log_index_in_tx = 10;
+        let log_block_num = log.block_number.unwrap().as_u64();
         let eth_log = EthLog {
             log: log.clone(),
             tx_hash: log.transaction_hash.unwrap(),
-            block_number: log.block_number.unwrap().as_u64(),
+            block_number: log_block_num,
             log_index_in_tx,
         };
+        let end_block_num = log_block_num + 15;
 
         eth_events_tx
-            .send((address, vec![eth_log.clone()]))
+            .send((address, end_block_num, vec![eth_log.clone()]))
             .await
             .unwrap();
 
@@ -308,7 +310,7 @@ mod tests {
             assert_eq!(action, &bridge_action);
             assert_eq!(
                 store.get_eth_event_cursors(&[address]).unwrap()[0].unwrap(),
-                log.block_number.unwrap().as_u64()
+                end_block_num,
             );
             break;
         }
@@ -318,8 +320,8 @@ mod tests {
     fn setup() -> (
         haneullabs_metrics::metered_channel::Sender<(Identifier, Vec<HaneulEvent>)>,
         haneullabs_metrics::metered_channel::Receiver<(Identifier, Vec<HaneulEvent>)>,
-        haneullabs_metrics::metered_channel::Sender<(ethers::types::Address, Vec<EthLog>)>,
-        haneullabs_metrics::metered_channel::Receiver<(ethers::types::Address, Vec<EthLog>)>,
+        haneullabs_metrics::metered_channel::Sender<(EthAddress, u64, Vec<EthLog>)>,
+        haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
         HaneulClient<HaneulMockClient>,
         Arc<BridgeOrchestratorTables>,
     ) {

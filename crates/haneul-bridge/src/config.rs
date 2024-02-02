@@ -18,7 +18,7 @@ use haneul_sdk::HaneulClient as HaneulSdkClient;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::HaneulKeyPair;
-use haneul_types::digests::TransactionDigest;
+use haneul_types::event::EventID;
 use haneul_types::object::Owner;
 use haneul_types::Identifier;
 use tracing::info;
@@ -54,12 +54,19 @@ pub struct BridgeNodeConfig {
     pub db_path: Option<PathBuf>,
     /// The haneul modules of bridge packages for client to watch for. Need to contain at least one item when `run_client` is true.
     pub haneul_bridge_modules: Option<Vec<String>>,
+    // TODO: we need to hardcode the starting blocks for eth networks for cold start.
     /// Override the start block number for each eth address. Key must be in `eth_addresses`.
-    /// When set, EthSyncer will start from this block number instead of the one in storage.
+    /// When set, EthSyncer will start from this block number (inclusively) instead of the one in storage.
+    /// Key: eth address, Value:  block number to start from
+    /// Note: This field should be rarely used. Only use it when you understand how to follow up.
     pub eth_bridge_contracts_start_block_override: Option<BTreeMap<String, u64>>,
-    /// Override the start transaction digest for each bridge module. Key must be in `haneul_bridge_modules`.
-    /// When set, HaneulSyncer will start from this transaction digest instead of the one in storage.
-    pub haneul_bridge_modules_start_tx_override: Option<BTreeMap<String, String>>,
+    /// Override the last processed EventID for each bridge module. Key must be in `haneul_bridge_modules`.
+    /// When set, HaneulSyncer will start from this cursor (exclusively) instead of the one in storage.
+    /// Key: haneul module, Value: last processed EventID (tx_digest, event_seq).
+    /// Note 1: This field should be rarely used. Only use it when you understand how to follow up.
+    /// Note 2: the EventID needs to be valid, namely it must exist and matches the filter.
+    /// Otherwise, it will miss one event because of how EventID cursor works.
+    pub haneul_bridge_modules_last_processed_event_id_override: Option<BTreeMap<String, EventID>>,
 }
 
 impl Config for BridgeNodeConfig {}
@@ -158,14 +165,13 @@ impl BridgeNodeConfig {
             }
         };
 
-        let mut haneul_bridge_modules_start_tx_override = BTreeMap::new();
-        match &self.haneul_bridge_modules_start_tx_override {
+        let mut haneul_bridge_modules_last_processed_event_id_override = BTreeMap::new();
+        match &self.haneul_bridge_modules_last_processed_event_id_override {
             Some(overrides) => {
-                for (module, tx_digest) in overrides {
+                for (module, cursor) in overrides {
                     let module = Identifier::from_str(module)?;
                     if haneul_bridge_modules.contains(&module) {
-                        let tx_digest = TransactionDigest::from_str(tx_digest)?;
-                        haneul_bridge_modules_start_tx_override.insert(module, tx_digest);
+                        haneul_bridge_modules_last_processed_event_id_override.insert(module, *cursor);
                     } else {
                         return Err(anyhow!(
                             "Override start tx digest for module {:?} is not in `haneul_bridge_modules`",
@@ -199,7 +205,7 @@ impl BridgeNodeConfig {
             eth_bridge_contracts,
             haneul_bridge_modules,
             eth_bridge_contracts_start_block_override,
-            haneul_bridge_modules_start_tx_override,
+            haneul_bridge_modules_last_processed_event_id_override,
         };
 
         Ok((bridge_server_config, Some(bridge_client_config)))
@@ -226,7 +232,7 @@ pub struct BridgeClientConfig {
     pub eth_bridge_contracts: Vec<EthAddress>,
     pub haneul_bridge_modules: Vec<Identifier>,
     pub eth_bridge_contracts_start_block_override: BTreeMap<EthAddress, u64>,
-    pub haneul_bridge_modules_start_tx_override: BTreeMap<Identifier, TransactionDigest>,
+    pub haneul_bridge_modules_last_processed_event_id_override: BTreeMap<Identifier, EventID>,
 }
 
 /// Read Bridge Authority key (Secp256k1KeyPair) from a file.
