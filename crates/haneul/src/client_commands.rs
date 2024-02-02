@@ -757,8 +757,8 @@ impl HaneulClientCommands {
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
-
-                HaneulClientCommandResult::ProfileTransaction
+                // this will be displayed via trace info, so no output is needed here
+                HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::ReplayTransaction {
                 tx_digest,
@@ -776,7 +776,8 @@ impl HaneulClientCommands {
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
-                HaneulClientCommandResult::ReplayTransaction
+                // this will be displayed via trace info, so no output is needed here
+                HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::ReplayBatch {
                 path,
@@ -790,7 +791,8 @@ impl HaneulClientCommands {
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
-                HaneulClientCommandResult::ReplayBatch
+                // this will be displayed via trace info, so no output is needed here
+                HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::ReplayCheckpoints {
                 start,
@@ -806,7 +808,8 @@ impl HaneulClientCommands {
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
-                HaneulClientCommandResult::ReplayCheckpoints
+                // this will be displayed via trace info, so no output is needed here
+                HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::Addresses { sort_by_alias } => {
                 let active_address = context.active_address()?;
@@ -1905,10 +1908,6 @@ impl Display for HaneulClientCommandResult {
                 table.with(tabled::settings::style::BorderSpanCorrection);
                 writeln!(f, "{}", table)?;
             }
-            HaneulClientCommandResult::ProfileTransaction => {}
-            HaneulClientCommandResult::ReplayTransaction => {}
-            HaneulClientCommandResult::ReplayBatch => {}
-            HaneulClientCommandResult::ReplayCheckpoints => {}
             HaneulClientCommandResult::NoOutput => {}
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
@@ -2183,10 +2182,6 @@ pub enum HaneulClientCommandResult {
         used_module_ticks: u128,
     },
     VerifySource,
-    ProfileTransaction,
-    ReplayTransaction,
-    ReplayBatch,
-    ReplayCheckpoints,
 }
 
 #[derive(Serialize, Clone)]
