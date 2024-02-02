@@ -5,6 +5,7 @@
 #![allow(unused)]
 
 use std::str::from_utf8;
+use std::str::FromStr;
 use std::time::Duration;
 
 use anyhow::anyhow;
@@ -22,13 +23,17 @@ use haneul_json_rpc_types::{
 };
 use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
 use haneul_types::base_types::ObjectRef;
+use haneul_types::collection_types::LinkedTableNode;
 use haneul_types::crypto::get_key_pair;
+use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::dynamic_field::Field;
+use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::error::UserInputError;
 use haneul_types::event;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::{Object, Owner};
 use haneul_types::transaction::Transaction;
+use haneul_types::TypeTag;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     digests::TransactionDigest,
@@ -42,6 +47,11 @@ use crate::crypto::BridgeAuthorityPublicKey;
 use crate::error::{BridgeError, BridgeResult};
 use crate::events::HaneulBridgeEvent;
 use crate::haneul_transaction_builder::get_bridge_package_id;
+use crate::types::BridgeActionStatus;
+use crate::types::BridgeInnerDynamicField;
+use crate::types::BridgeRecordDyanmicField;
+use crate::types::MoveTypeBridgeMessageKey;
+use crate::types::MoveTypeBridgeRecord;
 use crate::types::{
     BridgeAction, BridgeAuthority, BridgeCommittee, MoveTypeBridgeCommittee, MoveTypeBridgeInner,
     MoveTypeCommitteeMember,
@@ -58,6 +68,18 @@ fn get_bridge_object_id() -> &'static ObjectID {
             std::env::var("BRIDGE_OBJECT_ID").expect("Expect BRIDGE_OBJECT_ID env var set");
         ObjectID::from_hex_literal(&bridge_object_id)
             .expect("BRIDGE_OBJECT_ID must be a valid hex string")
+    })
+}
+
+// object id of BridgeRecord, this is wrapped in the bridge inner object.
+// TODO: once we have bridge package on haneul framework, we can hardcode the actual id.
+fn get_bridge_record_id() -> &'static ObjectID {
+    static BRIDGE_RECORD_ID: OnceCell<ObjectID> = OnceCell::new();
+    BRIDGE_RECORD_ID.get_or_init(|| {
+        let bridge_record_id =
+            std::env::var("BRIDGE_RECORD_ID").expect("Expect BRIDGE_RECORD_ID env var set");
+        ObjectID::from_hex_literal(&bridge_record_id)
+            .expect("BRIDGE_RECORD_ID must be a valid hex string")
     })
 }
 
@@ -219,6 +241,11 @@ pub trait HaneulClientInner: Send + Sync {
         tx: Transaction,
     ) -> Result<HaneulTransactionBlockResponse, BridgeError>;
 
+    async fn get_action_onchain_status(
+        &self,
+        action: &BridgeAction,
+    ) -> Result<BridgeActionStatus, BridgeError>;
+
     async fn get_gas_data_panic_if_not_gas(
         &self,
         gas_object_id: ObjectID,
@@ -256,28 +283,71 @@ impl HaneulClientInner for HaneulSdkClient {
             .await
     }
 
+    // TODO: Add a test for this
     async fn get_bridge_committee(&self) -> Result<MoveTypeBridgeCommittee, Self::Error> {
         let object_id = *get_bridge_object_id();
-        let resp = self
-            .read_api()
-            .get_object_with_options(object_id, HaneulObjectDataOptions::default().with_bcs())
-            .await?;
-        if resp.error.is_some() {
-            return Err(Self::Error::DataError(format!(
-                "Can't get bridge object {:?}: {:?}",
-                object_id, resp.error
-            )));
-        }
-        let move_object = resp
-            .data
-            .unwrap() // unwrap: Bridge object must exist
-            .bcs
-            .unwrap(); // unwrap requested bcs data
-                       // unwrap: Bridge object must be a Move object
-        let bcs = move_object.try_as_move().unwrap();
-        let bridge_dynamic_field: Field<u64, MoveTypeBridgeInner> =
-            bcs::from_bytes(&bcs.bcs_bytes)?;
+        let bcs_bytes = self.read_api().get_move_object_bcs(object_id).await?;
+        let bridge_dynamic_field: BridgeInnerDynamicField = bcs::from_bytes(&bcs_bytes)?;
         Ok(bridge_dynamic_field.value.committee)
+    }
+
+    async fn get_action_onchain_status(
+        &self,
+        action: &BridgeAction,
+    ) -> Result<BridgeActionStatus, BridgeError> {
+        let package_id = *get_bridge_package_id();
+        let key = serde_json::json!(
+            {
+                // u64 is represented as string
+                "bridge_seq_num": action.seq_number().to_string(),
+                "message_type": action.action_type() as u8,
+                "source_chain": action.source_chain_id() as u8,
+            }
+        );
+        let status_object_id = match self
+            .read_api()
+            .get_dynamic_field_object(
+                *get_bridge_record_id(),
+                DynamicFieldName {
+                    type_: TypeTag::from_str(&format!(
+                        "{:?}::message::BridgeMessageKey",
+                        package_id
+                    ))
+                    .unwrap(),
+                    value: key.clone(),
+                },
+            )
+            .await?
+            .into_object()
+        {
+            Ok(object) => object.object_id,
+            Err(HaneulObjectResponseError::DynamicFieldNotFound { .. }) => {
+                return Ok(BridgeActionStatus::RecordNotFound)
+            }
+            other => {
+                return Err(BridgeError::Generic(format!(
+                    "Can't get bridge action record dynamic field {:?}: {:?}",
+                    key, other
+                )))
+            }
+        };
+
+        // get_dynamic_field_object does not return bcs, so we have to issue anothe query
+        let bcs_bytes = self
+            .read_api()
+            .get_move_object_bcs(status_object_id)
+            .await?;
+        let status_object: BridgeRecordDyanmicField = bcs::from_bytes(&bcs_bytes)?;
+
+        if status_object.value.value.claimed {
+            return Ok(BridgeActionStatus::Claimed);
+        }
+
+        if status_object.value.value.verified_signatures.is_some() {
+            return Ok(BridgeActionStatus::Approved);
+        }
+
+        return Ok(BridgeActionStatus::Pending);
     }
 
     async fn execute_transaction_block_with_effects(
@@ -328,14 +398,23 @@ mod tests {
     use crate::{
         events::{EmittedHaneulToEthTokenBridgeV1, MoveTokenBridgeEvent},
         haneul_mock_client::HaneulMockClient,
+        test_utils::{
+            bridge_token, get_test_haneul_to_eth_bridge_action, mint_tokens, publish_bridge_package,
+            transfer_treasury_cap,
+        },
         types::{BridgeActionType, BridgeChainId, HaneulToEthBridgeAction, TokenId},
     };
-    use ethers::types::{
-        Address, Block, BlockNumber, Filter, FilterBlockOption, Log, ValueOrArray, U64,
+    use ethers::{
+        abi::Token,
+        types::{
+            Address as EthAddress, Block, BlockNumber, Filter, FilterBlockOption, Log,
+            ValueOrArray, U64,
+        },
     };
     use move_core_types::account_address::AccountAddress;
     use prometheus::Registry;
     use std::{collections::HashSet, str::FromStr};
+    use test_cluster::TestClusterBuilder;
 
     use super::*;
     use crate::events::{init_all_struct_tags, HaneulToEthTokenBridgeV1};
@@ -456,5 +535,63 @@ mod tests {
             .get_bridge_action_by_tx_digest_and_event_idx_maybe(&tx_digest, 2)
             .await
             .unwrap_err();
+    }
+
+    #[tokio::test]
+    async fn test_get_action_onchain_status_for_haneul_to_eth_transfer() {
+        let mut test_cluster = TestClusterBuilder::new().build().await;
+        let context = &mut test_cluster.wallet;
+        let sender = context.active_address().unwrap();
+
+        let treasury_caps = publish_bridge_package(context).await;
+        let haneul_client = HaneulClient::new(&test_cluster.fullnode_handle.rpc_url)
+            .await
+            .unwrap();
+
+        let action = get_test_haneul_to_eth_bridge_action(None, None, None, None);
+
+        let status = haneul_client
+            .inner
+            .get_action_onchain_status(&action)
+            .await
+            .unwrap();
+        assert_eq!(status, BridgeActionStatus::RecordNotFound);
+
+        // mint 1000 USDC
+        let amount = 1_000_000_000u64;
+        let (treasury_cap_obj_ref, usdc_coin_obj_ref) = mint_tokens(
+            context,
+            treasury_caps[&TokenId::USDC],
+            amount,
+            TokenId::USDC,
+        )
+        .await;
+
+        transfer_treasury_cap(context, treasury_cap_obj_ref, TokenId::USDC).await;
+
+        let recv_address = EthAddress::random();
+        let bridge_event =
+            bridge_token(context, recv_address, usdc_coin_obj_ref, TokenId::USDC).await;
+        assert_eq!(bridge_event.nonce, 0);
+        assert_eq!(bridge_event.haneul_chain_id, BridgeChainId::HaneulLocalTest);
+        assert_eq!(bridge_event.eth_chain_id, BridgeChainId::EthLocalTest);
+        assert_eq!(bridge_event.eth_address, recv_address);
+        assert_eq!(bridge_event.haneul_address, sender);
+        assert_eq!(bridge_event.token_id, TokenId::USDC);
+        assert_eq!(bridge_event.amount, amount);
+
+        let status = haneul_client
+            .inner
+            .get_action_onchain_status(&action)
+            .await
+            .unwrap();
+        assert_eq!(status, BridgeActionStatus::Pending);
+
+        // TODO: run bridge committee and approve the action, then assert status is Approved
+    }
+
+    #[tokio::test]
+    async fn test_get_action_onchain_status_for_eth_to_haneul_transfer() {
+        // TODO: init an eth -> haneul transfer, run bridge committee, approve the action, then assert status is Approved/Claimed
     }
 }

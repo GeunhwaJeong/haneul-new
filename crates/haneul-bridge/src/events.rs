@@ -83,7 +83,10 @@ impl TryFrom<MoveTokenBridgeEvent> for EmittedHaneulToEthTokenBridgeV1 {
         })?;
 
         match haneul_chain_id {
-            BridgeChainId::HaneulMainnet | BridgeChainId::HaneulTestnet | BridgeChainId::HaneulDevnet => {}
+            BridgeChainId::HaneulMainnet
+            | BridgeChainId::HaneulTestnet
+            | BridgeChainId::HaneulDevnet
+            | BridgeChainId::HaneulLocalTest => {}
             _ => {
                 return Err(BridgeError::Generic(format!(
                     "Failed to convert MoveTokenBridgeEvent to EmittedHaneulToEthTokenBridgeV1. Invalid source chain {}",
@@ -92,7 +95,8 @@ impl TryFrom<MoveTokenBridgeEvent> for EmittedHaneulToEthTokenBridgeV1 {
             }
         }
         match eth_chain_id {
-            BridgeChainId::EthMainnet | BridgeChainId::EthSepolia => {}
+            BridgeChainId::EthMainnet | BridgeChainId::EthSepolia | BridgeChainId::EthLocalTest => {
+            }
             _ => {
                 return Err(BridgeError::Generic(format!(
                     "Failed to convert MoveTokenBridgeEvent to EmittedHaneulToEthTokenBridgeV1. Invalid target chain {}",

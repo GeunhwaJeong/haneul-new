@@ -19,7 +19,7 @@ use haneul_types::transaction::Transaction;
 use haneul_types::Identifier;
 
 use crate::haneul_client::HaneulClientInner;
-use crate::types::MoveTypeBridgeCommittee;
+use crate::types::{BridgeAction, BridgeActionStatus, MoveTypeBridgeCommittee};
 
 /// Mock client used in test environments.
 #[allow(clippy::type_complexity)]
@@ -161,6 +161,13 @@ impl HaneulClientInner for HaneulMockClient {
     }
 
     async fn get_bridge_committee(&self) -> Result<MoveTypeBridgeCommittee, Self::Error> {
+        unimplemented!()
+    }
+
+    async fn get_action_onchain_status(
+        &self,
+        _action: &BridgeAction,
+    ) -> Result<BridgeActionStatus, BridgeError> {
         unimplemented!()
     }
 

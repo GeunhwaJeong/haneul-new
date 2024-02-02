@@ -9,9 +9,11 @@ module bridge::chain_ids {
     const HaneulMainnet: u8 = 0;
     const HaneulTestnet: u8 = 1;
     const HaneulDevnet: u8 = 2;
+    const HaneulLocalTest: u8 = 3;
 
     const EthMainnet: u8 = 10;
     const EthSepolia: u8 = 11;
+    const EthLocalTest: u8 = 12;
 
     struct BridgeRoute has drop {
         source: u8,
@@ -30,6 +32,10 @@ module bridge::chain_ids {
         HaneulDevnet
     }
 
+    public fun haneul_local_test(): u8 {
+        HaneulLocalTest
+    }
+
     public fun eth_mainnet(): u8 {
         EthMainnet
     }
@@ -38,14 +44,20 @@ module bridge::chain_ids {
         EthSepolia
     }
 
+    public fun eth_local_test(): u8 {
+        EthLocalTest
+    }
+
     public fun valid_routes(): vector<BridgeRoute> {
         vector[
             BridgeRoute { source: HaneulMainnet, destination: EthMainnet },
             BridgeRoute { source: HaneulDevnet, destination: EthSepolia },
             BridgeRoute { source: HaneulTestnet, destination: EthSepolia },
+            BridgeRoute { source: HaneulLocalTest, destination: EthLocalTest },
             BridgeRoute { source: EthMainnet, destination: HaneulMainnet },
             BridgeRoute { source: EthSepolia, destination: HaneulDevnet },
-            BridgeRoute { source: EthSepolia, destination: HaneulTestnet }]
+            BridgeRoute { source: EthSepolia, destination: HaneulTestnet },
+            BridgeRoute { source: EthLocalTest, destination: HaneulLocalTest }]
     }
 
     public fun is_valid_route(source: u8, destination: u8): bool {

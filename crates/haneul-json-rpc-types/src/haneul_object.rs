@@ -692,6 +692,7 @@ pub trait HaneulData: Sized {
         -> Result<Self, anyhow::Error>;
     fn try_from_package(package: MovePackage) -> Result<Self, anyhow::Error>;
     fn try_as_move(&self) -> Option<&Self::ObjectType>;
+    fn try_into_move(self) -> Option<Self::ObjectType>;
     fn try_as_package(&self) -> Option<&Self::PackageType>;
     fn type_(&self) -> Option<&StructTag>;
 }
@@ -717,6 +718,13 @@ impl HaneulData for HaneulRawData {
     }
 
     fn try_as_move(&self) -> Option<&Self::ObjectType> {
+        match self {
+            Self::MoveObject(o) => Some(o),
+            Self::Package(_) => None,
+        }
+    }
+
+    fn try_into_move(self) -> Option<Self::ObjectType> {
         match self {
             Self::MoveObject(o) => Some(o),
             Self::Package(_) => None,
@@ -766,6 +774,13 @@ impl HaneulData for HaneulParsedData {
     }
 
     fn try_as_move(&self) -> Option<&Self::ObjectType> {
+        match self {
+            Self::MoveObject(o) => Some(o),
+            Self::Package(_) => None,
+        }
+    }
+
+    fn try_into_move(self) -> Option<Self::ObjectType> {
         match self {
             Self::MoveObject(o) => Some(o),
             Self::Package(_) => None,
