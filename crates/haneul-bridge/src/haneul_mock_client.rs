@@ -30,7 +30,8 @@ pub struct HaneulMockClient {
     latest_checkpoint_sequence_number: u64,
     events: Arc<Mutex<HashMap<(ObjectID, Identifier, EventID), EventPage>>>,
     past_event_query_params: Arc<Mutex<VecDeque<(ObjectID, Identifier, EventID)>>>,
-    events_by_tx_digest: Arc<Mutex<HashMap<TransactionDigest, Vec<HaneulEvent>>>>,
+    events_by_tx_digest:
+        Arc<Mutex<HashMap<TransactionDigest, Result<Vec<HaneulEvent>, haneul_sdk::error::Error>>>>,
     transaction_responses:
         Arc<Mutex<HashMap<TransactionDigest, BridgeResult<HaneulTransactionBlockResponse>>>>,
     wildcard_transaction_response: Arc<Mutex<Option<BridgeResult<HaneulTransactionBlockResponse>>>>,
@@ -73,7 +74,14 @@ impl HaneulMockClient {
         self.events_by_tx_digest
             .lock()
             .unwrap()
-            .insert(tx_digest, events);
+            .insert(tx_digest, Ok(events));
+    }
+
+    pub fn add_events_by_tx_digest_error(&self, tx_digest: TransactionDigest) {
+        self.events_by_tx_digest.lock().unwrap().insert(
+            tx_digest,
+            Err(haneul_sdk::error::Error::DataError("".to_string())),
+        );
     }
 
     pub fn add_transaction_response(
@@ -152,13 +160,16 @@ impl HaneulClientInner for HaneulMockClient {
         &self,
         tx_digest: TransactionDigest,
     ) -> Result<Vec<HaneulEvent>, Self::Error> {
-        Ok(self
-            .events_by_tx_digest
-            .lock()
-            .unwrap()
+        let events = self.events_by_tx_digest.lock().unwrap();
+
+        match events
             .get(&tx_digest)
-            .cloned()
-            .unwrap_or_else(|| panic!("No preset events found for tx_digest: {:?}", tx_digest)))
+            .unwrap_or_else(|| panic!("No preset events found for tx_digest: {:?}", tx_digest))
+        {
+            Ok(events) => Ok(events.clone()),
+            // haneul_sdk::error::Error is not Clone
+            Err(_) => Err(haneul_sdk::error::Error::DataError("".to_string())),
+        }
     }
 
     async fn get_chain_identifier(&self) -> Result<String, Self::Error> {
