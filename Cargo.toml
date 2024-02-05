@@ -155,6 +155,7 @@ members = [
   "crates/haneul-types",
   "crates/haneul-upgrade-compatibility-transactional-tests",
   "crates/haneul-verifier-transactional-tests",
+  "crates/haneulns-indexer",
   "crates/haneulop-cli",
   "crates/telemetry-subscribers",
   "crates/test-cluster",
