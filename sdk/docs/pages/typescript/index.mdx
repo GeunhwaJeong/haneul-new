@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components';
+
 # Haneul TypeScript SDK Quick Start
 
 The Haneul TypeScript SDK is a modular library of tools for interacting with the Haneul blockchain. Use it
@@ -19,6 +21,19 @@ The following table lists the locations for Haneul networks.
 | Devnet  | `https://fullnode.devnet.haneul.io:443`  | `https://faucet.devnet.haneul.io/gas`    |
 | Testnet | `https://fullnode.testnet.haneul.io:443` | `https://faucet.testnet.haneul.io/gas`   |
 | Mainnet | `https://fullnode.mainnet.haneul.io:443` | `null`                                |
+
+<Callout type="warning">
+
+Use dedicated nodes/shared services rather than public endpoints for production apps. The public
+endpoints maintained by Haneul Labs (`fullnode.<NETWORK>.haneul.io:443`) are rate-limited, and support
+only 100 requests per 30 seconds or so. Do not use public endpoints in production applications with
+high traffic volume.
+
+You can either run your own Full nodes, or outsource this to a professional infrastructure provider
+(preferred for apps that have high traffic). You can find a list of reliable RPC endpoint providers
+for Haneul on the [Haneul Dev Portal](https://haneul.io/developers#dev-tools) using the **Node Service** tab.
+
+</Callout>
 
 ## Migrate to version 0.38.0
 

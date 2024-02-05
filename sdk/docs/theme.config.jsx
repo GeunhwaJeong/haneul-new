@@ -11,9 +11,9 @@ const config = {
 	chat: {
 		link: 'https://discord.com/invite/Haneul',
 	},
-	docsRepositoryBase: 'https://github.com/GeunhwaJeong/haneul/tree/main/sdk/docs/pages',
+	docsRepositoryBase: 'https://github.com/GeunhwaJeong/haneul/tree/main/sdk/docs',
 	footer: {
-		text: 'Copyright © 2023, Haneul Labs, Inc.',
+		text: `Copyright © ${new Date().getFullYear()}, Haneul Labs, Inc.`,
 	},
 	head: (
 		<>
