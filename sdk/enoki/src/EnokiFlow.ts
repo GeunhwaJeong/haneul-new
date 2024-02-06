@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
+import { decodeHaneulPrivateKey } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { fromB64, toB64 } from '@haneullabs/haneul.js/utils';
@@ -160,7 +161,7 @@ export class EnokiFlow {
 			expiresAt: estimatedExpiration,
 			maxEpoch,
 			randomness,
-			ephemeralKeyPair: ephemeralKeyPair.export().privateKey,
+			ephemeralKeyPair: toB64(decodeHaneulPrivateKey(ephemeralKeyPair.getSecretKey()).secretKey),
 		});
 
 		return oauthUrl;
