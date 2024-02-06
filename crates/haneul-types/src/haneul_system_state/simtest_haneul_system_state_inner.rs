@@ -184,7 +184,7 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV1 {
         }
     }
 
-    fn get_pending_active_validators<S: ObjectStore>(
+    fn get_pending_active_validators<S: ObjectStore + ?Sized>(
         &self,
         _object_store: &S,
     ) -> Result<Vec<HaneulValidatorSummary>, HaneulError> {
@@ -298,7 +298,7 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerShallowV2 {
         }
     }
 
-    fn get_pending_active_validators<S: ObjectStore>(
+    fn get_pending_active_validators<S: ObjectStore + ?Sized>(
         &self,
         _object_store: &S,
     ) -> Result<Vec<HaneulValidatorSummary>, HaneulError> {
@@ -441,7 +441,7 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerDeepV2 {
         }
     }
 
-    fn get_pending_active_validators<S: ObjectStore>(
+    fn get_pending_active_validators<S: ObjectStore + ?Sized>(
         &self,
         _object_store: &S,
     ) -> Result<Vec<HaneulValidatorSummary>, HaneulError> {

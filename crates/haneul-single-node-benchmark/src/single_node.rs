@@ -15,6 +15,7 @@ use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
 use haneul_core::consensus_adapter::{
     ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
 };
+use haneul_core::state_accumulator::AccumulatorStore;
 use haneul_core::state_accumulator::StateAccumulator;
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress, TransactionDigest};
@@ -286,7 +287,7 @@ impl SingleValidator {
             ckpt_receiver,
             validator.get_checkpoint_store().clone(),
             validator.clone(),
-            Arc::new(StateAccumulator::new(validator.db())),
+            Arc::new(StateAccumulator::new(validator.get_execution_cache())),
         );
         (checkpoint_executor, ckpt_sender)
     }
@@ -294,7 +295,7 @@ impl SingleValidator {
     pub(crate) fn create_in_memory_store(&self) -> InMemoryObjectStore {
         let objects: HashMap<_, _> = self
             .get_validator()
-            .database
+            .get_execution_cache()
             .iter_live_object_set(false)
             .map(|o| match o {
                 LiveObject::Normal(object) => (object.id(), object),

@@ -4,6 +4,7 @@
 use prometheus::Registry;
 use std::sync::Arc;
 use std::time::Duration;
+use haneul_core::authority::EffectsNotifyRead;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_macros::sim_test;

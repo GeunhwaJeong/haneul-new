@@ -2193,7 +2193,7 @@ impl ReadStore for HaneulTestAdapter<'_> {
     fn get_transaction(
         &self,
         tx_digest: &TransactionDigest,
-    ) -> haneul_types::storage::error::Result<Option<VerifiedTransaction>> {
+    ) -> haneul_types::storage::error::Result<Option<Arc<VerifiedTransaction>>> {
         self.executor.get_transaction(tx_digest)
     }
 

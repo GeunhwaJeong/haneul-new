@@ -11,6 +11,7 @@ use rand::{
     Rng,
 };
 use std::collections::{HashMap, HashSet};
+use haneul_core::authority::EffectsNotifyRead;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use tokio::time::{sleep, Duration, Instant};

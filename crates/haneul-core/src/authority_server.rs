@@ -591,7 +591,10 @@ impl Validator for ValidatorService {
         &self,
         _request: tonic::Request<SystemStateRequest>,
     ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
-        let response = self.state.database.get_haneul_system_state_object_unsafe()?;
+        let response = self
+            .state
+            .get_cache_reader()
+            .get_haneul_system_state_object_unsafe()?;
 
         return Ok(tonic::Response::new(response));
     }

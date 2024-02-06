@@ -7,6 +7,7 @@ use rand::distributions::Distribution;
 use std::ops::Deref;
 use std::time::{Duration, SystemTime};
 use haneul_config::node::OverloadThresholdConfig;
+use haneul_core::authority::EffectsNotifyRead;
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::{register_fail_point_async, sim_test};
