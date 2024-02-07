@@ -4,7 +4,7 @@
 import { HaneulObjectChange } from '@haneullabs/haneul.js/src/client';
 
 import { ObjectLink } from '../ObjectLink';
-import PreviewCard from '../PreviewCard';
+import { PreviewCard } from '../PreviewCard';
 
 const objectTypes: Record<string, Record<string, string>> = {
 	published: {

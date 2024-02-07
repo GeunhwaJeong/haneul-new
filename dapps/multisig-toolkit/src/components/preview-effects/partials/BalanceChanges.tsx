@@ -4,7 +4,7 @@
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { type BalanceChange } from '@haneullabs/haneul.js/src/client';
 
-import PreviewCard from '../PreviewCard';
+import { PreviewCard } from '../PreviewCard';
 import { onChainAmountToFloat } from '../utils';
 
 export function BalanceChanges({ changes }: { changes: BalanceChange[] }) {
