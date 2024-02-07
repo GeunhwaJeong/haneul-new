@@ -18,7 +18,7 @@ use std::time::Duration;
 use std::{fs, io};
 use haneul_config::{genesis::Genesis, NodeConfig};
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
-use haneul_core::in_mem_execution_cache::ExecutionCache;
+use haneul_core::execution_cache::ExecutionCache;
 use haneul_network::default_haneullabs_network_config;
 use haneul_protocol_config::Chain;
 use haneul_sdk::HaneulClientBuilder;

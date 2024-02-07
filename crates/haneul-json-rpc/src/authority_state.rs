@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::AuthorityState;
-use haneul_core::in_mem_execution_cache::ExecutionCacheRead;
+use haneul_core::execution_cache::ExecutionCacheRead;
 use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc_types::{
     Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
