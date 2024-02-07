@@ -229,7 +229,7 @@ pub trait ExecutionCacheRead: Send + Sync {
         &self,
         object_id: ObjectID,
         version: SequenceNumber,
-    ) -> Option<Object>;
+    ) -> HaneulResult<Option<Object>>;
 
     fn get_lock(&self, obj_ref: ObjectRef, epoch_id: EpochId) -> HaneulLockResult;
 
@@ -605,7 +605,7 @@ macro_rules! implement_storage_traits {
                 child_version_upper_bound: SequenceNumber,
             ) -> HaneulResult<Option<Object>> {
                 let Some(child_object) =
-                    self.find_object_lt_or_eq_version(*child, child_version_upper_bound)
+                    self.find_object_lt_or_eq_version(*child, child_version_upper_bound)?
                 else {
                     return Ok(None);
                 };
