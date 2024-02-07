@@ -47,6 +47,8 @@ pub enum BridgeError {
     MismatchedAction,
     // Authority has invalid url
     AuthoirtyUrlInvalid,
+    // Action is not token transfer
+    NotTokenTransferAction,
     // Haneul transaction failure due to generic error
     HaneulTxFailureGeneric(String),
     // Storage Error
