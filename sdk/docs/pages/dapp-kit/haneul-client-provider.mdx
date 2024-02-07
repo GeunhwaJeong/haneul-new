@@ -1,13 +1,14 @@
 # HaneulClientProvider
 
-The HaneulClientProvider manages the active `HaneulClient` used by hooks and components in the dApp Kit
+The `HaneulClientProvider` manages the active `HaneulClient` that hooks and components use in the dApp
+Kit.
 
 ## Usage
 
-The `HaneulClientProvider` should be placed at the root of your app, and should wrap all components
-that use the dApp Kit hooks.
+Place the `HaneulClientProvider` at the root of your app and wrap all components that use the dApp Kit
+hooks.
 
-It accepts a list of network configs, which will be used to create `HaneulClient` instances for the
+`HaneulClientProvider` accepts a list of network configurations to create `HaneulClient` instances for the
 currently active network.
 
 ```tsx
@@ -31,18 +32,20 @@ function App() {
 
 ## Props
 
-- `networks`: A map of networks that can be used. The keys are the network names, and the values can
-  be either a config Object (`HaneulClientOptions`) or a `HaneulClient` instance.
-- `defaultNetwork`: The name of the network to use by default, when the HaneulClientProvider is used as
+- `networks`: A map of networks you can use. The keys are the network names, and the values can be
+  either a configuration object (`HaneulClientOptions`) or a `HaneulClient` instance.
+- `defaultNetwork`: The name of the network to use by default when using the `HaneulClientProvider` as
   an uncontrolled component.
-- `network`: The name of the network to use, when the HaneulClientProvider is used as a controlled
+- `network`: The name of the network to use when using the `HaneulClientProvider` as a controlled
   component.
-- `onNetworkChange`: A callback called when the active network is changed
-- `createClient`: A callback called when a new `HaneulClient` is created (e.g. when the active network
-  changes). It receives the network name, and config object as arguments, and should return a
-  `HaneulClient`.
+- `onNetworkChange`: A callback when the active network changes.
+- `createClient`: A callback when a new `HaneulClient` is created (for example, when the active network
+  changes). It receives the network name and configuration object as arguments, returning a
+  `HaneulClient` instance.
 
-## Using the HaneulClientProvider as a controlled component
+## Controlled component
+
+The following example demonstrates a `HaneulClientProvider` used as a controlled component.
 
 ```tsx
 import { createNetworkConfig, HaneulClientProvider } from '@haneullabs/dapp-kit';
@@ -72,7 +75,9 @@ function App() {
 }
 ```
 
-## Customizing how the HaneulClient is created
+## HaneulClient customization
+
+The following example demonstrates how to create a custom `HaneulClient`.
 
 ```tsx
 import { HaneulClientProvider } from '@haneullabs/dapp-kit';
@@ -110,6 +115,9 @@ function App() {
 
 ## Using the HaneulClient from the provider
 
+To use the `HaneulClient` from the provider, import the `useHaneulClient` function from the
+`@haneullabs/dapp-kit` module.
+
 ```tsx
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 
@@ -122,8 +130,8 @@ function MyComponent() {
 
 ## Creating a network selector
 
-dApp doesn't currently provide it's own network switcher, but you can use the `useHaneulClientContext`
-hook to get the list of networks, and to set the active network:
+The dApp Kit doesn't provide its own network switcher, but you can use the `useHaneulClientContext`
+hook to get the list of networks and set the active one:
 
 ```tsx
 function NetworkSelector() {
@@ -143,16 +151,16 @@ function NetworkSelector() {
 
 ## Using network specific configuration
 
-If your dApp runs on multiple networks, the IDs for packages, and potentially other configuration
-will change depending on which network is being used. You can use `createNetworkConfig` to create
-per-network config which can be accessed from your components.
+If your dApp runs on multiple networks, the IDs for packages and other configurations might change,
+depending on which network you're using. You can use `createNetworkConfig` to create per-network
+configurations that your components can access.
 
-the `createNetworkConfig` function returns the provided config, along a few hooks you can use to get
-access the variables defined in your config.
+The `createNetworkConfig` function returns the provided configuration, along with hooks you can use
+to get the variables defined in your configuration.
 
-- `useNetworkConfig` returns the full network config object
-- `useNetworkVariables` returns the full variables object from the network config
-- `useNetworkVariable` returns a specific variable from the network config
+- `useNetworkConfig` returns the full network configuration object
+- `useNetworkVariables` returns the full variables object from the network configuration
+- `useNetworkVariable` returns a specific variable from the network configuration
 
 ```tsx
 import { createNetworkConfig, HaneulClientProvider } from '@haneullabs/dapp-kit';
