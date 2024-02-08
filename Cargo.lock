@@ -12411,6 +12411,7 @@ dependencies = [
  "move-disassembler",
  "move-ir-types",
  "haneullabs-metrics",
+ "haneullabs-network",
  "once_cell",
  "prometheus",
  "rand 0.8.5",
