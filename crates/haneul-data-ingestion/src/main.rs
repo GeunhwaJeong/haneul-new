@@ -7,10 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
 use haneul_data_ingestion::{
-    ArchivalConfig, ArchivalWorker, BlobTaskConfig, BlobWorker, DataIngestionMetrics,
-    DynamoDBProgressStore, KVStoreTaskConfig, KVStoreWorker,
+    ArchivalConfig, ArchivalWorker, BlobTaskConfig, BlobWorker, DynamoDBProgressStore,
+    KVStoreTaskConfig, KVStoreWorker,
 };
-use haneul_data_ingestion::{IndexerExecutor, WorkerPool};
+use haneul_data_ingestion_core::DataIngestionMetrics;
+use haneul_data_ingestion_core::{IndexerExecutor, WorkerPool};
 use tokio::signal;
 use tokio::sync::oneshot;
 

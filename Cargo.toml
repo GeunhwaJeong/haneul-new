@@ -94,6 +94,7 @@ members = [
   "crates/haneul-core",
   "crates/haneul-cost",
   "crates/haneul-data-ingestion",
+  "crates/haneul-data-ingestion-core",
   "crates/haneul-e2e-tests",
   "crates/haneul-enum-compat-util",
   "crates/haneul-faucet",
@@ -575,6 +576,7 @@ haneul-config = { path = "crates/haneul-config" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
 haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
+haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }

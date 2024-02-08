@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::Worker;
 use anyhow::Result;
 use async_trait::async_trait;
 use byteorder::BigEndian;
@@ -17,6 +16,7 @@ use haneul_archival::{
     create_file_metadata_from_bytes, finalize_manifest, read_manifest_from_bytes, FileType,
     Manifest, CHECKPOINT_FILE_MAGIC, SUMMARY_FILE_MAGIC,
 };
+use haneul_data_ingestion_core::Worker;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_storage::{compress, FileCompression, StorageFormat};
 use haneul_types::base_types::{EpochId, ExecutionData};

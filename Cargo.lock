@@ -12107,6 +12107,32 @@ dependencies = [
  "serde_json",
  "serde_yaml 0.8.26",
  "haneul-archival",
+ "haneul-data-ingestion-core",
+ "haneul-storage",
+ "haneul-types",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+ "workspace-hack",
+]
+
+[[package]]
+name = "haneul-data-ingestion-core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "backoff",
+ "futures",
+ "haneullabs-metrics",
+ "notify",
+ "object_store 0.7.0",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
  "haneul-storage",
  "haneul-types",
  "telemetry-subscribers",
@@ -13938,7 +13964,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_yaml 0.8.26",
- "haneul-data-ingestion",
+ "haneul-data-ingestion-core",
  "haneul-json-rpc",
  "haneul-storage",
  "haneul-types",
