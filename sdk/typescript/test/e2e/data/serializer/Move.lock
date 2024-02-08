@@ -20,3 +20,8 @@ source = { local = "../../../../../../crates/haneul-framework/packages/haneul-fr
 dependencies = [
   { name = "MoveStdlib" },
 ]
+
+[move.toolchain-version]
+compiler-version = "1.16.0"
+edition = "legacy"
+flavor = "haneul"

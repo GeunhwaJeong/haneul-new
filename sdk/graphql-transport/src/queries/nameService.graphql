@@ -1,0 +1,22 @@
+# Copyright (c) Mysten Labs, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+query resolveNameServiceAddress($domain: String!) {
+	resolveHaneulnsAddress(domain: $domain) {
+		address
+	}
+}
+
+query resolveNameServiceNames($address: HaneulAddress!, $limit: Int, $cursor: String) {
+	address(address: $address) {
+		haneulnsRegistrations(first: $limit, after: $cursor) {
+			pageInfo {
+				hasNextPage
+				endCursor
+			}
+			nodes {
+				domain
+			}
+		}
+	}
+}

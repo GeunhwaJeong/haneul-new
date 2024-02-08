@@ -7,6 +7,5 @@ crates/haneul-core/tests/staged/haneul.yaml text eol=lf
 crates/haneul-open-rpc/spec/openrpc.json text eol=lf
 haneul_core/tests/staged/haneul.yaml text eol=lf
 
-# These files is auto generated
-sdk/typescript/src/index.guard.ts linguist-generated=true
-sdk/typescript/src/rpc/client.guard.ts linguist-generated=true
+# These files are auto generated
+sdk/graphql-transport/src/queries/generated.ts linguist-generated=true

@@ -21,6 +21,7 @@ import { HANEUL_TYPE_ARG } from '../../../src/utils/index.js';
 
 const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? getFaucetHost('localnet');
 const DEFAULT_FULLNODE_URL = import.meta.env.VITE_FULLNODE_URL ?? getFullnodeUrl('localnet');
+
 const HANEUL_BIN = import.meta.env.VITE_HANEUL_BIN ?? 'cargo run --bin haneul';
 
 export const DEFAULT_RECIPIENT =
@@ -55,23 +56,27 @@ export class TestToolbox {
 	}
 }
 
-export function getClient(): HaneulClient {
+export function getClient(url = DEFAULT_FULLNODE_URL): HaneulClient {
 	return new HaneulClient({
 		transport: new HaneulHTTPTransport({
-			url: DEFAULT_FULLNODE_URL,
+			url,
 			WebSocketConstructor: WebSocket as never,
 		}),
 	});
 }
 
-export async function setup() {
+export async function setup(options: { graphQLURL?: string; rpcURL?: string } = {}) {
 	const keypair = Ed25519Keypair.generate();
 	const address = keypair.getPublicKey().toHaneulAddress();
-	return setupWithFundedAddress(keypair, address);
+	return setupWithFundedAddress(keypair, address, options);
 }
 
-export async function setupWithFundedAddress(keypair: Ed25519Keypair, address: string) {
-	const client = getClient();
+export async function setupWithFundedAddress(
+	keypair: Ed25519Keypair,
+	address: string,
+	{ rpcURL }: { graphQLURL?: string; rpcURL?: string } = {},
+) {
+	const client = getClient(rpcURL);
 	await retry(() => requestHaneulFromFaucetV0({ host: DEFAULT_FAUCET_URL, recipient: address }), {
 		backoff: 'EXPONENTIAL',
 		// overall timeout in 60 seconds
