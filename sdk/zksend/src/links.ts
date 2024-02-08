@@ -3,6 +3,7 @@
 
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
 import type { CoinStruct, ObjectOwner, HaneulObjectChange } from '@haneullabs/haneul.js/client';
+import { decodeHaneulPrivateKey } from '@haneullabs/haneul.js/cryptography';
 import type { Keypair, Signer } from '@haneullabs/haneul.js/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import type { TransactionObjectInput } from '@haneullabs/haneul.js/transactions';
@@ -14,6 +15,7 @@ import {
 	normalizeHaneulObjectId,
 	parseStructTag,
 	HANEUL_TYPE_ARG,
+	toB64,
 } from '@haneullabs/haneul.js/utils';
 
 interface ZkSendLinkRedirect {
@@ -97,7 +99,7 @@ export class ZkSendLinkBuilder {
 	getLink(): string {
 		const link = new URL(this.#host);
 		link.pathname = this.#path;
-		link.hash = this.#keypair.export().privateKey;
+		link.hash = toB64(decodeHaneulPrivateKey(this.#keypair.getSecretKey()).secretKey);
 
 		if (this.#redirect) {
 			link.searchParams.set('redirect_url', this.#redirect.url);
@@ -239,7 +241,7 @@ export class ZkSendLink {
 	constructor({
 		client = DEFAULT_ZK_SEND_LINK_OPTIONS.client,
 		keypair = new Ed25519Keypair(),
-	}: ZkSendLinkOptions) {
+	}: ZkSendLinkOptions & { linkAddress?: string }) {
 		this.#client = client;
 		this.#keypair = keypair;
 	}
@@ -272,7 +274,10 @@ export class ZkSendLink {
 	) {
 		const normalizedAddress = normalizeHaneulAddress(address);
 		const txb = this.createClaimTransaction(normalizedAddress, options);
-		txb.setGasPayment([]);
+
+		if (this.#gasCoin) {
+			txb.setGasPayment([]);
+		}
 
 		const dryRun = await this.#client.dryRunTransactionBlock({
 			transactionBlock: await txb.build({ client: this.#client }),
@@ -390,10 +395,11 @@ export class ZkSendLink {
 	async #loadOwnedObjects() {
 		this.#ownedObjects = [];
 		let nextCursor: string | null | undefined;
+		const owner = this.#keypair.toHaneulAddress();
 		do {
 			const ownedObjects = await this.#client.getOwnedObjects({
 				cursor: nextCursor,
-				owner: this.#keypair.toHaneulAddress(),
+				owner,
 				options: {
 					showType: true,
 				},
@@ -415,26 +421,25 @@ export class ZkSendLink {
 
 		const coins = await this.#client.getCoins({
 			coinType: HANEUL_COIN_TYPE,
-			owner: this.#keypair.toHaneulAddress(),
+			owner,
 		});
 
 		this.#gasCoin = coins.data.find((coin) => BigInt(coin.balance) % 1000n === 987n);
 	}
 
 	async #loadInitialTransactionData() {
+		const address = this.#keypair.toHaneulAddress();
 		const result = await this.#client.queryTransactionBlocks({
 			limit: 1,
 			order: 'ascending',
 			filter: {
-				ToAddress: this.#keypair.toHaneulAddress(),
+				ToAddress: address,
 			},
 			options: {
 				showObjectChanges: true,
 				showInput: true,
 			},
 		});
-
-		const address = this.#keypair.toHaneulAddress();
 
 		result.data[0]?.objectChanges?.forEach((objectChange) => {
 			if (ownedAfterChange(objectChange, address)) {
