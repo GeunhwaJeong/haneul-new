@@ -76,7 +76,7 @@ export class HaneulHTTPTransport implements HaneulTransport {
 			this.#websocketClient = new WebsocketClient(
 				this.#options.websocket?.url ?? this.#options.url,
 				{
-					WebSocketConstructor: this.#options.WebSocketConstructor,
+					WebSocketConstructor,
 					...this.#options.websocket,
 				},
 			);
