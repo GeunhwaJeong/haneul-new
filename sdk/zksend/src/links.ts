@@ -236,6 +236,7 @@ export class ZkSendLink {
 		type: string;
 	}> = [];
 	#gasCoin?: CoinStruct;
+	#hasHaneul = false;
 	#creatorAddress?: string;
 
 	constructor({
@@ -275,7 +276,7 @@ export class ZkSendLink {
 		const normalizedAddress = normalizeHaneulAddress(address);
 		const txb = this.createClaimTransaction(normalizedAddress, options);
 
-		if (this.#gasCoin) {
+		if (this.#gasCoin || !this.#hasHaneul) {
 			txb.setGasPayment([]);
 		}
 
@@ -424,6 +425,7 @@ export class ZkSendLink {
 			owner,
 		});
 
+		this.#hasHaneul = coins.data.length > 0;
 		this.#gasCoin = coins.data.find((coin) => BigInt(coin.balance) % 1000n === 987n);
 	}
 
