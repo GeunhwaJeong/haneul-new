@@ -29,11 +29,13 @@ type HaneulClientQueryOptions = HaneulRpcMethods[keyof HaneulRpcMethods] extends
 export type UseHaneulClientQueriesResults<Args extends readonly HaneulClientQueryOptions[]> = {
 	-readonly [K in keyof Args]: Args[K] extends {
 		method: infer M extends keyof HaneulRpcMethods;
-		options?: {
-			select?: (...args: any[]) => infer R;
-		};
+		readonly options?:
+			| {
+					select?: (...args: any[]) => infer R;
+			  }
+			| object;
 	}
-		? UseQueryResult<unknown extends R ? HaneulRpcMethods[M]['result'] : R, Error>
+		? UseQueryResult<unknown extends R ? HaneulRpcMethods[M]['result'] : R>
 		: never;
 };
 
