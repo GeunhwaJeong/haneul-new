@@ -1,5 +1,16 @@
 # @haneullabs/dapp-kit
 
+## 0.12.2
+
+### Patch Changes
+
+- 4830361fa4: Updated typescript version
+- Updated dependencies [4830361fa4]
+- Updated dependencies [4fd676671b]
+  - @haneullabs/wallet-standard@0.10.3
+  - @haneullabs/haneul.js@0.50.1
+  - @haneullabs/zksend@0.2.2
+
 ## 0.12.1
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @haneullabs/zklogin
 
+## 0.4.3
+
+### Patch Changes
+
+- 4830361fa4: Updated typescript version
+- Updated dependencies [4830361fa4]
+  - @haneullabs/haneul.js@0.50.1
+  - @haneullabs/bcs@0.11.1
+
 ## 0.4.2
 
 ### Patch Changes

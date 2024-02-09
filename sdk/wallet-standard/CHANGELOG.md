@@ -1,5 +1,13 @@
 # @haneullabs/wallet-standard
 
+## 0.10.3
+
+### Patch Changes
+
+- 4830361fa4: Updated typescript version
+- Updated dependencies [4830361fa4]
+  - @haneullabs/haneul.js@0.50.1
+
 ## 0.10.2
 
 ### Patch Changes
