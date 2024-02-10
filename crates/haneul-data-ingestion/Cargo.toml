@@ -33,7 +33,6 @@ haneul-storage.workspace = true
 haneul-data-ingestion-core.workspace = true
 haneul-types.workspace = true
 url.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 rand.workspace = true

@@ -19,4 +19,3 @@ uuid.workspace = true
 haneul-faucet.workspace = true
 haneul-cluster-test.workspace = true
 telemetry-subscribers.workspace = true
-workspace-hack.workspace = true

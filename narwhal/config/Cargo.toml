@@ -19,7 +19,6 @@ haneullabs-util-mem.workspace = true
 crypto = { path = "../crypto", package = "narwhal-crypto" }
 haneullabs-network.workspace = true
 rand.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 insta.workspace = true

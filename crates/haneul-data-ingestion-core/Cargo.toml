@@ -23,7 +23,6 @@ tracing.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 url.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 rand.workspace = true

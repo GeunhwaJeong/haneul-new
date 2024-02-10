@@ -17,7 +17,6 @@ git-version.workspace = true
 haneul-framework.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

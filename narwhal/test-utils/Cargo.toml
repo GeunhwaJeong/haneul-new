@@ -35,4 +35,3 @@ haneullabs-network.workspace = true
 haneul-protocol-config.workspace = true
 
 anemo.workspace = true
-workspace-hack.workspace = true

@@ -32,4 +32,3 @@ haneul-genesis-builder.workspace = true
 haneul-execution.workspace = true
 haneul-swarm-config.workspace = true
 haneul-transaction-checks.workspace = true
-workspace-hack.workspace = true

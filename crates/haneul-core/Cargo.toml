@@ -89,7 +89,6 @@ haneul-transaction-checks.workspace = true
 haneul-simulator.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
-workspace-hack.workspace = true
 zeroize.workspace = true
 mysticeti-core = { git = "https://github.com/GeunhwaJeong/mysticeti", rev = "318d61d27f47d257d99a86983d835e9e9756bc59" }
 

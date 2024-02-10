@@ -29,7 +29,6 @@ tracing.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 url.workspace = true
-workspace-hack.workspace = true
 haneul-json-rpc.workspace = true
 dotenvy = "0.15"
 move-core-types.workspace = true

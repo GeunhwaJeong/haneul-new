@@ -13,7 +13,6 @@ haneullabs-network.workspace = true
 rand.workspace= true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
-workspace-hack.workspace = true
 
 [build-dependencies]
 anemo-build.workspace = true

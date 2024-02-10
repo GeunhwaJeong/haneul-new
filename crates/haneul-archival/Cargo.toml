@@ -23,7 +23,6 @@ haneul-types = { workspace = true, features = ["test-utils"]}
 haneul-storage.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 tokio = { workspace = true, features = ["full"] }
-workspace-hack.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

@@ -20,7 +20,6 @@ haneul-core.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types = { workspace = true, features = ["fuzzing"] }
 haneul-move-build.workspace = true
-workspace-hack.workspace = true
 
 
 [dev-dependencies]

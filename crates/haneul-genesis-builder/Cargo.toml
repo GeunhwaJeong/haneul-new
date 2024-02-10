@@ -28,7 +28,6 @@ haneul-framework.workspace = true
 haneul-framework-snapshot.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
-workspace-hack.workspace = true
 [target.'cfg(msim)'.dependencies]
 haneul-simulator.workspace = true
 

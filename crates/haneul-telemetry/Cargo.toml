@@ -12,5 +12,4 @@ reqwest.workspace = true
 tracing.workspace = true
 
 haneul-core.workspace = true
-workspace-hack.workspace = true
 

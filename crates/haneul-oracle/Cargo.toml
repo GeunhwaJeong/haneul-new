@@ -27,7 +27,6 @@ haneul-sdk = { path = "../haneul-sdk" }
 haneul-types = { path = "../haneul-types" }
 haneullabs-metrics = { path = "../haneullabs-metrics" }
 telemetry-subscribers.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 haneul-keys = { path = "../haneul-keys" }

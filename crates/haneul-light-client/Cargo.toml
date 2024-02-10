@@ -25,5 +25,4 @@ haneul-sdk.workspace = true
 move-binary-format.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-package-resolver.workspace = true
-workspace-hack.workspace = true
 

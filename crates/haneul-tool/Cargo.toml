@@ -51,6 +51,5 @@ haneul-sdk.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-archival.workspace = true
-workspace-hack.workspace = true
 git-version.workspace = true
 const-str = "0.5.6"

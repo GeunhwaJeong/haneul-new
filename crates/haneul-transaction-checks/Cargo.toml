@@ -15,4 +15,3 @@ haneul-types.workspace = true
 tracing.workspace = true
 haneul-execution.workspace = true
 fastcrypto-zkp.workspace = true
-workspace-hack.workspace = true

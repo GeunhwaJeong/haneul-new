@@ -71,7 +71,6 @@ haneul-swarm-config.workspace = true
 test-cluster.workspace = true
 haneul-protocol-config.workspace = true
 move-bytecode-utils.workspace = true
-workspace-hack.workspace = true
 haneul-package-resolver.workspace = true
 
 [dev-dependencies]

@@ -31,7 +31,6 @@ move-bytecode-utils.workspace = true
 haneullabs-metrics.workspace = true
 haneul-types.workspace = true
 haneul-json.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }

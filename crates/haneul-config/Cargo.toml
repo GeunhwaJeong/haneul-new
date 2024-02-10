@@ -28,7 +28,6 @@ narwhal-config.workspace = true
 haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
-workspace-hack.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
