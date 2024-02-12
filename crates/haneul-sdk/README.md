@@ -160,18 +160,18 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
 ### Tic Tac Toe quick start
 
 1. Prepare the environment 
-   1. Install `haneul` binary following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md##install-haneul-binaries) docs.
-   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/connect-haneul-network.md).
-   1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/cli-client.md#add-existing-accounts-to-clientyaml) by using the `new-address` command to create new addresses:
+   1. Install `haneul` binary following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/haneul-install.mdx) docs.
+   1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/connect.mdx).
+   1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/get-address.mdx) by using the `new-address` command to create new addresses:
       ```shell
       haneul client new-address ed25519
       ```
       You must specify the key scheme, one of `ed25519` or `secp256k1` or `secp256r1`.
       You can skip this step if you are going to play with a friend. :)
-   1. [Request Haneul tokens](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md#haneul-tokens) for all addresses that will be used to join the game.
+   1. [Request Haneul tokens](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/get-coins.mdx) for all addresses that will be used to join the game.
 
 2. Publish the move contract
-   1. [Download the Haneul source code](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/install.md#source-code).
+   1. [Download the Haneul source code](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/haneul-install.mdx).
    1. Publish the [`games` package](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games) 
       using the Haneul client:
       ```shell

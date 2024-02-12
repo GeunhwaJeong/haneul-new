@@ -5,20 +5,20 @@ For more complete docs, visit the [Haneul TypeScript SDK docs](https://sdk.haneu
 # Haneul TypeScript SDK
 
 This is the Haneul TypeScript SDK built on the Haneul
-[JSON RPC API](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/json-rpc.md). It provides
-utility classes and functions for applications to sign transactions and interact with the Haneul
-network.
+[JSON RPC API](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/references/haneul-api.mdx). It
+provides utility classes and functions for applications to sign transactions and interact with the
+Haneul network.
 
 WARNING: Note that we are still iterating on the RPC and SDK API before TestNet, therefore please
 expect frequent breaking changes in the short-term. We expect the API to stabilize after the
 upcoming TestNet launch.
 
-## Working with DevNet
+## Working with Devnet
 
 The SDK will be published to [npm registry](https://www.npmjs.com/package/@haneullabs/haneul.js) with the
-same bi-weekly release cycle as the DevNet validators and
-[RPC Server](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/json-rpc.md). To use the SDK
-in your project, you can do:
+same bi-weekly release cycle as the Devnet validators and
+[RPC Server](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/references/haneul-api.mdx). To
+use the SDK in your project, you can do:
 
 ```bash
 $ npm install @haneullabs/haneul.js
@@ -37,7 +37,8 @@ contain the latest changes from `main`.
 npm install @haneullabs/haneul.js@experimental
 ```
 
-Refer to the [JSON RPC](https://github.com/GeunhwaJeong/haneul/blob/main/doc/src/build/json-rpc.md) topic
+Refer to the
+[JSON RPC](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/references/haneul-api.mdx) topic
 for instructions about how to start a local network and local RPC server.
 
 ## Building Locally
@@ -92,7 +93,7 @@ Some more follow up here is if you used homebrew to install node, there could be
 node on your machine.
 https://stackoverflow.com/questions/52676244/node-version-not-updating-after-nvm-use-on-mac
 
-To run E2E tests against DevNet
+To run E2E tests against Devnet
 
 ```
 VITE_FAUCET_URL='https://faucet.devnet.haneul.io:443/gas' VITE_FULLNODE_URL='https://fullnode.devnet.haneul.io' pnpm --filter @haneullabs/haneul.js exec vitest e2e
@@ -104,7 +105,7 @@ The `HaneulClient` class provides a connection to the JSON-RPC Server and should
 read-only operations. The default URLs to connect with the RPC server are:
 
 - local: http://127.0.0.1:9000
-- DevNet: https://fullnode.devnet.haneul.io
+- Devnet: https://fullnode.devnet.haneul.io
 
 ```typescript
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';

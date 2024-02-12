@@ -3,7 +3,7 @@
 Note: this README file currently covers cryptography-related structs and methods.
 
 Currently, three files are equipped with signature and hashing functionality (`crypto.rs`, `signature_seed` and
-`messages.rs`). See [Haneul Signatures](../../../doc/src/learn/cryptography/haneul-signatures.md) for supported signature schemes and its requirments for user and authority signatures. See [fastcrypto](https://github.com/GeunhwaJeong/fastcrypto) for concrete implementation of various cryptography libraries.
+`messages.rs`). See [Haneul Signatures](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/concepts/cryptography/transaction-auth/signatures.mdx) for supported signature schemes and its requirments for user and authority signatures. See [fastcrypto](https://github.com/GeunhwaJeong/fastcrypto) for concrete implementation of various cryptography libraries.
 
 ## Quick links
 
