@@ -748,44 +748,45 @@ impl HaneulError {
     /// There should be only a handful of retryable errors. For now we list common
     /// non-retryable error below to help us find more retryable errors in logs.
     pub fn is_retryable(&self) -> (bool, bool) {
-        match self {
+        let retryable = match self {
             // Network error
-            HaneulError::RpcError { .. } => (true, true),
+            HaneulError::RpcError { .. } => true,
 
             // Reconfig error
-            HaneulError::ValidatorHaltedAtEpochEnd => (true, true),
-            HaneulError::MissingCommitteeAtEpoch(..) => (true, true),
-            HaneulError::WrongEpoch { .. } => (true, true),
+            HaneulError::ValidatorHaltedAtEpochEnd => true,
+            HaneulError::MissingCommitteeAtEpoch(..) => true,
+            HaneulError::WrongEpoch { .. } => true,
 
             HaneulError::UserInputError { error } => {
                 match error {
                     // Only ObjectNotFound and DependentPackageNotFound is potentially retryable
-                    UserInputError::ObjectNotFound { .. } => (true, true),
-                    UserInputError::DependentPackageNotFound { .. } => (true, true),
-                    _ => (false, true),
+                    UserInputError::ObjectNotFound { .. } => true,
+                    UserInputError::DependentPackageNotFound { .. } => true,
+                    _ => false,
                 }
             }
 
-            HaneulError::PotentiallyTemporarilyInvalidSignature { .. } => (true, true),
+            HaneulError::PotentiallyTemporarilyInvalidSignature { .. } => true,
 
             // Overload errors
-            HaneulError::TooManyTransactionsPendingExecution { .. } => (true, true),
-            HaneulError::TooManyTransactionsPendingOnObject { .. } => (true, true),
-            HaneulError::TooOldTransactionPendingOnObject { .. } => (true, true),
-            HaneulError::TooManyTransactionsPendingConsensus => (true, true),
+            HaneulError::TooManyTransactionsPendingExecution { .. } => true,
+            HaneulError::TooManyTransactionsPendingOnObject { .. } => true,
+            HaneulError::TooOldTransactionPendingOnObject { .. } => true,
+            HaneulError::TooManyTransactionsPendingConsensus => true,
 
             // Non retryable error
-            HaneulError::ExecutionError(..) => (false, true),
-            HaneulError::ByzantineAuthoritySuspicion { .. } => (false, true),
-            HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => {
-                (false, true)
-            }
-            HaneulError::TxAlreadyFinalizedWithDifferentUserSigs => (false, true),
-            HaneulError::FailedToVerifyTxCertWithExecutedEffects { .. } => (false, true),
-            HaneulError::ObjectLockConflict { .. } => (false, true),
+            HaneulError::ExecutionError(..) => false,
+            HaneulError::ByzantineAuthoritySuspicion { .. } => false,
+            HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => false,
+            HaneulError::TxAlreadyFinalizedWithDifferentUserSigs => false,
+            HaneulError::FailedToVerifyTxCertWithExecutedEffects { .. } => false,
+            HaneulError::ObjectLockConflict { .. } => false,
 
-            _ => (false, false),
-        }
+            // For all un-categorized errors, return here with categorized = false.
+            _ => return (false, false),
+        };
+
+        (retryable, true)
     }
 
     pub fn is_object_or_package_not_found(&self) -> bool {
