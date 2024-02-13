@@ -15,6 +15,7 @@ use prometheus::{register_int_gauge_with_registry, IntGauge, Registry};
 use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
+use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::VerifiedExecutionData;
 use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -57,6 +58,14 @@ impl ExecutionCacheMetrics {
 }
 
 pub type ExecutionCache = PassthroughCache;
+
+pub trait ExecutionCacheCommit: Send + Sync {
+    fn commit_transaction_outputs(
+        &self,
+        epoch: EpochId,
+        digest: &TransactionDigest,
+    ) -> BoxFuture<'_, HaneulResult>;
+}
 
 pub trait ExecutionCacheRead: Send + Sync {
     fn get_package_object(&self, id: &ObjectID) -> HaneulResult<Option<PackageObject>>;
@@ -233,6 +242,7 @@ pub trait ExecutionCacheRead: Send + Sync {
 
     fn get_lock(&self, obj_ref: ObjectRef, epoch_id: EpochId) -> HaneulLockResult;
 
+    // This method is considered "private" - only used by multi_get_objects_with_more_accurate_error_return
     fn get_latest_lock_for_object_id(&self, object_id: ObjectID) -> HaneulResult<ObjectRef>;
 
     fn check_owned_object_locks_exist(&self, owned_object_refs: &[ObjectRef]) -> HaneulResult;
@@ -473,7 +483,7 @@ pub trait ExecutionCacheWrite: Send + Sync {
     fn write_transaction_outputs(
         &self,
         epoch_id: EpochId,
-        tx_outputs: TransactionOutputs,
+        tx_outputs: Arc<TransactionOutputs>,
     ) -> BoxFuture<'_, HaneulResult>;
 
     /// Attempt to acquire object locks for all of the owned input locks.
@@ -528,6 +538,14 @@ pub trait ExecutionCacheReconfigAPI: Send + Sync {
     ) -> HaneulResult;
 
     fn checkpoint_db(&self, path: &Path) -> HaneulResult;
+
+    /// This is a temporary method to be used when we enable simplified_unwrap_then_delete.
+    /// It re-accumulates state hash for the new epoch if simplified_unwrap_then_delete is enabled.
+    fn maybe_reaccumulate_state_hash(
+        &self,
+        cur_epoch_store: &AuthorityPerEpochStore,
+        new_protocol_version: ProtocolVersion,
+    );
 }
 
 // StateSyncAPI is for writing any data that was not the result of transaction execution,
@@ -675,5 +693,119 @@ macro_rules! implement_storage_traits {
         }
     };
 }
+
+// Implement traits for a cache implementation that always go directly to the store.
+macro_rules! implement_passthrough_traits {
+    ($implementor: ident) => {
+        impl CheckpointCache for $implementor {
+            fn deprecated_get_transaction_checkpoint(
+                &self,
+                digest: &TransactionDigest,
+            ) -> HaneulResult<Option<(EpochId, CheckpointSequenceNumber)>> {
+                self.store.deprecated_get_transaction_checkpoint(digest)
+            }
+
+            fn deprecated_multi_get_transaction_checkpoint(
+                &self,
+                digests: &[TransactionDigest],
+            ) -> HaneulResult<Vec<Option<(EpochId, CheckpointSequenceNumber)>>> {
+                self.store
+                    .deprecated_multi_get_transaction_checkpoint(digests)
+            }
+
+            fn deprecated_insert_finalized_transactions(
+                &self,
+                digests: &[TransactionDigest],
+                epoch: EpochId,
+                sequence: CheckpointSequenceNumber,
+            ) -> HaneulResult {
+                self.store
+                    .deprecated_insert_finalized_transactions(digests, epoch, sequence)
+            }
+        }
+
+        impl ExecutionCacheReconfigAPI for $implementor {
+            fn insert_genesis_object(&self, object: Object) -> HaneulResult {
+                self.store.insert_genesis_object(object)
+            }
+
+            fn bulk_insert_genesis_objects(&self, objects: &[Object]) -> HaneulResult {
+                self.store.bulk_insert_genesis_objects(objects)
+            }
+
+            fn revert_state_update(&self, digest: &TransactionDigest) -> HaneulResult {
+                self.store.revert_state_update(digest)
+            }
+
+            fn set_epoch_start_configuration(
+                &self,
+                epoch_start_config: &EpochStartConfiguration,
+            ) -> HaneulResult {
+                self.store.set_epoch_start_configuration(epoch_start_config)
+            }
+
+            fn update_epoch_flags_metrics(&self, old: &[EpochFlag], new: &[EpochFlag]) {
+                self.store.update_epoch_flags_metrics(old, new)
+            }
+
+            fn clear_object_per_epoch_marker_table(
+                &self,
+                execution_guard: &ExecutionLockWriteGuard<'_>,
+            ) {
+                use tap::TapFallible;
+                self.store
+                    .clear_object_per_epoch_marker_table(execution_guard)
+                    .tap_err(|e| {
+                        tracing::error!(?e, "Failed to clear object per-epoch marker table");
+                    })
+                    .ok();
+            }
+
+            fn expensive_check_haneul_conservation(
+                &self,
+                old_epoch_store: &AuthorityPerEpochStore,
+            ) -> HaneulResult {
+                self.store
+                    .expensive_check_haneul_conservation(self, old_epoch_store)
+            }
+
+            fn checkpoint_db(&self, path: &std::path::Path) -> HaneulResult {
+                self.store.perpetual_tables.checkpoint_db(path)
+            }
+
+            fn maybe_reaccumulate_state_hash(
+                &self,
+                cur_epoch_store: &AuthorityPerEpochStore,
+                new_protocol_version: ProtocolVersion,
+            ) {
+                self.store
+                    .maybe_reaccumulate_state_hash(cur_epoch_store, new_protocol_version)
+            }
+        }
+
+        impl StateSyncAPI for $implementor {
+            fn insert_transaction_and_effects(
+                &self,
+                transaction: &VerifiedTransaction,
+                transaction_effects: &TransactionEffects,
+            ) -> HaneulResult {
+                Ok(self
+                    .store
+                    .insert_transaction_and_effects(transaction, transaction_effects)?)
+            }
+
+            fn multi_insert_transaction_and_effects(
+                &self,
+                transactions_and_effects: &[VerifiedExecutionData],
+            ) -> HaneulResult {
+                Ok(self
+                    .store
+                    .multi_insert_transaction_and_effects(transactions_and_effects.iter())?)
+            }
+        }
+    };
+}
+
+use implement_passthrough_traits;
 
 implement_storage_traits!(PassthroughCache);
