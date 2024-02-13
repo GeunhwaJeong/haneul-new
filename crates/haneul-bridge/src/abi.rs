@@ -78,7 +78,7 @@ impl EthBridgeEvent {
 }
 
 // Sanity checked version of TokensBridgedToHaneulFilter
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct EthToHaneulTokenBridgeV1 {
     pub nonce: u64,
     pub haneul_chain_id: BridgeChainId,

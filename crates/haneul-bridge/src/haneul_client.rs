@@ -313,7 +313,7 @@ impl HaneulClientInner for HaneulSdkClient {
     ) -> Result<BridgeActionStatus, BridgeError> {
         match &action {
             BridgeAction::HaneulToEthBridgeAction(_) | BridgeAction::EthToHaneulBridgeAction(_) => (),
-            _ => return Err(BridgeError::NotTokenTransferAction),
+            _ => return Err(BridgeError::ActionIsNotTokenTransferAction),
         };
         let package_id = *get_bridge_package_id();
         let key = serde_json::json!(
