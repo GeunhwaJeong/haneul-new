@@ -30,6 +30,7 @@ pub mod accumulator;
 pub mod authenticator_state;
 pub mod balance;
 pub mod base_types;
+pub mod bridge;
 pub mod clock;
 pub mod coin;
 pub mod collection_types;
@@ -103,6 +104,11 @@ pub const HANEUL_SYSTEM_PACKAGE_ID: ObjectID = ObjectID::from_address(HANEUL_SYS
 pub const DEEPBOOK_ADDRESS: AccountAddress = deepbook_addr();
 pub const DEEPBOOK_PACKAGE_ID: ObjectID = ObjectID::from_address(DEEPBOOK_ADDRESS);
 
+/// 0xb-- account address where Bridge modules are stored
+/// Same as the ObjectID
+pub const BRIDGE_ADDRESS: AccountAddress = address_from_single_byte(11);
+pub const BRIDGE_PACKAGE_ID: ObjectID = ObjectID::from_address(BRIDGE_ADDRESS);
+
 /// 0x5: hardcoded object ID for the singleton haneul system state object.
 pub const HANEUL_SYSTEM_STATE_ADDRESS: AccountAddress = address_from_single_byte(5);
 pub const HANEUL_SYSTEM_STATE_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_SYSTEM_STATE_ADDRESS);
@@ -128,12 +134,20 @@ pub const HANEUL_RANDOMNESS_STATE_OBJECT_ID: ObjectID =
 pub const HANEUL_DENY_LIST_ADDRESS: AccountAddress = deny_list_addr();
 pub const HANEUL_DENY_LIST_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_DENY_LIST_ADDRESS);
 
+/// 0x9: hardcode object ID for the singleton bridge object.
+pub const HANEUL_BRIDGE_ADDRESS: AccountAddress = address_from_single_byte(9);
+pub const HANEUL_BRIDGE_OBJECT_ID: ObjectID = ObjectID::from_address(HANEUL_BRIDGE_ADDRESS);
+
 /// Return `true` if `addr` is a special system package that can be upgraded at epoch boundaries.
 /// All new system package ID's must be added here.
 pub fn is_system_package(addr: impl Into<AccountAddress>) -> bool {
     matches!(
         addr.into(),
-        MOVE_STDLIB_ADDRESS | HANEUL_FRAMEWORK_ADDRESS | HANEUL_SYSTEM_ADDRESS | DEEPBOOK_ADDRESS
+        MOVE_STDLIB_ADDRESS
+            | HANEUL_FRAMEWORK_ADDRESS
+            | HANEUL_SYSTEM_ADDRESS
+            | DEEPBOOK_ADDRESS
+            | BRIDGE_ADDRESS
     )
 }
 
@@ -218,6 +232,7 @@ fn resolve_address(addr: &str) -> Option<AccountAddress> {
         "std" => Some(MOVE_STDLIB_ADDRESS),
         "haneul" => Some(HANEUL_FRAMEWORK_ADDRESS),
         "haneul_system" => Some(HANEUL_SYSTEM_ADDRESS),
+        "bridge" => Some(BRIDGE_ADDRESS),
         _ => None,
     }
 }
