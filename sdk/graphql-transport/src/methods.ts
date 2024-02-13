@@ -10,7 +10,7 @@ import type {
 	HaneulMoveNormalizedModule,
 } from '@haneullabs/haneul.js/client';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { normalizeStructTag, parseStructTag } from '@haneullabs/haneul.js/utils';
+import { normalizeStructTag, normalizeHaneulAddress, parseStructTag } from '@haneullabs/haneul.js/utils';
 
 import type {
 	ObjectFilter,
@@ -412,7 +412,7 @@ export const RPC_METHODS: {
 			afterStructs = page.structs?.pageInfo.endCursor;
 		}
 
-		return mapNormalizedMoveModule(moveModule, pkg);
+		return mapNormalizedMoveModule(moveModule, normalizeHaneulAddress(pkg));
 	},
 	async getNormalizedMoveStruct(transport, [pkg, module, struct]) {
 		const moveStruct = await transport.graphqlQuery(
