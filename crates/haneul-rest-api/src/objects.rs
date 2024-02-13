@@ -8,7 +8,7 @@ use haneul_types::{
     storage::ReadStore,
 };
 
-use crate::{AppError, Bcs};
+use crate::{AppError, response::Bcs};
 
 pub const GET_OBJECT_PATH: &str = "/objects/:object_id";
 

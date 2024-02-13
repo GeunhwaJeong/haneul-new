@@ -12,7 +12,7 @@ use haneul_types::{
     storage::ReadStore,
 };
 
-use crate::{headers::Accept, AppError, Bcs};
+use crate::{headers::Accept, AppError, response::Bcs};
 
 pub const GET_LATEST_CHECKPOINT_PATH: &str = "/checkpoints";
 pub const GET_CHECKPOINT_PATH: &str = "/checkpoints/:checkpoint";
