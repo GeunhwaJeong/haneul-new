@@ -24,11 +24,12 @@ use move_binary_format::{
     },
 };
 use move_core_types::{ident_str, language_storage::ModuleId};
+use haneul_types::bridge::BRIDGE_SUPPORTED_ASSET;
 use haneul_types::{
     base_types::{TX_CONTEXT_MODULE_NAME, TX_CONTEXT_STRUCT_NAME},
     error::ExecutionError,
     move_package::{is_test_fun, FnInfoMap},
-    HANEUL_FRAMEWORK_ADDRESS,
+    BRIDGE_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
 
 use crate::{verification_failure, INIT_FN_NAME};
@@ -45,7 +46,16 @@ pub fn verify_module(
     // the module has no initializer). The reason for it is that the HANEUL coin is only instantiated
     // during genesis. It is easiest to simply special-case this module particularly that this is
     // framework code and thus deemed correct.
-    if ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, ident_str!("haneul").to_owned()) == module.self_id() {
+    let self_id = module.self_id();
+
+    if ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, ident_str!("haneul").to_owned()) == self_id {
+        return Ok(());
+    }
+
+    if BRIDGE_SUPPORTED_ASSET
+        .iter()
+        .any(|token| ModuleId::new(BRIDGE_ADDRESS, ident_str!(token).to_owned()) == self_id)
+    {
         return Ok(());
     }
 

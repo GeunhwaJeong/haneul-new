@@ -1,0 +1,11 @@
+[package]
+name = "Bridge"
+version = "0.0.1"
+published-at = "0xb"
+
+[dependencies]
+MoveStdlib = { local = "../move-stdlib" }
+Haneul = { local = "../haneul-framework" }
+
+[addresses]
+bridge = "0xb"
