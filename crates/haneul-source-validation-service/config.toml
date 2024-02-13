@@ -2,66 +2,72 @@
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/haneul"
+network = "mainnet"
+[[packages.values.branches]]
 branch = "framework/mainnet"
-network = "mainnet"
-packages = [
-    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
-    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
-    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
-    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
+paths = [
+  { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+  { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+  { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+  { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" }
 ]
 
 [[packages]]
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/haneul"
+network = "testnet"
+[[packages.values.branches]]
 branch = "framework/testnet"
-network = "testnet"
-packages = [
-    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
-    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
-    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
-    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
+paths = [
+  { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+  { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+  { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+  { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" }
 ]
 
 [[packages]]
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/haneul"
-branch = "framework/devnet"
 network = "devnet"
-packages = [
-    { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
-    { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
-    { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
-    { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" },
+[[packages.values.branches]]
+branch = "framework/devnet"
+paths = [
+  { path = "crates/haneul-framework/packages/deepbook", watch = "0xdee9" },
+  { path = "crates/haneul-framework/packages/move-stdlib", watch = "0x1" },
+  { path = "crates/haneul-framework/packages/haneul-framework", watch = "0x2" },
+  { path = "crates/haneul-framework/packages/haneul-system", watch = "0x3" }
 ]
 
 [[packages]]
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/apps"
-branch = "main"
 network = "mainnet"
-packages = [
-    { path = "kiosk" },
+[[packages.values.branches]]
+branch = "main"
+paths = [
+  { path = "kiosk" },
 ]
 
 [[packages]]
 source = "Repository"
 [packages.values]
 repository = "https://github.com/GeunhwaJeong/apps"
-branch = "testnet"
 network = "testnet"
-packages = [
-    { path = "kiosk" },
+[[packages.values.branches]]
+branch = "testnet"
+paths = [
+  { path = "kiosk" },
 ]
 
 # [[packages]]
 # source = "Repository"
 # [packages.values]
 # repository = "https://github.com/kunalabs-io/haneul-smart-contracts"
+# [[packages.values.branches]]
 # branch = "master"
-# packages = [
-#    { path = "kai-finance" }
+# paths = [
+#   { path = "kai-finance" }
 # ]
