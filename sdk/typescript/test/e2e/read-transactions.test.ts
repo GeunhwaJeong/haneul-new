@@ -3,8 +3,8 @@
 
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { TransactionBlock } from '../../src/builder';
 import { HaneulTransactionBlockResponse } from '../../src/client';
+import { TransactionBlock } from '../../src/transactions';
 import { executePayHaneulNTimes, setup, TestToolbox } from './utils/setup';
 
 describe('Transaction Reading API', () => {

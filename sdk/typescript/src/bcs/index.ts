@@ -14,8 +14,7 @@ import {
 	toHEX,
 } from '@haneullabs/bcs';
 
-import type { MoveCallTransaction } from '../builder/Transactions.js';
-import type { HaneulObjectRef as HaneulObjectRefType } from '../types/objects.js';
+import type { MoveCallTransaction } from '../transactions/Transactions.js';
 import { normalizeHaneulAddress, HANEUL_ADDRESS_LENGTH } from '../utils/haneul-types.js';
 import { TypeTagSerializer } from './type-tag-serializer.js';
 
@@ -35,13 +34,22 @@ export type SharedObjectRef = {
 	mutable: boolean;
 };
 
+export type HaneulObjectRef = {
+	/** Base64 string representing the object digest */
+	objectId: string;
+	/** Object version */
+	version: number | string | bigint;
+	/** Hex code as string representing the object id */
+	digest: string;
+};
+
 /**
  * An object argument.
  */
 export type ObjectArg =
-	| { ImmOrOwned: HaneulObjectRefType }
+	| { ImmOrOwned: HaneulObjectRef }
 	| { Shared: SharedObjectRef }
-	| { Receiving: HaneulObjectRefType };
+	| { Receiving: HaneulObjectRef };
 
 /**
  * A pure argument.
@@ -109,7 +117,7 @@ export type TypeTag =
  * The GasData to be used in the transaction.
  */
 export type GasData = {
-	payment: HaneulObjectRefType[];
+	payment: HaneulObjectRef[];
 	owner: string; // Gas Object's owner
 	price: number;
 	budget: number;

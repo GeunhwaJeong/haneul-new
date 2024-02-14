@@ -4,12 +4,21 @@
 import type { SerializedBcs } from '@haneullabs/bcs';
 import { isSerializedBcs } from '@haneullabs/bcs';
 import type { Infer } from 'superstruct';
-import { array, boolean, integer, object, string, union } from 'superstruct';
+import { array, bigint, boolean, integer, number, object, string, union } from 'superstruct';
 
 import { bcs } from '../bcs/index.js';
 import type { SharedObjectRef } from '../bcs/index.js';
-import { HaneulObjectRef } from '../types/index.js';
 import { normalizeHaneulAddress } from '../utils/haneul-types.js';
+
+export const HaneulObjectRef = object({
+	/** Base64 string representing the object digest */
+	digest: string(),
+	/** Hex code as string representing the object id */
+	objectId: string(),
+	/** Object version */
+	version: union([number(), string(), bigint()]),
+});
+export type HaneulObjectRef = Infer<typeof HaneulObjectRef>;
 
 const ObjectArg = union([
 	object({ ImmOrOwned: HaneulObjectRef }),

@@ -27,7 +27,8 @@ export default defineConfig({
 			).pathname,
 			'@haneullabs/haneul.js/client': new URL('../typescript/src/client', import.meta.url).pathname,
 			'@haneullabs/haneul.js/utils': new URL('../typescript/src/utils', import.meta.url).pathname,
-			'@haneullabs/haneul.js/transactions': new URL('../typescript/src/builder', import.meta.url).pathname,
+			'@haneullabs/haneul.js/transactions': new URL('../typescript/src/transactions', import.meta.url)
+				.pathname,
 		},
 	},
 });

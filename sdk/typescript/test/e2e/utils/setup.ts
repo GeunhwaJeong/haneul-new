@@ -7,7 +7,6 @@ import { retry } from 'ts-retry-promise';
 import { expect } from 'vitest';
 import { WebSocket } from 'ws';
 
-import { TransactionBlock, UpgradePolicy } from '../../../src/builder/index.js';
 import type { HaneulObjectChangePublished } from '../../../src/client/index.js';
 import { getFullnodeUrl, HaneulClient, HaneulHTTPTransport } from '../../../src/client/index.js';
 import type { Keypair } from '../../../src/cryptography/index.js';
@@ -17,6 +16,7 @@ import {
 	requestHaneulFromFaucetV0,
 } from '../../../src/faucet/index.js';
 import { Ed25519Keypair } from '../../../src/keypairs/ed25519/index.js';
+import { TransactionBlock, UpgradePolicy } from '../../../src/transactions/index.js';
 import { HANEUL_TYPE_ARG } from '../../../src/utils/index.js';
 
 const DEFAULT_FAUCET_URL = import.meta.env.VITE_FAUCET_URL ?? getFaucetHost('localnet');

@@ -8,14 +8,6 @@ import { is, mask } from 'superstruct';
 import { bcs } from '../bcs/index.js';
 import type { ProtocolConfig, HaneulClient, HaneulMoveNormalizedType } from '../client/index.js';
 import type { SignatureWithBytes, Signer } from '../cryptography/index.js';
-import type { HaneulObjectResponse } from '../types/index.js';
-import {
-	extractMutableReference,
-	extractReference,
-	extractStructTag,
-	getObjectReference,
-	HaneulObjectRef,
-} from '../types/index.js';
 import { HANEUL_TYPE_ARG } from '../utils/index.js';
 import { normalizeHaneulAddress, normalizeHaneulObjectId } from '../utils/haneul-types.js';
 import {
@@ -25,6 +17,7 @@ import {
 	isMutableSharedObjectInput,
 	ObjectCallArg,
 	PureCallArg,
+	HaneulObjectRef,
 } from './Inputs.js';
 import { createPure } from './pure.js';
 import { getPureSerializationType, isTxContext } from './serializer.js';
@@ -32,7 +25,7 @@ import type { TransactionExpiration } from './TransactionBlockData.js';
 import { TransactionBlockDataBuilder } from './TransactionBlockData.js';
 import type { MoveCallTransaction, TransactionArgument, TransactionType } from './Transactions.js';
 import { TransactionBlockInput, Transactions } from './Transactions.js';
-import { create } from './utils.js';
+import { create, extractMutableReference, extractReference, extractStructTag } from './utils.js';
 
 export type TransactionObjectArgument = Exclude<
 	TransactionArgument,
@@ -804,9 +797,9 @@ export class TransactionBlock {
 						mutable,
 					});
 				} else if (normalizedType && isReceivingType(normalizedType)) {
-					input.value = Inputs.ReceivingRef(getObjectReference(object)!);
+					input.value = Inputs.ReceivingRef(object.data!);
 				} else {
-					input.value = Inputs.ObjectRef(getObjectReference(object as HaneulObjectResponse)!);
+					input.value = Inputs.ObjectRef(object.data!);
 				}
 			});
 		}

@@ -15,10 +15,10 @@ import {
 	upgradePackage,
 } from './utils/setup';
 
-import '../../src/builder/TransactionBlockData';
+import '../../src/transactions/TransactionBlockData';
 
 import { bcs } from '../../src/bcs';
-import { TransactionBlock } from '../../src/builder';
+import { TransactionBlock } from '../../src/transactions';
 
 export const HANEUL_CLOCK_OBJECT_ID = normalizeHaneulObjectId('0x6');
 

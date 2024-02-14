@@ -18,10 +18,9 @@ import {
 } from 'superstruct';
 
 import { bcs } from '../bcs/index.js';
-import { HaneulObjectRef } from '../types/index.js';
 import { normalizeHaneulAddress } from '../utils/haneul-types.js';
 import { hashTypedData } from './hash.js';
-import { BuilderCallArg, PureCallArg } from './Inputs.js';
+import { BuilderCallArg, PureCallArg, HaneulObjectRef } from './Inputs.js';
 import { TransactionBlockInput, TransactionType } from './Transactions.js';
 import { create } from './utils.js';
 
