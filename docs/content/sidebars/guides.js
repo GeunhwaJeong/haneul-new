@@ -56,7 +56,19 @@ const guides = [
 				},
 				items: [
 					'guides/developer/haneul-101/shared-owned',
-					'guides/developer/haneul-101/create-coin',
+					{
+						type: 'category',
+						label: 'Create Coins and Tokens',
+						link: {
+							type: 'doc',
+							id: 'guides/developer/haneul-101/create-coin',
+						},
+						items: [
+							'guides/developer/haneul-101/create-coin/regulated',
+							'guides/developer/haneul-101/create-coin/in-game-token',
+							'guides/developer/haneul-101/create-coin/loyalty',
+						],
+					},
 					'guides/developer/haneul-101/create-nft',
 					'guides/developer/haneul-101/using-events',
 					'guides/developer/haneul-101/access-time',
