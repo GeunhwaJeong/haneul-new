@@ -18,12 +18,12 @@ module test::object_basics {
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
 
-    struct Object has key, store {
+    public struct Object has key, store {
         id: UID,
         value: u64,
     }
 
-    struct Wrapper has key {
+    public struct Wrapper has key {
         id: UID,
         o: Object
     }

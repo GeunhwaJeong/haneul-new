@@ -8,8 +8,8 @@ module A0::m {
     use haneul::package;
     use haneul::tx_context::TxContext;
 
-    struct A {}
-    struct M has drop {}
+    public struct A {}
+    public struct M has drop {}
 
     fun init(m: M, ctx: &mut TxContext) {
         package::claim_and_keep(m, ctx);
@@ -21,9 +21,9 @@ module A1::m {
     use haneul::package::{Self, Publisher};
     use haneul::tx_context::TxContext;
 
-    struct A {}
-    struct B {}
-    struct M has drop {}
+    public struct A {}
+    public struct B {}
+    public struct M has drop {}
 
     fun init(m: M, ctx: &mut TxContext) {
         package::claim_and_keep(m, ctx);

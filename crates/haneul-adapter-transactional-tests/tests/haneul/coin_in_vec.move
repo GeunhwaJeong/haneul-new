@@ -13,7 +13,7 @@ module test::coin_in_vec {
     use haneul::transfer;
     use haneul::tx_context::{Self, TxContext};
 
-    struct Wrapper has key {
+    public struct Wrapper has key {
         id: UID,
         coins: vector<Coin<HANEUL>>,
     }

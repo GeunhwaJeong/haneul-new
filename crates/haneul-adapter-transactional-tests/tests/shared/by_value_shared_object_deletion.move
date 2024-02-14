@@ -13,7 +13,7 @@ module t2::o2 {
     use haneul::transfer;
     use haneul::tx_context::TxContext;
 
-    struct Obj2 has key, store {
+    public struct Obj2 has key, store {
         id: UID,
     }
 

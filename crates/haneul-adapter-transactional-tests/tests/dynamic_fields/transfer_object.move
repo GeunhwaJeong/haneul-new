@@ -14,11 +14,11 @@ use haneul::dynamic_object_field::{add, borrow, borrow_mut, remove};
 use haneul::object::{Self, UID};
 use haneul::tx_context::{sender, TxContext};
 
-struct Obj has key, store {
+public struct Obj has key, store {
     id: UID,
 }
 
-struct Counter has key, store {
+public struct Counter has key, store {
     id: UID,
     count: u64,
 }

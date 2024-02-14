@@ -11,7 +11,7 @@ module test::m1 {
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
 
-    struct CoolMarker has key, store { id: UID }
+    public struct CoolMarker has key, store { id: UID }
 
     public entry fun purchase(coin: Coin<HANEUL>, ctx: &mut TxContext) {
         transfer::public_transfer(purchase_(coin, ctx), tx_context::sender(ctx))

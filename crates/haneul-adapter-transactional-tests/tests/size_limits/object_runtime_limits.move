@@ -11,14 +11,14 @@ module a::m {
     use haneul::object;
     use haneul::tx_context::{sender, TxContext};
 
-    struct Obj has key {
+    public struct Obj has key {
         id: object::UID,
     }
 
     public entry fun add_n_items(n: u64, ctx: &mut TxContext) {
-        let i = 0;
+        let mut i = 0;
         while (i < n) {
-            let id = object::new(ctx);
+            let mut id = object::new(ctx);
             add<u64, u64>(&mut id, i, i);
             haneul::transfer::transfer(Obj { id }, sender(ctx));
 

@@ -11,12 +11,12 @@
 module test::m {
     use haneul::tx_context::TxContext;
 
-    struct S has key, store {
+    public struct S has key, store {
         id: haneul::object::UID,
     }
 
     public entry fun t(ctx: &mut TxContext) {
-        let parent = haneul::object::new(ctx);
+        let mut parent = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
         haneul::dynamic_object_field::add(&mut parent, 0, child);
         haneul::object::delete(parent);

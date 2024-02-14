@@ -12,7 +12,7 @@ module test::m {
     use haneul::tx_context::{Self, TxContext};
     use haneul::dynamic_object_field as ofield;
 
-    struct S has key, store {
+    public struct S has key, store {
         id: haneul::object::UID,
     }
 

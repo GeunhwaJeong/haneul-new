@@ -6,7 +6,7 @@
 //# publish
 module Test::M {
     use haneul::tx_context::{Self, TxContext};
-    struct Obj has key {
+    public struct Obj has key {
         id: haneul::object::UID,
         value: u64
     }

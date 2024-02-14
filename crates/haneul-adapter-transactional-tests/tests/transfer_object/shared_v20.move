@@ -12,7 +12,7 @@ module test::m {
     use haneul::tx_context::TxContext;
     use haneul::object::{Self, UID};
 
-    struct S has key { id: UID }
+    public struct S has key { id: UID }
 
     public entry fun mint_s(ctx: &mut TxContext) {
         let id = object::new(ctx);

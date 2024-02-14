@@ -6,7 +6,7 @@
 //# publish --upgradeable --sender A
 module Test_DepV1::DepM1 {
 
-    struct DepObj has key, store { id: haneul::object::UID, v: u64 }
+    public struct DepObj has key, store { id: haneul::object::UID, v: u64 }
 
     public fun foo(ctx: &mut haneul::tx_context::TxContext) {
         haneul::transfer::share_object(DepObj { id: haneul::object::new(ctx), v: 42 });
@@ -21,7 +21,7 @@ module Test_DepV1::DepM1 {
 //# upgrade --package Test_DepV1 --upgrade-capability 1,1 --sender A
 module Test_DepV2::DepM1 {
 
-    struct DepObj has key, store { id: haneul::object::UID, v: u64 }
+    public struct DepObj has key, store { id: haneul::object::UID, v: u64 }
 
     public fun foo(ctx: &mut haneul::tx_context::TxContext) {
         haneul::transfer::share_object(DepObj { id: haneul::object::new(ctx), v: 7 });

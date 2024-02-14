@@ -13,7 +13,7 @@ module test::m1 {
     use haneul::coin::Coin;
     use haneul::haneul::HANEUL;
 
-    struct R has key, store { id: UID }
+    public struct R has key, store { id: UID }
     public fun r(ctx: &mut TxContext): R { R { id: object::new(ctx) } }
 
     public fun v(): u64 { 100 }

@@ -9,16 +9,16 @@ module tto::M1 {
     use haneul::tx_context::{Self, TxContext};
     use haneul::transfer::{Self, Receiving};
 
-    struct Wrapper has key, store {
+    public struct Wrapper has key, store {
         id: UID,
         elem: B
     }
 
-    struct A has key, store {
+    public struct A has key, store {
         id: UID,
     }
 
-    struct B has key, store {
+    public struct B has key, store {
         id: UID,
     }
 

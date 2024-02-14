@@ -13,11 +13,11 @@ module test::m {
     use haneul::tx_context::{Self, TxContext};
     use haneul::dynamic_object_field as ofield;
 
-    struct S has key, store {
+    public struct S has key, store {
         id: haneul::object::UID,
     }
 
-    struct R has key, store {
+    public struct R has key, store {
         id: haneul::object::UID,
         s: S,
     }
@@ -57,7 +57,7 @@ module test::m {
         haneul::transfer::public_transfer(r, tx_context::sender(ctx))
     }
 
-    public entry fun remove_and_delete(s: S, idx: u64) {
+    public entry fun remove_and_delete(mut s: S, idx: u64) {
         let S { id } = ofield::remove(&mut s.id, idx);
         haneul::object::delete(id);
         let S { id } = s;

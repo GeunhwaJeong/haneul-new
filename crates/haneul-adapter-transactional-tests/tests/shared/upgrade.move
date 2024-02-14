@@ -12,12 +12,12 @@ module t::m {
     use haneul::transfer;
     use haneul::tx_context::{sender, TxContext};
 
-    struct Obj has key, store {
+    public struct Obj has key, store {
         id: UID,
     }
 
     public entry fun create(ctx: &mut TxContext) {
-        let o = Obj { id: object::new(ctx) };
+        let mut o = Obj { id: object::new(ctx) };
         haneul::dynamic_field::add(&mut o.id, 0, Obj { id: object::new(ctx) });
         haneul::dynamic_object_field::add(&mut o.id, 0, Obj { id: object::new(ctx) });
         transfer::public_transfer(o, sender(ctx))
