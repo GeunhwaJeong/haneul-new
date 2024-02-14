@@ -57,5 +57,5 @@ test-cluster.workspace = true
 hex-literal = "0.3.4"
 
 [[bin]]
-name = "haneul-bridge-validator-cli"
-path = "src/tools/validator_cli.rs"
+name = "haneul-bridge-cli"
+path = "src/tools/cli.rs"
