@@ -15,6 +15,10 @@ import {
 	useCoinsReFetchingConfig,
 	useSortedCoinsByCategories,
 } from '_hooks';
+import {
+	DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	DELEGATED_STAKES_QUERY_STALE_TIME,
+} from '_shared/constants';
 import { ampli } from '_src/shared/analytics/ampli';
 import { API_ENV } from '_src/shared/api-env';
 import { FEATURES } from '_src/shared/experimentation/features';
@@ -30,6 +34,7 @@ import {
 	useBalanceInUSD,
 	useCoinMetadata,
 	useFormatCoin,
+	useGetDelegatedStake,
 	useResolveHaneulNSName,
 } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
@@ -349,6 +354,12 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 		},
 	);
 
+	const { data: delegatedStake } = useGetDelegatedStake({
+		address: activeAccountAddress || '',
+		staleTime: DELEGATED_STAKES_QUERY_STALE_TIME,
+		refetchInterval: DELEGATED_STAKES_QUERY_REFETCH_INTERVAL,
+	});
+
 	const walletInterstitialConfig = useFeature<InterstitialConfig>(
 		FEATURES.WALLET_INTERSTITIAL_CONFIG,
 	).value;
@@ -513,7 +524,7 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 									</div>
 
 									<div className="w-full">
-										{activeCoinType === HANEUL_TYPE_ARG && accountHasHaneul ? (
+										{accountHasHaneul || delegatedStake?.length ? (
 											<TokenIconLink
 												disabled={!tokenBalance}
 												accountAddress={activeAccountAddress}
