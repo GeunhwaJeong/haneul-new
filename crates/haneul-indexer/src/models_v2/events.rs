@@ -16,8 +16,8 @@ use haneul_types::object::MoveObject;
 use haneul_types::parse_haneul_struct_tag;
 
 use crate::errors::IndexerError;
-use crate::schema_v2::events;
-use crate::types_v2::IndexedEvent;
+use crate::schema::events;
+use crate::types::IndexedEvent;
 
 #[derive(Queryable, QueryableByName, Insertable, Debug, Clone)]
 #[diesel(table_name = events)]

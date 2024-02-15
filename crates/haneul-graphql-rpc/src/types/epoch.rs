@@ -18,7 +18,7 @@ use async_graphql::*;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
 use fastcrypto::encoding::{Base58, Encoding};
 use haneul_indexer::models_v2::epoch::QueryableEpochInfo;
-use haneul_indexer::schema_v2::epochs;
+use haneul_indexer::schema::epochs;
 use haneul_types::messages_checkpoint::CheckpointCommitment as EpochCommitment;
 
 pub(crate) struct Epoch {

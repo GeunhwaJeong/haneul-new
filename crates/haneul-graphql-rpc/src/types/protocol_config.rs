@@ -3,7 +3,7 @@
 
 use async_graphql::*;
 use diesel::{ExpressionMethods, QueryDsl};
-use haneul_indexer::schema_v2::{checkpoints, epochs};
+use haneul_indexer::schema::{checkpoints, epochs};
 use haneul_protocol_config::{ProtocolConfig as NativeProtocolConfig, ProtocolVersion};
 
 use crate::{

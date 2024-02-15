@@ -40,9 +40,9 @@ use serde::{Deserialize, Serialize};
 use haneul_indexer::models_v2::objects::{
     StoredDeletedHistoryObject, StoredHistoryObject, StoredObject,
 };
-use haneul_indexer::schema_v2::{objects, objects_history, objects_snapshot};
-use haneul_indexer::types_v2::ObjectStatus as NativeObjectStatus;
-use haneul_indexer::types_v2::OwnerType;
+use haneul_indexer::schema::{objects, objects_history, objects_snapshot};
+use haneul_indexer::types::ObjectStatus as NativeObjectStatus;
+use haneul_indexer::types::OwnerType;
 use haneul_package_resolver::Resolver;
 use haneul_types::object::{
     MoveObject as NativeMoveObject, Object as NativeObject, Owner as NativeOwner,

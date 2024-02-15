@@ -10,7 +10,7 @@ use tap::tap::TapFallible;
 use tracing::warn;
 
 use haneul_indexer::framework::Handler;
-use haneul_indexer::types_v2::owner_to_owner_info;
+use haneul_indexer::types::owner_to_owner_info;
 use haneul_json_rpc_types::HaneulMoveValue;
 use haneul_package_resolver::Resolver;
 use haneul_rest_api::{CheckpointData, CheckpointTransaction};

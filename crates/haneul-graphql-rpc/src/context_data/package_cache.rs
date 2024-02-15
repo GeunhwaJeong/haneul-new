@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use move_core_types::account_address::AccountAddress;
 use haneul_indexer::errors::IndexerError;
-use haneul_indexer::{indexer_reader::IndexerReader, schema_v2::objects};
+use haneul_indexer::{indexer_reader::IndexerReader, schema::objects};
 use haneul_package_resolver::{
     error::Error as PackageResolverError, Package, PackageStore, PackageStoreWithLruCache, Result,
 };

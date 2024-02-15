@@ -13,7 +13,7 @@ use diesel::{
     r2d2::{ConnectionManager, Pool},
     PgConnection, RunQueryDsl,
 };
-use haneul_indexer::{models_v2::packages::StoredPackage, schema_v2::packages};
+use haneul_indexer::{models_v2::packages::StoredPackage, schema::packages};
 use haneul_types::{base_types::HaneulAddress, move_package::MovePackage};
 use tracing::info;
 

@@ -5,7 +5,7 @@ use async_graphql::connection::{Connection, CursorType, Edge};
 use async_graphql::*;
 use move_core_types::annotated_value::{self as A, MoveStruct};
 use haneul_indexer::models_v2::objects::StoredHistoryObject;
-use haneul_indexer::types_v2::{ObjectStatus, OwnerType};
+use haneul_indexer::types::{ObjectStatus, OwnerType};
 use haneul_package_resolver::Resolver;
 use haneul_types::dynamic_field::{derive_dynamic_field_id, DynamicFieldInfo, DynamicFieldType};
 

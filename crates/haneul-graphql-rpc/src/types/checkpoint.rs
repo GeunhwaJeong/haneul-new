@@ -24,7 +24,7 @@ use fastcrypto::encoding::{Base58, Encoding};
 use serde::{Deserialize, Serialize};
 use haneul_indexer::{
     models_v2::checkpoints::StoredCheckpoint,
-    schema_v2::{checkpoints, objects_snapshot},
+    schema::{checkpoints, objects_snapshot},
 };
 use haneul_types::messages_checkpoint::CheckpointDigest;
 

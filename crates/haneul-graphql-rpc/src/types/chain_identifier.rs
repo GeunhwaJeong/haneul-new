@@ -7,7 +7,7 @@ use crate::{
 };
 use async_graphql::*;
 use diesel::{ExpressionMethods, QueryDsl};
-use haneul_indexer::schema_v2::checkpoints;
+use haneul_indexer::schema::checkpoints;
 use haneul_types::{
     digests::ChainIdentifier as NativeChainIdentifier, messages_checkpoint::CheckpointDigest,
 };

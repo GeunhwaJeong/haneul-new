@@ -16,7 +16,7 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use haneul_indexer::types_v2::OwnerType;
+use haneul_indexer::types::OwnerType;
 use haneul_types::{parse_haneul_type_tag, TypeTag};
 
 /// The total balance for a particular coin type.
