@@ -14,7 +14,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::local_ip_utils;
-use haneul_config::node::OverloadThresholdConfig;
+use haneul_config::node::AuthorityOverloadConfig;
 use haneul_framework::BuiltInFramework;
 use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_macros::nondeterministic;
@@ -287,7 +287,7 @@ pub async fn init_local_authorities(
 pub async fn init_local_authorities_with_overload_thresholds(
     committee_size: usize,
     genesis_objects: Vec<Object>,
-    overload_thresholds: OverloadThresholdConfig,
+    overload_thresholds: AuthorityOverloadConfig,
 ) -> (
     AuthorityAggregator<LocalAuthorityClient>,
     Vec<Arc<AuthorityState>>,
@@ -298,7 +298,7 @@ pub async fn init_local_authorities_with_overload_thresholds(
     let authorities = join_all(key_pairs.iter().map(|(_, key_pair)| {
         TestAuthorityBuilder::new()
             .with_genesis_and_keypair(&genesis, key_pair)
-            .with_overload_threshold_config(overload_thresholds.clone())
+            .with_authority_overload_config(overload_thresholds.clone())
             .build()
     }))
     .await;

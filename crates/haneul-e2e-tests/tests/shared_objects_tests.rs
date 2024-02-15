@@ -6,7 +6,7 @@ use futures::join;
 use rand::distributions::Distribution;
 use std::ops::Deref;
 use std::time::{Duration, SystemTime};
-use haneul_config::node::OverloadThresholdConfig;
+use haneul_config::node::AuthorityOverloadConfig;
 use haneul_core::authority::EffectsNotifyRead;
 use haneul_core::consensus_adapter::position_submit_certificate;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
@@ -534,7 +534,7 @@ async fn access_clock_object_test() {
 async fn shared_object_sync() {
     let test_cluster = TestClusterBuilder::new()
         // Set the threshold high enough so it won't be triggered.
-        .with_overload_threshold_config(OverloadThresholdConfig {
+        .with_authority_overload_config(AuthorityOverloadConfig {
             max_txn_age_in_queue: Duration::from_secs(60),
             ..Default::default()
         })

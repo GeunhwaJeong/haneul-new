@@ -18,10 +18,10 @@ use std::sync::Arc;
 use haneul_archival::reader::ArchiveReaderBalancer;
 use haneul_config::certificate_deny_config::CertificateDenyConfig;
 use haneul_config::genesis::Genesis;
+use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
 use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
 };
-use haneul_config::node::{OverloadThresholdConfig, StateDebugDumpConfig};
 use haneul_config::transaction_deny_config::TransactionDenyConfig;
 use haneul_macros::nondeterministic;
 use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
@@ -53,7 +53,7 @@ pub struct TestAuthorityBuilder<'a> {
     accounts: Vec<AccountConfig>,
     /// By default, we don't insert the genesis checkpoint, which isn't needed by most tests.
     insert_genesis_checkpoint: bool,
-    overload_threshold_config: Option<OverloadThresholdConfig>,
+    authority_overload_config: Option<AuthorityOverloadConfig>,
 }
 
 impl<'a> TestAuthorityBuilder<'a> {
@@ -145,8 +145,8 @@ impl<'a> TestAuthorityBuilder<'a> {
         self
     }
 
-    pub fn with_overload_threshold_config(mut self, config: OverloadThresholdConfig) -> Self {
-        assert!(self.overload_threshold_config.replace(config).is_none());
+    pub fn with_authority_overload_config(mut self, config: AuthorityOverloadConfig) -> Self {
+        assert!(self.authority_overload_config.replace(config).is_none());
         self
     }
 
@@ -249,7 +249,7 @@ impl<'a> TestAuthorityBuilder<'a> {
         };
         let transaction_deny_config = self.transaction_deny_config.unwrap_or_default();
         let certificate_deny_config = self.certificate_deny_config.unwrap_or_default();
-        let overload_threshold_config = self.overload_threshold_config.unwrap_or_default();
+        let authority_overload_config = self.authority_overload_config.unwrap_or_default();
         let mut pruning_config = AuthorityStorePruningConfig::default();
         if !epoch_store
             .protocol_config()
@@ -279,7 +279,7 @@ impl<'a> TestAuthorityBuilder<'a> {
             StateDebugDumpConfig {
                 dump_file_directory: Some(tempdir().unwrap().into_path()),
             },
-            overload_threshold_config,
+            authority_overload_config,
             ArchiveReaderBalancer::default(),
         )
         .await;
