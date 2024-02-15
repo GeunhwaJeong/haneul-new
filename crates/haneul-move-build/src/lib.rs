@@ -48,8 +48,7 @@ use haneul_types::{
     error::{HaneulError, HaneulResult},
     is_system_package,
     move_package::{FnInfo, FnInfoKey, FnInfoMap, MovePackage},
-    BRIDGE_ADDRESS, DEEPBOOK_ADDRESS, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
-    HANEUL_SYSTEM_ADDRESS,
+    DEEPBOOK_ADDRESS, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
 use haneul_verifier::{default_verifier_config, verifier as haneul_bytecode_verifier};
 
@@ -408,12 +407,6 @@ impl CompiledPackage {
     pub fn get_deepbook_modules(&self) -> impl Iterator<Item = &CompiledModule> {
         self.get_modules_and_deps()
             .filter(|m| *m.self_id().address() == DEEPBOOK_ADDRESS)
-    }
-
-    /// Get bytecode modules from DeepBook that are used by this package
-    pub fn get_bridge_modules(&self) -> impl Iterator<Item = &CompiledModule> {
-        self.get_modules_and_deps()
-            .filter(|m| *m.self_id().address() == BRIDGE_ADDRESS)
     }
 
     /// Get bytecode modules from the Haneul System that are used by this package
