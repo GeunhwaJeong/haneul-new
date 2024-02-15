@@ -18,6 +18,7 @@ cfg-if.workspace = true
 consensus-config.workspace = true
 enum_dispatch.workspace = true
 fastcrypto.workspace = true
+futures.workspace = true
 mockall.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
