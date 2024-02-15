@@ -249,7 +249,7 @@ impl HaneulNode {
         registry_service: RegistryService,
         custom_rpc_runtime: Option<Handle>,
     ) -> Result<Arc<HaneulNode>> {
-        Self::start_async(config, registry_service, custom_rpc_runtime).await
+        Self::start_async(config, registry_service, custom_rpc_runtime, "unknown").await
     }
 
     fn start_jwk_updater(
@@ -391,6 +391,7 @@ impl HaneulNode {
         config: &NodeConfig,
         registry_service: RegistryService,
         custom_rpc_runtime: Option<Handle>,
+        software_version: &'static str,
     ) -> Result<Arc<HaneulNode>> {
         NodeConfigMetrics::new(&registry_service.default_registry()).record_metrics(config);
         let mut config = config.clone();
@@ -652,6 +653,7 @@ impl HaneulNode {
             &config,
             &prometheus_registry,
             custom_rpc_runtime,
+            software_version,
         )?;
 
         let accumulator = Arc::new(StateAccumulator::new(store));
@@ -1745,11 +1747,14 @@ pub fn build_http_server(
     config: &NodeConfig,
     prometheus_registry: &Registry,
     _custom_runtime: Option<Handle>,
+    software_version: &'static str,
 ) -> Result<Option<tokio::task::JoinHandle<()>>> {
     // Validators do not expose these APIs
     if config.consensus_config().is_some() {
         return Ok(None);
     }
+
+    let chain_id = state.get_chain_identifier().unwrap();
 
     let mut router = axum::Router::new();
 
@@ -1816,7 +1821,9 @@ pub fn build_http_server(
     router = router.merge(json_rpc_router);
 
     if config.enable_experimental_rest_api {
-        let rest_router = haneul_rest_api::rest_router(store);
+        let rest_router =
+            haneul_rest_api::RestService::new(Arc::new(store.clone()), chain_id, software_version)
+                .into_router();
         router = router.nest("/rest", rest_router);
     }
 
