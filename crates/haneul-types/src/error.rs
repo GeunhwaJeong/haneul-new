@@ -537,10 +537,6 @@ pub enum HaneulError {
     HandleConsensusTransactionFailure(String),
 
     // Cryptography errors.
-    #[error("Signature seed invalid length, input byte size was: {0}")]
-    SignatureSeedInvalidLength(usize),
-    #[error("HKDF error: {0}")]
-    HkdfError(String),
     #[error("Signature key generation error: {0}")]
     SignatureKeyGenError(String),
     #[error("Key Conversion Error: {0}")]
@@ -703,17 +699,6 @@ impl From<&str> for HaneulError {
         }
     }
 }
-
-// impl From<FastCryptoError> for HaneulError {
-//     fn from(kind: FastCryptoError) -> Self {
-//         match kind {
-//             FastCryptoError::InvalidSignature => HaneulError::InvalidSignature {
-//                 error: "Invalid signature".to_string(),
-//             },
-//             _ => HaneulError::Unknown("Unknown cryptography error".to_string()),
-//         }
-//     }
-// }
 
 impl TryFrom<HaneulError> for UserInputError {
     type Error = anyhow::Error;

@@ -703,7 +703,10 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
             }
             GenericSignature::MultiSig(ms) => Ok(ms.get_pk().into()),
             GenericSignature::MultiSigLegacy(ms) => {
-                Ok(crate::multisig::MultiSig::try_from(ms.clone())?
+                Ok(crate::multisig::MultiSig::try_from(ms.clone())
+                    .map_err(|_| HaneulError::InvalidSignature {
+                        error: "Invalid legacy multisig".to_string(),
+                    })?
                     .get_pk()
                     .into())
             }

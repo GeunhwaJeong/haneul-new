@@ -916,6 +916,7 @@ impl KeyToolCommand {
                 } else {
                     HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut rand::thread_rng()))
                 };
+                println!("Ephemeral keypair: {:?}", skp.encode());
                 let pk = skp.public();
                 let ephemeral_key_identifier: HaneulAddress = (&skp.public()).into();
                 println!("Ephemeral key identifier: {ephemeral_key_identifier}");
