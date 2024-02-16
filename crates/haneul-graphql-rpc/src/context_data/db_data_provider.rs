@@ -7,9 +7,8 @@ use crate::{
     types::{address::Address, haneul_address::HaneulAddress, validator::Validator},
 };
 use std::{collections::BTreeMap, time::Duration};
-use haneul_indexer::{
-    apis::GovernanceReadApiV2, indexer_reader::IndexerReader, PgConnectionPoolConfig,
-};
+use haneul_indexer::db::PgConnectionPoolConfig;
+use haneul_indexer::{apis::GovernanceReadApiV2, indexer_reader::IndexerReader};
 use haneul_json_rpc_types::Stake as RpcStakedHaneul;
 use haneul_types::{
     base_types::HaneulAddress as NativeHaneulAddress,
