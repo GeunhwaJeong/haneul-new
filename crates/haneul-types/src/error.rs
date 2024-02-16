@@ -800,6 +800,10 @@ impl HaneulError {
                 | HaneulError::TooManyTransactionsPendingConsensus
         )
     }
+
+    pub fn is_retryable_overload(&self) -> bool {
+        matches!(self, HaneulError::ValidatorOverloadedRetryAfter { .. })
+    }
 }
 
 impl Ord for HaneulError {
