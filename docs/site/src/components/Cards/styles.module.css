@@ -1,0 +1,46 @@
+:root {
+  --haneul-cards-border-color: transparent;
+  --haneul-cards-background: #F5F8FA;
+  --haneul-cards-header: #4DA2FF;
+  --haneul-cards-copy: #91A3B1;
+  --haneul-cards-background-hover: #EBF1F5;
+}
+
+[data-theme='dark'] {
+    --haneul-cards-border-color: rgba(247, 247, 248, 0.05);
+    --haneul-cards-background: rgba(247, 247, 248, 0.05);
+    --haneul-cards-background-hover: rgba(247, 247, 248, 0.15);
+    --haneul-cards-header: #4DA2FF;
+    --haneul-cards-copy: #ABBDCC;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    row-gap: .75rem;
+    border-radius: 20px;
+    padding: 1.25rem;
+    padding-bottom: 1.5rem;
+    background: var(--haneul-cards-background);
+    cursor: pointer;
+    transition: background .25s ease-in-out;
+    border: solid 1px var(--haneul-cards-border-color);
+}
+.card:hover {
+    background: var(--haneul-cards-background-hover);
+}
+
+.card__header__copy {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.25rem;
+    color: var(--haneul-cards-header);
+}
+
+.card__copy {
+    font-size: .8125rem;
+    line-height: 1.3125rem;
+    color: var(--haneul-cards-copy);
+}
+

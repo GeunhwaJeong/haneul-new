@@ -9,6 +9,9 @@ module.exports = {
   darkMode: ["class", '[data-theme="dark"]'], // hooks into docusaurus' dark mode settings
   theme: {
     extend: {
+      fontFamily: {
+        twkeverett: ["Twkeverett"],
+      },
       colors: {
         "haneul-black": "var(--haneul-black)",
         "haneul-blue": "var(--haneul-blue)",
