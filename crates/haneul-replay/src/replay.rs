@@ -7,7 +7,7 @@ use crate::{
     data_fetcher::{
         extract_epoch_and_version, DataFetcher, Fetchers, NodeStateDumpFetcher, RemoteFetcher,
     },
-    displays::Pretty,
+    displays::{transaction_displays::FullPTB, Pretty, PrettyM},
     types::*,
 };
 use futures::executor::block_on;
@@ -44,6 +44,7 @@ use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::inner_temporary_store::TemporaryPackageStore;
 use haneul_types::storage::{get_module, PackageObject};
 use haneul_types::transaction::TransactionKind::ProgrammableTransaction;
 use haneul_types::{
@@ -779,22 +780,27 @@ impl LocalExec {
 
         trace!(target: "replay_gas_info", "{}", Pretty(&gas_status));
 
+        let cache = PassthroughCache::new_with_no_metrics(/* need an AuthorityStore */);
+        let mut layout_resolver = executor.type_layout_resolver(Box::new(cache));
+
         let skip_checks = true;
         if let ProgrammableTransaction(ref pt) = transaction_kind {
-            trace!(target: "replay_ptb_info", "{}", Pretty(&(pt.clone(), executor.dev_inspect_transaction(&self, protocol_config,
-                metrics,
-                expensive_checks,
-                &certificate_deny_set,
+            trace!(target: "replay_ptb_info", "{}", PrettyM(&mut FullPTB { ptb: pt.clone(), results: executor.dev_inspect_transaction(&self, protocol_config,
+                 metrics,
+                 expensive_checks,
+                 &certificate_deny_set,
                 &tx_info.executed_epoch,
-                epoch_start_timestamp,
-                CheckedInputObjects::new_for_replay(input_objects),
-                tx_info.gas.clone(),
-                HaneulGasStatus::new(tx_info.gas_budget, tx_info.gas_price, rgp, protocol_config)?,
-                transaction_kind.clone(),
-                tx_info.sender,
-                *tx_digest,
-                skip_checks
-            ).3.unwrap_or_else(|e| panic!("Error executing this transaction in dev-inspect mode, {e}")))));
+                 epoch_start_timestamp,
+                 CheckedInputObjects::new_for_replay(input_objects),
+                 tx_info.gas.clone(),
+                 HaneulGasStatus::new(tx_info.gas_budget, tx_info.gas_price, rgp, protocol_config)?,
+                 transaction_kind.clone(),
+                 tx_info.sender,
+                 *tx_digest,
+                 skip_checks
+             ).3.unwrap_or_else(|e| panic!("Error executing this transaction in dev-inspect mode, {e}")),
+            layout_resolver
+             }))
         };
 
         let all_required_objects = self.storage.all_objects();
