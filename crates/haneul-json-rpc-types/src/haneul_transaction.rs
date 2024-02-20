@@ -927,10 +927,10 @@ impl Display for HaneulTransactionBlockEffects {
         let gas_cost_summary = self.gas_cost_summary();
         builder.push_record(vec![format!(
             "Gas Cost Summary:\n   \
-             Storage Cost: {}\n   \
-             Computation Cost: {}\n   \
-             Storage Rebate: {}\n   \
-             Non-refundable Storage Fee: {}",
+             Storage Cost: {} GEUNHWA\n   \
+             Computation Cost: {} GEUNHWA\n   \
+             Storage Rebate: {} GEUNHWA\n   \
+             Non-refundable Storage Fee: {} GEUNHWA",
             gas_cost_summary.storage_cost,
             gas_cost_summary.computation_cost,
             gas_cost_summary.storage_rebate,
