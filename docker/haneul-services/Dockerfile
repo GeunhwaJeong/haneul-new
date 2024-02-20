@@ -2,7 +2,7 @@ FROM rust:1.75-bullseye  AS chef
 WORKDIR haneul
 ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
-RUN apt-get update && apt-get install -y cmake clang
+RUN apt-get update && apt-get install -y cmake clang libpq5 ca-certificates libpq-dev postgresql
 
 # Plan out the 3rd-party dependencies that need to be built.
 #
@@ -41,12 +41,17 @@ COPY haneul-execution haneul-execution
 COPY narwhal narwhal
 COPY external-crates external-crates
 RUN cargo build --release \
-    --bin haneul-oracle
+    --bin haneul-oracle \
+    --bin haneulns-indexer
+RUN mkdir /haneul/bin/
+RUN find /haneul/target/release/ -maxdepth 1 -type f -executable -print 
+RUN find /haneul/target/release/ -maxdepth 1 -type f -executable -print | xargs cp -t /haneul/bin/
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
-COPY --from=builder /haneul/target/release/haneul-oracle /usr/local/bin
+COPY --from=builder /haneul/bin/* /usr/local/bin
+RUN apt update && apt install -y libpq5 libpq-dev postgresql
 
 ARG BUILD_DATE
 ARG GIT_REVISION
