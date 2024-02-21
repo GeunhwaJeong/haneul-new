@@ -17,7 +17,7 @@ use async_graphql::connection::Connection;
 use async_graphql::*;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
 use fastcrypto::encoding::{Base58, Encoding};
-use haneul_indexer::models_v2::epoch::QueryableEpochInfo;
+use haneul_indexer::models::epoch::QueryableEpochInfo;
 use haneul_indexer::schema::epochs;
 use haneul_types::messages_checkpoint::CheckpointCommitment as EpochCommitment;
 

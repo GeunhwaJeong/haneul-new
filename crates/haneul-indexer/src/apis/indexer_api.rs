@@ -25,12 +25,12 @@ use haneul_types::event::EventID;
 use haneul_types::object::ObjectRead;
 use haneul_types::TypeTag;
 
-pub(crate) struct IndexerApiV2 {
+pub(crate) struct IndexerApi {
     inner: IndexerReader,
     name_service_config: NameServiceConfig,
 }
 
-impl IndexerApiV2 {
+impl IndexerApi {
     pub fn new(inner: IndexerReader) -> Self {
         Self {
             inner,
@@ -121,7 +121,7 @@ impl IndexerApiV2 {
 }
 
 #[async_trait]
-impl IndexerApiServer for IndexerApiV2 {
+impl IndexerApiServer for IndexerApi {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
@@ -351,7 +351,7 @@ impl IndexerApiServer for IndexerApiV2 {
     }
 }
 
-impl HaneulRpcModule for IndexerApiV2 {
+impl HaneulRpcModule for IndexerApi {
     fn rpc(self) -> RpcModule<Self> {
         self.into_rpc()
     }

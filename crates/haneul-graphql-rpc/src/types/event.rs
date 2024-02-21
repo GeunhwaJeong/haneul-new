@@ -18,7 +18,7 @@ use async_graphql::connection::{Connection, CursorType, Edge};
 use async_graphql::*;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl};
 use serde::{Deserialize, Serialize};
-use haneul_indexer::models_v2::{events::StoredEvent, transactions::StoredTransaction};
+use haneul_indexer::models::{events::StoredEvent, transactions::StoredTransaction};
 use haneul_indexer::schema::{events, transactions, tx_senders};
 use haneul_types::base_types::ObjectID;
 use haneul_types::Identifier;

@@ -25,7 +25,7 @@ use super::type_filter::ExactTypeFilter;
 use async_graphql::*;
 
 use async_graphql::connection::{Connection, CursorType, Edge};
-use haneul_indexer::models_v2::objects::StoredHistoryObject;
+use haneul_indexer::models::objects::StoredHistoryObject;
 use haneul_indexer::types::OwnerType;
 use haneul_types::coin::Coin as NativeCoin;
 use haneul_types::TypeTag;

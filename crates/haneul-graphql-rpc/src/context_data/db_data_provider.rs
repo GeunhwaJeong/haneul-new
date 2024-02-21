@@ -8,7 +8,7 @@ use crate::{
 };
 use std::{collections::BTreeMap, time::Duration};
 use haneul_indexer::db::PgConnectionPoolConfig;
-use haneul_indexer::{apis::GovernanceReadApiV2, indexer_reader::IndexerReader};
+use haneul_indexer::{apis::GovernanceReadApi, indexer_reader::IndexerReader};
 use haneul_json_rpc_types::Stake as RpcStakedHaneul;
 use haneul_types::{
     base_types::HaneulAddress as NativeHaneulAddress,
@@ -56,7 +56,7 @@ impl PgManager {
         &self,
         address: &NativeHaneulAddress,
     ) -> Result<Option<f64>, Error> {
-        let governance_api = GovernanceReadApiV2::new(self.inner.clone());
+        let governance_api = GovernanceReadApi::new(self.inner.clone());
 
         governance_api
             .get_validator_apy(address)
@@ -99,7 +99,7 @@ impl PgManager {
         &self,
         stake: NativeStakedHaneul,
     ) -> Result<RpcStakedHaneul, Error> {
-        let governance_api = GovernanceReadApiV2::new(self.inner.clone());
+        let governance_api = GovernanceReadApi::new(self.inner.clone());
 
         let mut delegated_stakes = governance_api
             .get_delegated_stakes(vec![stake])

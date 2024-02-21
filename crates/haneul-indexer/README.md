@@ -47,11 +47,11 @@ git fetch upstream devnet && git reset --hard upstream/devnet
 - run indexer as a writer, which pulls data from fullnode and writes data to DB
 ```sh
 # Change the RPC_CLIENT_URL to http://0.0.0.0:9000 to run indexer against local validator & fullnode
-cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --fullnode-sync-worker --use-v2 --reset-db
+cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --fullnode-sync-worker --reset-db
 ```
 - run indexer as a reader, which is a JSON RPC server with the [interface](https://docs.haneul.io/haneul-api-ref#haneulx_getallbalances)
 ```
-cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --rpc-server-worker --use-v2
+cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --rpc-server-worker
 ```
 More flags info can be found in this [file](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-indexer/src/lib.rs#L83-L123).
 ### DB reset

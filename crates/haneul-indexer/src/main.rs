@@ -10,7 +10,7 @@ use haneul_indexer::indexer::Indexer;
 use haneul_indexer::metrics::start_prometheus_server;
 use haneul_indexer::metrics::IndexerMetrics;
 use haneul_indexer::store::PgIndexerAnalyticalStore;
-use haneul_indexer::store::PgIndexerStoreV2;
+use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::IndexerConfig;
 
 #[tokio::main]
@@ -88,7 +88,7 @@ async fn main() -> Result<(), IndexerError> {
     });
 
     if indexer_config.fullnode_sync_worker {
-        let store = PgIndexerStoreV2::new(blocking_cp, indexer_metrics.clone());
+        let store = PgIndexerStore::new(blocking_cp, indexer_metrics.clone());
         return Indexer::start_writer(&indexer_config, store, indexer_metrics).await;
     } else if indexer_config.rpc_server_worker {
         return Indexer::start_reader(&indexer_config, &registry, db_url).await;

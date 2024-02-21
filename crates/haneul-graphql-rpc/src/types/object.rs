@@ -36,9 +36,7 @@ use diesel::{CombineDsl, ExpressionMethods, OptionalExtension, QueryDsl};
 use move_core_types::annotated_value::{MoveStruct, MoveTypeLayout};
 use move_core_types::language_storage::StructTag;
 use serde::{Deserialize, Serialize};
-use haneul_indexer::models_v2::objects::{
-    StoredDeletedHistoryObject, StoredHistoryObject, StoredObject,
-};
+use haneul_indexer::models::objects::{StoredDeletedHistoryObject, StoredHistoryObject, StoredObject};
 use haneul_indexer::schema::{objects, objects_history, objects_snapshot};
 use haneul_indexer::types::ObjectStatus as NativeObjectStatus;
 use haneul_indexer::types::OwnerType;

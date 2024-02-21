@@ -12,18 +12,18 @@ use haneul_json_rpc_types::{
 use haneul_open_rpc::Module;
 use haneul_types::haneul_serde::BigInt;
 
-pub(crate) struct ExtendedApiV2 {
+pub(crate) struct ExtendedApi {
     inner: IndexerReader,
 }
 
-impl ExtendedApiV2 {
+impl ExtendedApi {
     pub fn new(inner: IndexerReader) -> Self {
         Self { inner }
     }
 }
 
 #[async_trait::async_trait]
-impl ExtendedApiServer for ExtendedApiV2 {
+impl ExtendedApiServer for ExtendedApi {
     async fn get_epochs(
         &self,
         cursor: Option<BigInt<u64>>,
@@ -163,7 +163,7 @@ impl ExtendedApiServer for ExtendedApiV2 {
     }
 }
 
-impl HaneulRpcModule for ExtendedApiV2 {
+impl HaneulRpcModule for ExtendedApi {
     fn rpc(self) -> RpcModule<Self> {
         self.into_rpc()
     }

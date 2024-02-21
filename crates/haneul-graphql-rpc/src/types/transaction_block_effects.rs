@@ -6,7 +6,7 @@ use async_graphql::{
     connection::{Connection, ConnectionNameType, CursorType, Edge, EdgeNameType, EmptyFields},
     *,
 };
-use haneul_indexer::models_v2::transactions::StoredTransaction;
+use haneul_indexer::models::transactions::StoredTransaction;
 use haneul_types::{
     effects::{TransactionEffects as NativeTransactionEffects, TransactionEffectsAPI},
     event::Event as NativeEvent,

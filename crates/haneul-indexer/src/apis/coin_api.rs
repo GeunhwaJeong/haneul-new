@@ -14,18 +14,18 @@ use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::{GAS, TOTAL_SUPPLY_GEUNHWA};
 
-pub(crate) struct CoinReadApiV2 {
+pub(crate) struct CoinReadApi {
     inner: IndexerReader,
 }
 
-impl CoinReadApiV2 {
+impl CoinReadApi {
     pub fn new(inner: IndexerReader) -> Self {
         Self { inner }
     }
 }
 
 #[async_trait]
-impl CoinReadApiServer for CoinReadApiV2 {
+impl CoinReadApiServer for CoinReadApi {
     async fn get_coins(
         &self,
         owner: HaneulAddress,
@@ -142,7 +142,7 @@ impl CoinReadApiServer for CoinReadApiV2 {
     }
 }
 
-impl HaneulRpcModule for CoinReadApiV2 {
+impl HaneulRpcModule for CoinReadApi {
     fn rpc(self) -> RpcModule<Self> {
         self.into_rpc()
     }

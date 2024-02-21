@@ -18,7 +18,7 @@ use self::models::*;
 use std::env;
 use haneul_indexer::db::new_pg_connection_pool;
 use haneul_indexer::errors::IndexerError;
-use haneul_indexer::store::module_resolver_v2::IndexerStorePackageModuleResolver;
+use haneul_indexer::store::module_resolver::IndexerStorePackageModuleResolver;
 
 use move_core_types::language_storage::ModuleId;
 use move_core_types::resolver::ModuleResolver;

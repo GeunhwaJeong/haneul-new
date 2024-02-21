@@ -23,7 +23,7 @@ use diesel::{CombineDsl, ExpressionMethods, OptionalExtension, QueryDsl};
 use fastcrypto::encoding::{Base58, Encoding};
 use serde::{Deserialize, Serialize};
 use haneul_indexer::{
-    models_v2::checkpoints::StoredCheckpoint,
+    models::checkpoints::StoredCheckpoint,
     schema::{checkpoints, objects_snapshot},
 };
 use haneul_types::messages_checkpoint::CheckpointDigest;

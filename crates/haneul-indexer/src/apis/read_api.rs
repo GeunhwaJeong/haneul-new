@@ -26,11 +26,11 @@ use haneul_types::haneul_serde::BigInt;
 use haneul_json_rpc_types::HaneulLoadedChildObjectsResponse;
 
 #[derive(Clone)]
-pub(crate) struct ReadApiV2 {
+pub(crate) struct ReadApi {
     inner: IndexerReader,
 }
 
-impl ReadApiV2 {
+impl ReadApi {
     pub fn new(inner: IndexerReader) -> Self {
         Self { inner }
     }
@@ -62,7 +62,7 @@ impl ReadApiV2 {
 }
 
 #[async_trait]
-impl ReadApiServer for ReadApiV2 {
+impl ReadApiServer for ReadApi {
     async fn get_object(
         &self,
         object_id: ObjectID,
@@ -296,7 +296,7 @@ impl ReadApiServer for ReadApiV2 {
     }
 }
 
-impl HaneulRpcModule for ReadApiV2 {
+impl HaneulRpcModule for ReadApi {
     fn rpc(self) -> RpcModule<Self> {
         self.into_rpc()
     }

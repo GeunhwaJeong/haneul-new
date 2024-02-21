@@ -189,7 +189,7 @@ mod tests {
     use haneul_framework::BuiltInFramework;
     use haneul_indexer::{
         db::{get_pg_pool_connection, new_pg_connection_pool, reset_database},
-        models_v2::objects::StoredObject,
+        models::objects::StoredObject,
         schema::objects,
         types::IndexedObject,
     };

@@ -1,29 +1,29 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use super::governance_api_v2::GovernanceReadApiV2;
+use super::governance_api::GovernanceReadApi;
 use crate::indexer_reader::IndexerReader;
 use async_trait::async_trait;
 use move_core_types::language_storage::StructTag;
-use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
+use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi as HaneulTransactionBuilderApi;
 use haneul_json_rpc_types::{HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse};
 use haneul_transaction_builder::DataReader;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
 use haneul_types::object::Object;
 
-pub(crate) struct TransactionBuilderApiV2 {
+pub(crate) struct TransactionBuilderApi {
     inner: IndexerReader,
 }
 
-impl TransactionBuilderApiV2 {
+impl TransactionBuilderApi {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(inner: IndexerReader) -> TransactionBuilderApi {
-        TransactionBuilderApi::new_with_data_reader(std::sync::Arc::new(Self { inner }))
+    pub fn new(inner: IndexerReader) -> HaneulTransactionBuilderApi {
+        HaneulTransactionBuilderApi::new_with_data_reader(std::sync::Arc::new(Self { inner }))
     }
 }
 
 #[async_trait]
-impl DataReader for TransactionBuilderApiV2 {
+impl DataReader for TransactionBuilderApi {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,
@@ -63,7 +63,7 @@ impl DataReader for TransactionBuilderApiV2 {
     }
 
     async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error> {
-        let epoch_info = GovernanceReadApiV2::new(self.inner.clone())
+        let epoch_info = GovernanceReadApi::new(self.inner.clone())
             .get_epoch_info(None)
             .await?;
         Ok(epoch_info
