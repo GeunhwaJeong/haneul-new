@@ -1,9 +1,0 @@
-[package]
-name = "escrow"
-version = "0.0.1"
-
-[dependencies]
-Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
-
-[addresses]
-escrow = "0x0"
