@@ -8,7 +8,7 @@ module P0::m {
     use haneul::object::{Self, UID};
     use haneul::tx_context::TxContext;
 
-    struct Foo has key, store {
+    public struct Foo has key, store {
         id: UID,
         xs: vector<u64>,
     }
@@ -206,7 +206,7 @@ module P0::m {
     use haneul::object::{Self, UID};
     use haneul::tx_context::TxContext;
 
-    struct Foo has key, store {
+    public struct Foo has key, store {
         id: UID,
         xs: vector<u64>,
     }

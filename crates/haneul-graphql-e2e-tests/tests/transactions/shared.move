@@ -9,7 +9,7 @@ module P0::m {
     use haneul::tx_context::TxContext;
     use haneul::transfer;
 
-    struct Foo has key {
+    public struct Foo has key {
         id: UID,
         x: u64,
     }

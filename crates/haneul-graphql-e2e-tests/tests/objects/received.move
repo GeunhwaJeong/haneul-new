@@ -20,7 +20,7 @@ module P0::m {
     use haneul::transfer;
     use haneul::tx_context::TxContext;
 
-    struct Obj has key {
+    public struct Obj has key {
         id: UID
     }
 
