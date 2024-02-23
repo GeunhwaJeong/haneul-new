@@ -25,6 +25,7 @@ use std::time::Duration;
 use haneul_core::authority::CHAIN_IDENTIFIER;
 use haneul_core::consensus_adapter::SubmitToConsensus;
 use haneul_core::epoch::randomness::RandomnessManager;
+use haneul_core::execution_cache::ExecutionCacheMetrics;
 use haneul_core::execution_cache::NotifyReadWrapper;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_types::base_types::ConciseableName;
@@ -444,7 +445,8 @@ impl HaneulNode {
             &prometheus_registry,
         )
         .await?;
-        let execution_cache = Arc::new(ExecutionCache::new(store.clone(), &prometheus_registry));
+        let execution_cache_metrics = Arc::new(ExecutionCacheMetrics::new(&prometheus_registry));
+        let execution_cache = Arc::new(ExecutionCache::new(store.clone(), execution_cache_metrics));
 
         let cur_epoch = store.get_recovery_epoch_at_restart()?;
         let committee = committee_store
