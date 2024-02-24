@@ -79,6 +79,7 @@ use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::execution_cache::{ExecutionCache, ExecutionCacheReconfigAPI};
 use haneul_core::module_cache_metrics::ResolverMetrics;
+use haneul_core::overload_monitor::overload_monitor;
 use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_core::state_accumulator::StateAccumulator;
 use haneul_core::storage::RocksDbStore;
@@ -95,6 +96,7 @@ use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
 use haneul_json_rpc::JsonRpcServerBuilder;
+use haneul_macros::fail_point;
 use haneul_macros::{fail_point_async, replay_log};
 use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
@@ -130,6 +132,7 @@ pub mod metrics;
 
 pub struct ValidatorComponents {
     validator_server_handle: JoinHandle<Result<()>>,
+    validator_overload_monitor_handle: Option<JoinHandle<()>>,
     consensus_manager: ConsensusManager,
     consensus_epoch_data_remover: EpochDataRemover,
     consensus_adapter: Arc<ConsensusAdapter>,
@@ -1087,6 +1090,24 @@ impl HaneulNode {
         )
         .await?;
 
+        // Starts an overload monitor that monitors the execution of the authority.
+        // Don't start the overload monitor when max_load_shedding_percentage is 0.
+        let validator_overload_monitor_handle = if config
+            .authority_overload_config
+            .max_load_shedding_percentage
+            > 0
+        {
+            let authority_state = Arc::downgrade(&state);
+            let overload_config = config.authority_overload_config.clone();
+            fail_point!("starting_overload_monitor");
+            Some(spawn_monitored_task!(overload_monitor(
+                authority_state,
+                overload_config,
+            )))
+        } else {
+            None
+        };
+
         Self::start_epoch_specific_validator_components(
             config,
             state.clone(),
@@ -1098,6 +1119,7 @@ impl HaneulNode {
             consensus_epoch_data_remover,
             accumulator,
             validator_server_handle,
+            validator_overload_monitor_handle,
             checkpoint_metrics,
             haneul_node_metrics,
             haneul_tx_validator_metrics,
@@ -1116,6 +1138,7 @@ impl HaneulNode {
         consensus_epoch_data_remover: EpochDataRemover,
         accumulator: Arc<StateAccumulator>,
         validator_server_handle: JoinHandle<Result<()>>,
+        validator_overload_monitor_handle: Option<JoinHandle<()>>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
         haneul_node_metrics: Arc<HaneulNodeMetrics>,
         haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
@@ -1199,6 +1222,7 @@ impl HaneulNode {
 
         Ok(ValidatorComponents {
             validator_server_handle,
+            validator_overload_monitor_handle,
             consensus_manager,
             consensus_epoch_data_remover,
             consensus_adapter,
@@ -1484,6 +1508,7 @@ impl HaneulNode {
             // in the new epoch.
             let new_validator_components = if let Some(ValidatorComponents {
                 validator_server_handle,
+                validator_overload_monitor_handle,
                 consensus_manager,
                 consensus_epoch_data_remover,
                 consensus_adapter,
@@ -1526,6 +1551,7 @@ impl HaneulNode {
                             consensus_epoch_data_remover,
                             self.accumulator.clone(),
                             validator_server_handle,
+                            validator_overload_monitor_handle,
                             checkpoint_metrics,
                             self.metrics.clone(),
                             haneul_tx_validator_metrics,
