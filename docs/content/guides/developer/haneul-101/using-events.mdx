@@ -193,15 +193,17 @@ subscribeEvent {
 
 ```rust
 use futures::StreamExt;
-use haneul_sdk::rpc_types::HaneulEventFilter;
-use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_sdk::rpc_types::EventFilter;
+use haneul_sdk::HaneulClientBuilder;
+use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> Result<(), anyhow::Error> {
-    let haneul = HaneulClientBuilder::default().build(
-      "https://fullnode.devnet.haneul.io:443",
-    ).await.unwrap();
-    let mut subscribe_all = haneul.event_api().subscribe_event(HaneulEventFilter::All(vec![])).await?;
+async fn main() -> Result<()> {
+    let haneul = HaneulClientBuilder::default()
+        .ws_url("wss://fullnode.mainnet.haneul.io:443")
+        .build("https://fullnode.mainnet.haneul.io:443")
+        .await.unwrap();
+    let mut subscribe_all = haneul.event_api().subscribe_event(EventFilter::All(vec![])).await?;
     loop {
         println!("{:?}", subscribe_all.next().await);
     }
