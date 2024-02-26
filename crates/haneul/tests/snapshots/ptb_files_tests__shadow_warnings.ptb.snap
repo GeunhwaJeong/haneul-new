@@ -1,0 +1,62 @@
+---
+source: crates/haneul/tests/ptb_files_tests.rs
+expression: "results.join(\"\\n\")"
+---
+ === PREVIEW === 
+╭───────────────────────╮
+│ PTB Preview           │
+├──────────────┬────────┤
+│ command      │ values │
+├──────────────┼────────┤
+│ assign       │ a 1u64 │
+│ assign       │ a 2u64 │
+│ assign       │ b 4u64 │
+│ assign       │ a a    │
+│ assign       │ a 4u64 │
+├──────────────┼────────┤
+│ gas-budget   │ 1      │
+│ warn-shadows │ true   │
+╰──────────────┴────────╯
+ === WARNINGS === 
+  ⚠ Warning when processing PTB
+   ╭─[1:10]
+ 1 │ --assign a 1
+   ·          ┬
+   ·          ╰── Variable 'a' first declared here
+ 2 │ --assign a 2
+   ╰────
+
+  × Warning when processing PTB
+   ╭─[2:10]
+ 1 │ --assign a 1
+ 2 │ --assign a 2
+   ·          ┬
+   ·          ╰── Variable 'a' used again here (shadowed) for the 2nd time.
+ 3 │ --assign b 4
+   ╰────
+  help: You can either rename this variable, or do not pass the `warn-
+        shadows` flag to ignore these types of errors.
+
+  × Warning when processing PTB
+   ╭─[4:10]
+ 3 │ --assign b 4
+ 4 │ --assign a a
+   ·          ┬
+   ·          ╰── Variable 'a' used again here (shadowed) for the 3rd time.
+ 5 │ --assign a 4
+   ╰────
+  help: You can either rename this variable, or do not pass the `warn-
+        shadows` flag to ignore these types of errors.
+
+  × Warning when processing PTB
+   ╭─[5:10]
+ 4 │ --assign a a
+ 5 │ --assign a 4
+   ·          ┬
+   ·          ╰── Variable 'a' used again here (shadowed) for the 4th time.
+ 6 │ --gas-budget 1
+   ╰────
+  help: You can either rename this variable, or do not pass the `warn-
+        shadows` flag to ignore these types of errors.
+
+ === BUILT PTB === 

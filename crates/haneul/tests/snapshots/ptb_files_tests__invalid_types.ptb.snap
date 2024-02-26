@@ -1,0 +1,174 @@
+---
+source: crates/haneul/tests/ptb_files_tests.rs
+expression: "results.join(\"\\n\")"
+---
+ === ERRORS AFTER PARSING INPUT COMMANDS === 
+  × Error when processing PTB
+   ╭─[1:12]
+ 1 │ --assign a 0xfffu8
+   ·            ───┬───
+   ·               ╰── number too large to fit in target type
+ 2 │ --assign b 0xffffffffu16
+   ╰────
+
+  × Error when processing PTB
+   ╭─[2:12]
+ 1 │ --assign a 0xfffu8
+ 2 │ --assign b 0xffffffffu16
+   ·            ──────┬──────
+   ·                  ╰── number too large to fit in target type
+ 3 │ --assign c 0xfffffffffffffu32
+   ╰────
+
+  × Error when processing PTB
+   ╭─[3:12]
+ 2 │ --assign b 0xffffffffu16
+ 3 │ --assign c 0xfffffffffffffu32
+   ·            ─────────┬────────
+   ·                     ╰── number too large to fit in target type
+ 4 │ --assign d 0xffffffffffffffffffffffffffffffu64
+   ╰────
+
+  × Error when processing PTB
+   ╭─[4:12]
+ 3 │ --assign c 0xfffffffffffffu32
+ 4 │ --assign d 0xffffffffffffffffffffffffffffffu64
+   ·            ─────────────────┬─────────────────
+   ·                             ╰── number too large to fit in target type
+ 5 │ --assign e 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu128
+   ╰────
+
+  × Error when processing PTB
+   ╭─[5:12]
+ 4 │ --assign d 0xffffffffffffffffffffffffffffffu64
+ 5 │ --assign e 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu128
+   ·            ────────────────────────────────┬───────────────────────────────
+   ·                                            ╰── number too large to fit in target type
+ 6 │ --assign f 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu256
+   ╰────
+
+  × Error when processing PTB
+   ╭─[6:12]
+ 5 │ --assign e 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu128
+ 6 │ --assign f 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu256
+   ·            ───────────────────────────────────────────┬──────────────────────────────────────────
+   ·                                                       ╰── Invalid string length
+ 7 │ --make-move-vec <string> [foo]
+   ╰────
+
+  × Error when processing PTB
+   ╭─[7:24]
+ 6 │ --assign f 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffu256
+ 7 │ --make-move-vec <string> [foo]
+   ·                        ┬
+   ·                        ╰── Expected '::' but found '>'
+ 8 │ --make-move-vec <String> [foo]
+   ╰────
+
+  × Error when processing PTB
+   ╭─[8:24]
+ 7 │ --make-move-vec <string> [foo]
+ 8 │ --make-move-vec <String> [foo]
+   ·                        ┬
+   ·                        ╰── Expected '::' but found '>'
+ 9 │ --make-move-vec <Bool> [true, false]
+   ╰────
+
+  × Error when processing PTB
+    ╭─[9:22]
+  8 │ --make-move-vec <String> [foo]
+  9 │ --make-move-vec <Bool> [true, false]
+    ·                      ┬
+    ·                      ╰── Expected '::' but found '>'
+ 10 │ --make-move-vec <i8> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[10:20]
+  9 │ --make-move-vec <Bool> [true, false]
+ 10 │ --make-move-vec <i8> [0]
+    ·                    ┬
+    ·                    ╰── Expected '::' but found '>'
+ 11 │ --make-move-vec <i16> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[11:21]
+ 10 │ --make-move-vec <i8> [0]
+ 11 │ --make-move-vec <i16> [0]
+    ·                     ┬
+    ·                     ╰── Expected '::' but found '>'
+ 12 │ --make-move-vec <i32> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[12:21]
+ 11 │ --make-move-vec <i16> [0]
+ 12 │ --make-move-vec <i32> [0]
+    ·                     ┬
+    ·                     ╰── Expected '::' but found '>'
+ 13 │ --make-move-vec <i64> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[13:21]
+ 12 │ --make-move-vec <i32> [0]
+ 13 │ --make-move-vec <i64> [0]
+    ·                     ┬
+    ·                     ╰── Expected '::' but found '>'
+ 14 │ --make-move-vec <i128> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[14:22]
+ 13 │ --make-move-vec <i64> [0]
+ 14 │ --make-move-vec <i128> [0]
+    ·                      ┬
+    ·                      ╰── Expected '::' but found '>'
+ 15 │ --make-move-vec <i256> [0]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[15:22]
+ 14 │ --make-move-vec <i128> [0]
+ 15 │ --make-move-vec <i256> [0]
+    ·                      ┬
+    ·                      ╰── Expected '::' but found '>'
+ 16 │ --make-move-vec <Vector<u8>> [vector[0]]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[16:24]
+ 15 │ --make-move-vec <i256> [0]
+ 16 │ --make-move-vec <Vector<u8>> [vector[0]]
+    ·                        ┬
+    ·                        ╰── Expected '::' but found '<'
+ 17 │ --make-move-vec <vector<U256>> [vector[0]]
+    ╰────
+
+  × Error when processing PTB
+    ╭─[17:29]
+ 16 │ --make-move-vec <Vector<u8>> [vector[0]]
+ 17 │ --make-move-vec <vector<U256>> [vector[0]]
+    ·                             ┬
+    ·                             ╰── Expected '::' but found '>'
+ 18 │ --make-move-vec <vector<i256>> [vector[0]] 
+    ╰────
+
+  × Error when processing PTB
+    ╭─[18:29]
+ 17 │ --make-move-vec <vector<U256>> [vector[0]]
+ 18 │ --make-move-vec <vector<i256>> [vector[0]] 
+    ·                             ┬
+    ·                             ╰── Expected '::' but found '>'
+    ╰────
+
+  × Error when processing PTB
+    ╭─[18:43]
+ 17 │ --make-move-vec <vector<U256>> [vector[0]]
+ 18 │ --make-move-vec <vector<i256>> [vector[0]] 
+    ·                                           ▲
+    ·                                           ╰── Gas budget not set.
+    ╰────
+  help: Use --gas-budget <u64> to set a gas budget
+

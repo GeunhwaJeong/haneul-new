@@ -4,7 +4,6 @@
 use clap::*;
 use colored::Colorize;
 use haneul::client_commands::HaneulClientCommands::{ProfileTransaction, ReplayTransaction};
-
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
@@ -89,8 +88,6 @@ async fn main() {
             .with_env()
             .init(),
     };
-
     debug!("Haneul CLI version: {VERSION}");
-
     exit_main!(args.command.execute().await);
 }
