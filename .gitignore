@@ -70,4 +70,4 @@ yarn-error.log*
 .env
 checkpoints_dir/*
 light_client.yaml
-docs/content/references/haneul-graphql/*
+docs/content/references/haneul-api/haneul-graphql/*

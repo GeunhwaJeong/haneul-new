@@ -45,7 +45,7 @@ const config = {
         schema:
           "../../crates/haneul-graphql-rpc/schema/current_progress_schema.graphql",
         rootPath: "../content", // docs will be generated under rootPath/baseURL
-        baseURL: "references/haneul-graphql/reference",
+        baseURL: "references/haneul-api/haneul-graphql/reference",
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
         },

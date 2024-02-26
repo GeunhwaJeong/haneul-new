@@ -1,18 +1,24 @@
 ---
-title: Haneul GraphQL API
-description: The Haneul GraphQL RPC is a public service that enables interacting with the Haneul network.
+title: GraphQL for Haneul RPC
+description: GraphQL is a public service for the Haneul RPC that enables you to efficiently interact with the Haneul network.
 ---
 
-The Haneul GraphQL RPC is a public service that enables interacting with the Haneul [network](https://haneul.io/networkinfo).
+GraphQL for the Haneul RPC is a public service that enables interacting with the Haneul [network](https://haneul.io/networkinfo).
 
-To get started with the GraphQL RPC, check out the [Getting Started](/guides/developer/getting-started/graphql-rpc.mdx) guide. If you'd like to learn more about the concepts used in the GraphQL RPC service, check out the [GraphQL RPC concepts](/concepts/graphql-rpc.mdx) page.
+To get started with GraphQL for the Haneul RPC, check out the [Getting Started](/guides/developer/getting-started/graphql-rpc.mdx) guide. If you'd like to learn more about the concepts used in the GraphQL service, check out the [GraphQL](/concepts/graphql-rpc.mdx) for Haneul RPC concepts page.
 
 ## Key Types
 
 All GraphQL API elements are accessible via the left sidebar, the following are good starting points to explore from.
 
-- "Queries" lists all top-level queries for reading the chain state, from reading details about addresses and objects to [dryRunTransactionBlock](/references/haneul-graphql/reference/queries/dry-run-transaction-block), which has an execution-like interface but does not modify the chain.
-- "Mutations" lists operations that can modify chain state, like [executeTransactionBlock](/references/haneul-graphql/reference/mutations/execute-transaction-block).
-- [Object](/references/haneul-graphql/reference/objects/object) is the type representing all on-chain objects (Move values and packages)
-- [Address](/references/haneul-graphql/reference/objects/address) corresponds to account addresses (derived from the public keys of signatures that sign transactions) and can be used to query the objects owned by these accounts and the transactions they have signed or been affected by.
-- [Owner](/references/haneul-graphql/reference/objects/owner) represents any entity that can own a [MoveObject](/references/haneul-graphql/reference/objects/move-object) to handle cases where it is not known whether the owner is an [Object](/references/haneul-graphql/reference/objects/object) or an [Address](/references/haneul-graphql/reference/objects/address) (for example, from the perspective of a Move object looking at its owner).
+- "Queries" lists all top-level queries for reading the chain state, from reading details about addresses and objects to [dryRunTransactionBlock](/references/haneul-api/haneul-graphql/reference/queries/dry-run-transaction-block), which has an execution-like interface but does not modify the chain.
+- "Mutations" lists operations that can modify chain state, like [executeTransactionBlock](/references/haneul-api/haneul-graphql/reference/mutations/execute-transaction-block).
+- [Object](/references/haneul-api/haneul-graphql/reference/objects/object) is the type representing all on-chain objects (Move values and packages).
+- [Address](/references/haneul-api/haneul-graphql/reference/objects/address) corresponds to account addresses (derived from the public keys of signatures that sign transactions) and can be used to query the objects owned by these accounts and the transactions they have signed or been affected by.
+- [Owner](/references/haneul-api/haneul-graphql/reference/objects/owner) represents any entity that can own a [MoveObject](/references/haneul-api/haneul-graphql/reference/objects/move-object) to handle cases where it is not known whether the owner is an [Object](/references/haneul-api/haneul-graphql/reference/objects/object) or an [Address](/references/haneul-api/haneul-graphql/reference/objects/address) (for example, from the perspective of a Move object looking at its owner).
+
+## Related links
+
+- [GraphQL migration](../guides/developer/advanced/graphql-migration.mdx): Migrating to GraphQL guides you through migrating Haneul RPC projects from JSON-RPC to GraphQL.  
+- [GraphQL quick-start](../guides/developer/getting-started/graphql-rpc.mdx): Querying Haneul RPC with GraphQL gets you started using GraphQL to query the Haneul RPC for on-chain data.
+- [GraphQL concepts](../concepts/graphql-rpc.mdx): GraphQL for Haneul RPC examines the elements of GraphQL that you should know to get the most from the service.

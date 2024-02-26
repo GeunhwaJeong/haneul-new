@@ -85,6 +85,11 @@
       { "source": "/learn/exchange-integration-faq", "destination": "/guides/operator/exchange-integration", "permanent": true },
       { "source": "/learn/how-haneul-works", "destination": "/concepts/components", "permanent": true },
       { "source": "/learn/haneul-compared", "destination": "/concepts/components", "permanent": true },
-      { "source": "/learn/haneul-bridging", "destination": "/concepts/tokenomics/haneul-bridging", "permanent": true }
+      { "source": "/learn/haneul-bridging", "destination": "/concepts/tokenomics/haneul-bridging", "permanent": true },
+      { "source": "/concepts/transactions/transaction-lifecycle", "destination": "/concepts/haneul-architecture/transaction-lifecycle", "permanent": true},
+      { "source": "standards/closed-loop-token/overview", "destination": "standards/closed-loop-token", "permanent": true},
+      { "source": "concepts/dynamic-fields/transfers/custom-rules", "destination": "concepts/transfers/custom-rules", "permanent": true},
+      { "source": "concepts/dynamic-fields/transfers/transfer-to-object", "destination": "concepts/transfers/transfer-to-object", "permanent": true},
+      { "source": "references/haneul-graphql/:path*", "destination": "references/haneul-api/haneul-graphql/:path*", "permanent": true}
     ]
   }
