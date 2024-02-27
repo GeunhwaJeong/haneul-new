@@ -164,7 +164,7 @@ const config = {
       image: "img/haneul-doc-og.png",
       docs: {
         sidebar: {
-          autoCollapseCategories: true,
+          autoCollapseCategories: false,
         },
       },
       navbar: {

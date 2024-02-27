@@ -15,6 +15,7 @@ const references = [
 	{
 		type: 'category',
 		label: 'Haneul RPC',
+		collapsed: false,
 		link: {
 			type: 'doc',
 			id: 'references/haneul-api',
@@ -45,6 +46,7 @@ const references = [
 	{
 		type: 'category',
 		label: 'Haneul CLI',
+		collapsed: false,
 		link: {
 			type: 'doc',
 			id: 'references/cli',
@@ -61,6 +63,7 @@ const references = [
 	{
 		type: 'category',
 		label: 'Haneul SDKs',
+		collapsed: false,
 		link: {
 			type: 'doc',
 			id: 'references/haneul-sdks',
@@ -82,6 +85,7 @@ const references = [
 	{
 		type: 'category',
 		label: 'Move',
+		collapsed: false,
 		link: {
 			type: 'doc',
 			id: 'references/haneul-move',
