@@ -215,5 +215,6 @@ const concepts = [
 			'concepts/tokenomics/gas-in-haneul',
 		],
 	},
+	'concepts/research-papers',
 ];
 module.exports = concepts;
