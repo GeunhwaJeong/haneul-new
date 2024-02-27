@@ -24,12 +24,12 @@ use move_command_line_common::{
 use move_core_types::{account_address::AccountAddress, ident_str, runtime_value::MoveValue};
 use move_package::BuildConfig;
 use std::{collections::BTreeMap, path::PathBuf};
-use haneul_json::{is_primitive_type_tag, is_receiving_argument, primitive_type};
+use haneul_json::{is_receiving_argument, primitive_type};
 use haneul_json_rpc_types::{HaneulObjectData, HaneulObjectDataOptions, HaneulRawData};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::apis::ReadApi;
 use haneul_types::{
-    base_types::{ObjectID, TxContext, TxContextKind},
+    base_types::{is_primitive_type_tag, ObjectID, TxContext, TxContextKind},
     digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier},
     move_package::MovePackage,
     object::Owner,
