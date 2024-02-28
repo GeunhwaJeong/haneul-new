@@ -1334,7 +1334,7 @@ impl IndexerReader {
         Ok(objects)
     }
 
-    pub fn bcs_name_from_dynamic_field_name(
+    fn bcs_name_from_dynamic_field_name(
         &self,
         name: &DynamicFieldName,
     ) -> Result<Vec<u8>, IndexerError> {
@@ -1343,6 +1343,15 @@ impl IndexerReader {
         let haneul_json_value = haneul_json::HaneulJsonValue::new(name.value.clone())?;
         let name_bcs_value = haneul_json_value.to_bcs_bytes(&layout)?;
         Ok(name_bcs_value)
+    }
+
+    pub async fn bcs_name_from_dynamic_field_name_in_blocking_task(
+        &self,
+        name: &DynamicFieldName,
+    ) -> Result<Vec<u8>, IndexerError> {
+        let name = name.clone();
+        self.spawn_blocking(move |this| this.bcs_name_from_dynamic_field_name(&name))
+            .await
     }
 
     fn get_object_refs(
