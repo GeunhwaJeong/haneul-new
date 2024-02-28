@@ -3,13 +3,14 @@
 
 use anyhow::{bail, ensure};
 use clap;
+use clap::{Args, Parser};
 use move_command_line_common::parser::{parse_u256, parse_u64};
 use move_command_line_common::values::{ParsableValue, ParsedValue};
 use move_command_line_common::{parser::Parser as MoveCLParser, values::ValueToken};
 use move_core_types::runtime_value::{MoveStruct, MoveValue};
 use move_core_types::u256::U256;
 use move_symbol_pool::Symbol;
-use move_transactional_test_runner::tasks::SyntaxChoice;
+use move_transactional_test_runner::tasks::{RunCommand, SyntaxChoice};
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::{Object, Owner};
@@ -20,7 +21,7 @@ use crate::test_adapter::{FakeID, HaneulTestAdapter};
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 
-#[derive(Debug, clap::Parser)]
+#[derive(Clone, Debug, clap::Parser)]
 pub struct HaneulRunArgs {
     #[clap(long = "sender")]
     pub sender: Option<String>,
@@ -194,36 +195,123 @@ pub struct SetRandomStateCommand {
     pub randomness_initial_version: u64,
 }
 
-#[derive(Debug, clap::Parser)]
-pub enum HaneulSubcommand {
-    #[clap(name = "view-object")]
+#[derive(Debug)]
+pub enum HaneulSubcommand<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> {
     ViewObject(ViewObjectCommand),
-    #[clap(name = "transfer-object")]
     TransferObject(TransferObjectCommand),
-    #[clap(name = "consensus-commit-prologue")]
     ConsensusCommitPrologue(ConsensusCommitPrologueCommand),
-    #[clap(name = "programmable")]
     ProgrammableTransaction(ProgrammableTransactionCommand),
-    #[clap(name = "upgrade")]
     UpgradePackage(UpgradePackageCommand),
-    #[clap(name = "stage-package")]
     StagePackage(StagePackageCommand),
-    #[clap(name = "set-address")]
     SetAddress(SetAddressCommand),
-    #[clap(name = "create-checkpoint")]
     CreateCheckpoint(CreateCheckpointCommand),
-    #[clap(name = "advance-epoch")]
     AdvanceEpoch(AdvanceEpochCommand),
-    #[clap(name = "advance-clock")]
     AdvanceClock(AdvanceClockCommand),
-    #[clap(name = "set-random-state")]
     SetRandomState(SetRandomStateCommand),
-    #[clap(name = "view-checkpoint")]
     ViewCheckpoint,
-    #[clap(name = "run-graphql")]
     RunGraphql(RunGraphqlCommand),
-    #[clap(name = "force-object-snapshot-catchup")]
     ForceObjectSnapshotCatchup(ForceObjectSnapshotCatchup),
+    Bench(RunCommand<ExtraValueArgs>, ExtraRunArgs),
+}
+
+impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::FromArgMatches
+    for HaneulSubcommand<ExtraValueArgs, ExtraRunArgs>
+{
+    fn from_arg_matches(matches: &clap::ArgMatches) -> Result<Self, clap::Error> {
+        Ok(match matches.subcommand() {
+            Some(("view-object", matches)) => {
+                HaneulSubcommand::ViewObject(ViewObjectCommand::from_arg_matches(matches)?)
+            }
+            Some(("transfer-object", matches)) => {
+                HaneulSubcommand::TransferObject(TransferObjectCommand::from_arg_matches(matches)?)
+            }
+            Some(("consensus-commit-prologue", matches)) => HaneulSubcommand::ConsensusCommitPrologue(
+                ConsensusCommitPrologueCommand::from_arg_matches(matches)?,
+            ),
+            Some(("programmable", matches)) => HaneulSubcommand::ProgrammableTransaction(
+                ProgrammableTransactionCommand::from_arg_matches(matches)?,
+            ),
+            Some(("upgrade", matches)) => {
+                HaneulSubcommand::UpgradePackage(UpgradePackageCommand::from_arg_matches(matches)?)
+            }
+            Some(("stage-package", matches)) => {
+                HaneulSubcommand::StagePackage(StagePackageCommand::from_arg_matches(matches)?)
+            }
+            Some(("set-address", matches)) => {
+                HaneulSubcommand::SetAddress(SetAddressCommand::from_arg_matches(matches)?)
+            }
+            Some(("create-checkpoint", matches)) => {
+                HaneulSubcommand::CreateCheckpoint(CreateCheckpointCommand::from_arg_matches(matches)?)
+            }
+            Some(("advance-epoch", matches)) => {
+                HaneulSubcommand::AdvanceEpoch(AdvanceEpochCommand::from_arg_matches(matches)?)
+            }
+            Some(("advance-clock", matches)) => {
+                HaneulSubcommand::AdvanceClock(AdvanceClockCommand::from_arg_matches(matches)?)
+            }
+            Some(("set-random-state", matches)) => {
+                HaneulSubcommand::SetRandomState(SetRandomStateCommand::from_arg_matches(matches)?)
+            }
+            Some(("view-checkpoint", _)) => HaneulSubcommand::ViewCheckpoint,
+            Some(("run-graphql", matches)) => {
+                HaneulSubcommand::RunGraphql(RunGraphqlCommand::from_arg_matches(matches)?)
+            }
+            Some(("force-object-snapshot-catchup", matches)) => {
+                HaneulSubcommand::ForceObjectSnapshotCatchup(
+                    ForceObjectSnapshotCatchup::from_arg_matches(matches)?,
+                )
+            }
+            Some(("bench", matches)) => HaneulSubcommand::Bench(
+                RunCommand::from_arg_matches(matches)?,
+                ExtraRunArgs::from_arg_matches(matches)?,
+            ),
+            _ => {
+                return Err(clap::Error::raw(
+                    clap::error::ErrorKind::InvalidSubcommand,
+                    "Invalid submcommand",
+                ));
+            }
+        })
+    }
+
+    fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> Result<(), clap::Error> {
+        *self = Self::from_arg_matches(matches)?;
+        Ok(())
+    }
+}
+
+impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::CommandFactory
+    for HaneulSubcommand<ExtraValueArgs, ExtraRunArgs>
+{
+    fn command() -> clap::Command {
+        clap::Command::new("haneul_sub_command")
+            .subcommand(ViewObjectCommand::command().name("view-object"))
+            .subcommand(TransferObjectCommand::command().name("transfer-object"))
+            .subcommand(ConsensusCommitPrologueCommand::command().name("consensus-commit-prologue"))
+            .subcommand(ProgrammableTransactionCommand::command().name("programmable"))
+            .subcommand(UpgradePackageCommand::command().name("upgrade"))
+            .subcommand(StagePackageCommand::command().name("stage-package"))
+            .subcommand(SetAddressCommand::command().name("set-address"))
+            .subcommand(CreateCheckpointCommand::command().name("create-checkpoint"))
+            .subcommand(AdvanceEpochCommand::command().name("advance-epoch"))
+            .subcommand(AdvanceClockCommand::command().name("advance-clock"))
+            .subcommand(SetRandomStateCommand::command().name("set-random-state"))
+            .subcommand(clap::Command::new("view-checkpoint"))
+            .subcommand(RunGraphqlCommand::command().name("run-graphql"))
+            .subcommand(ForceObjectSnapshotCatchup::command().name("force-object-snapshot-catchup"))
+            .subcommand(
+                RunCommand::<ExtraValueArgs>::augment_args(ExtraRunArgs::command()).name("bench"),
+            )
+    }
+
+    fn command_for_update() -> clap::Command {
+        todo!()
+    }
+}
+
+impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::Parser
+    for HaneulSubcommand<ExtraValueArgs, ExtraRunArgs>
+{
 }
 
 #[derive(Clone, Debug)]
@@ -234,6 +322,7 @@ pub enum HaneulExtraValueArgs {
     ImmShared(FakeID, Option<SequenceNumber>),
 }
 
+#[derive(Clone)]
 pub enum HaneulValue {
     MoveValue(MoveValue),
     Object(FakeID, Option<SequenceNumber>),
