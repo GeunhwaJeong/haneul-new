@@ -2,7 +2,7 @@
 name = "test_functions"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/testnet" }
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
 
 [addresses]
 test_functions = "0x0"
