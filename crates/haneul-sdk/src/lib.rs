@@ -17,7 +17,7 @@
 //! block and submit it to the fullnode(s)
 //! * [ReadApi] - provides functions for retrieving data about different
 //! objects and transactions
-//! * [TransactionBuilder] - provides functions for building transactions
+//! * <a href="../haneul_transaction_builder/struct.TransactionBuilder.html" title="struct haneul_transaction_builder::TransactionBuilder">TransactionBuilder</a> - provides functions for building transactions
 //!
 //! # Usage
 //! The main way to interact with the API is through the [HaneulClientBuilder],
