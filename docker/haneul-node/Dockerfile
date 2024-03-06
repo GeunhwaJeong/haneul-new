@@ -1,36 +1,85 @@
-# Build application
-#
-# Copy in all crates, Cargo.toml and Cargo.lock unmodified,
-# and build the application.
-FROM rust:1.75-bullseye AS builder
 ARG PROFILE=release
-ARG GIT_REVISION
-ENV GIT_REVISION=$GIT_REVISION
-WORKDIR "$WORKDIR/haneul"
-RUN apt-get update && apt-get install -y cmake clang
-
-COPY Cargo.toml Cargo.lock ./
-COPY consensus consensus
-COPY crates crates
-COPY haneul-execution haneul-execution
-COPY narwhal narwhal
-COPY external-crates external-crates
-
-RUN cargo build --profile ${PROFILE} --bin haneul-node
-
-# Production Image
-FROM debian:bullseye-slim AS runtime
-# Use jemalloc as memory allocator
-RUN apt-get update && apt-get install -y libjemalloc-dev ca-certificates
-ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libjemalloc.so
-ARG PROFILE=release
-WORKDIR "$WORKDIR/haneul"
-# Both bench and release profiles copy from release dir
-COPY --from=builder /haneul/target/release/haneul-node /opt/haneul/bin/haneul-node
-# Support legacy usages of /usr/local/bin/haneul-node
-COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
-
 ARG BUILD_DATE
 ARG GIT_REVISION
-LABEL build-date=$BUILD_DATE
-LABEL git-revision=$GIT_REVISION
+ARG RUST_VERSION=1.76.0
+
+FROM scratch AS base
+
+FROM stagex/rust:${RUST_VERSION} AS rust
+FROM base AS fetch
+
+COPY --from=stagex/busybox . /
+COPY --from=stagex/musl . /
+COPY --from=rust . /
+
+COPY --from=stagex/gcc . /
+COPY --from=stagex/llvm . /
+COPY --from=stagex/libunwind . /
+COPY --from=stagex/openssl . /
+COPY --from=stagex/zlib . /
+
+# NOTE: Necessary for `cargo fetch`, but CA trust is not relied upon
+COPY --from=stagex/ca-certificates . /
+
+# HACK: gcc puts things in /usr/lib64 
+COPY --from=stagex/gcc /usr/lib64/* /usr/lib/
+
+COPY . /haneul
+
+WORKDIR haneul
+
+RUN cargo fetch
+
+FROM fetch AS build
+
+# Rust build deps
+
+COPY --from=stagex/binutils . /
+COPY --from=stagex/gcc . /
+COPY --from=stagex/llvm . /
+COPY --from=stagex/make . /
+COPY --from=stagex/musl . /
+
+# Haneul build deps
+
+COPY --from=stagex/clang . /
+COPY --from=stagex/linux-headers . /
+
+ARG PROFILE
+ARG GIT_REVISION
+
+ENV RUST_BACKTRACE=1
+ENV RUSTFLAGS='-C target-feature=-crt-static -C codegen-units=1'
+ENV GIT_REVISION=${GIT_REVISION}
+ENV PROFILE=${PROFILE}
+
+RUN --network=none cargo build --frozen --profile ${PROFILE} --bin haneul-node
+
+FROM scratch AS install
+
+COPY --from=stagex/busybox . /
+
+COPY --from=stagex/busybox . /rootfs
+COPY --from=stagex/libunwind . /rootfs
+COPY --from=stagex/gcc . /rootfs
+COPY --from=stagex/musl . /rootfs
+
+# HACK: In the current release of stagex, gcc puts things in /usr/lib64,
+# but we expect them in /usr/lib
+COPY --from=stagex/gcc /usr/lib64/* /rootfs/usr/lib/
+
+COPY --from=build haneul/target/release/haneul-node /rootfs/usr/bin/haneul-node
+RUN --network=none find /rootfs -exec touch -hcd "@0" "{}" +
+
+FROM scratch AS package
+
+ARG PROFILE
+ARG GIT_REVISION
+
+LABEL build-date=${BUILD_DATE}
+LABEL git-revision=${GIT_REVISION}
+
+COPY --from=install /rootfs /
+
+ENTRYPOINT ["/usr/bin/haneul-node"]
+CMD ["--version"]
