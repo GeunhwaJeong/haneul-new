@@ -68,7 +68,13 @@ COPY --from=stagex/musl . /rootfs
 # but we expect them in /usr/lib
 COPY --from=stagex/gcc /usr/lib64/* /rootfs/usr/lib/
 
-COPY --from=build haneul/target/release/haneul-node /rootfs/usr/bin/haneul-node
+# support current + legacy paths
+RUN mkdir -p /rootfs/opt/haneul/bin
+RUN mkdir -p /rootfs/usr/local/bin
+COPY --from=build haneul/target/release/haneul-node /rootfs/opt/haneul/bin/haneul-node
+
+
+
 RUN --network=none find /rootfs -exec touch -hcd "@0" "{}" +
 
 FROM scratch AS package
@@ -81,5 +87,5 @@ LABEL git-revision=${GIT_REVISION}
 
 COPY --from=install /rootfs /
 
-ENTRYPOINT ["/usr/bin/haneul-node"]
-CMD ["--version"]
+RUN ln -s /opt/haneul/bin/haneul-node /usr/local/bin/haneul-node
+
