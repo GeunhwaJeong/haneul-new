@@ -132,7 +132,7 @@ fn main() {
     let (runtime_shutdown_tx, runtime_shutdown_rx) = broadcast::channel::<()>(1);
 
     runtimes.haneul_node.spawn(async move {
-        match haneul_node::HaneulNode::start_async(&config, registry_service, Some(rpc_runtime), VERSION).await {
+        match haneul_node::HaneulNode::start_async(config, registry_service, Some(rpc_runtime), VERSION).await {
             Ok(haneul_node) => node_once_cell_clone
                 .set(haneul_node)
                 .expect("Failed to set node in AsyncOnceCell"),
