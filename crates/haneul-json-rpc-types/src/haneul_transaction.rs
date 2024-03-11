@@ -488,7 +488,7 @@ impl HaneulTransactionBlockKind {
             TransactionKind::RandomnessStateUpdate(update) => {
                 Self::RandomnessStateUpdate(HaneulRandomnessStateUpdate {
                     epoch: update.epoch,
-                    randomness_round: update.randomness_round,
+                    randomness_round: update.randomness_round.0,
                     random_bytes: update.random_bytes,
                 })
             }

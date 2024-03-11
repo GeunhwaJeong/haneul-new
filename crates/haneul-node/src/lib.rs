@@ -22,19 +22,23 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Duration;
+use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::authority::CHAIN_IDENTIFIER;
 use haneul_core::consensus_adapter::SubmitToConsensus;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::ExecutionCacheMetrics;
 use haneul_core::execution_cache::NotifyReadWrapper;
 use haneul_json_rpc_api::JsonRpcMetrics;
+use haneul_network::randomness;
 use haneul_types::base_types::ConciseableName;
+use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::message_envelope::get_google_jwk_bytes;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::runtime::Handle;
 use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 use tokio::sync::{watch, Mutex};
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
@@ -214,7 +218,8 @@ pub struct HaneulNode {
     metrics: Arc<HaneulNodeMetrics>,
 
     _discovery: discovery::Handle,
-    state_sync: state_sync::Handle,
+    state_sync_handle: state_sync::Handle,
+    randomness_handle: randomness::Handle,
     checkpoint_store: Arc<CheckpointStore>,
     accumulator: Arc<StateAccumulator>,
     connection_monitor_status: Arc<ConnectionMonitorStatus>,
@@ -540,14 +545,25 @@ impl HaneulNode {
         let archive_readers =
             ArchiveReaderBalancer::new(config.archive_reader_config(), &prometheus_registry)?;
         let (trusted_peer_change_tx, trusted_peer_change_rx) = watch::channel(Default::default());
-        let (p2p_network, discovery_handle, state_sync_handle) = Self::create_p2p_network(
-            &config,
-            state_sync_store.clone(),
-            chain_identifier,
-            trusted_peer_change_rx,
-            archive_readers.clone(),
-            &prometheus_registry,
-        )?;
+        let (randomness_tx, randomness_rx) = mpsc::channel(
+            config
+                .p2p_config
+                .randomness
+                .clone()
+                .unwrap_or_default()
+                .mailbox_capacity(),
+        );
+        let (p2p_network, discovery_handle, state_sync_handle, randomness_handle) =
+            Self::create_p2p_network(
+                &config,
+                state_sync_store.clone(),
+                chain_identifier,
+                trusted_peer_change_rx,
+                archive_readers.clone(),
+                randomness_tx,
+                &prometheus_registry,
+            )?;
+
         // We must explicitly send this instead of relying on the initial value to trigger
         // watch value change, so that state-sync is able to process it.
         send_trusted_peer_change(
@@ -621,6 +637,9 @@ impl HaneulNode {
                 .await
                 .unwrap();
         }
+
+        // Start the loop that receives new randomness and generates transactions for it.
+        RandomnessRoundReceiver::spawn(state.clone(), randomness_rx);
 
         if config
             .expensive_safety_check_config
@@ -696,6 +715,7 @@ impl HaneulNode {
                 epoch_store.clone(),
                 checkpoint_store.clone(),
                 state_sync_handle.clone(),
+                randomness_handle.clone(),
                 accumulator.clone(),
                 connection_monitor_status.clone(),
                 &registry_service,
@@ -723,7 +743,8 @@ impl HaneulNode {
             metrics: haneul_node_metrics,
 
             _discovery: discovery_handle,
-            state_sync: state_sync_handle,
+            state_sync_handle,
+            randomness_handle,
             checkpoint_store,
             accumulator,
             end_of_epoch_channel,
@@ -915,8 +936,14 @@ impl HaneulNode {
         chain_identifier: ChainIdentifier,
         trusted_peer_change_rx: watch::Receiver<TrustedPeerChangeEvent>,
         archive_readers: ArchiveReaderBalancer,
+        randomness_tx: mpsc::Sender<(EpochId, RandomnessRound, Vec<u8>)>,
         prometheus_registry: &Registry,
-    ) -> Result<(Network, discovery::Handle, state_sync::Handle)> {
+    ) -> Result<(
+        Network,
+        discovery::Handle,
+        state_sync::Handle,
+        randomness::Handle,
+    )> {
         let (state_sync, state_sync_server) = state_sync::Builder::new()
             .config(config.p2p_config.state_sync.clone().unwrap_or_default())
             .store(state_sync_store)
@@ -928,10 +955,17 @@ impl HaneulNode {
             .config(config.p2p_config.clone())
             .build();
 
+        let (randomness, randomness_router) =
+            randomness::Builder::new(config.protocol_public_key(), randomness_tx)
+                .config(config.p2p_config.randomness.clone().unwrap_or_default())
+                .with_metrics(prometheus_registry)
+                .build();
+
         let p2p_network = {
             let routes = anemo::Router::new()
                 .add_rpc_service(discovery_server)
                 .add_rpc_service(state_sync_server);
+            let routes = routes.merge(randomness_router);
 
             let inbound_network_metrics =
                 NetworkMetrics::new("haneul", "inbound", prometheus_registry);
@@ -1018,8 +1052,14 @@ impl HaneulNode {
 
         let discovery_handle = discovery.start(p2p_network.clone());
         let state_sync_handle = state_sync.start(p2p_network.clone());
+        let randomness_handle = randomness.start(p2p_network.clone());
 
-        Ok((p2p_network, discovery_handle, state_sync_handle))
+        Ok((
+            p2p_network,
+            discovery_handle,
+            state_sync_handle,
+            randomness_handle,
+        ))
     }
 
     async fn construct_validator_components(
@@ -1029,6 +1069,7 @@ impl HaneulNode {
         epoch_store: Arc<AuthorityPerEpochStore>,
         checkpoint_store: Arc<CheckpointStore>,
         state_sync_handle: state_sync::Handle,
+        randomness_handle: randomness::Handle,
         accumulator: Arc<StateAccumulator>,
         connection_monitor_status: Arc<ConnectionMonitorStatus>,
         registry_service: &RegistryService,
@@ -1144,6 +1185,7 @@ impl HaneulNode {
             checkpoint_store,
             epoch_store,
             state_sync_handle,
+            randomness_handle,
             consensus_manager,
             consensus_epoch_data_remover,
             accumulator,
@@ -1163,6 +1205,7 @@ impl HaneulNode {
         checkpoint_store: Arc<CheckpointStore>,
         epoch_store: Arc<AuthorityPerEpochStore>,
         state_sync_handle: state_sync::Handle,
+        randomness_handle: randomness::Handle,
         consensus_manager: ConsensusManager,
         consensus_epoch_data_remover: EpochDataRemover,
         accumulator: Arc<StateAccumulator>,
@@ -1241,8 +1284,10 @@ impl HaneulNode {
             let randomness_manager = RandomnessManager::try_new(
                 Arc::downgrade(&epoch_store),
                 consensus_adapter.clone(),
+                randomness_handle,
                 config.protocol_key_pair(),
             )
+            .await
             .map(Arc::new);
             if let Some(randomness_manager) = &randomness_manager {
                 epoch_store.set_randomness_manager(randomness_manager.clone())?;
@@ -1424,7 +1469,7 @@ impl HaneulNode {
     /// after which it iniitiates reconfiguration of the entire system.
     pub async fn monitor_reconfiguration(self: Arc<Self>) -> Result<()> {
         let mut checkpoint_executor = CheckpointExecutor::new(
-            self.state_sync.subscribe_to_synced_checkpoints(),
+            self.state_sync_handle.subscribe_to_synced_checkpoints(),
             self.checkpoint_store.clone(),
             self.state.clone(),
             self.accumulator.clone(),
@@ -1575,7 +1620,8 @@ impl HaneulNode {
                             consensus_adapter,
                             self.checkpoint_store.clone(),
                             new_epoch_store.clone(),
-                            self.state_sync.clone(),
+                            self.state_sync_handle.clone(),
+                            self.randomness_handle.clone(),
                             consensus_manager,
                             consensus_epoch_data_remover,
                             self.accumulator.clone(),
@@ -1612,7 +1658,8 @@ impl HaneulNode {
                             Arc::new(next_epoch_committee.clone()),
                             new_epoch_store.clone(),
                             self.checkpoint_store.clone(),
-                            self.state_sync.clone(),
+                            self.state_sync_handle.clone(),
+                            self.randomness_handle.clone(),
                             self.accumulator.clone(),
                             self.connection_monitor_status.clone(),
                             &self.registry_service,
