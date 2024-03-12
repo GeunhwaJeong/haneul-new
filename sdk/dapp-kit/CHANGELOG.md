@@ -1,5 +1,12 @@
 # @haneullabs/dapp-kit
 
+## 0.12.4
+
+### Patch Changes
+
+- Updated dependencies [3b1da3967a]
+  - @haneullabs/zksend@0.3.0
+
 ## 0.12.3
 
 ### Patch Changes

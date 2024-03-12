@@ -1,5 +1,11 @@
 # @haneullabs/zksend
 
+## 0.3.0
+
+### Minor Changes
+
+- 3b1da3967a: Add support for contract based links
+
 ## 0.2.3
 
 ### Patch Changes
