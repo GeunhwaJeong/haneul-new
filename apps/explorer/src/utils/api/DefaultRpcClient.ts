@@ -13,7 +13,7 @@ export enum Network {
 
 export const NetworkConfigs: Record<Network, { url: string }> = {
 	[Network.LOCAL]: { url: getFullnodeUrl('localnet') },
-	[Network.DEVNET]: { url: 'https://explorer-rpc.devnet.haneul.io:443' },
+	[Network.DEVNET]: { url: 'https://haneul-devnet.haneul-labs.com/json-rpc' },
 	[Network.TESTNET]: { url: 'https://haneul-testnet.haneul-labs.com/json-rpc' },
 	[Network.MAINNET]: { url: 'https://haneul-mainnet.haneul-labs.com/json-rpc' },
 };

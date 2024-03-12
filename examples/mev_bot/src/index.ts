@@ -86,7 +86,7 @@ bcs.registerStructType("PoolCreated", {
 });
 
 // Create a client connected to the Haneul network
-const client = new HaneulClient({url: "https://explorer-rpc.mainnet.haneul.io:443"});
+const client = new HaneulClient({url: "https://haneul-mainnet.haneul-labs.com/json-rpc"});
 
 // Retrieve all DeepBook pools using the PoolCreated events
 let allPools = await retrieveAllPools();
