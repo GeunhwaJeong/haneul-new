@@ -28,6 +28,7 @@ use haneul_core::consensus_adapter::SubmitToConsensus;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::ExecutionCacheMetrics;
 use haneul_core::execution_cache::NotifyReadWrapper;
+use haneul_json_rpc::ServerType;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
 use haneul_protocol_config::ProtocolVersion;
@@ -1928,7 +1929,12 @@ pub fn build_http_server(
         ))?;
         server.register_module(MoveUtils::new(state))?;
 
-        server.to_router(None)?
+        let server_type = if config.websocket_only {
+            Some(ServerType::WebSocket)
+        } else {
+            None
+        };
+        server.to_router(server_type)?
     };
 
     router = router.merge(json_rpc_router);
