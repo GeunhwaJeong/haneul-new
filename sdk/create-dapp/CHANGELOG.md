@@ -1,5 +1,13 @@
 # @haneullabs/create-dapp
 
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [0cafa94027]
+  - @haneullabs/haneul.js@0.51.0
+  - @haneullabs/dapp-kit@0.12.3
+
 ## 0.2.4
 
 ### Patch Changes

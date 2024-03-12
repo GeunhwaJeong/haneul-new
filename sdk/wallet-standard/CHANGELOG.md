@@ -1,5 +1,16 @@
 # @haneullabs/wallet-standard
 
+## 0.11.0
+
+### Minor Changes
+
+- 437f0ca2ef: Add isHaneulChain utility which is useful for type-safe dApp interfaces in wallets
+
+### Patch Changes
+
+- Updated dependencies [0cafa94027]
+  - @haneullabs/haneul.js@0.51.0
+
 ## 0.10.3
 
 ### Patch Changes

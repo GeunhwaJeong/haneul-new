@@ -1,5 +1,16 @@
 # @haneullabs/zklogin
 
+## 0.5.0
+
+### Minor Changes
+
+- 3a84c3ab21: Expose toZkLoginPublicIdentifier function
+
+### Patch Changes
+
+- Updated dependencies [0cafa94027]
+  - @haneullabs/haneul.js@0.51.0
+
 ## 0.4.3
 
 ### Patch Changes
