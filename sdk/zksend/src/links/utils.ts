@@ -7,6 +7,7 @@ import { bcs } from '@haneullabs/haneul.js/bcs';
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import { HaneulGraphQLClient } from '@haneullabs/haneul.js/graphql';
 import { graphql } from '@haneullabs/haneul.js/graphql/schemas/2024-01';
+import type { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { fromB64, normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 import { ZkSendLink } from './claim.js';
@@ -149,4 +150,44 @@ export async function listCreatedLinks({
 		hasNextPage: transactionBlocks.pageInfo.hasPreviousPage,
 		links,
 	};
+}
+
+export function isClaimTransaction(
+	txb: TransactionBlock,
+	options: {
+		packageId: string;
+	},
+) {
+	let transfers = 0;
+
+	for (const tx of txb.blockData.transactions) {
+		switch (tx.kind) {
+			case 'TransferObjects':
+				// Ensure that we are only transferring results of a claim
+				if (!tx.objects.every((o) => o.kind === 'Result' || o.kind === 'NestedResult')) {
+					return false;
+				}
+				transfers++;
+				break;
+			case 'MoveCall':
+				const [packageId, module, fn] = tx.target.split('::');
+
+				if (packageId !== options.packageId) {
+					return false;
+				}
+
+				if (module !== 'zk_bag') {
+					return false;
+				}
+
+				if (fn !== 'init_claim' && fn !== 'reclaim' && fn !== 'claim' && fn !== 'finalize') {
+					return false;
+				}
+				break;
+			default:
+				return false;
+		}
+	}
+
+	return transfers === 1;
 }
