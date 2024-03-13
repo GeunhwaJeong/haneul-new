@@ -2,15 +2,17 @@
 version: "3.9"
 services:
   fullnode:
-    image: haneullabs/haneul-node:stable
+    # Note: Update the tag to the latest version of haneullabs/haneul-node for mainnet or testnet.
+    image: haneullabs/haneul-node:mainnet-v1.19.1
     ports:
+    - "8080:8080"
     - "8084:8084/udp"
     - "9000:9000"
     - "9184:9184"
     volumes:
     - ./fullnode-template.yaml:/opt/haneul/config/fullnode.yaml:ro
     - ./genesis.blob:/opt/haneul/config/genesis.blob:ro
-    - haneuldb:/opt/haneul/db:rw
+    - ./haneuldb:/opt/haneul/db:rw
     command: ["/opt/haneul/bin/haneul-node", "--config-path", "/opt/haneul/config/fullnode.yaml"]
 volumes:
   haneuldb:
