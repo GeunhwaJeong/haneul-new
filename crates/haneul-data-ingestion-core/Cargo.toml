@@ -24,6 +24,7 @@ haneul-storage.workspace = true
 haneul-types.workspace = true
 url.workspace = true
 tempfile.workspace = true
+tap.workspace = true
 
 [dev-dependencies]
 rand.workspace = true
