@@ -125,8 +125,8 @@ const GAS_FOR_TESTING: u64 = GAS_VALUE_FOR_TESTING;
 
 const DEFAULT_CHAIN_START_TIMESTAMP: u64 = 0;
 
-pub struct HaneulTestAdapter<'a> {
-    pub(crate) compiled_state: CompiledState<'a>,
+pub struct HaneulTestAdapter {
+    pub(crate) compiled_state: CompiledState,
     /// For upgrades: maps an upgraded package name to the original package name.
     package_upgrade_mapping: BTreeMap<Symbol, Symbol>,
     accounts: BTreeMap<String, TestAccount>,
@@ -168,14 +168,14 @@ struct TxnSummary {
 }
 
 #[async_trait]
-impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
+impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
     type ExtraPublishArgs = HaneulPublishArgs;
     type ExtraRunArgs = HaneulRunArgs;
     type ExtraInitArgs = HaneulInitArgs;
     type ExtraValueArgs = HaneulExtraValueArgs;
     type Subcommand = HaneulSubcommand<Self::ExtraValueArgs, Self::ExtraRunArgs>;
 
-    fn compiled_state(&mut self) -> &mut CompiledState<'a> {
+    fn compiled_state(&mut self) -> &mut CompiledState {
         &mut self.compiled_state
     }
 
@@ -190,7 +190,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter<'a> {
     }
     async fn init(
         default_syntax: SyntaxChoice,
-        pre_compiled_deps: Option<&'a FullyCompiledProgram>,
+        pre_compiled_deps: Option<Arc<FullyCompiledProgram>>,
         task_opt: Option<
             move_transactional_test_runner::tasks::TaskInput<(
                 move_transactional_test_runner::tasks::InitCommand,
@@ -1121,7 +1121,7 @@ fn merge_output(left: Option<String>, right: Option<String>) -> Option<String> {
     }
 }
 
-impl<'a> HaneulTestAdapter<'a> {
+impl<'a> HaneulTestAdapter {
     pub fn is_simulator(&self) -> bool {
         self.is_simulator
     }
@@ -1783,7 +1783,7 @@ impl<'a> HaneulTestAdapter<'a> {
     }
 }
 
-impl<'a> GetModule for &'a HaneulTestAdapter<'_> {
+impl<'a> GetModule for &'a HaneulTestAdapter {
     type Error = anyhow::Error;
 
     type Item = &'a CompiledModule;
@@ -2195,7 +2195,7 @@ async fn update_named_address_mapping(
     }
 }
 
-impl ObjectStore for HaneulTestAdapter<'_> {
+impl ObjectStore for HaneulTestAdapter {
     fn get_object(
         &self,
         object_id: &ObjectID,
@@ -2212,7 +2212,7 @@ impl ObjectStore for HaneulTestAdapter<'_> {
     }
 }
 
-impl ReadStore for HaneulTestAdapter<'_> {
+impl ReadStore for HaneulTestAdapter {
     fn get_committee(
         &self,
         epoch: haneul_types::committee::EpochId,
