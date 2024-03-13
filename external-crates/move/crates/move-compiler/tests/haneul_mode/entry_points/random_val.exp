@@ -1,0 +1,9 @@
+error[Haneul E02002]: invalid 'entry' function signature
+  ┌─ tests/haneul_mode/entry_points/random_val.move:4:36
+  │
+4 │     public entry fun no_random_val(_: haneul::random::Random) {
+  │            -----                   ^  ------------------- haneul::random::Random must be passed by immutable reference, e.g. '&haneul::random::Random'
+  │            │                       │   
+  │            │                       Invalid 'entry' parameter type for parameter '_'
+  │            'no_random_val' was declared 'entry' here
+
