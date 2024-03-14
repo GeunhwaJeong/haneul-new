@@ -73,7 +73,6 @@ use haneul_types::storage::ObjectStore;
 use haneul_types::storage::ReadStore;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
-use haneul_types::DEEPBOOK_PACKAGE_ID;
 use haneul_types::MOVE_STDLIB_PACKAGE_ID;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::{
@@ -95,6 +94,7 @@ use haneul_types::{
 };
 use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
 use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
+use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use tempfile::NamedTempFile;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -113,6 +113,7 @@ const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
     HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_CLOCK_OBJECT_ID,
     HANEUL_DENY_LIST_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID,
 ];
 // TODO use the file name as a seed
 const RNG_SEED: [u8; 32] = [
