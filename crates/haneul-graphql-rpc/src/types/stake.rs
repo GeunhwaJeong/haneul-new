@@ -305,7 +305,7 @@ impl StakedHaneul {
     /// The epoch at which this stake became active.
     async fn activated_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
         Epoch::query(
-            ctx.data_unchecked(),
+            ctx,
             Some(self.native.activation_epoch()),
             self.super_.super_.checkpoint_viewed_at,
         )
@@ -316,7 +316,7 @@ impl StakedHaneul {
     /// The epoch at which this object was requested to join a stake pool.
     async fn requested_epoch(&self, ctx: &Context<'_>) -> Result<Option<Epoch>> {
         Epoch::query(
-            ctx.data_unchecked(),
+            ctx,
             Some(self.native.request_epoch()),
             self.super_.super_.checkpoint_viewed_at,
         )

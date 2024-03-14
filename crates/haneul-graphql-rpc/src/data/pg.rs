@@ -16,6 +16,7 @@ use haneul_indexer::indexer_reader::IndexerReader;
 
 use tracing::error;
 
+#[derive(Clone)]
 pub(crate) struct PgExecutor {
     pub inner: IndexerReader,
     pub limits: Limits,
