@@ -3,6 +3,8 @@
 
 # Module `0x2::haneul`
 
+Coin<HANEUL> is the token used to pay for gas in Haneul.
+It has 9 decimals, and the smallest unit (10^-9) is called "geunhwa".
 
 
 -  [Struct `HANEUL`](#0x2_haneul_HANEUL)
@@ -25,6 +27,7 @@
 
 ## Struct `HANEUL`
 
+Name of the coin
 
 
 <pre><code><b>struct</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_HANEUL">HANEUL</a> <b>has</b> drop
@@ -55,6 +58,7 @@
 
 <a name="0x2_haneul_ENotSystemAddress"></a>
 
+Sender is not @0x0 the system address.
 
 
 <pre><code><b>const</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_ENotSystemAddress">ENotSystemAddress</a>: u64 = 1;
@@ -73,6 +77,8 @@
 
 <a name="0x2_haneul_GEUNHWA_PER_HANEUL"></a>
 
+The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
+10^-9 of a Haneul token
 
 
 <pre><code><b>const</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_GEUNHWA_PER_HANEUL">GEUNHWA_PER_HANEUL</a>: u64 = 1000000000;
@@ -82,6 +88,7 @@
 
 <a name="0x2_haneul_TOTAL_SUPPLY_GEUNHWA"></a>
 
+The total supply of Haneul denominated in Geunhwa (10 Billion * 10^9)
 
 
 <pre><code><b>const</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>: u64 = 10000000000000000000;
@@ -91,6 +98,7 @@
 
 <a name="0x2_haneul_TOTAL_SUPPLY_HANEUL"></a>
 
+The total supply of Haneul denominated in whole Haneul tokens (10 Billion)
 
 
 <pre><code><b>const</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_TOTAL_SUPPLY_HANEUL">TOTAL_SUPPLY_HANEUL</a>: u64 = 10000000000;
@@ -102,6 +110,8 @@
 
 ## Function `new`
 
+Register the <code><a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_HANEUL">HANEUL</a></code> Coin to acquire its <code>Supply</code>.
+This should be called only once during genesis creation.
 
 
 <pre><code><b>fun</b> <a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_new">new</a>(ctx: &<b>mut</b> <a href="../../dependencies/haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../../dependencies/haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../../dependencies/haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
