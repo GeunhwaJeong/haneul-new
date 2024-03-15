@@ -5,10 +5,7 @@ description: Besides Mainnet, Haneul offers Testnet, Devnet, and local networks 
 
 Haneul has Mainnet, Devnet, and Testnet networks available. You can use one of the test networks, Devnet or Testnet, to experiment with the version of Haneul running on that network. You can also spin up a [local Haneul network](./local-network.mdx) for local development. 
 
-The Haneul Testnet and Devnet networks consist of:
-
- * Four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: `https://fullnode.<HANEUL-NETWORK-VERSION>.haneul.io:443` using [JSON-RPC](/references/haneul-api/json-rpc-format.mdx).
- * A public network [Haneul Explorer](https://haneulexplorer.com/) for browsing transaction history.
+The Haneul Testnet and Devnet networks consist of four validator nodes operated by Haneul Labs. Clients send transactions and read requests via this endpoint: `https://fullnode.<HANEUL-NETWORK-VERSION>.haneul.io:443` using [JSON-RPC](/references/haneul-api/json-rpc-format.mdx).
 
 You can [request test HANEUL tokens](#request-test-tokens) through the Haneul [devnet-faucet](https://discordapp.com/channels/916379725201563759/971488439931392130) and [testnet-faucet](https://discord.com/channels/916379725201563759/1037811694564560966) Discord channels, depending on which version of the network you use. If connected to Localnet, use cURL to request tokens from your [local faucet](./local-network.mdx#use-the-local-faucet). The coins on these networks have no financial value. There is no faucet service for Mainnet.
 
@@ -18,15 +15,14 @@ See the [terms of service](https://haneul.io/terms/) for using Haneul networks.
 
 {@include: ../../../snippets/data-wipe.mdx}
 
-## Tools
+## Haneul CLI
 
-Haneul provides the following tools to interact with Haneul networks:
+Haneul provides [Haneul command line interface (CLI)](/references/cli/client.mdx) to interact with Haneul networks:
 
- * [Haneul command line interface (CLI)](/references/cli/client.mdx)
-     * Create and manage your private keys
-     * Create example NFTs
-     * Call and publish Move modules
- * [Haneul Explorer](https://github.com/GeunhwaJeong/haneul/blob/main/apps/explorer/README.md) to view transactions and objects on the network
+- Create and manage your private keys
+- Create example NFTs
+- Call and publish Move modules
+
 
 ## Environment set up
 
