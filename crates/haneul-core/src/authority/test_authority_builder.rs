@@ -210,6 +210,7 @@ impl<'a> TestAuthorityBuilder<'a> {
             genesis.haneul_system_object().into_epoch_start_state(),
             *genesis.checkpoint().digest(),
             &genesis.objects(),
+            None,
         )
         .unwrap();
         let expensive_safety_checks = match self.expensive_safety_checks {

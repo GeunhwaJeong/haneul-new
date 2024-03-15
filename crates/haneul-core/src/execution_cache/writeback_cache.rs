@@ -78,7 +78,7 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
 use haneul_types::storage::{MarkerValue, ObjectKey, ObjectOrTombstone, ObjectStore, PackageObject};
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
-use haneul_types::transaction::VerifiedTransaction;
+use haneul_types::transaction::{VerifiedSignedTransaction, VerifiedTransaction};
 use tracing::{info, instrument};
 
 use super::ExecutionCacheAPI;
@@ -1036,7 +1036,11 @@ impl ExecutionCacheRead for WritebackCache {
         }
     }
 
-    fn get_lock(&self, _obj_ref: ObjectRef, _epoch_id: EpochId) -> HaneulLockResult {
+    fn get_lock(
+        &self,
+        _obj_ref: ObjectRef,
+        _epoch_store: &AuthorityPerEpochStore,
+    ) -> HaneulLockResult {
         todo!()
     }
 
@@ -1053,9 +1057,9 @@ impl ExecutionCacheWrite for WritebackCache {
     #[instrument(level = "trace", skip_all)]
     fn acquire_transaction_locks<'a>(
         &'a self,
-        _epoch_id: EpochId,
+        _epoch_store: &AuthorityPerEpochStore,
         _owned_input_objects: &'a [ObjectRef],
-        _tx_digest: TransactionDigest,
+        _tx_digest: VerifiedSignedTransaction,
     ) -> BoxFuture<'a, HaneulResult> {
         todo!()
     }
