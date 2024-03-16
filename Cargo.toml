@@ -61,6 +61,9 @@ exclude = [
   "external-crates/move/move-execution/v1/crates/move-bytecode-verifier",
   "external-crates/move/move-execution/v1/crates/move-stdlib",
   "external-crates/move/move-execution/v1/crates/move-vm-runtime",
+  "external-crates/move/move-execution/v2/crates/move-bytecode-verifier",
+  "external-crates/move/move-execution/v2/crates/move-stdlib",
+  "external-crates/move/move-execution/v2/crates/move-vm-runtime",
   "sdk/move-bytecode-template",
 ]
 
@@ -183,6 +186,9 @@ members = [
   "haneul-execution/v1/haneul-adapter",
   "haneul-execution/v1/haneul-move-natives",
   "haneul-execution/v1/haneul-verifier",
+  "haneul-execution/v2/haneul-adapter",
+  "haneul-execution/v2/haneul-move-natives",
+  "haneul-execution/v2/haneul-verifier",
 ]
 
 [workspace.package]
