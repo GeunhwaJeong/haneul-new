@@ -272,7 +272,7 @@ impl Display for HaneulTransactionBlockResponse {
         }
 
         if let Some(e) = &self.events {
-            write!(writer, "{}", e)?;
+            writeln!(writer, "{}", e)?;
         }
 
         if let Some(object_changes) = &self.object_changes {
