@@ -15,7 +15,6 @@ function FooterIcon({ children }: { children: ReactNode }) {
 }
 
 export const footerLinks = [
-	{ title: 'FAQ', href: 'https://docs.haneul-labs.com/explorer/faq' },
 	{ title: 'Blog', href: 'https://medium.com/haneullabs-labs' },
 	{
 		title: 'Whitepaper',
@@ -23,7 +22,7 @@ export const footerLinks = [
 	},
 	{
 		title: 'Docs',
-		href: 'https://docs.haneul-labs.com/explorer',
+		href: 'https://docs.haneul-labs.com',
 	},
 	{
 		title: 'GitHub',
