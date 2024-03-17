@@ -1,7 +1,7 @@
 
-<a name="0x3_genesis"></a>
-
-# Module `0x3::genesis`
+---
+title: Module `0x3::genesis`
+---
 
 
 
@@ -15,13 +15,13 @@
 -  [Function `activate_validators`](#0x3_genesis_activate_validators)
 
 
-<pre><code><b>use</b> <a href="dependencies/move-stdlib/option.md#0x1_option">0x1::option</a>;
-<b>use</b> <a href="dependencies/move-stdlib/vector.md#0x1_vector">0x1::vector</a>;
-<b>use</b> <a href="dependencies/haneul-framework/balance.md#0x2_balance">0x2::balance</a>;
-<b>use</b> <a href="dependencies/haneul-framework/coin.md#0x2_coin">0x2::coin</a>;
-<b>use</b> <a href="dependencies/haneul-framework/object.md#0x2_object">0x2::object</a>;
-<b>use</b> <a href="dependencies/haneul-framework/haneul.md#0x2_haneul">0x2::haneul</a>;
-<b>use</b> <a href="dependencies/haneul-framework/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
+<pre><code><b>use</b> <a href="../move-stdlib/option.md#0x1_option">0x1::option</a>;
+<b>use</b> <a href="../move-stdlib/vector.md#0x1_vector">0x1::vector</a>;
+<b>use</b> <a href="../haneul-framework/balance.md#0x2_balance">0x2::balance</a>;
+<b>use</b> <a href="../haneul-framework/coin.md#0x2_coin">0x2::coin</a>;
+<b>use</b> <a href="../haneul-framework/object.md#0x2_object">0x2::object</a>;
+<b>use</b> <a href="../haneul-framework/haneul.md#0x2_haneul">0x2::haneul</a>;
+<b>use</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
 <b>use</b> <a href="stake_subsidy.md#0x3_stake_subsidy">0x3::stake_subsidy</a>;
 <b>use</b> <a href="haneul_system.md#0x3_haneul_system">0x3::haneul_system</a>;
 <b>use</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner">0x3::haneul_system_state_inner</a>;
@@ -48,25 +48,25 @@
 
 <dl>
 <dt>
-<code>name: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>name: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>description: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>description: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>image_url: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>image_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>project_url: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>project_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
@@ -90,49 +90,49 @@
 
 </dd>
 <dt>
-<code>protocol_public_key: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>protocol_public_key: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>proof_of_possession: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>proof_of_possession: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>network_public_key: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>network_public_key: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>worker_public_key: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>worker_public_key: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>network_address: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>network_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>p2p_address: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>p2p_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>primary_address: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>primary_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
 </dd>
 <dt>
-<code>worker_address: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>worker_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
 </dt>
 <dd>
 
@@ -258,7 +258,7 @@
 
 </dd>
 <dt>
-<code>allocations: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">genesis::TokenAllocation</a>&gt;</code>
+<code>allocations: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">genesis::TokenAllocation</a>&gt;</code>
 </dt>
 <dd>
 
@@ -297,7 +297,7 @@
 
 </dd>
 <dt>
-<code>staked_with_validator: <a href="dependencies/move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<b>address</b>&gt;</code>
+<code>staked_with_validator: <a href="../move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<b>address</b>&gt;</code>
 </dt>
 <dd>
  Indicates if this allocation should be staked at genesis and with which validator
@@ -341,7 +341,7 @@ It will create a singleton HaneulSystemState object, which contains
 all the information we need in the system.
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_create">create</a>(haneul_system_state_id: <a href="dependencies/haneul-framework/object.md#0x2_object_UID">object::UID</a>, haneul_supply: <a href="dependencies/haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="dependencies/haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, genesis_chain_parameters: <a href="genesis.md#0x3_genesis_GenesisChainParameters">genesis::GenesisChainParameters</a>, genesis_validators: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_GenesisValidatorMetadata">genesis::GenesisValidatorMetadata</a>&gt;, token_distribution_schedule: <a href="genesis.md#0x3_genesis_TokenDistributionSchedule">genesis::TokenDistributionSchedule</a>, ctx: &<b>mut</b> <a href="dependencies/haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_create">create</a>(haneul_system_state_id: <a href="../haneul-framework/object.md#0x2_object_UID">object::UID</a>, haneul_supply: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, genesis_chain_parameters: <a href="genesis.md#0x3_genesis_GenesisChainParameters">genesis::GenesisChainParameters</a>, genesis_validators: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_GenesisValidatorMetadata">genesis::GenesisValidatorMetadata</a>&gt;, token_distribution_schedule: <a href="genesis.md#0x3_genesis_TokenDistributionSchedule">genesis::TokenDistributionSchedule</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -354,27 +354,27 @@ all the information we need in the system.
     haneul_system_state_id: UID,
     haneul_supply: Balance&lt;HANEUL&gt;,
     genesis_chain_parameters: <a href="genesis.md#0x3_genesis_GenesisChainParameters">GenesisChainParameters</a>,
-    genesis_validators: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_GenesisValidatorMetadata">GenesisValidatorMetadata</a>&gt;,
+    genesis_validators: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_GenesisValidatorMetadata">GenesisValidatorMetadata</a>&gt;,
     token_distribution_schedule: <a href="genesis.md#0x3_genesis_TokenDistributionSchedule">TokenDistributionSchedule</a>,
     ctx: &<b>mut</b> TxContext,
 ) {
     // Ensure this is only called at <a href="genesis.md#0x3_genesis">genesis</a>
-    <b>assert</b>!(<a href="dependencies/haneul-framework/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx) == 0, <a href="genesis.md#0x3_genesis_ENotCalledAtGenesis">ENotCalledAtGenesis</a>);
+    <b>assert</b>!(<a href="../haneul-framework/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx) == 0, <a href="genesis.md#0x3_genesis_ENotCalledAtGenesis">ENotCalledAtGenesis</a>);
 
     <b>let</b> <a href="genesis.md#0x3_genesis_TokenDistributionSchedule">TokenDistributionSchedule</a> {
         stake_subsidy_fund_geunhwa,
         allocations,
     } = token_distribution_schedule;
 
-    <b>let</b> subsidy_fund = <a href="dependencies/haneul-framework/balance.md#0x2_balance_split">balance::split</a>(
+    <b>let</b> subsidy_fund = <a href="../haneul-framework/balance.md#0x2_balance_split">balance::split</a>(
         &<b>mut</b> haneul_supply,
         stake_subsidy_fund_geunhwa,
     );
-    <b>let</b> <a href="storage_fund.md#0x3_storage_fund">storage_fund</a> = <a href="dependencies/haneul-framework/balance.md#0x2_balance_zero">balance::zero</a>();
+    <b>let</b> <a href="storage_fund.md#0x3_storage_fund">storage_fund</a> = <a href="../haneul-framework/balance.md#0x2_balance_zero">balance::zero</a>();
 
     // Create all the `Validator` structs
-    <b>let</b> validators = <a href="dependencies/move-stdlib/vector.md#0x1_vector_empty">vector::empty</a>();
-    <b>let</b> count = <a href="dependencies/move-stdlib/vector.md#0x1_vector_length">vector::length</a>(&genesis_validators);
+    <b>let</b> validators = <a href="../move-stdlib/vector.md#0x1_vector_empty">vector::empty</a>();
+    <b>let</b> count = <a href="../move-stdlib/vector.md#0x1_vector_length">vector::length</a>(&genesis_validators);
     <b>let</b> i = 0;
     <b>while</b> (i &lt; count) {
         <b>let</b> <a href="genesis.md#0x3_genesis_GenesisValidatorMetadata">GenesisValidatorMetadata</a> {
@@ -393,7 +393,7 @@ all the information we need in the system.
             p2p_address,
             primary_address,
             worker_address,
-        } = *<a href="dependencies/move-stdlib/vector.md#0x1_vector_borrow">vector::borrow</a>(&genesis_validators, i);
+        } = *<a href="../move-stdlib/vector.md#0x1_vector_borrow">vector::borrow</a>(&genesis_validators, i);
 
         <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="validator.md#0x3_validator_new">validator::new</a>(
             haneul_address,
@@ -420,7 +420,7 @@ all the information we need in the system.
             <a href="genesis.md#0x3_genesis_EDuplicateValidator">EDuplicateValidator</a>,
         );
 
-        <a href="dependencies/move-stdlib/vector.md#0x1_vector_push_back">vector::push_back</a>(&<b>mut</b> validators, <a href="validator.md#0x3_validator">validator</a>);
+        <a href="../move-stdlib/vector.md#0x1_vector_push_back">vector::push_back</a>(&<b>mut</b> validators, <a href="validator.md#0x3_validator">validator</a>);
 
         i = i + 1;
     };
@@ -481,7 +481,7 @@ all the information we need in the system.
 
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_allocate_tokens">allocate_tokens</a>(haneul_supply: <a href="dependencies/haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="dependencies/haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, allocations: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">genesis::TokenAllocation</a>&gt;, validators: &<b>mut</b> <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;, ctx: &<b>mut</b> <a href="dependencies/haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_allocate_tokens">allocate_tokens</a>(haneul_supply: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, allocations: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">genesis::TokenAllocation</a>&gt;, validators: &<b>mut</b> <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -492,22 +492,22 @@ all the information we need in the system.
 
 <pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_allocate_tokens">allocate_tokens</a>(
     haneul_supply: Balance&lt;HANEUL&gt;,
-    allocations: <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">TokenAllocation</a>&gt;,
-    validators: &<b>mut</b> <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;Validator&gt;,
+    allocations: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="genesis.md#0x3_genesis_TokenAllocation">TokenAllocation</a>&gt;,
+    validators: &<b>mut</b> <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;Validator&gt;,
     ctx: &<b>mut</b> TxContext,
 ) {
 
-    <b>while</b> (!<a href="dependencies/move-stdlib/vector.md#0x1_vector_is_empty">vector::is_empty</a>(&allocations)) {
+    <b>while</b> (!<a href="../move-stdlib/vector.md#0x1_vector_is_empty">vector::is_empty</a>(&allocations)) {
         <b>let</b> <a href="genesis.md#0x3_genesis_TokenAllocation">TokenAllocation</a> {
             recipient_address,
             amount_geunhwa,
             staked_with_validator,
-        } = <a href="dependencies/move-stdlib/vector.md#0x1_vector_pop_back">vector::pop_back</a>(&<b>mut</b> allocations);
+        } = <a href="../move-stdlib/vector.md#0x1_vector_pop_back">vector::pop_back</a>(&<b>mut</b> allocations);
 
-        <b>let</b> allocation_balance = <a href="dependencies/haneul-framework/balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> haneul_supply, amount_geunhwa);
+        <b>let</b> allocation_balance = <a href="../haneul-framework/balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> haneul_supply, amount_geunhwa);
 
-        <b>if</b> (<a href="dependencies/move-stdlib/option.md#0x1_option_is_some">option::is_some</a>(&staked_with_validator)) {
-            <b>let</b> validator_address = <a href="dependencies/move-stdlib/option.md#0x1_option_destroy_some">option::destroy_some</a>(staked_with_validator);
+        <b>if</b> (<a href="../move-stdlib/option.md#0x1_option_is_some">option::is_some</a>(&staked_with_validator)) {
+            <b>let</b> validator_address = <a href="../move-stdlib/option.md#0x1_option_destroy_some">option::destroy_some</a>(staked_with_validator);
             <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="validator_set.md#0x3_validator_set_get_validator_mut">validator_set::get_validator_mut</a>(validators, validator_address);
             <a href="validator.md#0x3_validator_request_add_stake_at_genesis">validator::request_add_stake_at_genesis</a>(
                 <a href="validator.md#0x3_validator">validator</a>,
@@ -516,17 +516,17 @@ all the information we need in the system.
                 ctx
             );
         } <b>else</b> {
-            <a href="dependencies/haneul-framework/haneul.md#0x2_haneul_transfer">haneul::transfer</a>(
-                <a href="dependencies/haneul-framework/coin.md#0x2_coin_from_balance">coin::from_balance</a>(allocation_balance, ctx),
+            <a href="../haneul-framework/haneul.md#0x2_haneul_transfer">haneul::transfer</a>(
+                <a href="../haneul-framework/coin.md#0x2_coin_from_balance">coin::from_balance</a>(allocation_balance, ctx),
                 recipient_address,
             );
         };
     };
-    <a href="dependencies/move-stdlib/vector.md#0x1_vector_destroy_empty">vector::destroy_empty</a>(allocations);
+    <a href="../move-stdlib/vector.md#0x1_vector_destroy_empty">vector::destroy_empty</a>(allocations);
 
     // Provided allocations must fully allocate the haneul_supply and there
     // should be none left at this point.
-    <a href="dependencies/haneul-framework/balance.md#0x2_balance_destroy_zero">balance::destroy_zero</a>(haneul_supply);
+    <a href="../haneul-framework/balance.md#0x2_balance_destroy_zero">balance::destroy_zero</a>(haneul_supply);
 }
 </code></pre>
 
@@ -540,7 +540,7 @@ all the information we need in the system.
 
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_activate_validators">activate_validators</a>(validators: &<b>mut</b> <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;)
+<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_activate_validators">activate_validators</a>(validators: &<b>mut</b> <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="validator.md#0x3_validator_Validator">validator::Validator</a>&gt;)
 </code></pre>
 
 
@@ -549,12 +549,12 @@ all the information we need in the system.
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_activate_validators">activate_validators</a>(validators: &<b>mut</b> <a href="dependencies/move-stdlib/vector.md#0x1_vector">vector</a>&lt;Validator&gt;) {
+<pre><code><b>fun</b> <a href="genesis.md#0x3_genesis_activate_validators">activate_validators</a>(validators: &<b>mut</b> <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;Validator&gt;) {
     // Activate all <a href="genesis.md#0x3_genesis">genesis</a> validators
-    <b>let</b> count = <a href="dependencies/move-stdlib/vector.md#0x1_vector_length">vector::length</a>(validators);
+    <b>let</b> count = <a href="../move-stdlib/vector.md#0x1_vector_length">vector::length</a>(validators);
     <b>let</b> i = 0;
     <b>while</b> (i &lt; count) {
-        <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="dependencies/move-stdlib/vector.md#0x1_vector_borrow_mut">vector::borrow_mut</a>(validators, i);
+        <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="../move-stdlib/vector.md#0x1_vector_borrow_mut">vector::borrow_mut</a>(validators, i);
         <a href="validator.md#0x3_validator_activate">validator::activate</a>(<a href="validator.md#0x3_validator">validator</a>, 0);
 
         i = i + 1;
