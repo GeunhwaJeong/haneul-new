@@ -15,7 +15,7 @@ module haneul::haneul {
     const ENotSystemAddress: u64 = 1;
 
     #[allow(unused_const)]
-    /// The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
+    /// The amount of Geunhwa per Haneul token based on the fact that geunhwa is
     /// 10^-9 of a Haneul token
     const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
 

@@ -77,7 +77,7 @@ Sender is not @0x0 the system address.
 
 <a name="0x2_haneul_GEUNHWA_PER_HANEUL"></a>
 
-The amount of Geunhwa per Haneul token based on the the fact that geunhwa is
+The amount of Geunhwa per Haneul token based on the fact that geunhwa is
 10^-9 of a Haneul token
 
 

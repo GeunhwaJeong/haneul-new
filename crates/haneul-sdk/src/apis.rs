@@ -686,7 +686,7 @@ impl ReadApi {
             .await?)
     }
 
-    /// Return the loaded child objects response for the the provided digest, or an error upon failure.
+    /// Return the loaded child objects response for the provided digest, or an error upon failure.
     ///
     /// Loaded child objects ([HaneulLoadedChildObject](haneul_json_rpc_types::HaneulLoadedChildObject)) are the non-input objects that the transaction at the digest loaded
     /// in response to dynamic field accesses.
