@@ -198,6 +198,10 @@ impl EpochStartSystemStateTrait for EpochStartSystemStateV1 {
             });
         }
 
+        // Sort the authorities by their protocol (public) key in ascending order. That's the sorting
+        // HANEUL committee follows and we
+        authorities.sort_by(|a1, a2| a1.protocol_key.cmp(&a2.protocol_key));
+
         ConsensusCommittee::new(self.epoch as consensus_config::Epoch, authorities)
     }
 
@@ -296,5 +300,89 @@ pub struct EpochStartValidatorInfoV1 {
 impl EpochStartValidatorInfoV1 {
     pub fn authority_name(&self) -> AuthorityName {
         (&self.protocol_pubkey).into()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::base_types::HaneulAddress;
+    use crate::committee::CommitteeTrait;
+    use crate::crypto::{get_key_pair, AuthorityKeyPair};
+    use crate::haneul_system_state::epoch_start_haneul_system_state::{
+        EpochStartSystemStateTrait, EpochStartSystemStateV1, EpochStartValidatorInfoV1,
+    };
+    use fastcrypto::traits::KeyPair;
+    use haneullabs_network::Multiaddr;
+    use narwhal_crypto::NetworkKeyPair;
+    use rand::thread_rng;
+    use haneul_protocol_config::ProtocolVersion;
+
+    #[test]
+    fn test_haneul_and_mysticeti_committee_are_same() {
+        // GIVEN
+        let mut active_validators = vec![];
+
+        for i in 0..10 {
+            let (haneul_address, protocol_key): (HaneulAddress, AuthorityKeyPair) = get_key_pair();
+            let narwhal_network_key = NetworkKeyPair::generate(&mut thread_rng());
+
+            active_validators.push(EpochStartValidatorInfoV1 {
+                haneul_address,
+                protocol_pubkey: protocol_key.public().clone(),
+                narwhal_network_pubkey: narwhal_network_key.public().clone(),
+                narwhal_worker_pubkey: narwhal_network_key.public().clone(),
+                haneul_net_address: Multiaddr::empty(),
+                p2p_address: Multiaddr::empty(),
+                narwhal_primary_address: Multiaddr::empty(),
+                narwhal_worker_address: Multiaddr::empty(),
+                voting_power: 1_000,
+                hostname: format!("host-{i}").to_string(),
+            })
+        }
+
+        let state = EpochStartSystemStateV1 {
+            epoch: 10,
+            protocol_version: ProtocolVersion::MAX.as_u64(),
+            reference_gas_price: 0,
+            safe_mode: false,
+            epoch_start_timestamp_ms: 0,
+            epoch_duration_ms: 0,
+            active_validators,
+        };
+
+        // WHEN
+        let haneul_committee = state.get_haneul_committee();
+        let mysticeti_committee = state.get_mysticeti_committee();
+
+        // THEN
+        // assert the validators details
+        assert_eq!(haneul_committee.num_members(), 10);
+        assert_eq!(haneul_committee.num_members(), mysticeti_committee.size());
+        assert_eq!(
+            haneul_committee.validity_threshold(),
+            mysticeti_committee.validity_threshold()
+        );
+        assert_eq!(
+            haneul_committee.quorum_threshold(),
+            mysticeti_committee.quorum_threshold()
+        );
+        assert_eq!(state.epoch, mysticeti_committee.epoch());
+
+        for (authority_index, mysticeti_authority) in mysticeti_committee.authorities() {
+            let haneul_authority_name = haneul_committee
+                .authority_by_index(authority_index.value() as u32)
+                .unwrap();
+
+            assert_eq!(
+                mysticeti_authority.protocol_key.pubkey.to_bytes(),
+                haneul_authority_name.0,
+                "Haneullabs & HANEUL committee member of same index correspond to different public key"
+            );
+            assert_eq!(
+                mysticeti_authority.stake,
+                haneul_committee.weight(haneul_authority_name),
+                "Haneullabs & HANEUL committee member stake differs"
+            );
+        }
     }
 }
