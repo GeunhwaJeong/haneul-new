@@ -4,7 +4,7 @@ use std::{path::PathBuf, sync::Arc};
 
 use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
-use consensus_config::{AuthorityIndex, Committee, Parameters};
+use consensus_config::{Committee, Parameters};
 use consensus_core::{CommitConsumer, CommitIndex, ConsensusAuthority, Round};
 use fastcrypto::traits::KeyPair;
 use haneullabs_metrics::{RegistryID, RegistryService};
@@ -12,7 +12,6 @@ use narwhal_executor::ExecutionState;
 use prometheus::Registry;
 use haneul_config::NodeConfig;
 use haneul_types::{
-    base_types::AuthorityName,
     committee::EpochId,
     crypto::{AuthorityKeyPair, NetworkKeyPair},
     haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait,
@@ -108,16 +107,10 @@ impl ConsensusManagerTrait for MysticetiManager {
             ..Default::default()
         };
 
-        let name: AuthorityName = self.keypair.public().into();
-
-        let haneul_committee = system_state.get_haneul_committee();
-        let authority_index: AuthorityIndex = committee
-            .to_authority_index(
-                haneul_committee
-                    .authority_index(&name)
-                    .expect("Should have valid index for own authority") as usize,
-            )
-            .expect("Should have valid index for own authority");
+        let (own_index, _) = committee
+            .authorities()
+            .find(|(_, a)| &a.protocol_key == self.keypair.public())
+            .expect("Own authority should be among the consensus authorities!");
 
         let registry = Registry::new_custom(Some("mysticeti_".to_string()), None).unwrap();
 
@@ -137,7 +130,7 @@ impl ConsensusManagerTrait for MysticetiManager {
         // TODO(mysticeti): Investigate if we need to return potential errors from
         // AuthorityNode and add retries here?
         let authority = ConsensusAuthority::start(
-            authority_index,
+            own_index,
             committee.clone(),
             parameters.clone(),
             protocol_config.clone(),
