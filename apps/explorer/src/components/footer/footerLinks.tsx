@@ -15,7 +15,7 @@ function FooterIcon({ children }: { children: ReactNode }) {
 }
 
 export const footerLinks = [
-	{ title: 'Blog', href: 'https://medium.com/haneullabs-labs' },
+	{ title: 'Blog', href: 'https://haneul-labs.com/blog' },
 	{
 		title: 'Whitepaper',
 		href: 'https://github.com/GeunhwaJeong/haneul/blob/main/doc/paper/haneul.pdf',
