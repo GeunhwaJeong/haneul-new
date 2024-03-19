@@ -168,9 +168,7 @@ export function RedirectHeader() {
 					</div>
 				</div>
 			) : (
-				<Heading variant="heading3/semibold">
-					Experience two amazing blockchain explorers on Haneul!
-				</Heading>
+				<Heading variant="heading3/semibold">Experience two amazing explorers on Haneul!</Heading>
 			)}
 		</section>
 	);
