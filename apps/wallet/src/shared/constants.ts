@@ -3,7 +3,7 @@
 
 export const ToS_LINK = 'https://haneul-labs.com/legal#haneulwallettermsofservice';
 export const PRIVACY_POLICY_LINK = 'https://haneul-labs.com/legal#privacypolicy';
-export const FAQ_LINK = 'https://docs.haneul-labs.com/wallet/faq';
+export const FAQ_LINK = 'https://docs.haneul-labs.com/faq';
 
 // number of epochs before earning
 // Staking Rewards Redeemable
