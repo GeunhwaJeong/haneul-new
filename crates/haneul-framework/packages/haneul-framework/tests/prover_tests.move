@@ -5,7 +5,7 @@
 module haneul::prover_tests {
     use haneul::object::UID;
 
-    struct Obj has key, store {
+    public struct Obj has key, store {
         id: UID
     }
 

@@ -13,7 +13,7 @@ module haneul::object_tests {
 
     #[test]
     fun test_bytes_address_roundtrip() {
-        let ctx = tx_context::dummy();
+        let mut ctx = tx_context::dummy();
 
         let uid0 = object::new(&mut ctx);
         let uid1 = object::new(&mut ctx);

@@ -9,13 +9,13 @@ module haneul_system::stake_subsidy {
     use haneul::bag;
     use haneul::tx_context::TxContext;
 
-    friend haneul_system::genesis;
-    friend haneul_system::haneul_system_state_inner;
+    /* friend haneul_system::genesis; */
+    /* friend haneul_system::haneul_system_state_inner; */
 
-    #[test_only]
-    friend haneul_system::governance_test_utils;
+    /* #[test_only] */
+    /* friend haneul_system::governance_test_utils; */
 
-    struct StakeSubsidy has store {
+    public struct StakeSubsidy has store {
         /// Balance of HANEUL set aside for stake subsidies that will be drawn down over time.
         balance: Balance<HANEUL>,
 
@@ -41,7 +41,7 @@ module haneul_system::stake_subsidy {
 
     const ESubsidyDecreaseRateTooLarge: u64 = 0;
 
-    public(friend) fun create(
+    public(package) fun create(
         balance: Balance<HANEUL>,
         initial_distribution_amount: u64,
         stake_subsidy_period_length: u64,
@@ -65,7 +65,7 @@ module haneul_system::stake_subsidy {
     }
 
     /// Advance the epoch counter and draw down the subsidy for the epoch.
-    public(friend) fun advance_epoch(self: &mut StakeSubsidy): Balance<HANEUL> {
+    public(package) fun advance_epoch(self: &mut StakeSubsidy): Balance<HANEUL> {
         // Take the minimum of the reward amount and the remaining balance in
         // order to ensure we don't overdraft the remaining stake subsidy
         // balance
@@ -93,7 +93,7 @@ module haneul_system::stake_subsidy {
 
     #[test_only]
     /// Returns the number of distributions that have occurred.
-    public(friend) fun get_distribution_counter(self: &StakeSubsidy): u64 {
+    public(package) fun get_distribution_counter(self: &StakeSubsidy): u64 {
         self.distribution_counter
     }
 }

@@ -75,7 +75,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_new">new</a>(initial_fund: Balance&lt;HANEUL&gt;) : <a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a> {
+<pre><code><b>public</b>(package) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_new">new</a>(initial_fund: Balance&lt;HANEUL&gt;) : <a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a> {
     <a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a> {
         // At the beginning there's no <a href="../haneul-framework/object.md#0x2_object">object</a> in the storage yet
         total_object_storage_rebates: <a href="../haneul-framework/balance.md#0x2_balance_zero">balance::zero</a>(),
@@ -104,7 +104,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_advance_epoch">advance_epoch</a>(
+<pre><code><b>public</b>(package) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_advance_epoch">advance_epoch</a>(
     self: &<b>mut</b> <a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a>,
     storage_charges: Balance&lt;HANEUL&gt;,
     storage_fund_reinvestment: Balance&lt;HANEUL&gt;,

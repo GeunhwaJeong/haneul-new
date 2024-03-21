@@ -138,7 +138,7 @@ This should be called only once during genesis creation.
         ctx
     );
     <a href="../haneul-framework/transfer.md#0x2_transfer_public_freeze_object">transfer::public_freeze_object</a>(metadata);
-    <b>let</b> supply = <a href="../haneul-framework/coin.md#0x2_coin_treasury_into_supply">coin::treasury_into_supply</a>(treasury);
+    <b>let</b> <b>mut</b> supply = <a href="../haneul-framework/coin.md#0x2_coin_treasury_into_supply">coin::treasury_into_supply</a>(treasury);
     <b>let</b> total_haneul = <a href="../haneul-framework/balance.md#0x2_balance_increase_supply">balance::increase_supply</a>(&<b>mut</b> supply, <a href="../haneul-framework/haneul.md#0x2_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>);
     <a href="../haneul-framework/balance.md#0x2_balance_destroy_supply">balance::destroy_supply</a>(supply);
     total_haneul

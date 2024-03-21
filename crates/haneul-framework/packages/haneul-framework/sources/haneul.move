@@ -27,7 +27,7 @@ module haneul::haneul {
     const TOTAL_SUPPLY_GEUNHWA: u64 = 10_000_000_000_000_000_000;
 
     /// Name of the coin
-    struct HANEUL has drop {}
+    public struct HANEUL has drop {}
 
     #[allow(unused_function)]
     /// Register the `HANEUL` Coin to acquire its `Supply`.
@@ -47,7 +47,7 @@ module haneul::haneul {
             ctx
         );
         transfer::public_freeze_object(metadata);
-        let supply = coin::treasury_into_supply(treasury);
+        let mut supply = coin::treasury_into_supply(treasury);
         let total_haneul = balance::increase_supply(&mut supply, TOTAL_SUPPLY_GEUNHWA);
         balance::destroy_supply(supply);
         total_haneul

@@ -7,17 +7,17 @@ module haneul::object {
     use haneul::address;
     use haneul::tx_context::{Self, TxContext};
 
-    friend haneul::clock;
-    friend haneul::coin;
-    friend haneul::dynamic_field;
-    friend haneul::dynamic_object_field;
-    friend haneul::transfer;
-    friend haneul::authenticator_state;
-    friend haneul::random;
-    friend haneul::deny_list;
+    /* friend haneul::clock; */
+    /* friend haneul::coin; */
+    /* friend haneul::dynamic_field; */
+    /* friend haneul::dynamic_object_field; */
+    /* friend haneul::transfer; */
+    /* friend haneul::authenticator_state; */
+    /* friend haneul::random; */
+    /* friend haneul::deny_list; */
 
-    #[test_only]
-    friend haneul::test_scenario;
+    /* #[test_only] */
+    /* friend haneul::test_scenario; */
 
     /// The hardcoded ID for the singleton Haneul System State Object.
     const HANEUL_SYSTEM_STATE_OBJECT_ID: address = @0x5;
@@ -43,7 +43,7 @@ module haneul::object {
     /// Here, the values are not globally unique because there can be multiple values of type `ID`
     /// with the same underlying bytes. For example, `object::id(&obj)` can be called as many times
     /// as you want for a given `obj`, and each `ID` value will be identical.
-    struct ID has copy, drop, store {
+    public struct ID has copy, drop, store {
         // We use `address` instead of `vector<u8>` here because `address` has a more
         // compact serialization. `address` is serialized as a BCS fixed-length sequence,
         // which saves us the length prefix we would pay for if this were `vector<u8>`.
@@ -57,7 +57,7 @@ module haneul::object {
     /// other words for any two values `id1: UID` and `id2: UID`, `id1` != `id2`.
     /// This is a privileged type that can only be derived from a `TxContext`.
     /// `UID` doesn't have the `drop` ability, so deleting a `UID` requires a call to `delete`.
-    struct UID has store {
+    public struct UID has store {
         id: ID,
     }
 
@@ -97,7 +97,7 @@ module haneul::object {
 
     /// Create the `UID` for the singleton `Clock` object.
     /// This should only be called once from `clock`.
-    public(friend) fun clock(): UID {
+    public(package) fun clock(): UID {
         UID {
             id: ID { bytes: HANEUL_CLOCK_OBJECT_ID }
         }
@@ -105,7 +105,7 @@ module haneul::object {
 
     /// Create the `UID` for the singleton `AuthenticatorState` object.
     /// This should only be called once from `authenticator_state`.
-    public(friend) fun authenticator_state(): UID {
+    public(package) fun authenticator_state(): UID {
         UID {
             id: ID { bytes: HANEUL_AUTHENTICATOR_STATE_ID }
         }
@@ -113,7 +113,7 @@ module haneul::object {
 
     /// Create the `UID` for the singleton `Random` object.
     /// This should only be called once from `random`.
-    public(friend) fun randomness_state(): UID {
+    public(package) fun randomness_state(): UID {
         UID {
             id: ID { bytes: HANEUL_RANDOM_ID }
         }
@@ -121,7 +121,7 @@ module haneul::object {
 
     /// Create the `UID` for the singleton `DenyList` object.
     /// This should only be called once from `deny_list`.
-    public(friend) fun haneul_deny_list_object_id(): UID {
+    public(package) fun haneul_deny_list_object_id(): UID {
         UID {
             id: ID { bytes: HANEUL_DENY_LIST_OBJECT_ID }
         }
@@ -195,7 +195,7 @@ module haneul::object {
     native fun borrow_uid<T: key>(obj: &T): &UID;
 
     /// Generate a new UID specifically used for creating a UID from a hash
-    public(friend) fun new_uid_from_hash(bytes: address): UID {
+    public(package) fun new_uid_from_hash(bytes: address): UID {
         record_new_uid(bytes);
         UID { id: ID { bytes } }
     }

@@ -62,14 +62,14 @@ module haneul_system::haneul_system {
     #[test_only] use haneul_system::validator_set;
     #[test_only] use haneul::vec_set::VecSet;
 
-    friend haneul_system::genesis;
+    /* friend haneul_system::genesis; */
 
-    #[test_only]
-    friend haneul_system::governance_test_utils;
-    #[test_only]
-    friend haneul_system::haneul_system_tests;
+    /* #[test_only] */
+    /* friend haneul_system::governance_test_utils; */
+    /* #[test_only] */
+    /* friend haneul_system::haneul_system_tests; */
 
-    struct HaneulSystemState has key {
+    public struct HaneulSystemState has key {
         id: UID,
         version: u64,
     }
@@ -81,7 +81,7 @@ module haneul_system::haneul_system {
 
     /// Create a new HaneulSystemState object and make it shared.
     /// This function will be called only once in genesis.
-    public(friend) fun create(
+    public(package) fun create(
         id: UID,
         validators: vector<Validator>,
         storage_fund: Balance<HANEUL>,
@@ -101,7 +101,7 @@ module haneul_system::haneul_system {
             ctx,
         );
         let version = haneul_system_state_inner::genesis_system_state_version();
-        let self = HaneulSystemState {
+        let mut self = HaneulSystemState {
             id,
             version,
         };
@@ -745,7 +745,7 @@ module haneul_system::haneul_system {
 
     // CAUTION: THIS CODE IS ONLY FOR TESTING AND THIS MACRO MUST NEVER EVER BE REMOVED.
     #[test_only]
-    public(friend) fun advance_epoch_for_testing(
+    public(package) fun advance_epoch_for_testing(
         wrapper: &mut HaneulSystemState,
         new_epoch: u64,
         next_protocol_version: u64,
