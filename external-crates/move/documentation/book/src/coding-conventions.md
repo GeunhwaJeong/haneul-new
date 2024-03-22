@@ -1,1 +1,1 @@
-TODO link to haneul conventions? Migrate them here and link out to them?
+See [Haneul's Coding Conventions for Move](https://docs.haneul.io/concepts/haneul-move-concepts/conventions)
