@@ -9,7 +9,6 @@ use haneul_indexer::errors::IndexerError;
 use haneul_indexer::indexer::Indexer;
 use haneul_indexer::metrics::start_prometheus_server;
 use haneul_indexer::metrics::IndexerMetrics;
-use haneul_indexer::store::PgIndexerAnalyticalStore;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::IndexerConfig;
 
@@ -92,9 +91,6 @@ async fn main() -> Result<(), IndexerError> {
         return Indexer::start_writer(&indexer_config, store, indexer_metrics).await;
     } else if indexer_config.rpc_server_worker {
         return Indexer::start_reader(&indexer_config, &registry, db_url).await;
-    } else if indexer_config.analytical_worker {
-        let store = PgIndexerAnalyticalStore::new(blocking_cp);
-        return Indexer::start_analytical_worker(store, indexer_metrics.clone()).await;
     }
     Ok(())
 }

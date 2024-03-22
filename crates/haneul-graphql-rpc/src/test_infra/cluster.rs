@@ -11,7 +11,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_graphql_rpc_client::simple_client::SimpleClient;
 use haneul_indexer::errors::IndexerError;
-pub use haneul_indexer::processors::objects_snapshot_processor::SnapshotLagConfig;
+pub use haneul_indexer::handlers::objects_snapshot_processor::SnapshotLagConfig;
 use haneul_indexer::store::indexer_store::IndexerStore;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::test_utils::force_delete_database;
