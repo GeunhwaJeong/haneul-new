@@ -1,0 +1,9 @@
+[package]
+name = "Random"
+version = "0.0.1"
+
+[dependencies]
+Haneul = { local = "../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+random = "0x0"
