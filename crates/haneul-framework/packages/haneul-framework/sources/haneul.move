@@ -4,10 +4,7 @@
 /// Coin<HANEUL> is the token used to pay for gas in Haneul.
 /// It has 9 decimals, and the smallest unit (10^-9) is called "geunhwa".
 module haneul::haneul {
-    use std::option;
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::balance::{Self, Balance};
-    use haneul::transfer;
+    use haneul::balance::Balance;
     use haneul::coin;
 
     const EAlreadyMinted: u64 = 0;
@@ -33,8 +30,8 @@ module haneul::haneul {
     /// Register the `HANEUL` Coin to acquire its `Supply`.
     /// This should be called only once during genesis creation.
     fun new(ctx: &mut TxContext): Balance<HANEUL> {
-        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
-        assert!(tx_context::epoch(ctx) == 0, EAlreadyMinted);
+        assert!(ctx.sender() == @0x0, ENotSystemAddress);
+        assert!(ctx.epoch() == 0, EAlreadyMinted);
 
         let (treasury, metadata) = coin::create_currency(
             HANEUL {},
@@ -47,9 +44,9 @@ module haneul::haneul {
             ctx
         );
         transfer::public_freeze_object(metadata);
-        let mut supply = coin::treasury_into_supply(treasury);
-        let total_haneul = balance::increase_supply(&mut supply, TOTAL_SUPPLY_GEUNHWA);
-        balance::destroy_supply(supply);
+        let mut supply = treasury.treasury_into_supply();
+        let total_haneul = supply.increase_supply(TOTAL_SUPPLY_GEUNHWA);
+        supply.destroy_supply();
         total_haneul
     }
 

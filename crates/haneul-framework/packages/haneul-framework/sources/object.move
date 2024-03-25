@@ -5,7 +5,6 @@
 module haneul::object {
     use std::bcs;
     use haneul::address;
-    use haneul::tx_context::{Self, TxContext};
 
     /* friend haneul::clock; */
     /* friend haneul::coin; */
@@ -15,6 +14,24 @@ module haneul::object {
     /* friend haneul::authenticator_state; */
     /* friend haneul::random; */
     /* friend haneul::deny_list; */
+
+    /// Allows calling `.to_address` on an `ID` to get an `address`.
+    public use fun id_to_address as ID.to_address;
+
+    /// Allows calling `.to_bytes` on an `ID` to get a `vector<u8>`.
+    public use fun id_to_bytes as ID.to_bytes;
+
+    /// Allows calling `.as_inner` on a `UID` to get an `&ID`.
+    public use fun uid_as_inner as UID.as_inner;
+
+    /// Allows calling `.to_inner` on a `UID` to get an `ID`.
+    public use fun uid_to_inner as UID.to_inner;
+
+    /// Allows calling `.to_address` on a `UID` to get an `address`.
+    public use fun uid_to_address as UID.to_address;
+
+    /// Allows calling `.to_bytes` on a `UID` to get a `vector<u8>`.
+    public use fun uid_to_bytes as UID.to_bytes;
 
     /* #[test_only] */
     /* friend haneul::test_scenario; */
@@ -75,7 +92,7 @@ module haneul::object {
 
     /// Make an `ID` from raw bytes.
     public fun id_from_bytes(bytes: vector<u8>): ID {
-        id_from_address(address::from_bytes(bytes))
+        address::from_bytes(bytes).to_id()
     }
 
     /// Make an `ID` from an address.
@@ -89,7 +106,7 @@ module haneul::object {
     /// Create the `UID` for the singleton `HaneulSystemState` object.
     /// This should only be called once from `haneul_system`.
     fun haneul_system_state(ctx: &TxContext): UID {
-        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
+        assert!(ctx.sender() == @0x0, ENotSystemAddress);
         UID {
             id: ID { bytes: HANEUL_SYSTEM_STATE_OBJECT_ID },
         }
@@ -153,7 +170,7 @@ module haneul::object {
     /// This is the only way to create `UID`s.
     public fun new(ctx: &mut TxContext): UID {
         UID {
-            id: ID { bytes: tx_context::fresh_object_address(ctx) },
+            id: ID { bytes: ctx.fresh_object_address() },
         }
     }
 
@@ -211,7 +228,7 @@ module haneul::object {
     #[test_only]
     /// Return the most recent created object ID.
     public fun last_created(ctx: &TxContext): ID {
-        ID { bytes: tx_context::last_created_object_id(ctx) }
+        ID { bytes: ctx.last_created_object_id() }
     }
 
 }

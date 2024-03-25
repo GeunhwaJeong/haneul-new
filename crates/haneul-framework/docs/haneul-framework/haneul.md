@@ -124,8 +124,8 @@ This should be called only once during genesis creation.
 
 
 <pre><code><b>fun</b> <a href="../haneul-framework/haneul.md#0x2_haneul_new">new</a>(ctx: &<b>mut</b> TxContext): Balance&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">HANEUL</a>&gt; {
-    <b>assert</b>!(<a href="../haneul-framework/tx_context.md#0x2_tx_context_sender">tx_context::sender</a>(ctx) == @0x0, <a href="../haneul-framework/haneul.md#0x2_haneul_ENotSystemAddress">ENotSystemAddress</a>);
-    <b>assert</b>!(<a href="../haneul-framework/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx) == 0, <a href="../haneul-framework/haneul.md#0x2_haneul_EAlreadyMinted">EAlreadyMinted</a>);
+    <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul-framework/haneul.md#0x2_haneul_ENotSystemAddress">ENotSystemAddress</a>);
+    <b>assert</b>!(ctx.epoch() == 0, <a href="../haneul-framework/haneul.md#0x2_haneul_EAlreadyMinted">EAlreadyMinted</a>);
 
     <b>let</b> (treasury, metadata) = <a href="../haneul-framework/coin.md#0x2_coin_create_currency">coin::create_currency</a>(
         <a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">HANEUL</a> {},
@@ -138,9 +138,9 @@ This should be called only once during genesis creation.
         ctx
     );
     <a href="../haneul-framework/transfer.md#0x2_transfer_public_freeze_object">transfer::public_freeze_object</a>(metadata);
-    <b>let</b> <b>mut</b> supply = <a href="../haneul-framework/coin.md#0x2_coin_treasury_into_supply">coin::treasury_into_supply</a>(treasury);
-    <b>let</b> total_haneul = <a href="../haneul-framework/balance.md#0x2_balance_increase_supply">balance::increase_supply</a>(&<b>mut</b> supply, <a href="../haneul-framework/haneul.md#0x2_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>);
-    <a href="../haneul-framework/balance.md#0x2_balance_destroy_supply">balance::destroy_supply</a>(supply);
+    <b>let</b> <b>mut</b> supply = treasury.treasury_into_supply();
+    <b>let</b> total_haneul = supply.increase_supply(<a href="../haneul-framework/haneul.md#0x2_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>);
+    supply.destroy_supply();
     total_haneul
 }
 </code></pre>

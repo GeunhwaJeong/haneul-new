@@ -359,7 +359,7 @@ Aborts with <code><a href="../haneul-framework/bag.md#0x2_bag_EBagNotEmpty">EBag
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul-framework/bag.md#0x2_bag_destroy_empty">destroy_empty</a>(<a href="../haneul-framework/bag.md#0x2_bag">bag</a>: <a href="../haneul-framework/bag.md#0x2_bag_Bag">Bag</a>) {
     <b>let</b> <a href="../haneul-framework/bag.md#0x2_bag_Bag">Bag</a> { id, size } = <a href="../haneul-framework/bag.md#0x2_bag">bag</a>;
     <b>assert</b>!(size == 0, <a href="../haneul-framework/bag.md#0x2_bag_EBagNotEmpty">EBagNotEmpty</a>);
-    <a href="../haneul-framework/object.md#0x2_object_delete">object::delete</a>(id)
+    id.delete()
 }
 </code></pre>
 

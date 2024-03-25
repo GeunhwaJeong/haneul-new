@@ -4,9 +4,6 @@
 #[allow(unused_const, unused_function)]
 module haneul::zklogin_verified_id {
     use std::string::String;
-    use haneul::object;
-    use haneul::object::UID;
-    use haneul::tx_context::TxContext;
 
     const EFunctionDisabled: u64 = 0;
 
@@ -54,7 +51,7 @@ module haneul::zklogin_verified_id {
     /// Delete a VerifiedID
     public fun delete(verified_id: VerifiedID) {
         let VerifiedID { id, owner: _, key_claim_name: _, key_claim_value: _, issuer: _, audience: _ } = verified_id;
-        object::delete(id);
+        id.delete();
     }
 
     /// This function has been disabled.

@@ -22,9 +22,7 @@
 /// deleted, even if it has dynamic fields associated with it, but a bag, on the other hand, must be
 /// empty to be destroyed.
 module haneul::bag {
-    use haneul::object::{Self, UID};
     use haneul::dynamic_field as field;
-    use haneul::tx_context::TxContext;
 
     // Attempted to destroy a non-empty bag
     const EBagNotEmpty: u64 = 0;
@@ -52,6 +50,7 @@ module haneul::bag {
         bag.size = bag.size + 1;
     }
 
+    #[syntax(index)]
     /// Immutable borrows the value associated with the key in the bag `bag: &Bag`.
     /// Aborts with `haneul::dynamic_field::EFieldDoesNotExist` if the bag does not have an entry with
     /// that key `k: K`.
@@ -61,6 +60,7 @@ module haneul::bag {
         field::borrow(&bag.id, k)
     }
 
+    #[syntax(index)]
     /// Mutably borrows the value associated with the key in the bag `bag: &mut Bag`.
     /// Aborts with `haneul::dynamic_field::EFieldDoesNotExist` if the bag does not have an entry with
     /// that key `k: K`.
@@ -107,6 +107,6 @@ module haneul::bag {
     public fun destroy_empty(bag: Bag) {
         let Bag { id, size } = bag;
         assert!(size == 0, EBagNotEmpty);
-        object::delete(id)
+        id.delete()
     }
 }
