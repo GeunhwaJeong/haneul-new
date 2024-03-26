@@ -23,6 +23,7 @@ haneul-types = { workspace = true, features = ["test-utils"]}
 haneul-storage.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 tokio = { workspace = true, features = ["full"] }
+serde_json = "1.0.95"
 
 [dev-dependencies]
 tempfile.workspace = true

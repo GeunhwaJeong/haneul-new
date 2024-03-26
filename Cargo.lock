@@ -11780,6 +11780,7 @@ dependencies = [
  "prometheus",
  "rand 0.8.5",
  "serde",
+ "serde_json",
  "haneul-config",
  "haneul-macros",
  "haneul-simulator",
