@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul_system::validator_cap {
-    use haneul::object::{Self, ID, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
     /* friend haneul_system::haneul_system_state_inner; */
     /* friend haneul_system::validator; */
     /* friend haneul_system::validator_set; */
@@ -53,7 +50,7 @@ module haneul_system::validator_cap {
         // This function needs to be called only by the validator itself, except
         // 1. in genesis where all valdiators are created by @0x0
         // 2. in tests where @0x0 could be used to simplify the setup
-        let sender_address = tx_context::sender(ctx);
+        let sender_address = ctx.sender();
         assert!(sender_address == @0x0 || sender_address == validator_address, 0);
 
         let operation_cap = UnverifiedValidatorOperationCap {

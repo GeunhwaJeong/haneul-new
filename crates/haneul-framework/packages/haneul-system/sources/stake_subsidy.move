@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul_system::stake_subsidy {
-    use haneul::balance::{Self, Balance};
+    use haneul::balance::Balance;
     use haneul::math;
     use haneul::haneul::HANEUL;
     use haneul::bag::Bag;
     use haneul::bag;
-    use haneul::tx_context::TxContext;
 
     /* friend haneul_system::genesis; */
     /* friend haneul_system::haneul_system_state_inner; */
@@ -69,10 +68,10 @@ module haneul_system::stake_subsidy {
         // Take the minimum of the reward amount and the remaining balance in
         // order to ensure we don't overdraft the remaining stake subsidy
         // balance
-        let to_withdraw = math::min(self.current_distribution_amount, balance::value(&self.balance));
+        let to_withdraw = math::min(self.current_distribution_amount, self.balance.value());
 
         // Drawn down the subsidy for this epoch.
-        let stake_subsidy = balance::split(&mut self.balance, to_withdraw);
+        let stake_subsidy = self.balance.split(to_withdraw);
 
         self.distribution_counter = self.distribution_counter + 1;
 
@@ -88,7 +87,7 @@ module haneul_system::stake_subsidy {
 
     /// Returns the amount of stake subsidy to be added at the end of the current epoch.
     public fun current_epoch_subsidy_amount(self: &StakeSubsidy): u64 {
-        math::min(self.current_distribution_amount, balance::value(&self.balance))
+        math::min(self.current_distribution_amount, self.balance.value())
     }
 
     #[test_only]

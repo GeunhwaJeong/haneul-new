@@ -5,10 +5,6 @@
 module haneul_system::staking_pool {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
-    use std::option::{Self, Option};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer;
-    use haneul::object::{Self, ID, UID};
     use haneul::math;
     use haneul::table::{Self, Table};
     use haneul::bag::Bag;
@@ -117,7 +113,7 @@ module haneul_system::staking_pool {
         stake_activation_epoch: u64,
         ctx: &mut TxContext
     ) : StakedHaneul {
-        let haneul_amount = balance::value(&stake);
+        let haneul_amount = stake.value();
         assert!(!is_inactive(pool), EDelegationToInactivePool);
         assert!(haneul_amount > 0, EDelegationOfZeroHaneul);
         let staked_haneul = StakedHaneul {
@@ -140,12 +136,12 @@ module haneul_system::staking_pool {
     ) : Balance<HANEUL> {
         let (pool_token_withdraw_amount, mut principal_withdraw) =
             withdraw_from_principal(pool, staked_haneul);
-        let principal_withdraw_amount = balance::value(&principal_withdraw);
+        let principal_withdraw_amount = principal_withdraw.value();
 
         let rewards_withdraw = withdraw_rewards(
-            pool, principal_withdraw_amount, pool_token_withdraw_amount, tx_context::epoch(ctx)
+            pool, principal_withdraw_amount, pool_token_withdraw_amount, ctx.epoch()
         );
-        let total_haneul_withdraw_amount = principal_withdraw_amount + balance::value(&rewards_withdraw);
+        let total_haneul_withdraw_amount = principal_withdraw_amount + rewards_withdraw.value();
 
         pool.pending_total_haneul_withdraw = pool.pending_total_haneul_withdraw + total_haneul_withdraw_amount;
         pool.pending_pool_token_withdraw = pool.pending_pool_token_withdraw + pool_token_withdraw_amount;
@@ -154,7 +150,7 @@ module haneul_system::staking_pool {
         if (is_inactive(pool)) process_pending_stake_withdraw(pool);
 
         // TODO: implement withdraw bonding period here.
-        balance::join(&mut principal_withdraw, rewards_withdraw);
+        principal_withdraw.join(rewards_withdraw);
         principal_withdraw
     }
 
@@ -171,7 +167,10 @@ module haneul_system::staking_pool {
 
         let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
         let principal_withdraw = unwrap_staked_haneul(staked_haneul);
-        let pool_token_withdraw_amount = get_token_amount(&exchange_rate_at_staking_epoch, balance::value(&principal_withdraw));
+        let pool_token_withdraw_amount = get_token_amount(
+		&exchange_rate_at_staking_epoch,
+		principal_withdraw.value()
+	);
 
         (
             pool_token_withdraw_amount,
@@ -194,16 +193,15 @@ module haneul_system::staking_pool {
 
     /// Called at epoch advancement times to add rewards (in HANEUL) to the staking pool.
     public(package) fun deposit_rewards(pool: &mut StakingPool, rewards: Balance<HANEUL>) {
-        pool.haneul_balance = pool.haneul_balance + balance::value(&rewards);
-        balance::join(&mut pool.rewards_pool, rewards);
+        pool.haneul_balance = pool.haneul_balance + rewards.value();
+        pool.rewards_pool.join(rewards);
     }
 
     public(package) fun process_pending_stakes_and_withdraws(pool: &mut StakingPool, ctx: &TxContext) {
-        let new_epoch = tx_context::epoch(ctx) + 1;
+        let new_epoch = ctx.epoch() + 1;
         process_pending_stake_withdraw(pool);
         process_pending_stake(pool);
-        table::add(
-            &mut pool.exchange_rates,
+        pool.exchange_rates.add(
             new_epoch,
             PoolTokenExchangeRate { haneul_amount: pool.haneul_balance, pool_token_amount: pool.pool_token_balance },
         );
@@ -251,8 +249,8 @@ module haneul_system::staking_pool {
         // This may happen when we are withdrawing everything from the pool and
         // the rewards pool balance may be less than reward_withdraw_amount.
         // TODO: FIGURE OUT EXACTLY WHY THIS CAN HAPPEN.
-        reward_withdraw_amount = math::min(reward_withdraw_amount, balance::value(&pool.rewards_pool));
-        balance::split(&mut pool.rewards_pool, reward_withdraw_amount)
+        reward_withdraw_amount = math::min(reward_withdraw_amount, pool.rewards_pool.value());
+        pool.rewards_pool.split(reward_withdraw_amount)
     }
 
     // ==== preactive pool related ====
@@ -260,8 +258,7 @@ module haneul_system::staking_pool {
     /// Called by `validator` module to activate a staking pool.
     public(package) fun activate_staking_pool(pool: &mut StakingPool, activation_epoch: u64) {
         // Add the initial exchange rate to the table.
-        table::add(
-            &mut pool.exchange_rates,
+        pool.exchange_rates.add(
             activation_epoch,
             initial_exchange_rate()
         );
@@ -269,7 +266,7 @@ module haneul_system::staking_pool {
         assert!(is_preactive(pool), EPoolAlreadyActive);
         assert!(!is_inactive(pool), EActivationOfInactivePool);
         // Fill in the active epoch.
-        option::fill(&mut pool.activation_epoch, activation_epoch);
+        pool.activation_epoch.fill(activation_epoch);
     }
 
     // ==== inactive pool related ====
@@ -289,7 +286,7 @@ module haneul_system::staking_pool {
 
     public fun pool_id(staked_haneul: &StakedHaneul): ID { staked_haneul.pool_id }
 
-    public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { balance::value(&staked_haneul.principal) }
+    public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { staked_haneul.principal.value() }
 
     public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
         staked_haneul.stake_activation_epoch
@@ -297,19 +294,19 @@ module haneul_system::staking_pool {
 
     /// Returns true if the input staking pool is preactive.
     public fun is_preactive(pool: &StakingPool): bool{
-        option::is_none(&pool.activation_epoch)
+        pool.activation_epoch.is_none()
     }
 
     /// Returns true if the input staking pool is inactive.
     public fun is_inactive(pool: &StakingPool): bool {
-        option::is_some(&pool.deactivation_epoch)
+        pool.deactivation_epoch.is_some()
     }
 
     /// Split StakedHaneul `self` to two parts, one with principal `split_amount`,
     /// and the remaining principal is left in `self`.
     /// All the other parameters of the StakedHaneul like `stake_activation_epoch` or `pool_id` remain the same.
     public fun split(self: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext): StakedHaneul {
-        let original_amount = balance::value(&self.principal);
+        let original_amount = self.principal.value();
         assert!(split_amount <= original_amount, EInsufficientHaneulTokenBalance);
         let remaining_amount = original_amount - split_amount;
         // Both resulting parts should have at least MIN_STAKING_THRESHOLD.
@@ -319,14 +316,14 @@ module haneul_system::staking_pool {
             id: object::new(ctx),
             pool_id: self.pool_id,
             stake_activation_epoch: self.stake_activation_epoch,
-            principal: balance::split(&mut self.principal, split_amount),
+            principal: self.principal.split(split_amount),
         }
     }
 
     /// Split the given StakedHaneul to the two parts, one with principal `split_amount`,
     /// transfer the newly split part to the sender address.
     public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext) {
-        transfer::transfer(split(stake, split_amount, ctx), tx_context::sender(ctx));
+        transfer::transfer(split(stake, split_amount, ctx), ctx.sender());
     }
 
     /// Consume the staked haneul `other` and add its value to `self`.
@@ -340,8 +337,8 @@ module haneul_system::staking_pool {
             principal,
         } = other;
 
-        object::delete(id);
-        balance::join(&mut self.principal, principal);
+        id.delete();
+        self.principal.join(principal);
     }
 
     /// Returns true if all the staking parameters of the staked haneul except the principal are identical
@@ -356,14 +353,14 @@ module haneul_system::staking_pool {
         if (is_preactive_at_epoch(pool, epoch)) {
             return initial_exchange_rate()
         };
-        let clamped_epoch = option::get_with_default(&pool.deactivation_epoch, epoch);
+        let clamped_epoch = pool.deactivation_epoch.get_with_default(epoch);
         let mut epoch = math::min(clamped_epoch, epoch);
-        let activation_epoch = *option::borrow(&pool.activation_epoch);
+        let activation_epoch = *pool.activation_epoch.borrow();
 
         // Find the latest epoch that's earlier than the given epoch with an entry in the table
         while (epoch >= activation_epoch) {
-            if (table::contains(&pool.exchange_rates, epoch)) {
-                return *table::borrow(&pool.exchange_rates, epoch)
+            if (pool.exchange_rates.contains(epoch)) {
+                return pool.exchange_rates[epoch]
             };
             epoch = epoch - 1;
         };
@@ -396,7 +393,7 @@ module haneul_system::staking_pool {
     /// Returns true if the provided staking pool is preactive at the provided epoch.
     fun is_preactive_at_epoch(pool: &StakingPool, epoch: u64): bool{
         // Either the pool is currently preactive or the pool's starting epoch is later than the provided epoch.
-        is_preactive(pool) || (*option::borrow(&pool.activation_epoch) > epoch)
+        is_preactive(pool) || (*pool.activation_epoch.borrow() > epoch)
     }
 
     fun get_haneul_amount(exchange_rate: &PoolTokenExchangeRate, token_amount: u64): u64 {
@@ -457,7 +454,7 @@ module haneul_system::staking_pool {
             if (total_haneul_withdraw_amount >= staked_amount)
                 total_haneul_withdraw_amount - staked_amount
             else 0;
-        reward_withdraw_amount = math::min(reward_withdraw_amount, balance::value(&pool.rewards_pool));
+        reward_withdraw_amount = math::min(reward_withdraw_amount, pool.rewards_pool.value());
 
         staked_amount + reward_withdraw_amount
     }
