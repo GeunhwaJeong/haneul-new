@@ -5,20 +5,19 @@
 module haneul_system::stake_tests {
     use haneul::coin;
     use haneul::test_scenario;
-    use haneul_system::haneul_system::{Self, HaneulSystemState};
+    use haneul_system::haneul_system::HaneulSystemState;
     use haneul_system::staking_pool::{Self, StakedHaneul, PoolTokenExchangeRate};
     use haneul::test_utils::assert_eq;
     use haneul_system::validator_set;
     use haneul::test_utils;
-    use haneul::table::{Self, Table};
-    use std::vector;
+    use haneul::table::Table;
 
     use haneul_system::governance_test_utils::{
-        Self,
         add_validator,
         add_validator_candidate,
         advance_epoch,
         advance_epoch_with_reward_amounts,
+        assert_validator_total_stake_amounts,
         create_validator_for_testing,
         create_haneul_system_state_for_testing,
         stake_with,
@@ -49,36 +48,36 @@ module haneul_system::stake_tests {
         set_up_haneul_system_state();
         let mut scenario_val = test_scenario::begin(STAKER_ADDR_1);
         let scenario = &mut scenario_val;
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            let ctx = test_scenario::ctx(scenario);
-            staking_pool::split_staked_haneul(&mut staked_haneul, 20 * GEUNHWA_PER_HANEUL, ctx);
-            test_scenario::return_to_sender(scenario, staked_haneul);
+            let mut staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            let ctx = scenario.ctx();
+            staked_haneul.split_to_sender(20 * GEUNHWA_PER_HANEUL, ctx);
+            scenario.return_to_sender(staked_haneul);
         };
 
         // Verify the correctness of the split and send the join txn
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let staked_haneul_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
-            assert!(vector::length(&staked_haneul_ids) == 2, 101); // staked haneul split to 2 coins
+            let staked_haneul_ids = scenario.ids_for_sender<StakedHaneul>();
+            assert!(staked_haneul_ids.length() == 2, 101); // staked haneul split to 2 coins
 
-            let mut part1 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 0));
-            let part2 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 1));
+            let mut part1 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[0]);
+            let part2 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[1]);
 
-            let amount1 = staking_pool::staked_haneul_amount(&part1);
-            let amount2 = staking_pool::staked_haneul_amount(&part2);
+            let amount1 = part1.amount();
+            let amount2 = part2.amount();
             assert!(amount1 == 20 * GEUNHWA_PER_HANEUL || amount1 == 40 * GEUNHWA_PER_HANEUL, 102);
             assert!(amount2 == 20 * GEUNHWA_PER_HANEUL || amount2 == 40 * GEUNHWA_PER_HANEUL, 103);
             assert!(amount1 + amount2 == 60 * GEUNHWA_PER_HANEUL, 104);
 
-            staking_pool::join_staked_haneul(&mut part1, part2);
-            assert!(staking_pool::staked_haneul_amount(&part1) == 60 * GEUNHWA_PER_HANEUL, 105);
-            test_scenario::return_to_sender(scenario, part1);
+            part1.join(part2);
+            assert!(part1.amount() == 60 * GEUNHWA_PER_HANEUL, 105);
+            scenario.return_to_sender(part1);
         };
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -88,22 +87,22 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(STAKER_ADDR_1);
         let scenario = &mut scenario_val;
         // Create two instances of staked haneul w/ different epoch activations
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
-        governance_test_utils::advance_epoch(scenario);
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
+        advance_epoch(scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
 
         // Verify that these cannot be merged
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let staked_haneul_ids = test_scenario::ids_for_sender<StakedHaneul>(scenario);
-            let mut part1 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 0));
-            let part2 = test_scenario::take_from_sender_by_id<StakedHaneul>(scenario, *vector::borrow(&staked_haneul_ids, 1));
+            let staked_haneul_ids = scenario.ids_for_sender<StakedHaneul>();
+            let mut part1 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[0]);
+            let part2 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[1]);
 
-            staking_pool::join_staked_haneul(&mut part1, part2);
+            part1.join(part2);
 
-            test_scenario::return_to_sender(scenario, part1);
+            scenario.return_to_sender(part1);
         };
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -113,17 +112,17 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(STAKER_ADDR_1);
         let scenario = &mut scenario_val;
         // Stake 2 HANEUL
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 2, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 2, scenario);
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            let ctx = test_scenario::ctx(scenario);
+            let mut staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            let ctx = scenario.ctx();
             // The remaining amount after splitting is below the threshold so this should fail.
-            staking_pool::split_staked_haneul(&mut staked_haneul, 1 * GEUNHWA_PER_HANEUL + 1, ctx);
-            test_scenario::return_to_sender(scenario, staked_haneul);
+            staked_haneul.split_to_sender(1 * GEUNHWA_PER_HANEUL + 1, ctx);
+            scenario.return_to_sender(staked_haneul);
         };
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -133,18 +132,18 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(STAKER_ADDR_1);
         let scenario = &mut scenario_val;
         // Stake 2 HANEUL
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 2, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 2, scenario);
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            let ctx = test_scenario::ctx(scenario);
+            let mut staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            let ctx = scenario.ctx();
             // The remaining amount after splitting is below the threshold so this should fail.
-            let stake = staking_pool::split(&mut staked_haneul, 1 * GEUNHWA_PER_HANEUL + 1, ctx);
+            let stake = staked_haneul.split(1 * GEUNHWA_PER_HANEUL + 1, ctx);
             test_utils::destroy(stake);
-            test_scenario::return_to_sender(scenario, staked_haneul);
+            scenario.return_to_sender(staked_haneul);
         };
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -153,56 +152,57 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            let ctx = test_scenario::ctx(scenario);
+            let ctx = scenario.ctx();
 
             // Create a stake to VALIDATOR_ADDR_1.
-            haneul_system::request_add_stake(
-                system_state_mut_ref, coin::mint_for_testing(60 * GEUNHWA_PER_HANEUL, ctx), VALIDATOR_ADDR_1, ctx);
+            system_state_mut_ref.request_add_stake(
+                coin::mint_for_testing(60 * GEUNHWA_PER_HANEUL, ctx), VALIDATOR_ADDR_1, ctx
+            );
 
-            assert!(haneul_system::validator_stake_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 101);
-            assert!(haneul_system::validator_stake_amount(system_state_mut_ref, VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 102);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 101);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 102);
 
             test_scenario::return_shared(system_state);
         };
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
 
-            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            assert!(staking_pool::staked_haneul_amount(&staked_haneul) == 60 * GEUNHWA_PER_HANEUL, 105);
+            let staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            assert!(staked_haneul.amount() == 60 * GEUNHWA_PER_HANEUL, 105);
 
 
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(haneul_system::validator_stake_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 103);
-            assert!(haneul_system::validator_stake_amount(system_state_mut_ref, VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 104);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 103);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 104);
 
-            let ctx = test_scenario::ctx(scenario);
+            let ctx = scenario.ctx();
 
             // Unstake from VALIDATOR_ADDR_1
-            haneul_system::request_withdraw_stake(system_state_mut_ref, staked_haneul, ctx);
+            system_state_mut_ref.request_withdraw_stake(staked_haneul, ctx);
 
-            assert!(haneul_system::validator_stake_amount(system_state_mut_ref, VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 107);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 107);
             test_scenario::return_shared(system_state);
         };
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-            assert!(haneul_system::validator_stake_amount(&mut system_state, VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 107);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
+            assert!(system_state.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 107);
             test_scenario::return_shared(system_state);
         };
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -220,11 +220,11 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
 
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
-        governance_test_utils::assert_validator_total_stake_amounts(
+        assert_validator_total_stake_amounts(
             vector[VALIDATOR_ADDR_1, VALIDATOR_ADDR_2],
             vector[200 * GEUNHWA_PER_HANEUL, 100 * GEUNHWA_PER_HANEUL],
             scenario
@@ -232,36 +232,33 @@ module haneul_system::stake_tests {
 
         if (should_distribute_rewards) {
             // Each validator pool gets 30 GEUNHWA and each validator gets an additional 10 GEUNHWA.
-            governance_test_utils::advance_epoch_with_reward_amounts(0, 80, scenario);
+            advance_epoch_with_reward_amounts(0, 80, scenario);
         } else {
-            governance_test_utils::advance_epoch(scenario);
+            advance_epoch(scenario);
         };
 
-        governance_test_utils::remove_validator(VALIDATOR_ADDR_1, scenario);
+        remove_validator(VALIDATOR_ADDR_1, scenario);
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
         let reward_amt = if (should_distribute_rewards) 15 * GEUNHWA_PER_HANEUL else 0;
         let validator_reward_amt = if (should_distribute_rewards) 10 * GEUNHWA_PER_HANEUL else 0;
 
         // Make sure stake withdrawal happens
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(!validator_set::is_active_validator_by_haneul_address(
-                        haneul_system::validators(system_state_mut_ref),
-                        VALIDATOR_ADDR_1
-                    ), 0);
+            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1), 0);
 
-            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            assert_eq(staking_pool::staked_haneul_amount(&staked_haneul), 100 * GEUNHWA_PER_HANEUL);
+            let staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            assert_eq(staked_haneul.amount(), 100 * GEUNHWA_PER_HANEUL);
 
             // Unstake from VALIDATOR_ADDR_1
             assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 0);
-            let ctx = test_scenario::ctx(scenario);
-            haneul_system::request_withdraw_stake(system_state_mut_ref, staked_haneul, ctx);
+            let ctx = scenario.ctx();
+            system_state_mut_ref.request_withdraw_stake(staked_haneul, ctx);
 
             // Make sure they have all of their stake.
             assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL + reward_amt);
@@ -277,7 +274,7 @@ module haneul_system::stake_tests {
         // Make sure have all of their stake. NB there is no epoch change. This is immediate.
         assert_eq(total_haneul_balance(VALIDATOR_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL + reward_amt + validator_reward_amt);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -302,18 +299,18 @@ module haneul_system::stake_tests {
         let validator_reward_amt = 10 * GEUNHWA_PER_HANEUL;
 
         // Make sure stake withdrawal happens
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            let staked_haneul = test_scenario::take_from_sender<StakedHaneul>(scenario);
-            assert_eq(staking_pool::staked_haneul_amount(&staked_haneul), 100 * GEUNHWA_PER_HANEUL);
+            let staked_haneul = scenario.take_from_sender<StakedHaneul>();
+            assert_eq(staked_haneul.amount(), 100 * GEUNHWA_PER_HANEUL);
 
             // Unstake from VALIDATOR_ADDR_1
             assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 0);
-            let ctx = test_scenario::ctx(scenario);
-            haneul_system::request_withdraw_stake(system_state_mut_ref, staked_haneul, ctx);
+            let ctx = scenario.ctx();
+            system_state_mut_ref.request_withdraw_stake(staked_haneul, ctx);
 
             // Make sure they have all of their stake.
             assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL + reward_amt);
@@ -329,7 +326,7 @@ module haneul_system::stake_tests {
         // Make sure have all of their stake. NB there is no epoch change. This is immediate.
         assert_eq(total_haneul_balance(VALIDATOR_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL + reward_amt + validator_reward_amt);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -339,32 +336,29 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
 
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 100, scenario);
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
-        governance_test_utils::remove_validator(VALIDATOR_ADDR_1, scenario);
+        remove_validator(VALIDATOR_ADDR_1, scenario);
 
-        governance_test_utils::advance_epoch(scenario);
+        advance_epoch(scenario);
 
         // Make sure the validator is no longer active.
-        test_scenario::next_tx(scenario, STAKER_ADDR_1);
+        scenario.next_tx(STAKER_ADDR_1);
         {
-            let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(!validator_set::is_active_validator_by_haneul_address(
-                        haneul_system::validators(system_state_mut_ref),
-                        VALIDATOR_ADDR_1
-                    ), 0);
+            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1), 0);
 
             test_scenario::return_shared(system_state);
         };
 
         // Now try and stake to the old validator/staking pool. This should fail!
-        governance_test_utils::stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
+        stake_with(STAKER_ADDR_1, VALIDATOR_ADDR_1, 60, scenario);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -373,20 +367,20 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
 
-        governance_test_utils::add_validator_candidate(NEW_VALIDATOR_ADDR, b"name5", b"/ip4/127.0.0.1/udp/85", NEW_VALIDATOR_PUBKEY, NEW_VALIDATOR_POP, scenario);
+        add_validator_candidate(NEW_VALIDATOR_ADDR, b"name5", b"/ip4/127.0.0.1/udp/85", NEW_VALIDATOR_PUBKEY, NEW_VALIDATOR_POP, scenario);
 
         // Delegate 100 GEUNHWA to the preactive validator
-        governance_test_utils::stake_with(STAKER_ADDR_1, NEW_VALIDATOR_ADDR, 100, scenario);
+        stake_with(STAKER_ADDR_1, NEW_VALIDATOR_ADDR, 100, scenario);
 
         // Advance epoch twice with some rewards
         advance_epoch_with_reward_amounts(0, 400, scenario);
         advance_epoch_with_reward_amounts(0, 900, scenario);
 
         // Unstake from the preactive validator. There should be no rewards earned.
-        governance_test_utils::unstake(STAKER_ADDR_1, 0, scenario);
+        unstake(STAKER_ADDR_1, 0, scenario);
         assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -396,15 +390,15 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(VALIDATOR_ADDR_1);
         let scenario = &mut scenario_val;
 
-        governance_test_utils::add_validator_candidate(NEW_VALIDATOR_ADDR, b"name4", b"/ip4/127.0.0.1/udp/84", NEW_VALIDATOR_PUBKEY, NEW_VALIDATOR_POP, scenario);
+        add_validator_candidate(NEW_VALIDATOR_ADDR, b"name4", b"/ip4/127.0.0.1/udp/84", NEW_VALIDATOR_PUBKEY, NEW_VALIDATOR_POP, scenario);
 
-        governance_test_utils::add_validator(NEW_VALIDATOR_ADDR, scenario);
+        add_validator(NEW_VALIDATOR_ADDR, scenario);
 
         // Delegate 100 HANEUL to the pending validator. This should fail because pending active validators don't accept
         // new stakes or withdraws.
-        governance_test_utils::stake_with(STAKER_ADDR_1, NEW_VALIDATOR_ADDR, 100, scenario);
+        stake_with(STAKER_ADDR_1, NEW_VALIDATOR_ADDR, 100, scenario);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -448,7 +442,7 @@ module haneul_system::stake_tests {
         // so in total she has about 50 + 5 + 24 = 79 HANEUL.
         assert_eq(total_haneul_balance(STAKER_ADDR_2, scenario), 78862939078);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -478,7 +472,7 @@ module haneul_system::stake_tests {
         unstake(STAKER_ADDR_1, 0, scenario);
         assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 130006000000);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -507,7 +501,7 @@ module haneul_system::stake_tests {
         unstake(STAKER_ADDR_1, 0, scenario);
         assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 100 * GEUNHWA_PER_HANEUL);
 
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     #[test]
@@ -516,54 +510,54 @@ module haneul_system::stake_tests {
         let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
         stake_with(@0x42, @0x2, 100, scenario); // stakes 100 HANEUL with 0x2
-        test_scenario::next_tx(scenario, @0x42);
-        let staked_haneul = test_scenario::take_from_address<StakedHaneul>(scenario, @0x42);
-        let pool_id = staking_pool::pool_id(&staked_haneul);
+        scenario.next_tx(@0x42);
+        let staked_haneul = scenario.take_from_address<StakedHaneul>(@0x42);
+        let pool_id = staked_haneul.pool_id();
         test_scenario::return_to_address(@0x42, staked_haneul);
         advance_epoch(scenario); // advances epoch to effectuate the stake
         // Each staking pool gets 10 HANEUL of rewards.
         advance_epoch_with_reward_amounts(0, 20, scenario);
-        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
-        let rates = haneul_system::pool_exchange_rates(&mut system_state, &pool_id);
-        assert_eq(table::length(rates), 3);
+        let mut system_state = scenario.take_shared<HaneulSystemState>();
+        let rates = system_state.pool_exchange_rates(&pool_id);
+        assert_eq(rates.length(), 3);
         assert_exchange_rate_eq(rates, 0, 0, 0);     // no tokens at epoch 0
         assert_exchange_rate_eq(rates, 1, 200, 200); // 200 HANEUL of self + delegate stake at epoch 1
         assert_exchange_rate_eq(rates, 2, 210, 200); // 10 HANEUL of rewards at epoch 2
         test_scenario::return_shared(system_state);
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     fun assert_exchange_rate_eq(
         rates: &Table<u64, PoolTokenExchangeRate>, epoch: u64, haneul_amount: u64, pool_token_amount: u64
     ) {
-        let rate = table::borrow(rates, epoch);
-        assert_eq(staking_pool::haneul_amount(rate), haneul_amount * GEUNHWA_PER_HANEUL);
-        assert_eq(staking_pool::pool_token_amount(rate), pool_token_amount * GEUNHWA_PER_HANEUL);
+        let rate = &rates[epoch];
+        assert_eq(rate.haneul_amount(), haneul_amount * GEUNHWA_PER_HANEUL);
+        assert_eq(rate.pool_token_amount(), pool_token_amount * GEUNHWA_PER_HANEUL);
     }
 
     fun set_up_haneul_system_state() {
         let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
-        let ctx = test_scenario::ctx(scenario);
+        let ctx = scenario.ctx();
 
         let validators = vector[
             create_validator_for_testing(VALIDATOR_ADDR_1, 100, ctx),
             create_validator_for_testing(VALIDATOR_ADDR_2, 100, ctx)
         ];
         create_haneul_system_state_for_testing(validators, 0, 0, ctx);
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 
     fun set_up_haneul_system_state_with_storage_fund() {
         let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
-        let ctx = test_scenario::ctx(scenario);
+        let ctx = scenario.ctx();
 
         let validators = vector[
             create_validator_for_testing(VALIDATOR_ADDR_1, 100, ctx),
             create_validator_for_testing(VALIDATOR_ADDR_2, 100, ctx)
         ];
         create_haneul_system_state_for_testing(validators, 300, 100, ctx);
-        test_scenario::end(scenario_val);
+        scenario_val.end();
     }
 }

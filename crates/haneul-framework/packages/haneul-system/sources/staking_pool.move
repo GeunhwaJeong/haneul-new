@@ -189,6 +189,9 @@ module haneul_system::staking_pool {
         principal
     }
 
+    /// Allows calling `.into_balance()` on `StakedHaneul` to invoke `unwrap_staked_haneul`
+    public use fun unwrap_staked_haneul as StakedHaneul.into_balance;
+
     // ==== functions called at epoch boundaries ===
 
     /// Called at epoch advancement times to add rewards (in HANEUL) to the staking pool.
@@ -288,6 +291,9 @@ module haneul_system::staking_pool {
 
     public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { staked_haneul.principal.value() }
 
+    /// Allows calling `.amount()` on `StakedHaneul` to invoke `staked_haneul_amount`
+    public use fun staked_haneul_amount as StakedHaneul.amount;
+
     public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
         staked_haneul.stake_activation_epoch
     }
@@ -326,6 +332,9 @@ module haneul_system::staking_pool {
         transfer::transfer(split(stake, split_amount, ctx), ctx.sender());
     }
 
+    /// Allows calling `.split_to_sender()` on `StakedHaneul` to invoke `split_staked_haneul`
+    public use fun split_staked_haneul as StakedHaneul.split_to_sender;
+
     /// Consume the staked haneul `other` and add its value to `self`.
     /// Aborts if some of the staking parameters are incompatible (pool id, stake activation epoch, etc.)
     public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul) {
@@ -341,12 +350,14 @@ module haneul_system::staking_pool {
         self.principal.join(principal);
     }
 
+    /// Allows calling `.join()` on `StakedHaneul` to invoke `join_staked_haneul`
+    public use fun join_staked_haneul as StakedHaneul.join;
+
     /// Returns true if all the staking parameters of the staked haneul except the principal are identical
     public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul): bool {
         (self.pool_id == other.pool_id) &&
         (self.stake_activation_epoch == other.stake_activation_epoch)
     }
-
 
     public fun pool_token_exchange_rate_at_epoch(pool: &StakingPool, epoch: u64): PoolTokenExchangeRate {
         // If the pool is preactive then the exchange rate is always 1:1.
