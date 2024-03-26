@@ -3,7 +3,7 @@
 
 #[test_only]
 module haneul::coin_balance_tests {
-    use haneul::test_scenario::{Self, ctx};
+    use haneul::test_scenario;
     use haneul::pay;
     use haneul::coin;
     use haneul::balance;
@@ -12,28 +12,27 @@ module haneul::coin_balance_tests {
     #[test]
     fun type_morphing() {
         let mut scenario = test_scenario::begin(@0x1);
-        let test = &mut scenario;
 
         let balance = balance::zero<HANEUL>();
-        let coin = coin::from_balance(balance, ctx(test));
-        let balance = coin::into_balance(coin);
+        let coin = balance.into_coin(scenario.ctx());
+        let balance = coin.into_balance();
 
-        balance::destroy_zero(balance);
+        balance.destroy_zero();
 
-        let mut coin = coin::mint_for_testing<HANEUL>(100, ctx(test));
+        let mut coin = coin::mint_for_testing<HANEUL>(100, scenario.ctx());
         let balance_mut = coin::balance_mut(&mut coin);
-        let sub_balance = balance::split(balance_mut, 50);
+        let sub_balance = balance_mut.split(50);
 
-        assert!(balance::value(&sub_balance) == 50, 0);
-        assert!(coin::value(&coin) == 50, 0);
+        assert!(sub_balance.value() == 50, 0);
+        assert!(coin.value() == 50, 0);
 
-        let mut balance = coin::into_balance(coin);
-        balance::join(&mut balance, sub_balance);
+        let mut balance = coin.into_balance();
+        balance.join(sub_balance);
 
-        assert!(balance::value(&balance) == 100, 0);
+        assert!(balance.value() == 100, 0);
 
-        let coin = coin::from_balance(balance, ctx(test));
-        pay::keep(coin, ctx(test));
-        test_scenario::end(scenario);
+        let coin = balance.into_coin(scenario.ctx());
+        pay::keep(coin, scenario.ctx());
+        scenario.end();
     }
 }

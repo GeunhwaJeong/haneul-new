@@ -3,7 +3,6 @@
 
 #[test_only]
 module haneul::versioned_tests {
-    use haneul::tx_context;
     use haneul::versioned;
 
     #[test]

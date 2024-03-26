@@ -48,7 +48,6 @@ module haneul::witness_policy {
 #[test_only]
 module haneul::witness_policy_tests {
     use haneul::witness_policy;
-    use haneul::tx_context::dummy as ctx;
     use haneul::transfer_policy as policy;
     use haneul::transfer_policy_tests::{
         Self as test,
@@ -63,7 +62,7 @@ module haneul::witness_policy_tests {
 
     #[test]
     fun test_default_flow() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         // set the lock policy and require `Proof` on every transfer.
@@ -72,28 +71,28 @@ module haneul::witness_policy_tests {
         let mut request = policy::new_request(test::fresh_id(ctx), 0, test::fresh_id(ctx));
 
         witness_policy::prove(Proof {}, &policy, &mut request);
-        policy::confirm_request(&policy, request);
+        policy.confirm_request(request);
         test::wrapup(policy, cap, ctx);
     }
 
     #[test]
     #[expected_failure(abort_code = haneul::transfer_policy::EPolicyNotSatisfied)]
     fun test_no_proof() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         // set the lock policy and require `Proof` on every transfer.
         witness_policy::set<Asset, Proof>(&mut policy, &cap);
         let request = policy::new_request(test::fresh_id(ctx), 0, test::fresh_id(ctx));
 
-        policy::confirm_request(&policy, request);
+        policy.confirm_request(request);
         test::wrapup(policy, cap, ctx);
     }
 
     #[test]
     #[expected_failure(abort_code = haneul::witness_policy::ERuleNotFound)]
     fun test_wrong_proof() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         // set the lock policy and require `Proof` on every transfer.
@@ -102,7 +101,7 @@ module haneul::witness_policy_tests {
         let mut request = policy::new_request(test::fresh_id(ctx), 0, test::fresh_id(ctx));
 
         witness_policy::prove(Cheat {}, &policy, &mut request);
-        policy::confirm_request(&policy, request);
+        policy.confirm_request(request);
         test::wrapup(policy, cap, ctx);
     }
 }

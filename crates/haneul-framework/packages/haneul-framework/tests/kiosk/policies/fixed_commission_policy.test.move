@@ -44,7 +44,7 @@ module haneul::fixed_commission {
     public fun pay<T>(
         policy: &mut TransferPolicy<T>, request: &mut TransferRequest<T>, coin: Coin<HANEUL>
     ) {
-        let paid = policy::paid(request);
+        let paid = request.paid();
         let config: &Commission = policy::get_rule(Rule {}, policy);
 
         assert!(paid == config.amount, EIncorrectAmount);

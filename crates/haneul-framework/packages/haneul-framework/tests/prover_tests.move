@@ -3,7 +3,6 @@
 
 #[test_only]
 module haneul::prover_tests {
-    use haneul::object::UID;
 
     public struct Obj has key, store {
         id: UID
@@ -27,7 +26,7 @@ module haneul::prover_tests {
 
     public fun simple_delete(o: Obj) {
         let Obj { id } = o;
-        haneul::object::delete(id);
+        id.delete();
     }
 
     // ====================================================================

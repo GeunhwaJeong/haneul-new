@@ -6,7 +6,6 @@
 module haneul::royalty_policy {
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::tx_context::TxContext;
     use haneul::transfer_policy::{
         Self as policy,
         TransferPolicy,
@@ -64,13 +63,12 @@ module haneul::royalty_policy_tests {
     use haneul::coin;
     use haneul::haneul::HANEUL;
     use haneul::royalty_policy;
-    use haneul::tx_context::dummy as ctx;
     use haneul::transfer_policy as policy;
     use haneul::transfer_policy_tests as test;
 
     #[test]
     fun test_default_flow() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         // 1% royalty
@@ -92,7 +90,7 @@ module haneul::royalty_policy_tests {
     #[test]
     #[expected_failure(abort_code = haneul::royalty_policy::EIncorrectArgument)]
     fun test_incorrect_config() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         royalty_policy::set(&mut policy, &cap, 11_000);
@@ -102,7 +100,7 @@ module haneul::royalty_policy_tests {
     #[test]
     #[expected_failure(abort_code = haneul::royalty_policy::EInsufficientAmount)]
     fun test_insufficient_amount() {
-        let ctx = &mut ctx();
+        let ctx = &mut tx_context::dummy();
         let (mut policy, cap) = test::prepare(ctx);
 
         // 1% royalty
