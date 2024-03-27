@@ -26,7 +26,7 @@ use haneul_types::crypto::{
     NetworkKeyPair, HaneulKeyPair,
 };
 use haneul_types::crypto::{AuthorityKeyPair, Signer};
-use haneul_types::effects::{SignedTransactionEffects, TransactionEffects};
+use haneul_types::effects::{SignedTransactionEffects, TestEffectsBuilder};
 use haneul_types::error::HaneulError;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::{
@@ -180,15 +180,11 @@ pub fn create_fake_cert_and_effect_digest<'a>(
         committee,
     )
     .unwrap();
-    let effects = dummy_transaction_effects(&transaction);
+    let effects = TestEffectsBuilder::new(transaction.data()).build();
     (
         ExecutionDigests::new(*transaction.digest(), effects.digest()),
         cert,
     )
-}
-
-pub fn dummy_transaction_effects(tx: &Transaction) -> TransactionEffects {
-    TransactionEffects::new_with_tx(tx)
 }
 
 pub fn compile_basics_package() -> CompiledPackage {
