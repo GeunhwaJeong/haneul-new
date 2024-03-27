@@ -74,16 +74,16 @@ const references = [
 				label: 'dApp Kit',
 				href: 'https://sdk.haneul-labs.com/dapp-kit',
 			},
-      {
+			{
 				type: 'link',
 				label: 'Haneul Go SDK',
 				href: 'https://github.com/block-vision/haneul-go-sdk',
-      },
-      {
+			},
+			{
 				type: 'link',
 				label: 'Haneul Python SDK',
 				href: 'https://github.com/FrankC01/pyhaneul',
-      },
+			},
 			'references/rust-sdk',
 			{
 				type: 'link',
