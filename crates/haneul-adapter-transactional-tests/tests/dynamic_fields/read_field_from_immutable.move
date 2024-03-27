@@ -10,8 +10,6 @@
 module a::m {
 
 use haneul::dynamic_field::{add, borrow};
-use haneul::object;
-use haneul::tx_context::TxContext;
 
 public struct Obj has key {
     id: object::UID,

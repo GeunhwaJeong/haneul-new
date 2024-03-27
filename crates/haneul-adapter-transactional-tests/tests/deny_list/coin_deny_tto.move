@@ -7,15 +7,9 @@
 
 //# publish --sender A
 module test::regulated_coin {
-    use std::option;
     use haneul::coin;
     use haneul::coin::Coin;
-    use haneul::object;
-    use haneul::object::UID;
-    use haneul::transfer;
     use haneul::transfer::Receiving;
-    use haneul::tx_context;
-    use haneul::tx_context::TxContext;
 
     public struct REGULATED_COIN has drop {}
 

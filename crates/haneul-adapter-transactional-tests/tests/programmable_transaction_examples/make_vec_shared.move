@@ -8,10 +8,6 @@
 //# publish
 
 module t2::o2 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-    use std::vector;
 
     public struct Obj2 has key, store {
         id: UID,
@@ -39,4 +35,3 @@ module t2::o2 {
 //# programmable --sender A --inputs object(2,0)
 //> 0: MakeMoveVec<t2::o2::Obj2>([Input(0)]);
 //> t2::o2::consume(Result(0))
-

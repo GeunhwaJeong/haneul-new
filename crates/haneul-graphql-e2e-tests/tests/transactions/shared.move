@@ -5,10 +5,6 @@
 
 //# publish
 module P0::m {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
-
     public struct Foo has key {
         id: UID,
         x: u64,

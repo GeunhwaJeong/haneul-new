@@ -3,20 +3,15 @@
 
 #[allow(unused_use)]
 module deepbook::clob {
-    use std::option;
     use std::type_name::{Self, TypeName};
-    use std::vector;
 
     use haneul::balance::{Self, Balance};
     use haneul::clock::{Self, Clock};
     use haneul::coin::{Self, Coin, join};
     use haneul::event;
     use haneul::linked_table::{Self, LinkedTable};
-    use haneul::object::{Self, UID, ID};
     use haneul::haneul::HANEUL;
     use haneul::table::{Self, Table, contains, add, borrow_mut};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
 
     use deepbook::critbit::{Self, CritbitTree, is_empty, borrow_mut_leaf_by_index, min_leaf, remove_leaf_by_index, max_leaf, next_leaf, previous_leaf, borrow_leaf_by_index, borrow_leaf_by_key, find_leaf, insert_leaf};
     use deepbook::custodian::{Self, Custodian, AccountCap};

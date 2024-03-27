@@ -10,8 +10,6 @@
 /// Test event limits enforced
 module Test::M1 {
     use haneul::event;
-    use haneul::tx_context::TxContext;
-    use std::vector;
     use haneul::bcs;
 
     public struct NewValueEvent has copy, drop {

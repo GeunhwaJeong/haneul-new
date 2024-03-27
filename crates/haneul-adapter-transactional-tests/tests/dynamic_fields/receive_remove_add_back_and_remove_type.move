@@ -10,9 +10,7 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer::{Self, Receiving};
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::transfer::Receiving;
 
     public struct Object has key, store {
         id: UID,
@@ -27,7 +25,7 @@ module test::m1 {
     }
 
     public struct Wrapper<T: store> has key, store {
-        id: UID, 
+        id: UID,
         value: T,
     }
 

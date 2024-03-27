@@ -8,8 +8,6 @@
 module a::m {
 
     use haneul::dynamic_field::add;
-    use haneul::object;
-    use haneul::tx_context::{sender, TxContext};
 
     public struct Obj has key {
         id: object::UID,
@@ -20,7 +18,7 @@ module a::m {
         while (i < n) {
             let mut id = object::new(ctx);
             add<u64, u64>(&mut id, i, i);
-            haneul::transfer::transfer(Obj { id }, sender(ctx));
+            haneul::transfer::transfer(Obj { id }, ctx.sender());
 
             i = i + 1;
         };

@@ -5,9 +5,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer;
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
 

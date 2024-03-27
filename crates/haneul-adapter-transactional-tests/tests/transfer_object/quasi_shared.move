@@ -8,10 +8,6 @@
 //# publish
 
 module test::m {
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-    use haneul::object::{Self, UID};
-
     public struct S has key { id: UID }
     public struct Child has key, store { id: UID }
 

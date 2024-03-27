@@ -6,10 +6,6 @@
 //# publish
 
 module t2::o2 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-    use std::vector;
     use haneul::dynamic_field as df;
     use haneul::dynamic_object_field as dof;
     use haneul::haneul::HANEUL;
@@ -196,7 +192,7 @@ module t2::o2 {
 //> 3: TransferObjects([Result(2)], Input(2));
 //> 4: TransferObjects([Input(1)], Input(2));
 
-// Try to transfer the shared object 
+// Try to transfer the shared object
 //# programmable --inputs 0 object(15,0) @0x0
 //> 0: MakeMoveVec([Input(1)]);
 //> 1: t2::o2::pop_coin(Result(0));

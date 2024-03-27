@@ -6,9 +6,6 @@
 //# publish
 
 module t2::o2 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
 

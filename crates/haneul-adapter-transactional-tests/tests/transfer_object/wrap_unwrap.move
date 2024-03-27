@@ -7,8 +7,6 @@
 
 //# publish
 module a::m {
-    use haneul::object;
-    use haneul::tx_context::{Self, TxContext};
 
     public struct S has key, store {
         id: object::UID,

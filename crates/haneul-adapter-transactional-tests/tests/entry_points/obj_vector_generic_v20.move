@@ -7,11 +7,6 @@
 
 //# publish
 module Test::M {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
-    use std::vector;
-
     public struct ObjAny<phantom Any> has key, store {
         id: UID,
         value: u64

@@ -6,8 +6,6 @@
 //# publish --sender A
 module test::fake {
     use haneul::coin;
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
 
     public struct FAKE has drop {}
 

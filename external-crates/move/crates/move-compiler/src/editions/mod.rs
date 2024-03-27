@@ -53,7 +53,7 @@ pub enum FeatureGate {
 #[derive(PartialEq, Eq, Clone, Copy, Debug, PartialOrd, Ord, Default)]
 pub enum Flavor {
     #[default]
-    GlobalStorage,
+    Core,
     Haneul,
 }
 
@@ -229,9 +229,9 @@ impl Edition {
 }
 
 impl Flavor {
-    pub const GLOBAL_STORAGE: &'static str = "global-storage";
+    pub const CORE: &'static str = "core";
     pub const HANEUL: &'static str = "haneul";
-    pub const ALL: &'static [Self] = &[Self::GlobalStorage, Self::Haneul];
+    pub const ALL: &'static [Self] = &[Self::Core, Self::Haneul];
 }
 
 impl FeatureGate {
@@ -288,7 +288,7 @@ impl FromStr for Flavor {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            Self::GLOBAL_STORAGE => Self::GlobalStorage,
+            Self::CORE => Self::Core,
             Self::HANEUL => Self::Haneul,
             _ => anyhow::bail!(
                 "Unknown flavor \"{s}\". Expected one of: {}",
@@ -338,7 +338,7 @@ impl Display for Edition {
 impl Display for Flavor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Flavor::GlobalStorage => write!(f, "{}", Self::GLOBAL_STORAGE),
+            Flavor::Core => write!(f, "{}", Self::CORE),
             Flavor::Haneul => write!(f, "{}", Self::HANEUL),
         }
     }

@@ -11,9 +11,6 @@ module test::m1 {
     use haneul::haneul::HANEUL;
     use haneul::coin;
 
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
-
     public fun mint_shared(ctx: &mut TxContext) {
         transfer::public_share_object(coin::zero<HANEUL>(ctx))
     }
@@ -25,4 +22,3 @@ module test::m1 {
 
 //# programmable --sender A --inputs object(2,0)
 //> MergeCoins(Gas, [Input(0)])
-

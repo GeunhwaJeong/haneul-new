@@ -6,12 +6,8 @@
 //# publish --sender A
 
 module test::coin_in_vec {
-    use std::vector;
     use haneul::coin::Coin;
-    use haneul::object::{Self, UID};
     use haneul::haneul::HANEUL;
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
 
     public struct Wrapper has key {
         id: UID,

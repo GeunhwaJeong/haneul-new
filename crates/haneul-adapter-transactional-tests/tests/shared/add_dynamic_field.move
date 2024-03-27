@@ -8,10 +8,7 @@
 
 //# publish
 module a::m {
-    use haneul::transfer;
     use haneul::dynamic_field::{add, remove};
-    use haneul::object;
-    use haneul::tx_context:: TxContext;
 
     public struct Obj has key, store {
         id: object::UID,

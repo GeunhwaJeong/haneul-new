@@ -8,8 +8,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
     use haneul::coin::Coin;
     use haneul::haneul::HANEUL;
 

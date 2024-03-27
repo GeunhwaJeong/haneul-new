@@ -6,7 +6,6 @@
 //# publish --upgradeable --sender A
 module A0::m {
     use haneul::package;
-    use haneul::tx_context::TxContext;
 
     public struct A {}
     public struct M has drop {}
@@ -19,7 +18,6 @@ module A0::m {
 //# upgrade --package A0 --upgrade-capability 1,2 --sender A
 module A1::m {
     use haneul::package::{Self, Publisher};
-    use haneul::tx_context::TxContext;
 
     public struct A {}
     public struct B {}

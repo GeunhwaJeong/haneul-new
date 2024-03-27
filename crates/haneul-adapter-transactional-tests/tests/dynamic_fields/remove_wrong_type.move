@@ -10,8 +10,6 @@
 module a::m {
 
 use haneul::dynamic_field::{add, remove};
-use haneul::object;
-use haneul::tx_context::{sender, TxContext};
 
 public struct Obj has key {
     id: object::UID,
@@ -20,7 +18,7 @@ public struct Obj has key {
 entry fun t1(ctx: &mut TxContext) {
     let mut id = object::new(ctx);
     add<u64, u64>(&mut id, 0, 0);
-    haneul::transfer::transfer(Obj { id }, sender(ctx))
+    haneul::transfer::transfer(Obj { id }, ctx.sender())
 }
 
 entry fun t2(obj: &mut Obj) {

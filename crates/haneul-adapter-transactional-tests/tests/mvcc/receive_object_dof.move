@@ -5,10 +5,7 @@
 
 //# publish
 module tto::M1 {
-    use std::option::{Self, Option};
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer::{Self, Receiving};
+    use haneul::transfer::Receiving;
     use haneul::dynamic_object_field as dof;
 
     const KEY: u64 = 0;

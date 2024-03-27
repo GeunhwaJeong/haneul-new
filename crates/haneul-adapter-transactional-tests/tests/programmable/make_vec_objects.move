@@ -7,9 +7,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use std::vector;
 
     public struct Pub has key, store {
         id: UID,

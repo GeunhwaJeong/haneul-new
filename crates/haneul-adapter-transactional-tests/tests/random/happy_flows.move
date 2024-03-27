@@ -7,9 +7,6 @@
 module test::random {
     use haneul::clock::Clock;
     use haneul::random::Random;
-    use haneul::transfer;
-    use haneul::object;
-    use haneul::tx_context:: TxContext;
 
     public struct Obj has key, store {
         id: object::UID,

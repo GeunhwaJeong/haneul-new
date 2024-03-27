@@ -8,10 +8,6 @@
 //# publish
 
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
-
     // not a native coin, but same type structure and BCS layout
     public struct Coin has key, store {
         id: UID,

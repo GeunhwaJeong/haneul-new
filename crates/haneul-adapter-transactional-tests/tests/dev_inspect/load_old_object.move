@@ -8,9 +8,6 @@
 //# publish
 
 module test::m {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-
     public struct S has key, store {
         id: UID,
         value: u64

@@ -11,8 +11,6 @@
 module a::m {
 
 use haneul::dynamic_field::{add, exists_, borrow, borrow_mut};
-use haneul::object::{Self, UID};
-use haneul::tx_context::{sender, TxContext};
 
 public struct Wrapper has key {
     id: UID,
@@ -49,7 +47,7 @@ fun destroy(counter: Counter): u64 {
 
 entry fun t0(ctx: &mut TxContext) {
     let id = object::new(ctx);
-    haneul::transfer::transfer(Obj { id }, sender(ctx))
+    haneul::transfer::transfer(Obj { id }, ctx.sender())
 }
 
 entry fun t1(obj: &mut Obj, ctx: &mut TxContext) {
@@ -66,7 +64,7 @@ entry fun t3(obj: Obj, ctx: &mut TxContext) {
     let Obj { id } = obj;
     assert!(count(borrow(&id, 0)) == 1, 0);
     let wrapper = Wrapper { id: object::new(ctx), old: id };
-    haneul::transfer::transfer(wrapper, sender(ctx))
+    haneul::transfer::transfer(wrapper, ctx.sender())
 }
 
 entry fun t4(wrapper: &mut Wrapper) {

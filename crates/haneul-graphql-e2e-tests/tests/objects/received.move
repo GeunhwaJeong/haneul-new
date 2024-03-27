@@ -16,10 +16,6 @@
 
 //# publish
 module P0::m {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-
     public struct Obj has key {
         id: UID
     }

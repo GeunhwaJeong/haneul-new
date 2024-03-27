@@ -15,9 +15,6 @@
 //# publish
 module Test::M1 {
     use haneul::dynamic_object_field as ofield;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
 
     public struct Parent has key, store {
         id: UID,

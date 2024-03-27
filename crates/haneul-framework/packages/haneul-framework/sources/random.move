@@ -5,7 +5,6 @@
 module haneul::random {
     use std::bcs;
     use haneul::hmac::hmac_sha3_256;
-    use haneul::transfer;
     use haneul::versioned::{Self, Versioned};
 
     // Sender is not @0x0 the system address.

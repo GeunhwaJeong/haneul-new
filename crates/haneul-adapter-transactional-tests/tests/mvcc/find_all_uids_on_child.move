@@ -8,10 +8,6 @@
 //# publish
 
 module test::m {
-    use std::option::{Self, Option};
-    use std::vector;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
     use haneul::dynamic_field as field;
 
     public struct Parent has key, store {

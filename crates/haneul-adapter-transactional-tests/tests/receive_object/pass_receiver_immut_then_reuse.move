@@ -5,9 +5,7 @@
 
 //# publish
 module tto::M1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer::{Self, Receiving};
+    use haneul::transfer::Receiving;
 
     public struct A has key, store {
         id: UID,
@@ -43,4 +41,3 @@ module tto::M1 {
 //# programmable --inputs object(2,0) receiving(2,1)
 //> tto::M1::pass_through(Input(1));
 //> tto::M1::receiver(Input(0), Input(1));
-

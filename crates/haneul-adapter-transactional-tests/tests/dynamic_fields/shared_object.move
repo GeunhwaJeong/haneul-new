@@ -8,9 +8,6 @@
 //# publish
 
 module test::m {
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
     use haneul::dynamic_object_field as ofield;
 
     public struct Outer has key {

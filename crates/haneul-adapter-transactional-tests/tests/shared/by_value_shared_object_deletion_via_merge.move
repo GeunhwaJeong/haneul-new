@@ -13,9 +13,6 @@
 //# publish
 
 module t2::o2 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
     use haneul::dynamic_field as df;
     use haneul::dynamic_object_field as dof;
     use haneul::haneul::HANEUL;

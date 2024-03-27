@@ -8,9 +8,7 @@
 
 //# publish
 module test::m {
-    use haneul::transfer::{Self, Receiving};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::object::{Self, UID};
+    use haneul::transfer::Receiving;
 
     public struct Parent has key { id: UID }
     public struct S has key { id: UID }

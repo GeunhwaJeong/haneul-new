@@ -8,9 +8,6 @@
 //# publish
 
 module test::m {
-    use std::option::{Self, Option};
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
     use haneul::dynamic_object_field as ofield;
 
     public struct Obj has key, store {

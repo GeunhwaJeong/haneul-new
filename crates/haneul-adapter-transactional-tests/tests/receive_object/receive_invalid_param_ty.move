@@ -5,9 +5,7 @@
 
 //# publish
 module tto::M1 {
-    use haneul::object::{Self, UID, ID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer::{Self, Receiving};
+    use haneul::transfer::Receiving;
 
     public struct A has key, store {
         id: UID,
@@ -20,7 +18,7 @@ module tto::M1 {
     public struct Fake<phantom T> has drop { }
 
     public struct FakeSameLayout<phantom T> has drop {
-        id: ID, 
+        id: ID,
         version: u64,
     }
 

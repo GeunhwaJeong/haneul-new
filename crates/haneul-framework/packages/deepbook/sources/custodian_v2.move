@@ -4,9 +4,7 @@
 module deepbook::custodian_v2 {
     use haneul::balance::{Self, Balance, split};
     use haneul::coin::{Self, Coin};
-    use haneul::object::{Self, UID};
     use haneul::table::{Self, Table};
-    use haneul::tx_context::TxContext;
 
     /* friend deepbook::clob_v2; */
 
@@ -204,13 +202,9 @@ module deepbook::custodian_v2 {
     #[test_only]
     use haneul::test_scenario::{Self, Scenario, take_shared, take_from_sender, ctx};
     #[test_only]
-    use haneul::transfer;
-    #[test_only]
     use haneul::coin::{mint_for_testing};
     #[test_only]
     use haneul::test_utils::{assert_eq, destroy};
-    #[test_only]
-    use haneul::tx_context;
 
     #[test_only]
     const ENull: u64 = 0;

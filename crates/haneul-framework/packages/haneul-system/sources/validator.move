@@ -10,7 +10,6 @@ module haneul_system::validator {
     use haneul_system::validator_cap::{Self, ValidatorOperationCap};
     use haneul_system::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
     use std::string::String;
-    use haneul::transfer;
     use haneul::url::Url;
     use haneul::url;
     use haneul::event;

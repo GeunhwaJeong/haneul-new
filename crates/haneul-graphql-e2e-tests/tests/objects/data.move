@@ -7,8 +7,6 @@
 module P0::m {
     use std::ascii::{Self, String as ASCII};
     use std::string::{Self, String as UTF8};
-    use haneul::object::{Self, ID, UID};
-    use haneul::tx_context::TxContext;
 
     public struct Foo has key, store {
         id: UID,

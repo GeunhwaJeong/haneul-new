@@ -8,9 +8,6 @@ module p::m {
     use haneul::haneul::HANEUL;
     use haneul::coin;
 
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
-
     public fun sharer<T: key + store>(x: T) {
         transfer::public_share_object(x);
     }

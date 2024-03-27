@@ -7,9 +7,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-
     public struct R has key, store { id: UID }
     public fun r(ctx: &mut TxContext): R { R { id: object::new(ctx) } }
 

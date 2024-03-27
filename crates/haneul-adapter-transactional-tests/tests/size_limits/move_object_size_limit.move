@@ -8,11 +8,7 @@
 //# publish
 
 module Test::M1 {
-    use std::vector;
     use haneul::bcs;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer;
 
     public struct S has key, store {
         id: UID,

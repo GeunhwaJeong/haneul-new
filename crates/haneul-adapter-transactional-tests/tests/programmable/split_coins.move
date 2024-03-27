@@ -8,9 +8,7 @@
 
 //# publish
 module test::m1 {
-    use std::vector;
     use haneul::coin;
-    use haneul::transfer;
 
     public fun ret_one_amount(): u64 {
         100

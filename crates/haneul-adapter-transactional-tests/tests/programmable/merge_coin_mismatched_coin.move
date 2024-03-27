@@ -7,10 +7,7 @@
 
 //# publish --sender A
 module test::fake {
-    use std::option;
     use haneul::coin;
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
 
     public struct FAKE has drop {}
 

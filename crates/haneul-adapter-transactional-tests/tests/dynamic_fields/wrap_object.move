@@ -10,8 +10,6 @@ module a::m {
 
 use haneul::dynamic_field;
 use haneul::dynamic_object_field;
-use haneul::object;
-use haneul::tx_context::{sender, TxContext};
 
 public struct Obj has key, store {
     id: object::UID,
@@ -20,7 +18,7 @@ public struct Obj has key, store {
 entry fun mint(ctx: &mut TxContext) {
     let mut parent = object::new(ctx);
     dynamic_object_field::add(&mut parent, 0, Obj { id: object::new(ctx) });
-    haneul::transfer::public_transfer(Obj { id: parent }, sender(ctx))
+    haneul::transfer::public_transfer(Obj { id: parent }, ctx.sender())
 }
 
 entry fun take_and_wrap(obj: &mut Obj) {
@@ -35,7 +33,7 @@ entry fun take_and_destroy(obj: &mut Obj) {
 
 entry fun take_and_take(obj: &mut Obj, ctx: &mut TxContext) {
     let v = dynamic_object_field::remove<u64, Obj>(&mut obj.id, 0);
-    haneul::transfer::public_transfer(v, sender(ctx))
+    haneul::transfer::public_transfer(v, ctx.sender())
 }
 
 }

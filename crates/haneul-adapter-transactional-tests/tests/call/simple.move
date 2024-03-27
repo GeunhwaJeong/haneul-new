@@ -5,9 +5,6 @@
 
 //# publish
 module Test::M1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
     use haneul::coin::Coin;
 
     public struct Object has key, store {

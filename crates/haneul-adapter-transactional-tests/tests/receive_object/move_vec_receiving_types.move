@@ -5,10 +5,7 @@
 
 //# publish
 module tto::M1 {
-    use haneul::object::{Self, UID, ID};
-    use haneul::tx_context::{Self, TxContext};
-    use haneul::transfer::{Self, Receiving};
-    use std::vector;
+    use haneul::transfer::Receiving;
 
     public struct A has key, store {
         id: UID,

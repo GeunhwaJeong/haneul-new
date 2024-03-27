@@ -14,9 +14,6 @@
 //# publish
 module Test::M1 {
     use haneul::event;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
 
     public struct EventA has copy, drop {
         new_value: u64
@@ -51,9 +48,6 @@ module Test::M1 {
 
 module Test::M2 {
     use haneul::event;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
 
     public struct EventA has copy, drop {
         new_value: u64

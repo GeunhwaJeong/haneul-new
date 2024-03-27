@@ -10,11 +10,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
-    use std::option::{Self, Option};
-
     public struct Object has key, store {
         id: UID,
         wrapped: Option<Child>,

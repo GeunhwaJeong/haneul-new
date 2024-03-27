@@ -11,10 +11,6 @@
 
 //# publish
 module Test::M1 {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
-
     public struct Object has key, store {
         id: UID,
         value: u64,

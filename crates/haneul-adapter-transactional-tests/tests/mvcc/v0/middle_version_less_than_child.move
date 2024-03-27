@@ -8,8 +8,6 @@
 //# publish
 
 module test::m {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
     use haneul::dynamic_field as field;
 
     public struct Obj has key, store {

@@ -8,9 +8,6 @@
 //# publish
 
 module test::m {
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-    use haneul::object::{Self, UID};
 
     public struct S has store, key { id: UID }
     public struct Cup<phantom T: store> has store, key { id: UID }

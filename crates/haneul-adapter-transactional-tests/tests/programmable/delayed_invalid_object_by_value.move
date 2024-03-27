@@ -7,10 +7,6 @@
 
 //# publish
 module test::m1 {
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::TxContext;
-
     public struct R has key {
         id: UID,
     }
