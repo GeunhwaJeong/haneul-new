@@ -35,7 +35,6 @@ use crate::haneul_serde::Readable;
 use crate::haneul_serde::{to_haneul_struct_tag_string, HexAccountAddress};
 use crate::transaction::Transaction;
 use crate::transaction::VerifiedTransaction;
-use crate::zk_login_authenticator::AddressSeed;
 use crate::zk_login_authenticator::ZkLoginAuthenticator;
 use crate::MOVE_STDLIB_ADDRESS;
 use crate::HANEUL_CLOCK_OBJECT_ID;
@@ -612,10 +611,7 @@ impl HaneulAddress {
         let iss_bytes = inputs.get_iss().as_bytes();
         hasher.update([iss_bytes.len() as u8]);
         hasher.update(iss_bytes);
-
-        let address_seed = AddressSeed::from_str(inputs.get_address_seed())
-            .map_err(|_| HaneulError::InvalidAddress)?;
-        hasher.update(address_seed.unpadded());
+        hasher.update(inputs.get_address_seed().unpadded());
         Ok(HaneulAddress(hasher.finalize().digest))
     }
 }
