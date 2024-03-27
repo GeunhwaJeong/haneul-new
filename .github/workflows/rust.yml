@@ -427,7 +427,7 @@ jobs:
        run: |
          cargo nextest run --test-threads 1 --package haneul-graphql-rpc --test e2e_tests --test examples_validation_tests --features pg_integration
          cargo nextest run --test-threads 1 --package haneul-graphql-rpc --lib --features pg_integration -- test_query_cost
-         cargo nextest run --test-threads 4 --package haneul-graphql-e2e-tests --features pg_integration
+         cargo nextest run --test-threads 8 --package haneul-graphql-e2e-tests --features pg_integration
          cargo nextest run --test-threads 1 --package haneul-cluster-test --test local_cluster_test --features pg_integration
          cargo nextest run --test-threads 1 --package haneul-indexer --test ingestion_tests --features pg_integration
 
