@@ -19,7 +19,7 @@ use super::object::{self, Object, ObjectFilter, ObjectImpl, ObjectOwner, ObjectS
 use super::owner::OwnerImpl;
 use super::stake::StakedHaneul;
 use super::haneul_address::HaneulAddress;
-use super::haneulns_registration::HaneulnsRegistration;
+use super::haneulns_registration::{DomainFormat, HaneulnsRegistration};
 use super::transaction_block::{self, TransactionBlock, TransactionBlockFilter};
 use super::type_filter::ExactTypeFilter;
 use async_graphql::*;
@@ -124,9 +124,13 @@ impl Coin {
     }
 
     /// The domain explicitly configured as the default domain pointing to this object.
-    pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
+    pub(crate) async fn default_haneulns_name(
+        &self,
+        ctx: &Context<'_>,
+        format: Option<DomainFormat>,
+    ) -> Result<Option<String>> {
         OwnerImpl::from(&self.super_.super_)
-            .default_haneulns_name(ctx)
+            .default_haneulns_name(ctx, format)
             .await
     }
 

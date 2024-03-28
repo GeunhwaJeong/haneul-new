@@ -15,7 +15,7 @@ use super::object::{self, ObjectFilter, ObjectImpl, ObjectLookupKey, ObjectOwner
 use super::owner::OwnerImpl;
 use super::stake::StakedHaneulDowncastError;
 use super::haneul_address::HaneulAddress;
-use super::haneulns_registration::{HaneulnsRegistration, HaneulnsRegistrationDowncastError};
+use super::haneulns_registration::{DomainFormat, HaneulnsRegistration, HaneulnsRegistrationDowncastError};
 use super::transaction_block::{self, TransactionBlock, TransactionBlockFilter};
 use super::type_filter::ExactTypeFilter;
 use super::{coin::Coin, object::Object};
@@ -193,8 +193,14 @@ impl MoveObject {
     }
 
     /// The domain explicitly configured as the default domain pointing to this object.
-    pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        OwnerImpl::from(&self.super_).default_haneulns_name(ctx).await
+    pub(crate) async fn default_haneulns_name(
+        &self,
+        ctx: &Context<'_>,
+        format: Option<DomainFormat>,
+    ) -> Result<Option<String>> {
+        OwnerImpl::from(&self.super_)
+            .default_haneulns_name(ctx, format)
+            .await
     }
 
     /// The HaneulnsRegistration NFTs owned by this object. These grant the owner the capability to

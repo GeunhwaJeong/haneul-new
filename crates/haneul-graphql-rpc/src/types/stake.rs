@@ -14,7 +14,7 @@ use super::move_object::MoveObjectImpl;
 use super::move_value::MoveValue;
 use super::object::{Object, ObjectFilter, ObjectImpl, ObjectOwner, ObjectStatus};
 use super::owner::OwnerImpl;
-use super::haneulns_registration::HaneulnsRegistration;
+use super::haneulns_registration::{DomainFormat, HaneulnsRegistration};
 use super::transaction_block::{self, TransactionBlock, TransactionBlockFilter};
 use super::type_filter::ExactTypeFilter;
 use super::{
@@ -133,9 +133,13 @@ impl StakedHaneul {
     }
 
     /// The domain explicitly configured as the default domain pointing to this object.
-    pub(crate) async fn default_haneulns_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
+    pub(crate) async fn default_haneulns_name(
+        &self,
+        ctx: &Context<'_>,
+        format: Option<DomainFormat>,
+    ) -> Result<Option<String>> {
         OwnerImpl::from(&self.super_.super_)
-            .default_haneulns_name(ctx)
+            .default_haneulns_name(ctx, format)
             .await
     }
 
