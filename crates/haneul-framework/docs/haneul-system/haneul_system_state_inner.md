@@ -1,4 +1,3 @@
-
 ---
 title: Module `0x3::haneul_system_state_inner`
 ---
