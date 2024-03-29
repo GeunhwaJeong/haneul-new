@@ -26,6 +26,7 @@ use serde::{Deserialize, Serialize};
 use haneul_macros::fail_point;
 use haneul_network::default_haneullabs_network_config;
 use haneul_types::base_types::ConciseableName;
+use haneul_types::messages_checkpoint::CheckpointCommitment;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
@@ -671,6 +672,21 @@ impl CheckpointStore {
         self.epoch_last_checkpoint_map
             .insert(&epoch_id, checkpoint.sequence_number())?;
         Ok(())
+    }
+
+    pub fn get_epoch_state_commitments(
+        &self,
+        epoch: EpochId,
+    ) -> HaneulResult<Option<Vec<CheckpointCommitment>>> {
+        let commitments = self.get_epoch_last_checkpoint(epoch)?.map(|checkpoint| {
+            checkpoint
+                .end_of_epoch_data
+                .as_ref()
+                .expect("Last checkpoint of epoch expected to have EndOfEpochData")
+                .epoch_commitments
+                .clone()
+        });
+        Ok(commitments)
     }
 
     /// Given the epoch ID, and the last checkpoint of the epoch, derive a few statistics of the epoch.
