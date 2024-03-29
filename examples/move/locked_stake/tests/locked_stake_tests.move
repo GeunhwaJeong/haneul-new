@@ -7,7 +7,6 @@ module locked_stake::locked_stake_tests {
     use haneul_system::governance_test_utils::{advance_epoch, set_up_haneul_system_state};
     use haneul_system::haneul_system::{Self, HaneulSystemState};
     use haneul::coin;
-    use haneul::tx_context;
     use haneul::test_scenario;
     use haneul::test_utils::{assert_eq, destroy};
     use haneul::vec_map;
@@ -20,7 +19,7 @@ module locked_stake::locked_stake_tests {
     #[test]
     #[expected_failure(abort_code = epoch_time_lock::EEpochAlreadyPassed)]
     fun test_incorrect_creation() {
-        let scenario_val = test_scenario::begin(@0x0);
+        let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
 
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3]);
@@ -40,12 +39,12 @@ module locked_stake::locked_stake_tests {
 
     #[test]
     fun test_deposit_stake_unstake() {
-        let scenario_val = test_scenario::begin(@0x0);
+        let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
 
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3]);
 
-        let ls = ls::new(10, test_scenario::ctx(scenario));
+        let mut ls = ls::new(10, test_scenario::ctx(scenario));
 
         // Deposit 100 HANEUL.
         ls::deposit_haneul(&mut ls, balance::create_for_testing(100 * GEUNHWA_PER_HANEUL));
@@ -53,7 +52,7 @@ module locked_stake::locked_stake_tests {
         assert_eq(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
 
         test_scenario::next_tx(scenario, @0x1);
-        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         // Stake 10 of the 100 HANEUL.
         ls::stake(&mut ls, &mut system_state, 10 * GEUNHWA_PER_HANEUL, @0x1, test_scenario::ctx(scenario));
@@ -63,7 +62,7 @@ module locked_stake::locked_stake_tests {
         assert_eq(vec_map::size(ls::staked_haneul(&ls)), 1);
 
         test_scenario::next_tx(scenario, @0x1);
-        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
         let ctx = test_scenario::ctx(scenario);
 
         // Create a StakedHaneul object and add it to the LockedStake object.
@@ -78,7 +77,7 @@ module locked_stake::locked_stake_tests {
 
         test_scenario::next_tx(scenario, @0x1);
         let (staked_haneul_id, _) = vec_map::get_entry_by_idx(ls::staked_haneul(&ls), 0);
-        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
 
         // Unstake both stake objects
         ls::unstake(&mut ls, &mut system_state, *staked_haneul_id, test_scenario::ctx(scenario));
@@ -88,7 +87,7 @@ module locked_stake::locked_stake_tests {
 
         test_scenario::next_tx(scenario, @0x1);
         let (staked_haneul_id, _) = vec_map::get_entry_by_idx(ls::staked_haneul(&ls), 0);
-        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
         ls::unstake(&mut ls, &mut system_state, *staked_haneul_id, test_scenario::ctx(scenario));
         test_scenario::return_shared(system_state);
         assert_eq(ls::haneul_balance(&ls), 120 * GEUNHWA_PER_HANEUL);
@@ -100,19 +99,19 @@ module locked_stake::locked_stake_tests {
 
     #[test]
     fun test_unlock_correct_epoch() {
-        let scenario_val = test_scenario::begin(@0x0);
+        let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
 
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3]);
 
-        let ls = ls::new(2, test_scenario::ctx(scenario));
+        let mut ls = ls::new(2, test_scenario::ctx(scenario));
 
         ls::deposit_haneul(&mut ls, balance::create_for_testing(100 * GEUNHWA_PER_HANEUL));
 
         assert_eq(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
 
         test_scenario::next_tx(scenario, @0x1);
-        let system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
+        let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
         ls::stake(&mut ls, &mut system_state, 10 * GEUNHWA_PER_HANEUL, @0x1, test_scenario::ctx(scenario));
         test_scenario::return_shared(system_state);
 
@@ -133,7 +132,7 @@ module locked_stake::locked_stake_tests {
     #[test]
     #[expected_failure(abort_code = epoch_time_lock::EEpochNotYetEnded)]
     fun test_unlock_incorrect_epoch() {
-        let scenario_val = test_scenario::begin(@0x0);
+        let mut scenario_val = test_scenario::begin(@0x0);
         let scenario = &mut scenario_val;
 
         set_up_haneul_system_state(vector[@0x1, @0x2, @0x3]);

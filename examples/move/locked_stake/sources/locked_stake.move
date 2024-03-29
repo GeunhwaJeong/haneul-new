@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module locked_stake::locked_stake {
-    use haneul::tx_context::TxContext;
     use haneul::coin;
     use haneul::balance::{Self, Balance};
-    use haneul::object::{Self, ID, UID};
     use haneul::vec_map::{Self, VecMap};
     use haneul::haneul::HANEUL;
     use haneul_system::staking_pool::StakedHaneul;
@@ -17,7 +15,7 @@ module locked_stake::locked_stake {
 
     /// An object that locks HANEUL tokens and stake objects until a given epoch, and allows
     /// staking and unstaking operations when locked.
-    struct LockedStake has key {
+    public struct LockedStake has key {
         id: UID,
         staked_haneul: VecMap<ID, StakedHaneul>,
         haneul: Balance<HANEUL>,

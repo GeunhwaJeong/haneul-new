@@ -2,15 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module bridge::eth {
-    use std::option;
-
     use haneul::coin;
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
 
-    friend bridge::treasury;
-
-    struct ETH has drop {}
+    public struct ETH has drop {}
 
     fun init(witness: ETH, ctx: &mut TxContext) {
         let (treasury_cap, metadata) = coin::create_currency(
