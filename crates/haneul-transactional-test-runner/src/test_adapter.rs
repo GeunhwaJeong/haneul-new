@@ -26,7 +26,6 @@ use move_compiler::{
 use move_core_types::ident_str;
 use move_core_types::{
     account_address::AccountAddress,
-    annotated_value::MoveStruct,
     identifier::IdentStr,
     language_storage::{ModuleId, TypeTag},
 };
@@ -69,6 +68,7 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, Transacti
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
 };
+use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::ReadStore;
 use haneul_types::transaction::Command;
@@ -648,7 +648,8 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
                     object::Data::Move(move_obj) => {
                         let layout = move_obj.get_layout(&&*self).unwrap();
                         let move_struct =
-                            MoveStruct::simple_deserialize(move_obj.contents(), &layout).unwrap();
+                            BoundedVisitor::deserialize_struct(move_obj.contents(), &layout)
+                                .unwrap();
 
                         self.stabilize_str(format!(
                             "Owner: {}\nVersion: {}\nContents: {}",

@@ -5,7 +5,7 @@ use move_core_types::account_address::AccountAddress;
 use move_core_types::identifier::Identifier;
 
 use move_core_types::{
-    annotated_value::{MoveFieldLayout, MoveStruct, MoveStructLayout, MoveTypeLayout},
+    annotated_value::{MoveFieldLayout, MoveStructLayout, MoveTypeLayout},
     ident_str,
     language_storage::StructTag,
 };
@@ -17,6 +17,7 @@ use haneul_json_rpc_types::HaneulMoveStruct;
 
 use haneul_types::base_types::ObjectID;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
 
 #[test]
@@ -33,7 +34,7 @@ fn test_to_json_value() {
     };
     let event_bytes = bcs::to_bytes(&move_event).unwrap();
     let haneul_move_struct: HaneulMoveStruct =
-        MoveStruct::simple_deserialize(&event_bytes, &TestEvent::layout())
+        BoundedVisitor::deserialize_struct(&event_bytes, &TestEvent::layout())
             .unwrap()
             .into();
     let json_value = haneul_move_struct.to_json_value();

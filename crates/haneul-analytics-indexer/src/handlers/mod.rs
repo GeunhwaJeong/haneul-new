@@ -12,6 +12,7 @@ use haneul_package_resolver::{PackageStore, Resolver};
 use haneul_types::base_types::ObjectID;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::object::{Object, Owner};
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
@@ -174,7 +175,7 @@ async fn get_move_struct<T: PackageStore>(
         .await?
     {
         MoveTypeLayout::Struct(move_struct_layout) => {
-            MoveStruct::simple_deserialize(contents, &move_struct_layout)
+            BoundedVisitor::deserialize_struct(contents, &move_struct_layout)
         }
         _ => Err(anyhow!("Object is not a move struct")),
     }?;

@@ -19,6 +19,7 @@ use serde_with::Bytes;
 
 use crate::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use crate::error::{HaneulError, HaneulResult};
+use crate::object::bounded_visitor::BoundedVisitor;
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
 use crate::HANEUL_SYSTEM_ADDRESS;
@@ -128,7 +129,7 @@ impl Event {
         contents: &[u8],
         layout: MoveStructLayout,
     ) -> HaneulResult<MoveStruct> {
-        MoveStruct::simple_deserialize(contents, &layout).map_err(|e| {
+        BoundedVisitor::deserialize_struct(contents, &layout).map_err(|e| {
             HaneulError::ObjectSerializationError {
                 error: e.to_string(),
             }
