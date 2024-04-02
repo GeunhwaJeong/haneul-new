@@ -82,22 +82,6 @@ const concepts = [
 							'concepts/haneul-move-concepts/packages/custom-policies',
 						],
 					},
-					{
-						type: 'category',
-						label: 'Patterns',
-						link: {
-							type: 'doc',
-							id: 'concepts/haneul-move-concepts/patterns',
-						},
-						items: [
-							'concepts/haneul-move-concepts/patterns/capabilities',
-							'concepts/haneul-move-concepts/patterns/witness',
-							'concepts/haneul-move-concepts/patterns/transferrable-witness',
-							'concepts/haneul-move-concepts/patterns/hot-potato',
-							'concepts/haneul-move-concepts/patterns/id-pointer',
-							'concepts/haneul-move-concepts/patterns/app-extensions',
-						],
-					},
 					'concepts/haneul-move-concepts/conventions',
 				],
 			},
