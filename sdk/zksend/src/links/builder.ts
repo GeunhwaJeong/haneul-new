@@ -295,7 +295,7 @@ export class ZkSendLinkBuilder {
 		client?: HaneulClient;
 		network?: 'mainnet' | 'testnet';
 		links: ZkSendLinkBuilder[];
-		contract: ZkBagContractOptions;
+		contract?: ZkBagContractOptions;
 	}) {
 		const contract = new ZkBag(contractIds.packageId, contractIds);
 		const store = transactionBlock.object(contract.ids.bagStoreId);
