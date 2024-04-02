@@ -3,7 +3,7 @@
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "A collection of React hooks and components for interacting with the Haneul blockchain and wallets.",
 	"homepage": "https://sdk.haneul-labs.com/typescript",
-	"version": "0.12.7",
+	"version": "0.12.8",
 	"license": "Apache-2.0",
 	"files": [
 		"CHANGELOG.md",
