@@ -66,22 +66,26 @@ export async function listCreatedLinks({
 	cursor,
 	network,
 	contract = MAINNET_CONTRACT_IDS,
+	fetch: fetchFn,
 	...linkOptions
 }: {
 	address: string;
 	contract?: ZkBagContractOptions;
 	cursor?: string;
 	network?: 'mainnet' | 'testnet';
+
 	// Link options:
 	host?: string;
 	path?: string;
 	client?: HaneulClient;
+	fetch?: typeof fetch;
 }) {
 	const gqlClient = new HaneulGraphQLClient({
 		url:
 			network === 'testnet'
 				? 'https://haneul-testnet.haneul-labs.com/graphql'
 				: 'https://haneul-mainnet.haneul-labs.com/graphql',
+		fetch: fetchFn,
 	});
 
 	const packageId = normalizeHaneulAddress(contract.packageId);
