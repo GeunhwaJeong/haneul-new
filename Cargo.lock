@@ -12784,6 +12784,7 @@ dependencies = [
  "haneul-enum-compat-util",
  "haneul-json",
  "haneul-macros",
+ "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-types",
  "tabled",

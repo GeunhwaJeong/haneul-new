@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::str::FromStr;
+use std::sync::Arc;
 
 use diesel::prelude::*;
-use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::identifier::Identifier;
 
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::identifier::Identifier;
 use haneul_json_rpc_types::{HaneulEvent, HaneulMoveStruct};
+use haneul_package_resolver::{PackageStore, Resolver};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
-use haneul_types::object::MoveObject;
 use haneul_types::parse_haneul_struct_tag;
 
 use crate::errors::IndexerError;
@@ -75,9 +76,9 @@ impl From<IndexedEvent> for StoredEvent {
 }
 
 impl StoredEvent {
-    pub fn try_into_haneul_event(
+    pub async fn try_into_haneul_event(
         self,
-        module_cache: &impl GetModule,
+        package_resolver: Arc<Resolver<impl PackageStore>>,
     ) -> Result<HaneulEvent, IndexerError> {
         let package_id = ObjectID::from_bytes(self.package.clone()).map_err(|_e| {
             IndexerError::PersistentStorageDataCorruptionError(format!(
@@ -106,9 +107,21 @@ impl StoredEvent {
         };
 
         let type_ = parse_haneul_struct_tag(&self.event_type)?;
-
-        let layout = MoveObject::get_layout_from_struct_tag(type_.clone(), module_cache)?;
-        let move_object = BoundedVisitor::deserialize_struct(&self.bcs, &layout)
+        let move_type_layout = package_resolver
+            .type_layout(type_.clone().into())
+            .await
+            .map_err(|e| {
+                IndexerError::ResolveMoveStructError(format!(
+                    "Failed to convert to haneul event with Error: {e}",
+                ))
+            })?;
+        let move_struct_layout = match move_type_layout {
+            MoveTypeLayout::Struct(s) => Ok(s),
+            _ => Err(IndexerError::ResolveMoveStructError(
+                "MoveTypeLayout is not Struct".to_string(),
+            )),
+        }?;
+        let move_object = BoundedVisitor::deserialize_struct(&self.bcs, &move_struct_layout)
             .map_err(|e| IndexerError::SerdeError(e.to_string()))?;
         let parsed_json = HaneulMoveStruct::from(move_object).to_json_value();
         let tx_digest =

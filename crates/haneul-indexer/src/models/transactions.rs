@@ -1,15 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
+use std::sync::Arc;
+
 use diesel::prelude::*;
 
-use move_bytecode_utils::module_cache::GetModule;
-use haneul_json_rpc_types::BalanceChange;
-use haneul_json_rpc_types::ObjectChange;
-use haneul_json_rpc_types::HaneulTransactionBlock;
-use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_json_rpc_types::HaneulTransactionBlockEvents;
-use haneul_json_rpc_types::HaneulTransactionBlockResponse;
-use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::language_storage::TypeTag;
+use haneul_json_rpc_types::{
+    BalanceChange, ObjectChange, HaneulEvent, HaneulTransactionBlock, HaneulTransactionBlockEffects,
+    HaneulTransactionBlockEvents, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+};
+use haneul_package_resolver::{PackageStore, Resolver};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEvents;
@@ -100,11 +102,12 @@ impl From<&IndexedTransaction> for StoredTransaction {
 }
 
 impl StoredTransaction {
-    pub fn try_into_haneul_transaction_block_response(
+    pub async fn try_into_haneul_transaction_block_response(
         self,
-        options: &HaneulTransactionBlockResponseOptions,
-        module: &impl GetModule,
+        options: HaneulTransactionBlockResponseOptions,
+        package_resolver: Arc<Resolver<impl PackageStore>>,
     ) -> IndexerResult<HaneulTransactionBlockResponse> {
+        let options = options.clone();
         let tx_digest =
             TransactionDigest::try_from(self.transaction_digest.as_slice()).map_err(|e| {
                 IndexerError::PersistentStorageDataCorruptionError(format!(
@@ -115,7 +118,11 @@ impl StoredTransaction {
 
         let transaction = if options.show_input {
             let sender_signed_data = self.try_into_sender_signed_data()?;
-            let tx_block = HaneulTransactionBlock::try_from(sender_signed_data, module)?;
+            let tx_block = HaneulTransactionBlock::try_from_with_package_resolver(
+                sender_signed_data,
+                package_resolver.clone(),
+            )
+            .await?;
             Some(tx_block)
         } else {
             None
@@ -156,13 +163,8 @@ impl StoredTransaction {
                 .collect::<Result<Vec<Event>, IndexerError>>()?;
             let timestamp = self.timestamp_ms as u64;
             let tx_events = TransactionEvents { data: events };
-            let tx_events = HaneulTransactionBlockEvents::try_from_using_module_resolver(
-                tx_events,
-                tx_digest,
-                Some(timestamp),
-                module,
-            )?;
-            Some(tx_events)
+
+            tx_events_to_haneul_tx_events(tx_events, package_resolver, tx_digest, timestamp).await?
         } else {
             None
         };
@@ -220,7 +222,6 @@ impl StoredTransaction {
             raw_effects: self.raw_effects,
         })
     }
-
     fn try_into_sender_signed_data(&self) -> IndexerResult<SenderSignedData> {
         let sender_signed_data: SenderSignedData =
             bcs::from_bytes(&self.raw_transaction).map_err(|e| {
@@ -242,4 +243,59 @@ impl StoredTransaction {
         let effects = HaneulTransactionBlockEffects::try_from(effects)?;
         Ok(effects)
     }
+}
+
+pub async fn tx_events_to_haneul_tx_events(
+    tx_events: TransactionEvents,
+    package_resolver: Arc<Resolver<impl PackageStore>>,
+    tx_digest: TransactionDigest,
+    timestamp: u64,
+) -> Result<Option<HaneulTransactionBlockEvents>, IndexerError> {
+    let mut haneul_event_futures = vec![];
+    let tx_events_data_len = tx_events.data.len();
+    for tx_event in tx_events.data.clone() {
+        let package_resolver_clone = package_resolver.clone();
+        haneul_event_futures.push(tokio::task::spawn(async move {
+            let resolver = package_resolver_clone;
+            resolver
+                .type_layout(TypeTag::Struct(Box::new(tx_event.type_.clone())))
+                .await
+        }));
+    }
+    let event_move_type_layouts = futures::future::join_all(haneul_event_futures)
+        .await
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()?
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| {
+            IndexerError::ResolveMoveStructError(format!(
+                "Failed to convert to haneul event with Error: {e}",
+            ))
+        })?;
+    let event_move_struct_layouts = event_move_type_layouts
+        .into_iter()
+        .filter_map(|move_type_layout| match move_type_layout {
+            MoveTypeLayout::Struct(s) => Some(s),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert!(tx_events_data_len == event_move_struct_layouts.len());
+    let haneul_events = tx_events
+        .data
+        .into_iter()
+        .enumerate()
+        .zip(event_move_struct_layouts)
+        .map(|((seq, tx_event), move_struct_layout)| {
+            HaneulEvent::try_from(
+                tx_event,
+                tx_digest,
+                seq as u64,
+                Some(timestamp),
+                move_struct_layout,
+            )
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let haneul_tx_events = HaneulTransactionBlockEvents { data: haneul_events };
+    Ok(Some(haneul_tx_events))
 }
