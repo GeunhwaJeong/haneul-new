@@ -4,7 +4,7 @@
 
 import * as os from 'os';
 import * as vscode from 'vscode';
-import * as Path from 'path';
+import * as path from 'path';
 import { log } from './log';
 import { assert } from 'console';
 
@@ -49,7 +49,20 @@ export class Configuration {
         if (serverPath.startsWith('~/')) {
             return os.homedir() + serverPath.slice('~'.length);
         }
-        return Path.resolve(serverPath);
+        return path.resolve(serverPath);
+    }
+
+    /** The path to the Haneul binary. */
+    get haneulPath(): string {
+        const haneulBin = 'haneul';
+        const haneulPath = this.configuration.get<string | null >('haneul.path') ?? haneulBin;
+        if (haneulPath === haneulBin) {
+            return haneulPath;
+        }
+        if (haneulPath.startsWith('~/')) {
+            return os.homedir() + haneulPath.slice('~'.length);
+        }
+        return path.resolve(haneulPath);
     }
 
     /**
