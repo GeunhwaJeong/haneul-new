@@ -20,6 +20,7 @@ move-bytecode-verifier = { path = "../../external-crates/move/crates/move-byteco
 haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 haneul-verifier = { path = "../../haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
 
+move-bytecode-verifier-meter.workspace = true
 move-cli.workspace = true
 move-package.workspace = true
 move-unit-test.workspace = true
