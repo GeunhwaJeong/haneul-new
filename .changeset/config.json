@@ -10,9 +10,7 @@
 	"privatePackages": false,
 	"ignore": [
 		"haneul-wallet",
-		"haneul-explorer",
 		"@haneullabs/core",
-		"@haneullabs/ui",
 		"sponsored-transactions",
 		"kiosk-demo",
 		"kiosk-cli",
