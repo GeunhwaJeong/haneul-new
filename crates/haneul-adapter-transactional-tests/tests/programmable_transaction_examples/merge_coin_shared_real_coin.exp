@@ -16,7 +16,16 @@ gas summary: computation_cost: 1000000, storage_cost: 1976000,  storage_rebate: 
 task 3 'view-object'. lines 21-21:
 Owner: Shared
 Version: 3
-Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {id: haneul::object::UID {id: haneul::object::ID {bytes: fake(2,0)}}, balance: haneul::balance::Balance<haneul::haneul::HANEUL> {value: 0u64}}
+Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {
+    id: haneul::object::UID {
+        id: haneul::object::ID {
+            bytes: fake(2,0),
+        },
+    },
+    balance: haneul::balance::Balance<haneul::haneul::HANEUL> {
+        value: 0u64,
+    },
+}
 
 task 4 'programmable'. lines 23-24:
 mutated: object(0,0)
