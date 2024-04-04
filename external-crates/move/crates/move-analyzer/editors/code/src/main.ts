@@ -71,7 +71,7 @@ async function haneulMoveCmd(context: Readonly<Context>, cmd: string): Promise<v
     if (version.stdout) {
         const pkgRoot = await findPkgRoot();
         if (pkgRoot !== undefined) {
-            const terminalName = `haneul move`;
+            const terminalName = 'haneul move';
             let terminal = vscode.window.terminals.find(t => t.name === terminalName);
             if (!terminal) {
                 terminal = vscode.window.createTerminal(terminalName);
