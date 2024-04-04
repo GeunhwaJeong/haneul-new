@@ -15,7 +15,7 @@ use haneul_archival::reader::ArchiveReaderBalancer;
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_core::authority::authority_per_epoch_store::AuthorityEpochTables;
 use haneul_core::authority::authority_store_pruner::{
-    AuthorityStorePruner, AuthorityStorePruningMetrics,
+    AuthorityStorePruner, AuthorityStorePruningMetrics, EPOCH_DURATION_MS_FOR_TESTING,
 };
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::authority_store_types::{StoreData, StoreObject};
@@ -222,6 +222,7 @@ pub async fn prune_objects(db_path: PathBuf) -> anyhow::Result<()> {
         pruning_config,
         metrics,
         usize::MAX,
+        EPOCH_DURATION_MS_FOR_TESTING,
     )
     .await?;
     Ok(())
@@ -252,6 +253,7 @@ pub async fn prune_checkpoints(db_path: PathBuf) -> anyhow::Result<()> {
         metrics,
         usize::MAX,
         archive_readers,
+        EPOCH_DURATION_MS_FOR_TESTING,
     )
     .await?;
     Ok(())
