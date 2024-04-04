@@ -21,8 +21,10 @@ use fastcrypto::{
 };
 
 use move_binary_format::CompiledModule;
+use move_bytecode_verifier_meter::{bound::BoundMeter, Scope};
 use move_core_types::language_storage::TypeTag;
 use move_package::BuildConfig as MoveBuildConfig;
+use move_vm_config::verifier::MeterConfig;
 use prometheus::Registry;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -31,7 +33,6 @@ use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 
 use shared_crypto::intent::Intent;
-use haneul_execution::verifier::VerifierOverrides;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     Coin, DynamicFieldPage, HaneulCoinMetadata, HaneulData, HaneulExecutionStatus, HaneulObjectData,
@@ -1101,9 +1102,12 @@ impl HaneulClientCommands {
                     }
                 };
 
-                let mut verifier =
-                    haneul_execution::verifier(&protocol_config, true, &bytecode_verifier_metrics);
-                let overrides = VerifierOverrides::new(None, None);
+                let for_signing = true;
+                let mut verifier = haneul_execution::verifier(
+                    &protocol_config,
+                    for_signing,
+                    &bytecode_verifier_metrics,
+                );
 
                 println!(
                     "Running bytecode verifier for {} module{}",
@@ -1111,20 +1115,21 @@ impl HaneulClientCommands {
                     if modules.len() != 1 { "s" } else { "" },
                 );
 
-                let verifier_values = verifier.meter_compiled_modules_with_overrides(
-                    &modules,
-                    &protocol_config,
-                    &overrides,
-                )?;
+                // Need to pass some bounds because otherwise this meter doesn't accumulate
+                // anything.
+                let mut meter = BoundMeter::new(MeterConfig {
+                    max_per_fun_meter_units: Some(u128::MAX),
+                    max_per_mod_meter_units: Some(u128::MAX),
+                });
+
+                verifier.meter_compiled_modules(&protocol_config, &modules, &mut meter)?;
+
+                let meter_config = protocol_config.meter_config();
                 HaneulClientCommandResult::VerifyBytecodeMeter {
-                    max_module_ticks: verifier_values
-                        .max_per_mod_meter_current
-                        .unwrap_or(u128::MAX),
-                    max_function_ticks: verifier_values
-                        .max_per_fun_meter_current
-                        .unwrap_or(u128::MAX),
-                    used_function_ticks: verifier_values.fun_meter_units_result,
-                    used_module_ticks: verifier_values.mod_meter_units_result,
+                    max_module_ticks: meter_config.max_per_mod_meter_units,
+                    max_function_ticks: meter_config.max_per_fun_meter_units,
+                    used_function_ticks: meter.get_usage(Scope::Function),
+                    used_module_ticks: meter.get_usage(Scope::Module),
                 }
             }
 
@@ -2093,8 +2098,8 @@ impl Display for HaneulClientCommandResult {
                 builder.set_header(vec!["", "Module", "Function"]);
                 builder.push_record(vec![
                     "Max".to_string(),
-                    max_module_ticks.to_string(),
-                    max_function_ticks.to_string(),
+                    max_module_ticks.map_or_else(|| "None".to_string(), |x| x.to_string()),
+                    max_function_ticks.map_or_else(|| "None".to_string(), |x| x.to_string()),
                 ]);
                 builder.push_record(vec![
                     "Used".to_string(),
@@ -2103,9 +2108,18 @@ impl Display for HaneulClientCommandResult {
                 ]);
                 let mut table = builder.build();
                 table.with(TableStyle::rounded());
-                if (used_module_ticks > max_module_ticks)
-                    || (used_function_ticks > max_function_ticks)
-                {
+
+                let module_exceeded_ticks = matches!(
+                    max_module_ticks,
+                    Some(ticks) if ticks < used_module_ticks,
+                );
+
+                let function_exceeded_ticks = matches!(
+                    max_function_ticks,
+                    Some(ticks) if ticks < used_function_ticks,
+                );
+
+                if module_exceeded_ticks || function_exceeded_ticks {
                     table.with(TablePanel::header("Module will NOT pass metering check!"));
                 } else {
                     table.with(TablePanel::header("Module will pass metering check!"));
@@ -2387,8 +2401,8 @@ pub enum HaneulClientCommandResult {
     TransferHaneul(HaneulTransactionBlockResponse),
     Upgrade(HaneulTransactionBlockResponse),
     VerifyBytecodeMeter {
-        max_module_ticks: u128,
-        max_function_ticks: u128,
+        max_module_ticks: Option<u128>,
+        max_function_ticks: Option<u128>,
         used_function_ticks: u128,
         used_module_ticks: u128,
     },

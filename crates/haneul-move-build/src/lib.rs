@@ -49,7 +49,7 @@ use haneul_types::{
     move_package::{FnInfo, FnInfoKey, FnInfoMap, MovePackage},
     DEEPBOOK_ADDRESS, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
 };
-use haneul_verifier::{default_verifier_config, verifier as haneul_bytecode_verifier};
+use haneul_verifier::verifier as haneul_bytecode_verifier;
 
 #[cfg(test)]
 #[path = "unit_tests/build_tests.rs"]
@@ -242,20 +242,16 @@ pub fn build_from_resolution_graph(
     };
     let compiled_modules = package.root_modules_map();
     if run_bytecode_verifier {
+        let verifier_config = ProtocolConfig::get_for_version(ProtocolVersion::MAX, Chain::Unknown)
+            .verifier_config(/* for_signing */ false);
+
         for m in compiled_modules.iter_modules() {
             move_bytecode_verifier::verify_module_unmetered(m).map_err(|err| {
                 HaneulError::ModuleVerificationFailure {
                     error: err.to_string(),
                 }
             })?;
-            haneul_bytecode_verifier::haneul_verify_module_unmetered(
-                m,
-                &fn_info,
-                &default_verifier_config(
-                    &ProtocolConfig::get_for_version(ProtocolVersion::MAX, Chain::Unknown),
-                    false,
-                ),
-            )?;
+            haneul_bytecode_verifier::haneul_verify_module_unmetered(m, &fn_info, &verifier_config)?;
         }
         // TODO(https://github.com/GeunhwaJeong/haneul/issues/69): Run Move linker
     }
