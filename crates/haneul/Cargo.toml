@@ -54,6 +54,7 @@ haneul-keys.workspace = true
 haneul-source-validation.workspace = true
 haneul-move = { workspace = true, features = ["all"] }
 haneul-move-build.workspace = true
+haneul-package-management.workspace = true
 haneul-protocol-config.workspace = true
 shared-crypto.workspace = true
 haneul-replay.workspace = true
@@ -88,6 +89,7 @@ prometheus.workspace = true
 fs_extra.workspace = true
 expect-test.workspace = true
 assert_cmd.workspace = true
+toml.workspace = true
 
 test-cluster.workspace = true
 haneul-macros.workspace = true
