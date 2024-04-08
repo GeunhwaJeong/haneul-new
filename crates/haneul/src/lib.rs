@@ -14,4 +14,5 @@ pub mod keytool;
 pub mod shell;
 pub mod haneul_commands;
 pub mod validator_commands;
+mod verifier_meter;
 pub mod zklogin_commands_util;
