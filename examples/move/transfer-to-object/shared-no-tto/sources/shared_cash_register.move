@@ -5,12 +5,8 @@ module shared_no_tto::shared_cash_register {
     use common::identified_payment::{Self, IdentifiedPayment};
     use haneul::haneul::HANEUL;
     use haneul::coin::Coin;
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
     use haneul::dynamic_field;
     use haneul::vec_set::{Self, VecSet};
-    use std::vector;
     use std::string::String;
 
     const EInvalidOwner: u64 = 0;

@@ -3,10 +3,7 @@
 
 module nfts::chat {
     use std::ascii::{Self, String};
-    use std::option::{Self, Option, some};
-    use haneul::object::{Self, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self, TxContext};
+    use std::option::some;
     use std::vector::length;
 
     /// Max text length.
@@ -16,7 +13,7 @@ module nfts::chat {
     const ETextOverflow: u64 = 0;
 
     /// Haneul Chat NFT (i.e., a post, retweet, like, chat message etc).
-    struct Chat has key, store {
+    public struct Chat has key, store {
         id: UID,
         // The ID of the chat app.
         app_id: address,

@@ -6,9 +6,8 @@
 module basics::clock {
     use haneul::clock::{Self, Clock};
     use haneul::event;
-    use haneul::tx_context::TxContext;
 
-    struct TimeEvent has copy, drop {
+    public struct TimeEvent has copy, drop {
         timestamp_ms: u64,
     }
 

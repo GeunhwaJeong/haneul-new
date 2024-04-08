@@ -35,9 +35,6 @@ module nfts::auction {
     use haneul::coin::{Self, Coin};
     use haneul::balance::Balance;
     use haneul::haneul::HANEUL;
-    use haneul::object::{Self, ID, UID};
-    use haneul::transfer;
-    use haneul::tx_context::{Self,TxContext};
 
     use nfts::auction_lib::{Self, Auction};
 
@@ -47,7 +44,7 @@ module nfts::auction {
     const EWrongAuction: u64 = 1;
 
     /// Represents a bid sent by a bidder to the auctioneer.
-    struct Bid has key {
+    public struct Bid has key {
         id: UID,
         /// Address of the bidder
         bidder: address,

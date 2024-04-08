@@ -28,7 +28,6 @@
 module nfts::shared_auction {
     use haneul::coin::{Self, Coin};
     use haneul::haneul::HANEUL;
-    use haneul::tx_context::{Self, TxContext};
 
     use nfts::auction_lib::{Self, Auction};
 
