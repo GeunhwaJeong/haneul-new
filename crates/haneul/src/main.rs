@@ -3,7 +3,7 @@
 
 use clap::*;
 use colored::Colorize;
-use haneul::client_commands::HaneulClientCommands::{ProfileTransaction, ReplayTransaction};
+use haneul::client_commands::HaneulClientCommands::{ProfileTransaction, ReplayBatch, ReplayTransaction};
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
@@ -57,6 +57,14 @@ async fn main() {
         }
 
         HaneulCommand::Client {
+            cmd: Some(ReplayBatch { .. }),
+            ..
+        } => telemetry_subscribers::TelemetryConfig::new()
+            .with_log_level("info")
+            .with_env()
+            .init(),
+
+        HaneulCommand::Client {
             cmd: Some(ReplayTransaction {
                 gas_info, ptb_info, ..
             }),
@@ -73,6 +81,7 @@ async fn main() {
             }
             config.init()
         }
+
         HaneulCommand::Client {
             cmd: Some(ProfileTransaction { .. }),
             ..
