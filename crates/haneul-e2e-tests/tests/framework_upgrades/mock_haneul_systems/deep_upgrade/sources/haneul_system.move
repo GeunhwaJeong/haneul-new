@@ -12,8 +12,6 @@ module haneul_system::haneul_system {
     use haneul_system::validator::Validator;
     use haneul_system::haneul_system_state_inner::{Self, HaneulSystemStateInnerV2, HaneulSystemStateInner};
 
-    /* friend haneul_system::genesis; */
-
     public struct HaneulSystemState has key {
         id: UID,
         version: u64,

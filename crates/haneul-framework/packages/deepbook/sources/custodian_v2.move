@@ -6,8 +6,6 @@ module deepbook::custodian_v2 {
     use haneul::coin::{Self, Coin};
     use haneul::table::{Self, Table};
 
-    /* friend deepbook::clob_v2; */
-
     // <<<<<<<<<<<<<<<<<<<<<<<< Error codes <<<<<<<<<<<<<<<<<<<<<<<<
     #[test_only]
     const EUserBalanceDoesNotExist: u64 = 1;
@@ -195,10 +193,6 @@ module deepbook::custodian_v2 {
         table::borrow(&custodian.account_balances, owner)
     }
 
-    /* #[test_only] */
-    /* friend deepbook::clob_test; */
-    /* #[test_only] */
-    /* friend deepbook::order_query_tests; */
     #[test_only]
     use haneul::test_scenario::{Self, Scenario, take_shared, take_from_sender, ctx};
     #[test_only]

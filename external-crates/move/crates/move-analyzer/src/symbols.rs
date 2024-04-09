@@ -6569,11 +6569,11 @@ fn implicit_uses_test() {
         3,
         12,
         "implicit_uses.move",
-        76,
+        64,
         18,
         "object.move",
         "public struct haneul::object::UID {\n\tid: haneul::object::ID\n}",
-        Some((76, 18, "object.move")),
+        Some((64, 18, "object.move")),
     );
     // implicit struct as parameter type
     assert_use_def(

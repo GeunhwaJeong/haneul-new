@@ -10,10 +10,6 @@ module haneul_system::validator {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
 
-    /* friend haneul_system::genesis; */
-    /* friend haneul_system::haneul_system_state_inner; */
-    /* friend haneul_system::validator_wrapper; */
-
     public struct ValidatorMetadata has store {
         haneul_address: address,
         protocol_pubkey_bytes: vector<u8>,

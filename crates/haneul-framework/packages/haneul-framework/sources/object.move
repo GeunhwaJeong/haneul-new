@@ -6,15 +6,6 @@ module haneul::object {
     use std::bcs;
     use haneul::address;
 
-    /* friend haneul::clock; */
-    /* friend haneul::coin; */
-    /* friend haneul::dynamic_field; */
-    /* friend haneul::dynamic_object_field; */
-    /* friend haneul::transfer; */
-    /* friend haneul::authenticator_state; */
-    /* friend haneul::random; */
-    /* friend haneul::deny_list; */
-
     /// Allows calling `.to_address` on an `ID` to get an `address`.
     public use fun id_to_address as ID.to_address;
 
@@ -32,9 +23,6 @@ module haneul::object {
 
     /// Allows calling `.to_bytes` on a `UID` to get a `vector<u8>`.
     public use fun uid_to_bytes as UID.to_bytes;
-
-    /* #[test_only] */
-    /* friend haneul::test_scenario; */
 
     /// The hardcoded ID for the singleton Haneul System State Object.
     const HANEUL_SYSTEM_STATE_OBJECT_ID: address = @0x5;

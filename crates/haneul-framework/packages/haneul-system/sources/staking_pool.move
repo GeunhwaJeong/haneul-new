@@ -10,9 +10,6 @@ module haneul_system::staking_pool {
     use haneul::bag::Bag;
     use haneul::bag;
 
-    /* friend haneul_system::validator; */
-    /* friend haneul_system::validator_set; */
-
     /// StakedHaneul objects cannot be split to below this amount.
     const MIN_STAKING_THRESHOLD: u64 = 1_000_000_000; // 1 HANEUL
 

@@ -13,8 +13,6 @@ module haneul_system::haneul_system {
     use haneul_system::haneul_system_state_inner::HaneulSystemStateInner;
     use haneul_system::haneul_system_state_inner;
 
-    /* friend haneul_system::genesis; */
-
     public struct HaneulSystemState has key {
         id: UID,
         version: u64,

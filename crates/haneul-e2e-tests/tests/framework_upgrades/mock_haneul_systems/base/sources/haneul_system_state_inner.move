@@ -15,8 +15,6 @@ module haneul_system::haneul_system_state_inner {
     use haneul_system::validator;
     use haneul::object;
 
-    /* friend haneul_system::haneul_system; */
-
     const SYSTEM_STATE_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
 
     public struct SystemParameters has store {

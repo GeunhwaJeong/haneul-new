@@ -10,8 +10,6 @@
 /// building block for core collection types
 module haneul::dynamic_field {
 
-    /* friend haneul::dynamic_object_field; */
-
     /// The object already has a dynamic field with this name (with the value and type specified)
     const EFieldAlreadyExists: u64 = 0;
     /// Cannot load dynamic field.

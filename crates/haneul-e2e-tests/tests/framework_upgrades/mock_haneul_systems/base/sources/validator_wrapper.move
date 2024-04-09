@@ -7,8 +7,6 @@ module haneul_system::validator_wrapper {
     use haneul::tx_context::TxContext;
     use haneul_system::validator::Validator;
 
-    /* friend haneul_system::haneul_system_state_inner; */
-
     const VALIDATOR_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
 
     const EInvalidVersion: u64 = 0;

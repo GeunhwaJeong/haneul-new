@@ -20,15 +20,6 @@ module haneul_system::validator_set {
     use haneul::bag::Bag;
     use haneul::bag;
 
-    /* friend haneul_system::genesis; */
-    /* friend haneul_system::haneul_system_state_inner; */
-
-    /* #[test_only] */
-    /* friend haneul_system::validator_set_tests; */
-
-    /* #[test_only] */
-    /* friend haneul_system::stake_tests; */
-
     public struct ValidatorSet has store {
         /// Total amount of stake from all active validators at the beginning of the epoch.
         total_stake: u64,

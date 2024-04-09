@@ -8,9 +8,6 @@ module haneul_system::validator_wrapper {
     use haneul_system::validator::{Validator, ValidatorV2};
     use haneul_system::validator;
 
-    /* friend haneul_system::haneul_system; */
-    /* friend haneul_system::haneul_system_state_inner; */
-
     const VALIDATOR_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
     const VALIDATOR_VERSION_V3: u64 = 18446744073709551607;  // u64::MAX - 8
 

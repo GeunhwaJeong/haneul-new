@@ -7,8 +7,6 @@ module axelar::channel {
     use haneul::object::{Self, UID};
     use haneul::tx_context::TxContext;
 
-    /* friend axelar::validators; */
-
     /// Generic target for the messaging system.
     ///
     /// This struct is required on the Haneul side to be the destination for the

@@ -6,11 +6,6 @@ module haneul_system::voting_power {
     use haneul::math;
     use haneul::math::divide_and_round_up;
 
-    /* friend haneul_system::validator_set; */
-
-    /* #[test_only] */
-    /* friend haneul_system::voting_power_tests; */
-
     #[allow(unused_field)]
     /// Deprecated. Use VotingPowerInfoV2 instead.
     public struct VotingPowerInfo has drop {

@@ -10,10 +10,6 @@ module nfts::auction_lib {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
 
-
-    /* friend nfts::auction; */
-    /* friend nfts::shared_auction; */
-
     /// Stores information about an auction bid.
     public struct BidData has store {
         /// Coin representing the current (highest) bid.

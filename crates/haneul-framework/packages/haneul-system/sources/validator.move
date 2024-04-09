@@ -15,20 +15,6 @@ module haneul_system::validator {
     use haneul::event;
     use haneul::bag::Bag;
     use haneul::bag;
-    /* friend haneul_system::genesis; */
-    /* friend haneul_system::haneul_system_state_inner; */
-    /* friend haneul_system::validator_wrapper; */
-    /* friend haneul_system::validator_set; */
-    /* friend haneul_system::voting_power; */
-
-    /* #[test_only] */
-    /* friend haneul_system::validator_tests; */
-    /* #[test_only] */
-    /* friend haneul_system::validator_set_tests; */
-    /* #[test_only] */
-    /* friend haneul_system::haneul_system_tests; */
-    /* #[test_only] */
-    /* friend haneul_system::governance_test_utils; */
 
     /// Invalid proof_of_possession field in ValidatorMetadata
     const EInvalidProofOfPossession: u64 = 0;

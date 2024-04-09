@@ -6,8 +6,6 @@ module haneul_system::validator_wrapper {
     use haneul_system::validator::Validator;
     use haneul::versioned;
 
-    /* friend haneul_system::validator_set; */
-
     const EInvalidVersion: u64 = 0;
 
     public struct ValidatorWrapper has store {

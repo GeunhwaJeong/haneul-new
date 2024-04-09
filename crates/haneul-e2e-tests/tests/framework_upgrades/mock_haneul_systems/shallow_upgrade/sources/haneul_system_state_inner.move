@@ -12,8 +12,6 @@ module haneul_system::haneul_system_state_inner {
     use haneul_system::validator::Validator;
     use haneul_system::validator_wrapper::ValidatorWrapper;
 
-    /* friend haneul_system::haneul_system; */
-
     const SYSTEM_STATE_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
     const SYSTEM_STATE_VERSION_V2: u64 = 18446744073709551606;  // u64::MAX - 9
 

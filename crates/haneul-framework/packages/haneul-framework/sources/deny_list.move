@@ -9,8 +9,6 @@ module haneul::deny_list {
     use haneul::bag::{Self, Bag};
     use haneul::vec_set::{Self, VecSet};
 
-    /* friend haneul::coin; */
-
     /// Trying to create a deny list object when not called by the system address.
     const ENotSystemAddress: u64 = 0;
     /// The specified address to be removed is not already in the deny list.

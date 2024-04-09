@@ -4,8 +4,6 @@
 module bridge::usdt {
     use haneul::coin;
 
-    /* friend bridge::treasury; */
-
     public struct USDT has drop {}
 
     fun init(witness: USDT, ctx: &mut TxContext) {

@@ -56,13 +56,6 @@ module haneul_system::haneul_system {
     #[test_only] use haneul_system::validator_set::ValidatorSet;
     #[test_only] use haneul::vec_set::VecSet;
 
-    /* friend haneul_system::genesis; */
-
-    /* #[test_only] */
-    /* friend haneul_system::governance_test_utils; */
-    /* #[test_only] */
-    /* friend haneul_system::haneul_system_tests; */
-
     public struct HaneulSystemState has key {
         id: UID,
         version: u64,

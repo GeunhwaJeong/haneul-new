@@ -100,7 +100,6 @@ module haneul::kiosk {
     // - `place_internal`
     // - `lock_internal`
     // - `uid_mut_internal`
-    /* friend haneul::kiosk_extension; */
 
     /// Trying to withdraw profits and sender is not owner.
     const ENotOwner: u64 = 0;

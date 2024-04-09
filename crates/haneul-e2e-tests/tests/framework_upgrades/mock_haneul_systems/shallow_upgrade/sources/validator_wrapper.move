@@ -7,9 +7,6 @@ module haneul_system::validator_wrapper {
     use haneul::tx_context::TxContext;
     use haneul_system::validator::Validator;
 
-    /* friend haneul_system::haneul_system; */
-    /* friend haneul_system::haneul_system_state_inner; */
-
     const EInvalidVersion: u64 = 0;
 
     public struct ValidatorWrapper has store {
