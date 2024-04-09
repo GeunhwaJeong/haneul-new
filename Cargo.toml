@@ -138,6 +138,7 @@ members = [
   "crates/haneul-rosetta",
   "crates/haneul-rpc-loadgen",
   "crates/haneul-sdk",
+  "crates/haneul-security-watchdog",
   "crates/haneul-simulator",
   "crates/haneul-single-node-benchmark",
   "crates/haneul-snapshot",
