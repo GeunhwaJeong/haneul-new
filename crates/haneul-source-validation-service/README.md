@@ -65,3 +65,27 @@ For errors, or if the source code does not exist, an error encoded in JSON retur
 The URL parameters `address`, `module`, and `network` are required.
 
 Although not required, it is good practice to set the `X-Haneul-Source-Validation-Version` header.
+
+## Hosted Service
+
+Haneul Labs maintains a backend service hosted at `https://source.haneul-labs.com` for verified packages. The following example usages are available via the API:
+
+- List current indexed sources via `curl 'https://source.haneul-labs.com/api/list'`. 
+  - For example, to see all verified sources on `mainnet`, query the `mainnet` member: `curl 'https://source.haneul-labs.com/api/list' --header 'X-Haneul-Source-Validation-Version: 0.1'  | jq .mainnet`
+  
+- Get verified source for a `(address, module, network)` triple via a request like `curl 'https://source.haneul-labs.com/api?address=0x2&module=coin&network=mainnet' --header 'X-Haneul-Source-Validation-Version: 0.1'`
+
+**Production Usage and Best Practices Tips*
+
+On occasion `https://source.haneul-labs.com` may return a `502` response or experience downtime. When using `https://source.haneul-labs.com` to determine source authenticity, it is recommended interface with the service in such a way that it can robustly handle a non-`200` response or downtime. For example, when a non-`200` response is received, a tab showing verified source may temporarily show a message like `"Not available at this time"` when used in an explorer. Once the source verification resumes, requests will continue to allow clients to show source as normal.
+
+The source service may experience transient downtime for at least the following reasons:
+
+- RPC event subscription disconnection or instability. The Haneullabs source service actively monitors on-chain upgrade events to ensure it always reports accurate verified source. If RPC subscription is lost, the service will attempt to regain the connection. During the time of disconnection the service will not respond with verified source in order to preserve integrity. This behavior is especially important for Haneul framework packages that are upgraded _in-place_ (e.g., `0x1`, `0x2`, `0x3`, and `0xdee9`) to ensure integrity. This is usually a transient issue.
+
+- The on-chain package content has changed (e.g., due to a protocol upgrade) and the source repository does not yet reflect the new on-chain bytecode. 
+  - This can happen when the branch containing we track for the source-to-be-verified as diverged from on-chain bytecode, or does not yet correspond to the new on-chain bytecode. This is especially the case for Haneul framework packages that are upgraded _in-place_ at protocol upgrades (e.g., `0x1`, `0x2`, `0x3`, and `0xdee9`).
+    - While usually transient, there may be extended periods of mismatched source and bytecode due to Haneul's release process.
+	
+- A new version of Move compiler is released, requiring service redeployment.
+  - For example, when framework packages are upgraded and require a more recent compiler version, the Haneullabs source service will need to be redeployed and will experience transient downtime.
