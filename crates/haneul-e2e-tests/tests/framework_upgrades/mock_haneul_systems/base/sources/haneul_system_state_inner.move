@@ -15,22 +15,22 @@ module haneul_system::haneul_system_state_inner {
     use haneul_system::validator;
     use haneul::object;
 
-    friend haneul_system::haneul_system;
+    /* friend haneul_system::haneul_system; */
 
     const SYSTEM_STATE_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
 
-    struct SystemParameters has store {
+    public struct SystemParameters has store {
         epoch_duration_ms: u64,
         extra_fields: Bag,
     }
 
-    struct ValidatorSet has store {
+    public struct ValidatorSet has store {
         active_validators: vector<Validator>,
         inactive_validators: Table<ID, ValidatorWrapper>,
         extra_fields: Bag,
     }
 
-    struct HaneulSystemStateInner has store {
+    public struct HaneulSystemStateInner has store {
         epoch: u64,
         protocol_version: u64,
         system_state_version: u64,
@@ -43,7 +43,7 @@ module haneul_system::haneul_system_state_inner {
         extra_fields: Bag,
     }
 
-    public(friend) fun create(
+    public(package) fun create(
         validators: vector<Validator>,
         storage_fund: Balance<HANEUL>,
         protocol_version: u64,
@@ -52,7 +52,7 @@ module haneul_system::haneul_system_state_inner {
         ctx: &mut TxContext,
     ): HaneulSystemStateInner {
         let validators = new_validator_set(validators, ctx);
-        let system_state = HaneulSystemStateInner {
+        let mut system_state = HaneulSystemStateInner {
             epoch: 0,
             protocol_version,
             system_state_version: genesis_system_state_version(),
@@ -72,7 +72,7 @@ module haneul_system::haneul_system_state_inner {
         system_state
     }
 
-    public(friend) fun advance_epoch(
+    public(package) fun advance_epoch(
         self: &mut HaneulSystemStateInner,
         new_epoch: u64,
         next_protocol_version: u64,
@@ -93,13 +93,13 @@ module haneul_system::haneul_system_state_inner {
         storage_rebate
     }
 
-    public(friend) fun protocol_version(self: &HaneulSystemStateInner): u64 { self.protocol_version }
-    public(friend) fun system_state_version(self: &HaneulSystemStateInner): u64 { self.system_state_version }
-    public(friend) fun genesis_system_state_version(): u64 {
+    public(package) fun protocol_version(self: &HaneulSystemStateInner): u64 { self.protocol_version }
+    public(package) fun system_state_version(self: &HaneulSystemStateInner): u64 { self.system_state_version }
+    public(package) fun genesis_system_state_version(): u64 {
         SYSTEM_STATE_VERSION_V1
     }
 
-    public(friend) fun add_dummy_inactive_validator_for_testing(self: &mut HaneulSystemStateInner, ctx: &mut TxContext) {
+    public(package) fun add_dummy_inactive_validator_for_testing(self: &mut HaneulSystemStateInner, ctx: &mut TxContext) {
         // Add a new entry to the inactive validator table for upgrade testing.
         let dummy_inactive_validator = validator_wrapper::create_v1(
             validator::new_dummy_inactive_validator(ctx),

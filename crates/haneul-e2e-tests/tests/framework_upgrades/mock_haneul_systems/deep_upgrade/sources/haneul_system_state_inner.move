@@ -17,30 +17,30 @@ module haneul_system::haneul_system_state_inner {
     use haneul::object;
     use haneul_system::validator;
 
-    friend haneul_system::haneul_system;
+    /* friend haneul_system::haneul_system; */
 
     const SYSTEM_STATE_VERSION_V1: u64 = 18446744073709551605;  // u64::MAX - 10
     // Not using MAX - 9 since it's already used in the shallow upgrade test.
     const SYSTEM_STATE_VERSION_V2: u64 = 18446744073709551607;  // u64::MAX - 8
 
-    struct SystemParameters has store {
+    public struct SystemParameters has store {
         epoch_duration_ms: u64,
         extra_fields: Bag,
     }
 
-    struct ValidatorSet has store {
+    public struct ValidatorSet has store {
         active_validators: vector<Validator>,
         inactive_validators: Table<ID, ValidatorWrapper>,
         extra_fields: Bag,
     }
 
-    struct ValidatorSetV2 has store {
+    public struct ValidatorSetV2 has store {
         active_validators: vector<ValidatorV2>,
         inactive_validators: Table<ID, ValidatorWrapper>,
         extra_fields: Bag,
     }
 
-    struct HaneulSystemStateInner has store {
+    public struct HaneulSystemStateInner has store {
         epoch: u64,
         protocol_version: u64,
         system_state_version: u64,
@@ -53,7 +53,7 @@ module haneul_system::haneul_system_state_inner {
         extra_fields: Bag,
     }
 
-    struct HaneulSystemStateInnerV2 has store {
+    public struct HaneulSystemStateInnerV2 has store {
         new_dummy_field: u64,
         epoch: u64,
         protocol_version: u64,
@@ -67,7 +67,7 @@ module haneul_system::haneul_system_state_inner {
         extra_fields: Bag,
     }
 
-    public(friend) fun create(
+    public(package) fun create(
         validators: vector<Validator>,
         storage_fund: Balance<HANEUL>,
         protocol_version: u64,
@@ -94,7 +94,7 @@ module haneul_system::haneul_system_state_inner {
         system_state
     }
 
-    public(friend) fun advance_epoch(
+    public(package) fun advance_epoch(
         self: &mut HaneulSystemStateInnerV2,
         new_epoch: u64,
         next_protocol_version: u64,
@@ -117,9 +117,9 @@ module haneul_system::haneul_system_state_inner {
         storage_rebate
     }
 
-    public(friend) fun protocol_version(self: &HaneulSystemStateInnerV2): u64 { self.protocol_version }
-    public(friend) fun system_state_version(self: &HaneulSystemStateInnerV2): u64 { self.system_state_version }
-    public(friend) fun genesis_system_state_version(): u64 {
+    public(package) fun protocol_version(self: &HaneulSystemStateInnerV2): u64 { self.protocol_version }
+    public(package) fun system_state_version(self: &HaneulSystemStateInnerV2): u64 { self.system_state_version }
+    public(package) fun genesis_system_state_version(): u64 {
         SYSTEM_STATE_VERSION_V1
     }
 
@@ -131,7 +131,7 @@ module haneul_system::haneul_system_state_inner {
         }
     }
 
-    public(friend) fun v1_to_v2(v1: HaneulSystemStateInner): HaneulSystemStateInnerV2 {
+    public(package) fun v1_to_v2(v1: HaneulSystemStateInner): HaneulSystemStateInnerV2 {
         let HaneulSystemStateInner {
             epoch,
             protocol_version,
@@ -169,11 +169,11 @@ module haneul_system::haneul_system_state_inner {
 
     fun validator_set_v1_to_v2(v1: ValidatorSet): ValidatorSetV2 {
         let ValidatorSet {
-            active_validators,
+            mut active_validators,
             inactive_validators,
             extra_fields,
         } = v1;
-        let new_active_validators = vector[];
+        let mut new_active_validators = vector[];
         while (!vector::is_empty(&active_validators)) {
             let validator = vector::pop_back(&mut active_validators);
             let validator = validator::v1_to_v2(validator);

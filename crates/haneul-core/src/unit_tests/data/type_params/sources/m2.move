@@ -6,7 +6,7 @@ module type_params::m2 {
     use haneul::tx_context::TxContext;
     use haneul::transfer;
 
-    struct AnotherObject has key, store {
+    public struct AnotherObject has key, store {
         id: UID,
         value: u64,
     }

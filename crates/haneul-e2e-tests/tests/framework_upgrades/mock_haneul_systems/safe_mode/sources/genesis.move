@@ -12,7 +12,7 @@ module haneul_system::genesis {
     use haneul_system::haneul_system;
     use haneul_system::validator;
 
-    struct GenesisValidatorMetadata has drop, copy {
+    public struct GenesisValidatorMetadata has drop, copy {
         name: vector<u8>,
         description: vector<u8>,
         image_url: vector<u8>,
@@ -35,7 +35,7 @@ module haneul_system::genesis {
         worker_address: vector<u8>,
     }
 
-    struct GenesisChainParameters has drop, copy {
+    public struct GenesisChainParameters has drop, copy {
         protocol_version: u64,
         chain_start_timestamp_ms: u64,
         epoch_duration_ms: u64,
@@ -52,12 +52,12 @@ module haneul_system::genesis {
         validator_low_stake_grace_period: u64,
     }
 
-    struct TokenDistributionSchedule has drop {
+    public struct TokenDistributionSchedule has drop {
         stake_subsidy_fund_geunhwa: u64,
         allocations: vector<TokenAllocation>,
     }
 
-    struct TokenAllocation has drop {
+    public struct TokenAllocation has drop {
         recipient_address: address,
         amount_geunhwa: u64,
         staked_with_validator: Option<address>,
@@ -65,7 +65,7 @@ module haneul_system::genesis {
 
     fun create(
         haneul_system_state_id: UID,
-        haneul_supply: Balance<HANEUL>,
+        mut haneul_supply: Balance<HANEUL>,
         genesis_chain_parameters: GenesisChainParameters,
         genesis_validators: vector<GenesisValidatorMetadata>,
         _token_distribution_schedule: TokenDistributionSchedule,
@@ -73,9 +73,9 @@ module haneul_system::genesis {
     ) {
         assert!(tx_context::epoch(ctx) == 0, 0);
 
-        let validators = vector::empty();
+        let mut validators = vector::empty();
         let count = vector::length(&genesis_validators);
-        let i = 0;
+        let mut i = 0;
         while (i < count) {
             let GenesisValidatorMetadata {
                 name: _,

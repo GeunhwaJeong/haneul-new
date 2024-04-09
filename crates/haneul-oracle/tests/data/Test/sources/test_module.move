@@ -20,7 +20,7 @@ module test::test_module {
     use haneul::tx_context;
     use haneul::tx_context::TxContext;
 
-    struct MockUSD has key, store {
+    public struct MockUSD has key, store {
         id: UID,
         amount: u64,
         decimals: u8,
@@ -64,7 +64,7 @@ module test::test_module {
         geunhwa_amount: u64,
         ctx: &mut TxContext
     ) {
-        let meta_oracle = meta_oracle::new<DecimalValue>(3, 60000, string::utf8(b"HANEULUSD"));
+        let mut meta_oracle = meta_oracle::new<DecimalValue>(3, 60000, string::utf8(b"HANEULUSD"));
         meta_oracle::add_simple_oracle(&mut meta_oracle, oracle1);
         meta_oracle::add_simple_oracle(&mut meta_oracle, oracle2);
         meta_oracle::add_simple_oracle(&mut meta_oracle, oracle3);

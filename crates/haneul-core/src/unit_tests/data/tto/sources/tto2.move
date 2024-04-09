@@ -7,15 +7,15 @@ module tto::M2 {
     use haneul::transfer::{Self, Receiving};
     use haneul::dynamic_field as df;
 
-    struct A has key, store {
+    public struct A has key, store {
         id: UID,
     }
 
-    struct B has key, store {
+    public struct B has key, store {
         id: UID,
     }
 
-    struct C has key {
+    public struct C has key {
         id: UID, 
         wrapped: B,
     }

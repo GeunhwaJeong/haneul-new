@@ -12,14 +12,14 @@ module haneul_system::haneul_system {
     use haneul_system::validator::Validator;
     use haneul_system::haneul_system_state_inner::{Self, HaneulSystemStateInnerV2, HaneulSystemStateInner};
 
-    friend haneul_system::genesis;
+    /* friend haneul_system::genesis; */
 
-    struct HaneulSystemState has key {
+    public struct HaneulSystemState has key {
         id: UID,
         version: u64,
     }
 
-    public(friend) fun create(
+    public(package) fun create(
         id: UID,
         validators: vector<Validator>,
         storage_fund: Balance<HANEUL>,
@@ -37,7 +37,7 @@ module haneul_system::haneul_system {
             ctx,
         );
         let version = haneul_system_state_inner::genesis_system_state_version();
-        let self = HaneulSystemState {
+        let mut self = HaneulSystemState {
             id,
             version,
         };
@@ -79,7 +79,7 @@ module haneul_system::haneul_system {
     }
 
     fun load_inner_maybe_upgrade(self: &mut HaneulSystemState): &mut HaneulSystemStateInnerV2 {
-        let version = self.version;
+        let mut version = self.version;
         if (version == haneul_system_state_inner::genesis_system_state_version()) {
             let inner: HaneulSystemStateInner = dynamic_field::remove(&mut self.id, version);
             let new_inner = haneul_system_state_inner::v1_to_v2(inner);

@@ -10,11 +10,11 @@ module haneul_system::validator {
     use haneul::balance::{Self, Balance};
     use haneul::haneul::HANEUL;
 
-    friend haneul_system::genesis;
-    friend haneul_system::haneul_system_state_inner;
-    friend haneul_system::validator_wrapper;
+    /* friend haneul_system::genesis; */
+    /* friend haneul_system::haneul_system_state_inner; */
+    /* friend haneul_system::validator_wrapper; */
 
-    struct ValidatorMetadata has store {
+    public struct ValidatorMetadata has store {
         haneul_address: address,
         protocol_pubkey_bytes: vector<u8>,
         network_pubkey_bytes: vector<u8>,
@@ -26,14 +26,14 @@ module haneul_system::validator {
         extra_fields: Bag,
     }
 
-    struct Validator has store {
+    public struct Validator has store {
         metadata: ValidatorMetadata,
         voting_power: u64,
         stake: Balance<HANEUL>,
         extra_fields: Bag,
     }
 
-    struct ValidatorV2 has store {
+    public struct ValidatorV2 has store {
         new_dummy_field: u64,
         metadata: ValidatorMetadata,
         voting_power: u64,
@@ -41,7 +41,7 @@ module haneul_system::validator {
         extra_fields: Bag,
     }
 
-    public(friend) fun new(
+    public(package) fun new(
         haneul_address: address,
         protocol_pubkey_bytes: vector<u8>,
         network_pubkey_bytes: vector<u8>,
@@ -73,7 +73,7 @@ module haneul_system::validator {
         }
     }
 
-    public(friend) fun v1_to_v2(v1: Validator): ValidatorV2 {
+    public(package) fun v1_to_v2(v1: Validator): ValidatorV2 {
         let Validator {
             metadata,
             voting_power,

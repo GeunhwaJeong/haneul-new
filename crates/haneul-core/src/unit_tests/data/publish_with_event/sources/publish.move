@@ -7,7 +7,7 @@ module examples::publish_with_event {
     use haneul::event;
     use haneul::tx_context::TxContext;
 
-    struct PublishEvent has copy, drop {
+    public struct PublishEvent has copy, drop {
         foo: String
     }
 

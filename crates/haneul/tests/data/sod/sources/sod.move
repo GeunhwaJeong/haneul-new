@@ -6,7 +6,7 @@ module sod::sod {
     use haneul::tx_context::TxContext;
     use haneul::transfer;
 
-    struct A has key, store {
+    public struct A has key, store {
         id: UID,
     }
 

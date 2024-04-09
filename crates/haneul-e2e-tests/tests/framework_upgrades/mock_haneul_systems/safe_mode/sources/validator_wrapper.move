@@ -4,9 +4,9 @@
 module haneul_system::validator_wrapper {
     use haneul::versioned::Versioned;
 
-    friend haneul_system::haneul_system_state_inner;
+    /* friend haneul_system::haneul_system_state_inner; */
 
-    struct ValidatorWrapper has store {
+    public struct ValidatorWrapper has store {
         inner: Versioned
     }
 }
