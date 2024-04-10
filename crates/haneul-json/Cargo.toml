@@ -13,7 +13,6 @@ serde.workspace = true
 serde_json.workspace = true
 schemars.workspace = true
 
-haneul-framework.workspace = true
 haneul-types.workspace = true
 
 move-binary-format.workspace = true
@@ -25,3 +24,4 @@ fastcrypto = { workspace = true }
 test-fuzz.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
 haneul-move-build.workspace = true
+haneul-framework.workspace = true
