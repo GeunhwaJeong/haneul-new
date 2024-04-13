@@ -7,6 +7,7 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::RpcModule;
 
+use std::net::SocketAddr;
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::{WriteApiClient, WriteApiServer};
 use haneul_json_rpc_types::{
@@ -50,6 +51,20 @@ impl WriteApiServer for WriteApi {
             options: options.unwrap_or_default(),
         }
         .into())
+    }
+
+    async fn monitored_execute_transaction_block(
+        &self,
+        tx_bytes: Base64,
+        signatures: Vec<Base64>,
+        options: Option<HaneulTransactionBlockResponseOptions>,
+        request_type: Option<ExecuteTransactionRequestType>,
+        _client_addr: Option<SocketAddr>,
+    ) -> RpcResult<HaneulTransactionBlockResponse> {
+        // TODO(william) do we nee to do anything in terms of client IP tracking
+        // for indexer case?
+        self.execute_transaction_block(tx_bytes, signatures, options, request_type)
+            .await
     }
 
     async fn dev_inspect_transaction_block(

@@ -3,6 +3,7 @@
 
 use fastcrypto::traits::EncodeDecodeBase64;
 use shared_crypto::intent::{Intent, IntentMessage};
+use std::net::SocketAddr;
 use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
@@ -35,7 +36,7 @@ async fn do_upgraded_multisig_test() -> HaneulResult {
         .next()
         .unwrap()
         .authority_client()
-        .handle_transaction(tx)
+        .handle_transaction(tx, Some(SocketAddr::new([127, 0, 0, 1].into(), 0)))
         .await
         .map(|_| ())
 }

@@ -41,6 +41,7 @@ use crate::{
     get_balance_changes_from_effect, get_object_changes, with_tracing, ObjectProviderCache,
     HaneulRpcModule,
 };
+use std::net::SocketAddr;
 
 pub struct TransactionExecutionApi {
     state: Arc<dyn StateRead>,
@@ -135,6 +136,7 @@ impl TransactionExecutionApi {
         signatures: Vec<Base64>,
         opts: Option<HaneulTransactionBlockResponseOptions>,
         request_type: Option<ExecuteTransactionRequestType>,
+        client_addr: Option<SocketAddr>,
     ) -> Result<HaneulTransactionBlockResponse, Error> {
         let (opts, request_type, sender, input_objs, txn, transaction, raw_transaction) =
             self.prepare_execute_transaction_block(tx_bytes, signatures, opts, request_type)?;
@@ -146,12 +148,35 @@ impl TransactionExecutionApi {
             ExecuteTransactionRequest {
                 transaction: txn,
                 request_type,
-            }
+            },
+            client_addr,
         ))
         .await?
         .map_err(Error::from)?;
         drop(orch_timer);
 
+        self.handle_post_orchestration(
+            response,
+            opts,
+            digest,
+            input_objs,
+            transaction,
+            raw_transaction,
+            sender,
+        )
+        .await
+    }
+
+    async fn handle_post_orchestration(
+        &self,
+        response: ExecuteTransactionResponse,
+        opts: HaneulTransactionBlockResponseOptions,
+        digest: TransactionDigest,
+        input_objs: Vec<InputObjectKind>,
+        transaction: Option<HaneulTransactionBlock>,
+        raw_transaction: Vec<u8>,
+        sender: HaneulAddress,
+    ) -> Result<HaneulTransactionBlockResponse, Error> {
         let _post_orch_timer = self.metrics.post_orchestrator_latency_ms.start_timer();
         let ExecuteTransactionResponse::EffectsCert(cert) = response;
         let (effects, transaction_events, is_executed_locally) = *cert;
@@ -277,13 +302,24 @@ impl WriteApiServer for TransactionExecutionApi {
     #[instrument(skip(self))]
     async fn execute_transaction_block(
         &self,
+        _tx_bytes: Base64,
+        _signatures: Vec<Base64>,
+        _opts: Option<HaneulTransactionBlockResponseOptions>,
+        _request_type: Option<ExecuteTransactionRequestType>,
+    ) -> RpcResult<HaneulTransactionBlockResponse> {
+        unimplemented!("Use monitored_execute_transaction_block instead")
+    }
+
+    async fn monitored_execute_transaction_block(
+        &self,
         tx_bytes: Base64,
         signatures: Vec<Base64>,
         opts: Option<HaneulTransactionBlockResponseOptions>,
         request_type: Option<ExecuteTransactionRequestType>,
+        client_addr: Option<SocketAddr>,
     ) -> RpcResult<HaneulTransactionBlockResponse> {
         with_tracing!(Duration::from_secs(10), async move {
-            self.execute_transaction_block(tx_bytes, signatures, opts, request_type)
+            self.execute_transaction_block(tx_bytes, signatures, opts, request_type, client_addr)
                 .await
         })
     }

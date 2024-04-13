@@ -567,6 +567,9 @@ pub enum HaneulError {
     #[error("{1} - {0}")]
     RpcError(String, String),
 
+    #[error("Method not allowed")]
+    InvalidRpcMethodError,
+
     #[error("Use of disabled feature: {:?}", error)]
     UnsupportedFeatureError { error: String },
 
@@ -614,6 +617,9 @@ pub enum HaneulError {
 
     #[error("Validator cannot handle the request at the moment. Please retry after at least {retry_after_secs} seconds.")]
     ValidatorOverloadedRetryAfter { retry_after_secs: u64 },
+
+    #[error("Too many requests")]
+    TooManyRequests,
 }
 
 #[repr(u64)]
@@ -658,6 +664,10 @@ impl From<ExecutionError> for HaneulError {
 
 impl From<Status> for HaneulError {
     fn from(status: Status) -> Self {
+        if status.message() == "Too many requests" {
+            return Self::TooManyRequests;
+        }
+
         let result = bcs::from_bytes::<HaneulError>(status.details());
         if let Ok(haneul_error) = result {
             haneul_error
@@ -773,6 +783,11 @@ impl HaneulError {
             HaneulError::TxAlreadyFinalizedWithDifferentUserSigs => false,
             HaneulError::FailedToVerifyTxCertWithExecutedEffects { .. } => false,
             HaneulError::ObjectLockConflict { .. } => false,
+
+            // NB: This is not an internal overload, but instead an imposed rate
+            // limit / blocking of a client. It must be non-retryable otherwise
+            // we will make the threat worse through automatic retries.
+            HaneulError::TooManyRequests => false,
 
             // For all un-categorized errors, return here with categorized = false.
             _ => return (false, false),

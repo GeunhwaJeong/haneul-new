@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::{
+    net::SocketAddr,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -55,6 +56,7 @@ impl AuthorityAPI for LocalAuthorityClient {
     async fn handle_transaction(
         &self,
         transaction: Transaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleTransactionResponse, HaneulError> {
         if self.fault_config.fail_before_handle_transaction {
             return Err(HaneulError::from("Mock error before handle_transaction"));
@@ -82,6 +84,7 @@ impl AuthorityAPI for LocalAuthorityClient {
     async fn handle_certificate_v2(
         &self,
         certificate: CertifiedTransaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleCertificateResponseV2, HaneulError> {
         let state = self.state.clone();
         let fault_config = self.fault_config;
@@ -233,6 +236,7 @@ impl AuthorityAPI for MockAuthorityApi {
     async fn handle_transaction(
         &self,
         _transaction: Transaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleTransactionResponse, HaneulError> {
         unimplemented!();
     }
@@ -241,6 +245,7 @@ impl AuthorityAPI for MockAuthorityApi {
     async fn handle_certificate_v2(
         &self,
         _certificate: CertifiedTransaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleCertificateResponseV2, HaneulError> {
         unimplemented!()
     }
@@ -310,6 +315,7 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
     async fn handle_transaction(
         &self,
         _transaction: Transaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleTransactionResponse, HaneulError> {
         if let Some(duration) = self.sleep_duration_before_responding {
             tokio::time::sleep(duration).await;
@@ -320,6 +326,7 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
     async fn handle_certificate_v2(
         &self,
         _certificate: CertifiedTransaction,
+        _client_addr: Option<SocketAddr>,
     ) -> Result<HandleCertificateResponseV2, HaneulError> {
         if let Some(duration) = self.sleep_duration_before_responding {
             tokio::time::sleep(duration).await;

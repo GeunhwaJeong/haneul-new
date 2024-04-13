@@ -75,6 +75,7 @@ pub mod signature;
 pub mod storage;
 pub mod haneul_serde;
 pub mod haneul_system_state;
+pub mod traffic_control;
 pub mod transaction;
 pub mod transfer;
 pub mod type_resolver;

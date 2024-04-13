@@ -2,6 +2,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::net::SocketAddr;
+
 use shared_crypto::intent::Intent;
 use shared_crypto::intent::IntentMessage;
 use haneul_core::authority_client::AuthorityAPI;
@@ -34,7 +36,7 @@ async fn do_zklogin_test(address: HaneulAddress, legacy: bool) -> HaneulResult {
         .next()
         .unwrap()
         .authority_client()
-        .handle_transaction(tx)
+        .handle_transaction(tx, Some(SocketAddr::new([127, 0, 0, 1].into(), 0)))
         .await
         .map(|_| ())
 }
