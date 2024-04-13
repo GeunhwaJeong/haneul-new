@@ -38,6 +38,7 @@ enum_dispatch.workspace = true
 eyre.workspace = true
 indexmap.workspace = true
 derivative.workspace = true
+jsonrpsee.workspace = true
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
 move-command-line-common.workspace = true
@@ -56,6 +57,7 @@ haneul-protocol-config.workspace = true
 shared-crypto.workspace = true
 haneullabs-network.workspace = true
 haneullabs-metrics.workspace = true
+parking_lot.workspace = true
 haneul-macros.workspace = true
 haneul-enum-compat-util.workspace = true
 
