@@ -28,7 +28,7 @@ use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::NetworkKeyPair;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::traffic_control::PolicyConfig;
+use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair};
 use haneul_types::multiaddr::Multiaddr;
@@ -175,7 +175,10 @@ pub struct NodeConfig {
 
     // For killswitch use None
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub traffic_control_config: Option<PolicyConfig>,
+    pub policy_config: Option<PolicyConfig>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub firewall_config: Option<RemoteFirewallConfig>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, Default)]

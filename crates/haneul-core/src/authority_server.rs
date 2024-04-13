@@ -16,6 +16,7 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
+use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_grpc::{
     HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
@@ -23,8 +24,8 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 use haneul_types::{effects::TransactionEffectsAPI, message_envelope::Message};
-use haneul_types::{effects::TransactionEvents, traffic_control::PolicyConfig};
 use haneul_types::{error::*, transaction::*};
 use haneul_types::{
     fp_ensure,
@@ -130,7 +131,7 @@ impl AuthorityServer {
                 consensus_adapter: self.consensus_adapter,
                 metrics: self.metrics.clone(),
                 traffic_controller: Arc::new(
-                    TrafficController::spawn(PolicyConfig::default()).await,
+                    TrafficController::spawn(PolicyConfig::default(), None).await,
                 ),
             }))
             .bind(&address)
@@ -255,13 +256,16 @@ impl ValidatorService {
         state: Arc<AuthorityState>,
         consensus_adapter: Arc<ConsensusAdapter>,
         metrics: Arc<ValidatorServiceMetrics>,
-        traffic_control_config: PolicyConfig,
+        policy_config: PolicyConfig,
+        firewall_config: Option<RemoteFirewallConfig>,
     ) -> Self {
         Self {
             state,
             consensus_adapter,
             metrics,
-            traffic_controller: Arc::new(TrafficController::spawn(traffic_control_config).await),
+            traffic_controller: Arc::new(
+                TrafficController::spawn(policy_config, firewall_config).await,
+            ),
         }
     }
 
