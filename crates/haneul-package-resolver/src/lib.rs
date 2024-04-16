@@ -18,7 +18,6 @@ use haneul_types::transaction::{Argument, CallArg, Command, ProgrammableTransact
 use crate::error::Error;
 use move_binary_format::errors::Location;
 use move_binary_format::{
-    access::ModuleAccess,
     file_format::{
         SignatureToken, StructDefinitionIndex, StructFieldInformation, StructHandleIndex,
         TableIndex,

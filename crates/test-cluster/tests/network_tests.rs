@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_binary_format::access::ModuleAccess;
 use haneul_framework::BuiltInFramework;
 use haneul_json_rpc_api::ReadApiClient;
 use haneul_json_rpc_types::HaneulObjectResponse;

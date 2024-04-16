@@ -7,10 +7,7 @@
 //! - The first field has type `haneul::object::UID`
 
 use crate::verification_failure;
-use move_binary_format::{
-    access::ModuleAccess,
-    file_format::{CompiledModule, SignatureToken},
-};
+use move_binary_format::file_format::{CompiledModule, SignatureToken};
 use haneul_types::{
     error::ExecutionError,
     fp_ensure,
