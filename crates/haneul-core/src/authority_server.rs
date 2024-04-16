@@ -16,6 +16,7 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
+use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_grpc::{
     HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
@@ -23,9 +24,9 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::traffic_control::ServiceResponse;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 use haneul_types::{effects::TransactionEffectsAPI, message_envelope::Message};
-use haneul_types::{effects::TransactionEvents, traffic_control::ServiceResponse};
 use haneul_types::{error::*, transaction::*};
 use haneul_types::{
     fp_ensure,
@@ -268,8 +269,8 @@ impl ValidatorService {
             traffic_controller: policy_config.map(|policy| {
                 Arc::new(TrafficController::spawn(
                     policy,
-                    firewall_config,
                     traffic_controller_metrics,
+                    firewall_config,
                 ))
             }),
         }

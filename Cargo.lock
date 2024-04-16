@@ -12836,6 +12836,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
+ "haneul-macros",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-protocol-config",
