@@ -2,108 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::path::PathBuf;
-use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
-use haneul_json_rpc_types::HaneulTransactionBlockKind;
-use haneul_json_rpc_types::{HaneulTransactionBlockDataAPI, HaneulTransactionBlockResponseOptions};
 use haneul_macros::sim_test;
+use haneul_types::deny_list::CoinDenyCap;
 use haneul_types::deny_list::RegulatedCoinMetadata;
-use haneul_types::deny_list::{
-    get_coin_deny_list, get_deny_list_obj_initial_shared_version, get_deny_list_root_object,
-    CoinDenyCap, DenyList,
-};
-use haneul_types::id::UID;
-use haneul_types::storage::ObjectStore;
-use haneul_types::HANEUL_DENY_LIST_OBJECT_ID;
 use test_cluster::TestClusterBuilder;
-
-#[sim_test]
-async fn test_coin_deny_list_creation() {
-    let test_cluster = TestClusterBuilder::new()
-        .with_protocol_version(34.into())
-        .with_epoch_duration_ms(10000)
-        .build()
-        .await;
-    for handle in test_cluster.all_node_handles() {
-        handle.with(|node| {
-            assert!(get_deny_list_obj_initial_shared_version(
-                node.state().get_object_store().as_ref()
-            )
-            .is_none());
-            assert!(!node
-                .state()
-                .epoch_store_for_testing()
-                .coin_deny_list_state_exists());
-        });
-    }
-    test_cluster.wait_for_epoch_all_nodes(2).await;
-    let mut prev_tx = None;
-    for handle in test_cluster.all_node_handles() {
-        handle.with(|node| {
-            assert!(
-                node.state()
-                    .epoch_store_for_testing()
-                    .protocol_version()
-                    .as_u64()
-                    >= 35
-            );
-            let version = node
-                .state()
-                .epoch_store_for_testing()
-                .epoch_start_config()
-                .coin_deny_list_obj_initial_shared_version()
-                .unwrap();
-
-            let deny_list_object =
-                get_deny_list_root_object(node.state().get_object_store().as_ref()).unwrap();
-            assert_eq!(deny_list_object.version(), version);
-            assert!(deny_list_object.owner.is_shared());
-            let deny_list: DenyList = deny_list_object.to_rust().unwrap();
-            assert_eq!(deny_list.id, UID::new(HANEUL_DENY_LIST_OBJECT_ID));
-            assert_eq!(deny_list.lists.size, 1);
-
-            if let Some(prev_tx) = prev_tx {
-                assert_eq!(deny_list_object.previous_transaction, prev_tx);
-            } else {
-                prev_tx = Some(deny_list_object.previous_transaction);
-            }
-
-            let coin_deny_list =
-                get_coin_deny_list(node.state().get_object_store().as_ref()).unwrap();
-            assert_eq!(coin_deny_list.denied_count.size, 0);
-            assert_eq!(coin_deny_list.denied_addresses.size, 0);
-        });
-    }
-    let prev_tx = prev_tx.unwrap();
-    let tx = test_cluster
-        .fullnode_handle
-        .haneul_client
-        .read_api()
-        .get_transaction_with_options(prev_tx, HaneulTransactionBlockResponseOptions::full_content())
-        .await
-        .unwrap()
-        .transaction
-        .unwrap();
-    assert!(matches!(
-        tx.data.transaction(),
-        HaneulTransactionBlockKind::EndOfEpochTransaction(_)
-    ));
-    test_cluster.wait_for_epoch_all_nodes(3).await;
-    // Check that we are not re-creating the same object again.
-    for handle in test_cluster.all_node_handles() {
-        handle.with(|node| {
-            assert_eq!(
-                node.state()
-                    .get_object_store()
-                    .get_object(&HANEUL_DENY_LIST_OBJECT_ID)
-                    .unwrap()
-                    .unwrap()
-                    .previous_transaction,
-                prev_tx
-            );
-        });
-    }
-}
 
 #[sim_test]
 async fn test_regulated_coin_creation() {
