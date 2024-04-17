@@ -1,0 +1,11 @@
+[package]
+name = "nft_rental"
+version = "0.0.1"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework", override = true }
+Kiosk = { git = "https://github.com/GeunhwaJeong/apps.git", subdir = "kiosk", rev = "testnet" }
+
+[addresses]
+nft_rental = "0x0"
