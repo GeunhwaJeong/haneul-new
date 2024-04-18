@@ -16,6 +16,7 @@ dashmap.workspace = true
 tower.workspace = true
 
 haneul-archival.workspace = true
+haneul-macros.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true
@@ -41,6 +42,7 @@ anemo-build.workspace = true
 tonic-build.workspace = true
 
 [dev-dependencies]
+haneul-macros.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["test-util"] }
 ed25519-consensus.workspace = true

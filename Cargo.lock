@@ -13182,6 +13182,7 @@ dependencies = [
  "serde",
  "haneul-archival",
  "haneul-config",
+ "haneul-macros",
  "haneul-storage",
  "haneul-swarm-config",
  "haneul-types",
