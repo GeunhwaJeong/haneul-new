@@ -193,7 +193,7 @@ pub enum HaneulClientCommands {
         #[clap(long)]
         gas_budget: u64,
 
-        /// Optional gas price for this call. Currently use only for testing and not in production enviroments.
+        /// Optional gas price for this call. Currently use only for testing and not in production environments.
         #[clap(hide = true)]
         gas_price: Option<u64>,
 
@@ -810,7 +810,8 @@ impl HaneulClientCommands {
                 };
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
+                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
+                        .await?;
                 // this will be displayed via trace info, so no output is needed here
                 HaneulClientCommandResult::NoOutput
             }
@@ -831,7 +832,8 @@ impl HaneulClientCommands {
 
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
+                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
+                        .await?;
                 // this will be displayed via trace info, so no output is needed here
                 HaneulClientCommandResult::NoOutput
             }
@@ -846,7 +848,8 @@ impl HaneulClientCommands {
                 };
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
+                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
+                        .await?;
                 // this will be displayed via trace info, so no output is needed here
                 HaneulClientCommandResult::NoOutput
             }
@@ -863,7 +866,8 @@ impl HaneulClientCommands {
                 };
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, cmd).await?;
+                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
+                        .await?;
                 // this will be displayed via trace info, so no output is needed here
                 HaneulClientCommandResult::NoOutput
             }

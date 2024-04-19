@@ -53,7 +53,7 @@ async fn test_profiler() {
     };
 
     let command_result =
-        haneul_replay::execute_replay_command(Some(testnet_url), false, false, None, cmd).await;
+        haneul_replay::execute_replay_command(Some(testnet_url), false, false, None, None, cmd).await;
 
     assert!(command_result.is_ok());
 
