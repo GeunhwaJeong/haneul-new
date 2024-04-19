@@ -10,7 +10,7 @@ use haneul_package_resolver::{
     error::Error as PackageResolverError, Package, PackageStore, PackageStoreWithLruCache, Result,
 };
 use haneul_rest_api::Client;
-use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;
 use thiserror::Error;
 use typed_store::rocks::{DBMap, MetricConf};
@@ -112,11 +112,6 @@ impl LocalDBPackageStore {
 
 #[async_trait]
 impl PackageStore for LocalDBPackageStore {
-    async fn version(&self, id: AccountAddress) -> Result<SequenceNumber> {
-        let object = self.get(id).await?;
-        Ok(object.version())
-    }
-
     async fn fetch(&self, id: AccountAddress) -> Result<Arc<Package>> {
         let object = self.get(id).await?;
         Ok(Arc::new(Package::read(&object)?))
