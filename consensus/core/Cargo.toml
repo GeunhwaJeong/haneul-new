@@ -25,6 +25,7 @@ quinn-proto.workspace = true
 mockall.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
+nom = "7.1.3"
 parking_lot.workspace = true
 prometheus.workspace = true
 prost.workspace = true
