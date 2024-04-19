@@ -46,6 +46,14 @@
     protocol: tcp
     comment: haneul-node protocol
 
+- name: Allow TCP destination port 8081 / haneul-node consensus connectivity
+  iptables:
+    chain: INPUT
+    destination_port: 8081
+    jump: ACCEPT
+    protocol: tcp
+    comment: haneul-node consensus
+
 - name: Allow UDP destination port 8081 / haneul-node narwhal-primary-address connectivity
   iptables:
     chain: INPUT
