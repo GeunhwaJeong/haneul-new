@@ -362,14 +362,13 @@ impl StakedHaneul {
     /// for `Object`, and is further filtered to a particular `owner`.
     ///
     /// `checkpoint_viewed_at` represents the checkpoint sequence number at which this page was
-    /// queried for, or `None` if the data was requested at the latest checkpoint. Each entity
-    /// returned in the connection will inherit this checkpoint, so that when viewing that entity's
-    /// state, it will be as if it was read at the same checkpoint.
+    /// queried for. Each entity returned in the connection will inherit this checkpoint, so that
+    /// when viewing that entity's state, it will be as if it was read at the same checkpoint.
     pub(crate) async fn paginate(
         db: &Db,
         page: Page<object::Cursor>,
         owner: HaneulAddress,
-        checkpoint_viewed_at: Option<u64>,
+        checkpoint_viewed_at: u64,
     ) -> Result<Connection<String, StakedHaneul>, Error> {
         let type_: StructTag = MoveObjectType::staked_haneul().into();
 
