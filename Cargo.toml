@@ -79,7 +79,6 @@ members = [
   "crates/haneullabs-metrics",
   "crates/haneullabs-network",
   "crates/haneullabs-service",
-  "crates/haneullabs-service-boilerplate",
   "crates/haneullabs-util-mem",
   "crates/haneullabs-util-mem-derive",
   "crates/prometheus-closure-metric",
@@ -369,10 +368,13 @@ leb128 = "0.2.5"
 lru = "0.10"
 markdown-gen = "1.2.1"
 match_opt = "0.1.2"
-miette = {version = "7", features = ["fancy"] }
+miette = { version = "7", features = ["fancy"] }
 mime = "0.3"
 mockall = "0.11.4"
-moka = { version = "0.12", default-features = false, features = ["sync", "atomic64"] }
+moka = { version = "0.12", default-features = false, features = [
+  "sync",
+  "atomic64",
+] }
 more-asserts = "0.3.1"
 msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "6f88ec84644cb1a6809c010f1f534d0d09e0cd89", package = "msim" }
 msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "6f88ec84644cb1a6809c010f1f534d0d09e0cd89", package = "msim-macros" }
@@ -574,7 +576,6 @@ haneullabs-common = { path = "crates/haneullabs-common" }
 haneullabs-metrics = { path = "crates/haneullabs-metrics" }
 haneullabs-network = { path = "crates/haneullabs-network" }
 haneullabs-service = { path = "crates/haneullabs-service" }
-haneullabs-service-boilerplate = { path = "crates/haneullabs-service-boilerplate" }
 haneullabs-util-mem = { path = "crates/haneullabs-util-mem" }
 haneullabs-util-mem-derive = { path = "crates/haneullabs-util-mem-derive" }
 prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
