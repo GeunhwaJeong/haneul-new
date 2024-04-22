@@ -71,18 +71,33 @@ const references = [
 			},
 			{
 				type: 'link',
-				label: 'Haneul Go SDK',
+				label: 'Dart SDK',
+				href: 'https://github.com/mofalabs/haneul',
+			},
+			{
+				type: 'link',
+				label: 'Go SDK',
 				href: 'https://github.com/block-vision/haneul-go-sdk',
 			},
 			{
 				type: 'link',
-				label: 'Haneul Python SDK',
+				label: 'Kotlin SDK',
+				href: 'https://github.com/mcxross/khaneul',
+			},
+			{
+				type: 'link',
+				label: 'Python SDK',
 				href: 'https://github.com/FrankC01/pyhaneul',
 			},
 			'references/rust-sdk',
 			{
 				type: 'link',
-				label: 'Haneul TypeScript SDK',
+				label: 'Swift SDK',
+				href: 'https://github.com/opendive/haneulkit',
+			},
+			{
+				type: 'link',
+				label: 'TypeScript SDK',
 				href: 'https://sdk.haneul-labs.com/typescript',
 			},
 		],
