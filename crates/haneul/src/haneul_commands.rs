@@ -587,7 +587,7 @@ async fn prompt_if_no_config(
                         String::new()
                     } else {
                         print!(
-                            "Haneul Full node server URL (Defaults to Haneul Tevnet if not specified) : "
+                            "Haneul Full node server URL (Defaults to Haneul Testnet if not specified) : "
                         );
                         read_line()?
                     };
