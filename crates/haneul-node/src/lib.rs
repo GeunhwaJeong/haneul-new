@@ -36,7 +36,6 @@ use haneul_network::randomness;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
-use haneul_types::message_envelope::get_google_jwk_bytes;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::runtime::Handle;
@@ -1408,13 +1407,6 @@ impl HaneulNode {
         &self,
     ) -> Option<Arc<TransactiondOrchestrator<NetworkAuthorityClient>>> {
         self.transaction_orchestrator.clone()
-    }
-
-    pub fn get_google_jwk_bytes(&self) -> Result<Vec<u8>, HaneulError> {
-        Ok(get_google_jwk_bytes()
-            .read()
-            .map_err(|_| HaneulError::JWKRetrievalError)?
-            .to_vec())
     }
 
     pub fn subscribe_to_transaction_orchestrator_effects(
