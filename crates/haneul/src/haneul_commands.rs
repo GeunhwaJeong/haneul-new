@@ -587,12 +587,12 @@ async fn prompt_if_no_config(
                         String::new()
                     } else {
                         print!(
-                            "Haneul Full node server URL (Defaults to Haneul Devnet if not specified) : "
+                            "Haneul Full node server URL (Defaults to Haneul Tevnet if not specified) : "
                         );
                         read_line()?
                     };
                     Some(if url.trim().is_empty() {
-                        HaneulEnv::devnet()
+                        HaneulEnv::testnet()
                     } else {
                         print!("Environment alias for [{url}] : ");
                         let alias = read_line()?;
