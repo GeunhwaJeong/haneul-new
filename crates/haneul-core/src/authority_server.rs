@@ -16,6 +16,7 @@ use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
 };
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_grpc::{
@@ -26,7 +27,6 @@ use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::traffic_control::ServiceResponse;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
-use haneul_types::{effects::TransactionEffectsAPI, message_envelope::Message};
 use haneul_types::{error::*, transaction::*};
 use haneul_types::{
     fp_ensure,
@@ -38,6 +38,7 @@ use tap::TapFallible;
 use tokio::task::JoinHandle;
 use tracing::{error, error_span, info, Instrument};
 
+use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::{
     authority::AuthorityState,
     consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics},
@@ -396,28 +397,16 @@ impl ValidatorService {
     // TODO: reject certificate if TransactionManager or Narwhal is backlogged.
     async fn handle_certificate(
         &self,
-        request: tonic::Request<CertifiedTransaction>,
+        certificate: CertifiedTransaction,
+        epoch_store: &Arc<AuthorityPerEpochStore>,
         wait_for_effects: bool,
     ) -> Result<Option<HandleCertificateResponseV2>, tonic::Status> {
-        let epoch_store = self.state.load_epoch_store_one_call_per_task();
-        let certificate = request.into_inner();
-
         // Validate if cert can be executed
         // Fullnode does not serve handle_certificate call.
         fp_ensure!(
-            !self.state.is_fullnode(&epoch_store),
+            !self.state.is_fullnode(epoch_store),
             HaneulError::FullNodeCantHandleCertificate.into()
         );
-
-        // CRITICAL! Validators should never sign an external system transaction.
-        fp_ensure!(
-            !certificate.is_system_tx(),
-            HaneulError::InvalidSystemTransaction.into()
-        );
-
-        certificate
-            .data()
-            .validity_check(epoch_store.protocol_config())?;
 
         let shared_object_tx = certificate.contains_shared_object();
 
@@ -441,7 +430,7 @@ impl ValidatorService {
         let tx_digest = *certificate.digest();
         if let Some(signed_effects) = self
             .state
-            .get_signed_effects_and_maybe_resign(&tx_digest, &epoch_store)?
+            .get_signed_effects_and_maybe_resign(&tx_digest, epoch_store)?
         {
             let events = if let Some(digest) = signed_effects.events_digest() {
                 self.state.get_transaction_events(digest)?
@@ -504,7 +493,7 @@ impl ValidatorService {
                 self.consensus_adapter.submit(
                     transaction,
                     Some(&reconfiguration_lock),
-                    &epoch_store,
+                    epoch_store,
                 )?;
                 // Do not wait for the result, because the transaction might have already executed.
                 // Instead, check or wait for the existence of certificate effects below.
@@ -518,7 +507,7 @@ impl ValidatorService {
             // even when we are not returning effects to user
             if !certificate.contains_shared_object() {
                 self.state
-                    .enqueue_certificates_for_execution(vec![certificate.clone()], &epoch_store);
+                    .enqueue_certificates_for_execution(vec![certificate.clone()], epoch_store);
             }
             return Ok(None);
         }
@@ -527,7 +516,7 @@ impl ValidatorService {
         // the execution results if it contains shared objects.
         let effects = self
             .state
-            .execute_certificate(&certificate, &epoch_store)
+            .execute_certificate(&certificate, epoch_store)
             .await?;
         let events = if let Some(event_digest) = effects.events_digest() {
             self.state.get_transaction_events(event_digest)?
@@ -554,11 +543,14 @@ impl ValidatorService {
         &self,
         request: tonic::Request<CertifiedTransaction>,
     ) -> Result<tonic::Response<SubmitCertificateResponse>, tonic::Status> {
-        // The call to digest() assumes the transaction is valid, so we need to verify it first.
-        request.get_ref().verify_user_input()?;
+        let epoch_store = self.state.load_epoch_store_one_call_per_task();
+        let certificate = request.into_inner();
 
-        let span = error_span!("submit_certificate", tx_digest = ?request.get_ref().digest());
-        self.handle_certificate(request, false)
+        // The call to digest() assumes the transaction is valid, so we need to verify it first.
+        certificate.validity_check(epoch_store.protocol_config())?;
+
+        let span = error_span!("submit_certificate", tx_digest = ?certificate.digest());
+        self.handle_certificate(certificate, &epoch_store, false)
             .instrument(span)
             .await
             .map(|executed| tonic::Response::new(SubmitCertificateResponse { executed }))
@@ -568,11 +560,14 @@ impl ValidatorService {
         &self,
         request: tonic::Request<CertifiedTransaction>,
     ) -> Result<tonic::Response<HandleCertificateResponseV2>, tonic::Status> {
-        // The call to digest() assumes the transaction is valid, so we need to verify it first.
-        request.get_ref().verify_user_input()?;
+        let epoch_store = self.state.load_epoch_store_one_call_per_task();
+        let certificate = request.into_inner();
 
-        let span = error_span!("handle_certificate", tx_digest = ?request.get_ref().digest());
-        self.handle_certificate(request, true)
+        // The call to digest() assumes the transaction is valid, so we need to verify it first.
+        certificate.validity_check(epoch_store.protocol_config())?;
+
+        let span = error_span!("handle_certificate", tx_digest = ?certificate.digest());
+        self.handle_certificate(certificate, &epoch_store, true)
             .instrument(span)
             .await
             .map(|v| {

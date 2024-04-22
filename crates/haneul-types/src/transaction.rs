@@ -2231,7 +2231,23 @@ impl SenderSignedData {
             }
         );
 
-        self.verify_user_input()?;
+        fp_ensure!(
+            self.0.len() == 1,
+            HaneulError::UserInputError {
+                error: UserInputError::Unsupported(
+                    "SenderSignedData must contain exactly one transaction".to_string()
+                )
+            }
+        );
+        let tx_data = &self.intent_message().value;
+        fp_ensure!(
+            !tx_data.is_system_tx(),
+            HaneulError::UserInputError {
+                error: UserInputError::Unsupported(
+                    "SenderSignedData must not contain system transaction".to_string()
+                )
+            }
+        );
 
         let tx_data = self.transaction_data();
         tx_data
@@ -2295,51 +2311,6 @@ impl Message for SenderSignedData {
 
     fn digest(&self) -> Self::DigestType {
         TransactionDigest::new(default_hash(&self.intent_message().value))
-    }
-
-    fn verify_user_input(&self) -> HaneulResult {
-        fp_ensure!(
-            self.0.len() == 1,
-            HaneulError::UserInputError {
-                error: UserInputError::Unsupported(
-                    "SenderSignedData must contain exactly one transaction".to_string()
-                )
-            }
-        );
-        let tx_data = &self.intent_message().value;
-        fp_ensure!(
-            !tx_data.is_system_tx(),
-            HaneulError::UserInputError {
-                error: UserInputError::Unsupported(
-                    "SenderSignedData must not contain system transaction".to_string()
-                )
-            }
-        );
-
-        // Verify signatures are well formed. Steps are ordered in asc complexity order
-        // to minimize abuse.
-        let signers = self.intent_message().value.signers();
-        // Signature number needs to match
-        fp_ensure!(
-            self.inner().tx_signatures.len() == signers.len(),
-            HaneulError::SignerSignatureNumberMismatch {
-                actual: self.inner().tx_signatures.len(),
-                expected: signers.len()
-            }
-        );
-
-        // All required signers need to be sign.
-        let present_sigs = self.get_signer_sig_mapping(true)?;
-        for s in signers {
-            if !present_sigs.contains_key(&s) {
-                return Err(HaneulError::SignerSignatureAbsent {
-                    expected: s.to_string(),
-                    actual: present_sigs.keys().map(|s| s.to_string()).collect(),
-                });
-            }
-        }
-
-        Ok(())
     }
 
     fn verify_epoch(&self, epoch: EpochId) -> HaneulResult {
