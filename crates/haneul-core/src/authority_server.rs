@@ -17,8 +17,6 @@ use haneul_network::{
     tonic,
 };
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::effects::TransactionEvents;
-use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::messages_grpc::{HandleCertificateRequestV3, HandleCertificateResponseV3};
 use haneul_types::messages_grpc::{
     HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
@@ -718,6 +716,29 @@ impl ValidatorService {
             })
     }
 
+    async fn handle_certificate_v3_impl(
+        &self,
+        request: tonic::Request<HandleCertificateRequestV3>,
+    ) -> Result<tonic::Response<HandleCertificateResponseV3>, tonic::Status> {
+        let epoch_store = self.state.load_epoch_store_one_call_per_task();
+        let request = request.into_inner();
+
+        // The call to digest() assumes the transaction is valid, so we need to verify it first.
+        request.certificate.validity_check(epoch_store.protocol_config())?;
+        let span = error_span!("handle_certificate_v3", tx_digest = ?request.certificate.digest());
+
+        self.handle_certificate(request, &epoch_store, true)
+            .instrument(span)
+            .await
+            .map(|v| {
+                tonic::Response::new(
+                    v.expect(
+                        "handle_certificate should not return none with wait_for_effects=true",
+                    ),
+                )
+            })
+    }
+
     async fn object_info_impl(
         &self,
         request: tonic::Request<ObjectInfoRequest>,
@@ -945,6 +966,13 @@ impl Validator for ValidatorService {
         request: tonic::Request<CertifiedTransaction>,
     ) -> Result<tonic::Response<HandleCertificateResponseV2>, tonic::Status> {
         handle_with_decoration!(self, handle_certificate_v2_impl, request)
+    }
+
+    async fn handle_certificate_v3(
+        &self,
+        request: tonic::Request<HandleCertificateRequestV3>,
+    ) -> Result<tonic::Response<HandleCertificateResponseV3>, tonic::Status> {
+        handle_with_decoration!(self, handle_certificate_v3_impl, request)
     }
 
     async fn object_info(
