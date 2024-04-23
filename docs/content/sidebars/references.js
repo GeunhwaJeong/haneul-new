@@ -138,6 +138,7 @@ const references = [
 			id: 'references/contribute/contribution-process',
 		},
 		items: [
+			'references/contribute/haneul-environment',
 			'references/contribute/contribution-process',
 			'references/contribute/contribute-to-haneul-repos',
 			{

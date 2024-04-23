@@ -25,7 +25,6 @@ const guides = [
 					id: 'guides/developer/getting-started',
 				},
 				items: [
-					'guides/developer/getting-started/haneul-environment',
 					'guides/developer/getting-started/haneul-install',
 					'guides/developer/getting-started/connect',
 					'guides/developer/getting-started/local-network',
