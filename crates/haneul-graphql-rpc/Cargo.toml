@@ -50,6 +50,7 @@ haneul-sdk.workspace = true
 haneul-types.workspace = true
 tap.workspace = true
 telemetry-subscribers.workspace = true
+tempfile.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tokio-util = { workspace = true, features = ["rt"] }
