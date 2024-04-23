@@ -27,7 +27,7 @@ use haneul_types::error::UserInputError;
 use haneul_types::fp_ensure;
 use haneul_types::message_envelope::Message;
 use haneul_types::object::Object;
-use haneul_types::quorum_driver_types::GroupedErrors;
+use haneul_types::quorum_driver_types::{GroupedErrors, QuorumDriverResponse};
 use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
 use haneul_types::{
     base_types::*,
@@ -52,7 +52,8 @@ use haneul_types::effects::{
     VerifiedCertifiedTransactionEffects,
 };
 use haneul_types::messages_grpc::{
-    HandleCertificateResponseV2, LayoutGenerationOption, ObjectInfoRequest, TransactionInfoRequest,
+    HandleCertificateRequestV3, HandleCertificateResponseV3, LayoutGenerationOption,
+    ObjectInfoRequest, TransactionInfoRequest,
 };
 use haneul_types::messages_safe_client::PlainTransactionInfoResponse;
 use tokio::time::{sleep, timeout};
@@ -1475,12 +1476,9 @@ where
 
     pub async fn process_certificate(
         &self,
-        certificate: CertifiedTransaction,
+        request: HandleCertificateRequestV3,
         client_addr: Option<SocketAddr>,
-    ) -> Result<
-        (VerifiedCertifiedTransactionEffects, TransactionEvents),
-        AggregatorProcessCertificateError,
-    > {
+    ) -> Result<QuorumDriverResponse, AggregatorProcessCertificateError> {
         let state = ProcessCertificateState {
             effects_map: MultiStakeAggregator::new(self.committee.clone()),
             non_retryable_stake: 0,
@@ -1489,10 +1487,10 @@ where
             retryable: true,
         };
 
-        let tx_digest = *certificate.digest();
+        let tx_digest = *request.certificate.digest();
         let timeout_after_quorum = self.timeouts.post_quorum_timeout;
 
-        let cert_ref = certificate;
+        let request_ref = request;
         let threshold = self.committee.quorum_threshold();
         let validity = self.committee.validity_threshold();
 
@@ -1515,12 +1513,28 @@ where
             move |name, client| {
                 Box::pin(async move {
                     let _guard = GaugeGuard::acquire(&metrics_clone.inflight_certificate_requests);
-                    client
-                        .handle_certificate_v2(cert_ref, client_addr)
-                        .instrument(
-                            tracing::trace_span!("handle_certificate", authority =? name.concise()),
-                        )
-                        .await
+                    if request_ref.include_input_objects || request_ref.include_output_objects {
+                        client
+                            .handle_certificate_v3(request_ref, client_addr)
+                            .instrument(
+                                tracing::trace_span!("handle_certificate", authority =? name.concise()),
+                            )
+                            .await
+                    } else {
+                        client
+                            .handle_certificate_v2(request_ref.certificate, client_addr)
+                            .instrument(
+                                tracing::trace_span!("handle_certificate", authority =? name.concise()),
+                            )
+                            .await
+                            .map(|response| HandleCertificateResponseV3 {
+                                effects: response.signed_effects,
+                                events: Some(response.events),
+                                input_objects: None,
+                                output_objects: None,
+                                auxiliary_data: None,
+                            })
+                    }
                 })
             },
             move |mut state, name, weight, response| {
@@ -1646,14 +1660,16 @@ where
         committee: Arc<Committee>,
         tx_digest: &TransactionDigest,
         state: &mut ProcessCertificateState,
-        response: HaneulResult<HandleCertificateResponseV2>,
+        response: HaneulResult<HandleCertificateResponseV3>,
         name: AuthorityName,
-    ) -> HaneulResult<Option<(VerifiedCertifiedTransactionEffects, TransactionEvents)>> {
+    ) -> HaneulResult<Option<QuorumDriverResponse>> {
         match response {
-            Ok(HandleCertificateResponseV2 {
-                signed_effects,
+            Ok(HandleCertificateResponseV3 {
+                effects: signed_effects,
                 events,
-                ..
+                input_objects,
+                output_objects,
+                auxiliary_data,
             }) => {
                 debug!(
                     ?tx_digest,
@@ -1690,7 +1706,13 @@ where
                         );
                         ct.verify(&committee).map(|ct| {
                             debug!(?tx_digest, "Got quorum for validators handle_certificate.");
-                            Some((ct, events))
+                            Some(QuorumDriverResponse {
+                                effects_cert: ct,
+                                events,
+                                input_objects,
+                                output_objects,
+                                auxiliary_data,
+                            })
                         })
                     }
                 }
@@ -1720,11 +1742,20 @@ where
 
         let _cert_guard = GaugeGuard::acquire(&self.metrics.inflight_certificates);
         let response = self
-            .process_certificate(cert.clone(), client_addr)
+            .process_certificate(
+                HandleCertificateRequestV3 {
+                    certificate: cert.clone(),
+                    include_events: true,
+                    include_input_objects: false,
+                    include_output_objects: false,
+                    include_auxiliary_data: false,
+                },
+                client_addr,
+            )
             .instrument(tracing::debug_span!("process_cert"))
             .await?;
 
-        Ok(response.0)
+        Ok(response.effects_cert)
     }
 
     /// This function tries to get SignedTransaction OR CertifiedTransaction from

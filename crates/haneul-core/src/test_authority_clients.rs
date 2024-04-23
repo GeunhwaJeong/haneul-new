@@ -25,7 +25,7 @@ use haneul_types::{
     transaction::{CertifiedTransaction, Transaction, VerifiedTransaction},
 };
 use haneul_types::{
-    effects::{TransactionEffectsAPI},
+    effects::TransactionEffectsAPI,
     messages_checkpoint::{CheckpointRequestV2, CheckpointResponseV2},
 };
 use haneul_types::{
