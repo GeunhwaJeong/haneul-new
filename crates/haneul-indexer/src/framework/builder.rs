@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use tokio_util::sync::CancellationToken;
 
 use crate::metrics::IndexerMetrics;
 
@@ -54,6 +55,7 @@ impl IndexerBuilder {
     }
 
     pub async fn run(self) {
+        let cancel = CancellationToken::new();
         let (downloaded_checkpoint_data_sender, downloaded_checkpoint_data_receiver) =
             haneullabs_metrics::metered_channel::channel(
                 self.checkpoint_buffer_size,
@@ -71,6 +73,7 @@ impl IndexerBuilder {
             self.last_downloaded_checkpoint,
             downloaded_checkpoint_data_sender,
             self.metrics.clone(),
+            cancel.clone(),
         );
         haneullabs_metrics::spawn_monitored_task!(fetcher.run());
 
@@ -82,6 +85,7 @@ impl IndexerBuilder {
             ),
             self.handlers,
             self.metrics.clone(),
+            cancel,
         )
         .await;
     }
