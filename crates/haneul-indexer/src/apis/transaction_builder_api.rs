@@ -4,6 +4,7 @@
 use super::governance_api::GovernanceReadApi;
 use crate::indexer_reader::IndexerReader;
 use async_trait::async_trait;
+use diesel::r2d2::R2D2Connection;
 use move_core_types::language_storage::StructTag;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi as HaneulTransactionBuilderApi;
 use haneul_json_rpc_types::{HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse};
@@ -11,19 +12,19 @@ use haneul_transaction_builder::DataReader;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
 use haneul_types::object::Object;
 
-pub(crate) struct TransactionBuilderApi {
-    inner: IndexerReader,
+pub(crate) struct TransactionBuilderApi<T: R2D2Connection + 'static> {
+    inner: IndexerReader<T>,
 }
 
-impl TransactionBuilderApi {
+impl<T: R2D2Connection> TransactionBuilderApi<T> {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(inner: IndexerReader) -> HaneulTransactionBuilderApi {
+    pub fn new(inner: IndexerReader<T>) -> HaneulTransactionBuilderApi {
         HaneulTransactionBuilderApi::new_with_data_reader(std::sync::Arc::new(Self { inner }))
     }
 }
 
 #[async_trait]
-impl DataReader for TransactionBuilderApi {
+impl<T: R2D2Connection> DataReader for TransactionBuilderApi<T> {
     async fn get_owned_objects(
         &self,
         address: HaneulAddress,

@@ -6,8 +6,9 @@ use crate::{
     error::Error,
     types::{address::Address, haneul_address::HaneulAddress, validator::Validator},
 };
+use diesel::PgConnection;
 use std::{collections::BTreeMap, time::Duration};
-use haneul_indexer::db::PgConnectionPoolConfig;
+use haneul_indexer::db::ConnectionPoolConfig;
 use haneul_indexer::{apis::GovernanceReadApi, indexer_reader::IndexerReader};
 use haneul_json_rpc_types::Stake as RpcStakedHaneul;
 use haneul_types::{
@@ -19,16 +20,16 @@ use haneul_types::{
 };
 
 pub(crate) struct PgManager {
-    pub inner: IndexerReader,
+    pub inner: IndexerReader<PgConnection>,
 }
 
 impl PgManager {
-    pub(crate) fn new(inner: IndexerReader) -> Self {
+    pub(crate) fn new(inner: IndexerReader<PgConnection>) -> Self {
         Self { inner }
     }
 
     /// Create a new underlying reader, which is used by this type as well as other data providers.
-    pub(crate) fn reader(db_url: impl Into<String>) -> Result<IndexerReader, Error> {
+    pub(crate) fn reader(db_url: impl Into<String>) -> Result<IndexerReader<PgConnection>, Error> {
         Self::reader_with_config(
             db_url,
             DEFAULT_SERVER_DB_POOL_SIZE,
@@ -40,11 +41,11 @@ impl PgManager {
         db_url: impl Into<String>,
         pool_size: u32,
         timeout_ms: u64,
-    ) -> Result<IndexerReader, Error> {
-        let mut config = PgConnectionPoolConfig::default();
+    ) -> Result<IndexerReader<PgConnection>, Error> {
+        let mut config = ConnectionPoolConfig::default();
         config.set_pool_size(pool_size);
         config.set_statement_timeout(Duration::from_millis(timeout_ms));
-        IndexerReader::new_with_config(db_url, config)
+        IndexerReader::<PgConnection>::new_with_config(db_url, config)
             .map_err(|e| Error::Internal(format!("Failed to create reader: {e}")))
     }
 }
