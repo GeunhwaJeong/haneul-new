@@ -1243,6 +1243,15 @@ pub enum HaneulExecutionStatus {
     Failure { error: String },
 }
 
+impl Display for HaneulExecutionStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Success => write!(f, "success"),
+            Self::Failure { error } => write!(f, "failure due to {error}"),
+        }
+    }
+}
+
 impl HaneulExecutionStatus {
     pub fn is_ok(&self) -> bool {
         matches!(self, HaneulExecutionStatus::Success { .. })
