@@ -1087,7 +1087,7 @@ pub async fn batch_transfer_gases(
 #[cfg(test)]
 mod tests {
     use haneul::{
-        client_commands::{HaneulClientCommandResult, HaneulClientCommands},
+        client_commands::{Opts, OptsWithGas, HaneulClientCommandResult, HaneulClientCommands},
         key_identity::KeyIdentity,
     };
     use haneul_json_rpc_types::HaneulExecutionStatus;
@@ -1111,12 +1111,8 @@ mod tests {
         HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: None,
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: Some(10),
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await
@@ -1240,12 +1236,8 @@ mod tests {
         HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: None,
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: Some(10),
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await
@@ -1400,10 +1392,7 @@ mod tests {
         let res = HaneulClientCommands::PayAllHaneul {
             input_coins: vec![*bad_gas.id()],
             recipient: KeyIdentity::Address(HaneulAddress::random_for_testing_only()),
-            gas_budget: 2_000_000,
-            dry_run: false,
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: Opts::for_testing(2_000_000),
         }
         .execute(faucet.wallet_mut())
         .await
@@ -1524,12 +1513,8 @@ mod tests {
         let res = HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: Some(vec![tiny_value]),
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: None,
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await;
@@ -1610,12 +1595,8 @@ mod tests {
         HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: Some(vec![reasonable_value]),
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: None,
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await
@@ -1627,11 +1608,8 @@ mod tests {
             HaneulClientCommands::TransferHaneul {
                 to: KeyIdentity::Address(destination_address),
                 haneul_coin_object_id: *gas.id(),
-                gas_budget: 50000000,
-                dry_run: false,
                 amount: None,
-                serialize_unsigned_transaction: false,
-                serialize_signed_transaction: false,
+                opts: Opts::for_testing(50_000_000),
             }
             .execute(&mut context)
             .await
@@ -1685,12 +1663,8 @@ mod tests {
         let _res = HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: Some(vec![tiny_value]),
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: None,
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await;
@@ -1702,11 +1676,8 @@ mod tests {
             HaneulClientCommands::TransferHaneul {
                 to: KeyIdentity::Address(destination_address),
                 haneul_coin_object_id: *gas.id(),
-                gas_budget: 50000000,
-                dry_run: false,
                 amount: None,
-                serialize_unsigned_transaction: false,
-                serialize_signed_transaction: false,
+                opts: Opts::for_testing(50_000_000),
             }
             .execute(&mut context)
             .await
@@ -1821,12 +1792,8 @@ mod tests {
         HaneulClientCommands::SplitCoin {
             coin_id: *gases[0].id(),
             amounts: None,
-            gas_budget: 50000000,
-            gas: None,
-            dry_run: false,
             count: Some(10),
-            serialize_unsigned_transaction: false,
-            serialize_signed_transaction: false,
+            opts: OptsWithGas::for_testing(None, 50_000_000),
         }
         .execute(&mut context)
         .await
