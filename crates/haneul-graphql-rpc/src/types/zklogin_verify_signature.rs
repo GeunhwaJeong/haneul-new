@@ -18,7 +18,7 @@ use haneul_types::authenticator_state::{ActiveJwk, AuthenticatorStateInner};
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::dynamic_field::{DynamicFieldType, Field};
 use haneul_types::signature::GenericSignature;
-use haneul_types::signature::{AuthenticatorTrait, VerifyParams};
+use haneul_types::signature::VerifyParams;
 use haneul_types::transaction::TransactionData;
 use haneul_types::{TypeTag, HANEUL_AUTHENTICATOR_STATE_ADDRESS};
 use tracing::warn;
@@ -129,12 +129,8 @@ pub(crate) async fn verify_zklogin_signature(
             if tx_sender != author.into() {
                 return Err(Error::Client("Tx sender mismatch author".to_string()));
             }
-            match zklogin_sig.verify_authenticator(
-                &intent_msg,
-                tx_sender,
-                Some(curr_epoch),
-                &verify_params,
-            ) {
+            let sig = GenericSignature::ZkLoginAuthenticator(zklogin_sig);
+            match sig.verify_authenticator(&intent_msg, tx_sender, curr_epoch, &verify_params) {
                 Ok(_) => Ok(ZkLoginVerifyResult {
                     success: true,
                     errors: vec![],
@@ -156,12 +152,8 @@ pub(crate) async fn verify_zklogin_signature(
                 data,
             );
 
-            match zklogin_sig.verify_authenticator(
-                &intent_msg,
-                author.into(),
-                Some(curr_epoch),
-                &verify_params,
-            ) {
+            let sig = GenericSignature::ZkLoginAuthenticator(zklogin_sig);
+            match sig.verify_authenticator(&intent_msg, author.into(), curr_epoch, &verify_params) {
                 Ok(_) => Ok(ZkLoginVerifyResult {
                     success: true,
                     errors: vec![],

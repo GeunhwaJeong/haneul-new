@@ -20,14 +20,13 @@ use serde::{Deserialize, Serialize};
 use shared_crypto::intent::IntentScope;
 use std::collections::{BTreeMap, BTreeSet};
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::HANEUL_ADDRESS_LENGTH;
 use haneul_types::collection_types::{Bag, LinkedTable, LinkedTableNode, VecMap};
 use haneul_types::committee::CommitteeTrait;
 use haneul_types::committee::StakeUnit;
 use haneul_types::digests::{Digest, TransactionDigest};
 use haneul_types::dynamic_field::Field;
-use haneul_types::error::HaneulResult;
 use haneul_types::message_envelope::{Envelope, Message, VerifiedEnvelope};
-use haneul_types::{base_types::HANEUL_ADDRESS_LENGTH, committee::EpochId};
 
 pub const BRIDGE_AUTHORITY_TOTAL_VOTING_POWER: u64 = 10000;
 
@@ -617,10 +616,6 @@ impl Message for BridgeAction {
     // this is not used today
     fn digest(&self) -> Self::DigestType {
         unreachable!("BridgeEventDigest is not used today")
-    }
-
-    fn verify_epoch(&self, _epoch: EpochId) -> HaneulResult {
-        Ok(())
     }
 }
 
