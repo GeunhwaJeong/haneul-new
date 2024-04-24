@@ -33,6 +33,7 @@ prost.workspace = true
 rand.workspace = true
 serde.workspace = true
 shared-crypto.workspace = true
+haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 tap.workspace = true
 thiserror.workspace = true

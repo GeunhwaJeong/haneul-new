@@ -2622,6 +2622,7 @@ dependencies = [
  "rstest",
  "serde",
  "shared-crypto",
+ "haneul-macros",
  "haneul-protocol-config",
  "tap",
  "telemetry-subscribers",
