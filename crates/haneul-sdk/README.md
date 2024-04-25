@@ -1,4 +1,4 @@
-This crate provides the Haneul Rust SDK, containing APIs to interact with the Haneul network. 
+This crate provides the Haneul Rust SDK, containing APIs to interact with the Haneul network. Auto-generated documentation for this crate is [here](https://haneullabs.github.io/haneul/haneul_sdk/index.html).
 
 ## Getting started
 
