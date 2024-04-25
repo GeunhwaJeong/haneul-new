@@ -1,5 +1,15 @@
 # @haneullabs/enoki
 
+## 0.2.3
+
+### Patch Changes
+
+- 049610aeb6: Add network to execution flow
+- 9a1406a396: Add missing network param to enokiflow
+- Updated dependencies [929db4976a]
+  - @haneullabs/haneul.js@0.52.0
+  - @haneullabs/zklogin@0.5.3
+
 ## 0.2.2
 
 ### Patch Changes

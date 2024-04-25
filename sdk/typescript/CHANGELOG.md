@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 0.52.0
+
+### Minor Changes
+
+- 929db4976a: Add normalizeHaneulNSName and isValidHaneulNSName utils, and add a format option to HaneulClient.resolveNameServiceNames
+
 ## 0.51.2
 
 ### Patch Changes

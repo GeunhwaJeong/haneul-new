@@ -1,5 +1,14 @@
 # @haneullabs/dapp-kit
 
+## 0.12.10
+
+### Patch Changes
+
+- Updated dependencies [929db4976a]
+  - @haneullabs/haneul.js@0.52.0
+  - @haneullabs/wallet-standard@0.11.3
+  - @haneullabs/zksend@0.4.4
+
 ## 0.12.9
 
 ### Patch Changes
