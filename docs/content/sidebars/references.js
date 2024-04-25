@@ -127,6 +127,7 @@ const references = [
 			'references/contribute/localize-haneul-docs',
 			'references/contribute/code-of-conduct',
 			'references/contribute/style-guide',
+			'references/contribute/mdx-components',
 		],
 	},
 ];
