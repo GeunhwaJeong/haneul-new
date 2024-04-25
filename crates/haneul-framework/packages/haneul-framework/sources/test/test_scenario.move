@@ -388,7 +388,7 @@ module haneul::test_scenario {
     }
 
     /// Deallocate a `Receiving<T>` receiving ticket. This must be done in
-    /// order to use the object further (unless the object was recieved) in a
+    /// order to use the object further (unless the object was received) in a
     /// test scenario.
     public fun return_receiving_ticket<T: key>(ticket: haneul::transfer::Receiving<T>) {
         let id = haneul::transfer::receiving_id(&ticket);
