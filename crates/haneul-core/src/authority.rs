@@ -158,6 +158,11 @@ use crate::transaction_input_loader::TransactionInputLoader;
 use crate::transaction_manager::TransactionManager;
 
 #[cfg(msim)]
+pub use crate::checkpoints::checkpoint_executor::{
+    init_checkpoint_timeout_config, CheckpointTimeoutConfig,
+};
+
+#[cfg(msim)]
 use haneul_types::committee::CommitteeTrait;
 use haneul_types::execution_config_utils::to_binary_config;
 
