@@ -12,6 +12,7 @@ import {
 	normalizeHaneulAddress,
 	normalizeHaneulObjectId,
 } from '../utils/haneul-types.js';
+import { normalizeHaneulNSName } from '../utils/haneulns.js';
 import { HaneulHTTPTransport } from './http-transport.js';
 import type { HaneulTransport } from './http-transport.js';
 import type {
@@ -738,13 +739,23 @@ export class HaneulClient {
 		});
 	}
 
-	async resolveNameServiceNames(
-		input: ResolveNameServiceNamesParams,
-	): Promise<ResolvedNameServiceNames> {
-		return await this.transport.request({
-			method: 'haneulx_resolveNameServiceNames',
-			params: [input.address, input.cursor, input.limit],
-		});
+	async resolveNameServiceNames({
+		format = 'dot',
+		...input
+	}: ResolveNameServiceNamesParams & {
+		format?: 'at' | 'dot';
+	}): Promise<ResolvedNameServiceNames> {
+		const { nextCursor, hasNextPage, data }: ResolvedNameServiceNames =
+			await this.transport.request({
+				method: 'haneulx_resolveNameServiceNames',
+				params: [input.address, input.cursor, input.limit],
+			});
+
+		return {
+			hasNextPage,
+			nextCursor,
+			data: data.map((name) => normalizeHaneulNSName(name, format)),
+		};
 	}
 
 	async getProtocolConfig(input?: GetProtocolConfigParams): Promise<ProtocolConfig> {

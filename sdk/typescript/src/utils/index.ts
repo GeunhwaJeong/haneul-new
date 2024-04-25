@@ -29,6 +29,8 @@ export {
 	HANEUL_ADDRESS_LENGTH,
 };
 
+export { isValidHaneulNSName, normalizeHaneulNSName } from './haneulns.js';
+
 export const HANEUL_DECIMALS = 9;
 export const GEUNHWA_PER_HANEUL = BigInt(1000000000);
 
