@@ -49,7 +49,8 @@ export interface HaneulGraphQLClientOptions<Queries extends Record<string, Graph
 
 export class HaneulGraphQLRequestError extends Error {}
 
-export class HaneulGraphQLClient<Queries extends Record<string, GraphQLDocument>> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export class HaneulGraphQLClient<Queries extends Record<string, GraphQLDocument> = {}> {
 	#url: string;
 	#queries: Queries;
 	#headers: Record<string, string>;
