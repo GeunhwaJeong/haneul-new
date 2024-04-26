@@ -10,6 +10,7 @@ edition = "2021"
 
 [dev-dependencies]
 move-package.workspace = true
+move-core-types.workspace = true
 haneul-config.workspace = true
 haneul-core.workspace = true
 haneul-keys.workspace = true
