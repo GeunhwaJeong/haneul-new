@@ -129,11 +129,11 @@ jobs:
         with:
           ref: ${{ env.haneul_tag }}
 
-      - name: Cargo build (release) for ${{ matrix.os }} platform
+      - name: Cargo build for ${{ matrix.os }} platform
         if: ${{ env.s3_archive_exist == '' }}
         shell: bash
         run: |
-          [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release
+          [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release && cargo build --profile=dev --bin haneul
           cd external-crates/move && cargo build -p move-analyzer --release
 
       - name: Rename binaries for ${{ matrix.os }}
@@ -141,6 +141,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ${{ env.TMP_BUILD_DIR }}
+          [ -f ./target/debug/haneul${{ env.extention }} ] && mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
           [ -f ./target/release/haneul${{ env.extention }} ] && mv ./target/release/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul${{ env.extention }}
           [ -f ./target/release/haneul-node${{ env.extention }} ] && mv ./target/release/haneul-node${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-node${{ env.extention }}
           [ -f ./target/release/haneul-tool${{ env.extention }} ] && mv ./target/release/haneul-tool${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-tool${{ env.extention }}
