@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::types::object::Object;
 use async_graphql::connection::Connection;
 use async_graphql::*;
 use haneul_types::{
@@ -10,7 +9,7 @@ use haneul_types::{
     transaction::GasData,
 };
 
-use super::{address::Address, big_int::BigInt, object::ObjectLookupKey, haneul_address::HaneulAddress};
+use super::{address::Address, big_int::BigInt, object::Object, haneul_address::HaneulAddress};
 use super::{
     cursor::Page,
     object::{self, ObjectFilter, ObjectKey},
@@ -130,12 +129,9 @@ impl GasCostSummary {
 impl GasEffects {
     async fn gas_object(&self, ctx: &Context<'_>) -> Result<Option<Object>> {
         Object::query(
-            ctx.data_unchecked(),
+            ctx,
             self.object_id,
-            ObjectLookupKey::VersionAt {
-                version: self.object_version,
-                checkpoint_viewed_at: self.checkpoint_viewed_at,
-            },
+            Object::at_version(self.object_version, self.checkpoint_viewed_at),
         )
         .await
         .extend()
