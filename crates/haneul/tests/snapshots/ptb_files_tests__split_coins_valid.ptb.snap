@@ -16,8 +16,6 @@ expression: "results.join(\"\\n\")"
 │ move-call   │ haneul::coin::destroy_zero<haneul::haneul::HANEUL> zcoins.0 │
 │ move-call   │ haneul::coin::destroy_zero<haneul::haneul::HANEUL> zcoins.1 │
 │ merge-coins │ gas [coins.1, coins.2, coins.3]                 │
-├─────────────┼─────────────────────────────────────────────────┤
-│ gas-budget  │ 10000000                                        │
 ╰─────────────┴─────────────────────────────────────────────────╯
  === BUILT PTB === 
 Input 0: Pure([0, 0, 0, 0, 0, 0, 0, 0])

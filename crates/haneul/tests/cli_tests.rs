@@ -21,9 +21,11 @@ use haneul_types::transaction::{
 };
 use tokio::time::sleep;
 
-use haneul::client_commands::{Opts, OptsWithGas, SwitchResponse};
 use haneul::{
-    client_commands::{HaneulClientCommandResult, HaneulClientCommands},
+    client_commands::{
+        estimate_gas_budget, Opts, OptsWithGas, HaneulClientCommandResult, HaneulClientCommands,
+        SwitchResponse,
+    },
     haneul_commands::HaneulCommand,
 };
 use haneul_config::{
@@ -2758,7 +2760,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
         haneul_coin_object_id: coin,
         amount: Some(1),
         opts: Opts {
-            gas_budget: rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+            gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
             dry_run: false,
             serialize_unsigned_transaction: true,
             serialize_signed_transaction: false,
@@ -2772,7 +2774,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
         haneul_coin_object_id: coin,
         amount: Some(1),
         opts: Opts {
-            gas_budget: rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+            gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
             dry_run: false,
             serialize_unsigned_transaction: false,
             serialize_signed_transaction: true,
@@ -2787,7 +2789,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
         haneul_coin_object_id: coin,
         amount: Some(1),
         opts: Opts {
-            gas_budget: rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+            gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
             dry_run: false,
             serialize_unsigned_transaction: false,
             serialize_signed_transaction: true,
@@ -3582,6 +3584,52 @@ async fn test_transfer_haneul() -> Result<(), anyhow::Error> {
             .data
             .iter()
             .any(|x| x.object().unwrap().object_id == object_id1));
+    } else {
+        panic!("TransferHaneul test failed");
+    }
+    Ok(())
+}
+
+#[sim_test]
+async fn test_gas_estimation() -> Result<(), anyhow::Error> {
+    let (mut test_cluster, client, rgp, objects, _, addresses) = test_cluster_helper().await;
+    let object_id1 = objects[0];
+    let address2 = addresses[0];
+    let context = &mut test_cluster.wallet;
+    let amount = 1000;
+    let sender = context.active_address().unwrap();
+    let tx_builder = client.transaction_builder();
+    let tx_kind = tx_builder.transfer_haneul_tx_kind(address2, Some(amount));
+    let gas_estimate = estimate_gas_budget(context, sender, tx_kind, rgp, None, None).await;
+    assert!(gas_estimate.is_ok());
+
+    let transfer_haneul_cmd = HaneulClientCommands::TransferHaneul {
+        to: KeyIdentity::Address(address2),
+        haneul_coin_object_id: object_id1,
+        amount: Some(amount),
+        opts: Opts {
+            gas_budget: None,
+            dry_run: false,
+            serialize_unsigned_transaction: false,
+            serialize_signed_transaction: false,
+        },
+    }
+    .execute(context)
+    .await
+    .unwrap();
+    if let HaneulClientCommandResult::TransferHaneul(response) = transfer_haneul_cmd {
+        assert!(response.status_ok().unwrap());
+        let gas_used = response.effects.as_ref().unwrap().gas_object().object_id();
+        assert_eq!(gas_used, object_id1);
+        assert!(
+            response
+                .effects
+                .as_ref()
+                .unwrap()
+                .gas_cost_summary()
+                .gas_used()
+                <= gas_estimate.unwrap()
+        );
     } else {
         panic!("TransferHaneul test failed");
     }
