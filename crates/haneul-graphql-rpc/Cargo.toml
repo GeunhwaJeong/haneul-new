@@ -1,6 +1,6 @@
 [package]
 name = "haneul-graphql-rpc"
-version = "2024.2.0"
+version = "2024.7.0"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 publish = false
