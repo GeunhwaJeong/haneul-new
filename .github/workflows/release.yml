@@ -95,7 +95,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ${{ env.TMP_BUILD_DIR }}
-          aws s3 cp s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz ${{ env.TMP_BUILD_DIR }}/haneul-${{ env.haneul_tag }}-${os_type}.tgz
+          aws s3 cp s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz
 
       - name: Setup caching
         if: ${{ env.s3_archive_exist == '' }}
