@@ -332,7 +332,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
                     AccountAddress::ZERO.into_bytes(),
                     NumberFormat::Hex,
                 )),
-                Some(Edition::E2024_ALPHA),
+                Some(Edition::DEVELOPMENT),
                 flavor.or(Some(Flavor::Haneul)),
             ),
             package_upgrade_mapping: BTreeMap::new(),
