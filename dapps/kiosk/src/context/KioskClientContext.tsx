@@ -1,21 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useHaneulClient } from '@haneullabs/dapp-kit';
+import { useHaneulClient, useHaneulClientContext } from '@haneullabs/dapp-kit';
 import { KioskClient, Network } from '@haneullabs/kiosk';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 
 export const KioskClientContext = createContext<KioskClient | undefined>(undefined);
 
-export function KisokClientProvider({ children }: { children: ReactNode }) {
+export function KioskClientProvider({ children }: { children: ReactNode }) {
 	const haneulClient = useHaneulClient();
+	const { network } = useHaneulClientContext();
 	const kioskClient = useMemo(
 		() =>
 			new KioskClient({
 				client: haneulClient,
-				network: Network.TESTNET,
+				network: network as Network,
 			}),
-		[haneulClient],
+		[haneulClient, network],
 	);
 
 	return <KioskClientContext.Provider value={kioskClient}>{children}</KioskClientContext.Provider>;

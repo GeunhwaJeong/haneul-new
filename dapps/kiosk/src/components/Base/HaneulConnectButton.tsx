@@ -4,5 +4,5 @@
 import { ConnectButton } from '@haneullabs/dapp-kit';
 
 export function HaneulConnectButton() {
-	return <ConnectButton />;
+	return <ConnectButton className="flex-shrink-0" />;
 }

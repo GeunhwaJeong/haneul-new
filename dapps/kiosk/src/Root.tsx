@@ -1,26 +1,30 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
+import { createNetworkConfig, HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
 import { getFullnodeUrl } from '@haneullabs/haneul.js/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { Outlet } from 'react-router-dom';
 
 import { Header } from './components/Base/Header';
-import { KisokClientProvider } from './context/KioskClientContext';
+import { KioskClientProvider } from './context/KioskClientContext';
 
 const queryClient = new QueryClient();
+
+const { networkConfig } = createNetworkConfig({
+	localnet: { url: getFullnodeUrl('localnet') },
+	devnet: { url: getFullnodeUrl('devnet') },
+	testnet: { url: getFullnodeUrl('testnet') },
+	mainnet: { url: getFullnodeUrl('mainnet') },
+});
 
 export default function Root() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<HaneulClientProvider
-				defaultNetwork="testnet"
-				networks={{ testnet: { url: getFullnodeUrl('testnet') } }}
-			>
+			<HaneulClientProvider defaultNetwork="testnet" networks={networkConfig}>
 				<WalletProvider>
-					<KisokClientProvider>
+					<KioskClientProvider>
 						<Header />
 						<div className="min-h-[80vh]">
 							<Outlet />
@@ -29,7 +33,7 @@ export default function Root() {
 							Copyright © Haneul Labs, Inc.
 						</div>
 						<Toaster position="bottom-center" />
-					</KisokClientProvider>
+					</KioskClientProvider>
 				</WalletProvider>
 			</HaneulClientProvider>
 		</QueryClientProvider>
