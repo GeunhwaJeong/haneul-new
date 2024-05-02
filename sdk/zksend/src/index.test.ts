@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getFullnodeUrl, HaneulClient, HaneulObjectChange } from '@haneullabs/haneul.js/client';
-import { decodeHaneulPrivateKey } from '@haneullabs/haneul.js/cryptography';
-// import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
+import { decodeHaneulPrivateKey, Keypair } from '@haneullabs/haneul.js/cryptography';
+import { getFaucetHost, requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
 import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
 import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
 import { toB64 } from '@haneullabs/haneul.js/utils';
 import { describe } from 'node:test';
-import { expect, test } from 'vitest';
+import { beforeAll, expect, test } from 'vitest';
 
-import { ZkSendLink, ZkSendLinkBuilder } from './index.js';
-import { listCreatedLinks } from './links/list-created-links.js';
+import { getSentTransactionBlocksWithLinks, ZkSendLink, ZkSendLinkBuilder } from './index.js';
 
 export const DEMO_BEAR_CONFIG = {
 	packageId: '0xab8ed19f16874f9b8b66b0b6e325ee064848b1a7fdcb1c2f0478b17ad8574e65',
@@ -27,30 +26,29 @@ export const ZK_BAG_CONFIG = {
 const client = new HaneulClient({
 	url: getFullnodeUrl('testnet'),
 });
-
-// 0x6e43d0e58341db532a87a16aaa079ae6eb1ed3ae8b77fdfa4870a268ea5d5db8
-const keypair = Ed25519Keypair.fromSecretKey(
-	decodeHaneulPrivateKey('haneulprivkey1qrlgsqryjmmt59nw7a76myeeadxrs3esp8ap2074qz8xaq5kens329fnhzp')
-		.secretKey,
-);
+const keypair = new Ed25519Keypair();
 
 // Automatically get gas from testnet is not working reliably, manually request gas via discord,
 // or uncomment the beforeAll and gas function below
-// beforeAll(async () => {
-// 	await getHaneulFromFaucet(keypair);
-// });
+beforeAll(async () => {
+	await getHaneulFromFaucet(keypair);
+});
 
-// async function getHaneulFromFaucet(keypair: Keypair) {
-// 	const faucetHost = getFaucetHost('testnet');
-// 	const result = await requestHaneulFromFaucetV0({
-// 		host: faucetHost,
-// 		recipient: keypair.toHaneulAddress(),
-// 	});
+async function getHaneulFromFaucet(keypair: Keypair) {
+	const faucetHost = getFaucetHost('testnet');
+	const result = await requestHaneulFromFaucetV0({
+		host: faucetHost,
+		recipient: keypair.toHaneulAddress(),
+	});
 
-// 	if (result.error) {
-// 		throw new Error(result.error);
-// 	}
-// }
+	if (result.error) {
+		throw new Error(result.error);
+	}
+
+	await client.waitForTransactionBlock({
+		digest: result.transferredGasObjects[0].transferTxDigest,
+	});
+}
 
 describe('Contract links', () => {
 	test(
@@ -132,6 +130,7 @@ describe('Contract links', () => {
 		'regenerate links',
 		async () => {
 			const linkKp = new Ed25519Keypair();
+
 			const link = new ZkSendLinkBuilder({
 				keypair: linkKp,
 				client,
@@ -147,20 +146,26 @@ describe('Contract links', () => {
 
 			link.addClaimableMist(100n);
 
-			await link.create({
+			const { digest } = await link.create({
 				signer: keypair,
 				waitForTransactionBlock: true,
 			});
 
+			await client.waitForTransactionBlock({ digest });
+
 			const {
-				links: [lostLink],
-			} = await listCreatedLinks({
+				data: [
+					{
+						links: [lostLink],
+					},
+				],
+			} = await getSentTransactionBlocksWithLinks({
 				address: keypair.toHaneulAddress(),
 				network: 'testnet',
 				contract: ZK_BAG_CONFIG,
 			});
 
-			const { url, transactionBlock } = await lostLink.link.createRegenerateTransaction(
+			const { url, transactionBlock } = await lostLink.createRegenerateTransaction(
 				keypair.toHaneulAddress(),
 			);
 
