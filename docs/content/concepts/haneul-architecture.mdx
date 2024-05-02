@@ -16,11 +16,12 @@ Life of a Transaction details the transitions that all transactions on Haneul go
 
 Go to [Life of a Transaction](./haneul-architecture/transaction-lifecycle.mdx).
 
-## Mempool and Consensus Engines
+## Consensus
 
-Narwhal and Bullshark combine to form the basis of the Haneul mempool and consensus engine. This topic offers a brief introduction to the technologies that keep the activities on Haneul synchronized and secure. 
+Every transaction on Haneul is sequenced by consensus, where validators agree to the same order of execution of the transactions, even if a minority of them are down or are malicious actors that want to harm the network and users.
+Haneul currently uses Narwhal and Bullshark for consensus, but will transition to [Mysticeti](https://arxiv.org/pdf/2310.14821) soon.
 
-Go to [Mempool and Consensus Engines](./haneul-architecture/consensus.mdx).
+Go to [Consensus](./haneul-architecture/consensus.mdx).
 
 ## Haneul Indexer
 
