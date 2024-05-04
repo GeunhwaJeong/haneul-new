@@ -12069,6 +12069,7 @@ dependencies = [
  "haneul-sdk",
  "haneul-simulator",
  "haneul-storage",
+ "haneul-surfer",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-types",

@@ -38,7 +38,7 @@ async fn shared_object_transaction() {
                 .active_validators()
                 .next()
                 .unwrap()
-                .config
+                .config()
                 .haneul_address(),
         )
         .build();

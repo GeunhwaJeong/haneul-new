@@ -37,6 +37,7 @@ haneul-json-rpc-types.workspace = true
 haneul-protocol-config.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-swarm-config.workspace = true
+haneul-surfer.workspace = true
 telemetry-subscribers.workspace = true
 roaring.workspace = true
 regex.workspace = true
