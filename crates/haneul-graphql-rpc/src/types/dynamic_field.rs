@@ -10,7 +10,7 @@ use haneul_types::dynamic_field::{derive_dynamic_field_id, DynamicFieldInfo, Dyn
 
 use super::available_range::AvailableRange;
 use super::cursor::{Page, Target};
-use super::object::{self, deserialize_move_struct, Object, ObjectKind, ObjectLookup};
+use super::object::{self, deserialize_move_struct, Object, ObjectKind};
 use super::type_filter::ExactTypeFilter;
 use super::{
     base64::Base64, move_object::MoveObject, move_value::MoveValue, haneul_address::HaneulAddress,
@@ -170,9 +170,10 @@ impl DynamicField {
         let super_ = MoveObject::query(
             ctx,
             HaneulAddress::from(field_id),
-            ObjectLookup::LatestAt {
-                parent_version,
-                checkpoint_viewed_at,
+            if let Some(parent_version) = parent_version {
+                Object::under_parent(parent_version, checkpoint_viewed_at)
+            } else {
+                Object::latest_at(checkpoint_viewed_at)
             },
         )
         .await?;
