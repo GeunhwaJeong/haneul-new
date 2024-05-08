@@ -28,6 +28,7 @@ export async function getSentTransactionBlocksWithLinks({
 	// Link options:
 	host?: string;
 	path?: string;
+	claimApi?: string;
 	client?: HaneulClient;
 }) {
 	const packageId = normalizeHaneulAddress(contract.packageId);
