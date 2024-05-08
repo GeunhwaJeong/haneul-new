@@ -18,15 +18,15 @@ use crate::{
 };
 
 use super::{
-    LinterDiagCategory, LINTER_DEFAULT_DIAG_CODE, LINT_WARNING_PREFIX,
+    LinterDiagnosticCategory, LinterDiagnosticCode, LINT_WARNING_PREFIX,
     RANDOM_GENERATOR_STRUCT_NAME, RANDOM_MOD_NAME, RANDOM_STRUCT_NAME, HANEUL_PKG_NAME,
 };
 
 const PUBLIC_RANDOM_DIAG: DiagnosticInfo = custom(
     LINT_WARNING_PREFIX,
     Severity::Warning,
-    LinterDiagCategory::PublicRandom as u8,
-    LINTER_DEFAULT_DIAG_CODE,
+    LinterDiagnosticCategory::Haneul as u8,
+    LinterDiagnosticCode::PublicRandom as u8,
     "Risky use of 'haneul::random'",
 );
 
