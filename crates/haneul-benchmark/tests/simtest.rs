@@ -34,7 +34,7 @@ mod test {
     use haneul_simulator::tempfile::TempDir;
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_storage::blob::Blob;
-    use haneul_surfer::default_surf_strategy::DefaultSurfStrategy;
+    use haneul_surfer::surf_strategy::SurfStrategy;
     use haneul_types::full_checkpoint_content::CheckpointData;
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     use test_cluster::{TestCluster, TestClusterBuilder};
@@ -775,7 +775,9 @@ mod test {
                 .collect();
             info!("using haneul_surfer test packages: {test_package_paths:?}");
 
-            let results = haneul_surfer::run_with_test_cluster::<DefaultSurfStrategy>(
+            let surf_strategy = SurfStrategy::new(Duration::from_millis(250));
+            let results = haneul_surfer::run_with_test_cluster_and_strategy(
+                surf_strategy,
                 test_duration,
                 test_package_paths,
                 test_cluster,
