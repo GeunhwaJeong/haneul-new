@@ -8,7 +8,7 @@
 ///
 /// Anyone can play the game by betting on X HANEUL. They win X with probability 49% and lose the X HANEUL otherwise.
 ///
-module games::slot_machine {
+module slot_machine::example {
     use haneul::balance::Balance;
     use haneul::coin::{Self, Coin};
     use haneul::math;
@@ -78,12 +78,12 @@ module games::slot_machine {
     }
 
     #[test_only]
-    public fun get_balance(game: &Game): u64 {
+    public fun balance(game: &Game): u64 {
         game.balance.value()
     }
 
     #[test_only]
-    public fun get_epoch(game: &Game): u64 {
+    public fun epoch(game: &Game): u64 {
         game.epoch
     }
 }
