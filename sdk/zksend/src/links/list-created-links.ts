@@ -4,7 +4,7 @@
 import { bcs } from '@haneullabs/haneul.js/bcs';
 import type { HaneulClient } from '@haneullabs/haneul.js/client';
 import { HaneulGraphQLClient } from '@haneullabs/haneul.js/graphql';
-import { graphql } from '@haneullabs/haneul.js/graphql/schemas/2024-01';
+import { graphql } from '@haneullabs/haneul.js/graphql/schemas/2024.4';
 import { fromB64, normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
 
 import { ZkSendLink } from './claim.js';
