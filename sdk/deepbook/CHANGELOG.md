@@ -1,5 +1,12 @@
 # @haneullabs/deepbook
 
+## 0.7.6
+
+### Patch Changes
+
+- Updated dependencies [774bfb41a8]
+  - @haneullabs/haneul.js@0.53.0
+
 ## 0.7.5
 
 ### Patch Changes
