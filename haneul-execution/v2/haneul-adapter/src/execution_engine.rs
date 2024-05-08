@@ -41,7 +41,7 @@ mod checked {
     use haneul_types::error::{ExecutionError, ExecutionErrorKind};
     use haneul_types::execution::is_certificate_denied;
     use haneul_types::execution_config_utils::to_binary_config;
-    use haneul_types::execution_status::ExecutionStatus;
+    use haneul_types::execution_status::{CongestedObjects, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::inner_temporary_store::InnerTemporaryStore;
@@ -56,7 +56,7 @@ mod checked {
     };
     use haneul_types::transaction::{CheckedInputObjects, RandomnessStateUpdate};
     use haneul_types::{
-        base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
+        base_types::{ObjectID, ObjectRef, HaneulAddress, TransactionDigest, TxContext},
         object::{Object, ObjectInner},
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
@@ -95,6 +95,7 @@ mod checked {
         let receiving_objects = transaction_kind.receiving_objects();
         let mut transaction_dependencies = input_objects.transaction_dependencies();
         let contains_deleted_input = input_objects.contains_deleted_objects();
+        let congested_objects = input_objects.get_congested_objects();
 
         let mut temporary_store = TemporaryStore::new(
             store,
@@ -128,6 +129,7 @@ mod checked {
             enable_expensive_checks,
             deny_cert,
             contains_deleted_input,
+            congested_objects,
         );
 
         let status = if let Err(error) = &execution_result {
@@ -260,6 +262,7 @@ mod checked {
         enable_expensive_checks: bool,
         deny_cert: bool,
         contains_deleted_input: bool,
+        congested_objects: Option<Vec<ObjectID>>,
     ) -> (
         GasCostSummary,
         Result<Mode::ExecutionResults, ExecutionError>,
@@ -287,6 +290,13 @@ mod checked {
             } else if contains_deleted_input {
                 Err(ExecutionError::new(
                     ExecutionErrorKind::InputObjectDeleted,
+                    None,
+                ))
+            } else if let Some(congested_objects) = congested_objects {
+                Err(ExecutionError::new(
+                    ExecutionErrorKind::ExecutionCancelledDueToSharedObjectCongestion {
+                        congested_objects: CongestedObjects(congested_objects),
+                    },
                     None,
                 ))
             } else {
