@@ -48,7 +48,7 @@ use haneul_move_build::{
     gather_published_ids, BuildConfig, CompiledPackage, PackageDependencies, PublishedAtError,
 };
 use haneul_package_management::LockCommand;
-use haneul_replay::{ReplayToolCommand, SandboxFileFormat};
+use haneul_replay::ReplayToolCommand;
 use haneul_sdk::{
     apis::ReadApi,
     haneul_client_config::{HaneulClientConfig, HaneulEnv},
@@ -755,7 +755,6 @@ impl HaneulClientCommands {
                     terminate_early,
                     num_tasks: 16,
                     persist_path: None,
-                    sandbox_format: SandboxFileFormat::Json,
                 };
                 let rpc = context.config.get_active_env()?.rpc.clone();
                 let _command_result =
