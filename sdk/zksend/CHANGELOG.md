@@ -1,5 +1,16 @@
 # @haneullabs/zksend
 
+## 0.7.1
+
+### Patch Changes
+
+- 29d8e45b0e: Add support for sponsoring reclaimed links
+- b7f673dbd9: Update graphql schema imports
+- Updated dependencies [b7f673dbd9]
+- Updated dependencies [123b42c75c]
+  - @haneullabs/haneul.js@0.54.0
+  - @haneullabs/wallet-standard@0.11.5
+
 ## 0.7.0
 
 ### Minor Changes

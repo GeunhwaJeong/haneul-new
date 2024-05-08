@@ -2,7 +2,7 @@
 	"name": "@haneullabs/kiosk",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "Haneul Kiosk library",
-	"version": "0.8.8",
+	"version": "0.8.9",
 	"license": "Apache-2.0",
 	"type": "commonjs",
 	"main": "./dist/cjs/index.js",
