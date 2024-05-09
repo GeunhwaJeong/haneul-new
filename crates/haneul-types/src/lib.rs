@@ -73,6 +73,7 @@ pub mod randomness_state;
 pub mod signature;
 pub mod signature_verification;
 pub mod storage;
+pub mod haneul_sdk2_conversions;
 pub mod haneul_serde;
 pub mod haneul_system_state;
 pub mod traffic_control;
