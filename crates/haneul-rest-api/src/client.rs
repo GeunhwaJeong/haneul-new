@@ -1,11 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::transactions::ExecuteTransactionQueryParameters;
 use anyhow::Result;
-use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
+use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointSequenceNumber};
 use haneul_types::object::Object;
+use haneul_types::transaction::Transaction;
+use haneul_types::TypeTag;
 
 #[derive(Clone)]
 pub struct Client {
@@ -99,6 +104,36 @@ impl Client {
         self.bcs(response).await
     }
 
+    pub async fn execute_transaction(
+        &self,
+        parameters: &ExecuteTransactionQueryParameters,
+        transaction: &Transaction,
+    ) -> Result<TransactionExecutionResponse> {
+        #[derive(serde::Serialize)]
+        struct SignedTransaction<'a> {
+            transaction: &'a haneul_types::transaction::TransactionData,
+            signatures: &'a [haneul_types::signature::GenericSignature],
+        }
+
+        let url = format!("{}/transactions", self.base_url);
+        let body = bcs::to_bytes(&SignedTransaction {
+            transaction: &transaction.inner().intent_message.value,
+            signatures: &transaction.inner().tx_signatures,
+        })?;
+
+        let response = self
+            .inner
+            .post(url)
+            .query(parameters)
+            .header(reqwest::header::ACCEPT, crate::APPLICATION_BCS)
+            .header(reqwest::header::CONTENT_TYPE, crate::APPLICATION_BCS)
+            .body(body)
+            .send()
+            .await?;
+
+        self.bcs(response).await
+    }
+
     fn check_response(&self, response: reqwest::Response) -> Result<reqwest::Response> {
         if !response.status().is_success() {
             let status = response.status();
@@ -122,4 +157,36 @@ impl Client {
         let bcs = bcs::from_bytes(&bytes)?;
         Ok(bcs)
     }
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct TransactionExecutionResponse {
+    pub effects: TransactionEffects,
+
+    pub finality: EffectsFinality,
+    pub events: Option<TransactionEvents>,
+    pub balance_changes: Option<Vec<BalanceChange>>,
+    pub input_objects: Option<Vec<Object>>,
+    pub output_objects: Option<Vec<Object>>,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub enum EffectsFinality {
+    Certified {
+        signature: AuthorityStrongQuorumSignInfo,
+    },
+    Checkpointed {
+        checkpoint: CheckpointSequenceNumber,
+    },
+}
+
+#[derive(PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
+pub struct BalanceChange {
+    /// Owner of the balance change
+    pub address: HaneulAddress,
+    /// Type of the Coin
+    pub coin_type: TypeTag,
+    /// The amount indicate the balance value changes,
+    /// negative amount means spending coin value and positive means receiving coin value.
+    pub amount: i128,
 }
