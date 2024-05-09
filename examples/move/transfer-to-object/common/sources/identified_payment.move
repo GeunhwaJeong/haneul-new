@@ -5,9 +5,7 @@
 module common::identified_payment {
     use haneul::haneul::HANEUL;
     use haneul::coin::{Self, Coin};
-    use haneul::object::{Self, UID};
-    use haneul::transfer::{Self, Receiving};
-    use haneul::tx_context::{Self, TxContext};
+    use haneul::transfer::Receiving;
     use haneul::event;
     use haneul::dynamic_field;
 
