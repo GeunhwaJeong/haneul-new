@@ -3,7 +3,10 @@
 
 /// Example coin with a trusted owner responsible for minting/burning (e.g., a stablecoin)
 module examples::trusted_coin {
+    use std::option;
     use haneul::coin::{Self, TreasuryCap};
+    use haneul::transfer;
+    use haneul::tx_context::{Self, TxContext};
 
     /// Name of the coin
     public struct TRUSTED_COIN has drop {}
