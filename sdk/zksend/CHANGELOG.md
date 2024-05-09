@@ -1,5 +1,13 @@
 # @haneullabs/zksend
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [99b112178c]
+  - @haneullabs/haneul.js@0.54.1
+  - @haneullabs/wallet-standard@0.11.6
+
 ## 0.7.1
 
 ### Patch Changes
