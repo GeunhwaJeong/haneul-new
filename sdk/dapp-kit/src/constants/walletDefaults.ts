@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { WalletWithRequiredFeatures } from '@haneullabs/wallet-standard';
-import { ZKSEND_WALLET_NAME } from '@haneullabs/zksend';
+import { STASHED_WALLET_NAME } from '@haneullabs/zksend';
 
 import { createInMemoryStore } from '../utils/stateStorage.js';
 
@@ -17,4 +17,4 @@ export const DEFAULT_REQUIRED_FEATURES: (keyof WalletWithRequiredFeatures['featu
 	'haneul:signTransactionBlock',
 ];
 
-export const DEFAULT_PREFERRED_WALLETS = [HANEUL_WALLET_NAME, ZKSEND_WALLET_NAME];
+export const DEFAULT_PREFERRED_WALLETS = [HANEUL_WALLET_NAME, STASHED_WALLET_NAME];
