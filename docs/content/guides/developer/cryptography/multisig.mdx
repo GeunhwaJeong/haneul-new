@@ -3,7 +3,9 @@ title: Multisig Authentication
 description: Guide on how to create a multisig transaction and then submit it against a local network using the Haneul CLI.
 ---
 
-The following steps demonstrate how to create a multisig transaction and then submit it against a local network using the [Haneul CLI](/references/cli.mdx). A transaction can be the transfer of an object, the publish or upgrade of a package, the payment of HANEUL, and so on. To learn how to set up a local network, see [Connect to a Local Network](/guides/developer/getting-started/local-network.mdx).
+The following steps demonstrate how to create a multisig transaction and then submit it against a local network using the [Haneul CLI](/references/cli.mdx). A transaction can be the transfer of an object, the publish or upgrade of a package, the payment of HANEUL, and so on. To learn how to set up a local network, see [Connect to a Local Network](/guides/developer/getting-started/local-network.mdx). 
+
+To learn more about how to create multisig addresses and create multisig transactions using the TypeScript SDK, see the [SDK documentation](https://sdk.haneul-labs.com/typescript/cryptography/multisig) for details. 
 
 ## Step 1: Create keys
 
@@ -150,4 +152,5 @@ haneul client execute-signed-tx --tx-bytes <TX_BYTES> --signatures <SERIALIZED-M
 
 ## Related links
 
-- [Multisig](../../../concepts/cryptography/transaction-auth/multisig.mdx): Definition of multisig transactions on the Haneul network.
+- [Multisig](../../../concepts/cryptography/transaction-auth/multisig.mdx): Definition of multisig transactions on the Haneul network and how to use it with CLI.
+- [Multisig Typescript SDK](https://sdk.haneul-labs.com/typescript/cryptography/multisig): How to create multisig addresses and sign transactions using the Haneul SDK.
