@@ -148,6 +148,14 @@ impl HaneulKeyPair {
             HaneulKeyPair::Secp256r1(kp) => PublicKey::Secp256r1(kp.public().into()),
         }
     }
+
+    pub fn copy(&self) -> Self {
+        match self {
+            HaneulKeyPair::Ed25519(kp) => kp.copy().into(),
+            HaneulKeyPair::Secp256k1(kp) => kp.copy().into(),
+            HaneulKeyPair::Secp256r1(kp) => kp.copy().into(),
+        }
+    }
 }
 
 impl Signer<Signature> for HaneulKeyPair {
@@ -211,6 +219,15 @@ impl HaneulKeyPair {
             _ => Err(eyre!("Invalid bytes")),
         }
     }
+
+    pub fn to_bytes_no_flag(&self) -> Vec<u8> {
+        match self {
+            HaneulKeyPair::Ed25519(kp) => kp.as_bytes().to_vec(),
+            HaneulKeyPair::Secp256k1(kp) => kp.as_bytes().to_vec(),
+            HaneulKeyPair::Secp256r1(kp) => kp.as_bytes().to_vec(),
+        }
+    }
+
     /// Encode a HaneulKeyPair as `flag || privkey` in Bech32 starting with "haneulprivkey" to a string. Note that the pubkey is not encoded.
     pub fn encode(&self) -> Result<String, eyre::Report> {
         Bech32::encode(self.to_bytes(), HANEUL_PRIV_KEY_PREFIX).map_err(|e| eyre!(e))

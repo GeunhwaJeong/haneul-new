@@ -498,6 +498,9 @@ pub enum HaneulError {
     #[error("Authority Error: {error:?}")]
     GenericAuthorityError { error: String },
 
+    #[error("Generic Bridge Error: {error:?}")]
+    GenericBridgeError { error: String },
+
     #[error("Failed to dispatch subscription: {error:?}")]
     FailedToDispatchSubscription { error: String },
 
@@ -594,6 +597,9 @@ pub enum HaneulError {
 
     #[error("Failed to read or deserialize system state related data structures on-chain: {0}")]
     HaneulSystemStateReadError(String),
+
+    #[error("Failed to read or deserialize bridge related data structures on-chain: {0}")]
+    HaneulBridgeReadError(String),
 
     #[error("Unexpected version error: {0}")]
     UnexpectedVersion(String),

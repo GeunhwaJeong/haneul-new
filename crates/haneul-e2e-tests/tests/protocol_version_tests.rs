@@ -67,6 +67,8 @@ mod sim_only_tests {
     use haneul_macros::*;
     use haneul_move_build::{BuildConfig, CompiledPackage};
     use haneul_protocol_config::SupportedProtocolVersions;
+    use haneul_swarm_config::genesis_config::GenesisConfig;
+    use haneul_swarm_config::network_config::NetworkConfig;
     use haneul_types::base_types::ConciseableName;
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
@@ -87,7 +89,8 @@ mod sim_only_tests {
         object::Object,
         programmable_transaction_builder::ProgrammableTransactionBuilder,
         transaction::TransactionKind,
-        MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID,
+        MOVE_STDLIB_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID,
+        HANEUL_SYSTEM_PACKAGE_ID,
     };
     use haneul_types::{
         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
@@ -436,6 +439,7 @@ mod sim_only_tests {
                         HANEUL_CLOCK_OBJECT_ID,
                         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
                         HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+                        HANEUL_BRIDGE_OBJECT_ID,
                     ]
                     .contains(&obj.0);
                     (!is_framework_obj).then_some(obj.0)
@@ -787,6 +791,11 @@ mod sim_only_tests {
 
     #[sim_test]
     async fn test_safe_mode_recovery() {
+        let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+            config.set_disable_bridge_for_testing();
+            config
+        });
+
         override_haneul_system_modules("mock_haneul_systems/base");
         let test_cluster = TestClusterBuilder::new()
             .with_epoch_duration_ms(20000)
@@ -835,6 +844,11 @@ mod sim_only_tests {
 
     #[sim_test]
     async fn haneul_system_mock_smoke_test() {
+        let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+            config.set_disable_bridge_for_testing();
+            config
+        });
+
         let test_cluster = TestClusterBuilder::new()
             .with_epoch_duration_ms(20000)
             .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(
@@ -849,6 +863,11 @@ mod sim_only_tests {
 
     #[sim_test]
     async fn haneul_system_state_shallow_upgrade_test() {
+        let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+            config.set_disable_bridge_for_testing();
+            config
+        });
+
         override_haneul_system_modules("mock_haneul_systems/shallow_upgrade");
 
         let test_cluster = TestClusterBuilder::new()
@@ -881,6 +900,11 @@ mod sim_only_tests {
 
     #[sim_test]
     async fn haneul_system_state_deep_upgrade_test() {
+        let _guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
+            config.set_disable_bridge_for_testing();
+            config
+        });
+
         override_haneul_system_modules("mock_haneul_systems/deep_upgrade");
 
         let test_cluster = TestClusterBuilder::new()

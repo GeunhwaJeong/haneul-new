@@ -83,6 +83,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `load_system_state`](#0x3_haneul_system_load_system_state)
 -  [Function `load_system_state_mut`](#0x3_haneul_system_load_system_state_mut)
 -  [Function `load_inner_maybe_upgrade`](#0x3_haneul_system_load_inner_maybe_upgrade)
+-  [Function `validator_voting_powers`](#0x3_haneul_system_validator_voting_powers)
 
 
 <pre><code><b>use</b> <a href="../move-stdlib/option.md#0x1_option">0x1::option</a>;
@@ -94,6 +95,7 @@ the HaneulSystemStateInner version, or vice versa.
 <b>use</b> <a href="../haneul-framework/table.md#0x2_table">0x2::table</a>;
 <b>use</b> <a href="../haneul-framework/transfer.md#0x2_transfer">0x2::transfer</a>;
 <b>use</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
+<b>use</b> <a href="../haneul-framework/vec_map.md#0x2_vec_map">0x2::vec_map</a>;
 <b>use</b> <a href="stake_subsidy.md#0x3_stake_subsidy">0x3::stake_subsidy</a>;
 <b>use</b> <a href="staking_pool.md#0x3_staking_pool">0x3::staking_pool</a>;
 <b>use</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner">0x3::haneul_system_state_inner</a>;
@@ -1484,6 +1486,32 @@ gas coins.
     );
     <b>assert</b>!(inner.system_state_version() == self.version, <a href="haneul_system.md#0x3_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
     inner
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_validator_voting_powers"></a>
+
+## Function `validator_voting_powers`
+
+Returns the voting power of the active validators, values are voting power in the scale of 10000.
+
+
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_validator_voting_powers">validator_voting_powers</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>): <a href="../haneul-framework/vec_map.md#0x2_vec_map_VecMap">vec_map::VecMap</a>&lt;<b>address</b>, u64&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="haneul_system.md#0x3_haneul_system_validator_voting_powers">validator_voting_powers</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>): VecMap&lt;<b>address</b>, u64&gt; {
+    <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state">load_system_state</a>(wrapper);
+    <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_voting_powers">haneul_system_state_inner::active_validator_voting_powers</a>(self)
 }
 </code></pre>
 

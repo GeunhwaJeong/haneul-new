@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./utils/CommitteeUpgradeable.sol";
 import "./interfaces/IHaneulBridge.sol";
 import "./interfaces/IBridgeVault.sol";
@@ -23,7 +25,6 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     mapping(uint64 nonce => bool isProcessed) public isTransferProcessed;
     IBridgeVault public vault;
     IBridgeLimiter public limiter;
-    IWETH9 public wETH;
 
     /* ========== INITIALIZER ========== */
 
@@ -32,8 +33,7 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     /// @param _committee The address of the committee contract.
     /// @param _vault The address of the bridge vault contract.
     /// @param _limiter The address of the bridge limiter contract.
-    /// @param _wETH The address of the WETH9 contract.
-    function initialize(address _committee, address _vault, address _limiter, address _wETH)
+    function initialize(address _committee, address _vault, address _limiter)
         external
         initializer
     {
@@ -41,7 +41,6 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         __Pausable_init();
         vault = IBridgeVault(_vault);
         limiter = IBridgeLimiter(_limiter);
-        wETH = IWETH9(_wETH);
     }
 
     /* ========== EXTERNAL FUNCTIONS ========== */
@@ -51,31 +50,34 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     /// @dev `message.chainID` represents the sending chain ID. Receiving chain ID needs to match
     /// this bridge's chain ID (this chain).
     /// @param signatures The array of signatures.
-    /// @param message The BridgeMessage containing the transfer details.
+    /// @param message The BridgeUtils containing the transfer details.
     function transferBridgedTokensWithSignatures(
         bytes[] memory signatures,
-        BridgeMessage.Message memory message
+        BridgeUtils.Message memory message
     )
         external
         nonReentrant
-        verifyMessageAndSignatures(message, signatures, BridgeMessage.TOKEN_TRANSFER)
+        verifyMessageAndSignatures(message, signatures, BridgeUtils.TOKEN_TRANSFER)
         onlySupportedChain(message.chainID)
     {
         // verify that message has not been processed
         require(!isTransferProcessed[message.nonce], "HaneulBridge: Message already processed");
 
-        BridgeMessage.TokenTransferPayload memory tokenTransferPayload =
-            BridgeMessage.decodeTokenTransferPayload(message.payload);
+        IBridgeConfig config = committee.config();
+
+        BridgeUtils.TokenTransferPayload memory tokenTransferPayload =
+            BridgeUtils.decodeTokenTransferPayload(message.payload);
 
         // verify target chain ID is this chain ID
         require(
-            tokenTransferPayload.targetChain == committee.config().chainID(),
-            "HaneulBridge: Invalid target chain"
+            tokenTransferPayload.targetChain == config.chainID(), "HaneulBridge: Invalid target chain"
         );
 
         // convert amount to ERC20 token decimals
-        uint256 erc20AdjustedAmount = committee.config().convertHaneulToERC20Decimal(
-            tokenTransferPayload.tokenID, tokenTransferPayload.amount
+        uint256 erc20AdjustedAmount = BridgeUtils.convertHaneulToERC20Decimal(
+            IERC20Metadata(config.tokenAddressOf(tokenTransferPayload.tokenID)).decimals(),
+            config.tokenHaneulDecimalOf(tokenTransferPayload.tokenID),
+            tokenTransferPayload.amount
         );
 
         _transferTokensFromVault(
@@ -91,7 +93,7 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         emit TokensClaimed(
             message.chainID,
             message.nonce,
-            committee.config().chainID(),
+            config.chainID(),
             tokenTransferPayload.tokenID,
             erc20AdjustedAmount,
             tokenTransferPayload.senderAddress,
@@ -103,17 +105,17 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     /// @dev If the given operation is to freeze and the bridge is already frozen, the operation
     /// will revert.
     /// @param signatures The array of signatures to verify.
-    /// @param message The BridgeMessage containing the details of the operation.
+    /// @param message The BridgeUtils containing the details of the operation.
     function executeEmergencyOpWithSignatures(
         bytes[] memory signatures,
-        BridgeMessage.Message memory message
+        BridgeUtils.Message memory message
     )
         external
         nonReentrant
-        verifyMessageAndSignatures(message, signatures, BridgeMessage.EMERGENCY_OP)
+        verifyMessageAndSignatures(message, signatures, BridgeUtils.EMERGENCY_OP)
     {
         // decode the emergency op message
-        bool isFreezing = BridgeMessage.decodeEmergencyOpPayload(message.payload);
+        bool isFreezing = BridgeUtils.decodeEmergencyOpPayload(message.payload);
 
         if (isFreezing) _pause();
         else _unpause();
@@ -134,9 +136,11 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         bytes memory recipientAddress,
         uint8 destinationChainID
     ) external whenNotPaused nonReentrant onlySupportedChain(destinationChainID) {
-        require(committee.config().isTokenSupported(tokenID), "HaneulBridge: Unsupported token");
+        IBridgeConfig config = committee.config();
 
-        address tokenAddress = committee.config().getTokenAddress(tokenID);
+        require(config.isTokenSupported(tokenID), "HaneulBridge: Unsupported token");
+
+        address tokenAddress = config.tokenAddressOf(tokenID);
 
         // check that the bridge contract has allowance to transfer the tokens
         require(
@@ -145,14 +149,16 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         );
 
         // Transfer the tokens from the contract to the vault
-        IERC20(tokenAddress).transferFrom(msg.sender, address(vault), amount);
+        SafeERC20.safeTransferFrom(IERC20(tokenAddress), msg.sender, address(vault), amount);
 
-        // Adjust the amount to emit.
-        uint64 haneulAdjustedAmount = committee.config().convertERC20ToHaneulDecimal(tokenID, amount);
+        // Adjust the amount
+        uint64 haneulAdjustedAmount = BridgeUtils.convertERC20ToHaneulDecimal(
+            IERC20Metadata(tokenAddress).decimals(), config.tokenHaneulDecimalOf(tokenID), amount
+        );
 
         emit TokensDeposited(
-            committee.config().chainID(),
-            nonces[BridgeMessage.TOKEN_TRANSFER],
+            config.chainID(),
+            nonces[BridgeUtils.TOKEN_TRANSFER],
             destinationChainID,
             tokenID,
             haneulAdjustedAmount,
@@ -161,7 +167,7 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         );
 
         // increment token transfer nonce
-        nonces[BridgeMessage.TOKEN_TRANSFER]++;
+        nonces[BridgeUtils.TOKEN_TRANSFER]++;
     }
 
     /// @notice Enables the caller to deposit Eth to be bridged to a given destination chain.
@@ -177,28 +183,32 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     {
         uint256 amount = msg.value;
 
-        // Wrap ETH
-        wETH.deposit{value: amount}();
-
-        // Transfer the wrapped ETH back to caller
-        wETH.transfer(address(vault), amount);
+        // Transfer the unwrapped ETH to the target address
+        (bool success,) = payable(address(vault)).call{value: amount}("");
+        require(success, "HaneulBridge: Failed to transfer ETH to vault");
 
         // Adjust the amount to emit.
-        uint64 haneulAdjustedAmount =
-            committee.config().convertERC20ToHaneulDecimal(BridgeMessage.ETH, amount);
+        IBridgeConfig config = committee.config();
+
+        // Adjust the amount
+        uint64 haneulAdjustedAmount = BridgeUtils.convertERC20ToHaneulDecimal(
+            IERC20Metadata(config.tokenAddressOf(BridgeUtils.ETH)).decimals(),
+            config.tokenHaneulDecimalOf(BridgeUtils.ETH),
+            amount
+        );
 
         emit TokensDeposited(
-            committee.config().chainID(),
-            nonces[BridgeMessage.TOKEN_TRANSFER],
+            config.chainID(),
+            nonces[BridgeUtils.TOKEN_TRANSFER],
             destinationChainID,
-            BridgeMessage.ETH,
+            BridgeUtils.ETH,
             haneulAdjustedAmount,
             msg.sender,
             recipientAddress
         );
 
         // increment token transfer nonce
-        nonces[BridgeMessage.TOKEN_TRANSFER]++;
+        nonces[BridgeUtils.TOKEN_TRANSFER]++;
     }
 
     /* ========== INTERNAL FUNCTIONS ========== */
@@ -214,13 +224,13 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         address recipientAddress,
         uint256 amount
     ) private whenNotPaused limitNotExceeded(sendingChainID, tokenID, amount) {
-        address tokenAddress = committee.config().getTokenAddress(tokenID);
+        address tokenAddress = committee.config().tokenAddressOf(tokenID);
 
         // Check that the token address is supported
         require(tokenAddress != address(0), "HaneulBridge: Unsupported token");
 
         // transfer eth if token type is eth
-        if (tokenID == BridgeMessage.ETH) {
+        if (tokenID == BridgeUtils.ETH) {
             vault.transferETH(payable(recipientAddress), amount);
         } else {
             // transfer tokens from vault to target address

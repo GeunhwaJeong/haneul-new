@@ -1,30 +1,28 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-//! The HaneulSyncer module is responsible for synchronizing Events emitted on Haneul blockchain from
-//! concerned bridge packages.
+//! The HaneulSyncer module is responsible for synchronizing Events emitted
+//! on Haneul blockchain from concerned modules of bridge package 0x9.
 
 use crate::{
     error::BridgeResult,
     retry_with_max_elapsed_time,
     haneul_client::{HaneulClient, HaneulClientInner},
-    haneul_transaction_builder::get_bridge_package_id,
 };
 use haneullabs_metrics::spawn_logged_monitored_task;
 use std::{collections::HashMap, sync::Arc};
 use haneul_json_rpc_types::HaneulEvent;
+use haneul_types::BRIDGE_PACKAGE_ID;
 use haneul_types::{event::EventID, Identifier};
 use tokio::{
     task::JoinHandle,
     time::{self, Duration},
 };
 
-// TODO: use the right package id
-// const PACKAGE_ID: ObjectID = HANEUL_SYSTEM_PACKAGE_ID;
 const HANEUL_EVENTS_CHANNEL_SIZE: usize = 1000;
 
 /// Map from contract address to their start cursor (exclusive)
-pub type HaneulTargetModules = HashMap<Identifier, EventID>;
+pub type HaneulTargetModules = HashMap<Identifier, Option<EventID>>;
 
 pub struct HaneulSyncer<C> {
     haneul_client: Arc<HaneulClient<C>>,
@@ -80,7 +78,7 @@ where
         // The module where interested events are defined.
         // Moudle is always of bridge package 0x9.
         module: Identifier,
-        mut cursor: EventID,
+        mut cursor: Option<EventID>,
         events_sender: haneullabs_metrics::metered_channel::Sender<(Identifier, Vec<HaneulEvent>)>,
         haneul_client: Arc<HaneulClient<C>>,
         query_interval: Duration,
@@ -91,7 +89,7 @@ where
         loop {
             interval.tick().await;
             let Ok(Ok(events)) = retry_with_max_elapsed_time!(
-                haneul_client.query_events_by_module(*get_bridge_package_id(), module.clone(), cursor),
+                haneul_client.query_events_by_module(BRIDGE_PACKAGE_ID, module.clone(), cursor),
                 Duration::from_secs(10)
             ) else {
                 tracing::error!("Failed to query events from haneul client after retry");
@@ -100,16 +98,12 @@ where
 
             let len = events.data.len();
             if len != 0 {
-                // Note: it's extremely critical to make sure the HaneulEvents we send via this channel
-                // are complete per transaction level. Namely, we should never send a partial list
-                // of events for a transaction. Otherwise, we may end up missing events.
-                // See `haneul_client.query_events_by_module` for how this is implemented.
                 events_sender
                     .send((module.clone(), events.data))
                     .await
                     .expect("All Haneul event channel receivers are closed");
                 if let Some(next) = events.next_cursor {
-                    cursor = next;
+                    cursor = Some(next);
                 }
                 tracing::info!(?module, ?cursor, "Observed {len} new Haneul events");
             }
@@ -146,8 +140,8 @@ mod tests {
         add_event_response(&mock, module_bar.clone(), cursor, empty_events.clone());
 
         let target_modules = HashMap::from_iter(vec![
-            (module_foo.clone(), cursor),
-            (module_bar.clone(), cursor),
+            (module_foo.clone(), Some(cursor)),
+            (module_bar.clone(), Some(cursor)),
         ]);
         let interval = Duration::from_millis(200);
         let (_handles, mut events_rx) = HaneulSyncer::new(client, target_modules)
@@ -160,7 +154,7 @@ mod tests {
 
         // Module Foo has new events
         let mut event_1: HaneulEvent = HaneulEvent::random_for_testing();
-        let package_id = *get_bridge_package_id();
+        let package_id = BRIDGE_PACKAGE_ID;
         event_1.type_.address = package_id.into();
         event_1.type_.module = module_foo.clone();
         let module_foo_events_1: haneul_json_rpc_types::Page<HaneulEvent, EventID> = EventPage {
@@ -223,11 +217,6 @@ mod tests {
         cursor: EventID,
         events: EventPage,
     ) {
-        mock.add_event_response(
-            *get_bridge_package_id(),
-            module.clone(),
-            cursor,
-            events.clone(),
-        );
+        mock.add_event_response(BRIDGE_PACKAGE_ID, module.clone(), cursor, events.clone());
     }
 }

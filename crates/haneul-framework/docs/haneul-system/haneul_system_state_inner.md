@@ -54,6 +54,7 @@ title: Module `0x3::haneul_system_state_inner`
 -  [Function `genesis_system_state_version`](#0x3_haneul_system_state_inner_genesis_system_state_version)
 -  [Function `epoch_start_timestamp_ms`](#0x3_haneul_system_state_inner_epoch_start_timestamp_ms)
 -  [Function `validator_stake_amount`](#0x3_haneul_system_state_inner_validator_stake_amount)
+-  [Function `active_validator_voting_powers`](#0x3_haneul_system_state_inner_active_validator_voting_powers)
 -  [Function `validator_staking_pool_id`](#0x3_haneul_system_state_inner_validator_staking_pool_id)
 -  [Function `validator_staking_pool_mappings`](#0x3_haneul_system_state_inner_validator_staking_pool_mappings)
 -  [Function `get_reporters_of`](#0x3_haneul_system_state_inner_get_reporters_of)
@@ -65,6 +66,7 @@ title: Module `0x3::haneul_system_state_inner`
 
 
 <pre><code><b>use</b> <a href="../move-stdlib/option.md#0x1_option">0x1::option</a>;
+<b>use</b> <a href="../move-stdlib/vector.md#0x1_vector">0x1::vector</a>;
 <b>use</b> <a href="../haneul-framework/bag.md#0x2_bag">0x2::bag</a>;
 <b>use</b> <a href="../haneul-framework/balance.md#0x2_balance">0x2::balance</a>;
 <b>use</b> <a href="../haneul-framework/coin.md#0x2_coin">0x2::coin</a>;
@@ -2363,6 +2365,39 @@ Aborts if <code>validator_addr</code> is not an active validator.
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_validator_stake_amount">validator_stake_amount</a>(self: &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>, validator_addr: <b>address</b>): u64 {
     self.validators.validator_total_stake_amount(validator_addr)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_state_inner_active_validator_voting_powers"></a>
+
+## Function `active_validator_voting_powers`
+
+Returns the voting power for <code>validator_addr</code>.
+Aborts if <code>validator_addr</code> is not an active validator.
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_voting_powers">active_validator_voting_powers</a>(self: &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system_state_inner::HaneulSystemStateInnerV2</a>): <a href="../haneul-framework/vec_map.md#0x2_vec_map_VecMap">vec_map::VecMap</a>&lt;<b>address</b>, u64&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_voting_powers">active_validator_voting_powers</a>(self: &<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>): VecMap&lt;<b>address</b>, u64&gt; {
+    <b>let</b> <b>mut</b> active_validators = <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_active_validator_addresses">active_validator_addresses</a>(self);
+    <b>let</b> <b>mut</b> voting_powers = <a href="../haneul-framework/vec_map.md#0x2_vec_map_empty">vec_map::empty</a>();
+    <b>while</b> (!<a href="../move-stdlib/vector.md#0x1_vector_is_empty">vector::is_empty</a>(&active_validators)) {
+        <b>let</b> <a href="validator.md#0x3_validator">validator</a> = <a href="../move-stdlib/vector.md#0x1_vector_pop_back">vector::pop_back</a>(&<b>mut</b> active_validators);
+        <b>let</b> <a href="voting_power.md#0x3_voting_power">voting_power</a> = <a href="validator_set.md#0x3_validator_set_validator_voting_power">validator_set::validator_voting_power</a>(&self.validators, <a href="validator.md#0x3_validator">validator</a>);
+        <a href="../haneul-framework/vec_map.md#0x2_vec_map_insert">vec_map::insert</a>(&<b>mut</b> voting_powers, <a href="validator.md#0x3_validator">validator</a>, <a href="voting_power.md#0x3_voting_power">voting_power</a>);
+    };
+    voting_powers
 }
 </code></pre>
 

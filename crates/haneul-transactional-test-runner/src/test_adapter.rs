@@ -73,7 +73,6 @@ use haneul_types::storage::ObjectStore;
 use haneul_types::storage::ReadStore;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
-use haneul_types::MOVE_STDLIB_PACKAGE_ID;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, HANEUL_ADDRESS_LENGTH},
@@ -93,6 +92,7 @@ use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_PACKAGE_ID,
 };
 use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID};
 use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
 use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use tempfile::{tempdir, NamedTempFile};
@@ -1849,6 +1849,13 @@ static NAMED_ADDRESSES: Lazy<BTreeMap<String, NumericalAddress>> = Lazy::new(|| 
             move_compiler::shared::NumberFormat::Hex,
         ),
     );
+    map.insert(
+        "bridge".to_string(),
+        NumericalAddress::new(
+            BRIDGE_ADDRESS.into_bytes(),
+            move_compiler::shared::NumberFormat::Hex,
+        ),
+    );
     map
 });
 
@@ -1881,10 +1888,21 @@ pub static PRE_COMPILED: Lazy<FullyCompiledProgram> = Lazy::new(|| {
         flavor: Flavor::Haneul,
         ..Default::default()
     };
+    let bridge_sources = {
+        let mut buf = haneul_files.to_path_buf();
+        buf.extend(["packages", "bridge", "sources"]);
+        buf.to_string_lossy().to_string()
+    };
     let fully_compiled_res = move_compiler::construct_pre_compiled_lib(
         vec![PackagePaths {
             name: Some(("haneul-framework".into(), config)),
-            paths: vec![haneul_system_sources, haneul_sources, haneul_deps, deepbook_sources],
+            paths: vec![
+                haneul_system_sources,
+                haneul_sources,
+                haneul_deps,
+                deepbook_sources,
+                bridge_sources,
+            ],
             named_address_map: NAMED_ADDRESSES.clone(),
         }],
         None,

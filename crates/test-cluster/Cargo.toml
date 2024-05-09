@@ -8,6 +8,8 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
+bcs.workspace = true
+fastcrypto.workspace = true
 futures.workspace = true
 tracing.workspace = true
 jsonrpsee.workspace = true
@@ -19,12 +21,14 @@ haneul-framework.workspace = true
 haneul-swarm-config.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-types.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-node.workspace = true
 haneul-protocol-config.workspace = true
 haneul-swarm.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
 prometheus.workspace = true
 haneul-keys.workspace = true
+haneul-bridge.workspace = true
 haneul-sdk.workspace = true
 haneul-test-transaction-builder.workspace = true
 

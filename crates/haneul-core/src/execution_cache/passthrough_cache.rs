@@ -27,6 +27,7 @@ use haneul_storage::package_object_cache::PackageObjectCache;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::VerifiedExecutionData;
 use haneul_types::base_types::{EpochId, ObjectID, ObjectRef, SequenceNumber};
+use haneul_types::bridge::{get_bridge, Bridge};
 use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulResult};
@@ -247,6 +248,10 @@ impl ExecutionCacheRead for PassthroughCache {
 
     fn get_haneul_system_state_object_unsafe(&self) -> HaneulResult<HaneulSystemState> {
         get_haneul_system_state(self)
+    }
+
+    fn get_bridge_object_unsafe(&self) -> HaneulResult<Bridge> {
+        get_bridge(self)
     }
 
     fn get_marker_value(

@@ -39,8 +39,10 @@ miette.workspace = true
 datatest-stable.workspace = true
 insta.workspace = true
 shlex.workspace = true
+futures.workspace = true
 
 haneul-config.workspace = true
+haneul-bridge.workspace = true
 haneul-execution = { path = "../../haneul-execution" }
 haneul-swarm-config.workspace = true
 haneul-genesis-builder.workspace = true

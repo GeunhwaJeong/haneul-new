@@ -51,6 +51,7 @@ module haneul_system::haneul_system {
     use haneul_system::stake_subsidy::StakeSubsidy;
     use haneul_system::staking_pool::PoolTokenExchangeRate;
     use haneul::dynamic_field;
+    use haneul::vec_map::VecMap;
 
     #[test_only] use haneul::balance;
     #[test_only] use haneul_system::validator_set::ValidatorSet;
@@ -582,6 +583,18 @@ module haneul_system::haneul_system {
         );
         assert!(inner.system_state_version() == self.version, EWrongInnerVersion);
         inner
+    }
+
+    #[allow(unused_function)]
+    /// Returns the voting power of the active validators, values are voting power in the scale of 10000.
+    fun validator_voting_powers(wrapper: &mut HaneulSystemState): VecMap<address, u64> {
+        let self = load_system_state(wrapper);
+        haneul_system_state_inner::active_validator_voting_powers(self)
+    }
+
+    #[test_only]
+    public fun validator_voting_powers_for_testing(wrapper: &mut HaneulSystemState): VecMap<address, u64> {
+        validator_voting_powers(wrapper)
     }
 
     #[test_only]

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module haneul_system::haneul_system {
+    use std::vector;
+
     use haneul::balance::Balance;
     use haneul::object::UID;
     use haneul::haneul::HANEUL;
@@ -65,6 +67,10 @@ module haneul_system::haneul_system {
             computation_reward,
             storage_rebate,
         )
+    }
+
+    public fun active_validator_addresses(wrapper: &mut HaneulSystemState): vector<address> {
+        vector::empty()
     }
 
     fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {

@@ -591,6 +591,7 @@ haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-deri
 haneul-archival = { path = "crates/haneul-archival" }
 haneul-authority-aggregation = { path = "crates/haneul-authority-aggregation" }
 haneul-benchmark = { path = "crates/haneul-benchmark" }
+haneul-bridge = { path = "crates/haneul-bridge" }
 haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-common = { path = "crates/haneul-common" }
 haneul-config = { path = "crates/haneul-config" }

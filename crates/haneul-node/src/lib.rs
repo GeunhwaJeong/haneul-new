@@ -30,6 +30,7 @@ use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::ExecutionCacheMetrics;
 use haneul_core::execution_cache::NotifyReadWrapper;
 use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
+use haneul_json_rpc::bridge_api::BridgeReadApi;
 use haneul_json_rpc::ServerType;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
@@ -1852,6 +1853,7 @@ pub async fn build_http_server(
             server.register_module(TransactionBuilderApi::new(state.clone()))?;
         }
         server.register_module(GovernanceReadApi::new(state.clone(), metrics.clone()))?;
+        server.register_module(BridgeReadApi::new(state.clone(), metrics.clone()))?;
 
         if let Some(transaction_orchestrator) = transaction_orchestrator {
             server.register_module(TransactionExecutionApi::new(

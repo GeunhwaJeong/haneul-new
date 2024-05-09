@@ -27,7 +27,9 @@ use haneul_types::base_types::{
     EpochId, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::crypto::HaneulSignature;
-use haneul_types::digests::{ConsensusCommitDigest, ObjectDigest, TransactionEventsDigest};
+use haneul_types::digests::{
+    CheckpointDigest, ConsensusCommitDigest, ObjectDigest, TransactionEventsDigest,
+};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
@@ -519,6 +521,16 @@ impl HaneulTransactionBlockKind {
                             EndOfEpochTransactionKind::DenyListStateCreate => {
                                 HaneulEndOfEpochTransactionKind::CoinDenyListStateCreate
                             }
+                            EndOfEpochTransactionKind::BridgeStateCreate(chain_id) => {
+                                HaneulEndOfEpochTransactionKind::BridgeStateCreate(
+                                    (*chain_id.as_bytes()).into(),
+                                )
+                            }
+                            EndOfEpochTransactionKind::BridgeCommitteeInit(
+                                bridge_shared_version,
+                            ) => HaneulEndOfEpochTransactionKind::BridgeCommitteeUpdate(
+                                bridge_shared_version,
+                            ),
                         })
                         .collect(),
                 })
@@ -598,6 +610,14 @@ impl HaneulTransactionBlockKind {
                             }
                             EndOfEpochTransactionKind::DenyListStateCreate => {
                                 HaneulEndOfEpochTransactionKind::CoinDenyListStateCreate
+                            }
+                            EndOfEpochTransactionKind::BridgeStateCreate(id) => {
+                                HaneulEndOfEpochTransactionKind::BridgeStateCreate(
+                                    (*id.as_bytes()).into(),
+                                )
+                            }
+                            EndOfEpochTransactionKind::BridgeCommitteeInit(seq) => {
+                                HaneulEndOfEpochTransactionKind::BridgeCommitteeUpdate(seq)
                             }
                         })
                         .collect(),
@@ -1598,6 +1618,8 @@ pub enum HaneulEndOfEpochTransactionKind {
     AuthenticatorStateExpire(HaneulAuthenticatorStateExpire),
     RandomnessStateCreate,
     CoinDenyListStateCreate,
+    BridgeStateCreate(CheckpointDigest),
+    BridgeCommitteeUpdate(SequenceNumber),
 }
 
 #[serde_as]

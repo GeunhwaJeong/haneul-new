@@ -70,6 +70,7 @@ use haneul_macros::fail_point_async;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::{EpochId, ObjectID, ObjectRef, SequenceNumber, VerifiedExecutionData};
+use haneul_types::bridge::Bridge;
 use haneul_types::digests::{
     ObjectDigest, TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest,
 };
@@ -1368,6 +1369,10 @@ impl ExecutionCacheRead for WritebackCache {
             },
         )?;
         Ok(())
+    }
+
+    fn get_bridge_object_unsafe(&self) -> HaneulResult<Bridge> {
+        todo!()
     }
 }
 

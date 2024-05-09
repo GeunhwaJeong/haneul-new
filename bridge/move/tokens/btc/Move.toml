@@ -1,0 +1,11 @@
+[package]
+name = "BridgedBTC"
+version = "0.0.1"
+
+[dependencies]
+MoveStdlib = { local = "../../../../crates/haneul-framework/packages/move-stdlib" }
+Haneul = { local = "../../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+bridged_btc = "0x0"
+

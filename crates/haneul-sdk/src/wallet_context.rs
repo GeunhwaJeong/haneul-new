@@ -16,6 +16,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI};
 use tokio::sync::RwLock;
@@ -276,6 +277,11 @@ impl WalletContext {
         let client = self.get_client().await?;
         let gas_price = client.governance_api().get_reference_gas_price().await?;
         Ok(gas_price)
+    }
+
+    /// Add an account
+    pub fn add_account(&mut self, alias: Option<String>, keypair: HaneulKeyPair) {
+        self.config.keystore.add_key(alias, keypair).unwrap();
     }
 
     /// Sign a transaction with a key currently managed by the WalletContext

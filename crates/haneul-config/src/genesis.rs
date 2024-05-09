@@ -23,12 +23,12 @@ use haneul_types::haneul_system_state::{
     HaneulSystemStateWrapper, HaneulValidatorGenesis,
 };
 use haneul_types::transaction::Transaction;
-use haneul_types::HANEUL_RANDOMNESS_STATE_OBJECT_ID;
 use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
     error::HaneulResult,
     object::Object,
 };
+use haneul_types::{HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use tracing::trace;
 
 #[derive(Clone, Debug)]
@@ -329,6 +329,13 @@ impl UnsignedGenesis {
     pub fn has_randomness_state_object(&self) -> bool {
         self.objects()
             .get_object(&HANEUL_RANDOMNESS_STATE_OBJECT_ID)
+            .expect("read from genesis cannot fail")
+            .is_some()
+    }
+
+    pub fn has_bridge_object(&self) -> bool {
+        self.objects()
+            .get_object(&HANEUL_BRIDGE_OBJECT_ID)
             .expect("read from genesis cannot fail")
             .is_some()
     }

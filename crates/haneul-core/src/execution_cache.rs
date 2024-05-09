@@ -9,6 +9,7 @@ use crate::authority::{
 };
 use crate::transaction_outputs::TransactionOutputs;
 use async_trait::async_trait;
+use haneul_types::bridge::Bridge;
 
 use futures::{future::BoxFuture, FutureExt};
 use prometheus::{register_int_gauge_with_registry, IntGauge, Registry};
@@ -422,6 +423,8 @@ pub trait ExecutionCacheRead: Send + Sync {
     }
 
     fn get_haneul_system_state_object_unsafe(&self) -> HaneulResult<HaneulSystemState>;
+
+    fn get_bridge_object_unsafe(&self) -> HaneulResult<Bridge>;
 
     // Marker methods
 

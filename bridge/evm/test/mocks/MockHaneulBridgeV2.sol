@@ -11,6 +11,16 @@ contract MockHaneulBridgeV2 is HaneulBridge {
         _pause();
     }
 
+    function initializeV2Params(uint256 value, bool _override, string memory _event) external {
+        if (_override) {
+            _pause();
+        } else if (value == 42) {
+            _pause();
+        }
+
+        emit MockEvent(_event);
+    }
+
     function newMockFunction(bool _pausing) external {
         isPausing = _pausing;
     }
@@ -21,5 +31,7 @@ contract MockHaneulBridgeV2 is HaneulBridge {
     }
 
     // used to ignore for forge coverage
-    function test() external view {}
+    function testSkip() external view {}
+
+    event MockEvent(string _event);
 }

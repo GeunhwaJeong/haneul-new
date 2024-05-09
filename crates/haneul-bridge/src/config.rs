@@ -1,29 +1,91 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::abi::{EthBridgeCommittee, EthBridgeConfig, EthHaneulBridge};
 use crate::crypto::BridgeAuthorityKeyPair;
 use crate::error::BridgeError;
 use crate::eth_client::EthClient;
 use crate::haneul_client::HaneulClient;
-use crate::types::BridgeAction;
+use crate::types::{is_route_valid, BridgeAction};
 use anyhow::anyhow;
+use ethers::providers::Middleware;
 use ethers::types::Address as EthAddress;
-use fastcrypto::traits::EncodeDecodeBase64;
+use fastcrypto::traits::{EncodeDecodeBase64, KeyPair};
+use futures::{future, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::Config;
-use haneul_sdk::HaneulClient as HaneulSdkClient;
+use haneul_json_rpc_types::Coin;
+use haneul_sdk::apis::CoinReadApi;
+use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::bridge::BridgeChainId;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
 use haneul_types::event::EventID;
 use haneul_types::object::Owner;
-use haneul_types::Identifier;
 use tracing::info;
+
+#[serde_as]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct EthConfig {
+    /// Rpc url for Eth fullnode, used for query stuff.
+    pub eth_rpc_url: String,
+    /// The proxy address of HaneulBridge
+    pub eth_bridge_proxy_address: String,
+    /// The expected BridgeChainId on Eth side.
+    pub eth_bridge_chain_id: u8,
+    /// The starting block for EthSyncer to monitor eth contracts.
+    /// It is required when `run_client` is true. Usually this is
+    /// the block number when the bridge contracts are deployed.
+    /// When BridgeNode starts, it reads the contract watermark from storage.
+    /// If the watermark is not found, it will start from this fallback block number.
+    /// If the watermark is found, it will start from the watermark.
+    /// this v.s.`eth_contracts_start_block_override`:
+    pub eth_contracts_start_block_fallback: Option<u64>,
+    /// The starting block for EthSyncer to monitor eth contracts. It overrides
+    /// the watermark in storage. This is useful when we want to reprocess the events
+    /// from a specific block number.
+    /// Note: this field has to be reset after starting the BridgeNode, otherwise it will
+    /// reprocess the events from this block number every time it starts.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub eth_contracts_start_block_override: Option<u64>,
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct HaneulConfig {
+    /// Rpc url for Haneul fullnode, used for query stuff and submit transactions.
+    pub haneul_rpc_url: String,
+    /// The expected BridgeChainId on Haneul side.
+    pub haneul_bridge_chain_id: u8,
+    /// Path of the file where bridge client key (any HaneulKeyPair) is stored as Base64 encoded `flag || privkey`.
+    /// If `run_client` is true, and this is None, then use `bridge_authority_key_path_base64_raw` as client key.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bridge_client_key_path_base64_haneul_key: Option<PathBuf>,
+    /// The gas object to use for paying for gas fees for the client. It needs to
+    /// be owned by the address associated with bridge client key. If not set
+    /// and `run_client` is true, it will query and use the gas object with highest
+    /// amount for the account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bridge_client_gas_object: Option<ObjectID>,
+    /// Override the last processed EventID for bridge module `bridge`.
+    /// When set, HaneulSyncer will start from this cursor (exclusively) instead of the one in storage.
+    /// If the cursor is not found in storage or override, the query will start from genesis.
+    /// Key: haneul module, Value: last processed EventID (tx_digest, event_seq).
+    /// Note 1: This field should be rarely used. Only use it when you understand how to follow up.
+    /// Note 2: the EventID needs to be valid, namely it must exist and matches the filter.
+    /// Otherwise, it will miss one event because of fullnode Event query semantics.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub haneul_bridge_module_last_processed_event_id_override: Option<EventID>,
+}
 
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -35,48 +97,18 @@ pub struct BridgeNodeConfig {
     pub metrics_port: u16,
     /// Path of the file where bridge authority key (Secp256k1) is stored as Base64 encoded `privkey`.
     pub bridge_authority_key_path_base64_raw: PathBuf,
-    /// Rpc url for Haneul fullnode, used for query stuff and submit transactions.
-    pub haneul_rpc_url: String,
-    /// Rpc url for Eth fullnode, used for query stuff.
-    pub eth_rpc_url: String,
-    /// The eth contract addresses (hex). It must not be empty. It serves two purpose:
-    /// 1. validator only signs bridge actions that are generated from these contracts.
-    /// 2. for EthSyncer to watch for when `run_client` is true.
-    pub eth_addresses: Vec<String>,
-    /// Path of the file where bridge client key (any HaneulKeyPair) is stored as Base64 encoded `flag || privkey`.
-    /// If `run_client` is true, and this is None, then use `bridge_authority_key_path_base64_raw` as client key.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bridge_client_key_path_base64_haneul_key: Option<PathBuf>,
     /// Whether to run client. If true, `bridge_client_key_path_base64_haneul_key`,
-    /// `bridge_client_gas_object` and `db_path` needs to be provided.
+    /// and `db_path` needs to be provided.
     pub run_client: bool,
-    /// The gas object to use for paying for gas fees for the client. It needs to
-    /// be owned by the address associated with bridge client key.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bridge_client_gas_object: Option<ObjectID>,
     /// Path of the client storage. Required when `run_client` is true.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub db_path: Option<PathBuf>,
-    // TODO: this should be hardcoded and removed from config
-    /// The haneul modules of bridge packages for client to watch for. Need to contain at least one item when `run_client` is true.
-    pub haneul_bridge_modules: Option<Vec<String>>,
-    // TODO: we need to hardcode the starting blocks for eth networks for cold start.
-    /// Override the start block number for each eth address. Key must be in `eth_addresses`.
-    /// When set, EthSyncer will start from this block number (inclusively) instead of the one in storage.
-    /// Key: eth address, Value:  block number to start from
-    /// Note: This field should be rarely used. Only use it when you understand how to follow up.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub eth_bridge_contracts_start_block_override: Option<BTreeMap<String, u64>>,
-    /// Override the last processed EventID for each bridge module. Key must be in `haneul_bridge_modules`.
-    /// When set, HaneulSyncer will start from this cursor (exclusively) instead of the one in storage.
-    /// Key: haneul module, Value: last processed EventID (tx_digest, event_seq).
-    /// Note 1: This field should be rarely used. Only use it when you understand how to follow up.
-    /// Note 2: the EventID needs to be valid, namely it must exist and matches the filter.
-    /// Otherwise, it will miss one event because of fullnode Event query semantics.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub haneul_bridge_modules_last_processed_event_id_override: Option<BTreeMap<String, EventID>>,
     /// A list of approved governance actions. Action in this list will be signed when requested by client.
     pub approved_governance_actions: Vec<BridgeAction>,
+    /// Haneul configuration
+    pub haneul: HaneulConfig,
+    /// Eth configuration
+    pub eth: EthConfig,
 }
 
 impl Config for BridgeNodeConfig {}
@@ -85,38 +117,53 @@ impl BridgeNodeConfig {
     pub async fn validate(
         &self,
     ) -> anyhow::Result<(BridgeServerConfig, Option<BridgeClientConfig>)> {
+        if !is_route_valid(
+            BridgeChainId::try_from(self.haneul.haneul_bridge_chain_id)?,
+            BridgeChainId::try_from(self.eth.eth_bridge_chain_id)?,
+        ) {
+            return Err(anyhow!(
+                "Route between Haneul chain id {} and Eth chain id {} is not valid",
+                self.haneul.haneul_bridge_chain_id,
+                self.eth.eth_bridge_chain_id,
+            ));
+        };
+
         let bridge_authority_key =
             read_bridge_authority_key(&self.bridge_authority_key_path_base64_raw)?;
 
-        // TODO: verify it's part of bridge committee
-        let haneul_client = Arc::new(HaneulClient::<HaneulSdkClient>::new(&self.haneul_rpc_url).await?);
-
-        // TODO(audit-blocking): verify Haneul Chain ID matches bridge Chain ID
-
-        if self.eth_addresses.is_empty() {
-            return Err(anyhow!("`eth_addresses` must contain at least one address"));
+        // we do this check here instead of `prepare_for_haneul` below because
+        // that is only called when `run_client` is true.
+        let haneul_client = Arc::new(HaneulClient::<HaneulSdkClient>::new(&self.haneul.haneul_rpc_url).await?);
+        let bridge_committee = haneul_client
+            .get_bridge_committee()
+            .await
+            .map_err(|e| anyhow!("Error getting bridge committee: {:?}", e))?;
+        if !bridge_committee.is_active_member(&bridge_authority_key.public().into()) {
+            return Err(anyhow!(
+                "Bridge authority key is not part of bridge committee"
+            ));
         }
-        let eth_bridge_contracts = self
-            .eth_addresses
-            .iter()
-            .map(|addr| EthAddress::from_str(addr))
-            .collect::<Result<Vec<_>, _>>()?;
-        let eth_client = Arc::new(
-            EthClient::<ethers::providers::Http>::new(
-                &self.eth_rpc_url,
-                HashSet::from_iter(eth_bridge_contracts.iter().cloned()),
-            )
-            .await?,
-        );
-        // TODO(audit-blocking): verify Ethereum Chain ID matches bridge Chain ID
+
+        let (eth_client, eth_contracts) = self.prepare_for_eth().await?;
+        let bridge_summary = haneul_client
+            .get_bridge_summary()
+            .await
+            .map_err(|e| anyhow!("Error getting bridge summary: {:?}", e))?;
+        if bridge_summary.chain_id != self.haneul.haneul_bridge_chain_id {
+            anyhow::bail!(
+                "Bridge chain id mismatch: expected {}, but connected to {}",
+                self.haneul.haneul_bridge_chain_id,
+                bridge_summary.chain_id
+            );
+        }
 
         // Validate approved actions that must be governace actions
         for action in &self.approved_governance_actions {
             if !action.is_governace_action() {
-                return Err(anyhow::anyhow!(format!(
+                anyhow::bail!(format!(
                     "{:?}",
                     BridgeError::ActionIsNotGovernanceAction(action.clone())
-                )));
+                ));
             }
         }
         let approved_governance_actions = self.approved_governance_actions.clone();
@@ -129,96 +176,19 @@ impl BridgeNodeConfig {
             eth_client: eth_client.clone(),
             approved_governance_actions,
         };
-
         if !self.run_client {
             return Ok((bridge_server_config, None));
         }
-        // If client is enabled, prepare client config
-        let bridge_client_key = if self.bridge_client_key_path_base64_haneul_key.is_none() {
-            let bridge_client_key =
-                read_bridge_authority_key(&self.bridge_authority_key_path_base64_raw)?;
-            Ok(HaneulKeyPair::from(bridge_client_key))
-        } else {
-            read_bridge_client_key(self.bridge_client_key_path_base64_haneul_key.as_ref().unwrap())
-        }?;
 
-        let client_haneul_address = HaneulAddress::from(&bridge_client_key.public());
-        info!("Bridge client haneul address: {:?}", client_haneul_address);
-        let gas_object_id = self.bridge_client_gas_object.ok_or(anyhow!(
-            "`bridge_client_gas_object` is required when `run_client` is true"
-        ))?;
+        // If client is enabled, prepare client config
+        let (bridge_client_key, client_haneul_address, gas_object_ref) =
+            self.prepare_for_haneul(haneul_client.clone()).await?;
+
         let db_path = self
             .db_path
             .clone()
             .ok_or(anyhow!("`db_path` is required when `run_client` is true"))?;
 
-        let mut eth_bridge_contracts_start_block_override = BTreeMap::new();
-        match &self.eth_bridge_contracts_start_block_override {
-            Some(overrides) => {
-                for (addr, block_number) in overrides {
-                    let address = EthAddress::from_str(addr)?;
-                    if eth_bridge_contracts.contains(&address) {
-                        eth_bridge_contracts_start_block_override.insert(address, *block_number);
-                    } else {
-                        return Err(anyhow!(
-                            "Override start block number for address {:?} is not in `eth_addresses`",
-                            addr
-                        ));
-                    }
-                }
-            }
-            None => {}
-        }
-
-        let haneul_bridge_modules = match &self.haneul_bridge_modules {
-            Some(modules) => {
-                if modules.is_empty() {
-                    return Err(anyhow!(
-                        "`haneul_bridge_modules` is required when `run_client` is true"
-                    ));
-                }
-                modules
-                    .iter()
-                    .map(|module| Identifier::from_str(module))
-                    .collect::<Result<Vec<_>, _>>()
-                    .map_err(|e| anyhow!("Error parsing haneul module: {:?}", e))?
-            }
-            None => {
-                return Err(anyhow!(
-                    "`haneul_bridge_modules` is required when `run_client` is true"
-                ))
-            }
-        };
-
-        let mut haneul_bridge_modules_last_processed_event_id_override = BTreeMap::new();
-        match &self.haneul_bridge_modules_last_processed_event_id_override {
-            Some(overrides) => {
-                for (module, cursor) in overrides {
-                    let module = Identifier::from_str(module)?;
-                    if haneul_bridge_modules.contains(&module) {
-                        haneul_bridge_modules_last_processed_event_id_override.insert(module, *cursor);
-                    } else {
-                        return Err(anyhow!(
-                            "Override start tx digest for module {:?} is not in `haneul_bridge_modules`",
-                            module
-                        ));
-                    }
-                }
-            }
-            None => {}
-        }
-
-        let (gas_coin, gas_object_ref, owner) = haneul_client
-            .get_gas_data_panic_if_not_gas(gas_object_id)
-            .await;
-        if owner != Owner::AddressOwner(client_haneul_address) {
-            return Err(anyhow!("Gas object {:?} is not owned by bridge client key's associated haneul address {:?}, but {:?}", gas_object_id, client_haneul_address, owner));
-        }
-        info!(
-            "Starting bridge client with gas object {:?}, balance: {}",
-            gas_object_ref.0,
-            gas_coin.value()
-        );
         let bridge_client_config = BridgeClientConfig {
             haneul_address: client_haneul_address,
             key: bridge_client_key,
@@ -227,13 +197,167 @@ impl BridgeNodeConfig {
             haneul_client: haneul_client.clone(),
             eth_client: eth_client.clone(),
             db_path,
-            eth_bridge_contracts,
-            haneul_bridge_modules,
-            eth_bridge_contracts_start_block_override,
-            haneul_bridge_modules_last_processed_event_id_override,
+            eth_contracts,
+            // in `prepare_for_eth` we check if this is None when `run_client` is true. Safe to unwrap here.
+            eth_contracts_start_block_fallback: self
+                .eth
+                .eth_contracts_start_block_fallback
+                .unwrap(),
+            eth_contracts_start_block_override: self.eth.eth_contracts_start_block_override,
+            haneul_bridge_module_last_processed_event_id_override: self
+                .haneul
+                .haneul_bridge_module_last_processed_event_id_override,
         };
 
         Ok((bridge_server_config, Some(bridge_client_config)))
+    }
+
+    async fn prepare_for_eth(
+        &self,
+    ) -> anyhow::Result<(Arc<EthClient<ethers::providers::Http>>, Vec<EthAddress>)> {
+        let bridge_proxy_address = EthAddress::from_str(&self.eth.eth_bridge_proxy_address)?;
+        let provider = Arc::new(
+            ethers::prelude::Provider::<ethers::providers::Http>::try_from(&self.eth.eth_rpc_url)
+                .unwrap()
+                .interval(std::time::Duration::from_millis(2000)),
+        );
+        let chain_id = provider.get_chainid().await?;
+        let haneul_bridge = EthHaneulBridge::new(bridge_proxy_address, provider.clone());
+        let committee_address: EthAddress = haneul_bridge.committee().call().await?;
+        let limiter_address: EthAddress = haneul_bridge.limiter().call().await?;
+        let vault_address: EthAddress = haneul_bridge.vault().call().await?;
+        let committee = EthBridgeCommittee::new(committee_address, provider.clone());
+        let config_address: EthAddress = committee.config().call().await?;
+        let config = EthBridgeConfig::new(config_address, provider.clone());
+
+        if self.run_client && self.eth.eth_contracts_start_block_fallback.is_none() {
+            return Err(anyhow!(
+                "eth_contracts_start_block_fallback is required when run_client is true"
+            ));
+        }
+
+        // If bridge chain id is Eth Mainent or Sepolia, we expect to see chain
+        // identifier to match accordingly.
+        let bridge_chain_id: u8 = config.chain_id().call().await?;
+        if self.eth.eth_bridge_chain_id != bridge_chain_id {
+            return Err(anyhow!(
+                "Bridge chain id mismatch: expected {}, but connected to {}",
+                self.eth.eth_bridge_chain_id,
+                bridge_chain_id
+            ));
+        }
+        if bridge_chain_id == BridgeChainId::EthMainnet as u8 && chain_id.as_u64() != 1 {
+            anyhow::bail!(
+                "Expected Eth chain id 1, but connected to {}",
+                chain_id.as_u64()
+            );
+        }
+        if bridge_chain_id == BridgeChainId::EthSepolia as u8 && chain_id.as_u64() != 11155111 {
+            anyhow::bail!(
+                "Expected Eth chain id 11155111, but connected to {}",
+                chain_id.as_u64()
+            );
+        }
+        info!(
+            "Connected to Eth chain: {}, Bridge chain id: {}",
+            chain_id.as_u64(),
+            bridge_chain_id,
+        );
+
+        let eth_client = Arc::new(
+            EthClient::<ethers::providers::Http>::new(
+                &self.eth.eth_rpc_url,
+                HashSet::from_iter(vec![
+                    bridge_proxy_address,
+                    committee_address,
+                    config_address,
+                    limiter_address,
+                    vault_address,
+                ]),
+            )
+            .await?,
+        );
+        let contract_addresses = vec![
+            bridge_proxy_address,
+            committee_address,
+            config_address,
+            limiter_address,
+            vault_address,
+        ];
+        Ok((eth_client, contract_addresses))
+    }
+
+    async fn prepare_for_haneul(
+        &self,
+        haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
+    ) -> anyhow::Result<(HaneulKeyPair, HaneulAddress, ObjectRef)> {
+        let bridge_client_key = match &self.haneul.bridge_client_key_path_base64_haneul_key {
+            None => {
+                let bridge_client_key =
+                    read_bridge_authority_key(&self.bridge_authority_key_path_base64_raw)?;
+                Ok(HaneulKeyPair::from(bridge_client_key))
+            }
+            Some(path) => read_bridge_client_key(path),
+        }?;
+
+        // If bridge chain id is Haneul Mainent or Testnet, we expect to see chain
+        // identifier to match accordingly.
+        let haneul_identifier = haneul_client
+            .get_chain_identifier()
+            .await
+            .map_err(|e| anyhow!("Error getting chain identifier from Haneul: {:?}", e))?;
+        if self.haneul.haneul_bridge_chain_id == BridgeChainId::HaneulMainnet as u8
+            && haneul_identifier != get_mainnet_chain_identifier().to_string()
+        {
+            anyhow::bail!(
+                "Expected haneul chain identifier {}, but connected to {}",
+                self.haneul.haneul_bridge_chain_id,
+                haneul_identifier
+            );
+        }
+        if self.haneul.haneul_bridge_chain_id == BridgeChainId::HaneulTestnet as u8
+            && haneul_identifier != get_testnet_chain_identifier().to_string()
+        {
+            anyhow::bail!(
+                "Expected haneul chain identifier {}, but connected to {}",
+                self.haneul.haneul_bridge_chain_id,
+                haneul_identifier
+            );
+        }
+        info!(
+            "Connected to Haneul chain: {}, Bridge chain id: {}",
+            haneul_identifier, self.haneul.haneul_bridge_chain_id,
+        );
+
+        let client_haneul_address = HaneulAddress::from(&bridge_client_key.public());
+
+        // TODO: decide a minimal amount here
+        let gas_object_id = match self.haneul.bridge_client_gas_object {
+            Some(id) => id,
+            None => {
+                let haneul_client = HaneulClientBuilder::default()
+                    .build(&self.haneul.haneul_rpc_url)
+                    .await?;
+                let coin =
+                    pick_highest_balance_coin(haneul_client.coin_read_api(), client_haneul_address, 0)
+                        .await?;
+                coin.coin_object_id
+            }
+        };
+        let (gas_coin, gas_object_ref, owner) = haneul_client
+            .get_gas_data_panic_if_not_gas(gas_object_id)
+            .await;
+        if owner != Owner::AddressOwner(client_haneul_address) {
+            return Err(anyhow!("Gas object {:?} is not owned by bridge client key's associated haneul address {:?}, but {:?}", gas_object_id, client_haneul_address, owner));
+        }
+        info!(
+            "Starting bridge client with address: {:?}, gas object {:?}, balance: {}",
+            client_haneul_address,
+            gas_object_ref.0,
+            gas_coin.value()
+        );
+
+        Ok((bridge_client_key, client_haneul_address, gas_object_ref))
     }
 }
 
@@ -256,10 +380,11 @@ pub struct BridgeClientConfig {
     pub haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
     pub eth_client: Arc<EthClient<ethers::providers::Http>>,
     pub db_path: PathBuf,
-    pub eth_bridge_contracts: Vec<EthAddress>,
-    pub haneul_bridge_modules: Vec<Identifier>,
-    pub eth_bridge_contracts_start_block_override: BTreeMap<EthAddress, u64>,
-    pub haneul_bridge_modules_last_processed_event_id_override: BTreeMap<Identifier, EventID>,
+    pub eth_contracts: Vec<EthAddress>,
+    // See `BridgeNodeConfig` for the explanation of following two fields.
+    pub eth_contracts_start_block_fallback: u64,
+    pub eth_contracts_start_block_override: Option<u64>,
+    pub haneul_bridge_module_last_processed_event_id_override: Option<EventID>,
 }
 
 /// Read Bridge Authority key (Secp256k1KeyPair) from a file.
@@ -290,4 +415,52 @@ pub fn read_bridge_client_key(path: &PathBuf) -> Result<HaneulKeyPair, anyhow::E
 
     HaneulKeyPair::decode_base64(contents.as_str().trim())
         .map_err(|e| anyhow!("Error decoding authority key: {:?}", e))
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct BridgeCommitteeConfig {
+    pub bridge_authority_port_and_key_path: Vec<(u64, PathBuf)>,
+}
+
+impl Config for BridgeCommitteeConfig {}
+
+pub async fn pick_highest_balance_coin(
+    coin_read_api: &CoinReadApi,
+    address: HaneulAddress,
+    minimal_amount: u64,
+) -> anyhow::Result<Coin> {
+    let mut highest_balance = 0;
+    let mut highest_balance_coin = None;
+    coin_read_api
+        .get_coins_stream(address, None)
+        .for_each(|coin: Coin| {
+            if coin.balance > highest_balance {
+                highest_balance = coin.balance;
+                highest_balance_coin = Some(coin.clone());
+            }
+            future::ready(())
+        })
+        .await;
+    if highest_balance_coin.is_none() {
+        return Err(anyhow!("No Haneul coins found for address {:?}", address));
+    }
+    if highest_balance < minimal_amount {
+        return Err(anyhow!(
+            "Found no single coin that has >= {} balance Haneul for address {:?}",
+            minimal_amount,
+            address,
+        ));
+    }
+    Ok(highest_balance_coin.unwrap())
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct EthContractAddresses {
+    pub haneul_bridge: EthAddress,
+    pub bridge_committee: EthAddress,
+    pub bridge_config: EthAddress,
+    pub bridge_limiter: EthAddress,
+    pub bridge_vault: EthAddress,
 }
