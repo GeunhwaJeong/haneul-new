@@ -161,7 +161,7 @@ jobs:
         shell: bash
         run: |
           choco install checksum
-          export haneul_sha=$(checksum -t sha256 .${{ env.TMP_BUILD_DIR }}/haneul.exe)
+          export haneul_sha=$(checksum -t sha256 ${{ env.TMP_BUILD_DIR }}/haneul.exe)
 
           cat <<EOF >>VERIFICATION.txt
           Haneul Binary verification steps
