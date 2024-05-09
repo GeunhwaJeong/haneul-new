@@ -32,6 +32,7 @@ use shared_crypto::intent::{Intent, IntentMessage, IntentScope, PersonalMessage}
 use std::fmt::{Debug, Display, Formatter};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use haneul_keys::key_derive::generate_new_key;
 use haneul_keys::keypair_file::{
     read_authority_keypair_from_file, read_keypair_from_file, write_authority_keypair_to_file,
@@ -49,6 +50,7 @@ use haneul_types::error::HaneulResult;
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey, ThresholdUnit, WeightUnit};
 use haneul_types::multisig_legacy::{MultiSigLegacy, MultiSigPublicKeyLegacy};
 use haneul_types::signature::{GenericSignature, VerifyParams};
+use haneul_types::signature_verification::VerifiedDigestCache;
 use haneul_types::transaction::{TransactionData, TransactionDataAPI};
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 use tabled::builder::Builder;
@@ -539,6 +541,7 @@ impl KeyToolCommand {
                         address,
                         cur_epoch,
                         &VerifyParams::default(),
+                        Arc::new(VerifiedDigestCache::new_empty()),
                     );
                     output.transaction_result = format!("{:?}", res);
                 };
@@ -565,6 +568,7 @@ impl KeyToolCommand {
                             tx_data.sender(),
                             cur_epoch,
                             &VerifyParams::default(),
+                            Arc::new(VerifiedDigestCache::new_empty()),
                         );
                         CommandOutput::DecodeOrVerifyTx(DecodeOrVerifyTxOutput {
                             tx: tx_data,
@@ -1161,6 +1165,7 @@ impl KeyToolCommand {
                                     tx_data.execution_parts().1,
                                     cur_epoch.unwrap(),
                                     &verify_params,
+                                    Arc::new(VerifiedDigestCache::new_empty()),
                                 );
                                 (serde_json::to_string(&tx_data)?, res)
                             }
@@ -1177,6 +1182,7 @@ impl KeyToolCommand {
                                     (&zk).try_into()?,
                                     cur_epoch.unwrap(),
                                     &verify_params,
+                                    Arc::new(VerifiedDigestCache::new_empty()),
                                 );
                                 (serde_json::to_string(&data)?, res)
                             }
