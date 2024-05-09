@@ -1,5 +1,16 @@
 # @haneullabs/dapp-kit
 
+## 0.13.0
+
+### Minor Changes
+
+- 807262f394: The `zksend` property on the `WalletProvider` has been replaced with a `stashedWallet` option.
+
+### Patch Changes
+
+- Updated dependencies [807262f394]
+  - @haneullabs/zksend@0.8.0
+
 ## 0.12.15
 
 ### Patch Changes
