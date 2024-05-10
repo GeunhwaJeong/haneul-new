@@ -1398,13 +1398,13 @@ mod tests {
         .await
         .unwrap();
 
-        if let HaneulClientCommandResult::PayAllHaneul(response) = res {
+        if let HaneulClientCommandResult::TransactionBlock(response) = res {
             assert!(matches!(
                 response.effects.unwrap().status(),
                 HaneulExecutionStatus::Success
             ));
         } else {
-            panic!("PayAllHaneul command did not return HaneulClientCommandResult::PayAllHaneul");
+            panic!("PayAllHaneul command did not return HaneulClientCommandResult::TransactionBlock");
         };
 
         let number_of_coins = gases.len();
@@ -1519,12 +1519,12 @@ mod tests {
         .execute(&mut context)
         .await;
 
-        let tiny_coin_id = if let HaneulClientCommandResult::SplitCoin(resp) = res.unwrap() {
+        let tiny_coin_id = if let HaneulClientCommandResult::TransactionBlock(resp) = res.unwrap() {
             resp.effects.as_ref().unwrap().created()[0]
                 .reference
                 .object_id
         } else {
-            panic!("split command did not return HaneulClientCommandResult::SplitCoin");
+            panic!("SplitCoin command did not return HaneulClientCommandResult::TransactionBlock");
         };
 
         // Get the latest list of gas

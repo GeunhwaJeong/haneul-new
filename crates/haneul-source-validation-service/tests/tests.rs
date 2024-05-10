@@ -186,7 +186,7 @@ async fn run_publish(
     .execute(context)
     .await?;
 
-    let HaneulClientCommandResult::Publish(response) = resp else {
+    let HaneulClientCommandResult::TransactionBlock(response) = resp else {
         unreachable!("Invalid response");
     };
     let HaneulTransactionBlockEffects::V1(effects) = response.effects.unwrap();
@@ -213,7 +213,7 @@ async fn run_upgrade(
     .execute(context)
     .await?;
 
-    let HaneulClientCommandResult::Upgrade(response) = resp else {
+    let HaneulClientCommandResult::TransactionBlock(response) = resp else {
         unreachable!("Invalid upgrade response");
     };
     let HaneulTransactionBlockEffects::V1(effects) = response.effects.unwrap();
