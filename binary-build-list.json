@@ -1,11 +1,20 @@
-[
-    "haneul",
-    "haneul-node",
-    "haneul-tool",
-    "haneul-faucet",
-    "haneul-test-validator",
-    "haneul-data-ingestion",
-    "haneul-bridge",
-    "haneul-bridge-cli",
-    "haneul-graphql-rpc"
-]
+{
+    "release_binaries": [
+        "haneul",
+        "haneul-node",
+        "haneul-tool",
+        "haneul-faucet",
+        "haneul-test-validator",
+        "haneul-data-ingestion",
+        "haneul-bridge",
+        "haneul-bridge-cli",
+        "haneul-graphql-rpc"
+    ],
+    "internal_binaries": [
+        "stress",
+        "haneul-proxy",
+        "haneul-metric-checker",
+        "haneul-analytics-indexer",
+        "haneul-security-watchdog"
+    ]
+}
