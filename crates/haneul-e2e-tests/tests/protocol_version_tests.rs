@@ -67,8 +67,6 @@ mod sim_only_tests {
     use haneul_macros::*;
     use haneul_move_build::{BuildConfig, CompiledPackage};
     use haneul_protocol_config::SupportedProtocolVersions;
-    use haneul_swarm_config::genesis_config::GenesisConfig;
-    use haneul_swarm_config::network_config::NetworkConfig;
     use haneul_types::base_types::ConciseableName;
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
