@@ -22,7 +22,7 @@ pub(crate) struct HaneulOpArgs {
 
 #[derive(clap::Subcommand, Debug)]
 pub(crate) enum Resource {
-    #[clap()]
+    #[clap(aliases = ["d"])]
     Docker(DockerArgs),
     #[clap()]
     Iam(IAMArgs),
