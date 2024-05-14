@@ -252,6 +252,8 @@ pub enum HaneulClientCommands {
         rpc: String,
         #[clap(long, value_hint = ValueHint::Url)]
         ws: Option<String>,
+        #[clap(long, help = "Basic auth in the format of username:password")]
+        basic_auth: Option<String>,
     },
 
     /// Get object info
@@ -1497,13 +1499,23 @@ impl HaneulClientCommands {
                 let response = context.execute_transaction_may_fail(transaction).await?;
                 HaneulClientCommandResult::TransactionBlock(response)
             }
-            HaneulClientCommands::NewEnv { alias, rpc, ws } => {
+            HaneulClientCommands::NewEnv {
+                alias,
+                rpc,
+                ws,
+                basic_auth,
+            } => {
                 if context.config.envs.iter().any(|env| env.alias == alias) {
                     return Err(anyhow!(
                         "Environment config with name [{alias}] already exists."
                     ));
                 }
-                let env = HaneulEnv { alias, rpc, ws };
+                let env = HaneulEnv {
+                    alias,
+                    rpc,
+                    ws,
+                    basic_auth,
+                };
 
                 // Check urls are valid and server is reachable
                 env.create_rpc_client(None, None).await?;
