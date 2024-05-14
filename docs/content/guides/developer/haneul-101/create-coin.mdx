@@ -48,6 +48,8 @@ public fun mint(
 
 If you published the previous example to a Haneul network, you can use the `haneul client call` command to mint coins and deliver them to the address you provide. See [Haneul CLI](../../../references/cli.mdx) for more information on the command line interface.
 
+{@include: ../../../snippets/info-gas-budget.mdx}
+
 ```shell
 haneul client call --function mint --module mycoin --package <PACKAGE-ID> --args <TREASURY-CAP-ID> <COIN-AMOUNT> <RECIPIENT-ADDRESS> --gas-budget <GAS-AMOUNT>
 ```
