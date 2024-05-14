@@ -10,6 +10,7 @@ use crate::encoding::{
     TOKEN_TRANSFER_MESSAGE_VERSION,
 };
 use crate::error::{BridgeError, BridgeResult};
+use crate::types::ParsedTokenTransferMessage;
 use crate::types::{
     AddTokensOnEvmAction, AssetPriceUpdateAction, BlocklistCommitteeAction, BridgeAction,
     BridgeActionType, EmergencyAction, EthLog, EthToHaneulBridgeAction, EvmContractUpgradeAction,
@@ -178,6 +179,18 @@ impl From<HaneulToEthBridgeAction> for eth_haneul_bridge::Message {
             nonce: action.haneul_bridge_event.nonce,
             chain_id: action.haneul_bridge_event.haneul_chain_id as u8,
             payload: action.as_payload_bytes().into(),
+        }
+    }
+}
+
+impl From<ParsedTokenTransferMessage> for eth_haneul_bridge::Message {
+    fn from(parsed_message: ParsedTokenTransferMessage) -> Self {
+        eth_haneul_bridge::Message {
+            message_type: BridgeActionType::TokenTransfer as u8,
+            version: parsed_message.message_version,
+            nonce: parsed_message.seq_num,
+            chain_id: parsed_message.source_chain as u8,
+            payload: parsed_message.payload.into(),
         }
     }
 }

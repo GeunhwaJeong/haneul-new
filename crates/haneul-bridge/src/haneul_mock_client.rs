@@ -12,7 +12,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{EventFilter, EventPage, HaneulEvent};
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
-use haneul_types::bridge::BridgeSummary;
+use haneul_types::bridge::{BridgeSummary, MoveTypeParsedTokenTransferMessage};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
@@ -222,6 +222,15 @@ impl HaneulClientInner for HaneulMockClient {
         _source_chain_id: u8,
         _seq_number: u64,
     ) -> Result<Option<Vec<Vec<u8>>>, BridgeError> {
+        unimplemented!()
+    }
+
+    async fn get_parsed_token_transfer_message(
+        &self,
+        _bridge_object_arg: ObjectArg,
+        _source_chain_id: u8,
+        _seq_number: u64,
+    ) -> Result<Option<MoveTypeParsedTokenTransferMessage>, BridgeError> {
         unimplemented!()
     }
 

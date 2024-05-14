@@ -131,16 +131,29 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .await;
     // There are exactly 1 deposit and 1 approved event
     assert_eq!(events.len(), 2);
-    let message = eth_haneul_bridge::Message::from(haneul_to_eth_bridge_action);
 
-    let signatures = get_signatures(
-        &haneul_bridge_client,
-        nonce,
-        haneul_chain_id,
-        &haneul_client,
-        message.message_type,
-    )
-    .await;
+    // Test `get_parsed_token_transfer_message`
+    let parsed_msg = haneul_bridge_client
+        .get_parsed_token_transfer_message(haneul_chain_id, nonce)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(parsed_msg.source_chain as u8, haneul_chain_id);
+    assert_eq!(parsed_msg.seq_num, nonce);
+    assert_eq!(
+        parsed_msg.parsed_payload.sender_address,
+        haneul_address.to_vec()
+    );
+    assert_eq!(
+        &parsed_msg.parsed_payload.target_address,
+        eth_address_1.as_bytes()
+    );
+    assert_eq!(parsed_msg.parsed_payload.target_chain, eth_chain_id);
+    assert_eq!(parsed_msg.parsed_payload.token_type, TOKEN_ID_ETH);
+    assert_eq!(parsed_msg.parsed_payload.amount, haneul_amount);
+
+    let message = eth_haneul_bridge::Message::from(haneul_to_eth_bridge_action);
+    let signatures = get_signatures(&haneul_bridge_client, nonce, haneul_chain_id).await;
 
     let eth_haneul_bridge = EthHaneulBridge::new(
         bridge_test_cluster.contracts().haneul_bridge,

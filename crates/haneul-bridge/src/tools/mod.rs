@@ -1,7 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use crate::config::read_bridge_client_key;
+
+use crate::abi::{eth_haneul_bridge, EthHaneulBridge};
+use crate::config::read_key;
 use crate::crypto::BridgeAuthorityPublicKeyBytes;
+use crate::error::BridgeResult;
+use crate::haneul_client::HaneulBridgeClient;
 use crate::types::{
     AssetPriceUpdateAction, BlocklistCommitteeAction, BlocklistType, EmergencyAction,
     EmergencyActionType, EvmContractUpgradeAction, LimitUpdateAction,
@@ -9,19 +13,30 @@ use crate::types::{
 use crate::utils::{get_eth_signer_client, EthSigner};
 use anyhow::anyhow;
 use clap::*;
+use ethers::providers::Middleware;
 use ethers::types::Address as EthAddress;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
 use fastcrypto::hash::{HashFunction, Keccak256};
+use move_core_types::ident_str;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
 use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
 use haneul_config::Config;
+use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_sdk::HaneulClientBuilder;
-use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::bridge::BridgeChainId;
-use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::base_types::{ObjectID, ObjectRef};
+use haneul_types::bridge::{BridgeChainId, BRIDGE_MODULE_NAME};
+use haneul_types::crypto::{Signature, HaneulKeyPair};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{ObjectArg, Transaction, TransactionData};
+use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID};
+use tracing::info;
 
 use crate::types::BridgeAction;
 
@@ -49,9 +64,9 @@ pub enum BridgeValidatorCommand {
         #[clap(name = "run-client", long)]
         run_client: bool,
     },
-    /// Client to facilitate and execute Bridge governance actions
-    #[clap(name = "client")]
-    GovernanceClient {
+    /// Governance client to facilitate and execute Bridge governance actions
+    #[clap(name = "governance")]
+    Governance {
         /// Path of BridgeCliConfig
         #[clap(long = "config-path")]
         config_path: PathBuf,
@@ -59,6 +74,15 @@ pub enum BridgeValidatorCommand {
         chain_id: u8,
         #[clap(subcommand)]
         cmd: GovernanceClientCommands,
+    },
+    /// Client to facilitate and execute Bridge actions
+    #[clap(name = "client")]
+    Client {
+        /// Path of BridgeCliConfig
+        #[clap(long = "config-path")]
+        config_path: PathBuf,
+        #[clap(subcommand)]
+        cmd: BridgeClientCommands,
     },
 }
 
@@ -220,11 +244,11 @@ fn encode_call_data(function_selector: &str, params: &Vec<String>) -> Vec<u8> {
 }
 
 pub fn select_contract_address(
-    config: &BridgeCliConfig,
+    config: &LoadedBridgeCliConfig,
     cmd: &GovernanceClientCommands,
 ) -> EthAddress {
     match cmd {
-        GovernanceClientCommands::EmergencyButton { .. } => config.eth_haneul_bridge_proxy_address,
+        GovernanceClientCommands::EmergencyButton { .. } => config.eth_bridge_proxy_address,
         GovernanceClientCommands::UpdateCommitteeBlocklist { .. } => {
             config.eth_bridge_committee_proxy_address
         }
@@ -245,33 +269,111 @@ pub struct BridgeCliConfig {
     /// Rpc url for Eth fullnode, used for query stuff.
     pub eth_rpc_url: String,
     /// Proxy address for HaneulBridge deployed on Eth
-    pub eth_haneul_bridge_proxy_address: EthAddress,
-    /// Proxy address for BridgeCommittee deployed on Eth
-    pub eth_bridge_committee_proxy_address: EthAddress,
-    /// Proxy address for BridgeLimiter deployed on Eth
-    pub eth_bridge_limiter_proxy_address: EthAddress,
-    /// Path of the file where bridge client key (any HaneulKeyPair) is stored as Base64 encoded `flag || privkey`.
-    /// The derived accounts
-    pub bridge_client_key_path_base64_haneul_key: PathBuf,
+    pub eth_bridge_proxy_address: EthAddress,
+    /// Path of the file where private key is stored. The content could be any of the following:
+    /// - Base64 encoded `flag || privkey` for ECDSA key
+    /// - Base64 encoded `privkey` for Raw key
+    /// - Hex encoded `privkey` for Raw key
+    /// At leaset one of `haneul_key_path` or `eth_key_path` must be provided.
+    /// If only one is provided, it will be used for both Haneul and Eth.
+    pub haneul_key_path: Option<PathBuf>,
+    /// See `haneul_key_path`. Must be Secp256k1 key.
+    pub eth_key_path: Option<PathBuf>,
 }
 
 impl Config for BridgeCliConfig {}
 
-impl BridgeCliConfig {
-    pub async fn get_eth_signer_client(self: &BridgeCliConfig) -> anyhow::Result<EthSigner> {
-        let client_key = read_bridge_client_key(&self.bridge_client_key_path_base64_haneul_key)?;
-        let private_key = Hex::encode(client_key.to_bytes_no_flag());
-        let url = self.eth_rpc_url.clone();
-        get_eth_signer_client(&url, &private_key).await
+pub struct LoadedBridgeCliConfig {
+    /// Rpc url for Haneul fullnode, used for query stuff and submit transactions.
+    pub haneul_rpc_url: String,
+    /// Rpc url for Eth fullnode, used for query stuff.
+    pub eth_rpc_url: String,
+    /// Proxy address for HaneulBridge deployed on Eth
+    pub eth_bridge_proxy_address: EthAddress,
+    /// Proxy address for BridgeCommittee deployed on Eth
+    pub eth_bridge_committee_proxy_address: EthAddress,
+    /// Proxy address for BridgeLimiter deployed on Eth
+    pub eth_bridge_limiter_proxy_address: EthAddress,
+    /// Key pair for Haneul operations
+    haneul_key: HaneulKeyPair,
+    /// Key pair for Eth operations, must be Secp256k1 key
+    // pub eth_key: HaneulKeyPair,
+    eth_signer: EthSigner,
+}
+
+impl LoadedBridgeCliConfig {
+    pub async fn load(cli_config: BridgeCliConfig) -> anyhow::Result<Self> {
+        if cli_config.eth_key_path.is_none() && cli_config.haneul_key_path.is_none() {
+            return Err(anyhow!(
+                "At least one of `haneul_key_path` or `eth_key_path` must be provided"
+            ));
+        }
+        let haneul_key = if let Some(haneul_key_path) = &cli_config.haneul_key_path {
+            Some(read_key(haneul_key_path, false)?)
+        } else {
+            None
+        };
+        let eth_key = if let Some(eth_key_path) = &cli_config.eth_key_path {
+            let eth_key = read_key(eth_key_path, true)?;
+            Some(eth_key)
+        } else {
+            None
+        };
+        let (eth_key, haneul_key) = {
+            if eth_key.is_none() {
+                let haneul_key = haneul_key.unwrap();
+                if !matches!(haneul_key, HaneulKeyPair::Secp256k1(_)) {
+                    return Err(anyhow!("Eth key must be an ECDSA key"));
+                }
+                (haneul_key.copy(), haneul_key)
+            } else if haneul_key.is_none() {
+                let eth_key = eth_key.unwrap();
+                (eth_key.copy(), eth_key)
+            } else {
+                (eth_key.unwrap(), haneul_key.unwrap())
+            }
+        };
+
+        let provider = Arc::new(
+            ethers::prelude::Provider::<ethers::providers::Http>::try_from(&cli_config.eth_rpc_url)
+                .unwrap()
+                .interval(std::time::Duration::from_millis(2000)),
+        );
+        let private_key = Hex::encode(eth_key.to_bytes_no_flag());
+        let eth_signer = get_eth_signer_client(&cli_config.eth_rpc_url, &private_key).await?;
+        let haneul_bridge = EthHaneulBridge::new(cli_config.eth_bridge_proxy_address, provider.clone());
+        let eth_bridge_committee_proxy_address: EthAddress = haneul_bridge.committee().call().await?;
+        let eth_bridge_limiter_proxy_address: EthAddress = haneul_bridge.limiter().call().await?;
+
+        let eth_address = eth_signer.address();
+        let eth_chain_id = provider.get_chainid().await?;
+        let haneul_address = HaneulAddress::from(&haneul_key.public());
+        println!("Using Haneul address: {:?}", haneul_address);
+        println!("Using Eth address: {:?}", eth_address);
+        println!("Using Eth chain: {:?}", eth_chain_id);
+
+        Ok(Self {
+            haneul_rpc_url: cli_config.haneul_rpc_url,
+            eth_rpc_url: cli_config.eth_rpc_url,
+            eth_bridge_proxy_address: cli_config.eth_bridge_proxy_address,
+            eth_bridge_committee_proxy_address,
+            eth_bridge_limiter_proxy_address,
+            haneul_key,
+            eth_signer,
+        })
+    }
+}
+
+impl LoadedBridgeCliConfig {
+    pub fn eth_signer(self: &LoadedBridgeCliConfig) -> &EthSigner {
+        &self.eth_signer
     }
 
     pub async fn get_haneul_account_info(
-        self: &BridgeCliConfig,
+        self: &LoadedBridgeCliConfig,
     ) -> anyhow::Result<(HaneulKeyPair, HaneulAddress, ObjectRef)> {
-        let client_key = read_bridge_client_key(&self.bridge_client_key_path_base64_haneul_key)?;
-        let pubkey = client_key.public();
+        let pubkey = self.haneul_key.public();
         let haneul_client_address = HaneulAddress::from(&pubkey);
-        println!("Using Haneul address: {:?}", haneul_client_address);
         let haneul_sdk_client = HaneulClientBuilder::default()
             .build(self.haneul_rpc_url.clone())
             .await?;
@@ -286,8 +388,174 @@ impl BridgeCliConfig {
             .find(|coin| coin.balance >= 5_000_000_000)
             .ok_or(anyhow!("Did not find gas object with enough balance"))?;
         println!("Using Gas object: {}", gas.coin_object_id);
-        Ok((client_key, haneul_client_address, gas.object_ref()))
+        Ok((self.haneul_key.copy(), haneul_client_address, gas.object_ref()))
     }
+}
+#[derive(Parser)]
+#[clap(rename_all = "kebab-case")]
+pub enum BridgeClientCommands {
+    #[clap(name = "deposit-on-haneul")]
+    DepositOnHaneul {
+        #[clap(long)]
+        coin_object_id: ObjectID,
+        #[clap(long)]
+        coin_type: String,
+        #[clap(long)]
+        target_chain: u8,
+        #[clap(long)]
+        recipient_address: EthAddress,
+    },
+    #[clap(name = "claim-on-eth")]
+    ClaimOnEth {
+        #[clap(long)]
+        seq_num: u64,
+    },
+}
+
+impl BridgeClientCommands {
+    pub async fn handle(
+        self,
+        config: &LoadedBridgeCliConfig,
+        haneul_bridge_client: HaneulBridgeClient,
+    ) -> anyhow::Result<()> {
+        match self {
+            BridgeClientCommands::ClaimOnEth { seq_num } => {
+                claim_on_eth(seq_num, config, haneul_bridge_client)
+                    .await
+                    .map_err(|e| anyhow!("{:?}", e))
+            }
+            BridgeClientCommands::DepositOnHaneul {
+                coin_object_id,
+                coin_type,
+                target_chain,
+                recipient_address,
+            } => {
+                let target_chain = BridgeChainId::try_from(target_chain).expect("Invalid chain id");
+                let coin_type = TypeTag::from_str(&coin_type).expect("Invalid coin type");
+                deposit_on_haneul(
+                    coin_object_id,
+                    coin_type,
+                    target_chain,
+                    recipient_address,
+                    config,
+                    haneul_bridge_client,
+                )
+                .await
+            }
+        }
+    }
+}
+
+async fn deposit_on_haneul(
+    coin_object_id: ObjectID,
+    coin_type: TypeTag,
+    target_chain: BridgeChainId,
+    recipient_address: EthAddress,
+    config: &LoadedBridgeCliConfig,
+    haneul_bridge_client: HaneulBridgeClient,
+) -> anyhow::Result<()> {
+    let target_chain = target_chain as u8;
+    let haneul_client = haneul_bridge_client.haneul_client();
+    let bridge_object_arg = haneul_bridge_client
+        .get_mutable_bridge_object_arg_must_succeed()
+        .await;
+    let rgp = haneul_client
+        .governance_api()
+        .get_reference_gas_price()
+        .await
+        .unwrap();
+    let sender = HaneulAddress::from(&config.haneul_key.public());
+    let gas_obj_ref = haneul_client
+        .coin_read_api()
+        .select_coins(sender, None, 1_000_000_000, vec![])
+        .await?
+        .first()
+        .ok_or(anyhow!("No coin found for address {}", sender))?
+        .object_ref();
+    let coin_obj_ref = haneul_client
+        .read_api()
+        .get_object_with_options(coin_object_id, HaneulObjectDataOptions::default())
+        .await?
+        .data
+        .unwrap()
+        .object_ref();
+
+    let mut builder = ProgrammableTransactionBuilder::new();
+    let arg_target_chain = builder.pure(target_chain).unwrap();
+    let arg_target_address = builder.pure(recipient_address.as_bytes()).unwrap();
+    let arg_token = builder
+        .obj(ObjectArg::ImmOrOwnedObject(coin_obj_ref))
+        .unwrap();
+    let arg_bridge = builder.obj(bridge_object_arg).unwrap();
+
+    builder.programmable_move_call(
+        BRIDGE_PACKAGE_ID,
+        BRIDGE_MODULE_NAME.to_owned(),
+        ident_str!("send_token").to_owned(),
+        vec![coin_type],
+        vec![arg_bridge, arg_target_chain, arg_target_address, arg_token],
+    );
+    let pt = builder.finish();
+    let tx_data =
+        TransactionData::new_programmable(sender, vec![gas_obj_ref], pt, 500_000_000, rgp);
+    let sig = Signature::new_secure(
+        &IntentMessage::new(Intent::haneul_transaction(), tx_data.clone()),
+        &config.haneul_key,
+    );
+    let signed_tx = Transaction::from_data(tx_data, vec![sig]);
+    let tx_digest = *signed_tx.digest();
+    info!(?tx_digest, "Sending deposit transction to Haneul.");
+    let resp = haneul_bridge_client
+        .execute_transaction_block_with_effects(signed_tx)
+        .await
+        .expect("Failed to execute transaction block");
+    if !resp.status_ok().unwrap() {
+        return Err(anyhow!("Transaction {:?} failed: {:?}", tx_digest, resp));
+    }
+    let events = resp.events.unwrap();
+    info!(
+        ?tx_digest,
+        "Deposit transaction succeeded. Events: {:?}", events
+    );
+    Ok(())
+}
+
+async fn claim_on_eth(
+    seq_num: u64,
+    config: &LoadedBridgeCliConfig,
+    haneul_bridge_client: HaneulBridgeClient,
+) -> BridgeResult<()> {
+    let haneul_chain_id = haneul_bridge_client.get_bridge_summary().await?.chain_id;
+    let parsed_message = haneul_bridge_client
+        .get_parsed_token_transfer_message(haneul_chain_id, seq_num)
+        .await?;
+    if parsed_message.is_none() {
+        println!("No record found for seq_num: {seq_num}, chain id: {haneul_chain_id}");
+        return Ok(());
+    }
+    let parsed_message = parsed_message.unwrap();
+    let sigs = haneul_bridge_client
+        .get_token_transfer_action_onchain_signatures_until_success(haneul_chain_id, seq_num)
+        .await;
+    if sigs.is_none() {
+        println!("No signatures found for seq_num: {seq_num}, chain id: {haneul_chain_id}");
+        return Ok(());
+    }
+    let signatures = sigs
+        .unwrap()
+        .into_iter()
+        .map(|sig: Vec<u8>| ethers::types::Bytes::from(sig))
+        .collect::<Vec<_>>();
+
+    let eth_haneul_bridge = EthHaneulBridge::new(
+        config.eth_bridge_proxy_address,
+        Arc::new(config.eth_signer().clone()),
+    );
+    let message = eth_haneul_bridge::Message::from(parsed_message);
+    let tx = eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message);
+    let _eth_claim_tx_receipt = tx.send().await.unwrap().await.unwrap().unwrap();
+    info!("Haneul to Eth bridge transfer claimed");
+    Ok(())
 }
 
 #[cfg(test)]
