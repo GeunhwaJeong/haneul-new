@@ -156,6 +156,8 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
             IERC20Metadata(tokenAddress).decimals(), config.tokenHaneulDecimalOf(tokenID), amount
         );
 
+        require(haneulAdjustedAmount > 0, "HaneulBridge: Invalid amount provided");
+
         emit TokensDeposited(
             config.chainID(),
             nonces[BridgeUtils.TOKEN_TRANSFER],
