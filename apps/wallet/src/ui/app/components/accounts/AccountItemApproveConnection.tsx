@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { AccountIcon } from '_components/accounts/AccountIcon';
 import { LockUnlockButton } from '_components/accounts/LockUnlockButton';
 import { useUnlockAccount } from '_components/accounts/UnlockAccountContext';
 import { type SerializedUIAccount } from '_src/background/accounts/Account';
-import { useResolveHaneulNSName } from '@haneullabs/core';
 import { CheckFill16 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
 import clsx from 'clsx';
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function AccountItemApproveConnection({ account, selected, disabled, showLock }: Props) {
-	const { data: domainName } = useResolveHaneulNSName(account?.address);
+	const domainName = useResolveHaneulNSName(account?.address);
 	const accountName = account?.nickname ?? domainName ?? formatAddress(account?.address || '');
 	const { unlockAccount, lockAccount, isPending, accountToUnlock } = useUnlockAccount();
 

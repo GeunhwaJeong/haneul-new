@@ -1,8 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { Text } from '_src/ui/app/shared/text';
-import { useFormatCoin, useResolveHaneulNSName } from '@haneullabs/core';
+import { useFormatCoin } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { CheckFill16 } from '@haneullabs/icons';
 import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
@@ -29,7 +30,8 @@ export function LedgerAccountRow({ isSelected, address }: LedgerAccountRowProps)
 			staleTime,
 		},
 	);
-	const { data: domainName } = useResolveHaneulNSName(address);
+	const domainName = useResolveHaneulNSName(address);
+
 	const [totalAmount, totalAmountSymbol] = useFormatCoin(
 		coinBalance?.totalBalance ?? 0,
 		HANEUL_TYPE_ARG,

@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { Text } from '_src/ui/app/shared/text';
-import { useResolveHaneulNSName } from '@haneullabs/core';
 
 import { TxnAddressLink } from './TxnAddressLink';
 
@@ -12,7 +12,7 @@ type TxnAddressProps = {
 };
 
 export function TxnAddress({ address, label }: TxnAddressProps) {
-	const { data: domainName } = useResolveHaneulNSName(address);
+	const domainName = useResolveHaneulNSName(address);
 
 	return (
 		<div className="flex justify-between w-full items-center py-3.5 first:pt-0">

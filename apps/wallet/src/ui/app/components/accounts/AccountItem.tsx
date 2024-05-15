@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { Text } from '_src/ui/app/shared/text';
-import { useResolveHaneulNSName } from '@haneullabs/core';
 import { ArrowUpRight12, Copy12 } from '@haneullabs/icons';
 import { formatAddress } from '@haneullabs/haneul.js/utils';
 import cn from 'clsx';
@@ -51,7 +51,7 @@ export const AccountItem = forwardRef<HTMLDivElement, AccountItemProps>(
 	) => {
 		const { data: accounts } = useAccounts();
 		const account = accounts?.find((account) => account.id === accountID);
-		const { data: domainName } = useResolveHaneulNSName(account?.address);
+		const domainName = useResolveHaneulNSName(account?.address);
 		const accountName = account?.nickname ?? domainName ?? formatAddress(account?.address || '');
 		const copyAddress = useCopyToClipboard(account?.address || '', {
 			copySuccessMessage: 'Address copied',

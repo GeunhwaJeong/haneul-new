@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { useIsWalletDefiEnabled } from '_app/hooks/useIsWalletDefiEnabled';
 import { LargeButton } from '_app/shared/LargeButton';
 import { Text } from '_app/shared/text';
@@ -36,7 +37,6 @@ import {
 	useCoinMetadata,
 	useFormatCoin,
 	useGetDelegatedStake,
-	useResolveHaneulNSName,
 } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Info12, Pin16, Unpin16 } from '@haneullabs/icons';
@@ -312,7 +312,8 @@ function TokenDetails({ coinType }: TokenDetailsProps) {
 	const activeCoinType = coinType || HANEUL_TYPE_ARG;
 	const activeAccount = useActiveAccount();
 	const activeAccountAddress = activeAccount?.address;
-	const { data: domainName } = useResolveHaneulNSName(activeAccountAddress);
+	const domainName = useResolveHaneulNSName(activeAccountAddress);
+
 	const { staleTime, refetchInterval } = useCoinsReFetchingConfig();
 	const {
 		data: coinBalance,
