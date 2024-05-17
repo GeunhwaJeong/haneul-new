@@ -11,7 +11,6 @@ use rand::{
     Rng,
 };
 use std::collections::{HashMap, HashSet};
-use haneul_core::authority::EffectsNotifyRead;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use tokio::time::{sleep, Duration, Instant};
@@ -148,8 +147,8 @@ async fn test_net_determinism() {
     handle
         .haneul_node
         .state()
-        .get_effects_notify_read()
-        .notify_read_executed_effects(vec![digest])
+        .get_transaction_cache_reader()
+        .notify_read_executed_effects(&[digest])
         .await
         .unwrap();
 }

@@ -4,7 +4,6 @@
 use prometheus::Registry;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_core::authority::EffectsNotifyRead;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
 use haneul_macros::sim_test;
@@ -69,8 +68,8 @@ async fn test_blocking_execution() -> Result<(), anyhow::Error> {
     // Wait for data sync to catch up
     handle
         .state()
-        .get_effects_notify_read()
-        .notify_read_executed_effects(vec![digest])
+        .get_transaction_cache_reader()
+        .notify_read_executed_effects(&[digest])
         .await
         .unwrap();
 

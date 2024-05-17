@@ -723,7 +723,7 @@ impl ValidatorService {
     ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
         let response = self
             .state
-            .get_cache_reader()
+            .get_object_cache_reader()
             .get_haneul_system_state_object_unsafe()?;
 
         Ok(tonic::Response::new(response))

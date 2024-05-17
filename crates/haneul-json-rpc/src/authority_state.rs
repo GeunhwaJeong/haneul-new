@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::AuthorityState;
-use haneul_core::execution_cache::ExecutionCacheRead;
+use haneul_core::execution_cache::ObjectCacheRead;
 use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc_types::{
     Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
@@ -88,7 +88,7 @@ pub trait StateRead: Send + Sync {
         limit: usize,
     ) -> StateReadResult<Vec<(ObjectID, DynamicFieldInfo)>>;
 
-    fn get_cache_reader(&self) -> &Arc<dyn ExecutionCacheRead>;
+    fn get_cache_reader(&self) -> &Arc<dyn ObjectCacheRead>;
 
     fn get_object_store(&self) -> &Arc<dyn ObjectStore + Send + Sync>;
 
@@ -310,8 +310,8 @@ impl StateRead for AuthorityState {
         Ok(self.get_dynamic_fields(owner, cursor, limit)?)
     }
 
-    fn get_cache_reader(&self) -> &Arc<dyn ExecutionCacheRead> {
-        self.get_cache_reader()
+    fn get_cache_reader(&self) -> &Arc<dyn ObjectCacheRead> {
+        self.get_object_cache_reader()
     }
 
     fn get_object_store(&self) -> &Arc<dyn ObjectStore + Send + Sync> {
@@ -432,7 +432,7 @@ impl StateRead for AuthorityState {
     }
     fn get_system_state(&self) -> StateReadResult<HaneulSystemState> {
         Ok(self
-            .get_cache_reader()
+            .get_object_cache_reader()
             .get_haneul_system_state_object_unsafe()?)
     }
     fn get_or_latest_committee(&self, epoch: Option<BigInt<u64>>) -> StateReadResult<Committee> {
