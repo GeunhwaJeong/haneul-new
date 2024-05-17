@@ -56,7 +56,3 @@ haneul-config.workspace = true
 haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 hex-literal = "0.3.4"
-
-[[bin]]
-name = "haneul-bridge-cli"
-path = "src/tools/cli.rs"

@@ -1,15 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::abi::{eth_haneul_bridge, EthHaneulBridge};
-use crate::crypto::BridgeAuthorityPublicKeyBytes;
-use crate::error::BridgeResult;
-use crate::haneul_client::HaneulBridgeClient;
-use crate::types::{
-    AssetPriceUpdateAction, BlocklistCommitteeAction, BlocklistType, EmergencyAction,
-    EmergencyActionType, EvmContractUpgradeAction, LimitUpdateAction,
-};
-use crate::utils::{get_eth_signer_client, EthSigner};
 use anyhow::anyhow;
 use clap::*;
 use ethers::providers::Middleware;
@@ -25,6 +16,16 @@ use shared_crypto::intent::IntentMessage;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
+use haneul_bridge::abi::{eth_haneul_bridge, EthHaneulBridge};
+use haneul_bridge::crypto::BridgeAuthorityPublicKeyBytes;
+use haneul_bridge::error::BridgeResult;
+use haneul_bridge::haneul_client::HaneulBridgeClient;
+use haneul_bridge::types::BridgeAction;
+use haneul_bridge::types::{
+    AssetPriceUpdateAction, BlocklistCommitteeAction, BlocklistType, EmergencyAction,
+    EmergencyActionType, EvmContractUpgradeAction, LimitUpdateAction,
+};
+use haneul_bridge::utils::{get_eth_signer_client, EthSigner};
 use haneul_config::Config;
 use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keypair_file::read_key;
@@ -37,8 +38,6 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::transaction::{ObjectArg, Transaction, TransactionData};
 use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID};
 use tracing::info;
-
-use crate::types::BridgeAction;
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]
@@ -566,7 +565,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_encode_call_data() {
-        let abi_json = std::fs::read_to_string("abi/tests/mock_haneul_bridge_v2.json").unwrap();
+        let abi_json =
+            std::fs::read_to_string("../haneul-bridge/abi/tests/mock_haneul_bridge_v2.json").unwrap();
         let abi: ethers::abi::Abi = serde_json::from_str(&abi_json).unwrap();
 
         let function_selector = "initializeV2Params(uint256,bool,string)";

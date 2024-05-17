@@ -19,7 +19,6 @@ pub mod storage;
 pub mod haneul_client;
 pub mod haneul_syncer;
 pub mod haneul_transaction_builder;
-pub mod tools;
 pub mod types;
 pub mod utils;
 

@@ -94,6 +94,7 @@ members = [
   "crates/haneul-aws-orchestrator",
   "crates/haneul-benchmark",
   "crates/haneul-bridge",
+  "crates/haneul-bridge-cli",
   "crates/haneul-cluster-test",
   "crates/haneul-common",
   "crates/haneul-config",

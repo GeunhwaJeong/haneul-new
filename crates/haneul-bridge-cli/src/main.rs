@@ -9,13 +9,13 @@ use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregato
 use haneul_bridge::eth_transaction_builder::build_eth_transaction;
 use haneul_bridge::haneul_client::HaneulClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
-use haneul_bridge::tools::LoadedBridgeCliConfig;
-use haneul_bridge::tools::{
-    make_action, select_contract_address, Args, BridgeCliConfig, BridgeValidatorCommand,
-};
 use haneul_bridge::utils::{
     generate_bridge_authority_key_and_write_to_file, generate_bridge_client_key_and_write_to_file,
     generate_bridge_node_config_and_write_to_file,
+};
+use haneul_bridge_cli::{
+    make_action, select_contract_address, Args, BridgeCliConfig, BridgeValidatorCommand,
+    LoadedBridgeCliConfig,
 };
 use haneul_config::Config;
 use haneul_sdk::HaneulClient as HaneulSdkClient;
