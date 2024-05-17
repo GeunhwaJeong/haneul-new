@@ -34,10 +34,8 @@ use fastcrypto::{
 };
 use serde::Serialize;
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
-use haneul_bridge::config::BridgeNodeConfig;
 use haneul_bridge::haneul_client::HaneulClient as HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_committee_register_transaction;
-use haneul_config::Config;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
@@ -169,9 +167,9 @@ pub enum HaneulValidatorCommand {
     },
     /// Haneul native bridge committee member registration
     BridgeCommitteeRegistration {
-        /// Path to bridge node config
+        /// Path to Bridge Authority Key file
         #[clap(long)]
-        bridge_node_config_path: PathBuf,
+        bridge_authority_key_path: PathBuf,
         /// Bridge authority URL which clients collects action signatures from
         #[clap(long)]
         bridge_authority_url: String,
@@ -469,24 +467,19 @@ impl HaneulValidatorCommand {
                 }
             }
             HaneulValidatorCommand::BridgeCommitteeRegistration {
-                bridge_node_config_path,
+                bridge_authority_key_path,
                 bridge_authority_url,
             } => {
-                let bridge_config = match BridgeNodeConfig::load(bridge_node_config_path) {
-                    Ok(config) => config,
-                    Err(e) => panic!("Couldn't load BridgeNodeConfig, caused by: {e}"),
-                };
                 // Read bridge keypair
-                let ecdsa_keypair = match read_key(&bridge_config.bridge_authority_key_path, true)?
-                {
+                let ecdsa_keypair = match read_key(&bridge_authority_key_path, true)? {
                     HaneulKeyPair::Secp256k1(key) => key,
                     _ => unreachable!("we required secp256k1 key in `read_key`"),
                 };
 
                 let address = context.active_address()?;
                 println!("Starting bridge committee registration for Haneul validator: {address}, with bridge public key: {}", ecdsa_keypair.public);
-
-                let bridge_client = HaneulBridgeClient::new(&bridge_config.haneul.haneul_rpc_url).await?;
+                let haneul_rpc_url = &context.config.get_active_env().unwrap().rpc;
+                let bridge_client = HaneulBridgeClient::new(haneul_rpc_url).await?;
                 let bridge = bridge_client
                     .get_mutable_bridge_object_arg_must_succeed()
                     .await;
@@ -501,7 +494,7 @@ impl HaneulValidatorCommand {
                     address,
                     &gas,
                     bridge,
-                    ecdsa_keypair,
+                    ecdsa_keypair.public().as_bytes().to_vec(),
                     &bridge_authority_url,
                     gas_price,
                 )

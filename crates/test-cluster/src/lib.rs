@@ -57,8 +57,8 @@ use haneul_types::bridge::{get_bridge, TOKEN_ID_BTC, TOKEN_ID_ETH, TOKEN_ID_USDC
 use haneul_types::bridge::{get_bridge_obj_initial_shared_version, BridgeSummary, BridgeTrait};
 use haneul_types::committee::CommitteeTrait;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::crypto::{KeypairTraits, ToFromBytes};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::HaneulResult;
 use haneul_types::governance::MIN_VALIDATOR_JOINING_STAKE_GEUNHWA;
@@ -1263,7 +1263,7 @@ impl TestClusterBuilder {
                 validator_address,
                 &gas,
                 bridge_arg,
-                kp.copy(),
+                kp.public().as_bytes().to_vec(),
                 &server_url,
                 ref_gas_price,
             )

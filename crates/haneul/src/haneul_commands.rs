@@ -40,7 +40,7 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{SignatureScheme, HaneulKeyPair};
+use haneul_types::crypto::{SignatureScheme, HaneulKeyPair, ToFromBytes};
 use tracing::info;
 
 #[allow(clippy::large_enum_variant)]
@@ -404,7 +404,7 @@ impl HaneulCommand {
                         haneul_address,
                         &gas_obj_ref,
                         bridge_arg,
-                        kp,
+                        kp.public().as_bytes().to_vec(),
                         &format!("http://127.0.0.1:{port}"),
                         rgp,
                     )
