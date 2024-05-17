@@ -12088,6 +12088,7 @@ dependencies = [
  "haneul-config",
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
+ "haneul-keys",
  "haneul-sdk",
  "haneul-test-transaction-builder",
  "haneul-types",

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::abi::{eth_haneul_bridge, EthHaneulBridge};
-use crate::config::read_key;
 use crate::crypto::BridgeAuthorityPublicKeyBytes;
 use crate::error::BridgeResult;
 use crate::haneul_client::HaneulBridgeClient;
@@ -28,6 +27,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::Config;
 use haneul_json_rpc_types::HaneulObjectDataOptions;
+use haneul_keys::keypair_file::read_key;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{ObjectID, ObjectRef};
@@ -55,7 +55,7 @@ pub enum BridgeValidatorCommand {
     #[clap(name = "create-bridge-client-key")]
     CreateBridgeClientKey {
         path: PathBuf,
-        #[clap(name = "use-ecdsa", long)]
+        #[clap(name = "use-ecdsa", long, default_value = "false")]
         use_ecdsa: bool,
     },
     #[clap(name = "create-bridge-node-config-template")]

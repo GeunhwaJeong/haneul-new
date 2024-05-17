@@ -16,7 +16,7 @@ use std::io::{stderr, stdout, Write};
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
-use haneul_bridge::config::{read_bridge_authority_key, BridgeCommitteeConfig};
+use haneul_bridge::config::BridgeCommitteeConfig;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_committee_register_transaction;
 use haneul_config::node::Genesis;
@@ -28,6 +28,7 @@ use haneul_config::{
 use haneul_config::{
     HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME, HANEUL_GENESIS_FILENAME, HANEUL_KEYSTORE_FILENAME,
 };
+use haneul_keys::keypair_file::read_key;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_move::{self, execute_move_command};
 use haneul_move_build::HaneulPackageHooks;
@@ -393,7 +394,11 @@ impl HaneulCommand {
                         .get_one_gas_object_owned_by_address(haneul_address)
                         .await?
                         .expect("Validator does not own any gas objects");
-                    let kp = read_bridge_authority_key(&key_path)?;
+                    let kp = match read_key(&key_path, true)? {
+                        HaneulKeyPair::Secp256k1(key) => key,
+                        _ => unreachable!("we required secp256k1 key in `read_key`"),
+                    };
+
                     // build registration tx
                     let tx = build_committee_register_transaction(
                         haneul_address,

@@ -34,14 +34,13 @@ use fastcrypto::{
 };
 use serde::Serialize;
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
-use haneul_bridge::config::{read_bridge_authority_key, BridgeNodeConfig};
+use haneul_bridge::config::BridgeNodeConfig;
 use haneul_bridge::haneul_client::HaneulClient as HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_committee_register_transaction;
 use haneul_config::Config;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
-use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::{
     key_derive::generate_new_key,
     keypair_file::{
@@ -49,6 +48,7 @@ use haneul_keys::{
         write_authority_keypair_to_file, write_keypair_to_file,
     },
 };
+use haneul_keys::{keypair_file::read_key, keystore::AccountKeystore};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::crypto::{
@@ -477,8 +477,11 @@ impl HaneulValidatorCommand {
                     Err(e) => panic!("Couldn't load BridgeNodeConfig, caused by: {e}"),
                 };
                 // Read bridge keypair
-                let ecdsa_keypair =
-                    read_bridge_authority_key(&bridge_config.bridge_authority_key_path_base64_raw)?;
+                let ecdsa_keypair = match read_key(&bridge_config.bridge_authority_key_path, true)?
+                {
+                    HaneulKeyPair::Secp256k1(key) => key,
+                    _ => unreachable!("we required secp256k1 key in `read_key`"),
+                };
 
                 let address = context.active_address()?;
                 println!("Starting bridge committee registration for Haneul validator: {address}, with bridge public key: {}", ecdsa_keypair.public);

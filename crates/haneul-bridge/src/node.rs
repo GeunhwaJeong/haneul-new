@@ -352,11 +352,11 @@ mod tests {
         let config = BridgeNodeConfig {
             server_listen_port,
             metrics_port: get_available_port("127.0.0.1"),
-            bridge_authority_key_path_base64_raw: tmp_dir.join(authority_key_path),
+            bridge_authority_key_path: tmp_dir.join(authority_key_path),
             haneul: HaneulConfig {
                 haneul_rpc_url: bridge_test_cluster.haneul_rpc_url(),
                 haneul_bridge_chain_id: BridgeChainId::HaneulCustom as u8,
-                bridge_client_key_path_base64_haneul_key: None,
+                bridge_client_key_path: None,
                 bridge_client_gas_object: None,
                 haneul_bridge_module_last_processed_event_id_override: None,
             },
@@ -406,11 +406,11 @@ mod tests {
         let config = BridgeNodeConfig {
             server_listen_port,
             metrics_port: get_available_port("127.0.0.1"),
-            bridge_authority_key_path_base64_raw: tmp_dir.join(authority_key_path),
+            bridge_authority_key_path: tmp_dir.join(authority_key_path),
             haneul: HaneulConfig {
                 haneul_rpc_url: bridge_test_cluster.haneul_rpc_url(),
                 haneul_bridge_chain_id: BridgeChainId::HaneulCustom as u8,
-                bridge_client_key_path_base64_haneul_key: None,
+                bridge_client_key_path: None,
                 bridge_client_gas_object: None,
                 haneul_bridge_module_last_processed_event_id_override: Some(EventID {
                     tx_digest: TransactionDigest::random(),
@@ -474,11 +474,11 @@ mod tests {
         let config = BridgeNodeConfig {
             server_listen_port,
             metrics_port: get_available_port("127.0.0.1"),
-            bridge_authority_key_path_base64_raw: tmp_dir.join(authority_key_path),
+            bridge_authority_key_path: tmp_dir.join(authority_key_path),
             haneul: HaneulConfig {
                 haneul_rpc_url: bridge_test_cluster.haneul_rpc_url(),
                 haneul_bridge_chain_id: BridgeChainId::HaneulCustom as u8,
-                bridge_client_key_path_base64_haneul_key: Some(tmp_dir.join(client_key_path)),
+                bridge_client_key_path: Some(tmp_dir.join(client_key_path)),
                 bridge_client_gas_object: Some(gas_obj),
                 haneul_bridge_module_last_processed_event_id_override: Some(EventID {
                     tx_digest: TransactionDigest::random(),

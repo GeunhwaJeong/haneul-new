@@ -25,6 +25,7 @@ rocksdb.workspace = true
 typed-store.workspace = true
 haneullabs-metrics.workspace = true
 haneul-sdk.workspace = true
+haneul-keys.workspace = true
 haneul-config.workspace = true
 clap.workspace = true
 tracing.workspace = true

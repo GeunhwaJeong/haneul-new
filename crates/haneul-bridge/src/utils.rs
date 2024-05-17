@@ -88,11 +88,11 @@ pub fn generate_bridge_node_config_and_write_to_file(
     let mut config = BridgeNodeConfig {
         server_listen_port: 9191,
         metrics_port: 9184,
-        bridge_authority_key_path_base64_raw: PathBuf::from("/path/to/your/bridge_authority_key"),
+        bridge_authority_key_path: PathBuf::from("/path/to/your/bridge_authority_key"),
         haneul: HaneulConfig {
             haneul_rpc_url: "your_haneul_rpc_url".to_string(),
             haneul_bridge_chain_id: BridgeChainId::HaneulTestnet as u8,
-            bridge_client_key_path_base64_haneul_key: None,
+            bridge_client_key_path: None,
             bridge_client_gas_object: None,
             haneul_bridge_module_last_processed_event_id_override: None,
         },
@@ -108,8 +108,7 @@ pub fn generate_bridge_node_config_and_write_to_file(
         db_path: None,
     };
     if run_client {
-        config.haneul.bridge_client_key_path_base64_haneul_key =
-            Some(PathBuf::from("/path/to/your/bridge_client_key"));
+        config.haneul.bridge_client_key_path = Some(PathBuf::from("/path/to/your/bridge_client_key"));
         config.db_path = Some(PathBuf::from("/path/to/your/client_db"));
     }
     config.save(path)
