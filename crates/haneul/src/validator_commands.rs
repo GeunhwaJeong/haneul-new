@@ -166,13 +166,21 @@ pub enum HaneulValidatorCommand {
         gas_budget: Option<u64>,
     },
     /// Haneul native bridge committee member registration
-    BridgeCommitteeRegistration {
-        /// Path to Bridge Authority Key file
+    #[clap(name = "register-bridge-committee")]
+    RegisterBridgeCommittee {
+        /// Path to Bridge Authority Key file.
         #[clap(long)]
         bridge_authority_key_path: PathBuf,
-        /// Bridge authority URL which clients collects action signatures from
+        /// Bridge authority URL which clients collects action signatures from.
         #[clap(long)]
         bridge_authority_url: String,
+        /// If true, only print the unsigned transaction and do not execute it.
+        /// This is useful for offline signing.
+        #[clap(name = "print-only", long, default_value = "false")]
+        print_unsigned_transaction_only: bool,
+        /// Must present if `print_unsigned_transaction_only` is true.
+        #[clap(long)]
+        validator_address: Option<HaneulAddress>,
     },
 }
 
@@ -192,7 +200,10 @@ pub enum HaneulValidatorCommandResponse {
         data: TransactionData,
         serialized_data: String,
     },
-    BridgeCommitteeRegistration(HaneulTransactionBlockResponse),
+    RegisterBridgeCommittee {
+        execution_response: Option<HaneulTransactionBlockResponse>,
+        serialized_unsigned_transaction: Option<String>,
+    },
 }
 
 fn make_key_files(
@@ -466,18 +477,46 @@ impl HaneulValidatorCommand {
                     serialized_data,
                 }
             }
-            HaneulValidatorCommand::BridgeCommitteeRegistration {
+            HaneulValidatorCommand::RegisterBridgeCommittee {
                 bridge_authority_key_path,
                 bridge_authority_url,
+                print_unsigned_transaction_only,
+                validator_address,
             } => {
                 // Read bridge keypair
                 let ecdsa_keypair = match read_key(&bridge_authority_key_path, true)? {
                     HaneulKeyPair::Secp256k1(key) => key,
                     _ => unreachable!("we required secp256k1 key in `read_key`"),
                 };
-
-                let address = context.active_address()?;
-                println!("Starting bridge committee registration for Haneul validator: {address}, with bridge public key: {}", ecdsa_keypair.public);
+                let address = if !print_unsigned_transaction_only {
+                    let address = context.active_address()?;
+                    if let Some(validator_address) = validator_address {
+                        if validator_address != address {
+                            bail!(
+                                "`--validator-address` must be the same as the current active address: {}",
+                                address
+                            );
+                        }
+                    }
+                    address
+                } else {
+                    validator_address
+                        .ok_or_else(|| anyhow!("--validator-address must be provided when `print_unsigned_transaction_only` is true"))?
+                };
+                // Make sure the address is a validator
+                let haneul_client = context.get_client().await?;
+                let active_validators = haneul_client
+                    .governance_api()
+                    .get_latest_haneul_system_state()
+                    .await?
+                    .active_validators;
+                if !active_validators
+                    .into_iter()
+                    .any(|s| s.haneul_address == address)
+                {
+                    bail!("Address {} is not in the committee", address);
+                }
+                println!("Starting bridge committee registration for Haneul validator: {address}, with bridge public key: {} and url: {}", ecdsa_keypair.public, bridge_authority_url);
                 let haneul_rpc_url = &context.config.get_active_env().unwrap().rpc;
                 let bridge_client = HaneulBridgeClient::new(haneul_rpc_url).await?;
                 let bridge = bridge_client
@@ -499,14 +538,24 @@ impl HaneulValidatorCommand {
                     gas_price,
                 )
                 .map_err(|e| anyhow!("{e:?}"))?;
-
-                let tx = context.sign_transaction(&tx_data);
-                let response = context.execute_transaction_must_succeed(tx).await;
-                println!(
-                    "Committee registration successful. Transaction digest: {}",
-                    response.digest
-                );
-                HaneulValidatorCommandResponse::BridgeCommitteeRegistration(response)
+                if print_unsigned_transaction_only {
+                    let serialized_data = Base64::encode(bcs::to_bytes(&tx_data)?);
+                    HaneulValidatorCommandResponse::RegisterBridgeCommittee {
+                        execution_response: None,
+                        serialized_unsigned_transaction: Some(serialized_data),
+                    }
+                } else {
+                    let tx = context.sign_transaction(&tx_data);
+                    let response = context.execute_transaction_must_succeed(tx).await;
+                    println!(
+                        "Committee registration successful. Transaction digest: {}",
+                        response.digest
+                    );
+                    HaneulValidatorCommandResponse::RegisterBridgeCommittee {
+                        execution_response: Some(response),
+                        serialized_unsigned_transaction: None,
+                    }
+                }
             }
         });
         ret
@@ -743,8 +792,19 @@ impl Display for HaneulValidatorCommandResponse {
                     data, serialized_data
                 )?;
             }
-            HaneulValidatorCommandResponse::BridgeCommitteeRegistration(response) => {
-                write!(writer, "{}", response)?;
+            HaneulValidatorCommandResponse::RegisterBridgeCommittee {
+                execution_response,
+                serialized_unsigned_transaction,
+            } => {
+                if let Some(response) = execution_response {
+                    write!(writer, "{}", write_transaction_response(response)?)?;
+                } else {
+                    write!(
+                        writer,
+                        "Serializecd transaction for signing: {:?}",
+                        serialized_unsigned_transaction
+                    )?;
+                }
             }
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
