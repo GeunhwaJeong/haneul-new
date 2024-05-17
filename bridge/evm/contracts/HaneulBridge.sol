@@ -148,12 +148,23 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
             "HaneulBridge: Insufficient allowance"
         );
 
+        // calculate old vault balance
+        uint256 oldBalance = IERC20(tokenAddress).balanceOf(address(vault));
+
         // Transfer the tokens from the contract to the vault
         SafeERC20.safeTransferFrom(IERC20(tokenAddress), msg.sender, address(vault), amount);
 
+        // calculate new vault balance
+        uint256 newBalance = IERC20(tokenAddress).balanceOf(address(vault));
+
+        // calculate the amount transferred
+        uint256 amountTransfered = newBalance - oldBalance;
+
         // Adjust the amount
         uint64 haneulAdjustedAmount = BridgeUtils.convertERC20ToHaneulDecimal(
-            IERC20Metadata(tokenAddress).decimals(), config.tokenHaneulDecimalOf(tokenID), amount
+            IERC20Metadata(tokenAddress).decimals(),
+            config.tokenHaneulDecimalOf(tokenID),
+            amountTransfered
         );
 
         require(haneulAdjustedAmount > 0, "HaneulBridge: Invalid amount provided");
