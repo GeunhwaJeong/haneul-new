@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::net::SocketAddr;
-
 use fastcrypto::encoding::Base64;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
@@ -40,21 +38,6 @@ pub trait WriteApi {
         options: Option<HaneulTransactionBlockResponseOptions>,
         /// The request type, derived from `HaneulTransactionBlockResponseOptions` if None
         request_type: Option<ExecuteTransactionRequestType>,
-    ) -> RpcResult<HaneulTransactionBlockResponse>;
-
-    #[method(name = "monitoredExecuteTransactionBlock")]
-    async fn monitored_execute_transaction_block(
-        &self,
-        /// BCS serialized transaction data bytes without its type tag, as base-64 encoded string.
-        tx_bytes: Base64,
-        /// A list of signatures (`flag || signature || pubkey` bytes, as base-64 encoded string). Signature is committed to the intent message of the transaction data, as base-64 encoded string.
-        signatures: Vec<Base64>,
-        /// options for specifying the content to be returned
-        options: Option<HaneulTransactionBlockResponseOptions>,
-        /// The request type, derived from `HaneulTransactionBlockResponseOptions` if None
-        request_type: Option<ExecuteTransactionRequestType>,
-        /// The client IP address, used for monitoring
-        client_addr: Option<SocketAddr>,
     ) -> RpcResult<HaneulTransactionBlockResponse>;
 
     /// Runs the transaction in dev-inspect mode. Which allows for nearly any
