@@ -29,6 +29,8 @@ use haneul_types::bridge::MoveTypeCommitteeMemberRegistration;
 use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::digests::TransactionDigest;
+use haneul_types::parse_haneul_type_tag;
+use haneul_types::TypeTag;
 use haneul_types::BRIDGE_PACKAGE_ID;
 
 // `TokendDepositedEvent` emitted in bridge.move
@@ -43,28 +45,56 @@ pub struct MoveTokenDepositedEvent {
     pub amount_haneul_adjusted: u64,
 }
 
-// `TokenTransferApproved` emitted in bridge.move
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct MoveTokenTransferApproved {
-    pub message_key: MoveTypeBridgeMessageKey,
+macro_rules! new_move_event {
+    ($struct_name:ident, $move_struct_name:ident) => {
+
+        // `$move_struct_name` emitted in bridge.move
+        #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+        pub struct $move_struct_name {
+            pub message_key: MoveTypeBridgeMessageKey,
+        }
+
+        // Sanitized version of the given `move_struct_name`
+        #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
+        pub struct $struct_name {
+            pub nonce: u64,
+            pub source_chain: BridgeChainId,
+        }
+
+        impl TryFrom<$move_struct_name> for $struct_name {
+            type Error = BridgeError;
+
+            fn try_from(event: $move_struct_name) -> BridgeResult<Self> {
+                let source_chain = BridgeChainId::try_from(event.message_key.source_chain).map_err(|_e| {
+                    BridgeError::Generic(format!(
+                        "Failed to convert {} to {}. Failed to convert source chain {} to BridgeChainId",
+                        stringify!($move_struct_name),
+                        stringify!($struct_name),
+                        event.message_key.source_chain,
+                    ))
+                })?;
+                Ok(Self {
+                    nonce: event.message_key.bridge_seq_num,
+                    source_chain,
+                })
+            }
+        }
+    };
 }
 
-// `TokenTransferClaimed` emitted in bridge.move
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct MoveTokenTransferClaimed {
-    pub message_key: MoveTypeBridgeMessageKey,
-}
+new_move_event!(TokenTransferClaimed, MoveTokenTransferClaimed);
+new_move_event!(TokenTransferApproved, MoveTokenTransferApproved);
+new_move_event!(
+    TokenTransferAlreadyApproved,
+    MoveTokenTransferAlreadyApproved
+);
+new_move_event!(TokenTransferAlreadyClaimed, MoveTokenTransferAlreadyClaimed);
+new_move_event!(TokenTransferLimitExceed, MoveTokenTransferLimitExceed);
 
-// `TokenTransferAlreadyApproved` emitted in bridge.move
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct MoveTokenTransferAlreadyApproved {
-    pub message_key: MoveTypeBridgeMessageKey,
-}
-
-// `TokenTransferAlreadyClaimed` emitted in bridge.move
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct MoveTokenTransferAlreadyClaimed {
-    pub message_key: MoveTypeBridgeMessageKey,
+// `EmergencyOpEvent` emitted in bridge.move
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct EmergencyOpEvent {
+    pub frozen: bool,
 }
 
 // `CommitteeUpdateEvent` emitted in committee.move
@@ -81,6 +111,97 @@ pub struct MoveBlocklistValidatorEvent {
     pub public_keys: Vec<Vec<u8>>,
 }
 
+// `UpdateRouteLimitEvent` emitted in limiter.move
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MoveUpdateRouteLimitEvent {
+    pub sending_chain: u8,
+    pub receiving_chain: u8,
+    pub new_limit: u64,
+}
+
+// `TokenRegistrationEvent` emitted in treasury.move
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MoveTokenRegistrationEvent {
+    pub type_name: String,
+    pub decimal: u8,
+    pub native_token: bool,
+}
+
+// Sanitized version of MoveTokenRegistrationEvent
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct TokenRegistrationEvent {
+    pub type_name: TypeTag,
+    pub decimal: u8,
+    pub native_token: bool,
+}
+
+impl TryFrom<MoveTokenRegistrationEvent> for TokenRegistrationEvent {
+    type Error = BridgeError;
+
+    fn try_from(event: MoveTokenRegistrationEvent) -> BridgeResult<Self> {
+        let type_name = parse_haneul_type_tag(&format!("0x{}", event.type_name)).map_err(|e| {
+            BridgeError::InternalError(format!(
+                "Failed to parse TypeTag: {e}, type name: {}",
+                event.type_name
+            ))
+        })?;
+
+        Ok(Self {
+            type_name,
+            decimal: event.decimal,
+            native_token: event.native_token,
+        })
+    }
+}
+
+// `NewTokenEvent` emitted in treasury.move
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MoveNewTokenEvent {
+    pub token_id: u8,
+    pub type_name: String,
+    pub native_token: bool,
+    pub decimal_multiplier: u64,
+    pub notional_value: u64,
+}
+
+// Sanitized version of MoveNewTokenEvent
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NewTokenEvent {
+    pub token_id: u8,
+    pub type_name: TypeTag,
+    pub native_token: bool,
+    pub decimal_multiplier: u64,
+    pub notional_value: u64,
+}
+
+impl TryFrom<MoveNewTokenEvent> for NewTokenEvent {
+    type Error = BridgeError;
+
+    fn try_from(event: MoveNewTokenEvent) -> BridgeResult<Self> {
+        let type_name = parse_haneul_type_tag(&format!("0x{}", event.type_name)).map_err(|e| {
+            BridgeError::InternalError(format!(
+                "Failed to parse TypeTag: {e}, type name: {}",
+                event.type_name
+            ))
+        })?;
+
+        Ok(Self {
+            token_id: event.token_id,
+            type_name,
+            native_token: event.native_token,
+            decimal_multiplier: event.decimal_multiplier,
+            notional_value: event.notional_value,
+        })
+    }
+}
+
+// `UpdateTokenPriceEvent` emitted in treasury.move
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct UpdateTokenPriceEvent {
+    pub token_id: u8,
+    pub new_price: u64,
+}
+
 // Sanitized version of MoveTokenDepositedEvent
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct EmittedHaneulToEthTokenBridgeV1 {
@@ -92,102 +213,6 @@ pub struct EmittedHaneulToEthTokenBridgeV1 {
     pub token_id: u8,
     // The amount of tokens deposited with decimal points on Haneul side
     pub amount_haneul_adjusted: u64,
-}
-
-// Sanitized version of MoveTokenTransferApproved
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct TokenTransferApproved {
-    pub nonce: u64,
-    pub source_chain: BridgeChainId,
-}
-
-impl TryFrom<MoveTokenTransferApproved> for TokenTransferApproved {
-    type Error = BridgeError;
-
-    fn try_from(event: MoveTokenTransferApproved) -> BridgeResult<Self> {
-        let source_chain = BridgeChainId::try_from(event.message_key.source_chain).map_err(|_e| {
-            BridgeError::Generic(format!(
-                "Failed to convert MoveTokenTransferApproved to TokenTransferApproved. Failed to convert source chain {} to BridgeChainId",
-                event.message_key.source_chain,
-            ))
-        })?;
-        Ok(Self {
-            nonce: event.message_key.bridge_seq_num,
-            source_chain,
-        })
-    }
-}
-
-// Sanitized version of MoveTokenTransferClaimed
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct TokenTransferClaimed {
-    pub nonce: u64,
-    pub source_chain: BridgeChainId,
-}
-
-impl TryFrom<MoveTokenTransferClaimed> for TokenTransferClaimed {
-    type Error = BridgeError;
-
-    fn try_from(event: MoveTokenTransferClaimed) -> BridgeResult<Self> {
-        let source_chain = BridgeChainId::try_from(event.message_key.source_chain).map_err(|_e| {
-            BridgeError::Generic(format!(
-                "Failed to convert MoveTokenTransferClaimed to TokenTransferClaimed. Failed to convert source chain {} to BridgeChainId",
-                event.message_key.source_chain,
-            ))
-        })?;
-        Ok(Self {
-            nonce: event.message_key.bridge_seq_num,
-            source_chain,
-        })
-    }
-}
-
-// Sanitized version of MoveTokenTransferAlreadyApproved
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct TokenTransferAlreadyApproved {
-    pub nonce: u64,
-    pub source_chain: BridgeChainId,
-}
-
-impl TryFrom<MoveTokenTransferAlreadyApproved> for TokenTransferAlreadyApproved {
-    type Error = BridgeError;
-
-    fn try_from(event: MoveTokenTransferAlreadyApproved) -> BridgeResult<Self> {
-        let source_chain = BridgeChainId::try_from(event.message_key.source_chain).map_err(|_e| {
-            BridgeError::Generic(format!(
-                "Failed to convert MoveTokenTransferAlreadyApproved to TokenTransferAlreadyApproved. Failed to convert source chain {} to BridgeChainId",
-                event.message_key.source_chain,
-            ))
-        })?;
-        Ok(Self {
-            nonce: event.message_key.bridge_seq_num,
-            source_chain,
-        })
-    }
-}
-
-// Sanitized version of MoveTokenTransferAlreadyClaimed
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct TokenTransferAlreadyClaimed {
-    pub nonce: u64,
-    pub source_chain: BridgeChainId,
-}
-
-impl TryFrom<MoveTokenTransferAlreadyClaimed> for TokenTransferAlreadyClaimed {
-    type Error = BridgeError;
-
-    fn try_from(event: MoveTokenTransferAlreadyClaimed) -> BridgeResult<Self> {
-        let source_chain = BridgeChainId::try_from(event.message_key.source_chain).map_err(|_e| {
-            BridgeError::Generic(format!(
-                "Failed to convert MoveTokenTransferAlreadyClaimed to TokenTransferAlreadyClaimed. Failed to convert source chain {} to BridgeChainId",
-                event.message_key.source_chain,
-            ))
-        })?;
-        Ok(Self {
-            nonce: event.message_key.bridge_seq_num,
-            source_chain,
-        })
-    }
 }
 
 // Sanitized version of MoveCommitteeUpdateEvent
@@ -254,24 +279,17 @@ impl TryFrom<MoveTokenDepositedEvent> for EmittedHaneulToEthTokenBridgeV1 {
                 event.token_type,
             ))
         })?;
-
-        match haneul_chain_id {
-            BridgeChainId::HaneulMainnet | BridgeChainId::HaneulTestnet | BridgeChainId::HaneulCustom => {}
-            _ => {
-                return Err(BridgeError::Generic(format!(
-                    "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid source chain {}",
-                    event.source_chain
-                )));
-            }
+        if !haneul_chain_id.is_haneul_chain() {
+            return Err(BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid source chain {}",
+                event.source_chain
+            )));
         }
-        match eth_chain_id {
-            BridgeChainId::EthMainnet | BridgeChainId::EthSepolia | BridgeChainId::EthCustom => {}
-            _ => {
-                return Err(BridgeError::Generic(format!(
-                    "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid target chain {}",
-                    event.target_chain
-                )));
-            }
+        if eth_chain_id.is_haneul_chain() {
+            return Err(BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid target chain {}",
+                event.target_chain
+            )));
         }
 
         let haneul_address = HaneulAddress::from_bytes(event.sender_address)
@@ -296,11 +314,16 @@ crate::declare_events!(
     TokenTransferClaimed(TokenTransferClaimed) => ("bridge::TokenTransferClaimed", MoveTokenTransferClaimed),
     TokenTransferAlreadyApproved(TokenTransferAlreadyApproved) => ("bridge::TokenTransferAlreadyApproved", MoveTokenTransferAlreadyApproved),
     TokenTransferAlreadyClaimed(TokenTransferAlreadyClaimed) => ("bridge::TokenTransferAlreadyClaimed", MoveTokenTransferAlreadyClaimed),
+    TokenTransferLimitExceed(TokenTransferLimitExceed) => ("bridge::TokenTransferLimitExceed", MoveTokenTransferLimitExceed),
+    EmergencyOpEvent(EmergencyOpEvent) => ("bridge::EmergencyOpEvent", EmergencyOpEvent),
     // No need to define a sanitized event struct for MoveTypeCommitteeMemberRegistration
     // because the info provided by validators could be invalid
     CommitteeMemberRegistration(MoveTypeCommitteeMemberRegistration) => ("committee::CommitteeMemberRegistration", MoveTypeCommitteeMemberRegistration),
     CommitteeUpdateEvent(CommitteeUpdate) => ("committee::CommitteeUpdateEvent", MoveCommitteeUpdateEvent),
-    BlocklistValidator(BlocklistValidatorEvent) => ("committee::CommitteeUpdateEvent", MoveBlocklistValidatorEvent),
+    BlocklistValidatorEvent(BlocklistValidatorEvent) => ("committee::BlocklistValidatorEvent", MoveBlocklistValidatorEvent),
+    TokenRegistrationEvent(TokenRegistrationEvent) => ("treasury::TokenRegistrationEvent", MoveTokenRegistrationEvent),
+    NewTokenEvent(NewTokenEvent) => ("treasury::NewTokenEvent", MoveNewTokenEvent),
+    UpdateTokenPriceEvent(UpdateTokenPriceEvent) => ("treasury::UpdateTokenPriceEvent", UpdateTokenPriceEvent),
 
     // Add new event types here. Format:
     // EnumVariantName(Struct) => ("{module}::{event_struct}", CorrespondingMoveStruct)
@@ -359,9 +382,14 @@ impl HaneulBridgeEvent {
             HaneulBridgeEvent::TokenTransferClaimed(_event) => None,
             HaneulBridgeEvent::TokenTransferAlreadyApproved(_event) => None,
             HaneulBridgeEvent::TokenTransferAlreadyClaimed(_event) => None,
+            HaneulBridgeEvent::TokenTransferLimitExceed(_event) => None,
+            HaneulBridgeEvent::EmergencyOpEvent(_event) => None,
             HaneulBridgeEvent::CommitteeMemberRegistration(_event) => None,
             HaneulBridgeEvent::CommitteeUpdateEvent(_event) => None,
-            HaneulBridgeEvent::BlocklistValidator(_event) => None,
+            HaneulBridgeEvent::BlocklistValidatorEvent(_event) => None,
+            HaneulBridgeEvent::TokenRegistrationEvent(_event) => None,
+            HaneulBridgeEvent::NewTokenEvent(_event) => None,
+            HaneulBridgeEvent::UpdateTokenPriceEvent(_event) => None,
         }
     }
 }
@@ -447,20 +475,24 @@ pub mod tests {
                 HashSet::from_iter([
                     CommitteeMemberRegistration.get().unwrap().clone(),
                     CommitteeUpdateEvent.get().unwrap().clone(),
+                    TokenRegistrationEvent.get().unwrap().clone(),
+                    NewTokenEvent.get().unwrap().clone(),
                 ]),
                 false,
             )
             .await;
+        let mut mask = 0u8;
         for event in events.iter() {
             match HaneulBridgeEvent::try_from_haneul_event(event).unwrap().unwrap() {
-                HaneulBridgeEvent::CommitteeMemberRegistration(_event) => (),
-                HaneulBridgeEvent::CommitteeUpdateEvent(_event) => (),
-                _ => panic!(
-                    "Expected CommitteeMemberRegistration or CommitteeUpdateEvent, got {:?}",
-                    event
-                ),
+                HaneulBridgeEvent::CommitteeMemberRegistration(_event) => mask |= 0x1,
+                HaneulBridgeEvent::CommitteeUpdateEvent(_event) => mask |= 0x2,
+                HaneulBridgeEvent::TokenRegistrationEvent(_event) => mask |= 0x4,
+                HaneulBridgeEvent::NewTokenEvent(_event) => mask |= 0x8,
+                _ => panic!("Got unexpected event: {:?}", event),
             }
         }
+        // assert all the above events are emitted
+        assert_eq!(mask, 0xF);
 
         // TODO: trigger other events and make sure they are converted correctly
     }
