@@ -33,7 +33,7 @@ use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID};
 use tracing::info;
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
 async fn test_bridge_from_eth_to_haneul_to_eth() {
     telemetry_subscribers::init_for_testing();
 
@@ -169,7 +169,7 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     );
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
 async fn test_add_new_coins_on_haneul() {
     telemetry_subscribers::init_for_testing();
     let mut bridge_test_cluster = BridgeTestClusterBuilder::new()
@@ -347,6 +347,7 @@ async fn initiate_bridge_eth_to_haneul(
     token_id: u8,
     nonce: u64,
 ) {
+    info!("Depositing Eth to Solidity contract");
     let eth_tx = deposit_native_eth_to_sol_contract(
         eth_signer,
         haneul_bridge_contract_address,
@@ -376,7 +377,7 @@ async fn initiate_bridge_eth_to_haneul(
     assert_eq!(eth_bridge_event.haneul_adjusted_amount, haneul_amount);
     assert_eq!(eth_bridge_event.sender_address, eth_address);
     assert_eq!(eth_bridge_event.recipient_address, haneul_address.to_vec());
-    info!("Deposited Eth to Sol contract");
+    info!("Deposited Eth to Solidity contract");
 
     wait_for_transfer_action_status(
         haneul_bridge_client,
