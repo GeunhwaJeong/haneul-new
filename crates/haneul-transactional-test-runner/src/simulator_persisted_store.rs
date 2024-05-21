@@ -12,7 +12,7 @@ use haneul_config::genesis;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::storage::ReadStore;
+use haneul_types::storage::{ReadStore, RestStateReader};
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress, VersionNumber},
     committee::{Committee, EpochId},
@@ -702,6 +702,26 @@ impl ReadStore for PersistedStoreInnerReadOnlyWrapper {
         Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
     > {
         todo!()
+    }
+}
+
+impl RestStateReader for PersistedStoreInnerReadOnlyWrapper {
+    fn get_transaction_checkpoint(
+        &self,
+        _digest: &TransactionDigest,
+    ) -> haneul_types::storage::error::Result<Option<CheckpointSequenceNumber>> {
+        todo!()
+    }
+
+    fn get_chain_identifier(
+        &self,
+    ) -> haneul_types::storage::error::Result<haneul_types::digests::ChainIdentifier> {
+        Ok((*self
+            .get_checkpoint_by_sequence_number(0)
+            .unwrap()
+            .unwrap()
+            .digest())
+        .into())
     }
 }
 

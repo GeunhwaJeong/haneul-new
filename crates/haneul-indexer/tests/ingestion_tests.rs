@@ -23,7 +23,6 @@ mod ingestion_tests {
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::effects::TransactionEffectsAPI;
     use haneul_types::gas_coin::GasCoin;
-    use haneul_types::storage::ReadStore;
     use haneul_types::{
         Identifier, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID,
     };
@@ -58,14 +57,7 @@ mod ingestion_tests {
             .unwrap();
 
         let server_handle = tokio::spawn(async move {
-            let chain_id = (*sim
-                .get_checkpoint_by_sequence_number(0)
-                .unwrap()
-                .unwrap()
-                .digest())
-            .into();
-
-            haneul_rest_api::RestService::new_without_version(sim, chain_id)
+            haneul_rest_api::RestService::new_without_version(sim)
                 .start_service(server_url, Some("/rest".to_owned()))
                 .await;
         });

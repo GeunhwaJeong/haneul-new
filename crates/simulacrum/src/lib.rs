@@ -27,7 +27,7 @@ use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
 use haneul_types::digests::ConsensusCommitDigest;
 use haneul_types::object::Object;
-use haneul_types::storage::{ObjectStore, ReadStore};
+use haneul_types::storage::{ObjectStore, ReadStore, RestStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
 use haneul_types::{
@@ -546,6 +546,29 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
         Option<haneul_types::messages_checkpoint::FullCheckpointContents>,
     > {
         todo!()
+    }
+}
+
+impl<T: Send + Sync, V: store::SimulatorStore + Send + Sync> RestStateReader for Simulacrum<T, V> {
+    fn get_transaction_checkpoint(
+        &self,
+        _digest: &haneul_types::digests::TransactionDigest,
+    ) -> haneul_types::storage::error::Result<
+        Option<haneul_types::messages_checkpoint::CheckpointSequenceNumber>,
+    > {
+        todo!()
+    }
+
+    fn get_chain_identifier(
+        &self,
+    ) -> haneul_types::storage::error::Result<haneul_types::digests::ChainIdentifier> {
+        Ok(self
+            .store()
+            .get_checkpoint_by_sequence_number(0)
+            .unwrap()
+            .digest()
+            .to_owned()
+            .into())
     }
 }
 
