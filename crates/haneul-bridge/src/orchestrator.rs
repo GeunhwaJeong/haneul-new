@@ -224,7 +224,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_haneul_watcher_task() {
-        // Note: this test may fail beacuse of the following reasons:
+        // Note: this test may fail because of the following reasons:
         // the HaneulEvent's struct tag does not match the ones in events.rs
 
         let (haneul_events_tx, haneul_events_rx, _eth_events_tx, eth_events_rx, haneul_client, store) =
