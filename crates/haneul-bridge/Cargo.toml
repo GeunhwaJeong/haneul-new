@@ -48,6 +48,7 @@ shared-crypto.workspace = true
 backoff.workspace = true
 enum_dispatch.workspace = true
 haneul-json-rpc-api.workspace = true
+haneul-test-transaction-builder.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
