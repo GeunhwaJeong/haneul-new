@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use haneul_sdk2::types::{EpochId, ValidatorCommittee};
 use haneul_sdk2::types::{Object, ObjectId, Version};
-use haneul_types::storage::error::Result;
+use haneul_types::storage::error::{Error as StorageError, Result};
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::RestStateReader;
 
@@ -45,5 +45,15 @@ impl StateReader {
         self.inner
             .get_committee(epoch)
             .map(|maybe| maybe.map(|committee| (*committee).clone().into()))
+    }
+
+    pub fn get_system_state_summary(&self) -> Result<super::system::SystemStateSummary> {
+        use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+
+        let system_state = haneul_types::haneul_system_state::get_haneul_system_state(self.inner())
+            .map_err(StorageError::custom)?;
+        let summary = system_state.into_haneul_system_state_summary().into();
+
+        Ok(summary)
     }
 }
