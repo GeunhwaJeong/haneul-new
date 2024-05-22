@@ -57,18 +57,18 @@ async fn main() -> anyhow::Result<()> {
             println!("Chain ID: {:?}", chain_id);
             let config = BridgeCliConfig::load(config_path).expect("Couldn't load BridgeCliConfig");
             let config = LoadedBridgeCliConfig::load(config).await?;
-            let haneul_client = HaneulClient::<HaneulSdkClient>::new(&config.haneul_rpc_url).await?;
+            let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&config.haneul_rpc_url).await?;
 
             let (haneul_key, haneul_address, gas_object_ref) = config
                 .get_haneul_account_info()
                 .await
                 .expect("Failed to get haneul account info");
-            let bridge_summary = haneul_client
+            let bridge_summary = haneul_bridge_client
                 .get_bridge_summary()
                 .await
                 .expect("Failed to get bridge summary");
             let bridge_committee = Arc::new(
-                haneul_client
+                haneul_bridge_client
                     .get_bridge_committee()
                     .await
                     .expect("Failed to get bridge committee"),
@@ -86,21 +86,24 @@ async fn main() -> anyhow::Result<()> {
                 // Create BridgeAction
                 let haneul_action = make_action(haneul_chain_id, &cmd);
                 println!("Action to execute on Haneul: {:?}", haneul_action);
-                let threshold = haneul_action.approval_threshold();
                 let certified_action = agg
-                    .request_committee_signatures(haneul_action, threshold)
+                    .request_committee_signatures(haneul_action)
                     .await
                     .expect("Failed to request committee signatures");
-                let bridge_arg = haneul_client
+                let bridge_arg = haneul_bridge_client
                     .get_mutable_bridge_object_arg_must_succeed()
                     .await;
-                let id_token_map = haneul_client.get_token_id_map().await.unwrap();
+                let rgp = haneul_bridge_client
+                    .get_reference_gas_price_until_success()
+                    .await;
+                let id_token_map = haneul_bridge_client.get_token_id_map().await.unwrap();
                 let tx = build_haneul_transaction(
                     haneul_address,
                     &gas_object_ref,
                     certified_action,
                     bridge_arg,
                     &id_token_map,
+                    rgp,
                 )
                 .expect("Failed to build haneul transaction");
                 let haneul_sig = Signature::new_secure(
@@ -108,7 +111,7 @@ async fn main() -> anyhow::Result<()> {
                     &haneul_key,
                 );
                 let tx = Transaction::from_data(tx, vec![haneul_sig]);
-                let resp = haneul_client
+                let resp = haneul_bridge_client
                     .execute_transaction_block_with_effects(tx)
                     .await
                     .expect("Failed to execute transaction block with effects");
@@ -130,9 +133,8 @@ async fn main() -> anyhow::Result<()> {
             let eth_action = make_action(chain_id, &cmd);
             println!("Action to execute on Eth: {:?}", eth_action);
             // Create Eth Signer Client
-            let threshold = eth_action.approval_threshold();
             let certified_action = agg
-                .request_committee_signatures(eth_action, threshold)
+                .request_committee_signatures(eth_action)
                 .await
                 .expect("Failed to request committee signatures");
             let contract_address = select_contract_address(&config, &cmd);

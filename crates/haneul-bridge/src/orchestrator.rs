@@ -99,8 +99,6 @@ where
                 continue;
             }
 
-            // TODO: skip events that are already processed (in DB and on chain)
-
             let bridge_events = events
                 .iter()
                 .map(HaneulBridgeEvent::try_from_haneul_event)
