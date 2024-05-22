@@ -62,19 +62,19 @@ module haneul_system::stake_tests {
         scenario.next_tx(STAKER_ADDR_1);
         {
             let staked_haneul_ids = scenario.ids_for_sender<StakedHaneul>();
-            assert!(staked_haneul_ids.length() == 2, 101); // staked haneul split to 2 coins
+            assert!(staked_haneul_ids.length() == 2); // staked haneul split to 2 coins
 
             let mut part1 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[0]);
             let part2 = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_ids[1]);
 
             let amount1 = part1.amount();
             let amount2 = part2.amount();
-            assert!(amount1 == 20 * GEUNHWA_PER_HANEUL || amount1 == 40 * GEUNHWA_PER_HANEUL, 102);
-            assert!(amount2 == 20 * GEUNHWA_PER_HANEUL || amount2 == 40 * GEUNHWA_PER_HANEUL, 103);
-            assert!(amount1 + amount2 == 60 * GEUNHWA_PER_HANEUL, 104);
+            assert!(amount1 == 20 * GEUNHWA_PER_HANEUL || amount1 == 40 * GEUNHWA_PER_HANEUL);
+            assert!(amount2 == 20 * GEUNHWA_PER_HANEUL || amount2 == 40 * GEUNHWA_PER_HANEUL);
+            assert!(amount1 + amount2 == 60 * GEUNHWA_PER_HANEUL);
 
             part1.join(part2);
-            assert!(part1.amount() == 60 * GEUNHWA_PER_HANEUL, 105);
+            assert!(part1.amount() == 60 * GEUNHWA_PER_HANEUL);
             scenario.return_to_sender(part1);
         };
         scenario_val.end();
@@ -164,8 +164,8 @@ module haneul_system::stake_tests {
                 coin::mint_for_testing(60 * GEUNHWA_PER_HANEUL, ctx), VALIDATOR_ADDR_1, ctx
             );
 
-            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 101);
-            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 102);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL);
 
             test_scenario::return_shared(system_state);
         };
@@ -176,21 +176,21 @@ module haneul_system::stake_tests {
         {
 
             let staked_haneul = scenario.take_from_sender<StakedHaneul>();
-            assert!(staked_haneul.amount() == 60 * GEUNHWA_PER_HANEUL, 105);
+            assert!(staked_haneul.amount() == 60 * GEUNHWA_PER_HANEUL);
 
 
             let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 103);
-            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL, 104);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_2) == 100 * GEUNHWA_PER_HANEUL);
 
             let ctx = scenario.ctx();
 
             // Unstake from VALIDATOR_ADDR_1
             system_state_mut_ref.request_withdraw_stake(staked_haneul, ctx);
 
-            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL, 107);
+            assert!(system_state_mut_ref.validator_stake_amount(VALIDATOR_ADDR_1) == 160 * GEUNHWA_PER_HANEUL);
             test_scenario::return_shared(system_state);
         };
 
@@ -199,7 +199,7 @@ module haneul_system::stake_tests {
         scenario.next_tx(STAKER_ADDR_1);
         {
             let mut system_state = scenario.take_shared<HaneulSystemState>();
-            assert!(system_state.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL, 107);
+            assert!(system_state.validator_stake_amount(VALIDATOR_ADDR_1) == 100 * GEUNHWA_PER_HANEUL);
             test_scenario::return_shared(system_state);
         };
         scenario_val.end();
@@ -250,7 +250,7 @@ module haneul_system::stake_tests {
             let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1), 0);
+            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1));
 
             let staked_haneul = scenario.take_from_sender<StakedHaneul>();
             assert_eq(staked_haneul.amount(), 100 * GEUNHWA_PER_HANEUL);
@@ -350,7 +350,7 @@ module haneul_system::stake_tests {
             let mut system_state = scenario.take_shared<HaneulSystemState>();
             let system_state_mut_ref = &mut system_state;
 
-            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1), 0);
+            assert!(!system_state_mut_ref.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1));
 
             test_scenario::return_shared(system_state);
         };

@@ -114,9 +114,9 @@ module haneul::kiosk_borrow_tests {
 
         kiosk.place(&cap, item);
         let (item, potato) = kiosk.borrow_val<Asset>(&cap, id);
-        assert!(haneul::object::id(&item) == id, 0);
+        assert!(haneul::object::id(&item) == id);
         kiosk.return_val(item, potato);
-        assert!(kiosk.has_item(id), 0);
+        assert!(kiosk.has_item(id));
 
         let item = kiosk.take<Asset>(&cap, id);
         utils::return_assets(vector[ item ]);

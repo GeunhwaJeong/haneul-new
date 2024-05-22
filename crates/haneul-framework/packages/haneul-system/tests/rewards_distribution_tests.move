@@ -214,8 +214,8 @@ module haneul_system::rewards_distribution_tests {
         unstake(STAKER_ADDR_2, 0, scenario);
 
         // Same analysis as above. Delegator 1 has 3 additional HANEUL, and 10% of staker 2's rewards are slashed.
-        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == 565 * GEUNHWA_PER_HANEUL, 0);
-        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 370 * GEUNHWA_PER_HANEUL, 0);
+        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == 565 * GEUNHWA_PER_HANEUL);
+        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 370 * GEUNHWA_PER_HANEUL);
         scenario_val.end();
     }
 
@@ -255,8 +255,8 @@ module haneul_system::rewards_distribution_tests {
         unstake(STAKER_ADDR_2, 0, scenario);
 
         // Same analysis as above. Staker 1 has 150 additional HANEUL, and since all of staker 2's rewards are slashed she only gets back her principal.
-        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == (550 + 150) * GEUNHWA_PER_HANEUL, 0);
-        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 100 * GEUNHWA_PER_HANEUL, 0);
+        assert!(total_haneul_balance(STAKER_ADDR_1, scenario) == (550 + 150) * GEUNHWA_PER_HANEUL);
+        assert!(total_haneul_balance(STAKER_ADDR_2, scenario) == 100 * GEUNHWA_PER_HANEUL);
         scenario_val.end();
     }
 
