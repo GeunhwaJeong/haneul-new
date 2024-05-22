@@ -111,6 +111,15 @@ $ haneul client active-address
 0x514692f08249c3e9951234ce29074695840422564bff85e424b56de462913e0d
 ```
 
+### Request a HANEUL coin from faucet
+
+If you use one of the standard public RPCs (for example, `fullnode.testnet.haneul.io:443`), you can use the `faucet` command to request gas coins. If you use a custom faucet service, then pass in the URL to the faucet using the `--url` option.
+
+```shell
+$ haneul client faucet
+Request successful. It can take up to 1 minute to get the coin. Run haneul client gas to check your gas coins.
+```
+
 ### Get objects owned by an address
 
 Use `haneul client objects` to list summary information about the objects the current active address owns. You can provide a Haneul address value to the command to list objects for a particular address. This example lists objects for the current active address.
