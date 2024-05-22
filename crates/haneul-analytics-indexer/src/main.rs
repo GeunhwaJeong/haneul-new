@@ -1,18 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use anyhow::Result;
 use clap::*;
 use prometheus::Registry;
 use haneul_analytics_indexer::{
     analytics_metrics::AnalyticsMetrics, errors::AnalyticsIndexerError, make_analytics_processor,
     AnalyticsIndexerConfig,
 };
-use haneul_indexer::framework::IndexerBuilder;
-use haneul_indexer::metrics::IndexerMetrics;
+use haneul_data_ingestion_core::setup_single_workflow;
+use tokio::signal;
 use tracing::info;
 
 #[tokio::main]
-async fn main() -> Result<(), AnalyticsIndexerError> {
+async fn main() -> Result<()> {
     let _guard = telemetry_subscribers::TelemetryConfig::new()
         .with_env()
         .init();
@@ -30,17 +31,23 @@ async fn main() -> Result<(), AnalyticsIndexerError> {
     let registry: Registry = registry_service.default_registry();
     haneullabs_metrics::init_metrics(&registry);
     let metrics = AnalyticsMetrics::new(&registry);
-    let indexer_metrics = IndexerMetrics::new(&registry);
-
-    let rest_url = config.rest_url.clone();
+    let remote_store_url = config.remote_store_url.clone();
     let processor = make_analytics_processor(config, metrics)
         .await
         .map_err(|e| AnalyticsIndexerError::GenericError(e.to_string()))?;
-    IndexerBuilder::new(indexer_metrics)
-        .last_downloaded_checkpoint(processor.last_committed_checkpoint())
-        .rest_url(&rest_url)
-        .handler(processor)
-        .run()
-        .await;
+    let watermark = processor.last_committed_checkpoint().unwrap_or_default();
+
+    let (executor, exit_sender) =
+        setup_single_workflow(processor, remote_store_url, watermark, 1, None).await?;
+
+    tokio::spawn(async {
+        signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+        exit_sender
+            .send(())
+            .expect("Failed to gracefully process shutdown");
+    });
+    executor.await?;
     Ok(())
 }

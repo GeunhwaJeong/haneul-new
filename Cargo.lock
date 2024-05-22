@@ -11810,6 +11810,7 @@ dependencies = [
  "strum_macros 0.24.3",
  "haneul-analytics-indexer-derive",
  "haneul-config",
+ "haneul-data-ingestion-core",
  "haneul-indexer",
  "haneul-json-rpc-types",
  "haneul-package-resolver",
