@@ -12198,6 +12198,7 @@ dependencies = [
  "haneul-genesis-builder",
  "haneul-json-rpc-types",
  "haneul-macros",
+ "haneul-move",
  "haneul-move-build",
  "haneul-network",
  "haneul-protocol-config",
