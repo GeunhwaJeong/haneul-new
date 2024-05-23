@@ -5,7 +5,7 @@ This crate provides the Haneul Rust SDK, containing APIs to interact with the Ha
 Add the `haneul-sdk` dependency as following:
 
 ```toml
-haneul-sdk = { git = "https://github.com/GeunhwaJeong/haneul", package = "haneul-sdk"}
+haneul_sdk = { git = "https://github.com/GeunhwaJeong/haneul", package = "haneul-sdk"}
 tokio = { version = "1.2", features = ["full"] }
 anyhow = "1.0"
 ```
