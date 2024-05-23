@@ -15,8 +15,10 @@ use ethers::prelude::*;
 use ethers::providers::{Http, Provider};
 use ethers::signers::Wallet;
 use fastcrypto::ed25519::Ed25519KeyPair;
+use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::secp256k1::Secp256k1KeyPair;
 use fastcrypto::traits::EncodeDecodeBase64;
+use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -25,6 +27,7 @@ use haneul_config::Config;
 use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_keys::keypair_file::read_key;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::HaneulAddress;
@@ -32,6 +35,7 @@ use haneul_types::bridge::BridgeChainId;
 use haneul_types::bridge::{BRIDGE_MODULE_NAME, BRIDGE_REGISTER_FOREIGN_TOKEN_FUNCTION_NAME};
 use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::crypto::ToFromBytes;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::BRIDGE_PACKAGE_ID;
@@ -81,6 +85,32 @@ pub fn generate_bridge_client_key_and_write_to_file(
     let contents = kp.encode_base64();
     std::fs::write(path, contents)
         .map_err(|err| anyhow!("Failed to write encoded key to path: {:?}", err))
+}
+
+/// Read bridge key from a file and print the corresponding information.
+/// If `is_validator_key` is true, the key must be a Secp256k1 key.
+pub fn examine_key(path: &PathBuf, is_validator_key: bool) -> Result<(), anyhow::Error> {
+    let key = read_key(path, is_validator_key)?;
+    let haneul_address = HaneulAddress::from(&key.public());
+    let pubkey = match key {
+        HaneulKeyPair::Secp256k1(kp) => {
+            println!("Secp256k1 key:");
+            let eth_address = BridgeAuthorityPublicKeyBytes::from(&kp.public).to_eth_address();
+            println!("Corresponding Ethereum address: {:x}", eth_address);
+            kp.public.as_bytes().to_vec()
+        }
+        HaneulKeyPair::Ed25519(kp) => {
+            println!("Ed25519 key:");
+            kp.public().as_bytes().to_vec()
+        }
+        HaneulKeyPair::Secp256r1(kp) => {
+            println!("Secp256r1 key:");
+            kp.public().as_bytes().to_vec()
+        }
+    };
+    println!("Corresponding Haneul address: {:?}", haneul_address);
+    println!("Corresponding PublicKey: {:?}", Hex::encode(pubkey));
+    Ok(())
 }
 
 /// Generate Bridge Node Config template and write to a file.

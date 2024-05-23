@@ -10,8 +10,8 @@ use haneul_bridge::eth_transaction_builder::build_eth_transaction;
 use haneul_bridge::haneul_client::HaneulClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
 use haneul_bridge::utils::{
-    generate_bridge_authority_key_and_write_to_file, generate_bridge_client_key_and_write_to_file,
-    generate_bridge_node_config_and_write_to_file,
+    examine_key, generate_bridge_authority_key_and_write_to_file,
+    generate_bridge_client_key_and_write_to_file, generate_bridge_node_config_and_write_to_file,
 };
 use haneul_bridge_cli::{
     make_action, select_contract_address, Args, BridgeCliConfig, BridgeValidatorCommand,
@@ -39,6 +39,12 @@ async fn main() -> anyhow::Result<()> {
         BridgeValidatorCommand::CreateBridgeClientKey { path, use_ecdsa } => {
             generate_bridge_client_key_and_write_to_file(&path, use_ecdsa)?;
             println!("Bridge client key generated at {}", path.display());
+        }
+        BridgeValidatorCommand::ExamineKey {
+            path,
+            is_validator_key,
+        } => {
+            examine_key(&path, is_validator_key)?;
         }
         BridgeValidatorCommand::CreateBridgeNodeConfigTemplate { path, run_client } => {
             generate_bridge_node_config_and_write_to_file(&path, run_client)?;
