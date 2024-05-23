@@ -5,7 +5,7 @@ edition = "2024.beta"
 
 [dependencies]
 MoveStdlib = { local = "../../../crates/haneul-framework/packages/move-stdlib/" }
-Haneul = { local = "../../../crates/haneul-framework//packages/haneul-framework" }
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 tutorial = "0x0"
