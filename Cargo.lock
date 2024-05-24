@@ -12040,6 +12040,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-bridge-indexer"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bin-version",
+ "clap",
+ "diesel",
+ "ethers",
+ "hex-literal 0.3.4",
+ "haneullabs-metrics",
+ "prometheus",
+ "serde",
+ "serde_yaml 0.8.26",
+ "haneul-bridge",
+ "haneul-config",
+ "haneul-data-ingestion-core",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "test-cluster",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "haneul-cluster-test"
 version = "0.1.0"
 dependencies = [

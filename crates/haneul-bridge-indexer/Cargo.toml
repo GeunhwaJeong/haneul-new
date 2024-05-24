@@ -1,0 +1,36 @@
+[package]
+name = "haneul-bridge-indexer"
+version = "0.1.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+serde.workspace = true
+diesel = { version = "2.1.4", features = ["postgres", "r2d2", "serde_json"] }
+ethers = "2.0"
+tokio = { workspace = true, features = ["full"] }
+haneul-types.workspace = true
+prometheus.workspace = true
+async-trait.workspace = true
+haneul-data-ingestion-core.workspace = true
+haneul-bridge.workspace = true
+clap.workspace = true
+tracing.workspace = true
+bin-version.workspace = true
+anyhow.workspace = true
+haneullabs-metrics.workspace = true
+bcs.workspace = true
+serde_yaml.workspace = true
+
+[dev-dependencies]
+haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-config.workspace = true
+haneul-test-transaction-builder.workspace = true
+test-cluster.workspace = true
+hex-literal = "0.3.4"
+
+[[bin]]
+name = "bridge-indexer"
+path = "src/main.rs"
