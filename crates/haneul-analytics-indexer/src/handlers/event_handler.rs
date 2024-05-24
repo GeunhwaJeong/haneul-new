@@ -3,17 +3,18 @@
 
 use anyhow::Result;
 use fastcrypto::encoding::{Base64, Encoding};
+use move_core_types::annotated_value::MoveValue;
 use haneul_types::SYSTEM_PACKAGE_ADDRESSES;
 
 use std::path::Path;
 use haneul_data_ingestion_core::Worker;
 use tokio::sync::Mutex;
 
-use crate::handlers::{get_move_struct, AnalyticsHandler};
+use crate::handlers::AnalyticsHandler;
 use crate::package_store::{LocalDBPackageStore, PackageCache};
 use crate::tables::EventEntry;
 use crate::FileType;
-use haneul_json_rpc_types::HaneulMoveStruct;
+use haneul_json_rpc_types::type_and_fields_from_move_event_data;
 use haneul_package_resolver::Resolver;
 use haneul_rest_api::CheckpointData;
 use haneul_types::digests::TransactionDigest;
@@ -112,14 +113,14 @@ impl EventHandler {
                 type_,
                 contents,
             } = event;
-            let move_struct = get_move_struct(type_, contents, &state.resolver).await?;
-            let (_struct_tag, haneul_move_struct) = match move_struct.into() {
-                HaneulMoveStruct::WithTypes { type_, fields } => {
-                    (type_, HaneulMoveStruct::WithFields(fields))
-                }
-                fields => (type_.clone(), fields),
-            };
-            let event_json = haneul_move_struct.to_json_value();
+            let layout = state
+                .resolver
+                .type_layout(move_core_types::language_storage::TypeTag::Struct(
+                    Box::new(type_.clone()),
+                ))
+                .await?;
+            let move_value = MoveValue::simple_deserialize(contents, &layout)?;
+            let (_, event_json) = type_and_fields_from_move_event_data(move_value)?;
             let entry = EventEntry {
                 transaction_digest: digest.base58_encode(),
                 event_index: idx as u64,

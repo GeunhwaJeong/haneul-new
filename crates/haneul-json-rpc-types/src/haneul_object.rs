@@ -11,7 +11,7 @@ use anyhow::anyhow;
 use colored::Colorize;
 use fastcrypto::encoding::Base64;
 use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::annotated_value::{MoveStruct, MoveStructLayout};
+use move_core_types::annotated_value::{MoveStructLayout, MoveValue};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
 use schemars::JsonSchema;
@@ -26,7 +26,9 @@ use haneul_types::base_types::{
     ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber, HaneulAddress,
     TransactionDigest,
 };
-use haneul_types::error::{ExecutionError, HaneulObjectResponseError, UserInputError, UserInputResult};
+use haneul_types::error::{
+    ExecutionError, HaneulError, HaneulObjectResponseError, HaneulResult, UserInputError, UserInputResult,
+};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
@@ -910,23 +912,30 @@ impl HaneulParsedMoveObject {
             HaneulParsedData::Package(_) => Err(anyhow::anyhow!("Object is not a Move object")),
         }
     }
-
-    pub fn read_dynamic_field_value(&self, field_name: &str) -> Option<HaneulMoveValue> {
-        match &self.fields {
-            HaneulMoveStruct::WithFields(fields) => fields.get(field_name).cloned(),
-            HaneulMoveStruct::WithTypes { fields, .. } => fields.get(field_name).cloned(),
-            _ => None,
-        }
-    }
 }
 
-pub fn type_and_fields_from_move_struct(
-    type_: &StructTag,
-    move_struct: MoveStruct,
-) -> (StructTag, HaneulMoveStruct) {
-    match move_struct.into() {
-        HaneulMoveStruct::WithTypes { type_, fields } => (type_, HaneulMoveStruct::WithFields(fields)),
-        fields => (type_.clone(), fields),
+pub fn type_and_fields_from_move_event_data(
+    event_data: MoveValue,
+) -> HaneulResult<(StructTag, serde_json::Value)> {
+    match event_data.into() {
+        HaneulMoveValue::Struct(move_struct) => match &move_struct {
+            HaneulMoveStruct::WithTypes { type_, .. } => {
+                Ok((type_.clone(), move_struct.clone().to_json_value()))
+            }
+            _ => Err(HaneulError::ObjectDeserializationError {
+                error: "Found non-type HaneulMoveStruct in MoveValue event".to_string(),
+            }),
+        },
+        HaneulMoveValue::Variant(v) => Ok((v.type_.clone(), v.clone().to_json_value())),
+        HaneulMoveValue::Vector(_)
+        | HaneulMoveValue::Number(_)
+        | HaneulMoveValue::Bool(_)
+        | HaneulMoveValue::Address(_)
+        | HaneulMoveValue::String(_)
+        | HaneulMoveValue::UID { .. }
+        | HaneulMoveValue::Option(_) => Err(HaneulError::ObjectDeserializationError {
+            error: "Invalid MoveValue event type -- this should not be possible".to_string(),
+        }),
     }
 }
 

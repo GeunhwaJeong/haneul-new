@@ -3,12 +3,12 @@
 
 use colored::Colorize;
 use itertools::Itertools;
-use move_binary_format::file_format::{Ability, AbilitySet, StructTypeParameter, Visibility};
+use move_binary_format::file_format::{Ability, AbilitySet, DatatypeTyParameter, Visibility};
 use move_binary_format::normalized::{
     Field as NormalizedField, Function as HaneulNormalizedFunction, Module as NormalizedModule,
     Struct as NormalizedStruct, Type as NormalizedType,
 };
-use move_core_types::annotated_value::{MoveStruct, MoveValue};
+use move_core_types::annotated_value::{MoveStruct, MoveValue, MoveVariant};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
 use schemars::JsonSchema;
@@ -209,8 +209,8 @@ impl From<NormalizedStruct> for HaneulMoveNormalizedStruct {
     }
 }
 
-impl From<StructTypeParameter> for HaneulMoveStructTypeParameter {
-    fn from(type_parameter: StructTypeParameter) -> Self {
+impl From<DatatypeTyParameter> for HaneulMoveStructTypeParameter {
+    fn from(type_parameter: DatatypeTyParameter) -> Self {
         Self {
             constraints: type_parameter.constraints.into(),
             is_phantom: type_parameter.is_phantom,
@@ -309,6 +309,7 @@ pub enum HaneulMoveValue {
     UID { id: ObjectID },
     Struct(HaneulMoveStruct),
     Option(Box<Option<HaneulMoveValue>>),
+    Variant(HaneulMoveVariant),
 }
 
 impl HaneulMoveValue {
@@ -323,6 +324,7 @@ impl HaneulMoveValue {
             HaneulMoveValue::String(v) => json!(v),
             HaneulMoveValue::UID { id } => json!({ "id": id }),
             HaneulMoveValue::Option(v) => json!(v),
+            HaneulMoveValue::Variant(v) => v.to_json_value(),
         }
     }
 }
@@ -345,6 +347,7 @@ impl Display for HaneulMoveValue {
                     vec.iter().map(|value| format!("{value}")).join(",\n")
                 )?;
             }
+            HaneulMoveValue::Variant(value) => write!(writer, "{}", value)?,
         }
         write!(f, "{}", writer.trim_end_matches('\n'))
     }
@@ -374,6 +377,19 @@ impl From<MoveValue> for HaneulMoveValue {
             MoveValue::Signer(value) | MoveValue::Address(value) => {
                 HaneulMoveValue::Address(HaneulAddress::from(ObjectID::from(value)))
             }
+            MoveValue::Variant(MoveVariant {
+                type_,
+                variant_name,
+                tag: _,
+                fields,
+            }) => HaneulMoveValue::Variant(HaneulMoveVariant {
+                type_: type_.clone(),
+                variant: variant_name.to_string(),
+                fields: fields
+                    .into_iter()
+                    .map(|(id, value)| (id.into_string(), value.into()))
+                    .collect::<BTreeMap<_, _>>(),
+            }),
         }
     }
 }
@@ -393,6 +409,58 @@ fn to_bytearray(value: &[MoveValue]) -> Option<Vec<u8>> {
         Some(bytearray)
     } else {
         None
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, Clone, Eq, PartialEq)]
+#[serde(rename = "MoveVariant")]
+pub struct HaneulMoveVariant {
+    #[schemars(with = "String")]
+    #[serde(rename = "type")]
+    #[serde_as(as = "HaneulStructTag")]
+    pub type_: StructTag,
+    pub variant: String,
+    pub fields: BTreeMap<String, HaneulMoveValue>,
+}
+
+impl HaneulMoveVariant {
+    pub fn to_json_value(self) -> Value {
+        // We only care about values here, assuming type information is known at the client side.
+        let fields = self
+            .fields
+            .into_iter()
+            .map(|(key, value)| (key, value.to_json_value()))
+            .collect::<BTreeMap<_, _>>();
+        json!({
+            "variant": self.variant,
+            "fields": fields,
+        })
+    }
+}
+
+impl Display for HaneulMoveVariant {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut writer = String::new();
+        let HaneulMoveVariant {
+            type_,
+            variant,
+            fields,
+        } = self;
+        writeln!(writer)?;
+        writeln!(writer, "  {}: {type_}", "type".bold().bright_black())?;
+        writeln!(writer, "  {}: {variant}", "variant".bold().bright_black())?;
+        for (name, value) in fields {
+            let value = format!("{}", value);
+            let value = if value.starts_with('\n') {
+                indent(&value, 2)
+            } else {
+                value
+            };
+            writeln!(writer, "  {}: {value}", name.bold().bright_black())?;
+        }
+
+        write!(f, "{}", writer.trim_end_matches('\n'))
     }
 }
 
@@ -431,14 +499,6 @@ impl HaneulMoveStruct {
                     .collect::<BTreeMap<_, _>>();
                 json!(fields)
             }
-        }
-    }
-
-    pub fn read_dynamic_field_value(&self, field_name: &str) -> Option<HaneulMoveValue> {
-        match self {
-            HaneulMoveStruct::WithFields(fields) => fields.get(field_name).cloned(),
-            HaneulMoveStruct::WithTypes { type_: _, fields } => fields.get(field_name).cloned(),
-            _ => None,
         }
     }
 }

@@ -37,7 +37,7 @@ impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
     fn get_annotated_layout(
         &mut self,
         struct_tag: &StructTag,
-    ) -> Result<A::MoveStructLayout, HaneulError> {
+    ) -> Result<A::MoveDatatypeLayout, HaneulError> {
         let Ok(ty) = load_type_from_struct(self.vm, &mut self.linkage_view, &[], struct_tag) else {
             return Err(HaneulError::FailObjectLayout {
                 st: format!("{}", struct_tag),
@@ -49,7 +49,7 @@ impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
                 st: format!("{}", struct_tag),
             });
         };
-        Ok(layout)
+        Ok(A::MoveDatatypeLayout::Struct(layout))
     }
 }
 

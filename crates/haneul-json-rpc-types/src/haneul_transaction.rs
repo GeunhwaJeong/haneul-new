@@ -35,7 +35,7 @@ use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::object::{MoveObject, Owner};
+use haneul_types::object::Owner;
 use haneul_types::parse_haneul_type_tag;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::signature::GenericSignature;
@@ -49,7 +49,7 @@ use haneul_types::transaction::{
     InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
     TransactionData, TransactionDataAPI, TransactionKind, VersionedProtocolMessage,
 };
-use haneul_types::type_resolver::LayoutResolver;
+use haneul_types::type_resolver::{get_layout_from_struct_tag, LayoutResolver};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use crate::balance_changes::BalanceChange;
@@ -1107,8 +1107,7 @@ impl HaneulTransactionBlockEvents {
                 .into_iter()
                 .enumerate()
                 .map(|(seq, event)| {
-                    let layout =
-                        MoveObject::get_layout_from_struct_tag(event.type_.clone(), resolver)?;
+                    let layout = get_layout_from_struct_tag(event.type_.clone(), resolver)?;
                     HaneulEvent::try_from(event, tx_digest, seq as u64, timestamp_ms, layout)
                 })
                 .collect::<Result<_, _>>()?,

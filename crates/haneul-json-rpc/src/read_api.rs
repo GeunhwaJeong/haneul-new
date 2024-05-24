@@ -26,7 +26,7 @@ use haneul_json_rpc_api::{
 use haneul_json_rpc_types::{
     BalanceChange, Checkpoint, CheckpointId, CheckpointPage, DisplayFieldsResponse, EventFilter,
     ObjectChange, ProtocolConfigResponse, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveStruct,
-    HaneulMoveValue, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
+    HaneulMoveValue, HaneulMoveVariant, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
     HaneulTransactionBlock, HaneulTransactionBlockEvents, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
@@ -1284,6 +1284,17 @@ fn get_value_from_move_struct(
                         "Unexpected move struct type for field {}",
                         var_name
                     )))?;
+                }
+            }
+            HaneulMoveValue::Variant(HaneulMoveVariant {
+                fields, variant, ..
+            }) => {
+                if let Some(value) = fields.get(part) {
+                    current_value = value;
+                } else {
+                    Err(anyhow!(
+                        "Field value {var_name} cannot be found in variant {variant}",
+                    ))?
                 }
             }
             _ => {
