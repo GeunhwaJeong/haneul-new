@@ -11,8 +11,8 @@ use reqwest::StatusCode;
 use crate::{
     content_type::ContentType,
     types::{
-        X_HANEUL_CHAIN_ID, X_HANEUL_CHECKPOINT_HEIGHT, X_HANEUL_EPOCH, X_HANEUL_OLDEST_CHECKPOINT_HEIGHT,
-        X_HANEUL_TIMESTAMP_MS,
+        X_HANEUL_CHAIN, X_HANEUL_CHAIN_ID, X_HANEUL_CHECKPOINT_HEIGHT, X_HANEUL_EPOCH,
+        X_HANEUL_OLDEST_CHECKPOINT_HEIGHT, X_HANEUL_TIMESTAMP_MS,
     },
     RestService, APPLICATION_BCS, TEXT_PLAIN_UTF_8,
 };
@@ -140,6 +140,10 @@ pub async fn append_info_headers(
     headers.insert(
         X_HANEUL_CHAIN_ID,
         state.chain_id().to_string().try_into().unwrap(),
+    );
+    headers.insert(
+        X_HANEUL_CHAIN,
+        state.chain_id().chain().as_str().try_into().unwrap(),
     );
     headers.insert(
         X_HANEUL_EPOCH,

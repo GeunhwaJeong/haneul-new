@@ -4,6 +4,9 @@
 /// Chain ID of the current chain
 pub const X_HANEUL_CHAIN_ID: &str = "x-haneul-chain-id";
 
+/// Chain name of the current chain
+pub const X_HANEUL_CHAIN: &str = "x-haneul-chain";
+
 /// Current checkpoint height
 pub const X_HANEUL_CHECKPOINT_HEIGHT: &str = "x-haneul-checkpoint-height";
 
