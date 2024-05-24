@@ -25,6 +25,7 @@ prometheus.workspace = true
 fastcrypto.workspace = true
 haneul-types.workspace = true
 haneullabs-network.workspace = true
+haneul-protocol-config.workspace = true
 
 [dev-dependencies]
 tokio.workspace = true
