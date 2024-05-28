@@ -5,12 +5,16 @@ use std::sync::Arc;
 
 use consensus_core::{TransactionVerifier, ValidationError};
 use eyre::WrapErr;
+use fastcrypto_tbls::dkg;
 use haneullabs_metrics::monitored_scope;
 use narwhal_types::{validate_batch_version, BatchAPI};
 use narwhal_worker::TransactionValidator;
 use prometheus::{register_int_counter_with_registry, IntCounter, Registry};
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
+use haneul_types::{
+    error::HaneulError,
+    messages_consensus::{ConsensusTransaction, ConsensusTransactionKind},
+};
 use tap::TapFallible;
 use tracing::{info, warn};
 
@@ -69,12 +73,22 @@ impl HaneulTxValidator {
                     ckpt_messages.push(signature.clone());
                     ckpt_batch.push(signature.summary);
                 }
+                ConsensusTransactionKind::RandomnessDkgMessage(_, bytes) => {
+                    if bytes.len() > dkg::DKG_MESSAGES_MAX_SIZE {
+                        warn!("batch verification error: DKG Message too large");
+                        return Err(HaneulError::InvalidDkgMessageSize.into());
+                    }
+                }
+                ConsensusTransactionKind::RandomnessDkgConfirmation(_, bytes) => {
+                    if bytes.len() > dkg::DKG_MESSAGES_MAX_SIZE {
+                        warn!("batch verification error: DKG Confirmation too large");
+                        return Err(HaneulError::InvalidDkgMessageSize.into());
+                    }
+                }
                 ConsensusTransactionKind::EndOfPublish(_)
                 | ConsensusTransactionKind::CapabilityNotification(_)
                 | ConsensusTransactionKind::NewJWKFetched(_, _, _)
-                | ConsensusTransactionKind::RandomnessStateUpdate(_, _)
-                | ConsensusTransactionKind::RandomnessDkgMessage(_, _)
-                | ConsensusTransactionKind::RandomnessDkgConfirmation(_, _) => {}
+                | ConsensusTransactionKind::RandomnessStateUpdate(_, _) => {}
             }
         }
 
