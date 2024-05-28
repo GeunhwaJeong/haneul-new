@@ -124,6 +124,7 @@ members = [
   "crates/haneul-metric-checker",
   "crates/haneul-move",
   "crates/haneul-move-build",
+  "crates/haneul-move-lsp",
   "crates/haneul-network",
   "crates/haneul-node",
   "crates/haneul-open-rpc",
@@ -563,6 +564,7 @@ move-stackless-bytecode = { path = "external-crates/move/crates/move-stackless-b
 move-symbol-pool = { path = "external-crates/move/crates/move-symbol-pool" }
 move-abstract-interpreter = { path = "external-crates/move/crates/move-abstract-interpreter" }
 move-abstract-stack = { path = "external-crates/move/crates/move-abstract-stack" }
+move-analyzer = { path = "external-crates/move/crates/move-analyzer" }
 
 fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "c101a5176799db3eb9c801b844e7add92153d291" }
 fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "c101a5176799db3eb9c801b844e7add92153d291" }
@@ -622,6 +624,7 @@ haneul-macros = { path = "crates/haneul-macros" }
 haneul-metric-checker = { path = "crates/haneul-metric-checker" }
 haneul-move = { path = "crates/haneul-move" }
 haneul-move-build = { path = "crates/haneul-move-build" }
+haneul-move-lsp = { path = "crates/haneul-move-lsp" }
 haneul-network = { path = "crates/haneul-network" }
 haneul-node = { path = "crates/haneul-node" }
 haneul-open-rpc = { path = "crates/haneul-open-rpc" }

@@ -8,7 +8,8 @@
         "haneul-data-ingestion",
         "haneul-bridge",
         "haneul-bridge-cli",
-        "haneul-graphql-rpc"
+        "haneul-graphql-rpc",
+        "move-analyzer"
     ],
     "internal_binaries": [
         "stress",

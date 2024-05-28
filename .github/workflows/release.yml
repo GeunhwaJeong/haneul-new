@@ -141,7 +141,6 @@ jobs:
         shell: bash
         run: |
           [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release && cargo build --profile=dev --bin haneul
-          cd external-crates/move && cargo build -p move-analyzer --release
 
       - name: Rename binaries for ${{ matrix.os }}
         if: ${{ env.s3_archive_exist == '' }}
@@ -156,7 +155,6 @@ jobs:
           done
 
           mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
-          mv ./external-crates/move/target/release/move-analyzer${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/move-analyzer${{ env.extention }}
           tar -cvzf ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz -C ${{ env.TMP_BUILD_DIR }} .
           [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
 

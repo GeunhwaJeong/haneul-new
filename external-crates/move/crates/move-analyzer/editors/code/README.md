@@ -42,7 +42,7 @@ This can be done in two steps:
 as prerequisites for Haneul installation - for Linux, macOS and Windows these prerequisites and
 their installation instructions can be found
 [here](https://docs.haneul.io/guides/developer/getting-started/haneul-install#additional-prerequisites-by-operating-system)
-2. Invoke `cargo install --git https://github.com/GeunhwaJeong/haneul move-analyzer` to install the
+2. Invoke `cargo install --git https://github.com/GeunhwaJeong/haneul haneul-move-lsp` to install the
 `move-analyzer` language server in your Cargo binary directory, which is typically located
 in the `~/.cargo/bin` (macOS/Linux) or `C:\Users\USER\.cargo\bin` (Windows) directory.
 3. Copy the move-analyzer binary to `~/.haneul/bin` (macOS/Linux) or `C:\Users\USER\.haneul\bin`
