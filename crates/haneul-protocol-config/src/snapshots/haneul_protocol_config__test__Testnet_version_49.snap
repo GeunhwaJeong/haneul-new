@@ -2,7 +2,7 @@
 source: crates/haneul-protocol-config/src/lib.rs
 expression: "ProtocolConfig::get_for_version(cur, *chain_id)"
 ---
-version: 48
+version: 49
 feature_flags:
   package_upgrades: true
   commit_root_state_digest: true
@@ -42,10 +42,8 @@ feature_flags:
   include_consensus_digest_in_prologue: true
   hardened_otw_check: true
   allow_receiving_object_id: true
-  enable_poseidon: true
   enable_coin_deny_list: true
   enable_group_ops_native_functions: true
-  enable_group_ops_native_function_msm: true
   reject_mutable_random_on_entry_functions: true
   consensus_choice: SwapEachEpoch
   consensus_network: Tonic
@@ -230,8 +228,6 @@ hash_blake2b256_data_cost_per_block: 2
 hash_keccak256_cost_base: 52
 hash_keccak256_data_cost_per_byte: 2
 hash_keccak256_data_cost_per_block: 2
-poseidon_bn254_cost_base: 260
-poseidon_bn254_cost_per_block: 10
 group_ops_bls12381_decode_scalar_cost: 52
 group_ops_bls12381_decode_g1_cost: 52
 group_ops_bls12381_decode_g2_cost: 52
