@@ -639,6 +639,7 @@ impl KeyToolCommand {
                             &input_string,
                             key_scheme,
                             derivation_path,
+                            alias,
                         )?;
                         let skp = keystore.get_key(&haneul_address)?;
                         let key = Key::from(skp);
