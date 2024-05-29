@@ -1,5 +1,12 @@
 # escrow-api-demo
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [f0a839f874]
+  - @haneullabs/haneul@1.0.2
+
 ## 1.0.2
 
 ### Patch Changes
