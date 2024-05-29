@@ -1,5 +1,12 @@
 # @haneullabs/kiosk
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [6fc6235984]
+  - @haneullabs/haneul@1.0.1
+
 ## 0.9.0
 
 ### Minor Changes

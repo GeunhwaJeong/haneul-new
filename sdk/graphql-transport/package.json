@@ -1,6 +1,6 @@
 {
 	"name": "@haneullabs/graphql-transport",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "A GraphQL transport to allow HaneulClient to work with RPC 2.0",
 	"license": "Apache-2.0",
 	"author": "Haneul Labs <build@haneul-labs.com>",

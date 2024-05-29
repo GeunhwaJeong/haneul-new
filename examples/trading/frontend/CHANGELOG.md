@@ -1,5 +1,13 @@
 # frontend
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [6fc6235984]
+  - @haneullabs/haneul@1.0.1
+  - @haneullabs/dapp-kit@0.14.1
+
 ## 0.0.1
 
 ### Patch Changes
