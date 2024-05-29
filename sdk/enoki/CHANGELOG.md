@@ -1,5 +1,19 @@
 # @haneullabs/enoki
 
+## 0.3.0
+
+### Minor Changes
+
+- a92b03de42: The Typescript SDK has been renamed to `@haneullabs/haneul` and includes many new features and breaking changes.
+  See the [full migration guide](https://sdk.haneul-labs.com/typescript/migrations/haneul-1.0) for details on how to upgrade.
+
+### Patch Changes
+
+- Updated dependencies [ebdfe7cf21]
+- Updated dependencies [a92b03de42]
+  - @haneullabs/haneul@1.0.0
+  - @haneullabs/zklogin@0.7.0
+
 ## 0.2.8
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @haneullabs/zksend
 
+## 0.9.0
+
+### Minor Changes
+
+- a92b03de42: The Typescript SDK has been renamed to `@haneullabs/haneul` and includes many new features and breaking changes.
+  See the [full migration guide](https://sdk.haneul-labs.com/typescript/migrations/haneul-1.0) for details on how to upgrade.
+
+### Patch Changes
+
+- 3e1d716642: Fix loading links with large number of inputs
+- Updated dependencies [ebdfe7cf21]
+- Updated dependencies [a92b03de42]
+  - @haneullabs/haneul@1.0.0
+  - @haneullabs/wallet-standard@0.12.0
+
 ## 0.8.2
 
 ### Patch Changes
