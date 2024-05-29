@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 1.0.3
+
+### Patch Changes
+
+- 1f20580841: Fix parsing of object refs from v1 json
+
 ## 1.0.2
 
 ### Patch Changes
