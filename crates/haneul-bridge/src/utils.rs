@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::abi::{EthBridgeCommittee, EthHaneulBridge};
 use crate::config::BridgeNodeConfig;
 use crate::config::EthConfig;
 use crate::config::HaneulConfig;
@@ -14,6 +15,7 @@ use ethers::middleware::SignerMiddleware;
 use ethers::prelude::*;
 use ethers::providers::{Http, Provider};
 use ethers::signers::Wallet;
+use ethers::types::Address as EthAddress;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::secp256k1::Secp256k1KeyPair;
@@ -85,6 +87,26 @@ pub fn generate_bridge_client_key_and_write_to_file(
     let contents = kp.encode_base64();
     std::fs::write(path, contents)
         .map_err(|err| anyhow!("Failed to write encoded key to path: {:?}", err))
+}
+
+/// Given the address of HaneulBridge Proxy, return the addresses of the committee, limiter, vault, and config.
+pub async fn get_eth_contract_addresses<P: ethers::providers::JsonRpcClient + 'static>(
+    bridge_proxy_address: EthAddress,
+    provider: &Arc<Provider<P>>,
+) -> anyhow::Result<(EthAddress, EthAddress, EthAddress, EthAddress)> {
+    let haneul_bridge = EthHaneulBridge::new(bridge_proxy_address, provider.clone());
+    let committee_address: EthAddress = haneul_bridge.committee().call().await?;
+    let limiter_address: EthAddress = haneul_bridge.limiter().call().await?;
+    let vault_address: EthAddress = haneul_bridge.vault().call().await?;
+    let committee = EthBridgeCommittee::new(committee_address, provider.clone());
+    let config_address: EthAddress = committee.config().call().await?;
+
+    Ok((
+        committee_address,
+        limiter_address,
+        vault_address,
+        config_address,
+    ))
 }
 
 /// Read bridge key from a file and print the corresponding information.
