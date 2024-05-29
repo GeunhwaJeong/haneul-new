@@ -21,8 +21,8 @@ import FaucetRequestButton from '_src/ui/app/shared/faucet/FaucetRequestButton';
 import { useCoinMetadata, useGetDelegatedStake, useGetValidatorsApy } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowLeft16, StakeAdd16, StakeRemove16 } from '@haneullabs/icons';
-import type { StakeObject } from '@haneullabs/haneul.js/client';
-import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import type { StakeObject } from '@haneullabs/haneul/client';
+import { GEUNHWA_PER_HANEUL, HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
 

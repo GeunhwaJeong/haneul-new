@@ -1,8 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import type { HaneulClient } from '@haneullabs/haneul/client';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { toB64 } from '@haneullabs/haneul/utils';
 import type {
 	StandardConnectFeature,
 	StandardConnectMethod,
@@ -10,8 +12,10 @@ import type {
 	StandardEventsOnMethod,
 	HaneulFeatures,
 	HaneulSignAndExecuteTransactionBlockMethod,
+	HaneulSignAndExecuteTransactionMethod,
 	HaneulSignPersonalMessageMethod,
 	HaneulSignTransactionBlockMethod,
+	HaneulSignTransactionMethod,
 	Wallet,
 } from '@haneullabs/wallet-standard';
 import { getWallets, ReadonlyWalletAccount, HANEUL_CHAINS } from '@haneullabs/wallet-standard';
@@ -53,7 +57,12 @@ function registerUnsafeBurnerWallet(haneulClient: HaneulClient) {
 		address: keypair.getPublicKey().toHaneulAddress(),
 		publicKey: keypair.getPublicKey().toHaneulBytes(),
 		chains: ['haneul:unknown'],
-		features: ['haneul:signAndExecuteTransactionBlock', 'haneul:signTransactionBlock'],
+		features: [
+			'haneul:signAndExecuteTransactionBlock',
+			'haneul:signTransactionBlock',
+			'haneul:signTransaction',
+			'haneul:signAndExecuteTransaction',
+		],
 	});
 
 	class UnsafeBurnerWallet implements Wallet {
@@ -100,6 +109,14 @@ function registerUnsafeBurnerWallet(haneulClient: HaneulClient) {
 					version: '1.0.0',
 					signAndExecuteTransactionBlock: this.#signAndExecuteTransactionBlock,
 				},
+				'haneul:signTransaction': {
+					version: '2.0.0',
+					signTransaction: this.#signTransaction,
+				},
+				'haneul:signAndExecuteTransaction': {
+					version: '2.0.0',
+					signAndExecuteTransaction: this.#signAndExecuteTransaction,
+				},
 			};
 		}
 
@@ -128,15 +145,61 @@ function registerUnsafeBurnerWallet(haneulClient: HaneulClient) {
 			};
 		};
 
+		#signTransaction: HaneulSignTransactionMethod = async (transactionInput) => {
+			const { bytes, signature } = await Transaction.from(
+				await transactionInput.transaction.toJSON(),
+			).sign({
+				client: haneulClient,
+				signer: keypair,
+			});
+
+			transactionInput.signal?.throwIfAborted();
+
+			return {
+				bytes,
+				signature: signature,
+			};
+		};
+
 		#signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod = async (
 			transactionInput,
 		) => {
-			return await haneulClient.signAndExecuteTransactionBlock({
+			const { bytes, signature } = await transactionInput.transactionBlock.sign({
+				client: haneulClient,
 				signer: keypair,
-				transactionBlock: transactionInput.transactionBlock,
-				options: transactionInput.options,
-				requestType: transactionInput.requestType,
 			});
+
+			return haneulClient.executeTransactionBlock({
+				signature,
+				transactionBlock: bytes,
+				options: transactionInput.options,
+			});
+		};
+
+		#signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (transactionInput) => {
+			const { bytes, signature } = await Transaction.from(
+				await transactionInput.transaction.toJSON(),
+			).sign({
+				client: haneulClient,
+				signer: keypair,
+			});
+
+			transactionInput.signal?.throwIfAborted();
+
+			const { rawEffects, digest } = await haneulClient.executeTransactionBlock({
+				signature,
+				transactionBlock: bytes,
+				options: {
+					showRawEffects: true,
+				},
+			});
+
+			return {
+				bytes,
+				signature,
+				digest,
+				effects: toB64(new Uint8Array(rawEffects!)),
+			};
 		};
 	}
 

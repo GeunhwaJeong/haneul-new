@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// import { Transaction } from '@haneullabs/haneul.js';
+// import { Transaction } from '@haneullabs/haneul';
 import { UserApproveContainer } from '_components/user-approve-container';
 import { useAppDispatch, useTransactionData, useTransactionDryRun } from '_hooks';
 import { type TransactionApprovalRequest } from '_payloads/transactions/ApprovalRequest';
@@ -14,7 +14,7 @@ import { useSigner } from '_src/ui/app/hooks/useSigner';
 import { PageMainLayoutTitle } from '_src/ui/app/shared/page-main-layout/PageMainLayoutTitle';
 import { TransactionSummary } from '_src/ui/app/shared/transaction-summary';
 import { useTransactionSummary } from '@haneullabs/core';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import { useMemo, useState } from 'react';
 
 import { ConfirmationModal } from '../../../shared/ConfirmationModal';
@@ -37,7 +37,7 @@ export function TransactionRequest({ txRequest }: TransactionRequestProps) {
 	const signer = useSigner(accountForTransaction);
 	const dispatch = useAppDispatch();
 	const transaction = useMemo(() => {
-		const tx = TransactionBlock.from(txRequest.tx.data);
+		const tx = Transaction.from(txRequest.tx.data);
 		if (addressForTransaction) {
 			tx.setSenderIfNotSet(addressForTransaction);
 		}

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PaginationArguments, HaneulClient } from '@haneullabs/haneul.js/client';
+import type { PaginationArguments, HaneulClient } from '@haneullabs/haneul/client';
 
 import {
 	FLOOR_PRICE_RULE_ADDRESS,

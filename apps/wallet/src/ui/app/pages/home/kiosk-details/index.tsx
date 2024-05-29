@@ -13,7 +13,7 @@ import { useUnlockedGuard } from '_src/ui/app/hooks/useUnlockedGuard';
 import { Collapsible } from '_src/ui/app/shared/collapse';
 import PageTitle from '_src/ui/app/shared/PageTitle';
 import { useGetKioskContents } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import { Link, useSearchParams } from 'react-router-dom';
 
 function KioskDetailsPage() {

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClientOptions } from '@haneullabs/haneul.js/client';
+import type { HaneulClientOptions } from '@haneullabs/haneul/client';
 
 import { useHaneulClientContext } from './useHaneulClient.js';
 

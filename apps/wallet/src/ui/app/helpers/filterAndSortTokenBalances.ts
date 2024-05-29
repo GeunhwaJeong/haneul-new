@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type CoinBalance } from '@haneullabs/haneul.js/client';
+import { type CoinBalance } from '@haneullabs/haneul/client';
 
 // Sort tokens by symbol and total balance
 // Move this to the API backend

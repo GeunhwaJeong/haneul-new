@@ -4,7 +4,7 @@
 import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { type SerializedUIAccount } from '_src/background/accounts/Account';
 import { Check12, Copy12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 import { Text } from '../shared/text';

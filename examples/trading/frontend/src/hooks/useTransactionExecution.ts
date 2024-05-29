@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { useSignTransactionBlock, useHaneulClient } from "@haneullabs/dapp-kit";
-import { HaneulTransactionBlockResponse } from "@haneullabs/haneul.js/client";
-import { TransactionBlock } from "@haneullabs/haneul.js/transactions";
+import { HaneulTransactionBlockResponse } from "@haneullabs/haneul/client";
+import { TransactionBlock } from "@haneullabs/haneul/transactions";
 import toast from "react-hot-toast";
 
 /**
@@ -24,7 +24,7 @@ export function useTransactionExecution() {
       });
 
       const res = await client.executeTransactionBlock({
-        transactionBlock: signature.transactionBlockBytes,
+        transactionBlock: signature.bytes,
         signature: signature.signature,
         options: {
           showEffects: true,

@@ -4,7 +4,7 @@
 import networkEnv from '_src/background/NetworkEnv';
 import { API_ENV, ENV_TO_API, type NetworkEnvType } from '_src/shared/api-env';
 import { SentryHttpTransport } from '@haneullabs/core';
-import { HaneulClient, HaneulHTTPTransport } from '@haneullabs/haneul.js/client';
+import { HaneulClient, HaneulHTTPTransport } from '@haneullabs/haneul/client';
 
 const haneulClientPerNetwork = new Map<string, HaneulClient>();
 const SENTRY_MONITORED_ENVS = [API_ENV.mainnet];

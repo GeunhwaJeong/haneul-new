@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 
 import { getTotalGasUsed } from '../utils/transaction';

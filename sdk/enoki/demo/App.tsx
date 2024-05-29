@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import { useState } from 'react';
 
 import { useAuthCallback, useEnokiFlow, useZkLogin } from '../src/react.tsx';
@@ -38,19 +38,19 @@ export function App() {
 				<button
 					onClick={async () => {
 						try {
-							const transactionBlock = new TransactionBlock();
-							transactionBlock.moveCall({
+							const transaction = new Transaction();
+							transaction.moveCall({
 								target:
 									'0xfa0e78030bd16672174c2d6cc4cd5d1d1423d03c28a74909b2a148eda8bcca16::clock::access',
-								arguments: [transactionBlock.object('0x6')],
+								arguments: [transaction.object('0x6')],
 							});
 
-							const result = await flow.sponsorAndExecuteTransactionBlock({
+							const result = await flow.sponsorAndExecuteTransaction({
 								network: 'testnet',
 								// @ts-expect-error: Type references not quite doing their thing:
 								client: new HaneulClient({ url: getFullnodeUrl('testnet') }),
 								// @ts-expect-error: Type references not quite doing their thing:
-								transactionBlock,
+								transaction,
 							});
 
 							setResult(result);

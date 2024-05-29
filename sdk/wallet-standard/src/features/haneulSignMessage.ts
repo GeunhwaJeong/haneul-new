@@ -41,6 +41,8 @@ export interface HaneulSignMessageInput {
  * @deprecated Wallets can still implement this method for compatibility, but this has been replaced by the `haneul:signPersonalMessage` feature
  */
 export interface HaneulSignMessageOutput {
+	/** Base64 message bytes. */
 	messageBytes: string;
+	/** Base64 encoded signature */
 	signature: string;
 }

@@ -5,7 +5,7 @@ import { Card } from '_app/shared/card';
 import { Text } from '_app/shared/text';
 import { CountDownTimer } from '_src/ui/app/shared/countdown-timer';
 import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { Form } from 'formik';
 import { useMemo } from 'react';
 

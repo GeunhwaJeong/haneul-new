@@ -9,8 +9,8 @@ import {
 	validateEntropy,
 } from '_shared/utils/bip39';
 import { decrypt, encrypt } from '_src/shared/cryptography/keystore';
-import { mnemonicToSeedHex } from '@haneullabs/haneul.js/cryptography';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { mnemonicToSeedHex } from '@haneullabs/haneul/cryptography';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import Dexie from 'dexie';

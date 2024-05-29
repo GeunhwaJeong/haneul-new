@@ -15,12 +15,10 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			'@haneullabs/bcs': new URL('../bcs/src', import.meta.url).toString(),
-			'@haneullabs/haneul.js/transactions': new URL(
-				'../typescript/src/transactions',
-				import.meta.url,
-			).toString(),
-			'@haneullabs/haneul.js': new URL('../typescript/src', import.meta.url).toString(),
+			'@haneullabs/bcs': new URL('../bcs/src', import.meta.url).pathname,
+			'@haneullabs/haneul/transactions': new URL('../typescript/src/transactions', import.meta.url)
+				.pathname,
+			'@haneullabs/haneul': new URL('../typescript/src', import.meta.url).pathname,
 		},
 	},
 });

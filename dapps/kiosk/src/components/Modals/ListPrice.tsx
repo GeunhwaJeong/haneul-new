@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul/utils';
 import { useState } from 'react';
 
 import { usePlaceAndListMutation } from '../../mutations/kiosk';

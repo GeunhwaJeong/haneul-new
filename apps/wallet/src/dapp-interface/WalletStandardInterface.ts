@@ -28,8 +28,9 @@ import {
 } from '_src/shared/messaging/messages/payloads/QredoConnect';
 import { type SignMessageRequest } from '_src/shared/messaging/messages/payloads/transactions/SignMessage';
 import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
-import { isTransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { fromB64, toB64 } from '@haneullabs/haneul.js/utils';
+import { bcs } from '@haneullabs/haneul/bcs';
+import { isTransaction } from '@haneullabs/haneul/transactions';
+import { fromB64, toB64 } from '@haneullabs/haneul/utils';
 import {
 	ReadonlyWalletAccount,
 	HANEUL_CHAINS,
@@ -44,9 +45,11 @@ import {
 	type StandardEventsOnMethod,
 	type HaneulFeatures,
 	type HaneulSignAndExecuteTransactionBlockMethod,
+	type HaneulSignAndExecuteTransactionMethod,
 	type HaneulSignMessageMethod,
 	type HaneulSignPersonalMessageMethod,
 	type HaneulSignTransactionBlockMethod,
+	type HaneulSignTransactionMethod,
 	type Wallet,
 } from '@haneullabs/wallet-standard';
 import mitt, { type Emitter } from 'mitt';
@@ -131,9 +134,17 @@ export class HaneulWallet implements Wallet {
 				version: '1.0.0',
 				signTransactionBlock: this.#signTransactionBlock,
 			},
+			'haneul:signTransaction': {
+				version: '2.0.0',
+				signTransaction: this.#signTransaction,
+			},
 			'haneul:signAndExecuteTransactionBlock': {
 				version: '1.0.0',
 				signAndExecuteTransactionBlock: this.#signAndExecuteTransactionBlock,
+			},
+			'haneul:signAndExecuteTransaction': {
+				version: '2.0.0',
+				signAndExecuteTransaction: this.#signAndExecuteTransaction,
 			},
 			'haneul:signMessage': {
 				version: '1.0.0',
@@ -238,9 +249,9 @@ export class HaneulWallet implements Wallet {
 		account,
 		...input
 	}) => {
-		if (!isTransactionBlock(transactionBlock)) {
+		if (!isTransaction(transactionBlock)) {
 			throw new Error(
-				'Unexpect transaction format found. Ensure that you are using the `Transaction` class.',
+				'Unexpected transaction format found. Ensure that you are using the `Transaction` class.',
 			);
 		}
 
@@ -259,10 +270,29 @@ export class HaneulWallet implements Wallet {
 		);
 	};
 
+	#signTransaction: HaneulSignTransactionMethod = async ({ transaction, account, ...input }) => {
+		return mapToPromise(
+			this.#send<SignTransactionRequest, SignTransactionResponse>({
+				type: 'sign-transaction-request',
+				transaction: {
+					...input,
+					// account might be undefined if previous version of adapters is used
+					// in that case use the first account address
+					account: account?.address || this.#accounts[0]?.address || '',
+					transaction: await transaction.toJSON(),
+				},
+			}),
+			({ result: { signature, transactionBlockBytes: bytes } }) => ({
+				signature,
+				bytes,
+			}),
+		);
+	};
+
 	#signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod = async (input) => {
-		if (!isTransactionBlock(input.transactionBlock)) {
+		if (!isTransaction(input.transactionBlock)) {
 			throw new Error(
-				'Unexpect transaction format found. Ensure that you are using the `Transaction` class.',
+				'Unexpected transaction format found. Ensure that you are using the `Transaction` class.',
 			);
 		}
 
@@ -279,6 +309,42 @@ export class HaneulWallet implements Wallet {
 				},
 			}),
 			(response) => response.result,
+		);
+	};
+
+	#signAndExecuteTransaction: HaneulSignAndExecuteTransactionMethod = async (input) => {
+		return mapToPromise(
+			this.#send<ExecuteTransactionRequest, ExecuteTransactionResponse>({
+				type: 'execute-transaction-request',
+				transaction: {
+					type: 'transaction',
+					data: await input.transaction.toJSON(),
+					options: {
+						showRawEffects: true,
+						showRawInput: true,
+					},
+					// account might be undefined if previous version of adapters is used
+					// in that case use the first account address
+					account: input.account?.address || this.#accounts[0]?.address || '',
+				},
+			}),
+			({ result: { rawEffects, rawTransaction, digest } }) => {
+				const [
+					{
+						txSignatures: [signature],
+						intentMessage: { value: bcsTransaction },
+					},
+				] = bcs.SenderSignedData.parse(fromB64(rawTransaction!));
+
+				const bytes = bcs.TransactionData.serialize(bcsTransaction).toBase64();
+
+				return {
+					digest,
+					signature,
+					bytes,
+					effects: toB64(new Uint8Array(rawEffects!)),
+				};
+			},
 		);
 	};
 

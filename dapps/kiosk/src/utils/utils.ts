@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { KioskListing, KioskOwnerCap } from '@haneullabs/kiosk';
-import { HaneulObjectResponse } from '@haneullabs/haneul.js/client';
-import { GEUNHWA_PER_HANEUL, normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { HaneulObjectResponse } from '@haneullabs/haneul/client';
+import { GEUNHWA_PER_HANEUL, normalizeHaneulAddress } from '@haneullabs/haneul/utils';
 
 // Parse the display of a list of objects into a simple {object_id: display} map
 // to use throughout the app.

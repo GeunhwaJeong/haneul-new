@@ -12,7 +12,7 @@ import {
 	type HaneulObjectChangeWithDisplay,
 } from '@haneullabs/core';
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import cx from 'clsx';
 
 import { ExpandableList } from '../../ExpandableList';

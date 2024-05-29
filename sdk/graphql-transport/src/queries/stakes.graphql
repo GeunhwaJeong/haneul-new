@@ -51,5 +51,6 @@ fragment RPC_STAKE_FIELDS on StakedHaneul {
 
 	address
 	estimatedReward
+
 	# validatorAddress?
 }

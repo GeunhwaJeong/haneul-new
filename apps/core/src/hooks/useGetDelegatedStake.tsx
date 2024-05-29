@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import type { DelegatedStake } from '@haneullabs/haneul.js/client';
+import type { DelegatedStake } from '@haneullabs/haneul/client';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type UseGetDelegatedStakesOptions = {

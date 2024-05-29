@@ -3,7 +3,7 @@
 import {
 	DryRunTransactionBlockResponse,
 	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul/client';
 import { useMemo } from 'react';
 
 import { getBalanceChangeSummary } from '../utils/transaction/getBalanceChangeSummary';

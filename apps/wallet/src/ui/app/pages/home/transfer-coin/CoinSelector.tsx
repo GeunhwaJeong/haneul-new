@@ -4,7 +4,7 @@
 import { ActiveCoinsCard } from '_components/active-coins-card';
 import Overlay from '_components/overlay';
 import { useUnlockedGuard } from '_src/ui/app/hooks/useUnlockedGuard';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function CoinsSelectorPage() {

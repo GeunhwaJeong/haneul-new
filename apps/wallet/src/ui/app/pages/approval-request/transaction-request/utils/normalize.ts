@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type HaneulMoveNormalizedType } from '@haneullabs/haneul.js/client';
+import { type HaneulMoveNormalizedType } from '@haneullabs/haneul/client';
 
 export interface TypeReference {
 	address: string;

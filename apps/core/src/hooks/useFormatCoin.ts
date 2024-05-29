@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { CoinMetadata } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { CoinMetadata } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';

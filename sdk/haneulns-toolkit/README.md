@@ -20,7 +20,7 @@ You can also use yarn or pnpm.
 Create an instance of HaneulnsClient:
 
 ```typescript
-import { HaneulClient } from '@haneullabs/haneul.js/client';
+import { HaneulClient } from '@haneullabs/haneul/client';
 import { HaneulnsClient } from '@haneullabs/haneulns-toolkit';
 
 const client = new HaneulClient();

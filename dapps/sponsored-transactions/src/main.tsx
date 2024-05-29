@@ -11,7 +11,7 @@ import { App } from './App';
 import '@haneullabs/dapp-kit/dist/index.css';
 import './index.css';
 
-import { getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl } from '@haneullabs/haneul/client';
 
 const queryClient = new QueryClient();
 

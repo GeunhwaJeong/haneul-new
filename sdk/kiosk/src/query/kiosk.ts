@@ -7,8 +7,8 @@ import type {
 	HaneulObjectData,
 	HaneulObjectDataFilter,
 	HaneulObjectResponse,
-} from '@haneullabs/haneul.js/client';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+} from '@haneullabs/haneul/client';
+import { isValidHaneulAddress } from '@haneullabs/haneul/utils';
 
 import type {
 	FetchKioskOptions,

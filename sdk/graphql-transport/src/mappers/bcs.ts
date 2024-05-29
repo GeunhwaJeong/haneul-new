@@ -3,7 +3,7 @@
 
 import { toB64 } from '@haneullabs/bcs';
 import type { BcsType } from '@haneullabs/bcs';
-import { bcs } from '@haneullabs/haneul.js/bcs';
+import { bcs } from '@haneullabs/haneul/bcs';
 
 import type { MoveTypeLayout } from './move.js';
 import { toShortTypeString } from './util.js';

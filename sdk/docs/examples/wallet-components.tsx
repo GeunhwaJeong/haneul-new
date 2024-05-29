@@ -8,7 +8,7 @@ import {
 	useCurrentAccount,
 	WalletProvider,
 } from '@haneullabs/dapp-kit';
-import { getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl } from '@haneullabs/haneul/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 

@@ -5,19 +5,20 @@ import type {
 	MinimallyRequiredFeatures,
 	Wallet,
 	WalletWithFeatures,
+	WalletWithRequiredFeatures,
 } from '@haneullabs/wallet-standard';
 import { getWallets, isWalletWithRequiredFeatureSet } from '@haneullabs/wallet-standard';
 
 export function getRegisteredWallets<AdditionalFeatures extends Wallet['features']>(
 	preferredWallets: string[],
-	requiredFeatures?: (keyof AdditionalFeatures)[],
+	walletFilter?: (wallet: WalletWithRequiredFeatures) => boolean,
 ) {
 	const walletsApi = getWallets();
 	const wallets = walletsApi.get();
 
 	const haneulWallets = wallets.filter(
 		(wallet): wallet is WalletWithFeatures<MinimallyRequiredFeatures & AdditionalFeatures> =>
-			isWalletWithRequiredFeatureSet(wallet, requiredFeatures),
+			isWalletWithRequiredFeatureSet(wallet) && (!walletFilter || walletFilter(wallet)),
 	);
 
 	return [

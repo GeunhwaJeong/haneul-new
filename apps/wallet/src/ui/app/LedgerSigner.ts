@@ -2,13 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type HaneulLedgerClient from '@haneullabs/ledgerjs-hw-app-haneul';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
-import {
-	toSerializedSignature,
-	type SerializedSignature,
-	type SignatureScheme,
-} from '@haneullabs/haneul.js/cryptography';
-import { Ed25519PublicKey } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { type HaneulClient } from '@haneullabs/haneul/client';
+import { toSerializedSignature, type SignatureScheme } from '@haneullabs/haneul/cryptography';
+import { Ed25519PublicKey } from '@haneullabs/haneul/keypairs/ed25519';
 
 import { WalletSigner } from './WalletSigner';
 
@@ -51,7 +47,7 @@ export class LedgerSigner extends WalletSigner {
 		return new Ed25519PublicKey(publicKey);
 	}
 
-	async signData(data: Uint8Array): Promise<SerializedSignature> {
+	async signData(data: Uint8Array): Promise<string> {
 		const ledgerClient = await this.#initializeHaneulLedgerClient();
 		const { signature } = await ledgerClient.signTransaction(this.#derivationPath, data);
 		const publicKey = await this.getPublicKey();

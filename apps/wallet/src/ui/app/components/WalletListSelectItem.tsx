@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { CheckFill16, XFill16 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { useEffect, useRef } from 'react';
 

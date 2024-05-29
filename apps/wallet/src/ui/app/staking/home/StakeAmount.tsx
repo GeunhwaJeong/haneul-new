@@ -4,7 +4,7 @@
 import { Heading } from '_app/shared/heading';
 import { Text } from '_app/shared/text';
 import { useFormatCoin } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 
 //TODO unify StakeAmount and CoinBalance
 interface StakeAmountProps {

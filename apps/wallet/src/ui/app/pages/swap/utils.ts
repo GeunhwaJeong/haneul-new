@@ -5,7 +5,7 @@ import { useCoinsReFetchingConfig } from '_hooks';
 import { roundFloat, useFormatCoin } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { type DeepBookClient } from '@haneullabs/deepbook';
-import { type BalanceChange } from '@haneullabs/haneul.js/client';
+import { type BalanceChange } from '@haneullabs/haneul/client';
 import BigNumber from 'bignumber.js';
 
 export function useSwapData({

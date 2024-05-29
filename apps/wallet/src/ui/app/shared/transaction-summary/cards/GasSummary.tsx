@@ -5,7 +5,7 @@ import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerL
 import { useActiveAddress } from '_src/ui/app/hooks';
 import { GAS_TYPE_ARG } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 import { useFormatCoin, type GasSummaryType } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 
 import { Text } from '../../text';
 

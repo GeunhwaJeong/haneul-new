@@ -3,8 +3,8 @@
 
 import 'tsconfig-paths/register';
 
-import { requestHaneulFromFaucetV0 } from '@haneullabs/haneul.js/faucet';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { requestHaneulFromFaucetV0 } from '@haneullabs/haneul/faucet';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 

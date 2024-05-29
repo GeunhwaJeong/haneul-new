@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { HaneulObjectData } from "@haneullabs/haneul.js/client";
+import { HaneulObjectData } from "@haneullabs/haneul/client";
 import { Avatar, Box, Card, Flex, Inset, Text } from "@radix-ui/themes";
 import { ReactNode } from "react";
 import { ExplorerLink } from "./ExplorerLink";

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectChange } from '@haneullabs/haneul.js/src/client';
+import { HaneulObjectChange } from '@haneullabs/haneul/client';
 
 import { ObjectLink } from '../ObjectLink';
 import { PreviewCard } from '../PreviewCard';

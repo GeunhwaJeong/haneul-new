@@ -3,7 +3,7 @@
 
 import { useHaneulClientContext } from '@haneullabs/dapp-kit';
 import { KIOSK_ITEM, KioskClient, KioskItem, KioskOwnerCap } from '@haneullabs/kiosk';
-import { HaneulClient } from '@haneullabs/haneul.js/client';
+import { HaneulClient } from '@haneullabs/haneul/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { getKioskIdFromOwnerCap, ORIGINBYTE_KIOSK_OWNER_TOKEN } from '../utils/kiosk';

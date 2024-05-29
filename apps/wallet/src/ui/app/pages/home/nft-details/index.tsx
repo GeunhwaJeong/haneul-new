@@ -19,7 +19,7 @@ import PageTitle from '_src/ui/app/shared/PageTitle';
 import { Text } from '_src/ui/app/shared/text';
 import { useGetKioskContents } from '@haneullabs/core';
 import { ArrowRight16, ArrowUpRight12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import cl from 'clsx';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 

@@ -9,7 +9,7 @@ import {
 	HaneulObjectChangePublished,
 	HaneulObjectChangeTransferred,
 	HaneulObjectChangeWrapped,
-} from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul/client';
 
 import { groupByOwner } from './groupByOwner';
 import { HaneulObjectChangeTypes } from './types';

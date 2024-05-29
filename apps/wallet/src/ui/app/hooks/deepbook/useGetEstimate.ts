@@ -7,8 +7,8 @@ import { DEEPBOOK_KEY, WALLET_FEES_PERCENTAGE } from '_pages/swap/constants';
 import { useDeepBookContext } from '_shared/deepBook/context';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { type DeepBookClient } from '@haneullabs/deepbook';
-import { type CoinStruct, type HaneulClient } from '@haneullabs/haneul.js/client';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { type CoinStruct, type HaneulClient } from '@haneullabs/haneul/client';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import * as Sentry from '@sentry/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
@@ -144,7 +144,7 @@ async function getPlaceMarketOrderTxn({
 	quoteConversionRate: number;
 	lotSize: string;
 }) {
-	const txb = new TransactionBlock();
+	const txb = new Transaction();
 	const accountCap = accountCapId || deepBookClient.createAccountCap(txb);
 
 	let walletFeeCoin;

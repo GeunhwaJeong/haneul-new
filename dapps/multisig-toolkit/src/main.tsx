@@ -7,7 +7,7 @@ import '@fontsource-variable/inter';
 import '@fontsource-variable/red-hat-mono';
 
 import { HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { getFullnodeUrl } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl } from '@haneullabs/haneul/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

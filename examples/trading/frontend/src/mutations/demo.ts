@@ -4,7 +4,7 @@
 import { CONSTANTS, QueryKey } from "@/constants";
 import { useTransactionExecution } from "@/hooks/useTransactionExecution";
 import { useCurrentAccount } from "@haneullabs/dapp-kit";
-import { TransactionBlock } from "@haneullabs/haneul.js/transactions";
+import { TransactionBlock } from "@haneullabs/haneul/transactions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**

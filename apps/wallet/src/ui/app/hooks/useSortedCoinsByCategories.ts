@@ -3,8 +3,8 @@
 
 import { usePinnedCoinTypes } from '_app/hooks/usePinnedCoinTypes';
 import { useRecognizedPackages } from '_app/hooks/useRecognizedPackages';
-import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 
 function sortCoins(balances: CoinBalanceType[]) {

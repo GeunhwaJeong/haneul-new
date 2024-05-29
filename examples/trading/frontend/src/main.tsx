@@ -6,7 +6,7 @@ import "@haneullabs/dapp-kit/dist/index.css";
 import "@radix-ui/themes/styles.css";
 import "./styles/base.css";
 
-import { getFullnodeUrl } from "@haneullabs/haneul.js/client";
+import { getFullnodeUrl } from "@haneullabs/haneul/client";
 import {
   HaneulClientProvider,
   WalletProvider,

@@ -9,7 +9,7 @@ import { useActiveAddress } from '_src/ui/app/hooks/useActiveAddress';
 import { useUnlockedGuard } from '_src/ui/app/hooks/useUnlockedGuard';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { Check32 } from '@haneullabs/icons';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';

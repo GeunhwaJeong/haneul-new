@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "@haneullabs/dapp-kit/dist/index.css";
 import "@radix-ui/themes/styles.css";
 
-import { getFullnodeUrl } from "@haneullabs/haneul.js/client";
+import { getFullnodeUrl } from "@haneullabs/haneul/client";
 import {
   HaneulClientProvider,
   WalletProvider,

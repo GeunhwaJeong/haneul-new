@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import { parseSerializedSignature } from '@haneullabs/haneul.js/cryptography';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
+import { parseSerializedSignature } from '@haneullabs/haneul/cryptography';
 import { useMutation } from '@tanstack/react-query';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';

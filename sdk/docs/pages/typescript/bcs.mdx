@@ -1,11 +1,11 @@
 # BCS
 
-The `@haneullabs/haneul.js/bcs` package extends `@haneullabs/bcs` with Haneul specific scheme definitions.
+The `@haneullabs/haneul/bcs` package extends `@haneullabs/bcs` with Haneul specific scheme definitions.
 
 To learn more about using BCS see the [BCS documentation](/bcs).
 
-the `bcs` export of `@haneullabs/haneul.js/bcs` contains all the same exports as `bcs` from `@haneullabs/bcs`
-plus the following pre-defined schemes:
+the `bcs` export of `@haneullabs/haneul/bcs` contains all the same exports as `bcs` from `@haneullabs/bcs` plus
+the following pre-defined schemes:
 
 - `U8`
 - `U16`
@@ -44,7 +44,7 @@ All the upper-cased values are `BcsType` instances, and can be used directly to 
 data.
 
 ```typescript
-import { bcs } from '@haneullabs/haneul.js/bcs';
+import { bcs } from '@haneullabs/haneul/bcs';
 
 bcs.U8.serialize(1);
 bcs.Address.serialize('0x1');

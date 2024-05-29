@@ -3,7 +3,7 @@
 
 import ExternalLink from '_components/external-link';
 import { ArrowUpRight16 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import type { ReactNode } from 'react';
 
 import { useExplorerLink, type ExplorerLinkConfig } from '../../hooks/useExplorerLink';

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulHTTPTransport } from '@haneullabs/haneul.js/client';
+import { HaneulHTTPTransport } from '@haneullabs/haneul/client';
 import * as Sentry from '@sentry/react';
 
 const IGNORED_METHODS = ['haneulx_resolveNameServiceNames', 'haneulx_resolveNameServiceAddresses'];

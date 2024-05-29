@@ -8,7 +8,7 @@ export {};
 //     getTransferObjectEvent,
 //     isEventType,
 //     type TransactionEvents,
-// } from '@haneullabs/haneul.js';
+// } from '@haneullabs/haneul';
 
 // export type CoinsMetaProps = {
 //     amount: number;

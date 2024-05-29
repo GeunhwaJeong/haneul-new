@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { HaneulObjectRef } from '@haneullabs/haneul.js/client';
-import { getFaucetHost, requestHaneulFromFaucetV1 } from '@haneullabs/haneul.js/faucet';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { HaneulObjectRef } from '@haneullabs/haneul/client';
+import { getFaucetHost, requestHaneulFromFaucetV1 } from '@haneullabs/haneul/faucet';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
+import { Transaction } from '@haneullabs/haneul/transactions';
 
 import { client } from './rpc';
 
@@ -33,10 +33,10 @@ export async function sponsorTransaction(sender: string, transactionKindBytes: U
 		retires -= 1;
 	}
 
-	const tx = TransactionBlock.fromKind(transactionKindBytes);
+	const tx = Transaction.fromKind(transactionKindBytes);
 	tx.setSender(sender);
 	tx.setGasOwner(address);
 	tx.setGasPayment(payment);
 
-	return keypair.signTransactionBlock(await tx.build({ client }));
+	return keypair.signTransaction(await tx.build({ client }));
 }

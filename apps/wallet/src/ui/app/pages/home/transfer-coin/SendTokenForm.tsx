@@ -21,8 +21,8 @@ import {
 } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { type CoinStruct } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { type CoinStruct } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Field, Form, Formik, useFormikContext } from 'formik';
 import { useEffect, useMemo } from 'react';

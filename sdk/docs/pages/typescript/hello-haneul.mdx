@@ -32,15 +32,15 @@ When you use a package manager to install the necessary packages, it downloads t
 doesn't already exist. For this example, you need only the Haneul TypeScript SDK:
 
 ```sh npm2yarn
-npm i -D @haneullabs/haneul.js
+npm i -D @haneullabs/haneul
 ```
 
-Your `package.json` file now has a _dependencies_ section with `@haneullabs/haneul.js` listed with the
-package version number.
+Your `package.json` file now has a _dependencies_ section with `@haneullabs/haneul` listed with the package
+version number.
 
 ```json
 "dependencies": {
-    "@haneullabs/haneul.js": "^<VERSION_NUMBER>"
+    "@haneullabs/haneul": "^<VERSION_NUMBER>"
 }
 ```
 
@@ -52,9 +52,9 @@ address. You must be on Devnet, Testnet, or a local network to use a faucet for 
 Create a new `index.js` file in the root of your project with the following code.
 
 ```js
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import { getFaucetHost, requestHaneulFromFaucetV1 } from '@haneullabs/haneul.js/faucet';
-import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul.js/utils';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
+import { getFaucetHost, requestHaneulFromFaucetV1 } from '@haneullabs/haneul/faucet';
+import { GEUNHWA_PER_HANEUL } from '@haneullabs/haneul/utils';
 
 // replace <YOUR_HANEUL_ADDRESS> with your actual address, which is in the form 0x123...
 const MY_ADDRESS = '<YOUR_HANEUL_ADDRESS>';

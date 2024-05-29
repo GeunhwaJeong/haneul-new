@@ -3,7 +3,7 @@
 
 import { useRecognizedPackages } from '_src/ui/app/hooks/useRecognizedPackages';
 import { useTransactionSummary } from '@haneullabs/core';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 
 import { DateCard } from '../../shared/date-card';
 import { TransactionSummary } from '../../shared/transaction-summary';

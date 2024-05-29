@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
 import type { IdentifierRecord, ReadonlyWalletAccount } from '@haneullabs/wallet-standard';
 import { getWallets } from '@haneullabs/wallet-standard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

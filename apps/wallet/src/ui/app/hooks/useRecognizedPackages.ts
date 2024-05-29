@@ -3,7 +3,7 @@
 
 import { API_ENV } from '_src/shared/api-env';
 import { useFeatureValue } from '@growthbook/growthbook-react';
-import { HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS } from '@haneullabs/haneul.js/utils';
+import { HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS } from '@haneullabs/haneul/utils';
 
 import useAppSelector from './useAppSelector';
 

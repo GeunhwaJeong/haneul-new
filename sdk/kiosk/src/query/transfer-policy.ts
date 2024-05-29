@@ -1,10 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+import type { HaneulClient } from '@haneullabs/haneul/client';
+import { fromB64, isValidHaneulAddress } from '@haneullabs/haneul/utils';
 
-import { bcs } from '../bcs.js';
+import '../bcs.js';
+
+import { TransferPolicyType } from '../bcs.js';
 import type { TransferPolicy, TransferPolicyCap } from '../types/index.js';
 import {
 	TRANSFER_POLICY_CAP_TYPE,
@@ -48,7 +50,7 @@ export async function queryTransferPolicy(
 				throw new Error(`Invalid policy: ${policy?.objectId}, expected object, got package`);
 			}
 
-			const parsed = bcs.de(TRANSFER_POLICY_TYPE, policy.bcs.bcsBytes, 'base64');
+			const parsed = TransferPolicyType.parse(fromB64(policy.bcs.bcsBytes));
 
 			return {
 				id: policy?.objectId,

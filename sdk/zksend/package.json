@@ -42,10 +42,10 @@
 		"@haneullabs/build-scripts": "workspace:*",
 		"@types/node": "^20.4.2",
 		"typescript": "^5.3.3",
-		"vitest": "^0.33.0"
+		"vitest": "^1.6.0"
 	},
 	"dependencies": {
-		"@haneullabs/haneul.js": "workspace:*",
+		"@haneullabs/haneul": "workspace:*",
 		"@haneullabs/wallet-standard": "workspace:*",
 		"mitt": "^3.0.1",
 		"nanostores": "^0.9.3",

@@ -5,10 +5,10 @@ import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import path from 'path';
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { fromB64 } from '@haneullabs/haneul.js/utils';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
+import { TransactionBlock } from '@haneullabs/haneul/transactions';
+import { fromB64 } from '@haneullabs/haneul/utils';
 
 export type Network = 'mainnet' | 'testnet' | 'devnet' | 'localnet';
 
@@ -87,7 +87,7 @@ export const publishPackage = async ({
 	});
 
 	// Transfer the upgrade capability to the sender so they can upgrade the package later if they want.
-	txb.transferObjects([cap], txb.pure(getActiveAddress()));
+	txb.transferObjects([cap], getActiveAddress());
 
 	const results = await signAndExecute(txb, network);
 

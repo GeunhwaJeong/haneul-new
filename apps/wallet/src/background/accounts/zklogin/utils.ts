@@ -3,8 +3,8 @@
 
 import { API_ENV, type NetworkEnvType } from '_src/shared/api-env';
 import { fetchWithSentry } from '_src/shared/utils';
-import { type PublicKey } from '@haneullabs/haneul.js/cryptography';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
+import { type PublicKey } from '@haneullabs/haneul/cryptography';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import {
 	generateNonce,
 	generateRandomness,

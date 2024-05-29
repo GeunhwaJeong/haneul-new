@@ -3,11 +3,11 @@
 
 import {
 	useCurrentAccount,
-	useSignTransactionBlock,
+	useSignTransaction,
 	useHaneulClient,
 	useHaneulClientContext,
 } from '@haneullabs/dapp-kit';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import { useMutation } from '@tanstack/react-query';
 import { AlertCircle, Terminal } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,14 +25,14 @@ export default function OfflineSigner() {
 	const client = useHaneulClient();
 	const { selectNetwork } = useHaneulClientContext();
 
-	const { mutateAsync: signTransactionBlock } = useSignTransactionBlock();
+	const { mutateAsync: signTransaction } = useSignTransaction();
 	const [tab, setTab] = useState<'transaction' | 'signature'>('transaction');
 	const [bytes, setBytes] = useState('');
 	const { mutate, data, isPending } = useMutation({
 		mutationKey: ['sign'],
 		mutationFn: async () => {
-			const transactionBlock = TransactionBlock.from(bytes);
-			return signTransactionBlock({ transactionBlock });
+			const transaction = Transaction.from(bytes);
+			return signTransaction({ transaction });
 		},
 		onSuccess() {
 			setTab('signature');

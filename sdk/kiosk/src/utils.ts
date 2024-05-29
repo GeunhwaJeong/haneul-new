@@ -9,12 +9,17 @@ import type {
 	HaneulObjectDataFilter,
 	HaneulObjectDataOptions,
 	HaneulObjectResponse,
-} from '@haneullabs/haneul.js/client';
-import { normalizeStructTag, normalizeHaneulAddress, parseStructTag } from '@haneullabs/haneul.js/utils';
+} from '@haneullabs/haneul/client';
+import {
+	fromB64,
+	normalizeStructTag,
+	normalizeHaneulAddress,
+	parseStructTag,
+} from '@haneullabs/haneul/utils';
 
-import { bcs } from './bcs.js';
+import { KioskType } from './bcs.js';
 import type { Kiosk, KioskData, KioskListing, TransferPolicyCap } from './types/index.js';
-import { KIOSK_TYPE, TRANSFER_POLICY_CAP_TYPE } from './types/index.js';
+import { TRANSFER_POLICY_CAP_TYPE } from './types/index.js';
 
 const DEFAULT_QUERY_LIMIT = 50;
 
@@ -29,7 +34,7 @@ export async function getKioskObject(client: HaneulClient, id: string): Promise<
 		throw new Error(`Invalid kiosk query: ${id}, expected object, got package`);
 	}
 
-	return bcs.de(KIOSK_TYPE, queryRes.data.bcs!.bcsBytes, 'base64');
+	return KioskType.parse(fromB64(queryRes.data.bcs!.bcsBytes));
 }
 
 // helper to extract kiosk data from dynamic fields.

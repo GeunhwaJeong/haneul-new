@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ResolvedNameServiceNames } from '@haneullabs/haneul.js/client';
+import type { ResolvedNameServiceNames } from '@haneullabs/haneul/client';
 import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
 import { useHaneulClientQuery } from './useHaneulClientQuery.js';

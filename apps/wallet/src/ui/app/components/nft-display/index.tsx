@@ -7,7 +7,7 @@ import { NftImage, type NftImageProps } from '_components/nft-display/NftImage';
 import { useFileExtensionType, useGetNFTMeta } from '_hooks';
 import { isKioskOwnerToken, useGetObject } from '@haneullabs/core';
 import { useKioskClient } from '@haneullabs/core/src/hooks/useKioskClient';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
 

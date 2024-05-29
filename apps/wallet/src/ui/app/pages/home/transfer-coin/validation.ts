@@ -3,7 +3,7 @@
 
 import { createHaneulAddressValidation } from '_components/address-input/validation';
 import { createTokenValidation } from '_src/shared/validation';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
+import { type HaneulClient } from '@haneullabs/haneul/client';
 import * as Yup from 'yup';
 
 export function createValidationSchemaStepOne(

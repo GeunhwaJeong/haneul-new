@@ -4,7 +4,7 @@
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { useActiveAddress } from '_src/ui/app/hooks';
-import { formatAddress, isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress, isValidHaneulAddress } from '@haneullabs/haneul/utils';
 
 import { Text } from '../text';
 import { SummaryCardFooter } from './Card';

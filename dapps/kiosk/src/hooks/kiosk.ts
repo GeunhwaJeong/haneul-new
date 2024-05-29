@@ -11,7 +11,7 @@ import {
 	KioskListing,
 	KioskOwnerCap,
 } from '@haneullabs/kiosk';
-import { HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+import { HaneulObjectResponse } from '@haneullabs/haneul/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { OwnedObjectType } from '../components/Inventory/OwnedObjects';

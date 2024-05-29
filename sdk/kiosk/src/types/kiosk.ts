@@ -5,8 +5,8 @@ import type {
 	PaginatedObjectsResponse,
 	HaneulObjectData,
 	HaneulObjectDataOptions,
-} from '@haneullabs/haneul.js/client';
-import type { TransactionArgument } from '@haneullabs/haneul.js/transactions';
+} from '@haneullabs/haneul/client';
+import type { TransactionArgument } from '@haneullabs/haneul/transactions';
 
 import type { ObjectArgument } from './index.js';
 

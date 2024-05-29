@@ -10,9 +10,9 @@ import {
 	type WalletSigner,
 } from '_src/ui/app/WalletSigner';
 import type { AppThunkConfig } from '_store/thunk-extras';
-import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { fromB64 } from '@haneullabs/haneul.js/utils';
+import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { fromB64 } from '@haneullabs/haneul/utils';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
@@ -61,7 +61,7 @@ export const respondToTransactionRequest = createAsyncThunk<
 						clientIdentifier,
 					);
 				} else if (txRequest.tx.type === 'transaction') {
-					const tx = TransactionBlock.from(txRequest.tx.data);
+					const tx = Transaction.from(txRequest.tx.data);
 					if (txRequest.tx.justSign) {
 						// Just a signing request, do not submit
 						txSigned = await signer.signTransactionBlock(

@@ -3,8 +3,8 @@
 import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
 
 import type { Signer } from '../cryptography/index.js';
-import type { TransactionBlock } from '../transactions/index.js';
-import { isTransactionBlock } from '../transactions/index.js';
+import type { Transaction } from '../transactions/index.js';
+import { isTransaction } from '../transactions/index.js';
 import {
 	isValidHaneulAddress,
 	isValidHaneulObjectId,
@@ -108,7 +108,7 @@ export interface OrderArguments {
  */
 export type HaneulClientOptions = NetworkOrTransport;
 
-export type NetworkOrTransport =
+type NetworkOrTransport =
 	| {
 			url: string;
 			transport?: never;
@@ -118,7 +118,7 @@ export type NetworkOrTransport =
 			url?: never;
 	  };
 
-export const HANEUL_CLIENT_BRAND = Symbol.for('@haneullabs/HaneulClient');
+const HANEUL_CLIENT_BRAND = Symbol.for('@haneullabs/HaneulClient');
 
 export function isHaneulClient(client: unknown): client is HaneulClient {
 	return (
@@ -424,12 +424,12 @@ export class HaneulClient {
 		});
 	}
 
-	async signAndExecuteTransactionBlock({
-		transactionBlock,
+	async signAndExecuteTransaction({
+		transaction,
 		signer,
 		...input
 	}: {
-		transactionBlock: Uint8Array | TransactionBlock;
+		transaction: Uint8Array | Transaction;
 		signer: Signer;
 	} & Omit<
 		ExecuteTransactionBlockParams,
@@ -437,14 +437,14 @@ export class HaneulClient {
 	>): Promise<HaneulTransactionBlockResponse> {
 		let transactionBytes;
 
-		if (transactionBlock instanceof Uint8Array) {
-			transactionBytes = transactionBlock;
+		if (transaction instanceof Uint8Array) {
+			transactionBytes = transaction;
 		} else {
-			transactionBlock.setSenderIfNotSet(signer.toHaneulAddress());
-			transactionBytes = await transactionBlock.build({ client: this });
+			transaction.setSenderIfNotSet(signer.toHaneulAddress());
+			transactionBytes = await transaction.build({ client: this });
 		}
 
-		const { signature, bytes } = await signer.signTransactionBlock(transactionBytes);
+		const { signature, bytes } = await signer.signTransaction(transactionBytes);
 
 		return this.executeTransactionBlock({
 			transactionBlock: bytes,
@@ -563,7 +563,7 @@ export class HaneulClient {
 		input: DevInspectTransactionBlockParams,
 	): Promise<DevInspectResults> {
 		let devInspectTxBytes;
-		if (isTransactionBlock(input.transactionBlock)) {
+		if (isTransaction(input.transactionBlock)) {
 			input.transactionBlock.setSenderIfNotSet(input.sender);
 			devInspectTxBytes = toB64(
 				await input.transactionBlock.build({
@@ -771,7 +771,7 @@ export class HaneulClient {
 	 * be available via the API.
 	 * This currently polls the `getTransactionBlock` API to check for the transaction.
 	 */
-	async waitForTransactionBlock({
+	async waitForTransaction({
 		signal,
 		timeout = 60 * 1000,
 		pollInterval = 2 * 1000,

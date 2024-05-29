@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ObjectOwner } from '@haneullabs/haneul.js/src/client';
+import { ObjectOwner } from '@haneullabs/haneul/client';
 import { ReactNode } from 'react';
 
 import { ObjectLink } from './ObjectLink';

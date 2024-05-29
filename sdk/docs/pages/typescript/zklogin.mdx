@@ -12,7 +12,7 @@ signatures and compute zkLogin addresses.
 To parse a serialized zkLogin signature
 
 ```typescript
-import { parseZkLoginSignature } '@haneullabs/haneul.js/zklogin';
+import { parseZkLoginSignature } '@haneullabs/haneul/zklogin';
 
 const parsedSignature = await parseZkLoginSignature('BQNNMTY4NjAxMzAyO....');
 ```
@@ -20,7 +20,7 @@ const parsedSignature = await parseZkLoginSignature('BQNNMTY4NjAxMzAyO....');
 Use `getZkLoginSignature` to serialize a zkLogin signature.
 
 ```typescript
-import { getZkLoginSignature } '@haneullabs/haneul.js/zklogin';
+import { getZkLoginSignature } '@haneullabs/haneul/zklogin';
 
 const serializedSignature = await getZkLoginSignature({ inputs, maxEpoch, userSignature });
 ```
@@ -28,7 +28,7 @@ const serializedSignature = await getZkLoginSignature({ inputs, maxEpoch, userSi
 To compute the address for a given address seed and iss you can use `computeZkLoginAddressFromSeed`
 
 ```typescript
-import { computeZkLoginAddressFromSeed } '@haneullabs/haneul.js/zklogin';
+import { computeZkLoginAddressFromSeed } '@haneullabs/haneul/zklogin';
 
 const address = await computeZkLoginAddressFromSeed(0n, 'https://accounts.google.com');
 ```

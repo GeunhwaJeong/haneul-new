@@ -15,7 +15,7 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			'@haneullabs/bcs': new URL('../bcs/src', import.meta.url).toString(),
+			'@haneullabs/bcs': new URL('../bcs/src', import.meta.url).pathname,
 		},
 	},
 });

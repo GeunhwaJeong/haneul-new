@@ -12,7 +12,7 @@ import {
 	fromExportedKeypair,
 	type LegacyExportedKeyPair,
 } from '_shared/utils/from-exported-keypair';
-import { mnemonicToSeedHex, type Keypair } from '@haneullabs/haneul.js/cryptography';
+import { mnemonicToSeedHex, type Keypair } from '@haneullabs/haneul/cryptography';
 
 import { getFromLocalStorage } from '../storage-utils';
 

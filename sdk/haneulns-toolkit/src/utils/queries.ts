@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient, HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+import type { HaneulClient, HaneulObjectResponse } from '@haneullabs/haneul/client';
 
 // get NFT's owner from RPC.
 export const getOwner = async (client: HaneulClient, nftId: string): Promise<string | null> => {

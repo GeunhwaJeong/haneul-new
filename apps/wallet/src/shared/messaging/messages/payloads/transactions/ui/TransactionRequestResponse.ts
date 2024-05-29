@@ -4,7 +4,7 @@
 import { isBasePayload } from '_payloads';
 import type { BasePayload, Payload } from '_payloads';
 import { type SignedTransaction } from '_src/ui/app/WalletSigner';
-import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 import { type HaneulSignMessageOutput } from '@haneullabs/wallet-standard';
 
 export interface TransactionRequestResponse extends BasePayload {

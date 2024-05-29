@@ -6,7 +6,7 @@ import { Text } from '_app/shared/text';
 import { useGetTxnRecipientAddress } from '_hooks';
 import { useRecognizedPackages } from '_src/ui/app/hooks/useRecognizedPackages';
 import { getLabel, useTransactionSummary } from '@haneullabs/core';
-import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 import { Link } from 'react-router-dom';
 
 import { TxnTypeLabel } from './TxnActionLabel';

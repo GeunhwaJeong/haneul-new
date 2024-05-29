@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { decodeHaneulPrivateKey } from '@haneullabs/haneul.js/cryptography/keypair';
+import { decodeHaneulPrivateKey } from '@haneullabs/haneul/cryptography/keypair';
 import { z } from 'zod';
 
 export const privateKeyValidation = z

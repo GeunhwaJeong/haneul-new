@@ -3,7 +3,7 @@
 
 import { Tab } from '@headlessui/react';
 import { useCurrentAccount } from '@haneullabs/dapp-kit';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 

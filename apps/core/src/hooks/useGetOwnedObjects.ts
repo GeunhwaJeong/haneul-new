@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { PaginatedObjectsResponse, type HaneulObjectDataFilter } from '@haneullabs/haneul.js/client';
+import { PaginatedObjectsResponse, type HaneulObjectDataFilter } from '@haneullabs/haneul/client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 const MAX_OBJECTS_PER_REQ = 6;

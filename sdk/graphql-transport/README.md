@@ -13,7 +13,7 @@ npm install --save @haneullabs/graphql-transport
 
 ```ts
 import { HaneulClientGraphQLTransport } from '@haneullabs/graphql-transport';
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
 
 const client = new HaneulClient({
 	transport: new HaneulClientGraphQLTransport({

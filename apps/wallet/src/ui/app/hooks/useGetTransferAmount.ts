@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getAmount } from '_helpers';
-import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import type { HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 
 export function useGetTransferAmount({

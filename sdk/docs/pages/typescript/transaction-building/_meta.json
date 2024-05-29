@@ -1,6 +1,7 @@
 {
-	"basics": "Haneul Programmable Transaction Blocks Basics",
+	"basics": "Haneul Programmable Transaction Basics",
 	"gas": "Paying for Haneul Transactions with Gas Coins",
-	"sponsored-transactions": "Sponsored Transaction Blocks",
-	"offline": "Building Offline"
+	"sponsored-transactions": "Sponsored Transactions",
+	"offline": "Building Offline",
+	"intents": "Transaction Intents"
 }

@@ -24,7 +24,7 @@ See https://sdk.haneul-labs.com/typescript for full documentation
 To use the Haneul dApp Kit in your project, run the following command in your project root:
 
 ```sh npm2yarn
-npm i --save @haneullabs/dapp-kit @haneullabs/haneul.js @tanstack/react-query
+npm i --save @haneullabs/dapp-kit @haneullabs/haneul @tanstack/react-query
 ```
 
 ## Setting up providers
@@ -35,7 +35,7 @@ pages.
 
 ```tsx
 import { createNetworkConfig, HaneulClientProvider, WalletProvider } from '@haneullabs/dapp-kit';
-import { getFullnodeUrl, type HaneulClientOptions } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, type HaneulClientOptions } from '@haneullabs/haneul/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Config options for the networks you want to connect to

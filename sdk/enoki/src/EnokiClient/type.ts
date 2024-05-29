@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PublicKey } from '@haneullabs/haneul.js/cryptography';
-import type { ZkLoginSignatureInputs } from '@haneullabs/haneul.js/zklogin';
+import type { PublicKey } from '@haneullabs/haneul/cryptography';
+import type { ZkLoginSignatureInputs } from '@haneullabs/haneul/zklogin';
 
 import type { AuthProvider } from '../EnokiFlow.js';
 
@@ -46,9 +46,9 @@ export interface CreateZkLoginZkpApiInput {
 }
 export interface CreateZkLoginZkpApiResponse extends ZkLoginSignatureInputs {}
 
-export type CreateSponsoredTransactionBlockApiInput = {
+export type CreateSponsoredTransactionApiInput = {
 	network?: EnokiNetwork;
-	transactionBlockKindBytes: string;
+	transactionKindBytes: string;
 } & (
 	| {
 			jwt: string;
@@ -64,16 +64,16 @@ export type CreateSponsoredTransactionBlockApiInput = {
 	  }
 );
 
-export interface CreateSponsoredTransactionBlockApiResponse {
+export interface CreateSponsoredTransactionApiResponse {
 	bytes: string;
 	digest: string;
 }
 
-export interface ExecuteSponsoredTransactionBlockApiInput {
+export interface ExecuteSponsoredTransactionApiInput {
 	digest: string;
 	signature: string;
 }
 
-export interface ExecuteSponsoredTransactionBlockApiResponse {
+export interface ExecuteSponsoredTransactionApiResponse {
 	digest: string;
 }

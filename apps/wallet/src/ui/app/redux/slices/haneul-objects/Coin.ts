@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulMoveObject, HaneulObjectData } from '@haneullabs/haneul.js/client';
+import type { HaneulMoveObject, HaneulObjectData } from '@haneullabs/haneul/client';
 
 const COIN_TYPE = '0x2::coin::Coin';
 const COIN_TYPE_ARG_REGEX = /^0x2::coin::Coin<(.+)>$/;

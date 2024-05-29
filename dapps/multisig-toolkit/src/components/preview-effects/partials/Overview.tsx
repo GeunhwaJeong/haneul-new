@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClientContext } from '@haneullabs/dapp-kit';
-import { DryRunTransactionBlockResponse, GasCostSummary } from '@haneullabs/haneul.js/src/client';
+import { DryRunTransactionBlockResponse, GasCostSummary } from '@haneullabs/haneul/client';
 import { ReactNode } from 'react';
 
 import { ObjectLink } from '../ObjectLink';

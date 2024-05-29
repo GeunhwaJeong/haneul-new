@@ -6,7 +6,7 @@ import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { CheckFill16 } from '@haneullabs/icons';
-import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { formatAddress, HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import cl from 'clsx';
 
 import { useCoinsReFetchingConfig } from '../../hooks';

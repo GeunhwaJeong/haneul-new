@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type HaneulWallet } from '_src/dapp-interface/WalletStandardInterface';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import { getWallets, ReadonlyWalletAccount, type Wallet } from '@haneullabs/wallet-standard';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function getDemoTransaction(address: string) {
-	const txb = new TransactionBlock();
+	const txb = new Transaction();
 	const [coin] = txb.splitCoins(txb.gas, [1]);
 	txb.transferObjects([coin], address);
 	return txb;
@@ -93,11 +93,11 @@ function App() {
 			<button
 				onClick={async () => {
 					setError(null);
-					const txb = getDemoTransaction(accounts[0]?.address || '');
+					const txb = getDemoTransaction(accounts[0]?.address || '0x01');
 					try {
 						await haneulWallet.features[
 							'haneul:signAndExecuteTransactionBlock'
-						].signAndExecuteTransactionBlock({
+						]!.signAndExecuteTransactionBlock({
 							transactionBlock: txb,
 							account: getAccount(accounts[0], useWrongAccounts),
 							chain: 'haneul:unknown',
@@ -112,9 +112,9 @@ function App() {
 			<button
 				onClick={async () => {
 					setError(null);
-					const txb = getDemoTransaction(accounts[0]?.address || '');
+					const txb = getDemoTransaction(accounts[0]?.address || '0x01');
 					try {
-						await haneulWallet.features['haneul:signTransactionBlock'].signTransactionBlock({
+						await haneulWallet.features['haneul:signTransactionBlock']!.signTransactionBlock({
 							transactionBlock: txb,
 							account: getAccount(accounts[0], useWrongAccounts),
 							chain: 'haneul:unknown',

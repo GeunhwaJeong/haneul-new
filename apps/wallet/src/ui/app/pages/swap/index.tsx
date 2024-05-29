@@ -40,8 +40,8 @@ import { DeepBookContextProvider, useDeepBookContext } from '_shared/deepBook/co
 import { useTransactionSummary, useZodForm } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { ArrowDown12, ArrowRight16 } from '@haneullabs/icons';
-import { type DryRunTransactionBlockResponse } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { type DryRunTransactionBlockResponse } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';

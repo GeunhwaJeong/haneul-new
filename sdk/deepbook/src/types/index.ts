@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { EventId } from '@haneullabs/haneul.js/client';
+import type { EventId } from '@haneullabs/haneul/client';
 
 export * from './bcs.js';
 

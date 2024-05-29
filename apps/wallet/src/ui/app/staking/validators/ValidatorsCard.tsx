@@ -15,7 +15,7 @@ import {
 import { useGetDelegatedStake } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Plus12 } from '@haneullabs/icons';
-import type { StakeObject } from '@haneullabs/haneul.js/client';
+import type { StakeObject } from '@haneullabs/haneul/client';
 import { useMemo } from 'react';
 
 import { useActiveAddress } from '../../hooks/useActiveAddress';

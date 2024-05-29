@@ -5,7 +5,7 @@ import { ImageIcon } from '_app/shared/image-icon';
 import { Text } from '_app/shared/text';
 import { Badge } from '_src/ui/app/shared/Badge';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import cl from 'clsx';
 import { useMemo } from 'react';
 

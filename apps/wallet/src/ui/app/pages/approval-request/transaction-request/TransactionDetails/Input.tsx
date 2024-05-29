@@ -4,23 +4,27 @@
 import ExplorerLink from '_src/ui/app/components/explorer-link';
 import { ExplorerLinkType } from '_src/ui/app/components/explorer-link/ExplorerLinkType';
 import { Text } from '_src/ui/app/shared/text';
-import { type TransactionBlockInput } from '@haneullabs/haneul.js/transactions';
-import { formatAddress, toB64 } from '@haneullabs/haneul.js/utils';
+import { type TransactionInput } from '@haneullabs/haneul/transactions';
+import { formatAddress } from '@haneullabs/haneul/utils';
 
 interface InputProps {
-	input: TransactionBlockInput;
+	input: TransactionInput;
 }
 
 export function Input({ input }: InputProps) {
-	const { objectId } = input.value?.Object?.ImmOrOwned || input.value?.Object?.Shared || {};
+	const { objectId } =
+		input?.Object?.ImmOrOwnedObject ??
+		input?.Object?.SharedObject ??
+		input.Object?.Receiving! ??
+		{};
 
 	return (
 		<div className="break-all">
 			<Text variant="pBodySmall" weight="medium" color="steel-dark" mono>
-				{'Pure' in input.value ? (
-					`${toB64(new Uint8Array(input.value.Pure))}`
-				) : 'Object' in input.value ? (
-					<ExplorerLink type={ExplorerLinkType.object} objectID={objectId}>
+				{input.Pure ? (
+					`${input.Pure.bytes}`
+				) : input.Object ? (
+					<ExplorerLink type={ExplorerLinkType.object} objectID={objectId!}>
 						{formatAddress(objectId)}
 					</ExplorerLink>
 				) : (

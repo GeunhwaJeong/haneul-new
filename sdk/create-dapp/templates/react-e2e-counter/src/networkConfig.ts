@@ -1,4 +1,4 @@
-import { getFullnodeUrl } from "@haneullabs/haneul.js/client";
+import { getFullnodeUrl } from "@haneullabs/haneul/client";
 import {
   DEVNET_COUNTER_PACKAGE_ID,
   MAINNET_COUNTER_PACKAGE_ID,

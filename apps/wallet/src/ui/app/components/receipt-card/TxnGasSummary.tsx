@@ -4,7 +4,7 @@
 import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin } from '@haneullabs/core';
-import type { GasCostSummary } from '@haneullabs/haneul.js/client';
+import type { GasCostSummary } from '@haneullabs/haneul/client';
 
 type TxnGasSummaryProps = {
 	gasSummary?: GasCostSummary;

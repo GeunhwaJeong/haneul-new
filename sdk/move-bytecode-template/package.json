@@ -16,7 +16,7 @@
 		"@haneullabs/bcs": "workspace:*",
 		"@haneullabs/build-scripts": "workspace:*",
 		"typescript": "^5.3.3",
-		"vitest": "^0.33.0",
+		"vitest": "^1.6.0",
 		"wasm-pack": "^0.12.1"
 	}
 }

@@ -1,5 +1,5 @@
 ---
-'@haneullabs/haneul.js': patch
+'@haneullabs/haneul': patch
 ---
 
 Add support for more JSON RPC error codes

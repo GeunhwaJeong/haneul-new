@@ -15,7 +15,7 @@ import { QredoActionIgnoredByUser } from '_src/ui/app/QredoSigner';
 import { isHaneulNSName, useGetKioskContents, useHaneulNSEnabled } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import { toast } from 'react-hot-toast';
@@ -64,7 +64,7 @@ export function TransferNFTForm({
 				return transferKioskItem.mutateAsync({ to, clientIdentifier });
 			}
 
-			const tx = new TransactionBlock();
+			const tx = new Transaction();
 			tx.transferObjects([tx.object(objectId)], to);
 
 			return signer.signAndExecuteTransactionBlock(

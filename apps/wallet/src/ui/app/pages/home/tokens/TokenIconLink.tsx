@@ -10,7 +10,7 @@ import {
 import { Text } from '_src/ui/app/shared/text';
 import { useFormatCoin, useGetDelegatedStake } from '@haneullabs/core';
 import { WalletActionStake24 } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 
 export function TokenIconLink({

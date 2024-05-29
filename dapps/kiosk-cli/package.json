@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@haneullabs/kiosk": "workspace:*",
-    "@haneullabs/haneul.js": "workspace:*",
+    "@haneullabs/haneul": "workspace:*",
     "commander": "^11.0.0"
   }
 }

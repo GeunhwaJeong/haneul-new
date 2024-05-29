@@ -4,7 +4,7 @@
 import { CONSTANTS } from "@/constants";
 import { useHaneulClientQuery } from "@haneullabs/dapp-kit";
 import { Locked } from "./partials/Locked";
-import { HaneulObjectData } from "@haneullabs/haneul.js/client";
+import { HaneulObjectData } from "@haneullabs/haneul/client";
 
 /**
  * Acts as a wrapper between the `Locked` object fetched from API

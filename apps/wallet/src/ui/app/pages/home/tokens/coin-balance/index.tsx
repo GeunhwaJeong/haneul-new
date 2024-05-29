@@ -6,7 +6,7 @@ import { API_ENV } from '_shared/api-env';
 import { Heading } from '_src/ui/app/shared/heading';
 import { Text } from '_src/ui/app/shared/text';
 import { useBalanceInUSD, useFormatCoin } from '@haneullabs/core';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 
 export type CoinProps = {

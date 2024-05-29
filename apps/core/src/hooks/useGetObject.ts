@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { normalizeHaneulAddress } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 
 const defaultOptions = {

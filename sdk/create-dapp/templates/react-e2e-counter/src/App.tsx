@@ -1,5 +1,5 @@
 import { ConnectButton, useCurrentAccount } from "@haneullabs/dapp-kit";
-import { isValidHaneulObjectId } from "@haneullabs/haneul.js/utils";
+import { isValidHaneulObjectId } from "@haneullabs/haneul/utils";
 import { Box, Container, Flex, Heading } from "@radix-ui/themes";
 import { useState } from "react";
 import { Counter } from "./Counter";

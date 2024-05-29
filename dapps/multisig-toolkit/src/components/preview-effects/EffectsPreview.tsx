@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { DryRunTransactionBlockResponse } from '@haneullabs/haneul.js/src/client';
+import { DryRunTransactionBlockResponse } from '@haneullabs/haneul/client';
 import * as Tabs from '@radix-ui/react-tabs';
 import { useState } from 'react';
 

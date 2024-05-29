@@ -3,35 +3,32 @@
 
 import { useFormatCoin } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 
-export function useTransactionData(sender?: string | null, transaction?: TransactionBlock | null) {
+export function useTransactionData(sender?: string | null, transaction?: Transaction | null) {
 	const client = useHaneulClient();
 	return useQuery({
 		// eslint-disable-next-line @tanstack/query/exhaustive-deps
 		queryKey: ['transaction-data', transaction?.serialize()],
 		queryFn: async () => {
-			const clonedTransaction = new TransactionBlock(transaction!);
+			const clonedTransaction = Transaction.from(transaction!);
 			if (sender) {
 				clonedTransaction.setSenderIfNotSet(sender);
 			}
 			// Build the transaction to bytes, which will ensure that the transaction data is fully populated:
 			await clonedTransaction!.build({ client });
-			return clonedTransaction!.blockData;
+			return clonedTransaction!.getData();
 		},
 		enabled: !!transaction,
 	});
 }
 
-export function useTransactionGasBudget(
-	sender?: string | null,
-	transaction?: TransactionBlock | null,
-) {
+export function useTransactionGasBudget(sender?: string | null, transaction?: Transaction | null) {
 	const { data, ...rest } = useTransactionData(sender, transaction);
 
-	const [formattedGas] = useFormatCoin(data?.gasConfig.budget, HANEUL_TYPE_ARG);
+	const [formattedGas] = useFormatCoin(data?.gasData.budget, HANEUL_TYPE_ARG);
 
 	return {
 		data: formattedGas,

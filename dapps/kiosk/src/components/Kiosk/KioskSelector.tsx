@@ -3,7 +3,7 @@
 
 import { Listbox, Transition } from '@headlessui/react';
 import { KioskOwnerCap } from '@haneullabs/kiosk';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import classNames from 'clsx';
 import { Fragment } from 'react';
 

@@ -5,7 +5,7 @@ import type {
 	ExecuteTransactionRequestType,
 	HaneulTransactionBlockResponse,
 	HaneulTransactionBlockResponseOptions,
-} from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul/client';
 
 import type { HaneulSignTransactionBlockInput } from './haneulSignTransactionBlock.js';
 
@@ -13,6 +13,8 @@ import type { HaneulSignTransactionBlockInput } from './haneulSignTransactionBlo
 export type HaneulSignAndExecuteTransactionBlockVersion = '1.0.0';
 
 /**
+ * @deprecated Use `haneul:signAndExecuteTransaction` instead.
+ *
  * A Wallet Standard feature for signing a transaction, and submitting it to the
  * network. The wallet is expected to submit the transaction to the network via RPC,
  * and return the transaction response.
@@ -22,10 +24,12 @@ export type HaneulSignAndExecuteTransactionBlockFeature = {
 	'haneul:signAndExecuteTransactionBlock': {
 		/** Version of the feature API. */
 		version: HaneulSignAndExecuteTransactionBlockVersion;
+		/** @deprecated Use `haneul:signAndExecuteTransaction` instead. */
 		signAndExecuteTransactionBlock: HaneulSignAndExecuteTransactionBlockMethod;
 	};
 };
 
+/** @deprecated Use `haneul:signAndExecuteTransaction` instead. */
 export type HaneulSignAndExecuteTransactionBlockMethod = (
 	input: HaneulSignAndExecuteTransactionBlockInput,
 ) => Promise<HaneulSignAndExecuteTransactionBlockOutput>;

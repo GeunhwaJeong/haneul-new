@@ -6,7 +6,7 @@ import Loading from '_components/loading';
 import { filterAndSortTokenBalances } from '_helpers';
 import { useCoinsReFetchingConfig } from '_hooks';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { Link } from 'react-router-dom';
 
 import { CoinItem } from './CoinItem';

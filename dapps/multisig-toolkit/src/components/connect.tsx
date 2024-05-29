@@ -8,7 +8,7 @@ import {
 	useDisconnectWallet,
 	useSwitchAccount,
 } from '@haneullabs/dapp-kit';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 

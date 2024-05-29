@@ -3,7 +3,7 @@
 /* eslint-disable @tanstack/query/exhaustive-deps */
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { PaginatedObjectsResponse } from '@haneullabs/haneul.js/client';
+import { PaginatedObjectsResponse } from '@haneullabs/haneul/client';
 import { useQuery } from '@tanstack/react-query';
 
 import { TANSTACK_OWNED_OBJECTS_KEY } from '../utils/constants';

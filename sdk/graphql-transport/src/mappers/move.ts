@@ -9,8 +9,8 @@ import type {
 	HaneulMoveNormalizedModule,
 	HaneulMoveNormalizedStruct,
 	HaneulMoveNormalizedType,
-} from '@haneullabs/haneul.js/client';
-import { normalizeHaneulAddress, parseStructTag } from '@haneullabs/haneul.js/utils';
+} from '@haneullabs/haneul/client';
+import { normalizeHaneulAddress, parseStructTag } from '@haneullabs/haneul/utils';
 
 import type {
 	Rpc_Move_Function_FieldsFragment,

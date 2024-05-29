@@ -27,8 +27,20 @@ export const haneulFeatures: HaneulFeatures = {
 		version: '1.0.0',
 		signTransactionBlock: vi.fn(),
 	},
+	'haneul:signTransaction': {
+		version: '2.0.0',
+		signTransaction: vi.fn(),
+	},
 	'haneul:signAndExecuteTransactionBlock': {
 		version: '1.0.0',
 		signAndExecuteTransactionBlock: vi.fn(),
+	},
+	'haneul:signAndExecuteTransaction': {
+		version: '2.0.0',
+		signAndExecuteTransaction: vi.fn(),
+	},
+	'haneul:reportTransactionEffects': {
+		version: '1.0.0',
+		reportTransactionEffects: vi.fn(),
 	},
 };

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import type { CoinStruct, PaginatedCoins } from '@haneullabs/haneul.js/client';
+import type { CoinStruct, PaginatedCoins } from '@haneullabs/haneul/client';
 import { useQuery } from '@tanstack/react-query';
 
 const MAX_COINS_PER_REQUEST = 100;

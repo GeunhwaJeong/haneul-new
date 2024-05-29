@@ -1,8 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { PublicKey } from '@haneullabs/haneul.js/cryptography';
-import { MultiSigPublicKey, publicKeyFromHaneulBytes } from '@haneullabs/haneul.js/multisig';
+import { PublicKey } from '@haneullabs/haneul/cryptography';
+import { MultiSigPublicKey } from '@haneullabs/haneul/multisig';
+import { publicKeyFromHaneulBytes } from '@haneullabs/haneul/verify';
 import { useState } from 'react';
 import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';

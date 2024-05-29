@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ObjectOwner } from '@haneullabs/haneul.js/client';
-import type { TransactionBlock, TransactionObjectArgument } from '@haneullabs/haneul.js/transactions';
+import type { ObjectOwner } from '@haneullabs/haneul/client';
+import type { Transaction, TransactionObjectArgument } from '@haneullabs/haneul/transactions';
 
 import type { ObjectArgument } from './index.js';
 
@@ -52,7 +52,9 @@ export type TransferPolicyCreated = {
 // Each rule resolving function should check that the key it's seeking is in the object
 // e.g. `if(!'my_key' in ruleParams!) throw new Error("Can't resolve that rule!")`
 export type RuleResolvingParams = {
-	transactionBlock: TransactionBlock;
+	transaction: Transaction;
+	/** @deprecated use transaction instead */
+	transactionBlock: Transaction;
 	itemType: string;
 	itemId: string;
 	price: string;

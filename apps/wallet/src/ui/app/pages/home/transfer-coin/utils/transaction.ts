@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { parseAmount } from '_src/ui/app/helpers';
-import { type CoinStruct } from '@haneullabs/haneul.js/client';
-import { TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { type CoinStruct } from '@haneullabs/haneul/client';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 
 interface Options {
 	coinType: string;
@@ -23,7 +23,7 @@ export function createTokenTransferTransaction({
 	coinDecimals,
 	isPayAllHaneul,
 }: Options) {
-	const tx = new TransactionBlock();
+	const tx = new Transaction();
 
 	if (isPayAllHaneul && coinType === HANEUL_TYPE_ARG) {
 		tx.transferObjects([tx.gas], to);

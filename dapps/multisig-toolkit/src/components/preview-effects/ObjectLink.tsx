@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { useHaneulClientContext } from '@haneullabs/dapp-kit';
-import { ObjectOwner, HaneulObjectChange } from '@haneullabs/haneul.js/src/client';
+import { ObjectOwner, HaneulObjectChange } from '@haneullabs/haneul/client';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';

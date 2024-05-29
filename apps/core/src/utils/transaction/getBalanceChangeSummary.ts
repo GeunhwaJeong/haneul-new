@@ -4,8 +4,8 @@ import {
 	type DryRunTransactionBlockResponse,
 	type ObjectOwner,
 	type HaneulTransactionBlockResponse,
-} from '@haneullabs/haneul.js/client';
-import { normalizeHaneulObjectId, parseStructTag } from '@haneullabs/haneul.js/utils';
+} from '@haneullabs/haneul/client';
+import { normalizeHaneulObjectId, parseStructTag } from '@haneullabs/haneul/utils';
 
 export type BalanceChange = {
 	coinType: string;

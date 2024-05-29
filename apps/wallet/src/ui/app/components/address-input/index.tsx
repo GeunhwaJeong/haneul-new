@@ -5,7 +5,7 @@ import { Text } from '_app/shared/text';
 import Alert from '_src/ui/app/components/alert';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { QrCode, X12 } from '@haneullabs/icons';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { isValidHaneulAddress } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 import { cx } from 'class-variance-authority';
 import { useField, useFormikContext } from 'formik';

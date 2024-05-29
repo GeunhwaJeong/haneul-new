@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { bcs } from '@haneullabs/haneul.js/bcs';
-import { toB64 } from '@haneullabs/haneul.js/utils';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { toB64 } from '@haneullabs/haneul/utils';
 import type {
 	StandardConnectFeature,
 	StandardConnectMethod,
@@ -15,6 +15,8 @@ import type {
 	HaneulSignPersonalMessageMethod,
 	HaneulSignTransactionBlockFeature,
 	HaneulSignTransactionBlockMethod,
+	HaneulSignTransactionFeature,
+	HaneulSignTransactionMethod,
 	Wallet,
 } from '@haneullabs/wallet-standard';
 import { getWallets, ReadonlyWalletAccount, HANEUL_MAINNET_CHAIN } from '@haneullabs/wallet-standard';
@@ -61,6 +63,7 @@ export class StashedWallet implements Wallet {
 		StandardDisconnectFeature &
 		StandardEventsFeature &
 		HaneulSignTransactionBlockFeature &
+		HaneulSignTransactionFeature &
 		HaneulSignPersonalMessageFeature {
 		return {
 			'standard:connect': {
@@ -78,6 +81,10 @@ export class StashedWallet implements Wallet {
 			'haneul:signTransactionBlock': {
 				version: '1.0.0',
 				signTransactionBlock: this.#signTransactionBlock,
+			},
+			'haneul:signTransaction': {
+				version: '2.0.0',
+				signTransaction: this.#signTransaction,
 			},
 			'haneul:signPersonalMessage': {
 				version: '1.0.0',
@@ -110,8 +117,12 @@ export class StashedWallet implements Wallet {
 
 		const data = transactionBlock.serialize();
 
-		const popup = new StashedPopup({ name: this.#name, origin: this.#origin });
-		const response = await popup.createRequest({
+		const popup = new StashedPopup({
+			name: this.#name,
+			origin: this.#origin,
+		});
+
+		const response = await popup.send({
 			type: 'sign-transaction-block',
 			data,
 			address: account.address,
@@ -123,10 +134,37 @@ export class StashedWallet implements Wallet {
 		};
 	};
 
+	#signTransaction: HaneulSignTransactionMethod = async ({ transaction, account }) => {
+		const popup = new StashedPopup({
+			name: this.#name,
+			origin: this.#origin,
+		});
+
+		const tx = Transaction.from(await transaction.toJSON());
+		tx.setSenderIfNotSet(account.address);
+
+		const data = tx.serialize();
+
+		const response = await popup.send({
+			type: 'sign-transaction-block',
+			data,
+			address: account.address,
+		});
+
+		return {
+			bytes: response.bytes,
+			signature: response.signature,
+		};
+	};
+
 	#signPersonalMessage: HaneulSignPersonalMessageMethod = async ({ message, account }) => {
-		const bytes = toB64(bcs.vector(bcs.u8()).serialize(message).toBytes());
-		const popup = new StashedPopup({ name: this.#name, origin: this.#origin });
-		const response = await popup.createRequest({
+		const popup = new StashedPopup({
+			name: this.#name,
+			origin: this.#origin,
+		});
+		const bytes = toB64(message);
+
+		const response = await popup.send({
 			type: 'sign-personal-message',
 			bytes,
 			address: account.address,
@@ -175,9 +213,11 @@ export class StashedWallet implements Wallet {
 		}
 
 		const popup = new StashedPopup({ name: this.#name, origin: this.#origin });
-		const response = await popup.createRequest({
+
+		const response = await popup.send({
 			type: 'connect',
 		});
+
 		if (!('address' in response)) {
 			throw new Error('Unexpected response');
 		}

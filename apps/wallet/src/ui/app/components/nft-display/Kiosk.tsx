@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { getKioskIdFromOwnerCap, hasDisplayData, useGetKioskContents } from '@haneullabs/core';
-import { type HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+import { type HaneulObjectResponse } from '@haneullabs/haneul/client';
 import cl from 'clsx';
 
 import { useActiveAddress } from '../../hooks';

@@ -3,7 +3,7 @@
 
 import { hasDisplayData, isKioskOwnerToken, useGetOwnedObjects } from '@haneullabs/core';
 import { useKioskClient } from '@haneullabs/core/src/hooks/useKioskClient';
-import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
+import { type HaneulObjectData } from '@haneullabs/haneul/client';
 import { useMemo } from 'react';
 
 import { useBuyNLargeAsset } from '../components/buynlarge/useBuyNLargeAsset';

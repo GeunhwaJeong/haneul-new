@@ -8,7 +8,7 @@ import { GAS_TYPE_ARG } from '_redux/slices/haneul-objects/Coin';
 import { FEATURES } from '_shared/experimentation/features';
 import { useFeatureValue } from '@growthbook/growthbook-react';
 import { useBalanceInUSD, useFormatCoin } from '@haneullabs/core';
-import { type BalanceChange } from '@haneullabs/haneul.js/client';
+import { type BalanceChange } from '@haneullabs/haneul/client';
 
 export function GasFeeSection({
 	activeCoinType,

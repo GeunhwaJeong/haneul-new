@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // import { faker } from '@faker-js/faker';
-import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul.js/client';
+import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { HaneulnsClient } from '../src';

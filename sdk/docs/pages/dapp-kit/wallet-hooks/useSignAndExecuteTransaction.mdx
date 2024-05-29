@@ -1,0 +1,61 @@
+import { UseSignAndExecuteTransactionExample } from '../../../examples/wallet-hooks';
+
+# useSignAndExecuteTransaction
+
+Use the `useSignAndExecuteTransaction` hook to prompt the user to sign and execute a transaction
+block with their wallet.
+
+```ts
+import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction } from '@haneullabs/dapp-kit';
+import { useState } from 'react';
+
+function MyComponent() {
+	const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+	const [digest, setDigest] = useState('');
+	const currentAccount = useCurrentAccount();
+
+	return (
+		<div style={{ padding: 20 }}>
+			<ConnectButton />
+			{currentAccount && (
+				<>
+					<div>
+						<button
+							onClick={() => {
+								signAndExecuteTransaction(
+									{
+										transaction: new Transaction(),
+										chain: 'haneul:devnet',
+									},
+									{
+										onSuccess: (result) => {
+											console.log('executed transaction', result);
+											setDigest(result.digest);
+										},
+									},
+								);
+							}}
+						>
+							Sign and execute transaction
+						</button>
+					</div>
+					<div>Digest: {digest}</div>
+				</>
+			)}
+		</div>
+	);
+}
+```
+
+## Example
+
+<UseSignAndExecuteTransactionExample />
+
+## Arguments
+
+- `transaction`: The transaction to sign and execute.
+- `chain`: (optional) The chain identifier the transaction should be signed for.
+
+In addition to these options, you can also pass any options that the
+[HaneulClient.signAndExecuteTransaction](/typedoc/classes/_haneullabs_haneul.client.HaneulClient.html#signAndExecuteTransactionBlock)
+method accepts.

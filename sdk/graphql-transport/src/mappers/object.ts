@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulObjectResponse } from '@haneullabs/haneul.js/client';
+import type { HaneulObjectResponse } from '@haneullabs/haneul/client';
 
 import type {
 	MoveValue,

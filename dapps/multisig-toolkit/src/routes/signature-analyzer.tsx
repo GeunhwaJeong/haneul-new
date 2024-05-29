@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { parseSerializedSignature, PublicKey, SignatureScheme } from '@haneullabs/haneul.js/cryptography';
-import { parsePartialSignatures } from '@haneullabs/haneul.js/multisig';
-import { toB64 } from '@haneullabs/haneul.js/utils';
-import { publicKeyFromRawBytes } from '@haneullabs/haneul.js/verify';
+import { parseSerializedSignature, PublicKey, SignatureScheme } from '@haneullabs/haneul/cryptography';
+import { parsePartialSignatures } from '@haneullabs/haneul/multisig';
+import { toB64 } from '@haneullabs/haneul/utils';
+import { publicKeyFromRawBytes } from '@haneullabs/haneul/verify';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 

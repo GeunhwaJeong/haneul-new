@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ApiLockedObject } from "@/types/types";
 import { useCurrentAccount, useHaneulClientInfiniteQuery } from "@haneullabs/dapp-kit";
-import { formatAddress } from "@haneullabs/haneul.js/utils";
+import { formatAddress } from "@haneullabs/haneul/utils";
 import { Avatar, Button, Select } from "@radix-ui/themes";
 import { InfiniteScrollArea } from "@/components/InfiniteScrollArea";
 import { useState } from "react";

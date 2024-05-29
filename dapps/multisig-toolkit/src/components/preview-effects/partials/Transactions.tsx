@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-	HaneulArgument,
-	HaneulCallArg,
-	HaneulTransaction,
-	TransactionBlockData,
-} from '@haneullabs/haneul.js/src/client';
+import { HaneulArgument, HaneulCallArg, HaneulTransaction, TransactionBlockData } from '@haneullabs/haneul/client';
 import { ReactNode } from 'react';
 
 import { ObjectLink } from '../ObjectLink';

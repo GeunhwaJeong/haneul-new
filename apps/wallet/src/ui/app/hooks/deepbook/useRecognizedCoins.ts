@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useDeepBookConfigs } from '_app/hooks/deepbook/useDeepBookConfigs';
 import { useDeepBookContext } from '_shared/deepBook/context';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 
 export function useRecognizedCoins() {
 	const coinsMap = useDeepBookContext().configs.coinsMap;

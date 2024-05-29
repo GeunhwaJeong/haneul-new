@@ -4,8 +4,8 @@
 import { CONSTANTS, QueryKey } from "@/constants";
 import { useTransactionExecution } from "@/hooks/useTransactionExecution";
 import { useCurrentAccount, useHaneulClient } from "@haneullabs/dapp-kit";
-import { HaneulObjectData } from "@haneullabs/haneul.js/client";
-import { TransactionBlock } from "@haneullabs/haneul.js/transactions";
+import { HaneulObjectData } from "@haneullabs/haneul/client";
+import { TransactionBlock } from "@haneullabs/haneul/transactions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 

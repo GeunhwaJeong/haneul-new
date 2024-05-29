@@ -4,7 +4,7 @@
 import ExplorerLink from '_components/explorer-link';
 import { ExplorerLinkType } from '_components/explorer-link/ExplorerLinkType';
 import { isHaneulNSName } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 
 type TxnAddressLinkProps = {
 	address: string;

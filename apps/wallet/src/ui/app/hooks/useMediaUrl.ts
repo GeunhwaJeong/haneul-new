@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulParsedData } from '@haneullabs/haneul.js/client';
+import type { HaneulParsedData } from '@haneullabs/haneul/client';
 import { useMemo } from 'react';
 
 export const parseIpfsUrl = (ipfsUrl: string) =>

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { normalizeHaneulNSName } from '@haneullabs/haneul.js/utils';
+import { normalizeHaneulNSName } from '@haneullabs/haneul/utils';
 
 import { useResolveHaneulNSName as useResolveHaneulNSNameCore } from '../../../../../core';
 

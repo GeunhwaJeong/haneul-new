@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { EventId, HaneulClient, HaneulEvent, HaneulEventFilter } from '@haneullabs/haneul.js/client';
+import { EventId, HaneulClient, HaneulEvent, HaneulEventFilter } from '@haneullabs/haneul/client';
 
 import { CONFIG } from '../config';
 import { prisma } from '../db';

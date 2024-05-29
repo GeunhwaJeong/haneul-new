@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DelegatedStake } from '@haneullabs/haneul.js/client';
+import type { DelegatedStake } from '@haneullabs/haneul/client';
 
 import type { Rpc_Stake_FieldsFragment } from '../generated/queries.js';
 

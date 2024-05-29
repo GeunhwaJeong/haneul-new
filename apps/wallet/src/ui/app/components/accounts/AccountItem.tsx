@@ -4,7 +4,7 @@
 import { useResolveHaneulNSName } from '_app/hooks/useAppResolveHaneulnsName';
 import { Text } from '_src/ui/app/shared/text';
 import { ArrowUpRight12, Copy12 } from '@haneullabs/icons';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { formatAddress } from '@haneullabs/haneul/utils';
 import cn from 'clsx';
 import { forwardRef, type ReactNode } from 'react';
 

@@ -9,7 +9,7 @@ import { Button } from '_src/ui/app/shared/ButtonUI';
 import { getKioskIdFromOwnerCap, isKioskOwnerToken } from '@haneullabs/core';
 import { useKioskClient } from '@haneullabs/core/src/hooks/useKioskClient';
 import { EyeClose16 } from '@haneullabs/icons';
-import { type HaneulObjectData } from '@haneullabs/haneul.js/client';
+import { type HaneulObjectData } from '@haneullabs/haneul/client';
 import { Link } from 'react-router-dom';
 
 import { useHiddenAssets } from '../hidden-assets/HiddenAssetsProvider';

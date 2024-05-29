@@ -1,14 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Struct } from 'superstruct';
-import { create as superstructCreate } from 'superstruct';
-
 import type { HaneulMoveNormalizedType } from '../client/index.js';
-
-export function create<T, S>(value: T, struct: Struct<T, S>): T {
-	return superstructCreate(value, struct);
-}
+import { normalizeHaneulAddress } from '../utils/haneul-types.js';
+import type { CallArg } from './data/internal.js';
 
 export function extractMutableReference(
 	normalizedType: HaneulMoveNormalizedType,
@@ -43,5 +38,29 @@ export function extractStructTag(
 	if (typeof mutRef === 'object' && 'Struct' in mutRef) {
 		return mutRef;
 	}
+	return undefined;
+}
+
+export function getIdFromCallArg(arg: string | CallArg) {
+	if (typeof arg === 'string') {
+		return normalizeHaneulAddress(arg);
+	}
+
+	if (arg.Object) {
+		if (arg.Object.ImmOrOwnedObject) {
+			return normalizeHaneulAddress(arg.Object.ImmOrOwnedObject.objectId);
+		}
+
+		if (arg.Object.Receiving) {
+			return normalizeHaneulAddress(arg.Object.Receiving.objectId);
+		}
+
+		return normalizeHaneulAddress(arg.Object.SharedObject.objectId);
+	}
+
+	if (arg.UnresolvedObject) {
+		return normalizeHaneulAddress(arg.UnresolvedObject.objectId);
+	}
+
 	return undefined;
 }

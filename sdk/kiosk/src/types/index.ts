@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HaneulClient } from '@haneullabs/haneul.js/client';
-import type { TransactionObjectArgument } from '@haneullabs/haneul.js/transactions';
+import type { HaneulClient } from '@haneullabs/haneul/client';
+import type { TransactionObjectArgument } from '@haneullabs/haneul/transactions';
 
 import type { BaseRulePackageIds } from '../constants.js';
 

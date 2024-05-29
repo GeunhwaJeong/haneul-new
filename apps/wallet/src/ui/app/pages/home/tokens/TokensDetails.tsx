@@ -40,8 +40,8 @@ import {
 } from '@haneullabs/core';
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
 import { Info12, Pin16, Unpin16 } from '@haneullabs/icons';
-import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul.js/client';
-import { formatAddress, parseStructTag, HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import { type CoinBalance as CoinBalanceType } from '@haneullabs/haneul/client';
+import { formatAddress, parseStructTag, HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState, type ReactNode } from 'react';

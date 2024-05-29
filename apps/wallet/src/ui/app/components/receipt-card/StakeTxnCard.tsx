@@ -15,8 +15,8 @@ import {
 	useGetTimeBeforeEpochNumber,
 	useGetValidatorsApy,
 } from '@haneullabs/core';
-import type { HaneulEvent } from '@haneullabs/haneul.js/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul.js/utils';
+import type { HaneulEvent } from '@haneullabs/haneul/client';
+import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 
 import { Card } from '../../shared/transaction-summary/Card';
 

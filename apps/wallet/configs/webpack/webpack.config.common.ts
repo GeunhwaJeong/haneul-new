@@ -110,7 +110,7 @@ const commonConfig: () => Promise<Configuration> = async () => {
 		},
 		resolve: {
 			extensions: ['.ts', '.tsx', '.js'],
-			// Fix .js imports from @haneullabs/haneul.js since we are importing it from source
+			// Fix .js imports from @haneullabs/haneul since we are importing it from source
 			extensionAlias: {
 				'.js': ['.js', '.ts', '.tsx', '.jsx'],
 				'.mjs': ['.mjs', '.mts'],

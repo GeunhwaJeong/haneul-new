@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { getFaucetRequestStatus, requestHaneulFromFaucetV1 } from '@haneullabs/haneul.js/faucet';
+import { getFaucetRequestStatus, requestHaneulFromFaucetV1 } from '@haneullabs/haneul/faucet';
 import { useIsMutating, useMutation, type UseMutationOptions } from '@tanstack/react-query';
 
 import { useActiveAccount } from '../../hooks/useActiveAccount';

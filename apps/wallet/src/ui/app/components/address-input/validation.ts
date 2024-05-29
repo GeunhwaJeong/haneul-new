@@ -3,8 +3,8 @@
 
 import { isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
-import { isValidHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { type HaneulClient } from '@haneullabs/haneul/client';
+import { isValidHaneulAddress } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 import * as Yup from 'yup';
 

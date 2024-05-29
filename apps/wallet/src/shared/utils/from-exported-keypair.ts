@@ -1,16 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type Keypair, type SignatureScheme } from '@haneullabs/haneul.js/cryptography';
+import { type Keypair, type SignatureScheme } from '@haneullabs/haneul/cryptography';
 import {
 	decodeHaneulPrivateKey,
 	LEGACY_PRIVATE_KEY_SIZE,
 	PRIVATE_KEY_SIZE,
-} from '@haneullabs/haneul.js/cryptography/keypair';
-import { Ed25519Keypair } from '@haneullabs/haneul.js/keypairs/ed25519';
-import { Secp256k1Keypair } from '@haneullabs/haneul.js/keypairs/secp256k1';
-import { Secp256r1Keypair } from '@haneullabs/haneul.js/keypairs/secp256r1';
-import { fromB64 } from '@haneullabs/haneul.js/utils';
+} from '@haneullabs/haneul/cryptography/keypair';
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
+import { Secp256k1Keypair } from '@haneullabs/haneul/keypairs/secp256k1';
+import { Secp256r1Keypair } from '@haneullabs/haneul/keypairs/secp256r1';
+import { fromB64 } from '@haneullabs/haneul/utils';
 
 /**
  * Wallet stored data might contain imported accounts with their keys stored in the previous format.

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClientQuery } from '@haneullabs/dapp-kit';
-import { type BalanceChange } from '@haneullabs/haneul.js/src/client';
+import { type BalanceChange } from '@haneullabs/haneul/client';
 
 import { PreviewCard } from '../PreviewCard';
 import { onChainAmountToFloat } from '../utils';

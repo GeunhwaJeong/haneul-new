@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { HaneulTransactionBlockResponse } from '@haneullabs/haneul.js/client';
+import { HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 
 // todo: add more logic for deriving transaction label
 export const getLabel = (transaction: HaneulTransactionBlockResponse, currentAddress?: string) => {

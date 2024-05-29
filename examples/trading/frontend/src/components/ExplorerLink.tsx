@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useHaneulClientContext } from "@haneullabs/dapp-kit";
-import { formatAddress } from "@haneullabs/haneul.js/utils";
+import { formatAddress } from "@haneullabs/haneul/utils";
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import toast from "react-hot-toast";

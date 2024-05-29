@@ -6,7 +6,7 @@ import {
 	HaneulGasData,
 	HaneulTransactionBlockResponse,
 	TransactionEffects,
-} from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul/client';
 
 type Optional<T> = {
 	[K in keyof T]?: T[K];

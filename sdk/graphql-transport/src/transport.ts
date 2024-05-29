@@ -6,8 +6,8 @@ import type {
 	HaneulTransport,
 	HaneulTransportRequestOptions,
 	HaneulTransportSubscribeOptions,
-} from '@haneullabs/haneul.js/client';
-import { HaneulHTTPTransport } from '@haneullabs/haneul.js/client';
+} from '@haneullabs/haneul/client';
+import { HaneulHTTPTransport } from '@haneullabs/haneul/client';
 import type { DocumentNode } from 'graphql';
 import { print } from 'graphql';
 

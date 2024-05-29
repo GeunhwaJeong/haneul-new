@@ -4,7 +4,7 @@
 import { type AccountType, type SerializedUIAccount } from '_src/background/accounts/Account';
 import { API_ENV } from '_src/shared/api-env';
 import { getHaneulClient } from '_src/shared/haneul-client';
-import { type HaneulClient } from '@haneullabs/haneul.js/client';
+import { type HaneulClient } from '@haneullabs/haneul/client';
 
 import type { BackgroundClient } from './background-client';
 import { BackgroundServiceSigner } from './background-client/BackgroundServiceSigner';

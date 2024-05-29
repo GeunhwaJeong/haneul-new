@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCurrentAccount } from '@haneullabs/dapp-kit';
-import { normalizeHaneulAddress } from '@haneullabs/haneul.js/utils';
+import { normalizeHaneulAddress } from '@haneullabs/haneul/utils';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';

@@ -3,22 +3,22 @@
 
 import { useTransactionData, useTransactionGasBudget } from '_src/ui/app/hooks';
 import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
-import { type TransactionBlock } from '@haneullabs/haneul.js/transactions';
-import { formatAddress } from '@haneullabs/haneul.js/utils';
+import { type Transaction } from '@haneullabs/haneul/transactions';
+import { formatAddress } from '@haneullabs/haneul/utils';
 
 import { DescriptionItem, DescriptionList } from './DescriptionList';
 import { SummaryCard } from './SummaryCard';
 
 interface Props {
 	sender?: string;
-	transaction: TransactionBlock;
+	transaction: Transaction;
 }
 
 export function GasFees({ sender, transaction }: Props) {
 	const { data: transactionData } = useTransactionData(sender, transaction);
 	const { data: gasBudget, isPending, isError } = useTransactionGasBudget(sender, transaction);
 	const isSponsored =
-		transactionData?.gasConfig.owner && transactionData.sender !== transactionData.gasConfig.owner;
+		transactionData?.gasData.owner && transactionData.sender !== transactionData.gasData.owner;
 	return (
 		<SummaryCard
 			header="Estimated Gas Fees"
@@ -45,7 +45,7 @@ export function GasFees({ sender, transaction }: Props) {
 							{gasBudget ? `${gasBudget} ${GAS_SYMBOL}` : '-'}
 						</DescriptionItem>
 						<DescriptionItem title="Sponsor">
-							{formatAddress(transactionData!.gasConfig.owner!)}
+							{formatAddress(transactionData!.gasData.owner!)}
 						</DescriptionItem>
 					</>
 				)}
