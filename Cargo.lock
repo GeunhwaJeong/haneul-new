@@ -12162,6 +12162,7 @@ dependencies = [
  "haneul-data-ingestion-core",
  "haneul-test-transaction-builder",
  "haneul-types",
+ "telemetry-subscribers",
  "test-cluster",
  "tokio",
  "tracing",

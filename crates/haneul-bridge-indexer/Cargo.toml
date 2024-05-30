@@ -11,18 +11,19 @@ serde.workspace = true
 diesel = { version = "2.1.4", features = ["postgres", "r2d2", "serde_json"] }
 ethers = "2.0"
 tokio = { workspace = true, features = ["full"] }
-haneul-types.workspace = true
-prometheus.workspace = true
-async-trait.workspace = true
-haneul-data-ingestion-core.workspace = true
-haneul-bridge.workspace = true
-clap.workspace = true
-tracing.workspace = true
-bin-version.workspace = true
 anyhow.workspace = true
-haneullabs-metrics.workspace = true
+async-trait.workspace = true
 bcs.workspace = true
+bin-version.workspace = true
+clap.workspace = true
+haneullabs-metrics.workspace = true
+prometheus.workspace = true
 serde_yaml.workspace = true
+haneul-bridge.workspace = true
+haneul-data-ingestion-core.workspace = true
+haneul-types.workspace = true
+telemetry-subscribers.workspace = true
+tracing.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
