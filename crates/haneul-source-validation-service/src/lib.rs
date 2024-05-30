@@ -33,7 +33,7 @@ use url::Url;
 use move_core_types::account_address::AccountAddress;
 use move_package::{BuildConfig as MoveBuildConfig, LintFlag};
 use move_symbol_pool::Symbol;
-use haneul_move::build::resolve_lock_file_path;
+use haneul_move::manage_package::resolve_lock_file_path;
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::rpc_types::{HaneulTransactionBlockEffects, TransactionFilter};
 use haneul_sdk::types::base_types::ObjectID;

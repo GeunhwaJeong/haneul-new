@@ -32,7 +32,7 @@ use move_package::BuildConfig as MoveBuildConfig;
 use prometheus::Registry;
 use serde::Serialize;
 use serde_json::{json, Value};
-use haneul_move::build::resolve_lock_file_path;
+use haneul_move::manage_package::resolve_lock_file_path;
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
 
