@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::str::from_utf8;
 use std::sync::Arc;
 use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
-use haneul_bridge::crypto::BridgeAuthorityPublicKey;
+use haneul_bridge::crypto::{BridgeAuthorityPublicKey, BridgeAuthorityPublicKeyBytes};
 use haneul_bridge::eth_transaction_builder::build_eth_transaction;
 use haneul_bridge::haneul_client::HaneulClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
@@ -26,7 +26,7 @@ use haneul_config::Config;
 use haneul_sdk::HaneulClient as HaneulSdkClient;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::bridge::BridgeChainId;
-use haneul_types::bridge::MoveTypeCommitteeMemberRegistration;
+use haneul_types::bridge::{MoveTypeCommitteeMember, MoveTypeCommitteeMemberRegistration};
 use haneul_types::committee::TOTAL_VOTING_POWER;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::crypto::Signature;
@@ -237,6 +237,7 @@ async fn main() -> anyhow::Result<()> {
                     );
                     continue;
                 };
+                let eth_address = BridgeAuthorityPublicKeyBytes::from(&pubkey).to_eth_address();
                 let Ok(base_url) = from_utf8(&http_rest_url) else {
                     println!(
                         "Invalid bridge http url for validator: {}: {:?}",
@@ -248,24 +249,97 @@ async fn main() -> anyhow::Result<()> {
 
                 let (protocol_key, name) = names.get(&haneul_address).unwrap();
                 let stake = stakes.get(protocol_key).unwrap();
-                authorities.push((name, haneul_address, pubkey, base_url, stake));
+                authorities.push((name, haneul_address, pubkey, eth_address, base_url, stake));
             }
             let total_stake = authorities
                 .iter()
-                .map(|(_, _, _, _, stake)| **stake)
+                .map(|(_, _, _, _, _, stake)| **stake)
                 .sum::<u64>();
             println!(
                 "Total registered stake: {}%",
                 total_stake as f32 / TOTAL_VOTING_POWER as f32 * 100.0
             );
-            for (name, haneul_address, pubkey, base_url, stake) in authorities {
+            println!("Name, Haneul Address, Eth Address, Pubkey, Base URL, Stake");
+            for (name, haneul_address, pubkey, eth_address, base_url, stake) in authorities {
                 println!(
-                    "Name: {}, Haneul Address: {}, Bridge Authority Pubkey: {}, Bridge Node URL: {}, Stake: {}",
-                    name, haneul_address, pubkey, base_url, stake
+                    "{}, {}, {}, {}, {}, {}",
+                    name, haneul_address, eth_address, pubkey, base_url, stake
                 );
             }
         }
 
+        BridgeCommand::PrintBridgeCommitteeInfo { haneul_rpc_url } => {
+            let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&haneul_rpc_url).await?;
+            let bridge_summary = haneul_bridge_client
+                .get_bridge_summary()
+                .await
+                .map_err(|e| anyhow::anyhow!("Failed to get bridge summary: {:?}", e))?;
+            let move_type_bridge_committee = bridge_summary.committee;
+            let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
+            let names = haneul_client
+                .governance_api()
+                .get_latest_haneul_system_state()
+                .await?
+                .active_validators
+                .into_iter()
+                .map(|summary| (summary.haneul_address, summary.name))
+                .collect::<HashMap<_, _>>();
+            let mut authorities = vec![];
+            for (_, member) in move_type_bridge_committee.members {
+                let MoveTypeCommitteeMember {
+                    haneul_address,
+                    bridge_pubkey_bytes,
+                    voting_power,
+                    http_rest_url,
+                    blocklisted,
+                } = member;
+                let Ok(pubkey) = BridgeAuthorityPublicKey::from_bytes(&bridge_pubkey_bytes) else {
+                    println!(
+                        "Invalid bridge pubkey for validator {}: {:?}",
+                        haneul_address, bridge_pubkey_bytes
+                    );
+                    continue;
+                };
+                let eth_address = BridgeAuthorityPublicKeyBytes::from(&pubkey).to_eth_address();
+                let Ok(base_url) = from_utf8(&http_rest_url) else {
+                    println!(
+                        "Invalid bridge http url for validator: {}: {:?}",
+                        haneul_address, http_rest_url
+                    );
+                    continue;
+                };
+                let base_url = base_url.to_string();
+
+                let name = names.get(&haneul_address).unwrap();
+                authorities.push((
+                    name,
+                    haneul_address,
+                    pubkey,
+                    eth_address,
+                    base_url,
+                    voting_power,
+                    blocklisted,
+                ));
+            }
+            let total_stake = authorities
+                .iter()
+                .map(|(_, _, _, _, _, stake, _)| *stake)
+                .sum::<u64>();
+            println!(
+                "Total stake (static): {}%",
+                total_stake as f32 / TOTAL_VOTING_POWER as f32 * 100.0
+            );
+
+            println!("Name, Haneul Address, Eth Address, Pubkey, Base URL, Stake, Blocklisted");
+            for (name, haneul_address, pubkey, eth_address, base_url, stake, blocklisted) in
+                authorities
+            {
+                println!(
+                    "{}, {}, 0x{:x}, {}, {}, {}, {}",
+                    name, haneul_address, eth_address, pubkey, base_url, stake, blocklisted
+                );
+            }
+        }
         BridgeCommand::Client { config_path, cmd } => {
             let config = BridgeCliConfig::load(config_path).expect("Couldn't load BridgeCliConfig");
             let config = LoadedBridgeCliConfig::load(config).await?;
