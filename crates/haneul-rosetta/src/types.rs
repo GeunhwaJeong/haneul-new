@@ -423,7 +423,8 @@ impl From<&HaneulTransactionBlockKind> for OperationType {
             HaneulTransactionBlockKind::ChangeEpoch(_) => OperationType::EpochChange,
             HaneulTransactionBlockKind::Genesis(_) => OperationType::Genesis,
             HaneulTransactionBlockKind::ConsensusCommitPrologue(_)
-            | HaneulTransactionBlockKind::ConsensusCommitPrologueV2(_) => {
+            | HaneulTransactionBlockKind::ConsensusCommitPrologueV2(_)
+            | HaneulTransactionBlockKind::ConsensusCommitPrologueV3(_) => {
                 OperationType::ConsensusCommitPrologue
             }
             HaneulTransactionBlockKind::ProgrammableTransaction(_) => {
