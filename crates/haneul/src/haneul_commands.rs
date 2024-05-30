@@ -10,6 +10,7 @@ use crate::validator_commands::HaneulValidatorCommand;
 use anyhow::{anyhow, bail};
 use clap::*;
 use fastcrypto::traits::KeyPair;
+use move_analyzer::analyzer;
 use move_package::BuildConfig;
 use rand::rngs::OsRng;
 use std::io::{stderr, stdout, Write};
@@ -172,6 +173,10 @@ pub enum HaneulCommand {
         #[clap(subcommand)]
         fire_drill: FireDrill,
     },
+
+    /// Invoke Haneul's move-analyzer via CLI
+    #[clap(name = "analyzer", hide = true)]
+    Analyzer,
 }
 
 impl HaneulCommand {
@@ -416,6 +421,10 @@ impl HaneulCommand {
                 Ok(())
             }
             HaneulCommand::FireDrill { fire_drill } => run_fire_drill(fire_drill).await,
+            HaneulCommand::Analyzer => {
+                analyzer::run();
+                Ok(())
+            }
         }
     }
 }
