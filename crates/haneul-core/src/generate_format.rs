@@ -17,6 +17,7 @@ use haneul_types::execution_status::{
     TypeArgumentError,
 };
 use haneul_types::messages_grpc::ObjectInfoRequestKind;
+use haneul_types::move_package::TypeOrigin;
 use haneul_types::{
     base_types::MoveObjectType_,
     crypto::Signer,
@@ -145,6 +146,13 @@ fn get_registry() -> Result<Registry> {
 
     let ccd = CheckpointDigest::random();
     tracer.trace_value(&mut samples, &ccd)?;
+
+    let tot = TypeOrigin {
+        module_name: "module_name".to_string(),
+        datatype_name: "datatype_name".to_string(),
+        package: ObjectID::random(),
+    };
+    tracer.trace_value(&mut samples, &tot)?;
 
     // 2. Trace the main entry point(s) + every enum separately.
     tracer.trace_type::<Owner>(&samples)?;
