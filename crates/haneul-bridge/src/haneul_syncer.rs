@@ -53,13 +53,16 @@ where
             HANEUL_EVENTS_CHANNEL_SIZE,
             &haneullabs_metrics::get_metrics()
                 .unwrap()
-                .channels
+                .channel_inflight
                 .with_label_values(&["haneul_events_queue"]),
         );
 
         let mut task_handles = vec![];
         for (module, cursor) in self.cursors {
-            let events_rx_clone = events_tx.clone();
+            let events_rx_clone: haneullabs_metrics::metered_channel::Sender<(
+                Identifier,
+                Vec<HaneulEvent>,
+            )> = events_tx.clone();
             let haneul_client_clone = self.haneul_client.clone();
             task_handles.push(spawn_logged_monitored_task!(
                 Self::run_event_listening_task(
