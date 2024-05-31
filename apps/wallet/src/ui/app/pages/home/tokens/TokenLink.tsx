@@ -22,6 +22,7 @@ export function TokenLink({ coinBalance, centerAction, subtitle }: Props) {
 				ampli.selectedCoin({
 					coinType: coinBalance.coinType,
 					totalBalance: Number(BigInt(coinBalance.totalBalance) / GEUNHWA_PER_HANEUL),
+					sourceFlow: 'TokenLink',
 				})
 			}
 			key={coinBalance.coinType}
