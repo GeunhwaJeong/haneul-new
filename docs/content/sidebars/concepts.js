@@ -149,6 +149,7 @@ const concepts = [
 		},
 		items: [
 			'concepts/haneul-architecture/high-level',
+			'concepts/haneul-architecture/haneul-storage',
 			'concepts/haneul-architecture/haneul-security',
 			'concepts/haneul-architecture/transaction-lifecycle',
 			'concepts/haneul-architecture/consensus',
