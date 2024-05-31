@@ -1,5 +1,14 @@
 # @haneullabs/zksend
 
+## 0.9.4
+
+### Patch Changes
+
+- 8e0e8eb643: fix connect issue
+- Updated dependencies [f1e828f557]
+  - @haneullabs/haneul@1.0.4
+  - @haneullabs/wallet-standard@0.12.4
+
 ## 0.9.3
 
 ### Patch Changes
