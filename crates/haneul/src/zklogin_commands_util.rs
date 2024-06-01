@@ -121,23 +121,28 @@ pub async fn perform_zk_login_test_tx(
 
     // Request some coin from faucet and build a test transaction.
     let haneul = HaneulClientBuilder::default().build(fullnode_url).await?;
-    request_tokens_from_faucet(sender, gas_url).await?;
+    request_tokens_from_faucet(sender, gas_url).await?; // transfer coin
+    request_tokens_from_faucet(sender, gas_url).await?; // gas coin
     sleep(Duration::from_secs(10));
 
-    let Some(coin) = haneul
+    let response = haneul
         .coin_read_api()
-        .get_coins(sender, None, None, None)
-        .await?
-        .next_cursor
-    else {
+        .get_coins(sender, None, None, Some(2))
+        .await?;
+
+    if response.data.len() != 2 {
         panic!("Faucet did not work correctly and the provided Haneul address has no coins")
-    };
+    }
+
+    let transfer_coin = response.data[0].coin_object_id;
+    let gas_coin = response.data[1].coin_object_id;
+
     let txb_res = haneul
         .transaction_builder()
         .transfer_object(
             sender,
-            coin,
-            None,
+            transfer_coin,
+            Some(gas_coin),
             5000000,
             HaneulAddress::ZERO, // as a demo, send to a dummy address
         )
