@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { isHaneulNSName, useHaneulNSEnabled } from '@haneullabs/core';
+import { useHaneulNSEnabled } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { type HaneulClient } from '@haneullabs/haneul/client';
-import { isValidHaneulAddress } from '@haneullabs/haneul/utils';
+import { isValidHaneulAddress, isValidHaneulNSName } from '@haneullabs/haneul/utils';
 import { useMemo } from 'react';
 import * as Yup from 'yup';
 
@@ -16,7 +16,7 @@ export function createHaneulAddressValidation(client: HaneulClient, haneulNSEnab
 		.trim()
 		.required()
 		.test('is-haneul-address', 'Invalid address. Please check again.', async (value) => {
-			if (haneulNSEnabled && isHaneulNSName(value)) {
+			if (haneulNSEnabled && isValidHaneulNSName(value)) {
 				if (resolveCache.has(value)) {
 					return resolveCache.get(value)!;
 				}

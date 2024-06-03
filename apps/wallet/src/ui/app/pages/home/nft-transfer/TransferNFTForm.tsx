@@ -12,10 +12,11 @@ import { useActiveAccount } from '_src/ui/app/hooks/useActiveAccount';
 import { useQredoTransaction } from '_src/ui/app/hooks/useQredoTransaction';
 import { useSigner } from '_src/ui/app/hooks/useSigner';
 import { QredoActionIgnoredByUser } from '_src/ui/app/QredoSigner';
-import { isHaneulNSName, useGetKioskContents, useHaneulNSEnabled } from '@haneullabs/core';
+import { useGetKioskContents, useHaneulNSEnabled } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { Transaction } from '@haneullabs/haneul/transactions';
+import { isValidHaneulNSName } from '@haneullabs/haneul/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import { toast } from 'react-hot-toast';
@@ -50,7 +51,7 @@ export function TransferNFTForm({
 				throw new Error('Missing data');
 			}
 
-			if (haneulNSEnabled && isHaneulNSName(to)) {
+			if (haneulNSEnabled && isValidHaneulNSName(to)) {
 				const address = await rpc.resolveNameServiceAddress({
 					name: to,
 				});

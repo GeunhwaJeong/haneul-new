@@ -8,10 +8,6 @@ import { useQuery } from '@tanstack/react-query';
 const HANEUL_NS_FEATURE_FLAG = 'haneulns';
 
 // This should align with whatever names we want to be able to resolve.
-const HANEUL_NS_DOMAINS = ['.haneul'];
-export function isHaneulNSName(name: string) {
-	return HANEUL_NS_DOMAINS.some((domain) => name.endsWith(domain));
-}
 
 export function useHaneulNSEnabled() {
 	return useFeatureIsOn(HANEUL_NS_FEATURE_FLAG);

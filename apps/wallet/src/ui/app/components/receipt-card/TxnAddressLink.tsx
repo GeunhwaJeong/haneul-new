@@ -3,8 +3,7 @@
 
 import ExplorerLink from '_components/explorer-link';
 import { ExplorerLinkType } from '_components/explorer-link/ExplorerLinkType';
-import { isHaneulNSName } from '@haneullabs/core';
-import { formatAddress } from '@haneullabs/haneul/utils';
+import { formatAddress, isValidHaneulNSName } from '@haneullabs/haneul/utils';
 
 type TxnAddressLinkProps = {
 	address: string;
@@ -18,7 +17,7 @@ export function TxnAddressLink({ address }: TxnAddressLinkProps) {
 			title="View on Haneul Explorer"
 			showIcon={false}
 		>
-			{isHaneulNSName(address) ? address : formatAddress(address)}
+			{isValidHaneulNSName(address) ? address : formatAddress(address)}
 		</ExplorerLink>
 	);
 }

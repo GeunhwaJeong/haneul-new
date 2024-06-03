@@ -12,17 +12,11 @@ import { parseAmount } from '_helpers';
 import { useGetAllCoins } from '_hooks';
 import { GAS_SYMBOL } from '_src/ui/app/redux/slices/haneul-objects/Coin';
 import { InputWithAction } from '_src/ui/app/shared/InputWithAction';
-import {
-	CoinFormat,
-	isHaneulNSName,
-	useCoinMetadata,
-	useFormatCoin,
-	useHaneulNSEnabled,
-} from '@haneullabs/core';
+import { CoinFormat, useCoinMetadata, useFormatCoin, useHaneulNSEnabled } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { ArrowRight16 } from '@haneullabs/icons';
 import { type CoinStruct } from '@haneullabs/haneul/client';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
+import { isValidHaneulNSName, HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Field, Form, Formik, useFormikContext } from 'formik';
 import { useEffect, useMemo } from 'react';
@@ -92,7 +86,7 @@ function GasBudgetEstimation({
 			}
 
 			let to = values.to;
-			if (haneulNSEnabled && isHaneulNSName(values.to)) {
+			if (haneulNSEnabled && isValidHaneulNSName(values.to)) {
 				const address = await client.resolveNameServiceAddress({
 					name: values.to,
 				});
@@ -201,7 +195,7 @@ export function SendTokenForm({
 						.sort((a, b) => Number(b.balance) - Number(a.balance))
 						.map(({ coinObjectId }) => coinObjectId);
 
-					if (haneulNSEnabled && isHaneulNSName(to)) {
+					if (haneulNSEnabled && isValidHaneulNSName(to)) {
 						const address = await client.resolveNameServiceAddress({
 							name: to,
 						});
