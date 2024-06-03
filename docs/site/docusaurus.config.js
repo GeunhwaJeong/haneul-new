@@ -223,7 +223,7 @@ const config = {
           href: "https://haneul.io",
         },
         style: "dark",
-        copyright: `© ${new Date().getFullYear()} Haneul Foundation | Documentation distributed under <a href="https://github.com/haneul-foundation/haneul-docs/blob/main/LICENSE">CC BY 4.0</a>`,
+        copyright: `© ${new Date().getFullYear()} Haneul Foundation | Documentation distributed under <a href="https://github.com/GeunhwaJeong/haneul/blob/main/docs/site/LICENSE">CC BY 4.0</a>`,
       },
       prism: {
         theme: themes.github,
