@@ -375,12 +375,36 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
 
     function testBridgeERC20UnsupportedToken() public {
         vm.expectRevert(bytes("HaneulBridge: Unsupported token"));
-        bridge.bridgeERC20(255, 1 ether, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            255, 1 ether, hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4", 0
+        );
     }
 
     function testBridgeERC20InsufficientAllowance() public {
         vm.expectRevert(bytes("HaneulBridge: Insufficient allowance"));
-        bridge.bridgeERC20(BridgeUtils.ETH, type(uint256).max, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.ETH,
+            type(uint256).max,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
+    }
+
+    function testBridgeERC20InvalidRecipientAddress() public {
+        vm.expectRevert(bytes("HaneulBridge: Invalid recipient address length"));
+        bridge.bridgeERC20(
+            BridgeUtils.ETH,
+            1 ether,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3",
+            0
+        );
+    }
+
+    function testBridgeEthInvalidRecipientAddress() public {
+        vm.expectRevert(bytes("HaneulBridge: Invalid recipient address length"));
+        bridge.bridgeETH{value: 1 ether}(
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3", 0
+        );
     }
 
     function testBridgeWETH() public {
@@ -399,10 +423,15 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.ETH,
             1_00_000_000, // 1 ether
             deployer,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
 
-        bridge.bridgeERC20(BridgeUtils.ETH, 1 ether, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.ETH,
+            1 ether,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
         assertEq(IERC20(wETH).balanceOf(address(vault)), 1 ether);
         assertEq(IERC20(wETH).balanceOf(deployer), balance - 1 ether);
         assertEq(bridge.nonces(BridgeUtils.TOKEN_TRANSFER), 1);
@@ -416,10 +445,15 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.ETH,
             2.00000001 ether,
             deployer,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
         // 2_000_000_011_000_000_888 is rounded to 2.00000001 eth
-        bridge.bridgeERC20(BridgeUtils.ETH, 2_000_000_011_000_000_888, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.ETH,
+            2_000_000_011_000_000_888,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
         assertEq(IERC20(wETH).balanceOf(address(vault)), 3_000_000_011_000_000_888);
         assertEq(IERC20(wETH).balanceOf(deployer), balance - 3_000_000_011_000_000_888);
         assertEq(bridge.nonces(BridgeUtils.TOKEN_TRANSFER), 2);
@@ -445,9 +479,14 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.USDC,
             1_000_000, // 1 ether
             USDCWhale,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
-        bridge.bridgeERC20(BridgeUtils.USDC, usdcAmount, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.USDC,
+            usdcAmount,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
 
         assertEq(IERC20(USDC).balanceOf(USDCWhale), balance - usdcAmount);
         assertEq(IERC20(USDC).balanceOf(address(vault)), usdcAmount);
@@ -476,9 +515,14 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.USDT,
             1_000_000, // 1 ether
             USDTWhale,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
-        bridge.bridgeERC20(BridgeUtils.USDT, usdtAmount, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.USDT,
+            usdtAmount,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
 
         assertEq(IERC20(USDT).balanceOf(USDTWhale), balance - usdtAmount);
         assertEq(IERC20(USDT).balanceOf(address(vault)), usdtAmount);
@@ -504,9 +548,14 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.BTC,
             1_000_000, // 1 ether
             wBTCWhale,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
-        bridge.bridgeERC20(BridgeUtils.BTC, wbtcAmount, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.BTC,
+            wbtcAmount,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
 
         assertEq(IERC20(wBTC).balanceOf(wBTCWhale), balance - wbtcAmount);
         assertEq(IERC20(wBTC).balanceOf(address(vault)), wbtcAmount);
@@ -526,10 +575,12 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             BridgeUtils.ETH,
             1_000_000_00, // 1 ether
             deployer,
-            abi.encode("haneulAddress")
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4"
         );
 
-        bridge.bridgeETH{value: 1 ether}(abi.encode("haneulAddress"), 0);
+        bridge.bridgeETH{value: 1 ether}(
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4", 0
+        );
         assertEq(IERC20(wETH).balanceOf(address(vault)), 1 ether);
         assertEq(deployer.balance, balance - 1 ether);
         assertEq(bridge.nonces(BridgeUtils.TOKEN_TRANSFER), 1);
@@ -551,12 +602,19 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
     function testHaneulBridgeInvalidERC20DecimalConversion() public {
         IERC20(wETH).approve(address(bridge), 10 ether);
         vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
-        bridge.bridgeERC20(BridgeUtils.ETH, 1, abi.encode("haneulAddress"), 0);
+        bridge.bridgeERC20(
+            BridgeUtils.ETH,
+            1,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
     }
 
     function testHaneulBridgeInvalidEthDecimalConversion() public {
         vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
-        bridge.bridgeETH{value: 1}(abi.encode("haneulAddress"), 0);
+        bridge.bridgeETH{value: 1}(
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4", 0
+        );
     }
 
     // An e2e token transfer regression test covering message ser/de and signature verification

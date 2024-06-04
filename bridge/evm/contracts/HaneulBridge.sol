@@ -26,6 +26,8 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
     IBridgeVault public vault;
     IBridgeLimiter public limiter;
 
+    uint8 constant HANEUL_ADDRESS_LENGTH = 32;
+
     /* ========== INITIALIZER ========== */
 
     /// @notice Initializes the HaneulBridge contract with the provided parameters.
@@ -136,6 +138,11 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         bytes memory recipientAddress,
         uint8 destinationChainID
     ) external whenNotPaused nonReentrant onlySupportedChain(destinationChainID) {
+        require(
+            recipientAddress.length == HANEUL_ADDRESS_LENGTH,
+            "HaneulBridge: Invalid recipient address length"
+        );
+
         IBridgeConfig config = committee.config();
 
         require(config.isTokenSupported(tokenID), "HaneulBridge: Unsupported token");
@@ -192,6 +199,11 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
         nonReentrant
         onlySupportedChain(destinationChainID)
     {
+        require(
+            recipientAddress.length == HANEUL_ADDRESS_LENGTH,
+            "HaneulBridge: Invalid recipient address length"
+        );
+
         uint256 amount = msg.value;
 
         // Transfer the unwrapped ETH to the target address
