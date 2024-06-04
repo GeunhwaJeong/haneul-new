@@ -167,8 +167,6 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
             amountTransfered
         );
 
-        require(haneulAdjustedAmount > 0, "HaneulBridge: Invalid amount provided");
-
         emit TokensDeposited(
             config.chainID(),
             nonces[BridgeUtils.TOKEN_TRANSFER],

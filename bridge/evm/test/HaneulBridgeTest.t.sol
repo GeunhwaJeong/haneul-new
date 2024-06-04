@@ -548,10 +548,15 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         reentrantAttack.attack();
     }
 
-    function testHaneulBridgeInvalidDecimalConversion() public {
+    function testHaneulBridgeInvalidERC20DecimalConversion() public {
         IERC20(wETH).approve(address(bridge), 10 ether);
-        vm.expectRevert(bytes("HaneulBridge: Invalid amount provided"));
+        vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
         bridge.bridgeERC20(BridgeUtils.ETH, 1, abi.encode("haneulAddress"), 0);
+    }
+
+    function testHaneulBridgeInvalidEthDecimalConversion() public {
+        vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
+        bridge.bridgeETH{value: 1}(abi.encode("haneulAddress"), 0);
     }
 
     // An e2e token transfer regression test covering message ser/de and signature verification
