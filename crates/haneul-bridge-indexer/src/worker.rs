@@ -7,7 +7,8 @@ use anyhow::Result;
 use async_trait::async_trait;
 use ethers::providers::Provider;
 use ethers::providers::{Http, Middleware};
-use ethers::types::Address as EthAddress;
+use ethers::types::{Address as EthAddress, H256};
+use haneullabs_metrics::metered_channel::Receiver;
 use std::collections::BTreeSet;
 use std::sync::Arc;
 use haneul_bridge::abi::{EthBridgeEvent, EthHaneulBridgeEvents};
@@ -16,6 +17,7 @@ use haneul_bridge::events::{
 };
 use haneul_bridge::types::EthLog;
 use haneul_data_ingestion_core::Worker;
+use haneul_types::event::Event;
 use haneul_types::{
     base_types::ObjectID,
     effects::TransactionEffectsAPI,
@@ -23,7 +25,7 @@ use haneul_types::{
     transaction::{TransactionDataAPI, TransactionKind},
     BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID,
 };
-use tracing::info;
+use tracing::{debug, info};
 
 pub struct BridgeWorker {
     bridge_object_ids: BTreeSet<ObjectID>,
@@ -56,94 +58,114 @@ impl BridgeWorker {
     }
 
     // Process a transaction that has been identified as a bridge transaction.
-    fn process_transaction(&self, tx: &CheckpointTransaction, checkpoint: u64, timestamp_ms: u64) {
+    fn process_transaction(
+        &self,
+        tx: &CheckpointTransaction,
+        checkpoint: u64,
+        timestamp_ms: u64,
+    ) -> Result<Vec<TokenTransfer>> {
         if let Some(events) = &tx.events {
-            events.data.iter().for_each(|ev| {
-                if ev.type_.address == BRIDGE_ADDRESS {
-                    let token_transfer = match ev.type_.name.as_str() {
-                        "TokenDepositedEvent" => {
-                            info!("Observed Haneul Deposit {:?}", ev);
-                            // TODO: handle deserialization error
-                            let move_event: MoveTokenDepositedEvent =
-                                bcs::from_bytes(&ev.contents).unwrap();
-                            Some(TokenTransfer {
-                                chain_id: move_event.source_chain,
-                                nonce: move_event.seq_num,
-                                block_height: checkpoint,
-                                timestamp_ms,
-                                txn_hash: tx.transaction.digest().inner().to_vec(),
-                                txn_sender: ev.sender.to_vec(),
-                                status: TokenTransferStatus::Deposited,
-                                gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
-                                data_source: BridgeDataSource::Haneul,
-                                data: Some(TokenTransferData {
-                                    destination_chain: move_event.target_chain,
-                                    sender_address: move_event.sender_address.clone(),
-                                    recipient_address: move_event.target_address.clone(),
-                                    token_id: move_event.token_type,
-                                    amount: move_event.amount_haneul_adjusted,
-                                }),
-                            })
-                        }
-                        "TokenTransferApproved" => {
-                            info!("Observed Haneul Approval {:?}", ev);
-                            let event: MoveTokenTransferApproved =
-                                bcs::from_bytes(&ev.contents).unwrap();
-                            Some(TokenTransfer {
-                                chain_id: event.message_key.source_chain,
-                                nonce: event.message_key.bridge_seq_num,
-                                block_height: checkpoint,
-                                timestamp_ms,
-                                txn_hash: tx.transaction.digest().inner().to_vec(),
-                                txn_sender: ev.sender.to_vec(),
-                                status: TokenTransferStatus::Approved,
-                                gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
-                                data_source: BridgeDataSource::Haneul,
-                                data: None,
-                            })
-                        }
-                        "TokenTransferClaimed" => {
-                            info!("Observed Haneul Claim {:?}", ev);
-                            let event: MoveTokenTransferClaimed =
-                                bcs::from_bytes(&ev.contents).unwrap();
-                            Some(TokenTransfer {
-                                chain_id: event.message_key.source_chain,
-                                nonce: event.message_key.bridge_seq_num,
-                                block_height: checkpoint,
-                                timestamp_ms,
-                                txn_hash: tx.transaction.digest().inner().to_vec(),
-                                txn_sender: ev.sender.to_vec(),
-                                status: TokenTransferStatus::Claimed,
-                                gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
-                                data_source: BridgeDataSource::Haneul,
-                                data: None,
-                            })
-                        }
-                        _ => None,
-                    };
+            let token_transfers = events.data.iter().try_fold(vec![], |mut result, ev| {
+                if let Some(data) = Self::process_haneul_event(ev, tx, checkpoint, timestamp_ms)? {
+                    result.push(data);
+                }
+                Ok::<_, anyhow::Error>(result)
+            })?;
 
-                    if let Some(transfer) = token_transfer {
-                        info!("HANEUL: Storing bridge event : {:?}", ev.type_);
-                        write(&self.pg_pool, transfer);
-                    }
-                };
-            });
+            if !token_transfers.is_empty() {
+                debug!(
+                    "HANEUL: Extracted {} bridge token transfer data entries for tx {}.",
+                    token_transfers.len(),
+                    tx.transaction.digest()
+                );
+            }
+            Ok(token_transfers)
+        } else {
+            Ok(vec![])
         }
+    }
+
+    fn process_haneul_event(
+        ev: &Event,
+        tx: &CheckpointTransaction,
+        checkpoint: u64,
+        timestamp_ms: u64,
+    ) -> Result<Option<TokenTransfer>> {
+        Ok(if ev.type_.address == BRIDGE_ADDRESS {
+            match ev.type_.name.as_str() {
+                "TokenDepositedEvent" => {
+                    debug!("Observed Haneul Deposit {:?}", ev);
+                    let move_event: MoveTokenDepositedEvent = bcs::from_bytes(&ev.contents)?;
+                    Some(TokenTransfer {
+                        chain_id: move_event.source_chain,
+                        nonce: move_event.seq_num,
+                        block_height: checkpoint,
+                        timestamp_ms,
+                        txn_hash: tx.transaction.digest().inner().to_vec(),
+                        txn_sender: ev.sender.to_vec(),
+                        status: TokenTransferStatus::Deposited,
+                        gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
+                        data_source: BridgeDataSource::Haneul,
+                        data: Some(TokenTransferData {
+                            destination_chain: move_event.target_chain,
+                            sender_address: move_event.sender_address.clone(),
+                            recipient_address: move_event.target_address.clone(),
+                            token_id: move_event.token_type,
+                            amount: move_event.amount_haneul_adjusted,
+                        }),
+                    })
+                }
+                "TokenTransferApproved" => {
+                    debug!("Observed Haneul Approval {:?}", ev);
+                    let event: MoveTokenTransferApproved = bcs::from_bytes(&ev.contents)?;
+                    Some(TokenTransfer {
+                        chain_id: event.message_key.source_chain,
+                        nonce: event.message_key.bridge_seq_num,
+                        block_height: checkpoint,
+                        timestamp_ms,
+                        txn_hash: tx.transaction.digest().inner().to_vec(),
+                        txn_sender: ev.sender.to_vec(),
+                        status: TokenTransferStatus::Approved,
+                        gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
+                        data_source: BridgeDataSource::Haneul,
+                        data: None,
+                    })
+                }
+                "TokenTransferClaimed" => {
+                    debug!("Observed Haneul Claim {:?}", ev);
+                    let event: MoveTokenTransferClaimed = bcs::from_bytes(&ev.contents)?;
+                    Some(TokenTransfer {
+                        chain_id: event.message_key.source_chain,
+                        nonce: event.message_key.bridge_seq_num,
+                        block_height: checkpoint,
+                        timestamp_ms,
+                        txn_hash: tx.transaction.digest().inner().to_vec(),
+                        txn_sender: ev.sender.to_vec(),
+                        status: TokenTransferStatus::Claimed,
+                        gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
+                        data_source: BridgeDataSource::Haneul,
+                        data: None,
+                    })
+                }
+                _ => None,
+            }
+        } else {
+            None
+        })
     }
 }
 
 pub async fn process_eth_transaction(
-    mut eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
+    mut eth_events_rx: Receiver<(EthAddress, u64, Vec<EthLog>)>,
     provider: Arc<Provider<Http>>,
     pool: PgPool,
 ) {
-    while let Some(event) = eth_events_rx.recv().await {
-        for log in event.2.iter() {
-            let eth_bridge_event = EthBridgeEvent::try_from_eth_log(log);
-            if eth_bridge_event.is_none() {
+    while let Some((_, _, logs)) = eth_events_rx.recv().await {
+        let mut data = vec![];
+        for log in &logs {
+            let Some(bridge_event) = EthBridgeEvent::try_from_eth_log(log) else {
                 continue;
-            }
-            let bridge_event = eth_bridge_event.unwrap();
+            };
             let block_number = log.block_number;
             let block = provider.get_block(log.block_number).await.unwrap().unwrap();
             let timestamp = block.timestamp.as_u64() * 1000;
@@ -154,62 +176,73 @@ pub async fn process_eth_transaction(
                 .unwrap();
             let gas = transaction.gas;
             let tx_hash = log.tx_hash;
-
             info!("Observed Eth bridge event: {:?}", bridge_event);
-
-            match bridge_event {
-                EthBridgeEvent::EthHaneulBridgeEvents(bridge_event) => match bridge_event {
-                    EthHaneulBridgeEvents::TokensDepositedFilter(bridge_event) => {
-                        info!("Observed Eth Deposit {:?}", bridge_event);
-                        let transfer = TokenTransfer {
-                            chain_id: bridge_event.source_chain_id,
-                            nonce: bridge_event.nonce,
-                            block_height: block_number,
-                            timestamp_ms: timestamp,
-                            txn_hash: tx_hash.as_bytes().to_vec(),
-                            txn_sender: bridge_event.sender_address.as_bytes().to_vec(),
-                            status: TokenTransferStatus::Deposited,
-                            gas_usage: gas.as_u64() as i64,
-                            data_source: BridgeDataSource::Eth,
-                            data: Some(TokenTransferData {
-                                destination_chain: bridge_event.destination_chain_id,
-                                sender_address: bridge_event.sender_address.as_bytes().to_vec(),
-                                recipient_address: bridge_event.recipient_address.to_vec(),
-                                token_id: bridge_event.token_id,
-                                amount: bridge_event.haneul_adjusted_amount,
-                            }),
-                        };
-
-                        write(&pool, transfer);
-                    }
-                    EthHaneulBridgeEvents::TokensClaimedFilter(bridge_event) => {
-                        info!("Observed Eth Claim {:?}", bridge_event);
-                        let transfer = TokenTransfer {
-                            chain_id: bridge_event.source_chain_id,
-                            nonce: bridge_event.nonce,
-                            block_height: block_number,
-                            timestamp_ms: timestamp,
-                            txn_hash: tx_hash.as_bytes().to_vec(),
-                            txn_sender: bridge_event.sender_address.to_vec(),
-                            status: TokenTransferStatus::Claimed,
-                            gas_usage: gas.as_u64() as i64,
-                            data_source: BridgeDataSource::Eth,
-                            data: None,
-                        };
-
-                        write(&pool, transfer);
-                    }
-                    EthHaneulBridgeEvents::PausedFilter(_)
-                    | EthHaneulBridgeEvents::UnpausedFilter(_)
-                    | EthHaneulBridgeEvents::UpgradedFilter(_)
-                    | EthHaneulBridgeEvents::InitializedFilter(_) => (),
-                },
-                EthBridgeEvent::EthBridgeCommitteeEvents(_)
-                | EthBridgeEvent::EthBridgeLimiterEvents(_)
-                | EthBridgeEvent::EthBridgeConfigEvents(_)
-                | EthBridgeEvent::EthCommitteeUpgradeableContractEvents(_) => (),
+            if let Some(token_transfer) =
+                process_eth_event(bridge_event, block_number, timestamp, tx_hash, gas.as_u64())
+            {
+                data.push(token_transfer)
             }
         }
+        write(&pool, data).unwrap();
+        // TODO: record last processed block
+        // TODO: handle error for the ETH data ingestion
+    }
+}
+
+fn process_eth_event(
+    bridge_event: EthBridgeEvent,
+    block_height: u64,
+    timestamp_ms: u64,
+    tx_hash: H256,
+    gas: u64,
+) -> Option<TokenTransfer> {
+    match bridge_event {
+        EthBridgeEvent::EthHaneulBridgeEvents(bridge_event) => match bridge_event {
+            EthHaneulBridgeEvents::TokensDepositedFilter(bridge_event) => {
+                info!("Observed Eth Deposit {:?}", bridge_event);
+                Some(TokenTransfer {
+                    chain_id: bridge_event.source_chain_id,
+                    nonce: bridge_event.nonce,
+                    block_height,
+                    timestamp_ms,
+                    txn_hash: tx_hash.as_bytes().to_vec(),
+                    txn_sender: bridge_event.sender_address.as_bytes().to_vec(),
+                    status: TokenTransferStatus::Deposited,
+                    gas_usage: gas as i64,
+                    data_source: BridgeDataSource::Eth,
+                    data: Some(TokenTransferData {
+                        destination_chain: bridge_event.destination_chain_id,
+                        sender_address: bridge_event.sender_address.as_bytes().to_vec(),
+                        recipient_address: bridge_event.recipient_address.to_vec(),
+                        token_id: bridge_event.token_id,
+                        amount: bridge_event.haneul_adjusted_amount,
+                    }),
+                })
+            }
+            EthHaneulBridgeEvents::TokensClaimedFilter(bridge_event) => {
+                info!("Observed Eth Claim {:?}", bridge_event);
+                Some(TokenTransfer {
+                    chain_id: bridge_event.source_chain_id,
+                    nonce: bridge_event.nonce,
+                    block_height,
+                    timestamp_ms,
+                    txn_hash: tx_hash.as_bytes().to_vec(),
+                    txn_sender: bridge_event.sender_address.to_vec(),
+                    status: TokenTransferStatus::Claimed,
+                    gas_usage: gas as i64,
+                    data_source: BridgeDataSource::Eth,
+                    data: None,
+                })
+            }
+            EthHaneulBridgeEvents::PausedFilter(_)
+            | EthHaneulBridgeEvents::UnpausedFilter(_)
+            | EthHaneulBridgeEvents::UpgradedFilter(_)
+            | EthHaneulBridgeEvents::InitializedFilter(_) => None,
+        },
+        EthBridgeEvent::EthBridgeCommitteeEvents(_)
+        | EthBridgeEvent::EthBridgeLimiterEvents(_)
+        | EthBridgeEvent::EthBridgeConfigEvents(_)
+        | EthBridgeEvent::EthCommitteeUpgradeableContractEvents(_) => None,
     }
 }
 
@@ -224,11 +257,16 @@ impl Worker for BridgeWorker {
         );
         let checkpoint_num = checkpoint.checkpoint_summary.sequence_number;
         let timestamp_ms = checkpoint.checkpoint_summary.timestamp_ms;
-        checkpoint
+
+        let bridge_data = checkpoint
             .transactions
             .iter()
             .filter(|txn| self.is_bridge_transaction(txn))
-            .for_each(|txn| self.process_transaction(txn, checkpoint_num, timestamp_ms));
-        Ok(())
+            .try_fold(vec![], |mut result, txn| {
+                result.append(&mut self.process_transaction(txn, checkpoint_num, timestamp_ms)?);
+                Ok::<_, anyhow::Error>(result)
+            })?;
+
+        write(&self.pg_pool, bridge_data)
     }
 }
