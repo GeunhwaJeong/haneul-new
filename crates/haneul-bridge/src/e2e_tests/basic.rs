@@ -455,7 +455,7 @@ pub async fn initiate_bridge_haneul_to_eth(
     )
     .await
     .unwrap();
-    info!("Haneul to Eth bridge transfer approved");
+    info!("Haneul to Eth bridge transfer approved.");
 
     Ok(bridge_event)
 }
