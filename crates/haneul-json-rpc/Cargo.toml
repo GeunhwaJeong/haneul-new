@@ -46,6 +46,7 @@ haneul-json-rpc-api.workspace = true
 haneul-open-rpc.workspace = true
 haneul-open-rpc-macros.workspace = true
 haneul-protocol-config.workspace = true
+haneul-config.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-transaction-builder.workspace = true

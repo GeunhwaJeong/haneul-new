@@ -32,7 +32,6 @@ use haneul_core::execution_cache::build_execution_cache;
 use haneul_core::storage::RestReadStore;
 use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
 use haneul_json_rpc::bridge_api::BridgeReadApi;
-use haneul_json_rpc::ServerType;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
 use haneul_rest_api::RestMetrics;
@@ -1898,11 +1897,8 @@ pub async fn build_http_server(
         ))?;
         server.register_module(MoveUtils::new(state.clone()))?;
 
-        let server_type = if config.websocket_only {
-            Some(ServerType::WebSocket)
-        } else {
-            None
-        };
+        let server_type = config.jsonrpc_server_type();
+
         server.to_router(server_type).await?
     };
 

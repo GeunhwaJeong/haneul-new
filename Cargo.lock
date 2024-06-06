@@ -12917,6 +12917,7 @@ dependencies = [
  "serde_json",
  "shared-crypto",
  "signature 1.6.4",
+ "haneul-config",
  "haneul-core",
  "haneul-json",
  "haneul-json-rpc-api",

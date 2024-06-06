@@ -2,21 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::future;
-use jsonrpsee::core::client::{ClientT, Subscription, SubscriptionClientT};
+use jsonrpsee::core::client::ClientT;
 use jsonrpsee::rpc_params;
 use move_core_types::annotated_value::MoveStructLayout;
 use move_core_types::ident_str;
-use move_core_types::parser::parse_struct_tag;
 use rand::rngs::OsRng;
-use serde_json::json;
 use std::sync::Arc;
 use haneul::client_commands::{OptsWithGas, HaneulClientCommandResult, HaneulClientCommands};
 use haneul_config::node::RunWithRange;
-use haneul_json_rpc_types::{
-    type_and_fields_from_move_event_data, EventPage, HaneulEvent, HaneulExecutionStatus,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-};
 use haneul_json_rpc_types::{EventFilter, TransactionFilter};
+use haneul_json_rpc_types::{
+    EventPage, HaneulEvent, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
 use haneul_node::HaneulNodeHandle;
@@ -33,7 +31,6 @@ use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
 use haneul_types::error::{HaneulError, UserInputError};
-use haneul_types::event::{Event, EventID};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_grpc::TransactionInfoRequest;
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
@@ -47,13 +44,11 @@ use haneul_types::transaction::{
     CallArg, GasData, TransactionData, TransactionKind, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS,
     TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
 };
-use haneul_types::type_resolver::get_layout_from_struct_tag;
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
 use test_cluster::TestClusterBuilder;
 use tokio::sync::Mutex;
-use tokio::time::timeout;
 use tokio::time::{sleep, Duration};
 use tracing::info;
 
@@ -636,107 +631,6 @@ async fn do_test_full_node_sync_flood() {
         .notify_read_executed_effects(&digests)
         .await
         .unwrap();
-}
-
-#[sim_test]
-async fn test_full_node_sub_and_query_move_event_ok() -> Result<(), anyhow::Error> {
-    let mut test_cluster = TestClusterBuilder::new()
-        .enable_fullnode_events()
-        .build()
-        .await;
-
-    // Start a new fullnode that is not on the write path
-    let fullnode = test_cluster.spawn_new_fullnode().await;
-
-    let ws_client = fullnode.ws_client().await;
-    let node = fullnode.haneul_node;
-
-    let context = &mut test_cluster.wallet;
-    let package_id = publish_nfts_package(context).await.0;
-
-    let struct_tag_str = format!("{package_id}::devnet_nft::MintNFTEvent");
-    let struct_tag = parse_struct_tag(&struct_tag_str).unwrap();
-
-    let mut sub: Subscription<HaneulEvent> = ws_client
-        .subscribe(
-            "haneulx_subscribeEvent",
-            rpc_params![EventFilter::MoveEventType(struct_tag.clone())],
-            "haneulx_unsubscribeEvent",
-        )
-        .await
-        .unwrap();
-
-    let (sender, object_id, digest) = create_devnet_nft(context, package_id).await;
-    node.state()
-        .get_transaction_cache_reader()
-        .notify_read_executed_effects(&[digest])
-        .await
-        .unwrap();
-
-    // Wait for streaming
-    let bcs = match timeout(Duration::from_secs(5), sub.next()).await {
-        Ok(Some(Ok(HaneulEvent {
-            type_,
-            parsed_json,
-            bcs,
-            ..
-        }))) => {
-            assert_eq!(&type_, &struct_tag);
-            assert_eq!(
-                parsed_json,
-                json!({
-                    "creator" : sender,
-                    "name": "example_nft_name",
-                    "object_id" : object_id,
-                })
-            );
-            bcs
-        }
-        other => panic!("Failed to get HaneulEvent, but {:?}", other),
-    };
-    let struct_tag = parse_struct_tag(&struct_tag_str).unwrap();
-    let layout = get_layout_from_struct_tag(
-        struct_tag.clone(),
-        &**node.state().epoch_store_for_testing().module_cache(),
-    )?;
-
-    let expected_parsed_event = Event::move_event_to_move_value(&bcs, layout).unwrap();
-    let (_, expected_parsed_events) =
-        type_and_fields_from_move_event_data(expected_parsed_event).unwrap();
-    let expected_event = HaneulEvent {
-        id: EventID {
-            tx_digest: digest,
-            event_seq: 0,
-        },
-        package_id,
-        transaction_module: ident_str!("devnet_nft").into(),
-        sender,
-        type_: struct_tag,
-        parsed_json: expected_parsed_events,
-        bcs,
-        timestamp_ms: None,
-    };
-
-    // get tx events
-    let events = test_cluster
-        .haneul_client()
-        .event_api()
-        .get_events(digest)
-        .await?;
-    assert_eq!(events.len(), 1);
-    assert_eq!(events[0], expected_event);
-    assert_eq!(events[0].id.tx_digest, digest);
-
-    // No more
-    match timeout(Duration::from_secs(5), sub.next()).await {
-        Err(_) => (),
-        other => panic!(
-            "Expect to time out because no new events are coming in. Got {:?}",
-            other
-        ),
-    }
-
-    Ok(())
 }
 
 // Test fullnode has event read jsonrpc endpoints working
