@@ -340,7 +340,7 @@ impl HaneulCommand {
                 package_path,
                 build_config,
                 cmd,
-            } => execute_move_command(package_path, build_config, cmd),
+            } => execute_move_command(package_path.as_deref(), build_config, cmd),
             HaneulCommand::BridgeInitialize {
                 network_config,
                 client_config,
