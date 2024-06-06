@@ -57,20 +57,6 @@ const guides = [
 				},
 				items: [
 					'guides/developer/haneul-101/shared-owned',
-					{
-						type: 'category',
-						label: 'Create Coins and Tokens',
-						link: {
-							type: 'doc',
-							id: 'guides/developer/haneul-101/create-coin',
-						},
-						items: [
-							'guides/developer/haneul-101/create-coin/regulated',
-							'guides/developer/haneul-101/create-coin/in-game-token',
-							'guides/developer/haneul-101/create-coin/loyalty',
-						],
-					},
-					'guides/developer/haneul-101/create-nft',
 					'guides/developer/haneul-101/using-events',
 					'guides/developer/haneul-101/access-time',
 					'guides/developer/haneul-101/sign-and-send-txn',
@@ -85,6 +71,28 @@ const guides = [
 						],
 					},
 				],
+			},
+			{
+				type: 'category',
+				label: 'Coins and Tokens',
+				link: {
+					type: 'doc',
+					id: 'guides/developer/coin',
+				},
+				items: [
+					'guides/developer/coin/regulated',
+					'guides/developer/coin/in-game-token',
+					'guides/developer/coin/loyalty',
+				],
+			},
+			{
+				type: 'category',
+				label: 'NFTs',
+				link: {
+					type: 'doc',
+					id: 'guides/developer/nft',
+				},
+				items: ['guides/developer/nft/nft-rental'],
 			},
 			{
 				type: 'category',
