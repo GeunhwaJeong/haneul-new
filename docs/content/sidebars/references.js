@@ -76,6 +76,11 @@ const references = [
 				label: 'TypeScript SDK',
 				href: 'https://sdk.haneul-labs.com/typescript',
 			},
+			{
+				type: 'link',
+				label: 'zkSend SDK',
+				href: 'https://sdk.haneul-labs.com/zksend',
+			},
 		],
 	},
 	{
