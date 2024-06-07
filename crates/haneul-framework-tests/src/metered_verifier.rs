@@ -3,7 +3,11 @@
 
 use move_bytecode_verifier_meter::Scope;
 use prometheus::Registry;
-use std::{path::PathBuf, sync::Arc, time::Instant};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Instant,
+};
 use haneul_adapter::adapter::run_metered_move_bytecode_verifier;
 use haneul_framework::BuiltInFramework;
 use haneul_move_build::{CompiledPackage, HaneulPackageHooks};
@@ -14,7 +18,7 @@ use haneul_types::{
 };
 use haneul_verifier::meter::HaneulVerifierMeter;
 
-fn build(path: PathBuf) -> HaneulResult<CompiledPackage> {
+fn build(path: &Path) -> HaneulResult<CompiledPackage> {
     let mut config = haneul_move_build::BuildConfig::new_for_testing();
     config.config.warnings_are_errors = true;
     config.build(path)
@@ -26,7 +30,7 @@ fn test_metered_move_bytecode_verifier() {
     move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     let path =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../haneul-framework/packages/haneul-framework");
-    let compiled_package = build(path).unwrap();
+    let compiled_package = build(&path).unwrap();
     let compiled_modules: Vec<_> = compiled_package.get_modules().cloned().collect();
 
     let protocol_config = ProtocolConfig::get_for_max_version_UNSAFE();
@@ -189,13 +193,13 @@ fn test_metered_move_bytecode_verifier() {
     let with_unpublished_deps = false;
     let path =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../haneul_programmability/examples/basics");
-    let package = build(path).unwrap();
+    let package = build(&path).unwrap();
     packages.push(package.get_dependency_sorted_modules(with_unpublished_deps));
     packages.push(package.get_dependency_sorted_modules(with_unpublished_deps));
 
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../haneul_programmability/examples/fungible_tokens");
-    let package = build(path).unwrap();
+    let package = build(&path).unwrap();
     packages.push(package.get_dependency_sorted_modules(with_unpublished_deps));
 
     let protocol_config = ProtocolConfig::get_for_max_version_UNSAFE();
@@ -300,7 +304,7 @@ fn test_build_and_verify_programmability_examples() {
             continue;
         };
 
-        let modules = build(path).unwrap().into_modules();
+        let modules = build(&path).unwrap().into_modules();
 
         let mut meter = HaneulVerifierMeter::new(meter_config.clone());
         run_metered_move_bytecode_verifier(
