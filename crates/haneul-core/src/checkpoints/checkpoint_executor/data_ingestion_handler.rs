@@ -14,30 +14,29 @@ use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransactio
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::storage::ObjectKey;
 
-pub(crate) fn store_checkpoint_locally(
-    path: PathBuf,
+pub(crate) fn load_checkpoint_data(
     checkpoint: VerifiedCheckpoint,
     object_cache_reader: &dyn ObjectCacheRead,
     transaction_cache_reader: &dyn TransactionCacheRead,
     checkpoint_store: Arc<CheckpointStore>,
-    transaction_digests: Vec<TransactionDigest>,
-) -> HaneulResult {
+    transaction_digests: &[TransactionDigest],
+) -> HaneulResult<CheckpointData> {
     let checkpoint_contents = checkpoint_store
         .get_checkpoint_contents(&checkpoint.content_digest)?
         .expect("checkpoint content has to be stored");
 
     let transactions = transaction_cache_reader
-        .multi_get_transaction_blocks(&transaction_digests)?
+        .multi_get_transaction_blocks(transaction_digests)?
         .into_iter()
-        .zip(&transaction_digests)
+        .zip(transaction_digests)
         .map(|(tx, digest)| tx.ok_or(HaneulError::TransactionNotFound { digest: *digest }))
         .collect::<HaneulResult<Vec<_>>>()?;
 
     let effects = transaction_cache_reader
-        .multi_get_executed_effects(&transaction_digests)?
+        .multi_get_executed_effects(transaction_digests)?
         .into_iter()
         .zip(transaction_digests)
-        .map(|(effects, digest)| effects.ok_or(HaneulError::TransactionNotFound { digest }))
+        .map(|(effects, &digest)| effects.ok_or(HaneulError::TransactionNotFound { digest }))
         .collect::<HaneulResult<Vec<_>>>()?;
 
     let event_digests = effects
@@ -129,12 +128,19 @@ pub(crate) fn store_checkpoint_locally(
         };
         full_transactions.push(full_transaction);
     }
-    let file_name = format!("{}.chk", checkpoint.sequence_number);
     let checkpoint_data = CheckpointData {
         checkpoint_summary: checkpoint.into(),
         checkpoint_contents,
         transactions: full_transactions,
     };
+    Ok(checkpoint_data)
+}
+
+pub(crate) fn store_checkpoint_locally(
+    path: PathBuf,
+    checkpoint_data: &CheckpointData,
+) -> HaneulResult {
+    let file_name = format!("{}.chk", checkpoint_data.checkpoint_summary.sequence_number);
 
     std::fs::create_dir_all(&path).map_err(|err| {
         HaneulError::FileIOError(format!(

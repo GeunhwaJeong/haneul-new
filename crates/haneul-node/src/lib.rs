@@ -87,6 +87,7 @@ use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::overload_monitor::overload_monitor;
+use haneul_core::rest_index::RestIndexStore;
 use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_core::state_accumulator::StateAccumulator;
 use haneul_core::storage::RocksDbStore;
@@ -542,6 +543,19 @@ impl HaneulNode {
             None
         };
 
+        let rest_index = if is_full_node
+            && config.enable_experimental_rest_api
+            && config.enable_index_processing
+        {
+            Some(Arc::new(RestIndexStore::new(
+                config.db_path().join("rest_index"),
+                &store,
+                &checkpoint_store,
+            )))
+        } else {
+            None
+        };
+
         let chain_identifier = ChainIdentifier::from(*genesis.checkpoint().digest());
         // It's ok if the value is already set due to data races.
         let _ = CHAIN_IDENTIFIER.set(chain_identifier);
@@ -620,6 +634,7 @@ impl HaneulNode {
             epoch_store.clone(),
             committee_store.clone(),
             index_store.clone(),
+            rest_index,
             checkpoint_store.clone(),
             &prometheus_registry,
             genesis.objects(),
