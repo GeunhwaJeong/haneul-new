@@ -46,6 +46,7 @@ use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
 use haneul_config::NodeConfig;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::execution_status::ExecutionStatus;
+use haneul_types::inner_temporary_store::PackageStoreWithFallback;
 use haneul_types::type_resolver::into_struct_layout;
 use haneul_types::type_resolver::LayoutResolver;
 use tap::{TapFallible, TapOptional};
@@ -92,8 +93,7 @@ use haneul_types::event::{Event, EventID};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatus};
 use haneul_types::inner_temporary_store::{
-    InnerTemporaryStore, ObjectMap, TemporaryModuleResolver, TemporaryPackageStore, TxCoins,
-    WrittenObjects,
+    InnerTemporaryStore, ObjectMap, TemporaryModuleResolver, TxCoins, WrittenObjects,
 };
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
@@ -1750,9 +1750,9 @@ impl AuthorityState {
         let mut layout_resolver =
             epoch_store
                 .executor()
-                .type_layout_resolver(Box::new(TemporaryPackageStore::new(
+                .type_layout_resolver(Box::new(PackageStoreWithFallback::new(
                     &inner_temp_store,
-                    self.get_backing_package_store().clone(),
+                    self.get_backing_package_store(),
                 )));
         // Returning empty vector here because we recalculate changes in the rpc layer.
         let object_changes = Vec::new();
@@ -1994,12 +1994,13 @@ impl AuthorityState {
             vec![]
         };
 
-        let package_store =
-            TemporaryPackageStore::new(&inner_temp_store, self.get_backing_package_store().clone());
-
-        let mut layout_resolver = epoch_store
-            .executor()
-            .type_layout_resolver(Box::new(package_store));
+        let mut layout_resolver =
+            epoch_store
+                .executor()
+                .type_layout_resolver(Box::new(PackageStoreWithFallback::new(
+                    &inner_temp_store,
+                    self.get_backing_package_store(),
+                )));
 
         DevInspectResults::new(
             effects,
@@ -2112,10 +2113,11 @@ impl AuthorityState {
         let mut layout_resolver =
             epoch_store
                 .executor()
-                .type_layout_resolver(Box::new(TemporaryPackageStore::new(
+                .type_layout_resolver(Box::new(PackageStoreWithFallback::new(
                     inner_temporary_store,
-                    self.get_backing_package_store().clone(),
+                    self.get_backing_package_store(),
                 )));
+
         let modified_at_version = effects
             .modified_at_versions()
             .into_iter()
@@ -2388,9 +2390,9 @@ impl AuthorityState {
         let mut layout_resolver =
             epoch_store
                 .executor()
-                .type_layout_resolver(Box::new(TemporaryPackageStore::new(
+                .type_layout_resolver(Box::new(PackageStoreWithFallback::new(
                     inner_temporary_store,
-                    self.get_backing_package_store().clone(),
+                    self.get_backing_package_store(),
                 )));
         HaneulTransactionBlockEvents::try_from(
             transaction_events,
