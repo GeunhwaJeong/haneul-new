@@ -98,6 +98,7 @@
       { "source": "/concepts/haneul-move-concepts/patterns/witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true },
       { "source": "/concepts/haneul-move-concepts/patterns/hot-potato", "destination": "https://examples.haneul.io/patterns/hot-potato.html", "permanent": false },
       { "source": "/concepts/haneul-move-concepts/patterns/id-pointer", "destination": "https://move-book.com/storage/uid-and-id.html", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/patterns/transferrable-witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true }
+      { "source": "/concepts/haneul-move-concepts/patterns/transferrable-witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true },
+      { "source": "/guides/developer/advanced/asset-tokenization", "destination": "/guides/developer/nft/asset-tokenization", "permanent": true }
     ]
   }
