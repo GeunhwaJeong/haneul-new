@@ -52,10 +52,10 @@ use haneul_types::transaction::TransactionDataAPI;
 
 use crate::authority_state::{StateRead, StateReadError, StateReadResult};
 use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
-use crate::with_tracing;
 use crate::{
     get_balance_changes_from_effect, get_object_changes, ObjectProviderCache, HaneulRpcModule,
 };
+use crate::{with_tracing, ObjectProvider};
 
 const MAX_DISPLAY_NESTED_LEVEL: usize = 10;
 
@@ -636,6 +636,27 @@ impl ReadApiServer for ReadApi {
                 }),
             }
         })
+    }
+
+    #[instrument(skip(self))]
+    async fn try_get_object_before_version(
+        &self,
+        object_id: ObjectID,
+        version: SequenceNumber,
+    ) -> RpcResult<HaneulPastObjectResponse> {
+        let version = self
+            .state
+            .find_object_lt_or_eq_version(&object_id, &version)
+            .await
+            .map_err(Error::from)?
+            .map(|obj| obj.version())
+            .unwrap_or_default();
+        self.try_get_past_object(
+            object_id,
+            version,
+            Some(HaneulObjectDataOptions::bcs_lossless()),
+        )
+        .await
     }
 
     #[instrument(skip(self))]
