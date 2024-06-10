@@ -11972,7 +11972,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-archival"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -12098,7 +12098,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -12148,7 +12148,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge-cli"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -12201,7 +12201,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-cluster-test"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -12411,7 +12411,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-data-ingestion"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -12472,7 +12472,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-e2e-tests"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -12641,7 +12641,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-framework-snapshot"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -13048,7 +13048,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-light-client"
-version = "0.0.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13082,7 +13082,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-metric-checker"
-version = "0.0.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "backoff",
@@ -13597,7 +13597,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rosetta"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13768,7 +13768,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-single-node-benchmark"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "async-trait",
  "bcs",
@@ -14058,7 +14058,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-test-validator"
-version = "0.0.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -14378,7 +14378,7 @@ dependencies = [
 
 [[package]]
 name = "haneulns-indexer"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -16450,7 +16450,7 @@ dependencies = [
 
 [[package]]
 name = "x"
-version = "0.1.0"
+version = "1.28.0"
 dependencies = [
  "anyhow",
  "camino",

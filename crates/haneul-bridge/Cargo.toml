@@ -1,6 +1,6 @@
 [package]
 name = "haneul-bridge"
-version = "0.1.0"
+version.workspace = true
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 publish = false
